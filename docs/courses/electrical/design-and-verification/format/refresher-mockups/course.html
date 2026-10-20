@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design and verification, refreshed: course page</title>
+<!-- Mockup for docs/courses/electrical/design-and-verification/format/refresher.md. The refresher's course page: the running case (his showroom assignment), the C&G-style Section A question built up across lessons, then eleven lessons in five units, his kept summaries and the optional review switch. Lesson 1 is shown done.
+     Self-contained: no external files. Styled with the app's D4 tokens (app/src/css/80-d4.css). -->
+<style>
+/* D4 "Claude's notes" tokens and components, copied from app/src/css/00-tokens.css, 10-base.css,
+   50-lesson.css and 80-d4.css (light mode). Self-contained: the font stacks fall back to system
+   fonts when Barlow is not installed. */
+:root {
+  --bg: #FAFAF8; --surface: #FFFFFF; --sunk: #F2F3F4; --ink: #1D1F22; --muted: #5F6670;
+  --heading: #1D1F22; --teal: #0B6A70; --teal-tint: #E1F1F1; --amber: #FFF3D1; --hl: #F8DC8A;
+  --red: #9F3038; --red-tint: #F8ECEC; --green: #2E7D4F; --green-tint: #E5F1E9;
+  --line: #E1E4E7; --line-strong: #A9AFB6; --on-heading: #FFFFFF;
+  --shadow: 0 1px 2px rgba(29, 31, 34, .05), 0 6px 18px rgba(29, 31, 34, .08);
+  --edge: #1D1F22; --dot: #D9D9D4; --due: #EBA81E; --due-ink: #8F6200; --due-tint: #FBEFD2;
+  --step: #B8647A; --pin: #E7D5DB;
+  --sans: "Barlow", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --cond: "Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r-sm: 10px; --r: 14px; --r-lg: 16px;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--ink); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.3px); background-size: 16px 16px;
+}
+h1, h2, h3 { margin: 0; color: var(--heading); line-height: 1.22; letter-spacing: -.01em; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 700; }
+h2 { font-size: 20px; font-weight: 700; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* page column */
+.view { max-width: 720px; margin: 0 auto; padding: 0 16px 120px; }
+
+/* the focus bar: outlined back button, where you are in mono, Aa */
+.fbar {
+  position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 12px;
+  min-height: 60px; margin: 0 -16px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.ibtn {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; border: 2px solid var(--edge); border-radius: 12px;
+  background: var(--surface); color: var(--ink); text-decoration: none; font: 600 17px/1 var(--sans); cursor: pointer;
+}
+.ibtn svg { width: 22px; height: 22px; }
+.crumb { min-width: 0; font: 500 13px/1.3 var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb b { font-weight: 500; color: var(--ink); }
+
+/* type helpers */
+.eyebrow { font: 600 12.5px/1.4 var(--cond); letter-spacing: .09em; text-transform: uppercase; color: var(--teal); }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.mono { font-family: var(--mono); }
+mark.term {
+  color: inherit; font-weight: 600; padding: 0 .12em; margin: 0 -.04em; border-radius: 3px;
+  background: linear-gradient(180deg, transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%);
+}
+.cite { font: 600 12px/1 var(--cond); letter-spacing: .02em; color: var(--teal); background: var(--teal-tint); border-radius: 4px; padding: 3px 5px; white-space: nowrap; }
+
+/* surfaces */
+.card { background: var(--surface); border: 2px solid var(--edge); border-radius: var(--r-lg); padding: 16px; }
+.panel { background: var(--sunk); border-radius: 8px; padding: 12px 14px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-sm { display: flex; flex-direction: column; gap: 8px; }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 20px;
+  border: 0; border-radius: 14px; background: var(--ink); color: var(--on-heading); font: 700 16px/1.2 var(--sans);
+  text-decoration: none; text-align: center; cursor: pointer;
+}
+.btn.secondary { background: var(--surface); color: var(--ink); border: 2px solid var(--edge); }
+.btn.wide { width: 100%; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.linkish { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink);
+  font: 700 15px/1.3 var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.chip { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--edge);
+  background: var(--surface); color: var(--ink); font: 600 14px/1.3 var(--sans); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--sunk); }
+.seg button { min-height: 40px; padding: 6px 14px; border: 0; border-radius: 9px; background: none; color: var(--ink); font: 600 15px/1 var(--sans); cursor: pointer; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+
+/* Claude's notes */
+.note-by { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.note-av { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--edge); background: var(--pin); }
+.note-av svg { width: 14px; height: 14px; }
+.note-av.is-app { background: var(--surface); }
+.note-name { font: 600 14px/1.3 var(--sans); color: var(--muted); }
+.note-ctx { font: 500 13px/1.3 var(--cond); color: var(--muted); }
+
+/* marks: ink tick (a check met), red cross (fails), amber dot (needs your value), green (finished only) */
+.mk { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; }
+.mk svg { width: 15px; height: 15px; }
+.mk.ok { border: 2px solid var(--ink); color: var(--ink); }
+.mk.fail { background: var(--red); color: #fff; }
+.mk.need { background: var(--due-tint); border: 2px solid var(--due); }
+.mk.need::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--due-ink); }
+.mk.hold { border: 2px dashed var(--line-strong); }
+.mk.val { border: 2px solid transparent; }
+.mk.done { background: var(--green); color: #fff; }
+
+</style>
+</head>
+<body>
+<style>
+.cv-head { display: flex; flex-direction: column; gap: 8px; padding: 18px 0 14px; }
+.cv-band { height: 72px; border-radius: 10px; background: #E3EAF6; position: relative; overflow: hidden; }
+.cv-band svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cv-lead { font: 500 17px/1.45 var(--sans); }
+.case { display: flex; flex-direction: column; gap: 10px; }
+.case h2 { font-size: 20px; }
+.case dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.case dl > div { background: var(--surface); padding: 8px 10px; }
+.case dt { font: 600 11.5px/1.3 var(--cond); letter-spacing: .06em; text-transform: uppercase; color: var(--teal); }
+.case dd { margin: 2px 0 0; font: 600 14.5px/1.3 var(--sans); }
+.case dd small { display: block; font: 500 12px/1.3 var(--mono); color: var(--muted); }
+.case .wide { grid-column: 1 / -1; }
+.sofar { display: flex; flex-direction: column; gap: 6px; }
+.sofar .lbl { font: 600 12px/1.3 var(--cond); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.parts { display: flex; flex-wrap: wrap; gap: 6px; }
+.parts span { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 9px; border-radius: 8px; border: 1.5px solid var(--line-strong); font: 600 13px/1.2 var(--sans); color: var(--muted); }
+.parts span.done { background: var(--ink); border-color: var(--ink); color: #fff; }
+.parts span b { font: 500 12px/1 var(--mono); margin-right: 5px; }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 26px 0 4px; }
+.sec-h span { font-size: 14px; color: var(--muted); }
+.unit { margin: 14px 0 2px; font: 600 12.5px/1.4 var(--cond); letter-spacing: .09em; text-transform: uppercase; color: var(--teal); }
+.path { position: relative; display: flex; flex-direction: column; }
+.node { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 4px 0; }
+.node::before { content: ""; position: absolute; left: 21px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.node.is-done::before { background: #B9DCC7; }
+.dot { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); border: 2px solid var(--line-strong); font: 700 16px/1 var(--sans); color: var(--muted); }
+.is-done .dot { background: var(--green); border-color: var(--green); color: #fff; }
+.is-done .dot svg { width: 22px; height: 22px; }
+.is-now .dot { background: var(--ink); border-color: var(--ink); color: #fff; box-shadow: 0 0 0 6px rgba(29, 31, 34, .14); }
+.nb { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 8px 0 10px; }
+.nb .st { font: 700 12px/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.is-done .nb .st { color: var(--green); }
+.nb strong { font: 700 17px/1.25 var(--sans); }
+.nb p { font-size: 15px; line-height: 1.4; color: var(--muted); }
+.is-now .nb { margin: 4px 0; padding: 14px 16px 16px; border: 2px solid var(--edge); border-radius: 16px; background: var(--surface); }
+.is-now .nb .st { color: var(--teal); }
+.src { display: flex; flex-wrap: wrap; gap: 5px; }
+.src span { padding: 3px 6px; border-radius: 4px; font: 600 12px/1.2 var(--cond); letter-spacing: .02em; background: var(--sunk); color: var(--ink); }
+.src span.eal { background: #E3EAF6; }
+.src span.cg { background: #F6E7DC; }
+.src span.why { background: var(--teal-tint); color: var(--teal); }
+.rowlink { display: grid; grid-template-columns: 44px minmax(0, 1fr) 20px; align-items: center; gap: 12px; min-height: 64px; margin-top: 20px; padding: 8px 12px; border: 2px solid var(--edge); border-radius: 14px; background: var(--surface); text-decoration: none; color: var(--ink); }
+.rowlink .ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; background: var(--teal-tint); color: var(--teal); }
+.rowlink .ico svg { width: 22px; height: 22px; }
+.rowlink strong { display: block; font: 700 16px/1.3 var(--sans); }
+.rowlink span span { display: block; font-size: 14px; color: var(--muted); }
+.rowlink > svg { width: 20px; height: 20px; color: var(--muted); }
+.fresh { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: 12px; padding: 14px 16px; border-radius: 12px; background: var(--sunk); }
+.fresh strong { display: block; font: 700 16px/1.3 var(--sans); }
+.fresh span { display: block; font-size: 14px; line-height: 1.4; color: var(--muted); margin-top: 2px; }
+.switch { position: relative; width: 56px; height: 34px; border-radius: 17px; border: 2px solid var(--edge); background: var(--surface); }
+.switch::after { content: ""; position: absolute; left: 4px; top: 4px; width: 22px; height: 22px; border-radius: 50%; background: var(--line-strong); }
+</style>
+<div class="view">
+  <header class="fbar">
+    <a class="ibtn" href="#" aria-label="Back to Installation design"><svg viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <span class="crumb">electrical / installation design / <b>d&amp;v</b></span>
+    <button class="ibtn" aria-label="Reading settings">Aa</button>
+  </header>
+
+  <div class="cv-head">
+    <div class="cv-band" aria-hidden="true"><svg viewBox="0 0 328 72" preserveAspectRatio="none"><path d="M0 50 H70 V28 H150 V50 H232 V20 H328" fill="none" stroke="#9DB3D9" stroke-width="3"/><circle cx="70" cy="50" r="5" fill="#5C7FBF"/><circle cx="150" cy="28" r="5" fill="#5C7FBF"/><circle cx="232" cy="50" r="5" fill="#5C7FBF"/><rect x="262" y="10" width="44" height="20" rx="4" fill="none" stroke="#5C7FBF" stroke-width="2.5"/></svg></div>
+    <span class="eyebrow">Course · 11 lessons · a refresher</span>
+    <h1>Design and verification, refreshed</h1>
+    <p class="cv-lead">Your Level 4 course, taught back to you. Each lesson asks what you still remember, refreshes the why where you need it, then practises it the way the City &amp; Guilds papers ask, on your own showroom assignment.</p>
+  </div>
+
+  <section class="card case" aria-labelledby="case-h">
+    <span class="eyebrow">The running case · your assignment ED4-01A</span>
+    <h2 id="case-h">The car showroom</h2>
+    <dl>
+      <div><dt>Supply</dt><dd>400&nbsp;V, 3-phase, 4-wire<small>TN-C-S · pack p.3</small></dd></div>
+      <div><dt>At the origin</dt><dd>Ze 0.1&nbsp;Ω · 4.6&nbsp;kA<small>pack p.3</small></dd></div>
+      <div><dt>Boards</dt><dd>MDB, DBL1, DBL2, DBP1, DBP2<small>pack p.4</small></dd></div>
+      <div><dt>Ambient</dt><dd>20&nbsp;°C<small>pack p.3</small></dd></div>
+      <div class="wide"><dt>The motor, question 4</dt><dd>11&nbsp;kW, 400&nbsp;V, pf 0.8 lagging, 86%, star-delta<small>pack p.4</small></dd></div>
+    </dl>
+    <div class="sofar">
+      <span class="lbl">Section A, built as you go · questions 1 and 2</span>
+      <div class="parts">
+        <span class="done"><b>1a</b>Ib 23.08&nbsp;A</span><span class="done"><b>1b</b>Delta 13.33&nbsp;A</span><span><b>1c</b>Device</span><span><b>1d</b>Factors</span><span><b>1e</b>Table</span><span><b>1f</b>CSA</span><span><b>1g</b>Volt drop</span><span><b>2a</b>Zs</span><span><b>2b</b>OK?</span><span><b>2c</b>Thermal</span><span><b>2d</b>Why Cmin</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="sec-h"><h2>The lessons</h2><span>1 of 11 done</span></div>
+  <p class="unit">The load</p>
+  <div class="path">
+    <div class="node is-done"><span class="dot"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="nb"><span class="st">Done · Oct 20</span><strong>Design current: what the circuit really draws</strong><div class="src"><span class="eal">EAL slides p.11–19</span><span class="eal">Q4a</span><span class="cg">C&amp;G A, part (a)</span></div></div></div>
+    <div class="node is-now"><span class="dot">2</span>
+      <div class="nb"><span class="st">Up next</span><strong>Maximum demand: what the whole building draws</strong><p>Diversity as guidance, not a rule, and the showroom's lighting balanced across three phases.</p><div class="src"><span class="eal">EAL Q1b, Q10</span><span class="eal">slides p.10</span><span class="eal">guide p.3</span></div></div></div>
+  </div>
+  <p class="unit">The cable</p>
+  <div class="path">
+    <div class="node"><span class="dot">3</span><div class="nb"><strong>Device and cable: Ib ≤ In ≤ Iz, and the factors</strong><div class="src"><span class="eal">slides p.20–28</span><span class="eal">Q4b</span><span class="cg">C&amp;G A (b)–(f)</span><span class="cg">B: grouping</span></div></div></div>
+    <div class="node"><span class="dot">4</span><div class="nb"><strong>Overload: why 1.45</strong><div class="src"><span class="why">Why piece</span><span class="eal">slides p.25, 29–32</span><span class="cg">B: overload</span></div></div></div>
+    <div class="node"><span class="dot">5</span><div class="nb"><strong>A neutral that carries more than the line</strong><div class="src"><span class="why">Why piece</span><span class="eal">slides p.33–37</span></div></div></div>
+  </div>
+  <p class="unit">The volts</p>
+  <div class="path">
+    <div class="node"><span class="dot">6</span><div class="nb"><strong>Voltage drop from the intake</strong><div class="src"><span class="eal">slides p.37–42</span><span class="eal">guide p.6</span><span class="cg">C&amp;G A (f), (g)</span></div></div></div>
+    <div class="node"><span class="dot">7</span><div class="nb"><strong>Voltage drop, refined: Ct and power factor</strong><div class="src"><span class="why">Why piece</span><span class="eal">slides p.43–45</span></div></div></div>
+  </div>
+  <p class="unit">The fault</p>
+  <div class="path">
+    <div class="node"><span class="dot">8</span><div class="nb"><strong>Shock protection, and when Zs is too high</strong><div class="src"><span class="eal">slides p.46–56</span><span class="eal">Q6</span><span class="cg">C&amp;G Q2 (a), (b), (d)</span><span class="cg">B: RCDs</span></div></div></div>
+    <div class="node"><span class="dot">9</span><div class="nb"><strong>Surviving the fault: heat, short circuits, breaking capacity</strong><div class="src"><span class="why">Why piece</span><span class="eal">slides p.57–70</span><span class="eal">guide p.5</span><span class="cg">C&amp;G Q2 (c)</span></div></div></div>
+  </div>
+  <p class="unit">The whole job</p>
+  <div class="path">
+    <div class="node"><span class="dot">10</span><div class="nb"><strong>The showroom, end to end</strong><div class="src"><span class="eal">Q3a, Q3b</span><span class="eal">guide p.5–6</span><span class="cg">C&amp;G Section A in full</span></div></div></div>
+    <div class="node"><span class="dot">11</span><div class="nb"><strong>Verification and handover</strong><div class="src"><span class="eal">Q9a, Q9b</span><span class="cg">B: as built, handover</span></div></div></div>
+  </div>
+
+  <a class="rowlink" href="summary.html"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4.5h9.5a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3v-12Z M5 16.5a3 3 0 0 1 3-3h9.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg></span><span><strong>Your summaries</strong><span>1 kept in your Book, one per lesson, for real work</span></span><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <div class="fresh"><div><strong>Keep it fresh</strong><span>Off. When on: the questions you answered come back now and then, with new numbers.</span></div><span class="switch" role="switch" aria-checked="false" aria-label="Keep it fresh"></span></div>
+</div>
+</body>
+</html>
