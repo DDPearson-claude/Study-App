@@ -1,0 +1,187 @@
+{
+ "id": "motors-6m2z6",
+ "title": "Electric motors: what you need on each one",
+ "query": "Motors",
+ "createdAt": "2026-10-21T05:11:23.404Z",
+ "updatedAt": "2026-10-21T05:11:23.404Z",
+ "plannedAt": "2026-10-21T05:11:23.404Z",
+ "status": "ready",
+ "error": null,
+ "hook": "After a one-second power cut, a pump on its DOL starter stays stopped, though nobody pressed Stop. Why does it not start again by itself?",
+ "oneBreath": "An AC induction motor works by making a magnetic field that turns and drags the rotor round a little behind it: three-phase windings make that turning field by themselves, while a single-phase motor needs a second winding, sometimes with a capacitor, to get it going. How you start and run it, straight on through a contactor or through a drive that sets the frequency, decides the current it draws as it starts and the speed it runs at. How a DC motor's speed and torque change with load comes from how its field is wired, in series, across the supply or both, and each machine has its own uses, its own limits and its own faults to find.",
+ "level": "some",
+ "hue": 7,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "What I need to know on each motor, as a reference",
+     "To learn motors from scratch",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "At work: running, starting and fault-finding motors",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "How it works, one picture to play with, then the faults and a card to keep",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "What I need to know on each motor, as a reference"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "At work: running, starting and fault-finding motors"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "How it works, one picture to play with, then the faults and a card to keep"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "The three-phase induction motor",
+   "oneLine": "The rotor always turns a little slower than the windings' rotating field, because only that shortfall, called slip, induces the rotor current that makes torque.",
+   "deps": [],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i2",
+   "title": "The DOL starter",
+   "oneLine": "Start pulls in the contactor, a contact across Start keeps its coil fed; Stop, overload or power cut drops it out until restarted.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i3",
+   "title": "The variable speed drive",
+   "oneLine": "A variable speed drive turns the supply to DC, then back to AC at a chosen frequency, with voltage in proportion up to rated speed.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "The split-phase motor",
+   "oneLine": "One single-phase winding alone makes a field that only pulses, so a thin-wire start winding adds a current out of step and the field turns.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i5",
+   "title": "The capacitor-start motor",
+   "oneLine": "A capacitor in series with the start winding widens the angle between the two currents towards 90°, giving much more starting torque than split-phase.",
+   "deps": [
+    "i4"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i6",
+   "title": "The DC series motor",
+   "oneLine": "One current feeds both field and turning armature, so torque climbs steeply with current, and with the load taken off the speed climbs dangerously.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i7",
+   "title": "The DC shunt motor",
+   "oneLine": "With its field across the supply holding the flux steady, the speed dips only a little under load, though sources differ on how little.",
+   "deps": [
+    "i6"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i8",
+   "title": "The DC compound motor",
+   "oneLine": "A series and a shunt field together give high starting torque yet a limited no-load speed, as long as the series field aids the shunt.",
+   "deps": [
+    "i6",
+    "i7"
+   ],
+   "kind": "concept"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "You swap any two of the three supply leads on a three-phase motor, then start it. What happens?",
+   "options": [
+    "It runs as before",
+    "It runs the other way",
+    "It hums and will not turn",
+    "It runs at a lower speed"
+   ],
+   "answer": 1,
+   "why": "Swapping two leads changes the order in which the windings peak, so the field turns the other way and the rotor follows it. Nothing is lost, so it does not hum: humming without turning is what losing one lead does."
+  },
+  {
+   "id": "c2",
+   "iid": "i3",
+   "q": "A fan's motor is slowed by a drive to half its full speed. Roughly how much power does the fan need now?",
+   "options": [
+    "About half",
+    "About a quarter",
+    "About an eighth",
+    "Just as much"
+   ],
+   "answer": 2,
+   "why": "For a fan, the air moved follows speed and the push behind it follows speed squared, so power follows speed cubed: half speed needs about an eighth, in theory. Half forgets the weaker push; a quarter is the push, not the power."
+  }
+ ],
+ "readyMade": {
+  "shelf": "electrical",
+  "course": "motors"
+ },
+ "overviewChecked": true,
+ "guideV": 3,
+ "research": {
+  "status": "done",
+  "at": "2026-10-21T05:11:23.404Z",
+  "sources": 264,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}

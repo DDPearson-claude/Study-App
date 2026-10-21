@@ -1,0 +1,22 @@
+{
+  "lesson": "i1",
+  "draft": 1,
+  "checkedAgainst": ["the seven faults (RUNBOOK section 3)", "brief.md section 2, lesson 1, and section 7", "the plain-writing rule (Dan, 20 Oct)", "i1.examples.json"],
+  "faults": [
+    {"fault": "skipped causal step", "where": "explain para 3, screen 3 words", "finding": "Load -> faster sweep -> more current skips the induced voltage: the field sweeping faster induces more voltage in the bars, and that drives more current.", "fix": "Add the step: faster sweep, more voltage induced, more current."},
+    {"fault": "false absolute", "where": "explain takeaway, explain para 3, summary.for", "finding": "'The rotor always runs a little slower' fails when the load drives the motor (the VSD lesson's braking case, where it runs above synchronous speed). 'Most pumps, fans and compressors run on one' has no source. 'A cage motor starts by itself whenever all three lines are live' ignores a load heavier than its starting torque.", "fix": "Say 'as a motor' / 'driving a load'; drop 'most'; say 'will normally start by itself'."},
+    {"fault": "false absolute / plan slip", "where": "screen 6 limits", "finding": "'The starter in the next lesson deals with it' is wrong for a DOL starter, which does nothing to reduce starting current (brief section 7, item 2), and it talks about the course.", "fix": "State the limit plainly; speed control 'needs a variable speed drive'."},
+    {"fault": "interactive shows only the effect", "where": "screen 3", "finding": "None: the view rides on the rotor, so the cause (the field sliding past the bars at ns - n) is what moves, and 0% load shows the no-slip, no-torque side.", "fix": "Keep."},
+    {"fault": "checks test recall", "where": "screens 4 and 8", "finding": "None: both ask for reasoning from the cause; the recall opener is recall by design (brief, lessons 1, 3, 5, 7).", "fix": "Keep."},
+    {"fault": "thin or decorative research", "where": "whole lesson", "finding": "None found; every figure is a control, a cited constant or worked from a shown rule. 60 Hz rotor speeds and the bars' glow are labelled example values (i1.examples.json).", "fix": "Keep."},
+    {"fault": "unreadable labels", "where": "screen 3 controls", "finding": "Readouts are five on a 340 px picture; acceptable in two columns. Motor option names are within six words.", "fix": "Keep; note two-column readouts for the builder."},
+    {"fault": "talks about the idea instead of teaching it", "where": "explain", "finding": "Five paragraphs where the prompt allows two to four; the puzzle sentence and takeaway can share the last.", "fix": "Merge into four paragraphs."}
+  ],
+  "plainWriting": [
+    {"where": "screen 5, Starting", "finding": "'yet the 0.75 kW motor's data sheet gives 3.5' narrates a source.", "fix": "'The 0.75 kW motor here starts with 3.5 times rated. So read the data sheet for the motor in hand.'"},
+    {"where": "screen 5", "finding": "Footnote on the slip range is not a figure he would look up on a job; too many footnotes overall.", "fix": "Drop it; keep starting current, 173%, ns, reversing and the 1% winding balance."},
+    {"where": "ignores", "finding": "One sentence chains three clauses with 'and'.", "fix": "Split."},
+    {"where": "summary trap 3", "finding": "'about 173% current' is unclear.", "fix": "'about 173% of their normal current'."}
+  ],
+  "plan": "Matches brief section 2, lesson 1: recall opener (no skip), how it works with a still drawing, the picture (load, poles, 50/60 Hz), a check on the cause, characteristics (slip, starting current and torque as a range, power factor 0.7 and 0.49, wound rotor one line), uses with sourced marine lines (700 kW, totally enclosed, Type 45), limits, faults and tests (single phasing, rotation, IR, winding balance, failure shares), the fault check and Keep this. Section 7's hazardous-area slip is corrected kindly without naming the sheet."
+}

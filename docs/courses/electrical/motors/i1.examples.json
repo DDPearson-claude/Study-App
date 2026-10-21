@@ -1,0 +1,47 @@
+{
+  "lesson": "i1",
+  "note": "Labelled example values for lesson i1 (The three-phase induction motor). The writer and the checker use these and no others. Each is shown in the lesson as 'an example value' (or 'drawn as an example'), never as a maker's or a standard's figure. Everything else in the picture is a sourced figure (ABB 0.75 kW M3AA 80ME 4 data sheet: 1437 r/min, 1.90 A, no-load 1.4 A, Is/IN 5.9, TS/TN 3.5, Tmax/TN 3.8, power factor 0.7 at full load and 0.49 at half load, current 1.60 A and 1.36 A at 75% and 50% load, power factor 0.61 at 75%) or computed from a rule the lesson shows (ns = 120 f / p; slip = (ns - n) / ns; rotor frequency = slip x supply frequency; torque = 9.55 x power / speed).",
+  "values": [
+    {
+      "name": "breakdownSlip",
+      "value": 0.30,
+      "unit": "slip as a fraction (30%)",
+      "why": "The picture lets the load rise past full load until the motor stalls, so it needs the slip at which torque peaks. No source gives it for the data-sheet motor. 0.30 is the Kloss-form curve T = 2 Tmax / (s/sk + sk/s) through ABB's two figures (1.0 x rated torque at the full-load slip of 4.2% and 3.8 x rated at the peak), which puts the peak near 30%. Drawn as an example shape for the overload zone only; the curve between full load and the peak is not ABB's curve.",
+      "realValueLives": "The maker's torque-speed curve for the motor in hand (ABB data sheets draw it as the starting curves page); a catalogue gives Tmax/TN but not the slip at the peak."
+    },
+    {
+      "name": "fullLoadSlip60Hz",
+      "value": "2-pole 1.67%, 4-pole 4.2% (the same percentages as 50 Hz)",
+      "unit": "percent slip at rated load",
+      "why": "The 60 Hz toggle shows 3600 and 1800 rpm field speeds (computed, 120 x 60 / p). No source gives a 60 Hz full-load slip for either motor, so the picture reuses the two sourced 50 Hz slips (the sheet's 2950 rpm motor, 1.67% computed; ABB's 1437 r/min motor, 4.2% computed) and labels the 60 Hz rpm as an example: the rotor speed would be 3540 rpm and 1724 rpm.",
+      "realValueLives": "The nameplate of a 60 Hz motor (rated speed in rpm)."
+    },
+    {
+      "name": "rotorCurrentShape",
+      "value": "rotor current drawn in per-unit, equal to slip divided by full-load slip (1.00 at full load, 0 at zero slip)",
+      "unit": "per-unit (1.00 = rotor current at full load)",
+      "why": "The sources say that rotor current and torque grow with slip and that torque is proportional to slip over the working range, but none gives a rotor-current number for a cage motor (it cannot be measured on a cage). The picture draws the rotor current as a bar in per-unit and says so. Stator line current is not drawn this way: it uses ABB's sourced points (1.36 A at half load, 1.60 A at 75%, 1.90 A at full load, 1.4 A at no load).",
+      "realValueLives": "Not published for a cage rotor; the line current in the nameplate and data sheet is the figure an electrician can measure."
+    },
+    {
+      "name": "overloadTorqueLimit",
+      "value": 3.8,
+      "unit": "times rated torque (the stall point of the picture)",
+      "why": "ABB's Tmax/TN = 3.8 is sourced for the 0.75 kW four-pole motor only. The sheet's 5.5 kW 2950 rpm motor has no sourced breakdown torque, so the picture reuses 3.8 for it and labels it as an example. The DOE sourcebook says only that breakdown torque is often several times full-load torque.",
+      "realValueLives": "The data sheet of the motor in hand (Tmax/TN); ABB's handbook range for direct-on-line starting torque is 1.5 to 2.5 times rated for a small motor, which is a different figure (starting, not breakdown)."
+    },
+    {
+      "name": "noLoadPowerFactor",
+      "value": 0.15,
+      "unit": "power factor (lagging)",
+      "why": "Only if the picture draws the power factor below half load. ABB gives 0.7, 0.61 and 0.49 at 100%, 75% and 50% load and says nothing below; DOE says power factor falls off quickly below half load. Prefer to stop the power-factor reading at 50% load and say it falls further; use 0.15 only as an example end point if the writer must draw the no-load end.",
+      "realValueLives": "A maker's catalogue table of power factor at no load, 25% and 50% (many catalogues list them); or measure it with a power meter."
+    }
+  ],
+  "computed": [
+    "sheet motor 5.5 kW 2950 rpm: two poles at 50 Hz, ns 3000 rpm, slip (3000 - 2950) / 3000 = 1.67%, rotor frequency 1.67% x 50 Hz = 0.83 Hz, rated torque 9.55 x 5500 / 2950 = 17.8 N m",
+    "ABB 0.75 kW motor: four poles at 50 Hz, ns 1500 rpm, slip (1500 - 1437) / 1500 = 4.2%, rotor frequency 4.2% x 50 Hz = 2.1 Hz, rated torque 9.55 x 750 / 1437 = 5.0 N m (the data sheet says 5 N m), starting current 5.9 x 1.90 A = 11.2 A, no-load current as a fraction of rated 1.4 / 1.90 = 74%",
+    "synchronous speeds: 50 Hz 3000 / 1500 rpm (2 / 4 poles), 60 Hz 3600 / 1800 rpm",
+    "single phasing of a running motor: the two remaining lines carry about 173% of normal current (Eaton), which is a sourced figure, not an example"
+  ]
+}

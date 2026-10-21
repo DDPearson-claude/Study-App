@@ -1,0 +1,489 @@
+{
+  "iid": "i1",
+  "title": "The three-phase induction motor",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the field slide past the rotor bars more slowly, and the slip, rotor current and torque shrink towards zero, when you drag the load off.",
+    "title": "Seen from the rotor",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Nine screens, with Back and Continue. One picture to play with, three quick choices, and a card to keep. No marks and no timers.\n\nScreen 1, Do you still have it? The question: “Three coils sit 120° apart round a ring. Each carries one phase of a three-phase supply. What does their combined magnetic field do?” Three choices, in this order: “It turns round the ring at a steady speed”; “It stays put and pulses, stronger then weaker”; “It turns at whatever speed the rotor turns”. Right, the first: “Still there. The three currents peak in turn, a third of a cycle apart. So the strongest point of the field moves from coil to coil, and the field turns.” Wrong, the second: “That is what one coil does on its own. Three currents peaking in turn move the strongest point round the ring.” Wrong, the third: “The supply fixes the field's speed. The rotor follows the field. It does not set the field's speed.” After a wrong choice, it shows the right answer and its reason, then moves on to screen 2. There is no skip button, because there is nothing to skip to.\n\nScreen 2, How it works. A still drawing shows the motor end on. Round the outside is the stator, with three pairs of coils marked L1, L2 and L3, 120° apart. A broad arrow across the middle labelled “Field, turning at ns”. Inside it sits the rotor, a ring of bars joined at each end, labelled “Rotor bars, shorted by end rings”. A smaller arrow on it is labelled “Rotor, n: a little slower”. The words beside it: “Three windings sit 120 electrical degrees apart, one on each phase. Together they make one magnetic field that turns at a steady speed. That speed is the synchronous speed, ns = 120 × f ÷ p.[^1] Here f is the supply frequency and p the number of poles. A four-pole winding repeats its pattern twice round the stator. So its field moves half as far each cycle. Electrical degrees count along that pattern, so on four poles 120 electrical degrees is 60 degrees round the frame. On 50 Hz a two-pole field turns at 3000 rpm and a four-pole one at 1500 rpm. The field sweeps past the rotor bars and induces a voltage in them. The bars are shorted at both ends, so a current flows. A current in a magnetic field feels a force, so the bars are pushed round after the field. If the rotor ever caught the field, nothing would sweep past the bars. There would be no current and no torque. So under its own power, a motor's rotor always runs a little behind. Call the rotor's speed n. The shortfall, (ns − n) ÷ ns, is the slip.” Synchronous speed and slip are the two key terms, marked in amber.\n\nScreen 3, Seen from the rotor, is the picture to play with. The view rides on the rotor, so the rotor bars stand still on screen. The field arrow slides round past them at ns − n. That is the speed the field gains on the rotor, shown in real time. At full load on the four-pole motor it is 63 rpm, about one turn a second. Each bar is shaded as the field passes it. The shading is the current in the bar, drawn in proportion to the slip. It is an example shape, scaled to 1.00 at full load. It is not a measured current. A curved arrow on the rotor shows the torque. Its length is in proportion to the torque. The picture always draws a two-pole field, one arrow. So on the four-pole setting each bar's shading pulses half as often as its real current.\n\nThe controls. A Load slider from 0 to 100% of rated load, in steps of 5%, opening at 100%. A Motor choice: “2-pole, 5.5 kW, 2950 rpm” or “4-pole, 0.75 kW, 1437 rpm”, opening on the four-pole. A Supply choice, 50 Hz or 60 Hz, opening on 50 Hz. A line under the controls: “Royal Navy ships run their main supply at 60 Hz. On 60 Hz the field turns a fifth faster than on 50 Hz.” The readouts: Synchronous speed, ns = 120 × f ÷ p, in rpm. Rotor speed, n, in rpm. Slip, (ns − n) ÷ ns, in %, to two places. Rotor current frequency, slip × f, in Hz, to two places. Torque, in times rated torque, to two places. The Load slider sits straight under the drawing, then the Motor and Supply choices. The five readouts sit in two columns after them.\n\nThe rule it computes. Full-load slip comes from the nameplate speed. The two-pole runs at 2950 rpm, so its slip is (3000 − 2950) ÷ 3000 = 1.67%. The four-pole runs at 1437 rpm, so its slip is (1500 − 1437) ÷ 1500 = 4.2%. Over the working range the slip grows in step with the load, so slip = full-load slip × load. Torque grows in step with the slip. So at a steady speed it matches the load. That is 1.00 times rated at full load, and 0.50 at half load. Rotor speed = ns × (1 − slip). At 60 Hz the picture uses the same slips as at 50 Hz. That gives example rotor speeds of 3540 and 1724 rpm at full load. On a real job, read the 60 Hz motor's own nameplate.\n\nWhat it shows. Four-pole, 50 Hz, full load: ns 1500 rpm, n 1437 rpm, slip 4.20%, rotor current 2.10 Hz, torque 1.00. Two-pole, 50 Hz, full load: ns 3000 rpm, n 2950 rpm, slip 1.67%, 0.83 Hz, torque 1.00. As the load comes down, the rotor gains speed. The field slides past the bars more slowly. The shading fades and the torque arrow shrinks. At 0% the picture puts the rotor at ns. The field stops sliding, the bars go dark and the torque is zero. A note sits under the controls: “At 0% the picture puts the rotor at ns. A real motor never quite gets there. Even unloaded, it slips a little to turn its own bearings and fan.” On 60 Hz, ns becomes 3600 or 1800 rpm. The words under it: “Load slows the rotor a little. The field then sweeps past the bars faster and induces more voltage in them. More current flows, so the torque rises until it matches the load.” The words above the picture: “This view rides on the rotor, so the bars stand still. You see only how fast the field gains on them. Drag the load down to nothing, then back up. Watch how fast the field slides past the bars.” Read: on the four-pole motor at full load, the field gains on the rotor by 63 rpm. The slip is 4.2%. The rotor current runs at 2.1 Hz. The torque is 1.00 times rated. With less load, the slip, the rotor current and the torque all shrink. Unloaded, they fall almost to zero, because a real motor still slips a little. Still: the opening state, full load on the four-pole motor at 50 Hz.\n\nScreen 4, Check on the cause. “A pump motor runs at full load. Then the pump's load drops away. What happens to the rotor's speed?” Three choices, in this order: “It rises towards synchronous speed but stays just below it”; “It rises until it matches synchronous speed”; “It stays where it was”. Right, the first: “Less load needs less torque. Less torque needs less rotor current, and so less slip. The rotor speeds up until its torque matches the load again. It stops short of ns, because at ns there would be no torque at all.” Wrong, the second: “At ns the field would stop sweeping past the bars. With no current there is no torque, so the rotor would drop straight back.” Wrong, the third: “The speed settles wherever the slip gives just enough torque. Less load needs less slip, so the rotor speeds up.” After a wrong choice, it shows the right answer and its reason.\n\nScreen 5, How it behaves. Four short rows, each with a label.\n\nSpeed: “Nearly constant. A cage motor's full-load slip is a few percent. It is often 2 to 3%, and usually under 5%. The nameplate speed tells you the poles. Just under 3000 rpm on 50 Hz is two poles. Just under 1500 rpm is four.”\n\nStarting: “Started direct on line, a motor usually draws 6 to 8 times its rated current. It can draw more than 10 times.[^2] At standstill the field sweeps the bars at full speed, so the rotor acts like a shorted secondary. Starting torque depends on the design. For a small motor it is often 1.5 to 2.5 times rated torque. The 0.75 kW motor here starts with 3.5 times rated. So read the data sheet for the motor in hand.”\n\nStalling: “The most torque this 0.75 kW motor can give is 3.8 times rated. Load it past that and it slows instead of settling. It stalls and keeps drawing starting current. It overheats fast unless its protection trips.”\n\nPower factor: “Poor at light load. The current that magnetises the motor barely changes with load. Only the useful current falls. The 0.75 kW motor's power factor is 0.7 at full load and 0.49 at half load. Unloaded it still draws 1.4 A, against 1.90 A at full load.”\n\nOne line under the rows: “A wound rotor brings its winding out on slip rings. Resistance added there gives more starting torque and some speed control. The cost is brushes to look after.”\n\nScreen 6, Where it is used, and its limits. “It does the constant-speed work: pumps, fans, compressors and conveyors. At sea it drives pumps, fans and compressors up to 700 kW or more. Those motors are totally enclosed against the harsh conditions. The UK chose an induction motor to drive the Type 45 destroyer.” Then three limits, each a short line: “A big starting current, which can dip the supply voltage.” “Its speed is set mainly by the supply frequency and its poles. Changing it much usually needs a variable speed drive.” “A poor power factor at light load.” Then a box marked as a warning: “No brushes means one less source of sparks. That alone does not make a motor fit for a hazardous area. There, fit a motor built and certified for it, to ATEX or IECEx.”\n\nScreen 7, Faults and tests. First, in red, on its own line: “Isolate, lock off and prove dead before you open the terminal box or the starter.” Then four short rows.\n\nSingle phasing: “One line is lost. A blown fuse or a device open on one phase can do it. Worn starter contacts are the most common cause. At rest the field only pulses, so the motor hums and will not start. If it was already running, the other two lines carry about 173% of their normal current, or more.[^3] It heats fast. Its protection must take it off.”\n\nWrong rotation: “Two lines are swapped somewhere. To reverse it, isolate and swap any two of the three line leads.”\n\nOverloads: “An overloaded motor runs hot and draws more than its rated current, until the overload relay trips. Compare the running current with the nameplate. Check the relay is set to the motor's rated current.[^4] Overloads cause about 30% of motor failures. Single phasing causes about 14%, and worn bearings about 13%. These shares vary from one survey to another.”\n\nTests: “Insulation resistance shows a wet or contaminated winding, or a dead short to earth. It cannot prove the motor good. Take the minimum from the maker. Then measure the winding resistances and compare the three. A good winding's readings agree within about 1%.”\n\nScreen 8, Find the fault. “A pump motor hums and will not start. It was running fine an hour ago. What is the likely cause?” Three choices, in this order: “One line is lost: single phasing”; “Two of the lines have been swapped”; “The overload has tripped”. Right, the first: “With one line gone the field only pulses, so there is no starting torque. A dead fuse, or no current on one line, confirms it. Isolate, then check the fuses and the starter's contacts on each line. Worn contacts are the usual cause.” Wrong, the second: “Swapped lines make it start and run the wrong way. It would not sit and hum.” Wrong, the third: “A tripped overload drops the contactor. The motor would be silent, not humming.” After a wrong choice, it shows the right answer and its reason.\n\nScreen 9, Keep this, shows the summary card, then Finish the lesson.\n\nEvery figure on these screens is a cited value, a control, or worked from the rules on screen 3. The 60 Hz rotor speeds and the bars' shading are example values. Each is labelled as one where it appears.",
+    "ignores": "The picture rides on the rotor. So it draws only the speed the field gains on the rotor, not the field's own speed to scale. It keeps the slip in step with the load. That holds up to full load. The picture stops there. Far past full load, the torque stops rising with slip and the motor stalls. At no load it puts the rotor at ns. A real motor still slips a little. The bars' shading is a shape in proportion to slip. The picture always draws a two-pole field, so on four poles the shading pulses half as often as the real bar current. You cannot put a meter on a cage's bars on the job, so the picture shows no measured figure for it. The 60 Hz rotor speeds reuse the 50 Hz slips as examples.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 9 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Load, % of rated (opening setting)",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Supply frequency choices, Hz",
+        "value": "50 or 60",
+        "kind": "control"
+      },
+      {
+        "label": "Royal Navy ships' main supply frequency, Hz",
+        "value": 60,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Pole choices",
+        "value": "2 or 4",
+        "kind": "control"
+      },
+      {
+        "label": "Windings apart, electrical degrees",
+        "value": 120,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "The 120 in ns = 120 f / p",
+        "value": 120,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Synchronous speed, 2 poles at 50 Hz, rpm",
+        "value": 3000,
+        "kind": "computed"
+      },
+      {
+        "label": "Synchronous speed, 4 poles at 50 Hz, rpm",
+        "value": 1500,
+        "kind": "computed"
+      },
+      {
+        "label": "Synchronous speed, 2 poles at 60 Hz, rpm",
+        "value": 3600,
+        "kind": "computed"
+      },
+      {
+        "label": "Synchronous speed, 4 poles at 60 Hz, rpm",
+        "value": 1800,
+        "kind": "computed"
+      },
+      {
+        "label": "Two-pole motor rating, kW",
+        "value": 5.5,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Two-pole motor full-load speed, rpm",
+        "value": 2950,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Four-pole motor rated speed, rpm",
+        "value": 1437,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Four-pole motor rating, kW",
+        "value": 0.75,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Two-pole full-load slip, %",
+        "value": 1.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Four-pole full-load slip, %",
+        "value": 4.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Four-pole full-load rotor current frequency, Hz",
+        "value": 2.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Two-pole full-load rotor current frequency, Hz",
+        "value": 0.83,
+        "kind": "computed"
+      },
+      {
+        "label": "Four-pole full-load gain of field on rotor, rpm",
+        "value": 63,
+        "kind": "computed"
+      },
+      {
+        "label": "Torque at full load, times rated",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Torque at half load, times rated",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Bar shading at full load, per-unit (example shape)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "60 Hz full-load rotor speed, 2 poles, rpm (example)",
+        "value": 3540,
+        "kind": "assumed"
+      },
+      {
+        "label": "60 Hz full-load rotor speed, 4 poles, rpm (example)",
+        "value": 1724,
+        "kind": "assumed"
+      },
+      {
+        "label": "Typical full-load slip of a power motor, %",
+        "value": "2 to 3",
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "Full-load slip of a cage motor, under, %",
+        "value": 5,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Direct-on-line starting current, times rated",
+        "value": "6 to 8",
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Starting current can exceed, times rated",
+        "value": 10,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Small motor starting torque, times rated",
+        "value": "1.5 to 2.5",
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "0.75 kW motor locked-rotor torque, times rated",
+        "value": 3.5,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "0.75 kW motor maximum torque, times rated",
+        "value": 3.8,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "0.75 kW motor power factor at full load",
+        "value": 0.7,
+        "kind": "constant",
+        "source": 14
+      },
+      {
+        "label": "0.75 kW motor power factor at half load",
+        "value": 0.49,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "0.75 kW motor no-load current, A",
+        "value": 1.4,
+        "kind": "constant",
+        "source": 16
+      },
+      {
+        "label": "0.75 kW motor rated current, A",
+        "value": 1.9,
+        "kind": "constant",
+        "source": 17
+      },
+      {
+        "label": "0.75 kW motor starting current, times rated",
+        "value": 5.9,
+        "kind": "constant",
+        "source": 18
+      },
+      {
+        "label": "0.75 kW motor starting current, A",
+        "value": 11.21,
+        "kind": "computed"
+      },
+      {
+        "label": "0.75 kW motor speed at half load, rpm",
+        "value": 1468.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Marine induction motors, up to kW",
+        "value": 700,
+        "kind": "constant",
+        "source": 19
+      },
+      {
+        "label": "Destroyer class (name)",
+        "value": "Type 45",
+        "kind": "date",
+        "source": 20
+      },
+      {
+        "label": "Line current when single-phased, % of normal",
+        "value": 173,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Share of motor failures: overloads, %",
+        "value": 30,
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Share of motor failures: single phasing, %",
+        "value": 14,
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Share of motor failures: bearings, %",
+        "value": 13,
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Phase resistance difference of a good winding, under, %",
+        "value": 1,
+        "kind": "constant",
+        "source": 22
+      }
+    ]
+  },
+  "explain": {
+    "text": "A three-phase induction motor makes a magnetic field that turns. The field drags the rotor round a little behind it. That shortfall is what makes the torque.\n\nThe three windings sit 120 electrical degrees apart, one on each phase. The currents peak in turn, so the strongest point of the field moves from winding to winding. The field turns at a steady speed, the [[synchronous speed]], ns = 120 × f ÷ p.[^1] Here f is the supply frequency and p the number of poles. A four-pole winding repeats its pattern twice round the stator, so its field moves half as far each cycle. On 50 Hz a two-pole field turns at 3000 rpm and a four-pole one at 1500 rpm.\n\nIn the usual cage motor, the rotor is a cage of bars. A ring at each end shorts them together. As the field sweeps past the bars it induces a voltage in them. The bars are shorted, so a current flows. A current in a magnetic field feels a force, so the bars are pushed round after the field. Now picture the rotor at the field's own speed. The field would not move past the bars, so nothing would be induced. No current means no torque. So under its own power the rotor always runs a little slower than the field. That shortfall, as a fraction of ns, is the [[slip]]: (ns − n) ÷ ns, where n is the rotor's speed. Put load on and the rotor slows a little. The field then sweeps past the bars faster and induces more voltage in them. More current flows, and the torque rises until it matches the load. Take load off and the rotor speeds up until the slip is small again. The picture keeps slip in step with load. That simple model holds up to full load, but not far past it.\n\nA cage motor will normally start by itself as soon as all three lines are live. So whether a pump comes back after a power cut is down to its starter, not the motor. **Driving a load, the rotor always runs a little below synchronous speed. Only that slip lets the field sweep past the bars. More load means more slip, more rotor current and more torque.**[^23]"
+  },
+  "analogy": {
+    "text": "Think of the motor as a transformer. The stator is the primary, and the rotor bars are a secondary shorted on itself. At standstill the field sweeps past the bars at full speed, so the rotor is a shorted secondary on full supply. That is why the starting current is so high. As the rotor gathers speed, the field passes it more slowly and less is induced. At synchronous speed the rotor would see a field that does not change, like a secondary on DC. Nothing would be induced at all.",
+    "breaks": "A transformer's secondary sits still, so its current runs at the supply frequency. The rotor turns, so its current runs at slip times the supply frequency. At full load that is a few hertz or less. And the rotor's output is a turning force on a shaft, not power at a pair of terminals."
+  },
+  "practice": {
+    "text": "- Isolate, lock off and prove dead before you open the terminal box or the starter.\n- Read the poles from the nameplate speed. Just under 3000 rpm on 50 Hz means two poles. Just under 1500 rpm means four. Then ns = 120 × f ÷ p.\n- Work the slip, (ns − n) ÷ ns. At full load expect a few percent.\n- Expect a big starting current direct on line, usually 6 to 8 times rated.[^2] Take the motor's own starting current and torque from its data sheet.\n- Running the wrong way? Isolate, then swap any two of the three line leads.[^24]\n- Hums and will not start? Suspect a lost line. Isolate, then check each line's fuse and starter contact.\n- Disconnect any drive, then test the insulation resistance. Take the minimum from the maker. Then compare the three winding resistances. A good winding agrees within about 1%.[^22]\n\n**Rule of thumb:** at half load the speed sits about halfway between ns and the full-load speed.\n\n**Worked example:** a 0.75 kW motor, rated 1437 rpm and 1.90 A on 50 Hz. Its starting current is 5.9 times rated. 1437 rpm is just under 1500, so it has four poles: ns = 120 × 50 ÷ 4 = 1500 rpm. Slip = (1500 − 1437) ÷ 1500 = 0.042, or 4.2%. The rotor current runs at 0.042 × 50 = 2.1 Hz. At half load it runs near (1500 + 1437) ÷ 2 = 1468.5 rpm. Started direct on line it draws 5.9 × 1.90 = 11.21 A.\n\n**Common mistakes**\n- Expecting the rotor to reach synchronous speed. With no slip there would be no torque.\n- Reading the current as the load. This motor draws 1.4 A unloaded, against 1.90 A at full load.\n- Taking a good insulation reading as a clean bill of health. It cannot prove a winding good.\n- Rewiring the windings to reverse it. Swapping two line leads does it.\n- Taking “no brushes” to mean fit for a hazardous area. That needs a motor certified for it."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+    "title": "The three-phase induction motor",
+    "for": "The constant-speed workhorse. Its three windings make a field that turns. The rotor follows a little behind, and that slip makes its torque.",
+    "rule": "ns = 120 × f ÷ p\nSlip = (ns − n) ÷ ns\nNameplate just under 3000 rpm on 50 Hz: two poles. Just under 1500 rpm: four.\n\nOn 50 Hz the field turns at 3000 or 1500 rpm. On 60 Hz, 3600 or 1800 rpm.\nFull-load slip is a few percent. More load, more slip, more torque.\nDirect on line it draws about 6 to 8 times rated current, sometimes over 10.",
+    "traps": [
+      {
+        "text": "No slip, no torque. Under its own power the rotor never reaches synchronous speed, because then nothing would sweep past the bars.",
+        "cite": "[^25] three-phase motor sheet p.1"
+      },
+      {
+        "text": "To reverse it, isolate, then swap any two of the three line leads.",
+        "cite": "[^24] Baldor-Reliance motor manual MN408 (ABB)"
+      },
+      {
+        "text": "Single phasing: at rest it hums and will not start. If it is running, the other two lines carry about 173% of their normal current, or more. It overheats fast.",
+        "cite": "[^26] [^3] single-phasing guide; Eaton motor protection"
+      },
+      {
+        "text": "A lightly loaded motor can still draw much of its rated current, at a poor power factor. At light load, current is a poor measure of load.",
+        "cite": "[^16] [^17] [^15] ABB M3AA 80ME 4 data sheet"
+      },
+      {
+        "text": "A good insulation reading cannot prove a motor good. Compare the three winding resistances too. A good winding's readings agree within about 1%.",
+        "cite": "[^27] [^22] Megger motor testing"
+      }
+    ],
+    "where": "pumps, fans, compressors and conveyors, ashore and at sea."
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Electric motor - Synchronous, Rotating Fields, AC Motors | Britannica",
+      "url": "https://www.britannica.com/technology/electric-motor/Synchronous-motors",
+      "quote": "The effect of the stator current is to establish a magnetic field rotating at 120 f / p revolutions per minute for a frequency of f hertz and for p poles."
+    },
+    {
+      "n": 2,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+    },
+    {
+      "n": 3,
+      "title": "Motor Protection - Voltage Unbalance & Single-Phasing",
+      "url": "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf",
+      "quote": "When a motor is single-phased, the current in the remaining two phases increases to 173% of normal current."
+    },
+    {
+      "n": 4,
+      "title": "Thermal Overload Relays Electronic ...",
+      "url": "https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf",
+      "quote": "In compliance with international and national standards, the setting current is the rated motor current and not the tripping current (no tripping at 1.05 x I setting current, tripping at 1.2 x I setting current)."
+    },
+    {
+      "n": 5,
+      "title": "Electrical system design for warships (Journal of Naval Engineering)",
+      "url": "https://library.imarest.org/record/8911/files/v28b1p10a.pdf",
+      "quote": "It was not until 1946 that a 440 V, 60 Hz, 3-phase a.c. supply was introduced into four of the DARING Class destroyers, in line with U.S. Navy practice. This has been the preferred supply ever since."
+    },
+    {
+      "n": 6,
+      "title": "Your motor sheet: the three-phase induction motor",
+      "url": "material:induction#p1",
+      "quote": "These windings are physically arranged 120 electrical degrees apart. When energized, the three phase-shifted currents produce a combined magnetic field that rotates at a constant speed, called the synchronous speed."
+    },
+    {
+      "n": 7,
+      "title": "Your motor sheet: the three-phase induction motor",
+      "url": "material:induction#p2",
+      "quote": "5.5 kW 2950 rpm"
+    },
+    {
+      "n": 8,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "10 Rated speed nN 1437 r/min"
+    },
+    {
+      "n": 9,
+      "title": "2-3-3. Characteristics of Induction Motors | NIDEC CORPORATION",
+      "url": "https://www.nidec.com/en/technology/motor/basic/00027",
+      "quote": "Slip is normally expressed in percentage. Slip of a power induction motor is 2 to 3% when the motor is operated under the rated load."
+    },
+    {
+      "n": 10,
+      "title": "AN887, AC Induction Motor Fundamentals",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf",
+      "quote": "Typically, the full-load slip for the squirrel cage induction motor is less than 5%."
+    },
+    {
+      "n": 11,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+    },
+    {
+      "n": 12,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "15 Locked rotor torque TS/TN 3,5"
+    },
+    {
+      "n": 13,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "16 Maximum torque Tmax/TN 3,8"
+    },
+    {
+      "n": 14,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "Power factor at PN 0,7"
+    },
+    {
+      "n": 15,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "21 _50_ **1,36 81 0,49**"
+    },
+    {
+      "n": 16,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "12 No-load current 1,4 A"
+    },
+    {
+      "n": 17,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "11 Rated current IN 1,90 A"
+    },
+    {
+      "n": 18,
+      "title": "ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW)",
+      "url": "https://docs.rs-online.com/1513/A700000007244947.pdf",
+      "quote": "13 Starting current Is/IN 5,9"
+    },
+    {
+      "n": 19,
+      "title": "The Induction Machine Handbook",
+      "url": "https://web.mit.edu/kirtley/binlustuff/literature/electric%20machine/InductionMachineHandbook.pdf",
+      "quote": "Induction motors are extensively used in marine environments for pumps, fans, compressors, etc. for power up to 700 kW or more."
+    },
+    {
+      "n": 20,
+      "title": "An Evaluation of Electric Motors for Ship Propulsion - DTIC",
+      "url": "https://apps.dtic.mil/sti/tr/pdf/ADA417341.pdf",
+      "quote": "The U.K. has also selected the induction motor to be the prime mover in their Type-45 destroyer."
+    },
+    {
+      "n": 21,
+      "title": "Motor Protection - Voltage Unbalance & Single-Phasing",
+      "url": "https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf",
+      "quote": "Historically, the causes of motor failure can be attributed to: Overloads 30% Contaminants 19% Single-phasing 14% Bearing failure 13% Old age 10% Rotor failure 5% Miscellaneous 9% 100%"
+    },
+    {
+      "n": 22,
+      "title": "The missing link in motor condition monitoring | Megger",
+      "url": "https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring",
+      "quote": "When the resistance measurements are complete, the difference between the phase-to-phase readings is calculated. A delta of less than 1% is typical for a good winding."
+    },
+    {
+      "n": 23,
+      "title": "Electrical Induction Motors - Synchronous Speed",
+      "url": "https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html",
+      "quote": "The speed of an induction motor is therefore limited to a speed below synchronous speed and the difference between synchronous speed and actual speed is called slip ."
+    },
+    {
+      "n": 24,
+      "title": "[PDF] — Baldor-Reliance ® Integral Horsepower AC Induction Motors - ABB",
+      "url": "https://library.e.abb.com/public/1b412697e30b440b9d3a8c5833ae3309/MN408.pdf",
+      "quote": "To reverse the direction of rotation, disconnect and lock out power and interchange any two of the three line leads for three phase motors."
+    },
+    {
+      "n": 25,
+      "title": "Your motor sheet: the three-phase induction motor",
+      "url": "material:induction#p1",
+      "quote": "If the rotor and the magnetic field moved at the same speed, no current would be induced, and no torque would be produced."
+    },
+    {
+      "n": 26,
+      "title": "Single-Phasing, Rotation Checks, and Screw Compressors",
+      "url": "https://open-exam-prep.com/study-guides/reta-ciro/three-phase-motors/single-phasing-rotation",
+      "quote": "A motor at rest will not produce starting torque: it hums , may buzz or growl, and will not accelerate."
+    },
+    {
+      "n": 27,
+      "title": "The missing link in motor condition monitoring | Megger",
+      "url": "https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring",
+      "quote": "An insulation resistance test cannot, however, confirm that a motor is in good condition, as it does not test the entire insulation system."
+    }
+  ]
+}

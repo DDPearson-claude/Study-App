@@ -1,0 +1,636 @@
+{
+  "notes": [
+    {
+      "claim": "The isolator closes the supply; Start (normally open, sprung) makes the coil circuit; the coil pulls in the main contacts, and a latching contact across Start keeps the coil fed once Start is released.",
+      "sourceIds": [
+        41,
+        42,
+        43,
+        44,
+        45
+      ]
+    },
+    {
+      "claim": "Stop (normally closed) breaks the coil circuit, and so does the overload's release contact after its bimetal strips bend; the coil drops out and the contacts release.",
+      "sourceIds": [
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "claim": "The coil does the pulling and holding of the main contacts; the latching contact's job is to keep the coil fed. (His sheet's item 7 words it as the latching contacts pulling and holding the main contacts.)",
+      "sourceIds": [
+        43,
+        45,
+        50
+      ]
+    },
+    {
+      "claim": "After a power cut the coil drops out and the motor stops; it does not restart by itself, because the holding contact has returned to open. A contactor with a holding contact gives low-voltage protection; maintained contacts give low-voltage release.",
+      "sourceIds": [
+        51,
+        52,
+        53,
+        54,
+        55
+      ]
+    },
+    {
+      "claim": "The overload's contacts sit in series with the coil and are operated by heat, not by the contactor's movement.",
+      "sourceIds": [
+        56
+      ]
+    },
+    {
+      "claim": "Overload relays protect against overload only: fuses or a breaker give the short-circuit protection, and a maker advises fuses with the thermal overload relay.",
+      "sourceIds": [
+        57,
+        58,
+        59
+      ]
+    },
+    {
+      "claim": "His coil is 230 V, fed from one phase and neutral; the coil rating must be right for how it is connected and for the supply voltage.",
+      "sourceIds": [
+        60,
+        61,
+        62
+      ]
+    },
+    {
+      "claim": "Direct-on-line starting is uncontrolled: full current and torque from the start. Start current is usually 6 to 8 times rated and can exceed 10 times.",
+      "sourceIds": [
+        15,
+        16,
+        63
+      ]
+    },
+    {
+      "claim": "His sheet gives DOL up to 5 kW; the web summary gives often under 4 kW; ABB says the limit depends on the area of use, and some utilities restrict DOL starting for motors of 5.5 kW or higher.",
+      "sourceIds": [
+        64,
+        65,
+        66
+      ],
+      "contested": "Rules of thumb for the largest DOL motor differ (5 kW, under 4 kW, 5.5 kW); the maker says it depends on the area of use and gives 5.5 kW as one utility limit."
+    },
+    {
+      "claim": "DOL starters are used for compressors, pumps and fans; repeated stopping and starting can make the thermal overload operate.",
+      "sourceIds": [
+        67,
+        68
+      ]
+    },
+    {
+      "claim": "Star-delta cuts starting current to about 30% (a third) and starting torque to about 25% of direct-on-line; the motor must be delta connected when running, and the starter uses three contactors, an overload and a timer.",
+      "sourceIds": [
+        69,
+        70,
+        71,
+        72,
+        73
+      ]
+    },
+    {
+      "claim": "Star-delta works only when the load is light at the start, and there are current peaks at the switch from star to delta.",
+      "sourceIds": [
+        74,
+        75
+      ]
+    },
+    {
+      "claim": "His group's star-delta worked answer multiplies the star power by 3 to get the delta power.",
+      "sourceIds": [
+        76
+      ]
+    },
+    {
+      "claim": "The web summary's wording that DOL gives 100% of rated torque is loose: ABB gives full starting torque as 1.5 to 2.5 times rated for a small motor.",
+      "sourceIds": [
+        17,
+        77
+      ]
+    },
+    {
+      "claim": "His group handout says that start buttons are wired in parallel.",
+      "sourceIds": [
+        78
+      ]
+    },
+    {
+      "claim": "Isolate and prove dead before work on a starter: the maker's own instruction is to disconnect power before any work on the equipment.",
+      "sourceIds": [
+        79
+      ]
+    },
+    {
+      "claim": "A contactor is rated for the motor it switches: for squirrel-cage motors (duty AC-3) it makes about 6 to 8 times the rated current when closing, or 5 to 7 on another maker's figure, and breaks only the rated current when opening; most contact wear comes from the making.",
+      "sourceIds": [
+        237,
+        240
+      ]
+    },
+    {
+      "claim": "Restarting a motor before it has stopped turning can give a current peak up to twice that of a start from standstill, so a quick Stop-then-Start is hard on the contacts.",
+      "sourceIds": [
+        239
+      ]
+    },
+    {
+      "claim": "A DOL starter connects the motor straight to the supply at full voltage; the start current can cause voltage dips on the supply and heavy forces in the cables and the motor windings.",
+      "sourceIds": [
+        250,
+        251
+      ]
+    },
+    {
+      "claim": "On a generator supply, DOL gives the highest inrush of any starting method, and the motor can develop several times full-load torque; on a ship the generator, not the starter, is the limit, and large motors starting one after another during manoeuvring can cause severe voltage dips.",
+      "sourceIds": [
+        254,
+        256,
+        257
+      ]
+    },
+    {
+      "claim": "Star-delta puts each winding on 1/sqrt(3) of the line voltage while starting; the changeover can briefly open the supply and give a current spike, which on one generator maker's figures can be as high as 5 x run kVA if it is badly timed, but ABB says is typically lower than a DOL start.",
+      "sourceIds": [
+        252,
+        253,
+        255
+      ],
+      "contested": "Sources differ on the size of the star-to-delta changeover spike: ABB says typically lower than a DOL start; a generator maker warns it can reach 5 x run kVA if the changeover is not set well."
+    },
+    {
+      "claim": "The overload relay is set to the motor's rated current, not its trip current: no trip at 1.05 times the setting, trip at 1.2 times; it also protects against phase failure, and it has no power contacts so it can only work through the contactor.",
+      "sourceIds": [
+        241,
+        242,
+        244
+      ]
+    },
+    {
+      "claim": "After an overload trip the relay will not reset until it has cooled, which lets the motor cool before it is restarted.",
+      "sourceIds": [
+        243
+      ]
+    },
+    {
+      "claim": "The contactor coil must have the right voltage: the usual limits are 0.85 to 1.1 times its rating; too low a voltage can fail to close it, make it chatter and melt the coil, and too high a voltage can burn it out.",
+      "sourceIds": [
+        245,
+        246,
+        247,
+        238
+      ]
+    },
+    {
+      "claim": "A buzzing or chattering contactor points to low or unstable coil voltage, a poor control connection, a wrong coil, dirty or unseated magnet faces, or a damaged shading ring; check the voltage across the coil terminals while it is closing.",
+      "sourceIds": [
+        248
+      ]
+    },
+    {
+      "claim": "A contactor can hold line voltage even when its coil circuit is off, so isolate and prove dead before touching a starter: prove all supply conductors dead, with a voltage indicator that is proved before and after use.",
+      "sourceIds": [
+        249,
+        258,
+        259,
+        260,
+        261
+      ]
+    },
+    {
+      "claim": "Several Stop buttons go in series (any one stops the motor) and several Start buttons in parallel with the holding contact (any one starts it).",
+      "sourceIds": [
+        262,
+        263,
+        264
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "n": 15,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+    },
+    {
+      "n": 16,
+      "title": "Your motor sheet: the DOL starter (web summary)",
+      "url": "material:dol-starter#p2",
+      "quote": "High inrush current: The motor draws 6 to 8 times its normal full-load current during startup."
+    },
+    {
+      "n": 17,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+    },
+    {
+      "n": 41,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "The isolator (2) when closed allows current to flow into the contactor."
+    },
+    {
+      "n": 42,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "Normally open (N/O) start button. This is 'sprung' meaning it'll return to N/O once released."
+    },
+    {
+      "n": 43,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "The coil magnetises the main contacts and pulls them closed and holds them in place, enabling the motor to connect to the supply and become energised."
+    },
+    {
+      "n": 44,
+      "title": "Your motor sheet: the DOL starter (web summary)",
+      "url": "material:dol-starter#p1",
+      "quote": "The energized coil pulls the contactor's main contacts closed, applying the full line voltage to the motor."
+    },
+    {
+      "n": 45,
+      "title": "Manual Circuits – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+      "quote": "The unique component of the circuit, indeed the device that allows the circuit to provide low-voltage protection (LVP) , is the normally open instantaneous contact connected in parallel with the start button."
+    },
+    {
+      "n": 46,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "The start button 'makes' the circuit, the stop button 'breaks' the circuit."
+    },
+    {
+      "n": 47,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "The bend in the strips causes the overload release contact to break the circuit, which de-energises the coil, releasing the contacts and isolating the motor from the supply."
+    },
+    {
+      "n": 48,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "9 and 10 work together to disconnect the circuit in the same way as the stop button."
+    },
+    {
+      "n": 49,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "the magnetic effect disappears and the latching contacts release."
+    },
+    {
+      "n": 50,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "Latching (maintaining) contacts. These 'pull' and 'hold' the main contacts in place, these are pulled into place by the magnetic field created by the energising of (4)."
+    },
+    {
+      "n": 51,
+      "title": "Manual Circuits – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+      "quote": "If a power outage occurs during normal operation, the starter coil will drop out and the motor will stop as well."
+    },
+    {
+      "n": 52,
+      "title": "Manual Circuits – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+      "quote": "The motor will not restart without further input from an operator as the holding contact will have returned to its normally open state."
+    },
+    {
+      "n": 53,
+      "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+      "quote": "As a rule, if a circuit uses a magnetic contactor and a holding contact, it will provide low-voltage protection (LVP)."
+    },
+    {
+      "n": 54,
+      "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+      "quote": "If it uses maintained contacts, then it most likely provides low-voltage release (LVR)."
+    },
+    {
+      "n": 55,
+      "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+      "quote": "low-voltage protection (LVP) is a property that circuits have when upon a return of voltage following a power outage, loads will not automatically turn back on and will require further input from the operator."
+    },
+    {
+      "n": 56,
+      "title": "Manual Circuits – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+      "quote": "The normally closed contacts in series with the coil are controlled by the thermal action of the overload relays, and not the movement of the armature, so they remain closed as long as an overload does not occur."
+    },
+    {
+      "n": 57,
+      "title": "Thermal Overload Relays Electronic ...",
+      "url": "https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf",
+      "quote": "Fuses do not protect a motor against overload. They serve only as short-circuit protection of switchgear and cables."
+    },
+    {
+      "n": 58,
+      "title": "Thermal Overload Relays Electronic ...",
+      "url": "https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf",
+      "quote": "In order to protect motors against short-circuits, it is advisable to use fuses aM in conjunction with the thermal overload relay."
+    },
+    {
+      "n": 59,
+      "title": "Your motor sheet: the DOL starter (web summary)",
+      "url": "material:dol-starter#p2",
+      "quote": "Circuit Breaker or Fuse: Provides short-circuit and overcurrent protection for the system."
+    },
+    {
+      "n": 60,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "230V contactor coil (only connected to one phase and neutral meaning only 230V is present."
+    },
+    {
+      "n": 61,
+      "title": "Your group handout: DOL start and stop buttons",
+      "url": "material:handout-dol-buttons#p1",
+      "quote": "IMPORTANT TO GET THE COIL VOLTAGE RATING RIGHT"
+    },
+    {
+      "n": 62,
+      "title": "Direct-On-Line and Automatic Star – Delta Starter",
+      "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf",
+      "quote": "Check the coil voltages so that, the coil voltage corresponds to actual supply voltage."
+    },
+    {
+      "n": 63,
+      "title": "— Softstarters PSR, PSRC, PSE and PSTX",
+      "url": "https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0",
+      "quote": "DOL starting is uncontrolled, which means that the motor will start with maximum current and torque regardless of load type."
+    },
+    {
+      "n": 64,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "Generally used for the starting and stopping of small machinery up to 5kW."
+    },
+    {
+      "n": 65,
+      "title": "Your motor sheet: the DOL starter (web summary)",
+      "url": "material:dol-starter#p3",
+      "quote": "DOL starters are typically limited to smaller motors (often under 4 kW) where the power supply can tolerate the voltage dip."
+    },
+    {
+      "n": 66,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "Some utilities restrict DOL starting for motors rated at 5.5 kW / 7.5 hp or higher."
+    },
+    {
+      "n": 67,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "Compressors, pumps and fans are typically controlled by DOL starters."
+    },
+    {
+      "n": 68,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "DOL starters have thermal overloads, which can mean 'overuse' or regular stopping and starting can cause these to operate."
+    },
+    {
+      "n": 69,
+      "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+      "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+      "quote": "The received starting current is about 30 % of the starting current during direct on line start and the starting torque is reduced to about 25 % of the torque available at a D.O.L start."
+    },
+    {
+      "n": 70,
+      "title": "— Softstarters PSR, PSRC, PSE and PSTX",
+      "url": "https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0",
+      "quote": "The starting current is about one third compared to direct-on-line starting, although it also reduces the starting torque to about 25 percent."
+    },
+    {
+      "n": 71,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "So when starting using Star-Delta start, the star connection results in a current of 33% compared to a delta connected motor."
+    },
+    {
+      "n": 72,
+      "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+      "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+      "quote": "The motor must be delta connected during a normal run, in order to be able to use this starting method."
+    },
+    {
+      "n": 73,
+      "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+      "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+      "quote": "The device normally consists of three contactors, an overload relay and a timer for setting the time in the star-position (starting position)."
+    },
+    {
+      "n": 74,
+      "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+      "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+      "quote": "This starting method only works when the application is light loaded during the start."
+    },
+    {
+      "n": 75,
+      "title": "— Softstarters PSR, PSRC, PSE and PSTX",
+      "url": "https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0",
+      "quote": "Current peaks will happen when switching from star to delta connection."
+    },
+    {
+      "n": 76,
+      "title": "Your group handout: the star-delta starter question",
+      "url": "material:handout-star-delta#p2",
+      "quote": "6186.88×3 = 18560.64 W."
+    },
+    {
+      "n": 77,
+      "title": "Your motor sheet: the DOL starter (web summary)",
+      "url": "material:dol-starter#p2",
+      "quote": "Applying full voltage at startup provides 100% of the motor's rated torque, which is necessary for some applications."
+    },
+    {
+      "n": 78,
+      "title": "Your group handout: DOL start and stop buttons",
+      "url": "material:handout-dol-buttons#p1",
+      "quote": "START BUTTONS ARE WIRED IN PARALLEL."
+    },
+    {
+      "n": 79,
+      "title": "Direct-On-Line and Automatic Star – Delta Starter",
+      "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf",
+      "quote": "Disconnect Power before proceeding with any work on this equipment"
+    },
+    {
+      "n": 237,
+      "title": "Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors",
+      "url": "https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf",
+      "quote": "Closing of the main contacts with approximately 6 to 8 times"
+    },
+    {
+      "n": 238,
+      "title": "Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors",
+      "url": "https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf",
+      "quote": "Control voltage less than 85% during pick up may not be enough to safely close the contactor and can cause the coil to melt due to over heating."
+    },
+    {
+      "n": 239,
+      "title": "Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors",
+      "url": "https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf",
+      "quote": "Attempting to restart the motor before it has come to a full stop will cause a current peak that theoretically can reach twice the current compared to starting the motor from a standstill."
+    },
+    {
+      "n": 240,
+      "title": "What do the terms AC1 and AC3 mean? | Schneider Electric USA",
+      "url": "https://www.se.com/us/en/faqs/FAQ000127417/",
+      "quote": "On closing, the contactor makes the inrush current, which is about 5 to 7 times the rated full load current of the motor. On opening, the contactor breaks the rated full load current of the motor."
+    },
+    {
+      "n": 241,
+      "title": "— Thermal overload relay TF42",
+      "url": "https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj",
+      "quote": "the setting current is the rated current of the motor and not the tripping current (no tripping at 1.05 x I, tripping at 1.2 x I; I = setting current)"
+    },
+    {
+      "n": 242,
+      "title": "— Thermal overload relay TF42",
+      "url": "https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj",
+      "quote": "They are used mainly to protect motors against overload and phase failures."
+    },
+    {
+      "n": 243,
+      "title": "Overload Relays & Thermal Unit Selection - Schneider Electric",
+      "url": "https://iportal.se.com/Contents/docs/9065CT9701.PDF",
+      "quote": "Once tripped, the thermal overload relay will not reset until it has cooled, automatically allowing the motor to cool before it can be re-started."
+    },
+    {
+      "n": 244,
+      "title": "Overload Relays & Thermal Unit Selection - Schneider Electric",
+      "url": "https://iportal.se.com/Contents/docs/9065CT9701.PDF",
+      "quote": "The overload relay has no power contacts and cannot disconnect the motor by itself."
+    },
+    {
+      "n": 245,
+      "title": "Contactor for capacitor switching: Type: 3TS1722-0A..5-8K",
+      "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:9fcd4883-33b5-4c50-97be-c7f9d0b23f98/oi-3ts17.pdf",
+      "quote": "The voltage is to be maintained within 0.85 to 1.1 x rated coil voltage."
+    },
+    {
+      "n": 246,
+      "title": "Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors",
+      "url": "https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf",
+      "quote": "Too high continuous control voltage could also cause the coil to melt."
+    },
+    {
+      "n": 247,
+      "title": "What are the risks of applying too low control voltage to a contactor? | Schneider Electric USA",
+      "url": "https://www.se.com/us/en/faqs/FA325555/",
+      "quote": "Applying a control voltage below the specified operating range of a contactor can lead to serious malfunction and permanent damage of both the coil and the main contacts."
+    },
+    {
+      "n": 248,
+      "title": "Contactor Troubleshooting: Buzzing, Chattering & Coil Failure",
+      "url": "https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure",
+      "quote": "A buzzing or chattering contactor is commonly caused by unstable or insufficient coil voltage, a poor control-circuit connection, an incorrect coil, incomplete armature seating, contaminated magnet faces, mechanical binding, or a damaged shading ring in a conventional AC contactor."
+    },
+    {
+      "n": 249,
+      "title": "Contactor Troubleshooting: Buzzing, Chattering & Coil Failure",
+      "url": "https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure",
+      "quote": "A contactor can contain hazardous line voltage even when its coil circuit is off."
+    },
+    {
+      "n": 250,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "DOL starters connect the motor directly to the mains supply, thus carrying out starting at full voltage."
+    },
+    {
+      "n": 251,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "The inrush and starting current can become very high in this case, which can cause disturbances like voltage dips to the supply system"
+    },
+    {
+      "n": 252,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "During the starting phase, the motor windings are connected in a star configuration, reducing the voltage to 1/√3 (~58%) of the full line voltage."
+    },
+    {
+      "n": 253,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "The transition may briefly interrupt the power supply, causing a current spike that is typically lower than in a DOL start."
+    },
+    {
+      "n": 254,
+      "title": "Agn 090 B Motor Starting Fundamentals",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN-090_B-Motor-Starting-Fundamentals.pdf",
+      "quote": "Direct on Line: resulting in the highest levels of inrush currents (actually technically described as Locked Rotor currents)."
+    },
+    {
+      "n": 255,
+      "title": "Agn 090 B Motor Starting Fundamentals",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN-090_B-Motor-Starting-Fundamentals.pdf",
+      "quote": "at the transition from star to delta, there will be a second impact kVA condition, which could be as high as 5 x run kVA"
+    },
+    {
+      "n": 256,
+      "title": "Generating Set considerations AGN 068 - Motor Starting and Generating Set Considerations",
+      "url": "https://www.stamford-avk.com/sites/stamfordavk/files/AGN068_B.pdf",
+      "quote": "An electric motor that is being started DOL will be able to develop multiple levels of full load torque"
+    },
+    {
+      "n": 257,
+      "title": "Voltage dips in ship systems",
+      "url": "https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/75--Voltage-dips-IEEE-ESTS-2007-Prousali.pdf",
+      "quote": "Large power motors starting consecutively during ship maneuvering (e.g. driving thruster systems) can cause such severe voltage dips."
+    },
+    {
+      "n": 258,
+      "title": "Electricity at work: Safe working practices HSG85",
+      "url": "https://www.hse.gov.uk/pubns//priced/hsg85.pdf",
+      "quote": "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead, even if the isolation has been achieved automatically through an interlocking system."
+    },
+    {
+      "n": 259,
+      "title": "Electricity at work: Safe working practices HSG85",
+      "url": "https://www.hse.gov.uk/pubns//priced/hsg85.pdf",
+      "quote": "If it is a three-phase system or equipment with more than one supply, prove that all supply conductors are dead."
+    },
+    {
+      "n": 260,
+      "title": "Electrical test equipment for use by electricians GS38",
+      "url": "https://www.hse.gov.uk/pubns/priced/gs38.pdf",
+      "quote": "Any device used to prove dead may fail to indicate danger (eg a faulty lamp not indicating a live circuit). Such devices should be proved before and after use."
+    },
+    {
+      "n": 261,
+      "title": "Electrician suffered shock when electrical supply had not been properly isolated - HSE",
+      "url": "https://www.hse.gov.uk/electricity/maintenance/isolate.htm",
+      "quote": "Electricity supplies should be made dead and proved to be dead before work is commenced, and the method of isolation should prevent inadvertent or deliberate re-energisation of the electrical system."
+    },
+    {
+      "n": 262,
+      "title": "Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control",
+      "url": "https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/",
+      "quote": "Wire all normally closed stop buttons in series with each other,"
+    },
+    {
+      "n": 263,
+      "title": "Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control",
+      "url": "https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/",
+      "quote": "pushing any one will interrupt the circuit and disconnect the motor starter"
+    },
+    {
+      "n": 264,
+      "title": "Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control",
+      "url": "https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/",
+      "quote": "Pushing any start pushbutton will provide a path for current to energize the motor starter."
+    }
+  ],
+  "at": "2026-10-21T05:11:23.404Z"
+}

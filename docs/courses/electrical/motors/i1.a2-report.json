@@ -1,0 +1,195 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Four-pole, 50 Hz, full load: ns 1500 rpm, n 1437 rpm, slip 4.20%, 2.10 Hz, 1.00 times rated torque, and the field gains 63 rpm",
+        "ok": true
+      },
+      {
+        "label": "Two-pole, 50 Hz, full load: ns 3000 rpm, n 2950 rpm, slip 1.67%, 0.83 Hz, 1.00 times rated torque",
+        "ok": true
+      },
+      {
+        "label": "No load: the rotor sits at ns, and the slip, rotor current frequency, torque and the field's gain are all zero",
+        "ok": true
+      },
+      {
+        "label": "Half load: half the slip and 0.50 times rated torque, so the four-pole runs at 1468.5 rpm",
+        "ok": true
+      },
+      {
+        "label": "On 60 Hz: ns 3600 and 1800 rpm, with example full-load speeds of 3540 and 1724 rpm",
+        "ok": true
+      },
+      {
+        "label": "More load, more slip: slip, rotor current frequency, torque and the field's gain never fall as the load rises, and the rotor speed never rises",
+        "ok": true
+      },
+      {
+        "label": "At 0% the field stops sliding at once; at full load it turns 378° past the four-pole rotor each second, about one turn",
+        "ok": true
+      },
+      {
+        "label": "The stator field rotates at 120 f / p revolutions per minute: 3000 and 1500 rpm on 50 Hz for two and four poles",
+        "ok": true,
+        "source": "https://www.britannica.com/technology/electric-motor/Synchronous-motors"
+      },
+      {
+        "label": "The 0.75 kW four-pole motor's rated speed is 1437 r/min",
+        "ok": true,
+        "source": "https://docs.rs-online.com/1513/A700000007244947.pdf"
+      },
+      {
+        "label": "Typically, the full-load slip of a squirrel cage induction motor is less than 5%: both motors here are",
+        "ok": true,
+        "source": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "motor",
+      "supply"
+    ],
+    "readouts": [
+      "ns",
+      "n",
+      "slip",
+      "fr",
+      "torque"
+    ],
+    "outputs": [
+      "sync",
+      "rotor",
+      "slipPct",
+      "rotorHz",
+      "torquePU",
+      "gain"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "How it works",
+          "Seen from the rotor",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          0,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "motor",
+        "kind": "choice",
+        "label": "Motor",
+        "options": [
+          2,
+          4
+        ],
+        "labels": [
+          "2-pole, 5.5 kW, 2950 rpm",
+          "4-pole, 0.75 kW, 1437 rpm"
+        ],
+        "value": 4,
+        "index": 1,
+        "shown": false
+      },
+      {
+        "id": "supply",
+        "kind": "choice",
+        "label": "Supply",
+        "options": [
+          50,
+          60
+        ],
+        "labels": [
+          "50 Hz",
+          "60 Hz"
+        ],
+        "value": 50,
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The field sliding past the bars"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "load = 75",
+    "motor = 2",
+    "supply = 60"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/motors/i1.a2-360-light.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-360-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-360-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-1280-light.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-1280-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i1.a2-1280-dark-end.png"
+  ]
+}
