@@ -238,11 +238,11 @@
       text: 'From 25 mm² up, the tables give *r*, *x* and *z*. With no known power factor, z is acceptable. With one, use r and x.',
       read: 'At power factor 0.8, 1.60 × 0.8 + 0.27 × 0.6 = ' + fPf.text + ', against z\'s ' + Z25.toFixed(2) + '.' },
     { name: 'Section A (g)', label: 'Section A · Question 1', part: Q1G, task: Q1G,
-      want: f1g.text, why: f1g.work, read: f2(SUBD) + ' + ' + f2(fDb.value) + ' + ' + f2(fLeg.value) + ' = ' + f1g.text + ', on practice values. That is inside ' + f2(LIM3) + ' V.' },
+      want: f1g.text, why: f1g.work, read: 'What is the actual drop of the motor circuit, from the intake to the motor? Use the practice values. Is it inside ' + f2(LIM3) + ' V?' },
     { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer',
       task: 'A short written answer, in your own words.' },
     { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,
-      want: fCh.text, why: fCh.work, read: fCh.work.replace(' > ', ', over ') + '.' },
+      want: fCh.text, why: fCh.work, read: 'A single-phase power circuit runs ' + CH.L + ' m in 1.5 mm² singles at ' + CH.mv + ' mV/A/m. It carries ' + CH.ib + ' A. Its sub-board\'s three-phase submain drops ' + CH.sub + ' V. No supply voltage is given. What is the total drop from the origin, and is it within the limit?' },
     { kind: 'summary', name: 'Keep this', label: 'Keep this' },
   ];
   const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, why: false, fb: null }));
