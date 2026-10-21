@@ -1,0 +1,541 @@
+{
+ "iid": "i5",
+ "title": "VLF withstand: why 0.1 Hz",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the charging current one core of String B needs at 76 kV shrinking 500 times, from 12.61 A to 25.21 mA, when you step the frequency from 50 Hz down to 0.1 Hz.",
+  "title": "Charging a core at 0.1 Hz",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve screens, with Back and Continue, on the VLF withstand test: what it is for, why it runs at 0.1 Hz, how the voltage and time are set, and String B's result.\n\nScreen 1, Do you still have it? The question: \"A cable is rated 12/20 kV. Take the VLF test voltage as 1.5 to 2.5 U0. What range is that?\" Three choices, in this order: \"12 to 20 kV\"; \"18 to 30 kV\"; \"30 to 50 kV\". Right, the second: \"Still there.\" Then the working: \"U0 is the voltage from each core to earth, the first number in 12/20 kV. 1.5 × 12 = 18.0 kV, and 2.5 × 12 = 30.0 kV.\" A last line names the slips: 30 to 50 kV uses 20 kV, the voltage between cores, and 12 to 20 kV is the rating itself, with no overvoltage. Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 7. Wrong, the first: \"That is the cable's own rating. The test goes above it, to 1.5 to 2.5 times U0.\" Wrong, the third: \"That uses 20 kV, the voltage between cores. U0 is the voltage to earth, 12 kV. 1.5 × 12 = 18.0 kV, and 2.5 × 12 = 30.0 kV.\" Then the right working, and on to screen 2.\n\nScreen 2, What it is for. \"The VLF test is a pressure test. It holds an AC overvoltage on the insulation for a set time. The IR test checked the XLPE at 5 kV d.c. This test stresses it above its working voltage. It runs before the cable is energised.\" Then: \"Take a defect big enough to be excited at the test voltage. Small discharges spark inside it: partial discharges. They start an electrical tree, fine breakdown channels that branch out through the XLPE. The tree grows until the core breaks down, during the test. Smaller defects are not affected. So a pass means the core held the voltage for the full time with no breakdown. That gives a high chance the insulation is sound. It does not prove there are no defects at all.\" Then: \"Not every spec uses VLF. Above 36 kV, a submarine cable's spec may ask for an AC test at 10 to 500 Hz, from a resonant test set.[^55] The client's spec decides.\" The picture: one core in long section, conductor, XLPE and screen. A void in the XLPE near the conductor, with fine branching lines growing from it across the XLPE towards the screen, labelled \"electrical tree: grows during the test\". A smaller void further along stays as it is, labelled \"smaller defect: not affected\". In red, what goes wrong if it is skipped: \"Skip it, and a defect the test would have found is still in the cable when it is switched on.\"\n\nScreen 3, The why: 0.1 Hz. \"Each core is a capacitor, as in lesson 1. Conductor and screen are the plates. String B's core is 0.528 µF. To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow of charge is the charging current. The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at 0.1 Hz takes 10 s. In those 10 s, 50 Hz runs 50 × 10 = 500 cycles. So at 50 Hz the set moves the same charge 500 times as often, and the current is 500 times bigger. That is the reactance at work: Xc = 1 ÷ 2πfC, so dropping f from 50 Hz to 0.1 Hz raises Xc 50 ÷ 0.1 = 500 times. The current is I = V ÷ Xc = 2πfCV, so it falls 500 times. The power the set supplies, V × I, falls with it.\" The picture, on top: the voltage across one core of String B against time, 0 to 10 s, always 76 kV rms, with its 107.5 kV peak marked. At 0.1 Hz one slow cycle fills the 10 s. At 1 Hz there are 10 cycles. At 10 Hz there are 100, drawn as a dense band. At 50 Hz the 500 cycles merge into a solid band, labelled \"500 cycles in 10 s\". Below, the charging current as a bar on a scale up to 12.61 A, with its value written beside it. A Frequency stepper, a named control with four settings in this order: 0.1 Hz; 1 Hz; 10 Hz; 50 Hz. It opens on 50 Hz. Two readouts: Charging current, in A from 1 A up and in mA below, = 2π × f × 0.528 × 10⁻⁶ × 76 000; Set supplies, in kVA, = 76 × the current in A. At 50 Hz: 12.61 A and 958.4 kVA. At 10 Hz: 2.52 A and 191.5 kVA. At 1 Hz: 252.13 mA and 19.16 kVA. At 0.1 Hz: 25.21 mA and 1.92 kVA. The prompt: \"Step the frequency down from 50 Hz to 0.1 Hz.\" Read: at 50 Hz one core of String B needs 12.61 A at 76 kV, and the set supplies 958.4 kVA. Each step down cuts the current in proportion. At 0.1 Hz the same voltage needs 25.21 mA and 1.92 kVA, 500 times less, because the core is filled and emptied 500 times less often. Still: 0.1 Hz, with the 50 Hz bar kept faint beside it for scale.\n\nScreen 4, The why: long cables and the set. \"A VLF set is rated by the capacitance it can drive at each frequency. Take a set that drives 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz and 3.75 µF at 0.02 Hz, up to 200 kV peak. It is a practice set, modelled on a real one.[^35] Use the rating of the set in front of you. The set can only supply so much current. Halve the frequency and each microfarad takes half the current, so the same set drives twice the capacitance. A core's capacitance grows with its length. So a long cable may need a lower frequency, a lower voltage, or both. 0.1 Hz is the standard. Go lower only when the cable is too big a load for the set at 0.1 Hz. Lowering the frequency when you don't need to is to be avoided. The recommended test times are given at 0.1 Hz.\" The picture: a bar for one core's capacitance, 0.22 µF per km × the length, against three dashed lines for the set's rating: 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz and 3.75 µF at 0.02 Hz. String B's 2.40 km is marked on the length scale. A Cable length slider runs from 0.5 to 8.0 km in steps of 0.1 km, opening at 2.40 km. Two readouts: Core capacitance, in µF to 3 places, = 0.22 × length; Frequency the set can use, the highest of 0.1, 0.05 and 0.02 Hz whose rating covers the core. At 0.5 km: 0.110 µF, 0.1 Hz. At 2.40 km: 0.528 µF, 0.1 Hz. At 5.0 km: 1.100 µF, 0.05 Hz. At 8.0 km: 1.760 µF, 0.02 Hz. The set reaches its 0.1 Hz rating near 3.41 km (0.75 ÷ 0.22) and its 0.05 Hz rating near 6.82 km (1.5 ÷ 0.22). The prompt: \"Drag the length from 2.40 km out to 8.0 km.\" Read: String B's 2.40 km core is 0.528 µF, inside the set's 0.75 µF, so it tests at 0.1 Hz. Past about 3.41 km a core is too big for the set at 0.1 Hz, so it drops to 0.05 Hz. Past about 6.82 km it drops to 0.02 Hz. At 8.0 km the core is 1.760 µF. Still: the slider at 8.0 km, with String B's 2.40 km marked. Then, under the picture: \"Why not DC? Once a cable is charged, DC needs almost no current. But DC can leave space charge in XLPE: charge trapped in the insulation itself. That can speed up water trees in healthy XLPE. DC withstand tests on XLPE cable are now discouraged.[^46] VLF reverses the polarity every cycle, which cuts that build-up. It is still a compromise, because 0.1 Hz does not stress the XLPE exactly as 50 Hz will in service.\"\n\nScreen 5, Check. \"You test String B's core at the same 76 kV, but drop the set from 0.1 Hz to 0.05 Hz. What does the charging current do?\" Choices: \"It halves, to 12.61 mA\"; \"It doubles, to 50.42 mA\"; \"It stays at 25.21 mA\". Right, the first: \"Half the frequency doubles Xc. The current is V ÷ Xc, so it halves: 25.21 ÷ 2 = 12.61 mA. That is why the set drives twice the capacitance at 0.05 Hz.\" Wrong, the second: \"A lower frequency gives a higher reactance, not a lower one. The core is filled and emptied half as often, so it takes half the current.\" Wrong, the third: \"The charge in each cycle stays the same, but the cycles come half as often. So the current halves.\"\n\nScreen 6, Worked example, a line at each press. \"A new cable rated 12/20 kV, tested for installation.\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit, with no monitoring equipment left on it. Restrict access at both ends. Use only the maker's test leads.\" Line 2: \"U0 is the rated voltage from each core to earth or screen. In 12/20 kV it is the first number: U0 = 12 kV.\" Line 3: \"Lowest level: 1.5 × U0 = 1.5 × 12 = 18.0 kV.\" Line 4: \"Highest level: 2.5 × U0 = 2.5 × 12 = 30.0 kV. So the range is 18.0 to 30.0 kV rms, and the client's spec picks the level.\" Line 5: \"A new cable on installation: 0.1 Hz for 60 minutes.[^18] A simple withstand on aged cable would run 30 minutes.\" Line 6: \"It passes if the core holds the voltage for the full 60 minutes with no breakdown.\" Line 7: \"End of test: the display shows discharged. Then the discharge stick, then the hook straight after it, then the hand earth. Earths go on core and screen at both ends, and stay on. Charge held in the XLPE can bring the voltage back for minutes or hours after the first discharge. Prove there is no voltage before anyone touches the cable.\" A note under the lines: \"Specs differ on the range. A range of 1.5 to 2.5 U0 is common practice.[^13] The IEEE guide bases its installation and acceptance levels on practice from under 2 U0 up to 3 U0.[^14] It puts maintenance tests at about 75% of acceptance. The client's spec sets the level on the job. String B is 38/66 kV, so U0 = 38 kV, and 1.5 to 2.5 U0 is 57.0 to 95.0 kV.\" Read: on a 12/20 kV cable, U0 is 12 kV, so 1.5 to 2.5 U0 is 18.0 to 30.0 kV rms. A new cable holds the spec's level at 0.1 Hz for 60 minutes and passes with no breakdown. Then it is discharged in order: display, discharge stick, hook, hand earth, then earths on core and screen at both ends, kept on. Still: all seven lines shown, with the note.\n\nScreen 7, Section A, question 5 (a). The scenario panel, then parts 4a and 4b carried forward: the sheath test voltage, 8.8 kV, and L2's sheath stress when it tripped, 1.45 kV/mm. Then the test, said once: \"Assume the client asks for the VLF test on all three cores, despite L2's failed sheath test. On a real job you would stop and report L2 first. The client's spec asks for 2 U0, a sine wave at 0.1 Hz, for 60 minutes, each core in turn. String B is rated 38/66 kV. These are practice values.\" The question: \"(a) Determine the VLF test voltage for String B's cores.\" A typed answer, part 5a, in kV: 2 × 38 = 76.0 kV rms. Slips: 132.0, \"That uses 66 kV, the voltage between cores. U0 is the voltage to earth, 38 kV.\"; 38.0, \"That is U0 itself. The spec asks for 2 U0.\"; 107.5, \"That is 76 kV as a peak. The test voltage is given in rms.\" After two misses, the working. Then: \"76.0 kV rms is 2 U0, inside 57.0 to 95.0 kV. Sets are rated in kV peak, and peak = rms × 1.4142. So the set must reach 76 × 1.4142 = 107.5 kV peak. The practice set's 200 kV peak covers it. Above 35 kV, the cable ends may need terminations fitted to stop flashover at the test voltage.[^24]\"\n\nScreen 8, Section A, question 5 (b). Parts 1a and 5a carried forward: one core's capacitance, 0.528 µF, and the test voltage, 76.0 kV. \"(b) Determine the charging current one core draws at 0.1 Hz.\" A typed answer, part 5b, in mA: 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 0.02521 A = 25.21 mA. Slips: 4.01, \"The 2π is missing. I = 2πfCV.\"; 35.66, \"That uses the peak voltage. Use the rms test voltage, 76 kV.\"; 75.63, \"That is three cores. Each core is tested on its own.\" After two misses, the working. Then: \"25.21 mA is all the set must supply. That is 76 × 0.02521 = 1.92 kVA.\"\n\nScreen 9, Section A, question 5 (c). Parts 1a, 5a and 5b carried forward. \"(c) Determine the charging current the same core would draw in a 50 Hz test at 76 kV.\" A typed answer, part 5c, in A: 2π × 50 × 0.528 × 10⁻⁶ × 76 000 = 12.61 A. Slips: 2.01, \"The 2π is missing. I = 2πfCV.\"; 6.30, \"That is the core's charging current in service, at U0 = 38 kV. The test runs at 76 kV.\"; 25.21, \"That is the 0.1 Hz current, in mA. At 50 Hz it is 500 times bigger.\" After two misses, the working. Then: \"12.61 A is 500 times 25.21 mA. The set would supply 76 × 12.61 = 958.4 kVA, against 1.92 kVA at 0.1 Hz.\" Then String B's results: \"L1 and L3 hold 76 kV for the full 60 minutes. L2 breaks down at minute 12. These are practice values. Each core is discharged and earthed after its test. Tested afterwards, L2 reads 35 Ω from core to screen. It is the same core that had the flat PI and the sheath that would not hold. Record it. The next job is to find where the fault is.\" The picture: three bars along a 60 minute time line. L1 and L3 run the full 60 minutes, each labelled \"held\". L2 stops at minute 12, in red, labelled \"broke down\", with \"35 Ω core to screen after\" beside it.\n\nScreen 10, Section B: \"Explain why VLF is used rather than a 50 Hz test on a long cable.\" A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 11, Section A, changed numbers. \"Another core of the same cable type runs 3.10 km. It is tested at 76 kV and 0.1 Hz. Determine its charging current.\" A typed answer, in mA: C = 0.22 × 3.10 = 0.682 µF, then 2π × 0.1 × 0.682 × 10⁻⁶ × 76 000 = 32.57 mA. Slips: 25.21, \"That is String B's 2.40 km core. Work out this core's capacitance first: 0.22 × 3.10.\"; 5.18, \"The 2π is missing. I = 2πfCV.\" After two misses, the working. Then: \"0.682 µF is inside the practice set's 0.75 µF at 0.1 Hz, so 0.1 Hz still works.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+  "ignores": "Each core is drawn as a pure capacitance. The small leakage current through the XLPE is left out, so the current shown is the charging current alone. At 50 Hz the 500 cycles are drawn as a solid band, since they cannot be drawn one by one in 10 s. The test set is a practice set modelled on a real one, and real sets differ. String B's figures are practice values.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 12 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Recall: the cable's rating, U0, kV",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: the cable's rating, between cores, kV",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Low multiple of U0",
+    "value": 1.5,
+    "kind": "constant",
+    "source": 13
+   },
+   {
+    "label": "High multiple of U0",
+    "value": 2.5,
+    "kind": "constant",
+    "source": 13
+   },
+   {
+    "label": "Recall: lowest level, kV",
+    "value": 18.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: highest level, kV",
+    "value": 30.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: low end with 20 kV, kV",
+    "value": 30.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: high end with 20 kV, kV",
+    "value": 50.0,
+    "kind": "computed"
+   },
+   {
+    "label": "IR test voltage from lesson 3, kV d.c.",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Resonant test frequency, from, Hz",
+    "value": 10,
+    "kind": "constant",
+    "source": 55
+   },
+   {
+    "label": "Resonant test frequency, to, Hz",
+    "value": 500,
+    "kind": "constant",
+    "source": 55
+   },
+   {
+    "label": "Above this rating a resonant test may be asked, kV",
+    "value": 36,
+    "kind": "constant",
+    "source": 55
+   },
+   {
+    "label": "String B's core capacitance (practice value), µF",
+    "value": 0.528,
+    "kind": "computed"
+   },
+   {
+    "label": "String B's capacitance per km (typical, as in lesson 1), µF/km",
+    "value": 0.22,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B's test voltage, kV rms",
+    "value": 76.0,
+    "kind": "computed"
+   },
+   {
+    "label": "String B's test voltage as a peak, kV",
+    "value": 107.5,
+    "kind": "computed"
+   },
+   {
+    "label": "One cycle at 0.1 Hz, s",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Cycles of 50 Hz in 10 s",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Frequency ratio, 50 ÷ 0.1",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Stepper: frequency settings, Hz",
+    "value": "0.1, 1, 10, 50",
+    "kind": "control"
+   },
+   {
+    "label": "At 50 Hz: charging current, A",
+    "value": 12.61,
+    "kind": "computed"
+   },
+   {
+    "label": "At 50 Hz: set supplies, kVA",
+    "value": 958.4,
+    "kind": "computed"
+   },
+   {
+    "label": "At 10 Hz: charging current, A",
+    "value": 2.52,
+    "kind": "computed"
+   },
+   {
+    "label": "At 10 Hz: set supplies, kVA",
+    "value": 191.5,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 Hz: charging current, mA",
+    "value": 252.13,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 Hz: set supplies, kVA",
+    "value": 19.16,
+    "kind": "computed"
+   },
+   {
+    "label": "At 0.1 Hz: charging current, mA",
+    "value": 25.21,
+    "kind": "computed"
+   },
+   {
+    "label": "At 0.1 Hz: set supplies, kVA",
+    "value": 1.92,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice set: rating at 0.1 Hz, µF",
+    "value": 0.75,
+    "kind": "constant",
+    "source": 35
+   },
+   {
+    "label": "Practice set: rating at 0.05 Hz, µF",
+    "value": 1.5,
+    "kind": "constant",
+    "source": 35
+   },
+   {
+    "label": "Practice set: rating at 0.02 Hz, µF",
+    "value": 3.75,
+    "kind": "constant",
+    "source": 35
+   },
+   {
+    "label": "Practice set: highest output, kV peak",
+    "value": 200,
+    "kind": "constant",
+    "source": 35
+   },
+   {
+    "label": "Slider: from, km",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: to, km",
+    "value": 8.0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: step, km",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider opens at String B's length (practice value), km",
+    "value": 2.4,
+    "kind": "control"
+   },
+   {
+    "label": "At 0.5 km: core capacitance, µF",
+    "value": 0.11,
+    "kind": "computed"
+   },
+   {
+    "label": "At 5.0 km: core capacitance, µF",
+    "value": 1.1,
+    "kind": "computed"
+   },
+   {
+    "label": "At 8.0 km: core capacitance, µF",
+    "value": 1.76,
+    "kind": "computed"
+   },
+   {
+    "label": "Longest core at 0.1 Hz on the practice set, km",
+    "value": 3.41,
+    "kind": "computed"
+   },
+   {
+    "label": "Longest core at 0.05 Hz on the practice set, km",
+    "value": 6.82,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: lower frequency, Hz",
+    "value": 0.05,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: current at 0.05 Hz, mA",
+    "value": 12.61,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip: current doubled, mA",
+    "value": 50.42,
+    "kind": "computed"
+   },
+   {
+    "label": "Installation or acceptance test time, min",
+    "value": 60,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "Simple withstand on aged cable, min",
+    "value": 30,
+    "kind": "constant"
+   },
+   {
+    "label": "IEEE: from under, times U0",
+    "value": 2,
+    "kind": "constant",
+    "source": 14
+   },
+   {
+    "label": "IEEE: up to, times U0",
+    "value": 3,
+    "kind": "constant",
+    "source": 14
+   },
+   {
+    "label": "IEEE: maintenance, % of acceptance",
+    "value": 75,
+    "kind": "constant",
+    "source": 14
+   },
+   {
+    "label": "Lines in the worked example",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B's rating, U0, kV (practice value)",
+    "value": 38,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B's rating, between cores, kV (practice value)",
+    "value": 66,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B: 1.5 U0, kV",
+    "value": 57.0,
+    "kind": "computed"
+   },
+   {
+    "label": "String B: 2.5 U0, kV",
+    "value": 95.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Spec multiple of U0 (practice value)",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Spec test time (practice value), min",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Carried: sheath test voltage, kV",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Carried: L2 sheath stress at the trip, kV/mm",
+    "value": 1.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5a slip: 66 kV taken as U0, kV",
+    "value": 132.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5a slip: U0 alone, kV",
+    "value": 38.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak to rms factor",
+    "value": 1.4142,
+    "kind": "constant"
+   },
+   {
+    "label": "Terminations may be needed above, kV",
+    "value": 35,
+    "kind": "constant",
+    "source": 24
+   },
+   {
+    "label": "Part 5b: charging current at 0.1 Hz, A",
+    "value": 0.02521,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5b slip: 2π left out, mA",
+    "value": 4.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5b slip: peak voltage, mA",
+    "value": 35.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5b slip: three cores, mA",
+    "value": 75.63,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5c slip: 2π left out, A",
+    "value": 2.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5c slip: in-service current at U0, A",
+    "value": 6.3,
+    "kind": "computed"
+   },
+   {
+    "label": "String B: L2 breaks down at (practice value), min",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B: L2 core to screen afterwards (practice value), Ω",
+    "value": 35,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: core length (practice value), km",
+    "value": 3.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: core capacitance, µF",
+    "value": 0.682,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: charging current, mA",
+    "value": 32.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers slip: 2π left out, mA",
+    "value": 5.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Section B: points, of which any make a full answer",
+    "value": "5, any 3",
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A VLF test holds an AC overvoltage on each core for 30 or 60 minutes, at 0.1 Hz instead of 50 Hz. At that voltage, a big enough defect sparks inside. The sparks start an [[electrical tree]], which grows until the core breaks down, during the test and under control. Smaller defects are not affected, so a pass gives a high chance the insulation is sound, not a proof.\n\nEach core is a long capacitor. To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow is the [[charging current]]. The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at 0.1 Hz takes 10 s, and 50 Hz runs 500 cycles in that time. So at 50 Hz the same charge moves 500 times as often, and the current is 500 times bigger. In the terms you know, Xc = 1 ÷ 2πfC rises 500 times from 50 Hz to 0.1 Hz, so I = V ÷ Xc = 2πfCV falls 500 times. One core of String B at 76 kV needs 12.61 A at 50 Hz, and 958.4 kVA from the set. At 0.1 Hz it needs 25.21 mA, and 1.92 kVA. These figures treat each core as a pure capacitance, leaving out the small leakage current through the XLPE.\n\nA VLF set is rated by the capacitance it can drive at each frequency. A long cable can be too big a load at 0.1 Hz, so it needs a lower frequency, a lower voltage, or both. Use 0.1 Hz unless the set cannot drive the cable there. DC would need almost no current once the cable is charged. But DC can leave charge trapped in XLPE, and DC withstand tests on XLPE are now discouraged.[^46] The test voltage is a multiple of [[U0]], the rated voltage from core to earth. The client's spec sets the multiple.\n\n**At 0.1 Hz a core's reactance is 500 times higher than at 50 Hz, so a test set small enough for site can hold the overvoltage long enough for a severe defect to fail during the test.**"
+ },
+ "analogy": {
+  "text": "Think of a power factor correction bank on a 50 Hz board. It draws a large current with almost no real load behind it. That current is charge flowing in and out of the capacitors, 50 times a second. A long cable core is a bank like that, stretched over kilometres. Slow the supply 500 times and it draws 500 times less.",
+  "breaks": "A correction bank is built to take its current all day at 50 Hz. The cable is only slowed down for the test. And 0.1 Hz does not stress the XLPE exactly as 50 Hz will in service, so a VLF test is a compromise, not a copy of service."
+ },
+ "practice": {
+  "text": "- Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit and take off any monitoring equipment. Restrict access at both ends. Use only the maker's test leads.\n- Read U0 off the cable's data sheet. It is the first number of the rating, core to earth.\n- Take the test voltage, frequency and time from the client's spec.\n- Check the set can do it. The peak, rms × 1.4142, must sit inside its kV peak rating. The core's capacitance must sit inside its rating at the frequency you use.\n- Use 0.1 Hz unless the cable is too big a load for the set there.\n- Above 35 kV, check whether the cable ends need terminations fitted to stop flashover.\n- Hold the voltage for the full time. It passes if there is no breakdown.\n- End of test: the display shows discharged, then the discharge stick, the hook straight after, then the hand earth. Earths go on core and screen at both ends, and stay on. Prove there is no voltage before anyone touches the cable.\n\n**Rule of thumb:** the charging current goes with the frequency and the length. Halve the frequency and the current halves. Double the length and it doubles.\n\n**Rule of thumb:** at 0.1 Hz, 60 minutes for installation or acceptance on new cable, and 30 minutes for a simple withstand on aged cable.\n\n**Worked example:** String B is 38/66 kV, 2.40 km, 0.528 µF a core. These are practice values. The spec asks for 2 U0: 2 × 38 = 76.0 kV rms, which is 107.5 kV peak. At 0.1 Hz one core draws 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 25.21 mA. At 50 Hz it would draw 12.61 A.\n\n**Common mistakes**\n- Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.\n- Dropping the frequency when the set does not need it.\n- Setting an rms test voltage against a set's peak rating without converting.\n- Lifting the hand earth before the discharge stick and the hook.\n- Reading a pass as proof of no defects. Smaller defects are not affected."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 13,
+   "title": "Your subsea cable testing course notes",
+   "url": "material:notes#p7",
+   "quote": "Installation, acceptance and maintenance tests range from 1.5 – 2.5 U₀"
+  },
+  {
+   "n": 14,
+   "title": "VLF Cable Test Voltage IEEE Standard - High Voltage Inc",
+   "url": "https://hvinc.com/vlf-cable-test-voltage-ieee-standard",
+   "quote": "The voltage levels (installation and acceptance) are based on the most used, worldwide practices of from less than 2 U0 to 3U0, where U0 is the rated rms phase to ground voltage"
+  },
+  {
+   "n": 18,
+   "title": "VLF Series 2023.pdf",
+   "url": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf",
+   "quote": "The recommended minimum testing time for an installation and/or acceptance withstand test on new cable circuits is 60 min at 0.1 Hz."
+  },
+  {
+   "n": 24,
+   "title": "VLF Series 2023.pdf",
+   "url": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf",
+   "quote": "It should be noted that terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV."
+  },
+  {
+   "n": 35,
+   "title": "VLF TESTING HIGH VOLTAGE CABLES?",
+   "url": "https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf",
+   "quote": "VLF-200CMF 0 - 200 kVac peak 0.75 µF @ 0.10 Hz. – 3.75 µF @ 0.02 Hz."
+  },
+  {
+   "n": 46,
+   "title": "INMR: Overview of Cable Testing: State-of-the-Art, Standards & ...",
+   "url": "https://www.inmr.com/overview-of-cable-testing-state-of-the-art-standards-technologies",
+   "quote": "Use of DC voltage on extruded cable systems for withstand testing has been discouraged by IEEE 400.1, ICEA S-94-649-2004 and IEC 60502-2."
+  },
+  {
+   "n": 55,
+   "title": "Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk",
+   "url": "https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables",
+   "quote": "IEC 63026 was published in January 2020 and for cables greater than 36 kV stipulates that a test frequency of 10-500 Hz must be used for commissioning."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "Explain why VLF is used rather than a 50 Hz test on a long cable.",
+   "points": [
+    {
+     "text": "A long cable has a large capacitance, so a 50 Hz withstand test needs a very large current and power.",
+     "cite": "Notes p.6"
+    },
+    {
+     "text": "Lowering the frequency raises the cable's capacitive reactance.",
+     "cite": "Notes p.6"
+    },
+    {
+     "text": "So the current and power the test set must supply fall with the frequency: 500 times less at 0.1 Hz than at 50 Hz.",
+     "cite": "Notes p.6; University of Canterbury, A comparison of VLF and 50 Hz field testing; IAEA, Medium and low voltage cable measurements (research)"
+    },
+    {
+     "text": "Because of the cable's capacitance, a 50 Hz test is impractical on site. VLF makes a field withstand test practical.",
+     "cite": "Megger, An introduction to VLF cable testing (research)"
+    },
+    {
+     "text": "DC needs little current, but it can leave space charge in XLPE, and DC withstand tests on XLPE are discouraged. VLF gives an AC test without that.",
+     "cite": "University of Canterbury, A comparison of VLF and 50 Hz field testing; INMR, Overview of cable testing (research)"
+    }
+   ],
+   "need": 3,
+   "model": "A long cable is a large capacitance. At 50 Hz its reactance is low, so holding a withstand voltage on it needs a very large charging current and a lot of power. That makes a 50 Hz test impractical on site. Lowering the frequency raises the reactance, so the current and power fall with the frequency. At 0.1 Hz they are 500 times less than at 50 Hz, so a set you can take to site can do the test. DC would need even less current, but it can leave space charge in XLPE, and DC withstand tests on XLPE are discouraged. VLF keeps an alternating test without that problem."
+  }
+ },
+ "summary": {
+  "title": "VLF withstand",
+  "for": "Is the insulation sound above its working stress? An AC overvoltage at 0.1 Hz, held for a set time, before the cable is energised.",
+  "rule": "Xc = 1 ÷ 2πfC\nI = V ÷ Xc = 2πfCV\nTest voltage = the spec's multiple × U0\nPeak = rms × 1.4142\n\nU0 is core to earth: the first number of the rating.\nCommon practice: 1.5 to 2.5 U0. IEEE: under 2 up to 3 U0. The spec decides.\nAt 0.1 Hz: 60 min for installation or acceptance on new cable, 30 min for a simple withstand on aged cable.\nPass: holds the full time with no breakdown.\nUse 0.1 Hz unless the cable is too big a load for the set.\nAbove 36 kV a spec may ask for a resonant AC test at 10 to 500 Hz instead.",
+  "traps": [
+   {
+    "text": "Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.",
+    "cite": "Notes p.7 (added background, checked); IEC 60502-2 definition of U0 (research)"
+   },
+   {
+    "text": "Dropping the frequency when the set does not need it.",
+    "cite": "Notes p.7; High Voltage Inc, VLF-4022CM manual (research)"
+   },
+   {
+    "text": "Setting an rms test voltage against a set's peak rating without converting.",
+    "cite": "High Voltage Inc, VLF cable test voltage, IEEE standard (research)"
+   },
+   {
+    "text": "Lifting the hand earth before the discharge stick and the hook.",
+    "cite": "Notes p.6, p.10"
+   },
+   {
+    "text": "Reading a pass as proof of no defects. Smaller defects are not affected.",
+    "cite": "Notes p.7; High Voltage Inc, VLF AC withstand testing of cable (research)"
+   }
+  ],
+  "where": "After the sheath test, before the cable is energised. Each core in turn, then discharged and earthed at both ends.",
+  "figures": [
+   "5a",
+   "5b",
+   "5c"
+  ]
+ }
+}

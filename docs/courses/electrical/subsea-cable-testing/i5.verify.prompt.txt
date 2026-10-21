@@ -1,0 +1,975 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: HV Subsea Cable Testing
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "VLF withstand: why 0.1 Hz" — A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 TDR: reading the reflections — A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length.
+- i7 LIRA: the cable's impedance spectrum — An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, …
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Your subsea cable testing course notes — material:notes#p6
+    "The power required to carry out an HV AC withstand test at mains frequency is very high due to the capacitance of most AC loads"
+[R2] Your subsea cable testing course notes — material:notes#p6
+    "Reducing the frequency increases the capacitive reactance, and therefore reduces the power and current required"
+[R3] A Comparison of VLF and 50 Hz Field Testing of Medium ... — https://ir.canterbury.ac.nz/bitstreams/5e03300f-f49f-4f63-bd45-dce862b0ec37/download
+    "The power required to energise a cable ’s capacitance is proportional to the test frequency."
+[R4] Medium and Low Voltage Cable Measurements - TD, PD, LIRA — https://inis.iaea.org/records/d277e-pwz88
+    "The main reason for this is that the measurement unit needs 500 times less energy than the unit which uses 50 Hz frequency (50/0,1=500)."
+[R5] VLF AC Testing — https://hvinc.com/wp-content/uploads/2021/02/VLF_TD_2016_Blue-Slides.02.23.21.pdf
+    "At 0.1 Hz, it takes 600 times less power to test a cable, or any other high capacitance load, than at 60 Hz."
+[R6] An introduction to VLF cable testing | Megger — https://www.megger.com/en-us/blog/feb-2025/Introduction-VLF-testing
+    "Traditionally, power cables were tested using standard 50/60 Hz AC voltage, but the strong capacitive nature of cables made this approach impractical for on-site diagnostics."
+[R7] A Comparison of VLF and 50 Hz Field Testing of Medium ... — https://ir.canterbury.ac.nz/bitstreams/5e03300f-f49f-4f63-bd45-dce862b0ec37/download
+    "the space charge accumulated during DC testing accelerated water tree growth in healthy XLPE insulation"
+[R8] A Comparison of VLF and 50 Hz Field Testing of Medium ... — https://ir.canterbury.ac.nz/bitstreams/5e03300f-f49f-4f63-bd45-dce862b0ec37/download
+    "The changing waveform polarity reduces the accumulation of space charge but it is still a compromise as it does not replicate in service conditions."
+[R9] Principals and field experience with the 0.1 Hz VLF method ... — https://ieeexplore.ieee.org/document/1380602
+    "VLF testing is being considered as the safe alternative to DC Hipot testing of XLPE and mixed cables, which will cause premature failures in this type of cable"
+[R10] 400.2-2024 - IEEE Guide for Field Testing of Shielded Power Cable ... — https://ieeexplore.ieee.org/document/10694771
+    "VLF test methods utilize ac signals at frequencies less than 1 Hz."
+[R11] 400.2-2024 - IEEE Guide for Field Testing of Shielded Power Cable ... — https://ieeexplore.ieee.org/document/10694771
+    "The most commonly used, commercially available VLF test frequency is 0.1 Hz."
+[R12] 400.2-2024 - IEEE Guide for Field Testing of Shielded Power Cable ... — https://ieeexplore.ieee.org/document/10694771
+    "Tables are included of the recommended test voltage levels for installation, acceptance, and maintenance tests."
+[R13] Your subsea cable testing course notes — material:notes#p7
+    "Installation, acceptance and maintenance tests range from 1.5 – 2.5 U₀"
+[R14] VLF Cable Test Voltage IEEE Standard - High Voltage Inc — https://hvinc.com/vlf-cable-test-voltage-ieee-standard
+    "The voltage levels (installation and acceptance) are based on the most used, worldwide practices of from less than 2 U0 to 3U0, where U0 is the rated rms phase to ground voltage"
+[R15] VLF Cable Test Voltage IEEE Standard - High Voltage Inc — https://hvinc.com/vlf-cable-test-voltage-ieee-standard
+    "The maintenance test level is about 75% of the acceptance test level."
+[R16] Your subsea cable testing course notes — material:notes#p7
+    "IEEE 400.2-2013 gives comprehensive values depending on test; IEEE 400.2-2024 is the update"
+[R17] VLF-2023 Cable Testing Voltages per IEEE400.2 — https://hvinc.com/wp-content/uploads/2023/08/VLF-2023-Cable-Testing-Voltages-per-IEEE400.2_compressed.pdf
+    "69 75 106 84 119 63 89"
+[R18] VLF Series 2023.pdf — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "The recommended minimum testing time for an installation and/or acceptance withstand test on new cable circuits is 60 min at 0.1 Hz."
+[R19] VLF Series 2023.pdf — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "The recommended minimum testing time for a simple withstand test on aged cable circuits is 30 min at 0.1 Hz"
+[R20] Your subsea cable testing course notes — material:notes#p7
+    "Simple withstand test 30 mins @ 0.1 Hz"
+[R21] Your subsea cable testing course notes — material:notes#p7
+    "Recommended test for installation or acceptance 60 mins @ 0.1 Hz"
+[R22] VLF AC WITHSTAND TESTING OF CABLE Voltage Levels & Time Durations of Test — https://hvinc.com/wp-content/uploads/2020/03/HVI_SOW101320_VLF_IEEE_WEB.pdf
+    "A VLF Withstand test performed as per IEEE 400.2-2013 will trigger a partial discharge event within any defect large enough to be excited by the test voltage applied"
+[R23] Your subsea cable testing course notes — material:notes#p6
+    "If the cable has a defect severe enough at the withstand test voltage, an electrical tree will initiate and grow in the insulation"
+[R24] VLF Series 2023.pdf — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "It should be noted that terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV."
+[R25] Your subsea cable testing course notes — material:notes#p7
+    "Long cables = lower frequency, voltage, or both"
+[R26] Your subsea cable testing course notes — material:notes#p7
+    "Lowering VLF frequency needlessly is to be avoided"
+[R27] Your subsea cable testing course notes — material:notes#p7
+    "Cable withstands voltage for the full duration with no breakdown"
+[R28] Your subsea cable testing course notes — material:notes#p6
+    "VLF is just an AC hi-potential test but with a lower frequency output — run at 0.1 and 0.01 Hz"
+[R29] Your subsea cable testing course notes — material:notes#p6
+    "Apply discharge stick before hand earth"
+[R30] Your subsea cable testing course notes — material:notes#p6
+    "Hook to be connected to cable immediately after discharge stick, then hand earth"
+[R31] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "Three-core cables, nominal voltage 66 kV (Um = 72.5 kV)"
+[R32] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "240 18.1 9.0 38.5 1.6 129.0 26.8 31.3 0.22 2.6 0.38"
+[R33] Microsoft Word - MANvlfCM_Rk_2k14 — https://hvinc.com/wp-content/uploads/2021/04/VLF-4022CM-Manual-web-2k19.pdf
+    "All VLF sets are rated by the uF of load they can test at a given frequency. The lower the frequency, the higher the capacitance, or the longer the cable, can be tested."
+[R34] VLF CABLE TESTING – TEST ALL THREE PHASES AT ONCE — https://hvinc.com/wp-content/uploads/2022/08/VLF-Testing-All-Three-Phases-Together-08.2022-rev1.pdf
+    "At 0.05 Hz, compared to the 0.10 Hz. rating, twice the load, or cable length, can be tested."
+[R35] VLF TESTING HIGH VOLTAGE CABLES? — https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf
+    "VLF-200CMF 0 - 200 kVac peak 0.75 µF @ 0.10 Hz. – 3.75 µF @ 0.02 Hz."
+[R36] VLF TESTING HIGH VOLTAGE CABLES? — https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf
+    "VLF-120CMF 0 - 120 kVac peak 0.55 µF @ 0.10 Hz. – 5.50 µF @ 0.01 Hz."
+[R37] Microsoft Word - MANvlfCM_Rk_2k14 — https://hvinc.com/wp-content/uploads/2021/04/VLF-4022CM-Manual-web-2k19.pdf
+    "Testing should be performed at 0.1Hz, unless the capacitance of the load is too high for the uF rating of the set at 0.1 Hz."
+[R38] Microsoft Word - MANvlfCM_Rk_2k14 — https://hvinc.com/wp-content/uploads/2021/04/VLF-4022CM-Manual-web-2k19.pdf
+    "At 0.1Hz frequency output, one full cycle of the sine wave takes 10 seconds, 20 seconds at 0.05Hz, and 50 seconds at 0.02Hz."
+[R39] VLF Cable Test Voltage IEEE Standard - High Voltage Inc — https://hvinc.com/vlf-cable-test-voltage-ieee-standard/
+    "For a sinusoidal waveform the rms is 0.707 of the peak value, assuming the harmonic distortion is less than 5%."
+[R40] POWER CABLE DIAGNOSTIC REVIEW — https://energiforsk.se/media/31923/power-cable-diagnostic-review-energiforskrapport-2022-903.pdf
+    "Currently, the maximum available very low frequency voltage (0.1 Hz) level for the test is about 200 kV peak."
+[R41] VLF AC Withstand Testing of Cable — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "A defect that is big enough to be excited by the applied voltage will grow to failure during the test. Lesser defects are not affected."
+[R42] VLF AC Withstand Testing of Cable — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "A test time within the range 15–30 min may be considered if the monitored characteristic remains stable for at least 15 min and no failure occurs."
+[R43] IEC 60502-2:1997 - IEC 60502-2:1997+AMD1:1998 CSV — https://cdn.standards.iteh.ai/samples/3873/527bd07ae4664054be6ee1ebc3a4a56c/IEC-60502-2-1997.pdf
+    "U0 is the rated power frequency voltage between conductor and earth or metallic screen for which the cable is designed;"
+[R44] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "Uo: The rated r.m.s. power frequency voltage between each conductor and screen or sheath for which cables and accessories are designed."
+[R45] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "SINGLE CORE XLPE CABLE, 38/66(72.5)kV"
+[R46] INMR: Overview of Cable Testing: State-of-the-Art, Standards & ... — https://www.inmr.com/overview-of-cable-testing-state-of-the-art-standards-technologies
+    "Use of DC voltage on extruded cable systems for withstand testing has been discouraged by IEEE 400.1, ICEA S-94-649-2004 and IEC 60502-2."
+[R47] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "applying direct voltage can induce space charge and dielectric stress in cables with extruded insulation, such as XLPE, potentially contributing to insulation degradation and reducing cable service life."
+[R48] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "Slow polarization and charge trapping mechanisms cause residual voltage to persist for minutes or even hours."
+[R49] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "therefore, tests performed at 2U₀ or 2.5U₀ significantly increase the associated risk."
+[R50] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "After resistive discharge, apply direct grounding and keep it connected."
+[R51] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "Measure the residual voltage before allowing access to the circuit."
+[R52] Untitled — https://www.doble.com/wp-content/uploads/Phenix_Technologies_Discharge_Ground_Sticks_40402.pdf
+    "Next, the ground stick is applied to remove any remaining charge and directly connect the high voltage source at test object to ground."
+[R53] Untitled — https://www.doble.com/wp-content/uploads/Phenix_Technologies_Discharge_Ground_Sticks_40402.pdf
+    "These test objects have the capability to store large amounts of energy long after the high voltage is turned off."
+[R54] Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk — https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables
+    "Test voltage and frequency as per IEC 63026"
+[R55] Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk — https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables
+    "IEC 63026 was published in January 2020 and for cables greater than 36 kV stipulates that a test frequency of 10-500 Hz must be used for commissioning."
+[R56] Off Shore Array Hv Cable 66Kv Brochure Letter Web 061126 — https://www.kinectrics.com/files/brochures/Off-shore_Array_HV_Cable_66kV_Brochure_Letter_Web_061126.pdf
+    "Capability to test entire cable strings rated 66/72 kV up to 40 km (24.8 miles)"
+[R57] Off Shore Array Hv Cable 66Kv Brochure Letter Web 061126 — https://www.kinectrics.com/files/brochures/Off-shore_Array_HV_Cable_66kV_Brochure_Letter_Web_061126.pdf
+    "Testing in accordance with international standards, including IEC 63026, and industry guides such as CIGRE TB 728 and CIGRE TB 841"
+[R58] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables
+    "For long lengths, particularly submarine cables, a lower frequency range up to 10 Hz, as per CIGRÉ TB 490, can be acceptable"
+[R59] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables
+    "HV tests have been performed using a variable frequency resonant unit rated 260 kV, 83 A as power source and supplying a sine wave of frequency range between 20 and 300 Hz in accordance with requirements of the standards."
+[R60] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "the item has acquired a charge either because it is live or because it has become charged by other means such as by static or induction charging"
+[R61] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "or has retained or regained a charge due to capacitance effects even though it may be disconnected from the rest of the system"
+[R62] Your subsea cable testing course notes — material:notes#p2
+    "Nearby energised circuits can induce voltage into an isolated cable"
+[R63] Your subsea cable testing course notes — material:notes#p2
+    "Treat disconnected cables as live until tested, discharged and earthed"
+[R64] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "On equipment that is capable of storing charge, such as capacitors and high-voltage cables, ensure that any stored charge has been safely discharged."
+[R65] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "Additional local earths at the point of work may also be necessary if this is remote from the point of isolation, but these should be applied only after proving dead at the point of work."
+[R66] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead"
+[R67] The Electricity at Work Regulations 1989 — legislation.gov.uk — https://www.legislation.gov.uk/uksi/1989/635/regulation/12
+    "means the disconnection and separation of the electrical equipment from every source of electrical energy in such a way that this disconnection and separation is secure."
+[R68] The Electricity at Work Regulations 1989 — legislation.gov.uk — https://www.legislation.gov.uk/uksi/1989/635/regulation/13
+    "Adequate precautions shall be taken to prevent electrical equipment, which has been made dead in order to prevent danger while work is carried out on or near that equipment, from becoming electrically charged during that work"
+[R69] The Electricity at Work Regulations 1989. Guidance on Regulations — HSE — https://www.hse.gov.uk/pubns/priced/hsr25.pdf
+    "Isolation (as defined in regulation 12(2)) requires taking effective steps to ensure that it is dead and cannot become inadvertently re-energised or charged by induction or capacitance effects."
+[R70] The Electricity at Work Regulations 1989. Guidance on Regulations — HSE — https://www.hse.gov.uk/pubns/priced/hsr25.pdf
+    "Where a test instrument or voltage indicator is used for this purpose, this device should itself be proved immediately before and immediately after testing the conductors."
+[R71] Your subsea cable testing course notes — material:notes#p3
+    "The charging effect can create a huge imbalance — the energy in the insulation can recharge the conductor even after discharging it."
+[R72] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "It should be discharged for a period about four times as long as test voltage was applied in a previous test."
+[R73] Your subsea cable testing course notes — material:notes#p1
+    "4 shock factors: Voltage · Resistance · Path · Duration"
+[R74] Your subsea cable testing course notes — material:notes#p1
+    "Body natural resistance ≈ 10,000 Ω @ 55 V"
+[R75] Your subsea cable testing course notes — material:notes#p1
+    "50 mA or above = potentially fatal zone"
+[R76] HVAC cross-linked polyethylene (XLPE) Cables — ENTSO-E Technopedia — https://www.entsoe.eu/technopedia/techsheets/hvac-xlpe-cable/
+    "Due to the significant capacitance of the cable, the reactive power compensation needs to be applied."
+[R77] HVAC cross-linked polyethylene (XLPE) Cables — ENTSO-E Technopedia — https://www.entsoe.eu/technopedia/techsheets/hvac-xlpe-cable/
+    "The submarine cable design is a three-core 132 kV XPLE cable, lead metallic screen and double galvanized steel armour."
+[R78] IEC 60229:2007 | IEC — https://webstore.iec.ch/en/publication/1066
+    "in some cases, the oversheath is designed to act not only as a protection against corrosion, but also to reduce the risk of degradation of the cable insulation system."
+[R79] Medium Voltage Submarine Cable — https://lsvinacns.vn/Upload/pdf/Submarine%20Cable.pdf
+    "2. Conductor screen : extruded semi-conductive layer 3. XLPE insulation 4. Insulation screen : extruded semi-conductive layer"
+[R80] Medium Voltage Submarine Cable — https://lsvinacns.vn/Upload/pdf/Submarine%20Cable.pdf
+    "6. Screen : copper wires and copper helix(or copper tape) 7. Swelling tape 8. Laminated Aluminum tape 9. Outer sheath : PE or semi-conductive PE"
+[R81] XLPE DATASHEET | Submarine - prysmian.com — https://www.prysmian.com/staticres/525-kv-hvdc-new-cable-systems/documents/XLPE-DATASHEET---Submarine.pdf
+    "METALLIC SHEATH The insulated core has a lead alloy sheath applied over the longitudinal water barrier."
+[R82] [PDF] Marine Cable Catalogue - Prysmian — https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/Prysmian-Marine-Cable-Catalogue_%20North-Europe.pdf
+    "Uo the rated voltage between the conductor and earth, or between the conductor and the metal screen for which the cable is designed ."
+[R83] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "36.0 60.0 66.0 69.0 72.5"
+[R84] IEC TS 60479-1:2005 | IEC — https://webstore.iec.ch/en/publication/2219
+    "The relationship between current and voltage is not linear because the impedance of the human body varies with the touch voltage, and data on this relationship is therefore required."
+[R85] IEC TS 60479-1:2005 | IEC — https://webstore.iec.ch/en/publication/2219
+    "The values of body impedance depend on a number of factors and, in particular, on current path, on touch voltage, duration of current flow, frequency, degree of moisture of the skin, surface area of contact, pressure exerted and temperature."
+[R86] A new model for human body impedance — https://researchspace.auckland.ac.nz/server/api/core/bitstreams/d68fe1a0-b382-491b-bab7-6dda7d3ee1fe/content
+    "The physical basis for this lies in the behaviour of the skin, which presents a relatively large impedance to low voltages, but breaks down for voltages on the order of a few hundred volts."
+[R87] A new model for human body impedance — https://researchspace.auckland.ac.nz/server/api/core/bitstreams/d68fe1a0-b382-491b-bab7-6dda7d3ee1fe/content
+    "we expect on physical grounds that the impedance characteristic of any individual will be monotone decreasing in voltage"
+[R88] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "The threshold of reaction of a human body is assumed to be 0.5 mA independent of time of exposure."
+[R89] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "A current of about 10 mA AC, is assumed for the threshold of let-go for adult males and 5 mA for the entire population"
+[R90] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "For shock durations of 1 s, the level is 50 mA and for durations longer than 3 s it drops to 40 mA."
+[R91] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "The magnitude of the induced voltage, due to inductive coupling, depends on the current in the source system, the distance between the two systems and the length of parallelism of the two systems."
+[R92] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "the magnitude of the inductive coupling induced voltage is independent of the systems voltage level."
+[R93] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "This induced voltage will be longitudinally on all metal parts of the cable whether in or out of service, i.e. armour, metal sheath, conductor and parallel earth wires"
+[R94] Induced Voltage and Current in Parallel Transmission Lines — https://efiling.energysafety.ca.gov/eFiling/Getfile.aspx?docket=2026-2028%20Base%20WMP%20DRs&fileid=59162&shareable=true
+    "This is contrary to magnetic-field induction, where the distance the lines are parallel to has a dramatic impact on the induced voltage."
+[R95] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "Together with the capacitance between the un-earthed object and earth, a capacitive voltage divider is formed, so that for an alternating voltage source, a proportion of the source voltage appears on the object."
+[R96] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "overhead lines or substation busbars can only influence insulated cables that are not shielded neither by the earth nor by an earthed screen."
+[R97] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "underground and offshore cables cannot generate capacitive coupling as the electric field is contained inside the shielded insulation."
+[R98] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "It should be noted that only a part of the cable system needs to be exposed to the electric field for the whole cable to be affected."
+[R99] Induced Voltage and Current in Parallel Transmission Lines — https://efiling.energysafety.ca.gov/eFiling/Getfile.aspx?docket=2026-2028%20Base%20WMP%20DRs&fileid=59162&shareable=true
+    "From (1), it can be seen that the units of length cancel; thus, the distance the two lines are paralleled has no impact on the magnitude of the induced voltage."
+[R100] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "Whenever a cable is left disconnected, the metal sheath and core conductor should be shunted and locally earthed, to prevent standing voltage."
+[R101] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "dangerous voltages can occur unpredictably at any time due to external faults in electrical system or due to switching, lightning or other voltage surges."
+[R102] Impressed Voltages — https://electrical.theiet.org/wiring-matters/years/2018/72-september-2018/impressed-voltages
+    "‘Impressed voltages’ are a general, catch-all term used to cover induced or capacitive voltages appearing on metalwork."
+[R103] Impressed Voltages — https://electrical.theiet.org/wiring-matters/years/2018/72-september-2018/impressed-voltages
+    "There can also be ‘trapped charge’ arising from residual charge left on the capacitance of an item of equipment – for example after insulation resistance testing a length of cable."
+[R104] Capacitors | Environmental Health and Safety | Virginia Tech — https://ehs.vt.edu/programs/occupational-safety/electrical-safety-in-research-operations/capacitors.html
+    "Note: High voltage cables should be treated as capacitors because they have capacitance and thus can store energy."
+[R105] Using Ground Sticks to Discharge Capacitance — https://efcog.org/wp-content/uploads/Wgs/Safety%20Working%20Group/Best%20Practices/Worker%20Safety%20-%20Health/Electrical%20Safety/BP261%20Using%20Ground%20Sticks%20%28Hooks%29%20to%20Discharge%20Capacitance.pdf
+    "the capacitance of the coax cable is often overlooked and must be analyzed for risk to the workers, especially when disconnecting such cable."
+[R106] [PDF] Capacitor Application and Maintenance Guide - EPRI — https://restservice.epri.com/publicdownload/TR-112175/0/Product
+    "The electrostatic energy in watt- seconds or joules in the capacitor is given by J = ½ CV"
+[R107] Using Ground Sticks to Discharge Capacitance — https://efcog.org/wp-content/uploads/Wgs/Safety%20Working%20Group/Best%20Practices/Worker%20Safety%20-%20Health/Electrical%20Safety/BP261%20Using%20Ground%20Sticks%20%28Hooks%29%20to%20Discharge%20Capacitance.pdf
+    "A voltage recharge from 0.02 percent (polystyrene and polypropylene) up to 10 percent (some electrolytics) can occur a few minutes after the grounding or shorting device has been removed."
+[R108] Capacitance Current Switching | IEEE Technology Navigator — https://technav.ieee.org/topic/capacitance-current-switching/
+    "When a circuit breaker opens a capacitive current, the current passes through zero at a moment when the capacitor is near its peak charge, leaving a sustained voltage across the open contacts."
+[R109] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "Good insulation will show increasing resistance during the test as the charging currents disappear."
+[R110] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "In poor insulation the high leakage currents will hide the charging currents, and a graph of the insulation resistance over time will show a much flatter curve."
+[R111] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "The ratio of two time-resistance readings (such as a 60-second reading divided by a 30-second reading) is called a dielectric absorption ratio."
+[R112] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "If the ratio is a 10-minute reading divided by a 1-minute reading, the value is called the polarization index."
+[R113] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "In a polarisation index test, the insulation resistance of the test object is measured continuously for a period of 10 minutes."
+[R114] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "It has the advantage of being quick, sometimes no more than 60 seconds, and can be seen as independent of temperature."
+[R115] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "Two measurements are taken, at 1 minute and at 10 minutes, and these results are used to calculate a PI ratio."
+[R116] Electrical Insulation Testing Solutions | Megger — https://www.megger.com/en/type/electrical-insulation-testing
+    "A rising resistance value over time indicates healthy insulation, while a low or unstable PI can indicate moisture, contamination, or insulation breakdown."
+[R117] Your subsea cable testing course notes — material:notes#p9
+    "PI: <1 / 1–2 / 2–4 / >4 Poor / Questionable / Okay / Good"
+[R118] Your subsea cable testing course notes — material:notes#p9
+    "DAR: <1.25 / 1.25–1.6 / >1.6 Inadequate / Satisfactory / Excellent"
+[R119] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "If the insulation is in good condition, the PI will be 2.0 or higher."
+[R120] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "Typically, the DAR will be 1.4 or higher if the insulation being tested is in good condition."
+[R121] Polarization index (PI) test | Megger — https://www.megger.com/en-us/PIpredictor
+    "PI results of 1.00-2.00 would be considered acceptable for equipment with very low capacitance, such as short runs of house wiring."
+[R122] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "Since the test times are shorter, the DAR measurement is usually lower than the PI measurement."
+[R123] Your subsea cable testing course notes — material:notes#p4
+    "If possible, default to PI or DAR"
+[R124] Your subsea cable testing course notes — material:notes#p4
+    "Connect red to screen, black to core"
+[R125] Your subsea cable testing course notes — material:notes#p4
+    "Check device screen for discharged condition, use discharge stick, finally hook stick, then apply earths to core and reconnect screen to earth"
+[R126] Your subsea cable testing course notes — material:notes#p3
+    "Cable must be discharged after testing"
+[R127] Your subsea cable testing course notes — material:notes#p3
+    "Allow cable to discharge for 5× the charging time"
+[R128] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "If the operator performs a 10-minute PI test, he/she should allow the unit to discharge for 50 minutes."
+[R129] Insulation resistance testing: application note (Fluke) — https://media.fluke.com/c34d63d2-ca47-4635-8a9f-b10600665ad3_original%20file.pdf
+    "The grounding discharge time should be about five times the testing charge time."
+[R130] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "This is to guard against any stored dielectric absorption charge subsequently being released, thereby raising the voltage to potentially dangerous levels."
+[R131] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "Thus, if you know the capacitance of the test sample you can work out the charging time"
+[R132] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "If testing an underground cable, the positive terminal would normally be connected to the outside of the cable since this will be grounded by contact with the soil"
+[R133] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "on older insulation, a little-known phenomenon called electroendosmosis causes the lower reading to be obtained with the positive terminal connected to the grounded side of the insulation being tested."
+[R134] The importance of the guard terminal in insulation testing | Megger — https://www.megger.com/en/et-online/April-2019/The-importance-of-the-guard-terminal-in-insulation-testing
+    "Once transient currents such as capacitive charging current and absorption (or polarization) current have fallen to negligible values in the asset under test, we are left with a small steady-state current known as the conduction or leakage current."
+[R135] A Stitch in Time: The Complete Guide to Electrical Insulation Testing (Megger) — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "The resistance of insulating materials decreases markedly with an increase in temperature."
+[R136] Can we beat the heat? | Megger — https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29
+    "In general, for every 10°C increase in temperature, halve the resistance; or, for every 10°C decrease double the resistance."
+[R137] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "The benefits of the time resistance test are that it is relatively independent of temperature and can give conclusive information without the records of past tests."
+[R138] What are PI and DAR values? | Hioki — https://www.hioki.com/us-en/support/faq/detail/id_n1252407
+    "if the PI or DAR is close to 1, it is judged that the insulation of the object under test has deteriorated."
+[R139] Polarization index (PI) test | Megger — https://www.megger.com/en/PIpredictor
+    "there are materials that exhibit very little or no dielectric absorption"
+[R140] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "Some high values of PI (above 5) could indicate brittle or cracked insulation; this should be fairly obvious."
+[R141] Insulation Testing Quick Reference Guide (AEMC) — https://www.aemc.com/userfiles/files/resources/webinars/Insulation_Testing_Quick_Reference_Guide.pdf
+    "the Polarization Index (PI) test is not recommended as an assessment tool"
+[R142] Insulation resistance testing (Fluke) — https://media.fluke.com/04cae89f-1efe-42b1-bf7b-b1060066a93c_original%20file.pdf
+    "when testing electrical cabling or switchgear (low-capacitance equipment) the time-dependent capacitive leakage and absorption leakage currents become insignificant and decrease to zero almost instantly."
+[R143] A Stitch in Time: The Complete Guide to Electrical Insulation Testing (Megger) — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "Table I gives values of the ratios and corresponding relative conditions of the insulation that they indicate."
+[R144] A Stitch in Time: The Complete Guide to Electrical Insulation Testing (Megger) — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "1.0 to 1.25 1.4 to 1.6 Above 1.6"
+[R145] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "diagnostic testers have voltage outputs of 5 or 10 kV"
+[R146] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "The first step in any insulation test is, therefore, to ensure that the insulation is completely discharged."
+[R147] Your subsea cable testing course notes — material:notes#p1
+    "Inter-array cable (AC): Turbine → Offshore substation"
+[R148] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/2024-03/leaflet_submarine_epr_66%20Kv_%20final_0.pdf
+    "Two times more power can be transported over a single array cable"
+[R149] Your subsea cable testing course notes — material:notes#p2
+    "Identify → Isolated → Proved Dead → Secured → Earthed"
+[R150] INTERNATIONAL STANDARD NORME INTERNATIONALE — https://webstore.iec.ch/en/iec_catalog/product/preview?id=L3B1Yi9wZGYvcHJldmlldy9pbmZvX2llYzYwNTAyLTJ7ZWQzLjB9Yi5wZGY%3D
+    "This part of IEC 60502 specifies the construction, dimensions and test requirements of power cables with extruded solid insulation from 6 kV up to 30 kV for fixed installations such as distribution networks or industrial installations."
+A source whose address begins "material:" is a page of Dan's own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source's.
+Notes (claims, and the sources that support them):
+- Your notes say a mains-frequency HV withstand test needs very high power because of cable capacitance, and that lowering the frequency raises the capacitive reactance and cuts the power and current needed. [R1][R2]
+- The power needed to energise a cable capacitance is proportional to test frequency. One source gives 500 times less energy at 0.1 Hz than at 50 Hz, another 600 times less power than at 60 Hz. [R3][R4][R5]
+- Traditional 50/60 Hz testing was impractical on site because of the strong capacitive nature of cables. [R6]
+- DC testing built up space charge that accelerated water tree growth in healthy XLPE. VLF reverses polarity, which reduces that build-up but is still a compromise. [R7][R8][R9]
+- IEEE 400.2 covers VLF below 1 Hz, most commonly 0.1 Hz, with recommended test voltages for installation, acceptance and maintenance. [R10][R11][R12]
+- The VLF test range is taught as contested: the notes give 1.5 to 2.5 U0, while the IEEE guide as reproduced by High Voltage Inc bases installation and acceptance levels on practice of up to 3 U0. [R13][R14][R15][R16]  [CONTESTED: Your notes give 1.5 to 2.5 U0 for installation, acceptance and maintenance. IEEE 400.2 as reproduced by High Voltage Inc bases installation and acceptance on practice of from less than 2 U0 to 3 U0, with maintenance about 75% of acceptance.]
+- U0 is the rated rms phase-to-ground voltage. IEEE 400.2 Table 3 (sinusoidal, 69 kV class) as reproduced by High Voltage Inc lists 75, 84 and 63 kV rms for installation, acceptance and maintenance. [R14][R17]
+- Recommended minimum time is 60 min at 0.1 Hz for installation or acceptance on new cable, and 30 min for a simple withstand on aged cable. The notes list the same durations. [R18][R19][R20][R21]
+- A VLF withstand test excites any defect large enough at the test voltage, which triggers partial discharge in it. Your notes add that a severe defect starts an electrical tree that grows in the insulation. [R22][R23]
+- Terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV. [R24]
+- Long cables need a lower frequency, a lower voltage or both, but lowering the frequency needlessly is to be avoided. A pass means the voltage held for the full duration with no breakdown. [R25][R26][R27]
+- Your notes call VLF an AC hi-potential test at a lower frequency, run at 0.1 and 0.01 Hz, and end it by applying the discharge stick, then the hook, then the hand earth. [R28][R29][R30]
+- ABB lists 0.22 µF/km and 2.6 A/km at 50 Hz for a three-core 66 kV XLPE submarine cable of 240 mm². [R31][R32]
+- A VLF set is rated by the load capacitance it can test at each frequency, and the lower the frequency the longer the cable it can test. A 0.75 µF set at 0.1 Hz takes twice that load at 0.05 Hz. One 200 kV peak set is listed at 0.75 µF at 0.1 Hz up to 3.75 µF at 0.02 Hz; a 120 kV peak set at 0.55 µF… [R33][R34][R35][R36]
+- A set should run at 0.1 Hz unless the cable is too big a load for its rating there. A full cycle at 0.1 Hz takes 10 seconds, 20 seconds at 0.05 Hz and 50 seconds at 0.02 Hz. [R37][R38]
+- VLF sets are rated in kV peak, and a sine wave's rms is 0.707 of its peak. IEEE 400.2 Table 3 gives the 69 kV class installation level as 75 kV rms (106 kV peak). The largest 0.1 Hz sets reach about 200 kV peak. [R39][R40][R17]
+- The defect picture: a defect big enough to be excited by the applied voltage grows to failure during the test, and lesser defects are not affected. Time can be shortened to 15 to 30 minutes if the monitored characteristic stays stable and nothing fails, against the 60 minute recommendation. [R41][R42][R18]
+- U0 is the rated rms power frequency voltage between conductor and earth or metallic screen. In a rating such as 38/66 (72.5) kV, 38 kV is U0, 66 kV is U between conductors and 72.5 kV is the highest system voltage Um. [R43][R44][R45]
+- DC withstand testing of extruded cable has been discouraged by IEEE 400.1, ICEA S-94-649 and IEC 60502-2; DC can induce space charge in XLPE that contributes to degradation. [R46][R47][R7]
+- After any high-voltage test an XLPE cable holds charge in its capacitance and its dielectric. Residual voltage can persist for minutes or even hours and voltage can rebound after a first discharge, so discharge with a stick, apply a direct ground and keep it connected, then measure the residual vol… [R48][R49][R50][R51][R52][R53]
+- Whether VLF suits a 66 kV inter-array cable is contested. The notes and IEEE 400.2 (a guide for cables rated 5 kV to 69 kV) support a 0.1 Hz VLF withstand; but a test-system maker reads IEC 63026 as requiring 10 to 500 Hz for commissioning cables above 36 kV, and 66 kV array strings have been commi… [R54][R55][R56][R57][R58][R59][R14]  [CONTESTED: Your notes and IEEE 400.2 teach a 0.1 Hz VLF withstand as the field test; a test-system maker says IEC 63026 asks for 10 to 500 Hz on cables above 36 kV, and resonant AC sets are used on 66 kV array strings. The clause itself was not seen, so the client's specification settles it.]
+- A conductor that has been disconnected can still be charged. HSE counts a conductor as charged if it picked up charge by induction or kept or regained charge through capacitance effects while disconnected. [R60][R61]  (from an idea this one builds on)
+- Your notes say nearby energised circuits can induce voltage into an isolated cable, so a disconnected cable is treated as live until it has been tested, discharged and earthed. [R62][R63]  (from an idea this one builds on)
+- HSE says equipment that stores charge, such as high-voltage cables, must have the charge safely discharged, and that local earths at the point of work go on only after proving dead there. [R64][R65][R66]  (from an idea this one builds on)
+- The regulations require isolation to be secure, and precautions to stop dead equipment from becoming charged during the work. HSE guidance says isolation includes guarding against charge by induction or capacitance effects. [R67][R68][R69]  (from an idea this one builds on)
+- The voltage indicator used to prove dead is itself proved immediately before and immediately after testing the conductors. [R70]  (from an idea this one builds on)
+- Your notes warn that the energy stored in the insulation can recharge the conductor after it has been discharged, and Megger says that absorbed energy takes a while to release. [R71][R72]  (from an idea this one builds on)
+- Your notes give the shock factors as voltage, resistance, path and duration, with body resistance about 10,000 Ω at 55 V and 50 mA or more potentially fatal. [R73][R74][R75]  (from an idea this one builds on)
+- A long cable has significant capacitance. For a three-core 66 kV XLPE submarine cable at 240 mm², ABB lists 0.22 µF/km and 2.6 A/km charging current per phase at 50 Hz, in its 66 kV table. [R76][R31][R32]  (from an idea this one builds on)
+- A real three-core submarine design can carry a lead metallic screen and steel armour over the cores, which the notes' layer list leaves out. The oversheath can have a protective function for the insulation. [R77][R78]  (from an idea this one builds on)
+- A maker's three-core medium-voltage submarine cable lists, middle out: conductor screen, XLPE insulation, insulation screen, swelling tape, copper wires, laminated aluminium tape and a PE or semi-conductive PE outer sheath, so your notes' layer list matches a real build; the same maker's lead-sheat… [R79][R80][R81][R77][R78]  (from an idea this one builds on)
+- U0 is the rated voltage between the conductor and earth or the metal screen. For a 72.5 kV highest voltage, one maker names the cable 38/66 (72.5) kV while a rated-voltage table in another pairs 72.5 kV with U0 = 36 kV, so U0 is read from the cable's own data sheet (the case uses 38 kV, a practice … [R82][R45][R83]  (from an idea this one builds on)
+- The body's impedance is not a fixed number. It varies with the touch voltage, path, duration, skin moisture, contact area and temperature, and it falls as voltage rises because the skin breaks down at a few hundred volts. Your notes' 10 000 Ω at 55 V is the notes' figure; no source here gives a val… [R84][R85][R86][R87]  (from an idea this one builds on)
+- The effects thresholds: about 0.5 mA to react, about 10 mA AC as the let-go threshold for adult males (5 mA for the whole population), and ventricular fibrillation at 50 mA for a one-second shock, falling to 40 mA beyond 3 s. Your notes put 50 mA or more as potentially fatal. [R88][R89][R90]  (from an idea this one builds on)
+- For a screened cable the coupling that matters is inductive. It lands on all the metal parts of the cable, in or out of service (armour, sheath, conductor), depends on the neighbour's current, the distance and the length of parallelism, and not on the neighbour's voltage. So your notes' 'the longer… [R91][R92][R93][R94]  (from an idea this one builds on)
+- Capacitive coupling forms a voltage divider, so part of a live neighbour's voltage appears on an unearthed conductor. But overhead lines and busbars influence only conductors not screened by earth or an earthed screen, and offshore cables hold their field inside the shielded insulation. So the 'cap… [R95][R96][R97][R98][R99]  (from an idea this one builds on)
+- The rule that follows: a disconnected cable's sheath and core are shunted and earthed locally to prevent a standing voltage, and dangerous voltages can arrive unpredictably from faults, switching or lightning even when it is safe under normal conditions. [R100][R101]  (from an idea this one builds on)
+- 'Impressed voltages' is the term for induced or capacitive voltage on metalwork, and 'trapped charge' is residual charge left on the capacitance of equipment, for example after insulation resistance testing a length of cable. [R102][R103]  (from an idea this one builds on)
+- A high-voltage cable should be treated as a capacitor that can store energy, and its capacitance is easy to overlook when disconnecting it. The energy in a capacitor is ½CV². A capacitor can also recharge a few minutes after the shorting device is removed (dielectric absorption), which is why the e… [R104][R105][R106][R107]  (from an idea this one builds on)
+- A breaker opens a capacitive current as it passes through zero, which falls near the peak of the voltage, so the cable is left charged near its peak. [R108]  (from an idea this one builds on)
+- Good insulation shows rising resistance during the test as the charging currents disappear, while in poor insulation high leakage current hides them and the curve is much flatter. [R109][R110]  (from an idea this one builds on)
+- The dielectric absorption ratio is the ratio of two time-resistance readings, such as 60 s over 30 s. The polarization index is the 10-minute reading over the 1-minute reading. [R111][R112][R113]  (from an idea this one builds on)
+- Both ratios are taken on the same equipment minutes apart, and Megger says they can be seen as independent of temperature. Your notes add that a single reading swings with conditions. [R114][R115]  (from an idea this one builds on)
+- Healthy insulation shows rising resistance over time. A low or unstable PI can indicate moisture, contamination or insulation breakdown. [R116]  (from an idea this one builds on)
+- Your notes rate PI below 1 poor, 1 to 2 questionable, 2 to 4 okay and above 4 good, and DAR below 1.25 inadequate, 1.25 to 1.6 satisfactory and above 1.6 excellent. [R117][R118]  (from an idea this one builds on)
+- Makers' bands differ from the notes' names and cut-offs, so the client's criteria decide pass or fail. [R117][R118][R119][R120][R121]  [CONTESTED: Your notes rate PI 1 to 2 questionable and DAR 1.25 to 1.6 satisfactory. A Megger Q&A says PI of 2.0 or higher and DAR of 1.4 or higher indicate good insulation, and Megger accepts PI of 1 to 2 for very low-capacitance equipment.]  (from an idea this one builds on)
+- Megger says the DAR reading is usually lower than the PI reading because its test times are shorter. [R122]  (from an idea this one builds on)
+- Your notes pass an IR test if the voltage is held for the full duration and the resistance exceeds the client's criteria, and say to default to PI or DAR when possible. [R123][R124]  (from an idea this one builds on)
+- After the test the cable is discharged: check the device display, use the discharge stick, then the hook stick, then apply earths to core and screen. Your notes allow 5 times the charging time. [R125][R126][R127]  [CONTESTED: Your notes say to allow 5 times the charging time to discharge, without defining it. Megger's guide says to discharge for about four times as long as the test voltage was applied.]  (from an idea this one builds on)
+- Megger's guide gives the discharge time as about four times as long as the test voltage was applied in a previous test. [R72]  (from an idea this one builds on)
+- Megger's guide says to discharge the item under test for five times as long as it was tested, and gives the example of a 10-minute PI test, which needs 50 minutes. A Fluke application note says about five times the testing charge time. [R128][R129]  (from an idea this one builds on)
+- Megger's guide says to short out a tested item firmly after discharge until it is needed, because stored absorption charge can be released afterwards and raise the voltage to dangerous levels. [R130]  (from an idea this one builds on)
+- Megger's guide uses charging time in a second sense, the time the test set takes to charge the sample, which follows from the sample's capacitance. It is a separate idea from the five times rule, which counts the time the voltage was applied. [R131]  [CONTESTED: Your notes say five times the charging time without defining it. Megger's newer guide says five times as long as the item was tested, with 50 minutes after a 10-minute PI test, and a Fluke application note says about five times the testing charge time. Megger's older guide says about four times. Th…]  (from an idea this one builds on)
+- Megger puts the positive terminal on the grounded outside of a cable, so the negative lead goes to the conductor. For a plain IR test it says polarity rarely matters, but on older insulation electroendosmosis gives a lower reading when the positive terminal is on the grounded side. [R132][R133]  (from an idea this one builds on)
+- The current in an IR test is a charging current and an absorption current, which fall to negligible values, and a small steady leakage current that is left. [R134]  (from an idea this one builds on)
+- A single IR reading falls markedly as temperature rises, with a rule of thumb of halving for every 10 degrees C. A time-resistance ratio such as PI is relatively independent of temperature and needs no past records. [R135][R136][R137]  (from an idea this one builds on)
+- A PI or DAR close to 1 means the insulation is judged to have deteriorated. [R138]  (from an idea this one builds on)
+- Some materials show very little or no dielectric absorption, and a high PI above 5 may point to brittle or cracked insulation, so a PI is read with the material in mind. [R139][R140]  (from an idea this one builds on)
+- IEEE 43 (a rotating-machine practice) says the PI test is not recommended as an assessment tool when the 1-minute reading is above 5000 megohms. A long XLPE cable can read far above that. [R141][R142]  [CONTESTED: Your notes and Megger use PI on cables with no upper limit. IEEE 43 is written for rotating machines, not cables, and a Fluke note says cabling shows little absorption current. The lesson teaches PI as the notes do, flags that a very high 1-minute reading makes the ratio hard to trust, and leans on…]  (from an idea this one builds on)
+- Megger's Table I rates DAR (60/30 s) 1.0 to 1.25 questionable, 1.4 to 1.6 good and above 1.6 excellent, with a gap between 1.25 and 1.4, and PI below 1 dangerous, 1 to 2 questionable, 2 to 4 good and above 4 excellent. A Megger Q&A calls PI of 2.0 or higher and DAR of 1.4 or higher good. [R143][R144][R119][R120]  [CONTESTED: Your notes name the PI bands poor, questionable, okay, good and set DAR at 1.25 and 1.6 with no gap. Megger's names and DAR cut-offs differ. Teach the notes' bands for the practice, show Megger's as a maker's view, and let the client's criterion settle pass or fail.]  (from an idea this one builds on)
+- Megger says diagnostic testers for medium-voltage cables, machines and transformers normally have outputs of 5 or 10 kV, so a 5 kV IR test on a 66 kV cable is a normal diagnostic test voltage. [R145]  (from an idea this one builds on)
+- Every insulation test starts from fully discharged insulation. [R146]  (from an idea this one builds on)
+- Wind-farm inter-array cables run from a turbine to the offshore substation, and a 66 kV array cable carries two times the power of a 33 kV one, according to one maker. [R147][R148]  (whole topic)
+- Every test starts from the same safe sequence: identify, isolate, prove dead, secure and earth. The earths come off only under control for a test, and go back on at the end. [R149][R63]  (whole topic)
+- IEC 60502-2 covers extruded-insulation cables only up to 30 kV, so it does not cover a 66 kV cable such as String B. [R150]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "VLF withstand: why 0.1 Hz",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the charging current one core of String B needs at 76 kV shrinking 500 times, from 12.61 A to 25.21 mA, when you step the frequency from 50 Hz down to 0.1 Hz.",
+  "title": "Charging a core at 0.1 Hz",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve screens, with Back and Continue, on the VLF withstand test: what it is for, why it runs at 0.1 Hz, how the voltage and time are set, and String B's result.\n\nScreen 1, Do you still have it? The question: \"A cable is rated 12/20 kV. Take the VLF test voltage as 1.5 to 2.5 U0. What range is that?\" Three choices, in this order: \"12 to 20 kV\"; \"18 to 30 kV\"; \"30 to 50 kV\". Right, the second: \"Still there.\" Then the working: \"U0 is the voltage from each core to earth, the first number in 12/20 kV. 1.5 × 12 = 18.0 kV, and 2.5 × 12 = 30.0 kV.\" A last line names the slips: 30 to 50 kV uses 20 kV, the voltage between cores, and 12 to 20 kV is the rating itself, with no overvoltage. Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 7. Wrong, the first: \"That is the cable's own rating. The test goes above it, to 1.5 to 2.5 times U0.\" Wrong, the third: \"That uses 20 kV, the voltage between cores. U0 is the voltage to earth, 12 kV. 1.5 × 12 = 18.0 kV, and 2.5 × 12 = 30.0 kV.\" Then the right working, and on to screen 2.\n\nScreen 2, What it is for. \"The VLF test is a pressure test. It holds an AC overvoltage on the insulation for a set time. The IR test checked the XLPE at 5 kV d.c. This test stresses it above its working voltage. It runs before the cable is energised.\" Then: \"Take a defect big enough to be excited at the test voltage. Small discharges spark inside it: partial discharges. They start an electrical tree, fine breakdown channels that branch out through the XLPE. The tree grows until the core breaks down, during the test. Smaller defects are not affected. So a pass means the core held the voltage for the full time with no breakdown. That gives a high chance the insulation is sound. It does not prove there are no defects at all.\" Then: \"Not every spec uses VLF. Above 36 kV, a submarine cable's spec may ask for an AC test at 10 to 500 Hz, from a resonant test set.[^1] The client's spec decides.\" The picture: one core in long section, conductor, XLPE and screen. A void in the XLPE near the conductor, with fine branching lines growing from it across the XLPE towards the screen, labelled \"electrical tree: grows during the test\". A smaller void further along stays as it is, labelled \"smaller defect: not affected\". In red, what goes wrong if it is skipped: \"Skip it, and a defect the test would have found is still in the cable when it is switched on.\"\n\nScreen 3, The why: 0.1 Hz. \"Each core is a capacitor, as in lesson 1. Conductor and screen are the plates. String B's core is 0.528 µF. To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow of charge is the charging current. The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at 0.1 Hz takes 10 s. In those 10 s, 50 Hz runs 50 × 10 = 500 cycles. So at 50 Hz the set moves the same charge 500 times as often, and the current is 500 times bigger. That is the reactance at work: Xc = 1 ÷ 2πfC, so dropping f from 50 Hz to 0.1 Hz raises Xc 50 ÷ 0.1 = 500 times. The current is I = V ÷ Xc = 2πfCV, so it falls 500 times. The power the set supplies, V × I, falls with it.\" The picture, on top: the voltage across one core of String B against time, 0 to 10 s, always 76 kV rms, with its 107.5 kV peak marked. At 0.1 Hz one slow cycle fills the 10 s. At 1 Hz there are 10 cycles. At 10 Hz there are 100, drawn as a dense band. At 50 Hz the 500 cycles merge into a solid band, labelled \"500 cycles in 10 s\". Below, the charging current as a bar on a scale up to 12.61 A, with its value written beside it. A Frequency stepper, a named control with four settings in this order: 0.1 Hz; 1 Hz; 10 Hz; 50 Hz. It opens on 50 Hz. Two readouts: Charging current, in A from 1 A up and in mA below, = 2π × f × 0.528 × 10⁻⁶ × 76 000; Set supplies, in kVA, = 76 × the current in A. At 50 Hz: 12.61 A and 958.4 kVA. At 10 Hz: 2.52 A and 191.5 kVA. At 1 Hz: 252.13 mA and 19.16 kVA. At 0.1 Hz: 25.21 mA and 1.92 kVA. The prompt: \"Step the frequency down from 50 Hz to 0.1 Hz.\" Read: at 50 Hz one core of String B needs 12.61 A at 76 kV, and the set supplies 958.4 kVA. Each step down cuts the current in proportion. At 0.1 Hz the same voltage needs 25.21 mA and 1.92 kVA, 500 times less, because the core is filled and emptied 500 times less often. Still: 0.1 Hz, with the 50 Hz bar kept faint beside it for scale.\n\nScreen 4, The why: long cables and the set. \"A VLF set is rated by the capacitance it can drive at each frequency. Take a set that drives 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz and 3.75 µF at 0.02 Hz, up to 200 kV peak. It is a practice set, modelled on a real one.[^2] Use the rating of the set in front of you. The set can only supply so much current. Halve the frequency and each microfarad takes half the current, so the same set drives twice the capacitance. A core's capacitance grows with its length. So a long cable may need a lower frequency, a lower voltage, or both. 0.1 Hz is the standard. Go lower only when the cable is too big a load for the set at 0.1 Hz. Lowering the frequency when you don't need to is to be avoided. The recommended test times are given at 0.1 Hz.\" The picture: a bar for one core's capacitance, 0.22 µF per km × the length, against three dashed lines for the set's rating: 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz and 3.75 µF at 0.02 Hz. String B's 2.40 km is marked on the length scale. A Cable length slider runs from 0.5 to 8.0 km in steps of 0.1 km, opening at 2.40 km. Two readouts: Core capacitance, in µF to 3 places, = 0.22 × length; Frequency the set can use, the highest of 0.1, 0.05 and 0.02 Hz whose rating covers the core. At 0.5 km: 0.110 µF, 0.1 Hz. At 2.40 km: 0.528 µF, 0.1 Hz. At 5.0 km: 1.100 µF, 0.05 Hz. At 8.0 km: 1.760 µF, 0.02 Hz. The set reaches its 0.1 Hz rating near 3.41 km (0.75 ÷ 0.22) and its 0.05 Hz rating near 6.82 km (1.5 ÷ 0.22). The prompt: \"Drag the length from 2.40 km out to 8.0 km.\" Read: String B's 2.40 km core is 0.528 µF, inside the set's 0.75 µF, so it tests at 0.1 Hz. Past about 3.41 km a core is too big for the set at 0.1 Hz, so it drops to 0.05 Hz. Past about 6.82 km it drops to 0.02 Hz. At 8.0 km the core is 1.760 µF. Still: the slider at 8.0 km, with String B's 2.40 km marked. Then, under the picture: \"Why not DC? Once a cable is charged, DC needs almost no current. But DC can leave space charge in XLPE: charge trapped in the insulation itself. That can speed up water trees in healthy XLPE. DC withstand tests on XLPE cable are now discouraged.[^3] VLF reverses the polarity every cycle, which cuts that build-up. It is still a compromise, because 0.1 Hz does not stress the XLPE exactly as 50 Hz will in service.\"\n\nScreen 5, Check. \"You test String B's core at the same 76 kV, but drop the set from 0.1 Hz to 0.05 Hz. What does the charging current do?\" Choices: \"It halves, to 12.61 mA\"; \"It doubles, to 50.42 mA\"; \"It stays at 25.21 mA\". Right, the first: \"Half the frequency doubles Xc. The current is V ÷ Xc, so it halves: 25.21 ÷ 2 = 12.61 mA. That is why the set drives twice the capacitance at 0.05 Hz.\" Wrong, the second: \"A lower frequency gives a higher reactance, not a lower one. The core is filled and emptied half as often, so it takes half the current.\" Wrong, the third: \"The charge in each cycle stays the same, but the cycles come half as often. So the current halves.\"\n\nScreen 6, Worked example, a line at each press. \"A new cable rated 12/20 kV, tested for installation.\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit, with no monitoring equipment left on it. Restrict access at both ends. Use only the maker's test leads.\" Line 2: \"U0 is the rated voltage from each core to earth or screen. In 12/20 kV it is the first number: U0 = 12 kV.\" Line 3: \"Lowest level: 1.5 × U0 = 1.5 × 12 = 18.0 kV.\" Line 4: \"Highest level: 2.5 × U0 = 2.5 × 12 = 30.0 kV. So the range is 18.0 to 30.0 kV rms, and the client's spec picks the level.\" Line 5: \"A new cable on installation: 0.1 Hz for 60 minutes.[^4] A simple withstand on aged cable would run 30 minutes.\" Line 6: \"It passes if the core holds the voltage for the full 60 minutes with no breakdown.\" Line 7: \"End of test: the display shows discharged. Then the discharge stick, then the hook straight after it, then the hand earth. Earths go on core and screen at both ends, and stay on. Charge held in the XLPE can bring the voltage back for minutes or hours after the first discharge. Prove there is no voltage before anyone touches the cable.\" A note under the lines: \"Specs differ on the range. A range of 1.5 to 2.5 U0 is common practice.[^5] The IEEE guide bases its installation and acceptance levels on practice from under 2 U0 up to 3 U0.[^6] It puts maintenance tests at about 75% of acceptance. The client's spec sets the level on the job. String B is 38/66 kV, so U0 = 38 kV, and 1.5 to 2.5 U0 is 57.0 to 95.0 kV.\" Read: on a 12/20 kV cable, U0 is 12 kV, so 1.5 to 2.5 U0 is 18.0 to 30.0 kV rms. A new cable holds the spec's level at 0.1 Hz for 60 minutes and passes with no breakdown. Then it is discharged in order: display, discharge stick, hook, hand earth, then earths on core and screen at both ends, kept on. Still: all seven lines shown, with the note.\n\nScreen 7, Section A, question 5 (a). The scenario panel, then parts 4a and 4b carried forward: the sheath test voltage, 8.8 kV, and L2's sheath stress when it tripped, 1.45 kV/mm. Then the test, said once: \"Assume the client asks for the VLF test on all three cores, despite L2's failed sheath test. On a real job you would stop and report L2 first. The client's spec asks for 2 U0, a sine wave at 0.1 Hz, for 60 minutes, each core in turn. String B is rated 38/66 kV. These are practice values.\" The question: \"(a) Determine the VLF test voltage for String B's cores.\" A typed answer, part 5a, in kV: 2 × 38 = 76.0 kV rms. Slips: 132.0, \"That uses 66 kV, the voltage between cores. U0 is the voltage to earth, 38 kV.\"; 38.0, \"That is U0 itself. The spec asks for 2 U0.\"; 107.5, \"That is 76 kV as a peak. The test voltage is given in rms.\" After two misses, the working. Then: \"76.0 kV rms is 2 U0, inside 57.0 to 95.0 kV. Sets are rated in kV peak, and peak = rms × 1.4142. So the set must reach 76 × 1.4142 = 107.5 kV peak. The practice set's 200 kV peak covers it. Above 35 kV, the cable ends may need terminations fitted to stop flashover at the test voltage.[^7]\"\n\nScreen 8, Section A, question 5 (b). Parts 1a and 5a carried forward: one core's capacitance, 0.528 µF, and the test voltage, 76.0 kV. \"(b) Determine the charging current one core draws at 0.1 Hz.\" A typed answer, part 5b, in mA: 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 0.02521 A = 25.21 mA. Slips: 4.01, \"The 2π is missing. I = 2πfCV.\"; 35.66, \"That uses the peak voltage. Use the rms test voltage, 76 kV.\"; 75.63, \"That is three cores. Each core is tested on its own.\" After two misses, the working. Then: \"25.21 mA is all the set must supply. That is 76 × 0.02521 = 1.92 kVA.\"\n\nScreen 9, Section A, question 5 (c). Parts 1a, 5a and 5b carried forward. \"(c) Determine the charging current the same core would draw in a 50 Hz test at 76 kV.\" A typed answer, part 5c, in A: 2π × 50 × 0.528 × 10⁻⁶ × 76 000 = 12.61 A. Slips: 2.01, \"The 2π is missing. I = 2πfCV.\"; 6.30, \"That is the core's charging current in service, at U0 = 38 kV. The test runs at 76 kV.\"; 25.21, \"That is the 0.1 Hz current, in mA. At 50 Hz it is 500 times bigger.\" After two misses, the working. Then: \"12.61 A is 500 times 25.21 mA. The set would supply 76 × 12.61 = 958.4 kVA, against 1.92 kVA at 0.1 Hz.\" Then String B's results: \"L1 and L3 hold 76 kV for the full 60 minutes. L2 breaks down at minute 12. These are practice values. Each core is discharged and earthed after its test. Tested afterwards, L2 reads 35 Ω from core to screen. It is the same core that had the flat PI and the sheath that would not hold. Record it. The next job is to find where the fault is.\" The picture: three bars along a 60 minute time line. L1 and L3 run the full 60 minutes, each labelled \"held\". L2 stops at minute 12, in red, labelled \"broke down\", with \"35 Ω core to screen after\" beside it.\n\nScreen 10, Section B: \"Explain why VLF is used rather than a 50 Hz test on a long cable.\" A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 11, Section A, changed numbers. \"Another core of the same cable type runs 3.10 km. It is tested at 76 kV and 0.1 Hz. Determine its charging current.\" A typed answer, in mA: C = 0.22 × 3.10 = 0.682 µF, then 2π × 0.1 × 0.682 × 10⁻⁶ × 76 000 = 32.57 mA. Slips: 25.21, \"That is String B's 2.40 km core. Work out this core's capacitance first: 0.22 × 3.10.\"; 5.18, \"The 2π is missing. I = 2πfCV.\" After two misses, the working. Then: \"0.682 µF is inside the practice set's 0.75 µF at 0.1 Hz, so 0.1 Hz still works.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+  "ignores": "Each core is drawn as a pure capacitance. The small leakage current through the XLPE is left out, so the current shown is the charging current alone. At 50 Hz the 500 cycles are drawn as a solid band, since they cannot be drawn one by one in 10 s. The test set is a practice set modelled on a real one, and real sets differ. String B's figures are practice values.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 12 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Recall: the cable's rating, U0, kV",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: the cable's rating, between cores, kV",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Low multiple of U0",
+    "value": 1.5,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "High multiple of U0",
+    "value": 2.5,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Recall: lowest level, kV",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: highest level, kV",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: low end with 20 kV, kV",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: high end with 20 kV, kV",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "IR test voltage from lesson 3, kV d.c.",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Resonant test frequency, from, Hz",
+    "value": 10,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Resonant test frequency, to, Hz",
+    "value": 500,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Above this rating a resonant test may be asked, kV",
+    "value": 36,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "String B's core capacitance (practice value), µF",
+    "value": 0.528,
+    "kind": "computed"
+   },
+   {
+    "label": "String B's capacitance per km (typical, as in lesson 1), µF/km",
+    "value": 0.22,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B's test voltage, kV rms",
+    "value": 76,
+    "kind": "computed"
+   },
+   {
+    "label": "String B's test voltage as a peak, kV",
+    "value": 107.5,
+    "kind": "computed"
+   },
+   {
+    "label": "One cycle at 0.1 Hz, s",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Cycles of 50 Hz in 10 s",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Frequency ratio, 50 ÷ 0.1",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Stepper: frequency settings, Hz",
+    "value": "0.1, 1, 10, 50",
+    "kind": "control"
+   },
+   {
+    "label": "At 50 Hz: charging current, A",
+    "value": 12.61,
+    "kind": "computed"
+   },
+   {
+    "label": "At 50 Hz: set supplies, kVA",
+    "value": 958.4,
+    "kind": "computed"
+   },
+   {
+    "label": "At 10 Hz: charging current, A",
+    "value": 2.52,
+    "kind": "computed"
+   },
+   {
+    "label": "At 10 Hz: set supplies, kVA",
+    "value": 191.5,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 Hz: charging current, mA",
+    "value": 252.13,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1 Hz: set supplies, kVA",
+    "value": 19.16,
+    "kind": "computed"
+   },
+   {
+    "label": "At 0.1 Hz: charging current, mA",
+    "value": 25.21,
+    "kind": "computed"
+   },
+   {
+    "label": "At 0.1 Hz: set supplies, kVA",
+    "value": 1.92,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice set: rating at 0.1 Hz, µF",
+    "value": 0.75,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Practice set: rating at 0.05 Hz, µF",
+    "value": 1.5,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Practice set: rating at 0.02 Hz, µF",
+    "value": 3.75,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Practice set: highest output, kV peak",
+    "value": 200,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Slider: from, km",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: to, km",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: step, km",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider opens at String B's length (practice value), km",
+    "value": 2.4,
+    "kind": "control"
+   },
+   {
+    "label": "At 0.5 km: core capacitance, µF",
+    "value": 0.11,
+    "kind": "computed"
+   },
+   {
+    "label": "At 5.0 km: core capacitance, µF",
+    "value": 1.1,
+    "kind": "computed"
+   },
+   {
+    "label": "At 8.0 km: core capacitance, µF",
+    "value": 1.76,
+    "kind": "computed"
+   },
+   {
+    "label": "Longest core at 0.1 Hz on the practice set, km",
+    "value": 3.41,
+    "kind": "computed"
+   },
+   {
+    "label": "Longest core at 0.05 Hz on the practice set, km",
+    "value": 6.82,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: lower frequency, Hz",
+    "value": 0.05,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: current at 0.05 Hz, mA",
+    "value": 12.61,
+    "kind": "computed"
+   },
+   {
+    "label": "Check slip: current doubled, mA",
+    "value": 50.42,
+    "kind": "computed"
+   },
+   {
+    "label": "Installation or acceptance test time, min",
+    "value": 60,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Simple withstand on aged cable, min",
+    "value": 30,
+    "kind": "constant"
+   },
+   {
+    "label": "IEEE: from under, times U0",
+    "value": 2,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "IEEE: up to, times U0",
+    "value": 3,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "IEEE: maintenance, % of acceptance",
+    "value": 75,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Lines in the worked example",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B's rating, U0, kV (practice value)",
+    "value": 38,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B's rating, between cores, kV (practice value)",
+    "value": 66,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B: 1.5 U0, kV",
+    "value": 57,
+    "kind": "computed"
+   },
+   {
+    "label": "String B: 2.5 U0, kV",
+    "value": 95,
+    "kind": "computed"
+   },
+   {
+    "label": "Spec multiple of U0 (practice value)",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Spec test time (practice value), min",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Carried: sheath test voltage, kV",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Carried: L2 sheath stress at the trip, kV/mm",
+    "value": 1.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5a slip: 66 kV taken as U0, kV",
+    "value": 132,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5a slip: U0 alone, kV",
+    "value": 38,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak to rms factor",
+    "value": 1.4142,
+    "kind": "constant"
+   },
+   {
+    "label": "Terminations may be needed above, kV",
+    "value": 35,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Part 5b: charging current at 0.1 Hz, A",
+    "value": 0.02521,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5b slip: 2π left out, mA",
+    "value": 4.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5b slip: peak voltage, mA",
+    "value": 35.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5b slip: three cores, mA",
+    "value": 75.63,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5c slip: 2π left out, A",
+    "value": 2.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 5c slip: in-service current at U0, A",
+    "value": 6.3,
+    "kind": "computed"
+   },
+   {
+    "label": "String B: L2 breaks down at (practice value), min",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B: L2 core to screen afterwards (practice value), Ω",
+    "value": 35,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: core length (practice value), km",
+    "value": 3.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: core capacitance, µF",
+    "value": 0.682,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: charging current, mA",
+    "value": 32.57,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers slip: 2π left out, mA",
+    "value": 5.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Section B: points, of which any make a full answer",
+    "value": "5, any 3",
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A VLF test holds an AC overvoltage on each core for 30 or 60 minutes, at 0.1 Hz instead of 50 Hz. At that voltage, a big enough defect sparks inside. The sparks start an [[electrical tree]], which grows until the core breaks down, during the test and under control. Smaller defects are not affected, so a pass gives a high chance the insulation is sound, not a proof.\n\nEach core is a long capacitor. To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow is the [[charging current]]. The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at 0.1 Hz takes 10 s, and 50 Hz runs 500 cycles in that time. So at 50 Hz the same charge moves 500 times as often, and the current is 500 times bigger. In the terms you know, Xc = 1 ÷ 2πfC rises 500 times from 50 Hz to 0.1 Hz, so I = V ÷ Xc = 2πfCV falls 500 times. One core of String B at 76 kV needs 12.61 A at 50 Hz, and 958.4 kVA from the set. At 0.1 Hz it needs 25.21 mA, and 1.92 kVA. These figures treat each core as a pure capacitance, leaving out the small leakage current through the XLPE.\n\nA VLF set is rated by the capacitance it can drive at each frequency. A long cable can be too big a load at 0.1 Hz, so it needs a lower frequency, a lower voltage, or both. Use 0.1 Hz unless the set cannot drive the cable there. DC would need almost no current once the cable is charged. But DC can leave charge trapped in XLPE, and DC withstand tests on XLPE are now discouraged.[^3] The test voltage is a multiple of [[U0]], the rated voltage from core to earth. The client's spec sets the multiple.\n\n**At 0.1 Hz a core's reactance is 500 times higher than at 50 Hz, so a test set small enough for site can hold the overvoltage long enough for a severe defect to fail during the test.**"
+ },
+ "analogy": {
+  "text": "Think of a power factor correction bank on a 50 Hz board. It draws a large current with almost no real load behind it. That current is charge flowing in and out of the capacitors, 50 times a second. A long cable core is a bank like that, stretched over kilometres. Slow the supply 500 times and it draws 500 times less.",
+  "breaks": "A correction bank is built to take its current all day at 50 Hz. The cable is only slowed down for the test. And 0.1 Hz does not stress the XLPE exactly as 50 Hz will in service, so a VLF test is a compromise, not a copy of service."
+ },
+ "practice": {
+  "text": "- Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit and take off any monitoring equipment. Restrict access at both ends. Use only the maker's test leads.\n- Read U0 off the cable's data sheet. It is the first number of the rating, core to earth.\n- Take the test voltage, frequency and time from the client's spec.\n- Check the set can do it. The peak, rms × 1.4142, must sit inside its kV peak rating. The core's capacitance must sit inside its rating at the frequency you use.\n- Use 0.1 Hz unless the cable is too big a load for the set there.\n- Above 35 kV, check whether the cable ends need terminations fitted to stop flashover.\n- Hold the voltage for the full time. It passes if there is no breakdown.\n- End of test: the display shows discharged, then the discharge stick, the hook straight after, then the hand earth. Earths go on core and screen at both ends, and stay on. Prove there is no voltage before anyone touches the cable.\n\n**Rule of thumb:** the charging current goes with the frequency and the length. Halve the frequency and the current halves. Double the length and it doubles.\n\n**Rule of thumb:** at 0.1 Hz, 60 minutes for installation or acceptance on new cable, and 30 minutes for a simple withstand on aged cable.\n\n**Worked example:** String B is 38/66 kV, 2.40 km, 0.528 µF a core. These are practice values. The spec asks for 2 U0: 2 × 38 = 76.0 kV rms, which is 107.5 kV peak. At 0.1 Hz one core draws 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 25.21 mA. At 50 Hz it would draw 12.61 A.\n\n**Common mistakes**\n- Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.\n- Dropping the frequency when the set does not need it.\n- Setting an rms test voltage against a set's peak rating without converting.\n- Lifting the hand earth before the discharge stick and the hook.\n- Reading a pass as proof of no defects. Smaller defects are not affected."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "Explain why VLF is used rather than a 50 Hz test on a long cable.",
+   "points": [
+    {
+     "text": "A long cable has a large capacitance, so a 50 Hz withstand test needs a very large current and power.",
+     "cite": "Notes p.6"
+    },
+    {
+     "text": "Lowering the frequency raises the cable's capacitive reactance.",
+     "cite": "Notes p.6"
+    },
+    {
+     "text": "So the current and power the test set must supply fall with the frequency: 500 times less at 0.1 Hz than at 50 Hz.",
+     "cite": "Notes p.6; University of Canterbury, A comparison of VLF and 50 Hz field testing; IAEA, Medium and low voltage cable measurements (research)"
+    },
+    {
+     "text": "Because of the cable's capacitance, a 50 Hz test is impractical on site. VLF makes a field withstand test practical.",
+     "cite": "Megger, An introduction to VLF cable testing (research)"
+    },
+    {
+     "text": "DC needs little current, but it can leave space charge in XLPE, and DC withstand tests on XLPE are discouraged. VLF gives an AC test without that.",
+     "cite": "University of Canterbury, A comparison of VLF and 50 Hz field testing; INMR, Overview of cable testing (research)"
+    }
+   ],
+   "need": 3,
+   "model": "A long cable is a large capacitance. At 50 Hz its reactance is low, so holding a withstand voltage on it needs a very large charging current and a lot of power. That makes a 50 Hz test impractical on site. Lowering the frequency raises the reactance, so the current and power fall with the frequency. At 0.1 Hz they are 500 times less than at 50 Hz, so a set you can take to site can do the test. DC would need even less current, but it can leave space charge in XLPE, and DC withstand tests on XLPE are discouraged. VLF keeps an alternating test without that problem."
+  }
+ },
+ "summary": {
+  "title": "VLF withstand",
+  "for": "Is the insulation sound above its working stress? An AC overvoltage at 0.1 Hz, held for a set time, before the cable is energised.",
+  "rule": "Xc = 1 ÷ 2πfC\nI = V ÷ Xc = 2πfCV\nTest voltage = the spec's multiple × U0\nPeak = rms × 1.4142\n\nU0 is core to earth: the first number of the rating.\nCommon practice: 1.5 to 2.5 U0. IEEE: under 2 up to 3 U0. The spec decides.\nAt 0.1 Hz: 60 min for installation or acceptance on new cable, 30 min for a simple withstand on aged cable.\nPass: holds the full time with no breakdown.\nUse 0.1 Hz unless the cable is too big a load for the set.\nAbove 36 kV a spec may ask for a resonant AC test at 10 to 500 Hz instead.",
+  "traps": [
+   {
+    "text": "Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.",
+    "cite": "Notes p.7 (added background, checked); IEC 60502-2 definition of U0 (research)"
+   },
+   {
+    "text": "Dropping the frequency when the set does not need it.",
+    "cite": "Notes p.7; High Voltage Inc, VLF-4022CM manual (research)"
+   },
+   {
+    "text": "Setting an rms test voltage against a set's peak rating without converting.",
+    "cite": "High Voltage Inc, VLF cable test voltage, IEEE standard (research)"
+   },
+   {
+    "text": "Lifting the hand earth before the discharge stick and the hook.",
+    "cite": "Notes p.6, p.10"
+   },
+   {
+    "text": "Reading a pass as proof of no defects. Smaller defects are not affected.",
+    "cite": "Notes p.7; High Voltage Inc, VLF AC withstand testing of cable (research)"
+   }
+  ],
+  "where": "After the sheath test, before the cable is energised. Each core in turn, then discharged and earthed at both ends.",
+  "figures": [
+   "5a",
+   "5b",
+   "5c"
+  ]
+ },
+ "sources": [
+  {
+   "n": 1,
+   "title": "Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk",
+   "url": "https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables",
+   "quote": "IEC 63026 was published in January 2020 and for cables greater than 36 kV stipulates that a test frequency of 10-500 Hz must be used for commissioning."
+  },
+  {
+   "n": 2,
+   "title": "VLF TESTING HIGH VOLTAGE CABLES?",
+   "url": "https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf",
+   "quote": "VLF-200CMF 0 - 200 kVac peak 0.75 µF @ 0.10 Hz. – 3.75 µF @ 0.02 Hz."
+  },
+  {
+   "n": 3,
+   "title": "INMR: Overview of Cable Testing: State-of-the-Art, Standards & ...",
+   "url": "https://www.inmr.com/overview-of-cable-testing-state-of-the-art-standards-technologies",
+   "quote": "Use of DC voltage on extruded cable systems for withstand testing has been discouraged by IEEE 400.1, ICEA S-94-649-2004 and IEC 60502-2."
+  },
+  {
+   "n": 4,
+   "title": "VLF Series 2023.pdf",
+   "url": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf",
+   "quote": "The recommended minimum testing time for an installation and/or acceptance withstand test on new cable circuits is 60 min at 0.1 Hz."
+  },
+  {
+   "n": 5,
+   "title": "Your subsea cable testing course notes",
+   "url": "material:notes#p7",
+   "quote": "Installation, acceptance and maintenance tests range from 1.5 – 2.5 U₀"
+  },
+  {
+   "n": 6,
+   "title": "VLF Cable Test Voltage IEEE Standard - High Voltage Inc",
+   "url": "https://hvinc.com/vlf-cable-test-voltage-ieee-standard",
+   "quote": "The voltage levels (installation and acceptance) are based on the most used, worldwide practices of from less than 2 U0 to 3U0, where U0 is the rated rms phase to ground voltage"
+  },
+  {
+   "n": 7,
+   "title": "VLF Series 2023.pdf",
+   "url": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf",
+   "quote": "It should be noted that terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0; * is a written question's id): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text, written.*.q, written.*.points[i].text, written.*.model, summary.title, summary.for, summary.rule, summary.where, summary.traps[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

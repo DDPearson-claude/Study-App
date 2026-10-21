@@ -1,0 +1,811 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T02:21:34.602Z",
+ "startedAt": "2026-10-21T02:21:34.602Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "VLF withstand: why 0.1 Hz",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is one String B core's charging current at 76 kV falling 500 times, from 12.61 A to 25.21 mA, when you step the frequency from 50 Hz down to 0.1 Hz.",
+   "title": "Charging a core at 0.1 Hz",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve screens cover the VLF withstand test, with Back and Continue. They show what it is for, why it runs at 0.1 Hz, how the voltage and time are set, and String B's result.\n\nScreen 1, Do you still have it? The question: \"What VLF test voltage range applies to a 12/20 kV cable?\" Three choices, in this order: \"12 to 20 kV\"; \"18 to 30 kV\"; \"30 to 50 kV\". Right, the second: \"Still there.\" Then the working: \"The range is 1.5 to 2.5 U0. U0 is the voltage from each core to earth, the first number in 12/20 kV. 1.5 × 12 = 18.0 kV, and 2.5 × 12 = 30.0 kV.\" A last line names the two slips. The 30 to 50 kV answer uses 20 kV, the voltage between cores. The 12 to 20 kV answer is the rating itself, with no overvoltage. Then come two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: \"That is the cable's own rating. The test goes above it, to 1.5 to 2.5 times U0.\" Wrong, the third: \"That uses 20 kV, the voltage between cores. U0 is the voltage to earth, 12 kV. 1.5 × 12 = 18.0 kV, and 2.5 × 12 = 30.0 kV.\" Then the right working, and on to screen 2.\n\nScreen 2, What it is for. \"The VLF test is a pressure test. It holds an AC overvoltage on the insulation for a set time. The IR test checked the XLPE at 5 kV d.c. This test stresses it above its working voltage. It runs before the cable is energised.\" Then: \"Take a defect bad enough to spark at the test voltage. The small discharges inside it are partial discharges. They start an electrical tree. That is a set of fine breakdown channels that branch out through the XLPE. The tree grows until the core breaks down, during the test. Smaller defects are not affected. So a pass means the core held the voltage for the full time with no breakdown. That gives a high chance the insulation is sound. It does not prove there are no defects at all.\" Then: \"Not every spec uses VLF. On a submarine cable rated above 36 kV, the spec may ask for an AC test at 10 to 500 Hz, from a resonant test set.[^1] The client's spec decides.\" The picture shows one core in long section: conductor, XLPE and screen. A void sits in the XLPE near the conductor. Fine branching lines grow from it across the XLPE towards the screen, labelled \"electrical tree: grows during the test\". A smaller void further along stays as it is, labelled \"smaller defect: not affected\". A red line says what goes wrong if the test is skipped: \"Skip it, and a defect the test would have found stays in the cable. It is still there when the cable is switched on.\"\n\nScreen 3, The why: 0.1 Hz. \"Each core is a capacitor, as in lesson 1. Conductor and screen are the plates. String B's core is 0.528 µF. To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow of charge is the charging current. The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at 0.1 Hz takes 10 s. In those 10 s, 50 Hz runs 50 × 10 = 500 cycles. So at 50 Hz the set moves the same charge 500 times as often, and the current is 500 times bigger.\" The top of the picture plots the voltage across one core of String B against time, from 0 to 10 s. It is always 76 kV rms, with its 107.5 kV peak marked. At 0.1 Hz one slow cycle fills the 10 s. At 1 Hz there are 10 cycles. At 10 Hz there are 100, drawn as a dense band. At 50 Hz the 500 cycles merge into a solid band, labelled \"500 cycles in 10 s\". Below, a bar shows the charging current on a scale up to 12.61 A, with its value written beside it. A Frequency stepper is a named control with four settings, in this order: 0.1 Hz; 1 Hz; 10 Hz; 50 Hz. It opens on 50 Hz. There are two readouts. Charging current = 2π × f × 0.528 × 10⁻⁶ × 76 000, shown in A from 1 A up and in mA below. Set supplies, in kVA, = 76 × the current in A. At 50 Hz: 12.61 A and 958.4 kVA. At 10 Hz: 2.52 A and 191.5 kVA. At 1 Hz: 252.13 mA and 19.16 kVA. At 0.1 Hz: 25.21 mA and 1.92 kVA. The prompt: \"Step the frequency down from 50 Hz to 0.1 Hz.\" Read: at 50 Hz one core of String B needs 12.61 A at 76 kV. The set supplies 958.4 kVA. Each step down cuts the current in proportion. At 0.1 Hz the same voltage needs 25.21 mA and 1.92 kVA. That is 500 times less, because the core goes through 500 times fewer cycles. Still: 0.1 Hz, with the 50 Hz bar kept faint beside it for scale. Under the readouts, a second paragraph: \"That is the reactance at work. Xc = 1 ÷ 2πfC, so dropping f from 50 Hz to 0.1 Hz raises Xc 50 ÷ 0.1 = 500 times. The current is I = V ÷ Xc = 2πfCV, so it falls 500 times. The power the set supplies, V × I, falls with it.\" Each formula stays on one line.\n\nScreen 4, The why: long cables and the set. \"A VLF set is rated by the capacitance it can drive at each frequency. Take a set that drives 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz and 3.75 µF at 0.02 Hz, up to 200 kV peak. It is a practice set, modelled on a real one.[^2] Use the rating of the set in front of you. The set can only supply so much current. Halve the frequency and each microfarad takes half the current. So the same set drives twice the capacitance. A core's capacitance grows with its length. So a long cable may need a lower frequency, a lower voltage, or both. 0.1 Hz is the standard. Go lower only when the cable is too big a load for the set at 0.1 Hz. The recommended test times are for 0.1 Hz.\" The picture shows a bar for one core's capacitance, 0.22 µF per km × the length. Three dashed lines mark the set's rating: 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz and 3.75 µF at 0.02 Hz. String B's 2.40 km is marked on the length scale. A Cable length slider runs from 0.5 to 8.0 km in steps of 0.1 km, opening at 2.40 km. There are two readouts. Core capacitance, in µF to 3 places, = 0.22 × length. Frequency the set can use is the highest of 0.1, 0.05 and 0.02 Hz whose rating covers the core. At 0.5 km: 0.110 µF, 0.1 Hz. At 2.40 km: 0.528 µF, 0.1 Hz. At 5.0 km: 1.100 µF, 0.05 Hz. At 8.0 km: 1.760 µF, 0.02 Hz. The set reaches its 0.1 Hz rating near 3.41 km, from 0.75 ÷ 0.22. It reaches its 0.05 Hz rating near 6.82 km, from 1.5 ÷ 0.22. The prompt: \"Drag the length from 2.40 km out to 8.0 km.\" Read: String B's 2.40 km core is 0.528 µF. That is inside the set's 0.75 µF, so it tests at 0.1 Hz. Past about 3.41 km a core is too big for the set at 0.1 Hz, so it drops to 0.05 Hz. Past about 6.82 km it drops to 0.02 Hz. At 8.0 km the core is 1.760 µF. Still: the slider at 8.0 km, with String B's 2.40 km marked. Then, under the picture: \"Why not DC? Once a cable is charged, DC needs almost no current. But DC can leave space charge in XLPE. That is charge trapped in the insulation itself. This trapped charge can speed up water trees in healthy XLPE. Standards now discourage DC withstand tests on XLPE.[^3] VLF reverses the polarity every cycle. That cuts the build-up. It is still a compromise. 0.1 Hz does not stress the XLPE exactly as 50 Hz will in service.\"\n\nScreen 5, Check. \"You test String B's core at the same 76 kV, but drop the set from 0.1 Hz to 0.05 Hz. What does the charging current do?\" Choices: \"It halves, to 12.61 mA\"; \"It doubles, to 50.42 mA\"; \"It stays at 25.21 mA\". Right, the first: \"Half the frequency doubles Xc. The current is V ÷ Xc, so it halves: 25.21 ÷ 2 = 12.61 mA. That is why the set drives twice the capacitance at 0.05 Hz.\" Wrong, the second: \"A lower frequency gives a higher reactance, not a lower one. The core goes through half as many cycles, so it takes half the current.\" Wrong, the third: \"The charge in each cycle stays the same, but the cycles come half as often. So the current halves.\"\n\nScreen 6, Worked example. Each press shows one more line. \"A new cable rated 12/20 kV, tested for installation.\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit, with no monitoring equipment left on it. Restrict access at both ends. Use only the maker's test leads.\" Line 2: \"U0 is the rated voltage from each core to earth or screen. In 12/20 kV it is the first number: U0 = 12 kV.\" Line 3: \"Lowest level: 1.5 × U0 = 1.5 × 12 = 18.0 kV.\" Line 4: \"Highest level: 2.5 × U0 = 2.5 × 12 = 30.0 kV. So the range is 18.0 to 30.0 kV rms. The client's spec picks the level.\" Line 5: \"A new cable on installation: 0.1 Hz for 60 minutes.[^4] A simple withstand on aged cable would run 30 minutes.\" Line 6: \"It passes if the core holds the voltage for the full 60 minutes with no breakdown.\" Line 7: \"End of test: wait for the display to show discharged. Then apply the discharge stick, then the hook straight after it, then the hand earth. Earths go on core and screen at both ends, and stay on. Charge held in the XLPE can bring the voltage back for minutes or hours after the first discharge. Prove there is no voltage before anyone touches the cable.\" A note under the lines: \"Specs differ on the range. One range in use is 1.5 to 2.5 U0.[^5] IEEE puts installation and acceptance from under 2 U0 up to 3 U0.[^6] IEEE maintenance tests run at about 75% of that. The client's spec sets the level on the job. String B is 38/66 kV, so U0 = 38 kV. For String B, 1.5 to 2.5 U0 is 57.0 to 95.0 kV.\" Read: on a 12/20 kV cable, U0 is 12 kV. So 1.5 to 2.5 U0 is 18.0 to 30.0 kV rms. A new cable holds the spec's level at 0.1 Hz for 60 minutes. It passes if there is no breakdown. Then discharge it in order: display, discharge stick, hook, hand earth. Earths then go on core and screen at both ends, and stay on. Still: all seven lines shown, with the note.\n\nScreen 7, Section A, question 5 (a). The scenario panel comes first. Parts 4a and 4b carry forward: the sheath test voltage, 8.8 kV, and L2's sheath stress when it tripped, 1.45 kV/mm. Then the test is set out once: \"Assume the client asks for the VLF test on all three cores, despite L2's failed sheath test. On a real job you would stop and report L2 first. String B is rated 38/66 kV. That is above 36 kV, so a real spec may ask for a resonant test. This one asks for VLF: 2 U0 as a sine wave at 0.1 Hz, for 60 minutes on each core in turn. These are practice values.\" The question: \"(a) Determine the VLF test voltage for String B's cores.\" A typed answer, part 5a, in kV: 2 × 38 = 76.0 kV rms. Slips: 132.0, \"That uses 66 kV, the voltage between cores. U0 is the voltage to earth, 38 kV.\"; 38.0, \"That is U0 itself. The spec asks for 2 U0.\"; 107.5, \"That is 76 kV as a peak. The test voltage is given in rms.\" After two misses, the working shows. Then: \"76.0 kV rms is 2 U0, which sits inside 57.0 to 95.0 kV. Sets are rated in kV peak. Peak = rms × 1.4142. So the set must reach 76 × 1.4142 = 107.5 kV peak. The practice set's 200 kV peak covers it. On a cable rated above 35 kV, the ends may need terminations fitted to stop flashover.[^7]\"\n\nScreen 8, Section A, question 5 (b). Parts 1a and 5a carry forward: one core's capacitance, 0.528 µF, and the test voltage, 76.0 kV. \"(b) Determine the charging current one core draws at 0.1 Hz.\" A typed answer, part 5b, in mA: 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 0.02521 A = 25.21 mA. Slips: 4.01, \"The 2π is missing. I = 2πfCV.\"; 35.66, \"That uses the peak voltage. Use the rms test voltage, 76 kV.\"; 75.63, \"That is three cores. Each core is tested on its own.\" After two misses, the working shows. Then: \"At 76 kV the set supplies 76 × 0.02521 = 1.92 kVA.\"\n\nScreen 9, Section A, question 5 (c). Parts 1a, 5a and 5b carry forward. \"(c) Determine the charging current the same core would draw in a 50 Hz test at 76 kV.\" A typed answer, part 5c, in A: 2π × 50 × 0.528 × 10⁻⁶ × 76 000 = 12.61 A. Slips: 2.01, \"The 2π is missing. I = 2πfCV.\"; 6.30, \"That is the core's charging current in service, at U0 = 38 kV. The test runs at 76 kV.\"; 25.21, \"That is the 0.1 Hz current, in mA. At 50 Hz it is 500 times bigger.\" After two misses, the working shows. Then: \"12.61 A is 500 times 25.21 mA. The set would supply 76 × 12.61 = 958.4 kVA, against 1.92 kVA at 0.1 Hz.\" Then String B's results: \"L1 and L3 hold 76 kV for the full 60 minutes. L2 breaks down at minute 12. These are practice values. Each core is discharged and earthed after its test. Afterwards L2 reads 35 Ω from core to screen. It is the same core that had the flat PI. Its sheath would not hold either. Record it. The next job is to find where the fault is.\" The picture shows three bars along a 60 minute time line. L1 and L3 run the full 60 minutes, each labelled \"held\". L2 stops at minute 12, in red, labelled \"broke down\", with \"35 Ω core to screen after\" beside it.\n\nScreen 10, Section B: \"Explain why VLF is used rather than a 50 Hz test on a long cable.\" A written answer is marked against four points. Any three make a full answer. After one more go, the model answer shows.\n\nScreen 11, Section A, changed numbers. \"Another core of the same cable type runs 3.10 km. It is tested at 76 kV and 0.1 Hz. Determine its charging current.\" A typed answer, in mA: C = 0.22 × 3.10 = 0.682 µF, then 2π × 0.1 × 0.682 × 10⁻⁶ × 76 000 = 32.57 mA. Slips: 25.21, \"That is String B's 2.40 km core. Work out this core's capacitance first: 0.22 × 3.10.\"; 5.18, \"The 2π is missing. I = 2πfCV.\" After two misses, the working shows. Then: \"0.682 µF is inside the practice set's 0.75 µF at 0.1 Hz, so 0.1 Hz still works.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "Each core is drawn as a pure capacitance. The small leakage current through the XLPE is left out, so the current shown is the charging current alone. At 50 Hz the 500 cycles are drawn as a solid band. They are too many to draw one by one in 10 s. The test set is a practice set modelled on a real one. Real sets differ. String B's figures are practice values.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Recall: the cable's rating, U0, kV",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: the cable's rating, between cores, kV",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Low multiple of U0",
+     "value": 1.5,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "High multiple of U0",
+     "value": 2.5,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Recall: lowest level, kV",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall: highest level, kV",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: low end with 20 kV, kV",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: high end with 20 kV, kV",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "IR test voltage from lesson 3, kV d.c.",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Resonant test frequency, from, Hz",
+     "value": 10,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Resonant test frequency, to, Hz",
+     "value": 500,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Above this rating a resonant test may be asked, kV",
+     "value": 36,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "String B's core capacitance (practice value), µF",
+     "value": 0.528,
+     "kind": "computed"
+    },
+    {
+     "label": "String B's capacitance per km (typical, as in lesson 1), µF/km",
+     "value": 0.22,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B's test voltage, kV rms",
+     "value": 76,
+     "kind": "computed"
+    },
+    {
+     "label": "String B's test voltage as a peak, kV",
+     "value": 107.5,
+     "kind": "computed"
+    },
+    {
+     "label": "One cycle at 0.1 Hz, s",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Cycles of 50 Hz in 10 s",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Frequency ratio, 50 ÷ 0.1",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Stepper: frequency settings, Hz",
+     "value": "0.1, 1, 10, 50",
+     "kind": "control"
+    },
+    {
+     "label": "At 50 Hz: charging current, A",
+     "value": 12.61,
+     "kind": "computed"
+    },
+    {
+     "label": "At 50 Hz: set supplies, kVA",
+     "value": 958.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 10 Hz: charging current, A",
+     "value": 2.52,
+     "kind": "computed"
+    },
+    {
+     "label": "At 10 Hz: set supplies, kVA",
+     "value": 191.5,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1 Hz: charging current, mA",
+     "value": 252.13,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1 Hz: set supplies, kVA",
+     "value": 19.16,
+     "kind": "computed"
+    },
+    {
+     "label": "At 0.1 Hz: charging current, mA",
+     "value": 25.21,
+     "kind": "computed"
+    },
+    {
+     "label": "At 0.1 Hz: set supplies, kVA",
+     "value": 1.92,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice set: rating at 0.1 Hz, µF",
+     "value": 0.75,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Practice set: rating at 0.05 Hz, µF",
+     "value": 1.5,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Practice set: rating at 0.02 Hz, µF",
+     "value": 3.75,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Practice set: highest output, kV peak",
+     "value": 200,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Slider: from, km",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider: to, km",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider: step, km",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider opens at String B's length (practice value), km",
+     "value": 2.4,
+     "kind": "control"
+    },
+    {
+     "label": "At 0.5 km: core capacitance, µF",
+     "value": 0.11,
+     "kind": "computed"
+    },
+    {
+     "label": "At 5.0 km: core capacitance, µF",
+     "value": 1.1,
+     "kind": "computed"
+    },
+    {
+     "label": "At 8.0 km: core capacitance, µF",
+     "value": 1.76,
+     "kind": "computed"
+    },
+    {
+     "label": "Longest core at 0.1 Hz on the practice set, km",
+     "value": 3.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Longest core at 0.05 Hz on the practice set, km",
+     "value": 6.82,
+     "kind": "computed"
+    },
+    {
+     "label": "Check: lower frequency, Hz",
+     "value": 0.05,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: current at 0.05 Hz, mA",
+     "value": 12.61,
+     "kind": "computed"
+    },
+    {
+     "label": "Check slip: current doubled, mA",
+     "value": 50.42,
+     "kind": "computed"
+    },
+    {
+     "label": "Installation or acceptance test time, min",
+     "value": 60,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Simple withstand on aged cable, min",
+     "value": 30,
+     "kind": "constant"
+    },
+    {
+     "label": "IEEE: from under, times U0",
+     "value": 2,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "IEEE: up to, times U0",
+     "value": 3,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "IEEE: maintenance, % of acceptance",
+     "value": 75,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Lines in the worked example",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B's rating, U0, kV (practice value)",
+     "value": 38,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B's rating, between cores, kV (practice value)",
+     "value": 66,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B: 1.5 U0, kV",
+     "value": 57,
+     "kind": "computed"
+    },
+    {
+     "label": "String B: 2.5 U0, kV",
+     "value": 95,
+     "kind": "computed"
+    },
+    {
+     "label": "Spec multiple of U0 (practice value)",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Spec test time (practice value), min",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Carried: sheath test voltage, kV",
+     "value": 8.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Carried: L2 sheath stress at the trip, kV/mm",
+     "value": 1.45,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5a slip: 66 kV taken as U0, kV",
+     "value": 132,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5a slip: U0 alone, kV",
+     "value": 38,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak to rms factor",
+     "value": 1.4142,
+     "kind": "constant"
+    },
+    {
+     "label": "Terminations may be needed above, kV",
+     "value": 35,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Part 5b: charging current at 0.1 Hz, A",
+     "value": 0.02521,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5b slip: 2π left out, mA",
+     "value": 4.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5b slip: peak voltage, mA",
+     "value": 35.66,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5b slip: three cores, mA",
+     "value": 75.63,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5c slip: 2π left out, A",
+     "value": 2.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 5c slip: in-service current at U0, A",
+     "value": 6.3,
+     "kind": "computed"
+    },
+    {
+     "label": "String B: L2 breaks down at (practice value), min",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B: L2 core to screen afterwards (practice value), Ω",
+     "value": 35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: core length (practice value), km",
+     "value": 3.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: core capacitance, µF",
+     "value": 0.682,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: charging current, mA",
+     "value": 32.57,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: 2π left out, mA",
+     "value": 5.18,
+     "kind": "computed"
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A VLF test holds an AC overvoltage on each core for 30 or 60 minutes. It runs at 0.1 Hz instead of 50 Hz. At that voltage, a big enough defect sparks inside. The sparks start an [[electrical tree]]. The tree grows until the core breaks down, during the test and under control. Smaller defects are not affected. So a pass gives a high chance the insulation is sound. It is not a proof.\n\nEach core is a long capacitor. To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow is the [[charging current]]. The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at 0.1 Hz takes 10 s. In that time, 50 Hz runs 500 cycles. So at 50 Hz the same charge moves 500 times as often, and the current is 500 times bigger. In the terms you know, Xc = 1 ÷ 2πfC rises 500 times from 50 Hz to 0.1 Hz. So I = V ÷ Xc = 2πfCV falls 500 times. At 50 Hz, one core of String B at 76 kV needs 12.61 A and 958.4 kVA from the set. At 0.1 Hz it needs 25.21 mA and 1.92 kVA. These figures treat each core as a pure capacitance. They leave out the small leakage current through the XLPE.\n\nA VLF set is rated by the capacitance it can drive at each frequency. A long cable can be too big a load at 0.1 Hz. Then it needs a lower frequency, a lower voltage, or both. Use 0.1 Hz unless the set cannot drive the cable there. DC would need almost no current once the cable is charged. But DC can leave charge trapped in XLPE. Standards now discourage DC withstand tests on XLPE.[^3] The test voltage is a multiple of [[U0]], the rated voltage from core to earth. The client's spec sets the multiple.\n\n**At 0.1 Hz a core's reactance is 500 times higher than at 50 Hz. So a test set small enough for site can hold the overvoltage long enough for a severe defect to fail during the test.**"
+  },
+  "analogy": {
+   "text": "Think of a power factor correction bank on a 50 Hz board. It draws a large current with almost no real load behind it. That current is charge flowing in and out of the capacitors, 50 times a second. A long cable core is a bank like that, stretched over kilometres. Slow the supply 500 times and it draws 500 times less.",
+   "breaks": "A correction bank is built to take its current all day at 50 Hz. The cable is only slowed down for the test. And 0.1 Hz does not stress the XLPE exactly as 50 Hz will in service. So a VLF test is a compromise, not a copy of service."
+  },
+  "practice": {
+   "text": "- Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit and take off any monitoring equipment. Restrict access at both ends. Use only the maker's test leads.\n- Read U0 off the cable's data sheet. It is the first number of the rating, core to earth.\n- Take the test voltage, frequency and time from the client's spec.\n- Check the set can do it. The peak voltage is rms × 1.4142. It must sit inside the set's kV peak rating. The core's capacitance must sit inside the set's rating at the frequency you use.\n- Use 0.1 Hz unless the cable is too big a load for the set there.\n- On a cable rated above 35 kV, check whether the ends need terminations fitted to stop flashover.\n- Hold the voltage for the full time. It passes if there is no breakdown.\n- End of test: wait for the display to show discharged. Then apply the discharge stick, the hook straight after, then the hand earth. Earths go on core and screen at both ends, and stay on. Prove there is no voltage before anyone touches the cable.\n\n**Rule of thumb:** the charging current goes with the frequency and the length. Halve the frequency and the current halves. Double the length and it doubles.\n\n**Rule of thumb:** at 0.1 Hz, test new cable for 60 minutes on installation or acceptance. A simple withstand on aged cable runs 30 minutes.\n\n**Worked example:** String B is 38/66 kV, 2.40 km, 0.528 µF a core. These are practice values. The spec asks for 2 U0: 2 × 38 = 76.0 kV rms. That is 107.5 kV peak. At 0.1 Hz one core draws 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 25.21 mA. At 50 Hz it would draw 12.61 A.\n\n**Common mistakes**\n- Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.\n- Dropping the frequency when the set does not need it.\n- Setting an rms test voltage against a set's peak rating without converting.\n- Putting the hand earth on before the discharge stick and the hook.\n- Reading a pass as proof of no defects. Smaller defects are not affected."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain why VLF is used rather than a 50 Hz test on a long cable.",
+    "points": [
+     {
+      "text": "A long cable has a large capacitance. At 50 Hz a withstand test on it needs a very large current and power. That often makes a 50 Hz set impractical on site.",
+      "cite": "Notes p.6; Megger, An introduction to VLF cable testing (research)"
+     },
+     {
+      "text": "Lowering the frequency raises the cable's capacitive reactance. So the current and power fall with the frequency. At 0.1 Hz they are 500 times less than at 50 Hz, so a set you can take to site can do the test.",
+      "cite": "Notes p.6; University of Canterbury, A comparison of VLF and 50 Hz field testing; IAEA, Medium and low voltage cable measurements (research)"
+     },
+     {
+      "text": "VLF still holds an AC overvoltage on the insulation. A defect bad enough to spark at the test voltage grows to failure during the test.",
+      "cite": "Notes p.7; High Voltage Inc, VLF AC withstand testing of cable (research)"
+     },
+     {
+      "text": "DC needs little current. But it can leave space charge in XLPE. Standards now discourage DC withstand tests on XLPE. VLF keeps an AC test. Its changing polarity cuts that build-up.",
+      "cite": "University of Canterbury, A comparison of VLF and 50 Hz field testing; INMR, Overview of cable testing (research)"
+     }
+    ],
+    "need": 3,
+    "model": "A long cable is a large capacitance. At 50 Hz its reactance is low. So holding a withstand voltage on it needs a very large charging current and a lot of power. That often makes a 50 Hz set impractical on site. Lowering the frequency raises the reactance, so the current and power fall with the frequency. At 0.1 Hz they are 500 times less than at 50 Hz. So a set you can take to site can do the test. It still holds an AC overvoltage. A defect bad enough to spark at the test voltage grows to failure during the test. DC would need even less current. But it can leave space charge in XLPE. Standards now discourage DC withstand tests on XLPE. VLF keeps an alternating test. Its changing polarity cuts that build-up."
+   }
+  },
+  "summary": {
+   "title": "VLF withstand",
+   "for": "Is the insulation sound above its working stress? Hold an AC overvoltage at 0.1 Hz for a set time, before the cable is energised.",
+   "rule": "Xc = 1 ÷ 2πfC\nI = V ÷ Xc = 2πfCV\nTest voltage = the spec's multiple × U0\nPeak = rms × 1.4142\n\nU0: core to earth, the first number of the rating.\nOne range in use: 1.5 to 2.5 U0. The spec decides.\nIEEE, installation and acceptance: under 2 to 3 U0. Maintenance: about 75%.\nAt 0.1 Hz: 60 min on new cable, 30 min for a simple withstand on aged cable.\nCheck the set: peak within its kV peak, core µF within its rating at your frequency.\nRated above 35 kV: ends may need terminations against flashover.\nRated above 36 kV: a spec may ask for a resonant test at 10 to 500 Hz.\nPass: no breakdown for the full time.",
+   "traps": [
+    {
+     "text": "Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.",
+     "cite": "Notes p.7 (added background, checked); IEC 60502-2 definition of U0 (research)"
+    },
+    {
+     "text": "Dropping the frequency when the set does not need it.",
+     "cite": "Notes p.7; High Voltage Inc, VLF-4022CM manual (research)"
+    },
+    {
+     "text": "Setting an rms test voltage against a set's peak rating without converting.",
+     "cite": "High Voltage Inc, VLF cable test voltage, IEEE standard (research)"
+    },
+    {
+     "text": "Putting the hand earth on before the discharge stick and the hook.",
+     "cite": "Notes p.6, p.10"
+    },
+    {
+     "text": "Reading a pass as proof of no defects. Smaller defects are not affected.",
+     "cite": "Notes p.7; High Voltage Inc, VLF AC withstand testing of cable (research)"
+    }
+   ],
+   "where": "after the sheath test, before the cable is energised. Test each core in turn. Then wait for the display to show discharged. Apply the discharge stick, then the hook, then the hand earth. Earths go on core and screen at both ends, and stay on.",
+   "figures": [
+    "5a",
+    "5b",
+    "5c"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk",
+    "url": "https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables",
+    "quote": "IEC 63026 was published in January 2020 and for cables greater than 36 kV stipulates that a test frequency of 10-500 Hz must be used for commissioning."
+   },
+   {
+    "n": 2,
+    "title": "VLF TESTING HIGH VOLTAGE CABLES?",
+    "url": "https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf",
+    "quote": "VLF-200CMF 0 - 200 kVac peak 0.75 µF @ 0.10 Hz. – 3.75 µF @ 0.02 Hz."
+   },
+   {
+    "n": 3,
+    "title": "INMR: Overview of Cable Testing: State-of-the-Art, Standards & ...",
+    "url": "https://www.inmr.com/overview-of-cable-testing-state-of-the-art-standards-technologies",
+    "quote": "Use of DC voltage on extruded cable systems for withstand testing has been discouraged by IEEE 400.1, ICEA S-94-649-2004 and IEC 60502-2."
+   },
+   {
+    "n": 4,
+    "title": "VLF Series 2023.pdf",
+    "url": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf",
+    "quote": "The recommended minimum testing time for an installation and/or acceptance withstand test on new cable circuits is 60 min at 0.1 Hz."
+   },
+   {
+    "n": 5,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p7",
+    "quote": "Installation, acceptance and maintenance tests range from 1.5 – 2.5 U₀"
+   },
+   {
+    "n": 6,
+    "title": "VLF Cable Test Voltage IEEE Standard - High Voltage Inc",
+    "url": "https://hvinc.com/vlf-cable-test-voltage-ieee-standard",
+    "quote": "The voltage levels (installation and acceptance) are based on the most used, worldwide practices of from less than 2 U0 to 3U0, where U0 is the rated rms phase to ground voltage"
+   },
+   {
+    "n": 7,
+    "title": "VLF Series 2023.pdf",
+    "url": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf",
+    "quote": "It should be noted that terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #prog .k-label, #prog .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .why, .pre { line-height: 1.6; }\n  .why .wh, .warn-note .wh { font-weight: 700; }\n  .warn-note p + p { margin-top: 6px; }\n  .ctl { display: grid; gap: 12px; }\n  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }\n  .carry .k-cr-value { grid-column: 2; grid-row: 2; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tkI { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .sbt { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .onbar { font: 600 13px var(--k-font); fill: var(--k-on-accent2); }\n  .scene .l-cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-xlpe { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .l-scr { fill: var(--k-muted); stroke: var(--k-strong); stroke-width: .6; }\n  .scene .void { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.5; }\n  .scene .void2 { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .etree { stroke: var(--k-warn); stroke-width: 1.6; fill: none; stroke-linecap: round; }\n  .scene .ldr { stroke: var(--k-muted); stroke-width: 1; fill: none; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .scene .zero { stroke: var(--k-line); stroke-width: 1; fill: none; }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }\n  .scene .wave { stroke: var(--k-accent2); stroke-width: 1.8; fill: none; stroke-linejoin: round; }\n  .scene .wave.thin { stroke-width: .9; }\n  .scene .band { fill: var(--k-accent2); fill-opacity: .6; }\n  .scene .cbar { fill: var(--k-accent2); }\n  .scene .ghost { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1.2; }\n  .scene .r1 { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 8 4; fill: none; }\n  .scene .r2 { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 3; fill: none; }\n  .scene .r3 { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 1 4; stroke-linecap: round; fill: none; }\n  .scene .gd { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 2 3; fill: none; }\n  .scene .gdot { fill: var(--k-muted); }\n  .scene .sb { fill: none; stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .barW { fill: var(--k-warn); fill-opacity: .18; stroke: var(--k-warn); stroke-width: 1.5; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .line + .line, .wl .line + .sub { margin-top: 10px; }\n  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }\n  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div class=\"carry\" id=\"carry5a\"></div>\n    <div class=\"carry\" id=\"carry5b\"></div>\n    <div class=\"carry\" id=\"carry5c\"></div>\n    <div class=\"pre\" id=\"pre\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n\n    <div id=\"wrapT\"><svg class=\"scene\" id=\"tsvg\" viewBox=\"0 0 340 172\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"warn-note\" id=\"warnFor\"></div>\n\n    <div id=\"wrapF\"><p class=\"k-label\" id=\"titF\"></p><svg class=\"scene\" id=\"fsvg\" viewBox=\"0 0 340 234\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlF\"></div>\n    <div class=\"k-readouts\" id=\"outsF\"></div>\n    <p class=\"say\" id=\"sayF\"></p>\n    <div class=\"why\" id=\"whyF2\"></div>\n    <p class=\"caption\" id=\"capF\"></p>\n\n    <div id=\"wrapL\"><svg class=\"scene\" id=\"lsvg\" viewBox=\"0 0 340 240\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlL\"></div>\n    <div class=\"k-readouts\" id=\"outsL\"></div>\n    <p class=\"say\" id=\"sayL\"></p>\n    <div class=\"why\" id=\"dcNote\"></div>\n    <p class=\"caption\" id=\"capL\"></p>\n\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-5a\"></div>\n    <div id=\"ans-5b\"></div>\n    <div id=\"ans-5c\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div class=\"why\" id=\"resNote\"></div>\n    <div id=\"wrapR\"><svg class=\"scene\" id=\"rsvg\" viewBox=\"0 0 340 172\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, helpers and the course's figures ----------\n  const r1 = (x) => Math.round(x * 10 + 1e-7) / 10;\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const r3 = (x) => Math.round(x * 1000 + 1e-7) / 1000;\n  const f1 = (x) => r1(x).toFixed(1);\n  const f2 = (x) => r2(x).toFixed(2);\n  const f3 = (x) => r3(x).toFixed(3);\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const NB = '\\u00a0';\n  // Non-breaking spaces: before an operator, inside \"76 000\", and between a number and its unit.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=−]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=\\d{3}(?!\\d))/g, '$1' + NB)\n    .replace(/(\\d) (?=(?:kVA|kV|mA|µF|km|Hz|min|Ω|s|A)(?![A-Za-z]))/g, '$1' + NB);\n  const num = (s, re) => { const m = re.exec(String(s || '')); return m ? +m[1] : NaN; };\n  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };\n  const fx = (v) => (+v).toFixed(1);\n  function txt(parent, x, y, s, cls, anchor) {\n    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));\n    t.textContent = s;\n    return t;\n  }\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n\n  // String B's core and the test, from the case file.\n  const fC = F('1a'), C_F = fC.value * 1e-6;\n  const CKM = F('t.C66').value, fLen = F('p.len'), LEN = fLen.value, U0 = F('p.U0').value;\n  const f5a = F('5a'), VT = f5a.value, V_V = VT * 1000;\n  const MULT = num(f5a.work, /^([\\d.]+)\\s*×/), ULL = num(F('5a.slip').work, /×\\s*([\\d.]+)/);\n  const fPeak = F('l5.peak'), PK = num(F('t.vlfPeak').text, /×\\s*([\\d.]+)/);\n  const fRatio = F('l5.ratio'), RATIO = fRatio.value;\n  const F50 = num(fRatio.work, /^([\\d.]+)/), F01 = num(fRatio.work, /÷\\s*([\\d.]+)/);\n  const fCyc1 = F('l5.cycle01'), fCycles = F('l5.cycles');\n  // The practice set's rating, read from its own line (\"0.75 µF at 0.1 Hz, ...\").\n  const SET = [];\n  String(F('t.vlfSet').text).replace(/([\\d.]+) µF at ([\\d.]+) Hz/g, (m, c, f) => { SET.push({ C: +c, f: +f }); return m; });\n  const SETPK = num(F('p.vlfSet').text, /(\\d+) kV peak/);\n  const fMax1 = F('l5.maxLen'), fMax2 = F('l5.maxLen05');\n  const U0EX = F('n.u0ex').value;\n  const fLo = F('l5.recall.lo'), fHi = F('l5.recall.hi'), fS1 = F('l5.recall.slip1'), fS1h = F('l5.recall.slip1hi');\n  const ULLEX = num(fS1.work, /×\\s*([\\d.]+)/), MLO = num(fLo.work, /^([\\d.]+)/), MHI = num(fHi.work, /^([\\d.]+)/);\n  const T60 = F('n.vlf60').value, T30 = F('n.vlf30').value;\n  const L2MIN = num(F('p.vlfL2').text, /minute (\\d+)/), fRf = F('p.Rf');\n  const fRngLo = F('l5.range.lo'), fRngHi = F('l5.range.hi');\n  const f5b = F('5b'), f5c = F('5c'), fKva01 = F('l5.kva01'), fKva50 = F('l5.kva50');\n  const fHalf = F('l5.check.half'), fDbl = F('l5.check.slip');\n  const fChg = F('l5.changed'), fChgC = F('l5.changed.C'), CH_L = num(fChgC.work, /×\\s*([\\d.]+)/);\n  const IRV = F('p.irV').value;\n  // From the lesson's sources: a resonant test above 36 kV at 10 to 500 Hz; IEEE levels; terminations above 35 kV.\n  const RES_KV = 36, RES_LO = 10, RES_HI = 500, IEEE_LO = 2, IEEE_HI = 3, IEEE_MAINT = 75, TERM_KV = 35;\n\n  // The rule: I = 2πfCV. The set supplies V × I, worked from the current as printed.\n  const Iof = (f) => 2 * Math.PI * f * C_F * V_V;\n  const shownI = (I) => (I >= 1 ? r2(I) : r2(I * 1000) / 1000);\n  const fmtI = (I) => (I >= 1 ? f2(I) + ' A' : f2(I * 1000) + ' mA');\n  const fmtKVA = (v) => (v >= 100 ? f1(v) : f2(v)) + ' kVA';\n  const lenOf = (v) => { const L = Math.round(+v * 10) / 10; return isFinite(L) ? K.clamp(L, 0.5, 8) : LEN; };\n  const setFor = (C) => { for (const s of SET) if (r3(C) <= s.C + 1e-9) return s; return null; };\n  const cycles = (f) => Math.round(f * fCyc1.value);\n  const cycLabel = (f) => (cycles(f) === 1 ? '1 cycle' : cycles(f) + ' cycles') + ' in ' + fCyc1.text;\n\n  // ---------- the lesson's words ----------\n  const O1 = U0EX + ' to ' + ULLEX + ' kV', O2 = fLo.value + ' to ' + fHi.value + ' kV', O3 = fS1.value + ' to ' + fS1h.value + ' kV';\n  const R_TASK = 'What VLF test voltage range applies to a ' + U0EX + '/' + ULLEX + ' kV cable?';\n  const R_WORK = 'The range is ' + MLO + ' to ' + MHI + ' U0. U0 is the voltage from each core to earth, the first number in ' + U0EX + '/' + ULLEX + ' kV. ' + fLo.work + ', and ' + fHi.work + '.';\n  const R_SLIPS = 'The ' + O3 + ' answer uses ' + ULLEX + ' kV, the voltage between cores. The ' + O1 + ' answer is the rating itself, with no overvoltage.';\n  const R_W1 = \"That is the cable's own rating. The test goes above it, to \" + MLO + ' to ' + MHI + ' times U0.';\n  const R_W3 = 'That uses ' + ULLEX + ' kV, the voltage between cores. U0 is the voltage to earth, ' + U0EX + ' kV.';\n\n  const FOR_TEXT = 'The VLF test is a pressure test. It holds an AC overvoltage on the insulation for a set time. The IR test checked the XLPE at ' + IRV + ' kV d.c. '\n    + 'This test stresses it above its working voltage. It runs before the cable is energised.\\n\\n'\n    + 'Take a defect bad enough to spark at the test voltage. The small discharges inside it are partial discharges. They start an electrical tree. '\n    + 'That is a set of fine breakdown channels that branch out through the XLPE. The tree grows until the core breaks down, during the test. Smaller defects are not affected. '\n    + 'So a pass means the core held the voltage for the full time with no breakdown. That gives a high chance the insulation is sound. It does not prove there are no defects at all.\\n\\n'\n    + 'Not every spec uses VLF. On a submarine cable rated above ' + RES_KV + \" kV, the spec may ask for an AC test at \" + RES_LO + ' to ' + RES_HI + \" Hz, from a resonant test set. The client's spec decides.\";\n  const WARN_FOR = 'Skip it, and a defect the test would have found stays in the cable. It is still there when the cable is switched on.';\n\n  const FX = (s) => s.replace(/ /g, NB);\n  const WHY_F = \"Each core is a capacitor, as in lesson 1. Conductor and screen are the plates. String B's core is \" + fC.text + '. '\n    + 'To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow of charge is the charging current. '\n    + 'The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at ' + F01 + ' Hz takes ' + fCyc1.text + '. '\n    + 'In those ' + fCyc1.text + ', ' + F50 + ' Hz runs ' + fCycles.work + ' cycles. So at ' + F50 + ' Hz the set moves the same charge ' + RATIO + ' times as often, and the current is ' + RATIO + ' times bigger.';\n  const WHY_F2 = 'That is the reactance at work. ' + FX('Xc = 1 ÷ 2πfC') + ', so dropping f from ' + F50 + ' Hz to ' + F01 + ' Hz raises Xc ' + FX(fRatio.work) + ' times. '\n    + 'The current is ' + FX('I = V ÷ Xc = 2πfCV') + ', so it falls ' + RATIO + ' times. The power the set supplies, ' + FX('V × I') + ', falls with it.';\n  const READ_F = 'At ' + F50 + ' Hz one core of String B needs ' + f5c.text + ' at ' + VT + ' kV. The set supplies ' + fKva50.text + '. Each step down cuts the current in proportion. '\n    + 'At ' + F01 + ' Hz the same voltage needs ' + f5b.text + ' and ' + fKva01.text + '. That is ' + RATIO + ' times less, because the core goes through ' + RATIO + ' times fewer cycles.';\n\n  const WHY_L = 'A VLF set is rated by the capacitance it can drive at each frequency. Take a set that drives ' + SET[0].C + ' µF at ' + SET[0].f + ' Hz, '\n    + SET[1].C + ' µF at ' + SET[1].f + ' Hz and ' + SET[2].C + ' µF at ' + SET[2].f + ' Hz, up to ' + SETPK + ' kV peak. It is a practice set, modelled on a real one. '\n    + 'Use the rating of the set in front of you. The set can only supply so much current. Halve the frequency and each microfarad takes half the current. '\n    + 'So the same set drives twice the capacitance.\\n\\n'\n    + \"A core's capacitance grows with its length. So a long cable may need a lower frequency, a lower voltage, or both. \" + F01 + ' Hz is the standard. '\n    + 'Go lower only when the cable is too big a load for the set at ' + F01 + \" Hz. The recommended test times are for \" + F01 + ' Hz.';\n  const READ_L = \"String B's \" + fLen.text + ' core is ' + fC.text + \". That is inside the set's \" + SET[0].C + ' µF, so it tests at ' + SET[0].f + ' Hz. '\n    + 'Past about ' + fMax1.text + ' a core is too big for the set at ' + SET[0].f + ' Hz, so it drops to ' + SET[1].f + ' Hz. Past about ' + fMax2.text + ' it drops to '\n    + SET[2].f + ' Hz. At 8.0 km the core is ' + F('l5.pic.C8').text + '.';\n  const DC_HEAD = 'Why not DC?';\n  const DC_TEXT = 'Once a cable is charged, DC needs almost no current. But DC can leave space charge in XLPE. That is charge trapped in the insulation itself. '\n    + 'This trapped charge can speed up water trees in healthy XLPE. Standards now discourage DC withstand tests on XLPE. VLF reverses the polarity every cycle. That cuts the build-up. '\n    + 'It is still a compromise. ' + F01 + ' Hz does not stress the XLPE exactly as ' + F50 + ' Hz will in service.';\n\n  const C_TASK = \"You test String B's core at the same \" + VT + ' kV, but drop the set from ' + F01 + ' Hz to ' + SET[1].f + ' Hz. What does the charging current do?';\n  const C_O1 = 'It halves, to ' + fHalf.text, C_O2 = 'It doubles, to ' + fDbl.text, C_O3 = 'It stays at ' + f5b.text;\n  const C_RIGHT = 'Half the frequency doubles Xc. The current is V ÷ Xc, so it halves: ' + fHalf.work + '. That is why the set drives twice the capacitance at ' + SET[1].f + ' Hz.';\n  const C_W2 = 'A lower frequency gives a higher reactance, not a lower one. The core goes through half as many cycles, so it takes half the current.';\n  const C_W3 = 'The charge in each cycle stays the same, but the cycles come half as often. So the current halves.';\n\n  const WK_HEAD = 'A new cable rated ' + U0EX + '/' + ULLEX + ' kV, tested for installation.';\n  const WL = [\n    { w: 'Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit, with no monitoring equipment left on it. Restrict access at both ends. Use only the maker\\'s test leads.' },\n    { w: 'U0 is the rated voltage from each core to earth or screen. In ' + U0EX + '/' + ULLEX + ' kV it is the first number: U0 = ' + U0EX + ' kV.' },\n    { w: 'Lowest level: ' + MLO + ' × U0 = ' + fLo.work + '.', calc: true },\n    { w: 'Highest level: ' + MHI + ' × U0 = ' + fHi.work + '. So the range is ' + f1(fLo.value) + ' to ' + fHi.text + \" rms. The client's spec picks the level.\", calc: true },\n    { w: 'A new cable on installation: ' + F01 + ' Hz for ' + T60 + ' minutes. A simple withstand on aged cable would run ' + T30 + ' minutes.' },\n    { w: 'It passes if the core holds the voltage for the full ' + T60 + ' minutes with no breakdown.' },\n    { w: 'End of test: wait for the display to show discharged. Then apply the discharge stick, then the hook straight after it, then the hand earth. '\n      + 'Earths go on core and screen at both ends, and stay on. Charge held in the XLPE can bring the voltage back for minutes or hours after the first discharge. '\n      + 'Prove there is no voltage before anyone touches the cable.' },\n  ];\n  const WK_NOTE = 'Specs differ on the range. One range in use is ' + MLO + ' to ' + MHI + ' U0. IEEE puts installation and acceptance from under ' + IEEE_LO\n    + ' U0 up to ' + IEEE_HI + ' U0. IEEE maintenance tests run at about ' + IEEE_MAINT + \"% of that. The client's spec sets the level on the job. \"\n    + 'String B is ' + U0 + '/' + ULL + ' kV, so U0 = ' + U0 + ' kV. For String B, ' + MLO + ' to ' + MHI + ' U0 is ' + f1(fRngLo.value) + ' to ' + fRngHi.text + '.';\n  const WK_READ = 'On a ' + U0EX + '/' + ULLEX + ' kV cable, U0 is ' + U0EX + ' kV. So ' + MLO + ' to ' + MHI + ' U0 is ' + f1(fLo.value) + ' to ' + fHi.text + ' rms. '\n    + \"A new cable holds the spec's level at \" + F01 + ' Hz for ' + T60 + ' minutes. It passes if there is no breakdown. '\n    + 'Then discharge it in order: display, discharge stick, hook, hand earth. Earths then go on core and screen at both ends, and stay on.';\n\n  const PRE_5A = \"Assume the client asks for the VLF test on all three cores, despite L2's failed sheath test. On a real job you would stop and report L2 first. \"\n    + 'String B is rated ' + U0 + '/' + ULL + ' kV. That is above ' + RES_KV + ' kV, so a real spec may ask for a resonant test. '\n    + 'This one asks for VLF: ' + MULT + ' U0 as a sine wave at ' + F01 + ' Hz, for ' + T60 + ' minutes on each core in turn. These are practice values.';\n  const Q5A = \"(a) Determine the VLF test voltage for String B's cores.\";\n  const Q5B = '(b) Determine the charging current one core draws at ' + F01 + ' Hz.';\n  const Q5C = '(c) Determine the charging current the same core would draw in a ' + F50 + ' Hz test at ' + VT + ' kV.';\n  const RES_TEXT = 'L1 and L3 hold ' + VT + ' kV for the full ' + T60 + ' minutes. L2 breaks down at minute ' + L2MIN + '. These are practice values. '\n    + 'Each core is discharged and earthed after its test.\\n\\nAfterwards L2 reads ' + fRf.text + ' from core to screen. It is the same core that had the flat PI. '\n    + 'Its sheath would not hold either. Record it. The next job is to find where the fault is.';\n  const Q_CH = 'Another core of the same cable type runs ' + f2(CH_L) + ' km. It is tested at ' + VT + ' kV and ' + F01 + ' Hz. Determine its charging current.';\n\n  let lines = 0, lastStep = -1, finished = false, treeG = 0, treeKey = '';\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_SLIPS },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['pressure test', 'partial discharges', 'electrical tree'],\n      still: () => { treeG = 1; drawTree(); } },\n    { show: true, name: 'The why: 0.1 Hz', label: 'The why: ' + F01 + ' Hz', text: WHY_F, terms: ['charging current'],\n      read: WHY_F + ' ' + READ_F + ' ' + WHY_F2, still: () => { fCtl.set(String(F01)); K.refresh(); } },\n    { show: true, name: 'The why: long cables and the set', label: 'The why: long cables and the set', text: WHY_L, terms: ['rated by the capacitance'],\n      read: WHY_L.replace('\\n\\n', ' ') + ' ' + READ_L + ' ' + DC_HEAD + ' ' + DC_TEXT, still: { L: 8 } },\n    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },\n    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },\n    { name: 'Section A 5(a)', label: 'Section A · Question 5', pre: PRE_5A, part: Q5A, task: PRE_5A + ' ' + Q5A, want: f5a.text,\n      why: 'Test voltage = ' + MULT + ' × U0 = ' + f5a.work + '.' },\n    { name: 'Section A 5(b)', label: 'Section A · Question 5', part: Q5B, task: Q5B, want: f5b.text, why: 'I = 2πfCV = ' + f5b.work + '.' },\n    { name: 'Section A 5(c)', label: 'Section A · Question 5', part: Q5C, task: Q5C, want: f5c.text,\n      why: 'I = 2πfCV = ' + f5c.work + '. ' + RES_TEXT.replace('\\n\\n', ' ') },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: 'C = ' + fChgC.work + '. I = 2πfCV = ' + fChg.work + '.' },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iF = 2, iL = 3, iChk = 4, iWk = 5, i5A = 6, i5B = 7, i5C = 8, iB1 = 9, iCh = 10, iK = 11;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iWk, i5A, i5B, i5C, iCh];\n\n  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at0 = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });\n      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }\n      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at0 + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls, readouts and the model ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const FREQS = [F01, 1, 10, F50].map(String);\n  const fCtl = K.choice({ id: 'f', label: 'Frequency', options: FREQS.map((v) => ({ value: v, label: v + ' Hz' })), value: String(F50), into: '#ctlF' });\n  K.readout({ id: 'I', label: 'Charging current', fmt: fmtI, into: '#outsF' });\n  K.readout({ id: 'kva', label: 'Set supplies', fmt: fmtKVA, into: '#outsF' });\n  K.control({ id: 'L', label: 'Cable length', min: 0.5, max: 8, step: 0.1, value: LEN, unit: 'km', snap: [LEN, 8],\n    fmt: (v) => { const L = lenOf(v); return (Math.abs(L - LEN) < 1e-9 ? f2(L) : f1(L)) + NB + 'km'; }, into: '#ctlL' });\n  K.readout({ id: 'C', label: 'Core capacitance', fmt: (v) => f3(v) + ' µF', into: '#outsL' });\n  K.readout({ id: 'fs', label: 'Frequency the set can use', fmt: (v) => (v ? String(v) + ' Hz' : 'none'), into: '#outsL' });\n\n  K.model((p) => {\n    const I = Iof(+p.f), C = CKM * lenOf(p.L), s = setFor(C);\n    return { I: I, kva: VT * shownI(I), C: C, fs: s ? s.f : 0 };\n  });\n\n  // ---------- what it is for: one core in long section, with a tree growing from a void ----------\n  const tEl = el('tsvg');\n  const T_ = (tag, a) => tEl.appendChild(K.svg(tag, a));\n  T_('rect', { class: 'l-scr', x: 8, y: 26, width: 324, height: 14 });\n  T_('rect', { class: 'l-xlpe', x: 8, y: 40, width: 324, height: 100 });\n  T_('rect', { class: 'l-cond', x: 8, y: 140, width: 324, height: 26 });\n  txt(tEl, 8, 18, 'screen', 'tk');\n  txt(tEl, 16, 96, 'XLPE', 'tk');\n  txt(tEl, 16, 158, 'conductor', 'tkI');\n  // Each branch: from, to, and when in the growth it starts and finishes.\n  const TREE = [\n    [122, 129, 119, 113, 0, 0.2], [119, 113, 123, 97, 0.2, 0.4], [123, 97, 118, 81, 0.4, 0.6], [118, 81, 121, 65, 0.6, 0.8], [121, 65, 119, 50, 0.8, 1],\n    [119, 113, 107, 101, 0.25, 0.45], [107, 101, 102, 89, 0.45, 0.65], [107, 101, 96, 97, 0.5, 0.7],\n    [123, 97, 135, 85, 0.45, 0.65], [135, 85, 142, 73, 0.65, 0.85], [135, 85, 148, 83, 0.7, 0.9],\n    [118, 81, 108, 69, 0.65, 0.85], [108, 69, 104, 58, 0.85, 1], [121, 65, 130, 56, 0.85, 1],\n  ];\n  const treeP = T_('path', { class: 'etree', d: 'M0 0' });\n  T_('ellipse', { class: 'void', cx: 122, cy: 133, rx: 6, ry: 4 });\n  T_('ellipse', { class: 'void2', cx: 292, cy: 134, rx: 3.5, ry: 2.5 });\n  T_('path', { class: 'ldr', d: 'M165 67L139 84' });\n  txt(tEl, 168, 62, 'electrical tree:', 'lb');\n  txt(tEl, 168, 78, 'grows during the test', 'tk');\n  T_('path', { class: 'ldr', d: 'M292 122V129' });\n  txt(tEl, 332, 102, 'smaller defect:', 'lb', 'end');\n  txt(tEl, 332, 118, 'not affected', 'tk', 'end');\n  tEl.setAttribute('aria-label', 'One core in long section: the screen on top, the XLPE, and the conductor below. A void sits in the XLPE next to the conductor. '\n    + 'Fine branching lines grow from it across the XLPE towards the screen: an electrical tree, growing during the test. A smaller void further along stays as it is.');\n  function drawTree() {\n    const g = K.ease(K.clamp(treeG, 0, 1));\n    let d = '';\n    TREE.forEach((s) => {\n      const u = K.clamp((g - s[4]) / (s[5] - s[4]), 0, 1);\n      if (u > 0) d += 'M' + fx(s[0]) + ' ' + fx(s[1]) + 'L' + fx(K.lerp(s[0], s[2], u)) + ' ' + fx(K.lerp(s[1], s[3], u));\n    });\n    treeP.setAttribute('d', d || 'M0 0');\n  }\n  drawTree();\n\n  // ---------- the why: the voltage on one core over 10 s, and the charging current ----------\n  const fEl = el('fsvg');\n  const X0 = 40, X1 = 320, YC = 74, AMP = 46, tx = (t) => X0 + t / fCyc1.value * (X1 - X0);\n  const F_ = (tag, a) => fEl.appendChild(K.svg(tag, a));\n  F_('path', { class: 'zero', d: 'M' + X0 + ' ' + YC + 'H' + X1 });\n  txt(fEl, X0 - 6, YC + 4.5, '0', 'tk', 'end');\n  const bandR = F_('rect', { class: 'band', x: X0, y: YC - AMP, width: X1 - X0, height: 2 * AMP });\n  const waveP = F_('path', { class: 'wave', d: 'M0 0' });\n  F_('path', { class: 'ref', d: 'M' + X0 + ' ' + (YC - AMP) + 'H' + X1 });\n  txt(fEl, X1, 16, 'peak ' + fPeak.text, 'tk', 'end');\n  const cycT = txt(fEl, X0, 16, '', 'lb');\n  let axT = 'M' + X0 + ' 132H' + X1;\n  [0, 2, 4, 6, 8, 10].forEach((t) => { axT += 'M' + fx(tx(t)) + ' 132V136'; txt(fEl, tx(t), 150, t === 10 ? '10 s' : String(t), 'tk', 'middle'); });\n  F_('path', { class: 'ax', d: axT });\n  const BX0 = 60, BX1 = 324, BW = BX1 - BX0;\n  txt(fEl, 8, 170, 'Charging current', 'lb');\n  const rowF = txt(fEl, BX0 - 6, 194, '', 'tk', 'end');\n  const curBar = F_('rect', { class: 'cbar', x: BX0, y: 180, height: 20, width: BW });\n  const valT = txt(fEl, BX0, 194, '', 'lb');\n  F_('rect', { class: 'ghost', x: BX0, y: 208, height: 20, width: BW });\n  txt(fEl, BX0 - 6, 222, F50 + ' Hz', 'tk', 'end');\n  txt(fEl, BX1 - 6, 222, fmtI(Iof(F50)), 'tkI', 'end');\n  let waveKey = '';\n  function wavePath(f) {\n    const per = f >= 10 ? 12 : f >= 1 ? 32 : 160, N = Math.max(160, Math.round(cycles(f) * per));\n    let d = '';\n    for (let k = 0; k <= N; k++) {\n      const t = fCyc1.value * k / N;\n      d += (k ? 'L' : 'M') + fx(tx(t)) + ' ' + fx(YC - AMP * Math.sin(2 * Math.PI * f * t));\n    }\n    return d;\n  }\n  function drawFreq(p, o) {\n    const f = +p.f;\n    if (p.f !== waveKey) {\n      waveKey = p.f;\n      const solid = f >= F50;\n      vis(bandR, solid); vis(waveP, !solid);\n      if (!solid) { waveP.setAttribute('d', wavePath(f)); waveP.setAttribute('class', f >= 10 ? 'wave thin' : 'wave'); }\n    }\n    cycT.textContent = cycLabel(f);\n    rowF.textContent = p.f + ' Hz';\n    const w = Math.max(2, o.I / Iof(F50) * BW), inside = w > BW - 90;\n    curBar.setAttribute('width', fx(w));\n    valT.textContent = fmtI(o.I);\n    valT.setAttribute('x', fx(inside ? BX0 + w - 6 : BX0 + w + 6));\n    valT.setAttribute('text-anchor', inside ? 'end' : 'start');\n    valT.setAttribute('class', inside ? 'onbar' : 'lb');\n    fEl.setAttribute('aria-label', 'Top: the voltage on one core of String B over ' + fCyc1.text + ', the same height at every frequency, with its peak marked. '\n      + (f >= F50 ? 'At ' + F50 + ' Hz the cycles merge into a solid band. ' : 'At ' + p.f + ' Hz there ' + (cycles(f) === 1 ? 'is one slow cycle. ' : 'are ' + cycles(f) + ' cycles. '))\n      + 'Below: a bar for the charging current at this frequency, over a faint bar for ' + F50 + ' Hz.');\n    const n = cycles(f), k = Math.round(F50 / f);\n    el('sayF').textContent = nb(f >= F50\n      ? 'At ' + F50 + ' Hz the core goes through ' + n + ' cycles in ' + fCyc1.text + '. Holding ' + VT + ' kV on it takes ' + fmtI(o.I) + ', so the set supplies ' + fmtKVA(o.kva) + '.'\n      : 'At ' + p.f + ' Hz the core goes through ' + (n === 1 ? 'one cycle' : n + ' cycles') + ' in ' + fCyc1.text + '. The same ' + VT + ' kV takes ' + fmtI(o.I) + ', '\n        + k + ' times less than at ' + F50 + ' Hz. The set supplies ' + fmtKVA(o.kva) + '.');\n  }\n\n  // ---------- the why: core capacitance against the set's rating ----------\n  const lEl = el('lsvg');\n  const LX = (L) => 44 + L * 35, LY = (C) => 196 - C * 40;\n  const L_ = (tag, a) => lEl.appendChild(K.svg(tag, a));\n  txt(lEl, 8, 18, 'Core capacitance (µF)', 'tk');\n  SET.forEach((s, k) => {\n    L_('path', { class: 'r' + (k + 1), d: 'M44 ' + fx(LY(s.C)) + 'H324' });\n    txt(lEl, 50, LY(s.C) - 5, s.C + ' µF at ' + s.f + ' Hz', 'tk');\n  });\n  [[fMax1, SET[0]], [fMax2, SET[1]]].forEach((q) => {\n    L_('path', { class: 'gd', d: 'M' + fx(LX(q[0].value)) + ' ' + fx(LY(q[1].C)) + 'V196' });\n    L_('circle', { class: 'gdot', cx: fx(LX(q[0].value)), cy: fx(LY(q[1].C)), r: 2.5 });\n  });\n  const C_B = r3(CKM * LEN);\n  L_('rect', { class: 'sb', x: fx(LX(LEN) - 7), y: fx(LY(C_B)), width: 14, height: fx(C_B * 40) });\n  const cBar = L_('rect', { class: 'cbar', width: 14 });\n  let axL = 'M44 36V196H324';\n  [0, 1, 2, 3, 4].forEach((c) => { axL += 'M40 ' + fx(LY(c)) + 'H44'; txt(lEl, 37, LY(c) + 4.5, String(c), 'tk', 'end'); });\n  [LEN, fMax1.value, fMax2.value, 8].forEach((L) => { axL += 'M' + fx(LX(L)) + ' 196V200'; });\n  L_('path', { class: 'ax', d: axL });\n  txt(lEl, LX(LEN), 214, f2(LEN), 'tk', 'middle');\n  txt(lEl, LX(fMax1.value), 214, f2(fMax1.value), 'tk', 'middle');\n  txt(lEl, LX(fMax2.value), 214, f2(fMax2.value), 'tk', 'middle');\n  txt(lEl, LX(8), 214, '8.0', 'tk', 'middle');\n  txt(lEl, LX(LEN), 232, 'String B', 'sbt', 'middle');\n  txt(lEl, 324, 232, 'Length (km)', 'tk', 'end');\n  function drawLen(p, o) {\n    const L = lenOf(p.L), C = o.C, s = setFor(C), isB = Math.abs(L - LEN) < 1e-9;\n    cBar.setAttribute('x', fx(LX(L) - 7)); cBar.setAttribute('y', fx(LY(C))); cBar.setAttribute('height', fx(Math.max(1, C * 40)));\n    lEl.setAttribute('aria-label', 'Core capacitance against cable length. A bar at the chosen length rises with it. Three dashed lines mark the set\\'s rating at '\n      + SET.map((q) => q.f + ' Hz').join(', ') + '. The bar crosses the ' + SET[0].f + ' Hz line at ' + fMax1.text + ' and the ' + SET[1].f + ' Hz line at ' + fMax2.text\n      + \". A dashed outline marks String B's \" + fLen.text + '.');\n    const who = isB ? \"String B's \" + fLen.text + ' core' : (/^8/.test(f1(L)) ? 'An ' : 'A ') + f1(L) + ' km core';\n    let say;\n    if (s === SET[0]) say = who + ' is ' + f3(C) + \" µF. That is inside the set's \" + SET[0].C + ' µF at ' + SET[0].f + ' Hz, so it tests at ' + SET[0].f + ' Hz.';\n    else {\n      const prev = SET[SET.indexOf(s) - 1] || SET[SET.length - 1];\n      say = who + ' is ' + f3(C) + \" µF. That is more than the set's \" + prev.C + ' µF at ' + prev.f + ' Hz. At ' + (s ? s.f : '') + ' Hz the set drives '\n        + (s ? s.C : '') + ' µF, so it tests at ' + (s ? s.f : '') + ' Hz.';\n    }\n    el('sayL').textContent = nb(say);\n  }\n\n  // ---------- String B's results ----------\n  (function results() {\n    const g = el('rsvg'), RX0 = 36, RX1 = 324, bx = (m) => RX0 + m / T60 * (RX1 - RX0);\n    const R_ = (tag, a) => g.appendChild(K.svg(tag, a));\n    [['L1', 10, T60, 'bar'], ['L2', 50, L2MIN, 'barW'], ['L3', 92, T60, 'bar']].forEach((q) => {\n      txt(g, 8, q[1] + 17, q[0], 'lb');\n      R_('rect', { class: q[3], x: RX0, y: q[1], width: fx(bx(q[2]) - RX0), height: 24 });\n      if (q[3] === 'bar') txt(g, RX0 + 8, q[1] + 17, 'held', 'tkI');\n    });\n    txt(g, bx(L2MIN) + 8, 67, 'broke down', 'lb');\n    txt(g, bx(L2MIN) + 8, 83, fRf.text + ' core to screen after', 'tk');\n    let d = 'M' + RX0 + ' 128H' + RX1;\n    [0, L2MIN, T60 / 2, T60].forEach((m) => { d += 'M' + fx(bx(m)) + ' 128V132'; txt(g, bx(m), 146, String(m), 'tk', 'middle'); });\n    R_('path', { class: 'ax', d: d });\n    txt(g, (RX0 + RX1) / 2, 164, 'Time at ' + VT + ' kV (min)', 'tk', 'middle');\n    g.setAttribute('aria-label', 'Three bars along a ' + T60 + ' minute time line. L1 and L3 run the full ' + T60 + ' minutes and held. L2 stops at minute ' + L2MIN\n      + ': it broke down, and reads ' + fRf.text + ' from core to screen after.');\n  })();\n\n  // ---------- one animation: the tree grows on arrival ----------\n  const GROW = 4;\n  const anim = K.anim({ button: false, label: 'Tree', step: (dt) => {\n    if (at() !== iFor) return false;\n    treeG = Math.min(1, treeG + Math.min(dt, 0.1) / GROW);\n    drawTree();\n    return treeG < 1;\n  } });\n\n  // ---------- picks: one tap answers ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_SLIPS }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK] }; }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: C_RIGHT }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i5A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  const car5a = K.carried({ parts: ['4a', '4b'], into: '#carry5a' });\n  const car5b = K.carried({ parts: ['1a', '5a'], into: '#carry5b' });\n  const car5c = K.carried({ parts: ['1a', '5a', '5b'], into: '#carry5c' });\n  const MISS2PI = 'The 2π is missing. I = 2πfCV.';\n  const SPEC = {\n    [i5A]: { id: '5a', fig: f5a, dec: 1, accept: [], work: () => ['Test voltage = ' + MULT + ' × U0', '= ' + f5a.work],\n      slips: [{ value: F('5a.slip').value, hint: 'That uses ' + ULL + ' kV, the voltage between cores. U0 is the voltage to earth, ' + U0 + ' kV.' },\n        { value: F('5a.slip2').value, hint: 'That is U0 itself. The spec asks for ' + MULT + ' U0.' },\n        { value: F('5a.slip3').value, hint: 'That is ' + VT + ' kV as a peak. The test voltage is given in rms.' }],\n      hint: \"Not quite. Multiply U0, the voltage to earth, by the spec's \" + MULT + '.',\n      after: f5a.text + ' rms is ' + MULT + ' U0, which sits inside ' + f1(fRngLo.value) + ' to ' + fRngHi.text + '. Sets are rated in kV peak. Peak = rms × ' + PK + '. '\n        + 'So the set must reach ' + fPeak.work + \". The practice set's \" + SETPK + ' kV peak covers it. On a cable rated above ' + TERM_KV\n        + ' kV, the ends may need terminations fitted to stop flashover.' },\n    [i5B]: { id: '5b', fig: f5b, dec: 2, accept: [], work: () => ['I = 2πfCV', '= ' + f5b.work],\n      slips: [{ value: F('5b.slip').value, hint: MISS2PI },\n        { value: F('5b.slip2').value, hint: 'That uses the peak voltage. Use the rms test voltage, ' + VT + ' kV.' },\n        { value: F('5b.slip3').value, hint: 'That is three cores. Each core is tested on its own.' }],\n      hint: 'Not quite. Use I = 2πfCV, with C in farads and V in volts.',\n      after: 'At ' + VT + ' kV the set supplies ' + fKva01.work + '.' },\n    [i5C]: { id: '5c', fig: f5c, dec: 2, accept: [], work: () => ['I = 2πfCV', '= ' + f5c.work],\n      slips: [{ value: F('5c.slip').value, hint: MISS2PI },\n        { value: F('5c.slip2').value, hint: \"That is the core's charging current in service, at U0 = \" + U0 + ' kV. The test runs at ' + VT + ' kV.' },\n        { value: f5b.value, hint: 'That is the ' + F01 + ' Hz current, in mA. At ' + F50 + ' Hz it is ' + RATIO + ' times bigger.' }],\n      hint: 'Not quite. Use I = 2πfCV again, with f = ' + F50 + ' Hz.',\n      after: f5c.text + ' is ' + RATIO + ' times ' + f5b.text + '. The set would supply ' + fKva50.work + ', against ' + fKva01.text + ' at ' + F01 + ' Hz.' },\n    [iCh]: { id: 'l5.changed', fig: fChg, dec: 2, accept: [], work: () => ['C = ' + fChgC.work, 'I = 2πfCV = ' + fChg.work],\n      slips: [{ value: f5b.value, hint: \"That is String B's \" + fLen.text + \" core. Work out this core's capacitance first: \" + CKM + ' × ' + f2(CH_L) + '.' },\n        { value: F('l5.changed.slip').value, hint: MISS2PI }],\n      hint: 'Not quite. Work out the capacitance first, then use I = 2πfCV.',\n      after: fChgC.text + \" is inside the practice set's \" + SET[0].C + ' µF at ' + F01 + ' Hz, so ' + F01 + ' Hz still works.' },\n  };\n  const BOX = { [i5A]: '#ans-5a', [i5B]: '#ans-5b', [i5C]: '#ans-5c', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work() };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // ---------- Section B and Keep this ----------\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  (function () {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });\n  })();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const wbox = K.el('div', { class: 'wl' });\n  const wl = WL.map((x, k) => {\n    const box = K.el('div', { class: 'line' });\n    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));\n    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));\n    wbox.appendChild(box);\n    return box;\n  });\n  const wnote = wbox.appendChild(K.el('p', { class: 'sub' }, nb(WK_NOTE)));\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wl.length) return;\n    const w = wl[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));\n  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));\n  el('titF').textContent = nb('Voltage on one core: ' + VT + ' kV rms at every frequency');\n  el('capF').textContent = nb(\"String B's \" + fC.text + ' core and ' + VT + ' kV are practice values.');\n  el('dcNote').appendChild(K.el('p', { class: 'wh' }, DC_HEAD));\n  el('dcNote').appendChild(write(K.el('p'), DC_TEXT, ['space charge']));\n  el('capL').textContent = nb(\"The set and String B's \" + fLen.text + ' are practice values. ' + CKM + ' µF per km is a typical figure.');\n  paras(el('resNote'), RES_TEXT);\n  paras(el('whyF2'), WHY_F2);\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));\n    if (f.p) fb.appendChild(write(K.el('p'), f.p));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    return false;\n  }\n\n  const ON = { scen: [i5A], carry5a: [i5A], carry5b: [i5B], carry5c: [i5C], pre: [i5A],\n    wrapT: [iFor], warnFor: [iFor],\n    wrapF: [iF], ctlF: [iF], outsF: [iF], sayF: [iF], whyF2: [iF], capF: [iF],\n    wrapL: [iL], ctlL: [iL], outsL: [iL], sayL: [iL], dcNote: [iL], capL: [iL],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-5a': [i5A], 'ans-5b': [i5B], 'ans-5c': [i5C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };\n  const ASK = {\n    [iF]: 'Step the frequency down from ' + F50 + ' Hz to ' + F01 + ' Hz.',\n    [iL]: 'Drag the length from ' + fLen.text + ' out to 8.0 km.',\n    [iWk]: 'Work each line yourself first, then press Show.',\n  };\n  const CARRY = { [i5A]: car5a, [i5B]: car5b, [i5C]: car5c };\n\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      if (lastStep !== -1) enter();\n      lastStep = i;\n      if (i === i5A) scen.el.open = true;\n      if (CARRY[i] && typeof CARRY[i].refresh === 'function') { try { CARRY[i].refresh(); } catch (e) { /* the panel keeps its last state */ } }\n    }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('pre'), d.pre || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text, d.terms);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (ASK[i] ? ' ask' : '');\n    sub.textContent = nb(ASK[i] ? ASK[i]\n      : i === i5A ? 'Give it in kV, to 1 place.'\n      : i === i5B ? 'Give it in mA, to 2 places.'\n      : i === i5C ? 'Give it in A, to 2 places.'\n      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in mA, to 2 places.'\n      : i === iB1 ? markLine('b1')\n      : i === iK ? 'One card to come back to on a real job.' : '');\n    sub.hidden = !sub.textContent;\n\n    drawFreq(p, o);\n    drawLen(p, o);\n    const tk = i === iFor ? 'T' : '';\n    if (tk && tk !== treeKey) { treeG = 0; drawTree(); if (!anim.playing()) anim.play(); }\n    treeKey = tk;\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    wl.forEach((w, k) => { w.hidden = k >= lines; });\n    wnote.hidden = lines < wl.length;\n    nextLine.el.hidden = lines >= wl.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wl.length;\n\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const after = el('after');\n    paras(after, typedDone ? SPEC[i].after : '');\n    after.hidden = !after.textContent;\n    el('resNote').hidden = !(i === i5C && typedDone);\n    el('wrapR').hidden = el('resNote').hidden;\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['resNote', String(i)], ['wrapR', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);\n  const A = (f) => K.at({ f: String(f) });\n  K.check('At 76 kV one core takes 12.61 A at 50 Hz, 2.52 A at 10 Hz, 252.13 mA at 1 Hz and 25.21 mA at 0.1 Hz; the set supplies 958.4, 191.5, 19.16 and 1.92 kVA', () =>\n    fmtI(A(F50).I) === f5c.text && fmtI(A(10).I) === F('l5.pic.I10').text && fmtI(A(1).I) === F('l5.pic.I1').text && fmtI(A(F01).I) === f5b.text\n    && fmtKVA(A(F50).kva) === fKva50.text && fmtKVA(A(10).kva) === F('l5.pic.kva10').text && fmtKVA(A(1).kva) === F('l5.pic.kva1').text && fmtKVA(A(F01).kva) === fKva01.text);\n  K.check('Stepping 50 Hz down to 0.1 Hz cuts the current exactly 500 times, and each step down cuts it in proportion', () =>\n    near(A(F50).I / A(F01).I, RATIO, 1e-9) && near(F50 / F01, RATIO) && near(A(10).I / A(1).I, 10, 1e-9) && A(F50).I > A(10).I && A(10).I > A(1).I && A(1).I > A(F01).I);\n  K.check('Halving 0.1 Hz to 0.05 Hz halves 25.21 mA to 12.61 mA; doubling it would give 50.42 mA', () =>\n    near(r2(f5b.value / 2), fHalf.value) && near(r2(f5b.value * 2), fDbl.value) && near(r2(Iof(SET[1].f) * 1000), fHalf.value, 0.011) && near(SET[1].f * 2, F01));\n  K.check('Core capacitance 0.110 µF at 0.5 km, 0.528 at 2.40, 1.100 at 5.0 and 1.760 at 8.0 km; the set uses 0.1, 0.1, 0.05 and 0.02 Hz', () => {\n    const L = (x) => K.at({ L: x });\n    return f3(L(0.5).C) + ' µF' === F('l5.pic.C0.5').text && f3(L(LEN).C) + ' µF' === fC.text && f3(L(5).C) + ' µF' === F('l5.pic.C5').text && f3(L(8).C) + ' µF' === F('l5.pic.C8').text\n      && L(0.5).fs === SET[0].f && L(LEN).fs === SET[0].f && L(5).fs === SET[1].f && L(8).fs === SET[2].f;\n  });\n  K.check('The set reaches its 0.1 Hz rating at 3.41 km and its 0.05 Hz rating at 6.82 km', () => {\n    const L = (x) => K.at({ L: x }).fs;\n    return near(r2(SET[0].C / CKM), fMax1.value) && near(r2(SET[1].C / CKM), fMax2.value)\n      && L(3.4) === SET[0].f && L(3.5) === SET[1].f && L(6.8) === SET[1].f && L(6.9) === SET[2].f;\n  });\n  K.check('Recall 18.0 to 30.0 kV on a 12/20 kV cable (30 to 50 with 20 kV); String B 57.0 to 95.0 kV; 5(a) 2 × 38 = 76.0 kV rms, 107.5 kV peak', () =>\n    near(r1(MLO * U0EX), fLo.value) && near(r1(MHI * U0EX), fHi.value) && near(r1(MLO * ULLEX), fS1.value) && near(r1(MHI * ULLEX), fS1h.value)\n    && near(r1(MLO * U0), fRngLo.value) && near(r1(MHI * U0), fRngHi.value) && near(r1(MULT * U0), f5a.value) && near(r1(VT * PK), fPeak.value)\n    && fPeak.value < SETPK);\n  K.check('5(b) 25.21 mA and 1.92 kVA; 5(c) 12.61 A and 958.4 kVA; changed numbers 0.682 µF and 32.57 mA', () =>\n    near(r2(Iof(F01) * 1000), f5b.value) && near(r2(VT * f5b.value / 1000), fKva01.value) && near(r2(Iof(F50)), f5c.value) && near(r1(VT * f5c.value), fKva50.value)\n    && near(r3(CKM * CH_L), fChgC.value) && near(r2(2 * Math.PI * F01 * fChgC.value * 1e-6 * V_V * 1000), fChg.value) && fChgC.value <= SET[0].C);\n  K.check('Each slip is its own working: 132.0, 38.0 and 107.5 kV; 4.01, 35.66 and 75.63 mA; 2.01 and 6.30 A; 5.18 mA', () =>\n    near(r1(MULT * ULL), F('5a.slip').value) && near(U0, F('5a.slip2').value) && near(fPeak.value, F('5a.slip3').value)\n    && near(r2(F01 * C_F * V_V * 1000), F('5b.slip').value) && near(r2(2 * Math.PI * F01 * C_F * fPeak.value * 1e6), F('5b.slip2').value)\n    && near(r2(3 * f5b.value), F('5b.slip3').value) && near(r2(F50 * C_F * V_V), F('5c.slip').value)\n    && near(r2(2 * Math.PI * F50 * C_F * U0 * 1000), F('5c.slip2').value) && near(r2(F01 * fChgC.value * 1e-6 * V_V * 1000), F('l5.changed.slip').value));\n  K.check('In service at 38 kV and 50 Hz the rule gives 2.63 A per km, against 2.6 A/km in the cable table', () =>\n    near(2 * Math.PI * F50 * CKM * 1e-6 * U0 * 1000, F('t.Ich66').value, 0.05));\n  K.check('The time line shows 1 cycle in 10 s at 0.1 Hz, 10 at 1 Hz, 100 at 10 Hz and 500 at 50 Hz', () =>\n    cycLabel(F01) === '1 cycle in 10 s' && cycles(1) === 10 && cycles(10) === 100 && cycles(F50) === fCycles.value && near(fCyc1.value, 1 / F01));\n  K.check('VLF-200CMF: 0 to 200 kVac peak, 0.75 µF at 0.10 Hz to 3.75 µF at 0.02 Hz', () =>\n    SETPK === 200 && SET.length === 3 && SET[0].C === 0.75 && SET[0].f === 0.1 && SET[2].C === 3.75 && SET[2].f === 0.02,\n    { source: 'https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf' });\n  K.check('The recommended minimum time for an installation or acceptance withstand test on new cable is 60 min at 0.1 Hz', () => T60 === 60 && F01 === 0.1,\n    { source: 'https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf' });\n  K.check('Terminations may need to be added to avoid flashover on installation tests of cables rated above 35 kV', () => TERM_KV === 35,\n    { source: 'https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf' });\n  K.check('Installation and acceptance levels run from less than 2 U0 to 3 U0', () => IEEE_LO === 2 && IEEE_HI === 3,\n    { source: 'https://hvinc.com/vlf-cable-test-voltage-ieee-standard' });\n  K.check('For cables over 36 kV, IEC 63026 asks for a test frequency of 10 to 500 Hz for commissioning', () => RES_KV === 36 && RES_LO === 10 && RES_HI === 500,\n    { source: 'https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables' });\n  K.check(\"Every slip lies outside its answer's accepted figures\", () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = 0.05;\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));\n  }));\n\n  K.ready();\n</script>",
+  "title": "Charging a core at 0.1 Hz",
+  "brief": "The one thing you should see is one String B core's charging current at 76 kV falling 500 times, from 12.61 A to 25.21 mA, when you step the frequency from 50 Hz down to 0.1 Hz.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "At 76 kV one core takes 12.61 A at 50 Hz, 2.52 A at 10 Hz, 252.13 mA at 1 Hz and 25.21 mA at 0.1 Hz; the set supplies 958.4, 191.5, 19.16 and 1.92 kVA",
+     "ok": true
+    },
+    {
+     "label": "Stepping 50 Hz down to 0.1 Hz cuts the current exactly 500 times, and each step down cuts it in proportion",
+     "ok": true
+    },
+    {
+     "label": "Halving 0.1 Hz to 0.05 Hz halves 25.21 mA to 12.61 mA; doubling it would give 50.42 mA",
+     "ok": true
+    },
+    {
+     "label": "Core capacitance 0.110 µF at 0.5 km, 0.528 at 2.40, 1.100 at 5.0 and 1.760 at 8.0 km; the set uses 0.1, 0.1, 0.05 and 0.02 Hz",
+     "ok": true
+    },
+    {
+     "label": "The set reaches its 0.1 Hz rating at 3.41 km and its 0.05 Hz rating at 6.82 km",
+     "ok": true
+    },
+    {
+     "label": "Recall 18.0 to 30.0 kV on a 12/20 kV cable (30 to 50 with 20 kV); String B 57.0 to 95.0 kV; 5(a) 2 × 38 = 76.0 kV rms, 107.5 kV peak",
+     "ok": true
+    },
+    {
+     "label": "5(b) 25.21 mA and 1.92 kVA; 5(c) 12.61 A and 958.4 kVA; changed numbers 0.682 µF and 32.57 mA",
+     "ok": true
+    },
+    {
+     "label": "Each slip is its own working: 132.0, 38.0 and 107.5 kV; 4.01, 35.66 and 75.63 mA; 2.01 and 6.30 A; 5.18 mA",
+     "ok": true
+    },
+    {
+     "label": "In service at 38 kV and 50 Hz the rule gives 2.63 A per km, against 2.6 A/km in the cable table",
+     "ok": true
+    },
+    {
+     "label": "The time line shows 1 cycle in 10 s at 0.1 Hz, 10 at 1 Hz, 100 at 10 Hz and 500 at 50 Hz",
+     "ok": true
+    },
+    {
+     "label": "VLF-200CMF: 0 to 200 kVac peak, 0.75 µF at 0.10 Hz to 3.75 µF at 0.02 Hz",
+     "ok": true,
+     "source": "https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf"
+    },
+    {
+     "label": "The recommended minimum time for an installation or acceptance withstand test on new cable is 60 min at 0.1 Hz",
+     "ok": true,
+     "source": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf"
+    },
+    {
+     "label": "Terminations may need to be added to avoid flashover on installation tests of cables rated above 35 kV",
+     "ok": true,
+     "source": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf"
+    },
+    {
+     "label": "Installation and acceptance levels run from less than 2 U0 to 3 U0",
+     "ok": true,
+     "source": "https://hvinc.com/vlf-cable-test-voltage-ieee-standard"
+    },
+    {
+     "label": "For cables over 36 kV, IEC 63026 asks for a test frequency of 10 to 500 Hz for commissioning",
+     "ok": true,
+     "source": "https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables"
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "f",
+    "L"
+   ],
+   "readouts": [
+    "I",
+    "kva",
+    "C",
+    "fs"
+   ],
+   "outputs": [
+    "I",
+    "kva",
+    "C",
+    "fs"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why: 0.1 Hz",
+      "The why: long cables and the set",
+      "Check",
+      "Worked example",
+      "Section A 5(a)",
+      "Section A 5(b)",
+      "Section A 5(c)",
+      "Section B",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "f",
+     "kind": "choice",
+     "label": "Frequency",
+     "options": [
+      "0.1",
+      "1",
+      "10",
+      "50"
+     ],
+     "labels": [
+      "0.1 Hz",
+      "1 Hz",
+      "10 Hz",
+      "50 Hz"
+     ],
+     "value": "50",
+     "index": 3,
+     "shown": false
+    },
+    {
+     "id": "L",
+     "kind": "control",
+     "label": "Cable length",
+     "min": 0.5,
+     "max": 8,
+     "step": 0.1,
+     "log": false,
+     "value": 2.4,
+     "shown": false,
+     "snap": [
+      2.4,
+      8
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Tree"
+   ],
+   "answers": [
+    {
+     "id": "5a",
+     "answer": 76,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "5b",
+     "answer": 25.21,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "5c",
+     "answer": 12.61,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "l5.changed",
+     "answer": 32.57,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T02:21:34.602Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The mistake 'Lifting the hand earth before the discharge stick and the hook' names the wrong slip: the notes' order is discharge stick, then hook, then hand earth, so the real slip is putting the hand earth on first; 'lifting' an earth means taking it off."
+   },
+   {
+    "path": "summary.traps[3].text",
+    "problem": "Same as the practice: the slip in the notes is applying the hand earth before the discharge stick and the hook, not lifting it; 'lifting' an earth means removing it, which reverses the meaning."
+   },
+   {
+    "path": "written.b1.points[3].text",
+    "problem": "'A 50 Hz test is impractical on site' is absolute: the lesson itself says a spec may ask for an on-site resonant AC test at 10 to 500 Hz; the quote says the capacitive load made plain 50 Hz testing impractical for site work, so it needs narrowing."
+   },
+   {
+    "path": "written.b1.points[4].text",
+    "problem": "'VLF gives an AC test without that' overstates: the research says VLF's changing polarity reduces space charge build-up, not removes it, and the lesson's own screen 4 says it only cuts that build-up."
+   },
+   {
+    "path": "written.b1.model",
+    "problem": "The model answer repeats both overstatements: a 50 Hz test is not always impractical on site (resonant sets do it), and VLF reduces space charge build-up rather than avoiding it entirely."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "The practice set's 1.5 µF at 0.05 Hz is labelled constant from source 2, but that quote gives only 0.75 µF at 0.1 Hz and 3.75 µF at 0.02 Hz; the 1.5 µF follows from the research's 'twice the load at 0.05 Hz' (same maker), which the lesson does not cite. The figure is right; its label overreaches."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

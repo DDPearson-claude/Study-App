@@ -1,0 +1,787 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog .k-label, #prog .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .why, .pre { line-height: 1.6; }
+  .why .wh, .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .ctl { display: grid; gap: 12px; }
+  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  .carry .k-cr-value { grid-column: 2; grid-row: 2; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tkI { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .sbt { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .onbar { font: 600 13px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .l-cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-xlpe { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-scr { fill: var(--k-muted); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .void { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.5; }
+  .scene .void2 { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .etree { stroke: var(--k-warn); stroke-width: 1.6; fill: none; stroke-linecap: round; }
+  .scene .ldr { stroke: var(--k-muted); stroke-width: 1; fill: none; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .zero { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+  .scene .wave { stroke: var(--k-accent2); stroke-width: 1.8; fill: none; stroke-linejoin: round; }
+  .scene .wave.thin { stroke-width: .9; }
+  .scene .band { fill: var(--k-accent2); fill-opacity: .6; }
+  .scene .cbar { fill: var(--k-accent2); }
+  .scene .ghost { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .r1 { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 8 4; fill: none; }
+  .scene .r2 { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 3; fill: none; }
+  .scene .r3 { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 1 4; stroke-linecap: round; fill: none; }
+  .scene .gd { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 2 3; fill: none; }
+  .scene .gdot { fill: var(--k-muted); }
+  .scene .sb { fill: none; stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .barW { fill: var(--k-warn); fill-opacity: .18; stroke: var(--k-warn); stroke-width: 1.5; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line, .wl .line + .sub { margin-top: 10px; }
+  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }
+  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div class="carry" id="carry5a"></div>
+    <div class="carry" id="carry5b"></div>
+    <div class="carry" id="carry5c"></div>
+    <div class="pre" id="pre"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+
+    <div id="wrapT"><svg class="scene" id="tsvg" viewBox="0 0 340 172" width="100%" role="img" aria-label=""></svg></div>
+    <div class="warn-note" id="warnFor"></div>
+
+    <div id="wrapF"><p class="k-label" id="titF"></p><svg class="scene" id="fsvg" viewBox="0 0 340 234" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlF"></div>
+    <div class="k-readouts" id="outsF"></div>
+    <p class="say" id="sayF"></p>
+    <p class="caption" id="capF"></p>
+
+    <div id="wrapL"><svg class="scene" id="lsvg" viewBox="0 0 340 240" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlL"></div>
+    <div class="k-readouts" id="outsL"></div>
+    <p class="say" id="sayL"></p>
+    <div class="why" id="dcNote"></div>
+    <p class="caption" id="capL"></p>
+
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-5a"></div>
+    <div id="ans-5b"></div>
+    <div id="ans-5c"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="why" id="resNote"></div>
+    <div id="wrapR"><svg class="scene" id="rsvg" viewBox="0 0 340 172" width="100%" role="img" aria-label=""></svg></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, helpers and the course's figures ----------
+  const r1 = (x) => Math.round(x * 10 + 1e-7) / 10;
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r3 = (x) => Math.round(x * 1000 + 1e-7) / 1000;
+  const f1 = (x) => r1(x).toFixed(1);
+  const f2 = (x) => r2(x).toFixed(2);
+  const f3 = (x) => r3(x).toFixed(3);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = '\u00a0';
+  // Non-breaking spaces: before an operator, inside "76 000", and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=−]) /g, NB + '$1 ')
+    .replace(/(\d) (?=\d{3}(?!\d))/g, '$1' + NB)
+    .replace(/(\d) (?=(?:kVA|kV|mA|µF|km|Hz|min|Ω|s|A)(?![A-Za-z]))/g, '$1' + NB);
+  const num = (s, re) => { const m = re.exec(String(s || '')); return m ? +m[1] : NaN; };
+  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };
+  const fx = (v) => (+v).toFixed(1);
+  function txt(parent, x, y, s, cls, anchor) {
+    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));
+    t.textContent = s;
+    return t;
+  }
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+
+  // String B's core and the test, from the case file.
+  const fC = F('1a'), C_F = fC.value * 1e-6;
+  const CKM = F('t.C66').value, fLen = F('p.len'), LEN = fLen.value, U0 = F('p.U0').value;
+  const f5a = F('5a'), VT = f5a.value, V_V = VT * 1000;
+  const MULT = num(f5a.work, /^([\d.]+)\s*×/), ULL = num(F('5a.slip').work, /×\s*([\d.]+)/);
+  const fPeak = F('l5.peak'), PK = num(F('t.vlfPeak').text, /×\s*([\d.]+)/);
+  const fRatio = F('l5.ratio'), RATIO = fRatio.value;
+  const F50 = num(fRatio.work, /^([\d.]+)/), F01 = num(fRatio.work, /÷\s*([\d.]+)/);
+  const fCyc1 = F('l5.cycle01'), fCycles = F('l5.cycles');
+  // The practice set's rating, read from its own line ("0.75 µF at 0.1 Hz, ...").
+  const SET = [];
+  String(F('t.vlfSet').text).replace(/([\d.]+) µF at ([\d.]+) Hz/g, (m, c, f) => { SET.push({ C: +c, f: +f }); return m; });
+  const SETPK = num(F('p.vlfSet').text, /(\d+) kV peak/);
+  const fMax1 = F('l5.maxLen'), fMax2 = F('l5.maxLen05');
+  const U0EX = F('n.u0ex').value;
+  const fLo = F('l5.recall.lo'), fHi = F('l5.recall.hi'), fS1 = F('l5.recall.slip1'), fS1h = F('l5.recall.slip1hi');
+  const ULLEX = num(fS1.work, /×\s*([\d.]+)/), MLO = num(fLo.work, /^([\d.]+)/), MHI = num(fHi.work, /^([\d.]+)/);
+  const T60 = F('n.vlf60').value, T30 = F('n.vlf30').value;
+  const L2MIN = num(F('p.vlfL2').text, /minute (\d+)/), fRf = F('p.Rf');
+  const fRngLo = F('l5.range.lo'), fRngHi = F('l5.range.hi');
+  const f5b = F('5b'), f5c = F('5c'), fKva01 = F('l5.kva01'), fKva50 = F('l5.kva50');
+  const fHalf = F('l5.check.half'), fDbl = F('l5.check.slip');
+  const fChg = F('l5.changed'), fChgC = F('l5.changed.C'), CH_L = num(fChgC.work, /×\s*([\d.]+)/);
+  const IRV = F('p.irV').value;
+  // From the lesson's sources: a resonant test above 36 kV at 10 to 500 Hz; IEEE levels; terminations above 35 kV.
+  const RES_KV = 36, RES_LO = 10, RES_HI = 500, IEEE_LO = 2, IEEE_HI = 3, IEEE_MAINT = 75, TERM_KV = 35;
+
+  // The rule: I = 2πfCV. The set supplies V × I, worked from the current as printed.
+  const Iof = (f) => 2 * Math.PI * f * C_F * V_V;
+  const shownI = (I) => (I >= 1 ? r2(I) : r2(I * 1000) / 1000);
+  const fmtI = (I) => (I >= 1 ? f2(I) + ' A' : f2(I * 1000) + ' mA');
+  const fmtKVA = (v) => (v >= 100 ? f1(v) : f2(v)) + ' kVA';
+  const lenOf = (v) => { const L = Math.round(+v * 10) / 10; return isFinite(L) ? K.clamp(L, 0.5, 8) : LEN; };
+  const setFor = (C) => { for (const s of SET) if (r3(C) <= s.C + 1e-9) return s; return null; };
+  const cycles = (f) => Math.round(f * fCyc1.value);
+  const cycLabel = (f) => (cycles(f) === 1 ? '1 cycle' : cycles(f) + ' cycles') + ' in ' + fCyc1.text;
+
+  // ---------- the lesson's words ----------
+  const O1 = U0EX + ' to ' + ULLEX + ' kV', O2 = fLo.value + ' to ' + fHi.value + ' kV', O3 = fS1.value + ' to ' + fS1h.value + ' kV';
+  const R_TASK = 'A cable is rated ' + U0EX + '/' + ULLEX + ' kV. Take the VLF test voltage as ' + MLO + ' to ' + MHI + ' U0. What range is that?';
+  const R_WORK = 'U0 is the voltage from each core to earth, the first number in ' + U0EX + '/' + ULLEX + ' kV. ' + fLo.work + ', and ' + fHi.work + '.';
+  const R_SLIPS = 'The ' + O3 + ' answer uses ' + ULLEX + ' kV, the voltage between cores. The ' + O1 + ' answer is the rating itself, with no overvoltage.';
+  const R_W1 = "That is the cable's own rating. The test goes above it, to " + MLO + ' to ' + MHI + ' times U0.';
+  const R_W3 = 'That uses ' + ULLEX + ' kV, the voltage between cores. U0 is the voltage to earth, ' + U0EX + ' kV.';
+
+  const FOR_TEXT = 'The VLF test is a pressure test. It holds an AC overvoltage on the insulation for a set time. The IR test checked the XLPE at ' + IRV + ' kV d.c. '
+    + 'This test stresses it above its working voltage. It runs before the cable is energised.\n\n'
+    + 'Take a defect big enough to be excited at the test voltage. Small discharges spark inside it. These are partial discharges. They start an electrical tree. '
+    + 'That is a set of fine breakdown channels that branch out through the XLPE. The tree grows until the core breaks down, during the test. Smaller defects are not affected. '
+    + 'So a pass means the core held the voltage for the full time with no breakdown. That gives a high chance the insulation is sound. It does not prove there are no defects at all.\n\n'
+    + 'Not every spec uses VLF. Above ' + RES_KV + " kV, a submarine cable's spec may ask for an AC test at " + RES_LO + ' to ' + RES_HI + " Hz, from a resonant test set. The client's spec decides.";
+  const WARN_FOR = 'Skip it, and a defect the test would have found stays in the cable. It is still there when the cable is switched on.';
+
+  const WHY_F = "Each core is a capacitor, as in lesson 1. Conductor and screen are the plates. String B's core is " + fC.text + '. '
+    + 'To hold an AC voltage on it, the test set fills it with charge, empties it, and fills it the other way, every cycle. That flow of charge is the charging current. '
+    + 'The charge in each cycle is set by the capacitance and the voltage. The frequency sets how often it flows. One cycle at ' + F01 + ' Hz takes ' + fCyc1.text + '. '
+    + 'In those ' + fCyc1.text + ', ' + F50 + ' Hz runs ' + fCycles.work + ' cycles. So at ' + F50 + ' Hz the set moves the same charge ' + RATIO + ' times as often, and the current is ' + RATIO + ' times bigger.\n\n'
+    + 'That is the reactance at work. Xc = 1 ÷ 2πfC, so dropping f from ' + F50 + ' Hz to ' + F01 + ' Hz raises Xc ' + fRatio.work + ' times. '
+    + 'The current is I = V ÷ Xc = 2πfCV, so it falls ' + RATIO + ' times. The power the set supplies, V × I, falls with it.';
+  const READ_F = 'At ' + F50 + ' Hz one core of String B needs ' + f5c.text + ' at ' + VT + ' kV. The set supplies ' + fKva50.text + '. Each step down cuts the current in proportion. '
+    + 'At ' + F01 + ' Hz the same voltage needs ' + f5b.text + ' and ' + fKva01.text + '. That is ' + RATIO + ' times less, because the core is filled and emptied ' + RATIO + ' times less often.';
+
+  const WHY_L = 'A VLF set is rated by the capacitance it can drive at each frequency. Take a set that drives ' + SET[0].C + ' µF at ' + SET[0].f + ' Hz, '
+    + SET[1].C + ' µF at ' + SET[1].f + ' Hz and ' + SET[2].C + ' µF at ' + SET[2].f + ' Hz, up to ' + SETPK + ' kV peak. It is a practice set, modelled on a real one. '
+    + 'Use the rating of the set in front of you. The set can only supply so much current. Halve the frequency and each microfarad takes half the current. '
+    + 'So the same set drives twice the capacitance.\n\n'
+    + "A core's capacitance grows with its length. So a long cable may need a lower frequency, a lower voltage, or both. " + F01 + ' Hz is the standard. '
+    + 'Go lower only when the cable is too big a load for the set at ' + F01 + " Hz. Don't lower the frequency when you don't need to. The recommended test times are for " + F01 + ' Hz.';
+  const READ_L = "String B's " + fLen.text + ' core is ' + fC.text + ". That is inside the set's " + SET[0].C + ' µF, so it tests at ' + SET[0].f + ' Hz. '
+    + 'Past about ' + fMax1.text + ' a core is too big for the set at ' + SET[0].f + ' Hz, so it drops to ' + SET[1].f + ' Hz. Past about ' + fMax2.text + ' it drops to '
+    + SET[2].f + ' Hz. At 8.0 km the core is ' + F('l5.pic.C8').text + '.';
+  const DC_HEAD = 'Why not DC?';
+  const DC_TEXT = 'Once a cable is charged, DC needs almost no current. But DC can leave space charge in XLPE. That is charge trapped in the insulation itself. '
+    + 'That can speed up water trees in healthy XLPE. DC withstand tests on XLPE cable are now discouraged. VLF reverses the polarity every cycle. That cuts the build-up. '
+    + 'It is still a compromise. ' + F01 + ' Hz does not stress the XLPE exactly as ' + F50 + ' Hz will in service.';
+
+  const C_TASK = "You test String B's core at the same " + VT + ' kV, but drop the set from ' + F01 + ' Hz to ' + SET[1].f + ' Hz. What does the charging current do?';
+  const C_O1 = 'It halves, to ' + fHalf.text, C_O2 = 'It doubles, to ' + fDbl.text, C_O3 = 'It stays at ' + f5b.text;
+  const C_RIGHT = 'Half the frequency doubles Xc. The current is V ÷ Xc, so it halves: ' + fHalf.work + '. That is why the set drives twice the capacitance at ' + SET[1].f + ' Hz.';
+  const C_W2 = 'A lower frequency gives a higher reactance, not a lower one. The core is filled and emptied half as often, so it takes half the current.';
+  const C_W3 = 'The charge in each cycle stays the same, but the cycles come half as often. So the current halves.';
+
+  const WK_HEAD = 'A new cable rated ' + U0EX + '/' + ULLEX + ' kV, tested for installation.';
+  const WL = [
+    { w: 'Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit, with no monitoring equipment left on it. Restrict access at both ends. Use only the maker\'s test leads.' },
+    { w: 'U0 is the rated voltage from each core to earth or screen. In ' + U0EX + '/' + ULLEX + ' kV it is the first number: U0 = ' + U0EX + ' kV.' },
+    { w: 'Lowest level: ' + MLO + ' × U0 = ' + fLo.work + '.', calc: true },
+    { w: 'Highest level: ' + MHI + ' × U0 = ' + fHi.work + '. So the range is ' + f1(fLo.value) + ' to ' + fHi.text + " rms. The client's spec picks the level.", calc: true },
+    { w: 'A new cable on installation: ' + F01 + ' Hz for ' + T60 + ' minutes. A simple withstand on aged cable would run ' + T30 + ' minutes.' },
+    { w: 'It passes if the core holds the voltage for the full ' + T60 + ' minutes with no breakdown.' },
+    { w: 'End of test: wait for the display to show discharged. Then apply the discharge stick, then the hook straight after it, then the hand earth. '
+      + 'Earths go on core and screen at both ends, and stay on. Charge held in the XLPE can bring the voltage back for minutes or hours after the first discharge. '
+      + 'Prove there is no voltage before anyone touches the cable.' },
+  ];
+  const WK_NOTE = 'Specs differ on the range. ' + MLO + ' to ' + MHI + ' U0 is common practice. IEEE levels for installation and acceptance run from under ' + IEEE_LO
+    + ' U0 up to ' + IEEE_HI + ' U0. IEEE maintenance tests run at about ' + IEEE_MAINT + "% of acceptance. The client's spec sets the level on the job. "
+    + 'String B is ' + U0 + '/' + ULL + ' kV, so U0 = ' + U0 + ' kV. For String B, ' + MLO + ' to ' + MHI + ' U0 is ' + f1(fRngLo.value) + ' to ' + fRngHi.text + '.';
+  const WK_READ = 'On a ' + U0EX + '/' + ULLEX + ' kV cable, U0 is ' + U0EX + ' kV. So ' + MLO + ' to ' + MHI + ' U0 is ' + f1(fLo.value) + ' to ' + fHi.text + ' rms. '
+    + "A new cable holds the spec's level at " + F01 + ' Hz for ' + T60 + ' minutes. It passes if there is no breakdown. '
+    + 'Then discharge it in order: display, discharge stick, hook, hand earth. Earths then go on core and screen at both ends, and stay on.';
+
+  const PRE_5A = "Assume the client asks for the VLF test on all three cores, despite L2's failed sheath test. On a real job you would stop and report L2 first. "
+    + 'The spec asks for ' + MULT + ' U0 as a sine wave at ' + F01 + ' Hz. It runs for ' + T60 + ' minutes on each core in turn. String B is rated ' + U0 + '/' + ULL + ' kV. These are practice values.';
+  const Q5A = "(a) Determine the VLF test voltage for String B's cores.";
+  const Q5B = '(b) Determine the charging current one core draws at ' + F01 + ' Hz.';
+  const Q5C = '(c) Determine the charging current the same core would draw in a ' + F50 + ' Hz test at ' + VT + ' kV.';
+  const RES_TEXT = 'L1 and L3 hold ' + VT + ' kV for the full ' + T60 + ' minutes. L2 breaks down at minute ' + L2MIN + '. These are practice values. '
+    + 'Each core is discharged and earthed after its test.\n\nAfterwards L2 reads ' + fRf.text + ' from core to screen. It is the same core that had the flat PI. '
+    + 'Its sheath would not hold either. Record it. The next job is to find where the fault is.';
+  const Q_CH = 'Another core of the same cable type runs ' + f2(CH_L) + ' km. It is tested at ' + VT + ' kV and ' + F01 + ' Hz. Determine its charging current.';
+
+  let lines = 0, lastStep = -1, finished = false, treeG = 0, treeKey = '';
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_SLIPS },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['pressure test', 'partial discharges', 'electrical tree'],
+      still: () => { treeG = 1; drawTree(); } },
+    { show: true, name: 'The why: 0.1 Hz', label: 'The why: ' + F01 + ' Hz', text: WHY_F, terms: ['charging current'],
+      read: WHY_F.replace('\n\n', ' ') + ' ' + READ_F, still: () => { fCtl.set(String(F01)); K.refresh(); } },
+    { show: true, name: 'The why: long cables and the set', label: 'The why: long cables and the set', text: WHY_L, terms: ['rated by the capacitance'],
+      read: WHY_L.replace('\n\n', ' ') + ' ' + READ_L + ' ' + DC_HEAD + ' ' + DC_TEXT, still: { L: 8 } },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },
+    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },
+    { name: 'Section A 5(a)', label: 'Section A · Question 5', pre: PRE_5A, part: Q5A, task: PRE_5A + ' ' + Q5A, want: f5a.text,
+      why: 'Test voltage = ' + MULT + ' × U0 = ' + f5a.work + '.' },
+    { name: 'Section A 5(b)', label: 'Section A · Question 5', part: Q5B, task: Q5B, want: f5b.text, why: 'I = 2πfCV = ' + f5b.work + '.' },
+    { name: 'Section A 5(c)', label: 'Section A · Question 5', part: Q5C, task: Q5C, want: f5c.text,
+      why: 'I = 2πfCV = ' + f5c.work + '. ' + RES_TEXT.replace('\n\n', ' ') },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: 'C = ' + fChgC.work + '. I = 2πfCV = ' + fChg.work + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iF = 2, iL = 3, iChk = 4, iWk = 5, i5A = 6, i5B = 7, i5C = 8, iB1 = 9, iCh = 10, iK = 11;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWk, i5A, i5B, i5C, iCh];
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls, readouts and the model ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const FREQS = [F01, 1, 10, F50].map(String);
+  const fCtl = K.choice({ id: 'f', label: 'Frequency', options: FREQS.map((v) => ({ value: v, label: v + ' Hz' })), value: String(F50), into: '#ctlF' });
+  K.readout({ id: 'I', label: 'Charging current', fmt: fmtI, into: '#outsF' });
+  K.readout({ id: 'kva', label: 'Set supplies', fmt: fmtKVA, into: '#outsF' });
+  K.control({ id: 'L', label: 'Cable length', min: 0.5, max: 8, step: 0.1, value: LEN, unit: 'km', snap: [LEN, 8],
+    fmt: (v) => { const L = lenOf(v); return (Math.abs(L - LEN) < 1e-9 ? f2(L) : f1(L)) + NB + 'km'; }, into: '#ctlL' });
+  K.readout({ id: 'C', label: 'Core capacitance', fmt: (v) => f3(v) + ' µF', into: '#outsL' });
+  K.readout({ id: 'fs', label: 'Frequency the set can use', fmt: (v) => (v ? String(v) + ' Hz' : 'none'), into: '#outsL' });
+
+  K.model((p) => {
+    const I = Iof(+p.f), C = CKM * lenOf(p.L), s = setFor(C);
+    return { I: I, kva: VT * shownI(I), C: C, fs: s ? s.f : 0 };
+  });
+
+  // ---------- what it is for: one core in long section, with a tree growing from a void ----------
+  const tEl = el('tsvg');
+  const T_ = (tag, a) => tEl.appendChild(K.svg(tag, a));
+  T_('rect', { class: 'l-scr', x: 8, y: 26, width: 324, height: 14 });
+  T_('rect', { class: 'l-xlpe', x: 8, y: 40, width: 324, height: 100 });
+  T_('rect', { class: 'l-cond', x: 8, y: 140, width: 324, height: 26 });
+  txt(tEl, 8, 18, 'screen', 'tk');
+  txt(tEl, 16, 96, 'XLPE', 'tk');
+  txt(tEl, 16, 158, 'conductor', 'tkI');
+  // Each branch: from, to, and when in the growth it starts and finishes.
+  const TREE = [
+    [122, 129, 119, 113, 0, 0.2], [119, 113, 123, 97, 0.2, 0.4], [123, 97, 118, 81, 0.4, 0.6], [118, 81, 121, 65, 0.6, 0.8], [121, 65, 119, 50, 0.8, 1],
+    [119, 113, 107, 101, 0.25, 0.45], [107, 101, 102, 89, 0.45, 0.65], [107, 101, 96, 97, 0.5, 0.7],
+    [123, 97, 135, 85, 0.45, 0.65], [135, 85, 142, 73, 0.65, 0.85], [135, 85, 148, 83, 0.7, 0.9],
+    [118, 81, 108, 69, 0.65, 0.85], [108, 69, 104, 58, 0.85, 1], [121, 65, 130, 56, 0.85, 1],
+  ];
+  const treeP = T_('path', { class: 'etree', d: 'M0 0' });
+  T_('ellipse', { class: 'void', cx: 122, cy: 133, rx: 6, ry: 4 });
+  T_('ellipse', { class: 'void2', cx: 292, cy: 134, rx: 3.5, ry: 2.5 });
+  T_('path', { class: 'ldr', d: 'M165 67L139 84' });
+  txt(tEl, 168, 62, 'electrical tree:', 'lb');
+  txt(tEl, 168, 78, 'grows during the test', 'tk');
+  T_('path', { class: 'ldr', d: 'M292 122V129' });
+  txt(tEl, 332, 102, 'smaller defect:', 'lb', 'end');
+  txt(tEl, 332, 118, 'not affected', 'tk', 'end');
+  tEl.setAttribute('aria-label', 'One core in long section: the screen on top, the XLPE, and the conductor below. A void sits in the XLPE next to the conductor. '
+    + 'Fine branching lines grow from it across the XLPE towards the screen: an electrical tree, growing during the test. A smaller void further along stays as it is.');
+  function drawTree() {
+    const g = K.ease(K.clamp(treeG, 0, 1));
+    let d = '';
+    TREE.forEach((s) => {
+      const u = K.clamp((g - s[4]) / (s[5] - s[4]), 0, 1);
+      if (u > 0) d += 'M' + fx(s[0]) + ' ' + fx(s[1]) + 'L' + fx(K.lerp(s[0], s[2], u)) + ' ' + fx(K.lerp(s[1], s[3], u));
+    });
+    treeP.setAttribute('d', d || 'M0 0');
+  }
+  drawTree();
+
+  // ---------- the why: the voltage on one core over 10 s, and the charging current ----------
+  const fEl = el('fsvg');
+  const X0 = 40, X1 = 320, YC = 74, AMP = 46, tx = (t) => X0 + t / fCyc1.value * (X1 - X0);
+  const F_ = (tag, a) => fEl.appendChild(K.svg(tag, a));
+  F_('path', { class: 'zero', d: 'M' + X0 + ' ' + YC + 'H' + X1 });
+  txt(fEl, X0 - 6, YC + 4.5, '0', 'tk', 'end');
+  const bandR = F_('rect', { class: 'band', x: X0, y: YC - AMP, width: X1 - X0, height: 2 * AMP });
+  const waveP = F_('path', { class: 'wave', d: 'M0 0' });
+  F_('path', { class: 'ref', d: 'M' + X0 + ' ' + (YC - AMP) + 'H' + X1 });
+  txt(fEl, X1, 16, 'peak ' + fPeak.text, 'tk', 'end');
+  const cycT = txt(fEl, X0, 16, '', 'lb');
+  let axT = 'M' + X0 + ' 132H' + X1;
+  [0, 2, 4, 6, 8, 10].forEach((t) => { axT += 'M' + fx(tx(t)) + ' 132V136'; txt(fEl, tx(t), 150, t === 10 ? '10 s' : String(t), 'tk', 'middle'); });
+  F_('path', { class: 'ax', d: axT });
+  const BX0 = 60, BX1 = 324, BW = BX1 - BX0;
+  txt(fEl, 8, 170, 'Charging current', 'lb');
+  const rowF = txt(fEl, BX0 - 6, 194, '', 'tk', 'end');
+  const curBar = F_('rect', { class: 'cbar', x: BX0, y: 180, height: 20, width: BW });
+  const valT = txt(fEl, BX0, 194, '', 'lb');
+  F_('rect', { class: 'ghost', x: BX0, y: 208, height: 20, width: BW });
+  txt(fEl, BX0 - 6, 222, F50 + ' Hz', 'tk', 'end');
+  txt(fEl, BX1 - 6, 222, fmtI(Iof(F50)), 'tkI', 'end');
+  let waveKey = '';
+  function wavePath(f) {
+    const per = f >= 10 ? 12 : f >= 1 ? 32 : 160, N = Math.max(160, Math.round(cycles(f) * per));
+    let d = '';
+    for (let k = 0; k <= N; k++) {
+      const t = fCyc1.value * k / N;
+      d += (k ? 'L' : 'M') + fx(tx(t)) + ' ' + fx(YC - AMP * Math.sin(2 * Math.PI * f * t));
+    }
+    return d;
+  }
+  function drawFreq(p, o) {
+    const f = +p.f;
+    if (p.f !== waveKey) {
+      waveKey = p.f;
+      const solid = f >= F50;
+      vis(bandR, solid); vis(waveP, !solid);
+      if (!solid) { waveP.setAttribute('d', wavePath(f)); waveP.setAttribute('class', f >= 10 ? 'wave thin' : 'wave'); }
+    }
+    cycT.textContent = cycLabel(f);
+    rowF.textContent = p.f + ' Hz';
+    const w = Math.max(2, o.I / Iof(F50) * BW), inside = w > BW - 90;
+    curBar.setAttribute('width', fx(w));
+    valT.textContent = fmtI(o.I);
+    valT.setAttribute('x', fx(inside ? BX0 + w - 6 : BX0 + w + 6));
+    valT.setAttribute('text-anchor', inside ? 'end' : 'start');
+    valT.setAttribute('class', inside ? 'onbar' : 'lb');
+    fEl.setAttribute('aria-label', 'Top: the voltage on one core of String B over ' + fCyc1.text + ', the same height at every frequency, with its peak marked. '
+      + (f >= F50 ? 'At ' + F50 + ' Hz the cycles merge into a solid band. ' : 'At ' + p.f + ' Hz there ' + (cycles(f) === 1 ? 'is one slow cycle. ' : 'are ' + cycles(f) + ' cycles. '))
+      + 'Below: a bar for the charging current at this frequency, over a faint bar for ' + F50 + ' Hz.');
+    const n = cycles(f), k = Math.round(F50 / f);
+    el('sayF').textContent = nb(f >= F50
+      ? 'At ' + F50 + ' Hz the core is filled and emptied ' + n + ' times in ' + fCyc1.text + '. Holding ' + VT + ' kV on it takes ' + fmtI(o.I) + ', so the set supplies ' + fmtKVA(o.kva) + '.'
+      : 'At ' + p.f + ' Hz the core is filled and emptied ' + (n === 1 ? 'once' : n + ' times') + ' in ' + fCyc1.text + '. The same ' + VT + ' kV takes ' + fmtI(o.I) + ', '
+        + k + ' times less than at ' + F50 + ' Hz. The set supplies ' + fmtKVA(o.kva) + '.');
+  }
+
+  // ---------- the why: core capacitance against the set's rating ----------
+  const lEl = el('lsvg');
+  const LX = (L) => 44 + L * 35, LY = (C) => 196 - C * 40;
+  const L_ = (tag, a) => lEl.appendChild(K.svg(tag, a));
+  txt(lEl, 8, 18, 'Core capacitance (µF)', 'tk');
+  SET.forEach((s, k) => {
+    L_('path', { class: 'r' + (k + 1), d: 'M44 ' + fx(LY(s.C)) + 'H324' });
+    txt(lEl, 50, LY(s.C) - 5, s.C + ' µF at ' + s.f + ' Hz', 'tk');
+  });
+  [[fMax1, SET[0]], [fMax2, SET[1]]].forEach((q) => {
+    L_('path', { class: 'gd', d: 'M' + fx(LX(q[0].value)) + ' ' + fx(LY(q[1].C)) + 'V196' });
+    L_('circle', { class: 'gdot', cx: fx(LX(q[0].value)), cy: fx(LY(q[1].C)), r: 2.5 });
+  });
+  const C_B = r3(CKM * LEN);
+  L_('rect', { class: 'sb', x: fx(LX(LEN) - 7), y: fx(LY(C_B)), width: 14, height: fx(C_B * 40) });
+  const cBar = L_('rect', { class: 'cbar', width: 14 });
+  let axL = 'M44 36V196H324';
+  [0, 1, 2, 3, 4].forEach((c) => { axL += 'M40 ' + fx(LY(c)) + 'H44'; txt(lEl, 37, LY(c) + 4.5, String(c), 'tk', 'end'); });
+  [LEN, fMax1.value, fMax2.value, 8].forEach((L) => { axL += 'M' + fx(LX(L)) + ' 196V200'; });
+  L_('path', { class: 'ax', d: axL });
+  txt(lEl, LX(LEN), 214, f2(LEN), 'tk', 'middle');
+  txt(lEl, LX(fMax1.value), 214, f2(fMax1.value), 'tk', 'middle');
+  txt(lEl, LX(fMax2.value), 214, f2(fMax2.value), 'tk', 'middle');
+  txt(lEl, LX(8), 214, '8.0', 'tk', 'middle');
+  txt(lEl, LX(LEN), 232, 'String B', 'sbt', 'middle');
+  txt(lEl, 324, 232, 'Length (km)', 'tk', 'end');
+  function drawLen(p, o) {
+    const L = lenOf(p.L), C = o.C, s = setFor(C), isB = Math.abs(L - LEN) < 1e-9;
+    cBar.setAttribute('x', fx(LX(L) - 7)); cBar.setAttribute('y', fx(LY(C))); cBar.setAttribute('height', fx(Math.max(1, C * 40)));
+    lEl.setAttribute('aria-label', 'Core capacitance against cable length. A bar at the chosen length rises with it. Three dashed lines mark the set\'s rating at '
+      + SET.map((q) => q.f + ' Hz').join(', ') + '. The bar crosses the ' + SET[0].f + ' Hz line at ' + fMax1.text + ' and the ' + SET[1].f + ' Hz line at ' + fMax2.text
+      + ". A dashed outline marks String B's " + fLen.text + '.');
+    const who = isB ? "String B's " + fLen.text + ' core' : (/^8/.test(f1(L)) ? 'An ' : 'A ') + f1(L) + ' km core';
+    let say;
+    if (s === SET[0]) say = who + ' is ' + f3(C) + " µF. That is inside the set's " + SET[0].C + ' µF at ' + SET[0].f + ' Hz, so it tests at ' + SET[0].f + ' Hz.';
+    else {
+      const prev = SET[SET.indexOf(s) - 1] || SET[SET.length - 1];
+      say = who + ' is ' + f3(C) + " µF. That is more than the set's " + prev.C + ' µF at ' + prev.f + ' Hz. At ' + (s ? s.f : '') + ' Hz the set drives '
+        + (s ? s.C : '') + ' µF, so it tests at ' + (s ? s.f : '') + ' Hz.';
+    }
+    el('sayL').textContent = nb(say);
+  }
+
+  // ---------- String B's results ----------
+  (function results() {
+    const g = el('rsvg'), RX0 = 36, RX1 = 324, bx = (m) => RX0 + m / T60 * (RX1 - RX0);
+    const R_ = (tag, a) => g.appendChild(K.svg(tag, a));
+    [['L1', 10, T60, 'bar'], ['L2', 50, L2MIN, 'barW'], ['L3', 92, T60, 'bar']].forEach((q) => {
+      txt(g, 8, q[1] + 17, q[0], 'lb');
+      R_('rect', { class: q[3], x: RX0, y: q[1], width: fx(bx(q[2]) - RX0), height: 24 });
+      if (q[3] === 'bar') txt(g, RX0 + 8, q[1] + 17, 'held', 'tkI');
+    });
+    txt(g, bx(L2MIN) + 8, 67, 'broke down', 'lb');
+    txt(g, bx(L2MIN) + 8, 83, fRf.text + ' core to screen after', 'tk');
+    let d = 'M' + RX0 + ' 128H' + RX1;
+    [0, L2MIN, T60 / 2, T60].forEach((m) => { d += 'M' + fx(bx(m)) + ' 128V132'; txt(g, bx(m), 146, String(m), 'tk', 'middle'); });
+    R_('path', { class: 'ax', d: d });
+    txt(g, (RX0 + RX1) / 2, 164, 'Time at ' + VT + ' kV (min)', 'tk', 'middle');
+    g.setAttribute('aria-label', 'Three bars along a ' + T60 + ' minute time line. L1 and L3 run the full ' + T60 + ' minutes and held. L2 stops at minute ' + L2MIN
+      + ': it broke down, and reads ' + fRf.text + ' from core to screen after.');
+  })();
+
+  // ---------- one animation: the tree grows on arrival ----------
+  const GROW = 4;
+  const anim = K.anim({ button: false, label: 'Tree', step: (dt) => {
+    if (at() !== iFor) return false;
+    treeG = Math.min(1, treeG + Math.min(dt, 0.1) / GROW);
+    drawTree();
+    return treeG < 1;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_SLIPS }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK] }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i5A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  const car5a = K.carried({ parts: ['4a', '4b'], into: '#carry5a' });
+  const car5b = K.carried({ parts: ['1a', '5a'], into: '#carry5b' });
+  const car5c = K.carried({ parts: ['1a', '5a', '5b'], into: '#carry5c' });
+  const MISS2PI = 'The 2π is missing. I = 2πfCV.';
+  const SPEC = {
+    [i5A]: { id: '5a', fig: f5a, dec: 1, accept: [], work: () => ['Test voltage = ' + MULT + ' × U0', '= ' + f5a.work],
+      slips: [{ value: F('5a.slip').value, hint: 'That uses ' + ULL + ' kV, the voltage between cores. U0 is the voltage to earth, ' + U0 + ' kV.' },
+        { value: F('5a.slip2').value, hint: 'That is U0 itself. The spec asks for ' + MULT + ' U0.' },
+        { value: F('5a.slip3').value, hint: 'That is ' + VT + ' kV as a peak. The test voltage is given in rms.' }],
+      hint: "Not quite. Multiply U0, the voltage to earth, by the spec's " + MULT + '.',
+      after: f5a.text + ' rms is ' + MULT + ' U0, which sits inside ' + f1(fRngLo.value) + ' to ' + fRngHi.text + '. Sets are rated in kV peak. Peak = rms × ' + PK + '. '
+        + 'So the set must reach ' + fPeak.work + ". The practice set's " + SETPK + ' kV peak covers it. Above ' + TERM_KV
+        + ' kV, the cable ends may need terminations fitted to stop flashover at the test voltage.' },
+    [i5B]: { id: '5b', fig: f5b, dec: 2, accept: [], work: () => ['I = 2πfCV', '= ' + f5b.work],
+      slips: [{ value: F('5b.slip').value, hint: MISS2PI },
+        { value: F('5b.slip2').value, hint: 'That uses the peak voltage. Use the rms test voltage, ' + VT + ' kV.' },
+        { value: F('5b.slip3').value, hint: 'That is three cores. Each core is tested on its own.' }],
+      hint: 'Not quite. Use I = 2πfCV, with C in farads and V in volts.',
+      after: f5b.text + ' is all the set must supply. That is ' + fKva01.work + '.' },
+    [i5C]: { id: '5c', fig: f5c, dec: 2, accept: [], work: () => ['I = 2πfCV', '= ' + f5c.work],
+      slips: [{ value: F('5c.slip').value, hint: MISS2PI },
+        { value: F('5c.slip2').value, hint: "That is the core's charging current in service, at U0 = " + U0 + ' kV. The test runs at ' + VT + ' kV.' },
+        { value: f5b.value, hint: 'That is the ' + F01 + ' Hz current, in mA. At ' + F50 + ' Hz it is ' + RATIO + ' times bigger.' }],
+      hint: 'Not quite. Use I = 2πfCV again, with f = ' + F50 + ' Hz.',
+      after: f5c.text + ' is ' + RATIO + ' times ' + f5b.text + '. The set would supply ' + fKva50.work + ', against ' + fKva01.text + ' at ' + F01 + ' Hz.' },
+    [iCh]: { id: 'l5.changed', fig: fChg, dec: 2, accept: [], work: () => ['C = ' + fChgC.work, 'I = 2πfCV = ' + fChg.work],
+      slips: [{ value: f5b.value, hint: "That is String B's " + fLen.text + " core. Work out this core's capacitance first: " + CKM + ' × ' + f2(CH_L) + '.' },
+        { value: F('l5.changed.slip').value, hint: MISS2PI }],
+      hint: 'Not quite. Work out the capacitance first, then use I = 2πfCV.',
+      after: fChgC.text + " is inside the practice set's " + SET[0].C + ' µF at ' + F01 + ' Hz, so ' + F01 + ' Hz still works.' },
+  };
+  const BOX = { [i5A]: '#ans-5a', [i5B]: '#ans-5b', [i5C]: '#ans-5c', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work() };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' });
+  const wl = WL.map((x, k) => {
+    const box = K.el('div', { class: 'line' });
+    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));
+    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));
+    wbox.appendChild(box);
+    return box;
+  });
+  const wnote = wbox.appendChild(K.el('p', { class: 'sub' }, nb(WK_NOTE)));
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));
+  el('titF').textContent = nb('Voltage on one core: ' + VT + ' kV rms at every frequency');
+  el('capF').textContent = nb("String B's " + fC.text + ' core and ' + VT + ' kV are practice values.');
+  el('dcNote').appendChild(K.el('p', { class: 'wh' }, DC_HEAD));
+  el('dcNote').appendChild(write(K.el('p'), DC_TEXT, ['space charge']));
+  el('capL').textContent = nb("The set and String B's " + fLen.text + ' are practice values. ' + CKM + ' µF per km is a typical figure.');
+  paras(el('resNote'), RES_TEXT);
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i5A], carry5a: [i5A], carry5b: [i5B], carry5c: [i5C], pre: [i5A],
+    wrapT: [iFor], warnFor: [iFor],
+    wrapF: [iF], ctlF: [iF], outsF: [iF], sayF: [iF], capF: [iF],
+    wrapL: [iL], ctlL: [iL], outsL: [iL], sayL: [iL], dcNote: [iL], capL: [iL],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-5a': [i5A], 'ans-5b': [i5B], 'ans-5c': [i5C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };
+  const ASK = {
+    [iF]: 'Step the frequency down from ' + F50 + ' Hz to ' + F01 + ' Hz.',
+    [iL]: 'Drag the length from ' + fLen.text + ' out to 8.0 km.',
+    [iWk]: 'Work each line yourself first, then press Show.',
+  };
+  const CARRY = { [i5A]: car5a, [i5B]: car5b, [i5C]: car5c };
+
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+      if (i === i5A) scen.el.open = true;
+      if (CARRY[i] && typeof CARRY[i].refresh === 'function') { try { CARRY[i].refresh(); } catch (e) { /* the panel keeps its last state */ } }
+    }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('pre'), d.pre || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (ASK[i] ? ' ask' : '');
+    sub.textContent = nb(ASK[i] ? ASK[i]
+      : i === i5A ? 'Give it in kV, to 1 place.'
+      : i === i5B ? 'Give it in mA, to 2 places.'
+      : i === i5C ? 'Give it in A, to 2 places.'
+      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in mA, to 2 places.'
+      : i === iB1 ? markLine('b1')
+      : i === iK ? 'One card to come back to on a real job.' : '');
+    sub.hidden = !sub.textContent;
+
+    drawFreq(p, o);
+    drawLen(p, o);
+    const tk = i === iFor ? 'T' : '';
+    if (tk && tk !== treeKey) { treeG = 0; drawTree(); if (!anim.playing()) anim.play(); }
+    treeKey = tk;
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    wnote.hidden = lines < wl.length;
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    el('resNote').hidden = !(i === i5C && typedDone);
+    el('wrapR').hidden = el('resNote').hidden;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['resNote', String(i)], ['wrapR', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);
+  const A = (f) => K.at({ f: String(f) });
+  K.check('At 76 kV one core takes 12.61 A at 50 Hz, 2.52 A at 10 Hz, 252.13 mA at 1 Hz and 25.21 mA at 0.1 Hz; the set supplies 958.4, 191.5, 19.16 and 1.92 kVA', () =>
+    fmtI(A(F50).I) === f5c.text && fmtI(A(10).I) === F('l5.pic.I10').text && fmtI(A(1).I) === F('l5.pic.I1').text && fmtI(A(F01).I) === f5b.text
+    && fmtKVA(A(F50).kva) === fKva50.text && fmtKVA(A(10).kva) === F('l5.pic.kva10').text && fmtKVA(A(1).kva) === F('l5.pic.kva1').text && fmtKVA(A(F01).kva) === fKva01.text);
+  K.check('Stepping 50 Hz down to 0.1 Hz cuts the current exactly 500 times, and each step down cuts it in proportion', () =>
+    near(A(F50).I / A(F01).I, RATIO, 1e-9) && near(F50 / F01, RATIO) && near(A(10).I / A(1).I, 10, 1e-9) && A(F50).I > A(10).I && A(10).I > A(1).I && A(1).I > A(F01).I);
+  K.check('Halving 0.1 Hz to 0.05 Hz halves 25.21 mA to 12.61 mA; doubling it would give 50.42 mA', () =>
+    near(r2(f5b.value / 2), fHalf.value) && near(r2(f5b.value * 2), fDbl.value) && near(r2(Iof(SET[1].f) * 1000), fHalf.value, 0.011) && near(SET[1].f * 2, F01));
+  K.check('Core capacitance 0.110 µF at 0.5 km, 0.528 at 2.40, 1.100 at 5.0 and 1.760 at 8.0 km; the set uses 0.1, 0.1, 0.05 and 0.02 Hz', () => {
+    const L = (x) => K.at({ L: x });
+    return f3(L(0.5).C) + ' µF' === F('l5.pic.C0.5').text && f3(L(LEN).C) + ' µF' === fC.text && f3(L(5).C) + ' µF' === F('l5.pic.C5').text && f3(L(8).C) + ' µF' === F('l5.pic.C8').text
+      && L(0.5).fs === SET[0].f && L(LEN).fs === SET[0].f && L(5).fs === SET[1].f && L(8).fs === SET[2].f;
+  });
+  K.check('The set reaches its 0.1 Hz rating at 3.41 km and its 0.05 Hz rating at 6.82 km', () => {
+    const L = (x) => K.at({ L: x }).fs;
+    return near(r2(SET[0].C / CKM), fMax1.value) && near(r2(SET[1].C / CKM), fMax2.value)
+      && L(3.4) === SET[0].f && L(3.5) === SET[1].f && L(6.8) === SET[1].f && L(6.9) === SET[2].f;
+  });
+  K.check('Recall 18.0 to 30.0 kV on a 12/20 kV cable (30 to 50 with 20 kV); String B 57.0 to 95.0 kV; 5(a) 2 × 38 = 76.0 kV rms, 107.5 kV peak', () =>
+    near(r1(MLO * U0EX), fLo.value) && near(r1(MHI * U0EX), fHi.value) && near(r1(MLO * ULLEX), fS1.value) && near(r1(MHI * ULLEX), fS1h.value)
+    && near(r1(MLO * U0), fRngLo.value) && near(r1(MHI * U0), fRngHi.value) && near(r1(MULT * U0), f5a.value) && near(r1(VT * PK), fPeak.value)
+    && fPeak.value < SETPK);
+  K.check('5(b) 25.21 mA and 1.92 kVA; 5(c) 12.61 A and 958.4 kVA; changed numbers 0.682 µF and 32.57 mA', () =>
+    near(r2(Iof(F01) * 1000), f5b.value) && near(r2(VT * f5b.value / 1000), fKva01.value) && near(r2(Iof(F50)), f5c.value) && near(r1(VT * f5c.value), fKva50.value)
+    && near(r3(CKM * CH_L), fChgC.value) && near(r2(2 * Math.PI * F01 * fChgC.value * 1e-6 * V_V * 1000), fChg.value) && fChgC.value <= SET[0].C);
+  K.check('Each slip is its own working: 132.0, 38.0 and 107.5 kV; 4.01, 35.66 and 75.63 mA; 2.01 and 6.30 A; 5.18 mA', () =>
+    near(r1(MULT * ULL), F('5a.slip').value) && near(U0, F('5a.slip2').value) && near(fPeak.value, F('5a.slip3').value)
+    && near(r2(F01 * C_F * V_V * 1000), F('5b.slip').value) && near(r2(2 * Math.PI * F01 * C_F * fPeak.value * 1e6), F('5b.slip2').value)
+    && near(r2(3 * f5b.value), F('5b.slip3').value) && near(r2(F50 * C_F * V_V), F('5c.slip').value)
+    && near(r2(2 * Math.PI * F50 * C_F * U0 * 1000), F('5c.slip2').value) && near(r2(F01 * fChgC.value * 1e-6 * V_V * 1000), F('l5.changed.slip').value));
+  K.check('In service at 38 kV and 50 Hz the rule gives 2.63 A per km, against 2.6 A/km in the cable table', () =>
+    near(2 * Math.PI * F50 * CKM * 1e-6 * U0 * 1000, F('t.Ich66').value, 0.05));
+  K.check('The time line shows 1 cycle in 10 s at 0.1 Hz, 10 at 1 Hz, 100 at 10 Hz and 500 at 50 Hz', () =>
+    cycLabel(F01) === '1 cycle in 10 s' && cycles(1) === 10 && cycles(10) === 100 && cycles(F50) === fCycles.value && near(fCyc1.value, 1 / F01));
+  K.check('VLF-200CMF: 0 to 200 kVac peak, 0.75 µF at 0.10 Hz to 3.75 µF at 0.02 Hz', () =>
+    SETPK === 200 && SET.length === 3 && SET[0].C === 0.75 && SET[0].f === 0.1 && SET[2].C === 3.75 && SET[2].f === 0.02,
+    { source: 'https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf' });
+  K.check('The recommended minimum time for an installation or acceptance withstand test on new cable is 60 min at 0.1 Hz', () => T60 === 60 && F01 === 0.1,
+    { source: 'https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf' });
+  K.check('Terminations may need to be added to avoid flashover on installation tests of cables rated above 35 kV', () => TERM_KV === 35,
+    { source: 'https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf' });
+  K.check('Installation and acceptance levels run from less than 2 U0 to 3 U0', () => IEEE_LO === 2 && IEEE_HI === 3,
+    { source: 'https://hvinc.com/vlf-cable-test-voltage-ieee-standard' });
+  K.check('For cables over 36 kV, IEC 63026 asks for a test frequency of 10 to 500 Hz for commissioning', () => RES_KV === 36 && RES_LO === 10 && RES_HI === 500,
+    { source: 'https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables' });
+  K.check("Every slip lies outside its answer's accepted figures", () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.05;
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+
+  K.ready();
+</script>

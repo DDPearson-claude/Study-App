@@ -6,7 +6,7 @@ bad = 0
 for f in d["figures"]:
     lhs = f["work"].split(" = ")[0]
     e = (lhs.replace("×", "*").replace("÷", "/").replace("−", "-").replace("2π", "2*math.pi")
-            .replace("10⁻⁶", "1e-6").replace("10⁶", "1e6").replace("²", "**2").replace(" ", ""))
+            .replace("10⁻⁶", "1e-6").replace("10⁻³", "1e-3").replace("10⁶", "1e6").replace("²", "**2").replace(" ", ""))
     e = re.sub(r"(\d)\s*(?=\d{3}\b)", r"\1", e)
     try: x = eval(e, {"math": math})
     except Exception as ex: print("cannot eval", f["id"], lhs, ex); bad += 1; continue

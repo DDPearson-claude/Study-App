@@ -1,0 +1,28 @@
+{
+ "iid": "i5",
+ "draft": "i5.lesson.draft1.txt",
+ "validator": "one soft problem: summary.rule is 700 characters (keep under 600); otherwise passes",
+ "faults": [
+  {"fault": "explanation skips the causal step", "where": "screen 2; explain para 1; screen 4", "finding": "Screen 2 says an electrical tree 'starts at' a bad defect without saying why the overvoltage finds it: at the test voltage a big enough defect is excited and discharges inside, and those discharges start the tree. Screen 4 says halving the frequency lets the set drive twice the capacitance without the step between: the set can only supply so much current. 'Lowering the frequency needlessly is to be avoided' is given with no reason, though the recommended times are set at 0.1 Hz.", "fix": "Add the partial discharge step on screen 2 and in explain para 1. Add 'the set can only supply so much current' on screen 4, and that the recommended times are given at 0.1 Hz."},
+  {"fault": "false absolutes", "where": "screen 2; screen 4", "finding": "'Smaller defects are not affected' keeps the source's qualifier, and 'a high chance' keeps the notes'. 'DC needs almost no current' keeps its 'almost'. 'That has been found to speed up water trees' is a passive report of one study, worded as a finding. No other absolutes.", "fix": "Say 'That can speed up water trees in healthy XLPE.'"},
+  {"fault": "interactive shows only the effect", "where": "screens 3 and 4", "finding": "Screen 3 draws the cause, the number of cycles in the same 10 s, beside the current bar it drives, so the 500 times shows as 500 cycles against one. Screen 4 draws the core's capacitance growing with length against the set's rating at each frequency, the cause of a long cable needing a lower frequency. Passes.", "fix": "None."},
+  {"fault": "checks test recall", "where": "screen 5", "finding": "The check asks what halving the frequency does to the current. It needs the reactance reasoning, not the rule's words, and each wrong answer names the reversed or missing step. Passes.", "fix": "None."},
+  {"fault": "thin or decorative research", "where": "whole lesson", "finding": "Eight footnotes. [^19] on the 30-minute line adds a second footnote to one worked-example line, on a figure in his own notes beside the 60 minutes. The contested range is taught with both views and the client's spec settles it; the resonant 10 to 500 Hz test for a 66 kV cable is taught as a spec that may apply.", "fix": "Drop [^19]; keep seven, each on a figure or rule he would look up on a job."},
+  {"fault": "unreadable labels", "where": "numbers; screen 7; summary", "finding": "Readouts and picture labels are plain words. 'despite L2's sheath' is clipped. The summary rule runs over 600 characters, so the card would be cut.", "fix": "Say 'despite L2's failed sheath test'. Trim the card's notes: drop the kVA line and fold the discharge order into the traps."},
+  {"fault": "text talks about the idea instead of teaching it", "where": "explain para 2; explain para 3", "finding": "'about 958.4 kVA' puts a hedge on an exact working. Para 3 ends on the model's simplification inside a paragraph about the set, so it reads as an aside.", "fix": "Drop 'about'. Move the simplification sentence to its own closing line before the takeaway."}
+ ],
+ "pattern": {
+  "recall opener": "yes: 12/20 kV, slips 12 to 20 kV (the rating) and 30 to 50 kV (U taken as U0); Refresh the why and Skip to the practice (to screen 7)",
+  "what it is for": "yes, with what goes wrong in red, and the resonant AC alternative above 36 kV",
+  "the why with its interactive": "yes: screen 3 (frequency stepper) and screen 4 (length slider), each with read and still; DC on screen 4",
+  "check": "yes, screen 5",
+  "worked example": "yes: the notes' 12/20 kV cable, line by line, with the full test and discharge; the contested range in the note; read and still given",
+  "Section A": "5a, 5b and 5c on String B, each with the scenario, carried parts (4a, 4b; 1a, 5a; 5b) and three slips; String B's result on 5c",
+  "Section B": "yes, b1, five points, any three",
+  "changed numbers": "yes, 3.10 km: 32.57 mA",
+  "Keep this": "yes, figures 5a, 5b, 5c"
+ },
+ "plain writing": "No source is named in the words. One passive report ('has been found') and one hedge ('about') to fix. Sentences are mostly short and active.",
+ "safety": "Every test ends discharged in the notes' order, earths kept on core and screen at both ends, and no voltage proved before anyone touches the cable. The story choice to run VLF after L2's failed sheath test is said, with what a real job does.",
+ "verdict": "Rewrite as draft 2 with the fixes above."
+}

@@ -1,0 +1,39 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "problem": "The mistake 'Lifting the hand earth before the discharge stick and the hook' names the wrong slip: the notes' order is discharge stick, then hook, then hand earth, so the real slip is putting the hand earth on first; 'lifting' an earth means taking it off.",
+   "severity": "fix",
+   "now": "- Before you start: identify, isolate, prove dead, secure and earth. Disconnect the circuit and take off any monitoring equipment. Restrict access at both ends. Use only the maker's test leads.\n- Read U0 off the cable's data sheet. It is the first number of the rating, core to earth.\n- Take the test voltage, frequency and time from the client's spec.\n- Check the set can do it. The peak, rms × 1.4142, must sit inside its kV peak rating. The core's capacitance must sit inside its rating at the frequency you use.\n- Use 0.1 Hz unless the cable is too big a load for the set there.\n- Above 35 kV, check whether the cable ends need terminations fitted to stop flashover.\n- Hold the voltage for the full time. It passes if there is no breakdown.\n- End of test: the display shows discharged, then the discharge stick, the hook straight after, then the hand earth. Earths go on core and screen at both ends, and stay on. Prove there is no voltage before anyone touches the cable.\n\n**Rule of thumb:** the charging current goes with the frequency and the length. Halve the frequency and the current halves. Double the length and it doubles.\n\n**Rule of thumb:** at 0.1 Hz, 60 minutes for installation or acceptance on new cable, and 30 minutes for a simple withstand on aged cable.\n\n**Worked example:** String B is 38/66 kV, 2.40 km, 0.528 µF a core. These are practice values. The spec asks for 2 U0: 2 × 38 = 76.0 kV rms, which is 107.5 kV peak. At 0.1 Hz one core draws 2π × 0.1 × 0.528 × 10⁻⁶ × 76 000 = 25.21 mA. At 50 Hz it would draw 12.61 A.\n\n**Common mistakes**\n- Taking the voltage between cores as U0: 132 kV for String B instead of 76 kV.\n- Dropping the frequency when the set does not need it.\n- Setting an rms test voltage against a set's peak rating without converting.\n- Putting the hand earth on before the discharge stick and the hook.\n- Reading a pass as proof of no defects. Smaller defects are not affected."
+  },
+  {
+   "path": "summary.traps[3].text",
+   "problem": "Same as the practice: the slip in the notes is applying the hand earth before the discharge stick and the hook, not lifting it; 'lifting' an earth means removing it, which reverses the meaning.",
+   "severity": "fix",
+   "now": "Putting the hand earth on before the discharge stick and the hook."
+  },
+  {
+   "path": "written.b1.points[3].text",
+   "problem": "'A 50 Hz test is impractical on site' is absolute: the lesson itself says a spec may ask for an on-site resonant AC test at 10 to 500 Hz; the quote says the capacitive load made plain 50 Hz testing impractical for site work, so it needs narrowing.",
+   "severity": "fix",
+   "now": "Because of the cable's capacitance, a plain 50 Hz test set is often impractical on site. VLF makes a field withstand test practical."
+  },
+  {
+   "path": "written.b1.points[4].text",
+   "problem": "'VLF gives an AC test without that' overstates: the research says VLF's changing polarity reduces space charge build-up, not removes it, and the lesson's own screen 4 says it only cuts that build-up.",
+   "severity": "fix",
+   "now": "DC needs little current, but it can leave space charge in XLPE, and DC withstand tests on XLPE are discouraged. VLF keeps an AC test, and its changing polarity cuts that build-up."
+  },
+  {
+   "path": "written.b1.model",
+   "problem": "The model answer repeats both overstatements: a 50 Hz test is not always impractical on site (resonant sets do it), and VLF reduces space charge build-up rather than avoiding it entirely.",
+   "severity": "fix",
+   "now": "A long cable is a large capacitance. At 50 Hz its reactance is low, so holding a withstand voltage on it needs a very large charging current and a lot of power. That makes a plain 50 Hz test set often impractical on site. Lowering the frequency raises the reactance, so the current and power fall with the frequency. At 0.1 Hz they are 500 times less than at 50 Hz, so a set you can take to site can do the test. DC would need even less current, but it can leave space charge in XLPE, and DC withstand tests on XLPE are discouraged. VLF keeps an alternating test, and its changing polarity cuts that build-up."
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "The practice set's 1.5 µF at 0.05 Hz is labelled constant from source 2, but that quote gives only 0.75 µF at 0.1 Hz and 3.75 µF at 0.02 Hz; the 1.5 µF follows from the research's 'twice the load at 0.05 Hz' (same maker), which the lesson does not cite. The figure is right; its label overreaches.",
+   "severity": "note"
+  }
+ ]
+}

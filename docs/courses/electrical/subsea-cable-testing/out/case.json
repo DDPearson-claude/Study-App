@@ -295,7 +295,8 @@
    "label": "TDR velocity factor, power XLPE (typical range)",
    "value": "0.54 to 0.62 (162 to 186 m/µs)",
    "text": "0.54 to 0.62 (162 to 186 m/µs)",
-   "cite": "Megger application note TDR_AN58 'Basic TDR operation', typical VFs: to research"
+   "cite": "Megger application note TDR_AN58 'Basic TDR operation': VF is the ratio of the speed in the cable to the speed of light; Power XLPE 0.54 to 0.62, 162 to 186 m/µs (quoted: research sources 138 and 140)",
+   "note": "Typical, not exact: the range is Megger's. VF changes with the cable's own build, and barely with temperature at ambient (0.034% per °C; about 0.56% per °C near the 90 °C operating limit: research sources 317, 318). Set it from a known length (source 139)."
   },
   {
    "id": "t.sheathIEC",
@@ -637,12 +638,13 @@
   },
   {
    "id": "p.tEnd",
-   "label": "TDR, end of cable, open, from the OSS",
+   "label": "TDR, end of cable, far end open, from the OSS",
    "value": 28.57,
    "unit": "µs",
    "text": "28.57 µs",
    "practice": true,
-   "cite": "practice value (the running case is made up for practice; no real wind farm); TDR reading"
+   "cite": "practice value (the running case is made up for practice; no real wind farm); TDR reading",
+   "note": "Read on L1, a healthy core. The end sits at the same time on every core of the cable."
   },
   {
    "id": "p.tFault",
@@ -652,6 +654,122 @@
    "text": "11.43 µs",
    "practice": true,
    "cite": "practice value (the running case is made up for practice; no real wind farm); TDR reading"
+  },
+  {
+   "id": "t.rho",
+   "label": "Reflection coefficient of a TDR pulse",
+   "value": "rho = (Z load − Z0) ÷ (Z load + Z0); +1 open, −1 short, 0 matched",
+   "text": "rho = (Z load − Z0) ÷ (Z load + Z0); +1 open, −1 short, 0 matched",
+   "cite": "Tektronix, TDR Impedance Measurements fact sheet: the ratio of the reflected pulse to the incident pulse, +1 for an open and -1 for a short, 0 for a matched load (research sources 292-294, 328); Tektronix primer: a positive rho is a higher-impedance change, a negative rho a lower one (sources 291, 295)"
+  },
+  {
+   "id": "t.Z0power",
+   "label": "Impedance a Megger TDR is set to for power cable",
+   "value": 25,
+   "unit": "Ω",
+   "text": "25 Ω",
+   "cite": "Megger TDR500 user manual: matching networks for 25, 50, 75 and 100 Ω cables, which typically correspond to power, coaxial data and telecoms cable (research source 319)",
+   "note": "A setting on a set, not a property of String B."
+  },
+  {
+   "id": "t.tdrR",
+   "label": "Fault resistance a low-voltage TDR pulse can find",
+   "value": "below about 100 Ω; above it the pulse will likely not see the fault",
+   "text": "below about 100 Ω; above it the pulse will likely not see the fault",
+   "cite": "notes p.7 (under about 100 Ω; 200 Ω for Teleflex); Megger, Cable fault location: below 100 Ω a low-voltage TDR pulse (e.g. 40 V), above 100 Ω the pulse will likely not see it (research sources 299, 300); Megger blog: a higher-resistance fault is not seen, the arc reflection method makes an arc that behaves like a short (sources 301, 322, 326)",
+   "note": "The notes' 200 Ω for the Teleflex was not found in a Megger Teleflex data sheet (research found none); use 100 Ω."
+  },
+  {
+   "id": "t.tdrAmp",
+   "label": "TDR pulse amplitude",
+   "value": "50 V fixed on a Teleflex SX-1; 30 to 160 V on a Teleflex VX; the notes say fixed at 50 V",
+   "text": "50 V fixed on a Teleflex SX-1; 30 to 160 V on a Teleflex VX; the notes say fixed at 50 V",
+   "cite": "Megger Teleflex SX-1 page: output pulse voltage 50 V fixed (research source 305); Megger Teleflex VX page: 30 - 160 V (source 306); the notes p.7 give 50 V for their set",
+   "note": "Instrument-specific, not a rule. A low-voltage TDR is for a dead cable only (research sources 302, 303)."
+  },
+  {
+   "id": "t.v2",
+   "label": "Teleflex velocity entry is v/2",
+   "value": "a Teleflex takes the velocity as v/2 (half the pulse speed)",
+   "text": "a Teleflex takes the velocity as v/2 (half the pulse speed)",
+   "cite": "Megger Teleflex SX-1: in TDR analyses the velocity is always given in v/2 (research source 316); range quoted at V/2 = 80 m/µs, input 10 … 149.9 m/µs (sources 304, 323)",
+   "note": "So 168.0 m/µs is entered as 84.0 on a set that asks for v/2. The notes' L = t × v ÷ 2 takes the whole v."
+  },
+  {
+   "id": "t.vErr",
+   "label": "A velocity setting out by x% puts every distance out by x%",
+   "value": "2% out gives 2% out",
+   "text": "2% out gives 2% out",
+   "cite": "Megger Teleflex SX-1 user guide (research source 310); notes p.7 (5% on 2 km is 100 m)"
+  },
+  {
+   "id": "t.bothEnds",
+   "label": "Readings from both ends add up to the cable length",
+   "value": "the combined answer should equal the expected length of the cable",
+   "text": "the combined answer should equal the expected length of the cable",
+   "cite": "Megger TDR500 user manual (research source 320); an example where 2050 ft and 3075 ft on a 5000 ft cable show the velocity set too fast (source 325)"
+  },
+  {
+   "id": "t.fingerprint",
+   "label": "Record a TDR reference trace at commissioning",
+   "value": "joints show on a trace as reflections that can be taken for a fault; record the cable's trace after installation",
+   "text": "joints show on a trace as reflections that can be taken for a fault; record the cable's trace after installation",
+   "cite": "Megger, subsea and underground (research source 311); ENTSO-E and Europacable (sources 307-309, 330); the SX-1 guide: joints are recorded as well as faults (source 329)"
+  },
+  {
+   "id": "t.c",
+   "label": "Speed of light in vacuum",
+   "value": 299.792458,
+   "unit": "m/µs",
+   "text": "299.8 m/µs",
+   "cite": "NIST SP 330: exactly 299 792 458 m/s (research source 315)"
+  },
+  {
+   "id": "p.Z0",
+   "label": "String B's impedance seen by the TDR (L2, core to screen)",
+   "value": 27.1,
+   "unit": "Ω",
+   "text": "27.1 Ω",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); worked in l6.Z0 from t.C66 and the velocity in 6a",
+   "note": "Not on a data sheet. The rule: a cable's L and C per length follow from its Z0 and its velocity (research source 298), so Z0 = 1 ÷ (v × C per length); sits near the 25 Ω a Megger TDR sets for power cable (t.Z0power). The picture uses it to size reflections only; the real value is on the maker's data sheet or measured."
+  },
+  {
+   "id": "p.pulseW",
+   "label": "TDR pulse width, drawn in the picture",
+   "value": 1,
+   "unit": "µs",
+   "text": "1 µs",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); picture only, no figure depends on it",
+   "note": "A wider pulse reaches further and shows smaller faults but has a bigger blind spot beside the set; a narrower one the opposite (research sources 312-314, 327). The published blind-spot lengths are for telephone cable, so none is used for String B. Pulse width stays a drawing choice."
+  },
+  {
+   "id": "p.jointRipple",
+   "label": "Size of the field joint's up-down ripple, drawn in the picture",
+   "value": 0.05,
+   "text": "about 5% of the pulse",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); picture only",
+   "note": "A joint shows as a small up then a small down (notes p.8; Megger TDR application booklet, research source 136). No source gives a size, so the picture draws a small one."
+  },
+  {
+   "id": "p.attn",
+   "label": "Fading of far reflections, drawn in the picture",
+   "value": "the picture draws far reflections a little smaller",
+   "text": "the picture draws far reflections a little smaller",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); picture only, no figure depends on it",
+   "note": "Real cable attenuates a pulse (ENTSO-E and Europacable: the length of a submarine cable reduces TDR accuracy, research source 308); no loss figure is sourced, so the picture shows a small fall and says so."
+  },
+  {
+   "id": "p.rfRange",
+   "label": "Fault-resistance slider range in the picture",
+   "value": "1 Ω to 1000 Ω, starting at 35 Ω (p.Rf)",
+   "text": "1 Ω to 1000 Ω, starting at 35 Ω (p.Rf)",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); picture only",
+   "note": "The dip shrinks steadily as the resistance rises (l6.rho35, l6.rho100); it has no cliff at 100 Ω. The notes' 100 Ω is where it becomes too small to read."
   },
   {
    "id": "p.liraOSS",
@@ -789,9 +907,9 @@
   {
    "id": "a.vCal",
    "label": "The TDR velocity is set from the known route length",
-   "why": "The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF).",
+   "why": "The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF, research source 139; the Teleflex SX-1 guide says the same, source 324).",
    "status": "assumption",
-   "text": "Assumed: The TDR velocity is set from the known route length. The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF)."
+   "text": "Assumed: The TDR velocity is set from the known route length. The open-end reflection and the 2.40 km installation record give v (Megger TDR_AN58: test a known length and adjust the VF, research source 139; the Teleflex SX-1 guide says the same, source 324)."
   },
   {
    "id": "a.piHigh",
@@ -834,6 +952,27 @@
    "status": "sourced",
    "why": "The notes' added background (water treeing years later) is supported: water passing through a damaged sheath or joint causes water treeing under the electric field (research source 241); water trees grow over months or years until an electrical tree forms and the cable faults (sources 242, 243); moisture, a high field, defects and time promote them (source 244). A utility guide says failure does not follow a breach at once (source 246) and a commissioning review says failures are more often due to sheath problems than to the main insulation (source 263).",
    "text": "Sourced: a sheath fault lets water in, and water trees grow in the insulation over months or years (research sources 241-244, 246, 263). The notes' added background holds."
+  },
+  {
+   "id": "a.tdrAmp",
+   "label": "TDR pulse amplitude: the notes' fixed 50 V is one set's, and other sets differ",
+   "status": "contested",
+   "why": "The notes say the pulse is fixed at 50 V (notes p.7). A Megger Teleflex SX-1 is 50 V fixed (research source 305); a Teleflex VX is 30 to 160 V (source 306); a small hand-held TDR500 gives 5 V peak to peak (source 331). The lesson teaches 50 V as the notes' set and says the amplitude depends on the instrument. Whatever the set, it goes on a dead, isolated and earthed cable only (sources 302, 303).",
+   "text": "Contested: the TDR pulse amplitude. The notes say fixed at 50 V, as on a Teleflex SX-1; a Teleflex VX is 30 to 160 V and a hand-held TDR500 is 5 V (research sources 305, 306, 331). The lesson says it depends on the instrument."
+  },
+  {
+   "id": "a.tdr100",
+   "label": "The TDR reach: 'under about 100 ohm' is a rule of thumb, and the dip shrinks steadily",
+   "status": "sourced",
+   "why": "The notes say TDR only works on low-resistance faults, typically under 100 Ω (200 Ω for Teleflex). Megger says below 100 Ω a low-voltage pulse can be used and above it the pulse will likely not see the fault (research sources 299, 300, 301). The 200 Ω figure was not found on a data sheet. The reflection from a shunt fault falls steadily as its resistance rises (l6.rho35, l6.rho100, l6.rho1000, worked from the quoted reflection coefficient), so 100 Ω marks where it is too small to read, not a cliff.",
+   "text": "Sourced: TDR reaches faults below about 100 Ω (research sources 299-301); the dip shrinks steadily (l6.rho35, l6.rho100) and 100 Ω is where it gets hard to read. The notes' 200 Ω for Teleflex was not found on a data sheet."
+  },
+  {
+   "id": "a.velocity",
+   "label": "Velocity: Megger's 0.54 to 0.62 is a typical range, and the velocity is set from a known length",
+   "status": "sourced",
+   "why": "Megger lists 0.54 to 0.62 (162 to 186 m/µs) for power XLPE (research source 140), so String B's 0.56 (168.0 m/µs) sits inside. The range is typical, not exact; the right way to set it is on a known length (sources 139, 324). Temperature barely moves it at ambient, about 0.034% per °C (source 318), and String B is tested at 12 °C.",
+   "text": "Sourced: Megger's 0.54 to 0.62 for power XLPE; String B's 0.56 sits inside; set the velocity from a known length (research sources 139, 140, 324)."
   }
  ],
  "lessons": [
@@ -2915,7 +3054,7 @@
   },
   {
    "id": "5a",
-   "label": "VLF test voltage, case cable",
+   "label": "String B's VLF test voltage",
    "value": 76,
    "unit": "kV",
    "rule": "V = 2 × U0",
@@ -3722,6 +3861,403 @@
    "work": "15.00 × 172 ÷ 2 = 1290.0 m"
   },
   {
+   "id": "l6.Z0",
+   "label": "String B's impedance seen by the TDR",
+   "value": 27.1,
+   "unit": "Ω",
+   "rule": "Z0 = 1 ÷ (v × C per length)",
+   "inputs": {
+    "v": "168.0 m/µs",
+    "C per length": "0.22 nF/m (0.22 µF/km)"
+   },
+   "cite": "6a; t.C66; research source 298",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Derived from the two quoted rules (Z0 = square root of L ÷ C, research source 296; velocity set by L and C, source 298), not quoted whole. Near the 25 Ω a Megger TDR uses for power cable (t.Z0power).",
+   "text": "27.1 Ω",
+   "work": "1 ÷ (168.0 × 0.22 × 10⁻³) = 27.1 Ω"
+  },
+  {
+   "id": "l6.rho35",
+   "label": "Reflection from L2's 35 Ω fault (core to screen, across the line)",
+   "value": -0.28,
+   "unit": "",
+   "rule": "rho = −Z0 ÷ (2 Rf + Z0)",
+   "inputs": {
+    "Z0": "27.1 Ω",
+    "Rf": "35 Ω"
+   },
+   "cite": "t.rho; p.Rf; l6.Z0",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Rf in parallel with the line's Z0 is the load, put in rho = (Z load − Z0) ÷ (Z load + Z0). Negative: a downward peak, 0.28 of the pulse sent.",
+   "text": "-0.28",
+   "work": "−27.1 ÷ (2 × 35 + 27.1) = -0.28"
+  },
+  {
+   "id": "l6.rho100",
+   "label": "Reflection from a 100 Ω fault",
+   "value": -0.12,
+   "unit": "",
+   "rule": "rho = −Z0 ÷ (2 Rf + Z0)",
+   "inputs": {
+    "Z0": "27.1 Ω",
+    "Rf": "100 Ω"
+   },
+   "cite": "t.rho; t.tdrR; l6.Z0",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Less than half the 35 Ω dip: where the notes' 'about 100 Ω' sits, small and hard to read, not a cliff.",
+   "text": "-0.12",
+   "work": "−27.1 ÷ (2 × 100 + 27.1) = -0.12"
+  },
+  {
+   "id": "l6.rho1000",
+   "label": "Reflection from a 1000 Ω fault",
+   "value": -0.01,
+   "unit": "",
+   "rule": "rho = −Z0 ÷ (2 Rf + Z0)",
+   "inputs": {
+    "Z0": "27.1 Ω",
+    "Rf": "1000 Ω"
+   },
+   "cite": "t.rho; l6.Z0",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Near zero: a high-resistance fault looks like healthy cable to a low-voltage pulse.",
+   "text": "-0.01",
+   "work": "−27.1 ÷ (2 × 1000 + 27.1) = -0.01"
+  },
+  {
+   "id": "l6.pass",
+   "label": "Share of the pulse that gets past the 35 Ω fault",
+   "value": 0.72,
+   "unit": "",
+   "rule": "1 + rho",
+   "inputs": {
+    "rho": "−0.28"
+   },
+   "cite": "l6.rho35",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "The pulse is cut on the way out and again on the way back.",
+   "text": "0.72",
+   "work": "1 + (−0.28) = 0.72"
+  },
+  {
+   "id": "l6.endamp",
+   "label": "Height of the open end's reflection behind the fault, against an open end with no fault",
+   "value": 0.52,
+   "unit": "",
+   "rule": "(1 + rho) × (1 + rho)",
+   "inputs": {
+    "1 + rho": "0.72"
+   },
+   "cite": "l6.pass",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Why the end and the joint show smaller on L2 than on a healthy core. Cable loss is left out (p.attn).",
+   "text": "0.52",
+   "work": "0.72 × 0.72 = 0.52"
+  },
+  {
+   "id": "l6.acc",
+   "label": "Largest error the notes allow on String B's length",
+   "value": 24,
+   "unit": "m",
+   "rule": "1% × length",
+   "inputs": {
+    "1%": "notes p.7, ±0-1% of the cable length",
+    "length": "2400 m"
+   },
+   "cite": "n.tdrAcc; p.len",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "So 960.1 m from the OSS is a place to search, 24 m either side at worst. Dan's notes give ±0-1% of the cable length; a maker's figure is of the range, not the length, and holds only with a right velocity (research source 332).",
+   "text": "24.0 m",
+   "work": "0.01 × 2400 = 24.0 m"
+  },
+  {
+   "id": "l6.B01.t",
+   "label": "Where the fault should show from the B01 end",
+   "value": 17.14,
+   "unit": "µs",
+   "rule": "t = 2L ÷ v",
+   "inputs": {
+    "L": "1439.9 m",
+    "v": "168.0 m/µs"
+   },
+   "cite": "6c; 6a",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "The two ends' readings should add up to the cable length (t.bothEnds): 960.1 + 1439.9 = 2400.0 m.",
+   "text": "17.14 µs",
+   "work": "2 × 1439.9 ÷ 168.0 = 17.14 µs"
+  },
+  {
+   "id": "l6.both",
+   "label": "The two ends' distances added",
+   "value": 2400,
+   "unit": "m",
+   "rule": "from OSS + from B01",
+   "inputs": {
+    "from OSS": "960.1 m",
+    "from B01": "1439.9 m"
+   },
+   "cite": "6b; 6c; t.bothEnds",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "text": "2400.0 m",
+   "work": "960.1 + 1439.9 = 2400.0 m"
+  },
+  {
+   "id": "l6.v2",
+   "label": "The same velocity as a Teleflex wants it (v/2)",
+   "value": 84,
+   "unit": "m/µs",
+   "rule": "v/2",
+   "inputs": {
+    "v": "168.0 m/µs"
+   },
+   "cite": "6a; t.v2",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Only for a set that asks for v/2; the notes' formula uses the whole v.",
+   "text": "84.0 m/µs",
+   "work": "168.0 ÷ 2 = 84.0 m/µs"
+  },
+  {
+   "id": "l6.err",
+   "label": "Distance error on L2's fault if the velocity is set 5% too high",
+   "value": 48,
+   "unit": "m",
+   "rule": "error = VF error × distance",
+   "inputs": {
+    "VF error": "5%",
+    "distance": "960.1 m"
+   },
+   "cite": "n.vfEx; 6b",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "The notes' 5% on 2 km (100 m) on String B's own distance. A 2% error moves every distance by 2% (t.vErr).",
+   "text": "48.0 m",
+   "work": "0.05 × 960.1 = 48.0 m"
+  },
+  {
+   "id": "l6.recall.slip2",
+   "label": "Recall slip: v/2 put into the formula, then halved again",
+   "value": 800,
+   "unit": "m",
+   "rule": "t × (v ÷ 2) ÷ 2",
+   "inputs": {
+    "t": "20.0",
+    "v/2": "80"
+   },
+   "cite": "t.v2 (the rule it breaks: L = t × v ÷ 2 takes the whole v)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "800 m",
+   "work": "20.0 × 80 ÷ 2 = 800 m"
+  },
+  {
+   "id": "6a.slip",
+   "label": "Slip: L ÷ t, the × 2 left out",
+   "value": 84,
+   "unit": "m/µs",
+   "rule": "L ÷ t",
+   "inputs": {
+    "L": "2400",
+    "t": "28.57"
+   },
+   "cite": "the rule it breaks (v = 2L ÷ t)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "84.0 m/µs",
+   "work": "2400 ÷ 28.57 = 84.0 m/µs"
+  },
+  {
+   "id": "6a.slip2",
+   "label": "Slip: the length in km",
+   "value": 0.168,
+   "unit": "km/µs",
+   "rule": "v = 2L ÷ t with L in km",
+   "inputs": {
+    "L": "2.40 km",
+    "t": "28.57"
+   },
+   "cite": "the rule it breaks (work in metres)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "0.168 km/µs",
+   "work": "2 × 2.40 ÷ 28.57 = 0.168 km/µs"
+  },
+  {
+   "id": "6b.slip3",
+   "label": "Slip: v/2 put into L = t × v ÷ 2",
+   "value": 480.1,
+   "unit": "m",
+   "rule": "t × (v ÷ 2) ÷ 2",
+   "inputs": {
+    "t": "11.43",
+    "v/2": "84.0"
+   },
+   "cite": "t.v2 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "480.1 m",
+   "work": "11.43 × 84.0 ÷ 2 = 480.1 m"
+  },
+  {
+   "id": "6c.slip",
+   "label": "Slip: from B01 with the default velocity's distance",
+   "value": 1485.6,
+   "unit": "m",
+   "rule": "length − OSS distance",
+   "inputs": {
+    "length": "2400",
+    "OSS distance": "914.4"
+   },
+   "cite": "6b.slip (carried)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "1485.6 m",
+   "work": "2400 − 914.4 = 1485.6 m"
+  },
+  {
+   "id": "l6.changed.slip",
+   "label": "Changed numbers slip: the ÷ 2 left out",
+   "value": 2580,
+   "unit": "m",
+   "rule": "t × v",
+   "inputs": {
+    "t": "15.00",
+    "v": "172"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "2580.0 m",
+   "work": "15.00 × 172 = 2580.0 m"
+  },
+  {
+   "id": "l6.changed.slip2",
+   "label": "Changed numbers slip: a default 160 m/µs",
+   "value": 1200,
+   "unit": "m",
+   "rule": "L = t × v ÷ 2",
+   "inputs": {
+    "t": "15.00",
+    "v": "160"
+   },
+   "cite": "the rule it breaks (set the velocity first)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i6",
+   "text": "1200.0 m",
+   "work": "15.00 × 160 ÷ 2 = 1200.0 m"
+  },
+  {
+   "id": "l6.ratio",
+   "label": "The fault's share of the way to the end, whatever the velocity",
+   "value": 0.4,
+   "unit": "",
+   "rule": "t fault ÷ t end",
+   "inputs": {
+    "t fault": "11.43 µs",
+    "t end": "28.57 µs"
+   },
+   "cite": "p.tFault; p.tEnd",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "Both distances are their time × v ÷ 2, so v cancels: a wrong velocity stretches the whole trace, it never moves the fault along it.",
+   "text": "0.40",
+   "work": "11.43 ÷ 28.57 = 0.40"
+  },
+  {
+   "id": "l6.rho1",
+   "label": "Reflection from a 1 Ω fault",
+   "value": -0.93,
+   "unit": "",
+   "rule": "rho = −Z0 ÷ (2 Rf + Z0)",
+   "inputs": {
+    "Z0": "27.1 Ω",
+    "Rf": "1 Ω"
+   },
+   "cite": "t.rho; l6.Z0",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "note": "The slider's low end: nearly a dead short, nearly the whole pulse comes back down.",
+   "text": "-0.93",
+   "work": "−27.1 ÷ (2 × 1 + 27.1) = -0.93"
+  },
+  {
+   "id": "l6.err.at",
+   "label": "Where L2's fault would read with the velocity 5% high",
+   "value": 1008.1,
+   "unit": "m",
+   "rule": "distance + error",
+   "inputs": {
+    "distance": "960.1 m",
+    "error": "48.0 m"
+   },
+   "cite": "6b; l6.err",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "text": "1008.1 m",
+   "work": "960.1 + 48.0 = 1008.1 m"
+  },
+  {
+   "id": "l6.err.end",
+   "label": "Where the end would read with the velocity 5% high",
+   "value": 2520,
+   "unit": "m",
+   "rule": "1.05 × length",
+   "inputs": {
+    "length": "2400 m"
+   },
+   "cite": "p.len; t.vErr",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i6",
+   "practice": true,
+   "text": "2520.0 m",
+   "work": "1.05 × 2400 = 2520.0 m"
+  },
+  {
    "id": "7a",
    "label": "Spacing of the resonances in L2's impedance spectrum",
    "value": 35,
@@ -3873,7 +4409,45 @@
    "for": [
     "6a",
     "l6.VF"
-   ]
+   ],
+   "resolved": true,
+   "found": "Megger TDR_AN58: VF is the ratio of the speed in the cable to the speed of light; test a known length and adjust the VF until the displayed end is right; Power XLPE 0.54 to 0.62, 162 to 186 m/µs (sources 138-140). A Teleflex SX-1 guide says a velocity out by 2% puts the result out by 2%, and that the velocity is found from a known length (310, 324); velocity is entered as v/2 on a Teleflex (316, 304, 323): t.v2. Temperature barely moves it at ambient (317, 318). c is exactly 299 792 458 m/s (315): t.c."
+  },
+  {
+   "id": "r.tdrRho",
+   "needs": [
+    "the reflection coefficient rule and the sign convention for a TDR trace, to size the fault-resistance slider in the lesson 6 picture"
+   ],
+   "for": [
+    "l6.Z0",
+    "l6.rho35",
+    "l6.rho100",
+    "l6.rho1000"
+   ],
+   "resolved": true,
+   "found": "Tektronix: rho is the reflected pulse over the pulse sent, (Z load − Z0) ÷ (Z load + Z0), +1 for an open, −1 for a short, 0 matched; a positive rho is a higher-impedance change, a negative one lower (sources 291-295, 328): t.rho. Z0 = square root of L ÷ C and VF = 1 ÷ square root of the relative permittivity (296, 297); L and C per length follow from Z0 and velocity (298); a Megger TDR sets 25 Ω for power cable (319). A matched end absorbs the pulse (321). The shunt-fault formula rho = −Z0 ÷ (2 Rf + Z0) is worked from these, not quoted: p.Z0 is a practice value."
+  },
+  {
+   "id": "r.hiR",
+   "needs": [
+    "a maker's statement of what a low-voltage TDR cannot see (the notes' about 100 Ω), and the method that follows, only named"
+   ],
+   "for": [
+    "6 (one screen beyond TDR)"
+   ],
+   "resolved": true,
+   "found": "Megger: below 100 Ω a low-voltage pulse can be used, above it the pulse will likely not see it; ARM (arc reflection) or impulse current for high-resistance faults (sources 299-301, 322, 326): t.tdrR. The notes' 200 Ω for the Teleflex was not found on a Megger data sheet; the pulse amplitude of a Teleflex SX-1 is 50 V fixed (305), a VX is 30 to 160 V (306): t.tdrAmp. Named, not taught."
+  },
+  {
+   "id": "r.tdrSub",
+   "needs": [
+    "TDR practice on long submarine and joined cables: fingerprints, joints read as faults, both ends, pulse width"
+   ],
+   "for": [
+    "6 (what to record, what to expect)"
+   ],
+   "resolved": true,
+   "found": "Record a TDR fingerprint after installation, so the joints' places are known and not taken for faults; the length of a submarine cable reduces TDR accuracy; sheath-sectionalised joints can mislead (sources 307-309, 311, 330, 329): t.fingerprint. Test from both ends and add the distances (320, 325): t.bothEnds. A wider pulse reaches further and shows smaller faults but has a bigger blind spot (312-314, 327): p.pulseW. A TDR is for a dead, isolated cable only (302, 303)."
   },
   {
    "id": "r.lira",
@@ -3885,5 +4459,5 @@
    ]
   }
  ],
- "updatedAt": "2026-10-21T01:08:42.086Z"
+ "updatedAt": "2026-10-21T02:21:34.602Z"
 }

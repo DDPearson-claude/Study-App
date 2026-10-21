@@ -1,0 +1,237 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 76 kV one core takes 12.61 A at 50 Hz, 2.52 A at 10 Hz, 252.13 mA at 1 Hz and 25.21 mA at 0.1 Hz; the set supplies 958.4, 191.5, 19.16 and 1.92 kVA",
+        "ok": true
+      },
+      {
+        "label": "Stepping 50 Hz down to 0.1 Hz cuts the current exactly 500 times, and each step down cuts it in proportion",
+        "ok": true
+      },
+      {
+        "label": "Halving 0.1 Hz to 0.05 Hz halves 25.21 mA to 12.61 mA; doubling it would give 50.42 mA",
+        "ok": true
+      },
+      {
+        "label": "Core capacitance 0.110 µF at 0.5 km, 0.528 at 2.40, 1.100 at 5.0 and 1.760 at 8.0 km; the set uses 0.1, 0.1, 0.05 and 0.02 Hz",
+        "ok": true
+      },
+      {
+        "label": "The set reaches its 0.1 Hz rating at 3.41 km and its 0.05 Hz rating at 6.82 km",
+        "ok": true
+      },
+      {
+        "label": "Recall 18.0 to 30.0 kV on a 12/20 kV cable (30 to 50 with 20 kV); String B 57.0 to 95.0 kV; 5(a) 2 × 38 = 76.0 kV rms, 107.5 kV peak",
+        "ok": true
+      },
+      {
+        "label": "5(b) 25.21 mA and 1.92 kVA; 5(c) 12.61 A and 958.4 kVA; changed numbers 0.682 µF and 32.57 mA",
+        "ok": true
+      },
+      {
+        "label": "Each slip is its own working: 132.0, 38.0 and 107.5 kV; 4.01, 35.66 and 75.63 mA; 2.01 and 6.30 A; 5.18 mA",
+        "ok": true
+      },
+      {
+        "label": "In service at 38 kV and 50 Hz the rule gives 2.63 A per km, against 2.6 A/km in the cable table",
+        "ok": true
+      },
+      {
+        "label": "The time line shows 1 cycle in 10 s at 0.1 Hz, 10 at 1 Hz, 100 at 10 Hz and 500 at 50 Hz",
+        "ok": true
+      },
+      {
+        "label": "VLF-200CMF: 0 to 200 kVac peak, 0.75 µF at 0.10 Hz to 3.75 µF at 0.02 Hz",
+        "ok": true,
+        "source": "https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf"
+      },
+      {
+        "label": "The recommended minimum time for an installation or acceptance withstand test on new cable is 60 min at 0.1 Hz",
+        "ok": true,
+        "source": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf"
+      },
+      {
+        "label": "Terminations may need to be added to avoid flashover on installation tests of cables rated above 35 kV",
+        "ok": true,
+        "source": "https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf"
+      },
+      {
+        "label": "Installation and acceptance levels run from less than 2 U0 to 3 U0",
+        "ok": true,
+        "source": "https://hvinc.com/vlf-cable-test-voltage-ieee-standard"
+      },
+      {
+        "label": "For cables over 36 kV, IEC 63026 asks for a test frequency of 10 to 500 Hz for commissioning",
+        "ok": true,
+        "source": "https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables"
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "f",
+      "L"
+    ],
+    "readouts": [
+      "I",
+      "kva",
+      "C",
+      "fs"
+    ],
+    "outputs": [
+      "I",
+      "kva",
+      "C",
+      "fs"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why: 0.1 Hz",
+          "The why: long cables and the set",
+          "Check",
+          "Worked example",
+          "Section A 5(a)",
+          "Section A 5(b)",
+          "Section A 5(c)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "f",
+        "kind": "choice",
+        "label": "Frequency",
+        "options": [
+          "0.1",
+          "1",
+          "10",
+          "50"
+        ],
+        "labels": [
+          "0.1 Hz",
+          "1 Hz",
+          "10 Hz",
+          "50 Hz"
+        ],
+        "value": "50",
+        "index": 3,
+        "shown": false
+      },
+      {
+        "id": "L",
+        "kind": "control",
+        "label": "Cable length",
+        "min": 0.5,
+        "max": 8,
+        "step": 0.1,
+        "log": false,
+        "value": 2.4,
+        "shown": false,
+        "snap": [
+          2.4,
+          8
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Tree"
+    ],
+    "answers": [
+      {
+        "id": "5a",
+        "answer": 76,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "5b",
+        "answer": 25.21,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "5c",
+        "answer": 12.61,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l5.changed",
+        "answer": 32.57,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "f = \"0.1\"",
+    "L = 6.125"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i5.a1-1280-dark-end.png"
+  ]
+}
