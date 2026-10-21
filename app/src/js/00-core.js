@@ -309,11 +309,18 @@ U.go = function (hash) {
 // Back to the Library (the home) without adding a history entry (bad or unknown addresses). The address is spelled
 // out in full: a bare '#/' resolves against the document's base URL, which in a srcdoc frame is the
 // host page's, so the frame would load that page instead of moving to its own '#/'.
-U._home = function () {
+U._home = function () { U.replaceHash('#/'); };
+// Move to `hash` in place of the current address, so Back skips it (a redirect, a fallback). Spelled
+// out in full for the same reason as U._home; history.replaceState with a bare '#…' throws there.
+U.replaceHash = function (hash) {
   var before = location.hash;
-  try { location.replace(location.href.split('#')[0] + '#/'); } catch (e) { /* refused: handled below */ }
-  if (location.hash !== '#/') { U._memHash = '#/'; setTimeout(U._route, 0); }
-  else if (before === '#/' && U._memHash) { U._memHash = null; setTimeout(U._route, 0); }   // no hashchange will come
+  try { location.replace(location.href.split('#')[0] + hash); } catch (e) { /* refused: handled below */ }
+  if (location.hash !== hash) { U._memHash = hash; setTimeout(U._route, 0); }
+  else if (before === hash && U._memHash) { U._memHash = null; setTimeout(U._route, 0); }   // no hashchange will come
+};
+// The address bar only, without routing (the screen already shows what `hash` names).
+U.setHash = function (hash) {
+  try { history.replaceState(null, '', location.href.split('#')[0] + hash); } catch (e) { /* fine: the old address stays */ }
 };
 U._cleanup = null;
 U._routeSeq = 0;

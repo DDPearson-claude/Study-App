@@ -134,6 +134,11 @@ test('typed answers are graded to the course\'s rounding: half a unit in the las
   assert.equal(g('-3', '−3'), 'right', 'a typed minus for the printed one');
   assert.equal(g('5 ohms', '5 Ω'), 'right');
   assert.equal(g('47 uF', '47 µF'), 'right');
+  assert.equal(g('168 m/us', '168 m/µs'), 'right', 'u for µ after a slash too');
+  assert.equal(g('25.21 ma', '25.21 mA'), 'right', 'case does not matter for most units');
+  assert.equal(g('25.21 MA', '25.21 mA'), 'unreadable', 'but M (mega) is never m (milli)');
+  assert.equal(g('2.5 Mohm', '2.5 MΩ'), 'right');
+  assert.equal(g('2.5 mohm', '2.5 MΩ'), 'unreadable');
   assert.deepEqual(plain(U.cards.figureOf('0.5 m')), { value: 0.5, decimals: 1, unit: 'm' });
   for (const notFigure of ['9⁸', '1/3', '3 1/2', '4 times the light', 'Floor B', 'Near 70.7 V', '16a²', '200 × 10⁶ N/m²']) assert.equal(U.cards.figureOf(notFigure), null, notFigure);
 });
@@ -223,6 +228,21 @@ test('the backfill: lessons quizzed through before get their puzzles once, sprea
   // New cards already waiting count towards each day: tomorrow (the 8th) has 8 already, the 9th 2,
   // so these six join the 9th.
   assert.deepEqual([...new Set(Object.values(docs.cards.tOld.cards).map((c) => c.s.due))].sort(), ['2026-10-09']);
+});
+
+test('the backfill waits for a guide still to be published: no stamp, and the puzzles come once it arrives', async () => {
+  const guide = { v: 2, iid: 'i2', pages: [1, 2].map((k) => ({ kind: 'example', task: 'Task ' + k + '?', answer: String(k * 10) + ' V', why: 'w', input: 'typed' })) };
+  const { U, docs, at } = load({
+    topics: { tP: { readyMade: { shelf: 'electrical', course: 'p' }, guideV: 3 } },
+    guides: { tP: {} },
+    progress: { tP: { ideas: { i2: { round: 0, stage: 'done', doneAt: iso(new Date(2026, 9, 5, 10, 0)), readRound: 0, cardsRound: 0, quizRound: 0 } } } },
+  });
+  at(new Date(2026, 9, 6, 12, 0));
+  assert.deepEqual(plain(await U.review.mendCards(true)), []);
+  assert.equal(docs.progress.tP.ideas.i2.puzzleRound, undefined, 'not recorded as made');
+  docs.guides.tP.i2 = guide;
+  assert.deepEqual(plain(await U.review.mendCards(true)).map((x) => x.tid + '/' + x.iid), ['tP/i2']);
+  assert.equal(Object.keys(docs.cards.tP.cards).length, 2);
 });
 
 test('puzzles of a lesson only read through are never counted; quizzed ones are, and never as slipping', async () => {

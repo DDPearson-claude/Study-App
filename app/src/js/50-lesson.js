@@ -270,8 +270,10 @@
     }, 8000);
     U.rt.ready.then(function () {
       // The course's case file (a refresher course, built in Claude Code): its figures go into the
-      // lesson's frame, so every lesson shows the same ones. Most courses have none.
-      var kase = U.store.caseFile ? U.store.caseFile.get(tid).catch(function () { return null; }) : null;
+      // lesson's frame, so every lesson shows the same ones. Most courses have none (null). A read
+      // that fails is a load error with Try again: without its figures a refresher lesson would
+      // show "—" everywhere and mark every typed answer wrong.
+      var kase = U.store.caseFile ? U.store.caseFile.get(tid) : null;
       return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid), params.again ? stillSlipping() : null, kase]);
     }).then(function (r) {
       loaded = true;
@@ -293,7 +295,7 @@
       // Today's link to an idea that is still slipping. A link that is stale (the idea was learned
       // again since, perhaps on another device) and Today's flag on its own open the lesson as it is.
       var again = requestOpen() || (!!params.again && r[3] !== false);
-      if (params.again) try { history.replaceState(null, '', '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid)); } catch (e) { /* fine */ }
+      if (params.again) U.setHash('#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid));
       // A ready-made course (topic.readyMade) is built in Claude Code: never rewritten or written
       // here. Its lesson not built yet says it is coming soon, and opens once it is whole.
       var made = !!topic.readyMade;

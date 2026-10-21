@@ -144,8 +144,7 @@
       // No guide (an older lesson, a course written in the page) or no whole lesson: the lesson
       // as it is, at its own address.
       if (!st.topic || !st.idea || !st.guide || !(st.doc && st.doc.status === 'ready' && st.doc.lesson)) {
-        try { history.replaceState(null, '', quizHref); } catch (e) { /* fine */ }
-        U.go(quizHref);
+        U.replaceHash(quizHref);
         return;
       }
       U.setTitle((st.doc.lesson.title || st.idea.title) + ' · Read-through');

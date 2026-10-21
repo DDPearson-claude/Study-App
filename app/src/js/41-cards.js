@@ -872,7 +872,7 @@
   var UNIT = new RegExp('^(?:' + PREFIX + BASE + '(?:²|³)?(?:/' + PREFIX + '(?:s|m|h|min|A|V|W|Ω|g|L|K|°C)(?:²|³)?)?|%|°|°C|°F)$');
   function unitKey(u) {
     return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/Ω/g, 'Ω').replace(/ohms?$/i, 'Ω')
-      .replace(/^u([A-Za-zΩ])/, 'µ$1').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
+      .replace(/(^|\/)u([A-Za-zΩ])/g, '$1µ$2').replace(/(^|\/)M(?=[A-Za-zΩ])/g, '$1mega:').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
       .replace(/^deg(rees?)?$/i, '°').toLowerCase();
   }
   function readTyped(text, unit) {

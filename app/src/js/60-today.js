@@ -585,6 +585,9 @@
       return todo.reduce(function (chain, t) {
         return chain.then(function () {
           return U.store.guide.get(t.tid, t.iid).then(function (g) {
+            // No guide yet (a course still being published): leave the lesson unstamped, so its
+            // puzzles are made once the guide arrives rather than recorded as made with none.
+            if (!g || !Array.isArray(g.pages)) { t.skip = true; return; }
             // A refresher lesson (its guide opens on the Keep this card) has written questions:
             // the lesson doc holds them. Other lessons need only the guide.
             var refresher = !!(g && Array.isArray(g.pages) && g.pages.some(function (p) { return p && (p.kind === 'summary' || p.written); }));
