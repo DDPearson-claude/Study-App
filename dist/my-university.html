@@ -2804,7 +2804,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-20-a18b5d5";
+U.BUILD = "2026-10-21-d86c064";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -6423,7 +6423,7 @@ U.logStudy = (function () {
       // A finalised lesson's sources are renumbered in order of first citation (_finaliseLesson), so
       // they no longer carry the research numbering: match them by address instead.
       if (opts.final) {
-        if (!opts.sources.some(function (y) { return urlKey(y.url) === urlKey(x.url); })) v.add('sources[' + k + '] (' + str(x.url) + ') is not one of the supplied research sources; cite only those.');
+        if (!opts.sources.some(function (y) { return urlKey(y.url) === urlKey(x.url); })) v.add('sources[' + k + '] (' + s(x.url) + ') is not one of the supplied research sources; cite only those.');
         return;
       }
       var a = opts.sources.filter(function (y) { return y.n === x.n; })[0];
