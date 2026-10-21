@@ -78,6 +78,206 @@
       "sourceIds": [
         186
       ]
+    },
+    {
+      "claim": "The supply voltage is shared between the back emf and the drop across the armature: V = Eb + Ia Ra, so Ia = (V - Eb) / Ra; the field current is a separate branch (It = Ia + If). Back emf is proportional to flux times speed.",
+      "sourceIds": [
+        417,
+        416
+      ]
+    },
+    {
+      "claim": "Why the armature current follows the load: put the load on and the armature slows; the I x R drop takes a bigger share of the supply, so less back emf is needed, and the armature current and torque climb until they match the load.",
+      "sourceIds": [
+        448,
+        449,
+        145
+      ]
+    },
+    {
+      "claim": "Torque is proportional to flux times armature current; in a shunt motor the flux is practically constant, so torque is proportional to Ia. Speed is proportional to the supply voltage over the field flux.",
+      "sourceIds": [
+        415,
+        416,
+        173
+      ]
+    },
+    {
+      "claim": "Speed regulation is defined by the standard as the no-load speed minus the rated-load speed, as a percent of rated-load speed, and a dc shunt-wound motor is named as an example of a constant-speed motor.",
+      "sourceIds": [
+        406,
+        407
+      ]
+    },
+    {
+      "claim": "How far a shunt motor's speed falls from no load to full load: two industry guides give 5 to 10%, his sheet gives 10 to 20%, and the armature drop alone gives about 4 to 5% (the lesson computes about 4% from the cited Rose-Hulman example). The IDC '7 to 10%' figure sits under IDC's Ward-Leonard heading (the sentence before it says the driving motor's speed is set by varying the voltage applied to the armature with a generator), so it is a figure for that system, not for a plain shunt motor on a fixed supply.",
+      "sourceIds": [
+        452,
+        453,
+        406,
+        447,
+        169,
+        171,
+        170
+      ],
+      "contested": "How far a shunt motor's speed falls from no load to full load: his sheet says 10-20%; two industry guides say 5-10%; the armature drop alone gives about 4-5%. IDC's 7-10% belongs to Ward-Leonard control, not to a plain shunt motor."
+    },
+    {
+      "claim": "A cited worked example the lesson can use for its numbers: a DC shunt motor rated 600 V, 255 hp, 2000 rpm, armature resistance 0.07 ohm, total field resistance 80 ohm, drawing 353 A at rated load. The lesson computes the rest from these: field current 7.5 A, armature current 345.5 A, back emf 575.8 V, and the speed at other loads from speed proportional to back emf at constant flux (see i7.examples.json).",
+      "sourceIds": [
+        419
+      ]
+    },
+    {
+      "claim": "Whether the speed falls or rises as load goes on: the resistance drop gives a slight fall, and textbooks say so; but armature reaction weakens the flux and can make a plain 'straight shunt' motor's speed rise with load, so makers add a light series winding (stabilised shunt) to make the speed droop. His sheet says the motor speeds back up to compensate.",
+      "sourceIds": [
+        409,
+        410,
+        408,
+        166,
+        167
+      ],
+      "contested": "Does a loaded shunt motor's speed fall or rise? The usual rule is a slight fall; a plain straight shunt motor can rise because of armature reaction (so makers add a stabilising series winding); his sheet says it speeds back up to compensate."
+    },
+    {
+      "claim": "Shunt motors suit work where the speed must stay near the set point as the load changes: pumps, fans, blowers, conveyors, machine tools and printing. The drawback noted is low starting torque.",
+      "sourceIds": [
+        455,
+        456,
+        451,
+        418
+      ]
+    },
+    {
+      "claim": "Starting torque: a maker-neutral guide gives about 250% for a shunt machine against up to 500% for a series machine, and another says a shunt motor can deliver 300% of full-load torque for a very short time. This supports his sheet (lower than a series motor) and not Rose-Hulman's 'as high as in the series motor'.",
+      "sourceIds": [
+        453,
+        454,
+        452,
+        451,
+        179,
+        181
+      ],
+      "contested": "Whether a shunt motor's starting torque is lower than a series motor's: his sheet, PEG-3722, MSU and Motordoc (about 250% against up to 500%) say lower; Rose-Hulman says as high."
+    },
+    {
+      "claim": "Speed control in two ranges: below base speed lower the armature voltage (constant torque), above base speed weaken the field (constant power). A motor with 1750 rpm base speed on 500 V runs at 875 rpm on 250 V. Making the field stronger than rated to go slower is not allowed because the field overheats.",
+      "sourceIds": [
+        429,
+        430,
+        431,
+        432,
+        433
+      ]
+    },
+    {
+      "claim": "The field rheostat is the preferred way to adjust speed because the field current is much smaller than the armature current, so less power is lost in the rheostat; a rheostat in the armature circuit wastes more power and only lowers the speed.",
+      "sourceIds": [
+        434,
+        175,
+        174
+      ]
+    },
+    {
+      "claim": "Limits of field weakening: a maker winds its stock 180 V motors as plain straight shunt only for a field-weakened speed up to 105% of base speed, always keeps the speed within the maximum safe speed on the nameplate, and warns that a field-weakened motor can exceed safe speed at light load.",
+      "sourceIds": [
+        411,
+        412,
+        413
+      ]
+    },
+    {
+      "claim": "Starting: with no back emf at standstill only the armature resistance limits the current (a 10 hp, 0.4 ohm armature on 260 V would take 650 A, about twelve times full load); starting resistors limit it to 125 to 200 percent of full-load current. Start with the field rheostat at the slow-speed position (full field); many starters interlock the speed regulator so the motor cannot start on a weak field.",
+      "sourceIds": [
+        441,
+        442,
+        444,
+        147,
+        148,
+        177,
+        178
+      ]
+    },
+    {
+      "claim": "The faceplate starter: the handle is held by the no-volt coil and springs back to off if the supply fails; the overload coil short-circuits the no-volt coil on overload, so the handle is released.",
+      "sourceIds": [
+        443,
+        445
+      ]
+    },
+    {
+      "claim": "Three-point and four-point starters: in a three-point starter the no-volt coil is in series with the shunt field, so it also protects against an open field; but weakening the field for speed can let the coil drop out. In a four-point starter the coil is across the supply, which frees the speed control but loses the open-field protection.",
+      "sourceIds": [
+        425,
+        426,
+        427,
+        428
+      ]
+    },
+    {
+      "claim": "Field failure: with little or no load, losing the field supply makes the speed rise a great deal (a runaway) and damages the motor; a loss-of-field relay (device 40) is the protection named for shunt-wound DC motors, and Rose-Hulman says loss-of-field protection is usual.",
+      "sourceIds": [
+        420,
+        422,
+        182,
+        183,
+        184
+      ],
+      "contested": "What an open field does: with little or no load the speed runs away (MSU, Rose-Hulman, his sheet); PEG-3722 says the motor tends to keep running on residual magnetism. Both follow speed = back emf / flux: how fast depends on the load and the residual flux."
+    },
+    {
+      "claim": "Residual magnetism in the poles keeps a weak field after the field winding is disconnected, and the armature keeps drawing current from the supply.",
+      "sourceIds": [
+        423,
+        424
+      ]
+    },
+    {
+      "claim": "Reversing: swap either the armature leads or the field leads (not both); reversing both leaves the direction unchanged.",
+      "sourceIds": [
+        421,
+        388
+      ]
+    },
+    {
+      "claim": "Lowering the field current weakens the flux, and the rotor speeds up to make the back emf the circuit needs.",
+      "sourceIds": [
+        450,
+        172,
+        173
+      ]
+    },
+    {
+      "claim": "Faults and tests (isolate and prove dead first): brushes and commutator are wear parts and dust collects inside; the basic checks are insulation resistance and circuit (winding) resistance; sparking at the brushes can come from the armature winding; a commutator is inspected for roughness, loose bars, uneven bar height and mica; insulation resistance of armature and field windings is covered by IEEE Std 43.",
+      "sourceIds": [
+        438,
+        439,
+        437,
+        440,
+        435,
+        436,
+        185,
+        399,
+        400,
+        401,
+        402,
+        403
+      ]
+    },
+    {
+      "claim": "Marine and drive context: a maker lists DC motors suitable for IEEE 45 shipboard applications; a US Coast Guard specification covers DC propulsion generators and motors; shunt-wound motors pair well with SCR drives; AC drives have reduced DC machines in new large installations.",
+      "sourceIds": [
+        414,
+        435,
+        446
+      ]
+    },
+    {
+      "claim": "For i7 (where it is used): AC drives have taken market share from DC drives, mainly because a DC motor's brushes need regular maintenance and its commutator complicates the motor and consumes energy; a link back to lesson 3, the VSD.",
+      "sourceIds": [
+        457,
+        458
+      ]
     }
   ],
   "sources": [
@@ -86,6 +286,18 @@
       "title": "23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax",
       "url": "https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf",
       "quote": "When a mechanical load is placed on the motor, like an electric wheelchair going up a hill, the motor slows, the back emf drops, more current flows, and more work can be done."
+    },
+    {
+      "n": 147,
+      "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+      "quote": "At the moment a DC motor is started the armature is stationary therefore no counter EMF is being generated."
+    },
+    {
+      "n": 148,
+      "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+      "quote": "In order to reduce this very high starting current, an external resistance must be placed in series with the armature during the starting period."
     },
     {
       "n": 164,
@@ -224,7 +436,361 @@
       "title": "Your motor sheet: the DC shunt motor",
       "url": "material:dc-shunt#p3",
       "quote": "DC shunt motors are well-suited for applications that require constant speed and moderate starting torque."
+    },
+    {
+      "n": 388,
+      "title": "DC Generators and Motors",
+      "url": "https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf",
+      "quote": "If both are reversed, rotation will continue in the original direction."
+    },
+    {
+      "n": 399,
+      "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+      "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+      "quote": "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+    },
+    {
+      "n": 400,
+      "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+      "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+      "quote": "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+    },
+    {
+      "n": 401,
+      "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+      "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+      "quote": "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+    },
+    {
+      "n": 402,
+      "title": "TECHNICAL DATA SHEET",
+      "url": "https://www.mersen.com/sites/default/files/files_imported/2017-ptt-tds-01-good-carbon-brush-mersen.pdf",
+      "quote": "Regardless of the source, sparking is always a potential problem since it is a damaging form of the electrical energy"
+    },
+    {
+      "n": 403,
+      "title": "Common Faults and Troubleshooting for DC Motors - Jiuying OWO Electric",
+      "url": "https://owoelectric.com/common-faults-and-troubleshooting-for-dc-motors",
+      "quote": "Power not connected · Motor leads shorted or grounded · Poor contact between brushes and commutator · Motor overload · Short circuit or open circuit in the field"
+    },
+    {
+      "n": 406,
+      "title": "Section I General Standards Applying to All Machines Part ...",
+      "url": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf",
+      "quote": "The speed regulation of a dc motor is the difference between the steady no-load speed and the steady rated-load speed expressed in percent of rated-load speed."
+    },
+    {
+      "n": 407,
+      "title": "Section I General Standards Applying to All Machines Part ...",
+      "url": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf",
+      "quote": "A constant-speed motor is one in which the speed of normal operation is constant or practically constant; for example, a synchronous motor, an induction motor with small slip, or a dc shunt-wound motor."
+    },
+    {
+      "n": 408,
+      "title": "Section I General Standards Applying to All Machines Part ...",
+      "url": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf",
+      "quote": "A stabilized shunt-wound motor is a direct-current motor ... which also has a light series winding added to prevent a rise in speed or to obtain a slight reduction in speed with increase in load."
+    },
+    {
+      "n": 409,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "The standard DC motor has a separately excited straight shunt field which may have a rising speed characteristic."
+    },
+    {
+      "n": 410,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "This adder provides a stabilizing winding that will ensure a drooping speed characteristic."
+    },
+    {
+      "n": 411,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "Stock 180 volt armature motors have straight shunt winding, i.e., no series field, for motors having a field weakened speed not greater than 105% base speed."
+    },
+    {
+      "n": 412,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "Motor speed under any condition must not exceed maximum safe speed on nameplate."
+    },
+    {
+      "n": 413,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "Inherent speed regulation may cause high speed field weakened motors to exceed safe speeds at light loads."
+    },
+    {
+      "n": 414,
+      "title": "— DC motors and controls",
+      "url": "https://www.baldor.com/~/media/download%20center/literature/catalog/ca501_2022/section%2016%20dc%20motors.ashx",
+      "quote": "Motors suitable for IEEE 45 shipboard applications"
+    },
+    {
+      "n": 415,
+      "title": "DC Motors.pdf",
+      "url": "https://web.uettaxila.edu.pk/CMS/SP2013/ectEMbs/notes/DC%20Motors.pdf",
+      "quote": "Hence torque in a d.c. motor is directly proportional to flux per pole and armature current. (i) For a shunt motor, flux φ is practically constant."
+    },
+    {
+      "n": 416,
+      "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+      "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+      "quote": "In DC motors, the back EMF, denoted Ea, is proportional to the flux, times the shaft speed."
+    },
+    {
+      "n": 417,
+      "title": "SHUNT FIELD DC MOTOR",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electronic_engineering/Shunt_Field_Dc_Motor.pdf",
+      "quote": "The governing equations for steady-state operation of the DC motor are as follows: Vt = I a Ra + Ea It = Ia + I f Ea = K a φ ω = Φ(P/A)Z(N/60) Ea = Vt − I a Ra where K a is the machine constant."
+    },
+    {
+      "n": 418,
+      "title": "Lesson 12 Shunt Connected Dc motors",
+      "url": "https://www.engr.siu.edu/staff/spezia/Web332A/Lecture%20Notes/Lesson%2012%20332ac.pdf",
+      "quote": "Shunt motor gives almost constant speed for over wide range of mechanical load torques."
+    },
+    {
+      "n": 419,
+      "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+      "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+      "quote": "A DC shunt motor is rated at 600V, 255hp, 2000rpm. It has an armature resistance of 0.07Ω and a total field resistance of 80Ω. It draws a current of 353A from the supply when delivering rated load."
+    },
+    {
+      "n": 420,
+      "title": "Electrical Tech Note 318: DC motors",
+      "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+      "quote": "Complete loss of the dc supply to the field will result in a significant increase in armature speed if there is little or no load on the motor."
+    },
+    {
+      "n": 421,
+      "title": "Electrical Tech Note 318: DC motors",
+      "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+      "quote": "A change in armature rotation direction is obtained by reversing the leads of the armature with respect to the leads of the field."
+    },
+    {
+      "n": 422,
+      "title": "DS 5-17 Motors and Adjustable Speed Drives (Data Sheet)",
+      "url": "https://www.fm.com/FMAApi/data/ApprovalStandardsDownload?isGated=false&itemId=%7BA23ED704-D145-41A8-A17B-0E5FEEF38627%7D",
+      "quote": "An electrical device that senses loss of field to prevent over speed in shunt-wound DC motors."
+    },
+    {
+      "n": 423,
+      "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+      "quote": "When the field winding is disconnected in a shunt motor, it tends to keep running instead of coming to a stop."
+    },
+    {
+      "n": 424,
+      "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+      "quote": "This happens due to the lingering magnetic field in the pole pieces, which results from residual magnetism."
+    },
+    {
+      "n": 425,
+      "title": "Speed Control of D.C. Motors",
+      "url": "https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf",
+      "quote": "In a three-point starter, the no-volt release coil is connected in series with the shunt field circuit so that it carries the shunt field current."
+    },
+    {
+      "n": 426,
+      "title": "Speed Control of D.C. Motors",
+      "url": "https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf",
+      "quote": "It may be noted that the three- point starter also provides protection against an open- field circuit."
+    },
+    {
+      "n": 427,
+      "title": "Speed Control of D.C. Motors",
+      "url": "https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf",
+      "quote": "While exercising speed control through field regulator, the field current may be weakened to such an extent that the no-volt release coil may not be able to keep the starter arm in the ON position."
+    },
+    {
+      "n": 428,
+      "title": "Speed Control of D.C. Motors",
+      "url": "https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf",
+      "quote": "In a four-point starter, the no-volt release coil is connected directly across the supply line through a protective resistance R."
+    },
+    {
+      "n": 429,
+      "title": "M4000-FXM5 Field Controller installation manual",
+      "url": "https://www.kollmorgen.com/sites/default/files/public_downloads/M4000-FXM5-Field-Controller_Installation_en-US_RevD.pdf",
+      "quote": "In this configuration, the armature voltage Va is increased to a maximum with a fixed field current I f to provide constant torque up to base speed."
+    },
+    {
+      "n": 430,
+      "title": "M4000-FXM5 Field Controller installation manual",
+      "url": "https://www.kollmorgen.com/sites/default/files/public_downloads/M4000-FXM5-Field-Controller_Installation_en-US_RevD.pdf",
+      "quote": "Further increase of speed results in the field being weakened, providing constant power output."
+    },
+    {
+      "n": 431,
+      "title": "DC Motors: Advantages, Types, and Common Hazards Explained",
+      "url": "https://resources.galco.com/motion-control/dc-motors",
+      "quote": "Armature voltage control is used for speeds below base speed, resulting in a constant torque capacity. Shunt field control is used to obtain speeds above base speeds resulting in a constant horsepower capacity."
+    },
+    {
+      "n": 432,
+      "title": "DC Motors: Advantages, Types, and Common Hazards Explained",
+      "url": "https://resources.galco.com/motion-control/dc-motors",
+      "quote": "For example, a motor with a base speed of 1750 RPM and armature voltage of 500 VDC will run at 875 RPM with a 50% reduction in armature voltage (to 250 VDC)."
+    },
+    {
+      "n": 433,
+      "title": "DC Motors: Advantages, Types, and Common Hazards Explained",
+      "url": "https://resources.galco.com/motion-control/dc-motors",
+      "quote": "Increasing the field voltage to obtain a speed below base speed cannot be used, as the field will overheat at higher than rated current."
+    },
+    {
+      "n": 434,
+      "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+      "quote": "This is because the field current is lower than the armature current, resulting in reduced power loss across the rheostat and making more current available for motor operation."
+    },
+    {
+      "n": 435,
+      "title": "INSPECT, TEST AND RECONDITION DC PROPULSION GENERATORS & MOTORS IN-PLACE",
+      "url": "https://www.dcms.uscg.mil/Portals/10/CG-4/documents/SFLC/StandardSpec2020/SFLC-Std-Spec-2350-(2020).pdf",
+      "quote": "the commutator for signs of surface roughness, loose bars, uneven bar height, mica degradation, and"
+    },
+    {
+      "n": 436,
+      "title": "IEEE SA - IEEE 43-2013",
+      "url": "https://standards.ieee.org/ieee/43/4791/",
+      "quote": "This document describes a procedure for measuring insulation resistance of armature and field windings in rotating machines rated 750 W or greater. It applies to synchronous machines, induction machines, dc machines, and synchronous condensers."
+    },
+    {
+      "n": 437,
+      "title": "Basic Maintenance and Testing of DC Electric Motors",
+      "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+      "quote": "The very basic steps include: Insulation resistance; Circuit resistance; and, Blowing out the motor."
+    },
+    {
+      "n": 438,
+      "title": "Basic Maintenance and Testing of DC Electric Motors",
+      "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+      "quote": "Unlike the AC induction motor, the DC electric motor has a number of moving and wear parts that are in contact with each other."
+    },
+    {
+      "n": 439,
+      "title": "Basic Maintenance and Testing of DC Electric Motors",
+      "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+      "quote": "In particular, one of the most common areas for carbon brush dust to collect is between the commutator and motor shaft with the next most common area being in the armature winding itself."
+    },
+    {
+      "n": 440,
+      "title": "Brushes, Sparking and Machine Maintenance",
+      "url": "https://www.helwigcarbon.com/wp-content/uploads/2018/07/ta1_96_2013-brushes_sprkng_mach-maint-single-pages.pdf",
+      "quote": "Defective armature windings: Any defect in the windings may show up as sparking at the brushes."
+    },
+    {
+      "n": 441,
+      "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+      "quote": "For example, a 10-hp motor with an armature resistance of 0.4 ohms, if supplied by a 260 VDC source, would result in a current of 650 amps, which is approximately twelve times greater than its actual full-load current."
+    },
+    {
+      "n": 442,
+      "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+      "quote": "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+    },
+    {
+      "n": 443,
+      "title": "Classes, Speed Control and Starting of DC motors",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+      "quote": "The starting handle is held in position by the no-volt coil, marked NV , which automatically allows the starter to return to the off position if the supply fails."
+    },
+    {
+      "n": 444,
+      "title": "Classes, Speed Control and Starting of DC motors",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+      "quote": "Many starters have the speed regulator interlocked with the starting handle so that the motor cannot be started with a weak field."
+    },
+    {
+      "n": 445,
+      "title": "Classes, Speed Control and Starting of DC motors",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+      "quote": "Overload protection is obtained by means of the overload coil, marked OL , which on overload short-circuits the no-volt coil by means of the contacts marked a and b ."
+    },
+    {
+      "n": 446,
+      "title": "DC Shunt Wound | ABB UK",
+      "url": "https://www.abb.com/gb/en/areas/motion/motors-generators/low-voltage-motors/dc-motors/dc-shunt-wound",
+      "quote": "Shunt-wound motors pair extremely well with SCR drives, which provide smooth low-speed performance, tighter control, long-proven industrial pairing."
+    },
+    {
+      "n": 447,
+      "title": "Classes, Speed Control and Starting of DC motors",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+      "quote": "The speed of the driving motor is controlled by varying the voltage applied to the armature, by means of the rheostat in the shunt winding circuit of the generator."
+    },
+    {
+      "n": 448,
+      "title": "Electrical Tech Note 318: DC motors",
+      "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+      "quote": "If the load increases, the I × R drop will increase and less induced voltage is needed, therefore, the rotor will slow down."
+    },
+    {
+      "n": 449,
+      "title": "Electrical Tech Note 318: DC motors",
+      "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+      "quote": "As the torque requirement increases, the motor will slow down and current will increase."
+    },
+    {
+      "n": 450,
+      "title": "Electrical Tech Note 318: DC motors",
+      "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+      "quote": "Lowering the current through the field winding will decrease the field flux."
+    },
+    {
+      "n": 451,
+      "title": "Electrical Tech Note 318: DC motors",
+      "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+      "quote": "A disadvantage of this type of motor is that it has low starting torque."
+    },
+    {
+      "n": 452,
+      "title": "DC Motors: Advantages, Types, and Common Hazards Explained",
+      "url": "https://resources.galco.com/motion-control/dc-motors",
+      "quote": "In either case, this type of motor has good speed regulation (5% to 10%) and is capable of delivering 300 percent of its full load torque for a very short period of time."
+    },
+    {
+      "n": 453,
+      "title": "Basic Maintenance and Testing of DC Electric Motors",
+      "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+      "quote": "This design provides approximately 250% starting torque, 5-10% speed regulation and the windings are separately powered and provide speed control by up to 200% with field weakening control and decrease speed by reducing armature voltage."
+    },
+    {
+      "n": 454,
+      "title": "Basic Maintenance and Testing of DC Electric Motors",
+      "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+      "quote": "The result of the connection of the armature circuit to the series circuit is a machine that can provide a very high starting torque of up to 500%."
+    },
+    {
+      "n": 455,
+      "title": "Basic Maintenance and Testing of DC Electric Motors",
+      "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+      "quote": "The Shunt Machine, as shown in Figure 3, is a more common machine meant for speed control and tends to be applied in pumps, fans, blowers, conveyors, machine tools, printing and similar applications."
+    },
+    {
+      "n": 456,
+      "title": "DC motors | IEEE Technology Navigator",
+      "url": "https://technav.ieee.org/topic/dc-motors",
+      "quote": "Shunt motors wire the field and armature in parallel, yielding a nearly constant field flux and a flat speed-torque curve that suits machine tools, pumps, and blowers where speed must remain close to the set point across load changes."
+    },
+    {
+      "n": 457,
+      "title": "ABB drives - Technical guide No. 4, Guide to variable speed drives",
+      "url": "https://library.e.abb.com/public/5212850908d44d979d34b61b703feeaa/ABB_Technical_guide_No_4_REVC.pdf",
+      "quote": "The market share of DC drives is diminishing, and the total DC market size remains approximately constant."
+    },
+    {
+      "n": 458,
+      "title": "ABB drives - Technical guide No. 4, Guide to variable speed drives",
+      "url": "https://library.e.abb.com/public/5212850908d44d979d34b61b703feeaa/ABB_Technical_guide_No_4_REVC.pdf",
+      "quote": "These brushes need regular maintenance and the commutator itself complicates the motor structure and consumes energy."
     }
   ],
-  "at": "2026-10-21T12:26:30.765Z"
+  "at": "2026-10-21T16:34:45.147Z"
 }

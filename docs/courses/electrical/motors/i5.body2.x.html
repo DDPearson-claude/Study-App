@@ -1,0 +1,698 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 62rem; margin-inline: auto; }
+  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }
+  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task.show.ask { font-weight: 700; }
+  .task > * + * { margin-top: 10px; }
+  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .task .card b, .task .warn-note b { font-weight: 700; }
+  .task .warn-note { line-height: 1.5; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .why { line-height: 1.6; }
+  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }
+  .lcol > * + *, .rcol > * + * { margin-top: 12px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }
+  #outs .k-readout { padding: 8px 8px 10px 10px; }
+  #outs .k-readout-value { font-size: 1.1rem; }
+  .work { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .work .wh { margin: 0; font-weight: 700; }
+  .work .wl { margin: 6px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }
+  .fig { display: block; width: 100%; height: auto; }
+  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .fig .stat { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; fill-rule: evenodd; vector-effect: non-scaling-stroke; }
+  .fig .pole { fill: var(--k-panel); }
+  .fig .pole-o { fill: none; stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .fig .c1 { fill: var(--k-cat1); }
+  .fig .c2 { fill: var(--k-cat2); }
+  .fig .rot { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .fig .cage { fill: var(--k-muted); }
+  .fig .shaft { fill: var(--k-strong); }
+  .fig .fa { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .fig .fah { fill: var(--k-accent2); }
+  .fig .tr { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .fig .tp { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .cap { fill: none; stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .fig .coil1 { fill: none; stroke: var(--k-cat1); stroke-width: 3.2; stroke-linecap: round; }
+  .fig .coil2 { fill: none; stroke: var(--k-cat2); stroke-width: 1.6; stroke-linecap: round; }
+  .fig .jn { fill: var(--k-ink); }
+  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .ang { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .fig .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fig .ph1 { stroke: var(--k-cat1); stroke-width: 4; stroke-linecap: round; }
+  .fig .ph2 { stroke: var(--k-cat2); stroke-width: 2.4; stroke-linecap: round; }
+  .fig .phh1 { fill: var(--k-cat1); }
+  .fig .phh2 { fill: var(--k-cat2); }
+  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; }
+  .fig .tq { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .mk { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .ldr { stroke: var(--k-muted); stroke-width: 1.2; }
+  .fig .dot { fill: var(--k-accent2); stroke: var(--k-panel); stroke-width: 2; }
+  .fig .bm { fill: var(--k-muted); }
+  .fig .ba { fill: var(--k-accent2); }
+  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .fin { stroke: var(--k-line); stroke-width: 2; }
+  .fig .shf { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }
+  .fig .hdl { fill: var(--k-strong); }
+  .fig .lock { fill: var(--k-warn); }
+  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }
+  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .ans { font-weight: 700; }
+  #stepbox.enter { animation: screen-in .35s ease-out both; }
+  .fb { animation: fade-in .25s ease-out both; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }
+  /* On a phone: ring, phasors, the slider, the plot, then the readouts and the working. */
+  @media (max-width: 38rem) {
+    .live .lcol, .live .rcol { display: contents; }
+    #ring { order: 1; } #ph { order: 2; } #ctl { order: 3; } #plot { order: 4; } #outs { order: 5; } #say { order: 6; } #notes { order: 7; } #work { order: 8; }
+  }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="hwW"><svg class="fig" id="hw" viewBox="0 0 340 334" width="100%" role="img" aria-label=""></svg></div>
+    <div id="barW"><svg class="fig" id="bars" viewBox="0 0 340 178" width="100%" role="img" aria-label=""></svg></div>
+    <div id="useW"><svg class="fig" id="use" viewBox="0 0 340 140" width="100%" role="img" aria-label=""></svg></div>
+    <div id="fltW"><svg class="fig" id="flt" viewBox="0 0 340 176" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div class="live" id="live">
+      <div class="lcol">
+        <svg class="fig" id="ring" viewBox="0 0 340 206" width="100%" role="img" aria-label=""></svg>
+        <svg class="fig" id="ph" viewBox="0 0 340 140" width="100%" role="img" aria-label=""></svg>
+        <div class="k-controls" id="ctl"></div>
+      </div>
+      <div class="rcol">
+        <svg class="fig" id="plot" viewBox="0 0 340 232" width="100%" role="img" aria-label=""></svg>
+        <div class="k-readouts" id="outs"></div>
+        <p class="say" id="say"></p>
+        <div class="notes" id="notes"></div>
+        <div class="work" id="work"></div>
+      </div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const IDC = 'https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf';
+
+  // ---------- the rule ----------
+  // Lesson 4's example motor: 230 V, 50 Hz, the same two windings (example values, not a maker's rating).
+  const V = 230, HZ = 50, SLOW = 50;
+  const RM = 15, XM = 18, RS = 36, XS = 13.2;
+  // A winding alone: Z = √(R² + X²), current = 230 ÷ Z, angle behind the supply = arctan(X ÷ R).
+  function winding(R, X) { const Z = Math.sqrt(R * R + X * X); return { I: V / Z, phi: Math.atan(X / R) / DEG, Z: Z }; }
+  const MAIN = winding(RM, XM), S0 = winding(RS, XS);
+  const GAP0 = MAIN.phi - S0.phi;
+  const DEN = S0.I * Math.sin(GAP0 * DEG);                    // split-phase: Is × sin(angle), the 1.00 of the ratio
+  // Line current: the two winding currents added as phasors (angles behind the supply).
+  const lineOf = (Is, ps) => Math.hypot(MAIN.I * Math.cos(MAIN.phi * DEG) + Is * Math.cos(ps * DEG), MAIN.I * Math.sin(MAIN.phi * DEG) + Is * Math.sin(ps * DEG));
+  const LINE0 = lineOf(S0.I, S0.phi);
+  // The start branch: the start winding and the capacitor in series. Xc = 1 ÷ (2π × f × C); net X = X − Xc.
+  function calc(C) {
+    const Xc = 1 / (2 * Math.PI * HZ * C * 1e-6), net = XS - Xc, Z = Math.sqrt(RS * RS + net * net), Is = V / Z;
+    const ps = Math.atan(net / RS) / DEG;                        // behind the supply; negative means ahead
+    const ang = MAIN.phi - ps;                                   // the main's angle behind plus the start's angle ahead
+    return { Xc: Xc, net: net, Z: Z, Is: Is, ps: ps, ang: ang, ratio: Is * Math.sin(ang * DEG) / DEN, line: lineOf(Is, ps) };
+  }
+  // Where the currents are 90° apart (the angle closes as C grows), and where the torque peaks.
+  const C90 = (function () { let lo = 20, hi = 300; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (calc(m).ang > 90) lo = m; else hi = m; } return (lo + hi) / 2; })();
+  const CPK = (function () { let b = 20, br = -1; for (let c = 20; c <= 300; c += 0.05) { const r = calc(c).ratio; if (r > br) { br = r; b = c; } } return b; })();
+
+  const one = (v) => (Math.round(v * 10 + 1e-9) / 10).toFixed(1);
+  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);
+  const three = (v) => (Math.round(v * 1000 + 1e-9) / 1000).toFixed(3);
+  const whole = (v) => String(Math.round(v + 1e-9));
+  const minus = (s) => s.replace('-', '−');
+  const E100 = calc(100), E120 = calc(120), E20 = calc(20), E300 = calc(300);
+  const N = { iM: two(MAIN.I), phiM: one(MAIN.phi), iS0: two(S0.I), gap0: one(GAP0), line0: one(LINE0),
+    c90: whole(C90), r90: two(calc(C90).ratio), cpk: String(Math.round(CPK / 5) * 5), rpk: two(calc(CPK).ratio), a120: one(E120.ang),
+    is100: two(E100.Is), ps100: one(-E100.ps), a100: one(E100.ang), r100: two(E100.ratio), line100: one(E100.line) };
+
+  // The working at 100 µF, line by line, each line from the rounded figures before it.
+  const W = (function () {
+    const C = 100, F = C / 1e6;   // 0.0001 exactly (100 × 1e-6 would print 0.00009999999999999999)
+    const xc = two(1 / (2 * Math.PI * HZ * F)), net = two(XS - +xc), z2 = two(RS * RS + net * net), z = two(Math.sqrt(+z2)), is = two(V / +z);
+    const ps = one(Math.atan(Math.abs(+net) / RS) / DEG), ang = one(+net < 0 ? +N.phiM + +ps : +N.phiM - +ps);
+    const s = three(Math.sin(+ang * DEG)), s0 = three(Math.sin(+N.gap0 * DEG)), num = two(+is * +s), den = two(+N.iS0 * +s0), ratio = two(+num / +den);
+    const abs = two(Math.abs(+net));
+    return { F: String(F), xc: xc, net: minus(net), abs: abs, z2: z2, z: z, is: is, ps: ps, ang: ang, s: s, s0: s0, num: num, den: den, ratio: ratio,
+      lines: [
+        'Start winding: R ' + RS + ' Ω, X ' + XS + ' Ω. Main winding: ' + N.iM + ' A, ' + N.phiM + '° behind the supply.',
+        'Xc = 1 ÷ (2π × ' + HZ + ' × ' + String(F) + ') = ' + xc + ' Ω',
+        'Net X = ' + XS + ' − ' + xc + ' = ' + minus(net) + ' Ω',
+        'Z = √(' + RS + '² + ' + abs + '²) = √' + z2 + ' = ' + z + ' Ω',
+        'Is = ' + V + ' ÷ ' + z + ' = ' + is + ' A, ahead by arctan(' + abs + ' ÷ ' + RS + ') = ' + ps + '°',
+        'Angle = ' + N.phiM + ' + ' + ps + ' = ' + ang + '°',
+        'Torque ratio = (' + is + ' × sin ' + ang + '°) ÷ (' + N.iS0 + ' × sin ' + N.gap0 + '°)',
+        '= (' + is + ' × ' + s + ') ÷ (' + N.iS0 + ' × ' + s0 + ') = ' + num + ' ÷ ' + den + ' = ' + ratio,
+      ] };
+  })();
+
+  // ---------- the lesson's words ----------
+  const blk = (t, s) => ({ t: t, s: s });
+  const R1 = 'Leading the voltage by 90°', R2 = 'Lagging the voltage by 90°', R3 = 'In step with the voltage';
+  const HOW = [
+    blk('p', 'It is a split-phase motor with a *start capacitor* in series with the start winding. The capacitor is sized so its reactance is bigger than the winding\'s inductive reactance. So the start current leads the supply. The main current still lags.'),
+    blk('p', 'Without the capacitor the two currents are only 25 to 30° apart. With it they are nearly 90° apart. The field turns far more strongly, and the starting torque rises.'),
+    blk('p', 'At about 75 to 80% speed the switch drops out the start winding and capacitor together.'),
+  ];
+  const PLAY_TASK = 'Drag the capacitor and watch the angle and the torque.';
+  const UNDER = 'Assume lesson 4\'s motor, with the same windings. Only the capacitor is new. Starting torque goes with Im × Is × sin(angle between them). ' +
+    'The capacitor changes both the angle and the start current. So the torque peaks near ' + N.cpk + ' µF, not at 90°. Example values, not a maker\'s.';
+  const PLAY_READ = 'At 100 µF the start current is ' + N.is100 + ' A, ' + N.ps100 + '° ahead of the supply. The main current lags by ' + N.phiM + '°. ' +
+    'So they are ' + N.a100 + '° apart, and the field\'s tip traces a wide ellipse. Starting torque is ' + N.r100 + ' times split-phase, and the line current falls from ' +
+    N.line0 + ' A to ' + N.line100 + ' A. A much bigger capacitor closes the angle back towards 30°. A smaller one opens it to 90° near ' + N.c90 + ' µF, then past 90°. ' +
+    'But it starves the start winding of current. The torque peaks near ' + N.cpk + ' µF.';
+  const BEHAVE = [
+    blk('row', 'Starting torque: High. Around three times full-load torque in a heavy-duty design. The example gives ' + N.r100 + ' times split-phase.'),
+    blk('row', 'Starting current: Lower than split-phase, with more torque. In the example, ' + N.line100 + ' A against ' + N.line0 + ' A.'),
+    blk('row', 'The switch: Opens at about 75 to 80% speed. The torque drops a step, as in lesson 4.'),
+    blk('row', 'Running: It runs on the main winding alone, a little below synchronous speed. Momentum is not what keeps it going. Once the rotor turns, one winding makes torque on its own.'),
+  ];
+  const USE = [
+    blk('row', 'Used for: Compressors, pumps, conveyors and other hard-to-start loads. Also loads that take a while to run up.'),
+    blk('row', 'Its limit: The start capacitor is short-time rated. Frequent starts overheat it until it fails.'),
+    blk('row', 'Capacitor-start capacitor-run: Starts on a large capacitor, then keeps a smaller run capacitor in. It runs on less current. Most larger single-phase motors are built this way.'),
+    blk('row', 'Permanent split capacitor: One capacitor, always in, and no switch. Low starting torque and low starting current.'),
+  ];
+  const FAULTS = [
+    blk('safe', 'Safety first: Isolate, lock off and prove dead. Then discharge the capacitor through a resistor: about 20 kΩ, 5 W, for five seconds. Then confirm with a meter that it is discharged.'),
+    blk('row', 'Capacitor open or weak: Poor starting torque. It may hum and not start. That usually trips the overload. Once running, it carries on.'),
+    blk('row', 'Capacitor shorted: The winding may burn out.'),
+    blk('row', 'Look and measure: Bulging, leaking, cracked or scorched means it has failed. Measure its µF against the value and tolerance marked on it.'),
+    blk('row', 'The switch: Stuck open or stuck closed, as in lesson 4.'),
+  ];
+  const words = (list) => list.map((b) => b.s.replace(/\*/g, '')).join('\n\n');
+  const C1 = 'Left in, it would stop the motor running', C2 = 'It is a start capacitor, rated only for short bursts', C3 = 'Left in, it would spoil the power factor';
+  const F1 = 'The main winding is open', F2 = 'The start capacitor has failed', F3 = 'The overload is set too low';
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: 'A capacitor sits across an AC supply. Where is its current, compared with the voltage across it?',
+      opts: [R1, R2, R3], want: R1,
+      why: 'A capacitor\'s current leads its voltage by 90°. Put one in series with a winding, and that winding\'s current can lead the supply too. That is this lesson.',
+      slips: ['', 'That is an inductor. A capacitor works the other way: its current leads its voltage by 90°.', 'That is a resistor. A capacitor\'s current leads its voltage by 90°.'] },
+    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },
+    { show: true, name: 'A capacitor in the start winding', label: 'A capacitor in the start winding', text: PLAY_TASK + '\n\n' + UNDER, read: PLAY_READ, still: () => stillAt100() },
+    { name: 'Check', label: 'Check on the cause',
+      task: 'The capacitor nearly doubles the starting torque. Why does the switch still take it out at speed?',
+      opts: [C1, C2, C3], want: C2,
+      why: 'The start winding is short-time rated, as in lesson 4. So is the start capacitor. It is an electrolytic type, built for short starting bursts, not continuous duty. Left in, it overheats and fails.',
+      slips: ['It would not stop it. Some motors run with a capacitor in all the time. Theirs is a smaller one, rated to stay in. This one is not rated to stay in.', '',
+        'A run capacitor of the right size helps running. It does not spoil it. That is why some motors keep a small one in. The start capacitor is far bigger, and it is not rated to stay in.'] },
+    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },
+    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },
+    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },
+    { name: 'Find the fault', label: 'Find the fault',
+      task: 'A compressor\'s capacitor-start motor hums and trips its overload when it tries to start. The start capacitor\'s top is bulging. It is marked 100 µF and reads 38 µF. What is the likely fault?',
+      opts: [F1, F2, F3], want: F2,
+      why: '38 µF is far below 100, well outside any usual tolerance, and the case is bulging. A capacitor that has lost its value gives poor starting torque. So the motor sits at a high current until the overload trips. Isolate, discharge and replace it, then check the switch and windings.',
+      slips: ['An open main winding would not make the capacitor bulge or read 38 µF. The capacitor alone explains the weak start.', '',
+        'The overload is doing its job. A motor that cannot start draws a high current until it trips. Raising the setting only puts the windings at risk.'] },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iHow = 1, iPic = 2, iChk = 3, iBeh = 4, iUse = 5, iFlt = 6, iFind = 7, iK = 8;
+  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));
+  let lastStep = -1, finished = false;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function addText(node, s) {
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function write(node, s) { node.textContent = ''; return addText(node, s); }
+  function blocks(node, list) {
+    node.textContent = '';
+    list.forEach((b, k) => {
+      if (k) node.appendChild(document.createTextNode(' '));
+      let e;
+      if (b.t === 'row' || b.t === 'safe') {
+        const cut = b.s.indexOf(': ');
+        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');
+        addText(e, b.s.slice(cut + 2));
+      } else e = addText(K.el('p'), b.s);
+      node.appendChild(e);
+    });
+  }
+
+  // ---------- drawing helpers ----------
+  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }
+  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }
+  function set(n, attrs) { Object.keys(attrs).forEach((k) => n.setAttribute(k, attrs[k])); }
+  const f1 = (v) => (+v).toFixed(1);
+  const circ = (r) => 'M' + (-r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0Z';
+  const POLE_FILL = 'M-13 -88V-68L-25.6 -57.6L-23.6 -53A58 58 0 0 1 23.6 -53L25.6 -57.6L13 -68V-88Z';
+  const POLE_LINE = 'M-13 -84.6V-68L-25.6 -57.6L-23.6 -53A58 58 0 0 1 23.6 -53L25.6 -57.6L13 -68V-84.6';
+  const coil = (x, y0, humps) => { let d = 'M' + x + ' ' + y0; for (let j = 0; j < humps; j++) d += 'a6 6 0 0 1 0 12'; return d; };
+
+  // The stator as a ring: main poles top and bottom (thicker coils), start poles left and right, the rotor cage in the middle.
+  function buildRing(g, cx, cy, k) {
+    const R = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ') scale(' + k + ')' });
+    ad(R, 'path', { d: circ(100) + circ(84), class: 'stat' });
+    [[0, 1], [180, 1], [90, 2], [270, 2]].forEach((q) => {
+      const P = ad(R, 'g', { transform: 'rotate(' + q[0] + ')' });
+      ad(P, 'rect', q[1] === 1 ? { x: -24, y: -80, width: 48, height: 12, rx: 3, class: 'c1' } : { x: -20, y: -78, width: 40, height: 8, rx: 3, class: 'c2' });
+      ad(P, 'path', { d: POLE_FILL, class: 'pole' });
+      ad(P, 'path', { d: POLE_LINE, class: 'pole-o' });
+    });
+    ad(R, 'circle', { r: 52, class: 'rot' });
+    const cage = ad(R, 'g', {});
+    for (let j = 0; j < 16; j++) ad(cage, 'rect', { x: -2.5, y: -48, width: 5, height: 9, rx: 1.5, class: 'cage', transform: 'rotate(' + (j * 22.5) + ')' });
+    return { R: R, cage: cage };
+  }
+
+  // How it works: the ring, then both windings in parallel across the supply; the start capacitor and the switch in series with the start winding.
+  function buildHw(g) {
+    const cx = 170, cy = 112;
+    buildRing(g, cx, cy, 0.62);
+    txt(g, cx, 30, 'Main winding', 'lb', 'middle');
+    txt(g, cx, cy + 79, 'main', 'lb', 'middle');
+    txt(g, 336, cy + 79, 'one pole pair drawn', 'mu', 'end');
+    ['Start', 'winding'].forEach((s, j) => txt(g, 100, cy - 4 + 16 * j, s, 'lb', 'end'));
+    txt(g, 240, cy + 5, 'start', 'lb');
+    txt(g, cx, cy + 5, 'rotor', 'lb', 'middle');
+    const at = (a, r) => [cx + r * Math.cos(a * DEG), cy + r * Math.sin(a * DEG)].map(f1);
+    ad(g, 'path', { d: 'M' + at(-80, 70).join(' ') + 'A70 70 0 0 1 ' + at(-10, 70).join(' '), class: 'ang' });
+    const lp = at(-45, 82);
+    txt(g, lp[0], +lp[1] + 4, '90°', 'lb', 'middle');
+    // the wiring
+    ad(g, 'path', { d: 'M36 216H290V224M36 322H290V306M36 216V256M36 282V322M130 216V240M130 300V322M290 232V244M290 262V270', class: 'w' });
+    ad(g, 'circle', { cx: 36, cy: 269, r: 13, class: 'src' });
+    ad(g, 'path', { d: 'M28 269c3 -6 5 -6 8 0s5 6 8 0', class: 'w' });
+    txt(g, 56, 265, V + ' V,');
+    txt(g, 56, 281, HZ + ' Hz');
+    ad(g, 'path', { d: coil(130, 240, 5), class: 'coil1' });
+    txt(g, 146, 274, 'main');
+    ad(g, 'path', { d: 'M278 224H302M278 232H302', class: 'cap' });
+    txt(g, 270, 233, 'Start capacitor', 'lb', 'end');
+    ad(g, 'circle', { cx: 290, cy: 244, r: 2.6, class: 'jn' });
+    ad(g, 'path', { d: 'M290 244L294 262M284 262H296', class: 'w' });
+    txt(g, 270, 252, 'centrifugal switch,', 'lb', 'end');
+    txt(g, 270, 268, 'closed', 'lb', 'end');
+    ad(g, 'path', { d: coil(290, 270, 3), class: 'coil2' });
+    txt(g, 270, 295, 'start', 'lb', 'end');
+    [[130, 216], [130, 322]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));
+    g.setAttribute('aria-label', 'The stator drawn as a ring, with the rotor cage in the middle. The main winding\'s poles sit top and bottom, the start winding\'s left and right, 90 electrical degrees round. ' +
+      'Below, both windings are wired in parallel across ' + V + ' V, ' + HZ + ' Hz. In series with the start winding only: the start capacitor, then the centrifugal switch, drawn closed.');
+  }
+
+  // How it behaves: two pairs of bars from the example, at the instant of starting.
+  function buildBars(g) {
+    const bar = (y, w, cls) => ad(g, 'rect', { x: 108, y: y, width: f1(w), height: 16, rx: 3, class: cls });
+    txt(g, 4, 16, 'Starting torque, times split-phase', 'hd');
+    txt(g, 100, 39, 'split-phase', 'lb', 'end'); bar(27, 100, 'bm'); txt(g, 214, 39, '1.00');
+    txt(g, 100, 61, 'with 100 µF', 'lb', 'end'); bar(49, 100 * E100.ratio, 'ba'); txt(g, 114 + 100 * E100.ratio, 61, N.r100);
+    txt(g, 4, 96, 'Line current at the start', 'hd');
+    txt(g, 100, 119, 'split-phase', 'lb', 'end'); bar(107, 10 * LINE0, 'bm'); txt(g, 114 + 10 * LINE0, 119, N.line0 + ' A');
+    txt(g, 100, 141, 'with 100 µF', 'lb', 'end'); bar(129, 10 * E100.line, 'ba'); txt(g, 114 + 10 * E100.line, 141, N.line100 + ' A');
+    txt(g, 336, 170, 'Example motor, not a maker\'s', 'mu', 'end');
+    g.setAttribute('aria-label', 'Example motor, not a maker\'s, at the instant of starting. Starting torque: split-phase 1.00, with 100 µF ' + N.r100 + ' times. Line current: split-phase ' +
+      N.line0 + ' A, with 100 µF ' + N.line100 + ' A.');
+  }
+
+  // Where it is used: a compressor on the motor's shaft.
+  function buildUse(g) {
+    ad(g, 'rect', { x: 24, y: 40, width: 112, height: 56, rx: 10, class: 'body' });
+    for (let x = 38; x <= 122; x += 12) ad(g, 'line', { x1: x, y1: 46, x2: x, y2: 90, class: 'fin' });
+    ad(g, 'rect', { x: 58, y: 20, width: 44, height: 20, rx: 7, class: 'body' });
+    txt(g, 108, 28, 'start capacitor');
+    ad(g, 'rect', { x: 136, y: 50, width: 10, height: 36, rx: 3, class: 'body' });
+    ad(g, 'rect', { x: 38, y: 96, width: 84, height: 8, rx: 2, class: 'body' });
+    ad(g, 'line', { x1: 146, y1: 68, x2: 206, y2: 68, class: 'shf' });
+    ad(g, 'rect', { x: 206, y: 44, width: 76, height: 56, rx: 6, class: 'body' });
+    ad(g, 'rect', { x: 222, y: 22, width: 44, height: 22, rx: 3, class: 'body' });
+    [28, 34, 40].forEach((y) => ad(g, 'line', { x1: 218, y1: y, x2: 270, y2: y, class: 'fin' }));
+    txt(g, 80, 124, 'capacitor-start motor', 'lb', 'middle');
+    txt(g, 244, 120, 'compressor,', 'lb', 'middle');
+    txt(g, 244, 136, 'hard to start', 'lb', 'middle');
+    g.setAttribute('aria-label', 'A capacitor-start motor, its start capacitor in a housing on top, driving a compressor on its shaft. The compressor is labelled hard to start.');
+  }
+
+  // Faults and tests: the isolator open, locked and tagged; the start capacitor with a resistor across its terminals.
+  function buildFlt(g) {
+    txt(g, 71, 16, 'isolator: open', 'lb', 'middle');
+    ad(g, 'rect', { x: 24, y: 24, width: 94, height: 72, rx: 6, class: 'body' });
+    ad(g, 'path', { d: 'M0 48H40M0 72H40M40 48L72 34M40 72L72 58M84 48H138M84 72H138', class: 'w' });
+    [[40, 48], [40, 72], [84, 48], [84, 72]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    txt(g, 144, 65, 'to the motor');
+    ad(g, 'rect', { x: 62, y: 96, width: 18, height: 8, rx: 2, class: 'hdl' });
+    ad(g, 'path', { d: 'M65 116V110a6 6 0 0 1 12 0V116', class: 'shk' });
+    ad(g, 'rect', { x: 61, y: 115, width: 20, height: 16, rx: 3, class: 'lock' });
+    ad(g, 'path', { d: 'M81 124L90 129', class: 'w' });
+    ad(g, 'polygon', { points: '92 126 110 126 110 150 88 150 88 130', class: 'tag' });
+    ad(g, 'circle', { cx: 93, cy: 131, r: 1.8, class: 'jn' });
+    txt(g, 118, 130, 'locked off');
+    txt(g, 118, 146, 'and tagged');
+    ad(g, 'rect', { x: 250, y: 62, width: 64, height: 78, rx: 10, class: 'body' });
+    ad(g, 'rect', { x: 256, y: 52, width: 12, height: 10, rx: 2, class: 'term' });
+    ad(g, 'rect', { x: 296, y: 52, width: 12, height: 10, rx: 2, class: 'term' });
+    ad(g, 'path', { d: 'M262 52V24H270M302 52V24H294', class: 'w' });
+    ad(g, 'rect', { x: 270, y: 18, width: 24, height: 12, rx: 1, class: 'res' });
+    txt(g, 244, 24, 'resistor across', 'lb', 'end');
+    txt(g, 244, 40, 'its terminals', 'lb', 'end');
+    txt(g, 282, 162, 'start capacitor', 'lb', 'middle');
+    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. The start capacitor has a resistor connected across its two terminals to discharge it.');
+  }
+
+  buildHw(el('hw'));
+  buildBars(el('bars'));
+  buildUse(el('use'));
+  buildFlt(el('flt'));
+
+  // ---------- the live picture: the ring ----------
+  const KF = 3.6, NT = 16, TSTEP = 10, CX = 170, CY = 103;
+  const L = {};
+  (function () {
+    const g = el('ring');
+    buildRing(g, CX, CY, 0.8);
+    const F = ad(g, 'g', { transform: 'translate(' + CX + ' ' + CY + ')' });
+    L.path = ad(F, 'path', { class: 'tp', d: '' });
+    L.trailG = ad(F, 'g', {});
+    L.trail = [];
+    for (let k = 0; k < NT; k++) L.trail.push(ad(L.trailG, 'line', { class: 'tr', x1: 0, y1: 0, x2: 0, y2: 0, 'stroke-opacity': (0.55 * (1 - k / NT)).toFixed(2) }));
+    L.arrow = ad(F, 'g', { opacity: 0 });
+    L.line = ad(L.arrow, 'line', { class: 'fa', x1: 0, y1: 0, x2: 0, y2: 0 });
+    L.head = ad(L.arrow, 'polygon', { class: 'fah', points: '0 0 0 0 0 0' });
+    txt(g, CX, 15, 'main', 'lb', 'middle');
+    txt(g, CX, 200, 'main', 'lb', 'middle');
+    txt(g, CX - 86, CY + 5, 'start', 'lb', 'end');
+    txt(g, CX + 86, CY + 5, 'start', 'lb');
+    txt(g, 4, 16, 'rotor held');
+    txt(g, 4, 32, 'at rest');
+    ad(g, 'line', { x1: 228, y1: 11, x2: 242, y2: 11, class: 'fa' });
+    ad(g, 'polygon', { points: '252 11 241 5.5 241 16.5', class: 'fah' });
+    txt(g, 258, 16, 'the field,');
+    txt(g, 336, 32, 'slowed ' + SLOW + ' times', 'lb', 'end');
+    ad(g, 'line', { x1: 4, y1: 196, x2: 24, y2: 196, class: 'tp' });
+    txt(g, 30, 200, 'path of its tip');
+  })();
+  const FIELD = { th: 0, e: E100 };
+  // Each winding's field points along its own poles, in proportion to its current at that instant. Start: left-right; main: up-down.
+  const fieldXY = (th, e) => [e.Is * Math.sin((th - e.ps) * DEG), MAIN.I * Math.sin((th - MAIN.phi) * DEG)];
+  const tipAt = (th, e) => { const f = fieldXY(th, e); return [KF * f[0], -KF * f[1]]; };
+  function drawArrow(hx, hy) {
+    const len = Math.hypot(hx, hy);
+    if (len < 9) { L.arrow.setAttribute('opacity', 0); return; }
+    L.arrow.setAttribute('opacity', 1);
+    const ux = hx / len, uy = hy / len, bx = hx - 11 * ux, by = hy - 11 * uy;
+    set(L.line, { x2: f1(bx), y2: f1(by) });
+    L.head.setAttribute('points', [hx, hy, bx - 6 * uy, by + 6 * ux, bx + 6 * uy, by - 6 * ux].map(f1).join(' '));
+  }
+  function paintRing() {
+    const e = FIELD.e;
+    let a = tipAt(FIELD.th, e);
+    const h = a;
+    L.trail.forEach((ln, k) => { const b = tipAt(FIELD.th - (k + 1) * TSTEP, e); set(ln, { x1: f1(a[0]), y1: f1(a[1]), x2: f1(b[0]), y2: f1(b[1]) }); a = b; });
+    drawArrow(h[0], h[1]);
+  }
+  function tipPath(e) {
+    let d = '', rmin = 1e9, rmax = 0;
+    for (let th = 0; th < 360; th += 5) {
+      const p = tipAt(th, e), r = Math.hypot(p[0], p[1]);
+      rmin = Math.min(rmin, r); rmax = Math.max(rmax, r);
+      d += (d ? 'L' : 'M') + f1(p[0]) + ' ' + f1(p[1]);
+    }
+    return { d: d + 'Z', q: rmin / rmax };
+  }
+
+  // ---------- the phasor panel ----------
+  const PO = [24, 46], PSC = 10;
+  const pt = (a, len) => [PO[0] + len * Math.cos(a * DEG), PO[1] - len * Math.sin(a * DEG)];   // a: degrees ahead of the supply
+  const P = {};
+  (function () {
+    const g = el('ph');
+    ad(g, 'line', { x1: PO[0], y1: PO[1], x2: 170, y2: PO[1], class: 'ref' });
+    txt(g, 176, 50, 'supply, ' + V + ' V', 'mu');
+    P.arc = ad(g, 'path', { class: 'ang' });
+    txt(g, 66, 83, 'angle between');
+    P.mL = ad(g, 'line', { class: 'ph1' });
+    P.mH = ad(g, 'polygon', { class: 'phh1', points: '0 0 0 0 0 0' });
+    P.sL = ad(g, 'line', { class: 'ph2' });
+    P.sH = ad(g, 'polygon', { class: 'phh2', points: '0 0 0 0 0 0' });
+    P.sT = txt(g, 0, 0, 'start');
+    ad(g, 'line', { x1: 176, y1: 96, x2: 196, y2: 96, class: 'ph1' });
+    txt(g, 202, 100, 'Im, main ' + N.iM + ' A');
+    ad(g, 'line', { x1: 176, y1: 120, x2: 196, y2: 120, class: 'ph2' });
+    P.kS = txt(g, 202, 124, '');
+    const mt = pt(-MAIN.phi, MAIN.I * PSC);
+    vec(P.mL, P.mH, mt, 6);
+    txt(g, f1(mt[0] + 7), f1(mt[1] + 4), 'main');
+  })();
+  function vec(line, head, t, hw) {
+    const dx = t[0] - PO[0], dy = t[1] - PO[1], len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, bx = t[0] - 10 * ux, by = t[1] - 10 * uy;
+    set(line, { x1: PO[0], y1: PO[1], x2: f1(bx), y2: f1(by) });
+    head.setAttribute('points', [t[0], t[1], bx - hw * uy, by + hw * ux, bx + hw * uy, by - hw * ux].map(f1).join(' '));
+  }
+
+  // ---------- the plot: starting torque against the capacitor ----------
+  const PX = (c) => c + 24, PY = (r) => 190 - 64 * r;
+  const PL = {};
+  (function () {
+    const g = el('plot');
+    ad(g, 'line', { x1: 44, y1: PY(2), x2: 324, y2: PY(2), class: 'grid' });
+    ad(g, 'path', { d: 'M44 40V190H324', class: 'ax' });
+    [0, 1, 2].forEach((r) => txt(g, 36, PY(r) + 4.5, String(r), 'lb', 'end'));
+    [20, 100, 200, 300].forEach((c) => txt(g, PX(c), 208, String(c), 'lb', 'middle'));
+    txt(g, 4, 16, 'Starting torque, times split-phase', 'hd');
+    txt(g, 184, 226, 'Start capacitor, µF', 'hd', 'middle');
+    ad(g, 'line', { x1: 44, y1: PY(1), x2: 324, y2: PY(1), class: 'ref' });
+    txt(g, 324, PY(1) + 16, 'split-phase, no capacitor', 'mu', 'end');
+    let d = '';
+    for (let c = 20; c <= 300; c += 2) d += (d ? 'L' : 'M') + f1(PX(c)) + ' ' + f1(PY(calc(c).ratio));
+    ad(g, 'path', { d: d, class: 'tq' });
+    const q = [PX(C90), PY(calc(C90).ratio)], k = [PX(CPK), PY(calc(CPK).ratio)];
+    ad(g, 'line', { x1: f1(q[0] + 3.5), y1: f1(q[1] + 4), x2: f1(q[0] + 8), y2: f1(q[1] + 12), class: 'ldr' });
+    ad(g, 'circle', { cx: f1(q[0]), cy: f1(q[1]), r: 4.5, class: 'mk' });
+    txt(g, f1(q[0] + 8), f1(q[1] + 24), '90° apart, near ' + N.c90 + ' µF');
+    ad(g, 'line', { x1: f1(k[0] + 3.5), y1: f1(k[1] - 4), x2: f1(k[0] + 7), y2: f1(k[1] - 13), class: 'ldr' });
+    ad(g, 'circle', { cx: f1(k[0]), cy: f1(k[1]), r: 4.5, class: 'mk' });
+    txt(g, f1(k[0] + 7), f1(k[1] - 18), 'most torque, near ' + N.cpk + ' µF');
+    PL.dot = ad(g, 'circle', { cx: 0, cy: 0, r: 6.5, class: 'dot' });
+    g.setAttribute('aria-label', 'Starting torque, times split-phase, against the start capacitor from 20 to 300 µF. The curve rises from the smallest capacitor, passes 90° apart near ' + N.c90 +
+      ' µF, peaks near ' + N.cpk + ' µF, then falls slowly. A dashed line marks split-phase with no capacitor, at 1.00. A dot marks the capacitor chosen.');
+  })();
+
+  // ---------- controls and readouts ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const capCtl = K.control({ id: 'cap', label: 'Start capacitor', hint: 'In series with the start winding', min: 20, max: 300, step: 5, value: 100, unit: 'µF', snap: [100], into: '#ctl' });
+  const capOf = (p) => K.clamp(+(p && p.cap != null ? p.cap : 100) || 100, 20, 300);
+  const RD = {
+    a: K.readout({ id: 'rdAngle', label: 'Angle between currents', fmt: (v) => one(v) + '°', into: '#outs' }),
+    t: K.readout({ id: 'rdTorque', label: 'Torque, times split-phase', fmt: (v) => two(v), into: '#outs' }),
+    l: K.readout({ id: 'rdLine', label: 'Line current', fmt: (v) => one(v) + ' A', into: '#outs' }),
+  };
+  K.model((p) => { const e = calc(capOf(p)); return { angDeg: e.ang, ratio: e.ratio, lineA: e.line, startA: e.Is }; });
+
+  el('notes').appendChild(K.el('p', { class: 'why' }, UNDER));
+  el('work').appendChild(K.el('p', { class: 'wh' }, 'Worked at 100 µF'));
+  W.lines.forEach((s) => el('work').appendChild(K.el('p', { class: 'wl' }, s)));
+
+  function sayFor(C, e) {
+    const s1 = 'At ' + C + ' µF the start current is ' + two(e.Is) + ' A, ' + one(Math.abs(e.ps)) + '° ' + (e.ps < 0 ? 'ahead of' : 'behind') + ' the supply. ';
+    if (e.ps >= 0) return s1 + 'Both currents now lag, so the motor slides back towards split-phase.';
+    if (e.ratio < 1) return s1 + 'The currents are more than 90° apart, but so little current flows that the torque is below split-phase.';
+    if (e.ang > 90) return s1 + 'The currents are more than 90° apart. But a smaller capacitor starves the start winding, so the torque is lower than at the peak.';
+    if (Math.abs(C - CPK) <= 2.5) return s1 + 'This is near the most starting torque this winding can give.';
+    if (C < CPK) return s1 + 'A bigger capacitor still lets more current through than it loses in angle, so the torque still rises.';
+    return s1 + 'A bigger capacitor now closes the angle faster than it adds current, so the torque falls.';
+  }
+
+  let seenC = null, held = false, lastAria = '';
+  function paintCap(C) {
+    const e = calc(C);
+    FIELD.e = e;
+    const tp = tipPath(e);
+    L.path.setAttribute('d', tp.d);
+    // phasors
+    const aS = -e.ps, Ls = e.Is * PSC, st = pt(aS, Ls);
+    vec(P.sL, P.sH, st, 4.5);
+    const r = Math.min(22, 0.7 * Ls), a0 = pt(aS, r), a1 = pt(-MAIN.phi, r);
+    P.arc.setAttribute('d', 'M' + a0.map(f1).join(' ') + 'A' + f1(r) + ' ' + f1(r) + ' 0 0 1 ' + a1.map(f1).join(' '));
+    if (aS >= 12) set(P.sT, { x: f1(st[0] + 7), y: f1(st[1] - 2) });
+    else set(P.sT, { x: f1(st[0] + 8), y: f1(Math.min(st[1] - 6, 40)) });
+    P.kS.textContent = 'Is, start ' + two(e.Is) + ' A';
+    // plot
+    set(PL.dot, { cx: f1(PX(C)), cy: f1(PY(e.ratio)) });
+    // readouts and words
+    RD.a.set(e.ang); RD.t.set(e.ratio); RD.l.set(e.line);
+    el('say').textContent = sayFor(C, e);
+    const ar = 'The stator ring with the rotor held at rest. The field arrow goes round, its tip tracing a ' + (tp.q > 0.4 ? 'wide' : 'narrow') + ' ellipse.';
+    if (ar !== lastAria) { lastAria = ar; el('ring').setAttribute('aria-label', ar); }
+    el('ph').setAttribute('aria-label', 'The supply voltage as a dashed reference line. The main current, ' + N.iM + ' A, lags it by ' + N.phiM + '°. The start current, ' + two(e.Is) + ' A, is ' +
+      one(Math.abs(e.ps)) + '° ' + (e.ps < 0 ? 'ahead of' : 'behind') + ' it. The angle between the two currents is marked with an arc.');
+  }
+
+  const spin = K.anim({ button: false, label: 'The field turning', step: (dt) => {
+    if (at() !== iPic || held || REDUCE) return false;
+    FIELD.th = (FIELD.th + 360 * HZ / SLOW * dt) % 360;   // slowed 50 times: once round a second
+    paintRing();
+    return true;
+  } });
+  // The read-through's picture: 100 µF, the field's tip partway round its ellipse, held still.
+  function stillAt100() {
+    capCtl.set(100);
+    FIELD.th = 120;
+    held = true;
+    spin.pause();
+    K.refresh();
+    seenC = 100;
+    paintRing();
+  }
+
+  // ---------- picks: one go, then the answer and its reason ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length || st.res) return;
+    st.pick = d.opts[k];
+    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: i === iR ? 'Still there.' : 'Right.', p: d.why }; }
+    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }
+    K.refresh();
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));
+    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));
+    if (f.p) fb.appendChild(addText(K.el('p'), f.p));
+  }
+
+  // ---------- Keep this ----------
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  const ON = { hwW: [iHow], barW: [iBeh], useW: [iUse], fltW: [iFlt], live: [iPic], picks: [iR, iChk, iFind], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');
+    if (i === iPic) write(task, PLAY_TASK);
+    else if (d.show) blocks(task, d.blocks);
+    else if (d.kind) task.textContent = '';
+    else write(task, d.task);
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iK ? 'One card to come back to on a real job.' : i === iFind ? 'The 100 µF marking and the 38 µF reading are example values.' : '';
+    sub.hidden = !sub.textContent;
+
+    // the picture: a new capacitor redraws the phasors, the plot's dot and the field's ellipse
+    const C = capOf(p);
+    if (C !== seenC) { if (seenC !== null) held = false; seenC = C; }
+    paintCap(C);
+    paintRing();
+    if (i === iPic && !held && !REDUCE && !spin.playing()) spin.play();
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paintFb(st.fb);
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i);
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Lesson 4\'s windings give 9.82 A at 50.2° behind and 6.00 A, 30.1° apart, with 15.3 A in the line. At 100 µF: Xc 31.83 Ω, net X −18.63 Ω, Z 40.53 Ω, start 5.67 A at 27.4° ahead, so 77.6° apart, 1.84 times split-phase torque and 12.4 A in the line', () => {
+    const a = K.at({ cap: 100 });
+    return N.iM === '9.82' && N.phiM === '50.2' && N.iS0 === '6.00' && N.gap0 === '30.1' && N.line0 === '15.3' &&
+      W.F === '0.0001' && W.lines[1].indexOf('× 0.0001)') > 0 && W.xc === '31.83' && W.net === '−18.63' && W.z2 === '1643.08' && W.z === '40.53' && W.is === '5.67' && W.ps === '27.4' && W.ang === '77.6' &&
+      W.s === '0.977' && W.s0 === '0.502' && W.num === '5.54' && W.den === '3.01' && W.ratio === '1.84' &&
+      one(a.angDeg) === '77.6' && two(a.ratio) === '1.84' && one(a.lineA) === '12.4' && two(a.startA) === '5.67';
+  });
+  K.check('Across the range: 20 µF gives 126.3° and 0.41; the currents are 90° apart near 74 µF at 1.63; the torque peaks near 120 µF at 1.88, with 70.5° at 120 µF; 300 µF gives 46.1° and 1.53', () =>
+    one(E20.ang) === '126.3' && two(E20.ratio) === '0.41' && N.c90 === '74' && N.r90 === '1.63' && N.cpk === '120' && N.rpk === '1.88' && two(E120.ratio) === '1.88' &&
+    N.a120 === '70.5' && one(E300.ang) === '46.1' && two(E300.ratio) === '1.53' && K.near(calc(C90).ang, 90, 1e-6));
+  K.check('As the capacitor grows the angle between the currents always closes; the torque rises to its peak and falls after it; the field turns the same way at every setting', () => {
+    let ok = true;
+    for (let c = 20; c < 300; c += 5) {
+      const a = calc(c), b = calc(c + 5);
+      if (!(b.ang < a.ang)) ok = false;
+      if (c + 5 <= CPK && !(b.ratio > a.ratio)) ok = false;
+      if (c >= CPK && !(b.ratio < a.ratio)) ok = false;
+      for (let th = 0; th < 360; th += 15) { const u = fieldXY(th, a), v = fieldXY(th + 5, a); if (!(u[0] * v[1] - u[1] * v[0] > 0)) ok = false; }
+    }
+    return ok;
+  });
+  K.check('The increase in the angle from 30° to 80° alone increases the starting torque to nearly twice that of a split-phase motor: sin 80° ÷ sin 30° = 0.98 ÷ 0.50', () =>
+    K.near(Math.sin(80 * DEG), 0.9848, 1e-4) && K.near(Math.sin(30 * DEG), 0.5, 1e-12) && K.near(Math.sin(80 * DEG) / Math.sin(30 * DEG), 1.9696, 1e-4), { source: IDC });
+  K.check('With the capacitor in series, the start winding\'s current leads the applied voltage, while the main winding\'s current still lags it (20 to 240 µF)', () => {
+    for (let c = 20; c <= 240; c += 5) if (!(calc(c).ps < 0)) return false;
+    return MAIN.phi > 0;
+  }, { source: IDC });
+
+  K.ready();
+</script>

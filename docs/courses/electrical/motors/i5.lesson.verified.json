@@ -1,0 +1,521 @@
+{
+  "iid": "i5",
+  "title": "The capacitor-start motor",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the angle between the two winding currents open towards 90° and the starting torque rise to a peak then fall, when you drag the start capacitor.",
+    "title": "A capacitor in the start winding",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Nine screens, with Back and Continue. One picture to play with, three quick choices and a card to keep. No marks and no timers.\n\nAssume lesson 4's example motor on every screen: 230 V, 50 Hz, with the same two windings. Main winding: R 15 Ω, X 18 Ω. Start winding: R 36 Ω, X 13.2 Ω. Only the capacitor is new. These are example values, not a maker's rating. Every other figure is worked out from them, or is a published figure.\n\nScreen 1, Do you still have it? The question: \"A capacitor sits across an AC supply. Where is its current, compared with the voltage across it?\" Three choices, in this order: \"Leading the voltage by 90°\"; \"Lagging the voltage by 90°\"; \"In step with the voltage\". Right, the first: \"Still there. A capacitor's current leads its voltage by 90°. Put one in series with a winding, and that winding's current can lead the supply too. That is how this motor gets its strong start.\" Wrong, the second: \"That is an inductor. A capacitor works the other way: its current leads its voltage by 90°.\" Wrong, the third: \"That is a resistor. A capacitor's current leads its voltage by 90°.\" After a wrong choice, the right answer and its reason, then on to screen 2. No skip button.\n\nScreen 2, How it works. A still drawing: lesson 4's stator ring. The main winding's poles sit top and bottom, the start winding's left and right, both wired in parallel across \"230 V, 50 Hz\". In series with the start winding only: a capacitor labelled \"Start capacitor\", then the centrifugal switch, drawn closed. The rotor cage sits in the middle. The words beside it: \"It is a split-phase motor with a capacitor in series with the start winding. It uses the same leading current you use for power factor correction. The capacitor's reactance is bigger than the winding's inductive reactance. So the start current leads the supply. The main current still lags. Without the capacitor the two currents are only 25 to 30° apart. With it they are about 80° apart. So the starting torque rises. At about 75 to 80% speed the switch drops out the start winding and capacitor together.[^1]\" Start capacitor is the key term, marked in amber.\n\nScreen 3, A capacitor in the start winding: the picture to play with. At the top, the stator ring from screen 2 with the rotor held at rest, as at the instant of starting. The field is an arrow from the centre, its tip leaving a short fading trail, as in lesson 4. Next, a phasor panel: the supply voltage as a thin reference line, the main current behind it and the start current ahead of it unless the capacitor is very large, with the angle between the two currents marked. Then a plot: starting torque, as times the split-phase value, against the capacitor from 20 to 300 µF. The curve is drawn in full, with a dot at the slider's value. A dashed level line at 1.00 is labelled \"split-phase, no capacitor\". Two small markers on the curve: \"90° apart, near 74 µF\" and \"most torque, near 120 µF\". Then one row of three readouts: Angle between currents, in degrees. Starting torque, times split-phase. Line current, in A. On a phone these sit one under another in that order. On a laptop the plot sits beside the ring.\n\nThe control. Start capacitor: a slider from 20 to 300 µF in steps of 5. It starts at 100 µF.\n\nThe rule it computes. The main winding is lesson 4's: 9.82 A, 50.2° behind the supply. The start branch is the start winding and the capacitor in series. The capacitor's reactance is Xc = 1 ÷ (2π × f × C). The branch's net reactance is X − Xc. Its impedance is Z = √(R² + net X²). Its current is 230 ÷ Z. Its angle is arctan(net X ÷ R), ahead of the supply when net X is negative. The angle between the currents is the main winding's angle behind plus the start current's angle ahead. Starting torque goes with Im × Is × sin(angle between them). The readout divides that by the split-phase value, 9.82 × 6.00 × sin 30.1°. So it reads 1.00 for lesson 4's motor. The line current is the two winding currents added as phasors.\n\nAt 100 µF, worked line by line on the screen under the readouts, under the heading \"Worked at 100 µF\":\nLesson 4's motor. Only the capacitor is new. Starting torque goes with Im × Is × sin(angle between them).\nMain: Z = √(15² + 18²) = 23.43 Ω, so 230 ÷ 23.43 = 9.82 A, arctan(18 ÷ 15) = 50.2° behind\nStart, no capacitor: Z = √(36² + 13.2²) = 38.34 Ω, so 230 ÷ 38.34 = 6.00 A, arctan(13.2 ÷ 36) = 20.1° behind\nAngle, no capacitor = 50.2 − 20.1 = 30.1°\nXc = 1 ÷ (2π × 50 × 0.0001) = 31.83 Ω\nNet X = 13.2 − 31.83 = −18.63 Ω\nZ = √(36² + 18.63²) = √1643.08 = 40.53 Ω\nIs = 230 ÷ 40.53 = 5.67 A, ahead by arctan(18.63 ÷ 36) = 27.4°\nAngle = 50.2 + 27.4 = 77.6°\nThe main current is 9.82 A in both cases, so it cancels.\nTorque ratio = (5.67 × sin 77.6°) ÷ (6.00 × sin 30.1°) = (5.67 × 0.977) ÷ (6.00 × 0.502) = 5.54 ÷ 3.01 = 1.84\nLine current: the two winding currents added as phasors. 15.3 A without the capacitor, 12.4 A with 100 µF.\n\nWorked the same way across the range: 20 µF gives 126.3° and 0.41. Near 74 µF the currents are 90° apart and the ratio is 1.63. Near 120 µF the ratio peaks at 1.88, with 70.5° between the currents. 300 µF gives 46.1° and 1.53. The line current is 12.4 A at 100 µF, against 15.3 A with no capacitor. A very big capacitor acts almost like a plain wire. So the motor slides back towards split-phase. A small one opens the angle past 90°. But it lets so little current through the start winding that the torque falls.\n\nThe field. Each winding's field points along its own poles, drawn in proportion to its current at that instant. The arrow is their sum. Its tip traces a rounder ellipse as the angle nears 90° and the two fields near the same size. The arrow is slowed fifty times.\n\nThe words on the screen, above the working: \"The most torque comes near 120 µF, with the currents 70.5° apart, not 90°. Example values, not a maker's.\" The prompt above the picture: \"Guess first: what does a capacitor twice the size do to the torque? Then drag it and watch the angle and the torque.\" Under the readouts, one live sentence for the capacitor chosen. Below the peak: \"A bigger capacitor lets more current through. Here that gains more torque than the narrower angle loses.\" Above it: \"A bigger capacitor narrows the angle further. Here that loses more torque than the extra current gains.\" Read: At 100 µF the start current is 5.67 A, 27.4° ahead of the supply. The main current lags by 50.2°. So they are 77.6° apart, and the field's tip traces a wide ellipse. Starting torque is 1.84 times split-phase. The line current falls from 15.3 A to 12.4 A. Twice the capacitor, 200 µF, closes the angle to 54.5°. The torque falls to 1.73. A smaller capacitor opens the angle to 90° near 74 µF, then past 90°. But it starves the start winding of current. The torque peaks near 120 µF. Still: the capacitor at 100 µF, the currents drawn 77.6° apart, the field's tip on its ellipse, readouts 77.6°, 1.84 and 12.4 A, and the dot on the curve at 100 µF.\n\nScreen 4, Check on the cause. \"The capacitor nearly doubles the starting torque. Why does the switch still take it out at speed?\" Three choices, in this order: \"Left in, it would stop the motor running\"; \"It is a start capacitor, rated only for short bursts\"; \"Left in, it would spoil the power factor\". Right, the second: \"Right. The start winding is short-time rated, as in lesson 4. So is the start capacitor. It is an electrolytic type, built for short starting bursts, not continuous duty. Left in, it overheats and fails.\" Wrong, the first: \"It would not stop it. Some motors run with a capacitor in all the time. Theirs is a smaller one, rated to stay in. This one is not rated to stay in.\" Wrong, the third: \"A run capacitor of the right size helps running. It does not spoil it. That is why some motors keep a small one in. The start capacitor is far bigger, and it is not rated to stay in.\" After a wrong choice, the right answer and its reason.\n\nScreen 5, How it behaves. A still drawing: two pairs of bars from the example, at the instant of starting. Starting torque: split-phase 1.00, with 100 µF 1.84. Line current: split-phase 15.3 A, with 100 µF 12.4 A. Labelled \"Example motor, not a maker's\". Rows, each with a label.\n\nStarting torque: \"High. Around three times full-load torque in a heavy-duty design.[^2] The example gives 1.84 times split-phase.\"\n\nStarting current: \"Lower than split-phase. In the example, 12.4 A against 15.3 A.\"\n\nThe switch: \"Opens at about 75 to 80% speed. The torque drops a step.\"\n\nRunning: \"It runs on the main winding alone, just below synchronous speed. Its pulsing field acts like two equal fields turning opposite ways. Once turning, the rotor drags hard on the one going its way. Torque, not momentum, keeps it going.\"\n\nScreen 6, Where it is used, and its limits. A still drawing: a small compressor on the motor's shaft, labelled \"hard to start\". Rows.\n\nUsed for: \"Compressors, pumps, conveyors and other hard-to-start loads. Also loads that take a while to run up.\"\n\nIts limit: \"The start capacitor is short-time rated. Frequent starts overheat it until it fails.\"\n\nCapacitor-start capacitor-run: \"Starts on a large capacitor, then keeps a smaller run capacitor in. It runs on less current. Most larger single-phase motors are built this way.\"\n\nPermanent split capacitor: \"One capacitor, always in, and no switch. Low starting torque and low starting current.\"\n\nScreen 7, Faults and tests. A still drawing: the isolator open with a lock and tag on it, and the start capacitor with a resistor across its terminals. Rows.\n\nSafety first: \"Isolate, lock off and prove dead. Then discharge the capacitor through a resistor: about 20 kΩ, 5 W, for five seconds.[^3] Then confirm it with a meter.\"\n\nCapacitor open or weak: \"Poor starting torque. It may hum and not start. That usually trips the overload.\"\n\nCapacitor shorted: \"The winding may burn out.\"\n\nLook and measure: \"Bulging, leaking, cracked or scorched means it has failed. Measure its µF against the value and tolerance marked on it.\"\n\nThe switch: \"Stuck open or closed, as in lesson 4.\"\n\nScreen 8, Find the fault. \"A compressor's capacitor-start motor hums and trips its overload when it tries to start. The start capacitor's top is bulging. What is the likely fault?\" Three choices, in this order: \"The main winding is open\"; \"The start capacitor has failed\"; \"The overload is set too low\". Right, the second: \"Right. A bulging case means the capacitor has failed. A failed capacitor gives poor starting torque. So the motor sits at a high current until the overload trips. Isolate, discharge and measure it against its marking, then replace it. Then check the switch and windings.\" Wrong, the first: \"An open main winding would not make the capacitor bulge. Rule it out on test: measure the main winding's resistance. An open winding reads open circuit.\" Wrong, the third: \"The overload is doing its job. A motor that cannot start draws a high current until it trips. Raising the setting only puts the windings at risk.\" After a wrong choice, the right answer and its reason.\n\nScreen 9, Keep this: the summary card, drawn from the lesson's summary with no case figures, then Finish the lesson.\n\nEvery figure on these screens is a control, a published figure, a labelled example or worked out from a rule shown. The example motor and its windings are lesson 4's. The field arrow is slowed fifty times.",
+    "ignores": "The picture is drawn at the instant of starting, with the rotor at rest. It keeps lesson 4's windings so the capacitor is the only change. A real capacitor-start motor's start winding is wound for its capacitor, so its best capacitor is different. Each winding's field is drawn in proportion to its current. The torque is shown as a ratio to split-phase, worked from the rule, not in newton metres. As the rotor speeds up the currents change. So the angle between them changes too.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 9 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Start capacitor slider, opening, µF",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Start capacitor slider, lowest, µF",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "Start capacitor slider, highest, µF",
+        "value": 300,
+        "kind": "control"
+      },
+      {
+        "label": "Start capacitor slider, step, µF",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Example motor supply voltage, V",
+        "value": 230,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor supply frequency, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main winding resistance (example), ohm",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main winding reactance (example), ohm",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main winding current at standstill, A",
+        "value": 9.82,
+        "kind": "computed"
+      },
+      {
+        "label": "Main winding current angle behind supply, degrees",
+        "value": 50.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding resistance (example), ohm",
+        "value": 36,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start winding reactance (example), ohm",
+        "value": 13.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start winding current, no capacitor, A",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents, no capacitor, degrees",
+        "value": 30.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor reactance at 100 µF, ohm",
+        "value": 31.83,
+        "kind": "computed"
+      },
+      {
+        "label": "Start branch net reactance at 100 µF, ohm",
+        "value": -18.63,
+        "kind": "computed"
+      },
+      {
+        "label": "Start branch impedance at 100 µF, ohm",
+        "value": 40.53,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding current at 100 µF, A",
+        "value": 5.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Start current angle ahead of supply at 100 µF, degrees",
+        "value": 27.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents at 100 µF, degrees",
+        "value": 77.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Sine of 77.6 degrees",
+        "value": 0.977,
+        "kind": "computed"
+      },
+      {
+        "label": "Sine of 30.1 degrees",
+        "value": 0.502,
+        "kind": "computed"
+      },
+      {
+        "label": "Start current times sine, with 100 µF",
+        "value": 5.54,
+        "kind": "computed"
+      },
+      {
+        "label": "Start current times sine, no capacitor",
+        "value": 3.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting torque at 100 µF, times split-phase",
+        "value": 1.84,
+        "kind": "computed"
+      },
+      {
+        "label": "Split-phase reference line, times split-phase",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor for 90 degrees apart, near, µF",
+        "value": 74,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting torque at 90 degrees apart, times split-phase",
+        "value": 1.63,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor for most torque, near, µF",
+        "value": 120,
+        "kind": "computed"
+      },
+      {
+        "label": "Most starting torque, times split-phase",
+        "value": 1.88,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents at most torque, degrees",
+        "value": 70.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents at 20 µF, degrees",
+        "value": 126.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting torque at 20 µF, times split-phase",
+        "value": 0.41,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents at 300 µF, degrees",
+        "value": 46.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting torque at 300 µF, times split-phase",
+        "value": 1.53,
+        "kind": "computed"
+      },
+      {
+        "label": "Line current at standstill, no capacitor, A",
+        "value": 15.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Line current at standstill, 100 µF, A",
+        "value": 12.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Field arrow slowed, times",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor current leads its voltage, degrees",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "Typical angle between currents, capacitor-start, degrees",
+        "value": 80,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Typical angle between currents, split-phase, degrees",
+        "value": 30,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Split-phase angle in another text, degrees",
+        "value": 25,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Sine of 30 degrees",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Sine of 80 degrees",
+        "value": 0.98,
+        "kind": "computed"
+      },
+      {
+        "label": "Switch opening speed, low end, % of rated speed",
+        "value": 75,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Switch opening speed, high end, % of rated speed",
+        "value": 80,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Heavy-duty design starting torque, % of full load",
+        "value": 300,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Discharge resistor, kilohm",
+        "value": 20,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Discharge resistor rating, W",
+        "value": 5,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Discharge time, seconds",
+        "value": 5,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Example start capacitor, marked, µF",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example start capacitor, reading, µF",
+        "value": 38,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start capacitor tolerance, one guide, plus or minus %",
+        "value": 20,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Start capacitor tolerance, another guide, plus or minus %",
+        "value": 10,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Range at plus or minus 20% of 100 µF, low, µF",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Range at plus or minus 20% of 100 µF, high, µF",
+        "value": 120,
+        "kind": "computed"
+      },
+      {
+        "label": "Range at plus or minus 10% of 100 µF, low, µF",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Range at plus or minus 10% of 100 µF, high, µF",
+        "value": 110,
+        "kind": "computed"
+      },
+      {
+        "label": "Main winding impedance, ohm",
+        "value": 23.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding impedance, no capacitor, ohm",
+        "value": 38.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding current angle behind supply, no capacitor, degrees",
+        "value": 20.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitor twice the opening value, µF",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents at 200 µF, degrees",
+        "value": 54.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting torque at 200 µF, times split-phase",
+        "value": 1.73,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A capacitor-start motor is lesson 4's split-phase motor with a capacitor in series with its start winding. The capacitor swings the start winding's current ahead of the supply. So the two currents end up about 80° apart, and the start is far stronger.\n\nFirst, why split-phase starts weakly. Both winding currents lag the supply. The start winding's lags by less. The gap is only 25 to 30°. Now put a [[start capacitor]] in series with the start winding. A capacitor's current leads its voltage. It is sized so its reactance is bigger than the winding's inductive reactance. So the whole branch acts as a capacitor. The start winding's current now leads the supply. The main winding's current still lags. So the gap opens from both sides, to almost 80° in a typical motor.\n\nStarting torque goes with the size of both currents and the sine of the angle between them. Sin 30° is 0.50 and sin 80° is 0.98. So the wider angle alone nearly doubles the torque. The capacitor also changes how much current the start winding takes. So the best capacitor for torque is not quite the one that gives exactly 90°. In the example, 100 µF puts the currents 77.6° apart and gives 1.84 times the split-phase torque. The line current falls too, from 15.3 A to 12.4 A. The capacitor is only there to start. At about 75 to 80% speed the centrifugal switch drops it out with the start winding.[^1]\n\n**Put a capacitor in series with the start winding and its current leads. The two currents sit about 80° apart, and the starting torque rises steeply.**"
+  },
+  "analogy": {
+    "text": "You know power factor correction. A capacitor's leading current cancels part of a motor's lagging current. That pulls the total current back into step with the voltage. The start capacitor uses the same leading current for the opposite aim. It pushes one winding's current ahead of the supply. The other winding's current still lags. So the two end up far apart.",
+    "breaks": "A correction capacitor sits in parallel and stays in. It cuts the current drawn all the time. The start capacitor sits in series with one winding and is in circuit only while starting. Its job is the angle between two currents, not the power factor of the supply."
+  },
+  "practice": {
+    "text": "- Isolate, lock off and prove dead before you touch it.\n- Discharge the start capacitor before you handle or test it. Put a resistor of about 20 kΩ, 5 W across its terminals for five seconds.[^3] Then confirm with your meter that it is discharged.\n- Look at it. A bulging top, leaking oil, or a cracked or scorched case means it has failed.\n- Measure its capacitance and compare it with the value and tolerance marked on it.\n- Check the centrifugal switch and the windings as for a split-phase motor.\n- Keep it to the duty it was built for. Frequent starts overheat the start capacitor.\n\n**Rule of thumb:** hums, will not start and trips the overload? Suspect the start capacitor first. Then the switch and the start winding.\n\n**Worked example:** a start capacitor is marked 100 µF. Say it reads 38 µF. Figures for an acceptable reading vary. At ±20%, 100 µF allows 80 to 120 µF.[^6] At ±10%, it allows 90 to 110 µF.[^7] 38 µF is outside both, so it has failed.\n\n**Common mistakes**\n- Thinking momentum keeps it running. Once it turns, the main winding alone makes torque.\n- Testing a capacitor before discharging it.\n- Raising the overload setting on a motor that will not start. The overload is doing its job.\n- Blaming the start capacitor when a motor stops while running. It is out of circuit once the switch opens."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+    "title": "The capacitor-start motor",
+    "for": "Starting a hard-to-start load on one phase. A capacitor in series with the start winding makes its current lead. The two currents sit about 80° apart, so the start is strong. The switch drops both out at about 75 to 80% speed.",
+    "rule": "Capacitor in series with the start winding: the start current leads, the main current lags.\nAngle between them: about 80°, against 25 to 30° for split-phase.\nStarting torque goes with Im × Is × sin(angle between them).\nsin 80° ÷ sin 30° = 0.98 ÷ 0.50: nearly twice.\n\nA heavy-duty design starts with around three times full-load torque. It draws less starting current than split-phase.\nThe start capacitor is electrolytic and short-time rated.\nCapacitor-start capacitor-run keeps a small run capacitor in. A permanent split capacitor motor has no switch.",
+    "traps": [
+      {
+        "text": "Momentum is not what keeps it running. Once it turns, the main winding alone makes torque.",
+        "cite": "[^8] [^9] [^10] [^11] Lessons in Electric Circuits 13.9; Navy NEETS module 5"
+      },
+      {
+        "text": "A failed start capacitor affects starting, not running. The motor may hum and not start. That usually trips the overload.",
+        "cite": "[^12] [^13] Fluke; Kaiweets"
+      },
+      {
+        "text": "Isolate, lock off and prove dead. Discharge the capacitor through about 20 kΩ, 5 W for five seconds, and confirm it with a meter, before you touch or test it.",
+        "cite": "[^14] [^15] [^3] Fluke"
+      },
+      {
+        "text": "Measure its µF against its marking. Guides allow between ±10% and ±20%. Outside that, it has failed. So has a bulging, leaking, cracked or scorched one.",
+        "cite": "[^16] [^17] [^6] [^7] Kaiweets; Specap"
+      },
+      {
+        "text": "Frequent starts overheat the start capacitor and the start winding. Neither is rated to stay in.",
+        "cite": "[^18] [^19] MSU Tech Note 313"
+      }
+    ],
+    "where": "Compressors, pumps, conveyors and other hard-to-start loads. Capacitor-start capacitor-run on most larger single-phase motors."
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Your motor sheet: the capacitor-start motor",
+      "url": "material:capacitor-start#p1",
+      "quote": "Once the motor reaches about 75–80% of its rated speed, a centrifugal switch on the motor shaft automatically disconnects the auxiliary winding and the start capacitor from the circuit."
+    },
+    {
+      "n": 2,
+      "title": "Traditional Speed Torque Curves",
+      "url": "https://www.regalrexnord.com/products/regal-rexnord-electric-motors/speed-torque-curves",
+      "quote": "The design is a heavy-duty unit which has approximately 300% (of full load) starting torque."
+    },
+    {
+      "n": 3,
+      "title": "How to Measure Capacitance with a Digital Multimeter | Fluke",
+      "url": "https://www.fluke.com/en-gb/learn/blog/digital-multimeters/how-to-measure-capacitance",
+      "quote": "connect a 20,000 Ω, 5-watt resistor across the capacitor terminals for five seconds."
+    },
+    {
+      "n": 4,
+      "title": "Learn about \"Capacitor Start - Induction Run\" Motors",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf",
+      "quote": "the phase difference between Im and Is is almost 80 degrees as against 30 degrees in a split-phase induction motor."
+    },
+    {
+      "n": 5,
+      "title": "7.2 Capacitor induction Motor The capacitor-start motor is identical to a split-phase motor except that the starting winding has as",
+      "url": "https://www.uoanbar.edu.iq/eStoreImages/Bank/3007.pdf",
+      "quote": "The phase angle between the two currents is about 80° compared to about 25° in a split- phase motor."
+    },
+    {
+      "n": 6,
+      "title": "AC Won't Start? Motor Capacitor Test in 5 Steps (2026) | Specap, Inc.",
+      "url": "https://specap.com/resources/guides/motor-capacitor-troubleshooting",
+      "quote": "Run capacitors should be within ±5%; start capacitors within ±20%."
+    },
+    {
+      "n": 7,
+      "title": "Start Capacitor Failure: 5 Visual Signs & How to Test (2026) | Specap, Inc.",
+      "url": "https://specap.com/resources/guides/start-capacitor-failure-symptoms",
+      "quote": "readings more than ±10% off the labeled µF mean replace immediately"
+    },
+    {
+      "n": 8,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "Once started the auxiliary winding is optional."
+    },
+    {
+      "n": 9,
+      "title": "Navy Electricity and Electronics Training Series",
+      "url": "https://vtda.org/bits/other/US_Navy/NEETS/US%20Navy%20NEETS%20-%20Module%2005-Introduction%20to%20Generators%20and%20Motors%20NAVEDTRA%2014177.pdf",
+      "quote": "When nearly full speed is obtained, a centrifugal device (the starting switch) cuts out the starting winding. The motor then runs as a plain single-phase induction motor."
+    },
+    {
+      "n": 10,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "Another view is that the single coil excited by a single phase current produces two counter rotating magnetic field phasors, coinciding twice per revolution"
+    },
+    {
+      "n": 11,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "Little torque (see torque vs slip curve) other than a double freqency ripple is developed from the counter rotating phasor."
+    },
+    {
+      "n": 12,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "When a capacitor deteriorates or opens, the motor has poor starting torque. Poor starting torque may prevent the motor from starting, which will usually trip the overloads."
+    },
+    {
+      "n": 13,
+      "title": "How to Test a Single-Phase Motor with a Multimeter",
+      "url": "https://kaiweets.com/blogs/news/how-to-test-a-single-phase-motor-with-a-multimeter",
+      "quote": "A failed capacitor is one of the most common causes of a motor that hums but won’t start."
+    },
+    {
+      "n": 14,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "Lock out and tag the starting mechanism per company policy."
+    },
+    {
+      "n": 15,
+      "title": "How to Measure Capacitance with a Digital Multimeter | Fluke",
+      "url": "https://www.fluke.com/en-gb/learn/blog/digital-multimeters/how-to-measure-capacitance",
+      "quote": "carefully discharge the capacitor by connecting a resistor across the leads."
+    },
+    {
+      "n": 16,
+      "title": "How to Test a Single-Phase Motor with a Multimeter",
+      "url": "https://kaiweets.com/blogs/news/how-to-test-a-single-phase-motor-with-a-multimeter",
+      "quote": "Compare measured value with rating printed on the capacitor."
+    },
+    {
+      "n": 17,
+      "title": "Start Capacitor Failure: 5 Visual Signs & How to Test (2026) | Specap, Inc.",
+      "url": "https://specap.com/resources/guides/start-capacitor-failure-symptoms",
+      "quote": "A failing start capacitor shows five signs: a bulging or domed top , oil leakage near the terminals, a cracked or split case, scorch or burn marks, and a motor that hums but won't start ."
+    },
+    {
+      "n": 18,
+      "title": "Electrical Tech Note — 313",
+      "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+      "quote": "These capacitors are of the dry electrolytic type and are not rated for continuous duty. If the motor is started frequently, the capacitor will overheat and fail."
+    },
+    {
+      "n": 19,
+      "title": "Electrical Tech Note — 313",
+      "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+      "quote": "The auxiliary winding is not rated for continuous operation. If the motor is used on an application where it must start frequently, the auxiliary winding may overheat and fail."
+    }
+  ]
+}

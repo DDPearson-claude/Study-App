@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Lesson 4's windings give 9.82 A at 50.2° behind and 6.00 A, 30.1° apart, with 15.3 A in the line. At 100 µF: Xc 31.83 Ω, net X −18.63 Ω, Z 40.53 Ω, start 5.67 A at 27.4° ahead, so 77.6° apart, 1.84 times split-phase torque and 12.4 A in the line",
+        "ok": true
+      },
+      {
+        "label": "Each winding alone: main Z 23.43 Ω, 9.82 A, 50.2° behind; start Z 38.34 Ω, 6.00 A, 20.1° behind, so 30.1° apart. At 200 µF: 54.5° apart and 1.73 times split-phase",
+        "ok": true
+      },
+      {
+        "label": "Across the range: 20 µF gives 126.3° and 0.41; the currents are 90° apart near 74 µF at 1.63; the torque peaks near 120 µF at 1.88, with 70.5° at 120 µF; 300 µF gives 46.1° and 1.53",
+        "ok": true
+      },
+      {
+        "label": "As the capacitor grows the angle between the currents always closes; the torque rises to its peak and falls after it; the field turns the same way at every setting",
+        "ok": true
+      },
+      {
+        "label": "The increase in the angle from 30° to 80° alone increases the starting torque to nearly twice that of a split-phase motor: sin 80° ÷ sin 30° = 0.98 ÷ 0.50",
+        "ok": true,
+        "source": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf"
+      },
+      {
+        "label": "With the capacitor in series, the start winding's current leads the applied voltage, while the main winding's current still lags it (20 to 240 µF)",
+        "ok": true,
+        "source": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "cap"
+    ],
+    "readouts": [
+      "rdAngle",
+      "rdTorque",
+      "rdLine"
+    ],
+    "outputs": [
+      "angDeg",
+      "ratio",
+      "lineA",
+      "startA"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "How it works",
+          "A capacitor in the start winding",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "cap",
+        "kind": "control",
+        "label": "Start capacitor",
+        "min": 20,
+        "max": 300,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          100
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The field turning"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

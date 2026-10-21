@@ -1,0 +1,116 @@
+{
+  "values": [
+    {
+      "name": "exampleMotor",
+      "value": "Lesson 4's example motor, unchanged: 230 V, 50 Hz single-phase, four-pole (1500 rpm field speed), rated speed 1440 rpm, rated current 2.8 A, about 250 W (a third of a horsepower); main winding R = 15 ohm, X = 18 ohm (9.82 A at 50.2 degrees lag); start winding R = 36 ohm, X = 13.2 ohm (6.00 A at 20.1 degrees lag) when there is no capacitor",
+      "unit": "",
+      "why": "The picture is lesson 4's picture with one new slider, so every number except the capacitor stays as the reader saw it in lesson 4 (same i4.examples.json values). A real capacitor-start motor winds its start winding differently from a split-phase one (one text says as many turns as the main winding), so the lesson says plainly that the picture keeps lesson 4's windings so the capacitor is the only change. An example motor, never a maker's rating.",
+      "realValueLives": "The motor's rating plate and the maker's winding data."
+    },
+    {
+      "name": "capacitorSliderRange",
+      "value": "0 to 300 microfarads; 0 means no capacitor, which is exactly the split-phase motor of lesson 4",
+      "unit": "microfarad",
+      "why": "Gives the reader the lesson-4 baseline at one end and a range that passes through 90 degrees and the torque peak. Start capacitors are high-microfarad electrolytic units (IDC: usually above 20 microfarads, some above 70; a capacitor maker's guide lists 70 to 800). The reactance is Xc = 1 / (2 pi f C) with f = 50 Hz, shown as the rule.",
+      "realValueLives": "The capacitor's label (microfarads and voltage) and the motor's data plate or maker's data sheet."
+    },
+    {
+      "name": "startCapacitor",
+      "value": 100,
+      "unit": "microfarad",
+      "why": "The slider's starting position and the value the screens quote. 100 microfarads is an example inside the 90 to 150 microfarad band a capacitor maker's sizing chart gives for 1/4 to 1/3 hp 230 V motors (one vendor's chart, not a standard, so it is only used to keep the example plausible). With the lesson 4 windings it gives 77.6 degrees between the currents, 'almost 80 degrees' as in the IDC and textbook figures. Labelled as an example capacitor, never a maker's value.",
+      "realValueLives": "The marked value on the motor's own capacitor and the maker's data sheet."
+    },
+    {
+      "name": "startBranch",
+      "value": "R = 36 ohm in series with X = 13.2 ohm (inductive) and Xc = 31.83 ohm (capacitive) at 100 microfarads: net reactance -18.63 ohm (capacitive), Z = 40.5 ohm; start current 5.67 A leading the supply by 27.4 degrees",
+      "unit": "ohm",
+      "why": "Computed by the impedance triangle from AC circuits lesson 6: net X = XL - Xc, Z = sqrt(R squared + X squared), current = 230 / Z. The leading angle of the start current is arctan(18.63 / 36) = 27.4 degrees. The main winding still lags by 50.2 degrees, so the angle between the two currents is 50.2 + 27.4 = 77.6 degrees.",
+      "realValueLives": "The rule is the sourced one (Utah ECE 3600 capacitor calculation: angle between currents = arctan(XL main / R main) minus arctan((XL start - Xc) / R start)); the winding values are the lesson-4 example values."
+    },
+    {
+      "name": "angleBetweenCurrentsWithCapacitor",
+      "value": 77.6,
+      "unit": "degrees",
+      "why": "Computed, not chosen: main lags 50.2 degrees, start leads 27.4 degrees at 100 microfarads. Against 30.1 degrees without the capacitor. Sources give 'almost 80 degrees against about 30' (IDC) and '80 degrees against 25' (a textbook), 'nearly 90' (Navy NEETS), 'approach 90' (USNRC and a textbook): the lesson says 'close to 90 degrees, about 80 in a typical example' and notes the split-phase figure varies between sources (25 to 30 degrees).",
+      "realValueLives": "The angle for a real motor comes from its windings and capacitor; nothing here is a maker's figure."
+    },
+    {
+      "name": "capacitorForExactly90",
+      "value": 73.7,
+      "unit": "microfarad",
+      "why": "Computed from the lesson 4 windings: Xc = 43.2 ohm gives 89.99 degrees between the currents (start current 4.91 A leading by 39.8 degrees, main lagging by 50.2). Shown as a marker on the slider. Utah ECE 3600 says the ideal capacitor puts the currents 90 degrees apart at startup, and its own homework problem shows a different capacitor (28.4 microfarads there) is needed for 90 degrees at rated speed: 90 degrees holds at one speed only.",
+      "realValueLives": "The rule (sourced, Utah ECE 3600); the value is only for the example windings."
+    },
+    {
+      "name": "torqueIndexSplitPhase",
+      "value": 29.5,
+      "unit": "A squared (relative index)",
+      "why": "Starting torque goes with Im x Is x sin(angle) (Utah ECE 3600; IDC). 9.82 A x 6.00 A x sin 30.1 degrees = 29.5. Same figure as lesson 4; a relative index only, never newton metres.",
+      "realValueLives": "The rule is sourced; a real motor's starting torque is the maker's locked-rotor torque figure."
+    },
+    {
+      "name": "torqueIndexWithCapacitor",
+      "value": "54.4 at 100 microfarads (9.82 A x 5.67 A x sin 77.6 degrees); 1.84 times the split-phase index. The curve: 20 uF 12.1; 40 uF 27.8; 60 uF 41.6; 73.7 uF 48.2 (exactly 90 degrees); 90 uF 52.9; 100 uF 54.4; 120 uF 55.4; 150 uF 54.4; 200 uF 50.9; 241 uF 48.2; 300 uF 45.1",
+      "unit": "A squared (relative index)",
+      "why": "Computed from the sourced rule for every slider position, so the bar is a computed control. Two things follow and the lesson shows both: (1) the angle alone gives sin 77.6 / sin 30.1 = 1.95, 'nearly twice' (IDC), but the capacitor also changes the start current, so the full change is 1.84 times here; (2) the torque index peaks near 121 microfarads (55.4, angle 70 degrees), not at 90 degrees, then falls as the capacitor grows because the angle keeps closing. Utah's worked example (1/3 hp 120 V motor, 47 microfarads added) gets 1.577 times, so 'about one and a half to nearly two times, depending on the motor' is the honest range; the lesson must not say 'exactly double'.",
+      "realValueLives": "The rule (sourced); the ratio for a real motor comes from its design."
+    },
+    {
+      "name": "capacitorForPeakTorqueIndex",
+      "value": 121,
+      "unit": "microfarad",
+      "why": "Computed: the largest torque index over the slider range for the lesson 4 windings (55.4 A squared at 70.2 degrees, 6.00 A). Shown as a marker. Specific to the example windings; the lesson says 'best at one value, and falling beyond it'.",
+      "realValueLives": "A real motor's capacitor is chosen by the maker for that motor; it is the label on the capacitor."
+    },
+    {
+      "name": "startingCurrentTotalWithCapacitor",
+      "value": "12.35 A at 100 microfarads (phasor sum of main 9.82 A and start 5.67 A), about 4.4 times the rated 2.8 A, against 15.3 A (5.5 times) for the same windings without a capacitor",
+      "unit": "A",
+      "why": "Computed from the example windings, in the same way as lesson 4. It shows 'better starting torque with lower starting current' (USNRC) in numbers: the line current falls while the torque index rises. The open textbook's 'one-third less starting current' is a different motor and a ratio; here the fall is about 19 percent, which the lesson shows as the computed figure of the example, not as a rule.",
+      "realValueLives": "The locked-rotor current on the motor's rating plate or data sheet."
+    },
+    {
+      "name": "startingTorqueRated",
+      "value": "about 3 times full-load torque for a capacitor-start motor, against about 1.5 times for the split-phase example in lesson 4",
+      "unit": "times full-load torque",
+      "why": "One maker (Regal Rexnord) gives approximately 300 percent of full load for its capacitor-start design; other sources give 200 to 400 percent (a study guide 250 to 400), so the lesson says 'about three times, depending on the design' and treats it as typical, never exact. Used only as a sentence beside the picture, not computed.",
+      "realValueLives": "The motor maker's locked-rotor torque figure for the specific design."
+    },
+    {
+      "name": "capacitorVoltage",
+      "value": "about 180 V across the 100 microfarad capacitor at the instant of starting (5.67 A x 31.83 ohm), which is below the 230 V supply",
+      "unit": "V",
+      "why": "Computed from the start branch (Vc = I x Xc). Optional: only if a screen tells the reader to read the capacitor's voltage rating. It shows the capacitor is rated for this duty, not for the supply voltage by itself. Capacitor makers list start capacitors in classes such as 125, 165, 250 and 330 V (IDC); the lesson does not say which class a real motor uses.",
+      "realValueLives": "The capacitor's label."
+    },
+    {
+      "name": "switchOpeningSpeed",
+      "value": 75,
+      "unit": "percent of synchronous speed",
+      "why": "Same as lesson 4. Sources: his capacitor-start sheet 75 to 80 percent, MSU Tech Note 313 and 314 about 80 percent, Kuphaldt three quarters, IDC 3/4 of full speed. The lesson says '75 to 80 percent'; the picture's switch point is 75.",
+      "realValueLives": "The switch's cut-out speed is the maker's figure for the motor."
+    },
+    {
+      "name": "citedWorkedExample",
+      "value": "1/3 hp, 120 V split-phase motor: main winding 5 A lagging the supply by 40 degrees, start winding 3 A lagging by 15 degrees. Adding a capacitor of about 47 microfarads (60 Hz) puts the currents 90 degrees apart, the new start winding current is about 2 A, and the starting torque is 1.577 times the split-phase value (Utah ECE 3600, Ex. 1)",
+      "unit": "",
+      "why": "A cited worked example in the same method, in different units (120 V, 60 Hz). It is not Dan's motor and the lesson says where its figures come from only when it uses them; the lesson's own example motor is the 230 V one above. 47 microfarads and 1.577 are in the source's working (the sentence 'The new start winding current is about 2 A' is quoted in source 361); they were checked by recomputing: Xc = 56.4 ohm at 377 rad/s gives 47 microfarads; 5 x 2 x sin 90 / (5 x 3 x sin 25) = 1.577.",
+      "realValueLives": "Utah ECE 3600 notes, Single-Phase Induction Motors, example 1."
+    },
+    {
+      "name": "faultCheckCapacitorReading",
+      "value": "A compressor motor trips its overload trying to start; its start capacitor is marked 100 microfarads and the capacitance meter reads 38 microfarads, with a bulging top",
+      "unit": "microfarad",
+      "why": "A labelled example for the fault check. 38 against 100 is far outside every tolerance sources give for a start capacitor (plus or minus 10 percent in one maker's guide, plus or minus 20 percent in another; a weak capacitor below 80 percent of rated is replaced), so the answer is not a matter of which tolerance is right. A bulging case is replaced whatever the meter says. Failing capacitor: poor starting torque, which may stop the motor starting and usually trips the overloads (Fluke).",
+      "realValueLives": "The capacitor's marked value and tolerance on its label, and the maker's guidance for the motor."
+    },
+    {
+      "name": "capacitorTolerance",
+      "value": "not fixed: plus or minus 20 percent for a start capacitor in one maker's guide, plus or minus 10 percent in another page of the same maker; run capacitors plus or minus 5 percent",
+      "unit": "percent",
+      "why": "Contested between sources, so the lesson says 'compare with the value and tolerance marked on the capacitor' and never gives one number as the rule. If a worked reading is shown, use the faultCheckCapacitorReading example, which fails under any of them.",
+      "realValueLives": "The tolerance printed on the capacitor or in the maker's data."
+    }
+  ]
+}

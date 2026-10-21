@@ -1,0 +1,430 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Electric motors: what you need on each one
+Idea: The capacitor-start motor (A capacitor in series with the start winding widens the angle between the two currents towards 90°, giving much more starting torque than split-phase.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the angle between the two winding currents open towards 90° and the starting torque rise to a peak then fall, when you drag the start capacitor.
+Title (the app shows it above the frame, so do not repeat it): A capacitor in the start winding
+The rule (the app shows it just above the frame, under "What you're looking at"): Nine screens, with Back and Continue. One picture to play with, three quick choices and a card to keep. No marks and no timers.
+
+Assume lesson 4's example motor on every screen: 230 V, 50 Hz, with the same two windings. Main winding: R 15 Ω, X 18 Ω. Start winding: R 36 Ω, X 13.2 Ω. Only the capacitor is new. These are example values, not a maker's rating. Every other figure is worked out from them, or is a published figure.
+
+Screen 1, Do you still have it? The question: "A capacitor sits across an AC supply. Where is its current, compared with the voltage across it?" Three choices, in this order: "Leading the voltage by 90°"; "Lagging the voltage by 90°"; "In step with the voltage". Right, the first: "Still there. A capacitor's current leads its voltage by 90°. Put one in series with a winding, and that winding's current can lead the supply too. That is how this motor gets its strong start." Wrong, the second: "That is an inductor. A capacitor works the other way: its current leads its voltage by 90°." Wrong, the third: "That is a resistor. A capacitor's current leads its voltage by 90°." After a wrong choice, the right answer and its reason, then on to screen 2. No skip button.
+
+Screen 2, How it works. A still drawing: lesson 4's stator ring. The main winding's poles sit top and bottom, the start winding's left and right, both wired in parallel across "230 V, 50 Hz". In series with the start winding only: a capacitor labelled "Start capacitor", then the centrifugal switch, drawn closed. The rotor cage sits in the middle. The words beside it: "It is a split-phase motor with a capacitor in series with the start winding. It uses the same leading current you use for power factor correction. The capacitor's reactance is bigger than the winding's inductive reactance. So the start current leads the supply. The main current still lags. Without the capacitor the two currents are only 25 to 30° apart. With it they are about 80° apart. So the starting torque rises. At about 75 to 80% speed the switch drops out the start winding and capacitor together.[^1]" Start capacitor is the key term, marked in amber.
+
+Screen 3, A capacitor in the start winding: the picture to play with. At the top, the stator ring from screen 2 with the rotor held at rest, as at the instant of starting. The field is an arrow from the centre, its tip leaving a short fading trail, as in lesson 4. Next, a phasor panel: the supply voltage as a thin reference line, the main current behind it and the start current ahead of it unless the capacitor is very large, with the angle between the two currents marked. Then a plot: starting torque, as times the split-phase value, against the capacitor from 20 to 300 µF. The curve is drawn in full, with a dot at the slider's value. A dashed level line at 1.00 is labelled "split-phase, no capacitor". Two small markers on the curve: "90° apart, near 74 µF" and "most torque, near 120 µF". Then one row of three readouts: Angle between currents, in degrees. Starting torque, times split-phase. Line current, in A. On a phone these sit one under another in that order. On a laptop the plot sits beside the ring.
+
+The control. Start capacitor: a slider from 20 to 300 µF in steps of 5. It starts at 100 µF.
+
+The rule it computes. The main winding is lesson 4's: 9.82 A, 50.2° behind the supply. The start branch is the start winding and the capacitor in series. The capacitor's reactance is Xc = 1 ÷ (2π × f × C). The branch's net reactance is X − Xc. Its impedance is Z = √(R² + net X²). Its current is 230 ÷ Z. Its angle is arctan(net X ÷ R), ahead of the supply when net X is negative. The angle between the currents is the main winding's angle behind plus the start current's angle ahead. Starting torque goes with Im × Is × sin(angle between them). The readout divides that by the split-phase value, 9.82 × 6.00 × sin 30.1°. So it reads 1.00 for lesson 4's motor. The line current is the two winding currents added as phasors.
+
+At 100 µF, worked line by line on the screen under the readouts, under the heading "Worked at 100 µF":
+Lesson 4's motor. Only the capacitor is new. Starting torque goes with Im × Is × sin(angle between them).
+Main: Z = √(15² + 18²) = 23.43 Ω, so 230 ÷ 23.43 = 9.82 A, arctan(18 ÷ 15) = 50.2° behind
+Start, no capacitor: Z = √(36² + 13.2²) = 38.34 Ω, so 230 ÷ 38.34 = 6.00 A, arctan(13.2 ÷ 36) = 20.1° behind
+Angle, no capacitor = 50.2 − 20.1 = 30.1°
+Xc = 1 ÷ (2π × 50 × 0.0001) = 31.83 Ω
+Net X = 13.2 − 31.83 = −18.63 Ω
+Z = √(36² + 18.63²) = √1643.08 = 40.53 Ω
+Is = 230 ÷ 40.53 = 5.67 A, ahead by arctan(18.63 ÷ 36) = 27.4°
+Angle = 50.2 + 27.4 = 77.6°
+The main current is 9.82 A in both cases, so it cancels.
+Torque ratio = (5.67 × sin 77.6°) ÷ (6.00 × sin 30.1°) = (5.67 × 0.977) ÷ (6.00 × 0.502) = 5.54 ÷ 3.01 = 1.84
+Line current: the two winding currents added as phasors. 15.3 A without the capacitor, 12.4 A with 100 µF.
+
+Worked the same way across the range: 20 µF gives 126.3° and 0.41. Near 74 µF the currents are 90° apart and the ratio is 1.63. Near 120 µF the ratio peaks at 1.88, with 70.5° between the currents. 300 µF gives 46.1° and 1.53. The line current is 12.4 A at 100 µF, against 15.3 A with no capacitor. A very big capacitor acts almost like a plain wire. So the motor slides back towards split-phase. A small one opens the angle past 90°. But it lets so little current through the start winding that the torque falls.
+
+The field. Each winding's field points along its own poles, drawn in proportion to its current at that instant. The arrow is their sum. Its tip traces a rounder ellipse as the angle nears 90° and the two fields near the same size. The arrow is slowed fifty times.
+
+The words on the screen, above the working: "The most torque comes near 120 µF, with the currents 70.5° apart, not 90°. Example values, not a maker's." The prompt above the picture: "Guess first: what does a capacitor twice the size do to the torque? Then drag it and watch the angle and the torque." Under the readouts, one live sentence for the capacitor chosen. Below the peak: "A bigger capacitor lets more current through. Here that gains more torque than the narrower angle loses." Above it: "A bigger capacitor narrows the angle further. Here that loses more torque than the extra current gains." Read: At 100 µF the start current is 5.67 A, 27.4° ahead of the supply. The main current lags by 50.2°. So they are 77.6° apart, and the field's tip traces a wide ellipse. Starting torque is 1.84 times split-phase. The line current falls from 15.3 A to 12.4 A. Twice the capacitor, 200 µF, closes the angle to 54.5°. The torque falls to 1.73. A smaller capacitor opens the angle to 90° near 74 µF, then past 90°. But it starves the start winding of current. The torque peaks near 120 µF. Still: the capacitor at 100 µF, the currents drawn 77.6° apart, the field's tip on its ellipse, readouts 77.6°, 1.84 and 12.4 A, and the dot on the curve at 100 µF.
+
+Screen 4, Check on the cause. "The capacitor nearly doubles the starting torque. Why does the switch still take it out at speed?" Three choices, in this order: "Left in, it would stop the motor running"; "It is a start capacitor, rated only for short bursts"; "Left in, it would spoil the power factor". Right, the second: "Right. The start winding is short-time rated, as in lesson 4. So is the start capacitor. It is an electrolytic type, built for short starting bursts, not continuous duty. Left in, it overheats and fails." Wrong, the first: "It would not stop it. Some motors run with a capacitor in all the time. Theirs is a smaller one, rated to stay in. This one is not rated to stay in." Wrong, the third: "A run capacitor of the right size helps running. It does not spoil it. That is why some motors keep a small one in. The start capacitor is far bigger, and it is not rated to stay in." After a wrong choice, the right answer and its reason.
+
+Screen 5, How it behaves. A still drawing: two pairs of bars from the example, at the instant of starting. Starting torque: split-phase 1.00, with 100 µF 1.84. Line current: split-phase 15.3 A, with 100 µF 12.4 A. Labelled "Example motor, not a maker's". Rows, each with a label.
+
+Starting torque: "High. Around three times full-load torque in a heavy-duty design.[^2] The example gives 1.84 times split-phase."
+
+Starting current: "Lower than split-phase. In the example, 12.4 A against 15.3 A."
+
+The switch: "Opens at about 75 to 80% speed. The torque drops a step."
+
+Running: "It runs on the main winding alone, just below synchronous speed. Its pulsing field acts like two equal fields turning opposite ways. Once turning, the rotor drags hard on the one going its way. Torque, not momentum, keeps it going."
+
+Screen 6, Where it is used, and its limits. A still drawing: a small compressor on the motor's shaft, labelled "hard to start". Rows.
+
+Used for: "Compressors, pumps, conveyors and other hard-to-start loads. Also loads that take a while to run up."
+
+Its limit: "The start capacitor is short-time rated. Frequent starts overheat it until it fails."
+
+Capacitor-start capacitor-run: "Starts on a large capacitor, then keeps a smaller run capacitor in. It runs on less current. Most larger single-phase motors are built this way."
+
+Permanent split capacitor: "One capacitor, always in, and no switch. Low starting torque and low starting current."
+
+Screen 7, Faults and tests. A still drawing: the isolator open with a lock and tag on it, and the start capacitor with a resistor across its terminals. Rows.
+
+Safety first: "Isolate, lock off and prove dead. Then discharge the capacitor through a resistor: about 20 kΩ, 5 W, for five seconds.[^3] Then confirm it with a meter."
+
+Capacitor open or weak: "Poor starting torque. It may hum and not start. That usually trips the overload."
+
+Capacitor shorted: "The winding may burn out."
+
+Look and measure: "Bulging, leaking, cracked or scorched means it has failed. Measure its µF against the value and tolerance marked on it."
+
+The switch: "Stuck open or closed, as in lesson 4."
+
+Screen 8, Find the fault. "A compressor's capacitor-start motor hums and trips its overload when it tries to start. The start capacitor's top is bulging. What is the likely fault?" Three choices, in this order: "The main winding is open"; "The start capacitor has failed"; "The overload is set too low". Right, the second: "Right. A bulging case means the capacitor has failed. A failed capacitor gives poor starting torque. So the motor sits at a high current until the overload trips. Isolate, discharge and measure it against its marking, then replace it. Then check the switch and windings." Wrong, the first: "An open main winding would not make the capacitor bulge. Rule it out on test: measure the main winding's resistance. An open winding reads open circuit." Wrong, the third: "The overload is doing its job. A motor that cannot start draws a high current until it trips. Raising the setting only puts the windings at risk." After a wrong choice, the right answer and its reason.
+
+Screen 9, Keep this: the summary card, drawn from the lesson's summary with no case figures, then Finish the lesson.
+
+Every figure on these screens is a control, a published figure, a labelled example or worked out from a rule shown. The example motor and its windings are lesson 4's. The field arrow is slowed fifty times.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture is drawn at the instant of starting, with the rotor at rest. It keeps lesson 4's windings so the capacitor is the only change. A real capacitor-start motor's start winding is wound for its capacitor, so its best capacitor is different. Each winding's field is drawn in proportion to its current. The torque is shown as a ratio to split-phase, worked from the rule, not in newton metres. As the rotor speeds up the currents change. So the angle between them changes too.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 8 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 9 (the stepper): 0 (control)
+- Start capacitor slider, opening, µF: 100 (control)
+- Start capacitor slider, lowest, µF: 20 (control)
+- Start capacitor slider, highest, µF: 300 (control)
+- Start capacitor slider, step, µF: 5 (control)
+- Example motor supply voltage, V: 230 (assumed)
+- Example motor supply frequency, Hz: 50 (assumed)
+- Main winding resistance (example), ohm: 15 (assumed)
+- Main winding reactance (example), ohm: 18 (assumed)
+- Main winding current at standstill, A: 9.82 (computed)
+- Main winding current angle behind supply, degrees: 50.2 (computed)
+- Start winding resistance (example), ohm: 36 (assumed)
+- Start winding reactance (example), ohm: 13.2 (assumed)
+- Start winding current, no capacitor, A: 6 (computed)
+- Angle between the currents, no capacitor, degrees: 30.1 (computed)
+- Capacitor reactance at 100 µF, ohm: 31.83 (computed)
+- Start branch net reactance at 100 µF, ohm: -18.63 (computed)
+- Start branch impedance at 100 µF, ohm: 40.53 (computed)
+- Start winding current at 100 µF, A: 5.67 (computed)
+- Start current angle ahead of supply at 100 µF, degrees: 27.4 (computed)
+- Angle between the currents at 100 µF, degrees: 77.6 (computed)
+- Sine of 77.6 degrees: 0.977 (computed)
+- Sine of 30.1 degrees: 0.502 (computed)
+- Start current times sine, with 100 µF: 5.54 (computed)
+- Start current times sine, no capacitor: 3.01 (computed)
+- Starting torque at 100 µF, times split-phase: 1.84 (computed)
+- Split-phase reference line, times split-phase: 1 (computed)
+- Capacitor for 90 degrees apart, near, µF: 74 (computed)
+- Starting torque at 90 degrees apart, times split-phase: 1.63 (computed)
+- Capacitor for most torque, near, µF: 120 (computed)
+- Most starting torque, times split-phase: 1.88 (computed)
+- Angle between the currents at most torque, degrees: 70.5 (computed)
+- Angle between the currents at 20 µF, degrees: 126.3 (computed)
+- Starting torque at 20 µF, times split-phase: 0.41 (computed)
+- Angle between the currents at 300 µF, degrees: 46.1 (computed)
+- Starting torque at 300 µF, times split-phase: 1.53 (computed)
+- Line current at standstill, no capacitor, A: 15.3 (computed)
+- Line current at standstill, 100 µF, A: 12.4 (computed)
+- Field arrow slowed, times: 50 (assumed)
+- Capacitor current leads its voltage, degrees: 90 (constant)
+- Typical angle between currents, capacitor-start, degrees: 80 (constant, source [4])
+- Typical angle between currents, split-phase, degrees: 30 (constant, source [4])
+- Split-phase angle in another text, degrees: 25 (constant, source [5])
+- Sine of 30 degrees: 0.5 (computed)
+- Sine of 80 degrees: 0.98 (computed)
+- Switch opening speed, low end, % of rated speed: 75 (constant, source [1])
+- Switch opening speed, high end, % of rated speed: 80 (constant, source [1])
+- Heavy-duty design starting torque, % of full load: 300 (constant, source [2])
+- Discharge resistor, kilohm: 20 (constant, source [3])
+- Discharge resistor rating, W: 5 (constant, source [3])
+- Discharge time, seconds: 5 (constant, source [3])
+- Example start capacitor, marked, µF: 100 (assumed)
+- Example start capacitor, reading, µF: 38 (assumed)
+- Start capacitor tolerance, one guide, plus or minus %: 20 (constant, source [6])
+- Start capacitor tolerance, another guide, plus or minus %: 10 (constant, source [7])
+- Range at plus or minus 20% of 100 µF, low, µF: 80 (computed)
+- Range at plus or minus 20% of 100 µF, high, µF: 120 (computed)
+- Range at plus or minus 10% of 100 µF, low, µF: 90 (computed)
+- Range at plus or minus 10% of 100 µF, high, µF: 110 (computed)
+- Main winding impedance, ohm: 23.43 (computed)
+- Start winding impedance, no capacitor, ohm: 38.34 (computed)
+- Start winding current angle behind supply, no capacitor, degrees: 20.1 (computed)
+- Capacitor twice the opening value, µF: 200 (computed)
+- Angle between the currents at 200 µF, degrees: 54.5 (computed)
+- Starting torque at 200 µF, times split-phase: 1.73 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Check failed: "Lesson 4's windings give 9.82 A at 50.2° behind and 6.00 A, 30.1° apart, with 15.3 A in the line. At 100 µF: Xc 31.83 Ω, net X −18.63 Ω, Z 40.53 Ω, start 5.67 A at 27.4° ahead, so 77.6° apart, 1.84 times split-phase torque and 12.4 A in the line" (returned false)
+- Advice: The check "With the capacitor in series, the start winding's current leads the applied voltage, while the main winding's current s…" cites [4], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Your motor sheet: the capacitor-start motor (material:capacitor-start#p1): "Once the motor reaches about 75–80% of its rated speed, a centrifugal switch on the motor shaft automatically disconnects the auxiliary winding and the start capacitor from the circuit."
+[2] Traditional Speed Torque Curves (https://www.regalrexnord.com/products/regal-rexnord-electric-motors/speed-torque-curves): "The design is a heavy-duty unit which has approximately 300% (of full load) starting torque."
+[3] How to Measure Capacitance with a Digital Multimeter | Fluke (https://www.fluke.com/en-gb/learn/blog/digital-multimeters/how-to-measure-capacitance): "connect a 20,000 Ω, 5-watt resistor across the capacitor terminals for five seconds."
+[4] Learn about "Capacitor Start - Induction Run" Motors (https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf): "the phase difference between Im and Is is almost 80 degrees as against 30 degrees in a split-phase induction motor."
+[5] 7.2 Capacitor induction Motor The capacitor-start motor is identical to a split-phase motor except that the starting wi… (https://www.uoanbar.edu.iq/eStoreImages/Bank/3007.pdf): "The phase angle between the two currents is about 80° compared to about 25° in a split- phase motor."
+[6] AC Won't Start? Motor Capacitor Test in 5 Steps (2026) | Specap, Inc. (https://specap.com/resources/guides/motor-capacitor-troubleshooting): "Run capacitors should be within ±5%; start capacitors within ±20%."
+[7] Start Capacitor Failure: 5 Visual Signs & How to Test (2026) | Specap, Inc. (https://specap.com/resources/guides/start-capacitor-failure-symptoms): "readings more than ±10% off the labeled µF mean replace immediately"
+[8] 13.9: Single-phase Induction Motors (https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf): "Once started the auxiliary winding is optional."
+[9] Navy Electricity and Electronics Training Series (https://vtda.org/bits/other/US_Navy/NEETS/US%20Navy%20NEETS%20-%20Module%2005-Introduction%20to%20Generators%20and%20Motors%20NAVEDTRA%2014177.pdf): "When nearly full speed is obtained, a centrifugal device (the starting switch) cuts out the starting winding. The motor then runs as a plain single-phase induction motor."
+[10] 13.9: Single-phase Induction Motors (https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf): "Another view is that the single coil excited by a single phase current produces two counter rotating magnetic field phasors, coinciding twice per revolution"
+[11] 13.9: Single-phase Induction Motors (https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf): "Little torque (see torque vs slip curve) other than a double freqency ripple is developed from the counter rotating phasor."
+[12] Top Cause of Single-Phase Motor Malfunctions | Fluke (https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions): "When a capacitor deteriorates or opens, the motor has poor starting torque. Poor starting torque may prevent the motor from starting, which will usually trip the overloads."
+[13] How to Test a Single-Phase Motor with a Multimeter (https://kaiweets.com/blogs/news/how-to-test-a-single-phase-motor-with-a-multimeter): "A failed capacitor is one of the most common causes of a motor that hums but won’t start."
+[14] Top Cause of Single-Phase Motor Malfunctions | Fluke (https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions): "Lock out and tag the starting mechanism per company policy."
+[15] How to Measure Capacitance with a Digital Multimeter | Fluke (https://www.fluke.com/en-gb/learn/blog/digital-multimeters/how-to-measure-capacitance): "carefully discharge the capacitor by connecting a resistor across the leads."
+[16] How to Test a Single-Phase Motor with a Multimeter (https://kaiweets.com/blogs/news/how-to-test-a-single-phase-motor-with-a-multimeter): "Compare measured value with rating printed on the capacitor."
+[17] Start Capacitor Failure: 5 Visual Signs & How to Test (2026) | Specap, Inc. (https://specap.com/resources/guides/start-capacitor-failure-symptoms): "A failing start capacitor shows five signs: a bulging or domed top , oil leakage near the terminals, a cracked or split case, scorch or burn marks, and a motor that hums but won't start ."
+[18] Electrical Tech Note — 313 (https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf): "These capacitors are of the dry electrolytic type and are not rated for continuous duty. If the motor is started frequently, the capacitor will overheat and fail."
+[19] Electrical Tech Note — 313 (https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf): "The auxiliary winding is not rated for continuous operation. If the motor is used on an application where it must start frequently, the auxiliary winding may overheat and fail."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/motors/i5.body8.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
