@@ -1,0 +1,602 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: HV Subsea Cable Testing
+Puzzle the course answers: String B, 2.40 km of 66 kV cable from B01 to the substation, passes its insulation resistance figure, yet core L2 is faulty. How do you prove it and find the fault, from the ends alone?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A subsea power cable is a long capacitor wrapped in layers, so it is made safe before and after every test, and each test checks one layer: the four-wire resistance test the conductors, the insulation resistance curve and the VLF withstand the insulation, at low stress and above its working stress, and the sheath test the outer jacket. When a test fails, TDR and LIRA treat the cable as a line that sends part of a signal back wherever it changes, and turn that echo into a distance from the end. This refresher takes your subsea cable testing course back through, test by test, on one made-up 66 …
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): HV Subsea Cable Testing
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The cable, and making it safe to test — Conductor and screen are the plates of a long capacitor, so a dead cable can hold charge and pick it up from a live neighbour: identify, isolate, prove dead, secure and earth at both ends, and know which layer each test checks. [mechanism]
+  i2  Phases and conductors: the four-wire measurement — Below 1 Ω the leads and contacts swamp a two-wire reading, so the DLRO drives current through the C leads and measures across the P leads inside them; three loop readings solve three cores, and a cold cable reads low until corrected to 20 … [skill] (needs i1)
+  i3  Insulation resistance over ten minutes: IR, DAR and PI — The tester's current is charging, absorption and leakage; as the first two die away a dry cable's resistance climbs, so PI and DAR, ratios taken minutes apart on the same cable, show moisture a single reading can pass. [quantity] (needs i1, i2)
+  i4  The sheath test: 4 kV per millimetre — The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face. [quantity] (needs i1, i3)
+  i5  VLF withstand: why 0.1 Hz — A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now. [quantity] (needs i1, i3)
+  i6  TDR: reading the reflections — A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length. [skill] (needs i2, i5)   <-- THIS LESSON
+  i7  LIRA: the cable's impedance spectrum — An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, … [mechanism] (needs i6)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i6: "TDR: reading the reflections"
+What Dan should come away understanding: A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length.
+Kind: skill. Builds on: i2 "Phases and conductors: the four-wire measurement", i5 "VLF withstand: why 0.1 Hz".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "The cable, and making it safe to test"
+  Analogy: Think of a large capacitor bank you have isolated. You would not touch its terminals until it had been discharged and shorted to earth. You would leave the short on while you worked. A cable core is …
+  Interactive: The one thing you should see is the core's voltage creeping back, as charge held in the XLPE drifts out to the conductor, when you lift the earth straight after a discharge.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Body resistance at 55 V, Ω = 10000 (constant); Voltage for that resistance, V = 55 (constant); Body current, 55 ÷ 10 000, mA = 5.5; Potentially fatal current, mA = 50 (constant); Capacitance per core per km, µF/km = 0.22 (constant)
+- i2 "Phases and conductors: the four-wire measurement"
+  Analogy: You null your low-resistance ohmmeter's leads before an R1+R2 test. That takes the leads' own resistance off every reading. Four wires do the same job without nulling, and they leave out the contacts…
+  Interactive: The one thing you should see is the lead and contact resistance dropping out of the reading when you move the voltage measurement from the meter's own leads to P probes inside the C clamps.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Low resistance, below, Ω = 1 (constant); Worked example loop A, L1 to L2, mΩ = 76.9 (assumed); Worked example loop B, L2 to L3, mΩ = 80.49 (assumed); Worked example loop C, L3 to L1, mΩ = 81.16 (assumed); Worked example: A + C − B, mΩ = 77.57
+- i3 "Insulation resistance over ten minutes: IR, DAR and PI"
+  Terms: absorption current, polarisation index, dielectric absorption ratio
+  Analogy: Think of charging a battery bank through an ammeter. The current starts high and tapers as the cells fill. What is left at the end is the bank's own leak. A healthy bank tapers to a small current. A …
+  Interactive: The one thing you should see is the IR curve flattening, and PI and DAR falling towards 1, when you step the insulation from dry to wet, while the 1-minute reading still clears the client's figure.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Recall: reading at 1 minute, GΩ = 2 (assumed); Recall: reading at 10 minutes, GΩ = 6 (assumed); Recall: PI = 3; Recall slip: ratio upside down = 0.33; Recall slip: the rise, GΩ = 4
+- i4 "The sheath test: 4 kV per millimetre"
+  Terms: water treeing, outer electrode
+  Analogy: On an installation you pick the IR test voltage to suit the circuit. A 400 V circuit gets a higher test voltage than SELV. The test should stress the insulation enough to show a fault. It should not …
+  Interactive: The one thing you should see is the test voltage rising 4 kV per millimetre to the 10 kV cap at 2.5 mm, then staying flat while the stress falls, when you drag the sheath thickness.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Sheath test rate, kV d.c. per mm = 4 (constant); Sheath test cap, kV d.c. = 10 (constant); Sheath test duration, minutes = 1 (constant); Thickness where the cap applies, mm = 2.5; Recall: sheath thickness, mm = 2 (assumed)
+- i5 "VLF withstand: why 0.1 Hz"
+  Terms: electrical tree, charging current, U0
+  Analogy: Think of a power factor correction bank on a 50 Hz board. It draws a large current with almost no real load behind it. That current is charge flowing in and out of the capacitors, 50 times a second. …
+  Interactive: The one thing you should see is one String B core's charging current at 76 kV falling 500 times, from 12.61 A to 25.21 mA, when you step the frequency from 50 Hz down to 0.1 Hz.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Recall: the cable's rating, U0, kV = 12 (assumed); Recall: the cable's rating, between cores, kV = 20 (assumed); Low multiple of U0 = 1.5 (constant); High multiple of U0 = 2.5 (constant); Recall: lowest level, kV = 18
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? A refresher of my subsea cable testing course, taught back to me.
+- Where will you use it? As a reference for real cable testing and fault finding.
+- How do you like to learn? Recall first, the why where I need it, then practice on a real cable job.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "A TDR (time domain reflectometer) uses the radar principle to identify faults on cables."
+[2] Your subsea cable testing course notes — material:notes#p7
+    "TDR uses the radar principle to identify faults"
+[3] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "Reflections are caused by changes in the cable’s characteristic impedance, such as poor joints or discontinuities."
+[4] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "a positive reflection shows a higher impedance, a lower reflection shows a lower impedance"
+[5] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "Positive reflections are caused by increases in impedance as the conductors go farther apart."
+[6] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "Negative reflections are caused by decreases in impedance as the conductors get closer together."
+[7] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Open conductor A large positive trace."
+[8] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Short circuit A negative trace."
+[9] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Cable splice/joint A small positive followed by a small negative trace."
+[10] Your subsea cable testing course notes — material:notes#p8
+    "Upward (positive) peak Open conductor"
+[11] Your subsea cable testing course notes — material:notes#p8
+    "Downward (negative) peak Short circuit"
+[12] Your subsea cable testing course notes — material:notes#p8
+    "Small up-down ripple Splice / joint"
+[13] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Wet splice/water Short positive/negative trace"
+[14] Your subsea cable testing course notes — material:notes#p8
+    "Ragged/noisy trailing section Water ingress"
+[15] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "VF is the ratio of the speed of the cable to the speed of light."
+[16] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "If you do not know the VF of the cable under test it may be possible to test a known length and adjust the VF until the distance displayed to the end of the cable is correct."
+[17] Your subsea cable testing course notes — material:notes#p7
+    "You must input the speed of the pulse of the cable — this enables the TDR to convert pulses into distance from time"
+[18] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Power XLPE 0.54 to 0.62 162 to 186"
+[19] [PDF] Physics-Based Modeling of Cable Insulation Conditions for Frequency ... — https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf
+    "by half the time it takes for the incident wave to travel to the impedance change and be reflected back to the signal generator"
+[20] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "By measuring the time between the transmitted pulse and the reception of the reflected pulse, and multiplying this by the speed of light and the velocity factor, the actual distance to the reflection point can be established."
+[21] Your subsea cable testing course notes — material:notes#p7
+    "Formula: L = t × v ÷ 2"
+[22] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "If this velocity factor is not correct for the cable under test, the displayed distance will be incorrect."
+[23] Time domain reflectometry: techniques and examples | Megger — https://www.megger.com/en-gb/et-online/september-2014/time-domain-reflectometry-techniques-and-examples
+    "For fault location it is essential always to bear in mind that an easily visible open reflection is not necessarily the end of the cable – it can also be a break or cut in the cable."
+[24] Your subsea cable testing course notes — material:notes#p8
+    "Perform open and closed tests to prove the end of the cable"
+[25] Your subsea cable testing course notes — material:notes#p8
+    "Link = negative peak (short)"
+[26] Your subsea cable testing course notes — material:notes#p8
+    "No link = positive peak (open)"
+[27] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "The instrument can be used on any cable consisting of at least two separate conductive elements, one of which may be the armouring or screen of the cable."
+[28] Your subsea cable testing course notes — material:notes#p7
+    "Requires 2 conductors running in parallel"
+[29] Your subsea cable testing course notes — material:notes#p7
+    "Pulse amplitude fixed at 50 V"
+[30] Your subsea cable testing course notes — material:notes#p8
+    "The shorter the cable, the shorter the wavelength (pulse width) used"
+[31] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "By testing the cable from both ends and recording the distance to fault in all pairs, it is possible to determine approximately how wide the problem is."
+[32] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "After the water, distance readings may be erroneous due to a change in the VF (velocity factor) caused by the water."
+[33] Your subsea cable testing course notes — material:notes#p7
+    "Only works on low resistance faults — typically under 100 Ω (or 200 Ω for Teleflex)"
+[34] Your subsea cable testing course notes — material:notes#p7
+    "Generally accurate to ±0–1% of total cable length"
+[35] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "we can see that ρ has a range of values from +1 to -1, with 0 representing a matched load."
+[36] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "The coefficient ρ is the ratio of the reflected pulse amplitude to the incident pulse amplitude:"
+[37] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "The short circuit is measured as -1 ρ (rho) and the open circuit (infinite ohms) results in a ρ of +1."
+[38] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "(Z<sub>L</sub> - Z<sub>O</sub>)"
+[39] Time Domain Reflectometry (TDR) Basics & Applications | Tektronix — https://www.tek.com/ko/documents/primer/understanding-and-applying-time-domain-reflectometry-tdr-using-real-time-oscilloscopes
+    "On the Rho scale, these waveforms are transformed to a –1 to +1 range, where –1 ρ represents a short circuit, 0 ρ represents a 50 Ω load, and +1 ρ represents an open circuit."
+[40] Time Domain Reflectometry (TDR) Basics & Applications | Tektronix — https://www.tek.com/ko/documents/primer/understanding-and-applying-time-domain-reflectometry-tdr-using-real-time-oscilloscopes
+    "A positive ρ indicates a high impedance discontinuity, while a negative ρ indicates a low impedance discontinuity."
+[41] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "Matched cable terminations absorb all the pulse hence no “end of cable” reflection will occur, the cable appearing endless."
+[42] Characteristic Impedance | Transmission Lines | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-14/characteristic-impedance
+    "the characteristic impedance of a transmission line is equal to the square root of the ratio of the line’s inductance per unit length divided by the line’s capacitance per unit length"
+[43] Characteristic Impedance | Transmission Lines | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-14/characteristic-impedance
+    "For any cable type, it is equal to the reciprocal (1/x) of the square root of the relative permittivity of the cable’s insulation."
+[44] Microwaves101 | Characteristic Impedance — https://www.microwaves101.com/encyclopedias/characteristic-impedance
+    "Both can be calculated from the characteristic impedance and the propagation velocity of the wave in a transmission line."
+[45] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "It has internal matching networks to allow testing of 25 Ω, 50 Ω, 75 Ω and 100 Ω cables. (These typically correspond to power, coaxial data and data/telecoms cable)."
+[46] Cable fault location | Megger — https://www.megger.com/en-ca/applications/cables/cable-fault-location
+    "Typically, if the fault is found to be below 100 Ohms, a low voltage pulse (e.g., 40 V) from a TDR (time domain reflectometer) can be used."
+[47] Cable fault location | Megger — https://www.megger.com/en-ca/applications/cables/cable-fault-location
+    "If the fault is a higher resistance (> 100 Ohm), a low voltage pulse will likely not see it."
+[48] How to effectively identify and locate power cable faults | Megger — https://www.megger.com/en-ca/blog/how-to-effectively-identify-and-locate-power-cable-faults
+    "If the fault is higher-resistance, a TDR will not be able to detect the issue."
+[49] How to effectively identify and locate power cable faults | Megger — https://www.megger.com/en-ca/blog/how-to-effectively-identify-and-locate-power-cable-faults
+    "This method involves sending a high-voltage pulse down the cable, which creates a temporary arc at the fault site. The arc behaves like a short-circuit fault, allowing the TDR to locate it."
+[50] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "Both traces (reference trace and fault trace) diverge at the position of the ignited arc, which corresponds to the fault position."
+[51] Teleflex SX-1 | Megger — https://www.megger.com/en-ca/products/teleflex-sx-1
+    "Length measuring range 160 km/99 mi Output pulse voltage 50 V fixed"
+[52] Teleflex VX - Reflectometer — https://www.megger.com/en/products/teleflex-vx
+    "Length measuring range 1280 km/7506 mi Output pulse voltage 30 - 160 V"
+[53] TDR500 User Guide — https://eadn-wc03-4179422.nxedge.io/wp-content/uploads/2025/03/User-guide-TDR500.pdf
+    "Output Pulse 5 volts peak to peak into open circuit from 100Ω source."
+[54] TDR500 User Guide — https://eadn-wc03-4179422.nxedge.io/wp-content/uploads/2025/03/User-guide-TDR500.pdf
+    "This instrument is not to be used on energised cable."
+[55] TDR1000/3 TDR1000/3P CFL510G TDR500/3 Time Domain Reflectometers User Manual — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_CFL510G_Manual.pdf
+    "The circuit under test must be switched off, de-energised, securely isolated and proved safe before test connections are"
+[56] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "Distance range 20 m … 160 km at V/2 = 80 m/μs"
+[57] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "As V/2 or NVP value 10 … 149.9 m/μs or 33 … 492 ft/μs"
+[58] Teleflex SX-1 | Megger — https://www.megger.com/en-ca/products/teleflex-sx-1
+    "In TDR analyses, the velocity is always given in v/2"
+[59] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "If the setting for the propagation velocity value is out by 2%, then the measurement result will also be out by 2%."
+[60] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "If the correct physical length of the cable under test is known, the propagation velocity can be measured."
+[61] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "If the measurement is made from both ends, then the combined answer should equal the expected length of the cable."
+[62] Locating Fault with a TDR — https://www.exfo.com/contentassets/26dab93bb1664d4498c7694a20897ed0/exfo_anote168_locating-faults-tdr_en.pdf
+    "If the test result shows that the fault is at 2050 ft when tested from one end and that the fault is at 3075 ft when tested from the other end, it will indicate that the VOP setting is too fast."
+[63] Subsea & Underground Transmission Line Solutions | Megger — https://www.megger.com/en/sector/renewable-energy-asset-testing/transmission-lines/subsea-underground
+    "Create TDR reference traces and cable fingerprints during HV cable commissioning, before the system enters service."
+[64] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "These readings can falsely be interpreted as a fault location, it is recommended to perform fingerprinting such that the location of the joints is known in the TDR trace in advance."
+[65] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "Regarding submarine cables, the length of the cable reduces the accuracy of Time Domain Reflectometry (TDR) method."
+[66] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "Sheath sectionalized joints are sometimes used."
+[67] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "It is important to perform a fingerprint of the cable system for later comparison (joint locations, transition to different conductor sizes, sheath/armour connections) and deducing the wave velocity."
+[68] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "not only fault positions, but also other changes in resistance such as, e.g. in joints are recorded"
+[69] [PDF] The ABCs of TDRs - Radiodetection — https://www.radiodetection.com/sites/default/files/TheABCsofTDRsApplicationNote.pdf
+    "The larger the pulse width, the larger the blind spot."
+[70] [PDF] The ABCs of TDRs - Radiodetection — https://www.radiodetection.com/sites/default/files/TheABCsofTDRsApplicationNote.pdf
+    "Even when testing very long lengths of cable, always start the fault finding procedure with the shortest pulse width available, as the fault may be only a short distance away."
+[71] Locating Fault with a TDR — https://www.exfo.com/contentassets/26dab93bb1664d4498c7694a20897ed0/exfo_anote168_locating-faults-tdr_en.pdf
+    "A wider pulse width makes it easier to detect small faults on the cable or faults located at a greater distance."
+[72] Locating Fault with a TDR — https://www.exfo.com/contentassets/26dab93bb1664d4498c7694a20897ed0/exfo_anote168_locating-faults-tdr_en.pdf
+    "smaller pulse widths will reduce or eliminate the blind spot, but at the expense of distance."
+[73] Thermal Distortion of Signal Propagation Modes Due to Dynamic Loading in Medium-Voltage Cables — https://www.mdpi.com/1996-1073/13/17/4436
+    "Near the maximum operating temperature of the cross-linked polyethylene insulation, the propagation velocity increases by 0.56% per degree centigrade but is an order of magnitude less sensitive at ambient temperature."
+[74] Thermal Distortion of Signal Propagation Modes Due to Dynamic Loading in Medium-Voltage Cables — https://www.mdpi.com/1996-1073/13/17/4436
+    "Near ambient temperature, the change is relatively small, measuring −0.068 %/°C (mean difference over measurements at 25.1 and 36.7 °C)."
+[75] The International System of Units (SI), 2019 Edition — https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.330-2019.pdf
+    "the speed of light in vacuum c is 299 792 458 m/s,"
+[76] TDR500 User Guide — https://eadn-wc03-4179422.nxedge.io/wp-content/uploads/2025/03/User-guide-TDR500.pdf
+    "[Note:- the measurement accuracy is for the indicated cursor position only and is conditional on the velocity factor being correct.]"
+[77] Your subsea cable testing course notes — material:notes#p2
+    "Low resistance is generally considered under 1 Ω"
+[78] Your subsea cable testing course notes — material:notes#p2
+    "Things impacting low resistance: lead resistance · contact resistance · external influences"
+[79] A guide to low resistance testing — https://cdn.prod.website-files.com/64b83dffc8d1e2e27ca8ee91/660f1cad9f957828628c88e8_DLRO_AG_EN_V04-web.pdf
+    "Four wire tests are the most accurate method when measuring circuits below 10 ohms as this method eliminates errors due to lead and contact resistances."
+[80] Q & A on low resistance measurement | Megger — https://www.megger.com/en-ca/et-online/november-2015/q-a-on-low-resistance-measurement
+    "Four terminal connections use separate current and voltage leads between the test instrument and the device under test."
+[81] Q & A on low resistance measurement | Megger — https://www.megger.com/en-ca/et-online/november-2015/q-a-on-low-resistance-measurement
+    "This means that the voltage is measured directly at the device and the measurement is unaffected by any voltage drop in the current leads."
+[82] Your subsea cable testing course notes — material:notes#p2
+    "The two P's (potential probes) must face each other"
+[83] Your subsea cable testing course notes — material:notes#p2
+    "Instrument: Megger DLRO10HD"
+[84] A guide to low resistance testing — https://cdn.prod.website-files.com/64b83dffc8d1e2e27ca8ee91/660f1cad9f957828628c88e8_DLRO_AG_EN_V04-web.pdf
+    "When measuring cable resistance, the standard method is to connect the current and potential lead at each end of the cable core to be tested"
+[85] Your subsea cable testing course notes — material:notes#p2
+    "Cable must be earthed at both ends"
+[86] Your subsea cable testing course notes — material:notes#p2
+    "Colour code: Red = L1 · Yellow = L2 · Blue = L3"
+[87] Your subsea cable testing course notes — material:notes#p2
+    "Prove by testing core to screen on both ends as a continuity test"
+[88] Your subsea cable testing course notes — material:notes#p3
+    "Measured resistance should be within 2% of factory values"
+[89] Your subsea cable testing course notes — material:notes#p3
+    "If values deviate — figure out why before submitting"
+[90] Your subsea cable testing course notes — material:notes#p3
+    "Closing the earth switch or fitting test adapters to HV terminations completes the circuit"
+[91] Your subsea cable testing course notes — material:notes#p3
+    "Remote room: Remove earth from L1 + L2, link L1 + L2, keep earth on L3."
+[92] Temperature Coefficient of Resistance for Copper — https://cirris.com/temperature-coefficient-of-copper
+    "The temperature coefficient of resistance for some common materials at 20°C: Copper = 0.00393"
+[93] DLRO10_DLRO10X_DS_en_V10.qxp (Page 1) — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/DLRO10HD/dlro10hd_doc_6.pdf
+    "The yellow band contains the test current. The green ranges indicate ranges where the output power is limited to 0.25 W, and the red ranges indicate the high power ranges that will dissipate up to 25 W into the test piece."
+[94] DLRO10HD 10 Amp Digital Low Resistance — https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf
+    "1 A** 0 - 2.5 Ω 0.1 mΩ ±0.2% ±200 µΩ 2.5 V 2.5 W"
+[95] DLRO10HD 10 Amp Digital Low Resistance — https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf
+    "10 A ** 0 - 250 mΩ 0.01 mΩ ±0.2% ±50 µΩ 2.5 V 25 W"
+[96] DLRO10HD and DLRO10HDX 10 Amp Digital Low Resistance Ohmmeters — https://assets-us-01.kc-usercontent.com/ecb176a6-5a2e-0000-8943-84491e5fc8d1/858e457a-f992-41d5-bf5b-a80e0dfa587e/Megger%20DLRO10HD%20and%20DLRO10HDX%20Digital%20Low%20Resistance%20Ohmmeters%20Data%20Sheet.pdf
+    "bidirectional (current reversal with averaging cancels thermal EMFs)"
+[97] DLRO10HD 10 Amp Digital Low Resistance — https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf
+    "Voltmeter input impedance >200 kΩ"
+[98] DLRO10HD 10 Amp Digital Low Resistance — https://cdn.prod.website-files.com/6084b5020067e3fdada93f11/6458941f83dff086e0db661c_Megger%20DLRO10.pdf
+    "Maximum lead resistance at 10 A <100 mΩ"
+[99] DLRO Guide Final2 — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf
+    "The connections are placed in contact with the sample so that the P-identified contacts or leads are positioned towards each other."
+[100] Kelvin Bridges | Low Resistance Measurement | Seaward — https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges
+    "The current wires must always be placed outside the potential although the exact placement is not critical. The potential wires must be connected exactly at the points you want to measure between. The measured value will be between the potential points."
+[101] DLRO Guide Final2 — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Documents/Megger/DLRO10/dlro10_doc_4.pdf
+    "Since no current flows, the contact resistance of the P1 and P2 contacts produces no voltage and thus has no effect on the potential difference (voltage) detected by the probes. Furthermore, since no current flows through the P leads their resistance has no effect."
+[102] Kelvin Bridges | Low Resistance Measurement | Seaward — https://www.seaward.com/gb/support/resistance/faqs/76198-kelvin-bridges
+    "Whilst some small current will flow in the sense leads, it is negligible and can be ignored."
+[103] Overview of Two-Wire and Four-Wire Application Note (Kelvin) Resistance Measurements Se ries — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Keithley2110-220_Application_Note.pdf
+    "The main measurement issue with the two-wire method, as applied to low resistance measurements, is that the total lead resistance (RLEAD) is added to the measurement."
+[104] DLRO10HD and DLRO10HDX — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_DLRO10HD_NLS_User_Guide.pdf
+    "Electromagnetic noise induced into the leads can interfere with a reading."
+[105] Microsoft Word - DLRO10HD_UG_en_V04.doc — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_DLRO10HD_UG.pdf
+    "Noise in excess of 100 mV 50/60 Hz will activate the noise icon that will flash and no result will be displayed."
+[106] Copper wire tables — https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf
+    "specified the temperature coefficient of standard copper to be 0.00393 at 20 °C"
+[107] IEC 60228:2004 - IEC 60228:2004 — https://preview.sist.si/sist-preview/12024/921fee9a88c24612b68340a7330c2262/IEC-60228-2004.pdf
+    "The resistance of each conductor at 20 °C, when determined in accordance with Clause 7, shall not exceed the appropriate maximum value given in Table 1."
+[108] IEC 60228:2004 - IEC 60228:2004 — https://preview.sist.si/sist-preview/12024/921fee9a88c24612b68340a7330c2262/IEC-60228-2004.pdf
+    "Compliance with the requirements for resistance given in 5.1.2, 5.2.2, 5.3.2 and 6.2 shall be checked by measurement in accordance with Annex A and corrected for temperature by the factors in Table A.1."
+[109] Conductor resistances and strand structure (metric) — https://t3.lappcdn.com/fileadmin/DAM/Lapp_Camunacavi/catalog_pages_1_17/T11_Conductor_resistances_and_strand_structure.pdf
+    "Conductor resistances at 20 °C for 1 km in Ω (max. value)"
+[110] Conductor resistances and strand structure (metric) — https://t3.lappcdn.com/fileadmin/DAM/Lapp_Camunacavi/catalog_pages_1_17/T11_Conductor_resistances_and_strand_structure.pdf
+    "Conductor resistances at 20 °C for 1 km in Ω (max. value) ... 0.0762 0.0817 0.0754"
+[111] Microsoft Word - Draft Commissioning & test proceedure subtransmission cables.doc — https://www.essentialenergy.com.au/-/media/project/essentialenergy/website/files/our-network/commissioning-test-procedure-subtransmission-cables.pdf?la=en
+    "This is carried out to determine the effectiveness of the conductor joints and terminations by measuring the dc loop resistance."
+[112] Microsoft Word - Draft Commissioning & test proceedure subtransmission cables.doc — https://www.essentialenergy.com.au/-/media/project/essentialenergy/website/files/our-network/commissioning-test-procedure-subtransmission-cables.pdf?la=en
+    "Results are compared with the manufacturer’s conductor resistance usually expressed in ohms/km in the cable specification."
+[113] [PDF] 9.1 Testing of High Voltage Apparatus - SSEN — https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf
+    "it is essential to prove by testing, or other Approved means, that phasing is correct."
+[114] [PDF] 9.1 Testing of High Voltage Apparatus - SSEN — https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf
+    "On three phase cables, each Conductor Shall be tested in turn using the screen as the return. Phase to phase continuity tests are not required."
+[115] Microsoft Word - Draft Commissioning & test proceedure subtransmission cables.doc — https://www.essentialenergy.com.au/-/media/project/essentialenergy/website/files/our-network/commissioning-test-procedure-subtransmission-cables.pdf?la=en
+    "Phase identification should be checked by the use either of the phasing resistors or a continuity check of each individual core wherever possible after all jointing work has been completed."
+[116] Your subsea cable testing course notes — material:notes#p6
+    "The power required to carry out an HV AC withstand test at mains frequency is very high due to the capacitance of most AC loads"
+[117] Your subsea cable testing course notes — material:notes#p6
+    "Reducing the frequency increases the capacitive reactance, and therefore reduces the power and current required"
+[118] A Comparison of VLF and 50 Hz Field Testing of Medium ... — https://ir.canterbury.ac.nz/bitstreams/5e03300f-f49f-4f63-bd45-dce862b0ec37/download
+    "The power required to energise a cable ’s capacitance is proportional to the test frequency."
+[119] Medium and Low Voltage Cable Measurements - TD, PD, LIRA — https://inis.iaea.org/records/d277e-pwz88
+    "The main reason for this is that the measurement unit needs 500 times less energy than the unit which uses 50 Hz frequency (50/0,1=500)."
+[120] VLF AC Testing — https://hvinc.com/wp-content/uploads/2021/02/VLF_TD_2016_Blue-Slides.02.23.21.pdf
+    "At 0.1 Hz, it takes 600 times less power to test a cable, or any other high capacitance load, than at 60 Hz."
+[121] An introduction to VLF cable testing | Megger — https://www.megger.com/en-us/blog/feb-2025/Introduction-VLF-testing
+    "Traditionally, power cables were tested using standard 50/60 Hz AC voltage, but the strong capacitive nature of cables made this approach impractical for on-site diagnostics."
+[122] A Comparison of VLF and 50 Hz Field Testing of Medium ... — https://ir.canterbury.ac.nz/bitstreams/5e03300f-f49f-4f63-bd45-dce862b0ec37/download
+    "the space charge accumulated during DC testing accelerated water tree growth in healthy XLPE insulation"
+[123] A Comparison of VLF and 50 Hz Field Testing of Medium ... — https://ir.canterbury.ac.nz/bitstreams/5e03300f-f49f-4f63-bd45-dce862b0ec37/download
+    "The changing waveform polarity reduces the accumulation of space charge but it is still a compromise as it does not replicate in service conditions."
+[124] Principals and field experience with the 0.1 Hz VLF method ... — https://ieeexplore.ieee.org/document/1380602
+    "VLF testing is being considered as the safe alternative to DC Hipot testing of XLPE and mixed cables, which will cause premature failures in this type of cable"
+[125] 400.2-2024 - IEEE Guide for Field Testing of Shielded Power Cable ... — https://ieeexplore.ieee.org/document/10694771
+    "VLF test methods utilize ac signals at frequencies less than 1 Hz."
+[126] 400.2-2024 - IEEE Guide for Field Testing of Shielded Power Cable ... — https://ieeexplore.ieee.org/document/10694771
+    "The most commonly used, commercially available VLF test frequency is 0.1 Hz."
+[127] 400.2-2024 - IEEE Guide for Field Testing of Shielded Power Cable ... — https://ieeexplore.ieee.org/document/10694771
+    "Tables are included of the recommended test voltage levels for installation, acceptance, and maintenance tests."
+[128] Your subsea cable testing course notes — material:notes#p7
+    "Installation, acceptance and maintenance tests range from 1.5 – 2.5 U₀"
+[129] VLF Cable Test Voltage IEEE Standard - High Voltage Inc — https://hvinc.com/vlf-cable-test-voltage-ieee-standard
+    "The voltage levels (installation and acceptance) are based on the most used, worldwide practices of from less than 2 U0 to 3U0, where U0 is the rated rms phase to ground voltage"
+[130] VLF Cable Test Voltage IEEE Standard - High Voltage Inc — https://hvinc.com/vlf-cable-test-voltage-ieee-standard
+    "The maintenance test level is about 75% of the acceptance test level."
+[131] Your subsea cable testing course notes — material:notes#p7
+    "IEEE 400.2-2013 gives comprehensive values depending on test; IEEE 400.2-2024 is the update"
+[132] VLF-2023 Cable Testing Voltages per IEEE400.2 — https://hvinc.com/wp-content/uploads/2023/08/VLF-2023-Cable-Testing-Voltages-per-IEEE400.2_compressed.pdf
+    "69 75 106 84 119 63 89"
+[133] VLF Series 2023.pdf — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "The recommended minimum testing time for an installation and/or acceptance withstand test on new cable circuits is 60 min at 0.1 Hz."
+[134] VLF Series 2023.pdf — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "The recommended minimum testing time for a simple withstand test on aged cable circuits is 30 min at 0.1 Hz"
+[135] Your subsea cable testing course notes — material:notes#p7
+    "Simple withstand test 30 mins @ 0.1 Hz"
+[136] Your subsea cable testing course notes — material:notes#p7
+    "Recommended test for installation or acceptance 60 mins @ 0.1 Hz"
+[137] VLF AC WITHSTAND TESTING OF CABLE Voltage Levels & Time Durations of Test — https://hvinc.com/wp-content/uploads/2020/03/HVI_SOW101320_VLF_IEEE_WEB.pdf
+    "A VLF Withstand test performed as per IEEE 400.2-2013 will trigger a partial discharge event within any defect large enough to be excited by the test voltage applied"
+[138] Your subsea cable testing course notes — material:notes#p6
+    "If the cable has a defect severe enough at the withstand test voltage, an electrical tree will initiate and grow in the insulation"
+[139] VLF Series 2023.pdf — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "It should be noted that terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV."
+[140] Your subsea cable testing course notes — material:notes#p7
+    "Long cables = lower frequency, voltage, or both"
+[141] Your subsea cable testing course notes — material:notes#p7
+    "Lowering VLF frequency needlessly is to be avoided"
+[142] Your subsea cable testing course notes — material:notes#p7
+    "Cable withstands voltage for the full duration with no breakdown"
+[143] Your subsea cable testing course notes — material:notes#p6
+    "VLF is just an AC hi-potential test but with a lower frequency output — run at 0.1 and 0.01 Hz"
+[144] Your subsea cable testing course notes — material:notes#p6
+    "Apply discharge stick before hand earth"
+[145] Your subsea cable testing course notes — material:notes#p6
+    "Hook to be connected to cable immediately after discharge stick, then hand earth"
+[146] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "Three-core cables, nominal voltage 66 kV (Um = 72.5 kV)"
+[147] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "240 18.1 9.0 38.5 1.6 129.0 26.8 31.3 0.22 2.6 0.38"
+[148] Microsoft Word - MANvlfCM_Rk_2k14 — https://hvinc.com/wp-content/uploads/2021/04/VLF-4022CM-Manual-web-2k19.pdf
+    "All VLF sets are rated by the uF of load they can test at a given frequency. The lower the frequency, the higher the capacitance, or the longer the cable, can be tested."
+[149] VLF CABLE TESTING – TEST ALL THREE PHASES AT ONCE — https://hvinc.com/wp-content/uploads/2022/08/VLF-Testing-All-Three-Phases-Together-08.2022-rev1.pdf
+    "At 0.05 Hz, compared to the 0.10 Hz. rating, twice the load, or cable length, can be tested."
+[150] VLF TESTING HIGH VOLTAGE CABLES? — https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf
+    "VLF-200CMF 0 - 200 kVac peak 0.75 µF @ 0.10 Hz. – 3.75 µF @ 0.02 Hz."
+[151] VLF TESTING HIGH VOLTAGE CABLES? — https://hvinc.com/wp-content/uploads/2024/05/HV-Cable-Testing-VLF-Models-11.23-revA-May-2024.pdf
+    "VLF-120CMF 0 - 120 kVac peak 0.55 µF @ 0.10 Hz. – 5.50 µF @ 0.01 Hz."
+[152] Microsoft Word - MANvlfCM_Rk_2k14 — https://hvinc.com/wp-content/uploads/2021/04/VLF-4022CM-Manual-web-2k19.pdf
+    "Testing should be performed at 0.1Hz, unless the capacitance of the load is too high for the uF rating of the set at 0.1 Hz."
+[153] Microsoft Word - MANvlfCM_Rk_2k14 — https://hvinc.com/wp-content/uploads/2021/04/VLF-4022CM-Manual-web-2k19.pdf
+    "At 0.1Hz frequency output, one full cycle of the sine wave takes 10 seconds, 20 seconds at 0.05Hz, and 50 seconds at 0.02Hz."
+[154] VLF Cable Test Voltage IEEE Standard - High Voltage Inc — https://hvinc.com/vlf-cable-test-voltage-ieee-standard/
+    "For a sinusoidal waveform the rms is 0.707 of the peak value, assuming the harmonic distortion is less than 5%."
+[155] POWER CABLE DIAGNOSTIC REVIEW — https://energiforsk.se/media/31923/power-cable-diagnostic-review-energiforskrapport-2022-903.pdf
+    "Currently, the maximum available very low frequency voltage (0.1 Hz) level for the test is about 200 kV peak."
+[156] VLF AC Withstand Testing of Cable — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "A defect that is big enough to be excited by the applied voltage will grow to failure during the test. Lesser defects are not affected."
+[157] VLF AC Withstand Testing of Cable — https://hvinc.com/wp-content/uploads/2024/02/IEEE-test-voltages.pdf
+    "A test time within the range 15–30 min may be considered if the monitored characteristic remains stable for at least 15 min and no failure occurs."
+[158] IEC 60502-2:1997 - IEC 60502-2:1997+AMD1:1998 CSV — https://cdn.standards.iteh.ai/samples/3873/527bd07ae4664054be6ee1ebc3a4a56c/IEC-60502-2-1997.pdf
+    "U0 is the rated power frequency voltage between conductor and earth or metallic screen for which the cable is designed;"
+[159] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "Uo: The rated r.m.s. power frequency voltage between each conductor and screen or sheath for which cables and accessories are designed."
+[160] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "SINGLE CORE XLPE CABLE, 38/66(72.5)kV"
+[161] INMR: Overview of Cable Testing: State-of-the-Art, Standards & ... — https://www.inmr.com/overview-of-cable-testing-state-of-the-art-standards-technologies
+    "Use of DC voltage on extruded cable systems for withstand testing has been discouraged by IEEE 400.1, ICEA S-94-649-2004 and IEC 60502-2."
+[162] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "applying direct voltage can induce space charge and dielectric stress in cables with extruded insulation, such as XLPE, potentially contributing to insulation degradation and reducing cable service life."
+[163] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "Slow polarization and charge trapping mechanisms cause residual voltage to persist for minutes or even hours."
+[164] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "therefore, tests performed at 2U₀ or 2.5U₀ significantly increase the associated risk."
+[165] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "After resistive discharge, apply direct grounding and keep it connected."
+[166] Residual Voltage in Power Cables: A Little-Known Hazard in Field Testing - NETAWORLD JOURNAL — https://netaworldjournal.org/2026/08/baronibentoplantier/fall-2026-industry-topics/residual-voltage-in-power-cables-a-little-known-hazard-in-field-testing
+    "Measure the residual voltage before allowing access to the circuit."
+[167] Untitled — https://www.doble.com/wp-content/uploads/Phenix_Technologies_Discharge_Ground_Sticks_40402.pdf
+    "Next, the ground stick is applied to remove any remaining charge and directly connect the high voltage source at test object to ground."
+[168] Untitled — https://www.doble.com/wp-content/uploads/Phenix_Technologies_Discharge_Ground_Sticks_40402.pdf
+    "These test objects have the capability to store large amounts of energy long after the high voltage is turned off."
+[169] Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk — https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables
+    "Test voltage and frequency as per IEC 63026"
+[170] Offshore resonant test system for 66 kV inter-array cables :: www.hvuk.co.uk — https://www.hvuk.co.uk/l/offshore-resonant-test-system-for-66-kv-inter-array-cables
+    "IEC 63026 was published in January 2020 and for cables greater than 36 kV stipulates that a test frequency of 10-500 Hz must be used for commissioning."
+[171] Off Shore Array Hv Cable 66Kv Brochure Letter Web 061126 — https://www.kinectrics.com/files/brochures/Off-shore_Array_HV_Cable_66kV_Brochure_Letter_Web_061126.pdf
+    "Capability to test entire cable strings rated 66/72 kV up to 40 km (24.8 miles)"
+[172] Off Shore Array Hv Cable 66Kv Brochure Letter Web 061126 — https://www.kinectrics.com/files/brochures/Off-shore_Array_HV_Cable_66kV_Brochure_Letter_Web_061126.pdf
+    "Testing in accordance with international standards, including IEC 63026, and industry guides such as CIGRE TB 728 and CIGRE TB 841"
+[173] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables
+    "For long lengths, particularly submarine cables, a lower frequency range up to 10 Hz, as per CIGRÉ TB 490, can be acceptable"
+[174] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables
+    "HV tests have been performed using a variable frequency resonant unit rated 260 kV, 83 A as power source and supplying a sine wave of frequency range between 20 and 300 Hz in accordance with requirements of the standards."
+[175] Your subsea cable testing course notes — material:notes#p1
+    "Inter-array cable (AC): Turbine → Offshore substation"
+[176] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/2024-03/leaflet_submarine_epr_66%20Kv_%20final_0.pdf
+    "Two times more power can be transported over a single array cable"
+[177] Your subsea cable testing course notes — material:notes#p2
+    "Identify → Isolated → Proved Dead → Secured → Earthed"
+[178] Your subsea cable testing course notes — material:notes#p2
+    "Treat disconnected cables as live until tested, discharged and earthed"
+[179] INTERNATIONAL STANDARD NORME INTERNATIONALE — https://webstore.iec.ch/en/iec_catalog/product/preview?id=L3B1Yi9wZGYvcHJldmlldy9pbmZvX2llYzYwNTAyLTJ7ZWQzLjB9Yi5wZGY%3D
+    "This part of IEC 60502 specifies the construction, dimensions and test requirements of power cables with extruded solid insulation from 6 kV up to 30 kV for fixed installations such as distribution networks or industrial installations."
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- A TDR uses the radar principle: a pulse goes down the cable and changes in impedance send reflections back, which are displayed as a map of the cable. [1][2][3]
+- A positive reflection shows a higher impedance and a negative one a lower impedance, because conductors moving apart or closer together change the impedance. [4][5][6]
+- An open conductor shows a large positive trace and a short circuit a negative trace. A joint shows a small positive followed by a small negative trace. [7][8][9][10][11][12]
+- A wet splice or water gives a short positive and negative trace, and your notes list a ragged trailing section for water ingress. [13][14]
+- The velocity factor is the ratio of the pulse speed in the cable to the speed of light, and it must be set for the cable. If unknown, test a known length and adjust it until the displayed end distance is correct. [15][16][17]
+- Megger lists a velocity factor of 0.54 to 0.62, which is 162 to 186 m per microsecond, for power XLPE cable. [18]
+- Distance comes from the time of the reflected pulse times the velocity, taking half of the time, because the pulse goes to the fault and back. Your notes write L = t × v ÷ 2. [19][20][21]
+- If the velocity factor is wrong for the cable, the displayed distance will be wrong. [22]
+- A clear open reflection is not necessarily the end of the cable, because it can also be a break or cut, so the end is proved with open and linked tests. Linked gives a negative peak, open a positive one. [23][24][25][26]
+- TDR needs two separate conductive elements, one of which may be the armour or screen. Your notes say two conductors in parallel, a fixed 50 V pulse, and shorter pulse width for shorter cables. [27][28][29][30]
+- Testing from both ends and recording the distance to fault helps work out how wide a problem is, and after water the velocity factor changes, so readings past the water may be wrong. [31][32]
+- Your notes say TDR only works on low resistance faults, typically under 100 Ω (200 Ω for Teleflex), with accuracy of 0 to 1% of cable length. [33][34]
+- The reflection coefficient is rho = (Z load - Z0) ÷ (Z load + Z0): the reflected pulse divided by the pulse sent. It runs from +1 for an open to -1 for a short, with 0 for a matched load that reflects nothing. [35][36][37][38][39]
+- A positive reflection means the impedance rose, a negative one that it fell. A matched end absorbs the whole pulse, so the cable looks endless and no end reflection comes back. [40][41]
+- Z0 = square root of (L per length ÷ C per length), and the velocity factor is 1 ÷ the square root of the relative permittivity. A cable's L and C per length follow from its Z0 and its velocity, so Z0 = 1 ÷ (v × C per length): used for the practice value for String B, 27.1 ohm from 168.0 m/µs and 0.… [42][43][44][45]
+- A fault of resistance Rf from core to screen sits across the line as a shunt, so the pulse sees Rf in parallel with Z0 and the reflection is rho = -Z0 ÷ (2 Rf + Z0). It falls steadily as Rf rises and has no cliff at 100 ohm; the notes' 100 ohm is where it gets too small to read. This is worked from… [40][35]
+- Megger says a fault below 100 ohm can be found with a low-voltage TDR pulse (it gives 40 V as an example), and that above 100 ohm the pulse will likely not see it. This agrees with the notes' 'under about 100 ohm'. A higher-resistance fault is not seen by TDR; the arc reflection method strikes an a… [46][47][48][49][50]
+- Pulse amplitude depends on the set: Megger's Teleflex SX-1 is 50 V fixed (as in the notes) its Teleflex VX is 30 to 160 V, and a hand-held TDR500 gives 5 V peak to peak. A TDR must only go on a de-energised, isolated cable; the TDR500 manual says it is not to be used on energised cable, and the CFL… [51][52][53][54][55]
+- The Teleflex takes the velocity as v/2 (half the pulse speed): Megger writes that in TDR analyses the velocity is always given in v/2, and its range is quoted at v/2 = 80 m/µs and settable from 10 to 149.9 m/µs. A set that asks for v/2 needs 84.0 where the notes' formula L = t × v ÷ 2 uses v = 168.… [56][57][58]
+- If the velocity setting is out by 2 per cent, every distance is out by 2 per cent. With the cable's length known, the velocity is found by moving it until the end sits at the known length. [59][60]
+- From both ends, the two distances to one fault should add up to the cable's length: the TDR500 manual says the combined answer should equal the expected length, and a maker's example (2050 ft from one end and 3075 ft from the other on a 5000 ft cable) shows the velocity set too fast. [61][62]
+- Record a TDR reference trace (fingerprint) when the cable is commissioned. Joints give reflections that can be taken for a fault, so the joints' places should be known on the trace beforehand; sheath-sectionalised joints can also mislead. The length of a submarine cable reduces TDR accuracy, so the… [63][64][65][66][67][68]
+- A wider pulse reaches further and shows smaller faults but has a bigger blind spot next to the instrument, so start with the shortest pulse; the notes' 'shorter cable, shorter pulse'. The blind-spot lengths published are for telephone cable, so no figure for String B is taken from them. [69][70][71][72]
+- Velocity is not one number for all XLPE: Megger's 162 to 186 m/µs (0.54 to 0.62) is typical. Temperature barely moves it at ambient (about 0.034 per cent per degree) but near the 90 °C operating limit it is 0.56 per cent per degree, so set the velocity from a known length at the cable's own tempera… [73][74]
+- The speed of light is exactly 299 792 458 m/s, 299.8 m/µs to 4 figures, so a velocity factor is the velocity in m/µs divided by 299.8. [75]
+- Accuracy: the notes say TDR is generally accurate to 0-1% of the cable's length. A maker states accuracy as a percentage of the range, at one velocity factor, and only if the velocity factor is right. [34][76]
+- Your notes call under 1 Ω low resistance, and list lead resistance, contact resistance and external influences as what disturbs such readings. [77][78]  (from an idea this one builds on)
+- A four-wire low-resistance meter uses separate current and voltage leads, so the voltage is measured at the device and lead and contact resistance drop out of the reading. [79][80][81]  (from an idea this one builds on)
+- The two potential probes must face each other, which keeps them inside the current connections. Your notes name the Megger DLRO10HD for this work. [82][83]  (from an idea this one builds on)
+- Megger describes the standard method for a cable core as connecting the current and potential leads at each end of the core. [84]  (from an idea this one builds on)
+- Phase identification starts with the cable earthed at both ends and uses the colour code red L1, yellow L2, blue L3, proved by core-to-screen continuity from both ends. [85][86][87]  (from an idea this one builds on)
+- Measured core resistance should be within 2% of the factory values, and any deviation is explained before the results are submitted. [88][89]  (from an idea this one builds on)
+- Your notes need a technician at each end: closing the earth switch or fitting test adapters at the HV terminations completes the circuit, and the sequence moves links and earths step by step. [90][91]  (from an idea this one builds on)
+- Copper's temperature coefficient of resistance at 20 °C is given as 0.00393 per °C by two maker pages, so copper's resistance changes with temperature. [92]  (from an idea this one builds on)
+- Megger colours the DLRO10HD range switch: the yellow band holds the test current, the green ranges limit the output power to 0.25 W, and the red ranges are the high-power ones that dissipate up to 25 W into the test piece. [93]  (from an idea this one builds on)
+- On the DLRO10HD the 1 A range at 2.5 W reads up to 2.5 Ω and the 10 A range at 25 W up to 250 mΩ, so a loop of about 340 mΩ is beyond the 10 A range and sits on the 1 A one. [94][95]  (from an idea this one builds on)
+- The DLRO10HD reverses the current and averages the readings, which cancels thermal EMFs. Its voltmeter input impedance is above 200 kΩ, and the maximum lead resistance at 10 A is under 100 mΩ. [96][97][98]  (from an idea this one builds on)
+- On the sample the potential probes face each other and the current connections sit outside them. The value read is the resistance between the two potential points. [99][100]  (from an idea this one builds on)
+- No current flows in the P leads, so neither their resistance nor the resistance of the P contacts adds a voltage to the reading. [101][102]  (from an idea this one builds on)
+- A two-wire reading adds the total lead resistance to the result, which is why a low-resistance reading needs four wires. [103]  (from an idea this one builds on)
+- Noise induced into the leads can disturb a low-resistance reading. The DLRO10HD flashes a noise icon and shows no result above 100 mV at 50 or 60 Hz. [104][105]  (from an idea this one builds on)
+- The standard temperature coefficient of copper is 0.00393 per °C at 20 °C. IEC 60228 sets its resistance limits at 20 °C and has measured resistance corrected to 20 °C by the factors in its Table A.1. [106][107][108]  (from an idea this one builds on)
+- A copper class 2 conductor of 240 mm² has a maximum of 0.0754 Ω/km at 20 °C (bare wires). Over String B's 2.40 km that is at most 181 mΩ a core. [109][110]  (from an idea this one builds on)
+- A utility's commissioning procedure measures conductor d.c. loop resistance to show the conductor joints and terminations are effective, and compares the result with the manufacturer's resistance in ohms per kilometre. [111][112]  (from an idea this one builds on)
+- After work that could disturb the phasing, the phasing must be proved by testing. On a three-phase cable each conductor is tested in turn with the screen as the return, and phase-to-phase tests are not required. Another utility checks phase identification with phasing resistors or a continuity chec… [113][114][115]  (from an idea this one builds on)
+- Your notes say a mains-frequency HV withstand test needs very high power because of cable capacitance, and that lowering the frequency raises the capacitive reactance and cuts the power and current needed. [116][117]  (from an idea this one builds on)
+- The power needed to energise a cable capacitance is proportional to test frequency. One source gives 500 times less energy at 0.1 Hz than at 50 Hz, another 600 times less power than at 60 Hz. [118][119][120]  (from an idea this one builds on)
+- Traditional 50/60 Hz testing was impractical on site because of the strong capacitive nature of cables. [121]  (from an idea this one builds on)
+- DC testing built up space charge that accelerated water tree growth in healthy XLPE. VLF reverses polarity, which reduces that build-up but is still a compromise. [122][123][124]  (from an idea this one builds on)
+- IEEE 400.2 covers VLF below 1 Hz, most commonly 0.1 Hz, with recommended test voltages for installation, acceptance and maintenance. [125][126][127]  (from an idea this one builds on)
+- The VLF test range is taught as contested: the notes give 1.5 to 2.5 U0, while the IEEE guide as reproduced by High Voltage Inc bases installation and acceptance levels on practice of up to 3 U0. [128][129][130][131]  [CONTESTED: Your notes give 1.5 to 2.5 U0 for installation, acceptance and maintenance. IEEE 400.2 as reproduced by High Voltage Inc bases installation and acceptance on practice of from less than 2 U0 to 3 U0, with maintenance about 75% of acceptance.]  (from an idea this one builds on)
+- U0 is the rated rms phase-to-ground voltage. IEEE 400.2 Table 3 (sinusoidal, 69 kV class) as reproduced by High Voltage Inc lists 75, 84 and 63 kV rms for installation, acceptance and maintenance. [129][132]  (from an idea this one builds on)
+- Recommended minimum time is 60 min at 0.1 Hz for installation or acceptance on new cable, and 30 min for a simple withstand on aged cable. The notes list the same durations. [133][134][135][136]  (from an idea this one builds on)
+- A VLF withstand test excites any defect large enough at the test voltage, which triggers partial discharge in it. Your notes add that a severe defect starts an electrical tree that grows in the insulation. [137][138]  (from an idea this one builds on)
+- Terminations may need to be added to avoid flashover for installation tests on cables rated above 35 kV. [139]  (from an idea this one builds on)
+- Long cables need a lower frequency, a lower voltage or both, but lowering the frequency needlessly is to be avoided. A pass means the voltage held for the full duration with no breakdown. [140][141][142]  (from an idea this one builds on)
+- Your notes call VLF an AC hi-potential test at a lower frequency, run at 0.1 and 0.01 Hz, and end it by applying the discharge stick, then the hook, then the hand earth. [143][144][145]  (from an idea this one builds on)
+- ABB lists 0.22 µF/km and 2.6 A/km at 50 Hz for a three-core 66 kV XLPE submarine cable of 240 mm². [146][147]  (from an idea this one builds on)
+- A VLF set is rated by the load capacitance it can test at each frequency, and the lower the frequency the longer the cable it can test. A 0.75 µF set at 0.1 Hz takes twice that load at 0.05 Hz. One 200 kV peak set is listed at 0.75 µF at 0.1 Hz up to 3.75 µF at 0.02 Hz; a 120 kV peak set at 0.55 µF… [148][149][150][151]  (from an idea this one builds on)
+- A set should run at 0.1 Hz unless the cable is too big a load for its rating there. A full cycle at 0.1 Hz takes 10 seconds, 20 seconds at 0.05 Hz and 50 seconds at 0.02 Hz. [152][153]  (from an idea this one builds on)
+- VLF sets are rated in kV peak, and a sine wave's rms is 0.707 of its peak. IEEE 400.2 Table 3 gives the 69 kV class installation level as 75 kV rms (106 kV peak). The largest 0.1 Hz sets reach about 200 kV peak. [154][155][132]  (from an idea this one builds on)
+- The defect picture: a defect big enough to be excited by the applied voltage grows to failure during the test, and lesser defects are not affected. Time can be shortened to 15 to 30 minutes if the monitored characteristic stays stable and nothing fails, against the 60 minute recommendation. [156][157][133]  (from an idea this one builds on)
+- U0 is the rated rms power frequency voltage between conductor and earth or metallic screen. In a rating such as 38/66 (72.5) kV, 38 kV is U0, 66 kV is U between conductors and 72.5 kV is the highest system voltage Um. [158][159][160]  (from an idea this one builds on)
+- DC withstand testing of extruded cable has been discouraged by IEEE 400.1, ICEA S-94-649 and IEC 60502-2; DC can induce space charge in XLPE that contributes to degradation. [161][162][122]  (from an idea this one builds on)
+- After any high-voltage test an XLPE cable holds charge in its capacitance and its dielectric. Residual voltage can persist for minutes or even hours and voltage can rebound after a first discharge, so discharge with a stick, apply a direct ground and keep it connected, then measure the residual vol… [163][164][165][166][167][168]  (from an idea this one builds on)
+- Whether VLF suits a 66 kV inter-array cable is contested. The notes and IEEE 400.2 (a guide for cables rated 5 kV to 69 kV) support a 0.1 Hz VLF withstand; but a test-system maker reads IEC 63026 as requiring 10 to 500 Hz for commissioning cables above 36 kV, and 66 kV array strings have been commi… [169][170][171][172][173][174][129]  [CONTESTED: Your notes and IEEE 400.2 teach a 0.1 Hz VLF withstand as the field test; a test-system maker says IEC 63026 asks for 10 to 500 Hz on cables above 36 kV, and resonant AC sets are used on 66 kV array strings. The clause itself was not seen, so the client's specification settles it.]  (from an idea this one builds on)
+- Wind-farm inter-array cables run from a turbine to the offshore substation, and a 66 kV array cable carries two times the power of a 33 kV one, according to one maker. [175][176]  (whole topic)
+- Every test starts from the same safe sequence: identify, isolate, prove dead, secure and earth. The earths come off only under control for a test, and go back on at the end. [177][178]  (whole topic)
+- IEC 60502-2 covers extruded-insulation cables only up to 30 kV, so it does not cover a 66 kV cable such as String B. [179]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a skill idea: a worked example whose inputs he changes while every step of the working recomputes.
+- Sound only when hearing teaches what the picture cannot (a string's note rising as it is tightened): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i6",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

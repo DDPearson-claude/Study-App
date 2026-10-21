@@ -1,0 +1,240 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Rf 1, 35, 100 and 1000 Ω give 0.96, 15.3, 21.3 and 26.4 Ω at the fault; ρ −0.93, −0.28, −0.12 and −0.01; 0.07, 0.72, 0.88 and 0.99 get past",
+        "ok": true
+      },
+      {
+        "label": "Behind the 35 Ω fault the end comes back at 0.72 × 0.72 = 0.52 of its full height",
+        "ok": true
+      },
+      {
+        "label": "Opening the far end flips the end from down to up; the fault's dip stays down at every resistance",
+        "ok": true
+      },
+      {
+        "label": "The dip shrinks as the fault resistance rises, and the impedance climbs towards 27.1 Ω",
+        "ok": true
+      },
+      {
+        "label": "String B's 27.1 Ω is 1 ÷ (v × C) at 168.0 m/µs and 0.22 µF/km",
+        "ok": true
+      },
+      {
+        "label": "At 152, 160, 168 and 188 m/µs the end reads 2171.3, 2285.6, 2399.9 and 2685.6 m; the fault 868.7, 914.4, 960.1 and 1074.4 m; VF 0.51, 0.53, 0.56 and 0.63",
+        "ok": true
+      },
+      {
+        "label": "The fault sits 0.40 of the way to the end at every velocity",
+        "ok": true
+      },
+      {
+        "label": "Recall: 20.0 × 160 ÷ 2 = 1600 m; slips 3200 m and 800 m. Worked example: 0.05 × 2000 = 100 m",
+        "ok": true
+      },
+      {
+        "label": "6(a) 168.0 m/µs; 6(b) 960.1 m (960.2 unrounded); 6(c) 1439.9 m (1439.8 unrounded); changed numbers 1290.0 m",
+        "ok": true
+      },
+      {
+        "label": "Joint at 19.29 µs, B01 at 17.14 µs, VF 0.56, v/2 84.0, zone 24.0 m either side",
+        "ok": true
+      },
+      {
+        "label": "Each slip is its own working: 84.0 and 0.168; 914.4, 1920.2 and 480.1; 1485.6; 2580.0 and 1200.0",
+        "ok": true
+      },
+      {
+        "label": "A fault of higher resistance, over 100 Ω, a low-voltage pulse will likely not see",
+        "ok": true,
+        "source": "https://www.megger.com/en-ca/applications/cables/cable-fault-location"
+      },
+      {
+        "label": "Power XLPE: velocity factor 0.54 to 0.62, 162 to 186 m/µs",
+        "ok": true,
+        "source": "https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf"
+      },
+      {
+        "label": "Measured from both ends, the combined answer should equal the expected length of the cable",
+        "ok": true,
+        "source": "https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf"
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "far",
+      "rf",
+      "v"
+    ],
+    "readouts": [
+      "zf",
+      "rho",
+      "pass",
+      "Lend",
+      "Lfault",
+      "vf"
+    ],
+    "outputs": [
+      "zf",
+      "rho",
+      "pass",
+      "Lend",
+      "Lfault",
+      "vf"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why: up and down",
+          "The why: time into distance",
+          "Check",
+          "Worked example",
+          "Section A 6(a)",
+          "Section A 6(b)",
+          "Section A 6(c)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "far",
+        "kind": "choice",
+        "label": "Far end",
+        "options": [
+          "linked",
+          "open"
+        ],
+        "labels": [
+          "Linked",
+          "Open"
+        ],
+        "value": "linked",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "rf",
+        "kind": "control",
+        "label": "Fault resistance",
+        "min": 1,
+        "max": 1000,
+        "step": 1,
+        "log": true,
+        "value": 35,
+        "shown": false,
+        "snap": [
+          35,
+          100,
+          1000
+        ]
+      },
+      {
+        "id": "v",
+        "kind": "control",
+        "label": "Velocity",
+        "min": 152,
+        "max": 188,
+        "step": 2,
+        "log": false,
+        "value": 160,
+        "shown": false,
+        "snap": [
+          160,
+          168
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Pulse"
+    ],
+    "answers": [
+      {
+        "id": "6a",
+        "answer": 168,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "6b",
+        "answer": 960.1,
+        "accept": [
+          960.2
+        ],
+        "ok": true
+      },
+      {
+        "id": "6c",
+        "answer": 1439.9,
+        "accept": [
+          1439.8
+        ],
+        "ok": true
+      },
+      {
+        "id": "l6.changed",
+        "answer": 1290,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [
+      "The page height keeps growing with the frame (avoid vh units and height:100%). [at 340 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

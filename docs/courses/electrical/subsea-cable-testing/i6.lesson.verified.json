@@ -1,0 +1,583 @@
+{
+  "iid": "i6",
+  "title": "TDR: reading the reflections",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the end of L2's trace flipping from a downward to an upward peak, while the fault's dip at 11.43 µs stays down, when you switch the far end from linked to open.",
+    "title": "Reading L2's echoes",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve screens, with Back and Continue, on the TDR test.\n\nScreen 1, Do you still have it? The question: \"A reflection comes back after 20.0 µs. The velocity is set at 160 m/µs. How far away is the reflection?\" Three choices, in this order: \"800 m\"; \"1600 m\"; \"3200 m\". Right, the second: \"Still there.\" Then the working: \"L = t × v ÷ 2 = 20.0 × 160 ÷ 2 = 1600 m. The time covers the trip there and back, so you halve it.\" A last line names the two slips. Then two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: \"That uses 80, half the velocity, and then halves again. Some sets ask for the velocity as v/2. The formula takes the whole v.\" Wrong, the third: \"That leaves out the ÷ 2. The pulse goes out and comes back, so the time covers the distance twice.\" After a wrong choice, the right working, and on to screen 2.\n\nScreen 2, What it is for. \"A TDR sends a short pulse down a core and its screen, and times what comes back. It needs two conductors running side by side. Here they are the core and its own screen. From the echoes it gives the cable's length, where its joints are, and where a low-resistance fault, a break or water is. It draws a map of the cable.\" Then: \"The map recorded at commissioning is the cable's [[fingerprint]]. Later traces are compared with it. A joint shows on a trace much like a small fault, so its place must be known in advance.\" Then: \"The TDR goes on a dead cable only. The cable is isolated, discharged and earthed at both ends, as for every test. There is a technician at each end. The pulse is low voltage, a fixed 50 V on some sets.\" The picture: String B laid out from the OSS to B01, 2.40 km. The TDR sits at the OSS end, red lead to L2's conductor and black to its screen. The field joint is marked at 1620 m. A question mark hangs over the whole length of L2, labelled \"fault: somewhere\". In red: \"Skip it, and all you know is that L2 has a fault somewhere in 2.40 km of cable on the seabed.\"\n\nScreen 3, The why: up and down. \"The pulse sees the cable as an impedance of its own. The cable's inductance and capacitance per metre set it. That is the [[characteristic impedance]], Z0. While Z0 stays the same, the pulse runs on and nothing comes back. Where the impedance changes, part of the pulse reflects. The share that comes back is ρ = (Z load − Z0) ÷ (Z load + Z0). An open end is an infinite impedance, so ρ = +1. The whole pulse comes back the right way up. A short is zero impedance, so ρ = −1. The whole pulse comes back upside down. So a reflection pointing up means the impedance rose. One pointing down means it fell. At a joint the cable's build changes for a short length. The impedance changes and then changes back. So a joint shows as a small up then a small down.\" The picture: L2's trace from the OSS, with time across from 0 to 30 µs and the reflection's height up the side. The launch pulse sits at 0, drawn at height 1. A dip at 11.43 µs is labelled \"fault\". A small up then down at 19.29 µs is labelled \"joint\". A peak at 28.57 µs is labelled \"end\". Under the picture: \"A fault from core to screen sits across the line. At the fault the pulse sees two paths in parallel: the fault, and the cable beyond it. Two resistances in parallel give less than either. So the impedance falls, and the reflection points down.\" Then: \"For String B, Z0 = 1 ÷ (v × C) = 1 ÷ (168.0 × 10⁶ × 0.22 × 10⁻⁹) = 27.1 Ω. 168.0 m/µs is String B's velocity, found in part (a). 0.22 µF/km is a typical figure. So take 27.1 Ω as a practice value. On a real cable, use the maker's figure.\" Then: \"Call the fault's resistance Rf. The load at the fault is Rf in parallel with Z0: Z load = Rf × Z0 ÷ (Rf + Z0). At 35 Ω that is 35 × 27.1 ÷ 62.1 = 15.3 Ω. Put that into the rule, and it becomes ρ = −Z0 ÷ (2 Rf + Z0). The higher Rf, the less it pulls the impedance down. So the dip is smaller.\" Two controls. Far end, a switch with two settings in this order: Linked; Open. It opens on Linked, the first test. Fault resistance, a slider from 1 to 1000 Ω in steps of 1 Ω, opening at 35 Ω. Three readouts: Impedance at the fault, in Ω to 1 place, = Rf × 27.1 ÷ (Rf + 27.1); Fault reflection, ρ, to 2 places, = −27.1 ÷ (2 × Rf + 27.1); Pulse past the fault, = 1 + ρ. At 1 Ω: 0.96 Ω, −0.93 and 0.07. At 35 Ω: 15.3 Ω, −0.28 and 0.72. At 100 Ω: 21.3 Ω, −0.12 and 0.88. At 1000 Ω: 26.4 Ω, −0.01 and 0.99. The pulse is cut on its way past the fault and again on its way back. So the end and the joint are drawn at (1 + ρ) × (1 + ρ) of their full height. At 35 Ω that is 0.72 × 0.72 = 0.52. The end points down when the far end is linked and up when it is open. The joint's ripple is drawn at about 5% of the pulse. That size is chosen for the picture. The prompt: \"Switch the far end from linked to open. Then drag the fault resistance from 35 Ω up to 1000 Ω.\" Read: with the far end linked, the end of the cable shows as a downward peak, like a short. Open it, and the end flips to an upward peak. The fault's dip at 11.43 µs points down either way. So the reflection that flips is the end. As the fault resistance rises, the impedance at the fault climbs back towards the cable's 27.1 Ω. So its dip shrinks. It is 0.28 of the pulse at 35 Ω, 0.12 at 100 Ω and 0.01 at 1000 Ω. At 1000 Ω the trace looks like healthy cable. Still: far end open, fault resistance at 35 Ω. Under the picture, the other shapes worth knowing, each with a small sketch: \"Down then a broad hump: a T joint. Up then a dip: a bridge tap. A sharp up-down spike: a wet splice. A ragged, noisy tail: water getting in.\" Then: \"TDR finds faults under about 100 Ω. Above that, a low-voltage pulse will likely not see the fault.[^1] Some sets reach about 200 Ω. A high-resistance fault needs other methods. One is arc reflection. A high-voltage surge strikes an arc at the fault. The arc shows on the trace like a short. That is HV work, with its own kit and procedure.\" A caption names the practice values, then: \"Real traces are rounder, and far echoes come back fainter. The picture leaves that loss out.\"\n\nScreen 4, The why: time into distance. \"The TDR measures time. It turns time into distance with the velocity you give it. The pulse goes out and comes back. So the time covers the distance twice: L = t × v ÷ 2. The velocity is often given as a [[velocity factor]], VF = v ÷ c. Here c is the speed of light, 299.8 m/µs. The velocity factor is roughly 1 ÷ the square root of the insulation's relative permittivity. So the insulation sets the velocity, not the copper. Power XLPE typically runs at 0.54 to 0.62, which is 162 to 186 m/µs.[^2] Cables differ. So a typical figure is only a starting point. Every distance is its time × v ÷ 2. So a wrong velocity stretches all of them by the same fraction. It never moves one reflection past another. So set the velocity on a length you know. Open the far end, read the end's time, and move the velocity until the end reads the known length.\" The picture: the same L2 trace, far end open, now with a distance scale in metres along the bottom. A marker stands at 2400 m, labelled \"known length\". A band on the velocity scale marks 162 to 186 m/µs, labelled \"typical XLPE\". A Velocity slider runs from 152 to 188 m/µs in steps of 2. It opens at 160 m/µs, a default left set on the instrument. Three readouts: End reads at, in m to 1 place, = 28.57 × v ÷ 2; Fault reads at, in m to 1 place, = 11.43 × v ÷ 2; Velocity factor, to 2 places, = v ÷ 299.8. At 152 m/µs: 2171.3 m, 868.7 m and 0.51. At 160 m/µs: 2285.6 m, 914.4 m and 0.53. At 168 m/µs: 2399.9 m, 960.1 m and 0.56. At 188 m/µs: 2685.6 m, 1074.4 m and 0.63. A line under the readouts: \"The fault always sits 0.40 of the way to the end: 11.43 ÷ 28.57 = 0.40.\" The prompt: \"Drag the velocity until the end lands on the known 2400 m.\" Read: at the default 160 m/µs, the end reads 2285.6 m. That is short of the known 2400 m. The fault reads 914.4 m. The whole trace stretches as the velocity rises. At 168 m/µs the end reads 2399.9 m. That is the known length, to within the rounding of 28.57 µs. The fault then reads 960.1 m. It stays 0.40 of the way along at every setting. Still: the slider at 168 m/µs, with the 160 m/µs positions kept faint for comparison.\n\nScreen 5, Check. \"From the OSS, L2's trace shows a downward peak at 11.43 µs. It stays down when the far end is opened. What is it?\" Choices: \"The end of the cable\"; \"A low-resistance fault from core to screen\"; \"The field joint\". Right, the second: \"It points down, so the impedance fell there. It did not flip when the far end opened, so it is not the end. The joint at 1620 m would show at 2 × 1620 ÷ 168.0 = 19.29 µs, as a small up then down.\" Wrong, the first: \"The end flips when you open the far end. This peak stayed down, so it is somewhere along the cable.\" Wrong, the third: \"A joint shows as a small up then a small down, not a deep dip. String B's joint is at 1620 m, so it would show at 19.29 µs.\"\n\nScreen 6, Worked example, a line at each press. \"Setting up, and what a 5% velocity error costs. Take a 2 km cable with the velocity set 5% too high.\" The prompt: \"Think each line through first, then press Show.\" Line 1: \"Set up on the dead cable. It is isolated, discharged and earthed at both ends. Lift the earth from the core under test at your end, under control. Red lead to the conductor, black to the screen.\" Line 2: \"First test with the far end linked, conductor to screen or to earth. Then the far end lifts the link, under control. Test again with it open. The reflection that flips is the end.\" Line 3: \"The rule: L = t × v ÷ 2. Each distance goes up in step with v.\" Line 4: \"So a velocity 5% high makes every distance read 5% long.\" Line 5: \"At the far end of a 2 km cable: 0.05 × 2000 = 100 m out.\" Line 6: \"The cure: set v on the known length. With the far end open, v = 2L ÷ t.\" Line 7: \"When you finish, put the earths back on at both ends.\" Read: on a 2 km cable, a velocity set 5% high puts the far end 0.05 × 2000 = 100 m out. Every other distance is 5% out too. Setting v on the known length removes the error, using v = 2L ÷ t. Still: all seven lines shown.\n\nScreen 7, Section A, question 6 (a). The scenario panel, then part 5a carried forward: the VLF test voltage, 76.0 kV. Then the test, said once: \"L2 broke down in the VLF test and now reads 35 Ω from core to screen. Every core is discharged and earthed at both ends. You connect a TDR at the OSS end. On L1, a healthy core, with the far end at B01 open, the end shows at 28.57 µs. The route record gives the length as 2.40 km. These are practice values.\" The question: \"(a) Determine the velocity of the pulse in String B.\" A typed answer, part 6a, in m/µs: v = 2L ÷ t = 2 × 2400 ÷ 28.57 = 168.0 m/µs. Slips: 84.0, \"That is L ÷ t. The pulse covered the 2400 m twice: v = 2L ÷ t.\"; 0.168, \"That is in km per µs. Work in metres: 2 × 2400 ÷ 28.57.\" After two misses, the working. Then: \"VF = 168.0 ÷ 299.8 = 0.56. That is inside the typical 0.54 to 0.62 for XLPE. A set that asks for v/2 takes 168.0 ÷ 2 = 84.0.\"\n\nScreen 8, Section A, question 6 (b). Part 6a carried forward: the velocity, 168.0 m/µs. \"Back on L2, test with the far end linked and then open. A downward peak stays at 11.43 µs.\" The question: \"(b) Determine the distance to the fault from the OSS.\" A typed answer, part 6b, in m: L = t × v ÷ 2 = 11.43 × 168.0 ÷ 2 = 960.1 m. Slips: 914.4, \"That uses 160 m/µs, a default left set. Use the velocity from (a), 168.0 m/µs.\"; 1920.2, \"The ÷ 2 is missing. The time covers the trip there and back.\"; 480.1, \"That uses v/2 and then halves again. The formula takes the whole v.\" After two misses, the working. Then: \"The joint at 1620 m would show at 19.29 µs. So this is not the joint. Treat 960.1 m as the middle of a search zone. A TDR is generally accurate to within 1% of the cable's length. On String B that is 0.01 × 2400 = 24.0 m either side of 960.1 m.\"\n\nScreen 9, Section A, question 6 (c). Parts 6a and 6b carried forward: 168.0 m/µs and 960.1 m. The question: \"(c) Determine the distance to the fault from B01.\" A typed answer, part 6c, in m: 2400 − 960.1 = 1439.9 m. Slips: 960.1, \"That is the distance from the OSS. Take it from the length.\"; 1485.6, \"That starts from 914.4 m, the default velocity's distance. Use 960.1 m from (b).\" After two misses, the working. Then: \"Now test from B01. The dip should show at 17.14 µs, which is 1439.9 m. Add the distance you measure from B01 to the 960.1 m from the OSS. The two should make 2400 m.[^3] If they don't, the velocity is most likely wrong. When the tests are done, put the earths back on at both ends. Record L2: a low-resistance fault from core to screen, 960.1 m from the OSS. The next test, LIRA, checks it from both ends.\" The picture: the route from the OSS to B01, with the fault marked 960.1 m from the OSS and 1439.9 m from B01, and the joint at 1620 m beyond it.\n\nScreen 10, Section B: \"Explain why the far end is tested linked and then open.\" A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 11, Section A, changed numbers. \"Another cable. Its velocity is 172 m/µs, found on a known length. A downward peak shows at 15.00 µs. Determine the distance to it.\" A typed answer, in m: 15.00 × 172 ÷ 2 = 1290.0 m. Slips: 2580.0, \"The ÷ 2 is missing. The time covers the trip there and back.\"; 1200.0, \"That uses 160 m/µs. Use this cable's 172 m/µs.\" After two misses, the working. Then: \"172 m/µs is a velocity factor of 172 ÷ 299.8 = 0.57. That is inside the typical range for XLPE.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+    "ignores": "The trace is drawn as a clean pulse with clean reflections. Real traces are rounded and noisy, and loss along the cable makes far reflections smaller and wider. The picture leaves that loss out. The cable's impedance is drawn as one figure, 27.1 Ω. That is a practice value. The fault is drawn as a single resistance from core to screen. The joint's ripple is drawn at about 5% of the pulse. That size is chosen for the picture. String B's figures are practice values.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Recall: reflection time, µs",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: velocity set, m/µs",
+        "value": 160,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall: distance, m",
+        "value": 1600,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: no ÷ 2, m",
+        "value": 3200,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: v/2 and halved again, m",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall slip: half the velocity, m/µs",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Typical TDR pulse, V",
+        "value": 50,
+        "kind": "constant"
+      },
+      {
+        "label": "String B's length (practice value), km",
+        "value": 2.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "String B's field joint from the OSS (practice value), m",
+        "value": 1620,
+        "kind": "assumed"
+      },
+      {
+        "label": "String B's impedance to the pulse (practice value), Ω",
+        "value": 27.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Capacitance per km (typical, as in lesson 1), µF/km",
+        "value": 0.22,
+        "kind": "assumed"
+      },
+      {
+        "label": "Open end, reflection coefficient",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Short, reflection coefficient",
+        "value": -1,
+        "kind": "constant"
+      },
+      {
+        "label": "Trace time axis: to, µs",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Launch pulse height",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "L2 fault peak, from the OSS (practice value), µs",
+        "value": 11.43,
+        "kind": "assumed"
+      },
+      {
+        "label": "Joint ripple time, from the OSS, µs",
+        "value": 19.29,
+        "kind": "computed"
+      },
+      {
+        "label": "End of cable time, from the OSS (practice value), µs",
+        "value": 28.57,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fault resistance slider: from, Ω",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fault resistance slider: to, Ω",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fault resistance slider: step, Ω",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fault resistance slider opens at L2's reading (practice value), Ω",
+        "value": 35,
+        "kind": "control"
+      },
+      {
+        "label": "At 1 Ω: impedance at the fault, Ω",
+        "value": 0.96,
+        "kind": "computed"
+      },
+      {
+        "label": "At 35 Ω: fault resistance plus the cable's impedance, Ω",
+        "value": 62.1,
+        "kind": "computed"
+      },
+      {
+        "label": "At 35 Ω: impedance at the fault, Ω",
+        "value": 15.3,
+        "kind": "computed"
+      },
+      {
+        "label": "At 100 Ω: impedance at the fault, Ω",
+        "value": 21.3,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1000 Ω: impedance at the fault, Ω",
+        "value": 26.4,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1 Ω: fault reflection",
+        "value": -0.93,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1 Ω: pulse past the fault",
+        "value": 0.07,
+        "kind": "computed"
+      },
+      {
+        "label": "At 35 Ω: fault reflection",
+        "value": -0.28,
+        "kind": "computed"
+      },
+      {
+        "label": "At 35 Ω: pulse past the fault",
+        "value": 0.72,
+        "kind": "computed"
+      },
+      {
+        "label": "At 35 Ω: end height, share of full",
+        "value": 0.52,
+        "kind": "computed"
+      },
+      {
+        "label": "At 100 Ω: fault reflection",
+        "value": -0.12,
+        "kind": "computed"
+      },
+      {
+        "label": "At 100 Ω: pulse past the fault",
+        "value": 0.88,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1000 Ω: fault reflection",
+        "value": -0.01,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1000 Ω: pulse past the fault",
+        "value": 0.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Joint ripple drawn, share of the pulse (picture only)",
+        "value": 0.05,
+        "kind": "assumed"
+      },
+      {
+        "label": "Faults a TDR finds: under about, Ω",
+        "value": 100,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Faults some sets find: under about, Ω",
+        "value": 200,
+        "kind": "constant"
+      },
+      {
+        "label": "Speed of light, m/µs",
+        "value": 299.8,
+        "kind": "constant"
+      },
+      {
+        "label": "Typical XLPE velocity factor: from",
+        "value": 0.54,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Typical XLPE velocity factor: to",
+        "value": 0.62,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Typical XLPE velocity: from, m/µs",
+        "value": 162,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Typical XLPE velocity: to, m/µs",
+        "value": 186,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Velocity slider: from, m/µs",
+        "value": 152,
+        "kind": "assumed"
+      },
+      {
+        "label": "Velocity slider: to, m/µs",
+        "value": 188,
+        "kind": "assumed"
+      },
+      {
+        "label": "Velocity slider: step, m/µs",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Velocity slider opens at a default left set, m/µs",
+        "value": 160,
+        "kind": "control"
+      },
+      {
+        "label": "Known length marker, m",
+        "value": 2400,
+        "kind": "assumed"
+      },
+      {
+        "label": "At 152 m/µs: end reads at, m",
+        "value": 2171.3,
+        "kind": "computed"
+      },
+      {
+        "label": "At 152 m/µs: fault reads at, m",
+        "value": 868.7,
+        "kind": "computed"
+      },
+      {
+        "label": "At 152 m/µs: velocity factor",
+        "value": 0.51,
+        "kind": "computed"
+      },
+      {
+        "label": "At 160 m/µs: end reads at, m",
+        "value": 2285.6,
+        "kind": "computed"
+      },
+      {
+        "label": "At 160 m/µs: fault reads at, m",
+        "value": 914.4,
+        "kind": "computed"
+      },
+      {
+        "label": "At 160 m/µs: velocity factor",
+        "value": 0.53,
+        "kind": "computed"
+      },
+      {
+        "label": "At 168 m/µs: end reads at, m",
+        "value": 2399.9,
+        "kind": "computed"
+      },
+      {
+        "label": "At 168 m/µs: fault reads at, m",
+        "value": 960.1,
+        "kind": "computed"
+      },
+      {
+        "label": "At 168 m/µs: velocity factor",
+        "value": 0.56,
+        "kind": "computed"
+      },
+      {
+        "label": "At 188 m/µs: end reads at, m",
+        "value": 2685.6,
+        "kind": "computed"
+      },
+      {
+        "label": "At 188 m/µs: fault reads at, m",
+        "value": 1074.4,
+        "kind": "computed"
+      },
+      {
+        "label": "At 188 m/µs: velocity factor",
+        "value": 0.63,
+        "kind": "computed"
+      },
+      {
+        "label": "Fault's share of the way to the end",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: cable length, km",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: velocity error, %",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: distance error at the far end, m",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Lines in the worked example",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Carried: VLF test voltage, kV",
+        "value": 76,
+        "kind": "computed"
+      },
+      {
+        "label": "L2 core to screen after the VLF test (practice value), Ω",
+        "value": 35,
+        "kind": "assumed"
+      },
+      {
+        "label": "Part 6a: velocity, m/µs",
+        "value": 168,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6a slip: L ÷ t, m/µs",
+        "value": 84,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6a slip: length in km, km/µs",
+        "value": 0.168,
+        "kind": "computed"
+      },
+      {
+        "label": "String B's velocity factor",
+        "value": 0.56,
+        "kind": "computed"
+      },
+      {
+        "label": "String B's velocity as v/2, m/µs",
+        "value": 84,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6b: distance from the OSS, m",
+        "value": 960.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6b slip: default velocity, m",
+        "value": 914.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6b slip: no ÷ 2, m",
+        "value": 1920.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6b slip: v/2 halved again, m",
+        "value": 480.1,
+        "kind": "computed"
+      },
+      {
+        "label": "TDR accuracy: share of the length, %",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "Search zone either side, m",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6c: distance from B01, m",
+        "value": 1439.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 6c slip: from the default velocity's distance, m",
+        "value": 1485.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Fault from the B01 end, µs",
+        "value": 17.14,
+        "kind": "computed"
+      },
+      {
+        "label": "Two ends added, m",
+        "value": 2400,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers: velocity (practice value), m/µs",
+        "value": 172,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: peak time (practice value), µs",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: distance, m",
+        "value": 1290,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip: no ÷ 2, m",
+        "value": 2580,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip: default velocity, m",
+        "value": 1200,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers: velocity factor",
+        "value": 0.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Section B: points, of which any make a full answer",
+        "value": "5, any 3",
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A TDR sends a short, low-voltage pulse down a core and its screen and times the echoes. Wherever the impedance changes, part of the pulse comes back. The time tells you how far away the change is. The shape tells you what it is.\n\nThe pulse sees the cable as an impedance of its own, the [[characteristic impedance]], Z0. The cable's inductance and capacitance per metre set it. While that stays the same, the pulse runs on and nothing returns. Where it changes, the share that comes back is (Z load − Z0) ÷ (Z load + Z0). An open end is infinite impedance, so the pulse comes back the right way up. A short is zero, so it comes back upside down. A fault from core to screen sits in parallel with the cable beyond it. Parallel paths give a lower impedance, so the reflection points down. The higher the fault's resistance, the less it lowers the impedance. Take String B's practice figures. A 35 Ω fault sends back 0.28 of the pulse. A 1000 Ω fault sends back only 0.01. So a high-resistance fault can look like healthy cable.\n\nThe set measures time. That time covers the trip there and back. So the distance is L = t × v ÷ 2. The insulation's permittivity sets v. It is often given as a [[velocity factor]], v divided by the speed of light. Every distance uses the same v. So a wrong v stretches them all by the same fraction. That is why you set the velocity on a known length, with the far end open. The picture is simplified. It draws clean reflections. It leaves out the loss that makes far echoes smaller and wider.\n\n**Distance is time × velocity ÷ 2. A reflection up means the impedance rose. One down means it fell. Set the velocity on a known length.**"
+  },
+  "analogy": {
+    "text": "Shout into a long tunnel and time the echo off the far wall. The sound goes there and back. So the wall is half the time × the speed of sound away. Use the wrong speed, and every wall you find is out by the same fraction.",
+    "breaks": "An echo comes back the same way up from anything solid. A pulse in a cable is different. It comes back up from a rise in impedance and upside down from a fall. So the trace says what it hit, as well as where. And a cable echoes from any change, a joint as well as a fault."
+  },
+  "practice": {
+    "text": "- Make it safe first. Isolate, discharge and earth the cable at both ends. Have a technician at each end. A TDR goes on a dead cable only.\n- Lift the earth from the core under test at your end, under control. Red lead to the conductor, black to the screen.\n- Test first with the far end linked, conductor to screen or to earth. Then the far end lifts the link, under control. Test again with it open. The reflection that flips is the end.\n- Set the velocity. On a known length, v = 2L ÷ t. Check it against the typical 162 to 186 m/µs for XLPE.[^2] If the set asks for v/2, enter half.\n- Start with the shortest pulse width. A wider pulse reaches further and shows smaller changes. But it has a bigger blind spot near the set.\n- Read the trace. Down means the impedance fell, as at a short or a low-resistance fault. Up means it rose, as at an open or a break. A small up then down at a known joint is the joint.\n- Test from the other end too. The two distances to one fault should add up to the length.[^3]\n- When you finish, put the earths back on at both ends.\n\n**Rule of thumb:** always ÷ 2. The time covers the trip there and back.\n\n**Rule of thumb:** a TDR finds faults under about 100 Ω. Above that, a high-resistance fault can look like healthy cable. You need other methods.\n\n**Worked example:** take String B's practice values. L1's open end shows at 28.57 µs over 2400 m. So v = 2 × 2400 ÷ 28.57 = 168.0 m/µs. L2's downward peak is at 11.43 µs. So the fault is 11.43 × 168.0 ÷ 2 = 960.1 m from the OSS. From B01 it is 2400 − 960.1 = 1439.9 m.\n\n**Common mistakes**\n- Leaving out the ÷ 2: 1920.2 m on String B instead of 960.1 m.\n- Leaving a default velocity set: 914.4 m at 160 m/µs.\n- Putting v/2 into L = t × v ÷ 2: 480.1 m.\n- Reading a joint as a fault. Record the fingerprint at commissioning. Then you know where the joints are.\n- Reading a high-resistance fault as healthy cable.\n- Taking the first big upward reflection as the end. A break gives one too. Prove the end with the far end linked, then open."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "Explain why the far end is tested linked and then open.",
+      "points": [
+        {
+          "text": "With the far end linked, the end of the cable shows as a downward peak, like a short.",
+          "cite": "Notes p.8"
+        },
+        {
+          "text": "With no link, the end shows as an upward peak, like an open.",
+          "cite": "Notes p.8"
+        },
+        {
+          "text": "The reflection that flips between the two tests is the end of the cable. A fault's reflection does not flip.",
+          "cite": "Notes p.8 (added background, checked against Tektronix on reflection polarity, research)"
+        },
+        {
+          "text": "An upward reflection is not always the end. A break or cut in the cable gives one too.",
+          "cite": "Megger, Time domain reflectometry: techniques and examples (research)"
+        },
+        {
+          "text": "Once the end is proved, you can set the velocity so the end reads the known length.",
+          "cite": "Megger application note TDR_AN58, Basic TDR operation; Megger Teleflex SX-1 user guide (research)"
+        }
+      ],
+      "need": 3,
+      "model": "Linking the far end makes the end of the cable a short. Its reflection points down. Opening it makes the end an open. Its reflection points up. The reflection that flips between the two tests must be the end. A fault along the cable stays the same way up in both. A break also reflects upward. Without the two tests, you could take a break for the end. Once the end is proved, set the velocity so the end reads the cable's known length. Every other distance is then right."
+    }
+  },
+  "summary": {
+    "title": "TDR",
+    "for": "A TDR gives the cable's length, its joints, and faults under about 100 Ω, each as a distance from the end you test from. At commissioning, it records the cable's fingerprint.",
+    "rule": "L = t × v ÷ 2\nv = 2L ÷ t, on a known length\nVF = v ÷ 299.8\n\nUp: the impedance rose, as at an open or a break. Down: it fell, a short or low-resistance fault.\nSmall up then down: a joint.\nFar end linked, then open: the reflection that flips is the end.\nRed to conductor, black to screen. Dead cable only.\nPulse width: start short. A wider pulse reaches further but hides changes near the set.\nXLPE is typically 162 to 186 m/µs. A set that asks for v/2 takes half.\nFrom both ends, the two distances add up to the length.",
+    "traps": [
+      {
+        "text": "Leaving out the ÷ 2. The time covers the trip there and back.",
+        "cite": "Notes p.7"
+      },
+      {
+        "text": "Leaving a default velocity set. On String B's practice figures, it gives 914.4 m instead of 960.1 m.",
+        "cite": "Notes p.7; Megger TDR500 user manual (research)"
+      },
+      {
+        "text": "Putting v/2 into L = t × v ÷ 2.",
+        "cite": "Megger Teleflex SX-1 product page and user guide (research)"
+      },
+      {
+        "text": "Reading a high-resistance fault as healthy cable.",
+        "cite": "Notes p.7; Megger, Cable fault location (research)"
+      },
+      {
+        "text": "Reading a joint as a fault. Record the fingerprint at commissioning.",
+        "cite": "ENTSO-E and Europacable, HVDC cable reliability (research)"
+      }
+    ],
+    "where": "Use it after a failed test, on the dead core. Test from both ends where you can. At commissioning, use it to record the fingerprint.",
+    "figures": [
+      "6a",
+      "6b",
+      "6c"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Cable fault location | Megger",
+      "url": "https://www.megger.com/en-ca/applications/cables/cable-fault-location",
+      "quote": "If the fault is a higher resistance (> 100 Ohm), a low voltage pulse will likely not see it."
+    },
+    {
+      "n": 2,
+      "title": "Microsoft Word - Basic TDR Operation1.doc",
+      "url": "https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf",
+      "quote": "Power XLPE 0.54 to 0.62 162 to 186"
+    },
+    {
+      "n": 3,
+      "title": "Microsoft Word - TDR1000_3_UG_en_V03.doc",
+      "url": "https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf",
+      "quote": "If the measurement is made from both ends, then the combined answer should equal the expected length of the cable."
+    }
+  ]
+}

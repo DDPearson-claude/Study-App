@@ -1,0 +1,28 @@
+{
+ "iid": "i6",
+ "draft": "i6.lesson.draft1.txt",
+ "validator": "passes, no problems, no soft problems",
+ "faults": [
+  {"fault": "explanation skips the causal step", "where": "screen 3; screen 4; explain para 3", "finding": "Screen 3 says a joint shows as a small up then down without saying why: the cable's build changes for a short length, so the impedance changes and changes back. Screen 4 and explain para 3 say 'the insulation sets the velocity' with no reason: the velocity factor is 1 over the square root of the insulation's relative permittivity, so the insulation, not the copper, sets it. The parallel-resistance step for a core-to-screen fault is there and is the key one.", "fix": "Add the joint's cause on screen 3. Add the permittivity step on screen 4 and in explain para 3."},
+  {"fault": "false absolutes", "where": "practice; Section B point 3", "finding": "'Up means it rose: an open or a break' reads as the only causes; a bridge tap also starts up. 'A TDR goes on a dead cable only' is a real safety rule and stays. 'Always ÷ 2' holds for L = t × v ÷ 2 with the whole v. 'The fault always sits 0.40 of the way' is true of the formula at every velocity. Point 3, 'a fault's reflection does not flip', is true of the far-end switch.", "fix": "Say 'for example an open or a break'."},
+  {"fault": "interactive shows only the effect", "where": "screen 3", "finding": "The fault slider shows the dip shrinking and the reflection share, which is the effect. The cause, the fault in parallel with the cable beyond lowering the impedance less as Rf rises, is in the words but not on the picture.", "fix": "Add a readout, Impedance at the fault = Rf × 27.1 ÷ (Rf + 27.1): 0.96, 15.3, 21.3 and 26.4 Ω at 1, 35, 100 and 1000 Ω, so he sees the impedance climb back towards 27.1 Ω as the dip vanishes."},
+  {"fault": "checks test recall", "where": "screen 5", "finding": "The check gives a trace reading and asks what it is. It needs the polarity rule, the far-end switch and the joint's time, and each wrong answer names the step it misses. Passes.", "fix": "None."},
+  {"fault": "thin or decorative research", "where": "whole lesson", "finding": "Six footnotes, each on a rule or figure he would look up on a job: dead cable only, the fingerprint, under 100 Ω, the XLPE velocity range, setting v on a known length, both ends adding up. The contested pulse level is said plainly as depending on the set. Passes.", "fix": "None."},
+  {"fault": "unreadable labels", "where": "readouts; screen 3", "finding": "Readout labels are plain and short. Screen 3 carries two controls, the shape gallery and the beyond-TDR paragraph; long but each part teaches. Fine at 360 px if the gallery is a compact strip.", "fix": "None beyond keeping the gallery compact."},
+  {"fault": "text talks about the idea instead of teaching it", "where": "explain para 2", "finding": "The first sentence of para 2 stacks the term, its definition and its cause in one sentence with two asides.", "fix": "Split it into two sentences."}
+ ],
+ "pattern": {
+  "recall opener": "yes: 20.0 µs at 160 m/µs, 1600 m; slips 3200 m (no ÷ 2) and 800 m (v/2 halved again); Refresh the why and Skip to the practice (to screen 7)",
+  "what it is for": "yes, with the fingerprint, the dead-cable rule and what goes wrong in red",
+  "the why with its interactive": "yes: screen 3 (far-end switch and fault-resistance slider, polarity and size) and screen 4 (velocity slider), each with read and still; the beyond-TDR screen folded into screen 3",
+  "check": "yes, screen 5, a trace reading",
+  "worked example": "yes: the notes' 2 km cable with a 5% velocity error, line by line, with the safe set-up and the earths back on; read and still given",
+  "Section A": "6a, 6b and 6c on String B, each with the scenario, carried parts (5a; 6a; 6a and 6b) and two or three slips; both ends and the record on 6c",
+  "Section B": "yes, b1, five points, any three",
+  "changed numbers": "yes, 15.00 µs at 172 m/µs: 1290.0 m",
+  "Keep this": "yes, figures 6a, 6b, 6c"
+ },
+ "plain writing": "No source named in the words. Short active sentences, one long one in explain para 2. No asides in brackets. The practice values are said as such.",
+ "safety": "Dead, isolated, discharged and earthed at both ends; one earth lifted under control to connect; the far end's link and earth moved under control; earths back on at both ends at the end. The far end's step from linked to open needs saying as its own controlled move.",
+ "verdict": "Rewrite as draft 2 with the fixes above, and make the far end's change from linked to open a controlled step in the worked example and the practice."
+}

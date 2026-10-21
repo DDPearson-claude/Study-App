@@ -1,0 +1,863 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T03:32:57.280Z",
+ "startedAt": "2026-10-21T03:32:57.280Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "TDR: reading the reflections",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the end of L2's trace flipping from a downward to an upward peak, while the fault's dip at 11.43 µs stays down, when you switch the far end from linked to open.",
+   "title": "Reading L2's echoes",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve screens, with Back and Continue, on the TDR test.\n\nScreen 1, Do you still have it? The question: \"A reflection comes back after 20.0 µs. The velocity is set at 160 m/µs. How far away is the reflection?\" Three choices, in this order: \"800 m\"; \"1600 m\"; \"3200 m\". Right, the second: \"Still there.\" Then the working: \"L = t × v ÷ 2 = 20.0 × 160 ÷ 2 = 1600 m. The time covers the trip there and back, so you halve it.\" A last line names the two slips. Then two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: \"That uses 80, half the velocity, and then halves again. Some sets ask for the velocity as v/2. The formula takes the whole v.\" Wrong, the third: \"That leaves out the ÷ 2. The pulse goes out and comes back, so the time covers the distance twice.\" After a wrong choice, the right working, and on to screen 2.\n\nScreen 2, What it is for. \"A TDR sends a short pulse down a core and its screen, and times what comes back. It needs two conductors running side by side. Here they are the core and its own screen. From the echoes it gives the cable's length, where its joints are, and where a low-resistance fault, a break or water is. It draws a map of the cable.\" Then: \"The map recorded at commissioning is the cable's [[fingerprint]]. Later traces are compared with it. A joint shows on a trace much like a small fault, so its place must be known in advance.\" Then: \"The TDR goes on a dead cable only. The cable is isolated, discharged and earthed at both ends, as for every test. There is a technician at each end. The pulse is low voltage, a fixed 50 V on some sets.\" The picture: String B laid out from the OSS to B01, 2.40 km. The TDR sits at the OSS end, red lead to L2's conductor and black to its screen. The field joint is marked at 1620 m. A question mark hangs over the whole length of L2, labelled \"fault: somewhere\". In red: \"Skip it, and all you know is that L2 has a fault somewhere in 2.40 km of cable on the seabed.\"\n\nScreen 3, The why: up and down. \"The pulse sees the cable as an impedance of its own. The cable's inductance and capacitance per metre set it. That is the [[characteristic impedance]], Z0. While Z0 stays the same, the pulse runs on and nothing comes back. Where the impedance changes, part of the pulse reflects. The share that comes back is ρ = (Z load − Z0) ÷ (Z load + Z0). An open end is an infinite impedance, so ρ = +1. The whole pulse comes back the right way up. A short is zero impedance, so ρ = −1. The whole pulse comes back upside down. So a reflection pointing up means the impedance rose. One pointing down means it fell. At a joint the cable's build changes for a short length. The impedance changes and then changes back. So a joint shows as a small up then a small down.\" The picture: L2's trace from the OSS, with time across from 0 to 30 µs and the reflection's height up the side. The launch pulse sits at 0, drawn at height 1. A dip at 11.43 µs is labelled \"fault\". A small up then down at 19.29 µs is labelled \"joint\". A peak at 28.57 µs is labelled \"end\". Under the picture: \"A fault from core to screen sits across the line. At the fault the pulse sees two paths in parallel: the fault, and the cable beyond it. Two resistances in parallel give less than either. So the impedance falls, and the reflection points down.\" Then: \"For String B, Z0 = 1 ÷ (v × C) = 1 ÷ (168.0 × 10⁶ × 0.22 × 10⁻⁹) = 27.1 Ω. 168.0 m/µs is String B's velocity, found in part (a). 0.22 µF/km is a typical figure. So take 27.1 Ω as a practice value. On a real cable, use the maker's figure.\" Then: \"Call the fault's resistance Rf. The load at the fault is Rf in parallel with Z0: Z load = Rf × Z0 ÷ (Rf + Z0). At 35 Ω that is 35 × 27.1 ÷ 62.1 = 15.3 Ω. Put that into the rule, and it becomes ρ = −Z0 ÷ (2 Rf + Z0). The higher Rf, the less it pulls the impedance down. So the dip is smaller.\" Two controls. Far end, a switch with two settings in this order: Linked; Open. It opens on Linked, the first test. Fault resistance, a slider from 1 to 1000 Ω in steps of 1 Ω, opening at 35 Ω. Three readouts: Impedance at the fault, in Ω to 1 place, = Rf × 27.1 ÷ (Rf + 27.1); Fault reflection, ρ, to 2 places, = −27.1 ÷ (2 × Rf + 27.1); Pulse past the fault, = 1 + ρ. At 1 Ω: 0.96 Ω, −0.93 and 0.07. At 35 Ω: 15.3 Ω, −0.28 and 0.72. At 100 Ω: 21.3 Ω, −0.12 and 0.88. At 1000 Ω: 26.4 Ω, −0.01 and 0.99. The pulse is cut on its way past the fault and again on its way back. So the end and the joint are drawn at (1 + ρ) × (1 + ρ) of their full height. At 35 Ω that is 0.72 × 0.72 = 0.52. The end points down when the far end is linked and up when it is open. The joint's ripple is drawn at about 5% of the pulse. That size is chosen for the picture. The prompt: \"Switch the far end from linked to open. Then drag the fault resistance from 35 Ω up to 1000 Ω.\" Read: with the far end linked, the end of the cable shows as a downward peak, like a short. Open it, and the end flips to an upward peak. The fault's dip at 11.43 µs points down either way. So the reflection that flips is the end. As the fault resistance rises, the impedance at the fault climbs back towards the cable's 27.1 Ω. So its dip shrinks. It is 0.28 of the pulse at 35 Ω, 0.12 at 100 Ω and 0.01 at 1000 Ω. At 1000 Ω the trace looks like healthy cable. Still: far end open, fault resistance at 35 Ω. Under the picture, the other shapes worth knowing, each with a small sketch: \"Down then a broad hump: a T joint. Up then a dip: a bridge tap. A sharp up-down spike: a wet splice. A ragged, noisy tail: water getting in.\" Then: \"TDR finds faults under about 100 Ω. Above that, a low-voltage pulse will likely not see the fault.[^1] Some sets reach about 200 Ω. A high-resistance fault needs other methods. One is arc reflection. A high-voltage surge strikes an arc at the fault. The arc shows on the trace like a short. That is HV work, with its own kit and procedure.\" A caption names the practice values, then: \"Real traces are rounder, and far echoes come back fainter. The picture leaves that loss out.\"\n\nScreen 4, The why: time into distance. \"The TDR measures time. It turns time into distance with the velocity you give it. The pulse goes out and comes back. So the time covers the distance twice: L = t × v ÷ 2. The velocity is often given as a [[velocity factor]], VF = v ÷ c. Here c is the speed of light, 299.8 m/µs. The velocity factor is roughly 1 ÷ the square root of the insulation's relative permittivity. So the insulation sets the velocity, not the copper. Power XLPE typically runs at 0.54 to 0.62, which is 162 to 186 m/µs.[^2] Cables differ. So a typical figure is only a starting point. Every distance is its time × v ÷ 2. So a wrong velocity stretches all of them by the same fraction. It never moves one reflection past another. So set the velocity on a length you know. Open the far end, read the end's time, and move the velocity until the end reads the known length.\" The picture: the same L2 trace, far end open, now with a distance scale in metres along the bottom. A marker stands at 2400 m, labelled \"known length\". A band on the velocity scale marks 162 to 186 m/µs, labelled \"typical XLPE\". A Velocity slider runs from 152 to 188 m/µs in steps of 2. It opens at 160 m/µs, a default left set on the instrument. Three readouts: End reads at, in m to 1 place, = 28.57 × v ÷ 2; Fault reads at, in m to 1 place, = 11.43 × v ÷ 2; Velocity factor, to 2 places, = v ÷ 299.8. At 152 m/µs: 2171.3 m, 868.7 m and 0.51. At 160 m/µs: 2285.6 m, 914.4 m and 0.53. At 168 m/µs: 2399.9 m, 960.1 m and 0.56. At 188 m/µs: 2685.6 m, 1074.4 m and 0.63. A line under the readouts: \"The fault always sits 0.40 of the way to the end: 11.43 ÷ 28.57 = 0.40.\" The prompt: \"Drag the velocity until the end lands on the known 2400 m.\" Read: at the default 160 m/µs, the end reads 2285.6 m. That is short of the known 2400 m. The fault reads 914.4 m. The whole trace stretches as the velocity rises. At 168 m/µs the end reads 2399.9 m. That is the known length, to within the rounding of 28.57 µs. The fault then reads 960.1 m. It stays 0.40 of the way along at every setting. Still: the slider at 168 m/µs, with the 160 m/µs positions kept faint for comparison.\n\nScreen 5, Check. \"From the OSS, L2's trace shows a downward peak at 11.43 µs. It stays down when the far end is opened. What is it?\" Choices: \"The end of the cable\"; \"A low-resistance fault from core to screen\"; \"The field joint\". Right, the second: \"It points down, so the impedance fell there. It did not flip when the far end opened, so it is not the end. The joint at 1620 m would show at 2 × 1620 ÷ 168.0 = 19.29 µs, as a small up then down.\" Wrong, the first: \"The end flips when you open the far end. This peak stayed down, so it is somewhere along the cable.\" Wrong, the third: \"A joint shows as a small up then a small down, not a deep dip. String B's joint is at 1620 m, so it would show at 19.29 µs.\"\n\nScreen 6, Worked example, a line at each press. \"Setting up, and what a 5% velocity error costs. Take a 2 km cable with the velocity set 5% too high.\" The prompt: \"Think each line through first, then press Show.\" Line 1: \"Set up on the dead cable. It is isolated, discharged and earthed at both ends. Lift the earth from the core under test at your end, under control. Red lead to the conductor, black to the screen.\" Line 2: \"First test with the far end linked, conductor to screen or to earth. Then the far end lifts the link, under control. Test again with it open. The reflection that flips is the end.\" Line 3: \"The rule: L = t × v ÷ 2. Each distance goes up in step with v.\" Line 4: \"So a velocity 5% high makes every distance read 5% long.\" Line 5: \"At the far end of a 2 km cable: 0.05 × 2000 = 100 m out.\" Line 6: \"The cure: set v on the known length. With the far end open, v = 2L ÷ t.\" Line 7: \"When you finish, put the earths back on at both ends.\" Read: on a 2 km cable, a velocity set 5% high puts the far end 0.05 × 2000 = 100 m out. Every other distance is 5% out too. Setting v on the known length removes the error, using v = 2L ÷ t. Still: all seven lines shown.\n\nScreen 7, Section A, question 6 (a). The scenario panel, then part 5a carried forward: the VLF test voltage, 76.0 kV. Then the test, said once: \"L2 broke down in the VLF test and now reads 35 Ω from core to screen. Every core is discharged and earthed at both ends. You connect a TDR at the OSS end. On L1, a healthy core, with the far end at B01 open, the end shows at 28.57 µs. The route record gives the length as 2.40 km. These are practice values.\" The question: \"(a) Determine the velocity of the pulse in String B.\" A typed answer, part 6a, in m/µs: v = 2L ÷ t = 2 × 2400 ÷ 28.57 = 168.0 m/µs. Slips: 84.0, \"That is L ÷ t. The pulse covered the 2400 m twice: v = 2L ÷ t.\"; 0.168, \"That is in km per µs. Work in metres: 2 × 2400 ÷ 28.57.\" After two misses, the working. Then: \"VF = 168.0 ÷ 299.8 = 0.56. That is inside the typical 0.54 to 0.62 for XLPE. A set that asks for v/2 takes 168.0 ÷ 2 = 84.0.\"\n\nScreen 8, Section A, question 6 (b). Part 6a carried forward: the velocity, 168.0 m/µs. \"Back on L2, test with the far end linked and then open. A downward peak stays at 11.43 µs.\" The question: \"(b) Determine the distance to the fault from the OSS.\" A typed answer, part 6b, in m: L = t × v ÷ 2 = 11.43 × 168.0 ÷ 2 = 960.1 m. Slips: 914.4, \"That uses 160 m/µs, a default left set. Use the velocity from (a), 168.0 m/µs.\"; 1920.2, \"The ÷ 2 is missing. The time covers the trip there and back.\"; 480.1, \"That uses v/2 and then halves again. The formula takes the whole v.\" After two misses, the working. Then: \"The joint at 1620 m would show at 19.29 µs. So this is not the joint. Treat 960.1 m as the middle of a search zone. A TDR is generally accurate to within 1% of the cable's length. On String B that is 0.01 × 2400 = 24.0 m either side of 960.1 m.\"\n\nScreen 9, Section A, question 6 (c). Parts 6a and 6b carried forward: 168.0 m/µs and 960.1 m. The question: \"(c) Determine the distance to the fault from B01.\" A typed answer, part 6c, in m: 2400 − 960.1 = 1439.9 m. Slips: 960.1, \"That is the distance from the OSS. Take it from the length.\"; 1485.6, \"That starts from 914.4 m, the default velocity's distance. Use 960.1 m from (b).\" After two misses, the working. Then: \"Now test from B01. The dip should show at 17.14 µs, which is 1439.9 m. Add the distance you measure from B01 to the 960.1 m from the OSS. The two should make 2400 m.[^3] If they don't, the velocity is most likely wrong. When the tests are done, put the earths back on at both ends. Record L2: a low-resistance fault from core to screen, 960.1 m from the OSS. The next test, LIRA, checks it from both ends.\" The picture: the route from the OSS to B01, with the fault marked 960.1 m from the OSS and 1439.9 m from B01, and the joint at 1620 m beyond it.\n\nScreen 10, Section B: \"Explain why the far end is tested linked and then open.\" A written answer, marked against five points. Any three make a full answer. One more go, then the model answer.\n\nScreen 11, Section A, changed numbers. \"Another cable. Its velocity is 172 m/µs, found on a known length. A downward peak shows at 15.00 µs. Determine the distance to it.\" A typed answer, in m: 15.00 × 172 ÷ 2 = 1290.0 m. Slips: 2580.0, \"The ÷ 2 is missing. The time covers the trip there and back.\"; 1200.0, \"That uses 160 m/µs. Use this cable's 172 m/µs.\" After two misses, the working. Then: \"172 m/µs is a velocity factor of 172 ÷ 299.8 = 0.57. That is inside the typical range for XLPE.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "The trace is drawn as a clean pulse with clean reflections. Real traces are rounded and noisy, and loss along the cable makes far reflections smaller and wider. The picture leaves that loss out. The cable's impedance is drawn as one figure, 27.1 Ω. That is a practice value. The fault is drawn as a single resistance from core to screen. The joint's ripple is drawn at about 5% of the pulse. That size is chosen for the picture. String B's figures are practice values.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Recall: reflection time, µs",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: velocity set, m/µs",
+     "value": 160,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: distance, m",
+     "value": 1600,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: no ÷ 2, m",
+     "value": 3200,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: v/2 and halved again, m",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: half the velocity, m/µs",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Typical TDR pulse, V",
+     "value": 50,
+     "kind": "constant"
+    },
+    {
+     "label": "String B's length (practice value), km",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B's field joint from the OSS (practice value), m",
+     "value": 1620,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B's impedance to the pulse (practice value), Ω",
+     "value": 27.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Capacitance per km (typical, as in lesson 1), µF/km",
+     "value": 0.22,
+     "kind": "assumed"
+    },
+    {
+     "label": "Open end, reflection coefficient",
+     "value": 1,
+     "kind": "constant"
+    },
+    {
+     "label": "Short, reflection coefficient",
+     "value": -1,
+     "kind": "constant"
+    },
+    {
+     "label": "Trace time axis: to, µs",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Launch pulse height",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "L2 fault peak, from the OSS (practice value), µs",
+     "value": 11.43,
+     "kind": "assumed"
+    },
+    {
+     "label": "Joint ripple time, from the OSS, µs",
+     "value": 19.29,
+     "kind": "computed"
+    },
+    {
+     "label": "End of cable time, from the OSS (practice value), µs",
+     "value": 28.57,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fault resistance slider: from, Ω",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fault resistance slider: to, Ω",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fault resistance slider: step, Ω",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fault resistance slider opens at L2's reading (practice value), Ω",
+     "value": 35,
+     "kind": "control"
+    },
+    {
+     "label": "At 1 Ω: impedance at the fault, Ω",
+     "value": 0.96,
+     "kind": "computed"
+    },
+    {
+     "label": "At 35 Ω: fault resistance plus the cable's impedance, Ω",
+     "value": 62.1,
+     "kind": "computed"
+    },
+    {
+     "label": "At 35 Ω: impedance at the fault, Ω",
+     "value": 15.3,
+     "kind": "computed"
+    },
+    {
+     "label": "At 100 Ω: impedance at the fault, Ω",
+     "value": 21.3,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1000 Ω: impedance at the fault, Ω",
+     "value": 26.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1 Ω: fault reflection",
+     "value": -0.93,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1 Ω: pulse past the fault",
+     "value": 0.07,
+     "kind": "computed"
+    },
+    {
+     "label": "At 35 Ω: fault reflection",
+     "value": -0.28,
+     "kind": "computed"
+    },
+    {
+     "label": "At 35 Ω: pulse past the fault",
+     "value": 0.72,
+     "kind": "computed"
+    },
+    {
+     "label": "At 35 Ω: end height, share of full",
+     "value": 0.52,
+     "kind": "computed"
+    },
+    {
+     "label": "At 100 Ω: fault reflection",
+     "value": -0.12,
+     "kind": "computed"
+    },
+    {
+     "label": "At 100 Ω: pulse past the fault",
+     "value": 0.88,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1000 Ω: fault reflection",
+     "value": -0.01,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1000 Ω: pulse past the fault",
+     "value": 0.99,
+     "kind": "computed"
+    },
+    {
+     "label": "Joint ripple drawn, share of the pulse (picture only)",
+     "value": 0.05,
+     "kind": "assumed"
+    },
+    {
+     "label": "Faults a TDR finds: under about, Ω",
+     "value": 100,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Faults some sets find: under about, Ω",
+     "value": 200,
+     "kind": "constant"
+    },
+    {
+     "label": "Speed of light, m/µs",
+     "value": 299.8,
+     "kind": "constant"
+    },
+    {
+     "label": "Typical XLPE velocity factor: from",
+     "value": 0.54,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Typical XLPE velocity factor: to",
+     "value": 0.62,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Typical XLPE velocity: from, m/µs",
+     "value": 162,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Typical XLPE velocity: to, m/µs",
+     "value": 186,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Velocity slider: from, m/µs",
+     "value": 152,
+     "kind": "assumed"
+    },
+    {
+     "label": "Velocity slider: to, m/µs",
+     "value": 188,
+     "kind": "assumed"
+    },
+    {
+     "label": "Velocity slider: step, m/µs",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Velocity slider opens at a default left set, m/µs",
+     "value": 160,
+     "kind": "control"
+    },
+    {
+     "label": "Known length marker, m",
+     "value": 2400,
+     "kind": "assumed"
+    },
+    {
+     "label": "At 152 m/µs: end reads at, m",
+     "value": 2171.3,
+     "kind": "computed"
+    },
+    {
+     "label": "At 152 m/µs: fault reads at, m",
+     "value": 868.7,
+     "kind": "computed"
+    },
+    {
+     "label": "At 152 m/µs: velocity factor",
+     "value": 0.51,
+     "kind": "computed"
+    },
+    {
+     "label": "At 160 m/µs: end reads at, m",
+     "value": 2285.6,
+     "kind": "computed"
+    },
+    {
+     "label": "At 160 m/µs: fault reads at, m",
+     "value": 914.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 160 m/µs: velocity factor",
+     "value": 0.53,
+     "kind": "computed"
+    },
+    {
+     "label": "At 168 m/µs: end reads at, m",
+     "value": 2399.9,
+     "kind": "computed"
+    },
+    {
+     "label": "At 168 m/µs: fault reads at, m",
+     "value": 960.1,
+     "kind": "computed"
+    },
+    {
+     "label": "At 168 m/µs: velocity factor",
+     "value": 0.56,
+     "kind": "computed"
+    },
+    {
+     "label": "At 188 m/µs: end reads at, m",
+     "value": 2685.6,
+     "kind": "computed"
+    },
+    {
+     "label": "At 188 m/µs: fault reads at, m",
+     "value": 1074.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 188 m/µs: velocity factor",
+     "value": 0.63,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault's share of the way to the end",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: cable length, km",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: velocity error, %",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: distance error at the far end, m",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Lines in the worked example",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Carried: VLF test voltage, kV",
+     "value": 76,
+     "kind": "computed"
+    },
+    {
+     "label": "L2 core to screen after the VLF test (practice value), Ω",
+     "value": 35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Part 6a: velocity, m/µs",
+     "value": 168,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6a slip: L ÷ t, m/µs",
+     "value": 84,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6a slip: length in km, km/µs",
+     "value": 0.168,
+     "kind": "computed"
+    },
+    {
+     "label": "String B's velocity factor",
+     "value": 0.56,
+     "kind": "computed"
+    },
+    {
+     "label": "String B's velocity as v/2, m/µs",
+     "value": 84,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6b: distance from the OSS, m",
+     "value": 960.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6b slip: default velocity, m",
+     "value": 914.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6b slip: no ÷ 2, m",
+     "value": 1920.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6b slip: v/2 halved again, m",
+     "value": 480.1,
+     "kind": "computed"
+    },
+    {
+     "label": "TDR accuracy: share of the length, %",
+     "value": 1,
+     "kind": "constant"
+    },
+    {
+     "label": "Search zone either side, m",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6c: distance from B01, m",
+     "value": 1439.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 6c slip: from the default velocity's distance, m",
+     "value": 1485.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Fault from the B01 end, µs",
+     "value": 17.14,
+     "kind": "computed"
+    },
+    {
+     "label": "Two ends added, m",
+     "value": 2400,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: velocity (practice value), m/µs",
+     "value": 172,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: peak time (practice value), µs",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: distance, m",
+     "value": 1290,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: no ÷ 2, m",
+     "value": 2580,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: default velocity, m",
+     "value": 1200,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: velocity factor",
+     "value": 0.57,
+     "kind": "computed"
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A TDR sends a short, low-voltage pulse down a core and its screen and times the echoes. Wherever the impedance changes, part of the pulse comes back. The time tells you how far away the change is. The shape tells you what it is.\n\nThe pulse sees the cable as an impedance of its own, the [[characteristic impedance]], Z0. The cable's inductance and capacitance per metre set it. While that stays the same, the pulse runs on and nothing returns. Where it changes, the share that comes back is (Z load − Z0) ÷ (Z load + Z0). An open end is infinite impedance, so the pulse comes back the right way up. A short is zero, so it comes back upside down. A fault from core to screen sits in parallel with the cable beyond it. Parallel paths give a lower impedance, so the reflection points down. The higher the fault's resistance, the less it lowers the impedance. Take String B's practice figures. A 35 Ω fault sends back 0.28 of the pulse. A 1000 Ω fault sends back only 0.01. So a high-resistance fault can look like healthy cable.\n\nThe set measures time. That time covers the trip there and back. So the distance is L = t × v ÷ 2. The insulation's permittivity sets v. It is often given as a [[velocity factor]], v divided by the speed of light. Every distance uses the same v. So a wrong v stretches them all by the same fraction. That is why you set the velocity on a known length, with the far end open. The picture is simplified. It draws clean reflections. It leaves out the loss that makes far echoes smaller and wider.\n\n**Distance is time × velocity ÷ 2. A reflection up means the impedance rose. One down means it fell. Set the velocity on a known length.**"
+  },
+  "analogy": {
+   "text": "Shout into a long tunnel and time the echo off the far wall. The sound goes there and back. So the wall is half the time × the speed of sound away. Use the wrong speed, and every wall you find is out by the same fraction.",
+   "breaks": "An echo comes back the same way up from anything solid. A pulse in a cable is different. It comes back up from a rise in impedance and upside down from a fall. So the trace says what it hit, as well as where. And a cable echoes from any change, a joint as well as a fault."
+  },
+  "practice": {
+   "text": "- Make it safe first. Isolate, discharge and earth the cable at both ends. Have a technician at each end. A TDR goes on a dead cable only.\n- Lift the earth from the core under test at your end, under control. Red lead to the conductor, black to the screen.\n- Test first with the far end linked, conductor to screen or to earth. Then the far end lifts the link, under control. Test again with it open. The reflection that flips is the end.\n- Set the velocity. On a known length, v = 2L ÷ t. Check it against the typical 162 to 186 m/µs for XLPE.[^2] If the set asks for v/2, enter half.\n- Start with the shortest pulse width. A wider pulse reaches further and shows smaller changes. But it has a bigger blind spot near the set.\n- Read the trace. Down means the impedance fell, as at a short or a low-resistance fault. Up means it rose, as at an open or a break. A small up then down at a known joint is the joint.\n- Test from the other end too. The two distances to one fault should add up to the length.[^3]\n- When you finish, put the earths back on at both ends.\n\n**Rule of thumb:** always ÷ 2. The time covers the trip there and back.\n\n**Rule of thumb:** a TDR finds faults under about 100 Ω. Above that, a high-resistance fault can look like healthy cable. You need other methods.\n\n**Worked example:** take String B's practice values. L1's open end shows at 28.57 µs over 2400 m. So v = 2 × 2400 ÷ 28.57 = 168.0 m/µs. L2's downward peak is at 11.43 µs. So the fault is 11.43 × 168.0 ÷ 2 = 960.1 m from the OSS. From B01 it is 2400 − 960.1 = 1439.9 m.\n\n**Common mistakes**\n- Leaving out the ÷ 2: 1920.2 m on String B instead of 960.1 m.\n- Leaving a default velocity set: 914.4 m at 160 m/µs.\n- Putting v/2 into L = t × v ÷ 2: 480.1 m.\n- Reading a joint as a fault. Record the fingerprint at commissioning. Then you know where the joints are.\n- Reading a high-resistance fault as healthy cable.\n- Taking the first big upward reflection as the end. A break gives one too. Prove the end with the far end linked, then open."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain why the far end is tested linked and then open.",
+    "points": [
+     {
+      "text": "With the far end linked, the end of the cable shows as a downward peak, like a short.",
+      "cite": "Notes p.8"
+     },
+     {
+      "text": "With no link, the end shows as an upward peak, like an open.",
+      "cite": "Notes p.8"
+     },
+     {
+      "text": "The reflection that flips between the two tests is the end of the cable. A fault's reflection does not flip.",
+      "cite": "Notes p.8 (added background, checked against Tektronix on reflection polarity, research)"
+     },
+     {
+      "text": "An upward reflection is not always the end. A break or cut in the cable gives one too.",
+      "cite": "Megger, Time domain reflectometry: techniques and examples (research)"
+     },
+     {
+      "text": "Once the end is proved, you can set the velocity so the end reads the known length.",
+      "cite": "Megger application note TDR_AN58, Basic TDR operation; Megger Teleflex SX-1 user guide (research)"
+     }
+    ],
+    "need": 3,
+    "model": "Linking the far end makes the end of the cable a short. Its reflection points down. Opening it makes the end an open. Its reflection points up. The reflection that flips between the two tests must be the end. A fault along the cable stays the same way up in both. A break also reflects upward. Without the two tests, you could take a break for the end. Once the end is proved, set the velocity so the end reads the cable's known length. Every other distance is then right."
+   }
+  },
+  "summary": {
+   "title": "TDR",
+   "for": "A TDR gives the cable's length, its joints, and faults under about 100 Ω, each as a distance from the end you test from. At commissioning, it records the cable's fingerprint.",
+   "rule": "L = t × v ÷ 2\nv = 2L ÷ t, on a known length\nVF = v ÷ 299.8\n\nUp: the impedance rose, as at an open or a break. Down: it fell, a short or low-resistance fault.\nSmall up then down: a joint.\nFar end linked, then open: the reflection that flips is the end.\nRed to conductor, black to screen. Dead cable only.\nPulse width: start short. A wider pulse reaches further but hides changes near the set.\nXLPE is typically 162 to 186 m/µs. A set that asks for v/2 takes half.\nFrom both ends, the two distances add up to the length.",
+   "traps": [
+    {
+     "text": "Leaving out the ÷ 2. The time covers the trip there and back.",
+     "cite": "Notes p.7"
+    },
+    {
+     "text": "Leaving a default velocity set. On String B's practice figures, it gives 914.4 m instead of 960.1 m.",
+     "cite": "Notes p.7; Megger TDR500 user manual (research)"
+    },
+    {
+     "text": "Putting v/2 into L = t × v ÷ 2.",
+     "cite": "Megger Teleflex SX-1 product page and user guide (research)"
+    },
+    {
+     "text": "Reading a high-resistance fault as healthy cable.",
+     "cite": "Notes p.7; Megger, Cable fault location (research)"
+    },
+    {
+     "text": "Reading a joint as a fault. Record the fingerprint at commissioning.",
+     "cite": "ENTSO-E and Europacable, HVDC cable reliability (research)"
+    }
+   ],
+   "where": "Use it after a failed test, on the dead core. Test from both ends where you can. At commissioning, use it to record the fingerprint.",
+   "figures": [
+    "6a",
+    "6b",
+    "6c"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Cable fault location | Megger",
+    "url": "https://www.megger.com/en-ca/applications/cables/cable-fault-location",
+    "quote": "If the fault is a higher resistance (> 100 Ohm), a low voltage pulse will likely not see it."
+   },
+   {
+    "n": 2,
+    "title": "Microsoft Word - Basic TDR Operation1.doc",
+    "url": "https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf",
+    "quote": "Power XLPE 0.54 to 0.62 162 to 186"
+   },
+   {
+    "n": 3,
+    "title": "Microsoft Word - TDR1000_3_UG_en_V03.doc",
+    "url": "https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf",
+    "quote": "If the measurement is made from both ends, then the combined answer should equal the expected length of the cable."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #prog .k-label, #prog .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .why, .pre { line-height: 1.6; }\n  .warn-note .wh { font-weight: 700; }\n  .warn-note p + p { margin-top: 6px; }\n  .ctl { display: grid; gap: 12px; }\n  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }\n  .carry .k-cr-value { grid-column: 2; grid-row: 2; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .q { font: 700 20px var(--k-font); fill: var(--k-warn); }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .scene .zero { stroke: var(--k-line); stroke-width: 1; fill: none; }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }\n  .scene .trace { stroke: var(--k-accent2); stroke-width: 2; fill: none; stroke-linejoin: round; }\n  .scene .ghost { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; fill: none; stroke-linejoin: round; }\n  .scene .band { fill: var(--k-accent); fill-opacity: .2; stroke: var(--k-accent); stroke-width: 1; }\n  .scene .vdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .scr { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .cond { stroke: var(--k-ink); stroke-width: 3; fill: none; }\n  .scene .jt { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .tdr { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.4; }\n  .scene .lead { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }\n  .scene .ldot { fill: var(--k-ink); }\n  .scene .qbr { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }\n  .scene .br { stroke: var(--k-muted); stroke-width: 1.2; fill: none; }\n  .scene .pulse { fill: var(--k-accent2); }\n  .scene .fmark { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2.5; }\n  .shapes { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 10px; }\n  .shape { padding: 8px 10px; border: 1px solid var(--k-line); border-radius: 10px; background: var(--k-panel); }\n  .shape svg { display: block; width: 100%; height: auto; }\n  .shape p { font-size: .92rem; line-height: 1.4; margin-top: 4px; }\n  .shape .bl { stroke: var(--k-line); stroke-width: 1; fill: none; }\n  .shape .sh { stroke: var(--k-accent2); stroke-width: 2; fill: none; stroke-linejoin: round; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .line + .line { margin-top: 10px; }\n  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }\n  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div class=\"carry\" id=\"carry6a\"></div>\n    <div class=\"carry\" id=\"carry6b\"></div>\n    <div class=\"carry\" id=\"carry6c\"></div>\n    <div class=\"pre\" id=\"pre\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n\n    <div id=\"wrapM\"><svg class=\"scene\" id=\"msvg\" viewBox=\"0 0 340 156\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"warn-note\" id=\"warnFor\"></div>\n    <p class=\"caption\" id=\"capM\"></p>\n\n    <div id=\"wrapR\"><p class=\"k-label\" id=\"titR\"></p><svg class=\"scene\" id=\"rsvg\" viewBox=\"0 0 340 194\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"why\" id=\"whyF\"></div>\n    <div class=\"ctl\" id=\"ctlR\"></div>\n    <div class=\"k-readouts\" id=\"outsR\"></div>\n    <p class=\"say\" id=\"sayR\"></p>\n    <div id=\"shapes\"></div>\n    <div class=\"why\" id=\"limNote\"></div>\n    <p class=\"caption\" id=\"capR\"></p>\n\n    <div id=\"wrapV\"><p class=\"k-label\" id=\"titV\"></p><svg class=\"scene\" id=\"vsvg\" viewBox=\"0 0 340 256\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlV\"></div>\n    <div class=\"k-readouts\" id=\"outsV\"></div>\n    <p class=\"sub\" id=\"ratioV\"></p>\n    <p class=\"say\" id=\"sayV\"></p>\n    <p class=\"caption\" id=\"capV\"></p>\n\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-6a\"></div>\n    <div id=\"ans-6b\"></div>\n    <div id=\"ans-6c\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div id=\"wrapF\"><svg class=\"scene\" id=\"fsvg\" viewBox=\"0 0 340 108\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, helpers and the course's figures ----------\n  const rnd = (x, d) => { const k = Math.pow(10, d); return Math.sign(x) * Math.round(Math.abs(x) * k + 1e-7) / k; };\n  const r1 = (x) => rnd(x, 1), r2 = (x) => rnd(x, 2), r3 = (x) => rnd(x, 3);\n  const f1 = (x) => r1(x).toFixed(1);\n  const f2 = (x) => r2(x).toFixed(2);\n  const sg2 = (x) => { const v = r2(x); return (v < 0 ? '−' : '') + Math.abs(v).toFixed(2); };\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const NB = ' ';\n  // Non-breaking spaces: before an operator, and between a number and its unit.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=−]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=(?:m\\/µs|µs|µF|kV|km|Ω|m|V)(?![A-Za-z]))/g, '$1' + NB);\n  const str = (s, re) => { const m = re.exec(String(s || '')); return m ? m[1] : ''; };\n  const fx = (v) => (+v).toFixed(1);\n  function txt(parent, x, y, s, cls, anchor) {\n    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));\n    t.textContent = s;\n    return t;\n  }\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n\n  // String B and L2's test, from the case file.\n  const fLen = F('p.len'), LEN_KM = fLen.value, LEN_M = Math.round(LEN_KM * 1000);\n  const fJoint = F('p.joint'), JOINT = fJoint.value;\n  const fTEnd = F('p.tEnd'), T_END = fTEnd.value, T_END_S = str(fTEnd.text, /^([\\d.]+)/);\n  const fTFault = F('p.tFault'), T_FAULT = fTFault.value;\n  const fRf = F('p.Rf'), RF0 = fRf.value;\n  const fZ0 = F('p.Z0'), Z0 = fZ0.value;\n  const CKM = F('t.C66').value;\n  const C_S = str(F('t.c').text, /^([\\d.]+)/), C_LIGHT = +C_S;\n  const XLm = /([\\d.]+) to ([\\d.]+) \\(([\\d.]+) to ([\\d.]+)/.exec(String(F('t.vfXLPE').text)) || [];\n  const VF_LO = +XLm[1], VF_HI = +XLm[2], V_LO = +XLm[3], V_HI = +XLm[4];\n  const PULSE_V = F('n.tdrPulse').value, LIMIT = F('n.tdrLimit').value;\n  const W = F('p.pulseW').value, JR = F('p.jointRipple').value;\n  const f6a = F('6a'), V_B = f6a.value, f6b = F('6b'), f6c = F('6c');\n  const fVF = F('l6.VF'), fV2 = F('l6.v2'), fJt = F('l6.joint.t'), fAcc = F('l6.acc'), fB01 = F('l6.B01.t'), fBoth = F('l6.both');\n  const ZONE = +str(fAcc.work, /^([\\d.]+)/);\n  const fRatio = F('l6.ratio');\n  const fRec = F('l6.recall'), fRs1 = F('l6.recall.slip1'), fRs2 = F('l6.recall.slip2');\n  const R_T = str(fRec.work, /^([\\d.]+)/), R_V = str(fRec.work, /×\\s*([\\d.]+)/), R_VH = str(fRs2.work, /×\\s*([\\d.]+)/);\n  const fWex = F('l6.wex'), WEX_F = +str(fWex.work, /^([\\d.]+)/), WEX_L = +str(fWex.work, /×\\s*([\\d.]+)/);\n  const WEX_PCT = Math.round(WEX_F * 100), WEX_KM = WEX_L / 1000;\n  const fChg = F('l6.changed'), CH_T = str(fChg.work, /^([\\d.]+)/), CH_V = str(fChg.work, /×\\s*([\\d.]+)/);\n  const fS6b = F('6b.slip'), V_DEF = +str(fS6b.work, /×\\s*([\\d.]+)/);\n  // The picture's ranges, from the lesson: 0 to 30 µs, 1 to 1000 Ω, 152 to 188 m/µs.\n  const T_AX = 30, RF_MAX = 1000, V_MIN = 152, V_MAX = 188, D_AX = 2800;\n\n  // ---------- the rule ----------\n  // The fault sits across the line, in parallel with the cable beyond it.\n  const zAt = (rf) => rf * Z0 / (rf + Z0);\n  const rhoAt = (rf) => -Z0 / (2 * rf + Z0);\n  const passAt = (rf) => 1 + rhoAt(rf);\n  // The end and the joint come back through the fault twice: (1 + ρ) × (1 + ρ) of their height.\n  const endH = (far, rf) => (far === 'open' ? 1 : -1) * Math.pow(passAt(rf), 2);\n  const distAt = (t, v) => t * v / 2;\n  const T_J = 2 * JOINT / V_B;\n  const hump = (t, t0, w) => (t > t0 && t < t0 + w ? Math.pow(Math.sin(Math.PI * (t - t0) / w), 2) : 0);\n  function traceAt(t, far, rf) {\n    const r = rhoAt(rf), p2 = Math.pow(1 + r, 2);\n    return hump(t, 0, W) + r * hump(t, T_FAULT, W)\n      + JR * p2 * (hump(t, T_J, W / 2) - hump(t, T_J + W / 2, W / 2)) + endH(far, rf) * hump(t, T_END, W);\n  }\n  const fmtZ = (v) => (v < 1 ? f2(v) : f1(v)) + ' Ω';\n  const fmtM = (v) => f1(v) + ' m';\n\n  // ---------- the lesson's words ----------\n  const O1 = fRs2.text, O2 = fRec.text, O3 = fRs1.text;\n  const R_TASK = 'A reflection comes back after ' + R_T + ' µs. The velocity is set at ' + R_V + ' m/µs. How far away is the reflection?';\n  const R_WORK = 'L = t × v ÷ 2 = ' + fRec.work + '.';\n  const R_HALF = 'The time covers the trip there and back, so you halve it.';\n  const R_SLIPS = 'The ' + O3 + ' answer leaves out the ÷ 2. The ' + O1 + ' answer puts in half the velocity and then halves again.';\n  const R_W1 = 'That uses ' + R_VH + ', half the velocity, and then halves again. Some sets ask for the velocity as v/2. The formula takes the whole v.';\n  const R_W3 = 'That leaves out the ÷ 2. The pulse goes out and comes back, so the time covers the distance twice.';\n\n  const FOR_TEXT = \"A TDR sends a short pulse down a core and its screen, and times what comes back. It needs two conductors running side by side. \"\n    + \"Here they are the core and its own screen. From the echoes it gives the cable's length, where its joints are, and where a low-resistance fault, \"\n    + 'a break or water is. It draws a map of the cable.\\n\\n'\n    + \"The map recorded at commissioning is the cable's fingerprint. Later traces are compared with it. \"\n    + 'A joint shows on a trace much like a small fault, so its place must be known in advance.\\n\\n'\n    + 'The TDR goes on a dead cable only. The cable is isolated, discharged and earthed at both ends, as for every test. '\n    + 'There is a technician at each end. The pulse is low voltage, a fixed ' + PULSE_V + ' V on some sets.';\n  const WARN_FOR = 'Skip it, and all you know is that L2 has a fault somewhere in ' + fLen.text + ' of cable on the seabed.';\n\n  const WHY_R = 'The pulse sees the cable as an impedance of its own. The cable\\'s inductance and capacitance per metre set it. '\n    + 'That is the characteristic impedance, Z0. While Z0 stays the same, the pulse runs on and nothing comes back. '\n    + 'Where the impedance changes, part of the pulse reflects. The share that comes back is ρ = (Z load − Z0) ÷ (Z load + Z0). '\n    + 'An open end is an infinite impedance, so ρ = +1. The whole pulse comes back the right way up. '\n    + 'A short is zero impedance, so ρ = −1. The whole pulse comes back upside down.\\n\\n'\n    + 'So a reflection pointing up means the impedance rose. One pointing down means it fell. '\n    + \"At a joint the cable's build changes for a short length. The impedance changes and then changes back. \"\n    + 'So a joint shows as a small up then a small down.';\n  // Under the trace, beside the fault resistance it explains.\n  const V_B_S = V_B.toFixed(1);\n  const WHY_F = 'A fault from core to screen sits across the line. At the fault the pulse sees two paths in parallel: the fault, and the cable beyond it. '\n    + 'Two resistances in parallel give less than either. So the impedance falls, and the reflection points down.\\n\\n'\n    + 'For String B, Z0 = 1 ÷ (v × C) = 1 ÷ (' + V_B_S + ' × 10⁶ × ' + CKM + ' × 10⁻⁹) = ' + fZ0.text + '. '\n    + V_B_S + \" m/µs is String B's velocity, found in part (a). \" + CKM + ' µF/km is a typical figure. '\n    + 'So take ' + fZ0.text + \" as a practice value. On a real cable, use the maker's figure.\\n\\n\"\n    + \"Call the fault's resistance Rf. The load at the fault is Rf in parallel with Z0: Z load = Rf × Z0 ÷ (Rf + Z0). \"\n    + 'At ' + RF0 + ' Ω that is ' + RF0 + ' × ' + Z0 + ' ÷ ' + f1(RF0 + Z0) + ' = ' + fmtZ(zAt(RF0)) + '. '\n    + 'Put that into the rule, and it becomes ρ = −Z0 ÷ (2 Rf + Z0). '\n    + 'The higher Rf, the less it pulls the impedance down. So the dip is smaller.';\n  const READ_R = 'With the far end linked, the end of the cable shows as a downward peak, like a short. Open it, and the end flips to an upward peak. '\n    + \"The fault's dip at \" + fTFault.text + ' points down either way. So the reflection that flips is the end. '\n    + \"As the fault resistance rises, the impedance at the fault climbs back towards the cable's \" + fZ0.text + '. So its dip shrinks. '\n    + 'It is ' + f2(-rhoAt(RF0)) + ' of the pulse at ' + RF0 + ' Ω, ' + f2(-rhoAt(LIMIT)) + ' at ' + LIMIT + ' Ω and ' + f2(-rhoAt(RF_MAX)) + ' at ' + RF_MAX + ' Ω. '\n    + 'At ' + RF_MAX + ' Ω the trace looks like healthy cable.';\n  const SHAPES = [\n    { d: 'M6 26H40L46 40L52 26C64 26 66 12 80 12C94 12 96 26 108 26H134', t: 'Down then a broad hump: a T joint.' },\n    { d: 'M6 26H36L42 10L48 26H70L76 42L82 26H134', t: 'Up then a dip: a bridge tap.' },\n    { d: 'M6 26H58L62 6L66 46L70 26H134', t: 'A sharp up-down spike: a wet splice.' },\n    { d: 'M6 26H50L54 22L58 31L62 19L66 33L70 21L74 30L78 18L82 34L86 23L90 29L94 20L98 32L102 24L106 30L110 22L114 31L118 25L122 29L126 24L130 28L134 26',\n      t: 'A ragged, noisy tail: water getting in.' },\n  ];\n  const LIMIT_SET = str(F('n.tdrLimit').text, /\\(([\\d.]+) Ω/);\n  const LIM_TEXT = 'TDR finds faults under about ' + LIMIT + ' Ω. Above that, a low-voltage pulse will likely not see the fault. '\n    + (LIMIT_SET ? 'Some sets reach about ' + LIMIT_SET + ' Ω. ' : '')\n    + 'A high-resistance fault needs other methods. One is arc reflection. A high-voltage surge strikes an arc at the fault. '\n    + 'The arc shows on the trace like a short. That is HV work, with its own kit and procedure.';\n\n  const WHY_V = 'The TDR measures time. It turns time into distance with the velocity you give it. '\n    + 'The pulse goes out and comes back. So the time covers the distance twice: L = t × v ÷ 2.\\n\\n'\n    + 'The velocity is often given as a velocity factor, VF = v ÷ c. Here c is the speed of light, ' + C_S + ' m/µs. '\n    + \"The velocity factor is roughly 1 ÷ the square root of the insulation's relative permittivity. So the insulation sets the velocity, not the copper. \"\n    + 'Power XLPE typically runs at ' + VF_LO + ' to ' + VF_HI + ', which is ' + V_LO + ' to ' + V_HI + ' m/µs. '\n    + 'Cables differ. So a typical figure is only a starting point.\\n\\n'\n    + 'Every distance is its time × v ÷ 2. So a wrong velocity stretches all of them by the same fraction. '\n    + 'It never moves one reflection past another. So set the velocity on a length you know. '\n    + \"Open the far end, read the end's time, and move the velocity until the end reads the known length.\";\n  const READ_V = 'At the default ' + V_DEF + ' m/µs, the end reads ' + fmtM(distAt(T_END, V_DEF)) + '. That is short of the known ' + LEN_M + ' m. '\n    + 'The fault reads ' + fmtM(distAt(T_FAULT, V_DEF)) + '. The whole trace stretches as the velocity rises. '\n    + 'At ' + V_B + ' m/µs the end reads ' + fmtM(distAt(T_END, V_B)) + '. That is the known length, to within the rounding of ' + fTEnd.text + '. '\n    + 'The fault then reads ' + fmtM(distAt(T_FAULT, V_B)) + '. It stays ' + fRatio.text + ' of the way along at every setting.';\n\n  const C_TASK = \"From the OSS, L2's trace shows a downward peak at \" + fTFault.text + '. It stays down when the far end is opened. What is it?';\n  const C_O1 = 'The end of the cable', C_O2 = 'A low-resistance fault from core to screen', C_O3 = 'The field joint';\n  const C_RIGHT = 'It points down, so the impedance fell there. It did not flip when the far end opened, so it is not the end. '\n    + 'The joint at ' + fJoint.text + ' would show at ' + fJt.work + ', as a small up then down.';\n  const C_W1 = 'The end flips when you open the far end. This peak stayed down, so it is somewhere along the cable.';\n  const C_W3 = \"A joint shows as a small up then a small down, not a deep dip. String B's joint is at \" + fJoint.text + ', so it would show at ' + fJt.text + '.';\n\n  const WK_HEAD = 'Setting up, and what a ' + WEX_PCT + '% velocity error costs. Take a ' + WEX_KM + ' km cable with the velocity set ' + WEX_PCT + '% too high.';\n  const WL = [\n    { w: 'Set up on the dead cable. It is isolated, discharged and earthed at both ends. Lift the earth from the core under test at your end, under control. '\n      + 'Red lead to the conductor, black to the screen.' },\n    { w: 'First test with the far end linked, conductor to screen or to earth. Then the far end lifts the link, under control. '\n      + 'Test again with it open. The reflection that flips is the end.' },\n    { w: 'The rule: L = t × v ÷ 2. Each distance goes up in step with v.', calc: true },\n    { w: 'So a velocity ' + WEX_PCT + '% high makes every distance read ' + WEX_PCT + '% long.', calc: true },\n    { w: 'At the far end of a ' + WEX_KM + ' km cable: ' + fWex.work + ' out.', calc: true },\n    { w: 'The cure: set v on the known length. With the far end open, v = 2L ÷ t.', calc: true },\n    { w: 'When you finish, put the earths back on at both ends.' },\n  ];\n  const WK_READ = 'On a ' + WEX_KM + ' km cable, a velocity set ' + WEX_PCT + '% high puts the far end ' + fWex.work + ' out. '\n    + 'Every other distance is ' + WEX_PCT + '% out too. Setting v on the known length removes the error, using v = 2L ÷ t.';\n\n  const PRE_6A = 'L2 broke down in the VLF test and now reads ' + fRf.text + ' from core to screen. Every core is discharged and earthed at both ends. '\n    + 'You connect a TDR at the OSS end. On L1, a healthy core, with the far end at B01 open, the end shows at ' + fTEnd.text + '. '\n    + 'The route record gives the length as ' + fLen.text + '. These are practice values.';\n  const Q6A = '(a) Determine the velocity of the pulse in String B.';\n  const PRE_6B = 'Back on L2, test with the far end linked and then open. A downward peak stays at ' + fTFault.text + '.';\n  const Q6B = '(b) Determine the distance to the fault from the OSS.';\n  const Q6C = '(c) Determine the distance to the fault from B01.';\n  const Q_CH = 'Another cable. Its velocity is ' + CH_V + ' m/µs, found on a known length. A downward peak shows at ' + CH_T + ' µs. Determine the distance to it.';\n  const AFTER_6C = 'Now test from B01. The dip should show at ' + fB01.text + ', which is ' + f6c.text + '. '\n    + 'Add the distance you measure from B01 to the ' + f6b.text + ' from the OSS. The two should make ' + LEN_M + \" m. \"\n    + \"If they don't, the velocity is most likely wrong.\\n\\n\"\n    + 'When the tests are done, put the earths back on at both ends. Record L2: a low-resistance fault from core to screen, ' + f6b.text + ' from the OSS. '\n    + 'The next test, LIRA, checks it from both ends.';\n\n  let lines = 0, lastStep = -1, finished = false, pulseT = 0, pulseKey = '';\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_HALF + ' ' + R_SLIPS },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['fingerprint'],\n      still: () => { pulseT = PULSE_END; drawPulse(); } },\n    { show: true, name: 'The why: up and down', label: 'The why: up and down', text: WHY_R, terms: ['characteristic impedance'],\n      read: WHY_R.split('\\n\\n').join(' ') + ' ' + WHY_F.split('\\n\\n').join(' ') + ' ' + READ_R + ' ' + SHAPES.map((s) => s.t).join(' ') + ' ' + LIM_TEXT,\n      still: () => { farCtl.set('open'); rfCtl.set(RF0); K.refresh(); } },\n    { show: true, name: 'The why: time into distance', label: 'The why: time into distance', text: WHY_V, terms: ['velocity factor'],\n      read: WHY_V.split('\\n\\n').join(' ') + ' ' + READ_V, still: { v: V_B } },\n    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O2, why: C_RIGHT },\n    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },\n    { name: 'Section A 6(a)', label: 'Section A · Question 6', pre: PRE_6A, part: Q6A, task: PRE_6A + ' ' + Q6A, want: f6a.text,\n      why: 'v = 2L ÷ t = ' + f6a.work + '.' },\n    { name: 'Section A 6(b)', label: 'Section A · Question 6', pre: PRE_6B, part: Q6B, task: PRE_6B + ' ' + Q6B, want: f6b.text,\n      why: 'L = t × v ÷ 2 = ' + f6b.work + '.' },\n    { name: 'Section A 6(c)', label: 'Section A · Question 6', part: Q6C, task: Q6C, want: f6c.text,\n      why: 'From B01 = ' + f6c.work + '. ' + AFTER_6C.replace('\\n\\n', ' ') },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: 'L = t × v ÷ 2 = ' + fChg.work + '.' },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iUp = 2, iV = 3, iChk = 4, iWk = 5, i6A = 6, i6B = 7, i6C = 8, iB1 = 9, iCh = 10, iK = 11;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iWk, i6A, i6B, i6C, iCh];\n\n  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at0 = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });\n      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }\n      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at0 + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls, readouts and the model ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const farCtl = K.choice({ id: 'far', label: 'Far end', options: [{ value: 'linked', label: 'Linked' }, { value: 'open', label: 'Open' }], value: 'linked', into: '#ctlR' });\n  const rfCtl = K.control({ id: 'rf', label: 'Fault resistance', min: 1, max: RF_MAX, step: 1, value: RF0, unit: 'Ω', log: true, snap: [RF0, LIMIT, RF_MAX], into: '#ctlR' });\n  K.readout({ id: 'zf', label: 'Impedance at the fault', fmt: fmtZ, into: '#outsR' });\n  K.readout({ id: 'rho', label: 'Fault reflection, ρ', fmt: sg2, into: '#outsR' });\n  K.readout({ id: 'pass', label: 'Pulse past the fault', fmt: f2, into: '#outsR' });\n  K.control({ id: 'v', label: 'Velocity', min: V_MIN, max: V_MAX, step: 2, value: V_DEF, unit: 'm/µs', snap: [V_DEF, V_B], into: '#ctlV' });\n  K.readout({ id: 'Lend', label: 'End reads at', fmt: fmtM, into: '#outsV' });\n  K.readout({ id: 'Lfault', label: 'Fault reads at', fmt: fmtM, into: '#outsV' });\n  K.readout({ id: 'vf', label: 'Velocity factor', fmt: f2, into: '#outsV' });\n\n  K.model((p) => {\n    const rf = +p.rf, v = +p.v;\n    return { zf: zAt(rf), rho: rhoAt(rf), pass: passAt(rf), Lend: distAt(T_END, v), Lfault: distAt(T_FAULT, v), vf: v / C_LIGHT };\n  });\n\n  // ---------- what it is for: String B's L2, the TDR at the OSS, the fault somewhere ----------\n  const mEl = el('msvg');\n  const M_ = (tag, a) => mEl.appendChild(K.svg(tag, a));\n  const CX0 = 100, CX1 = 330, XJ = CX0 + JOINT / LEN_M * (CX1 - CX0);\n  txt(mEl, 6, 14, \"red lead to L2's conductor\", 'tk');\n  txt(mEl, 6, 28, 'black lead to its screen', 'tk');\n  txt(mEl, 206, 30, '?', 'q', 'middle');\n  txt(mEl, 218, 28, 'fault: somewhere', 'lb');\n  M_('path', { class: 'qbr', d: 'M' + CX0 + ' 46V38H' + CX1 + 'V46' });\n  M_('rect', { class: 'tdr', x: 6, y: 50, width: 46, height: 30, rx: 6 });\n  txt(mEl, 29, 70, 'TDR', 'lb', 'middle');\n  M_('rect', { class: 'scr', x: CX0, y: 52, width: CX1 - CX0, height: 24 });\n  M_('rect', { class: 'jt', x: fx(XJ - 7), y: 47, width: 14, height: 34, rx: 4 });\n  M_('path', { class: 'cond', d: 'M86 64H' + CX1 });\n  M_('path', { class: 'lead', d: 'M52 58C70 58 72 64 86 64' });\n  M_('path', { class: 'lead', d: 'M52 74C72 74 82 72 100 72' });\n  M_('circle', { class: 'ldot', cx: 86, cy: 64, r: 2.5 });\n  M_('circle', { class: 'ldot', cx: 100, cy: 72, r: 2.5 });\n  const pulseC = M_('circle', { class: 'pulse', cx: CX0, cy: 64, r: 5, opacity: 0 });\n  txt(mEl, 29, 98, 'OSS', 'lb', 'middle');\n  txt(mEl, CX1, 98, 'B01', 'lb', 'end');\n  txt(mEl, XJ, 98, 'field joint', 'lb', 'middle');\n  txt(mEl, XJ, 114, fJoint.text, 'tk', 'middle');\n  M_('path', { class: 'br', d: 'M' + CX0 + ' 126V132H' + CX1 + 'V126' });\n  txt(mEl, (CX0 + CX1) / 2, 148, fLen.text, 'lb', 'middle');\n  mEl.setAttribute('aria-label', \"String B's L2 from the OSS to B01, \" + fLen.text + '. A TDR at the OSS end, its red lead to the conductor and its black lead to the screen. '\n    + 'The field joint at ' + fJoint.text + '. A question mark spans the whole length: the fault is somewhere along it. A pulse runs out along the core and back.');\n  const PULSE_END = 4;\n  function drawPulse() {\n    const t = K.clamp(pulseT, 0, PULSE_END), half = PULSE_END / 2;\n    const u = t <= half ? t / half : (PULSE_END - t) / half;\n    const a = t >= PULSE_END ? 0 : Math.max(0, Math.min(1, t / 0.4, (PULSE_END - t) / 0.4));\n    pulseC.setAttribute('cx', fx(K.lerp(CX0, CX1, u)));\n    pulseC.setAttribute('opacity', a.toFixed(2));\n  }\n  drawPulse();\n\n  // ---------- the why: up and down. L2's trace from the OSS against time ----------\n  const rEl = el('rsvg');\n  const R_ = (tag, a) => rEl.appendChild(K.svg(tag, a));\n  const RX0 = 40, RX1 = 326, RYC = 100, RA = 58, PXT = (RX1 - RX0) / T_AX;\n  const rx = (t) => RX0 + t * PXT, ry = (h) => RYC - RA * h;\n  txt(rEl, RX0, 16, 'up = impedance rose', 'tk');\n  txt(rEl, 336, 16, 'down = impedance fell', 'tk', 'end');\n  R_('path', { class: 'zero', d: 'M' + RX0 + ' ' + RYC + 'H' + RX1 });\n  let axR = 'M' + RX0 + ' ' + ry(1) + 'V' + ry(-1) + 'M' + RX0 + ' 170H' + RX1;\n  [1, 0, -1].forEach((h) => { axR += 'M' + (RX0 - 4) + ' ' + fx(ry(h)) + 'H' + RX0; txt(rEl, RX0 - 7, ry(h) + 4.5, h > 0 ? '+1' : h < 0 ? '−1' : '0', 'tk', 'end'); });\n  [0, 10, 20, 30].forEach((t) => { axR += 'M' + fx(rx(t)) + ' 170V175'; txt(rEl, rx(t), 189, t === T_AX ? t + ' µs' : String(t), 'tk', t === T_AX ? 'end' : 'middle'); });\n  R_('path', { class: 'ax', d: axR });\n  const traceR = R_('path', { class: 'trace', d: 'M0 0' });\n  txt(rEl, rx(W) + 5, ry(1) + 10, 'pulse sent', 'tk');\n  const xF = rx(T_FAULT + W / 2), xJ = rx(T_J + W / 2);\n  txt(rEl, xF, RYC - 24, 'fault', 'lb', 'middle');\n  txt(rEl, xF, RYC - 10, fTFault.text, 'tk', 'middle');\n  txt(rEl, xJ, RYC - 24, 'joint', 'lb', 'middle');\n  txt(rEl, xJ, RYC - 10, fJt.text, 'tk', 'middle');\n  const endName = txt(rEl, 336, RYC - 24, 'end', 'lb', 'end');\n  const endTime = txt(rEl, 336, RYC - 10, fTEnd.text, 'tk', 'end');\n  function tracePath(far, rf) {\n    let d = '';\n    for (let k = 0; k <= 600; k++) { const t = k * T_AX / 600; d += (k ? 'L' : 'M') + fx(rx(t)) + ' ' + fx(ry(traceAt(t, far, rf))); }\n    return d;\n  }\n  let rKey = '';\n  function drawTrace(p, o) {\n    const far = p.far === 'open' ? 'open' : 'linked', rf = +p.rf, key = far + '|' + rf, up = far === 'open';\n    if (key !== rKey) { rKey = key; traceR.setAttribute('d', tracePath(far, rf)); }\n    endName.setAttribute('y', up ? RYC + 18 : RYC - 24);\n    endTime.setAttribute('y', up ? RYC + 32 : RYC - 10);\n    rEl.setAttribute('aria-label', \"L2's trace from the OSS over \" + T_AX + ' µs. The pulse sent at 0 points up. A dip at ' + fTFault.text + ' is the fault. '\n      + 'A small up then down at ' + fJt.text + ' is the joint. At ' + fTEnd.text + ' the end points ' + (up ? 'up' : 'down') + '.');\n    const back = f2(Math.abs(o.rho)), past = f2(o.pass);\n    const s1 = up ? \"With the far end open, the end shows as an upward peak. The fault's dip at \" + fTFault.text + ' still points down. So the reflection that flips is the end.'\n      : \"With the far end linked, the end shows as a downward peak, like a short. The fault's dip at \" + fTFault.text + ' points down too.';\n    let s2;\n    if (r2(Math.abs(o.rho)) <= 0.01) s2 = 'At ' + rf + ' Ω the fault sends back only ' + back + ' of the pulse. The trace looks like healthy cable.';\n    else if (rf > LIMIT) s2 = 'At ' + rf + ' Ω the fault sends back only ' + back + ' of the pulse. Above about ' + LIMIT + ' Ω, a low-voltage pulse will likely not see it.';\n    else s2 = 'At ' + rf + ' Ω the fault sends back ' + back + ' of the pulse, and ' + past + ' gets past it.';\n    el('sayR').textContent = nb(s1 + ' ' + s2);\n  }\n\n  // ---------- the why: time into distance. The same trace against distance ----------\n  const vEl = el('vsvg');\n  const V_ = (tag, a) => vEl.appendChild(K.svg(tag, a));\n  const VX0 = 40, VX1 = 326, VYC = 96, VA = 48, PXD = (VX1 - VX0) / D_AX;\n  const dx = (m) => VX0 + m * PXD, vy = (h) => VYC - VA * h;\n  const SX = (v) => VX0 + (v - V_MIN) / (V_MAX - V_MIN) * (VX1 - VX0);\n  V_('path', { class: 'trace', d: 'M40 12H58' });\n  txt(vEl, 63, 16, 'velocity set', 'tk');\n  V_('path', { class: 'ghost', d: 'M178 12H196' });\n  txt(vEl, 201, 16, 'default ' + V_DEF + ' m/µs', 'tk');\n  V_('path', { class: 'zero', d: 'M' + VX0 + ' ' + VYC + 'H' + VX1 });\n  V_('path', { class: 'ref', d: 'M' + fx(dx(LEN_M)) + ' 44V' + (VYC + 8) });\n  txt(vEl, dx(LEN_M) + 4, 38, 'known length ' + LEN_M + ' m', 'lb', 'end');\n  let axV = 'M' + VX0 + ' 152H' + VX1;\n  [0, 500, 1000, 1500, 2000, 2500].forEach((m) => { axV += 'M' + fx(dx(m)) + ' 152V157'; if (m % 1000 === 0) txt(vEl, dx(m), 170, String(m), 'tk', 'middle'); });\n  V_('path', { class: 'ax', d: axV });\n  txt(vEl, VX1, 186, 'distance from the OSS (m)', 'tk', 'end');\n  function distPath(v) {\n    let d = '';\n    for (let k = 0; k <= 560; k++) { const m = k * D_AX / 560; d += (k ? 'L' : 'M') + fx(dx(m)) + ' ' + fx(vy(traceAt(2 * m / v, 'open', RF0))); }\n    return d;\n  }\n  V_('path', { class: 'ghost', d: distPath(V_DEF) });\n  const traceV = V_('path', { class: 'trace', d: 'M0 0' });\n  const faultV = txt(vEl, 0, VYC - 12, 'fault', 'lb', 'middle');\n  const endV = txt(vEl, 0, VYC + 20, 'end', 'lb', 'middle');\n  txt(vEl, VX0, 206, 'Velocity set (m/µs)', 'tk');\n  V_('rect', { class: 'band', x: fx(SX(V_LO)), y: 214, width: fx(SX(V_HI) - SX(V_LO)), height: 16 });\n  let axS = 'M' + VX0 + ' 230H' + VX1;\n  [V_MIN, V_DEF, V_MAX].forEach((v) => { axS += 'M' + fx(SX(v)) + ' 230V235'; txt(vEl, SX(v), 250, String(v), 'tk', 'middle'); });\n  V_('path', { class: 'ax', d: axS });\n  txt(vEl, (SX(V_LO) + SX(V_HI)) / 2, 250, 'typical XLPE: ' + V_LO + ' to ' + V_HI, 'tk', 'middle');\n  const vdot = V_('circle', { class: 'vdot', cx: fx(SX(V_DEF)), cy: 222, r: 6 });\n  let vKey = null;\n  function drawVel(p, o) {\n    const v = +p.v;\n    if (v !== vKey) { vKey = v; traceV.setAttribute('d', distPath(v)); }\n    faultV.setAttribute('x', fx(dx(distAt(T_FAULT + W / 2, v))));\n    endV.setAttribute('x', fx(dx(distAt(T_END + W / 2, v))));\n    vdot.setAttribute('cx', fx(SX(v)));\n    const on = Math.abs(o.Lend - LEN_M) < distAt(T_END, 1), short = o.Lend < LEN_M;\n    vEl.setAttribute('aria-label', \"L2's trace with the far end open, against distance from the OSS. A dashed line marks the known length, \" + LEN_M + ' m. '\n      + 'The end sits ' + (on ? 'on it' : short ? 'short of it' : 'past it') + '. A faint dashed trace shows the default ' + V_DEF + ' m/µs. '\n      + 'Below, the velocity set sits on a scale from ' + V_MIN + ' to ' + V_MAX + ' m/µs, with the typical XLPE band from ' + V_LO + ' to ' + V_HI + '.');\n    const lead = v === V_DEF ? 'At the default ' + V_DEF + ' m/µs, the end reads ' : 'At ' + v + ' m/µs the end reads ';\n    const where = on ? ', on the known length.' : short ? ', short of the known ' + LEN_M + ' m.' : ', past the known ' + LEN_M + ' m.';\n    el('sayV').textContent = nb(lead + fmtM(o.Lend) + where + ' The fault reads ' + fmtM(o.Lfault) + ', still ' + fRatio.text + ' of the way along.');\n  }\n\n  // ---------- String B's result: where L2's fault is ----------\n  (function result() {\n    const g = el('fsvg'), G_ = (tag, a) => g.appendChild(K.svg(tag, a));\n    const X0 = 40, X1 = 320, xf = X0 + f6b.value / LEN_M * (X1 - X0), xj = X0 + JOINT / LEN_M * (X1 - X0);\n    G_('path', { class: 'br', d: 'M' + X0 + ' 30V22H' + fx(xf) + 'V30' });\n    G_('path', { class: 'br', d: 'M' + fx(xf) + ' 30V22H' + X1 + 'V30' });\n    txt(g, (X0 + xf) / 2, 14, f6b.text + ' from the OSS', 'lb', 'middle');\n    txt(g, (xf + X1) / 2, 14, f6c.text + ' from B01', 'lb', 'middle');\n    G_('rect', { class: 'scr', x: X0, y: 40, width: X1 - X0, height: 20 });\n    G_('rect', { class: 'jt', x: fx(xj - 7), y: 36, width: 14, height: 28, rx: 4 });\n    G_('path', { class: 'cond', d: 'M' + X0 + ' 50H' + X1 });\n    G_('circle', { class: 'fmark', cx: fx(xf), cy: 50, r: 7 });\n    txt(g, X0, 80, 'OSS', 'lb');\n    txt(g, X1, 80, 'B01', 'lb', 'end');\n    txt(g, xf, 80, \"L2's fault\", 'lb', 'middle');\n    txt(g, xj, 98, 'joint, ' + fJoint.text, 'tk', 'middle');\n    g.setAttribute('aria-label', 'The route from the OSS to B01. L2\\'s fault is ' + f6b.text + ' from the OSS and ' + f6c.text + ' from B01. The joint at ' + fJoint.text + ' is beyond it.');\n  })();\n\n  // ---------- the other shapes, and what a TDR cannot see ----------\n  (function shapes() {\n    const box = el('shapes');\n    box.appendChild(K.el('p', { class: 'k-label' }, 'Other shapes worth knowing'));\n    const grid = box.appendChild(K.el('div', { class: 'shapes' }));\n    SHAPES.forEach((s) => {\n      const tile = grid.appendChild(K.el('div', { class: 'shape' }));\n      const svg = tile.appendChild(K.svg('svg', { viewBox: '0 0 140 50', width: '100%', role: 'img', 'aria-label': s.t }));\n      svg.appendChild(K.svg('path', { class: 'bl', d: 'M6 26H134' }));\n      svg.appendChild(K.svg('path', { class: 'sh', d: s.d }));\n      tile.appendChild(K.el('p', null, s.t));\n    });\n    el('limNote').appendChild(write(K.el('p'), LIM_TEXT, ['arc reflection']));\n  })();\n\n  // ---------- one animation: the pulse runs out and back on arrival ----------\n  const anim = K.anim({ button: false, label: 'Pulse', step: (dt) => {\n    if (at() !== iFor) return false;\n    pulseT = Math.min(PULSE_END, pulseT + Math.min(dt, 0.1));\n    drawPulse();\n    return pulseT < PULSE_END;\n  } });\n\n  // ---------- picks: one tap answers ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_HALF + ' ' + R_SLIPS }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK], p: R_HALF }; }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: C_RIGHT }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O1 ? C_W1 : C_W3 }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i6A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  const car6a = K.carried({ parts: ['5a'], into: '#carry6a' });\n  const car6b = K.carried({ parts: ['6a'], into: '#carry6b' });\n  const car6c = K.carried({ parts: ['6a', '6b'], into: '#carry6c' });\n  const NO_HALF = 'The ÷ 2 is missing. The time covers the trip there and back.';\n  // The answer worked from unrounded figures, where it differs from the course's figure.\n  const vRaw = 2 * LEN_M / T_END, raw6b = r1(T_FAULT * vRaw / 2), raw6c = r1(LEN_M - T_FAULT * vRaw / 2);\n  const SPEC = {\n    [i6A]: { id: '6a', fig: f6a, dec: 1, accept: [r1(vRaw)].filter((x) => x !== f6a.value), work: () => ['v = 2L ÷ t', '= ' + f6a.work],\n      slips: [{ value: F('6a.slip').value, hint: 'That is L ÷ t. The pulse covered the ' + LEN_M + ' m twice: v = 2L ÷ t.' },\n        { value: F('6a.slip2').value, hint: 'That is in km per µs. Work in metres: 2 × ' + LEN_M + ' ÷ ' + T_END_S + '.' }],\n      hint: 'Not quite. The pulse goes to the open end and back: v = 2L ÷ t, with L in metres.',\n      after: 'VF = ' + fVF.work + '. That is inside the typical ' + VF_LO + ' to ' + VF_HI + ' for XLPE. A set that asks for v/2 takes ' + fV2.work + '.' },\n    [i6B]: { id: '6b', fig: f6b, dec: 1, accept: [raw6b].filter((x) => x !== f6b.value), work: () => ['L = t × v ÷ 2', '= ' + f6b.work],\n      slips: [{ value: fS6b.value, hint: 'That uses ' + V_DEF + ' m/µs, a default left set. Use the velocity from (a), ' + f6a.text + '.' },\n        { value: F('6b.slip2').value, hint: NO_HALF },\n        { value: F('6b.slip3').value, hint: 'That uses v/2 and then halves again. The formula takes the whole v.' }],\n      hint: 'Not quite. Use L = t × v ÷ 2, with the velocity from (a).',\n      after: 'The joint at ' + fJoint.text + ' would show at ' + fJt.text + '. So this is not the joint. Treat ' + f6b.text + ' as the middle of a search zone. '\n        + \"A TDR is generally accurate to within \" + Math.round(ZONE * 100) + \"% of the cable's length. On String B that is \" + fAcc.work + ' either side of ' + f6b.text + '.' },\n    [i6C]: { id: '6c', fig: f6c, dec: 1, accept: [raw6c].filter((x) => x !== f6c.value), work: () => ['From B01 = length − distance from the OSS', '= ' + f6c.work],\n      slips: [{ value: f6b.value, hint: 'That is the distance from the OSS. Take it from the length.' },\n        { value: F('6c.slip').value, hint: 'That starts from ' + fS6b.text + \", the default velocity's distance. Use \" + f6b.text + ' from (b).' }],\n      hint: 'Not quite. Take the distance from the OSS away from the length.',\n      after: AFTER_6C },\n    [iCh]: { id: 'l6.changed', fig: fChg, dec: 1, accept: [], work: () => ['L = t × v ÷ 2', '= ' + fChg.work],\n      slips: [{ value: F('l6.changed.slip').value, hint: NO_HALF },\n        { value: F('l6.changed.slip2').value, hint: 'That uses ' + V_DEF + \" m/µs. Use this cable's \" + CH_V + ' m/µs.' }],\n      hint: \"Not quite. Use L = t × v ÷ 2, with this cable's velocity.\",\n      after: CH_V + ' m/µs is a velocity factor of ' + CH_V + ' ÷ ' + C_S + ' = ' + f2(+CH_V / C_LIGHT) + '. That is inside the typical range for XLPE.' },\n  };\n  const BOX = { [i6A]: '#ans-6a', [i6B]: '#ans-6b', [i6C]: '#ans-6c', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work() };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // ---------- Section B and Keep this ----------\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  (function () {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });\n  })();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const wbox = K.el('div', { class: 'wl' });\n  const wl = WL.map((x, k) => {\n    const box = K.el('div', { class: 'line' });\n    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));\n    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));\n    wbox.appendChild(box);\n    return box;\n  });\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wl.length) return;\n    const w = wl[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));\n  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));\n  el('capM').textContent = nb(\"String B's \" + fLen.text + ' and its joint at ' + fJoint.text + ' are practice values.');\n  el('titR').textContent = \"L2's trace from the OSS\";\n  el('capR').textContent = nb(\"String B's \" + fZ0.text + \" and L2's \" + fRf.text + \" are practice values. The joint's ripple size is chosen for the picture. \"\n    + 'Real traces are rounder, and far echoes come back fainter. The picture leaves that loss out.');\n  paras(el('whyF'), WHY_F);\n  el('titV').textContent = \"L2's trace, far end open, against distance\";\n  el('ratioV').textContent = nb('The fault always sits ' + fRatio.text + ' of the way to the end: ' + fRatio.work + '.');\n  el('capV').textContent = nb(\"String B's times and length are practice values. \" + V_DEF + ' m/µs stands for a default left set.');\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));\n    if (f.p) fb.appendChild(write(K.el('p'), f.p));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    return false;\n  }\n\n  const ON = { scen: [i6A], carry6a: [i6A], carry6b: [i6B], carry6c: [i6C], pre: [i6A, i6B],\n    wrapM: [iFor], warnFor: [iFor], capM: [iFor],\n    wrapR: [iUp], whyF: [iUp], ctlR: [iUp], outsR: [iUp], sayR: [iUp], shapes: [iUp], limNote: [iUp], capR: [iUp],\n    wrapV: [iV], ctlV: [iV], outsV: [iV], ratioV: [iV], sayV: [iV], capV: [iV],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-6a': [i6A], 'ans-6b': [i6B], 'ans-6c': [i6C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };\n  const ASK = {\n    [iUp]: 'Switch the far end from linked to open. Then drag the fault resistance from ' + RF0 + ' Ω up to ' + RF_MAX + ' Ω.',\n    [iV]: 'Drag the velocity until the end lands on the known ' + LEN_M + ' m.',\n    [iWk]: 'Think each line through first, then press Show.',\n  };\n  const CARRY = { [i6A]: car6a, [i6B]: car6b, [i6C]: car6c };\n\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) {\n      if (lastStep !== -1) enter();\n      lastStep = i;\n      if (i === i6A) scen.el.open = true;\n      if (CARRY[i] && typeof CARRY[i].refresh === 'function') { try { CARRY[i].refresh(); } catch (e) { /* the panel keeps its last state */ } }\n    }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('pre'), d.pre || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text, d.terms);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (ASK[i] ? ' ask' : '');\n    sub.textContent = nb(ASK[i] ? ASK[i]\n      : i === iChk ? \"String B's figures are practice values.\"\n      : i === i6A ? 'Give it in m/µs, to 1 place.'\n      : i === i6B || i === i6C ? 'Give it in m, to 1 place.'\n      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in m, to 1 place.'\n      : i === iB1 ? markLine('b1')\n      : i === iK ? 'One card to come back to on a real job.' : '');\n    sub.hidden = !sub.textContent;\n\n    drawTrace(p, o);\n    drawVel(p, o);\n    const pk = i === iFor ? 'P' : '';\n    if (pk && pk !== pulseKey) { pulseT = 0; drawPulse(); if (!anim.playing()) anim.play(); }\n    pulseKey = pk;\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    wl.forEach((w, k) => { w.hidden = k >= lines; });\n    nextLine.el.hidden = lines >= wl.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wl.length;\n\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const after = el('after');\n    paras(after, typedDone ? SPEC[i].after : '');\n    after.hidden = !after.textContent;\n    el('wrapF').hidden = !(i === i6C && typedDone);\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['wrapF', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);\n  const AR = (rf) => K.at({ rf: rf }), AV = (v) => K.at({ v: v });\n  K.check('Rf 1, 35, 100 and 1000 Ω give 0.96, 15.3, 21.3 and 26.4 Ω at the fault; ρ −0.93, −0.28, −0.12 and −0.01; 0.07, 0.72, 0.88 and 0.99 get past', () =>\n    fmtZ(AR(1).zf) === '0.96 Ω' && fmtZ(AR(35).zf) === '15.3 Ω' && fmtZ(AR(100).zf) === '21.3 Ω' && fmtZ(AR(1000).zf) === '26.4 Ω'\n    && near(r2(AR(1).rho), F('l6.rho1').value) && near(r2(AR(RF0).rho), F('l6.rho35').value) && near(r2(AR(100).rho), F('l6.rho100').value)\n    && near(r2(AR(1000).rho), F('l6.rho1000').value) && sg2(AR(35).rho) === '−0.28'\n    && f2(AR(1).pass) === '0.07' && near(r2(AR(RF0).pass), F('l6.pass').value) && f2(AR(100).pass) === '0.88' && f2(AR(1000).pass) === '0.99');\n  K.check('Behind the 35 Ω fault the end comes back at 0.72 × 0.72 = 0.52 of its full height', () =>\n    near(r2(Math.abs(endH('open', RF0))), F('l6.endamp').value) && near(r2(r2(passAt(RF0)) * r2(passAt(RF0))), F('l6.endamp').value));\n  K.check(\"Opening the far end flips the end from down to up; the fault's dip stays down at every resistance\", () =>\n    [1, RF0, LIMIT, RF_MAX].every((rf) => endH('linked', rf) < 0 && endH('open', rf) > 0 && rhoAt(rf) < 0\n      && traceAt(T_FAULT + W / 2, 'linked', rf) < 0 && traceAt(T_FAULT + W / 2, 'open', rf) < 0\n      && traceAt(T_END + W / 2, 'linked', rf) < 0 && traceAt(T_END + W / 2, 'open', rf) > 0));\n  K.check('The dip shrinks as the fault resistance rises, and the impedance climbs towards 27.1 Ω', () => {\n    for (let rf = 1; rf < RF_MAX; rf++) if (!(Math.abs(rhoAt(rf + 1)) < Math.abs(rhoAt(rf)) && zAt(rf + 1) > zAt(rf) && zAt(rf + 1) < Z0)) return false;\n    return near(rhoAt(0), -1) && near(zAt(1e12), Z0, 1e-6);\n  });\n  K.check(\"String B's 27.1 Ω is 1 ÷ (v × C) at 168.0 m/µs and 0.22 µF/km\", () => near(r1(1 / (V_B * 1e6 * CKM * 1e-9)), Z0));\n  K.check('At 152, 160, 168 and 188 m/µs the end reads 2171.3, 2285.6, 2399.9 and 2685.6 m; the fault 868.7, 914.4, 960.1 and 1074.4 m; VF 0.51, 0.53, 0.56 and 0.63', () =>\n    fmtM(AV(152).Lend) === '2171.3 m' && fmtM(AV(160).Lend) === '2285.6 m' && fmtM(AV(168).Lend) === '2399.9 m' && fmtM(AV(188).Lend) === '2685.6 m'\n    && fmtM(AV(152).Lfault) === '868.7 m' && fmtM(AV(160).Lfault) === fS6b.text && fmtM(AV(168).Lfault) === f6b.text && fmtM(AV(188).Lfault) === '1074.4 m'\n    && f2(AV(152).vf) === '0.51' && f2(AV(160).vf) === '0.53' && f2(AV(168).vf) === fVF.text && f2(AV(188).vf) === '0.63');\n  K.check('The fault sits 0.40 of the way to the end at every velocity', () => {\n    for (let v = V_MIN; v <= V_MAX; v += 2) if (!near(r2(AV(v).Lfault / AV(v).Lend), fRatio.value)) return false;\n    return true;\n  });\n  K.check('Recall: 20.0 × 160 ÷ 2 = 1600 m; slips 3200 m and 800 m. Worked example: 0.05 × 2000 = 100 m', () =>\n    near(r1(+R_T * +R_V / 2), fRec.value) && near(r1(+R_T * +R_V), fRs1.value) && near(r1(+R_T * +R_VH / 2), fRs2.value) && near(+R_VH * 2, +R_V)\n    && near(r1(WEX_F * WEX_L), fWex.value));\n  K.check('6(a) 168.0 m/µs; 6(b) 960.1 m (960.2 unrounded); 6(c) 1439.9 m (1439.8 unrounded); changed numbers 1290.0 m', () =>\n    near(r1(2 * LEN_M / T_END), f6a.value) && near(r1(T_FAULT * V_B / 2), f6b.value) && near(r1(LEN_M - f6b.value), f6c.value)\n    && raw6b === 960.2 && raw6c === 1439.8 && near(r1(+CH_T * +CH_V / 2), fChg.value));\n  K.check('Joint at 19.29 µs, B01 at 17.14 µs, VF 0.56, v/2 84.0, zone 24.0 m either side', () =>\n    near(r2(2 * JOINT / V_B), fJt.value) && near(r2(2 * f6c.value / V_B), fB01.value) && near(r2(V_B / C_LIGHT), fVF.value)\n    && near(r1(V_B / 2), fV2.value) && near(r1(ZONE * LEN_M), fAcc.value) && near(r1(f6b.value + f6c.value), fBoth.value));\n  K.check('Each slip is its own working: 84.0 and 0.168; 914.4, 1920.2 and 480.1; 1485.6; 2580.0 and 1200.0', () =>\n    near(r1(LEN_M / T_END), F('6a.slip').value) && near(r3(2 * LEN_KM / T_END), F('6a.slip2').value)\n    && near(r1(T_FAULT * V_DEF / 2), fS6b.value) && near(r1(T_FAULT * V_B), F('6b.slip2').value) && near(r1(T_FAULT * (V_B / 2) / 2), F('6b.slip3').value)\n    && near(r1(LEN_M - fS6b.value), F('6c.slip').value) && near(r1(+CH_T * +CH_V), F('l6.changed.slip').value)\n    && near(r1(+CH_T * V_DEF / 2), F('l6.changed.slip2').value));\n  K.check('A fault of higher resistance, over 100 Ω, a low-voltage pulse will likely not see', () => LIMIT === 100,\n    { source: 'https://www.megger.com/en-ca/applications/cables/cable-fault-location' });\n  K.check('Power XLPE: velocity factor 0.54 to 0.62, 162 to 186 m/µs', () =>\n    VF_LO === 0.54 && VF_HI === 0.62 && V_LO === 162 && V_HI === 186 && Math.round(VF_LO * C_LIGHT) === V_LO && Math.round(VF_HI * C_LIGHT) === V_HI,\n    { source: 'https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf' });\n  K.check('Measured from both ends, the combined answer should equal the expected length of the cable', () => near(f6b.value + f6c.value, LEN_M, 1e-6),\n    { source: 'https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf' });\n  K.check(\"Every slip lies outside its answer's accepted figures\", () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = 0.05;\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));\n  }));\n\n  K.ready();\n</script>",
+  "title": "Reading L2's echoes",
+  "brief": "The one thing you should see is the end of L2's trace flipping from a downward to an upward peak, while the fault's dip at 11.43 µs stays down, when you switch the far end from linked to open.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Rf 1, 35, 100 and 1000 Ω give 0.96, 15.3, 21.3 and 26.4 Ω at the fault; ρ −0.93, −0.28, −0.12 and −0.01; 0.07, 0.72, 0.88 and 0.99 get past",
+     "ok": true
+    },
+    {
+     "label": "Behind the 35 Ω fault the end comes back at 0.72 × 0.72 = 0.52 of its full height",
+     "ok": true
+    },
+    {
+     "label": "Opening the far end flips the end from down to up; the fault's dip stays down at every resistance",
+     "ok": true
+    },
+    {
+     "label": "The dip shrinks as the fault resistance rises, and the impedance climbs towards 27.1 Ω",
+     "ok": true
+    },
+    {
+     "label": "String B's 27.1 Ω is 1 ÷ (v × C) at 168.0 m/µs and 0.22 µF/km",
+     "ok": true
+    },
+    {
+     "label": "At 152, 160, 168 and 188 m/µs the end reads 2171.3, 2285.6, 2399.9 and 2685.6 m; the fault 868.7, 914.4, 960.1 and 1074.4 m; VF 0.51, 0.53, 0.56 and 0.63",
+     "ok": true
+    },
+    {
+     "label": "The fault sits 0.40 of the way to the end at every velocity",
+     "ok": true
+    },
+    {
+     "label": "Recall: 20.0 × 160 ÷ 2 = 1600 m; slips 3200 m and 800 m. Worked example: 0.05 × 2000 = 100 m",
+     "ok": true
+    },
+    {
+     "label": "6(a) 168.0 m/µs; 6(b) 960.1 m (960.2 unrounded); 6(c) 1439.9 m (1439.8 unrounded); changed numbers 1290.0 m",
+     "ok": true
+    },
+    {
+     "label": "Joint at 19.29 µs, B01 at 17.14 µs, VF 0.56, v/2 84.0, zone 24.0 m either side",
+     "ok": true
+    },
+    {
+     "label": "Each slip is its own working: 84.0 and 0.168; 914.4, 1920.2 and 480.1; 1485.6; 2580.0 and 1200.0",
+     "ok": true
+    },
+    {
+     "label": "A fault of higher resistance, over 100 Ω, a low-voltage pulse will likely not see",
+     "ok": true,
+     "source": "https://www.megger.com/en-ca/applications/cables/cable-fault-location"
+    },
+    {
+     "label": "Power XLPE: velocity factor 0.54 to 0.62, 162 to 186 m/µs",
+     "ok": true,
+     "source": "https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf"
+    },
+    {
+     "label": "Measured from both ends, the combined answer should equal the expected length of the cable",
+     "ok": true,
+     "source": "https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf"
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "far",
+    "rf",
+    "v"
+   ],
+   "readouts": [
+    "zf",
+    "rho",
+    "pass",
+    "Lend",
+    "Lfault",
+    "vf"
+   ],
+   "outputs": [
+    "zf",
+    "rho",
+    "pass",
+    "Lend",
+    "Lfault",
+    "vf"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why: up and down",
+      "The why: time into distance",
+      "Check",
+      "Worked example",
+      "Section A 6(a)",
+      "Section A 6(b)",
+      "Section A 6(c)",
+      "Section B",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "far",
+     "kind": "choice",
+     "label": "Far end",
+     "options": [
+      "linked",
+      "open"
+     ],
+     "labels": [
+      "Linked",
+      "Open"
+     ],
+     "value": "linked",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "rf",
+     "kind": "control",
+     "label": "Fault resistance",
+     "min": 1,
+     "max": 1000,
+     "step": 1,
+     "log": true,
+     "value": 35,
+     "shown": false,
+     "snap": [
+      35,
+      100,
+      1000
+     ]
+    },
+    {
+     "id": "v",
+     "kind": "control",
+     "label": "Velocity",
+     "min": 152,
+     "max": 188,
+     "step": 2,
+     "log": false,
+     "value": 160,
+     "shown": false,
+     "snap": [
+      160,
+      168
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Pulse"
+   ],
+   "answers": [
+    {
+     "id": "6a",
+     "answer": 168,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "6b",
+     "answer": 960.1,
+     "accept": [
+      960.2
+     ],
+     "ok": true
+    },
+    {
+     "id": "6c",
+     "answer": 1439.9,
+     "accept": [
+      1439.8
+     ],
+     "ok": true
+    },
+    {
+     "id": "l6.changed",
+     "answer": 1290,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T03:32:57.280Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 2 calls a fixed 50 V 'typical', but 50 V fixed is one set's figure: Megger lists 30 to 160 V for a Teleflex VX and 5 V for a TDR500; screen 9's 'the velocity is wrong' is absolute when water or a wrong length record can also upset the sum."
+   },
+   {
+    "path": "explain.text",
+    "problem": "The 0.28 and 0.01 reflections come from String B's practice impedance of 27.1 Ω, but the explanation, read alone in the dossier, does not label them as practice values."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "'Up: the impedance rose, an open' reads as if every upward reflection is an open; a break gives one too and a joint starts with a small up, as the card and the lesson say elsewhere."
+   },
+   {
+    "path": "summary.traps[1].text",
+    "problem": "The 914.4 m and 960.1 m are String B practice figures, and the standalone Keep this card does not say so."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

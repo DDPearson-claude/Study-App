@@ -1,0 +1,82 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 5,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 3, The why: up and down, last paragraph (Z0 for String B)",
+      "what": "\"Take String B's Z0 as 27.1 Ω. It is worked from the cable's velocity and its 0.22 µF/km. So it is a practice value.\" gives the figure with no rule shown, uses a velocity he has not met yet (168.0 m/µs arrives on screen 4 and in 6(a)), and \"So it is a practice value\" does not follow. Show the line instead: \"Z0 = 1 ÷ (v × C) = 1 ÷ (168.0 × 10⁶ × 0.22 × 10⁻⁹) = 27.1 Ω.\" Then say it once, plainly: \"168.0 m/µs is String B's velocity, found in part (a). 0.22 µF/km is a typical figure. So take 27.1 Ω as a practice value. On a real cable, use the maker's figure.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 3, third paragraph (the fault across the line), and the \"Impedance at the fault\" readout",
+      "what": "The why skips a step. It goes from \"two paths in parallel\" straight to ρ = −Z0 ÷ (2 Rf + Z0), and the readout's 15.3 Ω has no rule on screen. Add the missing line before the result: \"The load at the fault is Rf in parallel with Z0: Z load = Rf × Z0 ÷ (Rf + Z0). At 35 Ω that is 35 × 27.1 ÷ 62.1 = 15.3 Ω.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 8, Section A 6(b), the note after the answer",
+      "what": "\"A zone of 1% of the length is 0.01 × 2400 = 24.0 m either side\" uses 1% with no reason given, so it reads as made up. Lead with the reason: \"A TDR is generally accurate to within 1% of the cable's length. On String B that is 0.01 × 2400 = 24.0 m either side of 960.1 m.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 9, Section A 6(c), the note after the answer",
+      "what": "\"The two distances should add up to the length: 960.1 + 1439.9 = 2400.0 m\" checks nothing, because 1439.9 m was found as 2400 − 960.1 m one line earlier, yet it is shown as the check on the velocity. Make the B01 reading the measured one: \"Now test from B01. The dip should show at 17.14 µs, which is 1439.9 m. Add the distance you measure from B01 to the 960.1 m from the OSS. The two should make 2400 m. If they don't, the velocity is most likely wrong.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, The why: up and down (whole step, 360 px)",
+      "what": "About 260 words in three paragraphs sit above the trace. The picture starts more than a phone screen down, and the step runs to about 3,200 px with the gallery and the limit note. Move the fault-in-parallel paragraph under the trace, next to the Fault resistance slider it explains. Then he reads the up-and-down rule, sees it, and moves on."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the gallery of other trace shapes (.shapes)",
+      "what": "At 360 px the four tiles stack one per row, because minmax(9rem, 1fr) needs 298 px and the column has about 296 px. That adds about 600 px of scrolling. minmax(8.5rem, 1fr) gives two columns."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4, The why: time into distance, first paragraph",
+      "what": "\"The velocity factor is 1 ÷ the square root of the insulation's relative permittivity\" reads as exact. XLPE's permittivity is usually quoted near 2.3 to 2.5, which would give about 0.63 to 0.66, above the 0.54 to 0.62 quoted two sentences later. Say \"roughly\", or say that a real power cable runs slower than this simple rule gives (only if research can quote that), so a careful reader does not trip on the gap."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the limit note under the gallery",
+      "what": "His notes give about 100 Ω, or about 200 Ω for a Teleflex set, and the lesson drops the second figure. Add one short sentence: \"Some sets reach about 200 Ω.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, caption under the trace (capR)",
+      "what": "The screen does not say that the picture leaves out cable loss. On 2.4 km of subsea cable, real far reflections come back smaller, wider and noisier, and that matters when he reads a real trace. Only the explain text says so. Add one sentence to the caption: \"Real traces are rounder, and far echoes come back fainter. The picture leaves that loss out.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6, Worked example",
+      "what": "The head promises \"a 2 km cable, with the velocity set 5% too high\", and the prompt says \"Work each line yourself first\". Yet lines 1, 2 and 7 are setup and safety steps, not working. Either move them out of the example and keep the four calculation lines, or retitle it \"Setting up, and what a 5% velocity error costs\"."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2, What it is for, third paragraph",
+      "what": "\"The pulse is a low voltage, a fixed 50 V on some sets. The level depends on the set.\" says the same thing twice. Use one sentence: \"The pulse is low voltage, a fixed 50 V on some sets.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 12, Keep this, \"What it is for\"",
+      "what": "\"Where is it?\" opens the card oddly, and \"each as a distance from the end\" does not say which end. Write: \"A TDR gives the cable's length, its joints, and faults under about 100 Ω, each as a distance from the end you test from.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 12, Keep this, the rule",
+      "what": "The card leaves out the one set-up choice his notes give for pulse width: the shorter the cable, the shorter the pulse. On a real job that is a setting he has to make. Add one line: \"Pulse width: start short. A wider pulse reaches further but hides changes near the set.\""
+    },
+    {
+      "severity": "polish",
+      "where": "Lesson JSON, explain and practice footnotes [^1] to [^6]",
+      "what": "There are six footnotes. [^1] (fingerprinting) and [^2] (dead cable only) mark a practice and a safety rule he already knows, not figures he would look up. Keep the footnotes on 100 Ω, 162 to 186 m/µs and the both-ends rule, and drop the rest. The screens themselves show no markers."
+    }
+  ]
+}

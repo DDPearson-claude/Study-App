@@ -169,6 +169,37 @@ G("p.attn", "Fading of far reflections, drawn in the picture", "the picture draw
 G("p.rfRange", "Fault-resistance slider range in the picture", "1 Ω to 1000 Ω, starting at 35 Ω (p.Rf)", practice=True, cite=PV + "; picture only", note="The dip shrinks steadily as the resistance rises (l6.rho35, l6.rho100); it has no cliff at 100 Ω. The notes' 100 Ω is where it becomes too small to read.")
 G("p.liraOSS", "LIRA spot on L2, from the OSS end", 961, unit="m", text="961 m, DNORM negative, red", cite=PV + "; LIRA reading", practice=True)
 G("p.liraB01", "LIRA spot on L2, from the B01 end", 1441, unit="m", text="1441 m, DNORM negative, red", cite=PV + "; LIRA reading", practice=True)
+G("t.lineRes", "An open-ended line resonates at frequencies spaced v ÷ 2L apart", "a line open at the far end looks like a capacitor at low frequency (−j Z0 cot βl), then swings between short and open: a short at a quarter wavelength, an open at a half; consecutive resonances f = v ÷ 2ℓ × (1 ÷ 2 + n) are v ÷ 2ℓ apart",
+  cite="Purdue ECE 604 lecture 12: an open-circuited short line appears like a capacitor, then resonances and anti-resonances like an LC tank (research sources 333, 334); Univ. of Kansas: a quarter-wave line turns a short into an open and vice versa (source 335); Illinois ECE 329: resonance at odd multiples of a quarter wavelength, f = v ÷ 2ℓ × (1 ÷ 2 + n) (sources 336, 337); Wirescan's patent gives the same spacing as vr = 2L (fk+1 − fk) ÷ v0 (existing sources 162-164)",
+  note="Textbook transmission-line theory for a lossless line. A real cable's loss rounds off the peaks (p.attn). The rule behind 7a is in the notes' words 'high-frequency resonance effects of unmatched transmission lines' (notes p.5).")
+G("t.liraLoc", "LIRA turns the spectrum into a place along the cable", "the spot signature is an FFT of the input-impedance phase spectrum; each reflection's place is x = vr × v0 × f'' ÷ 2, where f'' is its component in the transformed spectrum",
+  cite="Wirescan WP01 (Manet, Huseby, Fantoni): the spot signature trace is based on the FFT of the input impedance phase spectrum, more sensitive to soft defects (research source 343); Fantoni's patent US 2009/0228222: reflections at locations x1 … xn found as frequency components in the power spectrum of the transformed domain, each location from the component's frequency (sources 341, 163, 164); Keysight: the Fourier transform of the reflection coefficient against frequency is the reflection coefficient against distance, and the frequency response alone cannot say where (sources 339, 338, 340)",
+  note="The lesson's own working from the delay: a reflection from a place x metres from the end ripples the spectrum with a period of v ÷ 2x in frequency (l7.rippleB01), so a closer spot makes a wider ripple. That is the same round trip as a TDR reading, read as a frequency instead of a time. The patent's formula is named, not taught.")
+G("t.liraSweep", "How the spectrum is measured", "low-amplitude sine waves swept over a wide band; 5 000 to 30 000 discrete frequencies per measurement; the band runs from 0 to X MHz, X depending on the cable length",
+  cite="Wirescan WP01: the set injects non-destructive low-amplitude sine waves that travel to the far end and reflect back to the injection port (research sources 344, 345); Wirescan FAQ: 5 000-30 000 discrete frequencies (source 351); the patent: bandwidth 0-X MHz, X depends on the cable length (source 342)")
+G("t.dnormSetting", "DNORM bars are features above a threshold setting, graded by severity", "the DNORM display shows the features above a threshold setting, colour-coded by severity; the direction (positive or negative) follows the type of impedance change, such as moisture ingress or thermal degradation",
+  cite="PNNL-25634 section 9.2 (research sources 353, 354); an example run used a 0 dB threshold (source 355); the severity colours and signs are in the notes p.6 (n.dnorm, n.dnormCol)",
+  note="No public source gives the dB limits between green, amber and red: they are the software's settings or the client's. The lesson draws the bands from p.dnormScale and says so.")
+G("t.liraLoad", "Cables LIRA is used on, and where", "de-energised cables by clipping two metal parts (two conductors, or a conductor and a shield); a fingerprint at commissioning; both ends for the best sensitivity (not a necessity); other loads may stay connected if they reflect enough",
+  cite="Fauske: the two LIRA test leads go to two metal cores, two conductors or one conductor and a shield (research source 362); EA Technology: testing from both ends is recommended for the highest sensitivity, though not a necessity (source 347); a fingerprint is best taken during commissioning (source 348); loads may stay connected (source 349); also used before, during and after installation (source 352)",
+  note="Fauske, a US distributor, says a typical test takes about three minutes depending on length (source 362); the notes say roughly 1 minute (n.liraPairs, notes p.5). The lesson uses the notes' figure and does not give a time as a rule.")
+G("t.liraAcc", "Where LIRA can place a spot", "within 0.5% of the cable length", cite="Fantoni's patent US 2009/0228222: location estimate error within 0.5% of the cable length (research source 165)",
+  note="A patent's claim, not a guarantee. On String B 0.5% of 2400 m is 12 m, so 961 m and 960.1 m agree well inside it. Wirescan's later material says better than 0.3%; that line is not on a page the checker holds, so it is not used.")
+G("t.liraOnline", "Online LIRA on an energised cable", "uses non-galvanic capacitive and inductive sensors in the termination bay, band-pass 100 kHz to 20 MHz; the one cited trial was on a 12/10(24) kV wind-farm cable",
+  cite="CIGRE Science and Engineering N024: offline methods are limited by safety, so the online system couples without touching the core or screen; the pickup is a band-pass from 100 kHz to 20 MHz; the case is a 12/10(24) kV cable (research sources 356-359)",
+  note="No source found states the notes' 33 kV limit (n.liraOnline); it stands as the notes' figure, unconfirmed. String B (66 kV) is tested offline.")
+G("p.liraSweep", "The sweep the picture draws for L2", "0 to 1.0 MHz in 100 Hz steps (10 000 points)", practice=True,
+  cite=PV + "; picture only. The count of points sits inside the 5 000-30 000 a LIRA measurement uses (t.liraSweep)",
+  note="Gives 28 resonances between 0 and 1.0 MHz at 35.0 kHz spacing (7a). The real band is set by the software from the cable length and type (notes p.5).")
+G("p.liraSeg", "The local change drawn on L2", "a 1.0 m length where the insulation's permittivity is up by 15%", practice=True,
+  cite=PV + "; picture only, no figure depends on it",
+  note="Water or damage raises the permittivity and with it the capacitance there (INL: the damaged segment differs mainly by its capacitance, research source 166; notes p.5). No source gives a size for a real fault.")
+G("p.dnormScale", "DNORM scale drawn in the picture", "the L2 spot reads −18 dB; green under 6 dB, amber 6 to 12 dB, red above 12 dB (either sign)", practice=True,
+  cite=PV + "; picture only. Signs and colour meanings are the notes' (n.dnorm, n.dnormCol); the limits are not in any source (t.dnormSetting)",
+  note="The real limits are a software setting or the client's. The case file's p.liraOSS and p.liraB01 say 'DNORM negative, red', which this scale keeps.")
+G("p.liraTests", "A reading of the notes' 18 tests", "9 pairs, both ends: core to screen (3), core to core (3), core to armour (3); 9 × 2 = 18", practice=True,
+  cite=PV + "; one way to reach 18 from the pairs in the notes p.5, not a stated breakdown",
+  note="The notes say '18 total tests, typically core to screen and core to core' and tested bi-directionally; core to screen plus core to core on a three-core cable is only 6 pairs, 12 with both ends. No source breaks 18 down. The lesson should say 18 as the notes do and show this split only if it labels it as one example.")
 
 # ---------------------------------------------------------------- assumptions
 A("a.alpha", "Copper's resistance rises 0.00393 of its 20 °C value per °C",
@@ -635,8 +666,74 @@ F("7a", "Spacing of the resonances in L2's impedance spectrum", v * 1e6 / (2 * 2
 F("7b", "The B01 reading measured from the OSS end", 2400 - 1441, 0, "m", "from OSS = length − from B01",
   {"length": "2400 m", "from B01": "1441 m"}, "2400 − 1441 = {=}; the OSS reading is 961 m and TDR said 960.1 m", "p.liraOSS; p.liraB01",
   "i7", kind="case", part="7b", practice=True)
+F("l7.rippleB01", "Ripple period in the spectrum from a spot 1441 m from B01", v * 1e6 / (2 * 1441) / 1000, 1, "kHz", "ripple period = v ÷ 2x",
+  {"v": "168.0 m/µs", "x": "1441 m"}, "168.0 × 10⁶ ÷ (2 × 1441) = 58 293 Hz = {=}", "t.liraLoc; 6a; p.liraB01", "i7", practice=True,
+  note="The course's own working from the round-trip delay (t.liraLoc), not a quote. The same spot is 961 m from the OSS, where the period is 87.4 kHz.")
+F("l7.rippleOSS", "Ripple period in the spectrum from the same spot, 961 m from the OSS", v * 1e6 / (2 * 961) / 1000, 1, "kHz", "ripple period = v ÷ 2x",
+  {"v": "168.0 m/µs", "x": "961 m"}, "168.0 × 10⁶ ÷ (2 × 961) = 87 409 Hz = {=}", "t.liraLoc; 6a; p.liraOSS", "i7", practice=True)
+F("l7.accuracy", "0.5% of String B's length", 0.005 * 2400, 0, "m", "error = 0.5% × length", {"length": "2400 m"},
+  "0.005 × 2400 = {=}", "t.liraAcc; p.len", "i7", practice=True)
 F("l7.changed", "Changed numbers: length from 25.0 kHz spacing at 168 m/µs", 168e6 / (2 * 25000), 0, "m", "L = v ÷ 2Δf",
   {"v": "168 m/µs", "Δf": "25.0 kHz"}, "168 × 10⁶ ÷ (2 × 25 000) = {=}", "7a (rule rearranged)", "i7", practice=True)
+
+# Lesson 7, the lesson's slips, worked example and picture figures (21 Oct, lesson writer)
+G("p.liraL13", "LIRA on L1 and L3, both ends", "the end and the field joint at 1620 m show; no spot above the threshold; the traces are kept as each core's baseline",
+  cite=PV + "; LIRA reading", practice=True,
+  note="Keeping a commissioning fingerprint follows t.liraLoad (research sources 347-349, 352). The threshold is the picture's practice scale (p.dnormScale).")
+F("7a.slip", "Slip: v ÷ L, the 2 left out", v * 1e6 / 2400 / 1000, 1, "kHz", "v ÷ L", {"v": "168.0 m/µs", "L": "2400 m"},
+  "168.0 × 10⁶ ÷ 2400 = 70 000 Hz = {=}", "the rule it breaks (Δf = v ÷ 2L, t.lineRes)", "i7", kind="slip")
+F("7a.slip2", "Slip: a default 160 m/µs left in", 160e6 / (2 * 2400) / 1000, 1, "kHz", "Δf = v ÷ 2L", {"v": "160 m/µs", "L": "2400 m"},
+  "160 × 10⁶ ÷ (2 × 2400) = 33 333 Hz = {=}", "the rule it breaks (use the cable's own velocity, 6a)", "i7", kind="slip")
+dip = F("7a.slip3", "Slip: the first dip, v ÷ 4L, taken for the spacing", v * 1e6 / (4 * 2400) / 1000, 1, "kHz", "first dip = v ÷ 4L",
+        {"v": "168.0 m/µs", "L": "2400 m"}, "168.0 × 10⁶ ÷ (4 × 2400) = 17 500 Hz = {=}", "t.lineRes (the first dip sits where a quarter wavelength fits)", "i7", kind="slip",
+        note="Also the first dip the lesson 7 picture shows at 2.40 km.")
+assert dip == 17.5
+lc = F("l7.lenCheck", "String B's length back from the resonance spacing", v * 1e6 / (2 * 35000), 0, "m", "L = v ÷ 2Δf",
+       {"v": "168.0 m/µs", "Δf": "35.0 kHz"}, "168.0 × 10⁶ ÷ (2 × 35 000) = {=}", "7a; t.lineRes; the patent's vr = 2L(fk+1 − fk) ÷ v0 (research source 162)", "i7", practice=True)
+assert lc == 2400
+F("7b.slip", "Slip: the B01 distance left as it is", 1441, 0, "m", "from B01 read as from OSS", {"from B01": "1441 m"},
+  "1441 = {=}, not taken from the length", "the rule it breaks (from OSS = length − from B01)", "i7", kind="slip")
+F("7b.slip2", "Slip: the two distances added", 2400 + 1441, 0, "m", "length + from B01", {"length": "2400 m", "from B01": "1441 m"},
+  "2400 + 1441 = {=}", "the rule it breaks (from OSS = length − from B01)", "i7", kind="slip")
+F("l7.spread", "Gap between the two ends' LIRA readings, both from the OSS", 961 - 959, 0, "m", "OSS reading − B01 reading from OSS",
+  {"OSS reading": "961 m", "B01 reading from OSS": "959 m"}, "961 − 959 = {=}", "p.liraOSS; 7b", "i7", practice=True,
+  note="Inside the 12 m that 0.5% of the length allows (l7.accuracy).")
+wt = F("l7.wex.t", "Worked example: round trip from a ripple repeating every 87.4 kHz", 1e6 / 87400, 2, "µs", "t = 1 ÷ ripple period",
+       {"ripple period": "87.4 kHz"}, "10⁶ ÷ 87 400 = {=}", "l7.rippleOSS; t.liraLoc", "i7", practice=True,
+       note="A ripple that repeats every Δ in frequency comes from an echo delayed by 1 ÷ Δ (the Fourier pair in t.liraLoc). The lesson's own working.")
+assert wt == 11.44
+wx = F("l7.wex.x", "Worked example: where the change is, from the OSS", wt * v / 2, 1, "m", "L = t × v ÷ 2",
+       {"t": "11.44 µs", "v": "168.0 m/µs"}, "11.44 × 168.0 ÷ 2 = {=}", "l7.wex.t; 6a; n.tdrRule", "i7", practice=True,
+       note="The LIRA reading is 961 m (p.liraOSS); TDR said 960.1 m (6b).")
+assert wx == 961.0
+F("l7.wex.diff", "Worked example: LIRA's place against TDR's", 961.0 - 960.1, 1, "m", "LIRA − TDR", {"LIRA": "961.0 m", "TDR": "960.1 m"},
+  "961.0 − 960.1 = {=}", "l7.wex.x; 6b", "i7", practice=True)
+F("l7.changed.slip", "Changed numbers slip: v ÷ Δf, the 2 left out", 168e6 / 25000, 0, "m", "v ÷ Δf", {"v": "168 m/µs", "Δf": "25.0 kHz"},
+  "168 × 10⁶ ÷ 25 000 = {=}", "the rule it breaks (L = v ÷ 2Δf)", "i7", kind="slip")
+F("l7.changed.slip2", "Changed numbers slip: divided by 4", 168e6 / (4 * 25000), 0, "m", "v ÷ 4Δf", {"v": "168 m/µs", "Δf": "25.0 kHz"},
+  "168 × 10⁶ ÷ (4 × 25 000) = {=}", "the rule it breaks (L = v ÷ 2Δf)", "i7", kind="slip")
+# the lesson 7 picture: resonance spacing and first dip as the length slider moves (1.20 to 4.80 km)
+F("l7.pic.df12", "Resonance spacing at 1.20 km", v * 1e6 / (2 * 1200) / 1000, 1, "kHz", "Δf = v ÷ 2L", {"v": "168.0 m/µs", "L": "1200 m"},
+  "168.0 × 10⁶ ÷ (2 × 1200) = 70 000 Hz = {=}", "t.lineRes; 6a", "i7", practice=True)
+F("l7.pic.df48", "Resonance spacing at 4.80 km", v * 1e6 / (2 * 4800) / 1000, 1, "kHz", "Δf = v ÷ 2L", {"v": "168.0 m/µs", "L": "4800 m"},
+  "168.0 × 10⁶ ÷ (2 × 4800) = 17 500 Hz = {=}", "t.lineRes; 6a", "i7", practice=True)
+F("l7.pic.dip12", "First dip at 1.20 km", v * 1e6 / (4 * 1200) / 1000, 1, "kHz", "first dip = v ÷ 4L", {"v": "168.0 m/µs", "L": "1200 m"},
+  "168.0 × 10⁶ ÷ (4 × 1200) = 35 000 Hz = {=}", "t.lineRes; 6a", "i7", practice=True)
+F("l7.pic.dip48", "First dip at 4.80 km", v * 1e6 / (4 * 4800) / 1000, 1, "kHz", "first dip = v ÷ 4L", {"v": "168.0 m/µs", "L": "4800 m"},
+  "168.0 × 10⁶ ÷ (4 × 4800) = 8750 Hz = {=}", "t.lineRes; 6a", "i7", practice=True)
+# the lesson 7 picture: a local change dragged from 100 m to 2300 m from the OSS
+F("l7.pic.r100", "Ripple period from a change 100 m from the OSS", v * 1e6 / (2 * 100) / 1000, 1, "kHz", "ripple period = v ÷ 2x",
+  {"v": "168.0 m/µs", "x": "100 m"}, "168.0 × 10⁶ ÷ (2 × 100) = 840 000 Hz = {=}", "t.liraLoc; 6a", "i7", practice=True)
+F("l7.pic.r2300", "Ripple period from a change 2300 m from the OSS", v * 1e6 / (2 * 2300) / 1000, 1, "kHz", "ripple period = v ÷ 2x",
+  {"v": "168.0 m/µs", "x": "2300 m"}, "168.0 × 10⁶ ÷ (2 × 2300) = 36 522 Hz = {=}", "t.liraLoc; 6a", "i7", practice=True)
+F("l7.pic.t100", "Round trip to a change 100 m from the OSS", 2 * 100 / v, 2, "µs", "t = 2x ÷ v", {"x": "100 m", "v": "168.0 m/µs"},
+  "2 × 100 ÷ 168.0 = {=}", "n.tdrRule; 6a", "i7", practice=True)
+F("l7.pic.t961", "Round trip to a change 961 m from the OSS", 2 * 961 / v, 2, "µs", "t = 2x ÷ v", {"x": "961 m", "v": "168.0 m/µs"},
+  "2 × 961 ÷ 168.0 = {=}", "n.tdrRule; 6a; p.liraOSS", "i7", practice=True, note="TDR saw L2's fault at 11.43 µs (p.tFault).")
+F("l7.pic.t1441", "Round trip to a change 1441 m from the test end", 2 * 1441 / v, 2, "µs", "t = 2x ÷ v", {"x": "1441 m", "v": "168.0 m/µs"},
+  "2 × 1441 ÷ 168.0 = {=}", "n.tdrRule; 6a", "i7", practice=True)
+F("l7.pic.t2300", "Round trip to a change 2300 m from the OSS", 2 * 2300 / v, 2, "µs", "t = 2x ÷ v", {"x": "2300 m", "v": "168.0 m/µs"},
+  "2 × 2300 ÷ 168.0 = {=}", "n.tdrRule; 6a", "i7", practice=True)
 
 # sanity checks against the notes' printed figures
 assert rnd((wa + wc - wb) / 2, 3) == 38.785 and rnd((wb + wa - wc) / 2, 3) == 38.115 and rnd((wc + wb - wa) / 2, 3) == 42.375
@@ -654,7 +751,7 @@ toResearch = [
     {"id": "r.tdrRho", "needs": ["the reflection coefficient rule and the sign convention for a TDR trace, to size the fault-resistance slider in the lesson 6 picture"], "for": ["l6.Z0", "l6.rho35", "l6.rho100", "l6.rho1000"], "resolved": True, "found": "Tektronix: rho is the reflected pulse over the pulse sent, (Z load − Z0) ÷ (Z load + Z0), +1 for an open, −1 for a short, 0 matched; a positive rho is a higher-impedance change, a negative one lower (sources 291-295, 328): t.rho. Z0 = square root of L ÷ C and VF = 1 ÷ square root of the relative permittivity (296, 297); L and C per length follow from Z0 and velocity (298); a Megger TDR sets 25 Ω for power cable (319). A matched end absorbs the pulse (321). The shunt-fault formula rho = −Z0 ÷ (2 Rf + Z0) is worked from these, not quoted: p.Z0 is a practice value."},
     {"id": "r.hiR", "needs": ["a maker's statement of what a low-voltage TDR cannot see (the notes' about 100 Ω), and the method that follows, only named"], "for": ["6 (one screen beyond TDR)"], "resolved": True, "found": "Megger: below 100 Ω a low-voltage pulse can be used, above it the pulse will likely not see it; ARM (arc reflection) or impulse current for high-resistance faults (sources 299-301, 322, 326): t.tdrR. The notes' 200 Ω for the Teleflex was not found on a Megger data sheet; the pulse amplitude of a Teleflex SX-1 is 50 V fixed (305), a VX is 30 to 160 V (306): t.tdrAmp. Named, not taught."},
     {"id": "r.tdrSub", "needs": ["TDR practice on long submarine and joined cables: fingerprints, joints read as faults, both ends, pulse width"], "for": ["6 (what to record, what to expect)"], "resolved": True, "found": "Record a TDR fingerprint after installation, so the joints' places are known and not taken for faults; the length of a submarine cable reduces TDR accuracy; sheath-sectionalised joints can mislead (sources 307-309, 311, 330, 329): t.fingerprint. Test from both ends and add the distances (320, 325): t.bothEnds. A wider pulse reaches further and shows smaller faults but has a bigger blind spot (312-314, 327): p.pulseW. A TDR is for a dead, isolated cable only (302, 303)."},
-    {"id": "r.lira", "needs": ["a LIRA paper on the input-impedance resonances of an unterminated line and the spot signature (Fantoni; Wirescan white paper WP01)"], "for": ["7a"]},
+    {"id": "r.lira", "needs": ["a LIRA paper on the input-impedance resonances of an unterminated line and the spot signature (Fantoni; Wirescan white paper WP01)"], "for": ["7a"], "resolved": True, "found": "Transmission-line theory for an open-ended line: capacitor at low frequency, then resonances v ÷ 2L apart (sources 333-337, 162-164): t.lineRes. Wirescan WP01 and Fantoni's patent: the spot signature is an FFT of the input-impedance phase spectrum, each reflection's place from the transformed spectrum (343, 341, 339, 338, 340): t.liraLoc; the sweep (342, 344, 345, 351): t.liraSweep. DNORM bars are features above a threshold setting, graded by severity, sign gives the type (353-355): t.dnormSetting; no public numbers for the colour limits: p.dnormScale is a practice value. Both ends, fingerprint at commissioning, loads may stay connected (347-349, 352, 362): t.liraLoad. Accuracy within 0.5% of length (165): t.liraAcc. Online LIRA uses non-galvanic sensors (356-359): t.liraOnline; the notes' 33 kV limit was not found stated anywhere. The 18 tests are not broken down by any source: p.liraTests is a practice reading."},
 ]
 
 lessons = [

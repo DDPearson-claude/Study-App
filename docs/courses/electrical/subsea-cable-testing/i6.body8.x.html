@@ -1,0 +1,830 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog .k-label, #prog .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .why, .pre { line-height: 1.6; }
+  .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .ctl { display: grid; gap: 12px; }
+  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  .carry .k-cr-value { grid-column: 2; grid-row: 2; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .q { font: 700 20px var(--k-font); fill: var(--k-warn); }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .zero { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+  .scene .trace { stroke: var(--k-accent2); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .scene .ghost { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; fill: none; stroke-linejoin: round; }
+  .scene .band { fill: var(--k-accent); fill-opacity: .2; stroke: var(--k-accent); stroke-width: 1; }
+  .scene .vdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .scr { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .cond { stroke: var(--k-ink); stroke-width: 3; fill: none; }
+  .scene .jt { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .tdr { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.4; }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }
+  .scene .ldot { fill: var(--k-ink); }
+  .scene .qbr { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  .scene .br { stroke: var(--k-muted); stroke-width: 1.2; fill: none; }
+  .scene .pulse { fill: var(--k-accent2); }
+  .scene .fmark { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2.5; }
+  .shapes { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 10px; }
+  .shape { padding: 8px 10px; border: 1px solid var(--k-line); border-radius: 10px; background: var(--k-panel); }
+  .shape svg { display: block; width: 100%; height: auto; }
+  .shape p { font-size: .92rem; line-height: 1.4; margin-top: 4px; }
+  .shape .bl { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .shape .sh { stroke: var(--k-accent2); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line { margin-top: 10px; }
+  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }
+  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div class="carry" id="carry6a"></div>
+    <div class="carry" id="carry6b"></div>
+    <div class="carry" id="carry6c"></div>
+    <div class="pre" id="pre"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+
+    <div id="wrapM"><svg class="scene" id="msvg" viewBox="0 0 340 156" width="100%" role="img" aria-label=""></svg></div>
+    <div class="warn-note" id="warnFor"></div>
+    <p class="caption" id="capM"></p>
+
+    <div id="wrapR"><p class="k-label" id="titR"></p><svg class="scene" id="rsvg" viewBox="0 0 340 194" width="100%" role="img" aria-label=""></svg></div>
+    <div class="why" id="whyF"></div>
+    <div class="ctl" id="ctlR"></div>
+    <div class="k-readouts" id="outsR"></div>
+    <p class="say" id="sayR"></p>
+    <div id="shapes"></div>
+    <div class="why" id="limNote"></div>
+    <p class="caption" id="capR"></p>
+
+    <div id="wrapV"><p class="k-label" id="titV"></p><svg class="scene" id="vsvg" viewBox="0 0 340 256" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlV"></div>
+    <div class="k-readouts" id="outsV"></div>
+    <p class="sub" id="ratioV"></p>
+    <p class="say" id="sayV"></p>
+    <p class="caption" id="capV"></p>
+
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-6a"></div>
+    <div id="ans-6b"></div>
+    <div id="ans-6c"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div id="wrapF"><svg class="scene" id="fsvg" viewBox="0 0 340 108" width="100%" role="img" aria-label=""></svg></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, helpers and the course's figures ----------
+  const rnd = (x, d) => { const k = Math.pow(10, d); return Math.sign(x) * Math.round(Math.abs(x) * k + 1e-7) / k; };
+  const r1 = (x) => rnd(x, 1), r2 = (x) => rnd(x, 2), r3 = (x) => rnd(x, 3);
+  const f1 = (x) => r1(x).toFixed(1);
+  const f2 = (x) => r2(x).toFixed(2);
+  const sg2 = (x) => { const v = r2(x); return (v < 0 ? '−' : '') + Math.abs(v).toFixed(2); };
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces: before an operator, and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=−]) /g, NB + '$1 ')
+    .replace(/(\d) (?=(?:m\/µs|µs|µF|kV|km|Ω|m|V)(?![A-Za-z]))/g, '$1' + NB);
+  const str = (s, re) => { const m = re.exec(String(s || '')); return m ? m[1] : ''; };
+  const fx = (v) => (+v).toFixed(1);
+  function txt(parent, x, y, s, cls, anchor) {
+    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));
+    t.textContent = s;
+    return t;
+  }
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+
+  // String B and L2's test, from the case file.
+  const fLen = F('p.len'), LEN_KM = fLen.value, LEN_M = Math.round(LEN_KM * 1000);
+  const fJoint = F('p.joint'), JOINT = fJoint.value;
+  const fTEnd = F('p.tEnd'), T_END = fTEnd.value, T_END_S = str(fTEnd.text, /^([\d.]+)/);
+  const fTFault = F('p.tFault'), T_FAULT = fTFault.value;
+  const fRf = F('p.Rf'), RF0 = fRf.value;
+  const fZ0 = F('p.Z0'), Z0 = fZ0.value;
+  const CKM = F('t.C66').value;
+  const C_S = str(F('t.c').text, /^([\d.]+)/), C_LIGHT = +C_S;
+  const XLm = /([\d.]+) to ([\d.]+) \(([\d.]+) to ([\d.]+)/.exec(String(F('t.vfXLPE').text)) || [];
+  const VF_LO = +XLm[1], VF_HI = +XLm[2], V_LO = +XLm[3], V_HI = +XLm[4];
+  const PULSE_V = F('n.tdrPulse').value, LIMIT = F('n.tdrLimit').value;
+  const W = F('p.pulseW').value, JR = F('p.jointRipple').value;
+  const f6a = F('6a'), V_B = f6a.value, f6b = F('6b'), f6c = F('6c');
+  const fVF = F('l6.VF'), fV2 = F('l6.v2'), fJt = F('l6.joint.t'), fAcc = F('l6.acc'), fB01 = F('l6.B01.t'), fBoth = F('l6.both');
+  const ZONE = +str(fAcc.work, /^([\d.]+)/);
+  const fRatio = F('l6.ratio');
+  const fRec = F('l6.recall'), fRs1 = F('l6.recall.slip1'), fRs2 = F('l6.recall.slip2');
+  const R_T = str(fRec.work, /^([\d.]+)/), R_V = str(fRec.work, /×\s*([\d.]+)/), R_VH = str(fRs2.work, /×\s*([\d.]+)/);
+  const fWex = F('l6.wex'), WEX_F = +str(fWex.work, /^([\d.]+)/), WEX_L = +str(fWex.work, /×\s*([\d.]+)/);
+  const WEX_PCT = Math.round(WEX_F * 100), WEX_KM = WEX_L / 1000;
+  const fChg = F('l6.changed'), CH_T = str(fChg.work, /^([\d.]+)/), CH_V = str(fChg.work, /×\s*([\d.]+)/);
+  const fS6b = F('6b.slip'), V_DEF = +str(fS6b.work, /×\s*([\d.]+)/);
+  // The picture's ranges, from the lesson: 0 to 30 µs, 1 to 1000 Ω, 152 to 188 m/µs.
+  const T_AX = 30, RF_MAX = 1000, V_MIN = 152, V_MAX = 188, D_AX = 2800;
+
+  // ---------- the rule ----------
+  // The fault sits across the line, in parallel with the cable beyond it.
+  const zAt = (rf) => rf * Z0 / (rf + Z0);
+  const rhoAt = (rf) => -Z0 / (2 * rf + Z0);
+  const passAt = (rf) => 1 + rhoAt(rf);
+  // The end and the joint come back through the fault twice: (1 + ρ) × (1 + ρ) of their height.
+  const endH = (far, rf) => (far === 'open' ? 1 : -1) * Math.pow(passAt(rf), 2);
+  const distAt = (t, v) => t * v / 2;
+  const T_J = 2 * JOINT / V_B;
+  const hump = (t, t0, w) => (t > t0 && t < t0 + w ? Math.pow(Math.sin(Math.PI * (t - t0) / w), 2) : 0);
+  function traceAt(t, far, rf) {
+    const r = rhoAt(rf), p2 = Math.pow(1 + r, 2);
+    return hump(t, 0, W) + r * hump(t, T_FAULT, W)
+      + JR * p2 * (hump(t, T_J, W / 2) - hump(t, T_J + W / 2, W / 2)) + endH(far, rf) * hump(t, T_END, W);
+  }
+  const fmtZ = (v) => (v < 1 ? f2(v) : f1(v)) + ' Ω';
+  const fmtM = (v) => f1(v) + ' m';
+
+  // ---------- the lesson's words ----------
+  const O1 = fRs2.text, O2 = fRec.text, O3 = fRs1.text;
+  const R_TASK = 'A reflection comes back after ' + R_T + ' µs. The velocity is set at ' + R_V + ' m/µs. How far away is the reflection?';
+  const R_WORK = 'L = t × v ÷ 2 = ' + fRec.work + '.';
+  const R_HALF = 'The time covers the trip there and back, so you halve it.';
+  const R_SLIPS = 'The ' + O3 + ' answer leaves out the ÷ 2. The ' + O1 + ' answer puts in half the velocity and then halves again.';
+  const R_W1 = 'That uses ' + R_VH + ', half the velocity, and then halves again. Some sets ask for the velocity as v/2. The formula takes the whole v.';
+  const R_W3 = 'That leaves out the ÷ 2. The pulse goes out and comes back, so the time covers the distance twice.';
+
+  const FOR_TEXT = "A TDR sends a short pulse down a core and its screen, and times what comes back. It needs two conductors running side by side. "
+    + "Here they are the core and its own screen. From the echoes it gives the cable's length, where its joints are, and where a low-resistance fault, "
+    + 'a break or water is. It draws a map of the cable.\n\n'
+    + "The map recorded at commissioning is the cable's fingerprint. Later traces are compared with it. "
+    + 'A joint shows on a trace much like a small fault, so its place must be known in advance.\n\n'
+    + 'The TDR goes on a dead cable only. The cable is isolated, discharged and earthed at both ends, as for every test. '
+    + 'There is a technician at each end. The pulse is low voltage, a fixed ' + PULSE_V + ' V on some sets.';
+  const WARN_FOR = 'Skip it, and all you know is that L2 has a fault somewhere in ' + fLen.text + ' of cable on the seabed.';
+
+  const WHY_R = 'The pulse sees the cable as an impedance of its own. The cable\'s inductance and capacitance per metre set it. '
+    + 'That is the characteristic impedance, Z0. While Z0 stays the same, the pulse runs on and nothing comes back. '
+    + 'Where the impedance changes, part of the pulse reflects. The share that comes back is ρ = (Z load − Z0) ÷ (Z load + Z0). '
+    + 'An open end is an infinite impedance, so ρ = +1. The whole pulse comes back the right way up. '
+    + 'A short is zero impedance, so ρ = −1. The whole pulse comes back upside down.\n\n'
+    + 'So a reflection pointing up means the impedance rose. One pointing down means it fell. '
+    + "At a joint the cable's build changes for a short length. The impedance changes and then changes back. "
+    + 'So a joint shows as a small up then a small down.';
+  // Under the trace, beside the fault resistance it explains.
+  const V_B_S = V_B.toFixed(1);
+  const WHY_F = 'A fault from core to screen sits across the line. At the fault the pulse sees two paths in parallel: the fault, and the cable beyond it. '
+    + 'Two resistances in parallel give less than either. So the impedance falls, and the reflection points down.\n\n'
+    + 'For String B, Z0 = 1 ÷ (v × C) = 1 ÷ (' + V_B_S + ' × 10⁶ × ' + CKM + ' × 10⁻⁹) = ' + fZ0.text + '. '
+    + V_B_S + " m/µs is String B's velocity, found in part (a). " + CKM + ' µF/km is a typical figure. '
+    + 'So take ' + fZ0.text + " as a practice value. On a real cable, use the maker's figure.\n\n"
+    + "Call the fault's resistance Rf. The load at the fault is Rf in parallel with Z0: Z load = Rf × Z0 ÷ (Rf + Z0). "
+    + 'At ' + RF0 + ' Ω that is ' + RF0 + ' × ' + Z0 + ' ÷ ' + f1(RF0 + Z0) + ' = ' + fmtZ(zAt(RF0)) + '. '
+    + 'Put that into the rule, and it becomes ρ = −Z0 ÷ (2 Rf + Z0). '
+    + 'The higher Rf, the less it pulls the impedance down. So the dip is smaller.';
+  const READ_R = 'With the far end linked, the end of the cable shows as a downward peak, like a short. Open it, and the end flips to an upward peak. '
+    + "The fault's dip at " + fTFault.text + ' points down either way. So the reflection that flips is the end. '
+    + "As the fault resistance rises, the impedance at the fault climbs back towards the cable's " + fZ0.text + '. So its dip shrinks. '
+    + 'It is ' + f2(-rhoAt(RF0)) + ' of the pulse at ' + RF0 + ' Ω, ' + f2(-rhoAt(LIMIT)) + ' at ' + LIMIT + ' Ω and ' + f2(-rhoAt(RF_MAX)) + ' at ' + RF_MAX + ' Ω. '
+    + 'At ' + RF_MAX + ' Ω the trace looks like healthy cable.';
+  const SHAPES = [
+    { d: 'M6 26H40L46 40L52 26C64 26 66 12 80 12C94 12 96 26 108 26H134', t: 'Down then a broad hump: a T joint.' },
+    { d: 'M6 26H36L42 10L48 26H70L76 42L82 26H134', t: 'Up then a dip: a bridge tap.' },
+    { d: 'M6 26H58L62 6L66 46L70 26H134', t: 'A sharp up-down spike: a wet splice.' },
+    { d: 'M6 26H50L54 22L58 31L62 19L66 33L70 21L74 30L78 18L82 34L86 23L90 29L94 20L98 32L102 24L106 30L110 22L114 31L118 25L122 29L126 24L130 28L134 26',
+      t: 'A ragged, noisy tail: water getting in.' },
+  ];
+  const LIMIT_SET = str(F('n.tdrLimit').text, /\(([\d.]+) Ω/);
+  const LIM_TEXT = 'TDR finds faults under about ' + LIMIT + ' Ω. Above that, a low-voltage pulse will likely not see the fault. '
+    + (LIMIT_SET ? 'Some sets reach about ' + LIMIT_SET + ' Ω. ' : '')
+    + 'A high-resistance fault needs other methods. One is arc reflection. A high-voltage surge strikes an arc at the fault. '
+    + 'The arc shows on the trace like a short. That is HV work, with its own kit and procedure.';
+
+  const WHY_V = 'The TDR measures time. It turns time into distance with the velocity you give it. '
+    + 'The pulse goes out and comes back. So the time covers the distance twice: L = t × v ÷ 2.\n\n'
+    + 'The velocity is often given as a velocity factor, VF = v ÷ c. Here c is the speed of light, ' + C_S + ' m/µs. '
+    + "The velocity factor is roughly 1 ÷ the square root of the insulation's relative permittivity. So the insulation sets the velocity, not the copper. "
+    + 'Power XLPE typically runs at ' + VF_LO + ' to ' + VF_HI + ', which is ' + V_LO + ' to ' + V_HI + ' m/µs. '
+    + 'Cables differ. So a typical figure is only a starting point.\n\n'
+    + 'Every distance is its time × v ÷ 2. So a wrong velocity stretches all of them by the same fraction. '
+    + 'It never moves one reflection past another. So set the velocity on a length you know. '
+    + "Open the far end, read the end's time, and move the velocity until the end reads the known length.";
+  const READ_V = 'At the default ' + V_DEF + ' m/µs, the end reads ' + fmtM(distAt(T_END, V_DEF)) + '. That is short of the known ' + LEN_M + ' m. '
+    + 'The fault reads ' + fmtM(distAt(T_FAULT, V_DEF)) + '. The whole trace stretches as the velocity rises. '
+    + 'At ' + V_B + ' m/µs the end reads ' + fmtM(distAt(T_END, V_B)) + '. That is the known length, to within the rounding of ' + fTEnd.text + '. '
+    + 'The fault then reads ' + fmtM(distAt(T_FAULT, V_B)) + '. It stays ' + fRatio.text + ' of the way along at every setting.';
+
+  const C_TASK = "From the OSS, L2's trace shows a downward peak at " + fTFault.text + '. It stays down when the far end is opened. What is it?';
+  const C_O1 = 'The end of the cable', C_O2 = 'A low-resistance fault from core to screen', C_O3 = 'The field joint';
+  const C_RIGHT = 'It points down, so the impedance fell there. It did not flip when the far end opened, so it is not the end. '
+    + 'The joint at ' + fJoint.text + ' would show at ' + fJt.work + ', as a small up then down.';
+  const C_W1 = 'The end flips when you open the far end. This peak stayed down, so it is somewhere along the cable.';
+  const C_W3 = "A joint shows as a small up then a small down, not a deep dip. String B's joint is at " + fJoint.text + ', so it would show at ' + fJt.text + '.';
+
+  const WK_HEAD = 'Setting up, and what a ' + WEX_PCT + '% velocity error costs. Take a ' + WEX_KM + ' km cable with the velocity set ' + WEX_PCT + '% too high.';
+  const WL = [
+    { w: 'Set up on the dead cable. It is isolated, discharged and earthed at both ends. Lift the earth from the core under test at your end, under control. '
+      + 'Red lead to the conductor, black to the screen.' },
+    { w: 'First test with the far end linked, conductor to screen or to earth. Then the far end lifts the link, under control. '
+      + 'Test again with it open. The reflection that flips is the end.' },
+    { w: 'The rule: L = t × v ÷ 2. Each distance goes up in step with v.', calc: true },
+    { w: 'So a velocity ' + WEX_PCT + '% high makes every distance read ' + WEX_PCT + '% long.', calc: true },
+    { w: 'At the far end of a ' + WEX_KM + ' km cable: ' + fWex.work + ' out.', calc: true },
+    { w: 'The cure: set v on the known length. With the far end open, v = 2L ÷ t.', calc: true },
+    { w: 'When you finish, put the earths back on at both ends.' },
+  ];
+  const WK_READ = 'On a ' + WEX_KM + ' km cable, a velocity set ' + WEX_PCT + '% high puts the far end ' + fWex.work + ' out. '
+    + 'Every other distance is ' + WEX_PCT + '% out too. Setting v on the known length removes the error, using v = 2L ÷ t.';
+
+  const PRE_6A = 'L2 broke down in the VLF test and now reads ' + fRf.text + ' from core to screen. Every core is discharged and earthed at both ends. '
+    + 'You connect a TDR at the OSS end. On L1, a healthy core, with the far end at B01 open, the end shows at ' + fTEnd.text + '. '
+    + 'The route record gives the length as ' + fLen.text + '. These are practice values.';
+  const Q6A = '(a) Determine the velocity of the pulse in String B.';
+  const PRE_6B = 'Back on L2, test with the far end linked and then open. A downward peak stays at ' + fTFault.text + '.';
+  const Q6B = '(b) Determine the distance to the fault from the OSS.';
+  const Q6C = '(c) Determine the distance to the fault from B01.';
+  const Q_CH = 'Another cable. Its velocity is ' + CH_V + ' m/µs, found on a known length. A downward peak shows at ' + CH_T + ' µs. Determine the distance to it.';
+  const AFTER_6C = 'Now test from B01. The dip should show at ' + fB01.text + ', which is ' + f6c.text + '. '
+    + 'Add the distance you measure from B01 to the ' + f6b.text + ' from the OSS. The two should make ' + LEN_M + " m. "
+    + "If they don't, the velocity is most likely wrong.\n\n"
+    + 'When the tests are done, put the earths back on at both ends. Record L2: a low-resistance fault from core to screen, ' + f6b.text + ' from the OSS. '
+    + 'The next test, LIRA, checks it from both ends.';
+
+  let lines = 0, lastStep = -1, finished = false, pulseT = 0, pulseKey = '';
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_HALF + ' ' + R_SLIPS },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['fingerprint'],
+      still: () => { pulseT = PULSE_END; drawPulse(); } },
+    { show: true, name: 'The why: up and down', label: 'The why: up and down', text: WHY_R, terms: ['characteristic impedance'],
+      read: WHY_R.split('\n\n').join(' ') + ' ' + WHY_F.split('\n\n').join(' ') + ' ' + READ_R + ' ' + SHAPES.map((s) => s.t).join(' ') + ' ' + LIM_TEXT,
+      still: () => { farCtl.set('open'); rfCtl.set(RF0); K.refresh(); } },
+    { show: true, name: 'The why: time into distance', label: 'The why: time into distance', text: WHY_V, terms: ['velocity factor'],
+      read: WHY_V.split('\n\n').join(' ') + ' ' + READ_V, still: { v: V_B } },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O2, why: C_RIGHT },
+    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },
+    { name: 'Section A 6(a)', label: 'Section A · Question 6', pre: PRE_6A, part: Q6A, task: PRE_6A + ' ' + Q6A, want: f6a.text,
+      why: 'v = 2L ÷ t = ' + f6a.work + '.' },
+    { name: 'Section A 6(b)', label: 'Section A · Question 6', pre: PRE_6B, part: Q6B, task: PRE_6B + ' ' + Q6B, want: f6b.text,
+      why: 'L = t × v ÷ 2 = ' + f6b.work + '.' },
+    { name: 'Section A 6(c)', label: 'Section A · Question 6', part: Q6C, task: Q6C, want: f6c.text,
+      why: 'From B01 = ' + f6c.work + '. ' + AFTER_6C.replace('\n\n', ' ') },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: 'L = t × v ÷ 2 = ' + fChg.work + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iUp = 2, iV = 3, iChk = 4, iWk = 5, i6A = 6, i6B = 7, i6C = 8, iB1 = 9, iCh = 10, iK = 11;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWk, i6A, i6B, i6C, iCh];
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls, readouts and the model ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const farCtl = K.choice({ id: 'far', label: 'Far end', options: [{ value: 'linked', label: 'Linked' }, { value: 'open', label: 'Open' }], value: 'linked', into: '#ctlR' });
+  const rfCtl = K.control({ id: 'rf', label: 'Fault resistance', min: 1, max: RF_MAX, step: 1, value: RF0, unit: 'Ω', log: true, snap: [RF0, LIMIT, RF_MAX], into: '#ctlR' });
+  K.readout({ id: 'zf', label: 'Impedance at the fault', fmt: fmtZ, into: '#outsR' });
+  K.readout({ id: 'rho', label: 'Fault reflection, ρ', fmt: sg2, into: '#outsR' });
+  K.readout({ id: 'pass', label: 'Pulse past the fault', fmt: f2, into: '#outsR' });
+  K.control({ id: 'v', label: 'Velocity', min: V_MIN, max: V_MAX, step: 2, value: V_DEF, unit: 'm/µs', snap: [V_DEF, V_B], into: '#ctlV' });
+  K.readout({ id: 'Lend', label: 'End reads at', fmt: fmtM, into: '#outsV' });
+  K.readout({ id: 'Lfault', label: 'Fault reads at', fmt: fmtM, into: '#outsV' });
+  K.readout({ id: 'vf', label: 'Velocity factor', fmt: f2, into: '#outsV' });
+
+  K.model((p) => {
+    const rf = +p.rf, v = +p.v;
+    return { zf: zAt(rf), rho: rhoAt(rf), pass: passAt(rf), Lend: distAt(T_END, v), Lfault: distAt(T_FAULT, v), vf: v / C_LIGHT };
+  });
+
+  // ---------- what it is for: String B's L2, the TDR at the OSS, the fault somewhere ----------
+  const mEl = el('msvg');
+  const M_ = (tag, a) => mEl.appendChild(K.svg(tag, a));
+  const CX0 = 100, CX1 = 330, XJ = CX0 + JOINT / LEN_M * (CX1 - CX0);
+  txt(mEl, 6, 14, "red lead to L2's conductor", 'tk');
+  txt(mEl, 6, 28, 'black lead to its screen', 'tk');
+  txt(mEl, 206, 30, '?', 'q', 'middle');
+  txt(mEl, 218, 28, 'fault: somewhere', 'lb');
+  M_('path', { class: 'qbr', d: 'M' + CX0 + ' 46V38H' + CX1 + 'V46' });
+  M_('rect', { class: 'tdr', x: 6, y: 50, width: 46, height: 30, rx: 6 });
+  txt(mEl, 29, 70, 'TDR', 'lb', 'middle');
+  M_('rect', { class: 'scr', x: CX0, y: 52, width: CX1 - CX0, height: 24 });
+  M_('rect', { class: 'jt', x: fx(XJ - 7), y: 47, width: 14, height: 34, rx: 4 });
+  M_('path', { class: 'cond', d: 'M86 64H' + CX1 });
+  M_('path', { class: 'lead', d: 'M52 58C70 58 72 64 86 64' });
+  M_('path', { class: 'lead', d: 'M52 74C72 74 82 72 100 72' });
+  M_('circle', { class: 'ldot', cx: 86, cy: 64, r: 2.5 });
+  M_('circle', { class: 'ldot', cx: 100, cy: 72, r: 2.5 });
+  const pulseC = M_('circle', { class: 'pulse', cx: CX0, cy: 64, r: 5, opacity: 0 });
+  txt(mEl, 29, 98, 'OSS', 'lb', 'middle');
+  txt(mEl, CX1, 98, 'B01', 'lb', 'end');
+  txt(mEl, XJ, 98, 'field joint', 'lb', 'middle');
+  txt(mEl, XJ, 114, fJoint.text, 'tk', 'middle');
+  M_('path', { class: 'br', d: 'M' + CX0 + ' 126V132H' + CX1 + 'V126' });
+  txt(mEl, (CX0 + CX1) / 2, 148, fLen.text, 'lb', 'middle');
+  mEl.setAttribute('aria-label', "String B's L2 from the OSS to B01, " + fLen.text + '. A TDR at the OSS end, its red lead to the conductor and its black lead to the screen. '
+    + 'The field joint at ' + fJoint.text + '. A question mark spans the whole length: the fault is somewhere along it. A pulse runs out along the core and back.');
+  const PULSE_END = 4;
+  function drawPulse() {
+    const t = K.clamp(pulseT, 0, PULSE_END), half = PULSE_END / 2;
+    const u = t <= half ? t / half : (PULSE_END - t) / half;
+    const a = t >= PULSE_END ? 0 : Math.max(0, Math.min(1, t / 0.4, (PULSE_END - t) / 0.4));
+    pulseC.setAttribute('cx', fx(K.lerp(CX0, CX1, u)));
+    pulseC.setAttribute('opacity', a.toFixed(2));
+  }
+  drawPulse();
+
+  // ---------- the why: up and down. L2's trace from the OSS against time ----------
+  const rEl = el('rsvg');
+  const R_ = (tag, a) => rEl.appendChild(K.svg(tag, a));
+  const RX0 = 40, RX1 = 326, RYC = 100, RA = 58, PXT = (RX1 - RX0) / T_AX;
+  const rx = (t) => RX0 + t * PXT, ry = (h) => RYC - RA * h;
+  txt(rEl, RX0, 16, 'up = impedance rose', 'tk');
+  txt(rEl, 336, 16, 'down = impedance fell', 'tk', 'end');
+  R_('path', { class: 'zero', d: 'M' + RX0 + ' ' + RYC + 'H' + RX1 });
+  let axR = 'M' + RX0 + ' ' + ry(1) + 'V' + ry(-1) + 'M' + RX0 + ' 170H' + RX1;
+  [1, 0, -1].forEach((h) => { axR += 'M' + (RX0 - 4) + ' ' + fx(ry(h)) + 'H' + RX0; txt(rEl, RX0 - 7, ry(h) + 4.5, h > 0 ? '+1' : h < 0 ? '−1' : '0', 'tk', 'end'); });
+  [0, 10, 20, 30].forEach((t) => { axR += 'M' + fx(rx(t)) + ' 170V175'; txt(rEl, rx(t), 189, t === T_AX ? t + ' µs' : String(t), 'tk', t === T_AX ? 'end' : 'middle'); });
+  R_('path', { class: 'ax', d: axR });
+  const traceR = R_('path', { class: 'trace', d: 'M0 0' });
+  txt(rEl, rx(W) + 5, ry(1) + 10, 'pulse sent', 'tk');
+  const xF = rx(T_FAULT + W / 2), xJ = rx(T_J + W / 2);
+  txt(rEl, xF, RYC - 24, 'fault', 'lb', 'middle');
+  txt(rEl, xF, RYC - 10, fTFault.text, 'tk', 'middle');
+  txt(rEl, xJ, RYC - 24, 'joint', 'lb', 'middle');
+  txt(rEl, xJ, RYC - 10, fJt.text, 'tk', 'middle');
+  const endName = txt(rEl, 336, RYC - 24, 'end', 'lb', 'end');
+  const endTime = txt(rEl, 336, RYC - 10, fTEnd.text, 'tk', 'end');
+  function tracePath(far, rf) {
+    let d = '';
+    for (let k = 0; k <= 600; k++) { const t = k * T_AX / 600; d += (k ? 'L' : 'M') + fx(rx(t)) + ' ' + fx(ry(traceAt(t, far, rf))); }
+    return d;
+  }
+  let rKey = '';
+  function drawTrace(p, o) {
+    const far = p.far === 'open' ? 'open' : 'linked', rf = +p.rf, key = far + '|' + rf, up = far === 'open';
+    if (key !== rKey) { rKey = key; traceR.setAttribute('d', tracePath(far, rf)); }
+    endName.setAttribute('y', up ? RYC + 18 : RYC - 24);
+    endTime.setAttribute('y', up ? RYC + 32 : RYC - 10);
+    rEl.setAttribute('aria-label', "L2's trace from the OSS over " + T_AX + ' µs. The pulse sent at 0 points up. A dip at ' + fTFault.text + ' is the fault. '
+      + 'A small up then down at ' + fJt.text + ' is the joint. At ' + fTEnd.text + ' the end points ' + (up ? 'up' : 'down') + '.');
+    const back = f2(Math.abs(o.rho)), past = f2(o.pass);
+    const s1 = up ? "With the far end open, the end shows as an upward peak. The fault's dip at " + fTFault.text + ' still points down. So the reflection that flips is the end.'
+      : "With the far end linked, the end shows as a downward peak, like a short. The fault's dip at " + fTFault.text + ' points down too.';
+    let s2;
+    if (r2(Math.abs(o.rho)) <= 0.01) s2 = 'At ' + rf + ' Ω the fault sends back only ' + back + ' of the pulse. The trace looks like healthy cable.';
+    else if (rf > LIMIT) s2 = 'At ' + rf + ' Ω the fault sends back only ' + back + ' of the pulse. Above about ' + LIMIT + ' Ω, a low-voltage pulse will likely not see it.';
+    else s2 = 'At ' + rf + ' Ω the fault sends back ' + back + ' of the pulse, and ' + past + ' gets past it.';
+    el('sayR').textContent = nb(s1 + ' ' + s2);
+  }
+
+  // ---------- the why: time into distance. The same trace against distance ----------
+  const vEl = el('vsvg');
+  const V_ = (tag, a) => vEl.appendChild(K.svg(tag, a));
+  const VX0 = 40, VX1 = 326, VYC = 96, VA = 48, PXD = (VX1 - VX0) / D_AX;
+  const dx = (m) => VX0 + m * PXD, vy = (h) => VYC - VA * h;
+  const SX = (v) => VX0 + (v - V_MIN) / (V_MAX - V_MIN) * (VX1 - VX0);
+  V_('path', { class: 'trace', d: 'M40 12H58' });
+  txt(vEl, 63, 16, 'velocity set', 'tk');
+  V_('path', { class: 'ghost', d: 'M178 12H196' });
+  txt(vEl, 201, 16, 'default ' + V_DEF + ' m/µs', 'tk');
+  V_('path', { class: 'zero', d: 'M' + VX0 + ' ' + VYC + 'H' + VX1 });
+  V_('path', { class: 'ref', d: 'M' + fx(dx(LEN_M)) + ' 44V' + (VYC + 8) });
+  txt(vEl, dx(LEN_M) + 4, 38, 'known length ' + LEN_M + ' m', 'lb', 'end');
+  let axV = 'M' + VX0 + ' 152H' + VX1;
+  [0, 500, 1000, 1500, 2000, 2500].forEach((m) => { axV += 'M' + fx(dx(m)) + ' 152V157'; if (m % 1000 === 0) txt(vEl, dx(m), 170, String(m), 'tk', 'middle'); });
+  V_('path', { class: 'ax', d: axV });
+  txt(vEl, VX1, 186, 'distance from the OSS (m)', 'tk', 'end');
+  function distPath(v) {
+    let d = '';
+    for (let k = 0; k <= 560; k++) { const m = k * D_AX / 560; d += (k ? 'L' : 'M') + fx(dx(m)) + ' ' + fx(vy(traceAt(2 * m / v, 'open', RF0))); }
+    return d;
+  }
+  V_('path', { class: 'ghost', d: distPath(V_DEF) });
+  const traceV = V_('path', { class: 'trace', d: 'M0 0' });
+  const faultV = txt(vEl, 0, VYC - 12, 'fault', 'lb', 'middle');
+  const endV = txt(vEl, 0, VYC + 20, 'end', 'lb', 'middle');
+  txt(vEl, VX0, 206, 'Velocity set (m/µs)', 'tk');
+  V_('rect', { class: 'band', x: fx(SX(V_LO)), y: 214, width: fx(SX(V_HI) - SX(V_LO)), height: 16 });
+  let axS = 'M' + VX0 + ' 230H' + VX1;
+  [V_MIN, V_DEF, V_MAX].forEach((v) => { axS += 'M' + fx(SX(v)) + ' 230V235'; txt(vEl, SX(v), 250, String(v), 'tk', 'middle'); });
+  V_('path', { class: 'ax', d: axS });
+  txt(vEl, (SX(V_LO) + SX(V_HI)) / 2, 250, 'typical XLPE: ' + V_LO + ' to ' + V_HI, 'tk', 'middle');
+  const vdot = V_('circle', { class: 'vdot', cx: fx(SX(V_DEF)), cy: 222, r: 6 });
+  let vKey = null;
+  function drawVel(p, o) {
+    const v = +p.v;
+    if (v !== vKey) { vKey = v; traceV.setAttribute('d', distPath(v)); }
+    faultV.setAttribute('x', fx(dx(distAt(T_FAULT + W / 2, v))));
+    endV.setAttribute('x', fx(dx(distAt(T_END + W / 2, v))));
+    vdot.setAttribute('cx', fx(SX(v)));
+    const on = Math.abs(o.Lend - LEN_M) < distAt(T_END, 1), short = o.Lend < LEN_M;
+    vEl.setAttribute('aria-label', "L2's trace with the far end open, against distance from the OSS. A dashed line marks the known length, " + LEN_M + ' m. '
+      + 'The end sits ' + (on ? 'on it' : short ? 'short of it' : 'past it') + '. A faint dashed trace shows the default ' + V_DEF + ' m/µs. '
+      + 'Below, the velocity set sits on a scale from ' + V_MIN + ' to ' + V_MAX + ' m/µs, with the typical XLPE band from ' + V_LO + ' to ' + V_HI + '.');
+    const lead = v === V_DEF ? 'At the default ' + V_DEF + ' m/µs, the end reads ' : 'At ' + v + ' m/µs the end reads ';
+    const where = on ? ', on the known length.' : short ? ', short of the known ' + LEN_M + ' m.' : ', past the known ' + LEN_M + ' m.';
+    el('sayV').textContent = nb(lead + fmtM(o.Lend) + where + ' The fault reads ' + fmtM(o.Lfault) + ', still ' + fRatio.text + ' of the way along.');
+  }
+
+  // ---------- String B's result: where L2's fault is ----------
+  (function result() {
+    const g = el('fsvg'), G_ = (tag, a) => g.appendChild(K.svg(tag, a));
+    const X0 = 40, X1 = 320, xf = X0 + f6b.value / LEN_M * (X1 - X0), xj = X0 + JOINT / LEN_M * (X1 - X0);
+    G_('path', { class: 'br', d: 'M' + X0 + ' 30V22H' + fx(xf) + 'V30' });
+    G_('path', { class: 'br', d: 'M' + fx(xf) + ' 30V22H' + X1 + 'V30' });
+    txt(g, (X0 + xf) / 2, 14, f6b.text + ' from the OSS', 'lb', 'middle');
+    txt(g, (xf + X1) / 2, 14, f6c.text + ' from B01', 'lb', 'middle');
+    G_('rect', { class: 'scr', x: X0, y: 40, width: X1 - X0, height: 20 });
+    G_('rect', { class: 'jt', x: fx(xj - 7), y: 36, width: 14, height: 28, rx: 4 });
+    G_('path', { class: 'cond', d: 'M' + X0 + ' 50H' + X1 });
+    G_('circle', { class: 'fmark', cx: fx(xf), cy: 50, r: 7 });
+    txt(g, X0, 80, 'OSS', 'lb');
+    txt(g, X1, 80, 'B01', 'lb', 'end');
+    txt(g, xf, 80, "L2's fault", 'lb', 'middle');
+    txt(g, xj, 98, 'joint, ' + fJoint.text, 'tk', 'middle');
+    g.setAttribute('aria-label', 'The route from the OSS to B01. L2\'s fault is ' + f6b.text + ' from the OSS and ' + f6c.text + ' from B01. The joint at ' + fJoint.text + ' is beyond it.');
+  })();
+
+  // ---------- the other shapes, and what a TDR cannot see ----------
+  (function shapes() {
+    const box = el('shapes');
+    box.appendChild(K.el('p', { class: 'k-label' }, 'Other shapes worth knowing'));
+    const grid = box.appendChild(K.el('div', { class: 'shapes' }));
+    SHAPES.forEach((s) => {
+      const tile = grid.appendChild(K.el('div', { class: 'shape' }));
+      const svg = tile.appendChild(K.svg('svg', { viewBox: '0 0 140 50', width: '100%', role: 'img', 'aria-label': s.t }));
+      svg.appendChild(K.svg('path', { class: 'bl', d: 'M6 26H134' }));
+      svg.appendChild(K.svg('path', { class: 'sh', d: s.d }));
+      tile.appendChild(K.el('p', null, s.t));
+    });
+    el('limNote').appendChild(write(K.el('p'), LIM_TEXT, ['arc reflection']));
+  })();
+
+  // ---------- one animation: the pulse runs out and back on arrival ----------
+  const anim = K.anim({ button: false, label: 'Pulse', step: (dt) => {
+    if (at() !== iFor) return false;
+    pulseT = Math.min(PULSE_END, pulseT + Math.min(dt, 0.1));
+    drawPulse();
+    return pulseT < PULSE_END;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_HALF + ' ' + R_SLIPS }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK], p: R_HALF }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O1 ? C_W1 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i6A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  const car6a = K.carried({ parts: ['5a'], into: '#carry6a' });
+  const car6b = K.carried({ parts: ['6a'], into: '#carry6b' });
+  const car6c = K.carried({ parts: ['6a', '6b'], into: '#carry6c' });
+  const NO_HALF = 'The ÷ 2 is missing. The time covers the trip there and back.';
+  // The answer worked from unrounded figures, where it differs from the course's figure.
+  const vRaw = 2 * LEN_M / T_END, raw6b = r1(T_FAULT * vRaw / 2), raw6c = r1(LEN_M - T_FAULT * vRaw / 2);
+  const SPEC = {
+    [i6A]: { id: '6a', fig: f6a, dec: 1, accept: [r1(vRaw)].filter((x) => x !== f6a.value), work: () => ['v = 2L ÷ t', '= ' + f6a.work],
+      slips: [{ value: F('6a.slip').value, hint: 'That is L ÷ t. The pulse covered the ' + LEN_M + ' m twice: v = 2L ÷ t.' },
+        { value: F('6a.slip2').value, hint: 'That is in km per µs. Work in metres: 2 × ' + LEN_M + ' ÷ ' + T_END_S + '.' }],
+      hint: 'Not quite. The pulse goes to the open end and back: v = 2L ÷ t, with L in metres.',
+      after: 'VF = ' + fVF.work + '. That is inside the typical ' + VF_LO + ' to ' + VF_HI + ' for XLPE. A set that asks for v/2 takes ' + fV2.work + '.' },
+    [i6B]: { id: '6b', fig: f6b, dec: 1, accept: [raw6b].filter((x) => x !== f6b.value), work: () => ['L = t × v ÷ 2', '= ' + f6b.work],
+      slips: [{ value: fS6b.value, hint: 'That uses ' + V_DEF + ' m/µs, a default left set. Use the velocity from (a), ' + f6a.text + '.' },
+        { value: F('6b.slip2').value, hint: NO_HALF },
+        { value: F('6b.slip3').value, hint: 'That uses v/2 and then halves again. The formula takes the whole v.' }],
+      hint: 'Not quite. Use L = t × v ÷ 2, with the velocity from (a).',
+      after: 'The joint at ' + fJoint.text + ' would show at ' + fJt.text + '. So this is not the joint. Treat ' + f6b.text + ' as the middle of a search zone. '
+        + "A TDR is generally accurate to within " + Math.round(ZONE * 100) + "% of the cable's length. On String B that is " + fAcc.work + ' either side of ' + f6b.text + '.' },
+    [i6C]: { id: '6c', fig: f6c, dec: 1, accept: [raw6c].filter((x) => x !== f6c.value), work: () => ['From B01 = length − distance from the OSS', '= ' + f6c.work],
+      slips: [{ value: f6b.value, hint: 'That is the distance from the OSS. Take it from the length.' },
+        { value: F('6c.slip').value, hint: 'That starts from ' + fS6b.text + ", the default velocity's distance. Use " + f6b.text + ' from (b).' }],
+      hint: 'Not quite. Take the distance from the OSS away from the length.',
+      after: AFTER_6C },
+    [iCh]: { id: 'l6.changed', fig: fChg, dec: 1, accept: [], work: () => ['L = t × v ÷ 2', '= ' + fChg.work],
+      slips: [{ value: F('l6.changed.slip').value, hint: NO_HALF },
+        { value: F('l6.changed.slip2').value, hint: 'That uses ' + V_DEF + " m/µs. Use this cable's " + CH_V + ' m/µs.' }],
+      hint: "Not quite. Use L = t × v ÷ 2, with this cable's velocity.",
+      after: CH_V + ' m/µs is a velocity factor of ' + CH_V + ' ÷ ' + C_S + ' = ' + f2(+CH_V / C_LIGHT) + '. That is inside the typical range for XLPE.' },
+  };
+  const BOX = { [i6A]: '#ans-6a', [i6B]: '#ans-6b', [i6C]: '#ans-6c', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work() };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' });
+  const wl = WL.map((x, k) => {
+    const box = K.el('div', { class: 'line' });
+    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));
+    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));
+    wbox.appendChild(box);
+    return box;
+  });
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));
+  el('capM').textContent = nb("String B's " + fLen.text + ' and its joint at ' + fJoint.text + ' are practice values.');
+  el('titR').textContent = "L2's trace from the OSS";
+  el('capR').textContent = nb("String B's " + fZ0.text + " and L2's " + fRf.text + " are practice values. The joint's ripple size is chosen for the picture. "
+    + 'Real traces are rounder, and far echoes come back fainter. The picture leaves that loss out.');
+  paras(el('whyF'), WHY_F);
+  el('titV').textContent = "L2's trace, far end open, against distance";
+  el('ratioV').textContent = nb('The fault always sits ' + fRatio.text + ' of the way to the end: ' + fRatio.work + '.');
+  el('capV').textContent = nb("String B's times and length are practice values. " + V_DEF + ' m/µs stands for a default left set.');
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i6A], carry6a: [i6A], carry6b: [i6B], carry6c: [i6C], pre: [i6A, i6B],
+    wrapM: [iFor], warnFor: [iFor], capM: [iFor],
+    wrapR: [iUp], whyF: [iUp], ctlR: [iUp], outsR: [iUp], sayR: [iUp], shapes: [iUp], limNote: [iUp], capR: [iUp],
+    wrapV: [iV], ctlV: [iV], outsV: [iV], ratioV: [iV], sayV: [iV], capV: [iV],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-6a': [i6A], 'ans-6b': [i6B], 'ans-6c': [i6C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };
+  const ASK = {
+    [iUp]: 'Switch the far end from linked to open. Then drag the fault resistance from ' + RF0 + ' Ω up to ' + RF_MAX + ' Ω.',
+    [iV]: 'Drag the velocity until the end lands on the known ' + LEN_M + ' m.',
+    [iWk]: 'Think each line through first, then press Show.',
+  };
+  const CARRY = { [i6A]: car6a, [i6B]: car6b, [i6C]: car6c };
+
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+      if (i === i6A) scen.el.open = true;
+      if (CARRY[i] && typeof CARRY[i].refresh === 'function') { try { CARRY[i].refresh(); } catch (e) { /* the panel keeps its last state */ } }
+    }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('pre'), d.pre || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (ASK[i] ? ' ask' : '');
+    sub.textContent = nb(ASK[i] ? ASK[i]
+      : i === iChk ? "String B's figures are practice values."
+      : i === i6A ? 'Give it in m/µs, to 1 place.'
+      : i === i6B || i === i6C ? 'Give it in m, to 1 place.'
+      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in m, to 1 place.'
+      : i === iB1 ? markLine('b1')
+      : i === iK ? 'One card to come back to on a real job.' : '');
+    sub.hidden = !sub.textContent;
+
+    drawTrace(p, o);
+    drawVel(p, o);
+    const pk = i === iFor ? 'P' : '';
+    if (pk && pk !== pulseKey) { pulseT = 0; drawPulse(); if (!anim.playing()) anim.play(); }
+    pulseKey = pk;
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    el('wrapF').hidden = !(i === i6C && typedDone);
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['wrapF', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);
+  const AR = (rf) => K.at({ rf: rf }), AV = (v) => K.at({ v: v });
+  K.check('Rf 1, 35, 100 and 1000 Ω give 0.96, 15.3, 21.3 and 26.4 Ω at the fault; ρ −0.93, −0.28, −0.12 and −0.01; 0.07, 0.72, 0.88 and 0.99 get past', () =>
+    fmtZ(AR(1).zf) === '0.96 Ω' && fmtZ(AR(35).zf) === '15.3 Ω' && fmtZ(AR(100).zf) === '21.3 Ω' && fmtZ(AR(1000).zf) === '26.4 Ω'
+    && near(r2(AR(1).rho), F('l6.rho1').value) && near(r2(AR(RF0).rho), F('l6.rho35').value) && near(r2(AR(100).rho), F('l6.rho100').value)
+    && near(r2(AR(1000).rho), F('l6.rho1000').value) && sg2(AR(35).rho) === '−0.28'
+    && f2(AR(1).pass) === '0.07' && near(r2(AR(RF0).pass), F('l6.pass').value) && f2(AR(100).pass) === '0.88' && f2(AR(1000).pass) === '0.99');
+  K.check('Behind the 35 Ω fault the end comes back at 0.72 × 0.72 = 0.52 of its full height', () =>
+    near(r2(Math.abs(endH('open', RF0))), F('l6.endamp').value) && near(r2(r2(passAt(RF0)) * r2(passAt(RF0))), F('l6.endamp').value));
+  K.check("Opening the far end flips the end from down to up; the fault's dip stays down at every resistance", () =>
+    [1, RF0, LIMIT, RF_MAX].every((rf) => endH('linked', rf) < 0 && endH('open', rf) > 0 && rhoAt(rf) < 0
+      && traceAt(T_FAULT + W / 2, 'linked', rf) < 0 && traceAt(T_FAULT + W / 2, 'open', rf) < 0
+      && traceAt(T_END + W / 2, 'linked', rf) < 0 && traceAt(T_END + W / 2, 'open', rf) > 0));
+  K.check('The dip shrinks as the fault resistance rises, and the impedance climbs towards 27.1 Ω', () => {
+    for (let rf = 1; rf < RF_MAX; rf++) if (!(Math.abs(rhoAt(rf + 1)) < Math.abs(rhoAt(rf)) && zAt(rf + 1) > zAt(rf) && zAt(rf + 1) < Z0)) return false;
+    return near(rhoAt(0), -1) && near(zAt(1e12), Z0, 1e-6);
+  });
+  K.check("String B's 27.1 Ω is 1 ÷ (v × C) at 168.0 m/µs and 0.22 µF/km", () => near(r1(1 / (V_B * 1e6 * CKM * 1e-9)), Z0));
+  K.check('At 152, 160, 168 and 188 m/µs the end reads 2171.3, 2285.6, 2399.9 and 2685.6 m; the fault 868.7, 914.4, 960.1 and 1074.4 m; VF 0.51, 0.53, 0.56 and 0.63', () =>
+    fmtM(AV(152).Lend) === '2171.3 m' && fmtM(AV(160).Lend) === '2285.6 m' && fmtM(AV(168).Lend) === '2399.9 m' && fmtM(AV(188).Lend) === '2685.6 m'
+    && fmtM(AV(152).Lfault) === '868.7 m' && fmtM(AV(160).Lfault) === fS6b.text && fmtM(AV(168).Lfault) === f6b.text && fmtM(AV(188).Lfault) === '1074.4 m'
+    && f2(AV(152).vf) === '0.51' && f2(AV(160).vf) === '0.53' && f2(AV(168).vf) === fVF.text && f2(AV(188).vf) === '0.63');
+  K.check('The fault sits 0.40 of the way to the end at every velocity', () => {
+    for (let v = V_MIN; v <= V_MAX; v += 2) if (!near(r2(AV(v).Lfault / AV(v).Lend), fRatio.value)) return false;
+    return true;
+  });
+  K.check('Recall: 20.0 × 160 ÷ 2 = 1600 m; slips 3200 m and 800 m. Worked example: 0.05 × 2000 = 100 m', () =>
+    near(r1(+R_T * +R_V / 2), fRec.value) && near(r1(+R_T * +R_V), fRs1.value) && near(r1(+R_T * +R_VH / 2), fRs2.value) && near(+R_VH * 2, +R_V)
+    && near(r1(WEX_F * WEX_L), fWex.value));
+  K.check('6(a) 168.0 m/µs; 6(b) 960.1 m (960.2 unrounded); 6(c) 1439.9 m (1439.8 unrounded); changed numbers 1290.0 m', () =>
+    near(r1(2 * LEN_M / T_END), f6a.value) && near(r1(T_FAULT * V_B / 2), f6b.value) && near(r1(LEN_M - f6b.value), f6c.value)
+    && raw6b === 960.2 && raw6c === 1439.8 && near(r1(+CH_T * +CH_V / 2), fChg.value));
+  K.check('Joint at 19.29 µs, B01 at 17.14 µs, VF 0.56, v/2 84.0, zone 24.0 m either side', () =>
+    near(r2(2 * JOINT / V_B), fJt.value) && near(r2(2 * f6c.value / V_B), fB01.value) && near(r2(V_B / C_LIGHT), fVF.value)
+    && near(r1(V_B / 2), fV2.value) && near(r1(ZONE * LEN_M), fAcc.value) && near(r1(f6b.value + f6c.value), fBoth.value));
+  K.check('Each slip is its own working: 84.0 and 0.168; 914.4, 1920.2 and 480.1; 1485.6; 2580.0 and 1200.0', () =>
+    near(r1(LEN_M / T_END), F('6a.slip').value) && near(r3(2 * LEN_KM / T_END), F('6a.slip2').value)
+    && near(r1(T_FAULT * V_DEF / 2), fS6b.value) && near(r1(T_FAULT * V_B), F('6b.slip2').value) && near(r1(T_FAULT * (V_B / 2) / 2), F('6b.slip3').value)
+    && near(r1(LEN_M - fS6b.value), F('6c.slip').value) && near(r1(+CH_T * +CH_V), F('l6.changed.slip').value)
+    && near(r1(+CH_T * V_DEF / 2), F('l6.changed.slip2').value));
+  K.check('A fault of higher resistance, over 100 Ω, a low-voltage pulse will likely not see', () => LIMIT === 100,
+    { source: 'https://www.megger.com/en-ca/applications/cables/cable-fault-location' });
+  K.check('Power XLPE: velocity factor 0.54 to 0.62, 162 to 186 m/µs', () =>
+    VF_LO === 0.54 && VF_HI === 0.62 && V_LO === 162 && V_HI === 186 && Math.round(VF_LO * C_LIGHT) === V_LO && Math.round(VF_HI * C_LIGHT) === V_HI,
+    { source: 'https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf' });
+  K.check('Measured from both ends, the combined answer should equal the expected length of the cable', () => near(f6b.value + f6c.value, LEN_M, 1e-6),
+    { source: 'https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf' });
+  K.check("Every slip lies outside its answer's accepted figures", () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.05;
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+
+  K.ready();
+</script>
