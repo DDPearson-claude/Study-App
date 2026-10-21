@@ -1,0 +1,616 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T11:22:15.583Z",
+ "startedAt": "2026-10-21T11:22:15.583Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "The DOL starter",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the latching contact (7) keeping the coil fed after Start springs back, until its circuit opens and it drops out for good, when you press and release Start.",
+   "title": "Your DOL starter, live",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 9,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A DOL starter, drawn with its parts numbered 1 to 10. The supply (1) comes in on L1, L2, L3 and N, through fuses or a breaker and the four-pole isolator (2). The three main contacts (5) feed the motor (6) through the overload's heaters (9), one in each line. The coil circuit runs from L3 through Stop (8), then Start (3) with the latching contact (7) across it, then the coil (4) and the overload's contact (10), to the neutral. Dashed lines join the parts that work together: the coil with 5 and 7, and the heaters with 10.\n\nIn the live picture the fed parts light up, and the coil glows while it is fed. A meter shows the current in one line. A bar beside the heaters fills as the overload warms. When it is full, 10 opens and the motor stops.",
+   "ignores": "The picture runs on a sped-up clock. The run-up, the overload heating and the cooling take far longer in real life. The start surge of 7 times is one example from a range. The motor current slider sets the current directly, as if the load grew. The supply cut is long enough for the coil to let go. A contactor may ride through a very short dip. That depends on the contactor. The picture does not show a short circuit, only the fuses or breaker that would clear one. The control circuit is drawn fed from one phase and the neutral. Many starters feed a 400 V coil across two lines instead. Only the motor current slider heats the overload. The start surge does not, so repeated starts never trip it here.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 10 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Motor current, % of overload setting (opening)",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Motor current slider range, %",
+     "value": "100 to 150",
+     "kind": "control"
+    },
+    {
+     "label": "Part numbers on the drawing",
+     "value": "1 to 10",
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Coil voltage, phase to neutral, V",
+     "value": 230,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Supply voltage line to line, V (example motor)",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor rating, kW",
+     "value": 11,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor full-load current, A",
+     "value": 23.08,
+     "kind": "assumed"
+    },
+    {
+     "label": "Start surge on the meter, times full-load (example)",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Start surge on the meter, A",
+     "value": 161.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Run-up time on the picture, s (example)",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Running current on the meter, A",
+     "value": 23.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Line current at 120% of setting, A",
+     "value": 27.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Line current at 150% of setting, A",
+     "value": 34.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Overload bar fill time at 120%, picture s (example)",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Overload bar cooling time, picture s (example)",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply cut on the picture, s (example)",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "DOL starting current, times rated",
+     "value": "6 to 8",
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "DOL starting current can exceed, times rated",
+     "value": 10,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Starting torque, motors up to about 30 kW, times rated",
+     "value": "1.5 to 2.5",
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Restart before stopping: peak, times a normal start",
+     "value": 2,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "DOL size rule of thumb, under, kW",
+     "value": 4,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "DOL size rule of thumb, up to, kW",
+     "value": 5,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Some supply companies restrict DOL from, kW",
+     "value": 5.5,
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "DOL on a site with its own supply, up to, kW",
+     "value": "250 or more",
+     "kind": "constant",
+     "source": 21
+    },
+    {
+     "label": "Star winding voltage on 400 V, V",
+     "value": 231,
+     "kind": "computed"
+    },
+    {
+     "label": "Star-delta starting current, fraction of DOL",
+     "value": "1/3",
+     "kind": "computed"
+    },
+    {
+     "label": "Star-delta starting current, about %",
+     "value": 30,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Star-delta starting torque, about % of DOL",
+     "value": 25,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Example motor DOL start current, A",
+     "value": "138 to 185",
+     "kind": "computed"
+    },
+    {
+     "label": "Example motor star-delta start current, A",
+     "value": "46 to 62",
+     "kind": "computed"
+    },
+    {
+     "label": "Star-delta overload on the main contactor, times full-load current",
+     "value": 0.58,
+     "kind": "constant",
+     "source": 22
+    },
+    {
+     "label": "Example motor star-delta overload setting, A",
+     "value": 13.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Star-delta starter contactors",
+     "value": 3,
+     "kind": "constant",
+     "source": 12
+    },
+    {
+     "label": "Overload holds at, times setting",
+     "value": 1.05,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Overload trips at, times setting",
+     "value": 1.2,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Coil operating range, times rated voltage",
+     "value": "0.85 to 1.1",
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "230 V coil on 400 V, times its rating",
+     "value": 1.74,
+     "kind": "computed"
+    },
+    {
+     "label": "400 V coil on 230 V, times its rating",
+     "value": 0.575,
+     "kind": "computed"
+    },
+    {
+     "label": "Example motor overload holds at, A",
+     "value": 24.23,
+     "kind": "computed"
+    },
+    {
+     "label": "Example motor overload trips at, A",
+     "value": 27.7,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A DOL starter switches a motor straight onto the full supply through a contactor. Start pulls the contactor in. A contact across Start then keeps the coil fed, so the motor runs on after you let go. Anything that opens the coil's circuit drops it all out. It stays out until someone presses Start again.\n\nFollow the coil circuit in the drawing. Start (3), Stop (8) and the overload's release contact (10) are all in series with the coil (4). Assume it is fed from one phase and the neutral, so it sees 230 V. Start is normally open and sprung. Press it and the coil is fed. The coil's magnet pulls the contactor's moving part in. That closes the three main contacts (5), and the motor starts on full voltage. The same movement closes a small extra contact, the [[latching contact]] (7). It is wired across Start. So when Start springs back, the coil still has a path through 7. The coil does the pulling and the holding. The latching contact only keeps the coil fed.\n\nStop is normally closed. Press it and the coil circuit opens. The coil lets go, so the main contacts and 7 open together. Let go of Stop and nothing happens, because Start and 7 are both open now. The overload works the same way. Too much current heats its bimetal strips (9) until they bend and open 10. The overload has no main contacts of its own. It stops the motor only by opening the coil's circuit. So does a supply cut long enough to drop the coil out. When the supply comes back, Start and 7 are still open, so the motor stays stopped. That is [[no-volt protection]]. A machine does not start up again by itself after a power cut. A pump run by a float or pressure switch is different. That switch stays made, so the pump restarts by itself when the supply returns.[^13]\n\n**A contactor with a latching contact across Start gives no-volt protection. Stop, the overload or a power cut can open its coil circuit. After that, only Start makes it again.**"
+  },
+  "analogy": {
+   "text": "Think of a fire door held open by a magnet. While the magnet is fed, the door stays open. If the fire alarm or a power cut cuts its supply, the door swings shut. When the power returns, the door stays shut. Someone has to push it open again, just as someone has to press Start.",
+   "breaks": "The magnet's supply does not pass through the door. The starter's coil is fed through its own latching contact. So once the coil lets go, it has cut its own feed. Only Start can feed it again."
+  },
+  "practice": {
+   "text": "- Isolate, lock off and prove dead before you open a starter. Prove all three lines and the neutral dead, with a tester you prove before and after.\n- Read the coil's voltage on its label and check how it is wired. On a 400 V supply, a 230 V coil needs a phase and the neutral. A 400 V coil goes across two lines.\n- Set the overload to the motor's full-load current from its nameplate. Do not set it to a trip current.\n- Make sure fuses or a breaker ahead of it give the short-circuit protection. The overload does not.\n- Check Start and Stop both work before you hand it back.\n\n**Rule of thumb:** if the motor runs only while Start is held, look at the latching contact (7) first.\n\n**Worked example:** start the showroom motor DOL. It is 11 kW and 23.08 A at full load. Set the overload to 23.08 A. It should hold at 1.05 × 23.08 = 24.23 A and trip slowly, on its trip curve, at 1.2 × 23.08 = 27.70 A.[^4] While it runs up, the motor usually draws 6 × 23.08 = 138 A to 8 × 23.08 = 185 A. The contactor makes that current every start. Star-delta would cut it to 138 ÷ 3 = 46 A to 185 ÷ 3 = 62 A.\n\n**Common mistakes**\n- Thinking the latching contact holds the main contacts in. The coil holds them. The latch only keeps the coil fed.\n- Expecting the motor to restart after a power cut. It stays stopped until Start is pressed.\n- Trusting the overload to clear a short circuit. That is the fuses' or breaker's job.\n- Fitting a coil for the wrong voltage. Too high a voltage can burn it out. Too low, and it may not pull in.\n- Taking a dropped-out contactor as dead. Its supply side can still be live."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+   "title": "The DOL starter",
+   "for": "Starting a cage motor straight on the full supply. Start pulls the contactor in. The latching contact keeps its coil fed. Anything that opens the coil circuit drops it out until Start is pressed again.",
+   "rule": "Start (3) N/O, with the latching contact (7) across it.\nStop (8) N/C and the overload's contact (10) in series with the coil (4).\nExtra Stops go in series, extra Starts in parallel with Start.\nCoil voltage must match its wiring: 230 V phase to neutral, 400 V across two lines.\n\nDOL start: usually 6 to 8 × full-load current, sometimes over 10.\nOverload set to full-load current: holds at 1.05 ×, trips slowly at 1.2 × on its trip curve.\nStar-delta: about a third of the current, about a quarter of the torque.\n\nRuns only while Start is held: check 7. Will not start: check the overload first.",
+   "traps": [
+    {
+     "text": "The coil pulls and holds the main contacts. The latching contact only keeps the coil fed once Start springs back.",
+     "cite": "[^14] [^15] DOL study sheet; Basic Motor Control"
+    },
+    {
+     "text": "After a power cut the motor stays stopped until someone presses Start. That is no-volt protection.",
+     "cite": "[^16] [^17] Basic Motor Control"
+    },
+    {
+     "text": "The overload does not clear a short circuit. Fuses or a breaker do.",
+     "cite": "[^18] ABB thermal overload relays"
+    },
+    {
+     "text": "Set the overload to the motor's full-load current, not a trip current.",
+     "cite": "[^4] ABB TF42 data sheet"
+    },
+    {
+     "text": "Isolate, lock off and prove dead first. A contactor can hold line voltage with its coil off.",
+     "cite": "[^19] [^20] contactor troubleshooting; HSE HSG85"
+    }
+   ],
+   "where": "Pumps, fans and compressors. The supply, not the starter, sets how big a motor can start this way."
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Softstarter Handbook",
+    "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+    "quote": "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+   },
+   {
+    "n": 2,
+    "title": "Softstarter Handbook",
+    "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+    "quote": "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+   },
+   {
+    "n": 3,
+    "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+    "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+    "quote": "The received starting current is about 30 % of the starting current during direct on line start and the starting torque is reduced to about 25 % of the torque available at a D.O.L start."
+   },
+   {
+    "n": 4,
+    "title": "— Thermal overload relay TF42",
+    "url": "https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj",
+    "quote": "the setting current is the rated current of the motor and not the tripping current (no tripping at 1.05 x I, tripping at 1.2 x I; I = setting current)"
+   },
+   {
+    "n": 5,
+    "title": "Contactor for capacitor switching: Type: 3TS1722-0A..5-8K",
+    "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:9fcd4883-33b5-4c50-97be-c7f9d0b23f98/oi-3ts17.pdf",
+    "quote": "The voltage is to be maintained within 0.85 to 1.1 x rated coil voltage."
+   },
+   {
+    "n": 6,
+    "title": "Your DOL study sheet: the direct online starter",
+    "url": "material:dol-sheet#p1",
+    "quote": "Latching (maintaining) contacts. These 'pull' and 'hold' the main contacts in place, these are pulled into place by the magnetic field created by the energising of (4)."
+   },
+   {
+    "n": 7,
+    "title": "Your DOL study sheet: the direct online starter",
+    "url": "material:dol-sheet#p1",
+    "quote": "230V contactor coil (only connected to one phase and neutral meaning only 230V is present."
+   },
+   {
+    "n": 8,
+    "title": "Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors",
+    "url": "https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf",
+    "quote": "Attempting to restart the motor before it has come to a full stop will cause a current peak that theoretically can reach twice the current compared to starting the motor from a standstill."
+   },
+   {
+    "n": 9,
+    "title": "Your motor sheet: the DOL starter (web summary)",
+    "url": "material:dol-starter#p3",
+    "quote": "DOL starters are typically limited to smaller motors (often under 4 kW) where the power supply can tolerate the voltage dip."
+   },
+   {
+    "n": 10,
+    "title": "Your DOL study sheet: the direct online starter",
+    "url": "material:dol-sheet#p1",
+    "quote": "Generally used for the starting and stopping of small machinery up to 5kW."
+   },
+   {
+    "n": 11,
+    "title": "Motor Starting Solutions ( en",
+    "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+    "quote": "Some utilities restrict DOL starting for motors rated at 5.5 kW / 7.5 hp or higher."
+   },
+   {
+    "n": 12,
+    "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+    "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+    "quote": "The device normally consists of three contactors, an overload relay and a timer for setting the time in the star-position (starting position)."
+   },
+   {
+    "n": 13,
+    "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+    "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+    "quote": "If it uses maintained contacts, then it most likely provides low-voltage release (LVR)."
+   },
+   {
+    "n": 14,
+    "title": "Your DOL study sheet: the direct online starter",
+    "url": "material:dol-sheet#p1",
+    "quote": "The coil magnetises the main contacts and pulls them closed and holds them in place, enabling the motor to connect to the supply and become energised."
+   },
+   {
+    "n": 15,
+    "title": "Manual Circuits – Basic Motor Control",
+    "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+    "quote": "The unique component of the circuit, indeed the device that allows the circuit to provide low-voltage protection (LVP) , is the normally open instantaneous contact connected in parallel with the start button."
+   },
+   {
+    "n": 16,
+    "title": "Manual Circuits – Basic Motor Control",
+    "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+    "quote": "The motor will not restart without further input from an operator as the holding contact will have returned to its normally open state."
+   },
+   {
+    "n": 17,
+    "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+    "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+    "quote": "low-voltage protection (LVP) is a property that circuits have when upon a return of voltage following a power outage, loads will not automatically turn back on and will require further input from the operator."
+   },
+   {
+    "n": 18,
+    "title": "Thermal Overload Relays Electronic ...",
+    "url": "https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf",
+    "quote": "In order to protect motors against short-circuits, it is advisable to use fuses aM in conjunction with the thermal overload relay."
+   },
+   {
+    "n": 19,
+    "title": "Contactor Troubleshooting: Buzzing, Chattering & Coil Failure",
+    "url": "https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure",
+    "quote": "A contactor can contain hazardous line voltage even when its coil circuit is off."
+   },
+   {
+    "n": 20,
+    "title": "Electricity at work: Safe working practices HSG85",
+    "url": "https://www.hse.gov.uk/pubns//priced/hsg85.pdf",
+    "quote": "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead, even if the isolation has been achieved automatically through an interlocking system."
+   },
+   {
+    "n": 21,
+    "title": "Motor Starting Solutions ( en",
+    "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+    "quote": "However, in industrial facilities with independent supply systems, much larger motors - up to 250 kW / 350 hp or more - are operated with direct-on-line starting method."
+   },
+   {
+    "n": 22,
+    "title": "Overload Relays - Digital Asset Management - Siemens",
+    "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:db98727f-1c3d-43cb-ab6e-2055705305b4/version:1557325577/ic17-sect-03-rev031519.pdf",
+    "quote": "An overload relay mounted onto the line contactor must be set to 0.58 times the motor current."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task.show.ask { font-weight: 700; }\n  .task > * + * { margin-top: 10px; }\n  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .task .card b, .task .warn-note b { font-weight: 700; }\n  .task .warn-note { line-height: 1.5; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .why { line-height: 1.6; }\n  .notes > * + * { margin-top: 8px; }\n  .dol, .sd { display: block; width: 100%; height: auto; }\n  .dol .w { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }\n  .dol .w.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .dol rect.hb { fill: var(--k-bg); }\n  .dol .nt { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }\n  .dol .term { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .dol .dot { fill: var(--k-ink); }\n  .dol .gang { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .dol .coil { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .dol .coil.on { fill: var(--k-accent2); stroke: var(--k-accent2); }\n  .dol .halo { fill: var(--k-accent2); fill-opacity: 0; }\n  .dol .halo.on { fill-opacity: .22; }\n  .dol .capStart { fill: var(--k-good); }\n  .dol .capStop { fill: var(--k-warn); }\n  .dol .plg { stroke: var(--k-strong); stroke-width: 2; }\n  .dol .tagc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }\n  .dol .tn, .sd .tn { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .dol .lb, .sd .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .dol .hd, .sd .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .dol .wl { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  .dol .bar { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .dol .heat { fill: var(--k-warn); fill-opacity: .6; }\n  .dol .dial { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .dol .scale { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .dol .lead { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .dol .needle { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .dol .rotor { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .dol .spoke { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .dol .sep, .sd .sep { stroke: var(--k-line); stroke-width: 1; }\n  .sd .wd { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .sd .term { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .sd .dot { fill: var(--k-ink); }\n  .ctl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }\n  .brow { display: flex; flex-wrap: wrap; gap: 8px; }\n  .brow .k-btn { flex: 1 1 5rem; min-height: 48px; height: auto; white-space: normal; line-height: 1.25; padding: 8px 10px; }\n  .k-btn.hold { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }\n  .k-btn.is-down { transform: translateY(2px); box-shadow: none; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  #outs .k-readout { padding: 8px 8px 10px 10px; }\n  #outs .k-readout-value { font-size: 1.15rem; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .ans { font-weight: 700; }\n  #stepbox.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"sdw\"><svg class=\"sd\" id=\"sd\" viewBox=\"0 0 340 196\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div id=\"dolw\"><svg class=\"dol\" id=\"dol\" viewBox=\"0 0 340 494\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctl\">\n      <div class=\"brow\" id=\"row0\"></div>\n      <div class=\"brow\" id=\"row1\"></div>\n      <div class=\"brow\" id=\"row2\"></div>\n      <div id=\"sl\"></div>\n    </div>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"notes\" id=\"notes\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const nowMs = () => (window.performance && performance.now ? performance.now() : Date.now());\n\n  // ---------- the rule ----------\n  // The example motor: 23.08 A at full load on 400 V, the overload set to that current.\n  // Start surge: 7 × full-load current, easing down to the running current over a 4 s run-up\n  // (example values). The overload's bar fills at k × ((current ÷ setting)² − 1.05²), with k set so\n  // it fills in 20 s at 120% (example); it never fills at 1.05 × or below, and empties in 10 s\n  // (example) once the motor stops. The coil is fed when the supply and isolator are on, Stop is\n  // closed, the overload's contact 10 is closed, and Start is held or the latching contact 7 is made.\n  const IFL = 23.08, SURGE = 7, RUNUP_S = 4, FILL120_S = 20, COOL_S = 10, CUT_S = 1, PULSE_S = 0.3;\n  const HOLD = 1.05, TRIP = 1.2;\n  const KH = 1 / (FILL120_S * (TRIP * TRIP - HOLD * HOLD));\n  const heatRate = (pct) => KH * (Math.pow(pct / 100, 2) - HOLD * HOLD);\n  const fillTime = (pct) => 1 / heatRate(pct);\n  const IMAX = 175, SPIN_DEG = 540;\n  const one = (v) => K.fmt(v, { decimals: 1 });\n  const whole = (v) => String(Math.round(v + 1e-9));\n  const VS = 400 / Math.sqrt(3);\n  const SDN = { vs: whole(VS), d6: whole(6 * IFL), d8: whole(8 * IFL) };\n  SDN.s6 = whole(+SDN.d6 / 3); SDN.s8 = whole(+SDN.d8 / 3); SDN.ol = one(0.58 * IFL);\n  const COIL = { hi: K.fmt(400 / 230, { decimals: 2 }), lo: K.fmt(230 / 400, { decimals: 3 }) };\n\n  function fresh() { return { iso: true, cutT: 0, startHeld: false, startPulse: 0, stopHeld: false, stopPulse: 0, cIn: false, tripped: false, heat: 0, runT: 0, spin: 0, ang: 0, why: 'rest', note: '' }; }\n  // What feeds what, for a given contactor position.\n  function feeds(s, worn) {\n    const sup = s.cutT <= 0, on = sup && s.iso;\n    const stopC = !(s.stopHeld || s.stopPulse > 0), startC = s.startHeld || s.startPulse > 0;\n    const latch = s.cIn && !worn;\n    return { sup: sup, on: on, stopC: stopC, startC: startC, latch: latch, fed: on && stopC && (startC || latch) && !s.tripped };\n  }\n  // The contactor follows its coil. Twice, because the latching contact moves with it.\n  function settle(s, worn) {\n    const was = s.cIn;\n    s.cIn = feeds(s, worn).fed;\n    let f = feeds(s, worn);\n    s.cIn = f.fed;\n    f = feeds(s, worn);\n    if (!was && s.cIn) { s.runT = 0; s.why = 'start'; }\n    if (was && !s.cIn) s.why = !f.sup ? 'cut' : !s.iso ? 'iso' : s.tripped ? 'trip' : !f.stopC ? 'stop' : 'worn';\n    return f;\n  }\n  function advance(s, dt, worn, pct) {\n    if (s.startPulse > 0) s.startPulse = Math.max(0, s.startPulse - dt);\n    if (s.stopPulse > 0) s.stopPulse = Math.max(0, s.stopPulse - dt);\n    if (s.cutT > 0) s.cutT = Math.max(0, s.cutT - dt);\n    settle(s, worn);\n    if (s.cIn) {\n      s.runT += dt;\n      s.heat = K.clamp(s.heat + heatRate(pct) * dt, 0, 1);\n      if (s.heat >= 1 - 1e-9) { s.heat = 1; s.tripped = true; settle(s, worn); }\n    } else if (s.heat > 0) s.heat = Math.max(0, s.heat - dt / COOL_S);\n    if (s.cIn) s.spin = K.ease(Math.min(1, s.runT / RUNUP_S));\n    else { s.spin *= Math.exp(-dt / 0.3); if (s.spin < 0.01) s.spin = 0; }\n    s.ang = (s.ang + s.spin * SPIN_DEG * dt) % 360;\n  }\n  function amps(s, pct) {\n    if (!s.cIn) return 0;\n    const run = pct / 100 * IFL;\n    if (s.runT >= RUNUP_S) return run;\n    return SURGE * IFL - (SURGE * IFL - run) * K.ease(s.runT / RUNUP_S);\n  }\n  const busy = (s) => s.cIn || s.cutT > 0 || s.startPulse > 0 || s.stopPulse > 0 || s.heat > 0 || s.spin > 0;\n\n  // ---------- the lesson's words ----------\n  const blk = (t, s) => ({ t: t, s: s });\n  const HOW = [\n    blk('p', 'Start (3), Stop (8) and the overload\\'s contact (10) are in series with the coil (4). The *latching contact* (7) is wired across Start. The coil is fed phase to neutral, at 230 V.'),\n    blk('p', 'Press Start and the coil pulls the contactor in. The main contacts (5) close and the motor starts on the full supply. The latching contact closes too, so the coil stays fed through 7 when Start springs back.'),\n    blk('p', 'Break that circuit anywhere and the coil lets go. It stays out until Start is pressed again.'),\n  ];\n  const PLAY = [blk('p', 'Press Start and let it go. Then try Stop and a supply cut. Push the motor current up until the overload trips.')];\n  const NOTES = [\n    'Example values: the showroom motor, ' + IFL + ' A at full load, with the overload set to match. A start surge of ' + SURGE + ' times for ' + RUNUP_S + ' s, and a ' + CUT_S + ' s supply cut. The overload runs on a sped-up clock. Only the motor current slider heats it, not the start surge.',\n  ];\n  const BEHAVE = [\n    blk('row', 'Starting current: The full supply goes on at once. It usually draws 6 to 8 times rated current, sometimes over 10 times. The supply voltage dips.'),\n    blk('row', 'Starting torque: Full as well. Up to about 30 kW it is often 1.5 to 2.5 times rated. Check the data sheet.'),\n    blk('row', 'The contactor: It makes the full starting current, but breaks only the running current.'),\n    blk('row', 'Quick restarts: Restarting while it still turns can give up to twice the normal peak. Let it stop first.'),\n  ];\n  const USE = [\n    blk('row', 'Used for: Pumps, fans and compressors. The simplest start: one contactor, an overload and two buttons.'),\n    blk('row', 'Size: The supply sets the limit, because it must stand the voltage dip. Rules of thumb run from 4 to 5.5 kW. Sites with their own supply start motors up to 250 kW or more.'),\n    blk('row', 'At sea: The generators are the supply. Large motors started one after another, like thrusters while manoeuvring, can dip the voltage badly.'),\n    blk('row', 'Limit: It does nothing to cut the starting current. Where that is too much, use star-delta.'),\n  ];\n  const SD = [\n    blk('p', 'Start in star, run in delta. In star each winding gets 400 ÷ √3 = ' + SDN.vs + ' V, so √3 less current.'),\n    blk('p', 'Each line also carries one winding\\'s current, not √3 times it. So star draws 1 ÷ 3 of the DOL current and about a quarter of the torque.'),\n    blk('p', 'It needs three contactors, a timer and a delta-run motor. Start it light. It peaks again at the switch.'),\n    blk('p', 'Its overload sits on the main contactor, set to 0.58 × ' + IFL + ' = ' + SDN.ol + ' A.'),\n  ];\n  const FAULTS = [\n    blk('safe', 'Safety first: Isolate, lock off and prove dead. A dropped-out contactor can still be live on its supply side.'),\n    blk('row', 'Will not start: Check the overload (10) first, then Stop (8) and the coil (4).'),\n    blk('row', 'Runs only while Start is held: Check the latching contact (7) and its wiring.'),\n    blk('row', 'Overload trips: Check it is set to full-load current. It trips slowly at 1.2 times. Then look for a real overload, frequent starts or worn main contacts.'),\n    blk('row', 'Short circuit: Fuses or a breaker clear it, not the overload.'),\n  ];\n  const CF = [\n    blk('row', 'Chatters or buzzes: Look for low coil voltage, a loose connection or dirty magnet faces. As it pulls in, it should see 0.85 to 1.1 times its rating. Measure that live, then isolate again before you touch anything.'),\n    blk('row', 'Wrong coil: Match its marked voltage to its wiring. A 230 V coil across two lines gets 400 ÷ 230 = ' + COIL.hi + ' times its rating and can burn out. A 400 V coil from phase to neutral gets 230 ÷ 400 = ' + COIL.lo + ' times. It may not pull in, and can overheat.'),\n  ];\n  const words = (list) => list.map((b) => b.s).join('\\n\\n');\n  const C1 = 'It stays stopped until someone presses Start', C2 = 'It starts again by itself when the supply returns', C3 = 'It keeps running, because the latching contact holds the contactor in';\n  const F1 = 'The latching contact (7) is not making', F2 = 'The overload (9 and 10) has tripped', F3 = 'The Stop button (8) is stuck open';\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const STEPS = [\n    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW),\n      read: words(HOW).replace('Press Start and the coil pulls the contactor in.', 'When Start is pressed, the coil pulls the contactor in.') },\n    { show: true, name: 'The starter, live', label: 'The starter, live', blocks: PLAY, text: words(PLAY),\n      read: 'When Start is pressed, the coil pulls in the main contacts and the latching contact together. On the example motor the meter jumps to about 162 A, then falls to 23.1 A as the motor runs up. When Start is let go, the coil stays fed through 7. Stop, the overload\\'s contact 10, or a supply cut each open the coil circuit. The motor then stays stopped until Start is pressed again.',\n      still: () => stillRun() },\n    { name: 'Check', label: 'Check on the cause',\n      task: 'The motor is running. The supply fails for a second, then comes back. Nobody touches the buttons. What does the motor do?',\n      opts: [C1, C2, C3], want: C1,\n      why: 'With no supply the coil let go, and 7 opened with the main contacts. When the supply returns, Start and 7 are both open, so the coil has no path. That is *no-volt protection*. A pump run by a float or pressure switch is different. That switch stays made, so the pump restarts by itself when the supply returns.',\n      slips: ['', 'That would need a path to the coil. Start is sprung open, and 7 opened when the coil let go. So there is no path until someone presses Start.',\n        'The coil does the holding, and it needs a supply. The latching contact only keeps the coil fed. With the supply gone, it opens too.'] },\n    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },\n    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },\n    { show: true, name: 'Star-delta', label: 'Star-delta', blocks: SD, text: words(SD) },\n    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },\n    { show: true, name: 'Coil faults', label: 'Coil faults', blocks: CF, text: words(CF) },\n    { name: 'Find the fault', label: 'Find the fault',\n      task: 'You press Start and the motor runs. You let go of Start and it stops. What is the likely cause?',\n      opts: [F1, F2, F3], want: F1,\n      why: 'Start feeds the coil while you hold it. Once it springs back, only 7 can keep the coil fed, so 7 or its wiring is open.',\n      slips: ['', 'The overload\\'s contact is in series with the coil. If it had tripped, the motor would not start at all, even with Start held.',\n        'Stop is in series with the coil too. If Stop were stuck open, the coil could never be fed. The motor would not start.'] },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iHow = 0, iPic = 1, iChk = 2, iSD = 5, iFault = 6, iFind = 8, iK = 9;\n  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));\n  let lastStep = -1, finished = false;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function addText(node, s) {\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function write(node, s) { node.textContent = ''; return addText(node, s); }\n  function blocks(node, list) {\n    node.textContent = '';\n    list.forEach((b, k) => {\n      if (k) node.appendChild(document.createTextNode(' '));\n      let e;\n      if (b.t === 'row' || b.t === 'safe') {\n        const cut = b.s.indexOf(': ');\n        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');\n        addText(e, b.s.slice(cut + 2));\n      } else e = addText(K.el('p'), b.s);\n      node.appendChild(e);\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const SIM = fresh();\n  let lastPtr = -1e9, isoLabel = '';\n  const isoBtn = K.button({ label: 'Open isolator (2)', secondary: true, into: '#row0', press: () => { SIM.iso = !SIM.iso; SIM.note = ''; } });\n  const startBtn = K.button({ label: 'Start (3)', into: '#row1', press: () => { if (nowMs() - lastPtr < 700) return; SIM.startPulse = PULSE_S; SIM.note = ''; } });\n  const stopBtn = K.button({ label: 'Stop (8)', into: '#row1', press: () => { if (nowMs() - lastPtr < 700) return; SIM.stopPulse = PULSE_S; SIM.note = ''; } });\n  K.button({ label: 'Cut supply ' + CUT_S + ' s', secondary: true, into: '#row2', press: () => { SIM.cutT = CUT_S; SIM.note = ''; } });\n  K.button({ label: 'Reset overload', secondary: true, into: '#row2', press: () => {\n    if (SIM.tripped && SIM.heat <= 0) { SIM.tripped = false; SIM.why = 'reset'; SIM.note = ''; }\n    else SIM.note = SIM.tripped ? 'warm' : 'idle';\n  } });\n  // Start and Stop stay in while held and spring back when let go (a tap is a short press).\n  function holdable(btn, key) {\n    const b = btn.el;\n    let pid = null;\n    b.classList.add('hold');\n    b.addEventListener('pointerdown', (e) => {\n      if (e.button != null && e.button > 0) return;\n      pid = e.pointerId;\n      try { b.setPointerCapture(pid); } catch (er) { /* not every browser */ }\n      lastPtr = nowMs(); SIM[key] = true; SIM.note = '';\n      K.reveal();\n    });\n    const up = () => { if (pid === null) return; pid = null; lastPtr = nowMs(); SIM[key] = false; K.refresh(); };\n    b.addEventListener('pointerup', up);\n    b.addEventListener('pointercancel', up);\n    b.addEventListener('lostpointercapture', up);\n    b.addEventListener('contextmenu', (e) => e.preventDefault());\n  }\n  holdable(startBtn, 'startHeld');\n  holdable(stopBtn, 'stopHeld');\n  const loadCtl = K.control({ id: 'load', label: 'Motor current, % of the overload setting', min: 100, max: 150, step: 10, value: 100, snap: [100, 120, 150],\n    fmt: (v) => Math.round(v) + '%', hint: 'Stands for the load growing. It matters only while the motor runs.', into: '#sl' });\n  const wornCtl = K.toggle({ id: 'worn', label: 'Latching contact (7) worn', value: false, into: '#sl' });\n  const RD = {\n    coil: K.readout({ id: 'coilState', label: 'Coil', into: '#outs' }),\n    motor: K.readout({ id: 'motorState', label: 'Motor', into: '#outs' }),\n    amps: K.readout({ id: 'lineAmps', label: 'Line current', unit: 'A', decimals: 1, into: '#outs' }),\n  };\n  K.model((p) => { const pct = +p.load || 100; return { runAmps: pct / 100 * IFL, heatRate: heatRate(pct) }; });\n\n  // ---------- the DOL drawing ----------\n  const dol = el('dol'), D = {};\n  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }\n  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }\n  function tag(g, x, y, n) { ad(g, 'circle', { cx: x, cy: y, r: 9.5, class: 'tagc' }); txt(g, x, y + 4.5, String(n), 'tn', 'middle'); }\n  function term(g, x, y) { ad(g, 'circle', { cx: x, cy: y, r: 2.4, class: 'term' }); }\n  function dot(g, x, y) { ad(g, 'circle', { cx: x, cy: y, r: 3, class: 'dot' }); }\n  // A winding: a lead, n half-turns, a lead (sweep picks the side the turns bulge to).\n  function bumps(x0, y0, x1, y1, n, lead, sweep) {\n    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, st = (L - 2 * lead) / n, r = (st / 2).toFixed(2);\n    const a0 = x0 + ux * lead, b0 = y0 + uy * lead;\n    let d = 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + 'L' + a0.toFixed(1) + ' ' + b0.toFixed(1);\n    for (let k = 1; k <= n; k++) d += 'A' + r + ' ' + r + ' 0 0 ' + sweep + ' ' + (a0 + ux * st * k).toFixed(1) + ' ' + (b0 + uy * st * k).toFixed(1);\n    return d + 'L' + x1.toFixed(1) + ' ' + y1.toFixed(1);\n  }\n  // A contact blade, hinged at its lower end: upright when made, tipped when open.\n  function bladeAt(g, x, y, len, cls) { const n = ad(g, 'line', { x1: x, y1: y, x2: x, y2: y - len, class: cls }); n._g = [x, y, len]; return n; }\n  function setBlade(n, made) { const q = n._g; n.setAttribute('x2', made ? q[0] : q[0] + 10); n.setAttribute('y2', made ? q[1] - q[2] : q[1] - q[2] + 3); }\n  const lit = (n, on) => n.classList.toggle('on', !!on);\n  const X = [34, 60, 86], XN = 112, XC = 226, X7 = 176;\n  const MT = [60, 276], MA = [34, 332], MB = [86, 332], MO = [60, 313], DC = [152, 296];\n\n  function buildDol() {\n    const g = dol;\n    // Wires first, then the parts on them, then numbers and words.\n    D.sup = X.map((x) => ad(g, 'path', { d: 'M' + x + ' 22V56', class: 'w' }));\n    ad(g, 'path', { d: 'M' + XN + ' 22V56', class: 'nt' });\n    D.mid = X.map((x) => ad(g, 'path', { d: 'M' + x + ' 74V178', class: 'w' }));\n    ad(g, 'path', { d: 'M' + XN + ' 74V262H' + XC + 'V224', class: 'nt' });\n    D.tap = ad(g, 'path', { d: 'M' + X[2] + ' 86H106A6 6 0 0 1 118 86H' + XC + 'V100', class: 'w' });\n    D.so = ad(g, 'path', { d: 'M' + XC + ' 118V140M' + X7 + ' 138V128H' + XC, class: 'w' });\n    D.bb = ad(g, 'path', { d: 'M' + X7 + ' 158V168H' + XC + 'M' + XC + ' 158V178', class: 'w' });\n    ad(g, 'path', { d: 'M' + XC + ' 196V206', class: 'nt' });\n    D.bot = X.map((x, k) => ad(g, 'path', { d: 'M' + x + ' 200V' + (k === 1 ? MT[1] : MA[1]), class: 'w' }));\n    D.wind = [bumps(MT[0], MT[1], MB[0], MB[1], 4, 9, 0), bumps(MB[0], MB[1], MA[0], MA[1], 4, 9, 0), bumps(MA[0], MA[1], MT[0], MT[1], 4, 9, 0)]\n      .map((d) => ad(g, 'path', { d: d, class: 'w' }));\n    // Fuses or breaker (no number), the isolator (2) with its four poles moving as one.\n    D.fuse = X.map((x) => ad(g, 'rect', { x: x - 4, y: 29, width: 8, height: 16, rx: 1, class: 'w' }));\n    D.iso = X.concat([XN]).map((x, k) => bladeAt(g, x, 74, 18, k < 3 ? 'w' : 'nt'));\n    ad(g, 'path', { d: 'M28 65H118', class: 'gang' });\n    // The contactor: coil (4), main contacts (5) and latching contact (7) on one dashed link.\n    ad(g, 'path', { d: 'M28 189H213M181 189V150', class: 'gang' });\n    D.main = X.map((x) => bladeAt(g, x, 200, 22, 'w'));\n    D.b7 = bladeAt(g, X7, 158, 20, 'w');\n    D.halo = ad(g, 'rect', { x: 205, y: 171, width: 42, height: 32, rx: 8, class: 'halo' });\n    D.coil = ad(g, 'rect', { x: 213, y: 178, width: 26, height: 18, rx: 3, class: 'coil' });\n    // Stop (8), normally closed, and Start (3), normally open: a bridge pushed by a button.\n    D.gStop = ad(g, 'g', {});\n    D.stopBr = ad(D.gStop, 'line', { x1: XC, y1: 96, x2: XC, y2: 122, class: 'w' });\n    ad(D.gStop, 'line', { x1: XC, y1: 109, x2: XC + 14, y2: 109, class: 'plg' });\n    ad(D.gStop, 'rect', { x: XC + 14, y: 102, width: 12, height: 14, rx: 2, class: 'capStop' });\n    D.gStart = ad(g, 'g', { transform: 'translate(8 0)' });\n    D.startBr = ad(D.gStart, 'line', { x1: XC, y1: 136, x2: XC, y2: 162, class: 'w' });\n    ad(D.gStart, 'line', { x1: XC, y1: 149, x2: XC + 14, y2: 149, class: 'plg' });\n    ad(D.gStart, 'rect', { x: XC + 14, y: 142, width: 12, height: 14, rx: 2, class: 'capStart' });\n    // The overload: a heater (9) in each line, a dashed link to its contact (10), and its heat bar beside them, off the leads.\n    D.heaters = X.map((x) => ({\n      r: ad(g, 'rect', { x: x - 5, y: 208, width: 10, height: 18, rx: 1, class: 'w hb' }),\n      p: ad(g, 'path', { d: 'M' + x + ' 208V211H' + (x + 3) + 'V223H' + x + 'V226', class: 'w' }),\n    }));\n    ad(g, 'path', { d: 'M93 217H220', class: 'gang' });\n    ad(g, 'rect', { x: 124, y: 226, width: 72, height: 10, rx: 3, class: 'bar' });\n    D.heatFill = ad(g, 'rect', { x: 125, y: 227, width: 0, height: 8, rx: 2, class: 'heat' });\n    D.b10 = bladeAt(g, XC, 224, 18, 'nt');\n    // The motor's rotor, and the meter on one line.\n    ad(g, 'circle', { cx: MO[0], cy: MO[1], r: 7, class: 'rotor' });\n    D.spoke = ad(g, 'line', { x1: MO[0], y1: MO[1], x2: MO[0], y2: MO[1] - 7, class: 'spoke' });\n    ad(g, 'circle', { cx: X[2], cy: DC[1], r: 6, class: 'lead' });\n    ad(g, 'path', { d: 'M92 ' + DC[1] + 'H130', class: 'lead' });\n    ad(g, 'circle', { cx: DC[0], cy: DC[1], r: 22, class: 'dial' });\n    ad(g, 'path', { d: 'M136.0 290.2A17 17 0 0 1 168.0 290.2', class: 'scale' });\n    D.needle = ad(g, 'line', { x1: DC[0], y1: DC[1], x2: DC[0] - 15, y2: DC[1] - 5, class: 'needle' });\n    dot(g, DC[0], DC[1]);\n    // Terminals and junctions.\n    X.concat([XN]).forEach((x) => { term(g, x, 56); term(g, x, 74); });\n    X.forEach((x) => { term(g, x, 178); term(g, x, 200); });\n    [[XC, 100], [XC, 118], [XC, 140], [XC, 158], [X7, 138], [X7, 158], [XC, 206], [XC, 224]].forEach((q) => term(g, q[0], q[1]));\n    [[X[2], 86], [XC, 128], [XC, 168]].forEach((q) => dot(g, q[0], q[1]));\n    // Words and numbers.\n    ['L1', 'L2', 'L3'].forEach((t, k) => txt(g, X[k], 16, t, 'hd', 'middle'));\n    txt(g, XN, 16, 'N', 'hd', 'middle');\n    tag(g, 138, 12, 1);\n    txt(g, 128, 34, 'Fuses or breaker:');\n    txt(g, 128, 50, 'short-circuit protection');\n    tag(g, 140, 66, 2);\n    tag(g, 282, 109, 8); txt(g, 296, 113, 'Stop');\n    tag(g, 282, 149, 3); txt(g, 296, 153, 'Start');\n    tag(g, 156, 148, 7);\n    D.worn = txt(g, 156, 176, 'worn', 'wl', 'middle');\n    tag(g, 258, 187, 4);\n    tag(g, 258, 215, 10);\n    D.trip = txt(g, 246, 243, 'tripped', 'wl');\n    tag(g, 14, 189, 5);\n    tag(g, 14, 217, 9);\n    tag(g, 14, 306, 6);\n    txt(g, DC[0], 313, 'A', 'hd', 'middle');\n    txt(g, DC[0], 338, 'Line current', 'lb', 'middle');\n    // The key.\n    ad(g, 'line', { x1: 6, y1: 350, x2: 334, y2: 350, class: 'sep' });\n    [[1, 'Supply'], [6, 'Motor'], [2, 'Isolator'], [7, 'Latching contact'], [3, 'Start, N/O'], [8, 'Stop, N/C'], [4, 'Coil'], [9, 'Overload heaters'], [5, 'Main contacts'], [10, 'Overload contact']]\n      .forEach((k, j) => { const x = j % 2 ? 176 : 6, y = 374 + 20 * Math.floor(j / 2); tag(g, x + 9.5, y - 4.5, k[0]); txt(g, x + 26, y, k[1]); });\n    ad(g, 'path', { d: 'M6 469.5H26', class: 'w on' }); txt(g, 32, 474, 'Fed');\n    ad(g, 'path', { d: 'M70 469.5H90', class: 'w' }); txt(g, 96, 474, 'Not fed');\n    ad(g, 'path', { d: 'M176 469.5H196', class: 'gang' }); txt(g, 202, 474, 'Moves as one');\n    ad(g, 'rect', { x: 6, y: 481, width: 20, height: 9, rx: 2, class: 'bar' });\n    ad(g, 'rect', { x: 7, y: 482, width: 12, height: 7, rx: 1, class: 'heat' });\n    txt(g, 32, 490, 'Overload heat: 10 opens when it is full');\n  }\n\n  // Draw a state. The supply side, the control circuit and the motor light where they are fed.\n  function paintDol(s, worn, pct, live) {\n    const f = feeds(s, worn), on = f.on, stopLit = on && f.stopC, latchMade = s.cIn && !worn, motorFed = on && s.cIn;\n    D.sup.forEach((n) => lit(n, f.sup)); D.fuse.forEach((n) => lit(n, f.sup));\n    D.iso.forEach((n, k) => { setBlade(n, s.iso); if (k < 3) lit(n, f.sup && s.iso); });\n    D.mid.forEach((n) => lit(n, on)); lit(D.tap, on);\n    lit(D.stopBr, on); D.gStop.setAttribute('transform', f.stopC ? 'translate(0 0)' : 'translate(-8 0)');\n    lit(D.so, stopLit);\n    lit(D.startBr, stopLit && f.startC); D.gStart.setAttribute('transform', f.startC ? 'translate(0 0)' : 'translate(8 0)');\n    setBlade(D.b7, latchMade); lit(D.b7, stopLit && latchMade);\n    lit(D.bb, stopLit && (f.startC || latchMade));\n    lit(D.coil, s.cIn); lit(D.halo, s.cIn);\n    D.main.forEach((n) => { setBlade(n, s.cIn); lit(n, motorFed); });\n    D.bot.forEach((n) => lit(n, motorFed)); D.wind.forEach((n) => lit(n, motorFed));\n    D.heaters.forEach((h) => { lit(h.r, motorFed); lit(h.p, motorFed); });\n    setBlade(D.b10, !s.tripped);\n    D.heatFill.setAttribute('width', (70 * K.clamp(s.heat, 0, 1)).toFixed(1));\n    D.worn.style.display = worn ? '' : 'none';\n    D.trip.style.display = s.tripped ? '' : 'none';\n    const I = live ? amps(s, pct) : s.cIn ? IFL * pct / 100 : 0;\n    const a = (-160 + 140 * K.clamp(I / IMAX, 0, 1)) * Math.PI / 180;\n    D.needle.setAttribute('x2', (DC[0] + 15 * Math.cos(a)).toFixed(1)); D.needle.setAttribute('y2', (DC[1] + 15 * Math.sin(a)).toFixed(1));\n    D.spoke.setAttribute('transform', 'rotate(' + (REDUCE ? 0 : s.ang).toFixed(1) + ' ' + MO[0] + ' ' + MO[1] + ')');\n    dol.setAttribute('aria-label', 'The DOL starter drawn with its parts numbered 1 to 10. ' +\n      (!f.sup ? 'The supply is cut, so nothing is fed. ' : !s.iso ? 'The isolator is open, so nothing past it is fed. ' : '') +\n      (s.cIn ? 'The coil is fed and has pulled in the main contacts' + (worn ? ', but the worn latching contact has not made. ' : ' and the latching contact. ') + 'The motor is fed.'\n        : 'The coil is not fed, so the main contacts and the latching contact are open. The motor is not fed.') +\n      (s.tripped ? ' The overload has tripped, so its contact 10 is open.' : ''));\n  }\n  const REST = fresh();\n  const RUN = Object.assign(fresh(), { cIn: true, runT: RUNUP_S + 1 });\n\n  // ---------- the star-delta drawing ----------\n  function buildSd() {\n    const g = el('sd');\n    txt(g, 85, 18, 'Star, to start', 'hd', 'middle');\n    txt(g, 255, 18, 'Delta, to run', 'hd', 'middle');\n    ad(g, 'line', { x1: 170, y1: 30, x2: 170, y2: 168, class: 'sep' });\n    const O = [85, 112], ends = [-90, 150, 30].map((d) => [O[0] + 62 * Math.cos(d * Math.PI / 180), O[1] + 62 * Math.sin(d * Math.PI / 180)]);\n    ends.forEach((e) => ad(g, 'path', { d: bumps(O[0], O[1], e[0], e[1], 4, 12, 1), class: 'wd' }));\n    dot(g, O[0], O[1]); ends.forEach((e) => term(g, e[0], e[1]));\n    txt(g, 85, 40, 'L1', 'hd', 'middle'); txt(g, 26, 162, 'L2', 'hd', 'middle'); txt(g, 144, 162, 'L3', 'hd', 'middle');\n    const v = SDN.vs + ' V';\n    txt(g, 93, 84, v); txt(g, 50, 116, v, 'lb', 'end'); txt(g, 120, 116, v);\n    const T = [255, 50], L = [205, 137], R = [305, 137];\n    [[T, R], [R, L], [L, T]].forEach((s) => ad(g, 'path', { d: bumps(s[0][0], s[0][1], s[1][0], s[1][1], 5, 14, 1), class: 'wd' }));\n    [T, L, R].forEach((q) => term(g, q[0], q[1]));\n    txt(g, 255, 40, 'L1', 'hd', 'middle'); txt(g, 198, 154, 'L2', 'hd', 'end'); txt(g, 312, 154, 'L3', 'hd');\n    txt(g, 216, 86, '400 V', 'lb', 'end'); txt(g, 294, 86, '400 V'); txt(g, 255, 162, '400 V', 'lb', 'middle');\n    txt(g, 170, 189, '400 V between any two lines', 'lb', 'middle');\n    g.setAttribute('aria-label', 'The same three windings on a 400 V supply. In star, on the left, each winding gets ' + v + '. In delta, on the right, each winding gets 400 V.');\n  }\n  buildDol(); buildSd();\n\n  // ---------- the live picture ----------\n  function sayFor(s, f, worn, pct) {\n    const A = one(amps(s, pct)) + ' A', open = 'Start and 7 are both open, so the coil has no path.';\n    if (!f.sup) return 'The supply is cut. Nothing is fed, so the coil has let go and 5 and 7 have opened.';\n    if (!s.iso) return 'The isolator (2) is open. Nothing past it is fed, so the coil cannot pull in.';\n    if (s.cIn) {\n      let t = worn ? 'Start (3) is held in, so the coil is fed through it. 7 is worn and has not made.'\n        : f.startC ? 'The coil is fed through Start (3), and it has pulled in 5 and 7 together.'\n          : 'Start has sprung back, and the coil is still fed through 7.';\n      t += s.runT < RUNUP_S ? ' The motor is running up. It draws ' + A + ', falling as it speeds up.' : ' The motor runs and draws ' + A + '.';\n      if (worn) t += ' Let go of Start and it stops.';\n      else if (s.runT >= RUNUP_S) t += heatRate(pct) > 0 ? ' At ' + pct + '% of the setting the bar is filling. When it is full, 10 opens.' : ' At ' + pct + '% of its setting the bar stays empty.';\n      return t;\n    }\n    if (!f.stopC) return 'Stop (8) is held open, so the coil cannot be fed. ' + (s.why === 'stop' ? '5 and 7 opened together, and the motor stopped.' : 'The motor stays stopped.');\n    if (s.tripped) return s.heat > 0\n      ? 'The bar filled, so the overload opened 10. The coil let go and the motor stopped. The bar is cooling' + (s.note === 'warm' ? ', and Reset does nothing until it is empty.' : '. Reset works once it is empty.')\n      : 'The bar has cooled. Reset overload closes 10 again. Then Start can run the motor.';\n    let t;\n    if (s.why === 'cut') t = 'The supply is back, but the coil stays dark. ' + open + ' That is no-volt protection.';\n    else if (s.why === 'iso') t = 'The isolator is closed again, but the coil stays dark. ' + open;\n    else if (s.why === 'stop') t = 'Stop is back, but nothing happens. ' + open;\n    else if (s.why === 'worn') t = 'Start sprang back, and the worn 7 did not make. Nothing kept the coil fed, so the motor stopped.';\n    else if (s.why === 'reset') t = 'The overload is reset, so 10 is closed again. The motor stays stopped until Start is pressed.';\n    else t = 'Everything up to Start (3) is fed. ' + open + ' The motor is stopped.';\n    if (s.note === 'idle') t += ' The overload has not tripped, so there is nothing to reset.';\n    if (worn && s.why !== 'worn') t += ' 7 is worn, so the motor would run only while Start is held.';\n    return t;\n  }\n  function paintLive(p) {\n    const worn = !!p.worn, pct = +p.load || 100, f = settle(SIM, worn);\n    if (SIM.note === 'warm' && SIM.heat <= 0) SIM.note = '';\n    paintDol(SIM, worn, pct, true);\n    RD.coil.set(SIM.cIn ? 'fed' : 'not fed');\n    RD.motor.set(SIM.cIn ? 'running' : 'stopped');\n    RD.amps.set(amps(SIM, pct));\n    el('say').textContent = sayFor(SIM, f, worn, pct);\n    const lab = SIM.iso ? 'Open isolator (2)' : 'Close isolator (2)';\n    if (lab !== isoLabel) { isoBtn.setLabel(lab); isoLabel = lab; }\n    startBtn.el.classList.toggle('is-down', f.startC);\n    stopBtn.el.classList.toggle('is-down', !f.stopC);\n  }\n  // One clock runs the picture: the run-up, the overload's heat, the supply cut and a tapped button.\n  const clock = K.anim({ button: false, label: 'The starter running', step: (dt) => {\n    if (at() !== iPic) return false;\n    const p = K.params();\n    advance(SIM, Math.min(dt, 0.1), !!p.worn, +p.load || 100);\n    paintLive(p);\n    return busy(SIM);\n  } });\n  // The read-through's picture: running after Start is let go, fed through 7, at 100%.\n  function stillRun() {\n    loadCtl.set(100); wornCtl.set(false);\n    Object.assign(SIM, fresh(), { cIn: true, runT: RUNUP_S + 1, spin: 1, why: 'start' });\n    K.refresh();\n  }\n\n  // ---------- picks: one go, then the answer and its reason ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length || st.res) return;\n    st.pick = d.opts[k];\n    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }\n    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }\n    K.refresh();\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));\n    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));\n    if (f.p) fb.appendChild(addText(K.el('p'), f.p));\n  }\n\n  // ---------- Keep this ----------\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n\n  NOTES.forEach((t) => el('notes').appendChild(K.el('p', { class: 'sub' }, t)));\n  const ON = { sdw: [iSD], dolw: [iHow, iPic, iChk, iFault, iFind], ctl: [iPic], outs: [iPic], say: [iPic], notes: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');\n    if (d.show) blocks(task, d.blocks);\n    else if (d.kind) task.textContent = '';\n    else write(task, d.task);\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    // The drawing: before the words on How it works, after them elsewhere.\n    const box = el('stepbox'), dolw = el('dolw');\n    if (i === iHow) { if (dolw.nextElementSibling !== task) box.insertBefore(dolw, task); }\n    else if (dolw.nextElementSibling !== el('ctl')) box.insertBefore(dolw, el('ctl'));\n    if (i === iPic) {\n      paintLive(p);\n      if (busy(SIM) && !clock.playing()) clock.play();\n    } else if (ON.dolw.indexOf(i) >= 0) paintDol(i === iChk ? RUN : REST, false, 100, false);\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    paintFb(st.fb);\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i);\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const running = () => { const s = fresh(); s.startHeld = true; settle(s, false); s.startHeld = false; settle(s, false); s.runT = 10; return s; };\n  K.check('Start pressed and let go: the coil pulls in 5 and 7 together, then stays fed through 7 alone', () => {\n    const s = fresh(); s.startHeld = true;\n    const a = settle(s, false), pulled = s.cIn && a.startC && a.latch;\n    s.startHeld = false;\n    const b = settle(s, false);\n    return !fresh().cIn && pulled && s.cIn && !b.startC && b.latch;\n  });\n  K.check('Stop, the overload, a supply cut and the isolator each drop the coil, and it stays out once they are undone, until Start is pressed', () => {\n    const ways = [\n      [(s) => { s.stopHeld = true; }, (s) => { s.stopHeld = false; }, 'stop'],\n      [(s) => { s.tripped = true; }, (s) => { s.tripped = false; }, 'trip'],\n      [(s) => { s.cutT = CUT_S; }, (s) => { s.cutT = 0; }, 'cut'],\n      [(s) => { s.iso = false; }, (s) => { s.iso = true; }, 'iso'],\n    ];\n    return ways.every((w) => {\n      const s = running(); w[0](s); settle(s, false);\n      const out = !s.cIn && s.why === w[2];\n      w[1](s); settle(s, false);\n      const stays = !s.cIn;\n      s.startHeld = true; settle(s, false);\n      return out && stays && s.cIn;\n    });\n  });\n  K.check('With 7 worn, the motor runs only while Start is held', () => {\n    const s = fresh(); s.startHeld = true; settle(s, true);\n    const held = s.cIn; s.startHeld = false; settle(s, true);\n    return held && !s.cIn && s.why === 'worn';\n  });\n  K.check('The meter reads 7 × 23.08 = 161.6 A at the start and 23.1 A once run up, 27.7 A at 120% and 34.6 A at 150%', () => {\n    const s = running(); s.runT = 0;\n    const a0 = one(amps(s, 100)); s.runT = RUNUP_S;\n    return a0 === '161.6' && one(amps(s, 100)) === '23.1' && one(amps(s, 120)) === '27.7' && one(amps(s, 150)) === '34.6' && amps(fresh(), 100) === 0;\n  });\n  K.check('The bar fills in 20 s at 120% and in about 6 s at 150%, never at 100%, and empties in 10 s', () => {\n    const fill = (pct) => { const s = running(); let t = 0; while (!s.tripped && t < 60) { advance(s, 0.01, false, pct); t += 0.01; } return { s: s, t: t }; };\n    const a = fill(150), b = fill(120);\n    let c = 0; while (b.s.heat > 0 && c < 60) { advance(b.s, 0.01, false, 120); c += 0.01; }\n    const s3 = running(); for (let k = 0; k < 3000; k++) advance(s3, 0.01, false, 100);\n    return K.near(fillTime(120), 20, 1e-9) && whole(fillTime(150)) === '6' && Math.abs(a.t - fillTime(150)) < 0.05 && Math.abs(b.t - 20) < 0.05 &&\n      !b.s.cIn && Math.abs(c - COOL_S) < 0.05 && !s3.tripped && s3.heat === 0 && s3.cIn;\n  });\n  K.check('Star-delta on 400 V: 400 ÷ √3 = 231 V a winding and a third of the DOL line current, so 138 to 185 A DOL becomes 46 to 62 A; its overload is set to 0.58 × 23.08 = 13.4 A', () =>\n    SDN.ol === '13.4' && SDN.vs === '231' && SDN.d6 === '138' && SDN.d8 === '185' && SDN.s6 === '46' && SDN.s8 === '62' && K.near(Math.pow(1 / Math.sqrt(3), 2), 1 / 3, 1e-12));\n  K.check('A 230 V coil across two lines gets 1.74 times its rating, and a 400 V coil from phase to neutral 0.575 times', () => COIL.hi === '1.74' && COIL.lo === '0.575');\n  K.check('Started direct on line, a motor usually draws 6 to 8 times rated current: the example surge of 7 times sits inside that range', () => SURGE >= 6 && SURGE <= 8,\n    { source: 'https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf' });\n  K.check('An overload set to the motor\\'s current does not trip at 1.05 × its setting and trips at 1.2 ×: the bar never fills at 1.05 × and fills at 1.2 ×', () => heatRate(105) <= 1e-12 && heatRate(120) > 0,\n    { source: 'https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj' });\n\n  K.ready();\n</script>",
+  "title": "Your DOL starter, live",
+  "brief": "The one thing you should see is the latching contact (7) keeping the coil fed after Start springs back, until its circuit opens and it drops out for good, when you press and release Start.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Start pressed and let go: the coil pulls in 5 and 7 together, then stays fed through 7 alone",
+     "ok": true
+    },
+    {
+     "label": "Stop, the overload, a supply cut and the isolator each drop the coil, and it stays out once they are undone, until Start is pressed",
+     "ok": true
+    },
+    {
+     "label": "With 7 worn, the motor runs only while Start is held",
+     "ok": true
+    },
+    {
+     "label": "The meter reads 7 × 23.08 = 161.6 A at the start and 23.1 A once run up, 27.7 A at 120% and 34.6 A at 150%",
+     "ok": true
+    },
+    {
+     "label": "The bar fills in 20 s at 120% and in about 6 s at 150%, never at 100%, and empties in 10 s",
+     "ok": true
+    },
+    {
+     "label": "Star-delta on 400 V: 400 ÷ √3 = 231 V a winding and a third of the DOL line current, so 138 to 185 A DOL becomes 46 to 62 A; its overload is set to 0.58 × 23.08 = 13.4 A",
+     "ok": true
+    },
+    {
+     "label": "A 230 V coil across two lines gets 1.74 times its rating, and a 400 V coil from phase to neutral 0.575 times",
+     "ok": true
+    },
+    {
+     "label": "Started direct on line, a motor usually draws 6 to 8 times rated current: the example surge of 7 times sits inside that range",
+     "ok": true,
+     "source": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf"
+    },
+    {
+     "label": "An overload set to the motor's current does not trip at 1.05 × its setting and trips at 1.2 ×: the bar never fills at 1.05 × and fills at 1.2 ×",
+     "ok": true,
+     "source": "https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "load",
+    "worn"
+   ],
+   "readouts": [
+    "coilState",
+    "motorState",
+    "lineAmps"
+   ],
+   "outputs": [
+    "runAmps",
+    "heatRate"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 9,
+     "step": 1,
+     "steps": [
+      "How it works",
+      "The starter, live",
+      "Check",
+      "How it behaves",
+      "Where it is used",
+      "Star-delta",
+      "Faults and tests",
+      "Coil faults",
+      "Find the fault",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "Motor current, % of the overload setting",
+     "min": 100,
+     "max": 150,
+     "step": 10,
+     "log": false,
+     "value": 100,
+     "shown": false,
+     "snap": [
+      100,
+      120,
+      150
+     ]
+    },
+    {
+     "id": "worn",
+     "kind": "toggle",
+     "label": "Latching contact (7) worn",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Open isolator (2)",
+    "Start (3)",
+    "Stop (8)",
+    "Cut supply 1 s",
+    "Reset overload",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Finish the lesson",
+    "Back",
+    "Continue",
+    "The starter running"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 4
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T11:22:15.583Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Four overstatements: the 1 s supply cut is not labelled an example where it appears; a contactor breaks more than running current if opened mid-start; a dropped-out contactor is live only while not isolated; worn contacts as THE commonest cause of single phasing is one maker’s claim."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The 230 V phase-to-neutral rule holds only on a 400/230 V supply (not, say, a 440 V ship supply with no neutral); “for a moment” understates a run-up that can last seconds; the supply side of a dropped-out contactor is live only until isolated."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The coil rule ‘230 V phase to neutral, 400 V across two lines’ is true only on a 400 V supply; on the card alone it reads as universal, and Dan will meet 440 V ship supplies."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

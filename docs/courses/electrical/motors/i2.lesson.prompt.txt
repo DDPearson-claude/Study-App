@@ -1,0 +1,506 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Electric motors: what you need on each one
+Puzzle the course answers: After a one-second power cut, a pump on its DOL starter stays stopped, though nobody pressed Stop. Why does it not start again by itself?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: An AC induction motor works by making a magnetic field that turns and drags the rotor round a little behind it: three-phase windings make that turning field by themselves, while a single-phase motor needs a second winding, sometimes with a capacitor, to get it going. How you start and run it, straight on through a contactor or through a drive that sets the frequency, decides the current it draws as it starts and the speed it runs at. How a DC motor's speed and torque change with load comes from how its field is wired, in series, across the supply or both, and each machine has its own uses, it…
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Motors
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The three-phase induction motor — The rotor always turns a little slower than the windings' rotating field, because only that shortfall, called slip, induces the rotor current that makes torque. [mechanism]
+  i2  The DOL starter — Start pulls in the contactor, a contact across Start keeps its coil fed; Stop, overload or power cut drops it out until restarted. [mechanism] (needs i1)   <-- THIS LESSON
+  i3  The variable speed drive — A variable speed drive turns the supply to DC, then back to AC at a chosen frequency, with voltage in proportion up to rated speed. [quantity] (needs i1, i2)
+  i4  The split-phase motor — One single-phase winding alone makes a field that only pulses, so a thin-wire start winding adds a current out of step and the field turns. [mechanism] (needs i1)
+  i5  The capacitor-start motor — A capacitor in series with the start winding widens the angle between the two currents towards 90°, giving much more starting torque than split-phase. [quantity] (needs i4)
+  i6  The DC series motor — One current feeds both field and turning armature, so torque climbs steeply with current, and with the load taken off the speed climbs dangerously. [quantity]
+  i7  The DC shunt motor — With its field across the supply holding the flux steady, the speed dips only a little under load, though sources differ on how little. [mechanism] (needs i6)
+  i8  The DC compound motor — A series and a shunt field together give high starting torque yet a limited no-load speed, as long as the series field aids the shunt. [concept] (needs i6, i7)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i2: "The DOL starter"
+What Dan should come away understanding: Start pulls in the contactor, a contact across Start keeps its coil fed; Stop, overload or power cut drops it out until restarted.
+Kind: mechanism. Builds on: i1 "The three-phase induction motor".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "The three-phase induction motor"
+  Terms: synchronous speed, slip
+  Analogy: Think of the motor as a transformer. The stator is the primary, and the rotor bars are a secondary shorted on itself. At standstill the field sweeps past the bars at full speed, so the rotor is a sho…
+  Interactive: The one thing you should see is the field slide past the rotor bars more slowly, and the slip, rotor current and torque shrink towards zero, when you drag the load off.
+  Numbers: Screen, 1 to 9 (the stepper) = 0; Load, % of rated (opening setting) = 100; Supply frequency choices, Hz = 50 or 60; Royal Navy ships' main supply frequency, Hz = 60 (constant); Pole choices = 2 or 4; Windings apart, electrical degrees = 120 (constant)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? What I need to know on each motor, as a reference.
+- Where will you use it? At work: running, starting and fault-finding motors.
+- How do you like to learn? How it works, one picture to play with, then the faults and a card to keep.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The isolator (2) when closed allows current to flow into the contactor."
+[2] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Normally open (N/O) start button. This is 'sprung' meaning it'll return to N/O once released."
+[3] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The coil magnetises the main contacts and pulls them closed and holds them in place, enabling the motor to connect to the supply and become energised."
+[4] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p1
+    "The energized coil pulls the contactor's main contacts closed, applying the full line voltage to the motor."
+[5] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "The unique component of the circuit, indeed the device that allows the circuit to provide low-voltage protection (LVP) , is the normally open instantaneous contact connected in parallel with the start button."
+[6] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The start button 'makes' the circuit, the stop button 'breaks' the circuit."
+[7] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The bend in the strips causes the overload release contact to break the circuit, which de-energises the coil, releasing the contacts and isolating the motor from the supply."
+[8] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "9 and 10 work together to disconnect the circuit in the same way as the stop button."
+[9] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "the magnetic effect disappears and the latching contacts release."
+[10] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Latching (maintaining) contacts. These 'pull' and 'hold' the main contacts in place, these are pulled into place by the magnetic field created by the energising of (4)."
+[11] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "If a power outage occurs during normal operation, the starter coil will drop out and the motor will stop as well."
+[12] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "The motor will not restart without further input from an operator as the holding contact will have returned to its normally open state."
+[13] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp
+    "As a rule, if a circuit uses a magnetic contactor and a holding contact, it will provide low-voltage protection (LVP)."
+[14] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp
+    "If it uses maintained contacts, then it most likely provides low-voltage release (LVR)."
+[15] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp
+    "low-voltage protection (LVP) is a property that circuits have when upon a return of voltage following a power outage, loads will not automatically turn back on and will require further input from the operator."
+[16] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "The normally closed contacts in series with the coil are controlled by the thermal action of the overload relays, and not the movement of the armature, so they remain closed as long as an overload does not occur."
+[17] Thermal Overload Relays Electronic ... — https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf
+    "Fuses do not protect a motor against overload. They serve only as short-circuit protection of switchgear and cables."
+[18] Thermal Overload Relays Electronic ... — https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf
+    "In order to protect motors against short-circuits, it is advisable to use fuses aM in conjunction with the thermal overload relay."
+[19] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p2
+    "Circuit Breaker or Fuse: Provides short-circuit and overcurrent protection for the system."
+[20] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "230V contactor coil (only connected to one phase and neutral meaning only 230V is present."
+[21] Your group handout: DOL start and stop buttons — material:handout-dol-buttons#p1
+    "IMPORTANT TO GET THE COIL VOLTAGE RATING RIGHT"
+[22] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "Check the coil voltages so that, the coil voltage corresponds to actual supply voltage."
+[23] Softstarter Handbook — https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf
+    "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+[24] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p2
+    "High inrush current: The motor draws 6 to 8 times its normal full-load current during startup."
+[25] — Softstarters PSR, PSRC, PSE and PSTX — https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0
+    "DOL starting is uncontrolled, which means that the motor will start with maximum current and torque regardless of load type."
+[26] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Generally used for the starting and stopping of small machinery up to 5kW."
+[27] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p3
+    "DOL starters are typically limited to smaller motors (often under 4 kW) where the power supply can tolerate the voltage dip."
+[28] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "Some utilities restrict DOL starting for motors rated at 5.5 kW / 7.5 hp or higher."
+[29] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Compressors, pumps and fans are typically controlled by DOL starters."
+[30] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "DOL starters have thermal overloads, which can mean 'overuse' or regular stopping and starting can cause these to operate."
+[31] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "The received starting current is about 30 % of the starting current during direct on line start and the starting torque is reduced to about 25 % of the torque available at a D.O.L start."
+[32] — Softstarters PSR, PSRC, PSE and PSTX — https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0
+    "The starting current is about one third compared to direct-on-line starting, although it also reduces the starting torque to about 25 percent."
+[33] Softstarter Handbook — https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf
+    "So when starting using Star-Delta start, the star connection results in a current of 33% compared to a delta connected motor."
+[34] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "The motor must be delta connected during a normal run, in order to be able to use this starting method."
+[35] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "The device normally consists of three contactors, an overload relay and a timer for setting the time in the star-position (starting position)."
+[36] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "This starting method only works when the application is light loaded during the start."
+[37] — Softstarters PSR, PSRC, PSE and PSTX — https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0
+    "Current peaks will happen when switching from star to delta connection."
+[38] Your group handout: the star-delta starter question — material:handout-star-delta#p2
+    "6186.88×3 = 18560.64 W."
+[39] Softstarter Handbook — https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf
+    "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+[40] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p2
+    "Applying full voltage at startup provides 100% of the motor's rated torque, which is necessary for some applications."
+[41] Your group handout: DOL start and stop buttons — material:handout-dol-buttons#p1
+    "START BUTTONS ARE WIRED IN PARALLEL."
+[42] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "Disconnect Power before proceeding with any work on this equipment"
+[43] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Closing of the main contacts with approximately 6 to 8 times"
+[44] What do the terms AC1 and AC3 mean? | Schneider Electric USA — https://www.se.com/us/en/faqs/FAQ000127417/
+    "On closing, the contactor makes the inrush current, which is about 5 to 7 times the rated full load current of the motor. On opening, the contactor breaks the rated full load current of the motor."
+[45] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Attempting to restart the motor before it has come to a full stop will cause a current peak that theoretically can reach twice the current compared to starting the motor from a standstill."
+[46] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "DOL starters connect the motor directly to the mains supply, thus carrying out starting at full voltage."
+[47] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "The inrush and starting current can become very high in this case, which can cause disturbances like voltage dips to the supply system"
+[48] Agn 090 B Motor Starting Fundamentals — https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN-090_B-Motor-Starting-Fundamentals.pdf
+    "Direct on Line: resulting in the highest levels of inrush currents (actually technically described as Locked Rotor currents)."
+[49] Generating Set considerations AGN 068 - Motor Starting and Generating Set Considerations — https://www.stamford-avk.com/sites/stamfordavk/files/AGN068_B.pdf
+    "An electric motor that is being started DOL will be able to develop multiple levels of full load torque"
+[50] Voltage dips in ship systems — https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/75--Voltage-dips-IEEE-ESTS-2007-Prousali.pdf
+    "Large power motors starting consecutively during ship maneuvering (e.g. driving thruster systems) can cause such severe voltage dips."
+[51] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "During the starting phase, the motor windings are connected in a star configuration, reducing the voltage to 1/√3 (~58%) of the full line voltage."
+[52] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "The transition may briefly interrupt the power supply, causing a current spike that is typically lower than in a DOL start."
+[53] Agn 090 B Motor Starting Fundamentals — https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN-090_B-Motor-Starting-Fundamentals.pdf
+    "at the transition from star to delta, there will be a second impact kVA condition, which could be as high as 5 x run kVA"
+[54] — Thermal overload relay TF42 — https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj
+    "the setting current is the rated current of the motor and not the tripping current (no tripping at 1.05 x I, tripping at 1.2 x I; I = setting current)"
+[55] — Thermal overload relay TF42 — https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj
+    "They are used mainly to protect motors against overload and phase failures."
+[56] Overload Relays & Thermal Unit Selection - Schneider Electric — https://iportal.se.com/Contents/docs/9065CT9701.PDF
+    "The overload relay has no power contacts and cannot disconnect the motor by itself."
+[57] Overload Relays & Thermal Unit Selection - Schneider Electric — https://iportal.se.com/Contents/docs/9065CT9701.PDF
+    "Once tripped, the thermal overload relay will not reset until it has cooled, automatically allowing the motor to cool before it can be re-started."
+[58] Contactor for capacitor switching: Type: 3TS1722-0A..5-8K — https://assets.new.siemens.com/siemens/assets/api/uuid:9fcd4883-33b5-4c50-97be-c7f9d0b23f98/oi-3ts17.pdf
+    "The voltage is to be maintained within 0.85 to 1.1 x rated coil voltage."
+[59] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Too high continuous control voltage could also cause the coil to melt."
+[60] What are the risks of applying too low control voltage to a contactor? | Schneider Electric USA — https://www.se.com/us/en/faqs/FA325555/
+    "Applying a control voltage below the specified operating range of a contactor can lead to serious malfunction and permanent damage of both the coil and the main contacts."
+[61] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Control voltage less than 85% during pick up may not be enough to safely close the contactor and can cause the coil to melt due to over heating."
+[62] Contactor Troubleshooting: Buzzing, Chattering & Coil Failure — https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure
+    "A buzzing or chattering contactor is commonly caused by unstable or insufficient coil voltage, a poor control-circuit connection, an incorrect coil, incomplete armature seating, contaminated magnet faces, mechanical binding, or a damaged shading ring in a conventional AC contactor."
+[63] Contactor Troubleshooting: Buzzing, Chattering & Coil Failure — https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure
+    "A contactor can contain hazardous line voltage even when its coil circuit is off."
+[64] Electricity at work: Safe working practices HSG85 — https://www.hse.gov.uk/pubns//priced/hsg85.pdf
+    "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead, even if the isolation has been achieved automatically through an interlocking system."
+[65] Electricity at work: Safe working practices HSG85 — https://www.hse.gov.uk/pubns//priced/hsg85.pdf
+    "If it is a three-phase system or equipment with more than one supply, prove that all supply conductors are dead."
+[66] Electrical test equipment for use by electricians GS38 — https://www.hse.gov.uk/pubns/priced/gs38.pdf
+    "Any device used to prove dead may fail to indicate danger (eg a faulty lamp not indicating a live circuit). Such devices should be proved before and after use."
+[67] Electrician suffered shock when electrical supply had not been properly isolated - HSE — https://www.hse.gov.uk/electricity/maintenance/isolate.htm
+    "Electricity supplies should be made dead and proved to be dead before work is commenced, and the method of isolation should prevent inadvertent or deliberate re-energisation of the electrical system."
+[68] Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/
+    "Wire all normally closed stop buttons in series with each other,"
+[69] Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/
+    "pushing any one will interrupt the circuit and disconnect the motor starter"
+[70] Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/
+    "Pushing any start pushbutton will provide a path for current to energize the motor starter."
+[71] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "These windings are physically arranged 120 electrical degrees apart. When energized, the three phase-shifted currents produce a combined magnetic field that rotates at a constant speed, called the synchronous speed."
+[72] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "The rotating magnetic field cuts across the conductors of the motor's rotating inner part, the rotor."
+[73] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "This rotor magnetic field interacts with the stator's rotating magnetic field, producing a rotational force, or torque, that causes the rotor and its shaft to spin."
+[74] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "If the rotor and the magnetic field moved at the same speed, no current would be induced, and no torque would be produced."
+[75] 2-3-3. Characteristics of Induction Motors | NIDEC CORPORATION — https://www.nidec.com/en/technology/motor/basic/00027
+    "To that end, there must be a relative speed difference between the magnetic field and coil."
+[76] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "With no relative motion between stator and rotor field no voltage will be induced in the motor."
+[77] [PDF] CHAPTER 7 – INDUCTION MOTOR — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/666957712_3_induction_machines.pdf
+    "An induction motor can thus speed up to near synchronous speed but it can never reach synchronous speed."
+[78] [PDF] CHAPTER 7 – INDUCTION MOTOR — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/666957712_3_induction_machines.pdf
+    "Induced Torque is zero at synchronous speed."
+[79] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "The speed of an induction motor is therefore limited to a speed below synchronous speed and the difference between synchronous speed and actual speed is called slip ."
+[80] 2-3-3. Characteristics of Induction Motors | NIDEC CORPORATION — https://www.nidec.com/en/technology/motor/basic/00027
+    "Slip is normally expressed in percentage. Slip of a power induction motor is 2 to 3% when the motor is operated under the rated load."
+[81] AN887, AC Induction Motor Fundamentals — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf
+    "The difference between NS and Nb is called the slip. The slip varies with the load."
+[82] AN887, AC Induction Motor Fundamentals — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf
+    "An increase in load will cause the rotor to slow down or increase slip. A decrease in load will cause the rotor to speed up or decrease slip."
+[83] Electric motor - Synchronous, Rotating Fields, AC Motors | Britannica — https://www.britannica.com/technology/electric-motor/Synchronous-motors
+    "The effect of the stator current is to establish a magnetic field rotating at 120 f / p revolutions per minute for a frequency of f hertz and for p poles."
+[84] AN887, AC Induction Motor Fundamentals — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf
+    "Typically, the full-load slip for the squirrel cage induction motor is less than 5%."
+[85] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "A small motor, e.g. ≤ 30 kW, normally has a value of between 2.5 and 3 times the rated torque"
+[86] [PDF] — Baldor-Reliance ® Integral Horsepower AC Induction Motors - ABB — https://library.e.abb.com/public/1b412697e30b440b9d3a8c5833ae3309/MN408.pdf
+    "To reverse the direction of rotation, disconnect and lock out power and interchange any two of the three line leads for three phase motors."
+[87] Forward/Reverse Control Circuits – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/forward-reverse-control-circuits/
+    "all that is needed is to interchange any two of the three line leads feeding the motor."
+[88] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "Simple, rugged, and low-maintenance because it has no brushes or slip rings."
+[89] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "Allows for a higher starting torque and a greater degree of speed control by adjusting the external resistance."
+[90] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "The motor draws a large magnetizing current, which causes it to operate at a poor power factor, particularly under light loads."
+[91] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "Ideal for constant-speed applications such as fans, pumps, conveyors, and compressors."
+[92] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "As constant-speed machines, speed control can be difficult without additional equipment like a Variable Frequency Drive (VFD)."
+[93] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "The initial inrush current during startup can be very high, which can cause voltage dips in the power line."
+[94] The Induction Machine Handbook — https://web.mit.edu/kirtley/binlustuff/literature/electric%20machine/InductionMachineHandbook.pdf
+    "Induction motors are extensively used in marine environments for pumps, fans, compressors, etc. for power up to 700 kW or more."
+[95] The Induction Machine Handbook — https://web.mit.edu/kirtley/binlustuff/literature/electric%20machine/InductionMachineHandbook.pdf
+    "Due to the aggressive environment, they are totally enclosed and may have aluminum (at low power), steel, or cast iron frames"
+[96] An Evaluation of Electric Motors for Ship Propulsion - DTIC — https://apps.dtic.mil/sti/tr/pdf/ADA417341.pdf
+    "The U.K. has also selected the induction motor to be the prime mover in their Type-45 destroyer."
+[97] 13.9: Single-phase Induction Motors — https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf
+    "However, it will not self-start. It may be hand started in either direction, coming up to speed in a few seconds."
+[98] Causes and effects of single-phasing induction motors — https://ieeexplore.ieee.org/document/1307038
+    "the motor will heat up very quickly and it is essential that the motor be removed from service by the opening of a motor circuit breaker or some other type of protective device."
+[99] Causes and effects of single-phasing induction motors — https://ieeexplore.ieee.org/document/1307038
+    "The single-phasing can occur as a result of a fuse blowing or protective device opening on one phase of the motor."
+[100] Motor Protection - Voltage Unbalance & Single-Phasing — https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf
+    "Historically, the causes of motor failure can be attributed to: Overloads 30% Contaminants 19% Single-phasing 14% Bearing failure 13% Old age 10% Rotor failure 5% Miscellaneous 9% 100%"
+[101] Motor Protection - Voltage Unbalance & Single-Phasing — https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf
+    "The number of contact kits sold each year confirms the fact that worn motor starter contacts are the most common cause of single-phasing."
+[102] The missing link in motor condition monitoring | Megger — https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring
+    "This test will show if the motor is wet or contaminated, or if it has a dead short to earth."
+[103] The missing link in motor condition monitoring | Megger — https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring
+    "When the resistance measurements are complete, the difference between the phase-to-phase readings is calculated. A delta of less than 1% is typical for a good winding."
+[104] The missing link in motor condition monitoring | Megger — https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring
+    "An insulation resistance test cannot, however, confirm that a motor is in good condition, as it does not test the entire insulation system."
+[105] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "The absence of sparking brushes makes them safe for hazardous environments."
+[106] Motors for hazardous areas | ABB UK — https://www.abb.com/gb/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/motors-for-explosive-atmospheres
+    "Our motors are rigorously engineered to prevent ignition in hazardous locations by eliminating sources of sparks, arcing, or excessive heat."
+[107] Motors for hazardous areas | ABB UK — https://www.abb.com/gb/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/motors-for-explosive-atmospheres
+    "Fully ATEX and IECEx certified, these motors are compliant with the latest global and regional safety standards"
+[108] [PDF] Inductions Motors - Power & Energy Systems — https://energy.ece.illinois.edu/files/2016/10/9-16-16-induction-motor-seminar-handout.pdf
+    "Slip ( S ) = (synchronous speed – actual speed)"
+[109] [PDF] Inductions Motors - Power & Energy Systems — https://energy.ece.illinois.edu/files/2016/10/9-16-16-induction-motor-seminar-handout.pdf
+    "At stall / locked rotor slip = 1.0 or 100%"
+[110] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "A motor with two poles is supplied with power with frequency 50 Hz (1/s) . The rotation speed can be calculated as n = (50 1/s) (2 / 2) (60 s/min) = 3000 rpm (1/min)"
+[111] Low voltage Process performance aluminum (ABB catalogue) — https://search.abb.com/library/Download.aspx?Action=Launch&DocumentID=9AAU00000000058&DocumentPartId&LanguageCode=en
+    "1500 r/min = 4 poles. 400 V 50 Hz."
+[112] Electrical Tech Note — 314 — https://www.maec.msu.edu/application/files/5316/4555/7425/Tech_Note_314_ac_Motor_Characteristics.pdf
+    "The shaft speed at full-load as shown on the motor nameplate is less than synchronous speed"
+[113] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "5.5 kW 2950 rpm"
+[114] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "10 Rated speed nN 1437 r/min"
+[115] Determining Electric Motor Load and Efficiency — http://www1.eere.energy.gov/manufacturing/tech_assistance/pdfs/10097517.pdf
+    "The amount of slip present is proportional to the load imposed upon the motor by the driven equipment"
+[116] Determining Electric Motor Load and Efficiency — http://www1.eere.energy.gov/manufacturing/tech_assistance/pdfs/10097517.pdf
+    "a motor running with a 50% load has a slip halfway between the full load and synchronous speeds."
+[117] Induction Motor (Electrical Technology, chapter 34) — https://nit-edu.org/wp-content/uploads/2021/09/Ch-34-Induction-motor.pdf
+    "The difference in speeds depends upon the load on the motor."
+[118] Induction Motor Speed Torque Characteristics — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.MOTOR.01&documentName=AR.MOTOR.01.pdf
+    "If additional load torque is required, the motor slows down or slips and develops more torque by moving up toward the breakdown torque point."
+[119] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "Torque is proportional to slip, the degree to which the disk falls behind the rotating magnet."
+[120] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "Thus, a loaded motor will slip in proportion to the mechanical load."
+[121] [PDF] Inductions Motors - Power & Energy Systems — https://energy.ece.illinois.edu/files/2016/10/9-16-16-induction-motor-seminar-handout.pdf
+    "Rotor electrical frequency = slip x stator frequency"
+[122] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "Slip at 100% torque is typically 5% or less in induction motors."
+[123] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "12 No-load current 1,4 A"
+[124] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "11 Rated current IN 1,90 A"
+[125] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "Power factor at PN 0,7"
+[126] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "21 _50_ **1,36 81 0,49**"
+[127] Determining Electric Motor Load and Efficiency — https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf
+    "Below the 50% load point, due to reactive magnetizing current requirements, power factor degrades and the amperage curve becomes increasingly non-linear."
+[128] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "13 Starting current Is/IN 5,9"
+[129] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "15 Locked rotor torque TS/TN 3,5"
+[130] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "16 Maximum torque Tmax/TN 3,8"
+[131] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "The current is high because this is analogous to a shorted secondary on a transformer."
+[132] Induction Motor Speed Torque Characteristics — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.MOTOR.01&documentName=AR.MOTOR.01.pdf
+    "Again, if the breakdown torque requirements are exceeded, the motor will stall."
+[133] Improving Motor and Drive System Performance — https://www.energy.gov/sites/prod/files/2014/04/f15/amo_motors_sourcebook_web.pdf
+    "If the load exceeds this torque, the motor will stall, causing it to rapidly overheat and risking insulation failure if it is not properly protected."
+[134] Single-Phasing, Rotation Checks, and Screw Compressors — https://open-exam-prep.com/study-guides/reta-ciro/three-phase-motors/single-phasing-rotation
+    "A motor at rest will not produce starting torque: it hums , may buzz or growl, and will not accelerate."
+[135] Single-Phasing, Rotation Checks, and Screw Compressors — https://open-exam-prep.com/study-guides/reta-ciro/three-phase-motors/single-phasing-rotation
+    "The rotating field collapses into a pulsing single-phase field."
+[136] Motor Protection - Voltage Unbalance & Single-Phasing — https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf
+    "When a motor is single-phased, the current in the remaining two phases increases to 173% of normal current."
+[137] HVAC Compressor Motors Insulation Resistance and Testing | Fluke — https://www.fluke.com/en-my/learn/blog/hvac/insulation-resistance-and-electrical-testing-for-hvac-compressor-motors
+    "The IEEE 43 standard for the IR testing of electric motors gives a minimum acceptable value of 1 megohm plus 1 megohm per kilovolt of motor operating voltage."
+[138] Insulation Resistance Guidelines (Fluke) — https://media.fluke.com/33561bb0-edb1-43f4-895a-b1060066d91b_original%20file.pdf
+    "However, actual minimum acceptable insulation resistance values are based on the type of insulating material being used, and on the physical and electrical characteristics of the equipment being evaluated."
+[139] Megger Testing a Motor Before You Energise It (New India Electricals) — https://newindiaelectricals.com/blog/megger-testing-a-motor-before-you-energise-it-insulation-resistance-pi-ratio-and-what-the-numbers-actually-mean
+    "The WEG motor manual, citing IEEE 43, sets that minimum at 5 megohms for windings up to 1,000 V and 100 megohms above"
+[140] Electrical system design for warships (Journal of Naval Engineering) — https://library.imarest.org/record/8911/files/v28b1p10a.pdf
+    "It was not until 1946 that a 440 V, 60 Hz, 3-phase a.c. supply was introduced into four of the DARING Class destroyers, in line with U.S. Navy practice. This has been the preferred supply ever since."
+[141] Thermal Overload Relays Electronic ... — https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf
+    "In compliance with international and national standards, the setting current is the rated motor current and not the tripping current (no tripping at 1.05 x I setting current, tripping at 1.2 x I setting current)."
+[142] Your motor sheet: the DC series motor — material:dc-series#p1
+    "A DC series motor is a type of direct current electric motor where the armature and field windings are connected in series, so the same current flows through both."
+[143] Your motor sheet: the DC series motor — material:dc-series#p1
+    "A key characteristic is its poor speed regulation; the motor's speed varies significantly with load and can increase to dangerous levels if the motor runs without a load."
+[144] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "It is zero when the motor is first turned on, meaning that the coil receives the full driving voltage and the motor draws maximum current when it is on but not turning."
+[145] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "The motor thus acts as a generator whenever its coil rotates."
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- The isolator closes the supply; Start (normally open, sprung) makes the coil circuit; the coil pulls in the main contacts, and a latching contact across Start keeps the coil fed once Start is released. [1][2][3][4][5]
+- Stop (normally closed) breaks the coil circuit, and so does the overload's release contact after its bimetal strips bend; the coil drops out and the contacts release. [6][7][8][9]
+- The coil does the pulling and holding of the main contacts; the latching contact's job is to keep the coil fed. (His sheet's item 7 words it as the latching contacts pulling and holding the main contacts.) [3][5][10]
+- After a power cut the coil drops out and the motor stops; it does not restart by itself, because the holding contact has returned to open. A contactor with a holding contact gives low-voltage protection; maintained contacts give low-voltage release. [11][12][13][14][15]
+- The overload's contacts sit in series with the coil and are operated by heat, not by the contactor's movement. [16]
+- Overload relays protect against overload only: fuses or a breaker give the short-circuit protection, and a maker advises fuses with the thermal overload relay. [17][18][19]
+- His coil is 230 V, fed from one phase and neutral; the coil rating must be right for how it is connected and for the supply voltage. [20][21][22]
+- Direct-on-line starting is uncontrolled: full current and torque from the start. Start current is usually 6 to 8 times rated and can exceed 10 times. [23][24][25]
+- His sheet gives DOL up to 5 kW; the web summary gives often under 4 kW; ABB says the limit depends on the area of use, and some utilities restrict DOL starting for motors of 5.5 kW or higher. [26][27][28]  [CONTESTED: Rules of thumb for the largest DOL motor differ (5 kW, under 4 kW, 5.5 kW); the maker says it depends on the area of use and gives 5.5 kW as one utility limit.]
+- DOL starters are used for compressors, pumps and fans; repeated stopping and starting can make the thermal overload operate. [29][30]
+- Star-delta cuts starting current to about 30% (a third) and starting torque to about 25% of direct-on-line; the motor must be delta connected when running, and the starter uses three contactors, an overload and a timer. [31][32][33][34][35]
+- Star-delta works only when the load is light at the start, and there are current peaks at the switch from star to delta. [36][37]
+- His group's star-delta worked answer multiplies the star power by 3 to get the delta power. [38]
+- The web summary's wording that DOL gives 100% of rated torque is loose: ABB gives full starting torque as 1.5 to 2.5 times rated for a small motor. [39][40]
+- His group handout says that start buttons are wired in parallel. [41]
+- Isolate and prove dead before work on a starter: the maker's own instruction is to disconnect power before any work on the equipment. [42]
+- A contactor is rated for the motor it switches: for squirrel-cage motors (duty AC-3) it makes about 6 to 8 times the rated current when closing, or 5 to 7 on another maker's figure, and breaks only the rated current when opening; most contact wear comes from the making. [43][44]
+- Restarting a motor before it has stopped turning can give a current peak up to twice that of a start from standstill, so a quick Stop-then-Start is hard on the contacts. [45]
+- A DOL starter connects the motor straight to the supply at full voltage; the start current can cause voltage dips on the supply and heavy forces in the cables and the motor windings. [46][47]
+- On a generator supply, DOL gives the highest inrush of any starting method, and the motor can develop several times full-load torque; on a ship the generator, not the starter, is the limit, and large motors starting one after another during manoeuvring can cause severe voltage dips. [48][49][50]
+- Star-delta puts each winding on 1/sqrt(3) of the line voltage while starting; the changeover can briefly open the supply and give a current spike, which on one generator maker's figures can be as high as 5 x run kVA if it is badly timed, but ABB says is typically lower than a DOL start. [51][52][53]  [CONTESTED: Sources differ on the size of the star-to-delta changeover spike: ABB says typically lower than a DOL start; a generator maker warns it can reach 5 x run kVA if the changeover is not set well.]
+- The overload relay is set to the motor's rated current, not its trip current: no trip at 1.05 times the setting, trip at 1.2 times; it also protects against phase failure, and it has no power contacts so it can only work through the contactor. [54][55][56]
+- After an overload trip the relay will not reset until it has cooled, which lets the motor cool before it is restarted. [57]
+- The contactor coil must have the right voltage: the usual limits are 0.85 to 1.1 times its rating; too low a voltage can fail to close it, make it chatter and melt the coil, and too high a voltage can burn it out. [58][59][60][61]
+- A buzzing or chattering contactor points to low or unstable coil voltage, a poor control connection, a wrong coil, dirty or unseated magnet faces, or a damaged shading ring; check the voltage across the coil terminals while it is closing. [62]
+- A contactor can hold line voltage even when its coil circuit is off, so isolate and prove dead before touching a starter: prove all supply conductors dead, with a voltage indicator that is proved before and after use. [63][64][65][66][67]
+- Several Stop buttons go in series (any one stops the motor) and several Start buttons in parallel with the holding contact (any one starts it). [68][69][70]
+- Three windings 120 electrical degrees apart, each fed from one phase, make one combined magnetic field that turns at a constant speed, the synchronous speed. [71]  (from an idea this one builds on)
+- The turning field cuts the short-circuited rotor conductors and induces a current in them; that current makes its own field, which interacts with the stator field to give torque. [72][73]  (from an idea this one builds on)
+- The rotor has to turn slower than the field: with no speed difference there is no cutting, so no current is induced and no torque is produced. An induction motor can approach synchronous speed but never reach it. [74][75][76][77][78]  (from an idea this one builds on)
+- Slip is the difference between synchronous and actual speed, normally written as a percentage. Load makes the rotor slow and slip grow; taking load off lets it speed up and slip shrink. [79][80][81][82]  (from an idea this one builds on)
+- Synchronous speed is 120 f / p rpm for f hertz and p poles. [83]  (from an idea this one builds on)
+- Full-load slip of a cage motor is a few percent: about 2 to 3% (one maker) and under 5% (another). [80][84]  (from an idea this one builds on)
+- Starting from the supply direct, a motor draws usually 6 to 8 times its rated current and can draw more than 10 times. [23][24]  (from an idea this one builds on)
+- For a small motor (up to about 30 kW) ABB's 2010 handbook gives a direct-on-line starting torque of 1.5 to 2.5 times rated; its 2004 edition gave 2.5 to 3. The figure is a range. [39][85]  (from an idea this one builds on)
+- Swapping the supply connections on any two of the three coils reverses the field and so the direction of rotation. [86][87]  (from an idea this one builds on)
+- A cage rotor is simple, rugged and low-maintenance, with no brushes or slip rings; a wound rotor gives higher starting torque and speed control by external resistance, at more upkeep. Light load gives a poor power factor. [88][89][90]  (from an idea this one builds on)
+- Cage induction motors suit constant-speed work such as fans, pumps, conveyors and compressors; their speed is hard to control without a drive and their starting current is high. [91][92][93]  (from an idea this one builds on)
+- Induction motors are used on ships for pumps, fans and compressors up to 700 kW or more, totally enclosed; the UK chose an induction motor to drive its Type 45 destroyer. [94][95][96]  (from an idea this one builds on)
+- A three-phase motor run from a single phase will not self-start but can be hand started; a motor already running when one phase is lost heats very quickly and must be taken off by its protection. [97][98][99]  (from an idea this one builds on)
+- In one long-run record of motor failures, overloads were 30%, single-phasing 14% and bearing failure 13%; worn starter contacts are given as the most common cause of single-phasing. [100][101]  (from an idea this one builds on)
+- An insulation resistance test shows a wet or contaminated motor or a dead short to earth but cannot prove it good; a winding resistance test compares phases, and under 1% difference is typical of a good winding. [102][103][104]  (from an idea this one builds on)
+- His sheet says a brushless motor is safe for hazardous areas; a maker builds hazardous-area motors to prevent ignition and certifies them to ATEX and IECEx. [105][106][107]  [CONTESTED: Dan's sheet treats the absence of brushes as making these motors safe in hazardous areas; a maker presents certified, purpose-built motors for these areas.]  (from an idea this one builds on)
+- Slip is the fraction (synchronous speed minus actual speed) divided by synchronous speed: 0 at synchronous speed, 1 (100%) at standstill or locked rotor. [108][109]  (from an idea this one builds on)
+- Read the pole count from the nameplate speed: on 50 Hz a two-pole field turns at 3000 rpm and a four-pole one at 1500, and the full-load speed on the nameplate is a little below that. A 1500 r/min, four-pole motor is a maker's standard 50 Hz line. Dan's sheet motor, 5.5 kW at 2950 rpm, is therefore… [110][111][112][113]  (from an idea this one builds on)
+- The ABB 0.75 kW four-pole data sheet gives a rated speed of 1437 r/min on 50 Hz, so its full-load slip is (1500 - 1437) / 1500 = 4.2% (computed). [114][111]  (from an idea this one builds on)
+- Slip is proportional to the load: a motor at half load has slip halfway between its full-load slip and zero. [115][116]  (from an idea this one builds on)
+- When load goes up the rotor slows, slip grows, and rotor current and torque grow with it until the motor's torque balances the load's. At small slip the torque is directly proportional to slip. [117][118][119][120]  (from an idea this one builds on)
+- The rotor current's frequency is slip times the supply frequency, so at full load (slip 5% or less) it is only a few hertz: 2.5 Hz on a 50 Hz supply at 5% slip. [121][122]  (from an idea this one builds on)
+- Light-load power factor is poor because the magnetising current stays almost the same while the useful current falls. ABB's 0.75 kW four-pole motor draws 1.4 A with no load against 1.90 A at full load, with power factor 0.7 at full load and 0.49 at half load. Below about half load the power factor … [123][124][125][126][127]  (from an idea this one builds on)
+- The ABB 0.75 kW four-pole data sheet gives a starting current of 5.9 times rated, a locked-rotor torque of 3.5 times rated and a maximum (breakdown) torque of 3.8 times rated. The starting current is high because a locked rotor is like a shorted transformer secondary. [128][129][130][131]  [CONTESTED: Starting torque of a direct-on-line cage motor: ABB's handbook gives 1.5 to 2.5 times rated for small motors, while the small ABB data sheet gives 3.5. It is a range that depends on the motor design, so read the data sheet for the motor in hand.]  (from an idea this one builds on)
+- If the load torque goes beyond the motor's breakdown torque the motor slows further instead of settling: it stalls, the current stays at the locked-rotor level, and it overheats rapidly and risks insulation failure if not protected. [118][132][133]  (from an idea this one builds on)
+- With one line open at standstill the rotating field collapses into a pulsing single-phase field, so a motor at rest hums and will not start. If the motor was already running and one line is lost, the two remaining line currents rise to about 173% of normal. [134][135][136]  (from an idea this one builds on)
+- The minimum acceptable insulation resistance for a motor winding depends on the standard, the winding and its age: the older IEEE 43 rule is 1 megohm plus 1 megohm per kV; a widely quoted newer figure is 5 megohms for windings up to 1,000 V (WEG, citing IEEE 43); a maker or the standard in force se… [137][138][139]  [CONTESTED: The minimum insulation resistance for a motor: the older IEEE 43 rule (1 megohm plus 1 per kV), a newer 5 megohm figure for low-voltage windings, and a note that the real minimum depends on the insulation. The lesson should send him to the maker's figure rather than state one number.]  (from an idea this one builds on)
+- Royal Navy ships have used a 440 V, 60 Hz, three-phase main supply since 1946 (four Daring class destroyers, in line with US Navy practice); it has been the preferred supply ever since. So a motor at sea usually runs on 60 Hz. (Added for i1, review fix: why the 60 Hz choice matters.) [140]  (from an idea this one builds on)
+- A motor's overload relay is set to the motor's rated current, not its tripping current: it does not trip at 1.05 times the setting and trips at 1.2 times. An overloaded motor draws more than its rated current until the relay trips. (Added for i1, review fix: how an overload shows and what to check.) [141]  (from an idea this one builds on)
+- The synchronous speed of the turning field is 120 f / p rpm for f hertz and p poles; an induction motor's shaft runs a little slower than it. [79][83]  (whole topic)
+- In a series motor the same current flows through field and armature, and its speed can climb to dangerous levels if it runs without a load. [142][143]  (whole topic)
+- A motor that is turning also acts as a generator; the emf it makes is called back emf and it opposes the supply. [144][145]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a mechanism idea: a moving diagram he drives himself, with the cause drawn: what your explanation's "because" says happens on the picture (heat creeping along a spoon), set off by an action he performs (a button, a drag), not a switch he flips and watches. Include a setting where the cause does not produce the effect, so he sees both sides of the rule.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action, naming the cause as well as the change. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question, each from a named scholar or a peer-reviewed or university source, not an encyclopedia. The explanation says plainly it is debated; the interactive takes no side. If fewer than two such views remain, set "simplified" and say in one sentence what is still argued and by whom.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i2",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

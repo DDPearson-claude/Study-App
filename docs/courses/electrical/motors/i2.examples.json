@@ -1,0 +1,55 @@
+{
+  "lesson": "i2",
+  "note": "Labelled example values for lesson i2 (The DOL starter). The writer and the checker use these and no others. Each is shown in the lesson as 'an example value' (or 'drawn as an example'), never as a maker's or a standard's figure. Everything else in the picture is a sourced figure (his DOL sheet: parts 1 to 10, 230 V coil on one phase and neutral, 4-pole isolator, delta-connected load, overload release contact; ABB: DOL start current usually 6 to 8 times rated and can exceed 10, starting torque about 1.5 to 2.5 times rated for a small motor, star-delta start about 30% of the current and about 25% of the torque with the motor delta-connected to run, contactor AC-3 makes about 6 to 8 times rated current and breaks only the rated current; overload relay setting current is the motor's rated current, no trip at 1.05 times, trip at 1.2 times; coil operating range 0.85 to 1.1 times rated coil voltage) or computed from a rule the lesson shows (phase voltage = line voltage / sqrt(3), 400 / sqrt(3) = 231 V; DOL start current = multiple x running current; star start current about a third of DOL; the showroom motor from Design and verification lesson 1, 11 kW, 23.08 A, so DOL 6 to 8 x 23.08 = 138 to 185 A and star-delta about 46 to 62 A).",
+  "values": [
+    {
+      "name": "pictureStartMultiple",
+      "value": 7,
+      "unit": "times running current (the meter's start surge)",
+      "why": "The meter needs one number for the surge at the instant Start is pressed. ABB gives a range (usually 6 to 8, can exceed 10), not a value for any one motor, so the picture draws 7, the middle of the range, and says so. The lesson's range text (6 to 8) is the cited figure; 7 is only where the needle starts. Computed: surge in amps = 7 x 23.08 A = 161.6 A for the showroom motor.",
+      "realValueLives": "The motor's data sheet (locked-rotor or starting current ratio Is/IN) or its nameplate code; for one in service, a clamp meter with inrush hold on the first half-second of a start."
+    },
+    {
+      "name": "pictureRunUpTime",
+      "value": 4,
+      "unit": "seconds of picture time for the surge to fall to running current",
+      "why": "The meter shows the surge falling as the motor runs up. How long that takes depends on the motor's inertia and the load, and none of Dan's materials or the sources give a figure for the picture motor, so the picture uses a short example run-up so the fall can be watched. Drawn as an example shape (fast at first, easing to 1 x running current), not the curve of a real motor.",
+      "realValueLives": "Measured on the machine (a clamp meter or a motor-protection relay start log); the load's inertia and the motor's torque-speed curve set it. A fan with a large rotor takes much longer than a small pump."
+    },
+    {
+      "name": "bimetalHeatingRule",
+      "value": "heat gained per second = k x ((current / setting)^2 - 1.05^2) while above 1.05 times the setting, trip when the bimetal bar is full; k = 1 / (0.3375 x 20) = 0.148 per s, so 120% of the setting fills the bar in 20 s of picture time, 150% in about 6 s (1 / (0.148 x 1.1475) = 5.9 s), 110% in about 63 s; at or below 105% it never fills",
+      "unit": "picture seconds (sped up; real overload relays take minutes to hours at these loads)",
+      "why": "The load control raises the motor current above the overload relay's setting until the bimetal bends and the release contact (10) opens. The sourced facts are the setting (the motor's rated current, not the trip current), no trip at 1.05 times, trip at 1.2 times (ABB), and that the relay is heated by the current in its bimetals. How fast it heats is not in any source for a given relay, so the picture uses an inverse-time shape (current squared above the setting) on a sped-up clock and says it is sped up. The threshold sits at 1.05 times, not 1.0, so the picture never trips at 1.05 times the setting, which the relay data sheet says it must not (revised by the writer, 21 Oct; the earlier rule, squared current minus 1, would have tripped at 105% in about 86 s). 105% and below never trips; the lesson never gives the 20 s and 6 s as a maker's trip times.",
+      "realValueLives": "The overload relay's trip curve in the maker's data sheet (trip time against multiples of the setting current, cold and warm, for its trip class: 10A, 10, 20 or 30)."
+    },
+    {
+      "name": "supplyCutDuration",
+      "value": 1,
+      "unit": "seconds the supply is off before it comes back",
+      "why": "The check asks whether the motor restarts when the power fails for a second and returns. The picture needs a short gap the coil's magnet cannot ride through (the contactor drops out; the latch returns to open). Sources say the coil drops out and the motor does not restart without an operator (LVP); none gives how short a dip it takes. 1 s is the brief's own scenario, labelled an example.",
+      "realValueLives": "The contactor's data sheet: it opens when the coil voltage falls below its drop-out level (well under the 0.85 x rated operating limit) and a very short dip may be bridged; the exact figure is the maker's."
+    },
+    {
+      "name": "pictureMotor",
+      "value": "400 V, three-phase, delta-connected, 11 kW, running current 23.08 A (the showroom motor from Design and verification lesson 1)",
+      "unit": "motor shown on the DOL sheet's load (part 6) and on the star-delta screen",
+      "why": "His DOL sheet draws a delta-connected load without a rating. The lesson needs one motor to give the meter amps and the star-delta screen its 138 to 185 A and 46 to 62 A. The showroom motor is his own earlier figure, so no new rating is invented. It is above his sheet's 'up to 5 kW' rule of thumb, which the lesson uses to make the point that the supply, not the starter, sets the DOL size limit.",
+      "realValueLives": "The motor's nameplate (rated power, voltage, connection and current) and the supply's fault level and voltage-dip limit, which set whether it may be started DOL."
+    },
+    {
+      "name": "coilMismatchPicture",
+      "value": "230 V coil across a 400 V line-to-line connection: 400 / 230 = 1.74 times its rating",
+      "unit": "multiple of the coil's rated voltage",
+      "why": "The fault switch 'coil on the wrong voltage' shows a 230 V coil wired across two lines. The 1.74 is computed from his 230 V coil and the 400 V supply; the sourced limit is 0.85 to 1.1 times rated (Siemens) and that too high a voltage burns the coil out (ABB). The picture does not say how fast it burns out; no figure is shown.",
+      "realValueLives": "The coil's marking (A1 and A2) and the contactor maker's coil operating range."
+    },
+    {
+      "name": "overloadCoolTime",
+      "value": 10,
+      "unit": "picture seconds for the full bimetal bar to empty; Reset works only once it is empty",
+      "why": "After a trip the relay will not reset until it has cooled (Schneider). No source gives a cooling time for a given relay, so the picture empties the bar at a fixed sped-up rate and says so.",
+      "realValueLives": "The overload relay maker's data (reset after a cooling time); in practice, wait and try the reset."
+    }
+  ]
+}

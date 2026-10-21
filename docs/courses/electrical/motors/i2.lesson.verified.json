@@ -1,0 +1,425 @@
+{
+  "iid": "i2",
+  "title": "The DOL starter",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the latching contact (7) keeping the coil fed after Start springs back, until its circuit opens and it drops out for good, when you press and release Start.",
+    "title": "Your DOL starter, live",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 9,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A DOL starter, drawn with its parts numbered 1 to 10. The supply (1) comes in on L1, L2, L3 and N, through fuses or a breaker and the four-pole isolator (2). The three main contacts (5) feed the motor (6) through the overload's heaters (9), one in each line. The coil circuit runs from L3 through Stop (8), then Start (3) with the latching contact (7) across it, then the coil (4) and the overload's contact (10), to the neutral. Dashed lines join the parts that work together: the coil with 5 and 7, and the heaters with 10.\n\nIn the live picture the fed parts light up, and the coil glows while it is fed. A meter shows the current in one line. A bar beside the heaters fills as the overload warms. When it is full, 10 opens and the motor stops.",
+    "ignores": "The picture runs on a sped-up clock. The run-up, the overload heating and the cooling take far longer in real life. The start surge of 7 times is one example from a range. The motor current slider sets the current directly, as if the load grew. The supply cut is long enough for the coil to let go. A contactor may ride through a very short dip. That depends on the contactor. The picture does not show a short circuit, only the fuses or breaker that would clear one. The control circuit is drawn fed from one phase and the neutral. Many starters feed a 400 V coil across two lines instead. Only the motor current slider heats the overload. The start surge does not, so repeated starts never trip it here.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 10 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Motor current, % of overload setting (opening)",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Motor current slider range, %",
+        "value": "100 to 150",
+        "kind": "control"
+      },
+      {
+        "label": "Part numbers on the drawing",
+        "value": "1 to 10",
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Coil voltage, phase to neutral, V",
+        "value": 230,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Supply voltage line to line, V (example motor)",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor rating, kW",
+        "value": 11,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor full-load current, A",
+        "value": 23.08,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start surge on the meter, times full-load (example)",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start surge on the meter, A",
+        "value": 161.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Run-up time on the picture, s (example)",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Running current on the meter, A",
+        "value": 23.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Line current at 120% of setting, A",
+        "value": 27.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Line current at 150% of setting, A",
+        "value": 34.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Overload bar fill time at 120%, picture s (example)",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Overload bar cooling time, picture s (example)",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Supply cut on the picture, s (example)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "DOL starting current, times rated",
+        "value": "6 to 8",
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "DOL starting current can exceed, times rated",
+        "value": 10,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Starting torque, motors up to about 30 kW, times rated",
+        "value": "1.5 to 2.5",
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Restart before stopping: peak, times a normal start",
+        "value": 2,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "DOL size rule of thumb, under, kW",
+        "value": 4,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "DOL size rule of thumb, up to, kW",
+        "value": 5,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Some supply companies restrict DOL from, kW",
+        "value": 5.5,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "DOL on a site with its own supply, up to, kW",
+        "value": "250 or more",
+        "kind": "constant",
+        "source": 21
+      },
+      {
+        "label": "Star winding voltage on 400 V, V",
+        "value": 231,
+        "kind": "computed"
+      },
+      {
+        "label": "Star-delta starting current, fraction of DOL",
+        "value": "1/3",
+        "kind": "computed"
+      },
+      {
+        "label": "Star-delta starting current, about %",
+        "value": 30,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Star-delta starting torque, about % of DOL",
+        "value": 25,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Example motor DOL start current, A",
+        "value": "138 to 185",
+        "kind": "computed"
+      },
+      {
+        "label": "Example motor star-delta start current, A",
+        "value": "46 to 62",
+        "kind": "computed"
+      },
+      {
+        "label": "Star-delta overload on the main contactor, times full-load current",
+        "value": 0.58,
+        "kind": "constant",
+        "source": 22
+      },
+      {
+        "label": "Example motor star-delta overload setting, A",
+        "value": 13.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Star-delta starter contactors",
+        "value": 3,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Overload holds at, times setting",
+        "value": 1.05,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Overload trips at, times setting",
+        "value": 1.2,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Coil operating range, times rated voltage",
+        "value": "0.85 to 1.1",
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "230 V coil on 400 V, times its rating",
+        "value": 1.74,
+        "kind": "computed"
+      },
+      {
+        "label": "400 V coil on 230 V, times its rating",
+        "value": 0.575,
+        "kind": "computed"
+      },
+      {
+        "label": "Example motor overload holds at, A",
+        "value": 24.23,
+        "kind": "computed"
+      },
+      {
+        "label": "Example motor overload trips at, A",
+        "value": 27.7,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A DOL starter switches a motor straight onto the full supply through a contactor. Start pulls the contactor in. A contact across Start then keeps the coil fed, so the motor runs on after you let go. Anything that opens the coil's circuit drops it all out. It stays out until someone presses Start again.\n\nFollow the coil circuit in the drawing. Start (3), Stop (8) and the overload's release contact (10) are all in series with the coil (4). Assume it is fed from one phase and the neutral, so it sees 230 V. Start is normally open and sprung. Press it and the coil is fed. The coil's magnet pulls the contactor's moving part in. That closes the three main contacts (5), and the motor starts on full voltage. The same movement closes a small extra contact, the [[latching contact]] (7). It is wired across Start. So when Start springs back, the coil still has a path through 7. The coil does the pulling and the holding. The latching contact only keeps the coil fed.\n\nStop is normally closed. Press it and the coil circuit opens. The coil lets go, so the main contacts and 7 open together. Let go of Stop and nothing happens, because Start and 7 are both open now. The overload works the same way. Too much current heats its bimetal strips (9) until they bend and open 10. The overload has no main contacts of its own. It stops the motor only by opening the coil's circuit. So does a supply cut long enough to drop the coil out. When the supply comes back, Start and 7 are still open, so the motor stays stopped. That is [[no-volt protection]]. A machine does not start up again by itself after a power cut. A pump run by a float or pressure switch is different. That switch stays made, so the pump restarts by itself when the supply returns.[^13]\n\n**A contactor with a latching contact across Start gives no-volt protection. Stop, the overload or a power cut can open its coil circuit. After that, only Start makes it again.**"
+  },
+  "analogy": {
+    "text": "Think of a fire door held open by a magnet. While the magnet is fed, the door stays open. If the fire alarm or a power cut cuts its supply, the door swings shut. When the power returns, the door stays shut. Someone has to push it open again, just as someone has to press Start.",
+    "breaks": "The magnet's supply does not pass through the door. The starter's coil is fed through its own latching contact. So once the coil lets go, it has cut its own feed. Only Start can feed it again."
+  },
+  "practice": {
+    "text": "- Isolate, lock off and prove dead before you open a starter. Prove all three lines and the neutral dead, with a tester you prove before and after.\n- Read the coil's voltage on its label and check how it is wired. On a 400 V supply, a 230 V coil needs a phase and the neutral. A 400 V coil goes across two lines.\n- Set the overload to the motor's full-load current from its nameplate. Do not set it to a trip current.\n- Make sure fuses or a breaker ahead of it give the short-circuit protection. The overload does not.\n- Check Start and Stop both work before you hand it back.\n\n**Rule of thumb:** if the motor runs only while Start is held, look at the latching contact (7) first.\n\n**Worked example:** start the showroom motor DOL. It is 11 kW and 23.08 A at full load. Set the overload to 23.08 A. It should hold at 1.05 × 23.08 = 24.23 A and trip slowly, on its trip curve, at 1.2 × 23.08 = 27.70 A.[^4] While it runs up, the motor usually draws 6 × 23.08 = 138 A to 8 × 23.08 = 185 A. The contactor makes that current every start. Star-delta would cut it to 138 ÷ 3 = 46 A to 185 ÷ 3 = 62 A.\n\n**Common mistakes**\n- Thinking the latching contact holds the main contacts in. The coil holds them. The latch only keeps the coil fed.\n- Expecting the motor to restart after a power cut. It stays stopped until Start is pressed.\n- Trusting the overload to clear a short circuit. That is the fuses' or breaker's job.\n- Fitting a coil for the wrong voltage. Too high a voltage can burn it out. Too low, and it may not pull in.\n- Taking a dropped-out contactor as dead. Its supply side can still be live."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+    "title": "The DOL starter",
+    "for": "Starting a cage motor straight on the full supply. Start pulls the contactor in. The latching contact keeps its coil fed. Anything that opens the coil circuit drops it out until Start is pressed again.",
+    "rule": "Start (3) N/O, with the latching contact (7) across it.\nStop (8) N/C and the overload's contact (10) in series with the coil (4).\nExtra Stops go in series, extra Starts in parallel with Start.\nCoil voltage must match its wiring: 230 V phase to neutral, 400 V across two lines.\n\nDOL start: usually 6 to 8 × full-load current, sometimes over 10.\nOverload set to full-load current: holds at 1.05 ×, trips slowly at 1.2 × on its trip curve.\nStar-delta: about a third of the current, about a quarter of the torque.\n\nRuns only while Start is held: check 7. Will not start: check the overload first.",
+    "traps": [
+      {
+        "text": "The coil pulls and holds the main contacts. The latching contact only keeps the coil fed once Start springs back.",
+        "cite": "[^14] [^15] DOL study sheet; Basic Motor Control"
+      },
+      {
+        "text": "After a power cut the motor stays stopped until someone presses Start. That is no-volt protection.",
+        "cite": "[^16] [^17] Basic Motor Control"
+      },
+      {
+        "text": "The overload does not clear a short circuit. Fuses or a breaker do.",
+        "cite": "[^18] ABB thermal overload relays"
+      },
+      {
+        "text": "Set the overload to the motor's full-load current, not a trip current.",
+        "cite": "[^4] ABB TF42 data sheet"
+      },
+      {
+        "text": "Isolate, lock off and prove dead first. A contactor can hold line voltage with its coil off.",
+        "cite": "[^19] [^20] contactor troubleshooting; HSE HSG85"
+      }
+    ],
+    "where": "Pumps, fans and compressors. The supply, not the starter, sets how big a motor can start this way."
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+    },
+    {
+      "n": 2,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+    },
+    {
+      "n": 3,
+      "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+      "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+      "quote": "The received starting current is about 30 % of the starting current during direct on line start and the starting torque is reduced to about 25 % of the torque available at a D.O.L start."
+    },
+    {
+      "n": 4,
+      "title": "— Thermal overload relay TF42",
+      "url": "https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj",
+      "quote": "the setting current is the rated current of the motor and not the tripping current (no tripping at 1.05 x I, tripping at 1.2 x I; I = setting current)"
+    },
+    {
+      "n": 5,
+      "title": "Contactor for capacitor switching: Type: 3TS1722-0A..5-8K",
+      "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:9fcd4883-33b5-4c50-97be-c7f9d0b23f98/oi-3ts17.pdf",
+      "quote": "The voltage is to be maintained within 0.85 to 1.1 x rated coil voltage."
+    },
+    {
+      "n": 6,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "Latching (maintaining) contacts. These 'pull' and 'hold' the main contacts in place, these are pulled into place by the magnetic field created by the energising of (4)."
+    },
+    {
+      "n": 7,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "230V contactor coil (only connected to one phase and neutral meaning only 230V is present."
+    },
+    {
+      "n": 8,
+      "title": "Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors",
+      "url": "https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf",
+      "quote": "Attempting to restart the motor before it has come to a full stop will cause a current peak that theoretically can reach twice the current compared to starting the motor from a standstill."
+    },
+    {
+      "n": 9,
+      "title": "Your motor sheet: the DOL starter (web summary)",
+      "url": "material:dol-starter#p3",
+      "quote": "DOL starters are typically limited to smaller motors (often under 4 kW) where the power supply can tolerate the voltage dip."
+    },
+    {
+      "n": 10,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "Generally used for the starting and stopping of small machinery up to 5kW."
+    },
+    {
+      "n": 11,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "Some utilities restrict DOL starting for motors rated at 5.5 kW / 7.5 hp or higher."
+    },
+    {
+      "n": 12,
+      "title": "[PDF] SOFTSTARTER HANDBOOK - ABB",
+      "url": "https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf",
+      "quote": "The device normally consists of three contactors, an overload relay and a timer for setting the time in the star-position (starting position)."
+    },
+    {
+      "n": 13,
+      "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+      "quote": "If it uses maintained contacts, then it most likely provides low-voltage release (LVR)."
+    },
+    {
+      "n": 14,
+      "title": "Your DOL study sheet: the direct online starter",
+      "url": "material:dol-sheet#p1",
+      "quote": "The coil magnetises the main contacts and pulls them closed and holds them in place, enabling the motor to connect to the supply and become energised."
+    },
+    {
+      "n": 15,
+      "title": "Manual Circuits – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+      "quote": "The unique component of the circuit, indeed the device that allows the circuit to provide low-voltage protection (LVP) , is the normally open instantaneous contact connected in parallel with the start button."
+    },
+    {
+      "n": 16,
+      "title": "Manual Circuits – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/",
+      "quote": "The motor will not restart without further input from an operator as the holding contact will have returned to its normally open state."
+    },
+    {
+      "n": 17,
+      "title": "Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control",
+      "url": "https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp",
+      "quote": "low-voltage protection (LVP) is a property that circuits have when upon a return of voltage following a power outage, loads will not automatically turn back on and will require further input from the operator."
+    },
+    {
+      "n": 18,
+      "title": "Thermal Overload Relays Electronic ...",
+      "url": "https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf",
+      "quote": "In order to protect motors against short-circuits, it is advisable to use fuses aM in conjunction with the thermal overload relay."
+    },
+    {
+      "n": 19,
+      "title": "Contactor Troubleshooting: Buzzing, Chattering & Coil Failure",
+      "url": "https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure",
+      "quote": "A contactor can contain hazardous line voltage even when its coil circuit is off."
+    },
+    {
+      "n": 20,
+      "title": "Electricity at work: Safe working practices HSG85",
+      "url": "https://www.hse.gov.uk/pubns//priced/hsg85.pdf",
+      "quote": "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead, even if the isolation has been achieved automatically through an interlocking system."
+    },
+    {
+      "n": 21,
+      "title": "Motor Starting Solutions ( en",
+      "url": "https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw",
+      "quote": "However, in industrial facilities with independent supply systems, much larger motors - up to 250 kW / 350 hp or more - are operated with direct-on-line starting method."
+    },
+    {
+      "n": 22,
+      "title": "Overload Relays - Digital Asset Management - Siemens",
+      "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:db98727f-1c3d-43cb-ab6e-2055705305b4/version:1557325577/ic17-sect-03-rev031519.pdf",
+      "quote": "An overload relay mounted onto the line contactor must be set to 0.58 times the motor current."
+    }
+  ]
+}

@@ -1,0 +1,402 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Electric motors: what you need on each one
+Idea: The DOL starter (Start pulls in the contactor, a contact across Start keeps its coil fed; Stop, overload or power cut drops it out until restarted.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the latching contact (7) keeping the coil fed after Start springs back, until its circuit opens and it drops out for good, when you press and release Start.
+Title (the app shows it above the frame, so do not repeat it): Your DOL starter, live
+The rule (the app shows it just above the frame, under "What you're looking at"): Nine screens, with Back and Continue. One picture to play with, two quick choices, and a card to keep. No marks and no timers.
+
+Every screen shows the DOL drawing in the app's style. Its part numbers stay the same. 1, the supply: L1, L2, L3 and N. 2, the four-pole isolator. 3, Start, a green normally open button. 8, Stop, a red normally closed button. 4, the contactor coil. 5, the three main contacts. 6, the motor, drawn as three windings in delta. 7, the latching contact. 9, the overload's heaters, one in each line. 10, the overload's release contact. A dashed line joins 4, 5 and 7, because they are one moving part. Fuses or a breaker sit between 1 and 2. They have no number. Their label reads "Fuses or breaker: short-circuit protection".
+
+Screen 1, How it works. The drawing at rest: isolator closed, nothing fed. The words beside it: "The coil (4) is fed by a small control circuit. Start (3), Stop (8) and the overload's release contact (10) are all in series with it. The latching contact (7) is wired across Start. The coil is fed from one phase and the neutral, so it sees 230 V. Press Start and the coil pulls the contactor in. The three main contacts (5) close, and the motor starts on the full supply. The latching contact closes at the same moment. So when Start springs back, the coil is still fed through 7. Open any part of that circuit and the coil lets go. Everything drops out, and it stays out until someone presses Start again." Latching contact is the key term, marked in amber.
+
+Screen 2, Your DOL starter, live: the picture to play with. The fed parts of the drawing light in ink. The coil glows while it is fed, and the contacts move when it pulls in or lets go. The supply side of the main contacts stays lit whenever the isolator is closed, even with the coil out. A meter beside the motor shows the current in one line. Under the drawing, the five buttons sit in two rows. The slider and the fault switch go below them. The three readouts sit in one row.
+
+The controls. Isolator (2): a switch that starts closed. Start (3): a button that stays in while it is held and springs back when let go. Stop (8): the same, but it opens the circuit while held. Motor current, as a % of the overload setting: a slider from 100 to 150 in steps of 10. It starts at 100. It stands for the load growing, and only matters while the motor runs. Cut supply 1 s: a button that takes all four supply conductors away for one second, then puts them back. One second is an example length. Reset overload: a button that works only once the overload has cooled. Latching contact worn: a fault switch that starts off. With it on, 7 no longer makes. The readouts: Coil, fed or not fed. Motor, running or stopped. Line current, in amps to one decimal place.
+
+Assume the example motor is the showroom motor: 11 kW and 23.08 A at full load, on a 400 V supply. The overload is set to its full-load current, 23.08 A.
+
+What it does. Press Start: the coil glows, and 5 and 7 close together. The meter jumps to 7 × 23.08 = 161.6 A, then eases down to 23.1 A over 4 seconds as the motor runs up. The 7 times and the 4 seconds are example values, chosen so you can watch the surge. A real start usually draws 6 to 8 times full-load current, sometimes more than 10 times. It lasts as long as the load takes to run up. Let go of Start: the lit path moves from 3 to 7, and the motor runs on. Press Stop: the coil goes dark, 5 and 7 open, and the motor stops. Let go of Stop: nothing happens, because 3 and 7 are both open now.
+
+Push the motor current up. At 120% the meter reads 1.2 × 23.08 = 27.7 A, and at 150% it reads 34.6 A. A bar under 9 shows the bimetal heating. It fills at a rate of k × ((current ÷ setting)² − 1.05²). It fills in 20 seconds at 120% and in about 6 seconds at 150%. At 100% it never fills. The clock is sped up. A real overload takes far longer, on its own trip curve. When the bar is full, 10 opens. The coil drops out, and the motor stops. The bar then cools and empties in 10 seconds, also on the sped-up clock. Reset works only once it is empty. Press Start again to run.
+
+Press Cut supply 1 s while the motor runs. Everything goes dark. The coil lets go, and 5 and 7 open. When the supply returns, the incoming side lights again, but the coil stays dark. The motor stays stopped until Start is pressed. Turn on Latching contact worn and press Start. The motor runs only while Start is held. Let go and it stops.
+
+The words under the picture: "Start makes the coil circuit. The coil pulls in 5 and 7 together. 7 keeps the coil fed once Start springs back. Stop, the overload's contact 10 or a supply cut opens the circuit. Only Start makes it again." The prompt above the picture: "Press Start and let it go. Then try Stop, the overload and a supply cut." Read: Press Start and the coil pulls in the main contacts and the latching contact together. The meter jumps to about 162 A, then falls to 23.1 A as the motor runs up. Let go, and the coil stays fed through 7. Stop, the overload's contact 10, or a supply cut each open the coil circuit. The motor then stays stopped until Start is pressed again. Still: running after Start is let go, the coil fed through 7, motor current 100%, the meter at 23.1 A.
+
+Screen 3, Check on the cause. "The motor is running. The supply fails for a second, then comes back. Nobody touches the buttons. What does the motor do?" Three choices, in this order: "It stays stopped until someone presses Start"; "It starts again by itself when the supply returns"; "It keeps running, because the latching contact holds the contactor in". Right, the first: "Right. With no supply the coil let go, and 7 opened with the main contacts. When the supply returns, Start and 7 are both open, so the coil has no path. That is no-volt protection." Wrong, the second: "That would need a path to the coil. Start is sprung open, and 7 opened when the coil let go. So there is no path until someone presses Start." Wrong, the third: "The coil does the holding, and it needs a supply. The latching contact only keeps the coil fed. With the supply gone, it opens too." After a wrong choice, the right answer and its reason.
+
+Screen 4, How it behaves. Four short rows, each with a label.
+
+Starting current: "It puts the full supply on the motor at once. So the motor draws its full starting current, usually 6 to 8 times rated, and sometimes more than 10 times.[^1] The supply voltage dips while it lasts."
+
+Starting torque: "It gives full starting torque too, whatever the load needs. For a small motor that is often 1.5 to 2.5 times rated torque.[^2] That is well above rated torque, not equal to it. Read the motor's data sheet for its own figure."
+
+The contactor: "It makes the full starting current when it closes. When it opens on a motor that has run up, it breaks only the running current."
+
+Quick restarts: "In theory, restarting before the motor stops can give a current peak twice that of a normal start. Let it stop first."
+
+Screen 5, Where it is used, and its limits. Rows.
+
+Used for: "Pumps, fans, compressors and other small machinery. It is the simplest start: one contactor, an overload and two buttons."
+
+Size: "The supply, not the starter, sets how big a motor can start this way. The question is whether the supply can stand the dip. Rules of thumb differ. Some say under 4 kW, others up to 5 kW. Some supply companies restrict DOL from 5.5 kW. Ask whoever runs the supply."
+
+At sea: "The generators are the supply. A DOL start draws the most current of any starting method. Starting large motors one after another can cause severe voltage dips. Thrusters while manoeuvring are one example."
+
+Frequent starts: "Starting and stopping often can trip the overload."
+
+More than one place to control it: "Extra Stop buttons go in series, so any one stops it. Extra Start buttons go in parallel with Start, so any one starts it."
+
+Limit: "It does nothing to reduce the starting current. Where that is too much, use a reduced-current start such as star-delta."
+
+Screen 6, Star-delta. A still drawing: the motor's three windings on a 400 V supply, in star on the left and in delta on the right. Each winding is labelled with its voltage, 231 V in star and 400 V in delta. The words: "Star-delta starts the motor in star, then a timer switches it to delta. In star each winding gets 400 ÷ √3 = 231 V instead of 400 V. The winding is the same, so its current falls by √3 too. In delta each line carries √3 times one winding's current. In star each line carries just one winding's current. So the star line current is 1 ÷ √3 × 1 ÷ √3, a third of a DOL start. The torque falls further, to about a quarter.[^3] Take the showroom motor, 23.08 A at full load. Started DOL, it draws 6 × 23.08 = 138 A to 8 × 23.08 = 185 A. Started star-delta, it draws 138 ÷ 3 = 46 A to 185 ÷ 3 = 62 A. It needs three contactors, an overload and a timer. The motor must be built to run in delta. The torque is low, so the load must be light while it starts. Expect a second current peak at the switch to delta."
+
+Screen 7, Faults and tests. Rows.
+
+Safety first: "Isolate and lock off. Then prove all three lines and the neutral dead at the starter, with a tester you prove before and after. A dropped-out contactor can still have its supply side live."
+
+Will not start: "Check the overload (10) first. Once tripped, it resets only when it has cooled. Then check Stop (8), the coil (4) and the coil's supply."
+
+Runs only while Start is held: "The latching contact (7), or its wiring, is not making."
+
+Overload trips: "Check the setting first. It should be the motor's full-load current, not a trip current. The overload holds at 1.05 times its setting and trips at 1.2 times.[^4] Then look for a real overload, frequent starting, or a lost line. The overload also guards against a lost line."
+
+Chatters or buzzes: "The usual causes are low or unsteady coil voltage, a loose control connection, the wrong coil or dirty magnet faces. Measure the coil voltage while it pulls in. It should be within 0.85 to 1.1 times the coil's rating.[^5]"
+
+Wrong coil: "A 230 V coil wired across two lines gets 400 ÷ 230 = 1.74 times its rating. It can burn out. A 400 V coil fed from phase to neutral gets 230 ÷ 400 = 0.575 times. It may not pull in. It can also overheat. Check the voltage marked on the coil against how it is wired."
+
+Short circuit: "The overload is not made to clear it. Fuses or a breaker ahead of the starter do that."
+
+Lost line: "Worn main contacts are a common cause of single phasing. Inspect them when a motor keeps losing a line."
+
+Screen 8, Find the fault. "You press Start and the motor runs. You let go of Start and it stops. What is the likely cause?" Three choices, in this order: "The latching contact (7) is not making"; "The overload (9 and 10) has tripped"; "The Stop button (8) is stuck open". Right, the first: "Start feeds the coil while you hold it. Once it springs back, only 7 can keep the coil fed, so 7 or its wiring is open." Wrong, the second: "The overload's contact is in series with the coil. If it had tripped, the motor would not start at all, even with Start held." Wrong, the third: "Stop is in series with the coil too. If Stop were stuck open, the coil could never be fed. The motor would not start." After a wrong choice, the right answer and its reason.
+
+Screen 9, Keep this: the summary card, drawn from the lesson's summary, then Finish the lesson.
+
+Every figure on these screens is a cited value, a control, or worked from a rule shown. The start multiple of 7, the 4-second run-up, the overload's heating and cooling times, and the 1-second supply cut are example values. Each is labelled as one where it appears.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture runs on a sped-up clock. The run-up, the overload heating and the cooling take far longer in real life. The start surge of 7 times is one example from a range. The motor current slider sets the current directly, as if the load grew. The supply cut is long enough for the coil to let go. A contactor may ride through a very short dip. That depends on the contactor. The picture does not show a short circuit, only the fuses or breaker that would clear one. The control circuit is drawn fed from one phase and the neutral. Many starters feed a 400 V coil across two lines instead.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 8 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 9 (the stepper): 0 (control)
+- Motor current, % of overload setting (opening): 100 (control)
+- Motor current slider range, %: 100 to 150 (control)
+- Part numbers on the drawing: 1 to 10 (constant, source [6])
+- Coil voltage, phase to neutral, V: 230 (constant, source [7])
+- Supply voltage line to line, V (example motor): 400 (assumed)
+- Example motor rating, kW: 11 (assumed)
+- Example motor full-load current, A: 23.08 (assumed)
+- Start surge on the meter, times full-load (example): 7 (assumed)
+- Start surge on the meter, A: 161.6 (computed)
+- Run-up time on the picture, s (example): 4 (assumed)
+- Running current on the meter, A: 23.1 (computed)
+- Line current at 120% of setting, A: 27.7 (computed)
+- Line current at 150% of setting, A: 34.6 (computed)
+- Overload bar fill time at 120%, picture s (example): 20 (assumed)
+- Overload bar fill time at 150%, picture s (example): 6 (computed)
+- Overload bar cooling time, picture s (example): 10 (assumed)
+- Supply cut on the picture, s (example): 1 (assumed)
+- DOL starting current, times rated: 6 to 8 (constant, source [1])
+- DOL starting current can exceed, times rated: 10 (constant, source [1])
+- Small motor starting torque, times rated: 1.5 to 2.5 (constant, source [2])
+- Restart before stopping: peak, times a normal start: 2 (constant, source [8])
+- DOL size rule of thumb, under, kW: 4 (constant, source [9])
+- DOL size rule of thumb, up to, kW: 5 (constant, source [10])
+- Some supply companies restrict DOL from, kW: 5.5 (constant, source [11])
+- Star winding voltage on 400 V, V: 231 (computed)
+- Star-delta starting current, fraction of DOL: 1/3 (computed)
+- Star-delta starting current, about %: 30 (constant, source [3])
+- Star-delta starting torque, about % of DOL: 25 (constant, source [3])
+- Example motor DOL start current, A: 138 to 185 (computed)
+- Example motor star-delta start current, A: 46 to 62 (computed)
+- Star-delta starter contactors: 3 (constant, source [12])
+- Overload holds at, times setting: 1.05 (constant, source [4])
+- Overload trips at, times setting: 1.2 (constant, source [4])
+- Coil operating range, times rated voltage: 0.85 to 1.1 (constant, source [5])
+- 230 V coil on 400 V, times its rating: 1.74 (computed)
+- 400 V coil on 230 V, times its rating: 0.575 (computed)
+- Example motor overload holds at, A: 24.23 (computed)
+- Example motor overload trips at, A: 27.7 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Too wide: at 340 px: content is 351px wide in a 340px frame: <div#row1.brow> reaches 347px, <div#row2.brow> reaches 347px, <div#sl> reaches 347px (at step = step 2).
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Softstarter Handbook (https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf): "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+[2] Softstarter Handbook (https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf): "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+[3] [PDF] SOFTSTARTER HANDBOOK - ABB (https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf): "The received starting current is about 30 % of the starting current during direct on line start and the starting torque is reduced to about 25 % of the torque available at a D.O.L start."
+[4] — Thermal overload relay TF42 (https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj): "the setting current is the rated current of the motor and not the tripping current (no tripping at 1.05 x I, tripping at 1.2 x I; I = setting current)"
+[5] Contactor for capacitor switching: Type: 3TS1722-0A..5-8K (https://assets.new.siemens.com/siemens/assets/api/uuid:9fcd4883-33b5-4c50-97be-c7f9d0b23f98/oi-3ts17.pdf): "The voltage is to be maintained within 0.85 to 1.1 x rated coil voltage."
+[6] Your DOL study sheet: the direct online starter (material:dol-sheet#p1): "Latching (maintaining) contacts. These 'pull' and 'hold' the main contacts in place, these are pulled into place by the magnetic field created by the energising of (4)."
+[7] Your DOL study sheet: the direct online starter (material:dol-sheet#p1): "230V contactor coil (only connected to one phase and neutral meaning only 230V is present."
+[8] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors (https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf): "Attempting to restart the motor before it has come to a full stop will cause a current peak that theoretically can reach twice the current compared to starting the motor from a standstill."
+[9] Your motor sheet: the DOL starter (web summary) (material:dol-starter#p3): "DOL starters are typically limited to smaller motors (often under 4 kW) where the power supply can tolerate the voltage dip."
+[10] Your DOL study sheet: the direct online starter (material:dol-sheet#p1): "Generally used for the starting and stopping of small machinery up to 5kW."
+[11] Motor Starting Solutions ( en (https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw): "Some utilities restrict DOL starting for motors rated at 5.5 kW / 7.5 hp or higher."
+[12] [PDF] SOFTSTARTER HANDBOOK - ABB (https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf): "The device normally consists of three contactors, an overload relay and a timer for setting the time in the star-position (starting position)."
+[13] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control (https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp): "As a rule, if a circuit uses a magnetic contactor and a holding contact, it will provide low-voltage protection (LVP)."
+[14] Your DOL study sheet: the direct online starter (material:dol-sheet#p1): "The coil magnetises the main contacts and pulls them closed and holds them in place, enabling the motor to connect to the supply and become energised."
+[15] Manual Circuits – Basic Motor Control (https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/): "The unique component of the circuit, indeed the device that allows the circuit to provide low-voltage protection (LVP) , is the normally open instantaneous contact connected in parallel with the start button."
+[16] Manual Circuits – Basic Motor Control (https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/): "The motor will not restart without further input from an operator as the holding contact will have returned to its normally open state."
+[17] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control (https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp): "low-voltage protection (LVP) is a property that circuits have when upon a return of voltage following a power outage, loads will not automatically turn back on and will require further input from the operator."
+[18] Thermal Overload Relays Electronic ... (https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf): "In order to protect motors against short-circuits, it is advisable to use fuses aM in conjunction with the thermal overload relay."
+[19] Contactor Troubleshooting: Buzzing, Chattering & Coil Failure (https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure): "A contactor can contain hazardous line voltage even when its coil circuit is off."
+[20] Electricity at work: Safe working practices HSG85 (https://www.hse.gov.uk/pubns//priced/hsg85.pdf): "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead, even if the isolation has been achieved automatically through an interlocking system."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/motors/i2.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

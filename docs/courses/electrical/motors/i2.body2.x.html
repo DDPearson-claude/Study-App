@@ -1,0 +1,669 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task.show.ask { font-weight: 700; }
+  .task > * + * { margin-top: 10px; }
+  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .task .card b, .task .warn-note b { font-weight: 700; }
+  .task .warn-note { line-height: 1.5; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .why { line-height: 1.6; }
+  .notes > * + * { margin-top: 8px; }
+  .dol, .sd { display: block; width: 100%; height: auto; }
+  .dol .w { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .dol .w.on { stroke: var(--k-accent2); stroke-width: 3; }
+  .dol rect.hb { fill: var(--k-bg); }
+  .dol .nt { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .dol .term { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .dol .dot { fill: var(--k-ink); }
+  .dol .gang { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .dol .coil { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .dol .coil.on { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  .dol .halo { fill: var(--k-accent2); fill-opacity: 0; }
+  .dol .halo.on { fill-opacity: .22; }
+  .dol .capStart { fill: var(--k-good); }
+  .dol .capStop { fill: var(--k-warn); }
+  .dol .plg { stroke: var(--k-strong); stroke-width: 2; }
+  .dol .tagc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }
+  .dol .tn, .sd .tn { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .dol .lb, .sd .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .dol .hd, .sd .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .dol .wl { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  .dol .bar { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .dol .heat { fill: var(--k-warn); fill-opacity: .6; }
+  .dol .dial { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .dol .scale { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .dol .lead { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .dol .needle { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .dol .rotor { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .dol .spoke { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .dol .sep, .sd .sep { stroke: var(--k-line); stroke-width: 1; }
+  .sd .wd { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .sd .term { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .sd .dot { fill: var(--k-ink); }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .brow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .brow .k-btn { flex: 1 1 6rem; min-height: 48px; height: auto; white-space: normal; line-height: 1.25; padding: 8px 10px; }
+  .k-btn.hold { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .k-btn.is-down { transform: translateY(2px); box-shadow: none; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); gap: 8px; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .ans { font-weight: 700; }
+  #stepbox.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="sdw"><svg class="sd" id="sd" viewBox="0 0 340 196" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div id="dolw"><svg class="dol" id="dol" viewBox="0 0 340 494" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctl">
+      <div class="brow" id="row1"></div>
+      <div class="brow" id="row2"></div>
+      <div id="sl"></div>
+    </div>
+    <div class="k-readouts" id="outs"></div>
+    <p class="say" id="say"></p>
+    <p class="why" id="under"></p>
+    <div class="notes" id="notes"></div>
+    <div class="picks" id="picks"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">The bar heats on the motor current slider's setting, not on the start surge.</p>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const nowMs = () => (window.performance && performance.now ? performance.now() : Date.now());
+
+  // ---------- the rule ----------
+  // The example motor: 23.08 A at full load on 400 V, the overload set to that current.
+  // Start surge: 7 × full-load current, easing down to the running current over a 4 s run-up
+  // (example values). The overload's bar fills at k × ((current ÷ setting)² − 1.05²), with k set so
+  // it fills in 20 s at 120% (example); it never fills at 1.05 × or below, and empties in 10 s
+  // (example) once the motor stops. The coil is fed when the supply and isolator are on, Stop is
+  // closed, the overload's contact 10 is closed, and Start is held or the latching contact 7 is made.
+  const IFL = 23.08, SURGE = 7, RUNUP_S = 4, FILL120_S = 20, COOL_S = 10, CUT_S = 1, PULSE_S = 0.3;
+  const HOLD = 1.05, TRIP = 1.2;
+  const KH = 1 / (FILL120_S * (TRIP * TRIP - HOLD * HOLD));
+  const heatRate = (pct) => KH * (Math.pow(pct / 100, 2) - HOLD * HOLD);
+  const fillTime = (pct) => 1 / heatRate(pct);
+  const IMAX = 175, SPIN_DEG = 540;
+  const one = (v) => K.fmt(v, { decimals: 1 });
+  const whole = (v) => String(Math.round(v + 1e-9));
+  const VS = 400 / Math.sqrt(3);
+  const SDN = { vs: whole(VS), d6: whole(6 * IFL), d8: whole(8 * IFL) };
+  SDN.s6 = whole(+SDN.d6 / 3); SDN.s8 = whole(+SDN.d8 / 3);
+  const COIL = { hi: K.fmt(400 / 230, { decimals: 2 }), lo: K.fmt(230 / 400, { decimals: 3 }) };
+
+  function fresh() { return { iso: true, cutT: 0, startHeld: false, startPulse: 0, stopHeld: false, stopPulse: 0, cIn: false, tripped: false, heat: 0, runT: 0, spin: 0, ang: 0, why: 'rest', note: '' }; }
+  // What feeds what, for a given contactor position.
+  function feeds(s, worn) {
+    const sup = s.cutT <= 0, on = sup && s.iso;
+    const stopC = !(s.stopHeld || s.stopPulse > 0), startC = s.startHeld || s.startPulse > 0;
+    const latch = s.cIn && !worn;
+    return { sup: sup, on: on, stopC: stopC, startC: startC, latch: latch, fed: on && stopC && (startC || latch) && !s.tripped };
+  }
+  // The contactor follows its coil. Twice, because the latching contact moves with it.
+  function settle(s, worn) {
+    const was = s.cIn;
+    s.cIn = feeds(s, worn).fed;
+    let f = feeds(s, worn);
+    s.cIn = f.fed;
+    f = feeds(s, worn);
+    if (!was && s.cIn) { s.runT = 0; s.why = 'start'; }
+    if (was && !s.cIn) s.why = !f.sup ? 'cut' : !s.iso ? 'iso' : s.tripped ? 'trip' : !f.stopC ? 'stop' : 'worn';
+    return f;
+  }
+  function advance(s, dt, worn, pct) {
+    if (s.startPulse > 0) s.startPulse = Math.max(0, s.startPulse - dt);
+    if (s.stopPulse > 0) s.stopPulse = Math.max(0, s.stopPulse - dt);
+    if (s.cutT > 0) s.cutT = Math.max(0, s.cutT - dt);
+    settle(s, worn);
+    if (s.cIn) {
+      s.runT += dt;
+      s.heat = K.clamp(s.heat + heatRate(pct) * dt, 0, 1);
+      if (s.heat >= 1 - 1e-9) { s.heat = 1; s.tripped = true; settle(s, worn); }
+    } else if (s.heat > 0) s.heat = Math.max(0, s.heat - dt / COOL_S);
+    if (s.cIn) s.spin = K.ease(Math.min(1, s.runT / RUNUP_S));
+    else { s.spin *= Math.exp(-dt / 0.3); if (s.spin < 0.01) s.spin = 0; }
+    s.ang = (s.ang + s.spin * SPIN_DEG * dt) % 360;
+  }
+  function amps(s, pct) {
+    if (!s.cIn) return 0;
+    const run = pct / 100 * IFL;
+    if (s.runT >= RUNUP_S) return run;
+    return SURGE * IFL - (SURGE * IFL - run) * K.ease(s.runT / RUNUP_S);
+  }
+  const busy = (s) => s.cIn || s.cutT > 0 || s.startPulse > 0 || s.stopPulse > 0 || s.heat > 0 || s.spin > 0;
+
+  // ---------- the lesson's words ----------
+  const blk = (t, s) => ({ t: t, s: s });
+  const HOW = [
+    blk('p', 'The coil (4) is fed by a small control circuit. Start (3), Stop (8) and the overload\'s release contact (10) are all in series with it. The *latching contact* (7) is wired across Start. The coil is fed from one phase and the neutral, so it sees 230 V.'),
+    blk('p', 'Press Start and the coil pulls the contactor in. The three main contacts (5) close, and the motor starts on the full supply. The latching contact closes at the same moment. So when Start springs back, the coil is still fed through 7.'),
+    blk('p', 'Open any part of that circuit and the coil lets go. Everything drops out, and it stays out until someone presses Start again.'),
+  ];
+  const PLAY = [blk('p', 'Press Start and let it go. Then try Stop, the overload and a supply cut.')];
+  const UNDER = 'Start makes the coil circuit. The coil pulls in 5 and 7 together. 7 keeps the coil fed once Start springs back. Stop, the overload\'s contact 10 or a supply cut opens the circuit. Only Start makes it again.';
+  const NOTES = [
+    'Assume the example motor is the showroom motor: 11 kW and ' + IFL + ' A at full load, on a 400 V supply. The overload is set to its full-load current, ' + IFL + ' A.',
+    'The surge of ' + SURGE + ' times and the ' + RUNUP_S + ' s run-up are example values, chosen so you can watch the surge. A real start usually draws 6 to 8 times full-load current, sometimes more than 10 times. It lasts as long as the load takes to run up.',
+    'The overload runs on a sped-up clock. Its bar fills in ' + FILL120_S + ' s at 120% and in about ' + whole(fillTime(150)) + ' s at 150%. At 100% it never fills. It cools in ' + COOL_S + ' s. A real overload takes far longer, on its own trip curve. The ' + CUT_S + ' s supply cut is an example length.',
+  ];
+  const BEHAVE = [
+    blk('row', 'Starting current: It puts the full supply on the motor at once. So the motor draws its full starting current, usually 6 to 8 times rated, and sometimes more than 10 times. The supply voltage dips while it lasts.'),
+    blk('row', 'Starting torque: It gives full starting torque too, whatever the load needs. For a small motor that is often 1.5 to 2.5 times rated torque. That is well above rated torque, not equal to it. Read the motor\'s data sheet for its own figure.'),
+    blk('row', 'The contactor: It makes the full starting current when it closes. When it opens on a motor that has run up, it breaks only the running current.'),
+    blk('row', 'Quick restarts: In theory, restarting before the motor stops can give a current peak twice that of a normal start. Let it stop first.'),
+  ];
+  const USE = [
+    blk('row', 'Used for: Pumps, fans, compressors and other small machinery. It is the simplest start: one contactor, an overload and two buttons.'),
+    blk('row', 'Size: The supply, not the starter, sets how big a motor can start this way. The question is whether the supply can stand the dip. Rules of thumb differ. Some say under 4 kW, others up to 5 kW. Some supply companies restrict DOL from 5.5 kW. Ask whoever runs the supply.'),
+    blk('row', 'At sea: The generators are the supply. A DOL start draws the most current of any starting method. Starting large motors one after another can cause severe voltage dips. Thrusters while manoeuvring are one example.'),
+    blk('row', 'Frequent starts: Starting and stopping often can trip the overload.'),
+    blk('row', 'More than one place to control it: Extra Stop buttons go in series, so any one stops it. Extra Start buttons go in parallel with Start, so any one starts it.'),
+    blk('row', 'Limit: It does nothing to reduce the starting current. Where that is too much, use a reduced-current start such as star-delta.'),
+  ];
+  const SD = [
+    blk('p', 'Star-delta starts the motor in star, then a timer switches it to delta. In star each winding gets 400 ÷ √3 = ' + SDN.vs + ' V instead of 400 V. The winding is the same, so its current falls by √3 too.'),
+    blk('p', 'In delta each line carries √3 times one winding\'s current. In star each line carries just one winding\'s current. So the star line current is 1 ÷ √3 × 1 ÷ √3, a third of a DOL start. The torque falls further, to about a quarter.'),
+    blk('p', 'Take the showroom motor, ' + IFL + ' A at full load. Started DOL, it draws 6 × ' + IFL + ' = ' + SDN.d6 + ' A to 8 × ' + IFL + ' = ' + SDN.d8 + ' A. Started star-delta, it draws ' + SDN.d6 + ' ÷ 3 = ' + SDN.s6 + ' A to ' + SDN.d8 + ' ÷ 3 = ' + SDN.s8 + ' A.'),
+    blk('p', 'It needs three contactors, an overload and a timer. The motor must be built to run in delta. The torque is low, so the load must be light while it starts. Expect a second current peak at the switch to delta.'),
+  ];
+  const FAULTS = [
+    blk('safe', 'Safety first: Isolate and lock off. Then prove all three lines and the neutral dead at the starter, with a tester you prove before and after. A dropped-out contactor can still have its supply side live.'),
+    blk('row', 'Will not start: Check the overload (10) first. Once tripped, it resets only when it has cooled. Then check Stop (8), the coil (4) and the coil\'s supply.'),
+    blk('row', 'Runs only while Start is held: The latching contact (7), or its wiring, is not making.'),
+    blk('row', 'Overload trips: Check the setting first. It should be the motor\'s full-load current, not a trip current. The overload holds at 1.05 times its setting and trips at 1.2 times. Then look for a real overload, frequent starting, or a lost line. The overload also guards against a lost line.'),
+    blk('row', 'Chatters or buzzes: The usual causes are low or unsteady coil voltage, a loose control connection, the wrong coil or dirty magnet faces. Measure the coil voltage while it pulls in. It should be within 0.85 to 1.1 times the coil\'s rating.'),
+    blk('row', 'Wrong coil: A 230 V coil wired across two lines gets 400 ÷ 230 = ' + COIL.hi + ' times its rating. It can burn out. A 400 V coil fed from phase to neutral gets 230 ÷ 400 = ' + COIL.lo + ' times. It may not pull in. It can also overheat. Check the voltage marked on the coil against how it is wired.'),
+    blk('row', 'Short circuit: The overload is not made to clear it. Fuses or a breaker ahead of the starter do that.'),
+    blk('row', 'Lost line: Worn main contacts are a common cause of single phasing. Inspect them when a motor keeps losing a line.'),
+  ];
+  const words = (list) => list.map((b) => b.s).join('\n\n');
+  const C1 = 'It stays stopped until someone presses Start', C2 = 'It starts again by itself when the supply returns', C3 = 'It keeps running, because the latching contact holds the contactor in';
+  const F1 = 'The latching contact (7) is not making', F2 = 'The overload (9 and 10) has tripped', F3 = 'The Stop button (8) is stuck open';
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const STEPS = [
+    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW),
+      read: words(HOW).replace('Press Start and the coil pulls the contactor in.', 'When Start is pressed, the coil pulls the contactor in.') },
+    { show: true, name: 'The starter, live', label: 'The starter, live', blocks: PLAY, text: words(PLAY),
+      read: 'When Start is pressed, the coil pulls in the main contacts and the latching contact together. The meter jumps to about 162 A, then falls to 23.1 A as the motor runs up. Let go, and the coil stays fed through 7. Stop, the overload\'s contact 10, or a supply cut each open the coil circuit. The motor then stays stopped until Start is pressed again.',
+      still: () => stillRun() },
+    { name: 'Check', label: 'Check on the cause',
+      task: 'The motor is running. The supply fails for a second, then comes back. Nobody touches the buttons. What does the motor do?',
+      opts: [C1, C2, C3], want: C1,
+      why: 'With no supply the coil let go, and 7 opened with the main contacts. When the supply returns, Start and 7 are both open, so the coil has no path. That is *no-volt protection*.',
+      slips: ['', 'That would need a path to the coil. Start is sprung open, and 7 opened when the coil let go. So there is no path until someone presses Start.',
+        'The coil does the holding, and it needs a supply. The latching contact only keeps the coil fed. With the supply gone, it opens too.'] },
+    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },
+    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },
+    { show: true, name: 'Star-delta', label: 'Star-delta', blocks: SD, text: words(SD) },
+    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },
+    { name: 'Find the fault', label: 'Find the fault',
+      task: 'You press Start and the motor runs. You let go of Start and it stops. What is the likely cause?',
+      opts: [F1, F2, F3], want: F1,
+      why: 'Start feeds the coil while you hold it. Once it springs back, only 7 can keep the coil fed, so 7 or its wiring is open.',
+      slips: ['', 'The overload\'s contact is in series with the coil. If it had tripped, the motor would not start at all, even with Start held.',
+        'Stop is in series with the coil too. If Stop were stuck open, the coil could never be fed. The motor would not start.'] },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iHow = 0, iPic = 1, iChk = 2, iSD = 5, iFault = 6, iFind = 7, iK = 8;
+  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));
+  let lastStep = -1, finished = false;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function addText(node, s) {
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function write(node, s) { node.textContent = ''; return addText(node, s); }
+  function blocks(node, list) {
+    node.textContent = '';
+    list.forEach((b, k) => {
+      if (k) node.appendChild(document.createTextNode(' '));
+      let e;
+      if (b.t === 'row' || b.t === 'safe') {
+        const cut = b.s.indexOf(': ');
+        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');
+        addText(e, b.s.slice(cut + 2));
+      } else e = addText(K.el('p'), b.s);
+      node.appendChild(e);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const SIM = fresh();
+  let lastPtr = -1e9, isoLabel = '';
+  const isoBtn = K.button({ label: 'Open isolator (2)', secondary: true, into: '#row1', press: () => { SIM.iso = !SIM.iso; SIM.note = ''; } });
+  const startBtn = K.button({ label: 'Start (3)', into: '#row1', press: () => { if (nowMs() - lastPtr < 700) return; SIM.startPulse = PULSE_S; SIM.note = ''; } });
+  const stopBtn = K.button({ label: 'Stop (8)', into: '#row1', press: () => { if (nowMs() - lastPtr < 700) return; SIM.stopPulse = PULSE_S; SIM.note = ''; } });
+  K.button({ label: 'Cut supply ' + CUT_S + ' s', secondary: true, into: '#row2', press: () => { SIM.cutT = CUT_S; SIM.note = ''; } });
+  K.button({ label: 'Reset overload', secondary: true, into: '#row2', press: () => {
+    if (SIM.tripped && SIM.heat <= 0) { SIM.tripped = false; SIM.why = 'reset'; SIM.note = ''; }
+    else SIM.note = SIM.tripped ? 'warm' : 'idle';
+  } });
+  // Start and Stop stay in while held and spring back when let go (a tap is a short press).
+  function holdable(btn, key) {
+    const b = btn.el;
+    let pid = null;
+    b.classList.add('hold');
+    b.addEventListener('pointerdown', (e) => {
+      if (e.button != null && e.button > 0) return;
+      pid = e.pointerId;
+      try { b.setPointerCapture(pid); } catch (er) { /* not every browser */ }
+      lastPtr = nowMs(); SIM[key] = true; SIM.note = '';
+      K.reveal();
+    });
+    const up = () => { if (pid === null) return; pid = null; lastPtr = nowMs(); SIM[key] = false; K.refresh(); };
+    b.addEventListener('pointerup', up);
+    b.addEventListener('pointercancel', up);
+    b.addEventListener('lostpointercapture', up);
+    b.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+  holdable(startBtn, 'startHeld');
+  holdable(stopBtn, 'stopHeld');
+  const loadCtl = K.control({ id: 'load', label: 'Motor current, % of the overload setting', min: 100, max: 150, step: 10, value: 100, snap: [100, 120, 150],
+    fmt: (v) => Math.round(v) + '%', hint: 'Stands for the load growing. It matters only while the motor runs.', into: '#sl' });
+  const wornCtl = K.toggle({ id: 'worn', label: 'Latching contact (7) worn', value: false, into: '#sl' });
+  const RD = {
+    coil: K.readout({ id: 'coilState', label: 'Coil', into: '#outs' }),
+    motor: K.readout({ id: 'motorState', label: 'Motor', into: '#outs' }),
+    amps: K.readout({ id: 'lineAmps', label: 'Line current', unit: 'A', decimals: 1, into: '#outs' }),
+  };
+  K.model((p) => { const pct = +p.load || 100; return { runAmps: pct / 100 * IFL, heatRate: heatRate(pct) }; });
+
+  // ---------- the DOL drawing ----------
+  const dol = el('dol'), D = {};
+  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }
+  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }
+  function tag(g, x, y, n) { ad(g, 'circle', { cx: x, cy: y, r: 9.5, class: 'tagc' }); txt(g, x, y + 4.5, String(n), 'tn', 'middle'); }
+  function term(g, x, y) { ad(g, 'circle', { cx: x, cy: y, r: 2.4, class: 'term' }); }
+  function dot(g, x, y) { ad(g, 'circle', { cx: x, cy: y, r: 3, class: 'dot' }); }
+  // A winding: a lead, n half-turns, a lead (sweep picks the side the turns bulge to).
+  function bumps(x0, y0, x1, y1, n, lead, sweep) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, st = (L - 2 * lead) / n, r = (st / 2).toFixed(2);
+    const a0 = x0 + ux * lead, b0 = y0 + uy * lead;
+    let d = 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + 'L' + a0.toFixed(1) + ' ' + b0.toFixed(1);
+    for (let k = 1; k <= n; k++) d += 'A' + r + ' ' + r + ' 0 0 ' + sweep + ' ' + (a0 + ux * st * k).toFixed(1) + ' ' + (b0 + uy * st * k).toFixed(1);
+    return d + 'L' + x1.toFixed(1) + ' ' + y1.toFixed(1);
+  }
+  // A contact blade, hinged at its lower end: upright when made, tipped when open.
+  function bladeAt(g, x, y, len, cls) { const n = ad(g, 'line', { x1: x, y1: y, x2: x, y2: y - len, class: cls }); n._g = [x, y, len]; return n; }
+  function setBlade(n, made) { const q = n._g; n.setAttribute('x2', made ? q[0] : q[0] + 10); n.setAttribute('y2', made ? q[1] - q[2] : q[1] - q[2] + 3); }
+  const lit = (n, on) => n.classList.toggle('on', !!on);
+  const X = [34, 60, 86], XN = 112, XC = 226, X7 = 176;
+  const MT = [60, 276], MA = [34, 332], MB = [86, 332], MO = [60, 313], DC = [152, 296];
+
+  function buildDol() {
+    const g = dol;
+    // Wires first, then the parts on them, then numbers and words.
+    D.sup = X.map((x) => ad(g, 'path', { d: 'M' + x + ' 22V56', class: 'w' }));
+    ad(g, 'path', { d: 'M' + XN + ' 22V56', class: 'nt' });
+    D.mid = X.map((x) => ad(g, 'path', { d: 'M' + x + ' 74V178', class: 'w' }));
+    ad(g, 'path', { d: 'M' + XN + ' 74V262H' + XC + 'V224', class: 'nt' });
+    D.tap = ad(g, 'path', { d: 'M' + X[2] + ' 86H106A6 6 0 0 1 118 86H' + XC + 'V100', class: 'w' });
+    D.so = ad(g, 'path', { d: 'M' + XC + ' 118V140M' + X7 + ' 138V128H' + XC, class: 'w' });
+    D.bb = ad(g, 'path', { d: 'M' + X7 + ' 158V168H' + XC + 'M' + XC + ' 158V178', class: 'w' });
+    ad(g, 'path', { d: 'M' + XC + ' 196V206', class: 'nt' });
+    D.bot = X.map((x, k) => ad(g, 'path', { d: 'M' + x + ' 200V' + (k === 1 ? MT[1] : MA[1]), class: 'w' }));
+    D.wind = [bumps(MT[0], MT[1], MB[0], MB[1], 4, 9, 0), bumps(MB[0], MB[1], MA[0], MA[1], 4, 9, 0), bumps(MA[0], MA[1], MT[0], MT[1], 4, 9, 0)]
+      .map((d) => ad(g, 'path', { d: d, class: 'w' }));
+    // Fuses or breaker (no number), the isolator (2) with its four poles moving as one.
+    D.fuse = X.map((x) => ad(g, 'rect', { x: x - 4, y: 29, width: 8, height: 16, rx: 1, class: 'w' }));
+    D.iso = X.concat([XN]).map((x, k) => bladeAt(g, x, 74, 18, k < 3 ? 'w' : 'nt'));
+    ad(g, 'path', { d: 'M28 65H118', class: 'gang' });
+    // The contactor: coil (4), main contacts (5) and latching contact (7) on one dashed link.
+    ad(g, 'path', { d: 'M28 189H213M181 189V150', class: 'gang' });
+    D.main = X.map((x) => bladeAt(g, x, 200, 22, 'w'));
+    D.b7 = bladeAt(g, X7, 158, 20, 'w');
+    D.halo = ad(g, 'rect', { x: 205, y: 171, width: 42, height: 32, rx: 8, class: 'halo' });
+    D.coil = ad(g, 'rect', { x: 213, y: 178, width: 26, height: 18, rx: 3, class: 'coil' });
+    // Stop (8), normally closed, and Start (3), normally open: a bridge pushed by a button.
+    D.gStop = ad(g, 'g', {});
+    D.stopBr = ad(D.gStop, 'line', { x1: XC, y1: 96, x2: XC, y2: 122, class: 'w' });
+    ad(D.gStop, 'line', { x1: XC, y1: 109, x2: XC + 14, y2: 109, class: 'plg' });
+    ad(D.gStop, 'rect', { x: XC + 14, y: 102, width: 12, height: 14, rx: 2, class: 'capStop' });
+    D.gStart = ad(g, 'g', { transform: 'translate(8 0)' });
+    D.startBr = ad(D.gStart, 'line', { x1: XC, y1: 136, x2: XC, y2: 162, class: 'w' });
+    ad(D.gStart, 'line', { x1: XC, y1: 149, x2: XC + 14, y2: 149, class: 'plg' });
+    ad(D.gStart, 'rect', { x: XC + 14, y: 142, width: 12, height: 14, rx: 2, class: 'capStart' });
+    // The overload: a heater (9) in each line, its heat bar, and its contact (10) by the coil.
+    D.heaters = X.map((x) => ({
+      r: ad(g, 'rect', { x: x - 5, y: 208, width: 10, height: 18, rx: 1, class: 'w hb' }),
+      p: ad(g, 'path', { d: 'M' + x + ' 208V211H' + (x + 3) + 'V223H' + x + 'V226', class: 'w' }),
+    }));
+    ad(g, 'rect', { x: 24, y: 236, width: 72, height: 10, rx: 3, class: 'bar' });
+    D.heatFill = ad(g, 'rect', { x: 25, y: 237, width: 0, height: 8, rx: 2, class: 'heat' });
+    D.b10 = bladeAt(g, XC, 224, 18, 'nt');
+    // The motor's rotor, and the meter on one line.
+    ad(g, 'circle', { cx: MO[0], cy: MO[1], r: 7, class: 'rotor' });
+    D.spoke = ad(g, 'line', { x1: MO[0], y1: MO[1], x2: MO[0], y2: MO[1] - 7, class: 'spoke' });
+    ad(g, 'circle', { cx: X[2], cy: DC[1], r: 6, class: 'lead' });
+    ad(g, 'path', { d: 'M92 ' + DC[1] + 'H130', class: 'lead' });
+    ad(g, 'circle', { cx: DC[0], cy: DC[1], r: 22, class: 'dial' });
+    ad(g, 'path', { d: 'M136.0 290.2A17 17 0 0 1 168.0 290.2', class: 'scale' });
+    D.needle = ad(g, 'line', { x1: DC[0], y1: DC[1], x2: DC[0] - 15, y2: DC[1] - 5, class: 'needle' });
+    dot(g, DC[0], DC[1]);
+    // Terminals and junctions.
+    X.concat([XN]).forEach((x) => { term(g, x, 56); term(g, x, 74); });
+    X.forEach((x) => { term(g, x, 178); term(g, x, 200); });
+    [[XC, 100], [XC, 118], [XC, 140], [XC, 158], [X7, 138], [X7, 158], [XC, 206], [XC, 224]].forEach((q) => term(g, q[0], q[1]));
+    [[X[2], 86], [XC, 128], [XC, 168]].forEach((q) => dot(g, q[0], q[1]));
+    // Words and numbers.
+    ['L1', 'L2', 'L3'].forEach((t, k) => txt(g, X[k], 16, t, 'hd', 'middle'));
+    txt(g, XN, 16, 'N', 'hd', 'middle');
+    tag(g, 138, 12, 1);
+    txt(g, 128, 34, 'Fuses or breaker:');
+    txt(g, 128, 50, 'short-circuit protection');
+    tag(g, 140, 66, 2);
+    tag(g, 282, 109, 8); txt(g, 296, 113, 'Stop');
+    tag(g, 282, 149, 3); txt(g, 296, 153, 'Start');
+    tag(g, 156, 148, 7);
+    D.worn = txt(g, 156, 176, 'worn', 'wl', 'middle');
+    tag(g, 258, 187, 4);
+    tag(g, 258, 215, 10);
+    D.trip = txt(g, 246, 243, 'tripped', 'wl');
+    tag(g, 14, 189, 5);
+    tag(g, 14, 217, 9);
+    tag(g, 14, 306, 6);
+    txt(g, DC[0], 313, 'A', 'hd', 'middle');
+    txt(g, DC[0], 338, 'Line current', 'lb', 'middle');
+    // The key.
+    ad(g, 'line', { x1: 6, y1: 350, x2: 334, y2: 350, class: 'sep' });
+    [[1, 'Supply'], [6, 'Motor'], [2, 'Isolator'], [7, 'Latching contact'], [3, 'Start, N/O'], [8, 'Stop, N/C'], [4, 'Coil'], [9, 'Overload heaters'], [5, 'Main contacts'], [10, 'Overload contact']]
+      .forEach((k, j) => { const x = j % 2 ? 176 : 6, y = 374 + 20 * Math.floor(j / 2); tag(g, x + 9.5, y - 4.5, k[0]); txt(g, x + 26, y, k[1]); });
+    ad(g, 'path', { d: 'M6 469.5H26', class: 'w on' }); txt(g, 32, 474, 'Fed');
+    ad(g, 'path', { d: 'M70 469.5H90', class: 'w' }); txt(g, 96, 474, 'Not fed');
+    ad(g, 'path', { d: 'M176 469.5H196', class: 'gang' }); txt(g, 202, 474, 'Moves as one');
+    ad(g, 'rect', { x: 6, y: 481, width: 20, height: 9, rx: 2, class: 'bar' });
+    ad(g, 'rect', { x: 7, y: 482, width: 12, height: 7, rx: 1, class: 'heat' });
+    txt(g, 32, 490, 'Overload heat: 10 opens when it is full');
+  }
+
+  // Draw a state. The supply side, the control circuit and the motor light where they are fed.
+  function paintDol(s, worn, pct, live) {
+    const f = feeds(s, worn), on = f.on, stopLit = on && f.stopC, latchMade = s.cIn && !worn, motorFed = on && s.cIn;
+    D.sup.forEach((n) => lit(n, f.sup)); D.fuse.forEach((n) => lit(n, f.sup));
+    D.iso.forEach((n, k) => { setBlade(n, s.iso); if (k < 3) lit(n, f.sup && s.iso); });
+    D.mid.forEach((n) => lit(n, on)); lit(D.tap, on);
+    lit(D.stopBr, on); D.gStop.setAttribute('transform', f.stopC ? 'translate(0 0)' : 'translate(-8 0)');
+    lit(D.so, stopLit);
+    lit(D.startBr, stopLit && f.startC); D.gStart.setAttribute('transform', f.startC ? 'translate(0 0)' : 'translate(8 0)');
+    setBlade(D.b7, latchMade); lit(D.b7, stopLit && latchMade);
+    lit(D.bb, stopLit && (f.startC || latchMade));
+    lit(D.coil, s.cIn); lit(D.halo, s.cIn);
+    D.main.forEach((n) => { setBlade(n, s.cIn); lit(n, motorFed); });
+    D.bot.forEach((n) => lit(n, motorFed)); D.wind.forEach((n) => lit(n, motorFed));
+    D.heaters.forEach((h) => { lit(h.r, motorFed); lit(h.p, motorFed); });
+    setBlade(D.b10, !s.tripped);
+    D.heatFill.setAttribute('width', (70 * K.clamp(s.heat, 0, 1)).toFixed(1));
+    D.worn.style.display = worn ? '' : 'none';
+    D.trip.style.display = s.tripped ? '' : 'none';
+    const I = live ? amps(s, pct) : s.cIn ? IFL * pct / 100 : 0;
+    const a = (-160 + 140 * K.clamp(I / IMAX, 0, 1)) * Math.PI / 180;
+    D.needle.setAttribute('x2', (DC[0] + 15 * Math.cos(a)).toFixed(1)); D.needle.setAttribute('y2', (DC[1] + 15 * Math.sin(a)).toFixed(1));
+    D.spoke.setAttribute('transform', 'rotate(' + (REDUCE ? 0 : s.ang).toFixed(1) + ' ' + MO[0] + ' ' + MO[1] + ')');
+    dol.setAttribute('aria-label', 'The DOL starter drawn with its parts numbered 1 to 10. ' +
+      (!f.sup ? 'The supply is cut, so nothing is fed. ' : !s.iso ? 'The isolator is open, so nothing past it is fed. ' : '') +
+      (s.cIn ? 'The coil is fed and has pulled in the main contacts' + (worn ? ', but the worn latching contact has not made. ' : ' and the latching contact. ') + 'The motor is fed.'
+        : 'The coil is not fed, so the main contacts and the latching contact are open. The motor is not fed.') +
+      (s.tripped ? ' The overload has tripped, so its contact 10 is open.' : ''));
+  }
+  const REST = fresh();
+  const RUN = Object.assign(fresh(), { cIn: true, runT: RUNUP_S + 1 });
+
+  // ---------- the star-delta drawing ----------
+  function buildSd() {
+    const g = el('sd');
+    txt(g, 85, 18, 'Star, to start', 'hd', 'middle');
+    txt(g, 255, 18, 'Delta, to run', 'hd', 'middle');
+    ad(g, 'line', { x1: 170, y1: 30, x2: 170, y2: 168, class: 'sep' });
+    const O = [85, 112], ends = [-90, 150, 30].map((d) => [O[0] + 62 * Math.cos(d * Math.PI / 180), O[1] + 62 * Math.sin(d * Math.PI / 180)]);
+    ends.forEach((e) => ad(g, 'path', { d: bumps(O[0], O[1], e[0], e[1], 4, 12, 1), class: 'wd' }));
+    dot(g, O[0], O[1]); ends.forEach((e) => term(g, e[0], e[1]));
+    txt(g, 85, 40, 'L1', 'hd', 'middle'); txt(g, 26, 162, 'L2', 'hd', 'middle'); txt(g, 144, 162, 'L3', 'hd', 'middle');
+    const v = SDN.vs + ' V';
+    txt(g, 93, 84, v); txt(g, 50, 116, v, 'lb', 'end'); txt(g, 120, 116, v);
+    const T = [255, 50], L = [205, 137], R = [305, 137];
+    [[T, R], [R, L], [L, T]].forEach((s) => ad(g, 'path', { d: bumps(s[0][0], s[0][1], s[1][0], s[1][1], 5, 14, 1), class: 'wd' }));
+    [T, L, R].forEach((q) => term(g, q[0], q[1]));
+    txt(g, 255, 40, 'L1', 'hd', 'middle'); txt(g, 198, 154, 'L2', 'hd', 'end'); txt(g, 312, 154, 'L3', 'hd');
+    txt(g, 216, 86, '400 V', 'lb', 'end'); txt(g, 294, 86, '400 V'); txt(g, 255, 162, '400 V', 'lb', 'middle');
+    txt(g, 170, 189, '400 V between any two lines', 'lb', 'middle');
+    g.setAttribute('aria-label', 'The same three windings on a 400 V supply. In star, on the left, each winding gets ' + v + '. In delta, on the right, each winding gets 400 V.');
+  }
+  buildDol(); buildSd();
+
+  // ---------- the live picture ----------
+  function sayFor(s, f, worn, pct) {
+    const A = one(amps(s, pct)) + ' A', open = 'Start and 7 are both open, so the coil has no path.';
+    if (!f.sup) return 'The supply is cut. Nothing is fed, so the coil has let go and 5 and 7 have opened.';
+    if (!s.iso) return 'The isolator (2) is open. Nothing past it is fed, so the coil cannot pull in.';
+    if (s.cIn) {
+      let t = worn ? 'Start (3) is held in, so the coil is fed through it. 7 is worn and has not made.'
+        : f.startC ? 'The coil is fed through Start (3), and it has pulled in 5 and 7 together.'
+          : 'Start has sprung back, and the coil is still fed through 7.';
+      t += s.runT < RUNUP_S ? ' The motor is running up. It draws ' + A + ', falling as it speeds up.' : ' The motor runs and draws ' + A + '.';
+      if (worn) t += ' Let go of Start and it stops.';
+      else if (s.runT >= RUNUP_S) t += heatRate(pct) > 0 ? ' At ' + pct + '% of the setting the bar is filling. When it is full, 10 opens.' : ' At ' + pct + '% of its setting the bar stays empty.';
+      return t;
+    }
+    if (!f.stopC) return 'Stop (8) is held open, so the coil cannot be fed. ' + (s.why === 'stop' ? '5 and 7 opened together, and the motor stopped.' : 'The motor stays stopped.');
+    if (s.tripped) return s.heat > 0
+      ? 'The bar filled, so the overload opened 10. The coil let go and the motor stopped. The bar is cooling' + (s.note === 'warm' ? ', and Reset does nothing until it is empty.' : '. Reset works once it is empty.')
+      : 'The bar has cooled. Reset overload closes 10 again. Then Start can run the motor.';
+    let t;
+    if (s.why === 'cut') t = 'The supply is back, but the coil stays dark. ' + open + ' That is no-volt protection.';
+    else if (s.why === 'iso') t = 'The isolator is closed again, but the coil stays dark. ' + open;
+    else if (s.why === 'stop') t = 'Stop is back, but nothing happens. ' + open;
+    else if (s.why === 'worn') t = 'Start sprang back, and the worn 7 did not make. Nothing kept the coil fed, so the motor stopped.';
+    else if (s.why === 'reset') t = 'The overload is reset, so 10 is closed again. The motor stays stopped until Start is pressed.';
+    else t = 'Everything up to Start (3) is fed. ' + open + ' The motor is stopped.';
+    if (s.note === 'idle') t += ' The overload has not tripped, so there is nothing to reset.';
+    if (worn && s.why !== 'worn') t += ' 7 is worn, so the motor would run only while Start is held.';
+    return t;
+  }
+  function paintLive(p) {
+    const worn = !!p.worn, pct = +p.load || 100, f = settle(SIM, worn);
+    if (SIM.note === 'warm' && SIM.heat <= 0) SIM.note = '';
+    paintDol(SIM, worn, pct, true);
+    RD.coil.set(SIM.cIn ? 'fed' : 'not fed');
+    RD.motor.set(SIM.cIn ? 'running' : 'stopped');
+    RD.amps.set(amps(SIM, pct));
+    el('say').textContent = sayFor(SIM, f, worn, pct);
+    const lab = SIM.iso ? 'Open isolator (2)' : 'Close isolator (2)';
+    if (lab !== isoLabel) { isoBtn.setLabel(lab); isoLabel = lab; }
+    startBtn.el.classList.toggle('is-down', f.startC);
+    stopBtn.el.classList.toggle('is-down', !f.stopC);
+  }
+  // One clock runs the picture: the run-up, the overload's heat, the supply cut and a tapped button.
+  const clock = K.anim({ button: false, label: 'The starter running', step: (dt) => {
+    if (at() !== iPic) return false;
+    const p = K.params();
+    advance(SIM, Math.min(dt, 0.1), !!p.worn, +p.load || 100);
+    paintLive(p);
+    return busy(SIM);
+  } });
+  // The read-through's picture: running after Start is let go, fed through 7, at 100%.
+  function stillRun() {
+    loadCtl.set(100); wornCtl.set(false);
+    Object.assign(SIM, fresh(), { cIn: true, runT: RUNUP_S + 1, spin: 1, why: 'start' });
+    K.refresh();
+  }
+
+  // ---------- picks: one go, then the answer and its reason ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length || st.res) return;
+    st.pick = d.opts[k];
+    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }
+    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }
+    K.refresh();
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));
+    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));
+    if (f.p) fb.appendChild(addText(K.el('p'), f.p));
+  }
+
+  // ---------- Keep this ----------
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  el('under').textContent = UNDER;
+  NOTES.forEach((t) => el('notes').appendChild(K.el('p', { class: 'sub' }, t)));
+  const ON = { sdw: [iSD], dolw: [iHow, iPic, iChk, iFault, iFind], ctl: [iPic], outs: [iPic], say: [iPic], under: [iPic], notes: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = i !== iPic;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');
+    if (d.show) blocks(task, d.blocks);
+    else if (d.kind) task.textContent = '';
+    else write(task, d.task);
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // The drawing: before the words on How it works, after them elsewhere.
+    const box = el('stepbox'), dolw = el('dolw');
+    if (i === iHow) { if (dolw.nextElementSibling !== task) box.insertBefore(dolw, task); }
+    else if (dolw.nextElementSibling !== el('ctl')) box.insertBefore(dolw, el('ctl'));
+    if (i === iPic) {
+      paintLive(p);
+      if (busy(SIM) && !clock.playing()) clock.play();
+    } else if (ON.dolw.indexOf(i) >= 0) paintDol(i === iChk ? RUN : REST, false, 100, false);
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paintFb(st.fb);
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i);
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const running = () => { const s = fresh(); s.startHeld = true; settle(s, false); s.startHeld = false; settle(s, false); s.runT = 10; return s; };
+  K.check('Start pressed and let go: the coil pulls in 5 and 7 together, then stays fed through 7 alone', () => {
+    const s = fresh(); s.startHeld = true;
+    const a = settle(s, false), pulled = s.cIn && a.startC && a.latch;
+    s.startHeld = false;
+    const b = settle(s, false);
+    return !fresh().cIn && pulled && s.cIn && !b.startC && b.latch;
+  });
+  K.check('Stop, the overload, a supply cut and the isolator each drop the coil, and it stays out once they are undone, until Start is pressed', () => {
+    const ways = [
+      [(s) => { s.stopHeld = true; }, (s) => { s.stopHeld = false; }, 'stop'],
+      [(s) => { s.tripped = true; }, (s) => { s.tripped = false; }, 'trip'],
+      [(s) => { s.cutT = CUT_S; }, (s) => { s.cutT = 0; }, 'cut'],
+      [(s) => { s.iso = false; }, (s) => { s.iso = true; }, 'iso'],
+    ];
+    return ways.every((w) => {
+      const s = running(); w[0](s); settle(s, false);
+      const out = !s.cIn && s.why === w[2];
+      w[1](s); settle(s, false);
+      const stays = !s.cIn;
+      s.startHeld = true; settle(s, false);
+      return out && stays && s.cIn;
+    });
+  });
+  K.check('With 7 worn, the motor runs only while Start is held', () => {
+    const s = fresh(); s.startHeld = true; settle(s, true);
+    const held = s.cIn; s.startHeld = false; settle(s, true);
+    return held && !s.cIn && s.why === 'worn';
+  });
+  K.check('The meter reads 7 × 23.08 = 161.6 A at the start and 23.1 A once run up, 27.7 A at 120% and 34.6 A at 150%', () => {
+    const s = running(); s.runT = 0;
+    const a0 = one(amps(s, 100)); s.runT = RUNUP_S;
+    return a0 === '161.6' && one(amps(s, 100)) === '23.1' && one(amps(s, 120)) === '27.7' && one(amps(s, 150)) === '34.6' && amps(fresh(), 100) === 0;
+  });
+  K.check('The bar fills in 20 s at 120% and in about 6 s at 150%, never at 100%, and empties in 10 s', () => {
+    const fill = (pct) => { const s = running(); let t = 0; while (!s.tripped && t < 60) { advance(s, 0.01, false, pct); t += 0.01; } return { s: s, t: t }; };
+    const a = fill(150), b = fill(120);
+    let c = 0; while (b.s.heat > 0 && c < 60) { advance(b.s, 0.01, false, 120); c += 0.01; }
+    const s3 = running(); for (let k = 0; k < 3000; k++) advance(s3, 0.01, false, 100);
+    return K.near(fillTime(120), 20, 1e-9) && whole(fillTime(150)) === '6' && Math.abs(a.t - fillTime(150)) < 0.05 && Math.abs(b.t - 20) < 0.05 &&
+      !b.s.cIn && Math.abs(c - COOL_S) < 0.05 && !s3.tripped && s3.heat === 0 && s3.cIn;
+  });
+  K.check('Star-delta on 400 V: 400 ÷ √3 = 231 V a winding and a third of the DOL line current, so 138 to 185 A DOL becomes 46 to 62 A', () =>
+    SDN.vs === '231' && SDN.d6 === '138' && SDN.d8 === '185' && SDN.s6 === '46' && SDN.s8 === '62' && K.near(Math.pow(1 / Math.sqrt(3), 2), 1 / 3, 1e-12));
+  K.check('A 230 V coil across two lines gets 1.74 times its rating, and a 400 V coil from phase to neutral 0.575 times', () => COIL.hi === '1.74' && COIL.lo === '0.575');
+  K.check('Started direct on line, a motor usually draws 6 to 8 times rated current: the example surge of 7 times sits inside that range', () => SURGE >= 6 && SURGE <= 8,
+    { source: 'https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf' });
+  K.check('An overload set to the motor\'s current does not trip at 1.05 × its setting and trips at 1.2 ×: the bar never fills at 1.05 × and fills at 1.2 ×', () => heatRate(105) <= 1e-12 && heatRate(120) > 0,
+    { source: 'https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj' });
+
+  K.ready();
+</script>

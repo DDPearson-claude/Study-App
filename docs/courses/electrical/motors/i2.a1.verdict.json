@@ -1,0 +1,155 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Too wide: at 340 px: content is 351px wide in a 340px frame: <div#row1.brow> reaches 347px, <div#row2.brow> reaches 347px, <div#sl> reaches 347px (at step = step 2)."
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": true,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Start pressed and let go: the coil pulls in 5 and 7 together, then stays fed through 7 alone",
+        "ok": true
+      },
+      {
+        "label": "Stop, the overload, a supply cut and the isolator each drop the coil, and it stays out once they are undone, until Start is pressed",
+        "ok": true
+      },
+      {
+        "label": "With 7 worn, the motor runs only while Start is held",
+        "ok": true
+      },
+      {
+        "label": "The meter reads 7 × 23.08 = 161.6 A at the start and 23.1 A once run up, 27.7 A at 120% and 34.6 A at 150%",
+        "ok": true
+      },
+      {
+        "label": "The bar fills in 20 s at 120% and in about 6 s at 150%, never at 100%, and empties in 10 s",
+        "ok": true
+      },
+      {
+        "label": "Star-delta on 400 V: 400 ÷ √3 = 231 V a winding and a third of the DOL line current, so 138 to 185 A DOL becomes 46 to 62 A",
+        "ok": true
+      },
+      {
+        "label": "A 230 V coil across two lines gets 1.74 times its rating, and a 400 V coil from phase to neutral 0.575 times",
+        "ok": true
+      },
+      {
+        "label": "Started direct on line, a motor usually draws 6 to 8 times rated current: the example surge of 7 times sits inside that range",
+        "ok": true,
+        "source": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf"
+      },
+      {
+        "label": "An overload set to the motor's current does not trip at 1.05 × its setting and trips at 1.2 ×: the bar never fills at 1.05 × and fills at 1.2 ×",
+        "ok": true,
+        "source": "https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "worn"
+    ],
+    "readouts": [
+      "coilState",
+      "motorState",
+      "lineAmps"
+    ],
+    "outputs": [
+      "runAmps",
+      "heatRate"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "steps": [
+          "How it works",
+          "The starter, live",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Star-delta",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Motor current",
+        "min": 100,
+        "max": 150,
+        "step": 10,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          100,
+          120,
+          150
+        ]
+      },
+      {
+        "id": "worn",
+        "kind": "toggle",
+        "label": "Latching contact (7) worn",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Open isolator (2)",
+      "Start (3)",
+      "Stop (8)",
+      "Cut supply 1 s",
+      "Reset overload",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The starter running"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "overflowDetail": "at 340 px: content is 351px wide in a 340px frame: <div#row1.brow> reaches 347px, <div#row2.brow> reaches 347px, <div#sl> reaches 347px (at step = step 2)",
+    "foreign": [],
+    "unreachable": []
+  }
+}
