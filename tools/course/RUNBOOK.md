@@ -230,7 +230,10 @@ never under the count (assemble reads the first line).
 What the `lookAt` pictures must show: the opening state alive and showing the thing to be moved;
 the moved state showing the cause and the effect; sentences and labels reading right at the
 extremes; nothing clipped, overlapping or too small on a phone; each filmed step settling without
-anything popping in. Anything wrong is a problem for one more repair, written into a report-only
+anything popping in. Rows of three or more readouts or buttons must be free to wrap at 360 px
+(`repeat(auto-fit, minmax(6rem, 1fr))`): the kit sizes each readout tile, so a forced single row
+splits words like "stopped" or "satisfactory" mid-word. Two builds (subsea i3, Motors i2, 21 Oct)
+spent all three attempts on this; a brief never asks for "one row". Anything wrong is a problem for one more repair, written into a report-only
 JSON by hand (`{"ok": false, "errors": ["what is wrong, in one sentence"], "sweep": {"ok": false, "problems": []}}`)
 and turned into a prompt with `prompts.mjs repair-interactive --no-body`.
 When it passes: copy the body to `$D/I.body.final.html`, the verdict to `$D/I.verdict.final.json`,
