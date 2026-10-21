@@ -1,0 +1,722 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 62rem; margin-inline: auto; }
+  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }
+  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task.show.ask { font-weight: 700; }
+  .task > * + * { margin-top: 10px; }
+  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .task .card b, .task .warn-note b { font-weight: 700; }
+  .task .warn-note { line-height: 1.5; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .why { line-height: 1.6; }
+  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }
+  .lcol > * + *, .rcol > * + * { margin-top: 12px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  #outs .k-readout { padding: 8px 8px 10px 10px; }
+  #outs .k-readout-value { font-size: 1.1rem; }
+  #outs .k-readout.hot .k-readout-value { color: var(--k-warn); }
+  .trip { color: var(--k-warn); font-weight: 700; line-height: 1.5; }
+  .work { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .work .wh { margin: 0; font-weight: 700; }
+  .work .wl { margin: 6px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }
+  .fig { display: block; width: 100%; height: auto; }
+  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .fig .wt { font: 600 13px var(--k-font); fill: var(--k-warn); }
+  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .ah { fill: var(--k-ink); }
+  .fig .plt { stroke: var(--k-ink); stroke-width: 2; }
+  .fig .plt2 { stroke: var(--k-ink); stroke-width: 5; }
+  .fig .coilS { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
+  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .blade { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .fig .ia { fill: var(--k-accent2); }
+  .fig .arm { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .slot { fill: var(--k-muted); }
+  .fig .brush { fill: var(--k-strong); }
+  .fig .hub { fill: var(--k-strong); }
+  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .shaft { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }
+  .fig .turn { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .fig .emf { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }
+  .fig .emfh { fill: var(--k-accent); }
+  .fig .barO { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .barF { fill: var(--k-accent2); }
+  .fig .barE { fill: var(--k-accent); }
+  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; }
+  .fig .band { fill: var(--k-warn); fill-opacity: .12; }
+  .fig .dl { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fig .sp { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .ref { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 5; }
+  .fig .trail { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 2 5; stroke-linecap: round; }
+  .fig .dotS { fill: var(--k-accent2); stroke: var(--k-panel); stroke-width: 2; }
+  .fig .dotS.hot { fill: var(--k-warn); }
+  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .jn { fill: var(--k-ink); }
+  .fig .hdl { fill: var(--k-strong); }
+  .fig .lock { fill: var(--k-warn); }
+  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }
+  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .ans { font-weight: 700; }
+  #stepbox.enter { animation: screen-in .35s ease-out both; }
+  .fb { animation: fade-in .25s ease-out both; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="hwW"><svg class="fig" id="hw" viewBox="0 0 340 204" width="100%" role="img" aria-label=""></svg></div>
+    <div id="behW"><svg class="fig" id="beh" viewBox="0 0 340 264" width="100%" role="img" aria-label=""></svg></div>
+    <div id="useW"><svg class="fig" id="use" viewBox="0 0 340 124" width="100%" role="img" aria-label=""></svg></div>
+    <div id="fltW"><svg class="fig" id="flt" viewBox="0 0 340 204" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <p class="why" id="pre"></p>
+    <div class="live" id="live">
+      <div class="lcol">
+        <svg class="fig" id="mot" viewBox="0 0 340 270" width="100%" role="img" aria-label=""></svg>
+        <div class="k-controls" id="ctl"></div>
+      </div>
+      <div class="rcol">
+        <svg class="fig" id="plot" viewBox="0 0 340 264" width="100%" role="img" aria-label=""></svg>
+        <div class="k-readouts" id="outs"></div>
+        <p class="trip" id="trip"></p>
+        <p class="say" id="say"></p>
+        <div class="work" id="work"></div>
+      </div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const ROSE = 'https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf';
+  const NEMA = 'https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf';
+  const DOE = 'https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf';
+
+  // ---------- the rule ----------
+  // A simplified shunt motor: flux follows field current; no saturation, armature reaction or brush drop.
+  const V = 600, RA = 0.07, RF = 80, IL = 353, N0 = 2000;   // the worked example motor
+  const LIMIT = 2500, NTOP = 3600, LIGHT = 30;             // example limit, plot top, example open-field split
+  const one = (v) => (Math.round(v * 10 + 1e-9) / 10).toFixed(1);
+  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);
+  const whole = (v) => String(Math.round(v + 1e-9));
+  const IF0 = V / RF;                 // 7.5 A at full field
+  const IAR = +one(IL - IF0);         // 345.5 A rated armature current
+  const INL = +one(0.05 * IAR);       // 17.3 A example no-load current, 5% of rated
+  const ILD = +one(IAR - INL);        // 328.2 A, the rest of rated
+  const DR0 = +one(IAR * RA);         // 24.2 V
+  const E0 = +one(V - DR0);           // 575.8 V at 2000 rpm, full field
+  function rule(L, rh) {
+    const If = V / (RF + rh), flux = If / IF0;
+    const Ia = (INL + ILD * L / 100) / flux, drop = Ia * RA, E = V - drop;
+    return { If: If, flux: flux, Ia: Ia, drop: drop, E: E, N: N0 * (E / E0) / flux };
+  }
+  const LD = (p) => K.clamp(Math.round((+(p && p.load != null ? p.load : 0) || 0) / 10) * 10, 0, 100);
+  const RH = (p) => K.clamp(Math.round((+(p && p.rh != null ? p.rh : 0) || 0) / 10) * 10, 0, 50);
+  const OPEN = (p) => !!p && p.field === 'open';
+
+  // The worked lines, each from the rounded figures before it.
+  const W = (function () {
+    const nl = { dr: +one(INL * RA) }; nl.e = +one(V - nl.dr); nl.n = whole(N0 * nl.e / E0);
+    const hf = { add: +one(ILD * 0.5) }; hf.ia = +one(INL + hf.add); hf.dr = +one(hf.ia * RA); hf.e = +one(V - hf.dr); hf.n = whole(N0 * hf.e / E0);
+    const RW = 20, wf = { If: +one(V / (RF + RW)) }; wf.flux = +two(wf.If / IF0); wf.div = +two(E0 * wf.flux);
+    wf.ia = +one(IAR / wf.flux); wf.dr = +one(wf.ia * RA); wf.e = +one(V - wf.dr); wf.n = whole(N0 * wf.e / wf.div);
+    const wn = { ia: +one(INL / wf.flux) }; wn.dr = +one(wn.ia * RA); wn.e = +one(V - wn.dr); wn.n = String(Math.round(N0 * wn.e / wf.div / 100) * 100);
+    return { RW: RW, nl: nl, hf: hf, wf: wf, wn: wn };
+  })();
+  const WORK = [
+    'Rated load, full field: If = ' + V + ' ÷ ' + RF + ' = ' + one(IF0) + ' A. Ia = ' + IL + ' − ' + one(IF0) + ' = ' + one(IAR) + ' A. Drop = ' + one(IAR) + ' × ' + RA + ' = ' + one(DR0) + ' V. E = ' + V + ' − ' + one(DR0) + ' = ' + one(E0) + ' V. Speed ' + N0 + ' rpm.',
+    'No load, full field: Ia = ' + one(INL) + ' A. Drop = ' + one(INL) + ' × ' + RA + ' = ' + one(W.nl.dr) + ' V. E = ' + V + ' − ' + one(W.nl.dr) + ' = ' + one(W.nl.e) + ' V. Speed = ' + N0 + ' × ' + one(W.nl.e) + ' ÷ ' + one(E0) + ' = ' + W.nl.n + ' rpm.',
+    'Half load, full field: Ia = ' + one(INL) + ' + ' + one(W.hf.add) + ' = ' + one(W.hf.ia) + ' A. Drop = ' + one(W.hf.ia) + ' × ' + RA + ' = ' + one(W.hf.dr) + ' V. E = ' + one(W.hf.e) + ' V. Speed = ' + N0 + ' × ' + one(W.hf.e) + ' ÷ ' + one(E0) + ' = ' + W.hf.n + ' rpm.',
+    'Rheostat ' + W.RW + ' Ω, rated load: If = ' + V + ' ÷ ' + (RF + W.RW) + ' = ' + one(W.wf.If) + ' A, so the flux is ' + two(W.wf.flux) + '. Ia = ' + one(IAR) + ' ÷ ' + two(W.wf.flux) + ' = ' + one(W.wf.ia) + ' A, above rated. Drop = ' + one(W.wf.ia) + ' × ' + RA + ' = ' + one(W.wf.dr) + ' V. E = ' + V + ' − ' + one(W.wf.dr) + ' = ' + one(W.wf.e) + ' V. Speed = ' + N0 + ' × ' + one(W.wf.e) + ' ÷ (' + one(E0) + ' × ' + two(W.wf.flux) + ') = ' + N0 + ' × ' + one(W.wf.e) + ' ÷ ' + two(W.wf.div) + ' = ' + W.wf.n + ' rpm.',
+    'Rheostat ' + W.RW + ' Ω, no load: Ia = ' + one(INL) + ' ÷ ' + two(W.wf.flux) + ' = ' + one(W.wn.ia) + ' A. Drop = ' + one(W.wn.ia) + ' × ' + RA + ' = ' + one(W.wn.dr) + ' V. E = ' + one(W.wn.e) + ' V. Speed = ' + N0 + ' × ' + one(W.wn.e) + ' ÷ ' + two(W.wf.div) + ', about ' + W.wn.n + ' rpm, past the example limit.',
+  ];
+  const NNL = whole(rule(0, 0).N), NFL = whole(rule(100, 0).N);
+  const REG = one((+NNL - +NFL) / +NFL * 100);
+  const START = whole(V / RA);
+  const R20 = rule(100, W.RW);
+
+  // ---------- the lesson's words ----------
+  const blk = (t, s) => ({ t: t, s: s });
+  const HOW = [
+    blk('p', 'The *shunt field* winding is wired across the supply, beside the armature. So its current and its flux stay steady whatever the load.'),
+    blk('p', 'Load the motor and it slows a little. Its back-emf falls, so more armature current flows. More current gives more torque. It settles where the torque matches the load, a little slower than before.'),
+    blk('p', 'Unlike the series motor, the field does not follow the load. So the speed hardly moves.'),
+  ];
+  const PLAY_TASK = 'Drag the load up. Then add field resistance. Then open the field.';
+  const PRE = 'Assume this ' + V + ' V motor: ' + RA + ' Ω armature, ' + RF + ' Ω field, ' + N0 + ' rpm at rated load. The supply covers the back-emf and the armature drop: V = E + Ia Ra. ' +
+    'Back-emf goes with flux × speed. Torque goes with flux × Ia. The no-load current and the ' + LIMIT + ' rpm limit are examples.';
+  const PLAY_READ = 'From no load to rated load the field current stays at ' + one(IF0) + ' A. The back-emf falls from ' + one(rule(0, 0).E) + ' to ' + one(rule(100, 0).E) + ' V. ' +
+    'The armature current rises from ' + one(INL) + ' to ' + one(IAR) + ' A. The speed dips only from ' + NNL + ' to ' + NFL + ' rpm. ' +
+    'Adding ' + W.RW + ' Ω to the field cuts its current to ' + one(W.wf.If) + ' A. At rated load the speed rises to ' + whole(R20.N) + ' rpm. The armature current rises to ' + one(R20.Ia) + ' A, above rated. ' +
+    'With no load it reaches about ' + W.wn.n + ' rpm, past the example limit. With the field open on a light load, the speed runs away.';
+  const BEHAVE = [
+    blk('row', 'Speed: Nearly constant. It dips a little under load.'),
+    blk('row', '*Speed regulation*: (No-load speed − full-load speed) ÷ full-load speed. On the picture: (' + NNL + ' − ' + NFL + ') ÷ ' + NFL + ' = ' + REG + '%. Real motors sit between 5 and 10%. Some reach 10 to 20%. Use the maker\'s figure.'),
+    blk('row', 'Starting torque: Lower than a series motor\'s for the same starting current. Expect about 250% of full-load torque. A series motor can give up to 500%.'),
+    blk('row', 'Speed control: Below base speed, lower the armature voltage. Above it, weaken the field.'),
+    blk('row', 'Reversing: Swap the armature or the field leads, not both.'),
+  ];
+  const USE = [
+    blk('row', 'Used for: Pumps, fans, blowers, conveyors, machine tools and printing. Anywhere the speed must hold steady as the load changes.'),
+    blk('row', 'Unloaded: Safe running light at full field, while the field stays connected. Losing the load is not the danger it is for a series motor.'),
+    blk('row', 'Drive: It pairs well with a thyristor drive, which sets the armature voltage.'),
+    blk('row', 'At sea: Some DC motors are built for IEEE 45 shipboard use.'),
+    blk('row', 'Limits: Brushes and commutator need regular care. A weakened field can overspeed at light load. Never pass the nameplate\'s maximum safe speed.'),
+  ];
+  const FAULTS = [
+    blk('safe', 'Safety first: Isolate, lock off and prove dead first.'),
+    blk('row', 'Field open: On a light load it can run away. Loss-of-field protection guards against it.'),
+    blk('row', 'Starting: Start at full field, with the rheostat at its slow-speed position.'),
+    blk('row', 'Starter: A three-point starter\'s no-volt coil carries the field current. So if the field opens or the supply fails, its handle drops to off.'),
+    blk('row', 'Sparking: Look for worn brushes, a rough commutator or an armature fault.'),
+    blk('row', 'Tests: Megger the windings to frame. Measure the armature and field resistance. An open field reads open circuit.'),
+  ];
+  const words = (list) => list.map((b) => b.s.replace(/\*/g, '')).join('\n\n');
+  const R1 = 'Its back-emf, which opposes the supply', R2 = 'Only the resistance of its armature circuit', R3 = 'The inductance of its windings, as on AC';
+  const C1 = 'It rises', C2 = 'It falls', C3 = 'It holds steady';
+  const F1 = 'The belt came off, so it lost its load', F2 = 'The shunt field circuit has gone open', F3 = 'The brushes have worn down';
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: 'A DC motor is switched straight onto its supply. At the instant it starts, before it turns, what limits its current?',
+      opts: [R1, R2, R3], want: R2,
+      why: 'A motor makes back-emf only as it turns, so at standstill there is none. Only the resistance limits the current. The motor here has a ' + RA + ' Ω armature on ' + V + ' V. Switched straight on, it would take ' + V + ' ÷ ' + RA + ' = ' + START + ' A. That is why it starts through a starter.',
+      slips: ['Back-emf comes from turning. At standstill there is none, so it cannot hold the current back yet.', '',
+        'Inductance only slows how fast the current rises. At standstill, once it settles, only resistance limits a DC current.'] },
+    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },
+    { show: true, name: 'Load it, weaken the field', label: 'Load it, weaken the field', text: PLAY_TASK + '\n\n' + PRE, read: PLAY_READ, still: () => stillAt() },
+    { name: 'Check', label: 'Check on the cause',
+      task: 'A shunt motor is driving a steady load. You turn the field rheostat to add resistance. What does the speed do?',
+      opts: [C1, C2, C3], want: C1,
+      why: 'Less field current means less flux. The armature must spin faster to make the back-emf it needs. So the speed rises. On the picture, ' + W.RW + ' Ω takes the rated-load speed from ' + NFL + ' to ' + whole(R20.N) + ' rpm. That is called *field weakening*.',
+      slips: ['', 'That is what resistance in the armature circuit does. In the field circuit it weakens the flux. A weaker field must spin faster, so the speed rises.',
+        'The load is the same, but the flux is not. Less flux needs more speed for the same back-emf. So the speed rises.'] },
+    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },
+    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },
+    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },
+    { name: 'Find the fault', label: 'Find the fault',
+      task: 'A shunt motor drives a conveyor that is running almost empty. It has run at a steady speed for years. Today it races until its protection trips. What is the most likely fault?',
+      opts: [F1, F2, F3], want: F2,
+      why: 'With the field open, only residual magnetism is left. The armature must spin far faster to make its back-emf. On a light load it runs away. Isolate and prove dead. Then test the field winding, its rheostat and its connections for an open circuit.',
+      slips: ['That is the series motor\'s trap. A shunt motor\'s field stays steady with no load. Running light at full field, it goes only a little faster.', '',
+        'Worn brushes cause sparking and poor contact. They make a motor weak or slow, not race.'] },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iHow = 1, iPic = 2, iChk = 3, iBeh = 4, iUse = 5, iFlt = 6, iFind = 7, iK = 8;
+  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));
+  let lastStep = -1, finished = false;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function addText(node, s) {
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function write(node, s) { node.textContent = ''; return addText(node, s); }
+  function blocks(node, list) {
+    node.textContent = '';
+    list.forEach((b, k) => {
+      if (k) node.appendChild(document.createTextNode(' '));
+      let e;
+      if (b.t === 'row' || b.t === 'safe') {
+        const cut = b.s.indexOf(': ');
+        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, addText(K.el('b'), b.s.slice(0, cut + 1)), ' ');
+        addText(e, b.s.slice(cut + 2));
+      } else e = addText(K.el('p'), b.s);
+      node.appendChild(e);
+    });
+  }
+
+  // ---------- drawing helpers ----------
+  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }
+  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }
+  const f1 = (v) => (+v).toFixed(1);
+  const show = (n, on) => { n.style.display = on ? '' : 'none'; };
+  const humps = (x, y, n) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a6 6 0 0 1 12 0'; return d; };
+  const vhumps = (x, y, n) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a6 6 0 0 1 0 12'; return d; };
+  function arrow(g, x1, y1, x2, y2, lc, hc) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x2 - 9 * ux, by = y2 - 9 * uy;
+    ad(g, 'line', { x1: x1, y1: y1, x2: f1(bx), y2: f1(by), class: lc });
+    ad(g, 'polygon', { points: [x2, y2, bx - 5 * uy, by + 5 * ux, bx + 5 * uy, by - 5 * ux].map(f1).join(' '), class: hc });
+  }
+  // The armature end-on: its body and eight slots (the slots group turns).
+  function armature(g, cx, cy, r) {
+    ad(g, 'circle', { cx: cx, cy: cy, r: r, class: 'arm' });
+    const sl = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ')' });
+    for (let j = 0; j < 8; j++) ad(sl, 'rect', { x: -2, y: -(r - 2), width: 4, height: 6, rx: 1, class: 'slot', transform: 'rotate(' + (j * 45) + ')' });
+    return sl;
+  }
+
+  // How it works: the supply with two branches across it, the shunt field (with its rheostat) and the armature.
+  function buildHw(g) {
+    ad(g, 'path', { d: 'M26 44V112M26 124V196M26 44H262V86M26 196H262V154M150 44V70M150 100V108M150 168V196', class: 'w' });
+    ad(g, 'path', { d: 'M12 112H40', class: 'plt' });
+    ad(g, 'path', { d: 'M19 124H33', class: 'plt2' });
+    [[150, 44], [150, 196]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    txt(g, 46, 114, 'DC supply');
+    txt(g, 46, 132, V + ' V');
+    ad(g, 'polygon', { points: '90 44 80 39 80 49', class: 'ia' });
+    txt(g, 84, 32, 'line current', 'lb', 'middle');
+    ad(g, 'polygon', { points: '220 44 210 39 210 49', class: 'ia' });
+    txt(g, 214, 32, 'armature current', 'lb', 'middle');
+    ad(g, 'polygon', { points: '150 64 145 54 155 54', class: 'ia' });
+    txt(g, 160, 62, 'field current');
+    ad(g, 'rect', { x: 143, y: 70, width: 14, height: 30, rx: 2, class: 'res' });
+    arrow(g, 137, 108, 163, 72, 'w', 'ah');
+    txt(g, 132, 92, 'field rheostat', 'lb', 'end');
+    ad(g, 'path', { d: vhumps(150, 108, 5), class: 'coilS' });
+    txt(g, 140, 160, 'shunt field', 'lb', 'end');
+    armature(g, 262, 120, 26);
+    ad(g, 'rect', { x: 256, y: 86, width: 12, height: 8, rx: 1.5, class: 'brush' });
+    ad(g, 'rect', { x: 256, y: 146, width: 12, height: 8, rx: 1.5, class: 'brush' });
+    txt(g, 228, 124, 'armature', 'lb', 'end');
+    const pol = (a, r) => [262 + r * Math.cos(a * DEG), 120 + r * Math.sin(a * DEG)];
+    ad(g, 'path', { d: 'M' + pol(-30, 36).map(f1).join(' ') + 'A36 36 0 0 1 ' + pol(30, 36).map(f1).join(' '), class: 'turn' });
+    ad(g, 'polygon', { points: pol(42, 36).concat(pol(30, 30.5), pol(30, 41.5)).map(f1).join(' '), class: 'ia' });
+    txt(g, 288, 176, 'turning');
+    arrow(g, 318, 150, 318, 96, 'emf', 'emfh');
+    txt(g, 336, 86, 'back-emf', 'lb', 'end');
+    g.setAttribute('aria-label', 'A ' + V + ' V DC supply with two branches across it, side by side. On the left, the shunt field winding with a field rheostat in series. ' +
+      'On the right, the armature between its brushes. The line current from the supply splits into the field current and the armature current. ' +
+      'A curved arrow shows the armature turning, and an arrow labelled back-emf points against the supply.');
+  }
+
+  // The speed plot: speed in rpm against load in % of rated torque.
+  const PX = (L) => 56 + L * 2.64, PY = (n) => 220 - n / 20;
+  function speedPath(rh) { let d = ''; for (let L = 0; L <= 100; L += 5) d += (d ? 'L' : 'M') + f1(PX(L)) + ' ' + f1(PY(rule(L, rh).N)); return d; }
+  function axes(g, band) {
+    [1000, 2000, 3000].forEach((n) => ad(g, 'line', { x1: 56, y1: PY(n), x2: 320, y2: PY(n), class: 'grid' }));
+    if (band) {
+      ad(g, 'rect', { x: 56, y: PY(NTOP), width: 264, height: PY(LIMIT) - PY(NTOP), class: 'band' });
+      ad(g, 'line', { x1: 56, y1: PY(LIMIT), x2: 320, y2: PY(LIMIT), class: 'dl' });
+      txt(g, 320, 32, 'example limit, not a maker\'s', 'wt', 'end');
+      txt(g, 50, PY(LIMIT) + 4.5, String(LIMIT), 'wt', 'end');
+    }
+    ad(g, 'path', { d: 'M56 ' + PY(NTOP) + 'V220H320', class: 'ax' });
+    [0, 1000, 2000, 3000].forEach((n) => txt(g, 50, PY(n) + 4.5, String(n), 'lb', 'end'));
+    [0, 20, 40, 60, 80, 100].forEach((L) => { ad(g, 'line', { x1: f1(PX(L)), y1: 220, x2: f1(PX(L)), y2: 225, class: 'ax' }); txt(g, f1(PX(L)), 239, String(L), 'lb', 'middle'); });
+    txt(g, 4, 16, 'Speed, rpm', 'hd');
+    txt(g, 188, 258, 'Load, % of rated torque', 'hd', 'middle');
+  }
+
+  // How it behaves: the full-field speed line, no slider.
+  function buildBeh(g) {
+    axes(g, false);
+    ad(g, 'path', { d: speedPath(0), class: 'sp' });
+    txt(g, 62, 104, NNL + ' rpm at no load');
+    txt(g, 318, 140, NFL + ' rpm at rated load', 'lb', 'end');
+    txt(g, 320, 32, 'sketch from the simplified rule', 'mu', 'end');
+    g.setAttribute('aria-label', 'A sketch from the simplified rule: speed against load at full field. The line is nearly flat, from ' + NNL + ' rpm at no load to ' + NFL + ' rpm at rated load.');
+  }
+
+  // Where it is used: a thyristor drive feeds the armature; the motor turns a conveyor.
+  function buildUse(g) {
+    ad(g, 'rect', { x: 6, y: 40, width: 84, height: 50, rx: 6, class: 'body' });
+    txt(g, 48, 61, 'thyristor', 'lb', 'middle');
+    txt(g, 48, 79, 'drive', 'lb', 'middle');
+    ad(g, 'path', { d: 'M90 54H124M90 76H124', class: 'w' });
+    txt(g, 107, 26, 'armature volts', 'lb', 'middle');
+    ad(g, 'rect', { x: 124, y: 34, width: 66, height: 62, rx: 12, class: 'body' });
+    ad(g, 'line', { x1: 190, y1: 65, x2: 226, y2: 65, class: 'shaft' });
+    ad(g, 'path', { d: 'M240 51H320M240 79H320', class: 'w' });
+    ad(g, 'circle', { cx: 240, cy: 65, r: 14, class: 'drum' });
+    ad(g, 'circle', { cx: 320, cy: 65, r: 14, class: 'drum' });
+    ad(g, 'circle', { cx: 240, cy: 65, r: 3, class: 'hub' });
+    ad(g, 'circle', { cx: 320, cy: 65, r: 3, class: 'hub' });
+    ad(g, 'rect', { x: 258, y: 33, width: 20, height: 18, rx: 2, class: 'body' });
+    ad(g, 'rect', { x: 288, y: 33, width: 20, height: 18, rx: 2, class: 'body' });
+    txt(g, 157, 116, 'shunt motor', 'lb', 'middle');
+    txt(g, 280, 104, 'conveyor', 'lb', 'middle');
+    g.setAttribute('aria-label', 'A thyristor drive feeds the armature volts to the shunt motor. The motor\'s shaft turns the head pulley of a conveyor carrying boxes.');
+  }
+
+  // Faults and tests: the isolator locked off and tagged; a megger from the windings to the frame;
+  // an ohmmeter across the field leads; the brushes on the commutator.
+  function buildFlt(g) {
+    txt(g, 56, 16, 'isolator: open', 'lb', 'middle');
+    ad(g, 'rect', { x: 16, y: 24, width: 80, height: 60, rx: 6, class: 'body' });
+    ad(g, 'path', { d: 'M0 44H30M0 68H30M30 44L54 32M30 68L54 56M66 44H112M66 68H112', class: 'w' });
+    [[30, 44], [30, 68], [66, 44], [66, 68]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    ad(g, 'rect', { x: 48, y: 84, width: 16, height: 8, rx: 2, class: 'hdl' });
+    ad(g, 'path', { d: 'M51 104V98a5 5 0 0 1 10 0V104', class: 'shk' });
+    ad(g, 'rect', { x: 49, y: 103, width: 14, height: 14, rx: 3, class: 'lock' });
+    ad(g, 'path', { d: 'M63 110L72 115', class: 'w' });
+    ad(g, 'polygon', { points: '74 112 92 112 92 134 70 134 70 116', class: 'tag' });
+    ad(g, 'circle', { cx: 75, cy: 117, r: 1.6, class: 'jn' });
+    txt(g, 98, 120, 'locked off');
+    txt(g, 98, 136, 'and tagged');
+    ad(g, 'rect', { x: 178, y: 22, width: 58, height: 36, rx: 6, class: 'body' });
+    txt(g, 207, 45, 'megger', 'lb', 'middle');
+    ad(g, 'rect', { x: 266, y: 52, width: 64, height: 56, rx: 10, class: 'body' });
+    ad(g, 'rect', { x: 280, y: 40, width: 28, height: 12, rx: 2, class: 'term' });
+    txt(g, 294, 32, 'windings', 'lb', 'middle');
+    txt(g, 298, 86, 'frame', 'lb', 'middle');
+    ad(g, 'path', { d: 'M236 30H252V46H280M236 50H246V80H266', class: 'w' });
+    [[280, 46], [266, 80]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));
+    ad(g, 'rect', { x: 10, y: 150, width: 74, height: 32, rx: 6, class: 'body' });
+    txt(g, 47, 171, 'ohmmeter', 'lb', 'middle');
+    ad(g, 'path', { d: 'M84 158H114M84 174H172V158H162', class: 'w' });
+    ad(g, 'path', { d: humps(114, 158, 4), class: 'coilS' });
+    txt(g, 138, 196, 'field winding', 'lb', 'middle');
+    ad(g, 'circle', { cx: 262, cy: 152, r: 20, class: 'drum' });
+    for (let j = 0; j < 8; j++) { const a = j * 45 * DEG; ad(g, 'line', { x1: f1(262 + 8 * Math.cos(a)), y1: f1(152 + 8 * Math.sin(a)), x2: f1(262 + 20 * Math.cos(a)), y2: f1(152 + 20 * Math.sin(a)), class: 'w' }); }
+    ad(g, 'circle', { cx: 262, cy: 152, r: 8, class: 'drum' });
+    ad(g, 'rect', { x: 232, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });
+    ad(g, 'rect', { x: 282, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });
+    ad(g, 'path', { d: 'M220 152H232M292 152H304', class: 'w' });
+    txt(g, 237, 136, 'brushes', 'lb', 'middle');
+    txt(g, 262, 192, 'commutator', 'lb', 'middle');
+    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. A megger is connected from the motor\'s windings to its frame. ' +
+      'An ohmmeter is connected across the field winding\'s two leads. The two brushes press on the commutator.');
+  }
+
+  buildHw(el('hw'));
+  buildBeh(el('beh'));
+  buildUse(el('use'));
+  buildFlt(el('flt'));
+
+  // ---------- the live picture: the circuit, the flux bar, the back-emf and drop bars ----------
+  const AX = 236, AY = 94;
+  const M = {};
+  (function () {
+    const g = el('mot');
+    ad(g, 'path', { d: 'M14 30V92M14 104V168M14 30H236V62M14 168H236V126M112 30V40M112 60V68M112 94V104M112 152V168', class: 'w' });
+    ad(g, 'path', { d: 'M3 92H25', class: 'plt' });
+    ad(g, 'path', { d: 'M8 104H20', class: 'plt2' });
+    [[112, 30], [112, 168]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    txt(g, 32, 102, 'V = ' + V + ' V');
+    // the field circuit's switch: two contacts and a blade that swings open
+    [[112, 40], [112, 60]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    M.blade = ad(g, 'line', { x1: 112, y1: 60, x2: 112, y2: 40, class: 'blade' });
+    M.openT = txt(g, 92, 50, 'open', 'wt', 'end');
+    ad(g, 'rect', { x: 105, y: 68, width: 14, height: 26, rx: 2, class: 'res' });
+    arrow(g, 99, 100, 125, 62, 'w', 'ah');
+    txt(g, 96, 82, 'rheostat', 'lb', 'end');
+    ad(g, 'path', { d: vhumps(112, 104, 4), class: 'coilS' });
+    txt(g, 102, 128, 'shunt field', 'lb', 'end');
+    txt(g, 102, 146, RF + ' Ω', 'lb', 'end');
+    // the flux bar beside the field winding: full at full field
+    ad(g, 'rect', { x: 128, y: 104, width: 12, height: 48, rx: 2, class: 'barO' });
+    M.flux = ad(g, 'rect', { x: 128, y: 104, width: 12, height: 48, rx: 2, class: 'barF' });
+    M.fl1 = txt(g, 146, 118, 'flux');
+    M.fl2 = txt(g, 146, 136, 'If ' + one(IF0) + ' A');
+    M.res = ad(g, 'g', {});
+    txt(M.res, 146, 116, 'residual'); txt(M.res, 146, 132, 'magnetism'); txt(M.res, 146, 148, 'only');
+    // the armature current on the rail, and the armature itself
+    ad(g, 'polygon', { points: '196 30 186 25 186 35', class: 'ia' });
+    txt(g, 191, 18, 'Ia', 'lb', 'middle');
+    M.slots = armature(g, AX, AY, 24);
+    ad(g, 'rect', { x: 230, y: 62, width: 12, height: 8, rx: 1.5, class: 'brush' });
+    ad(g, 'rect', { x: 230, y: 118, width: 12, height: 8, rx: 1.5, class: 'brush' });
+    txt(g, 204, 78, 'armature', 'lb', 'end');
+    txt(g, 204, 96, 'Ra ' + RA + ' Ω', 'lb', 'end');
+    // the two bars: the back-emf out of 600 V, the drop out of 60 V
+    M.bars = ad(g, 'g', {});
+    txt(M.bars, 4, 196, 'back-emf E');
+    ad(M.bars, 'rect', { x: 84, y: 186, width: 200, height: 12, rx: 2, class: 'barO' });
+    M.eBar = ad(M.bars, 'rect', { x: 84, y: 186, width: 200, height: 12, rx: 2, class: 'barE' });
+    txt(M.bars, 4, 222, 'Ia × Ra');
+    ad(M.bars, 'rect', { x: 84, y: 212, width: 200, height: 12, rx: 2, class: 'barO' });
+    M.dBar = ad(M.bars, 'rect', { x: 84, y: 212, width: 0, height: 12, rx: 2, class: 'barF' });
+    M.dT = txt(M.bars, 290, 222, '');
+    txt(M.bars, 4, 246, 'Back-emf bar: 0 to ' + V + ' V.', 'mu');
+    txt(M.bars, 4, 262, 'Drop bar: 0 to 60 V, drawn 10 times bigger.', 'mu');
+    M.openNote = ad(g, 'g', {});
+    txt(M.openNote, 4, 204, 'Field open: no figures here.', 'mu');
+    txt(M.openNote, 4, 224, 'The result depends on the load and the iron.', 'mu');
+  })();
+  (function () {
+    const g = el('plot');
+    axes(g, true);
+    M.ref = ad(g, 'path', { d: speedPath(0), class: 'ref' });
+    M.refT = txt(g, 318, 140, 'full field', 'mu', 'end');
+    M.line = ad(g, 'path', { d: speedPath(0), class: 'sp' });
+    M.trail = ad(g, 'line', { x1: 56, y1: 130, x2: 56, y2: 58, class: 'trail' });
+    M.runT = txt(g, 68, 90, 'Runs away', 'wt');
+    M.openT2 = txt(g, 188, 196, 'Field open: no speed line', 'mu', 'middle');
+    M.dot = ad(g, 'circle', { cx: 56, cy: 116, r: 7, class: 'dotS' });
+  })();
+
+  const SPIN = { th: 0, rate: 0 };
+  function paintSpin() { M.slots.setAttribute('transform', 'translate(' + AX + ' ' + AY + ') rotate(' + f1(SPIN.th) + ')'); }
+
+  // ---------- controls and readouts ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const loadCtl = K.control({ id: 'load', label: 'Load, % of rated torque', min: 0, max: 100, step: 10, value: 0, fmt: (v) => whole(v) + '%', snap: [0, 50, 100], into: '#ctl' });
+  const rhCtl = K.control({ id: 'rh', label: 'Field rheostat', min: 0, max: 50, step: 10, value: 0, fmt: (v) => whole(v) + ' Ω', snap: [0, W.RW], into: '#ctl' });
+  const fieldCtl = K.choice({ id: 'field', label: 'Field circuit', options: [{ value: 'conn', label: 'Connected' }, { value: 'open', label: 'Open' }], value: 'conn', into: '#ctl' });
+  const RD = {
+    ia: K.readout({ id: 'rdIa', label: 'Armature current', fmt: (v) => one(v) + ' A', into: '#outs' }),
+    e: K.readout({ id: 'rdE', label: 'Back-emf', fmt: (v) => one(v) + ' V', into: '#outs' }),
+    n: K.readout({ id: 'rdN', label: 'Speed', fmt: (v) => whole(v) + ' rpm', into: '#outs' }),
+  };
+  K.model((p) => {
+    const L = LD(p), rh = RH(p);
+    if (OPEN(p)) {
+      const light = L <= LIGHT;
+      return { ifield: 0, ia: light ? 'no figure' : 'far above rated', emf: 'no figure', rpm: light ? 'runs away' : 'no figure', state: light ? 'runaway' : 'trip' };
+    }
+    const r = rule(L, rh);
+    return { ifield: r.If, ia: r.Ia, emf: r.E, rpm: r.N, drop: r.drop, state: 'run' };
+  });
+
+  el('pre').textContent = PRE;
+  el('work').appendChild(K.el('p', { class: 'wh' }, 'Worked from the rule'));
+  WORK.forEach((s) => el('work').appendChild(K.el('p', { class: 'wl' }, s)));
+
+  function sayFor(L, rh, open, r) {
+    if (open) return L <= LIGHT
+      ? 'With the field open, only residual magnetism is left. On a light load the armature must spin far faster to make its back-emf, so it runs away.'
+      : 'With the field open, only residual magnetism is left. On this heavier load the armature current goes far above rated.';
+    const Ia = one(r.Ia) + ' A', E = one(r.E) + ' V', N = whole(r.N) + ' rpm';
+    let s;
+    if (rh === 0) {
+      s = L === 0 ? 'Running light at full field. The armature needs only ' + Ia + ' for its own losses, so the back-emf is ' + E + ' and the speed ' + N + '.'
+        : 'At ' + L + '% load the field still takes ' + one(r.If) + ' A, so the flux holds. The back-emf has fallen to ' + E + ', letting ' + Ia + ' through the armature. The speed has dipped only to ' + N + '.';
+    } else {
+      s = 'With ' + rh + ' Ω added, the field current falls to ' + one(r.If) + ' A and the flux weakens. The armature must spin faster to make its back-emf, so the speed is ' + N + '.';
+      if (r.Ia > IAR + 0.05) s += ' It takes ' + Ia + ' for this load, above its rated ' + one(IAR) + ' A.';
+    }
+    if (r.N > LIMIT) s += ' That is past the example limit.';
+    return s;
+  }
+
+  function paintLive(p) {
+    const L = LD(p), rh = RH(p), open = OPEN(p), light = L <= LIGHT;
+    M.blade.setAttribute('x2', open ? 99 : 112);
+    M.blade.setAttribute('y2', open ? 47 : 40);
+    show(M.openT, open);
+    show(M.fl1, !open); show(M.fl2, !open); show(M.res, open);
+    show(M.bars, !open); show(M.openNote, open);
+    show(M.line, !open); show(M.openT2, open);
+    show(M.trail, open && light); show(M.runT, open && light);
+    show(M.dot, !open || light);
+    const x = f1(PX(L));
+    let r = null;
+    if (open) {
+      M.flux.setAttribute('y', 150); M.flux.setAttribute('height', 2);
+      show(M.ref, false); show(M.refT, false);
+      M.trail.setAttribute('x1', x); M.trail.setAttribute('x2', x);
+      M.runT.setAttribute('x', f1(PX(L) + 12));
+      M.dot.setAttribute('cx', x); M.dot.setAttribute('cy', 48);
+      M.dot.classList.add('hot');
+      RD.ia.set(light ? 'no figure' : 'far above rated');
+      RD.e.set('no figure');
+      RD.n.set(light ? 'runs away' : 'no figure');
+      RD.ia.el.classList.toggle('hot', !light);
+      RD.e.el.classList.remove('hot');
+      RD.n.el.classList.toggle('hot', light);
+      SPIN.rate = light ? 0.75 : 0;
+    } else {
+      r = rule(L, rh);
+      const h = 48 * r.flux;
+      M.flux.setAttribute('y', f1(152 - h)); M.flux.setAttribute('height', f1(h));
+      M.fl2.textContent = 'If ' + one(r.If) + ' A';
+      M.eBar.setAttribute('width', f1(200 * r.E / V));
+      M.dBar.setAttribute('width', f1(200 * Math.min(r.drop, 60) / 60));
+      M.dT.textContent = one(r.drop) + ' V';
+      show(M.ref, rh > 0); show(M.refT, rh > 0);
+      M.line.setAttribute('d', speedPath(rh));
+      M.dot.setAttribute('cx', x); M.dot.setAttribute('cy', f1(PY(r.N)));
+      M.dot.classList.toggle('hot', r.N > LIMIT);
+      RD.ia.set(r.Ia); RD.e.set(r.E); RD.n.set(r.N);
+      RD.ia.el.classList.toggle('hot', r.Ia > IAR + 0.05);
+      RD.e.el.classList.remove('hot');
+      RD.n.el.classList.toggle('hot', r.N > LIMIT);
+      SPIN.rate = 0.25 * r.N / N0;
+    }
+    el('trip').textContent = open && !light ? 'Its protection should trip it.' : '';
+    el('trip').hidden = !el('trip').textContent;
+    el('say').textContent = sayFor(L, rh, open, r);
+    el('mot').setAttribute('aria-label', open
+      ? 'The shunt motor\'s circuit: a ' + V + ' V supply, the shunt field branch with its switch open, and the armature. The flux bar shows residual magnetism only. No figures are worked out with the field open.'
+      : 'The shunt motor\'s circuit: a ' + V + ' V supply with two branches. The ' + RF + ' Ω shunt field, with ' + rh + ' Ω of rheostat, takes ' + one(r.If) + ' A, and its flux bar shows the flux. ' +
+        'The ' + RA + ' Ω armature turns between its brushes. Bars show the back-emf out of ' + V + ' V, and the armature drop, ' + one(r.drop) + ' V, drawn 10 times bigger.');
+    el('plot').setAttribute('aria-label', open
+      ? (light ? 'Speed against load. With the field open on a light load, the speed dot runs off the top into the example limit band: it runs away.' : 'Speed against load. With the field open on a heavier load there is no speed line.')
+      : 'Speed against load, from 0 to 100% of rated torque. The speed line for this field setting is nearly flat, and a dot marks ' + L + '% load.' +
+        (rh > 0 ? ' A dashed line shows full field for comparison.' : '') + ' A band above ' + LIMIT + ' rpm marks an example limit, not a maker\'s.');
+  }
+
+  let seen = null, held = false;
+  const spin = K.anim({ button: false, label: 'The armature turning', step: (dt) => {
+    if (at() !== iPic || held || REDUCE || !(SPIN.rate > 0)) return false;
+    SPIN.th = (SPIN.th + 360 * SPIN.rate * dt) % 360;
+    paintSpin();
+    return true;
+  } });
+  // The read-through's picture: the field connected, no rheostat, rated load, the armature held.
+  function stillAt() {
+    fieldCtl.set('conn');
+    rhCtl.set(0);
+    loadCtl.set(100);
+    SPIN.th = 20;
+    held = true;
+    spin.pause();
+    K.refresh();
+    seen = '100|0|conn';
+    paintSpin();
+  }
+
+  // ---------- picks: one go, then the answer and its reason ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length || st.res) return;
+    st.pick = d.opts[k];
+    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: i === iR ? 'Still there.' : 'Right.', p: d.why }; }
+    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }
+    K.refresh();
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));
+    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));
+    if (f.p) fb.appendChild(addText(K.el('p'), f.p));
+  }
+
+  // ---------- Keep this ----------
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  const ON = { hwW: [iHow], behW: [iBeh], useW: [iUse], fltW: [iFlt], pre: [iPic], live: [iPic], picks: [iR, iChk, iFind], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');
+    if (i === iPic) write(task, PLAY_TASK);
+    else if (d.show) blocks(task, d.blocks);
+    else if (d.kind) task.textContent = '';
+    else write(task, d.task);
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // the picture: the load, the rheostat and the field switch set the flux, the bars, the dot and the readouts
+    const key = LD(p) + '|' + RH(p) + '|' + (OPEN(p) ? 'open' : 'conn');
+    if (key !== seen) { if (seen !== null) held = false; seen = key; }
+    paintLive(p);
+    paintSpin();
+    if (i === iPic && !held && !REDUCE && SPIN.rate > 0 && !spin.playing()) spin.play();
+    if (!(SPIN.rate > 0) && spin.playing()) spin.pause();
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paintFb(st.fb);
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i);
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Worked by hand: rated load at full field gives If 7.5 A, Ia 345.5 A, E 575.8 V and 2000 rpm; no load 17.3 A, 598.8 V and 2080 rpm; half load 181.4 A, 587.3 V and 2040 rpm; with 20 Ω, rated load 6.0 A, 431.9 A, 569.8 V and 2474 rpm, no load 21.6 A, 598.5 V and about 2600 rpm; straight on, 600 ÷ 0.07 = 8571 A; the working prints these lines', () => {
+    const a = K.at({ load: 100 }), b = K.at({ load: 0 }), c = K.at({ load: 50 }), d = K.at({ load: 100, rh: 20 }), e = K.at({ load: 0, rh: 20 });
+    return one(a.ifield) === '7.5' && one(a.ia) === '345.5' && one(a.emf) === '575.8' && whole(a.rpm) === '2000' &&
+      one(b.ia) === '17.3' && one(b.emf) === '598.8' && whole(b.rpm) === '2080' &&
+      one(c.ia) === '181.4' && one(c.emf) === '587.3' && whole(c.rpm) === '2040' &&
+      one(d.ifield) === '6.0' && one(d.ia) === '431.9' && one(d.emf) === '569.8' && whole(d.rpm) === '2474' &&
+      one(e.ia) === '21.6' && one(e.emf) === '598.5' && Math.round(e.rpm / 100) * 100 === 2600 && START === '8571' &&
+      WORK[0] === 'Rated load, full field: If = 600 ÷ 80 = 7.5 A. Ia = 353 − 7.5 = 345.5 A. Drop = 345.5 × 0.07 = 24.2 V. E = 600 − 24.2 = 575.8 V. Speed 2000 rpm.' &&
+      WORK[1] === 'No load, full field: Ia = 17.3 A. Drop = 17.3 × 0.07 = 1.2 V. E = 600 − 1.2 = 598.8 V. Speed = 2000 × 598.8 ÷ 575.8 = 2080 rpm.' &&
+      WORK[2] === 'Half load, full field: Ia = 17.3 + 164.1 = 181.4 A. Drop = 181.4 × 0.07 = 12.7 V. E = 587.3 V. Speed = 2000 × 587.3 ÷ 575.8 = 2040 rpm.' &&
+      WORK[3] === 'Rheostat 20 Ω, rated load: If = 600 ÷ 100 = 6.0 A, so the flux is 0.80. Ia = 345.5 ÷ 0.80 = 431.9 A, above rated. Drop = 431.9 × 0.07 = 30.2 V. E = 600 − 30.2 = 569.8 V. Speed = 2000 × 569.8 ÷ (575.8 × 0.80) = 2000 × 569.8 ÷ 460.64 = 2474 rpm.' &&
+      WORK[4] === 'Rheostat 20 Ω, no load: Ia = 17.3 ÷ 0.80 = 21.6 A. Drop = 21.6 × 0.07 = 1.5 V. E = 598.5 V. Speed = 2000 × 598.5 ÷ 460.64, about 2600 rpm, past the example limit.';
+  });
+  K.check('At every rheostat setting the field current stays the same whatever the load, while the armature current rises and the speed falls as the load goes on; with the field open, a light load (30% or less) runs away and a heavier one goes far above rated', () => {
+    for (let rh = 0; rh <= 50; rh += 10) for (let L = 0; L < 100; L += 10) {
+      const a = K.at({ load: L, rh: rh }), b = K.at({ load: L + 10, rh: rh });
+      if (!(K.near(a.ifield, b.ifield, 1e-9) && b.ia > a.ia && b.rpm < a.rpm)) return false;
+    }
+    return K.at({ load: 30, field: 'open' }).state === 'runaway' && K.at({ load: 40, field: 'open' }).state === 'trip' && K.at({ load: 100, rh: 50 }).rpm < NTOP;
+  });
+  K.check('A DC shunt motor rated at 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field, draws 353 A from the supply at rated load', () => {
+    const a = K.at({ load: 100 });
+    return K.near(a.ia + a.ifield, 353, 1e-6) && whole(a.rpm) === '2000' && K.near(a.ia * RA + a.emf, 600, 1e-9);
+  }, { source: ROSE });
+  K.check('If the field flux of a DC motor is decreased, the motor speed will increase: each 10 Ω of rheostat raises the speed at every load', () => {
+    for (let L = 0; L <= 100; L += 10) for (let rh = 0; rh < 50; rh += 10) if (!(K.at({ load: L, rh: rh + 10 }).rpm > K.at({ load: L, rh: rh }).rpm)) return false;
+    return true;
+  }, { source: DOE });
+  K.check('Speed regulation is the difference between the no-load and rated-load speeds, in percent of rated-load speed: (2080 − 2000) ÷ 2000 = 4.0%', () => {
+    const nl = Math.round(K.at({ load: 0 }).rpm), fl = Math.round(K.at({ load: 100 }).rpm);
+    return nl === 2080 && fl === 2000 && one((nl - fl) / fl * 100) === '4.0' && REG === '4.0';
+  }, { source: NEMA });
+  K.check('The shunt motor has a safe no-load speed, providing that the field circuit is not de-energised: 2080 rpm at full field, under the example limit', () =>
+    K.at({ load: 0 }).rpm < LIMIT && K.at({ load: 0, field: 'open' }).state === 'runaway', { source: ROSE });
+
+  K.ready();
+</script>

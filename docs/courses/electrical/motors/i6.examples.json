@@ -1,0 +1,39 @@
+{
+  "values": [
+    {
+      "name": "Per-unit load current range for the picture",
+      "value": "0.25 to 1.00 of rated load current (the drag runs from a quarter load to full load)",
+      "unit": "per unit (1.00 = rated current)",
+      "why": "The picture applies two shown rules, torque goes with current squared and speed with 1 over current, both below saturation and with armature resistance ignored (said on screen). At 0.5 current torque is 0.25 and speed is 2.0; at 0.25 current torque is 0.0625 and speed is 4.0. The range is an example choice, not a maker's curve.",
+      "realValueLives": "A maker's data sheet or the motor's test report for the actual machine; its curves bend where the iron saturates and at heavy load."
+    },
+    {
+      "name": "Speed shown in red as dangerous",
+      "value": 3,
+      "unit": "per unit of rated speed (3.00 = three times rated speed)",
+      "why": "The sources say the speed becomes dangerously high at light load (Rose-Hulman, IDC, EDN, the 25-1 lecture) but give no number. The picture needs a place to turn red, so it uses an example line and says so on screen. At a quarter current the shown rule gives 4.0, which is past the line, and at half current 2.0, which is below it.",
+      "realValueLives": "The motor's maximum safe speed on its rating plate or in the maker's data sheet, which the overspeed trip is set below."
+    },
+    {
+      "name": "Saturation knee (not drawn)",
+      "value": "none: the picture stays in the unsaturated region and says so",
+      "unit": "n/a",
+      "why": "No source gives a knee current for a general series motor, so the lesson does not draw one. It states in words, with the cited source, that past saturation torque goes with current only (not squared), and that the square law is the unsaturated part.",
+      "realValueLives": "The motor's magnetisation curve from the maker."
+    },
+    {
+      "name": "Back-emf step example",
+      "value": "supply 120 V, armature and field resistance 12 ohm, back emf 0 V at start and 100 V at running speed",
+      "unit": "V, ohm (start current 120 / 12 = 10.0 A; running current (120 - 100) / 12 = 1.67 A, computed from E = V - I R)",
+      "why": "The only point is that the current drops from 10.0 A to 1.67 A once a back emf builds. These are labelled example numbers computed from the shown rule. They are not a maker's motor and not a quoted textbook answer. Real armatures are far lower in resistance, 0.05 to 0.5 ohm (US Navy training text, cited).",
+      "realValueLives": "Measured armature plus series field resistance (ohmmeter, motor isolated and proved dead) and the plate voltage and current."
+    },
+    {
+      "name": "Real starting-current case (cited, not an example)",
+      "value": "10 hp motor, 0.4 ohm armature, 260 V: 260 / 0.4 = 650 A, about twelve times full-load current",
+      "unit": "A",
+      "why": "Taken from the PEG-3722 Electrotechnology text (source 375; the 125 to 200 percent limit is source 376) and may be used as a cited figure. The limit used by starters differs by guide, 125 to 200 percent of full load (PEG-3722), or two to three times (two other guides), so the lesson gives a range and names no single figure.",
+      "realValueLives": "The starter maker's data and the motor's plate."
+    }
+  ]
+}

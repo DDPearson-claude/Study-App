@@ -1,0 +1,177 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Worked by hand: rated load at full field gives If 7.5 A, Ia 345.5 A, E 575.8 V and 2000 rpm; no load 17.3 A, 598.8 V and 2080 rpm; half load 181.4 A, 587.3 V and 2040 rpm; with 20 Ω, rated load 6.0 A, 431.9 A, 569.8 V and 2474 rpm, no load 21.6 A, 598.5 V and about 2600 rpm; straight on, 600 ÷ 0.07 = 8571 A; the working prints these lines",
+        "ok": true
+      },
+      {
+        "label": "At every rheostat setting the field current stays the same whatever the load, while the armature current rises and the speed falls as the load goes on; with the field open, a light load (30% or less) runs away and a heavier one goes far above rated",
+        "ok": true
+      },
+      {
+        "label": "A DC shunt motor rated at 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field, draws 353 A from the supply at rated load",
+        "ok": true,
+        "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf"
+      },
+      {
+        "label": "If the field flux of a DC motor is decreased, the motor speed will increase: each 10 Ω of rheostat raises the speed at every load",
+        "ok": true,
+        "source": "https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf"
+      },
+      {
+        "label": "Speed regulation is the difference between the no-load and rated-load speeds, in percent of rated-load speed: (2080 − 2000) ÷ 2000 = 4.0%",
+        "ok": true,
+        "source": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf"
+      },
+      {
+        "label": "The shunt motor has a safe no-load speed, providing that the field circuit is not de-energised: 2080 rpm at full field, under the example limit",
+        "ok": true,
+        "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load",
+      "rh",
+      "field"
+    ],
+    "readouts": [
+      "rdIa",
+      "rdE",
+      "rdN"
+    ],
+    "outputs": [
+      "ifield",
+      "ia",
+      "emf",
+      "rpm",
+      "drop",
+      "state"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "How it works",
+          "Load it, weaken the field",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load, % of rated torque",
+        "min": 0,
+        "max": 100,
+        "step": 10,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "rh",
+        "kind": "control",
+        "label": "Field rheostat",
+        "min": 0,
+        "max": 50,
+        "step": 10,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          20
+        ]
+      },
+      {
+        "id": "field",
+        "kind": "choice",
+        "label": "Field circuit",
+        "options": [
+          "conn",
+          "open"
+        ],
+        "labels": [
+          "Connected",
+          "Open"
+        ],
+        "value": "conn",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The armature turning"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "load = 75",
+    "rh = 37.5",
+    "field = \"open\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/motors/i7.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i7.a8-1280-dark-end.png"
+  ]
+}

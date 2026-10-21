@@ -1,0 +1,119 @@
+{
+  "lesson": "i7",
+  "title": "The DC shunt motor",
+  "reviewer": "fresh reader (RUNBOOK sections 6 and 8), teaching and motion in one pass",
+  "lookedAt": [
+    "i7.a1-360-light.png",
+    "i7.a1-360-light-moved.png",
+    "i7.a1-360-light-end.png",
+    "i7.a1-360-dark-moved.png",
+    "i7.a1-1280-light-end.png",
+    "i7.a1.film-s2.png"
+  ],
+  "handChecked": "All worked figures recomputed and correct: 600/0.07 = 8571 A; If 7.5, Ia 345.5, drop 24.2, E 575.8; no load 17.3, 1.2, 598.8, 2080; half load 164.1, 181.4, 12.7, 587.3, 2040; 20 ohm rated 6.0, 0.80, 431.9, 30.2, 569.8, 460.64, 2474; 20 ohm no load 21.6, 1.5, 598.5, about 2600; regulation (2080-2000)/2000 = 4.0%. Slider extremes stay on the plot (50 ohm no load 3375 rpm < 3600) and the drop bar never passes 39.3 V of its 60 V scale. i7.body1.x.html (filmed) and i7.body.final.html are identical.",
+  "scores": {
+    "lands": 4,
+    "why": 3,
+    "cause": 4,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 3
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 3, assumption line and first worked line",
+      "what": "The first worked line starts from Ia = 353 - 7.5, but the screen never says the motor draws 353 A at rated load, so the working opens on an unexplained figure; add 'It draws 353 A from the supply at rated load.' to the assumption."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 3, 'Worked from the rule' lines 2 to 5",
+      "what": "17.3 A, 164.1 A and the flux of 0.80 appear with no rule on screen, so he cannot check them by hand; say once, in short sentences, that 17.3 A is an example no-load current (5% of 345.5 A), that 164.1 A is half of the remaining 328.2 A, and that flux 0.80 = 6.0 / 7.5."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 3 (the play screen)",
+      "what": "The screen carries about 311 words: 65 of instruction and assumption, 34 in the live sentence and 212 in five dense worked lines, all shown at once whatever the sliders say. That is far over the 90-word limit and makes a 2400 px scroll at 360 px; show only the worked line that matches the current setting, or move the two 20 ohm lines into screen 4's answer."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5, Speed regulation row (and explain paragraph 4)",
+      "what": "'Real motors sit between 5 and 10%' is stated as fact straight after the picture's own cited motor gives 4.0%, so it reads as if the example were unreal and the range a hard rule, and the brief asked for this figure to be taught as contested, yet lesson.contested is null; write 'Quoted figures run from about 5 to 10%. Some sheets give 10 to 20%. Use the maker's figure.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5, Starting torque row",
+      "what": "The reason is skipped: a series motor's field grows with its current but a shunt motor's does not, so its torque rises only in step with the current. 'Expect about 250%' also reads as a fixed property when the starter's current limit sets it; add the one-line why and soften the figure to a typical value."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5, Speed control row, and the Keep this card",
+      "what": "'Base speed' is used without being explained; add one short sentence saying it is the nameplate speed at full field and full armature volts."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5 (How it behaves)",
+      "what": "At 95 words the screen is at the edge of the limit; drop 'A series motor can give up to 500%.' or merge the speed and regulation rows."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1, the answer's reason",
+      "what": "'The motor here has a 0.07 ohm armature on 600 V' refers to a motor that is not introduced until screen 3; say 'Take a motor with a 0.07 ohm armature on 600 V.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1, question stem",
+      "what": "'At the instant it starts' lets the inductance answer be argued, and the hint itself concedes that inductance governs the first instant; ask 'Before it starts to turn, what sets the current it draws?'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2, third paragraph",
+      "what": "'Unlike the series motor, the field does not follow the load' compares a field with a motor; write 'Unlike a series motor's field, this one does not follow the load.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 7, Starter row",
+      "what": "The brief promised linking the three-point starter's no-volt coil to the DOL latch on his own sheet, and that link is missing; one sentence such as 'It does the job of the DOL's latch: lose the supply and it drops out' would start from what he knows."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6, Drive and At sea rows",
+      "what": "The brief's link back to lesson 3, that AC drives replaced many DC drives partly to cut maintenance, is missing, and 'Some DC motors are built for IEEE 45 shipboard use' gives him nothing to act on; add the lesson 3 link if research supports it, and either make the marine line useful or drop it."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 7, Safety first row",
+      "what": "'Safety first: Isolate, lock off and prove dead first.' says 'first' twice; write 'Isolate, lock off and prove dead before you touch it.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, circuit picture at 360 px",
+      "what": "The supply's 'V = 600 V' label sits in the stack of field-branch labels (rheostat, V = 600 V, shunt field, 80 ohm), so it reads as part of the field branch; move it beside or under the cell symbol."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, field switch set to Open",
+      "what": "With the field open everything changes at once and the dot jumps straight into the red band; animating the dot's climb off the top would show the runaway happening rather than just label it."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, open-field note and behaviour",
+      "what": "'The result depends on the load and the iron' is cryptic ('how much magnetism the iron keeps' is plainer), and the 30% split between 'Runs away' and 'should trip' acts on screen without being called an example; add 'The 30% split is an example.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9, Keep this card at 360 px",
+      "what": "Formulas break mid-expression on a phone ('If = V' / '÷ Rf', 'Line current = Ia' / '+ If'); give each formula its own line or keep it together with non-breaking spaces."
+    },
+    {
+      "severity": "polish",
+      "where": "lesson.explain and lesson.practice footnotes",
+      "what": "Eight footnotes ([^1], [^8] to [^14]) are more than a few, and several sit on plain advice rather than a figure he would look up ([^11] constant-speed motor, [^12] start at full field, [^14] reversing); keep them on the cited motor and the regulation figures."
+    },
+    {
+      "severity": "polish",
+      "where": "Review evidence, i7.a1.film-s2.png",
+      "what": "The contact sheet is 3000 x 36724 px and cannot be read at review scale, so screen 3's motion was judged from i7.a1.film.json (the armature spins, with a change every 0.3 s; the other screens settle) and from the moved and end stills; no clipping, overlap, 'undefined' or NaN shows in those."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "lesson": "i7",
+  "draft": 1,
+  "checkedAgainst": ["the seven faults (RUNBOOK section 3)", "brief.md section 2, lesson 7, section 7 (DC shunt p.1: it does not 'speed back up'; 10-20% taught as contested) and section 9", "the plain-writing and short-screen rules (Dan, 20 and 21 Oct)", "i7.examples.json (the cited 600 V / 0.07 ohm / 80 ohm / 353 A / 2000 rpm motor, the example no-load current, the example 2500 rpm limit, the drop bar drawn 10 times bigger, no speed figure for an open field)", "safety: never show an unsafe step", "every figure recomputed by hand and against the picture's unrounded rule"],
+  "faults": [
+    {"fault": "false absolute", "where": "explain para 3", "finding": "'Here it follows the rheostat and nothing else' is untrue: the field current also follows the supply voltage and the winding's own resistance as it warms.", "fix": "'Here the load does not change it.'"},
+    {"fault": "interactive shows more than the sources say", "where": "screen 3, field open", "finding": "Draft 1 ran the rule with an example 4% residual flux and showed 'Runs away' on any load. The sources say the speed rises a great deal with little or no load; one says it tends to keep running. On a heavy load the honest picture is a huge current, not a speed.", "fix": "No figures with the field open. Light load (30% or less, an example split): the speed runs off the top, 'Runs away'. Heavier: the current reads 'far above rated', 'Its protection should trip it'. Ignores says the real result depends on the load and the iron."},
+    {"fault": "invented claim", "where": "screen 6, Unloaded", "finding": "'So belt drives are fine' is an inference no source makes.", "fix": "'Losing the load is not the danger it is for a series motor.'"},
+    {"fault": "source narration (plain writing, Dan 20 Oct)", "where": "explain para 4, screen 5", "finding": "'Industry guides quote' and 'your notes say' tell him where figures come from.", "fix": "'Quoted figures for real motors run from 5 to 10%. Some put it at 10 to 20%.' The footnotes stay."},
+    {"fault": "too many footnotes (plain writing, Dan 20 Oct)", "where": "explain, screens 4-7, practice", "finding": "26 different footnotes, several on things he knows or on plain advice (torque goes with flux times current, the megger test, reversing).", "fix": "Keep them on the cited motor, the regulation rule and its figures, the starting torque figures, speed control ranges, the nameplate's safe speed, runaway, the stabilising winding, start at full field, reversing and IEEE 45. The summary's cite fields keep the rest as data. 14 in the words."},
+    {"fault": "too long (short screens, Dan 21 Oct)", "where": "screen 7", "finding": "About 116 words; the starter row repeats lesson 2 and the field-open row says 'wreck the motor' on top of runaway.", "fix": "Trim each row to its fact: about 78 words. Screen 6 trimmed to about 91."},
+    {"fault": "brief drives two actions", "where": "interactive.brief", "finding": "Draft 1's brief named the load drag and the field weakening: one visible change from one action is the rule.", "fix": "Brief on the load drag only: the back-emf falls a little, the current rises and the speed dips slightly while the field stays steady. The rheostat is the check's cause."},
+    {"fault": "unsourced number", "where": "analogy", "finding": "'An induction motor slows a few percent' is not a figure lesson 1 or the research gives.", "fix": "'slows a little under load'."},
+    {"fault": "number the picture would not show", "where": "screen 3 read, worked line '20 ohm, no load'", "finding": "Rounded working gives 2599 rpm, the picture's unrounded rule sits on 2598.5: the read-through and the readout could disagree.", "fix": "'about 2600 rpm' in the working, the read sentence and numbers."},
+    {"fault": "example value not labelled", "where": "explain para 2", "finding": "2080 rpm and 598.8 V rest on the example no-load current, but the paragraph did not say so.", "fix": "'with its example no-load current'."}
+  ],
+  "passed": [
+    "the causal step: load, slows, back-emf falls, more room for Ia Ra, more current, more torque, settles lower; and why small: the flux holds steady, with the series motor's moving field named as the physical difference",
+    "the interactive shows the cause: the back-emf and drop bars and the steady field bar move with the load; a setting where the effect is absent (full field: speed nearly flat) and where it appears (weakened field, open field)",
+    "checks are about the cause (field resistance raises the speed) and a fault to find (open field races on a light load), each wrong option a named slip: series-motor thinking, armature-rheostat thinking, brushes",
+    "the recall opener (lessons 1, 3, 5, 7) asks what lesson 6 taught, with no skip",
+    "contested points taught as contested: how far the speed falls (4.0% computed, 5 to 10% quoted, up to 20%), and that a plain shunt motor can even rise with load; his sheet's 'speed back up' corrected kindly in the common mistakes and a trap",
+    "every figure worked from the cited motor by a shown rule, each line from the rounded figures before it, checked against the picture's unrounded rule (2080, 2040, 2000, 2474 rpm agree)",
+    "safety first in practice and on screen 7; no unsafe step shown",
+    "no Section A or B, no typed or written answers; summary as the Keep this card, no case figures; format steps"
+  ],
+  "rewrite": "draft2"
+}

@@ -1,0 +1,707 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T16:43:17.439Z",
+ "startedAt": "2026-10-21T16:43:17.439Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "The DC shunt motor",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the field hold steady and the speed dip only slightly, as the back-emf falls a little and the armature current rises, when you drag the load up.",
+   "title": "Load it, weaken the field",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 8,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Nine screens, with Back and Continue. One picture to play with, three quick choices and a card to keep. No marks and no timers.\n\nAssume one motor on every screen: a DC shunt motor rated 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field, drawing 353 A at rated load.[^1] It is a worked example, not a nameplate. Every other figure is worked from it, or is a labelled example.\n\nScreen 1, Do you still have it? The question: \"A DC motor is switched straight onto its supply. Before it starts to turn, what sets the current it draws?\" Three choices, in this order: \"Its back-emf, which opposes the supply\"; \"Only the resistance of its armature circuit\"; \"The inductance of its windings, as on AC\". Right, the second: \"Still there. A motor makes back-emf only as it turns, so at standstill there is none. Only the resistance limits the current. Take a motor with a 0.07 Ω armature on 600 V. Switched straight on, it would take 600 ÷ 0.07 = 8571 A. That is why it starts through a starter.\" Wrong, the first: \"Back-emf comes from turning. At standstill there is none, so it cannot hold the current back yet.\" Wrong, the third: \"Inductance only slows how fast the current rises. At standstill, once it settles, only resistance limits a DC current.\" After a wrong choice, the right answer and its reason, then on to screen 2. No skip button.\n\nScreen 2, How it works. A still drawing: a DC supply labelled \"600 V\" with two branches across it, side by side. On the left, the field winding with a field rheostat in series, labelled \"shunt field\". On the right, the armature between its brushes. An arrow from the supply splits into \"field current\" and \"armature current\". A curved arrow shows the armature turning, and a label \"back-emf\" points against the supply. The words beside it: \"The field winding is wired across the supply, beside the armature. So its current and its flux stay steady whatever the load. Load the motor and it slows a little. Its back-emf falls, so more armature current flows. More current gives more torque. It settles where the torque matches the load, a little slower than before. Unlike a series motor's field, this one does not follow the load. So the speed hardly moves.\" Shunt field is the key term, marked in amber.\n\nScreen 3, Load it, weaken the field: the picture to play with. At the top, screen 2's circuit redrawn small, with an arrow on the field rheostat and \"V = 600 V\" beside the supply's cell. Beside the field winding, a bar for its flux, labelled with the field current in amperes. Next, two bars. Back-emf, on a scale of 0 to 600 V. Armature drop, Ia × Ra, on a scale of 0 to 60 V, labelled \"drawn 10 times bigger\". Then a plot: speed in rpm, 0 to 3600, against load, 0 to 100% of rated torque. The speed line for the present field setting is drawn in full, with a dot at the load slider's value. A band above 2500 rpm is shaded red and labelled \"example limit, not a maker's\". Then one row of three readouts: Armature current, A. Back-emf, V. Speed, rpm. The armature current turns red above its rated 345.5 A. The speed turns red above 2500 rpm. On a phone these sit one under another. On a laptop the plot sits beside the circuit.\n\nThe controls. Load: a slider from 0 to 100% of rated torque in steps of 10. It starts at 0, running light. Field rheostat: a slider from 0 to 50 Ω in steps of 10. It starts at 0, full field. Field circuit: a switch, Connected or Open. It starts on Connected.\n\nThe rule it works out is for a simplified shunt motor. Flux follows field current. There is no saturation, no armature reaction and no brush drop.\nField current If = 600 ÷ (80 + rheostat). Flux = If ÷ 7.5, so 1.00 at full field.\nArmature current Ia = (17.3 + 328.2 × load) ÷ flux, with load as a fraction of rated. 17.3 A is an example no-load current, 5% of rated. It only covers the motor's own friction and iron losses. 328.2 A is the rest of the rated 345.5 A. Torque goes with flux × Ia. So dividing by the flux keeps the torque matched to the load.\nBack-emf E = 600 − Ia × 0.07.\nSpeed = 2000 × (E ÷ 575.8) ÷ flux. Back-emf goes with flux × speed, and is 575.8 V at 2000 rpm on full field.\n\nUnder the readouts, a box shows the working for the present setting only. Each line uses the rounded figures before it. At any other setting the box names the settings that have working. With the field open the box is hidden.\nRated load, full field: If = 600 ÷ 80 = 7.5 A. Ia = 353 − 7.5 = 345.5 A. Drop = 345.5 × 0.07 = 24.2 V. E = 600 − 24.2 = 575.8 V. Speed 2000 rpm.\nNo load, full field: Ia = 17.3 A. That is an example, 5% of 345.5 A. Drop = 17.3 × 0.07 = 1.2 V. E = 600 − 1.2 = 598.8 V. Speed = 2000 × 598.8 ÷ 575.8 = 2080 rpm.\nHalf load, full field: the load's share is half of 345.5 − 17.3 = 328.2 A, so 164.1 A. Ia = 17.3 + 164.1 = 181.4 A. Drop = 181.4 × 0.07 = 12.7 V. E = 587.3 V. Speed = 2000 × 587.3 ÷ 575.8 = 2040 rpm.\nRheostat 20 Ω, rated load: If = 600 ÷ 100 = 6.0 A. Flux = 6.0 ÷ 7.5 = 0.80. Ia = 345.5 ÷ 0.80 = 431.9 A, above rated. Drop = 431.9 × 0.07 = 30.2 V. E = 600 − 30.2 = 569.8 V. Speed = 2000 × 569.8 ÷ (575.8 × 0.80) = 2000 × 569.8 ÷ 460.64 = 2474 rpm.\nRheostat 20 Ω, no load: Ia = 17.3 ÷ 0.80 = 21.6 A. Drop = 21.6 × 0.07 = 1.5 V. E = 598.5 V. Speed = 2000 × 598.5 ÷ 460.64, about 2600 rpm, past the example limit.\n\nField open. The flux bar drops to a sliver, labelled \"residual magnetism only\". The picture prints no figures here. A note under the circuit says how fast it goes depends on the load and on how much magnetism the iron keeps, and that the 30% load split is an example. On a load of 30% or less, the speed dot climbs from where it was into the red band near the top, leaving a trail, labelled \"Runs away\". On a heavier load the armature current readout shows \"far above rated\" in red, labelled \"Its protection should trip it\". Switch back to Connected and the picture returns to the rule above.\n\nThe words on the screen, above the picture: \"Assume this 600 V motor: 0.07 Ω armature and 80 Ω field. At rated load it runs at 2000 rpm and draws 353 A from the supply. The supply covers the back-emf and the armature drop: V = E + Ia Ra. Back-emf goes with flux × speed. Torque goes with flux × Ia. The no-load current and the 2500 rpm limit are examples.\" The prompt above the picture: \"Drag the load up. Then add field resistance. Then open the field.\" Read: From no load to rated load the field current stays at 7.5 A. The back-emf falls from 598.8 to 575.8 V. The armature current rises from 17.3 to 345.5 A. The speed dips only from 2080 to 2000 rpm. Adding 20 Ω to the field cuts its current to 6.0 A. At rated load the speed rises to 2474 rpm. The armature current rises to 431.9 A, above rated. With no load it reaches about 2600 rpm, past the example limit. With the field open on a light load, the speed runs away. Still: the field connected, the rheostat at 0 Ω and the load at 100%. The field bar is full at 7.5 A, the back-emf bar at 575.8 V and the drop bar at 24.2 V. The dot sits at 2000 rpm on a nearly flat line, and the readouts show 345.5 A, 575.8 V and 2000 rpm.\n\nScreen 4, Check on the cause. \"A shunt motor is driving a steady load. You turn the field rheostat to add resistance. What does the speed do?\" Three choices, in this order: \"It rises\"; \"It falls\"; \"It holds steady\". Right, the first: \"Right. Less field current means less flux. The armature must spin faster to make the back-emf it needs. So the speed rises. On the picture, 20 Ω takes the rated-load speed from 2000 to 2474 rpm. That is called field weakening.\" Wrong, the second: \"That is what resistance in the armature circuit does. In the field circuit it weakens the flux. A weaker field must spin faster, so the speed rises.\" Wrong, the third: \"The load is the same, but the flux is not. Less flux needs more speed for the same back-emf. So the speed rises.\" After a wrong choice, the right answer and its reason.\n\nScreen 5, How it behaves. A still drawing: screen 3's speed line at full field, nearly flat from 2080 rpm at no load to 2000 rpm at rated load, labelled \"sketch from the simplified rule\". Rows, each with a label.\n\nSpeed: \"Nearly constant.[^10] Its speed regulation is (no-load − full-load speed) ÷ full-load speed.[^2] Here (2080 − 2000) ÷ 2000 = 4.0%. Quoted figures run from about 5 to 10%.[^7] Some sheets give 10 to 20%.[^3] Use the maker's figure.\"\n\nStarting torque: \"Lower than a series motor's, as its field does not grow with the current.[^5] Typically about 250%, as the starter's current limit allows.[^4]\"\n\nSpeed control: \"Base speed is the nameplate speed at full field and full armature volts. Below it, lower the armature volts. Above it, weaken the field.[^12]\"\n\nReversing: \"Swap the armature or the field leads, not both.[^13]\"\n\nSpeed regulation is the key term, marked in amber.\n\nScreen 6, Where it is used, and its limits. A still drawing: the motor driving a conveyor, with a thyristor drive feeding its armature. Rows.\n\nUsed for: \"Pumps, fans, blowers, conveyors, machine tools and printing. Anywhere the speed must hold steady as the load changes.\"\n\nUnloaded: \"Safe with no load at full field, as long as the field stays connected. Losing the load is not the danger it is for a series motor.\"\n\nDrive: \"It pairs well with a thyristor drive, which sets the armature voltage. Many plants have moved to AC motors on VSDs.[^24] Brush and commutator upkeep is a big reason.[^25]\"\n\nLimits: \"Brushes and commutator need regular care. Field weakening must not take it past the nameplate's maximum safe speed.[^6] A weakened field can overspeed at light load.\"\n\nScreen 7, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger from the windings to frame, an ohmmeter across the field leads, and the brushes on the commutator. Rows.\n\nSafety first: \"Isolate, lock off and prove dead before you touch it.\"\n\nField open: \"On a light load it can run away. Loss-of-field protection guards against it.\"\n\nStarting: \"Start at full field, with the rheostat at its slow-speed position.\"\n\nStarter: \"A three-point starter's no-volt coil works like the DOL's latch. Lose the supply and its handle drops to off. The coil carries the field current, so an open field drops it too.\"\n\nSparking: \"Look for worn brushes, a rough commutator or an armature fault.\"\n\nTests: \"Megger the windings to frame. Measure the armature and field resistance. An open field reads open circuit.\"\n\nScreen 8, Find the fault. \"A shunt motor drives a conveyor that is running almost empty. It has run at a steady speed for years. Today it races until its protection trips. What is the most likely fault?\" Three choices, in this order: \"The belt came off, so it lost its load\"; \"The shunt field circuit has gone open\"; \"The brushes have worn down\". Right, the second: \"Right. With the field open, only residual magnetism is left. The armature must spin far faster to make its back-emf. On a light load it runs away. Isolate and prove dead. Then test the field winding, its rheostat and its connections for an open circuit.\" Wrong, the first: \"That is the series motor's trap. A shunt motor's field stays steady with no load. Running light at full field, it goes only a little faster.\" Wrong, the third: \"Worn brushes cause sparking and poor contact. They make a motor weak or slow, not race.\" After a wrong choice, the right answer and its reason.\n\nScreen 9, Keep this: the summary card, without the worked figures. Then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The no-load current, the 2500 rpm limit and the open-field split are examples, not a maker's.",
+   "ignores": "The picture is a simplified shunt motor. Its flux follows the field current exactly, with no saturation. It ignores armature reaction. That changes the flux a little under load. On a real plain shunt motor it can stop the speed falling, or even make it rise. It also ignores brush drop and the time the motor takes to change speed. The no-load current, the red limit and the open-field split are example values, not a maker's. With the field open it prints no figures. How fast it goes depends on the load and on how much magnetism the iron keeps.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 9 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Example motor supply voltage, V",
+     "value": 600,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Example motor armature resistance, ohm",
+     "value": 0.07,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Example motor field resistance, ohm",
+     "value": 80,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Example motor line current at rated load, A",
+     "value": 353,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Example motor rated speed, rpm",
+     "value": 2000,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Field current at full field, A",
+     "value": 7.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature current at rated load, A",
+     "value": 345.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature drop at rated load, V",
+     "value": 24.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Back-emf at rated load, V",
+     "value": 575.8,
+     "kind": "computed"
+    },
+    {
+     "label": "No-load share of rated armature current, % (example)",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "No-load armature current, A (example)",
+     "value": 17.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Load-carrying part of rated armature current, A",
+     "value": 328.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature drop at no load, V",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Back-emf at no load, V",
+     "value": 598.8,
+     "kind": "computed"
+    },
+    {
+     "label": "No-load speed at full field, rpm",
+     "value": 2080,
+     "kind": "computed"
+    },
+    {
+     "label": "Extra armature current at half load, A",
+     "value": 164.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature current at half load, A",
+     "value": 181.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature drop at half load, V",
+     "value": 12.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Back-emf at half load, V",
+     "value": 587.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed at half load, rpm",
+     "value": 2040,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed regulation of the example motor, %",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Load slider, lowest and opening, % of rated torque",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Load slider, highest, % of rated torque",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Load slider, step, %",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Field rheostat slider, lowest and opening, ohm",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Field rheostat slider, highest, ohm",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Field rheostat slider, step, ohm",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Field circuit switch, opening (Connected)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Field rheostat in the worked case, ohm",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Total field resistance with 20 ohm added, ohm",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Field current with 20 ohm added, A",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Flux with 20 ohm added, of rated",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature current, rated torque, 20 ohm, A",
+     "value": 431.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature drop, rated torque, 20 ohm, V",
+     "value": 30.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Back-emf, rated torque, 20 ohm, V",
+     "value": 569.8,
+     "kind": "computed"
+    },
+    {
+     "label": "575.8 x 0.80, the divisor in the speed line",
+     "value": 460.64,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed, rated torque, 20 ohm, rpm",
+     "value": 2474,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature current, no load, 20 ohm, A",
+     "value": 21.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Armature drop, no load, 20 ohm, V",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Back-emf, no load, 20 ohm, V",
+     "value": 598.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed, no load, 20 ohm, about, rpm",
+     "value": 2600,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed limit drawn in red, rpm (example)",
+     "value": 2500,
+     "kind": "assumed"
+    },
+    {
+     "label": "Speed axis top, rpm",
+     "value": 3600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Back-emf bar scale top, V",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Armature drop bar scale top, V",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Armature drop bar drawn bigger, times",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Open field: light load up to, % of rated (example split)",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Starting current straight on the supply, A",
+     "value": 8571,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed regulation, quoted range, low, %",
+     "value": 5,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Speed regulation, quoted range, high, %",
+     "value": 10,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Speed regulation, highest figure quoted, %",
+     "value": 20,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Shunt starting torque, about, % (one guide)",
+     "value": 250,
+     "kind": "constant",
+     "source": 4
+    }
+   ]
+  },
+  "explain": {
+   "text": "A DC shunt motor has its field winding wired across the supply, beside the armature. That winding is the [[shunt field]]. Its current is set by the supply voltage and its own resistance, not by the load. So the flux holds steady, and the speed stays nearly constant as the load changes.\n\nBack-emf works as it did in the series motor. The supply has to cover it plus the drop across the armature: V = E + Ia Ra. Put a load on and the armature slows a little, so the back-emf falls. That leaves more room for Ia Ra, so more armature current flows. Torque goes with flux times current, so the torque rises. The speed settles where the torque matches the load. It does not climb back to where it was. The fall is small because the flux holds steady. Take the picture's 600 V motor, with its example no-load current. Its back-emf falls only from 598.8 V running light to 575.8 V at rated load. So the speed falls only from 2080 to 2000 rpm.\n\nBack-emf goes with flux times speed, so speed goes with back-emf over flux. That is how the field rheostat works. Add resistance and the flux weakens. The motor must then spin faster to make its back-emf. Lose the field altogether and only residual magnetism is left. On a light load the motor can then run away. In the series motor the field followed the load. Here the load barely changes it.\n\nHow far the speed falls from no load to full load is its [[speed regulation]]. The picture's motor gives 4.0%. Quoted figures run from about 5 to 10%.[^7] Some sheets give 10 to 20%. Use the maker's figure. A plain shunt motor can even speed up a little under load. The armature's own field weakens the flux. Makers may add a light series winding to stop that. The picture is a simplified motor that leaves this out. **Its field sits across the supply and holds the flux steady. So under load a shunt motor slows only a little. It counts as a constant-speed motor.**"
+  },
+  "analogy": {
+   "text": "An induction motor works the same way. It slows a little under load. That slip is what makes the rotor current that carries the torque. A shunt motor does the same with back-emf. It slows a little, so the back-emf falls and more armature current flows. Both count as constant-speed motors.",
+   "breaks": "An induction motor's speed is held just under its field's synchronous speed, set by the supply frequency and its poles. A shunt motor has no such fixed speed. Weaken its field and it runs faster. Lose the field and it can run away."
+  },
+  "practice": {
+   "text": "- Isolate, lock off and prove dead before you touch the motor or its starter.\n- Before a start, set the field rheostat to full field, its slow-speed position.\n- Start through the starter. Never bypass its starting resistance.\n- Check that loss-of-field protection is fitted.\n- Megger the windings to frame. Measure the field and armature resistance. An open field reads open circuit.\n- Look at the brushes and commutator for wear, roughness and sparking.\n\n**Rule of thumb:** speed goes with back-emf over flux. Less field means more speed. Less armature voltage means less speed.\n\n**Worked example:** take a shunt motor rated 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field. It draws 353 A at rated load.[^1] The field takes If = 600 ÷ 80 = 7.5 A. So the armature takes Ia = 353 − 7.5 = 345.5 A. Its drop is 345.5 × 0.07 = 24.2 V, so E = 600 − 24.2 = 575.8 V. Now add 20 Ω to the field at the same torque. Assume the flux follows the field current. If = 600 ÷ 100 = 6.0 A, so the flux is 0.80 of rated. Ia = 345.5 ÷ 0.80 = 431.9 A. E = 600 − 431.9 × 0.07 = 600 − 30.2 = 569.8 V. Speed = 2000 × 569.8 ÷ (575.8 × 0.80) = 2474 rpm. The armature now carries more than its rated current. So above base speed it must give less torque, at about the same power.\n\n**Common mistakes**\n- Expecting it to speed back up once the current rises. It settles a little slower.\n- Adding field resistance to slow it down. That weakens the field and speeds it up.\n- Starting with the field weakened. That gives less starting torque and a higher speed.\n- Treating it like a series motor and never running it light. It is safe unloaded at full field, while the field stays connected.\n- Swapping the supply leads to reverse it. That reverses field and armature together, so it turns the same way."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+   "title": "The DC shunt motor",
+   "for": "Work that needs a steady speed as the load changes. The field sits across the supply, so its flux holds steady. Under load the speed dips only a little.",
+   "rule": "Field across the supply, so the flux holds steady.\nIf = V ÷ Rf\nV = E + Ia Ra\nLine current = Ia + If\nSpeed goes with E ÷ flux.\nTorque goes with flux × Ia.\nSpeed regulation = (no-load − full-load speed) ÷ full-load speed.\n\nNearly constant speed. Regulation is quoted at about 5 to 10%, sometimes 10 to 20%. Use the maker's figure.\nStarting torque is lower than a series motor's.\nBase speed is the nameplate speed at full field and full armature volts.\nBelow base speed, lower the armature volts. Above it, weaken the field.\nReverse it: swap the armature or the field leads, not both.",
+   "traps": [
+    {
+     "text": "More field resistance means more speed, not less. Weakening the field speeds it up.",
+     "cite": "[^14] [^15] CircuitBread; US DOE reference guide"
+    },
+    {
+     "text": "Lose the field and it can run away on a light load. Make sure loss-of-field protection is fitted.",
+     "cite": "[^8] [^16] [^17] MSU Tech Note 318; Rose-Hulman lecture 25"
+    },
+    {
+     "text": "Start at full field, with the rheostat at its slow-speed position. Start through the starter's resistance.",
+     "cite": "[^11] [^18] IDC; PEG-3722 part 8"
+    },
+    {
+     "text": "It does not speed back up after a load goes on. It usually settles a little slower. That fall is its speed regulation.",
+     "cite": "[^19] [^20] [^2] [^9] OpenStax; IDC; NEMA MG 1"
+    },
+    {
+     "text": "Isolate, lock off and prove dead. Then megger to frame, measure field and armature resistance, and check the brushes and commutator.",
+     "cite": "[^21] [^22] [^23] Pump & Motor Works"
+    }
+   ],
+   "where": "Pumps, fans, blowers, conveyors, machine tools and printing: where the speed must hold near its setting."
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+    "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+    "quote": "A DC shunt motor is rated at 600V, 255hp, 2000rpm. It has an armature resistance of 0.07Ω and a total field resistance of 80Ω. It draws a current of 353A from the supply when delivering rated load."
+   },
+   {
+    "n": 2,
+    "title": "Section I General Standards Applying to All Machines Part ...",
+    "url": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf",
+    "quote": "The speed regulation of a dc motor is the difference between the steady no-load speed and the steady rated-load speed expressed in percent of rated-load speed."
+   },
+   {
+    "n": 3,
+    "title": "Your motor sheet: the DC shunt motor",
+    "url": "material:dc-shunt#p1",
+    "quote": "The motor's speed changes only slightly between no-load and full-load conditions, typically varying by 10–20%."
+   },
+   {
+    "n": 4,
+    "title": "Basic Maintenance and Testing of DC Electric Motors",
+    "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+    "quote": "This design provides approximately 250% starting torque, 5-10% speed regulation and the windings are separately powered and provide speed control by up to 200% with field weakening control and decrease speed by reducing armature voltage."
+   },
+   {
+    "n": 5,
+    "title": "Basic Maintenance and Testing of DC Electric Motors",
+    "url": "https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf",
+    "quote": "The result of the connection of the armature circuit to the series circuit is a machine that can provide a very high starting torque of up to 500%."
+   },
+   {
+    "n": 6,
+    "title": "— Baldor-Reliance® Integral horsepower DC motors",
+    "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+    "quote": "Motor speed under any condition must not exceed maximum safe speed on nameplate."
+   },
+   {
+    "n": 7,
+    "title": "DC Motors: Advantages, Types, and Common Hazards Explained",
+    "url": "https://resources.galco.com/motion-control/dc-motors",
+    "quote": "In either case, this type of motor has good speed regulation (5% to 10%) and is capable of delivering 300 percent of its full load torque for a very short period of time."
+   },
+   {
+    "n": 8,
+    "title": "Electrical Tech Note 318: DC motors",
+    "url": "https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf",
+    "quote": "Complete loss of the dc supply to the field will result in a significant increase in armature speed if there is little or no load on the motor."
+   },
+   {
+    "n": 9,
+    "title": "Section I General Standards Applying to All Machines Part ...",
+    "url": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf",
+    "quote": "A stabilized shunt-wound motor is a direct-current motor ... which also has a light series winding added to prevent a rise in speed or to obtain a slight reduction in speed with increase in load."
+   },
+   {
+    "n": 10,
+    "title": "Section I General Standards Applying to All Machines Part ...",
+    "url": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf",
+    "quote": "A constant-speed motor is one in which the speed of normal operation is constant or practically constant; for example, a synchronous motor, an induction motor with small slip, or a dc shunt-wound motor."
+   },
+   {
+    "n": 11,
+    "title": "Classes, Speed Control and Starting of DC motors",
+    "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+    "quote": "it is most important to see that the shunt rheostat ( for speed control ) is in the slow-speed position."
+   },
+   {
+    "n": 12,
+    "title": "DC Motors: Advantages, Types, and Common Hazards Explained",
+    "url": "https://resources.galco.com/motion-control/dc-motors",
+    "quote": "Armature voltage control is used for speeds below base speed, resulting in a constant torque capacity. Shunt field control is used to obtain speeds above base speeds resulting in a constant horsepower capacity."
+   },
+   {
+    "n": 13,
+    "title": "DC Generators and Motors",
+    "url": "https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf",
+    "quote": "If both are reversed, rotation will continue in the original direction."
+   },
+   {
+    "n": 14,
+    "title": "What is the Difference between DC Series, DC Shunt, and DC Compound Motors? | CircuitBread",
+    "url": "https://www.circuitbread.com/ee-faq/difference-between-dcseries-dcshunt-and-dccompound-motors",
+    "quote": "In other words, speed is greater when there is lower field flux."
+   },
+   {
+    "n": 15,
+    "title": "ELECTRICAL SYSTEMS AND SAFETY OVERSIGHT QUALIFICATION STANDARD REFERENCE GUIDE",
+    "url": "https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf",
+    "quote": "If the field flux of a DC motor is decreased, the motor speed will increase."
+   },
+   {
+    "n": 16,
+    "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+    "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+    "quote": "Loss-of-field protection is usually provided to guard against overspeeding."
+   },
+   {
+    "n": 17,
+    "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+    "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+    "quote": "However, the shunt, or separately-excited, motor has a safe no-load speed, providing that the field circuit is not de-energized."
+   },
+   {
+    "n": 18,
+    "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+    "quote": "In order to reduce this very high starting current, an external resistance must be placed in series with the armature during the starting period."
+   },
+   {
+    "n": 19,
+    "title": "23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax",
+    "url": "https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf",
+    "quote": "When a mechanical load is placed on the motor, like an electric wheelchair going up a hill, the motor slows, the back emf drops, more current flows, and more work can be done."
+   },
+   {
+    "n": 20,
+    "title": "Classes, Speed Control and Starting of DC motors",
+    "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+    "quote": "Its speed is nearly constant, falling off as the load increases due to resistance drop and armature reaction."
+   },
+   {
+    "n": 21,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+   },
+   {
+    "n": 22,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+   },
+   {
+    "n": 23,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+   },
+   {
+    "n": 24,
+    "title": "ABB drives - Technical guide No. 4, Guide to variable speed drives",
+    "url": "https://library.e.abb.com/public/5212850908d44d979d34b61b703feeaa/ABB_Technical_guide_No_4_REVC.pdf",
+    "quote": "The market share of DC drives is diminishing, and the total DC market size remains approximately constant."
+   },
+   {
+    "n": 25,
+    "title": "ABB drives - Technical guide No. 4, Guide to variable speed drives",
+    "url": "https://library.e.abb.com/public/5212850908d44d979d34b61b703feeaa/ABB_Technical_guide_No_4_REVC.pdf",
+    "quote": "These brushes need regular maintenance and the commutator itself complicates the motor structure and consumes energy."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 62rem; margin-inline: auto; }\n  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }\n  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task.show.ask { font-weight: 700; }\n  .task > * + * { margin-top: 10px; }\n  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .task .card b, .task .warn-note b { font-weight: 700; }\n  .task .warn-note { line-height: 1.5; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .why { line-height: 1.6; }\n  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }\n  .lcol > * + *, .rcol > * + * { margin-top: 12px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  #outs .k-readout { padding: 8px 8px 10px 10px; }\n  #outs .k-readout-value { font-size: 1.1rem; }\n  #outs .k-readout.hot .k-readout-value { color: var(--k-warn); }\n  .trip { color: var(--k-warn); font-weight: 700; line-height: 1.5; }\n  .work { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }\n  .work .wh { margin: 0; font-weight: 700; }\n  .work .wl { margin: 6px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }\n  .fig { display: block; width: 100%; height: auto; }\n  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }\n  .fig .wt { font: 600 13px var(--k-font); fill: var(--k-warn); }\n  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n  .fig .ah { fill: var(--k-ink); }\n  .fig .plt { stroke: var(--k-ink); stroke-width: 2; }\n  .fig .plt2 { stroke: var(--k-ink); stroke-width: 5; }\n  .fig .coilS { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .blade { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }\n  .fig .ia { fill: var(--k-accent2); }\n  .fig .arm { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .slot { fill: var(--k-muted); }\n  .fig .brush { fill: var(--k-strong); }\n  .fig .hub { fill: var(--k-strong); }\n  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .shaft { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }\n  .fig .turn { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .emf { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .emfh { fill: var(--k-accent); }\n  .fig .barO { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .barF { fill: var(--k-accent2); }\n  .fig .barE { fill: var(--k-accent); }\n  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .grid { stroke: var(--k-line); stroke-width: 1; }\n  .fig .band { fill: var(--k-warn); fill-opacity: .12; }\n  .fig .dl { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .fig .sp { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .ref { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 5; }\n  .fig .trail { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 2 5; stroke-linecap: round; }\n  .fig .dotS { fill: var(--k-accent2); stroke: var(--k-panel); stroke-width: 2; }\n  .fig .dotS.hot { fill: var(--k-warn); }\n  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .jn { fill: var(--k-ink); }\n  .fig .hdl { fill: var(--k-strong); }\n  .fig .lock { fill: var(--k-warn); }\n  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }\n  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }\n  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .ans { font-weight: 700; }\n  #stepbox.enter { animation: screen-in .35s ease-out both; }\n  .fb { animation: fade-in .25s ease-out both; }\n  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"hwW\"><svg class=\"fig\" id=\"hw\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"behW\"><svg class=\"fig\" id=\"beh\" viewBox=\"0 0 340 264\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"useW\"><svg class=\"fig\" id=\"use\" viewBox=\"0 0 340 124\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"fltW\"><svg class=\"fig\" id=\"flt\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <p class=\"why\" id=\"pre\"></p>\n    <div class=\"live\" id=\"live\">\n      <div class=\"lcol\">\n        <svg class=\"fig\" id=\"mot\" viewBox=\"0 0 340 270\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-controls\" id=\"ctl\"></div>\n      </div>\n      <div class=\"rcol\">\n        <svg class=\"fig\" id=\"plot\" viewBox=\"0 0 340 264\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-readouts\" id=\"outs\"></div>\n        <p class=\"trip\" id=\"trip\"></p>\n        <p class=\"say\" id=\"say\"></p>\n        <div class=\"work\" id=\"work\"></div>\n      </div>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  const DEG = Math.PI / 180;\n  const REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const ROSE = 'https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf';\n  const NEMA = 'https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf';\n  const DOE = 'https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf';\n\n  // ---------- the rule ----------\n  // A simplified shunt motor: flux follows field current; no saturation, armature reaction or brush drop.\n  const V = 600, RA = 0.07, RF = 80, IL = 353, N0 = 2000;   // the worked example motor\n  const LIMIT = 2500, NTOP = 3600, LIGHT = 30;             // example limit, plot top, example open-field split\n  const one = (v) => (Math.round(v * 10 + 1e-9) / 10).toFixed(1);\n  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);\n  const whole = (v) => String(Math.round(v + 1e-9));\n  const IF0 = V / RF;                 // 7.5 A at full field\n  const IAR = +one(IL - IF0);         // 345.5 A rated armature current\n  const INL = +one(0.05 * IAR);       // 17.3 A example no-load current, 5% of rated\n  const ILD = +one(IAR - INL);        // 328.2 A, the rest of rated\n  const DR0 = +one(IAR * RA);         // 24.2 V\n  const E0 = +one(V - DR0);           // 575.8 V at 2000 rpm, full field\n  function rule(L, rh) {\n    const If = V / (RF + rh), flux = If / IF0;\n    const Ia = (INL + ILD * L / 100) / flux, drop = Ia * RA, E = V - drop;\n    return { If: If, flux: flux, Ia: Ia, drop: drop, E: E, N: N0 * (E / E0) / flux };\n  }\n  const LD = (p) => K.clamp(Math.round((+(p && p.load != null ? p.load : 0) || 0) / 10) * 10, 0, 100);\n  const RH = (p) => K.clamp(Math.round((+(p && p.rh != null ? p.rh : 0) || 0) / 10) * 10, 0, 50);\n  const OPEN = (p) => !!p && p.field === 'open';\n\n  // The worked lines, each from the rounded figures before it.\n  const W = (function () {\n    const nl = { dr: +one(INL * RA) }; nl.e = +one(V - nl.dr); nl.n = whole(N0 * nl.e / E0);\n    const hf = { add: +one(ILD * 0.5) }; hf.ia = +one(INL + hf.add); hf.dr = +one(hf.ia * RA); hf.e = +one(V - hf.dr); hf.n = whole(N0 * hf.e / E0);\n    const RW = 20, wf = { If: +one(V / (RF + RW)) }; wf.flux = +two(wf.If / IF0); wf.div = +two(E0 * wf.flux);\n    wf.ia = +one(IAR / wf.flux); wf.dr = +one(wf.ia * RA); wf.e = +one(V - wf.dr); wf.n = whole(N0 * wf.e / wf.div);\n    const wn = { ia: +one(INL / wf.flux) }; wn.dr = +one(wn.ia * RA); wn.e = +one(V - wn.dr); wn.n = String(Math.round(N0 * wn.e / wf.div / 100) * 100);\n    return { RW: RW, nl: nl, hf: hf, wf: wf, wn: wn };\n  })();\n  const WORK = [\n    'Rated load, full field: If = ' + V + ' ÷ ' + RF + ' = ' + one(IF0) + ' A. Ia = ' + IL + ' − ' + one(IF0) + ' = ' + one(IAR) + ' A. Drop = ' + one(IAR) + ' × ' + RA + ' = ' + one(DR0) + ' V. E = ' + V + ' − ' + one(DR0) + ' = ' + one(E0) + ' V. Speed ' + N0 + ' rpm.',\n    'No load, full field: Ia = ' + one(INL) + ' A. That is an example, 5% of ' + one(IAR) + ' A. Drop = ' + one(INL) + ' × ' + RA + ' = ' + one(W.nl.dr) + ' V. E = ' + V + ' − ' + one(W.nl.dr) + ' = ' + one(W.nl.e) + ' V. Speed = ' + N0 + ' × ' + one(W.nl.e) + ' ÷ ' + one(E0) + ' = ' + W.nl.n + ' rpm.',\n    'Half load, full field: the load\\'s share is half of ' + one(IAR) + ' − ' + one(INL) + ' = ' + one(ILD) + ' A, so ' + one(W.hf.add) + ' A. Ia = ' + one(INL) + ' + ' + one(W.hf.add) + ' = ' + one(W.hf.ia) + ' A. Drop = ' + one(W.hf.ia) + ' × ' + RA + ' = ' + one(W.hf.dr) + ' V. E = ' + one(W.hf.e) + ' V. Speed = ' + N0 + ' × ' + one(W.hf.e) + ' ÷ ' + one(E0) + ' = ' + W.hf.n + ' rpm.',\n    'Rheostat ' + W.RW + ' Ω, rated load: If = ' + V + ' ÷ ' + (RF + W.RW) + ' = ' + one(W.wf.If) + ' A. Flux = ' + one(W.wf.If) + ' ÷ ' + one(IF0) + ' = ' + two(W.wf.flux) + '. Ia = ' + one(IAR) + ' ÷ ' + two(W.wf.flux) + ' = ' + one(W.wf.ia) + ' A, above rated. Drop = ' + one(W.wf.ia) + ' × ' + RA + ' = ' + one(W.wf.dr) + ' V. E = ' + V + ' − ' + one(W.wf.dr) + ' = ' + one(W.wf.e) + ' V. Speed = ' + N0 + ' × ' + one(W.wf.e) + ' ÷ (' + one(E0) + ' × ' + two(W.wf.flux) + ') = ' + N0 + ' × ' + one(W.wf.e) + ' ÷ ' + two(W.wf.div) + ' = ' + W.wf.n + ' rpm.',\n    'Rheostat ' + W.RW + ' Ω, no load: Ia = ' + one(INL) + ' ÷ ' + two(W.wf.flux) + ' = ' + one(W.wn.ia) + ' A. Drop = ' + one(W.wn.ia) + ' × ' + RA + ' = ' + one(W.wn.dr) + ' V. E = ' + one(W.wn.e) + ' V. Speed = ' + N0 + ' × ' + one(W.wn.e) + ' ÷ ' + two(W.wf.div) + ', about ' + W.wn.n + ' rpm, past the example limit.',\n  ];\n  const NNL = whole(rule(0, 0).N), NFL = whole(rule(100, 0).N);\n  const REG = one((+NNL - +NFL) / +NFL * 100);\n  const START = whole(V / RA);\n  const R20 = rule(100, W.RW);\n\n  // ---------- the lesson's words ----------\n  const blk = (t, s) => ({ t: t, s: s });\n  const HOW = [\n    blk('p', 'The *shunt field* winding is wired across the supply, beside the armature. So its current and its flux stay steady whatever the load.'),\n    blk('p', 'Load the motor and it slows a little. Its back-emf falls, so more armature current flows. More current gives more torque. It settles where the torque matches the load, a little slower than before.'),\n    blk('p', 'Unlike a series motor\\'s field, this one does not follow the load. So the speed hardly moves.'),\n  ];\n  const PLAY_TASK = 'Drag the load up. Then add field resistance. Then open the field.';\n  const PRE = 'Assume this ' + V + ' V motor: ' + RA + ' Ω armature and ' + RF + ' Ω field. At rated load it runs at ' + N0 + ' rpm and draws ' + IL + ' A from the supply. The supply covers the back-emf and the armature drop: V = E + Ia Ra. ' +\n    'Back-emf goes with flux × speed. Torque goes with flux × Ia. The no-load current and the ' + LIMIT + ' rpm limit are examples.';\n  const PLAY_READ = 'From no load to rated load the field current stays at ' + one(IF0) + ' A. The back-emf falls from ' + one(rule(0, 0).E) + ' to ' + one(rule(100, 0).E) + ' V. ' +\n    'The armature current rises from ' + one(INL) + ' to ' + one(IAR) + ' A. The speed dips only from ' + NNL + ' to ' + NFL + ' rpm. ' +\n    'Add ' + W.RW + ' Ω to the field and its current falls to ' + one(W.wf.If) + ' A. At rated load it then runs at ' + whole(R20.N) + ' rpm on ' + one(R20.Ia) + ' A, above rated. ' +\n    'With no load it reaches about ' + W.wn.n + ' rpm, past the example limit. Open the field on a light load and it runs away.';\n  const BEHAVE = [\n    blk('row', 'Speed: Nearly constant. Its *speed regulation* is (no-load − full-load speed) ÷ full-load speed. Here (' + NNL + ' − ' + NFL + ') ÷ ' + NFL + ' = ' + REG + '%. Quoted figures are about 5 to 10%, sometimes 10 to 20%. Use the maker\\'s.'),\n    blk('row', 'Starting torque: Lower than a series motor\\'s. Typically about 250%, set by the starter.'),\n    blk('row', 'Speed control: Base speed is the nameplate speed at full field and full armature volts. Below it, lower the armature volts. Above it, weaken the field.'),\n    blk('row', 'Reversing: Swap the armature or the field leads, not both.'),\n  ];\n  const USE = [\n    blk('row', 'Used for: Pumps, fans, blowers, conveyors, machine tools and printing. Anywhere the speed must hold steady as the load changes.'),\n    blk('row', 'Unloaded: Safe running light at full field, as long as the field stays connected. A series motor would run away.'),\n    blk('row', 'Drive: It pairs well with a thyristor drive, which sets the armature voltage. Many plants have moved to AC motors on VSDs.'),\n    blk('row', 'Limits: Brushes and commutator need regular care. A weakened field can overspeed at light load. Never pass the nameplate\\'s maximum safe speed.'),\n  ];\n  const FAULTS = [\n    blk('safe', 'Safety first: Isolate, lock off and prove dead before you touch it.'),\n    blk('row', 'Field open: On a light load it can run away. Loss-of-field protection guards against it.'),\n    blk('row', 'Starting: Start at full field, with the rheostat at its slow-speed position.'),\n    blk('row', 'Starter: A three-point starter\\'s no-volt coil carries the field current. Lose the supply or the field and its handle drops to off.'),\n    blk('row', 'Sparking: Worn brushes, a rough commutator or an armature fault.'),\n    blk('row', 'Tests: Megger the windings to frame. Measure the armature and field resistance. An open field reads open circuit.'),\n  ];\n  const words = (list) => list.map((b) => b.s.replace(/\\*/g, '')).join('\\n\\n');\n  const R1 = 'Its back-emf, which opposes the supply', R2 = 'Only the resistance of its armature circuit', R3 = 'The inductance of its windings, as on AC';\n  const C1 = 'It rises', C2 = 'It falls', C3 = 'It holds steady';\n  const F1 = 'The belt came off, so it lost its load', F2 = 'The shunt field circuit has gone open', F3 = 'The brushes have worn down';\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?',\n      task: 'A DC motor is switched straight onto its supply. Before it starts to turn, what sets the current it draws?',\n      opts: [R1, R2, R3], want: R2,\n      why: 'A motor makes back-emf only as it turns, so at standstill there is none. Only the resistance limits the current. Take a motor with a ' + RA + ' Ω armature on ' + V + ' V. Switched straight on, it would take ' + V + ' ÷ ' + RA + ' = ' + START + ' A. That is why it starts through a starter.',\n      slips: ['Back-emf comes from turning. At standstill there is none, so it cannot hold the current back yet.', '',\n        'Inductance only slows how fast the current rises. At standstill, once it settles, only resistance limits a DC current.'] },\n    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },\n    { show: true, name: 'Load it, weaken the field', label: 'Load it, weaken the field', text: PLAY_TASK + '\\n\\n' + PRE, read: PLAY_READ, still: () => stillAt() },\n    { name: 'Check', label: 'Check on the cause',\n      task: 'A shunt motor is driving a steady load. You turn the field rheostat to add resistance. What does the speed do?',\n      opts: [C1, C2, C3], want: C1,\n      why: 'Less field current means less flux. The armature must spin faster to make the back-emf it needs. So the speed rises. On the picture, ' + W.RW + ' Ω takes the rated-load speed from ' + NFL + ' to ' + whole(R20.N) + ' rpm. That is called *field weakening*.',\n      slips: ['', 'That is what resistance in the armature circuit does. In the field circuit it weakens the flux. A weaker field must spin faster, so the speed rises.',\n        'The load is the same, but the flux is not. Less flux needs more speed for the same back-emf. So the speed rises.'] },\n    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },\n    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },\n    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },\n    { name: 'Find the fault', label: 'Find the fault',\n      task: 'A shunt motor drives a conveyor that is running almost empty. It has run at a steady speed for years. Today it races until its protection trips. What is the most likely fault?',\n      opts: [F1, F2, F3], want: F2,\n      why: 'With the field open, only residual magnetism is left. The armature must spin far faster to make its back-emf. On a light load it runs away. Isolate and prove dead. Then test the field winding, its rheostat and its connections for an open circuit.',\n      slips: ['That is the series motor\\'s trap. A shunt motor\\'s field stays steady with no load. Running light at full field, it goes only a little faster.', '',\n        'Worn brushes cause sparking and poor contact. They make a motor weak or slow, not race.'] },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iHow = 1, iPic = 2, iChk = 3, iBeh = 4, iUse = 5, iFlt = 6, iFind = 7, iK = 8;\n  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));\n  let lastStep = -1, finished = false;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function addText(node, s) {\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function write(node, s) { node.textContent = ''; return addText(node, s); }\n  function blocks(node, list) {\n    node.textContent = '';\n    list.forEach((b, k) => {\n      if (k) node.appendChild(document.createTextNode(' '));\n      let e;\n      if (b.t === 'row' || b.t === 'safe') {\n        const cut = b.s.indexOf(': ');\n        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, addText(K.el('b'), b.s.slice(0, cut + 1)), ' ');\n        addText(e, b.s.slice(cut + 2));\n      } else e = addText(K.el('p'), b.s);\n      node.appendChild(e);\n    });\n  }\n\n  // ---------- drawing helpers ----------\n  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }\n  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }\n  const f1 = (v) => (+v).toFixed(1);\n  const show = (n, on) => { n.style.display = on ? '' : 'none'; };\n  const humps = (x, y, n) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a6 6 0 0 1 12 0'; return d; };\n  const vhumps = (x, y, n) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a6 6 0 0 1 0 12'; return d; };\n  function arrow(g, x1, y1, x2, y2, lc, hc) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x2 - 9 * ux, by = y2 - 9 * uy;\n    ad(g, 'line', { x1: x1, y1: y1, x2: f1(bx), y2: f1(by), class: lc });\n    ad(g, 'polygon', { points: [x2, y2, bx - 5 * uy, by + 5 * ux, bx + 5 * uy, by - 5 * ux].map(f1).join(' '), class: hc });\n  }\n  // The armature end-on: its body and eight slots (the slots group turns).\n  function armature(g, cx, cy, r) {\n    ad(g, 'circle', { cx: cx, cy: cy, r: r, class: 'arm' });\n    const sl = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ')' });\n    for (let j = 0; j < 8; j++) ad(sl, 'rect', { x: -2, y: -(r - 2), width: 4, height: 6, rx: 1, class: 'slot', transform: 'rotate(' + (j * 45) + ')' });\n    return sl;\n  }\n\n  // How it works: the supply with two branches across it, the shunt field (with its rheostat) and the armature.\n  function buildHw(g) {\n    ad(g, 'path', { d: 'M26 44V112M26 124V196M26 44H262V86M26 196H262V154M150 44V70M150 100V108M150 168V196', class: 'w' });\n    ad(g, 'path', { d: 'M12 112H40', class: 'plt' });\n    ad(g, 'path', { d: 'M19 124H33', class: 'plt2' });\n    [[150, 44], [150, 196]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    txt(g, 46, 114, 'DC supply');\n    txt(g, 46, 132, V + ' V');\n    ad(g, 'polygon', { points: '90 44 80 39 80 49', class: 'ia' });\n    txt(g, 84, 32, 'line current', 'lb', 'middle');\n    ad(g, 'polygon', { points: '220 44 210 39 210 49', class: 'ia' });\n    txt(g, 214, 32, 'armature current', 'lb', 'middle');\n    ad(g, 'polygon', { points: '150 64 145 54 155 54', class: 'ia' });\n    txt(g, 160, 62, 'field current');\n    ad(g, 'rect', { x: 143, y: 70, width: 14, height: 30, rx: 2, class: 'res' });\n    arrow(g, 137, 108, 163, 72, 'w', 'ah');\n    txt(g, 132, 92, 'field rheostat', 'lb', 'end');\n    ad(g, 'path', { d: vhumps(150, 108, 5), class: 'coilS' });\n    txt(g, 140, 160, 'shunt field', 'lb', 'end');\n    armature(g, 262, 120, 26);\n    ad(g, 'rect', { x: 256, y: 86, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 256, y: 146, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    txt(g, 228, 124, 'armature', 'lb', 'end');\n    const pol = (a, r) => [262 + r * Math.cos(a * DEG), 120 + r * Math.sin(a * DEG)];\n    ad(g, 'path', { d: 'M' + pol(-30, 36).map(f1).join(' ') + 'A36 36 0 0 1 ' + pol(30, 36).map(f1).join(' '), class: 'turn' });\n    ad(g, 'polygon', { points: pol(42, 36).concat(pol(30, 30.5), pol(30, 41.5)).map(f1).join(' '), class: 'ia' });\n    txt(g, 288, 176, 'turning');\n    arrow(g, 318, 150, 318, 96, 'emf', 'emfh');\n    txt(g, 336, 86, 'back-emf', 'lb', 'end');\n    g.setAttribute('aria-label', 'A ' + V + ' V DC supply with two branches across it, side by side. On the left, the shunt field winding with a field rheostat in series. ' +\n      'On the right, the armature between its brushes. The line current from the supply splits into the field current and the armature current. ' +\n      'A curved arrow shows the armature turning, and an arrow labelled back-emf points against the supply.');\n  }\n\n  // The speed plot: speed in rpm against load in % of rated torque.\n  const PX = (L) => 56 + L * 2.64, PY = (n) => 220 - n / 20;\n  function speedPath(rh) { let d = ''; for (let L = 0; L <= 100; L += 5) d += (d ? 'L' : 'M') + f1(PX(L)) + ' ' + f1(PY(rule(L, rh).N)); return d; }\n  function axes(g, band) {\n    [1000, 2000, 3000].forEach((n) => ad(g, 'line', { x1: 56, y1: PY(n), x2: 320, y2: PY(n), class: 'grid' }));\n    if (band) {\n      ad(g, 'rect', { x: 56, y: PY(NTOP), width: 264, height: PY(LIMIT) - PY(NTOP), class: 'band' });\n      ad(g, 'line', { x1: 56, y1: PY(LIMIT), x2: 320, y2: PY(LIMIT), class: 'dl' });\n      txt(g, 320, 32, 'example limit, not a maker\\'s', 'wt', 'end');\n      txt(g, 50, PY(LIMIT) + 4.5, String(LIMIT), 'wt', 'end');\n    }\n    ad(g, 'path', { d: 'M56 ' + PY(NTOP) + 'V220H320', class: 'ax' });\n    [0, 1000, 2000, 3000].forEach((n) => txt(g, 50, PY(n) + 4.5, String(n), 'lb', 'end'));\n    [0, 20, 40, 60, 80, 100].forEach((L) => { ad(g, 'line', { x1: f1(PX(L)), y1: 220, x2: f1(PX(L)), y2: 225, class: 'ax' }); txt(g, f1(PX(L)), 239, String(L), 'lb', 'middle'); });\n    txt(g, 4, 16, 'Speed, rpm', 'hd');\n    txt(g, 188, 258, 'Load, % of rated torque', 'hd', 'middle');\n  }\n\n  // How it behaves: the full-field speed line, no slider.\n  function buildBeh(g) {\n    axes(g, false);\n    ad(g, 'path', { d: speedPath(0), class: 'sp' });\n    txt(g, 62, 104, NNL + ' rpm at no load');\n    txt(g, 318, 140, NFL + ' rpm at rated load', 'lb', 'end');\n    txt(g, 320, 32, 'sketch from the simplified rule', 'mu', 'end');\n    g.setAttribute('aria-label', 'A sketch from the simplified rule: speed against load at full field. The line is nearly flat, from ' + NNL + ' rpm at no load to ' + NFL + ' rpm at rated load.');\n  }\n\n  // Where it is used: a thyristor drive feeds the armature; the motor turns a conveyor.\n  function buildUse(g) {\n    ad(g, 'rect', { x: 6, y: 40, width: 84, height: 50, rx: 6, class: 'body' });\n    txt(g, 48, 61, 'thyristor', 'lb', 'middle');\n    txt(g, 48, 79, 'drive', 'lb', 'middle');\n    ad(g, 'path', { d: 'M90 54H124M90 76H124', class: 'w' });\n    txt(g, 107, 26, 'armature volts', 'lb', 'middle');\n    ad(g, 'rect', { x: 124, y: 34, width: 66, height: 62, rx: 12, class: 'body' });\n    ad(g, 'line', { x1: 190, y1: 65, x2: 226, y2: 65, class: 'shaft' });\n    ad(g, 'path', { d: 'M240 51H320M240 79H320', class: 'w' });\n    ad(g, 'circle', { cx: 240, cy: 65, r: 14, class: 'drum' });\n    ad(g, 'circle', { cx: 320, cy: 65, r: 14, class: 'drum' });\n    ad(g, 'circle', { cx: 240, cy: 65, r: 3, class: 'hub' });\n    ad(g, 'circle', { cx: 320, cy: 65, r: 3, class: 'hub' });\n    ad(g, 'rect', { x: 258, y: 33, width: 20, height: 18, rx: 2, class: 'body' });\n    ad(g, 'rect', { x: 288, y: 33, width: 20, height: 18, rx: 2, class: 'body' });\n    txt(g, 157, 116, 'shunt motor', 'lb', 'middle');\n    txt(g, 280, 104, 'conveyor', 'lb', 'middle');\n    g.setAttribute('aria-label', 'A thyristor drive feeds the armature volts to the shunt motor. The motor\\'s shaft turns the head pulley of a conveyor carrying boxes.');\n  }\n\n  // Faults and tests: the isolator locked off and tagged; a megger from the windings to the frame;\n  // an ohmmeter across the field leads; the brushes on the commutator.\n  function buildFlt(g) {\n    txt(g, 56, 16, 'isolator: open', 'lb', 'middle');\n    ad(g, 'rect', { x: 16, y: 24, width: 80, height: 60, rx: 6, class: 'body' });\n    ad(g, 'path', { d: 'M0 44H30M0 68H30M30 44L54 32M30 68L54 56M66 44H112M66 68H112', class: 'w' });\n    [[30, 44], [30, 68], [66, 44], [66, 68]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    ad(g, 'rect', { x: 48, y: 84, width: 16, height: 8, rx: 2, class: 'hdl' });\n    ad(g, 'path', { d: 'M51 104V98a5 5 0 0 1 10 0V104', class: 'shk' });\n    ad(g, 'rect', { x: 49, y: 103, width: 14, height: 14, rx: 3, class: 'lock' });\n    ad(g, 'path', { d: 'M63 110L72 115', class: 'w' });\n    ad(g, 'polygon', { points: '74 112 92 112 92 134 70 134 70 116', class: 'tag' });\n    ad(g, 'circle', { cx: 75, cy: 117, r: 1.6, class: 'jn' });\n    txt(g, 98, 120, 'locked off');\n    txt(g, 98, 136, 'and tagged');\n    ad(g, 'rect', { x: 178, y: 22, width: 58, height: 36, rx: 6, class: 'body' });\n    txt(g, 207, 45, 'megger', 'lb', 'middle');\n    ad(g, 'rect', { x: 266, y: 52, width: 64, height: 56, rx: 10, class: 'body' });\n    ad(g, 'rect', { x: 280, y: 40, width: 28, height: 12, rx: 2, class: 'term' });\n    txt(g, 294, 32, 'windings', 'lb', 'middle');\n    txt(g, 298, 86, 'frame', 'lb', 'middle');\n    ad(g, 'path', { d: 'M236 30H252V46H280M236 50H246V80H266', class: 'w' });\n    [[280, 46], [266, 80]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));\n    ad(g, 'rect', { x: 10, y: 150, width: 74, height: 32, rx: 6, class: 'body' });\n    txt(g, 47, 171, 'ohmmeter', 'lb', 'middle');\n    ad(g, 'path', { d: 'M84 158H114M84 174H172V158H162', class: 'w' });\n    ad(g, 'path', { d: humps(114, 158, 4), class: 'coilS' });\n    txt(g, 138, 196, 'field winding', 'lb', 'middle');\n    ad(g, 'circle', { cx: 262, cy: 152, r: 20, class: 'drum' });\n    for (let j = 0; j < 8; j++) { const a = j * 45 * DEG; ad(g, 'line', { x1: f1(262 + 8 * Math.cos(a)), y1: f1(152 + 8 * Math.sin(a)), x2: f1(262 + 20 * Math.cos(a)), y2: f1(152 + 20 * Math.sin(a)), class: 'w' }); }\n    ad(g, 'circle', { cx: 262, cy: 152, r: 8, class: 'drum' });\n    ad(g, 'rect', { x: 232, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 282, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });\n    ad(g, 'path', { d: 'M220 152H232M292 152H304', class: 'w' });\n    txt(g, 237, 136, 'brushes', 'lb', 'middle');\n    txt(g, 262, 192, 'commutator', 'lb', 'middle');\n    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. A megger is connected from the motor\\'s windings to its frame. ' +\n      'An ohmmeter is connected across the field winding\\'s two leads. The two brushes press on the commutator.');\n  }\n\n  buildHw(el('hw'));\n  buildBeh(el('beh'));\n  buildUse(el('use'));\n  buildFlt(el('flt'));\n\n  // ---------- the live picture: the circuit, the flux bar, the back-emf and drop bars ----------\n  const AX = 236, AY = 94;\n  const M = {};\n  (function () {\n    const g0 = el('mot');\n    // The supply's label sits left of its cell, so the circuit is drawn 44 to the right.\n    txt(g0, 42, 97, 'V =', 'lb', 'end');\n    txt(g0, 42, 113, V + ' V', 'lb', 'end');\n    const g = ad(g0, 'g', { transform: 'translate(44 0)' });\n    ad(g, 'path', { d: 'M14 30V92M14 104V168M14 30H236V62M14 168H236V126M112 30V40M112 60V68M112 94V104M112 152V168', class: 'w' });\n    ad(g, 'path', { d: 'M3 92H25', class: 'plt' });\n    ad(g, 'path', { d: 'M8 104H20', class: 'plt2' });\n    [[112, 30], [112, 168]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    // the field circuit's switch: two contacts and a blade that swings open\n    [[112, 40], [112, 60]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    M.blade = ad(g, 'line', { x1: 112, y1: 60, x2: 112, y2: 40, class: 'blade' });\n    M.openT = txt(g, 92, 50, 'open', 'wt', 'end');\n    ad(g, 'rect', { x: 105, y: 68, width: 14, height: 26, rx: 2, class: 'res' });\n    arrow(g, 99, 100, 125, 62, 'w', 'ah');\n    txt(g, 96, 82, 'rheostat', 'lb', 'end');\n    ad(g, 'path', { d: vhumps(112, 104, 4), class: 'coilS' });\n    txt(g, 102, 128, 'shunt field', 'lb', 'end');\n    txt(g, 102, 146, RF + ' Ω', 'lb', 'end');\n    // the flux bar beside the field winding: full at full field\n    ad(g, 'rect', { x: 128, y: 104, width: 12, height: 48, rx: 2, class: 'barO' });\n    M.flux = ad(g, 'rect', { x: 128, y: 104, width: 12, height: 48, rx: 2, class: 'barF' });\n    M.fl1 = txt(g, 146, 118, 'flux');\n    M.fl2 = txt(g, 146, 136, 'If ' + one(IF0) + ' A');\n    M.res = ad(g, 'g', {});\n    txt(M.res, 146, 116, 'residual'); txt(M.res, 146, 132, 'magnetism'); txt(M.res, 146, 148, 'only');\n    // the armature current on the rail, and the armature itself\n    ad(g, 'polygon', { points: '196 30 186 25 186 35', class: 'ia' });\n    txt(g, 191, 18, 'Ia', 'lb', 'middle');\n    M.slots = armature(g, AX, AY, 24);\n    ad(g, 'rect', { x: 230, y: 62, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 230, y: 118, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    txt(g, 204, 78, 'armature', 'lb', 'end');\n    txt(g, 204, 96, 'Ra ' + RA + ' Ω', 'lb', 'end');\n    // the two bars: the back-emf out of 600 V, the drop out of 60 V\n    M.bars = ad(g0, 'g', {});\n    txt(M.bars, 4, 196, 'back-emf E');\n    ad(M.bars, 'rect', { x: 84, y: 186, width: 200, height: 12, rx: 2, class: 'barO' });\n    M.eBar = ad(M.bars, 'rect', { x: 84, y: 186, width: 200, height: 12, rx: 2, class: 'barE' });\n    txt(M.bars, 4, 222, 'Ia × Ra');\n    ad(M.bars, 'rect', { x: 84, y: 212, width: 200, height: 12, rx: 2, class: 'barO' });\n    M.dBar = ad(M.bars, 'rect', { x: 84, y: 212, width: 0, height: 12, rx: 2, class: 'barF' });\n    M.dT = txt(M.bars, 290, 222, '');\n    txt(M.bars, 4, 246, 'Back-emf bar: 0 to ' + V + ' V.', 'mu');\n    txt(M.bars, 4, 262, 'Drop bar: 0 to 60 V, drawn 10 times bigger.', 'mu');\n    M.openNote = ad(g0, 'g', {});\n    txt(M.openNote, 4, 204, 'Field open: no figures here.', 'mu');\n    txt(M.openNote, 4, 222, 'How fast it goes depends on the load and', 'mu');\n    txt(M.openNote, 4, 240, 'how much magnetism the iron keeps.', 'mu');\n    txt(M.openNote, 4, 258, 'The 30% load split is an example.', 'mu');\n  })();\n  (function () {\n    const g = el('plot');\n    axes(g, true);\n    M.ref = ad(g, 'path', { d: speedPath(0), class: 'ref' });\n    M.refT = txt(g, 318, 140, 'full field', 'mu', 'end');\n    M.line = ad(g, 'path', { d: speedPath(0), class: 'sp' });\n    M.trail = ad(g, 'line', { x1: 56, y1: 130, x2: 56, y2: 58, class: 'trail' });\n    M.runT = txt(g, 68, 90, 'Runs away', 'wt');\n    M.openT2 = txt(g, 188, 196, 'Field open: no speed line', 'mu', 'middle');\n    M.dot = ad(g, 'circle', { cx: 56, cy: 116, r: 7, class: 'dotS' });\n  })();\n\n  const SPIN = { th: 0, rate: 0 };\n  // Field open on a light load: the speed dot climbs from where it was into the red band.\n  const RUN = { on: false, p: 1, y0: 120 };\n  function paintRun() {\n    const e = 1 - Math.pow(1 - RUN.p, 3), y = RUN.y0 + (48 - RUN.y0) * e;\n    M.dot.setAttribute('cy', f1(y));\n    M.trail.setAttribute('y1', f1(RUN.y0)); M.trail.setAttribute('y2', f1(y));\n    M.runT.style.opacity = RUN.p >= 1 ? '' : '0';\n  }\n  function paintSpin() { M.slots.setAttribute('transform', 'translate(' + AX + ' ' + AY + ') rotate(' + f1(SPIN.th) + ')'); }\n\n  // ---------- controls and readouts ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const loadCtl = K.control({ id: 'load', label: 'Load, % of rated torque', min: 0, max: 100, step: 10, value: 0, fmt: (v) => whole(v) + '%', snap: [0, 50, 100], into: '#ctl' });\n  const rhCtl = K.control({ id: 'rh', label: 'Field rheostat', min: 0, max: 50, step: 10, value: 0, fmt: (v) => whole(v) + ' Ω', snap: [0, W.RW], into: '#ctl' });\n  const fieldCtl = K.choice({ id: 'field', label: 'Field circuit', options: [{ value: 'conn', label: 'Connected' }, { value: 'open', label: 'Open' }], value: 'conn', into: '#ctl' });\n  const RD = {\n    ia: K.readout({ id: 'rdIa', label: 'Armature current', fmt: (v) => one(v) + ' A', into: '#outs' }),\n    e: K.readout({ id: 'rdE', label: 'Back-emf', fmt: (v) => one(v) + ' V', into: '#outs' }),\n    n: K.readout({ id: 'rdN', label: 'Speed', fmt: (v) => whole(v) + ' rpm', into: '#outs' }),\n  };\n  K.model((p) => {\n    const L = LD(p), rh = RH(p);\n    if (OPEN(p)) {\n      const light = L <= LIGHT;\n      return { ifield: 0, ia: light ? 'no figure' : 'far above rated', emf: 'no figure', rpm: light ? 'runs away' : 'no figure', state: light ? 'runaway' : 'trip' };\n    }\n    const r = rule(L, rh);\n    return { ifield: r.If, ia: r.Ia, emf: r.E, rpm: r.N, drop: r.drop, state: 'run' };\n  });\n\n  el('pre').textContent = PRE;\n  el('work').appendChild(K.el('p', { class: 'wh' }, 'Worked from the rule'));\n  const workLine = el('work').appendChild(K.el('p', { class: 'wl' }, ''));\n  const WORK_AT = { '100|0': 0, '0|0': 1, '50|0': 2, '100|20': 3, '0|20': 4 };\n  const WORK_NONE = 'Working shows at 0, 50 and 100% load on full field, and at 0 and 100% load with ' + W.RW + ' Ω.';\n\n  function sayFor(L, rh, open, r) {\n    if (open) return L <= LIGHT\n      ? 'With the field open, only residual magnetism is left. On a light load the armature must spin far faster to make its back-emf, so it runs away.'\n      : 'With the field open, only residual magnetism is left. On this heavier load the armature current goes far above rated.';\n    const Ia = one(r.Ia) + ' A', E = one(r.E) + ' V', N = whole(r.N) + ' rpm';\n    let s;\n    if (rh === 0) {\n      s = L === 0 ? 'Running light at full field. The armature needs only ' + Ia + ' for its own losses, so the back-emf is ' + E + ' and the speed ' + N + '.'\n        : 'At ' + L + '% load the field still takes ' + one(r.If) + ' A, so the flux holds. The back-emf has fallen to ' + E + ', letting ' + Ia + ' through the armature. The speed has dipped only to ' + N + '.';\n    } else {\n      s = 'With ' + rh + ' Ω added, the field current falls to ' + one(r.If) + ' A and the flux weakens. The armature must spin faster to make its back-emf, so the speed is ' + N + '.';\n      if (r.Ia > IAR + 0.05) s += ' It takes ' + Ia + ' for this load, above its rated ' + one(IAR) + ' A.';\n    }\n    if (r.N > LIMIT) s += ' That is past the example limit.';\n    return s;\n  }\n\n  function paintLive(p) {\n    const L = LD(p), rh = RH(p), open = OPEN(p), light = L <= LIGHT;\n    M.blade.setAttribute('x2', open ? 99 : 112);\n    M.blade.setAttribute('y2', open ? 47 : 40);\n    show(M.openT, open);\n    show(M.fl1, !open); show(M.fl2, !open); show(M.res, open);\n    show(M.bars, !open); show(M.openNote, open);\n    show(M.line, !open); show(M.openT2, open);\n    show(M.trail, open && light); show(M.runT, open && light);\n    show(M.dot, !open || light);\n    const x = f1(PX(L));\n    let r = null;\n    if (open) {\n      M.flux.setAttribute('y', 150); M.flux.setAttribute('height', 2);\n      show(M.ref, false); show(M.refT, false);\n      M.trail.setAttribute('x1', x); M.trail.setAttribute('x2', x);\n      M.runT.setAttribute('x', f1(PX(L) + 12));\n      M.dot.setAttribute('cx', x);\n      if (light && !RUN.on) { RUN.on = true; RUN.y0 = K.clamp(+M.dot.getAttribute('cy') || PY(N0), 60, 200); RUN.p = REDUCE || held || at() !== iPic ? 1 : 0; }\n      if (!light) { RUN.on = false; RUN.p = 1; }\n      paintRun();\n      M.dot.classList.add('hot');\n      RD.ia.set(light ? 'no figure' : 'far above rated');\n      RD.e.set('no figure');\n      RD.n.set(light ? 'runs away' : 'no figure');\n      RD.ia.el.classList.toggle('hot', !light);\n      RD.e.el.classList.remove('hot');\n      RD.n.el.classList.toggle('hot', light);\n      SPIN.rate = light ? 0.75 : 0;\n    } else {\n      r = rule(L, rh);\n      RUN.on = false; RUN.p = 1; M.runT.style.opacity = '';\n      const h = 48 * r.flux;\n      M.flux.setAttribute('y', f1(152 - h)); M.flux.setAttribute('height', f1(h));\n      M.fl2.textContent = 'If ' + one(r.If) + ' A';\n      M.eBar.setAttribute('width', f1(200 * r.E / V));\n      M.dBar.setAttribute('width', f1(200 * Math.min(r.drop, 60) / 60));\n      M.dT.textContent = one(r.drop) + ' V';\n      show(M.ref, rh > 0); show(M.refT, rh > 0);\n      M.line.setAttribute('d', speedPath(rh));\n      M.dot.setAttribute('cx', x); M.dot.setAttribute('cy', f1(PY(r.N)));\n      M.dot.classList.toggle('hot', r.N > LIMIT);\n      RD.ia.set(r.Ia); RD.e.set(r.E); RD.n.set(r.N);\n      RD.ia.el.classList.toggle('hot', r.Ia > IAR + 0.05);\n      RD.e.el.classList.remove('hot');\n      RD.n.el.classList.toggle('hot', r.N > LIMIT);\n      SPIN.rate = 0.25 * r.N / N0;\n    }\n    el('trip').textContent = open && !light ? 'Its protection should trip it.' : '';\n    el('trip').hidden = !el('trip').textContent;\n    el('say').textContent = sayFor(L, rh, open, r);\n    const wk = WORK_AT[L + '|' + rh];\n    workLine.textContent = wk == null ? WORK_NONE : WORK[wk];\n    el('work').hidden = open;\n    el('mot').setAttribute('aria-label', open\n      ? 'The shunt motor\\'s circuit: a ' + V + ' V supply, the shunt field branch with its switch open, and the armature. The flux bar shows residual magnetism only. No figures are worked out with the field open.'\n      : 'The shunt motor\\'s circuit: a ' + V + ' V supply with two branches. The ' + RF + ' Ω shunt field, with ' + rh + ' Ω of rheostat, takes ' + one(r.If) + ' A, and its flux bar shows the flux. ' +\n        'The ' + RA + ' Ω armature turns between its brushes. Bars show the back-emf out of ' + V + ' V, and the armature drop, ' + one(r.drop) + ' V, drawn 10 times bigger.');\n    el('plot').setAttribute('aria-label', open\n      ? (light ? 'Speed against load. With the field open on a light load, the speed dot runs off the top into the example limit band: it runs away.' : 'Speed against load. With the field open on a heavier load there is no speed line.')\n      : 'Speed against load, from 0 to 100% of rated torque. The speed line for this field setting is nearly flat, and a dot marks ' + L + '% load.' +\n        (rh > 0 ? ' A dashed line shows full field for comparison.' : '') + ' A band above ' + LIMIT + ' rpm marks an example limit, not a maker\\'s.');\n  }\n\n  let seen = null, held = false;\n  const spin = K.anim({ button: false, label: 'The armature turning', step: (dt) => {\n    if (at() !== iPic || held || REDUCE || !(SPIN.rate > 0)) return false;\n    SPIN.th = (SPIN.th + 360 * SPIN.rate * dt) % 360;\n    paintSpin();\n    if (RUN.on && RUN.p < 1) { RUN.p = Math.min(1, RUN.p + dt / 1.2); paintRun(); }\n    return true;\n  } });\n  // The read-through's picture: the field connected, no rheostat, rated load, the armature held.\n  function stillAt() {\n    fieldCtl.set('conn');\n    rhCtl.set(0);\n    loadCtl.set(100);\n    SPIN.th = 20;\n    held = true;\n    spin.pause();\n    K.refresh();\n    seen = '100|0|conn';\n    paintSpin();\n  }\n\n  // ---------- picks: one go, then the answer and its reason ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length || st.res) return;\n    st.pick = d.opts[k];\n    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: i === iR ? 'Still there.' : 'Right.', p: d.why }; }\n    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }\n    K.refresh();\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));\n    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));\n    if (f.p) fb.appendChild(addText(K.el('p'), f.p));\n  }\n\n  // ---------- Keep this ----------\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n\n  const ON = { hwW: [iHow], behW: [iBeh], useW: [iUse], fltW: [iFlt], pre: [iPic], live: [iPic], picks: [iR, iChk, iFind], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');\n    if (i === iPic) write(task, PLAY_TASK);\n    else if (d.show) blocks(task, d.blocks);\n    else if (d.kind) task.textContent = '';\n    else write(task, d.task);\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    // the picture: the load, the rheostat and the field switch set the flux, the bars, the dot and the readouts\n    const key = LD(p) + '|' + RH(p) + '|' + (OPEN(p) ? 'open' : 'conn');\n    if (key !== seen) { if (seen !== null) held = false; seen = key; }\n    paintLive(p);\n    paintSpin();\n    if (i === iPic && !held && !REDUCE && SPIN.rate > 0 && !spin.playing()) spin.play();\n    if (!(SPIN.rate > 0) && spin.playing()) spin.pause();\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    paintFb(st.fb);\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i);\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  K.check('Worked by hand: rated load at full field gives If 7.5 A, Ia 345.5 A, E 575.8 V and 2000 rpm; no load 17.3 A, 598.8 V and 2080 rpm; half load 181.4 A, 587.3 V and 2040 rpm; with 20 Ω, rated load 6.0 A, 431.9 A, 569.8 V and 2474 rpm, no load 21.6 A, 598.5 V and about 2600 rpm; straight on, 600 ÷ 0.07 = 8571 A; the working prints these lines', () => {\n    const a = K.at({ load: 100 }), b = K.at({ load: 0 }), c = K.at({ load: 50 }), d = K.at({ load: 100, rh: 20 }), e = K.at({ load: 0, rh: 20 });\n    return one(a.ifield) === '7.5' && one(a.ia) === '345.5' && one(a.emf) === '575.8' && whole(a.rpm) === '2000' &&\n      one(b.ia) === '17.3' && one(b.emf) === '598.8' && whole(b.rpm) === '2080' &&\n      one(c.ia) === '181.4' && one(c.emf) === '587.3' && whole(c.rpm) === '2040' &&\n      one(d.ifield) === '6.0' && one(d.ia) === '431.9' && one(d.emf) === '569.8' && whole(d.rpm) === '2474' &&\n      one(e.ia) === '21.6' && one(e.emf) === '598.5' && Math.round(e.rpm / 100) * 100 === 2600 && START === '8571' &&\n      WORK[0] === 'Rated load, full field: If = 600 ÷ 80 = 7.5 A. Ia = 353 − 7.5 = 345.5 A. Drop = 345.5 × 0.07 = 24.2 V. E = 600 − 24.2 = 575.8 V. Speed 2000 rpm.' &&\n      WORK[1] === 'No load, full field: Ia = 17.3 A. That is an example, 5% of 345.5 A. Drop = 17.3 × 0.07 = 1.2 V. E = 600 − 1.2 = 598.8 V. Speed = 2000 × 598.8 ÷ 575.8 = 2080 rpm.' &&\n      WORK[2] === 'Half load, full field: the load\\'s share is half of 345.5 − 17.3 = 328.2 A, so 164.1 A. Ia = 17.3 + 164.1 = 181.4 A. Drop = 181.4 × 0.07 = 12.7 V. E = 587.3 V. Speed = 2000 × 587.3 ÷ 575.8 = 2040 rpm.' &&\n      WORK[3] === 'Rheostat 20 Ω, rated load: If = 600 ÷ 100 = 6.0 A. Flux = 6.0 ÷ 7.5 = 0.80. Ia = 345.5 ÷ 0.80 = 431.9 A, above rated. Drop = 431.9 × 0.07 = 30.2 V. E = 600 − 30.2 = 569.8 V. Speed = 2000 × 569.8 ÷ (575.8 × 0.80) = 2000 × 569.8 ÷ 460.64 = 2474 rpm.' &&\n      WORK[4] === 'Rheostat 20 Ω, no load: Ia = 17.3 ÷ 0.80 = 21.6 A. Drop = 21.6 × 0.07 = 1.5 V. E = 598.5 V. Speed = 2000 × 598.5 ÷ 460.64, about 2600 rpm, past the example limit.';\n  });\n  K.check('At every rheostat setting the field current stays the same whatever the load, while the armature current rises and the speed falls as the load goes on; with the field open, a light load (30% or less) runs away and a heavier one goes far above rated', () => {\n    for (let rh = 0; rh <= 50; rh += 10) for (let L = 0; L < 100; L += 10) {\n      const a = K.at({ load: L, rh: rh }), b = K.at({ load: L + 10, rh: rh });\n      if (!(K.near(a.ifield, b.ifield, 1e-9) && b.ia > a.ia && b.rpm < a.rpm)) return false;\n    }\n    return K.at({ load: 30, field: 'open' }).state === 'runaway' && K.at({ load: 40, field: 'open' }).state === 'trip' && K.at({ load: 100, rh: 50 }).rpm < NTOP;\n  });\n  K.check('A DC shunt motor rated at 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field, draws 353 A from the supply at rated load', () => {\n    const a = K.at({ load: 100 });\n    return K.near(a.ia + a.ifield, 353, 1e-6) && whole(a.rpm) === '2000' && K.near(a.ia * RA + a.emf, 600, 1e-9);\n  }, { source: ROSE });\n  K.check('If the field flux of a DC motor is decreased, the motor speed will increase: each 10 Ω of rheostat raises the speed at every load', () => {\n    for (let L = 0; L <= 100; L += 10) for (let rh = 0; rh < 50; rh += 10) if (!(K.at({ load: L, rh: rh + 10 }).rpm > K.at({ load: L, rh: rh }).rpm)) return false;\n    return true;\n  }, { source: DOE });\n  K.check('Speed regulation is the difference between the no-load and rated-load speeds, in percent of rated-load speed: (2080 − 2000) ÷ 2000 = 4.0%', () => {\n    const nl = Math.round(K.at({ load: 0 }).rpm), fl = Math.round(K.at({ load: 100 }).rpm);\n    return nl === 2080 && fl === 2000 && one((nl - fl) / fl * 100) === '4.0' && REG === '4.0';\n  }, { source: NEMA });\n  K.check('The shunt motor has a safe no-load speed, providing that the field circuit is not de-energised: 2080 rpm at full field, under the example limit', () =>\n    K.at({ load: 0 }).rpm < LIMIT && K.at({ load: 0, field: 'open' }).state === 'runaway', { source: ROSE });\n\n  K.ready();\n</script>",
+  "title": "Load it, weaken the field",
+  "brief": "The one thing you should see is the field hold steady and the speed dip only slightly, as the back-emf falls a little and the armature current rises, when you drag the load up.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Worked by hand: rated load at full field gives If 7.5 A, Ia 345.5 A, E 575.8 V and 2000 rpm; no load 17.3 A, 598.8 V and 2080 rpm; half load 181.4 A, 587.3 V and 2040 rpm; with 20 Ω, rated load 6.0 A, 431.9 A, 569.8 V and 2474 rpm, no load 21.6 A, 598.5 V and about 2600 rpm; straight on, 600 ÷ 0.07 = 8571 A; the working prints these lines",
+     "ok": true
+    },
+    {
+     "label": "At every rheostat setting the field current stays the same whatever the load, while the armature current rises and the speed falls as the load goes on; with the field open, a light load (30% or less) runs away and a heavier one goes far above rated",
+     "ok": true
+    },
+    {
+     "label": "A DC shunt motor rated at 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field, draws 353 A from the supply at rated load",
+     "ok": true,
+     "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf"
+    },
+    {
+     "label": "If the field flux of a DC motor is decreased, the motor speed will increase: each 10 Ω of rheostat raises the speed at every load",
+     "ok": true,
+     "source": "https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf"
+    },
+    {
+     "label": "Speed regulation is the difference between the no-load and rated-load speeds, in percent of rated-load speed: (2080 − 2000) ÷ 2000 = 4.0%",
+     "ok": true,
+     "source": "https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf"
+    },
+    {
+     "label": "The shunt motor has a safe no-load speed, providing that the field circuit is not de-energised: 2080 rpm at full field, under the example limit",
+     "ok": true,
+     "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "load",
+    "rh",
+    "field"
+   ],
+   "readouts": [
+    "rdIa",
+    "rdE",
+    "rdN"
+   ],
+   "outputs": [
+    "ifield",
+    "ia",
+    "emf",
+    "rpm",
+    "drop",
+    "state"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 8,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "How it works",
+      "Load it, weaken the field",
+      "Check",
+      "How it behaves",
+      "Where it is used",
+      "Faults and tests",
+      "Find the fault",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "Load, % of rated torque",
+     "min": 0,
+     "max": 100,
+     "step": 10,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      0,
+      50,
+      100
+     ]
+    },
+    {
+     "id": "rh",
+     "kind": "control",
+     "label": "Field rheostat",
+     "min": 0,
+     "max": 50,
+     "step": 10,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      0,
+      20
+     ]
+    },
+    {
+     "id": "field",
+     "kind": "choice",
+     "label": "Field circuit",
+     "options": [
+      "conn",
+      "open"
+     ],
+     "labels": [
+      "Connected",
+      "Open"
+     ],
+     "value": "conn",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Finish the lesson",
+    "Back",
+    "Continue",
+    "The armature turning"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T16:43:17.439Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Several overreaches: 'only resistance limits a DC current' is untrue once it turns; no-load current covers iron loss too; 'Some makers' rests on one maker's catalogue; 'runs away' drops the source's 'can'; 'a few percent' clashes with his sheet's 10-20%; unloaded safety needs full field."
+   },
+   {
+    "path": "explain.text",
+    "problem": "'The load does not change it' contradicts the paragraph's own armature-reaction point, and 'Makers add' overstates NEMA's definition and Baldor's optional stabilising winding, which not every shunt motor has."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The worked example holds the same torque, so 'it gives less torque' contradicts it (it must give less to stay in rating); and unloaded safety needs full field, since a weakened field can overspeed at light load (Baldor, screen 6)."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "Synchronous speed is 120 f / p, set by the supply frequency and the number of poles, as lesson 1 taught; frequency alone does not set it."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The card drops the contested 10-20% his sheet gives, and states the starting-torque comparison flatly though one source says 'as high'; at the same starting current the series motor's torque is higher, which is what holds."
+   },
+   {
+    "path": "summary.traps[3].text",
+    "problem": "A plain straight-shunt motor can speed up under load from armature reaction (Baldor, NEMA, and the lesson's own explain), so 'it settles a little slower' needs 'usually'."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,318 @@
+{
+ "iid": "i6",
+ "title": "The DC series motor",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the field weaken, the torque fall with the current squared and the speed climb into the red, when you drag the load current down.",
+  "title": "One current: field, torque, speed",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 7,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.\n\nScreen 1, How it works. A still drawing: a DC supply, then the series field winding drawn as a few turns of thick wire, then the armature between its brushes, all in one loop. One arrow runs round the loop, labelled \"the same current through both\". A curved arrow on the armature shows it turning, and a label \"back-emf\" points against the supply. The words beside it: \"The field winding is in series with the armature. So one current flows through both. The field is a few turns of thick wire, to carry that full current. A turning armature is a generator too. It makes a back-emf that opposes the supply. A stronger field or a faster spin makes more of it. At standstill there is none, so the starting current is large.[^5] More current means a stronger field and much more torque.\" Back-emf is the key term, marked in amber.\n\nScreen 2, One current: field, torque, speed. The picture to play with. At the top, screen 1's loop redrawn small, with the armature's shaft driving a hoist drum through gears. Beside the field winding, a bar for the field's strength. The armature turns at a pace in step with the speed readout, slowed right down. Below, a plot against load current, from 0.25 to 1.00 per unit. Two curves, drawn in full: torque, rising as the current squared, and speed, falling as one over the current. The speed axis runs from 0 to 4.00. A band above 3.00 is shaded red and labelled \"example danger line, not a maker's\". A dot on each curve sits at the slider's value. Then one row of three readouts: Field, per unit. Torque, per unit. Speed, per unit. The speed readout turns red above 3.00. On a phone these sit one under another; on a laptop the plot sits beside the motor.\n\nThe control. Load current: a slider from 0.25 to 1.00 per unit of full-load current, in steps of 0.05, opening at 1.00, full load.\n\nThe rule it computes, for an ideal series motor: no saturation, no resistance, no friction. Everything is per unit, so 1.00 is full-load current, torque and speed. Field = current. Torque = field × current = current². Speed = one over the field = one over the current, because the back-emf goes with field × speed and stays equal to the supply.\n\nWorked on the screen, under the readouts:\nAt 1.00: field 1.00, torque 1.00 × 1.00 = 1.00, speed 1 ÷ 1.00 = 1.00.\nAt 0.50: field 0.50, torque 0.50 × 0.50 = 0.25, speed 1 ÷ 0.50 = 2.00.\nAt 0.25: field 0.25, torque 0.25 × 0.25 = 0.06, speed 1 ÷ 0.25 = 4.00.\nThe speed crosses the red line near 0.33, a third of full-load current.\n\nThe words on the screen, above the picture: \"Assume an ideal series motor, with no saturation and no resistance. 1.00 is full load. The field grows with the current. So torque goes with current squared. A weaker field must spin faster to make the same back-emf. So speed goes with one over the current. The red line at 3.00 is an example, not a maker's limit.\" The prompt above the picture: \"Drag the load current down and watch the field, the torque and the speed.\" Read: At full load the field, torque and speed all read 1.00. At half the current the field halves, the torque falls to a quarter, 0.25, and the speed doubles to 2.00. At a quarter of the current the torque is only 0.06 and the speed is 4.00, deep in the red. The speed crosses the example danger line near a third of full-load current. Still: the slider at 0.25, the field bar a quarter full, the dots at torque 0.06 and speed 4.00 in the red band, and the readouts 0.25, 0.06 and 4.00 with the speed in red.\n\nScreen 3, Check on the cause. \"A hoist is lifting on a DC series motor. The coupling shears and the load comes off. What does the motor do?\" Three choices, in this order: \"It slows and stops: it has nothing to drive\"; \"It speeds up a little, then holds a steady speed\"; \"Its speed climbs and keeps climbing\". Right, the third: \"Right. With no load it speeds up, and the current falls. Less current means a weaker field. A weaker field must spin faster to make the same back-emf. So it speeds up again, and keeps climbing. That is runaway, and why it must have overspeed protection.[^13]\" Wrong, the first: \"It still has its supply. With no load the current falls and the field weakens. A weaker field means more speed, not less.\" Wrong, the second: \"That is lesson 1's induction motor, held just under synchronous speed. A series motor has no such speed. Its field weakens with the current, so it keeps speeding up.\" After a wrong choice, the right answer and its reason. Runaway is the key term, marked in amber.\n\nScreen 4, How it behaves. A still drawing: screen 2's two curves without the slider, labelled \"sketch from the ideal rule\". Rows, each with a label.\n\nStarting torque: \"Very high. Torque goes with current squared until the iron saturates.[^10] After that, with current alone.\"\n\nSpeed: \"Poor regulation. The speed changes a lot with load, and climbs dangerously with none.\"\n\nStarting current: \"At standstill only the resistance limits it. A 260 V motor with a 0.4 Ω armature would take 650 A. That is about twelve times full load.[^22] So it starts through a starting resistance.\"\n\nReversing: \"Swap the field leads or the armature leads, not both.[^35] Swapping the supply leads leaves it turning the same way.\"\n\nScreen 5, Where it is used, and its limits. A still drawing: the motor driving a hoist drum through gears, labelled \"geared, never belted\". Rows.\n\nUsed for: \"Crane hoists, lifts and large excavators, where big starting torque matters. Also traction, such as railway locomotives.\"\n\nAt sea: \"In 1907 the US Navy used series motors on boat cranes, for their starting torque.[^42]\"\n\nCoupling: \"Directly or through gears, so the load cannot come off. Never by a belt, which can break.[^17]\"\n\nProtection: \"It must have overspeed protection.[^13] Its starter has a no-load release that lets go if the current falls.\"\n\nScreen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger on the windings to frame, and the brushes on the commutator. Rows.\n\nSafety first: \"Isolate, lock off and prove dead before you touch the motor or its starter.\"\n\nIt races: \"The load came off. Find out why, and check the overspeed trip.\"\n\nSparking: \"Worn brushes or a pitted commutator. Poor contact makes them spark.\"\n\nWill not start: \"Look for an open field, a lead to earth, or poor brush contact.\"\n\nTests: \"Megger the windings to frame. Measure the armature and field resistance.[^47]\"\n\nScreen 7, Find the fault. \"A ventilation fan is driven by a DC series motor through a belt. The belt snaps, and the motor races until its overspeed trip stops it. What is the fault?\" Three choices, in this order: \"The field winding has gone open circuit\"; \"The belt drive: it let the load come off\"; \"The brushes are worn\". Right, the second: \"Right. With the belt gone there was no load. The current fell, the field weakened and the speed climbed. The fix is a direct or geared drive, not a new belt.[^17]\" Wrong, the first: \"In a series motor the field carries the armature current. Open it and no current flows, so the motor stops. It cannot race.\" Wrong, the third: \"Worn brushes cause sparking and poor contact. They make a motor weak or slow to start, not race.\" After a wrong choice, the right answer and its reason.\n\nScreen 8, Keep this: the summary card, drawn from the lesson's summary with no case figures, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The red line at 3.00 is an example, not a maker's limit.",
+  "ignores": "The picture is an ideal series motor: no saturation, no resistance and no friction. On it the speed with no load at all would have no limit. A real motor's losses do set one, but it can be past the point of damage. Past saturation the field stops growing, so torque goes with the current alone. Resistance makes the real speed a little lower under heavy load. Everything is per unit, not a real motor's rpm or newton metres.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 8 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Load current slider, opening, per unit",
+    "value": 1.0,
+    "kind": "control"
+   },
+   {
+    "label": "Load current slider, lowest, per unit",
+    "value": 0.25,
+    "kind": "control"
+   },
+   {
+    "label": "Load current slider, highest, per unit",
+    "value": 1.0,
+    "kind": "control"
+   },
+   {
+    "label": "Load current slider, step, per unit",
+    "value": 0.05,
+    "kind": "control"
+   },
+   {
+    "label": "Field, torque and speed at full load, per unit",
+    "value": 1.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Field at half current, per unit",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Torque at half current, per unit",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed at half current, per unit",
+    "value": 2.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Field at a quarter current, per unit",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Torque at a quarter current, per unit",
+    "value": 0.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed at a quarter current, per unit",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Speed axis, bottom and top, per unit",
+    "value": "0 to 4.00",
+    "kind": "computed"
+   },
+   {
+    "label": "Danger line, per unit speed (example)",
+    "value": 3.0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Current where speed crosses the line, near, per unit",
+    "value": 0.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Torque at double the current, times",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply voltage, worked case, V",
+    "value": 260,
+    "kind": "constant",
+    "source": 22
+   },
+   {
+    "label": "Armature resistance, worked case, ohm",
+    "value": 0.4,
+    "kind": "constant",
+    "source": 22
+   },
+   {
+    "label": "Starting current with no starter, A",
+    "value": 650,
+    "kind": "constant",
+    "source": 22
+   },
+   {
+    "label": "Starting current, times full load, about",
+    "value": 12,
+    "kind": "constant",
+    "source": 22
+   },
+   {
+    "label": "Starter limit, low, % of full load",
+    "value": 125,
+    "kind": "constant",
+    "source": 23
+   },
+   {
+    "label": "Starter limit, high, % of full load",
+    "value": 200,
+    "kind": "constant",
+    "source": 23
+   },
+   {
+    "label": "Starter limit, other guide, low, times full load",
+    "value": 2,
+    "kind": "constant",
+    "source": 24
+   },
+   {
+    "label": "Starter limit, other guide, high, times full load",
+    "value": 3,
+    "kind": "constant",
+    "source": 24
+   },
+   {
+    "label": "Year of the US Navy boat-crane series motor",
+    "value": 1907,
+    "kind": "date",
+    "source": 42
+   }
+  ]
+ },
+ "explain": {
+  "text": "A DC series motor has its field winding in series with the armature, so one current flows through both.[^1] Torque comes from the field acting on the armature current. Here both are that one current. So below saturation, torque goes with the current squared.[^10] Double the current and the torque is four times. That is why it starts so hard.\n\nA turning armature is a generator too, so it makes a [[back-emf]] that opposes the supply. Like any generator, it makes more with a stronger field or a faster spin. At standstill there is none, so only the windings' resistance limits the current.[^5] As the motor speeds up, the back-emf rises and the current falls. It settles where the back-emf is just under the supply voltage.\n\nNow take the load off. The motor speeds up, the back-emf rises and the current falls. But less current means a weaker field. A weaker field makes less back-emf at the same speed, so the motor speeds up again. Ignoring resistance, the speed goes with one over the current.[^29] At half the current it doubles. With no load it keeps climbing until the motor can damage itself.[^14] That is [[runaway]]. The picture is this ideal case, with no saturation or resistance. Real curves bend, but the speed still climbs as the load falls.\n\n**One current makes both the field and the torque, so torque climbs with the current squared, and with the load off the speed climbs dangerously.**[^13]"
+ },
+ "analogy": {
+  "text": "Think of an automatic gearbox that changes gear by load alone. Heavy load, and it drops to a low gear: slow and strong. Light load, and it changes up: fast and weak. A series motor does the same by itself, because its field follows the load current.",
+  "breaks": "A gearbox has a top gear and the engine has a rev limiter. A series motor has neither. As the load falls it keeps changing up, so with no load it runs away."
+ },
+ "practice": {
+  "text": "- Isolate, lock off and prove dead before you touch the motor or its starter.\n- Check the drive. It must be direct or through gears, never a belt.[^17]\n- Check that overspeed protection is fitted.[^13]\n- Start it through its starter. Never bypass the starting resistance.\n- Megger the windings to frame.\n- Measure the armature and field resistance. An open circuit means a broken winding or connection.\n- Look at the brushes and commutator for wear, pitting and sparking.\n\n**Rule of thumb:** with no starter, the first current is the supply voltage over the resistance. That is many times full load.\n\n**Worked example:** take a 260 V motor with a 0.4 Ω armature. At standstill there is no back-emf. So I = 260 ÷ 0.4 = 650 A, about twelve times its full-load current.[^22] A starting resistance in series with the armature brings that down. Starters keep it to about 125 to 200% of full load.[^23] Some aim for two or three times.[^24]\n\n**Common mistakes**\n- Running it on test with the load uncoupled. A series motor cannot run safely with no load.[^18]\n- Swapping the supply leads to reverse it. That reverses field and armature together, so it turns the same way.[^34]\n- Expecting torque to go with current squared at every load. Past saturation it goes with current alone.\n- Fitting a new belt after a belt failure. Change to a direct or geared drive."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "Your motor sheet: the DC series motor",
+   "url": "material:dc-series#p1",
+   "quote": "A DC series motor is a type of direct current electric motor where the armature and field windings are connected in series, so the same current flows through both."
+  },
+  {
+   "n": 5,
+   "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+   "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+   "quote": "At the moment a DC motor is started the armature is stationary therefore no counter EMF is being generated."
+  },
+  {
+   "n": 10,
+   "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+   "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+   "quote": "This results in the developed torque being proportional to the square of the armature current."
+  },
+  {
+   "n": 13,
+   "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+   "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+   "quote": "If the motor load is lost, TD will get quite small, causing Ia to become small which, in turn, results in overspeeding the motor. Series motors must always be fitted with overspeed protection."
+  },
+  {
+   "n": 14,
+   "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+   "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+   "quote": "Speed continues to increase until the physical force of rotation damages the motor."
+  },
+  {
+   "n": 15,
+   "title": "Classes, Speed Control and Starting of DC motors",
+   "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+   "quote": "This type of DC motor is only used for direct coupling and other work where the load ( or part of the load ) is permanently coupled to the motor."
+  },
+  {
+   "n": 17,
+   "title": "DC series motor caution - EDN",
+   "url": "https://www.edn.com/dc-series-motor-caution",
+   "quote": "It is stridently recommended that any mechanical load being driven by a DC series motor be coupled to that motor by a gear mechanism and never by a belt because a belt can break."
+  },
+  {
+   "n": 18,
+   "title": "DC series motor caution - EDN",
+   "url": "https://www.edn.com/dc-series-motor-caution",
+   "quote": "A DC shunt motor or a DC compound motor can be safely operated without a mechanical load (separate discussions), but a DC series motor CANNOT be safely operated that way."
+  },
+  {
+   "n": 22,
+   "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+   "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+   "quote": "For example, a 10-hp motor with an armature resistance of 0.4 ohms, if supplied by a 260 VDC source, would result in a current of 650 amps, which is approximately twelve times greater than its actual full-load current."
+  },
+  {
+   "n": 23,
+   "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+   "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+   "quote": "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+  },
+  {
+   "n": 24,
+   "title": "DC Motor Starting Methods | Electrical A2Z",
+   "url": "https://electricala2z.com/dc-machines/dc-motor-starting-methods",
+   "quote": "A general guide is to limit the maximum starting current to about two or three times full-load current."
+  },
+  {
+   "n": 28,
+   "title": "DC Generators and Motors",
+   "url": "https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf",
+   "quote": "it is necessary to use an external starting resistance in series with the armature of a dc motor to keep the initial armature current to a safe value."
+  },
+  {
+   "n": 29,
+   "title": "PowerPoint Presentation",
+   "url": "https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf",
+   "quote": "Hence, for series motor, the speed is inversely proportional to the armature current as shown in the speed-armature current curve."
+  },
+  {
+   "n": 34,
+   "title": "High Starting performance separately excited DC motor",
+   "url": "https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffpdf&url=24795_45_89_High%20Starting%20DC%20Motor.pdf",
+   "quote": "Also the direction of speed cannot be reversed by reversing supply voltage because reversing armature voltage will reverse both field and armature current."
+  },
+  {
+   "n": 35,
+   "title": "DC Generators and Motors",
+   "url": "https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf",
+   "quote": "If both are reversed, rotation will continue in the original direction."
+  },
+  {
+   "n": 42,
+   "title": "Electrical Installations of the United States Navy (Continued) | Proceedings - 1907 Vol. 33/2/122",
+   "url": "https://www.usni.org/magazines/proceedings/1907/april/electrical-installations-united-states-navy-continued",
+   "quote": "It is series-wound, good starting torque for this class of service being important."
+  },
+  {
+   "n": 46,
+   "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+   "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+   "quote": "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+  },
+  {
+   "n": 47,
+   "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+   "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+   "quote": "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+  },
+  {
+   "n": 48,
+   "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+   "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+   "quote": "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null,
+ "format": "steps",
+ "summary": {
+  "title": "The DC series motor",
+  "for": "Loads that need big starting torque and stay coupled: hoists, cranes, traction. One current feeds field and armature, so torque climbs steeply with current. Take the load off and it runs away.",
+  "rule": "One current through field and armature.\nBack-emf: E = V − I R. Zero at standstill.\nBelow saturation, ignoring resistance: torque goes with I², speed with 1 ÷ I.\nPast saturation: torque goes with I.\nNo starter: I = V ÷ R. 260 V ÷ 0.4 Ω = 650 A, about twelve times full load.\n\nVery high starting torque. Poor speed regulation.\nA starting resistance keeps the start to about 125 to 200% of full load.\nReverse it by swapping the field or the armature leads, not both.",
+  "traps": [
+   {
+    "text": "Never run it unloaded or drive through a belt. Couple it directly or through gears.",
+    "cite": "[^18] [^17] [^15] EDN; IDC"
+   },
+   {
+    "text": "Lose the load and it runs away. It must have overspeed protection.",
+    "cite": "[^13] Rose-Hulman lecture 25"
+   },
+   {
+    "text": "At standstill there is no back-emf. Only the resistance limits the current, so start it through its starter.",
+    "cite": "[^5] [^28] PEG-3722; CED Engineering"
+   },
+   {
+    "text": "Swapping the supply leads does not reverse it. Swap the field or the armature leads.",
+    "cite": "[^34] [^35] AAST; CED Engineering"
+   },
+   {
+    "text": "Isolate, lock off and prove dead. Then megger to frame, measure field and armature resistance, and check the brushes and commutator.",
+    "cite": "[^46] [^47] [^48] Pump & Motor Works"
+   }
+  ],
+  "where": "Crane hoists, lifts, large excavators and traction: loads that need big starting torque and stay coupled."
+ }
+}

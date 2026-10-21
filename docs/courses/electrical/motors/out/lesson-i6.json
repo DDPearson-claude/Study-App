@@ -1,0 +1,503 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T16:43:17.439Z",
+ "startedAt": "2026-10-21T16:43:17.439Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "The DC series motor",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the field weaken, the torque fall with the current squared and the speed climb into the red when you drag the load current down.",
+   "title": "One current: field, torque, speed",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 7,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.\n\nScreen 1, How it works. A still drawing: a DC supply, then the series field winding drawn as a few turns of thick wire, then the armature between its brushes, all in one loop. One arrow runs round the loop, labelled \"the same current through both\". A curved arrow on the armature shows it turning, and a label \"back-emf\" points against the supply. The words beside it: \"You already know one. An angle grinder's motor[^21] is a series motor built to run on AC as well.[^20] The field winding is in series with the armature. So one current flows through both.[^11] Torque comes from the field acting on the armature current. Here both are that one current. So more current means a stronger field and much more torque. A turning armature is a generator too. It makes a back-emf that opposes the supply. A stronger field or a faster spin makes more of it. At standstill there is none, so the starting current is large.[^1] Once it runs, the back-emf settles just under the supply voltage. The small gap pushes the current through the resistance: E = V − I R.\" Back-emf is the key term, marked in amber.\n\nScreen 2, One current: field, torque, speed. The picture to play with. At the top, screen 1's loop redrawn small, with the armature's shaft driving a hoist drum through gears. Beside the field winding, a bar for the field's strength, full at 2.00. Below it, a bar for the back-emf, which stays full: it always matches the supply. The armature turns at a pace in step with the speed readout, slowed right down. The load on the drum's rope grows and shrinks with the torque. Below, a plot against load current, from 0.25 to 2.00 per unit. Two curves, drawn in full: torque, rising as the current squared, and speed, falling as one over the current. The axis runs from 0 to 4.00. Over the light-load half of the plot, up to full load, a band above 3.00 is shaded red and labelled \"speed danger line: an example, not a maker's\". A dot on each curve sits at the slider's value. Then one row of three readouts, on a phone too: Field, per unit. Torque, per unit. Speed, per unit. The speed readout turns red above 3.00. On a laptop the plot sits beside the motor.\n\nThe control. Load current: a slider from 0.25 to 2.00 per unit of full-load current, in steps of 0.05. It starts at 1.00, full load.\n\nThe rule it computes, for an ideal series motor: no saturation, no resistance, no friction. Everything is per unit, so 1.00 is full-load current, torque and speed. Field = current. Torque = field × current = current².[^3] Speed = one over the field = one over the current.[^12] That is because the back-emf goes with field × speed and stays equal to the supply.\n\nWorked on the screen, under the readouts:\nAt 2.00: field 2.00, torque 2.00 × 2.00 = 4.00, speed 1 ÷ 2.00 = 0.50.\nAt 0.50: field 0.50, torque 0.50 × 0.50 = 0.25, speed 1 ÷ 0.50 = 2.00.\nAt 0.25: field 0.25, torque 0.25 × 0.25 = 0.0625, about 0.06, speed 1 ÷ 0.25 = 4.00.\nThe speed crosses the red line near 0.33, a third of full-load current.\n\nThe words on the screen, above the picture: \"Assume an ideal series motor, with no saturation and no resistance. 1.00 is full load. The red line at 3.00 is an example, not a maker's limit.\" The prompt above the picture: \"Drag the load current up and down and watch the field, the torque and the speed.\" The caption under the readouts gives the cause at each setting, for example at 0.50: \"At 0.50 of full-load current the field is 0.50. Torque is field times current, so it is 0.25. The back-emf must still match the supply. In a weaker field the armature must spin faster to make it. So the speed is 2.00.\" Read: At full load the field, torque and speed all read 1.00. At twice the current, as at a hard start, the torque is four times, 4.00, and the speed halves to 0.50. At half the current the field halves. The torque falls to a quarter, 0.25. The speed doubles to 2.00. At a quarter of the current the torque is only 0.06 and the speed is 4.00, deep in the red. All the while the back-emf bar stays full. The speed crosses the example danger line near a third of full-load current. Still: the slider at 0.25, the field bar an eighth full, the back-emf bar full, the load small, the dots at torque 0.06 and speed 4.00 in the red band, and the readouts 0.25, 0.06 and 4.00 with the speed in red.\n\nScreen 3, Check on the cause. \"A hoist is lifting on a DC series motor. The coupling shears and the load comes off. What does the motor do?\" Three choices, in this order: \"It slows and stops: it has nothing to drive\"; \"It speeds up a little, then holds a steady speed\"; \"Its speed climbs and keeps climbing\". Right, the third: \"Right. With no load it speeds up, and the current falls. Less current means a weaker field. In a weaker field the armature must spin faster to make the same back-emf. So it speeds up again, and keeps climbing.[^13] That is runaway. It is why the motor must have overspeed protection.[^2]\" Wrong, the first: \"It still has its supply. With no load the current falls and the field weakens. A weaker field means more speed, not less.\" Wrong, the second: \"That is how an induction motor behaves, held just under synchronous speed. A series motor has no such speed. Its field weakens with the current, so it keeps speeding up.\" After a wrong choice, the right answer and its reason. Runaway is the key term, marked in amber.\n\nScreen 4, How it behaves. A still drawing: screen 2's two curves without the slider, labelled \"sketch from the ideal rule\". Rows, each with a label.\n\nStarting torque: \"Very high. Torque goes with current squared until the iron saturates.[^3] After that, it goes with current alone.\"\n\nSpeed: \"Poor regulation. The speed changes a lot with load. With no load it climbs dangerously.\"\n\nStarting current: \"At standstill only the resistance limits it. A 260 V motor with a 0.4 Ω armature would take 650 A. That is about twelve times full load.[^4] The field's resistance makes the real figure a little less. So it starts through a starting resistance.\"\n\nReversing: \"Swap the field leads or the armature leads, not both.[^5] Swapping the supply leads leaves it turning the same way.\"\n\nScreen 5, Where it is used, and its limits. A still drawing: the motor driving a hoist drum through gears, labelled \"geared, never belted\". Rows.\n\nUsed for: \"Crane hoists, lifts and large excavators, where big starting torque matters. Also traction, such as railway locomotives.\"\n\nHistory: \"In 1907 the US Navy used series motors on boat cranes, for their starting torque.[^6]\"\n\nCoupling: \"Couple it directly or through gears. Then the load is far less likely to come off. Never use a belt, which can break.[^7]\"\n\nProtection: \"It must have overspeed protection.[^2] Its starter has a no-load release that lets go if the current falls.\"\n\nScreen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger on the windings to frame, and the brushes on the commutator. Rows.\n\nSafety first: \"Isolate, lock off and prove dead before you touch the motor or its starter.\"\n\nIt races: \"The load came off. Find out why, and check the overspeed trip.\"\n\nSparking: \"Worn brushes or a pitted commutator. Poor contact makes them spark.\"\n\nWill not start: \"Look for an open field, a lead to earth, or poor brush contact.\"\n\nTests: \"Megger the windings to frame. Measure the armature and field resistance.[^8]\"\n\nScreen 7, Find the fault. \"A ventilation fan runs on a DC series motor. One day the motor suddenly races and trips on overspeed. What is the most likely fault?\" Three choices, in this order: \"The field winding has gone open circuit\"; \"The drive belt has snapped\"; \"The brushes are worn\". Right, the second: \"Right. A snapped belt leaves the motor with no load. The current fell, the field weakened and the speed climbed. The fix is a direct or geared drive, not a new belt.[^7]\" Wrong, the first: \"In a series motor the field carries the armature current. Open it and no current flows, so the motor stops. It cannot race.\" Wrong, the third: \"Worn brushes cause sparking and poor contact. They make a motor weak or slow to start, not race.\" After a wrong choice, the right answer and its reason.\n\nScreen 8, Keep this: the summary card, drawn from the lesson's summary with no case figures, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The red line at 3.00 is an example, not a maker's limit.",
+   "ignores": "The picture is an ideal series motor: no saturation, no resistance and no friction. On it, the speed with no load at all has no limit. A real motor's losses do set a limit. That limit can be past the point of damage. Past saturation the field stops growing, so torque goes with the current alone. Resistance makes the real speed a little lower under heavy load. Everything is per unit, not a real motor's rpm or newton metres.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 8 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Load current slider, opening, per unit",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Load current slider, lowest, per unit",
+     "value": 0.25,
+     "kind": "control"
+    },
+    {
+     "label": "Load current slider, highest, per unit",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Load current slider, step, per unit",
+     "value": 0.05,
+     "kind": "control"
+    },
+    {
+     "label": "Field, torque and speed at full load, per unit",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Field at half current, per unit",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Torque at half current, per unit",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed at half current, per unit",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Field at a quarter current, per unit",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Torque at a quarter current, per unit",
+     "value": 0.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed at a quarter current, per unit",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed axis, bottom and top, per unit",
+     "value": "0 to 4.00",
+     "kind": "computed"
+    },
+    {
+     "label": "Danger line, per unit speed (example)",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current where speed crosses the line, near, per unit",
+     "value": 0.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Torque at double the current, times",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Supply voltage, worked case, V",
+     "value": 260,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Armature resistance, worked case, ohm",
+     "value": 0.4,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Starting current with no starter, A",
+     "value": 650,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Starting current, times full load, about",
+     "value": 12,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Starter limit, low, % of full load",
+     "value": 125,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Starter limit, high, % of full load",
+     "value": 200,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Starter limit, other guide, low, times full load",
+     "value": 2,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Starter limit, other guide, high, times full load",
+     "value": 3,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Year of the US Navy boat-crane series motor",
+     "value": 1907,
+     "kind": "date",
+     "source": 6
+    }
+   ]
+  },
+  "explain": {
+   "text": "A DC series motor has its field winding in series with the armature. So one current flows through both. Torque comes from the field acting on the armature current. Here both are that one current. So below saturation, torque goes with the current squared. Double the current and you get four times the torque. That is why it starts so hard.\n\nA turning armature is a generator too. It makes a [[back-emf]] that opposes the supply. Like any generator, it makes more with a stronger field or a faster spin. At standstill there is none, so only the windings' resistance limits the current. As the motor speeds up, the back-emf rises and the current falls. It settles where the back-emf is just under the supply voltage.\n\nNow take the load off. The motor speeds up, the back-emf rises and the current falls. But less current means a weaker field. A weaker field makes less back-emf at the same speed. So the motor speeds up again. Below saturation and ignoring resistance, the speed goes with one over the current. At half the current it doubles. With no load it can keep climbing until it damages itself. That is [[runaway]]. The picture shows this ideal case, with no saturation or resistance. Real curves bend, but the speed still climbs as the load falls.\n\n**One current makes both the field and the torque. So torque climbs with the current squared. Take the load off and the speed climbs dangerously.**"
+  },
+  "analogy": {
+   "text": "Think of an automatic gearbox that changes gear by load alone. Heavy load, and it drops to a low gear: slow and strong. Light load, and it changes up: fast and weak. A series motor does the same by itself, because its field follows the load current.",
+   "breaks": "A gearbox has a top gear and the engine has a rev limiter. A series motor has neither built in. As the load falls it keeps changing up, so with no load it can run away."
+  },
+  "practice": {
+   "text": "- Isolate, lock off and prove dead before you touch the motor or its starter.\n- Check the drive. It must be direct or through gears, never a belt.\n- Check that overspeed protection is fitted.\n- Megger the windings to frame.\n- Measure the armature and field resistance. An open circuit means a broken winding or connection.\n- Look at the brushes and commutator for wear, pitting and sparking.\n- Only then restore the supply and start it through its starter. Never bypass the starting resistance.\n\n**Rule of thumb:** with no starter, the first current is the supply voltage over the resistance. That is many times full load.\n\n**Worked example:** take a 260 V motor with a 0.4 Ω armature. At standstill there is no back-emf. So I = 260 ÷ 0.4 = 650 A, about twelve times its full-load current.[^4] The series field adds a little resistance, so the real figure is slightly less. A starting resistance in series with the armature brings that down. Starters typically keep it to 125 to 200% of full load.[^9] Some aim for two or three times.[^10]\n\n**Common mistakes**\n- Running it on test with the load uncoupled. A series motor cannot run safely with no load.\n- Swapping the supply leads to reverse it. That reverses field and armature together, so it turns the same way.\n- Expecting torque to go with current squared at every load. Past saturation it goes with current alone.\n- Fitting a new belt after a belt failure. Change to a direct or geared drive."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+   "title": "The DC series motor",
+   "for": "Loads that need big starting torque and stay coupled. One current feeds field and armature. So torque climbs steeply with current. Take the load off and it runs away.",
+   "rule": "One current through field and armature.\nBack-emf: E = V − I R. R is the armature plus the series field. Zero at standstill.\nBelow saturation: torque goes with I².\nIgnoring resistance: speed goes with 1 ÷ I.\nPast saturation: torque goes with I.\nNo starter: I = V ÷ R. 260 V ÷ 0.4 Ω = 650 A, about twelve times full load. The field's resistance makes the real figure a little less.\n\nVery high starting torque. Poor speed regulation.\nA starting resistance limits the starting current, typically to 125 to 200% of full load. Some aim for two to three times. Use the maker's setting.\nReverse it by swapping the field or the armature leads, not both.",
+   "traps": [
+    {
+     "text": "Never run it unloaded or drive through a belt. Couple it directly or through gears.",
+     "cite": "[^14] [^7] [^16] EDN; IDC"
+    },
+    {
+     "text": "Lose the load and it runs away. It must have overspeed protection.",
+     "cite": "[^2] Rose-Hulman lecture 25"
+    },
+    {
+     "text": "At standstill there is no back-emf. Only the resistance limits the current, so start it through its starter.",
+     "cite": "[^1] [^17] PEG-3722; CED Engineering"
+    },
+    {
+     "text": "Swapping the supply leads does not reverse it. Swap the field or the armature leads.",
+     "cite": "[^15] [^5] AAST; CED Engineering"
+    },
+    {
+     "text": "Isolate, lock off and prove dead. Then megger to frame, measure field and armature resistance, and check the brushes and commutator.",
+     "cite": "[^18] [^8] [^19] Pump & Motor Works"
+    }
+   ],
+   "where": "Crane hoists, lifts, large excavators and traction."
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+    "quote": "At the moment a DC motor is started the armature is stationary therefore no counter EMF is being generated."
+   },
+   {
+    "n": 2,
+    "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+    "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+    "quote": "If the motor load is lost, TD will get quite small, causing Ia to become small which, in turn, results in overspeeding the motor. Series motors must always be fitted with overspeed protection."
+   },
+   {
+    "n": 3,
+    "title": "[PDF] 25-1 DC motors DC motors are important in many applications. In ...",
+    "url": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf",
+    "quote": "This results in the developed torque being proportional to the square of the armature current."
+   },
+   {
+    "n": 4,
+    "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+    "quote": "For example, a 10-hp motor with an armature resistance of 0.4 ohms, if supplied by a 260 VDC source, would result in a current of 650 amps, which is approximately twelve times greater than its actual full-load current."
+   },
+   {
+    "n": 5,
+    "title": "DC Generators and Motors",
+    "url": "https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf",
+    "quote": "If both are reversed, rotation will continue in the original direction."
+   },
+   {
+    "n": 6,
+    "title": "Electrical Installations of the United States Navy (Continued) | Proceedings - 1907 Vol. 33/2/122",
+    "url": "https://www.usni.org/magazines/proceedings/1907/april/electrical-installations-united-states-navy-continued",
+    "quote": "It is series-wound, good starting torque for this class of service being important."
+   },
+   {
+    "n": 7,
+    "title": "DC series motor caution - EDN",
+    "url": "https://www.edn.com/dc-series-motor-caution",
+    "quote": "It is stridently recommended that any mechanical load being driven by a DC series motor be coupled to that motor by a gear mechanism and never by a belt because a belt can break."
+   },
+   {
+    "n": 8,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+   },
+   {
+    "n": 9,
+    "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+    "quote": "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+   },
+   {
+    "n": 10,
+    "title": "DC Motor Starting Methods | Electrical A2Z",
+    "url": "https://electricala2z.com/dc-machines/dc-motor-starting-methods",
+    "quote": "A general guide is to limit the maximum starting current to about two or three times full-load current."
+   },
+   {
+    "n": 11,
+    "title": "Your motor sheet: the DC series motor",
+    "url": "material:dc-series#p1",
+    "quote": "A DC series motor is a type of direct current electric motor where the armature and field windings are connected in series, so the same current flows through both."
+   },
+   {
+    "n": 12,
+    "title": "PowerPoint Presentation",
+    "url": "https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf",
+    "quote": "Hence, for series motor, the speed is inversely proportional to the armature current as shown in the speed-armature current curve."
+   },
+   {
+    "n": 13,
+    "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+    "quote": "Speed continues to increase until the physical force of rotation damages the motor."
+   },
+   {
+    "n": 14,
+    "title": "DC series motor caution - EDN",
+    "url": "https://www.edn.com/dc-series-motor-caution",
+    "quote": "A DC shunt motor or a DC compound motor can be safely operated without a mechanical load (separate discussions), but a DC series motor CANNOT be safely operated that way."
+   },
+   {
+    "n": 15,
+    "title": "High Starting performance separately excited DC motor",
+    "url": "https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffpdf&url=24795_45_89_High%20Starting%20DC%20Motor.pdf",
+    "quote": "Also the direction of speed cannot be reversed by reversing supply voltage because reversing armature voltage will reverse both field and armature current."
+   },
+   {
+    "n": 16,
+    "title": "Classes, Speed Control and Starting of DC motors",
+    "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf",
+    "quote": "This type of DC motor is only used for direct coupling and other work where the load ( or part of the load ) is permanently coupled to the motor."
+   },
+   {
+    "n": 17,
+    "title": "DC Generators and Motors",
+    "url": "https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf",
+    "quote": "it is necessary to use an external starting resistance in series with the armature of a dc motor to keep the initial armature current to a safe value."
+   },
+   {
+    "n": 18,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+   },
+   {
+    "n": 19,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+   },
+   {
+    "n": 20,
+    "title": "Universal motors | IEEE Technology Navigator",
+    "url": "https://technav.ieee.org/topic/universal-motors/",
+    "quote": "Universal motors are series-wound electric motors capable of operating on either alternating current (AC) or direct current (DC) supply at comparable speeds and torque levels."
+   },
+   {
+    "n": 21,
+    "title": "Universal motors | IEEE Technology Navigator",
+    "url": "https://technav.ieee.org/topic/universal-motors/",
+    "quote": "Portable power tools such as drills, circular saws, and angle grinders"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 62rem; margin-inline: auto; }\n  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }\n  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task.show.ask { font-weight: 700; }\n  .task > * + * { margin-top: 10px; }\n  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .task .card b, .task .warn-note b { font-weight: 700; }\n  .task .warn-note { line-height: 1.5; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .why { line-height: 1.6; }\n  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }\n  .lcol > * + *, .rcol > * + * { margin-top: 12px; }\n  #outs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }\n  #outs .k-readout { padding: 8px 8px 10px 10px; }\n  #outs .k-readout-value { font-size: 1.1rem; }\n  #outs .k-readout.hot .k-readout-value { color: var(--k-warn); }\n  .work { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }\n  .work .wh { margin: 0; font-weight: 700; }\n  .work .wl { margin: 6px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }\n  .fig { display: block; width: 100%; height: auto; }\n  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }\n  .fig .wt { font: 500 13px var(--k-font); fill: var(--k-warn); }\n  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n  .fig .plt { stroke: var(--k-ink); stroke-width: 2; }\n  .fig .plt2 { stroke: var(--k-ink); stroke-width: 5; }\n  .fig .coilF { fill: none; stroke: var(--k-ink); stroke-width: 4.5; stroke-linecap: round; }\n  .fig .ia { fill: var(--k-accent2); }\n  .fig .arm { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .slot { fill: var(--k-muted); }\n  .fig .brush { fill: var(--k-strong); }\n  .fig .gear { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.4; stroke-linejoin: round; }\n  .fig .hub { fill: var(--k-strong); }\n  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .rope { stroke: var(--k-ink); stroke-width: 2; }\n  .fig .turn { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .emf { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .emfh { fill: var(--k-accent); }\n  .fig .barO { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .barF { fill: var(--k-accent2); }\n  .fig .barE { fill: var(--k-accent); }\n  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .grid { stroke: var(--k-line); stroke-width: 1; }\n  .fig .band { fill: var(--k-warn); fill-opacity: .12; }\n  .fig .dl { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .fig .sp { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .tq { fill: none; stroke: var(--k-accent); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .gd { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 4; }\n  .fig .dotS { fill: var(--k-accent2); stroke: var(--k-panel); stroke-width: 2; }\n  .fig .dotS.hot { fill: var(--k-warn); }\n  .fig .dotT { fill: var(--k-accent); stroke: var(--k-panel); stroke-width: 1.5; }\n  .fig .ldr { stroke: var(--k-muted); stroke-width: 1.2; }\n  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .jn { fill: var(--k-ink); }\n  .fig .hdl { fill: var(--k-strong); }\n  .fig .lock { fill: var(--k-warn); }\n  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }\n  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }\n  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .ans { font-weight: 700; }\n  #stepbox.enter { animation: screen-in .35s ease-out both; }\n  .fb { animation: fade-in .25s ease-out both; }\n  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"hwW\"><svg class=\"fig\" id=\"hw\" viewBox=\"0 0 340 222\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"behW\"><svg class=\"fig\" id=\"beh\" viewBox=\"0 0 340 266\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"useW\"><svg class=\"fig\" id=\"use\" viewBox=\"0 0 340 162\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"fltW\"><svg class=\"fig\" id=\"flt\" viewBox=\"0 0 340 196\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <p class=\"why\" id=\"pre\"></p>\n    <div class=\"live\" id=\"live\">\n      <div class=\"lcol\">\n        <svg class=\"fig\" id=\"mot\" viewBox=\"0 0 340 210\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-controls\" id=\"ctl\"></div>\n      </div>\n      <div class=\"rcol\">\n        <svg class=\"fig\" id=\"plot\" viewBox=\"0 0 340 248\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-readouts\" id=\"outs\"></div>\n        <p class=\"say\" id=\"say\"></p>\n        <div class=\"work\" id=\"work\"></div>\n      </div>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  const DEG = Math.PI / 180;\n  const REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const PEG8 = 'https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters';\n  const RH = 'https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf';\n  const AAST = 'https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf';\n\n  // ---------- the rule ----------\n  // An ideal series motor, per unit: no saturation, no resistance, no friction. 1.00 is full load.\n  // Field = current. Torque = field × current = current². Speed = 1 ÷ field = 1 ÷ current,\n  // because the back-emf goes with field × speed and stays equal to the supply.\n  const IMIN = 0.25, IMAX = 2, DANGER = 3;   // the red line at 3.00 is an example, not a maker's limit\n  const rule = (I) => ({ field: I, torque: I * I, speed: 1 / I });\n  const VS = 260, RA = 0.4;                  // the starting case: 260 V across a 0.4 Ω armature\n  const REV = 0.2;                           // the drawing turns 0.2 times a second per unit of speed: slowed right down\n\n  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);\n  const whole = (v) => String(Math.round(v + 1e-9));\n  const N = { full: two(1), tDbl: two(rule(2).torque), sDbl: two(rule(2).speed), tHalf: two(rule(0.5).torque), sHalf: two(rule(0.5).speed), tQtr: two(rule(0.25).torque), sQtr: two(rule(0.25).speed),\n    line: two(DANGER), cross: two(1 / DANGER), start: whole(VS / RA) };\n  // the exact product, and the two-place figure the readout shows when they differ (0.0625, about 0.06)\n  const exact = (v) => { const e = String(+v.toFixed(4)); return e.length > two(v).length ? e + ', about ' + two(v) : two(v); };\n  const workLine = (I) => { const r = rule(I); return 'At ' + two(I) + ': field ' + two(r.field) + ', torque ' + two(I) + ' × ' + two(I) + ' = ' + exact(r.torque) + ', speed 1 ÷ ' + two(I) + ' = ' + two(r.speed) + '.'; };\n  const WORK = [workLine(2), workLine(0.5), workLine(0.25), 'The speed crosses the red line near ' + N.cross + ', a third of full-load current.'];\n\n  // ---------- the lesson's words ----------\n  const blk = (t, s) => ({ t: t, s: s });\n  const HOW = [\n    blk('p', 'You already know one. An angle grinder\\'s motor is a series motor built for AC too.'),\n    blk('p', 'The field winding is in series with the armature, so one current flows through both. More current means a stronger field and much more torque.'),\n    blk('p', 'A turning armature also makes a *back-emf* that opposes the supply. More field or more speed makes more of it. At standstill there is none, so the starting current is large.'),\n    blk('p', 'Running, the back-emf sits just under the supply voltage: E = V − I R.'),\n  ];\n  const PLAY_TASK = 'Drag the load current up and down and watch the field, the torque and the speed.';\n  const PRE = 'Assume an ideal series motor, with no saturation and no resistance. ' + N.full + ' is full load. The red line at ' + N.line + ' is an example, not a maker\\'s limit.';\n  const PLAY_READ = 'At full load the field, torque and speed all read ' + N.full + '. At twice the current, as at a hard start, the torque is ' + N.tDbl + ' and the speed ' + N.sDbl + '. ' +\n    'At half the current the torque is ' + N.tHalf + ' and the speed ' + N.sHalf + '. ' +\n    'At a quarter, the torque is only ' + N.tQtr + ' and the speed ' + N.sQtr + ', deep in the red. ' +\n    'The back-emf bar stays full throughout. The speed crosses the example danger line near a third of full-load current.';\n  const BEHAVE = [\n    blk('row', 'Starting torque: Very high. It goes with current squared until the iron saturates, then with current alone.'),\n    blk('row', 'Speed: Poor regulation. It changes a lot with load. Unloaded, it climbs dangerously.'),\n    blk('row', 'Starting current: Only the resistance limits it. ' + VS + ' V across a ' + RA + ' Ω armature gives ' + N.start + ' A, about twelve times full load. The field\\'s resistance trims that a little. So start it through a starting resistance.'),\n    blk('row', 'Reversing: Swap the field or the armature leads, not both. Swapping the supply leads does not reverse it.'),\n  ];\n  const USE = [\n    blk('row', 'Used for: Crane hoists, lifts and large excavators, where big starting torque matters. Also traction, such as railway locomotives.'),\n    blk('row', 'History: In 1907 the US Navy used series motors on boat cranes, for their starting torque.'),\n    blk('row', 'Coupling: Couple it directly or through gears. Then the load is far less likely to come off. Never use a belt, which can break.'),\n    blk('row', 'Protection: It must have overspeed protection. Its starter has a no-load release that lets go if the current falls.'),\n  ];\n  const FAULTS = [\n    blk('safe', 'Safety first: Isolate, lock off and prove dead before you touch the motor or its starter.'),\n    blk('row', 'It races: The load came off. Find out why, and check the overspeed trip.'),\n    blk('row', 'Sparking: Worn brushes or a pitted commutator. Poor contact makes them spark.'),\n    blk('row', 'Will not start: Look for an open field, a lead to earth, or poor brush contact.'),\n    blk('row', 'Tests: Megger the windings to frame. Measure the armature and field resistance.'),\n  ];\n  const words = (list) => list.map((b) => b.s.replace(/\\*/g, '')).join('\\n\\n');\n  const C1 = 'It slows and stops: it has nothing to drive', C2 = 'It speeds up a little, then holds a steady speed', C3 = 'Its speed climbs and keeps climbing';\n  const F1 = 'The field winding has gone open circuit', F2 = 'The drive belt has snapped', F3 = 'The brushes are worn';\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const STEPS = [\n    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },\n    { show: true, name: 'One current: field, torque, speed', label: 'One current: field, torque, speed', text: PLAY_TASK + '\\n\\n' + PRE, read: PLAY_READ, still: () => stillAt(0.25) },\n    { name: 'Check', label: 'Check on the cause',\n      task: 'A hoist is lifting on a DC series motor. The coupling shears and the load comes off. What does the motor do?',\n      opts: [C1, C2, C3], want: C3,\n      why: 'With no load it speeds up, and the current falls. Less current means a weaker field. In a weaker field the armature must spin faster to make the same back-emf. So it speeds up again, and keeps climbing. That is *runaway*. It is why the motor must have overspeed protection.',\n      slips: ['It still has its supply. With no load the current falls and the field weakens. A weaker field means more speed, not less.',\n        'That is how an induction motor behaves, held just under synchronous speed. A series motor has no such speed. Its field weakens with the current, so it keeps speeding up.', ''] },\n    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },\n    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },\n    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },\n    { name: 'Find the fault', label: 'Find the fault',\n      task: 'A ventilation fan runs on a DC series motor. One day the motor suddenly races and trips on overspeed. What is the most likely fault?',\n      opts: [F1, F2, F3], want: F2,\n      why: 'A snapped belt leaves the motor with no load. The current fell, the field weakened and the speed climbed. The fix is a direct or geared drive, not a new belt.',\n      slips: ['In a series motor the field carries the armature current. Open it and no current flows, so the motor stops. It cannot race.', '',\n        'Worn brushes cause sparking and poor contact. They make a motor weak or slow to start, not race.'] },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iHow = 0, iPic = 1, iChk = 2, iBeh = 3, iUse = 4, iFlt = 5, iFind = 6, iK = 7;\n  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));\n  let lastStep = -1, finished = false;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function addText(node, s) {\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function write(node, s) { node.textContent = ''; return addText(node, s); }\n  function blocks(node, list) {\n    node.textContent = '';\n    list.forEach((b, k) => {\n      if (k) node.appendChild(document.createTextNode(' '));\n      let e;\n      if (b.t === 'row' || b.t === 'safe') {\n        const cut = b.s.indexOf(': ');\n        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');\n        addText(e, b.s.slice(cut + 2));\n      } else e = addText(K.el('p'), b.s);\n      node.appendChild(e);\n    });\n  }\n\n  // ---------- drawing helpers ----------\n  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }\n  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }\n  const f1 = (v) => (+v).toFixed(1);\n  const humps = (x, y, n) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a6 6 0 0 1 12 0'; return d; };\n  function arrow(g, x1, y1, x2, y2, lc, hc) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x2 - 9 * ux, by = y2 - 9 * uy;\n    ad(g, 'line', { x1: x1, y1: y1, x2: f1(bx), y2: f1(by), class: lc });\n    ad(g, 'polygon', { points: [x2, y2, bx - 5 * uy, by + 5 * ux, bx + 5 * uy, by - 5 * ux].map(f1).join(' '), class: hc });\n  }\n  // A spur gear: n teeth on a pitch circle of radius r, each tooth h above and below it. Tooth 0 points along +x.\n  function gearD(n, r, h) {\n    const P = 2 * Math.PI * r / n, rt = r + h, rr = r - h, a1 = 0.15 * P / rt, a0 = 0.3 * P / rr;\n    let d = '';\n    for (let k = 0; k < n; k++) {\n      const c = 2 * Math.PI * k / n;\n      [[rr, c - a0], [rt, c - a1], [rt, c + a1], [rr, c + a0]].forEach((q) => { d += (d ? 'L' : 'M') + f1(q[0] * Math.cos(q[1])) + ' ' + f1(q[0] * Math.sin(q[1])); });\n    }\n    return d + 'Z';\n  }\n  // The armature end-on: its body and eight slots (the slots group turns).\n  function armature(g, cx, cy, r) {\n    ad(g, 'circle', { cx: cx, cy: cy, r: r, class: 'arm' });\n    const sl = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ')' });\n    for (let j = 0; j < 8; j++) ad(sl, 'rect', { x: -2, y: -(r - 2), width: 4, height: 6, rx: 1, class: 'slot', transform: 'rotate(' + (j * 45) + ')' });\n    return sl;\n  }\n\n  // How it works: the supply, the series field and the armature in one loop.\n  function buildHw(g) {\n    ad(g, 'path', { d: 'M30 40V100M30 112V184H236V148M30 40H74M134 40H236V76', class: 'w' });\n    ad(g, 'path', { d: 'M16 100H44', class: 'plt' });\n    ad(g, 'path', { d: 'M23 112H37', class: 'plt2' });\n    txt(g, 42, 140, 'DC supply');\n    ad(g, 'path', { d: humps(74, 40, 5), class: 'coilF' });\n    txt(g, 104, 20, 'series field', 'lb', 'middle');\n    txt(g, 44, 64, 'a few turns of thick wire');\n    ad(g, 'polygon', { points: '196 40 186 35 186 45', class: 'ia' });\n    ad(g, 'polygon', { points: '134 184 144 179 144 189', class: 'ia' });\n    txt(g, 132, 206, 'the same current through both', 'lb', 'middle');\n    armature(g, 236, 112, 28);\n    ad(g, 'rect', { x: 230, y: 76, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 230, y: 140, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    txt(g, 200, 116, 'armature', 'lb', 'end');\n    const pol = (a, r) => [236 + r * Math.cos(a * DEG), 112 + r * Math.sin(a * DEG)];\n    ad(g, 'path', { d: 'M' + pol(-30, 38).map(f1).join(' ') + 'A38 38 0 0 1 ' + pol(30, 38).map(f1).join(' '), class: 'turn' });\n    ad(g, 'polygon', { points: pol(42, 38).concat(pol(30, 32.5), pol(30, 43.5)).map(f1).join(' '), class: 'ia' });\n    txt(g, 262, 166, 'turning');\n    arrow(g, 300, 144, 300, 88, 'emf', 'emfh');\n    txt(g, 300, 76, 'back-emf', 'lb', 'middle');\n    g.setAttribute('aria-label', 'One loop: a DC supply, then the series field, drawn as a few turns of thick wire, then the armature between its two brushes. ' +\n      'Arrows on the wires show the same current through both. A curved arrow shows the armature turning. Beside it, an arrow labelled back-emf points against the current the supply drives through it.');\n  }\n\n  // The plot: torque and speed, per unit, against load current, from the rule.\n  const PX = (I) => 52 + (I - IMIN) * 270 / (IMAX - IMIN), PY = (v) => 200 - 40 * v;\n  function curve(fn) { let d = ''; for (let k = 0; k <= 175; k++) { const I = IMIN + k * 0.01; d += (d ? 'L' : 'M') + f1(PX(I)) + ' ' + f1(PY(fn(I))); } return d; }\n  function buildPlot(g) {\n    [1, 2, 3, 4].forEach((v) => ad(g, 'line', { x1: 52, y1: PY(v), x2: 322, y2: PY(v), class: 'grid' }));\n    // the speed's danger band, over the light-load half only (up to full load), so the torque curve never runs into it\n    ad(g, 'rect', { x: 52, y: PY(4), width: f1(PX(1) - 52), height: PY(DANGER) - PY(4), class: 'band' });\n    ad(g, 'line', { x1: 52, y1: PY(DANGER), x2: f1(PX(1)), y2: PY(DANGER), class: 'dl' });\n    txt(g, 72, PY(DANGER) - 24, 'speed danger line:', 'wt');\n    txt(g, 72, PY(DANGER) - 8, 'an example, not a maker\\'s', 'wt');\n    ad(g, 'path', { d: 'M52 36V200H322', class: 'ax' });\n    [0, 1, 2, 3, 4].forEach((v) => txt(g, 44, PY(v) + 4.5, v ? two(v) : '0', 'lb', 'end'));\n    [0.25, 0.5, 1, 1.5, 2].forEach((I) => { ad(g, 'line', { x1: PX(I), y1: 200, x2: PX(I), y2: 205, class: 'ax' }); txt(g, PX(I), 220, two(I), 'lb', 'middle'); });\n    txt(g, 4, 16, 'Torque and speed, per unit', 'hd');\n    txt(g, 187, 242, 'Load current, per unit', 'hd', 'middle');\n    ad(g, 'path', { d: curve((I) => rule(I).speed), class: 'sp' });\n    ad(g, 'path', { d: curve((I) => rule(I).torque), class: 'tq' });\n    txt(g, f1(PX(0.56) + 6), f1(PY(rule(0.56).speed) - 12), 'speed');\n    txt(g, f1(PX(1.5)), f1(PY(rule(1.5).torque) - 12), 'torque', 'lb', 'end');   // above and left of the steep part of the torque curve\n  }\n\n  // How it behaves: the same two curves, no slider.\n  function buildBeh(g) {\n    buildPlot(g);\n    txt(g, 336, 262, 'sketch from the ideal rule', 'mu', 'end');\n    g.setAttribute('aria-label', 'A sketch from the ideal rule: torque and speed, per unit, against load current from ' + two(IMIN) + ' to ' + two(IMAX) + '. ' +\n      'Torque rises as the current squared. Speed falls as one over the current, climbing into a red band above ' + N.line + ' at light load. The band covers the light-load half, up to full load.');\n  }\n\n  // Where it is used: the motor end-on, a pinion on its shaft driving the drum's gear, a load on the rope.\n  function buildUse(g) {\n    ad(g, 'rect', { x: 20, y: 26, width: 96, height: 96, rx: 16, class: 'body' });\n    ad(g, 'rect', { x: 28, y: 122, width: 80, height: 8, rx: 2, class: 'body' });\n    ad(g, 'path', { d: gearD(24, 36, 3.5), class: 'gear', transform: 'translate(116 74) rotate(7.5)' });\n    ad(g, 'path', { d: gearD(8, 12, 3.5), class: 'gear', transform: 'translate(68 74)' });\n    ad(g, 'circle', { cx: 68, cy: 74, r: 3, class: 'hub' });\n    ad(g, 'circle', { cx: 116, cy: 74, r: 20, class: 'drum' });\n    ad(g, 'circle', { cx: 116, cy: 74, r: 3, class: 'hub' });\n    ad(g, 'line', { x1: 136, y1: 74, x2: 136, y2: 128, class: 'rope' });\n    ad(g, 'rect', { x: 124, y: 128, width: 24, height: 20, rx: 2, class: 'body' });\n    txt(g, 154, 143, 'load');\n    txt(g, 68, 150, 'series motor', 'lb', 'middle');\n    txt(g, 172, 30, 'geared, never belted', 'hd');\n    ad(g, 'line', { x1: 168, y1: 58, x2: 153, y2: 62, class: 'ldr' });\n    txt(g, 172, 62, 'gears');\n    ad(g, 'line', { x1: 168, y1: 92, x2: 135, y2: 81, class: 'ldr' });\n    txt(g, 172, 96, 'hoist drum');\n    g.setAttribute('aria-label', 'Geared, never belted: the series motor end-on, with a small gear on its shaft meshing with a large gear on the hoist drum. A load hangs from the drum\\'s rope.');\n  }\n\n  // Faults and tests: the isolator open, locked and tagged; a megger from the windings to the frame; the brushes on the commutator.\n  function buildFlt(g) {\n    txt(g, 56, 16, 'isolator: open', 'lb', 'middle');\n    ad(g, 'rect', { x: 16, y: 24, width: 80, height: 60, rx: 6, class: 'body' });\n    ad(g, 'path', { d: 'M0 44H30M0 68H30M30 44L54 32M30 68L54 56M66 44H112M66 68H112', class: 'w' });\n    [[30, 44], [30, 68], [66, 44], [66, 68]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    ad(g, 'rect', { x: 48, y: 84, width: 16, height: 8, rx: 2, class: 'hdl' });\n    ad(g, 'path', { d: 'M51 104V98a5 5 0 0 1 10 0V104', class: 'shk' });\n    ad(g, 'rect', { x: 49, y: 103, width: 14, height: 14, rx: 3, class: 'lock' });\n    ad(g, 'path', { d: 'M63 110L72 115', class: 'w' });\n    ad(g, 'polygon', { points: '74 112 92 112 92 134 70 134 70 116', class: 'tag' });\n    ad(g, 'circle', { cx: 75, cy: 117, r: 1.6, class: 'jn' });\n    txt(g, 98, 120, 'locked off');\n    txt(g, 98, 136, 'and tagged');\n    ad(g, 'rect', { x: 178, y: 22, width: 58, height: 36, rx: 6, class: 'body' });\n    txt(g, 207, 45, 'megger', 'lb', 'middle');\n    ad(g, 'rect', { x: 266, y: 52, width: 64, height: 56, rx: 10, class: 'body' });\n    ad(g, 'rect', { x: 280, y: 40, width: 28, height: 12, rx: 2, class: 'term' });\n    txt(g, 294, 32, 'windings', 'lb', 'middle');\n    txt(g, 298, 86, 'frame', 'lb', 'middle');\n    ad(g, 'path', { d: 'M236 30H252V46H280M236 50H246V80H266', class: 'w' });\n    [[280, 46], [266, 80]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));\n    ad(g, 'circle', { cx: 262, cy: 152, r: 20, class: 'drum' });\n    for (let j = 0; j < 8; j++) { const a = j * 45 * DEG; ad(g, 'line', { x1: f1(262 + 8 * Math.cos(a)), y1: f1(152 + 8 * Math.sin(a)), x2: f1(262 + 20 * Math.cos(a)), y2: f1(152 + 20 * Math.sin(a)), class: 'w' }); }\n    ad(g, 'circle', { cx: 262, cy: 152, r: 8, class: 'drum' });\n    ad(g, 'rect', { x: 232, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 282, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });\n    ad(g, 'path', { d: 'M220 152H232M292 152H304', class: 'w' });\n    txt(g, 237, 136, 'brushes', 'lb', 'middle');\n    txt(g, 262, 190, 'commutator', 'lb', 'middle');\n    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. A megger is connected from the motor\\'s windings to its frame. ' +\n      'Below, the two brushes press on the commutator.');\n  }\n\n  buildHw(el('hw'));\n  buildBeh(el('beh'));\n  buildUse(el('use'));\n  buildFlt(el('flt'));\n\n  // ---------- the live picture: the loop, the field bar, the gears and the drum ----------\n  const AX = 176, AY = 104, GX = 216, GY = 104;   // pinion 8 teeth on the armature's shaft, gear 24 teeth on the drum's: one turn of the drum for three of the armature\n  const M = {};\n  (function () {\n    const g = el('mot');\n    ad(g, 'path', { d: 'M26 34V92M26 104V176H176V138M26 34H70M130 34H176V70', class: 'w' });\n    ad(g, 'path', { d: 'M12 92H40', class: 'plt' });\n    ad(g, 'path', { d: 'M19 104H33', class: 'plt2' });\n    txt(g, 38, 136, 'DC supply');\n    ad(g, 'path', { d: humps(70, 34, 5), class: 'coilF' });\n    txt(g, 100, 14, 'series field', 'lb', 'middle');\n    ad(g, 'rect', { x: 70, y: 46, width: 60, height: 10, rx: 2, class: 'barO' });\n    M.bar = ad(g, 'rect', { x: 70, y: 46, width: 30, height: 10, rx: 2, class: 'barF' });   // the outline is 2.00; full load fills half\n    txt(g, 136, 55, 'field');\n    ad(g, 'rect', { x: 46, y: 148, width: 60, height: 10, rx: 2, class: 'barO' });\n    ad(g, 'rect', { x: 46, y: 148, width: 60, height: 10, rx: 2, class: 'barE' });   // the back-emf: always equal to the supply, so always full\n    txt(g, 112, 157, 'back-emf');   // clear of the armature's lead at x 176\n    ad(g, 'polygon', { points: '162 34 152 29 152 39', class: 'ia' });\n    ad(g, 'polygon', { points: '104 176 114 171 114 181', class: 'ia' });\n    txt(g, 8, 198, 'the same current through both');\n    M.slots = armature(g, AX, AY, 26);\n    ad(g, 'rect', { x: 170, y: 70, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 170, y: 130, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    txt(g, 144, 108, 'armature', 'lb', 'end');\n    M.gear = ad(g, 'path', { d: gearD(24, 30, 3), class: 'gear', transform: 'translate(' + GX + ' ' + GY + ') rotate(7.5)' });\n    M.pin = ad(g, 'path', { d: gearD(8, 10, 3), class: 'gear', transform: 'translate(' + AX + ' ' + AY + ')' });\n    ad(g, 'circle', { cx: AX, cy: AY, r: 2.5, class: 'hub' });\n    ad(g, 'circle', { cx: GX, cy: GY, r: 15, class: 'drum' });\n    M.spoke = ad(g, 'line', { x1: 0, y1: 0, x2: 0, y2: -12, class: 'w', transform: 'translate(' + GX + ' ' + GY + ')' });\n    ad(g, 'circle', { cx: GX, cy: GY, r: 2.5, class: 'hub' });\n    ad(g, 'line', { x1: GX + 15, y1: GY, x2: GX + 15, y2: 160, class: 'rope' });\n    M.load = ad(g, 'rect', { x: GX + 3, y: 160, width: 24, height: 20, rx: 2, class: 'body' });   // its area follows the torque\n    M.loadT = txt(g, GX + 33, 175, 'load');\n    ad(g, 'line', { x1: 251, y1: 72, x2: 238, y2: 82, class: 'ldr' });\n    txt(g, 254, 76, 'gears');\n    ad(g, 'line', { x1: 251, y1: 124, x2: 229, y2: 111, class: 'ldr' });\n    txt(g, 254, 128, 'hoist drum');\n    g.setAttribute('aria-label', 'The series motor\\'s loop, small: a DC supply, the series field and the armature, the same current through both. ' +\n      'A bar beside the field shows its strength, and a bar below shows the back-emf, which stays full. The armature turns, slowed right down, and drives the hoist drum through a pair of gears. A load hangs on the drum\\'s rope, its size in step with the torque.');\n  })();\n  (function () {\n    const g = el('plot');\n    buildPlot(g);\n    M.guide = ad(g, 'line', { x1: 0, y1: 200, x2: 0, y2: 200, class: 'gd' });\n    M.dS = ad(g, 'circle', { cx: 0, cy: 0, r: 7, class: 'dotS' });\n    M.dT = ad(g, 'circle', { cx: 0, cy: 0, r: 4.5, class: 'dotT' });\n    g.setAttribute('aria-label', 'Torque and speed, per unit, against load current from ' + two(IMIN) + ' to ' + two(IMAX) + '. Torque rises as the current squared. ' +\n      'Speed falls as one over the current. A red band above ' + N.line + ' marks an example danger line, not a maker\\'s. A dot on each curve marks the load current chosen.');\n  })();\n\n  const SPIN = { th: 0, s: 1 };\n  function paintSpin() {\n    const th = SPIN.th;\n    M.slots.setAttribute('transform', 'translate(' + AX + ' ' + AY + ') rotate(' + f1(th) + ')');\n    M.pin.setAttribute('transform', 'translate(' + AX + ' ' + AY + ') rotate(' + f1(th) + ')');\n    M.gear.setAttribute('transform', 'translate(' + GX + ' ' + GY + ') rotate(' + f1(7.5 - th / 3) + ')');\n    M.spoke.setAttribute('transform', 'translate(' + GX + ' ' + GY + ') rotate(' + f1(-th / 3) + ')');\n  }\n\n  // ---------- controls and readouts ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const loadCtl = K.control({ id: 'load', label: 'Load current, per unit', hint: '1.00 is full-load current', min: IMIN, max: IMAX, step: 0.05, value: 1,\n    fmt: (v) => two(v), snap: [0.25, 0.5, 1, 2], into: '#ctl' });\n  const loadOf = (p) => K.clamp(Math.round((+(p && p.load != null ? p.load : 1) || 1) * 20) / 20, IMIN, IMAX);\n  const RD = {\n    f: K.readout({ id: 'rdField', label: 'Field, per unit', fmt: (v) => two(v), into: '#outs' }),\n    t: K.readout({ id: 'rdTorque', label: 'Torque, per unit', fmt: (v) => two(v), into: '#outs' }),\n    s: K.readout({ id: 'rdSpeed', label: 'Speed, per unit', fmt: (v) => two(v), into: '#outs' }),\n  };\n  K.model((p) => { const r = rule(loadOf(p)); return { field: r.field, torque: r.torque, speed: r.speed }; });\n\n  el('pre').textContent = PRE;\n  el('work').appendChild(K.el('p', { class: 'wh' }, 'Worked from the rule'));\n  WORK.forEach((s) => el('work').appendChild(K.el('p', { class: 'wl' }, s)));\n\n  function sayFor(I) {\n    const r = rule(I);\n    if (Math.abs(I - 1) < 1e-6) return 'At full-load current the field, the torque and the speed all read ' + two(1) + '. The back-emf matches the supply.';\n    let s = 'At ' + two(I) + ' of full-load current the field is ' + two(r.field) + '. Torque is field times current, so it is ' + two(r.torque) + '. The back-emf must still match the supply. ' +\n      (I < 1 ? 'In a weaker field the armature must spin faster to make it.' : 'In a stronger field the armature makes it at a lower speed.') + ' So the speed is ' + two(r.speed) + '.';\n    if (r.speed > DANGER) s += ' That is past the danger line. With no load it keeps climbing: runaway.';\n    return s;\n  }\n  function paintLive(I) {\n    const r = rule(I), hot = r.speed > DANGER;\n    M.bar.setAttribute('width', f1(30 * r.field));\n    const lw = 24 * Math.sqrt(r.torque), lh = 20 * Math.sqrt(r.torque);\n    M.load.setAttribute('x', f1(GX + 15 - lw / 2)); M.load.setAttribute('width', f1(lw)); M.load.setAttribute('height', f1(lh));\n    M.loadT.setAttribute('x', f1(GX + 15 + lw / 2 + 6));\n    const x = f1(PX(I));\n    M.guide.setAttribute('x1', x); M.guide.setAttribute('x2', x); M.guide.setAttribute('y2', f1(PY(r.torque)));   // from the axis to the torque dot only\n    M.dS.setAttribute('cx', x); M.dS.setAttribute('cy', f1(PY(r.speed)));\n    M.dS.classList.toggle('hot', hot);\n    M.dT.setAttribute('cx', x); M.dT.setAttribute('cy', f1(PY(r.torque)));\n    RD.f.set(r.field); RD.t.set(r.torque); RD.s.set(r.speed);\n    RD.s.el.classList.toggle('hot', hot);\n    el('say').textContent = sayFor(I);\n    SPIN.s = r.speed;\n  }\n\n  let seenI = null, held = false;\n  const spin = K.anim({ button: false, label: 'The armature turning', step: (dt) => {\n    if (at() !== iPic || held || REDUCE) return false;\n    SPIN.th = (SPIN.th + 360 * REV * SPIN.s * dt) % 1080;   // 1080° keeps the pinion and the gear (a third as fast) in mesh\n    paintSpin();\n    return true;\n  } });\n  // The read-through's picture: the load current at its lowest, the gears held still.\n  function stillAt(I) {\n    loadCtl.set(I);\n    SPIN.th = 30;\n    held = true;\n    spin.pause();\n    K.refresh();\n    seenI = I;\n    paintSpin();\n  }\n\n  // ---------- picks: one go, then the answer and its reason ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length || st.res) return;\n    st.pick = d.opts[k];\n    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }\n    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }\n    K.refresh();\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));\n    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));\n    if (f.p) fb.appendChild(addText(K.el('p'), f.p));\n  }\n\n  // ---------- Keep this ----------\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n\n  const ON = { hwW: [iHow], behW: [iBeh], useW: [iUse], fltW: [iFlt], pre: [iPic], live: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');\n    if (i === iPic) write(task, PLAY_TASK);\n    else if (d.show) blocks(task, d.blocks);\n    else if (d.kind) task.textContent = '';\n    else write(task, d.task);\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    // the picture: a new load current moves the field bar, the dots and the readouts, and sets the armature's pace\n    const I = loadOf(p);\n    if (I !== seenI) { if (seenI !== null) held = false; seenI = I; }\n    paintLive(I);\n    paintSpin();\n    if (i === iPic && !held && !REDUCE && !spin.playing()) spin.play();\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    paintFb(st.fb);\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i);\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  K.check('Full load gives field, torque and speed 1.00; twice the current gives 2.00, 4.00 and 0.50; half the current gives 0.50, 0.25 and 2.00; a quarter gives 0.25, 0.06 and 4.00; the speed crosses 3.00 near 0.33, so 0.30 is past it at 3.33 and 0.35 under it at 2.86', () => {\n    const a = K.at({ load: 1 }), g = K.at({ load: 2 }), b = K.at({ load: 0.5 }), c = K.at({ load: 0.25 }), d = K.at({ load: 0.3 }), e = K.at({ load: 0.35 });\n    return two(a.field) === '1.00' && two(a.torque) === '1.00' && two(a.speed) === '1.00' &&\n      two(g.field) === '2.00' && two(g.torque) === '4.00' && two(g.speed) === '0.50' && N.tDbl === '4.00' && N.sDbl === '0.50' &&\n      two(b.field) === '0.50' && two(b.torque) === '0.25' && two(b.speed) === '2.00' &&\n      two(c.field) === '0.25' && two(c.torque) === '0.06' && two(c.speed) === '4.00' &&\n      N.cross === '0.33' && d.speed > DANGER && two(d.speed) === '3.33' && e.speed < DANGER && two(e.speed) === '2.86' &&\n      WORK[0] === 'At 2.00: field 2.00, torque 2.00 × 2.00 = 4.00, speed 1 ÷ 2.00 = 0.50.' &&\n      WORK[1] === 'At 0.50: field 0.50, torque 0.50 × 0.50 = 0.25, speed 1 ÷ 0.50 = 2.00.' && WORK[2] === 'At 0.25: field 0.25, torque 0.25 × 0.25 = 0.0625, about 0.06, speed 1 ÷ 0.25 = 4.00.';\n  });\n  K.check('As the load current falls the field falls with it, the torque falls faster than the field, and the speed always rises; field × speed stays 1.00, so the back-emf stays equal to the supply', () => {\n    for (let k = 0; k < 35; k++) {\n      const hi = K.at({ load: 2 - 0.05 * k }), lo = K.at({ load: 2 - 0.05 * (k + 1) });\n      if (!(lo.field < hi.field && lo.torque / hi.torque < lo.field / hi.field && lo.speed > hi.speed)) return false;\n      if (!K.near(lo.field * lo.speed, 1, 1e-9)) return false;\n    }\n    return true;\n  });\n  K.check('The developed torque is proportional to the square of the armature current: double the current, four times the torque', () =>\n    K.near(K.at({ load: 1 }).torque / K.at({ load: 0.5 }).torque, 4, 1e-9), { source: RH });\n  K.check('For a series motor the speed is inversely proportional to the armature current: half the current, twice the speed', () =>\n    K.near(K.at({ load: 0.5 }).speed / K.at({ load: 1 }).speed, 2, 1e-9), { source: AAST });\n  K.check('A motor with an armature resistance of 0.4 ohms on a 260 V DC supply would draw 650 A at start', () =>\n    K.near(VS / RA, 650, 1e-9) && N.start === '650', { source: PEG8 });\n\n  K.ready();\n</script>",
+  "title": "One current: field, torque, speed",
+  "brief": "The one thing you should see is the field weaken, the torque fall with the current squared and the speed climb into the red when you drag the load current down.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Full load gives field, torque and speed 1.00; twice the current gives 2.00, 4.00 and 0.50; half the current gives 0.50, 0.25 and 2.00; a quarter gives 0.25, 0.06 and 4.00; the speed crosses 3.00 near 0.33, so 0.30 is past it at 3.33 and 0.35 under it at 2.86",
+     "ok": true
+    },
+    {
+     "label": "As the load current falls the field falls with it, the torque falls faster than the field, and the speed always rises; field × speed stays 1.00, so the back-emf stays equal to the supply",
+     "ok": true
+    },
+    {
+     "label": "The developed torque is proportional to the square of the armature current: double the current, four times the torque",
+     "ok": true,
+     "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf"
+    },
+    {
+     "label": "For a series motor the speed is inversely proportional to the armature current: half the current, twice the speed",
+     "ok": true,
+     "source": "https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf"
+    },
+    {
+     "label": "A motor with an armature resistance of 0.4 ohms on a 260 V DC supply would draw 650 A at start",
+     "ok": true,
+     "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "load"
+   ],
+   "readouts": [
+    "rdField",
+    "rdTorque",
+    "rdSpeed"
+   ],
+   "outputs": [
+    "field",
+    "torque",
+    "speed"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 7,
+     "step": 1,
+     "steps": [
+      "How it works",
+      "One current: field, torque, speed",
+      "Check",
+      "How it behaves",
+      "Where it is used",
+      "Faults and tests",
+      "Find the fault",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "load",
+     "kind": "control",
+     "label": "Load current, per unit",
+     "min": 0.25,
+     "max": 2,
+     "step": 0.05,
+     "log": false,
+     "value": 1,
+     "shown": false,
+     "snap": [
+      0.25,
+      0.5,
+      1,
+      2
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Finish the lesson",
+    "Back",
+    "Continue",
+    "The armature turning"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T16:43:17.439Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "Speed going with one over the current holds only below saturation as well as ignoring resistance; and 'keeps climbing until the motor can damage itself' is stated as certain, where the sources say it can rise to dangerous levels and losses set some limit."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The checklist starts the motor before the megger and resistance tests, which need it still isolated; the 650 A case is a general DC motor, so a series field's resistance lowers it a little; and the source's 'typically' 125 to 200% was stated as what starters do."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The card gives one guide's 125 to 200% as the rule, though the lesson's sources differ (two to three times by another guide); a card read alone must keep both."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "'A series motor has neither' clashes with the lesson's own overspeed protection, a fitted rev limiter; and 'it runs away' is stated as certain where the sources say it can."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 5 says a direct or geared coupling means the load 'cannot come off', but screen 3's own coupling shears; a coupling makes losing the load far less likely, not impossible. The built screen 5 needs the same words."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "The built interactive's screen 5 'Coupling' row still reads 'so the load cannot come off'; it should read 'so the load is far less likely to come off', to match the corrected description and screen 3's sheared coupling."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

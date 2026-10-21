@@ -1,0 +1,598 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Electric motors: what you need on each one
+Idea: The DC shunt motor (With its field across the supply holding the flux steady, the speed dips only a little under load, though sources differ on how little.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the field hold steady and the speed dip only slightly, as the back-emf falls a little and the armature current rises, when you drag the load up.
+Title (the app shows it above the frame, so do not repeat it): Load it, weaken the field
+The rule (the app shows it just above the frame, under "What you're looking at"): Nine screens, with Back and Continue. One picture to play with, three quick choices and a card to keep. No marks and no timers.
+
+Assume one motor on every screen: a DC shunt motor rated 600 V and 2000 rpm, with a 0.07 Ω armature and an 80 Ω field, drawing 353 A at rated load.[^1] It is a worked example, not a nameplate. Every other figure is worked from it, or is a labelled example.
+
+Screen 1, Do you still have it? The question: "A DC motor is switched straight onto its supply. At the instant it starts, before it turns, what limits its current?" Three choices, in this order: "Its back-emf, which opposes the supply"; "Only the resistance of its armature circuit"; "The inductance of its windings, as on AC". Right, the second: "Still there. A motor makes back-emf only as it turns, so at standstill there is none. Only the resistance limits the current. The motor here has a 0.07 Ω armature on 600 V. Switched straight on, it would take 600 ÷ 0.07 = 8571 A. That is why it starts through a starter." Wrong, the first: "Back-emf comes from turning. At standstill there is none, so it cannot hold the current back yet." Wrong, the third: "Inductance only slows how fast the current rises. At standstill, once it settles, only resistance limits a DC current." After a wrong choice, the right answer and its reason, then on to screen 2. No skip button.
+
+Screen 2, How it works. A still drawing: a DC supply labelled "600 V" with two branches across it, side by side. On the left, the field winding with a field rheostat in series, labelled "shunt field". On the right, the armature between its brushes. An arrow from the supply splits into "field current" and "armature current". A curved arrow shows the armature turning, and a label "back-emf" points against the supply. The words beside it: "The field winding is wired across the supply, beside the armature. So its current and its flux stay steady whatever the load. Load the motor and it slows a little. Its back-emf falls, so more armature current flows. More current gives more torque. It settles where the torque matches the load, a little slower than before. Unlike the series motor, the field does not follow the load. So the speed hardly moves." Shunt field is the key term, marked in amber.
+
+Screen 3, Load it, weaken the field: the picture to play with. At the top, screen 2's circuit redrawn small, with an arrow on the field rheostat. Beside the field winding, a bar for its flux, labelled with the field current in amperes. Next, two bars. Back-emf, on a scale of 0 to 600 V. Armature drop, Ia × Ra, on a scale of 0 to 60 V, labelled "drawn 10 times bigger". Then a plot: speed in rpm, 0 to 3600, against load, 0 to 100% of rated torque. The speed line for the present field setting is drawn in full, with a dot at the load slider's value. A band above 2500 rpm is shaded red and labelled "example limit, not a maker's". Then one row of three readouts: Armature current, A. Back-emf, V. Speed, rpm. The armature current turns red above its rated 345.5 A. The speed turns red above 2500 rpm. On a phone these sit one under another. On a laptop the plot sits beside the circuit.
+
+The controls. Load: a slider from 0 to 100% of rated torque in steps of 10. It starts at 0, running light. Field rheostat: a slider from 0 to 50 Ω in steps of 10. It starts at 0, full field. Field circuit: a switch, Connected or Open. It starts on Connected.
+
+The rule it works out is for a simplified shunt motor. Flux follows field current. There is no saturation, no armature reaction and no brush drop.
+Field current If = 600 ÷ (80 + rheostat). Flux = If ÷ 7.5, so 1.00 at full field.
+Armature current Ia = (17.3 + 328.2 × load) ÷ flux, with load as a fraction of rated. 17.3 A is an example no-load current, 5% of rated. It only covers the motor's own friction and iron losses. 328.2 A is the rest of the rated 345.5 A. Torque goes with flux × Ia. So dividing by the flux keeps the torque matched to the load.
+Back-emf E = 600 − Ia × 0.07.
+Speed = 2000 × (E ÷ 575.8) ÷ flux. Back-emf goes with flux × speed, and is 575.8 V at 2000 rpm on full field.
+
+The working shows under the readouts. Each line uses the rounded figures before it:
+Rated load, full field: If = 600 ÷ 80 = 7.5 A. Ia = 353 − 7.5 = 345.5 A. Drop = 345.5 × 0.07 = 24.2 V. E = 600 − 24.2 = 575.8 V. Speed 2000 rpm.
+No load, full field: Ia = 17.3 A. Drop = 17.3 × 0.07 = 1.2 V. E = 600 − 1.2 = 598.8 V. Speed = 2000 × 598.8 ÷ 575.8 = 2080 rpm.
+Half load, full field: Ia = 17.3 + 164.1 = 181.4 A. Drop = 181.4 × 0.07 = 12.7 V. E = 587.3 V. Speed = 2000 × 587.3 ÷ 575.8 = 2040 rpm.
+Rheostat 20 Ω, rated load: If = 600 ÷ 100 = 6.0 A, so the flux is 0.80. Ia = 345.5 ÷ 0.80 = 431.9 A, above rated. Drop = 431.9 × 0.07 = 30.2 V. E = 600 − 30.2 = 569.8 V. Speed = 2000 × 569.8 ÷ (575.8 × 0.80) = 2000 × 569.8 ÷ 460.64 = 2474 rpm.
+Rheostat 20 Ω, no load: Ia = 17.3 ÷ 0.80 = 21.6 A. Drop = 21.6 × 0.07 = 1.5 V. E = 598.5 V. Speed = 2000 × 598.5 ÷ 460.64, about 2600 rpm, past the example limit.
+
+Field open. The flux bar drops to a sliver, labelled "residual magnetism only". The picture prints no figures here. The real result depends on the load and on the iron. On a load of 30% or less, the speed dot runs off the top of the plot into red, labelled "Runs away". The 30% split is an example. On a heavier load the armature current readout shows "far above rated" in red, labelled "Its protection should trip it". Switch back to Connected and the picture returns to the rule above.
+
+The words on the screen, above the picture: "Assume this 600 V motor: 0.07 Ω armature, 80 Ω field, 2000 rpm at rated load. The supply covers the back-emf and the armature drop: V = E + Ia Ra. Back-emf goes with flux × speed. Torque goes with flux × Ia. The no-load current and the red limit are examples." The prompt above the picture: "Drag the load up. Then add field resistance. Then open the field." Read: From no load to rated load the field current stays at 7.5 A. The back-emf falls from 598.8 to 575.8 V. The armature current rises from 17.3 to 345.5 A. The speed dips only from 2080 to 2000 rpm. Adding 20 Ω to the field cuts its current to 6.0 A. At rated load the speed rises to 2474 rpm. The armature current rises to 431.9 A, above rated. With no load it reaches about 2600 rpm, past the example limit. With the field open on a light load, the speed runs away. Still: the field connected, the rheostat at 0 Ω and the load at 100%. The field bar is full at 7.5 A, the back-emf bar at 575.8 V and the drop bar at 24.2 V. The dot sits at 2000 rpm on a nearly flat line, and the readouts show 345.5 A, 575.8 V and 2000 rpm.
+
+Screen 4, Check on the cause. "A shunt motor is driving a steady load. You turn the field rheostat to add resistance. What does the speed do?" Three choices, in this order: "It rises"; "It falls"; "It holds steady". Right, the first: "Right. Less field current means less flux. The armature must spin faster to make the back-emf it needs. So the speed rises. On the picture, 20 Ω takes the rated-load speed from 2000 to 2474 rpm. That is called field weakening." Wrong, the second: "That is what resistance in the armature circuit does. In the field circuit it weakens the flux. A weaker field must spin faster, so the speed rises." Wrong, the third: "The load is the same, but the flux is not. Less flux needs more speed for the same back-emf. So the speed rises." After a wrong choice, the right answer and its reason.
+
+Screen 5, How it behaves. A still drawing: screen 3's speed line at full field, nearly flat from 2080 rpm at no load to 2000 rpm at rated load, labelled "sketch from the simplified rule". Rows, each with a label.
+
+Speed: "Nearly constant. It falls a little as the load goes on."
+
+Speed regulation: "(No-load speed − full-load speed) ÷ full-load speed.[^2] On the picture: (2080 − 2000) ÷ 2000 = 4.0%. Real motors sit between 5 and 10%. Some reach 10 to 20%.[^3] Use the maker's figure."
+
+Starting torque: "Lower than a series motor's for the same starting current. Expect about 250% of full-load torque.[^4] A series motor can give up to 500%.[^5]"
+
+Speed control: "Below base speed, lower the armature voltage. Above it, weaken the field."
+
+Reversing: "Swap the armature or the field leads, not both."
+
+Speed regulation is the key term, marked in amber.
+
+Screen 6, Where it is used, and its limits. A still drawing: the motor driving a conveyor, with a thyristor drive feeding its armature. Rows.
+
+Used for: "Pumps, fans, blowers, conveyors, machine tools and printing. Anywhere the speed must hold steady as the load changes."
+
+Unloaded: "Safe with no load at full field, as long as the field stays connected. Losing the load is not the danger it is for a series motor."
+
+Drive: "It pairs well with a thyristor drive. The drive sets the armature voltage."
+
+At sea: "Some DC motors are built for IEEE 45 shipboard use.[^6]"
+
+Limits: "Brushes and commutator need regular care. Field weakening must not take it past the nameplate's maximum safe speed.[^7] A weakened field can overspeed at light load."
+
+Screen 7, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger from the windings to frame, an ohmmeter across the field leads, and the brushes on the commutator. Rows.
+
+Safety first: "Isolate, lock off and prove dead first."
+
+Field open: "On a light load it can run away. Loss-of-field protection guards against it."
+
+Starting: "Start at full field, with the rheostat at its slow-speed position."
+
+Starter: "A three-point starter's no-volt coil carries the field current. So if the field opens or the supply fails, its handle drops to off."
+
+Sparking: "Look for worn brushes, a rough commutator or an armature fault."
+
+Tests: "Megger the windings to frame. Measure the armature and field resistance. An open field reads open circuit."
+
+Screen 8, Find the fault. "A shunt motor drives a conveyor that is running almost empty. It has run at a steady speed for years. Today it races until its protection trips. What is the most likely fault?" Three choices, in this order: "The belt came off, so it lost its load"; "The shunt field circuit has gone open"; "The brushes have worn down". Right, the second: "Right. With the field open, only residual magnetism is left. The armature must spin far faster to make its back-emf. On a light load it runs away. Isolate and prove dead. Then test the field winding, its rheostat and its connections for an open circuit." Wrong, the first: "That is the series motor's trap. A shunt motor's field stays steady with no load. Running light at full field, it goes only a little faster." Wrong, the third: "Worn brushes cause sparking and poor contact. They make a motor weak or slow, not race." After a wrong choice, the right answer and its reason.
+
+Screen 9, Keep this: the summary card, without the worked figures. Then Finish the lesson.
+
+Every figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The no-load current, the 2500 rpm limit and the open-field split are examples, not a maker's.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture is a simplified shunt motor. Its flux follows the field current exactly, with no saturation. It ignores armature reaction. That changes the flux a little under load. On a real plain shunt motor it can stop the speed falling, or even make it rise. It also ignores brush drop and the time the motor takes to change speed. The no-load current, the red limit and the open-field split are example values, not a maker's. With the field open it prints no figures. The real result depends on the load and the iron.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 8 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 9 (the stepper): 0 (control)
+- Example motor supply voltage, V: 600 (constant, source [1])
+- Example motor armature resistance, ohm: 0.07 (constant, source [1])
+- Example motor field resistance, ohm: 80 (constant, source [1])
+- Example motor line current at rated load, A: 353 (constant, source [1])
+- Example motor rated speed, rpm: 2000 (constant, source [1])
+- Field current at full field, A: 7.5 (computed)
+- Armature current at rated load, A: 345.5 (computed)
+- Armature drop at rated load, V: 24.2 (computed)
+- Back-emf at rated load, V: 575.8 (computed)
+- No-load share of rated armature current, % (example): 5 (assumed)
+- No-load armature current, A (example): 17.3 (assumed)
+- Load-carrying part of rated armature current, A: 328.2 (computed)
+- Armature drop at no load, V: 1.2 (computed)
+- Back-emf at no load, V: 598.8 (computed)
+- No-load speed at full field, rpm: 2080 (computed)
+- Extra armature current at half load, A: 164.1 (computed)
+- Armature current at half load, A: 181.4 (computed)
+- Armature drop at half load, V: 12.7 (computed)
+- Back-emf at half load, V: 587.3 (computed)
+- Speed at half load, rpm: 2040 (computed)
+- Speed regulation of the example motor, %: 4 (computed)
+- Load slider, lowest and opening, % of rated torque: 0 (control)
+- Load slider, highest, % of rated torque: 100 (control)
+- Load slider, step, %: 10 (control)
+- Field rheostat slider, lowest and opening, ohm: 0 (control)
+- Field rheostat slider, highest, ohm: 50 (control)
+- Field rheostat slider, step, ohm: 10 (control)
+- Field circuit switch, opening (Connected): 0 (control)
+- Field rheostat in the worked case, ohm: 20 (control)
+- Total field resistance with 20 ohm added, ohm: 100 (computed)
+- Field current with 20 ohm added, A: 6 (computed)
+- Flux with 20 ohm added, of rated: 0.8 (computed)
+- Armature current, rated torque, 20 ohm, A: 431.9 (computed)
+- Armature drop, rated torque, 20 ohm, V: 30.2 (computed)
+- Back-emf, rated torque, 20 ohm, V: 569.8 (computed)
+- 575.8 x 0.80, the divisor in the speed line: 460.64 (computed)
+- Speed, rated torque, 20 ohm, rpm: 2474 (computed)
+- Armature current, no load, 20 ohm, A: 21.6 (computed)
+- Armature drop, no load, 20 ohm, V: 1.5 (computed)
+- Back-emf, no load, 20 ohm, V: 598.5 (computed)
+- Speed, no load, 20 ohm, about, rpm: 2600 (computed)
+- Speed limit drawn in red, rpm (example): 2500 (assumed)
+- Speed axis top, rpm: 3600 (assumed)
+- Back-emf bar scale top, V: 600 (assumed)
+- Armature drop bar scale top, V: 60 (assumed)
+- Armature drop bar drawn bigger, times: 10 (assumed)
+- Open field: light load up to, % of rated (example split): 30 (assumed)
+- Starting current straight on the supply, A: 8571 (computed)
+- Speed regulation, quoted range, low, %: 5 (constant, source [8])
+- Speed regulation, quoted range, high, %: 10 (constant, source [8])
+- Speed regulation, highest figure quoted, %: 20 (constant, source [3])
+- Shunt starting torque, about, % (one guide): 250 (constant, source [4])
+- Series starting torque, up to, % (same guide): 500 (constant, source [5])
+- Shipboard standard number, IEEE: 45 (constant, source [6])
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A DC shunt motor has its field winding wired across the supply, beside the armature. That winding is the shunt field. Its current is set by the supply voltage and its own resistance, not by the load. So the flux holds steady, and the speed stays nearly constant as the load changes.
+
+Back-emf works as it did in the series motor. The supply has to cover it plus the drop across the armature: V = E + Ia Ra. Put a load on and the armature slows a little, so the back-emf falls. That leaves more room for Ia Ra, so more armature current flows. Torque goes with flux times current, so the torque rises. The speed settles where the torque matches the load. It does not climb back to where it was. The fall is small because the flux holds steady. Take the picture's 600 V motor, with its example no-load current. Its back-emf falls only from 598.8 V running light to 575.8 V at rated load. So the speed falls only from 2080 to 2000 rpm.
+
+Back-emf goes with flux times speed, so speed goes with back-emf over flux. That is how the field rheostat works. Add resistance and the flux weakens. The motor must then spin faster to make its back-emf. Lose the field altogether and only residual magnetism is left. On a light load the motor can then run away. In the series motor the field followed the load. Here the load barely changes it.
+
+How far the speed falls from no load to full load is its speed regulat…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] [PDF] 25-1 DC motors DC motors are important in many applications. In ... (https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf): "A DC shunt motor is rated at 600V, 255hp, 2000rpm. It has an armature resistance of 0.07Ω and a total field resistance of 80Ω. It draws a current of 353A from the supply when delivering rated load."
+[2] Section I General Standards Applying to All Machines Part ... (https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf): "The speed regulation of a dc motor is the difference between the steady no-load speed and the steady rated-load speed expressed in percent of rated-load speed."
+[3] Your motor sheet: the DC shunt motor (material:dc-shunt#p1): "The motor's speed changes only slightly between no-load and full-load conditions, typically varying by 10–20%."
+[4] Basic Maintenance and Testing of DC Electric Motors (https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf): "This design provides approximately 250% starting torque, 5-10% speed regulation and the windings are separately powered and provide speed control by up to 200% with field weakening control and decrease speed by reducing armature voltage."
+[5] Basic Maintenance and Testing of DC Electric Motors (https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf): "The result of the connection of the armature circuit to the series circuit is a machine that can provide a very high starting torque of up to 500%."
+[6] — DC motors and controls (https://www.baldor.com/~/media/download%20center/literature/catalog/ca501_2022/section%2016%20dc%20motors.ashx): "Motors suitable for IEEE 45 shipboard applications"
+[7] — Baldor-Reliance® Integral horsepower DC motors (https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331): "Motor speed under any condition must not exceed maximum safe speed on nameplate."
+[8] DC Motors: Advantages, Types, and Common Hazards Explained (https://resources.galco.com/motion-control/dc-motors): "In either case, this type of motor has good speed regulation (5% to 10%) and is capable of delivering 300 percent of its full load torque for a very short period of time."
+[9] Electrical Tech Note 318: DC motors (https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf): "Complete loss of the dc supply to the field will result in a significant increase in armature speed if there is little or no load on the motor."
+[10] Section I General Standards Applying to All Machines Part ... (https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf): "A stabilized shunt-wound motor is a direct-current motor ... which also has a light series winding added to prevent a rise in speed or to obtain a slight reduction in speed with increase in load."
+[11] Section I General Standards Applying to All Machines Part ... (https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf): "A constant-speed motor is one in which the speed of normal operation is constant or practically constant; for example, a synchronous motor, an induction motor with small slip, or a dc shunt-wound motor."
+[12] Classes, Speed Control and Starting of DC motors (https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf): "it is most important to see that the shunt rheostat ( for speed control ) is in the slow-speed position."
+[13] DC Motors: Advantages, Types, and Common Hazards Explained (https://resources.galco.com/motion-control/dc-motors): "Armature voltage control is used for speeds below base speed, resulting in a constant torque capacity. Shunt field control is used to obtain speeds above base speeds resulting in a constant horsepower capacity."
+[14] DC Generators and Motors (https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf): "If both are reversed, rotation will continue in the original direction."
+[15] What is the Difference between DC Series, DC Shunt, and DC Compound Motors? | CircuitBread (https://www.circuitbread.com/ee-faq/difference-between-dcseries-dcshunt-and-dccompound-motors): "In other words, speed is greater when there is lower field flux."
+[16] ELECTRICAL SYSTEMS AND SAFETY OVERSIGHT QUALIFICATION STANDARD REFERENCE GUIDE (https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf): "If the field flux of a DC motor is decreased, the motor speed will increase."
+[17] [PDF] 25-1 DC motors DC motors are important in many applications. In ... (https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf): "Loss-of-field protection is usually provided to guard against overspeeding."
+[18] [PDF] 25-1 DC motors DC motors are important in many applications. In ... (https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf): "However, the shunt, or separately-excited, motor has a safe no-load speed, providing that the field circuit is not de-energized."
+[19] Part 8 – DC Motor Starters – PEG-3722 Electrotechnology (https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters): "In order to reduce this very high starting current, an external resistance must be placed in series with the armature during the starting period."
+[20] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax (https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf): "When a mechanical load is placed on the motor, like an electric wheelchair going up a hill, the motor slows, the back emf drops, more current flows, and more work can be done."
+[21] Classes, Speed Control and Starting of DC motors (https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf): "Its speed is nearly constant, falling off as the load increases due to resistance drop and armature reaction."
+[22] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. (https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2): "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+[23] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. (https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2): "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+[24] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. (https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2): "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: mechanism). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
+K.scenario({into, open?, title?, text?})                         the case's scenario panel (folds); a lesson may give its own
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

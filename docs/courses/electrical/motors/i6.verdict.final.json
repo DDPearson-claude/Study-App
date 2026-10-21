@@ -1,0 +1,121 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Full load gives field, torque and speed 1.00; twice the current gives 2.00, 4.00 and 0.50; half the current gives 0.50, 0.25 and 2.00; a quarter gives 0.25, 0.06 and 4.00; the speed crosses 3.00 near 0.33, so 0.30 is past it at 3.33 and 0.35 under it at 2.86",
+        "ok": true
+      },
+      {
+        "label": "As the load current falls the field falls with it, the torque falls faster than the field, and the speed always rises; field × speed stays 1.00, so the back-emf stays equal to the supply",
+        "ok": true
+      },
+      {
+        "label": "The developed torque is proportional to the square of the armature current: double the current, four times the torque",
+        "ok": true,
+        "source": "https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf"
+      },
+      {
+        "label": "For a series motor the speed is inversely proportional to the armature current: half the current, twice the speed",
+        "ok": true,
+        "source": "https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf"
+      },
+      {
+        "label": "A motor with an armature resistance of 0.4 ohms on a 260 V DC supply would draw 650 A at start",
+        "ok": true,
+        "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "load"
+    ],
+    "readouts": [
+      "rdField",
+      "rdTorque",
+      "rdSpeed"
+    ],
+    "outputs": [
+      "field",
+      "torque",
+      "speed"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 7,
+        "step": 1,
+        "steps": [
+          "How it works",
+          "One current: field, torque, speed",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "load",
+        "kind": "control",
+        "label": "Load current, per unit",
+        "min": 0.25,
+        "max": 2,
+        "step": 0.05,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          0.25,
+          0.5,
+          1,
+          2
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The armature turning"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}
