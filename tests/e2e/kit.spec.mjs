@@ -267,14 +267,28 @@ section('self-test catches broken bodies');
   // A word split across two lines (overflow-wrap breaking a word wider than its box) fails, at
   // the size under test and at Text size XL, which the self-test also sweeps; a break at a hyphen
   // or a space is fine.
-  // Words in px boxes: "Potassium" in 1rem bold is about 94 px wide at M and 118 px at XL.
+  // Words in px boxes. "Potassium" in 1rem bold is measured here in the kit's own font stack
+  // (its width depends on which font the machine has for system-ui: about 83 px at M with
+  // Inter, 94 px with DejaVu Sans), and is a quarter wider at XL. The XL box sits halfway
+  // between the two, so the word fits at M and splits only at XL, whatever the font.
+  const kitFont = (kitCss.match(/--k-font:\s*([^;]+);/) || [])[1];
+  const potassiumM = await app.page.evaluate((font) => {
+    const b = document.createElement('b');
+    b.textContent = 'Potassium';
+    b.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:700 16px/1 ' + font;
+    document.body.appendChild(b);
+    const w = b.getBoundingClientRect().width;
+    b.remove();
+    return w;
+  }, kitFont);
+  const xlBox = Math.round(potassiumM * 1.125) + 'px';
   const words = (w) => ['Potassium', 'Austria-Hungary'].map((t, i) => '<b' + (i ? '' : ' id="w"') + ' style="display:block;width:' + w + ';font-size:1rem">' + t + '</b>').join('');
   r = await test(body(plain, { html: words('50px') }));
   expect('a word split across two lines fails, naming the word and its room',
     !r.ok && has(r.clipped, /the word "Potassium" is split across two lines in <b#w> \(it needs \d+px and has 50px\) \(at the opening state/), r.clipped);
-  r = await test(body(plain, { html: words('104px') }), { widths: [340] });
+  r = await test(body(plain, { html: words(xlBox) }), { widths: [340] });
   expect('a word that splits only at Text size XL is caught there (the self-test sweeps XL too)',
-    !r.ok && has(r.clipped, /"Potassium" is split across two lines .*\(at Text size XL/) && !has(r.clipped, /\(at the opening state/), r.clipped);
+    kitFont && potassiumM > 0 && !r.ok && has(r.clipped, /"Potassium" is split across two lines .*\(at Text size XL/) && !has(r.clipped, /\(at the opening state/), { box: xlBox, clipped: r.clipped });
   r = await test(body(plain, { html: words('6.5rem') }), { widths: [340] });
   expect('the same boxes sized in rem keep every word whole at XL; a break at a hyphen is fine', r.ok && !r.clipped.length, r.clipped);
   r = await test(body("K.model((p) => ({ y: p.a * 2, z: 1, w: 2, v: 3, u: 4 }));\n" +
