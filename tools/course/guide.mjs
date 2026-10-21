@@ -162,13 +162,17 @@ const SNAP = `(() => {
     if (style) out.setAttribute('style', style);
   });
   const vb = src.viewBox && src.viewBox.baseVal;
-  copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  // The serializer declares the SVG namespace itself; an xmlns the page set by hand as well would be
+  // written twice ("Attribute xmlns redefined"), so drop any and add one only if it is missing.
+  copy.removeAttribute('xmlns');
+  try { copy.removeAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns'); } catch (e) { /* none */ }
   if (vb && vb.width) { copy.setAttribute('viewBox', [vb.x, vb.y, vb.width, vb.height].join(' ')); copy.setAttribute('width', vb.width); copy.setAttribute('height', vb.height); }
   copy.querySelectorAll('rect.hit, [fill="transparent"]').forEach((n) => n.remove());
   // Nothing left to see (a step whose picture is all HTML, as a refresher's recall question is): no picture.
   if (!copy.querySelector('path, rect, circle, ellipse, line, polyline, polygon, text, image, use')) return null;
   // XMLSerializer, not outerHTML: outerHTML writes &nbsp;, which a standalone SVG image cannot parse.
-  const svg = new XMLSerializer().serializeToString(copy).replace(/\\s{2,}/g, ' ').replace(/(\\d+\\.\\d{2})\\d+/g, '$1');
+  let svg = new XMLSerializer().serializeToString(copy).replace(/\\s{2,}/g, ' ').replace(/(\\d+\\.\\d{2})\\d+/g, '$1');
+  if (!/^<svg[^>]*\\sxmlns="/.test(svg)) svg = svg.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
   const bad = new DOMParser().parseFromString(svg, 'image/svg+xml').querySelector('parsererror');
   if (bad) throw new Error('picture is not valid SVG: ' + bad.textContent.slice(0, 120));
   return { svg, alt: src.getAttribute('aria-label') || '' };
