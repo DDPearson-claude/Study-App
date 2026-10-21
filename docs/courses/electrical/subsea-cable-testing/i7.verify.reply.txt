@@ -1,0 +1,27 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "problem": "[^5] sits on 'the two places should agree', but its quote only says testing from both ends gives the highest sensitivity; the citation belongs on the reason for the second test.",
+   "severity": "fix",
+   "now": "- Make it safe first. Both ends are earthed and discharged, so no energy is stored in the cable.[^1] A technician at each end, talking before every change.\n- Lift the earths on the pair under test, under control. Connect the leads as the test specification says, for example core to screen.\n- Set the software for the cable's length and type, then run the sweep.\n- Check the length. L = v ÷ 2Δf, from the resonance spacing, should match the route record.\n- Read the spot signature. Find the end and the joints first, at their known places. Then look for spots, their sign and their colour.\n- Test from the other end too, for the best sensitivity.[^5] Measured from one end, the two places should agree.\n- Keep the raw trace data with the report. There is no pass or fail. Each test is compared with the baseline.\n- When you finish, the earths go back on at both ends.\n\n**Rule of thumb:** resonances every v ÷ 2L. A spot x metres away adds a ripple every v ÷ 2x.\n\n**Rule of thumb:** a negative DNORM points to water, heat or mechanical damage. A positive one points to bends and shield breaks.\n\n**Worked example:** on String B, at 168.0 m/µs over 2400 m, the resonances come 168.0 × 10⁶ ÷ (2 × 2400) = 35 000 Hz = 35.0 kHz apart. LIRA from the OSS puts L2's spot at 961 m. From B01 it is at 1441 m, which is 2400 − 1441 = 959 m from the OSS. TDR said 960.1 m. These are practice values.\n\n**Common mistakes**\n- Testing from one end only.\n- Handing over a report with no raw trace data.\n- Reading a positive spot as water. Positive points to bends and shield breaks.\n- Expecting a pass or fail. Compare with the baseline.\n- Reading the B01 distance as if it were from the OSS: 1441 m instead of 959 m.\n- Taking a joint for a fault. Know the joints' places from the baseline."
+  },
+  {
+   "path": "summary.rule",
+   "problem": "The notes say '18 total tests, typically core to screen and core to core'; '18 tests a cable' adds a per-cable count the notes do not give.",
+   "severity": "fix",
+   "now": "Δf = v ÷ 2L\nL = v ÷ 2Δf\nA spot x metres away: a round trip of 2x ÷ v, a ripple every v ÷ 2x\n\nDead cable: both ends earthed and discharged first.\nOne end is enough. Test from both, for sensitivity and to confirm.\nDNORM negative: water, heat or mechanical damage. Positive: bends, shield breaks.\nGreen mild, amber intermediate, red significant.\nNo acceptance criteria: compare with the baseline. Keep the raw trace.\n18 tests in total, typically core to screen and core to core.\nOnline monitoring of energised cables: up to 33 kV."
+  },
+  {
+   "path": "analogy.breaks",
+   "problem": "'One pluck sounds all of a string's notes' is too absolute: a string plucked at its centre does not sound its even harmonics, so a pluck sounds many of its notes, not all.",
+   "severity": "fix",
+   "now": "One pluck sounds many of a string's notes at once. LIRA drives the cable one frequency at a time and measures its impedance at each. And your ear cannot tell where along a string a nick is. LIRA's software turns the ripple from a local change into a place."
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "The 33 kV online-monitoring limit and the 18 tests are constants taken from the notes p.5, but carry no source and the lesson's sources hold only notes p.6; no web source confirms the 33 kV figure, so it rests on the notes alone.",
+   "severity": "note"
+  }
+ ]
+}

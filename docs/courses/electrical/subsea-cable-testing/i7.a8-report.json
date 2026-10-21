@@ -1,0 +1,244 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Spacing and first dip at 1.20, 2.40 and 4.80 km: 70.0 and 35.0, 35.0 and 17.5, 17.5 and 8.8 kHz",
+        "ok": true
+      },
+      {
+        "label": "v = 2L(f(k+1) − f(k)): 2 × 2400 m × 35 000 Hz gives back 168.0 m/µs",
+        "ok": true,
+        "source": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222"
+      },
+      {
+        "label": "A far end matched exactly to the cable sends nothing back, so the spectrum has no resonances",
+        "ok": true,
+        "source": "https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf"
+      },
+      {
+        "label": "The dips sit where a quarter wavelength fits, the peaks where a half fits, and at low frequency the impedance falls like a capacitor",
+        "ok": true
+      },
+      {
+        "label": "Round trip and ripple at 100, 961, 1441 and 2300 m: 1.19, 11.44, 17.15 and 27.38 µs; 840.0, 87.4, 58.3 and 36.5 kHz",
+        "ok": true
+      },
+      {
+        "label": "A nearer change gives a wider ripple; the spot flips side with its type and sits in the significant band",
+        "ok": true
+      },
+      {
+        "label": "Worked example: 1 ÷ 87 400 Hz = 11.44 µs; 11.44 × 168.0 ÷ 2 = 961.0 m, 0.9 m from TDR's 960.1 m",
+        "ok": true
+      },
+      {
+        "label": "7(a) 35.0 kHz and back to 2400 m; 7(b) 2400 − 1441 = 959 m, 2 m from 961 m; changed numbers 3360 m",
+        "ok": true
+      },
+      {
+        "label": "Each slip is its own working: 70.0, 17.5 and 33.3 kHz; 1441 and 3841 m; 6720 and 1680 m",
+        "ok": true
+      },
+      {
+        "label": "Within 0.5% of the length is 12 m on String B",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "L",
+      "far",
+      "x",
+      "kind"
+    ],
+    "readouts": [
+      "sp",
+      "dip",
+      "rt",
+      "rip",
+      "dn"
+    ],
+    "outputs": [
+      "sp",
+      "dip",
+      "rt",
+      "rip",
+      "dn"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why: the cable rings",
+          "The why: a change becomes a spot",
+          "Check",
+          "Worked example",
+          "Section A 7(a)",
+          "Section A 7(b)",
+          "Section B",
+          "Changed numbers",
+          "The job, end to end",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "L",
+        "kind": "control",
+        "label": "Length",
+        "min": 1.2,
+        "max": 4.8,
+        "step": 0.1,
+        "log": false,
+        "value": 2.4,
+        "shown": false,
+        "snap": [
+          1.2,
+          2.4,
+          4.8
+        ]
+      },
+      {
+        "id": "far",
+        "kind": "choice",
+        "label": "Far end",
+        "options": [
+          "open",
+          "matched"
+        ],
+        "labels": [
+          "Open",
+          "Matched"
+        ],
+        "value": "open",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "x",
+        "kind": "control",
+        "label": "Change at",
+        "min": 100,
+        "max": 2300,
+        "step": 1,
+        "log": false,
+        "value": 961,
+        "shown": false,
+        "snap": [
+          100,
+          961,
+          1441,
+          2300
+        ]
+      },
+      {
+        "id": "kind",
+        "kind": "choice",
+        "label": "Type of change",
+        "options": [
+          "water",
+          "break"
+        ],
+        "labels": [
+          "Water or damage",
+          "Shield break or bend"
+        ],
+        "value": "water",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Wave"
+    ],
+    "answers": [
+      {
+        "id": "7a",
+        "answer": 35,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "7b",
+        "answer": 959,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l7.changed",
+        "answer": 3360,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "L = 3.8999999999999995",
+    "far = \"matched\"",
+    "x = 1750",
+    "kind = \"break\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/subsea-cable-testing/i7.a8-1280-dark-end.png"
+  ]
+}

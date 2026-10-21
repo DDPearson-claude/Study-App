@@ -1,0 +1,507 @@
+{
+  "iid": "i7",
+  "title": "LIRA: the cable's impedance spectrum",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a shorter round trip widening the ripple on L2's spectrum and sliding its spot along the cable, when you drag the local change towards the OSS.",
+    "title": "L2's spectrum and its spot",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve screens on LIRA, with Back and Continue. They cover what it is for, and why a cable's impedance spectrum has resonances. Then they show how a local change becomes a spot along the cable, and where LIRA puts L2's fault.\n\nScreen 1, Do you still have it? The question: \"A LIRA spot signature shows a spot with a negative DNORM, in red. What could it be?\" Three choices, in this order: \"A bend, or a break in the shield\"; \"Water getting in, or heat or mechanical damage: significant\"; \"Water getting in, or heat or mechanical damage: mild\". Right, the second: \"Still there.\" Then the working: \"Negative points to water getting in, heat damage or mechanical damage. Positive points to bends and breaks in the shield. Red means significant, amber intermediate and green mild.\" Then two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: \"Bends and shield breaks give a positive DNORM. Negative points to water, heat or mechanical damage.\" Wrong, the third: \"The type is right. But red means significant. Green is mild and amber intermediate.\" After a wrong choice, it shows the right working and moves on to screen 2.\n\nScreen 2, What it is for. \"LIRA sends a sweep of small sine waves into one pair of conductors at one end. It records the cable's impedance at each frequency. From that record, it finds where the impedance changes between any two metal conductors. That can be a core and its screen, two cores, or a core and the armour. It gives the length, the joints, and where water or dirt has got in. Each wave runs to the far end and back to the set. So it needs only one end.\" Then: \"It is used around loadout, during installation, at commissioning, and in service at set intervals. The commissioning record is the cable's baseline. LIRA gives no pass or fail. You compare each test with the baseline. So always keep the raw trace data.\" Then: \"Some systems also monitor energised cables, up to 33 kV, through sensors that do not touch the core. String B runs at 66 kV, above that. So it is tested dead. Both ends are earthed and discharged first, so no energy is stored in the cable.\" The picture shows String B from the OSS to B01, 2.40 km long. The LIRA set sits at the OSS end on L2. The joint is at 1620 m, and a mark at 960.1 m reads \"TDR: fault\". A red note says what goes wrong if you skip it: \"Skip it, and there is no baseline to compare with in later years. And L2's fault rests on one test, from one end.\"\n\nScreen 3, The why: the cable rings. Four short paragraphs. At low frequency a core and its screen are a capacitor, so the impedance starts high and falls. Where a quarter wavelength fits the cable, the wave comes back upside down and cancels the wave going in, so the impedance dips. Where half a wavelength fits, it comes back in step and the impedance peaks. So the dips come every v ÷ 2L.[^1] A longer cable's resonances crowd together. This record is the cable's [[impedance spectrum]]. An end matched exactly to the cable sends nothing back, so there are no resonances.[^2] The picture shows a small drawing of the cable, with the set at the OSS end. Below it is the spectrum, drawn as a sketch. Frequency runs across, 0 to 1.0 MHz. Impedance runs up the side on a log scale. The dips and peaks sit where the rule puts them. A Length slider runs from 1.20 to 4.80 km in steps of 0.10 km. It opens at 2.40 km. A Far end switch has two settings, Open and Matched. It opens on Open. Two readouts work in kHz to 1 place, at String B's 168.0 m/µs, with L in metres. Resonance spacing = 168.0 × 10⁶ ÷ (2 × L) ÷ 1000. First dip = 168.0 × 10⁶ ÷ (4 × L) ÷ 1000. At 1.20 km: 70.0 and 35.0. At 2.40 km: 35.0 and 17.5. At 4.80 km: 17.5 and 8.8. Matched, the curve is flat at the cable's 27.1 Ω, the practice value from lesson 6. The readouts show a dash. The prompt: \"Drag the length down to 1.20 km, then up to 4.80 km. Then switch the far end to Matched.\" Read: at 2.40 km the dips sit 35.0 kHz apart. The first is at 17.5 kHz. At 1.20 km they spread to 70.0 kHz apart. At 4.80 km they crowd to 17.5 kHz. With the end matched, no wave comes back. So the line goes flat at 27.1 Ω. Still: 2.40 km with the far end open, and the 4.80 km curve faint behind.\n\nScreen 4, The why: a change becomes a spot. Water in a short length of insulation raises the capacitance there, so the impedance falls. A little of each wave reflects from it, after a round trip of 2x ÷ v. The echo slips in and out of step as the frequency rises. So it puts a ripple on the spectrum, every v ÷ 2x, and a nearer spot makes a wider ripple. The software turns each ripple into a round trip, then into a place with L = t × v ÷ 2. The result is the [[spot signature]]. Each spot is graded by [[DNORM]]: its sign gives the type of change, and its colour the severity. The picture: on the small cable drawing, an arrow runs from the set to the change and back. It is labelled with the round trip. Under it is L2's spectrum at 2.40 km. Its ripple is drawn many times bigger than real. Below that is the spot signature, by distance from the OSS, 0 to 2400 m. A tall mark at 2400 m reads \"end, B01\". A grey mark at 1620 m reads \"joint\". The change shows as a bar. It sits below the line for negative and above it for positive. A legend gives the colour bands, the same for either sign. Green is under 6 dB, amber 6 to 12 dB and red above 12 dB. These bands are practice values. On a real job they are a software or client setting. A Change at slider sets the distance from the OSS. It runs from 100 to 2300 m in steps of 1 m, and opens at 961 m. A Type of change switch has two settings, Water or damage and Shield break or bend. It opens on Water or damage. There are three readouts. Round trip, in µs to 2 places, = 2 × x ÷ 168.0. Ripple repeats every, in kHz to 1 place, = 168.0 × 10⁶ ÷ (2 × x) ÷ 1000. DNORM, in dB, uses practice values. It is −18 for water or damage and +18 for a shield break. The size stays the same, so only the sign changes. At 100 m: 1.19 µs and 840.0 kHz. At 961 m: 11.44 µs and 87.4 kHz. At 1441 m: 17.15 µs and 58.3 kHz. At 2300 m: 27.38 µs and 36.5 kHz. The prompt: \"Drag the change towards the OSS, then out towards B01. Then switch its type.\" Read: at 961 m the round trip is 11.44 µs. That is close to TDR's 11.43 µs. The ripple repeats every 87.4 kHz. At 100 m the arrow is short. The ripple is wide, every 840.0 kHz. At 2300 m it tightens to every 36.5 kHz. The spot follows the change along the cable. Switched to a shield break, the bar flips above the line in the same place. Still: change at 961 m, water or damage, DNORM −18 dB in the red band.\n\nScreen 5, Check. \"From the OSS, a second spot shows nearer the set than L2's spot at 961 m. How does its ripple in the spectrum compare?\" Choices: \"Wider: more kHz between its crests\"; \"Tighter: fewer kHz between its crests\"; \"The same: the cable's length sets it\". Right, the first: \"The echo from a nearer spot comes back sooner. The ripple repeats every v ÷ 2x. So a smaller x gives a wider ripple. At 100 m it repeats every 840.0 kHz, against 87.4 kHz at 961 m.\" Wrong, the second: \"That is a spot farther away. A nearer spot's echo comes back sooner. So its ripple is wider.\" Wrong, the third: \"The length sets the resonances, every v ÷ 2L. Each spot adds its own ripple, every v ÷ 2x. Its own distance sets it.\"\n\nScreen 6, Worked example, a line at each press. \"Take these practice values. LIRA runs from the OSS on L2. The software finds a ripple that repeats every 87.4 kHz. Where is the change that makes it?\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Set up on the dead cable, earthed and discharged at both ends. Connect the leads core to screen, as the test specification says, with the earths still on. Then lift L2's earth at your end under control. The B01 technician lifts L2's earth there, so its far end is open.\" Line 2: \"The rule: a ripple that repeats every Δ in frequency comes from an echo with a round trip of 1 ÷ Δ.\" Line 3: \"t = 1 ÷ 87 400 Hz = 11.44 µs.\" Line 4: \"Then the TDR rule: L = t × v ÷ 2.\" Line 5: \"L = 11.44 × 168.0 ÷ 2 = 961.0 m from the OSS.\" Line 6: \"TDR put the fault at 960.1 m. The two agree within 0.9 m.\" Line 7: \"When you finish, put the earths back on at both ends.\" Read: a ripple every 87.4 kHz means an echo with a round trip of 11.44 µs. At 168.0 m/µs, that is 11.44 × 168.0 ÷ 2 = 961.0 m from the OSS. That is within 0.9 m of TDR's 960.1 m. Still: all seven lines shown.\n\nScreen 7, Section A, question 7 (a). The scenario panel comes first. Then parts 6a and 6b carry forward the velocity, 168.0 m/µs, and the fault, 960.1 m from the OSS. Then the test is set out once: \"String B is earthed and discharged at both ends. At the OSS, the leads go on L2, core to screen, with the earths still on. Then you lift L2's earth at the OSS under control. The B01 technician lifts L2's earth there, so its far end is open. The sweep runs from 0 to 1.0 MHz.\" The question: \"(a) Determine the spacing of the resonances in L2's impedance spectrum.\" A typed answer, part 7a, in kHz: Δf = v ÷ 2L = 168.0 × 10⁶ ÷ (2 × 2400) = 35 000 Hz = 35.0 kHz. Slips: 70.0, \"That is v ÷ L. A dip comes each time another half wavelength fits the cable. So Δf = v ÷ 2L.\"; 17.5, \"That is the first dip, where a quarter wavelength fits. The dips after it come every v ÷ 2L.\"; 33.3, \"That uses 160 m/µs, a default. Use String B's 168.0 m/µs from 6(a).\" After two misses, it shows the working. Then: \"Turned round, the rule gives the length: L = v ÷ 2Δf = 168.0 × 10⁶ ÷ (2 × 35 000) = 2400 m. With v from the cable's data, that checks the route record.\"\n\nScreen 8, Section A, question 7 (b). Parts 6b and 7a carry forward 960.1 m and 35.0 kHz. \"From the OSS, L2's spot signature shows one spot at 961 m, DNORM negative and red. The B01 team then tests L2 from their end. Their spot is at 1441 m, also negative and red.\" The question: \"(b) Determine where the B01 reading puts the spot, measured from the OSS.\" A typed answer, part 7b, in m: 2400 − 1441 = 959 m. Slips: 1441, \"That is from B01. Take it from the length, 2400 − 1441.\"; 3841, \"That adds the two. The B01 distance runs back from the far end. So take it from the length.\" After two misses, it shows the working. Then: \"Three readings point to one place: 961 m, 959 m and TDR's 960.1 m. The two LIRA readings are 2 m apart. LIRA can place a spot within 0.5% of the length.[^3] On String B, that is 0.005 × 2400 = 12 m. Testing from both ends gives the best sensitivity.[^4] Two ends that agree confirm the place. Negative and red means a significant change, the kind that water, heat or mechanical damage makes. L1 and L3 show the end and the joint, but no spots. Keep their traces as their baseline. Record L2: one significant negative spot about 960 m from the OSS.\" The picture shows the route from the OSS to B01. The three readings sit close together near 960 m. The joint is at 1620 m.\n\nScreen 9, Section B: \"Explain what LIRA measures, and why it needs only one end.\" You write an answer, marked against three points. A full answer makes all three. You get one more go, then the model answer.\n\nScreen 10, Section A, changed numbers. \"Another cable, open at the far end. Its velocity is 168 m/µs, and its resonances are 25.0 kHz apart. Determine its length.\" A typed answer, in m: L = v ÷ 2Δf = 168 × 10⁶ ÷ (2 × 25 000) = 3360 m. Slips: 6720, \"That is v ÷ Δf. Each dip is another half wavelength. So L = v ÷ 2Δf.\"; 1680, \"That divides by 4. The spacing is v ÷ 2L. So L = v ÷ 2Δf.\" After two misses, it shows the working. Then: \"It is longer than String B. So its resonances sit closer together, 25.0 kHz apart against 35.0 kHz.\"\n\nScreen 11, The job, end to end. \"String B's tests on L2, in the order they ran.\" A table gives one row to each test. Core resistance: +0.41% at 20 °C, inside 2%. IR at 5 kV: 2.20 GΩ at 1 minute passes the client's 1 GΩ. But PI 1.09 and DAR 1.05 show a flat curve. Sheath: tripped at 3.2 kV, where L1 and L3 held 8.8 kV. VLF at 76.0 kV, 0.1 Hz: broke down at minute 12, then read 35 Ω core to screen. TDR from the OSS: a downward peak at 960.1 m. LIRA from both ends: one negative red spot, 961 m and 959 m from the OSS. Then: \"Gentle, low-voltage checks come first. The withstand test, which can break a weak cable down, comes near the end. The LIRA baseline comes last, so it records each healthy core as it goes into service. On a real job you would stop and report after the sheath failed. Here the VLF test ran anyway, so one fault shows in five tests.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+    "ignores": "The spectrum is a sketch. Its dips and peaks sit where the rule puts them. Their heights are drawn for shape, with a little loss to round them off. The ripple from the change is drawn many times bigger than real so it can be seen. A real spot signature also shows a mirror image of each spot beyond the end, from a second reflection. The picture leaves it out. The velocity is one figure, 168.0 m/µs, along the whole cable. The DNORM values, the colour bands and String B's figures are practice values.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 12 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "String B's length (practice value), km",
+        "value": 2.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "String B's field joint from the OSS (practice value), m",
+        "value": 1620,
+        "kind": "assumed"
+      },
+      {
+        "label": "TDR fault distance from the OSS, m",
+        "value": 960.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Online monitoring of energised cables: up to, kV",
+        "value": 33,
+        "kind": "constant"
+      },
+      {
+        "label": "String B's voltage (practice value), kV",
+        "value": 66,
+        "kind": "assumed"
+      },
+      {
+        "label": "Velocity from lesson 6, m/µs",
+        "value": 168,
+        "kind": "computed"
+      },
+      {
+        "label": "Length slider: from, km",
+        "value": 1.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider: to, km",
+        "value": 4.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider: step, km",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length slider opens at String B's, km",
+        "value": 2.4,
+        "kind": "control"
+      },
+      {
+        "label": "Spectrum axis: to, MHz",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "At 1.20 km: resonance spacing, kHz",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1.20 km: first dip, kHz",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "At 2.40 km: resonance spacing, kHz",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "At 2.40 km: first dip, kHz",
+        "value": 17.5,
+        "kind": "computed"
+      },
+      {
+        "label": "At 4.80 km: resonance spacing, kHz",
+        "value": 17.5,
+        "kind": "computed"
+      },
+      {
+        "label": "At 4.80 km: first dip, kHz",
+        "value": 8.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable's own impedance, matched line (practice value), Ω",
+        "value": 27.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Change slider: from, m",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Change slider: to, m",
+        "value": 2300,
+        "kind": "assumed"
+      },
+      {
+        "label": "Change slider: step, m",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Change slider opens at L2's spot (practice value), m",
+        "value": 961,
+        "kind": "control"
+      },
+      {
+        "label": "DNORM for water or damage (practice value), dB",
+        "value": -18,
+        "kind": "assumed"
+      },
+      {
+        "label": "DNORM for a shield break or bend (picture only), dB",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Colour band: green under, dB (practice value)",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Colour band: red above, dB (practice value)",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "At 100 m: round trip, µs",
+        "value": 1.19,
+        "kind": "computed"
+      },
+      {
+        "label": "At 100 m: ripple repeats every, kHz",
+        "value": 840,
+        "kind": "computed"
+      },
+      {
+        "label": "At 961 m: round trip, µs",
+        "value": 11.44,
+        "kind": "computed"
+      },
+      {
+        "label": "At 961 m: ripple repeats every, kHz",
+        "value": 87.4,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1441 m: round trip, µs",
+        "value": 17.15,
+        "kind": "computed"
+      },
+      {
+        "label": "At 1441 m: ripple repeats every, kHz",
+        "value": 58.3,
+        "kind": "computed"
+      },
+      {
+        "label": "At 2300 m: round trip, µs",
+        "value": 27.38,
+        "kind": "computed"
+      },
+      {
+        "label": "At 2300 m: ripple repeats every, kHz",
+        "value": 36.5,
+        "kind": "computed"
+      },
+      {
+        "label": "TDR's peak time for L2's fault, µs",
+        "value": 11.43,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: ripple period (practice value), kHz",
+        "value": 87.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: round trip, µs",
+        "value": 11.44,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: distance from the OSS, m",
+        "value": 961,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: gap to TDR, m",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Lines in the worked example",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Part 7a: resonance spacing, kHz",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 7a slip: v ÷ L, kHz",
+        "value": 70,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 7a slip: first dip, kHz",
+        "value": 17.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 7a slip: default 160 m/µs, kHz",
+        "value": 33.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Default velocity, m/µs",
+        "value": 160,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length back from the spacing, m",
+        "value": 2400,
+        "kind": "computed"
+      },
+      {
+        "label": "LIRA spot from the OSS (practice value), m",
+        "value": 961,
+        "kind": "assumed"
+      },
+      {
+        "label": "LIRA spot from B01 (practice value), m",
+        "value": 1441,
+        "kind": "assumed"
+      },
+      {
+        "label": "Part 7b: B01 reading from the OSS, m",
+        "value": 959,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 7b slip: B01 distance as it stands, m",
+        "value": 1441,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 7b slip: the two added, m",
+        "value": 3841,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap between the two LIRA readings, m",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "LIRA place accuracy, % of the length",
+        "value": 0.5,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "LIRA place accuracy on String B, m",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Section B: points, of which all make a full answer",
+        "value": "3, all 3",
+        "kind": "constant"
+      },
+      {
+        "label": "Changed numbers: velocity (practice value), m/µs",
+        "value": 168,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: resonance spacing (practice value), kHz",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed numbers: length, m",
+        "value": 3360,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip: v ÷ Δf, m",
+        "value": 6720,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed numbers slip: divided by 4, m",
+        "value": 1680,
+        "kind": "computed"
+      },
+      {
+        "label": "Core resistance: L2 from factory at 20 °C, %",
+        "value": 0.41,
+        "kind": "computed"
+      },
+      {
+        "label": "Core resistance tolerance, %",
+        "value": 2,
+        "kind": "constant"
+      },
+      {
+        "label": "IR test voltage (practice value), kV",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "L2 IR at 1 minute (practice value), GΩ",
+        "value": 2.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Client's IR figure (practice value), GΩ",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "L2 polarisation index",
+        "value": 1.09,
+        "kind": "computed"
+      },
+      {
+        "label": "L2 dielectric absorption ratio",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Sheath: L2 tripped at (practice value), kV",
+        "value": 3.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sheath test voltage held by L1 and L3, kV",
+        "value": 8.8,
+        "kind": "computed"
+      },
+      {
+        "label": "VLF test voltage, kV",
+        "value": 76,
+        "kind": "computed"
+      },
+      {
+        "label": "VLF frequency, Hz",
+        "value": 0.1,
+        "kind": "constant"
+      },
+      {
+        "label": "VLF breakdown at minute (practice value)",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "L2 core to screen after breakdown (practice value), Ω",
+        "value": 35,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tests per cable",
+        "value": 18,
+        "kind": "constant"
+      },
+      {
+        "label": "Keep this: pairs, each tested from both ends, in one way to reach 18 (practice value)",
+        "value": 9,
+        "kind": "assumed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "LIRA treats the cable as a line, as a TDR does. Wherever the impedance changes, part of a signal comes back. But LIRA reads the echoes in frequency, not in time. It sweeps thousands of small sine waves into one end. It records the cable's impedance at each frequency. That record is the cable's [[impedance spectrum]]. Every change along the cable leaves its mark on it.\n\nStart with a healthy core with its far end open. At low frequency, the core and screen are just a capacitor. So the impedance starts high and falls as the frequency rises. As the frequency climbs, each wave reaches the far end and comes back. Where a quarter wavelength fits the cable, the trip there and back is half a wavelength. It comes back upside down and cancels the wave going in. So the impedance dips. Where half a wavelength fits, the wave arrives back in step. Then the impedance peaks. Each extra half wavelength repeats the pattern. So the dips come every v ÷ 2L. A longer cable's resonances sit closer together. A far end matched exactly to the cable sends nothing back. Then there are no resonances.\n\nNow add a short length, x metres along, where water has got into the insulation. Water raises the permittivity. So the capacitance there rises, and the impedance falls. A little of each wave reflects from it. The echo comes back after a round trip of 2x ÷ v. It is late, so it slips in and out of step with the main signal as the frequency rises. It comes back in step every time the frequency rises by v ÷ 2x. So it puts a ripple on the spectrum with that spacing. LIRA's software turns each ripple back into a round trip. Then it turns the round trip into a place, with the TDR rule L = t × v ÷ 2. The result is the [[spot signature]]. Each spot is graded by [[DNORM]]. Its sign follows the type of change, and its colour gives the severity. This picture is simplified. Real cable loss rounds off the resonances. And the real software reads the phase of the impedance, which can show small changes better. On String B, LIRA confirms TDR's fault from both ends. The healthy cores' traces become the baseline for later years.\n\n**A cable's resonances come every v ÷ 2L. A local change adds a ripple every v ÷ 2x. LIRA turns that ripple into a spot x metres along.**[^5]"
+  },
+  "analogy": {
+    "text": "A guitar string rings at a set of evenly spaced notes. It gets one for each extra half wavelength that fits along it. A longer string's notes sit closer together. A cable fed at one end does the same. Its resonances come every v ÷ 2L.",
+    "breaks": "One pluck sounds many of a string's notes at once. LIRA drives the cable one frequency at a time and measures its impedance at each. And your ear cannot tell where along a string a nick is. LIRA's software turns the ripple from a local change into a place."
+  },
+  "practice": {
+    "text": "- Make it safe first. Earth and discharge both ends, so no energy is stored in the cable. Put a technician at each end, and talk before every change.\n- Connect the leads with the earths still on, as the test specification says. For example, core to screen.\n- Then lift the earths on the pair under test, under control. The far end lifts its earth too, so that end is open.\n- Set the software for the cable's length and type, then run the sweep.\n- Check the length. Work out L = v ÷ 2Δf from the resonance spacing. It should match the route record.\n- Read the spot signature. Find the end and the joints first, at their known places. Then look for spots, their sign and their colour.\n- Test from the other end too, for the best sensitivity.[^4] Measured from the same end, the two places should agree.\n- Keep the raw trace data with the report. There is no pass or fail. Compare each test with the baseline.\n- When you finish, put the earths back on at both ends.\n\n**Rule of thumb:** resonances every v ÷ 2L. A spot x metres away adds a ripple every v ÷ 2x.\n\n**Rule of thumb:** a negative DNORM points to water, heat or mechanical damage. A positive one points to bends and shield breaks.\n\n**Worked example:** take String B's practice values, 168.0 m/µs over 2400 m. The resonances come 168.0 × 10⁶ ÷ (2 × 2400) = 35 000 Hz = 35.0 kHz apart. LIRA from the OSS puts L2's spot at 961 m. From B01 it is at 1441 m. That is 2400 − 1441 = 959 m from the OSS. TDR said 960.1 m.\n\n**Common mistakes**\n- Testing from one end only.\n- Handing over a report with no raw trace data.\n- Reading a positive spot as water. Positive points to bends and shield breaks.\n- Expecting a pass or fail. Compare with the baseline.\n- Reading the B01 distance as if it were from the OSS: 1441 m instead of 959 m.\n- Taking a joint for a fault. Know the joints' places from the baseline."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+    "b1": {
+      "q": "Explain what LIRA measures, and why it needs only one end.",
+      "points": [
+        {
+          "text": "It sweeps many frequencies into two metal conductors, such as a core and its screen. It measures where the impedance between them changes.",
+          "cite": "Notes p.5; Physics-based modelling of cable insulation for FDR, INL (research)"
+        },
+        {
+          "text": "Water or damage changes the insulation's permittivity, and that changes the impedance where it happens.",
+          "cite": "Notes p.5"
+        },
+        {
+          "text": "Each wave travels to the far end and reflects back to the end it was sent from. So the set needs only that end.",
+          "cite": "Notes p.5; Wirescan white paper WP01, LIRA basics (research)"
+        }
+      ],
+      "need": 3,
+      "model": "LIRA measures where the impedance changes between two metal conductors, such as a core and its screen. It sweeps many frequencies into the pair and records the impedance at each. With the far end not matched, the cable resonates at frequencies set by its length and velocity. Water or damage changes the insulation's permittivity. That changes the impedance at that spot and adds a ripple to the spectrum. Each wave travels to the far end and reflects back to the end it was sent from. So the set needs only one end. In practice it is still tested from both ends, for the best sensitivity and to confirm where a spot is."
+    }
+  },
+  "summary": {
+    "title": "LIRA",
+    "for": "Condition and place, from one end. It finds the length, the joints, and water or damage along the cable. At commissioning, it sets the baseline for later years.",
+    "rule": "Δf = v ÷ 2L\nL = v ÷ 2Δf\nA spot x metres away: a round trip of 2x ÷ v, a ripple every v ÷ 2x\n\nDead cable: both ends earthed and discharged first.\nOne end is enough. Test from both, for sensitivity and to confirm.\nDNORM negative: water, heat or mechanical damage. Positive: bends, shield breaks.\nGreen mild, amber intermediate, red significant.\nNo acceptance criteria: compare with the baseline. Keep the raw trace.\n18 tests a cable, as the test specification sets.\nOne way to reach 18: core to screen, core to core and core to armour. That is 9 pairs, each from both ends.\nOnline monitoring of energised cables: up to 33 kV.",
+    "traps": [
+      {
+        "text": "Testing from one end only.",
+        "cite": "Notes p.6; EA Technology, Cable line resonance analysis (research)"
+      },
+      {
+        "text": "A report with no raw trace data.",
+        "cite": "Notes p.6"
+      },
+      {
+        "text": "Reading a positive spot as water. Positive points to bends and shield breaks.",
+        "cite": "Notes p.6"
+      },
+      {
+        "text": "Expecting a pass or fail. Compare with the baseline.",
+        "cite": "Notes p.6; EA Technology, Cable line resonance analysis (research)"
+      },
+      {
+        "text": "Reading a B01 distance as if it were from the OSS: 1441 m, not 959 m.",
+        "cite": "Notes p.6 (bi-directional testing); String B case, part 7b"
+      }
+    ],
+    "where": "At commissioning, on every core from both ends, as the baseline. Then at set intervals, and after a fault to confirm where it is.",
+    "figures": [
+      "7a",
+      "7b"
+    ]
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "US20090228222A1 - Line Resonance Analysis System",
+      "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222",
+      "quote": "vr=2L(fk+1−fk)/v0"
+    },
+    {
+      "n": 2,
+      "title": "[PDF] Physics-Based Modeling of Cable Insulation Conditions for Frequency ...",
+      "url": "https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf",
+      "quote": "Since the LIRA technique is based on line resonances that exist along the cable length, it is compatible with an arbitrary termination condition except for an exact match to the cable impedance."
+    },
+    {
+      "n": 3,
+      "title": "US20090228222A1 - Line Resonance Analysis System",
+      "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222",
+      "quote": "LIRA can estimate the location of the challenged part with an estimation error within 0.5% of the cable length."
+    },
+    {
+      "n": 4,
+      "title": "Cable Line Resonance Analysis (LIRA) | EA Technology Americas",
+      "url": "https://eatechnology.com/americas/services/condition-assessment/cable-condition-assessment/cable-line-resonance-analysis-lira/?utm_source=chatgpt.com",
+      "quote": "For the highest sensitivity, testing from both ends of a cable is recommended to overcome some signal loss across multiple impedance changes, although this is not a necessity."
+    },
+    {
+      "n": 5,
+      "title": "LIRA Technology Cable Condition Assessment and ...",
+      "url": "https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf",
+      "quote": "The resonance frequencies are used to determine the cable length while deviations in the phase spectrum is used to determine the overall condition of the cable and identify joints and degradations along the cable."
+    }
+  ]
+}

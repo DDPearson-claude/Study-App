@@ -1,0 +1,778 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T03:38:36.421Z",
+ "startedAt": "2026-10-21T03:38:36.421Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "LIRA: the cable's impedance spectrum",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is a shorter round trip widening the ripple on L2's spectrum and sliding its spot along the cable, when you drag the local change towards the OSS.",
+   "title": "L2's spectrum and its spot",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Twelve screens on LIRA, with Back and Continue. They cover what it is for, and why a cable's impedance spectrum has resonances. Then they show how a local change becomes a spot along the cable, and where LIRA puts L2's fault.\n\nScreen 1, Do you still have it? The question: \"A LIRA spot signature shows a spot with a negative DNORM, in red. What could it be?\" Three choices, in this order: \"A bend, or a break in the shield\"; \"Water getting in, or heat or mechanical damage: significant\"; \"Water getting in, or heat or mechanical damage: mild\". Right, the second: \"Still there.\" Then the working: \"Negative points to water getting in, heat damage or mechanical damage. Positive points to bends and breaks in the shield. Red means significant, amber intermediate and green mild.\" Then two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: \"Bends and shield breaks give a positive DNORM. Negative points to water, heat or mechanical damage.\" Wrong, the third: \"The type is right. But red means significant. Green is mild and amber intermediate.\" After a wrong choice, it shows the right working and moves on to screen 2.\n\nScreen 2, What it is for. \"LIRA sends a sweep of small sine waves into one pair of conductors at one end. It records the cable's impedance at each frequency. From that record, it finds where the impedance changes between any two metal conductors. That can be a core and its screen, two cores, or a core and the armour. It gives the length, the joints, and where water or dirt has got in. Each wave runs to the far end and back to the set. So it needs only one end.\" Then: \"It is used around loadout, during installation, at commissioning, and in service at set intervals. The commissioning record is the cable's baseline. LIRA gives no pass or fail. You compare each test with the baseline. So always keep the raw trace data.\" Then: \"Some systems also monitor energised cables, up to 33 kV, through sensors that do not touch the core. String B runs at 66 kV, above that. So it is tested dead. Both ends are earthed and discharged first, so no energy is stored in the cable.\" The picture shows String B from the OSS to B01, 2.40 km long. The LIRA set sits at the OSS end on L2. The joint is at 1620 m, and a mark at 960.1 m reads \"TDR: fault\". A red note says what goes wrong if you skip it: \"Skip it, and there is no baseline to compare with in later years. And L2's fault rests on one test, from one end.\"\n\nScreen 3, The why: the cable rings. Four short paragraphs. At low frequency a core and its screen are a capacitor, so the impedance starts high and falls. Where a quarter wavelength fits the cable, the wave comes back upside down and cancels the wave going in, so the impedance dips. Where half a wavelength fits, it comes back in step and the impedance peaks. So the dips come every v ÷ 2L.[^1] A longer cable's resonances crowd together. This record is the cable's [[impedance spectrum]]. An end matched exactly to the cable sends nothing back, so there are no resonances.[^2] The picture shows a small drawing of the cable, with the set at the OSS end. Below it is the spectrum, drawn as a sketch. Frequency runs across, 0 to 1.0 MHz. Impedance runs up the side on a log scale. The dips and peaks sit where the rule puts them. A Length slider runs from 1.20 to 4.80 km in steps of 0.10 km. It opens at 2.40 km. A Far end switch has two settings, Open and Matched. It opens on Open. Two readouts work in kHz to 1 place, at String B's 168.0 m/µs, with L in metres. Resonance spacing = 168.0 × 10⁶ ÷ (2 × L) ÷ 1000. First dip = 168.0 × 10⁶ ÷ (4 × L) ÷ 1000. At 1.20 km: 70.0 and 35.0. At 2.40 km: 35.0 and 17.5. At 4.80 km: 17.5 and 8.8. Matched, the curve is flat at the cable's 27.1 Ω, the practice value from lesson 6. The readouts show a dash. The prompt: \"Drag the length down to 1.20 km, then up to 4.80 km. Then switch the far end to Matched.\" Read: at 2.40 km the dips sit 35.0 kHz apart. The first is at 17.5 kHz. At 1.20 km they spread to 70.0 kHz apart. At 4.80 km they crowd to 17.5 kHz. With the end matched, no wave comes back. So the line goes flat at 27.1 Ω. Still: 2.40 km with the far end open, and the 4.80 km curve faint behind.\n\nScreen 4, The why: a change becomes a spot. Water in a short length of insulation raises the capacitance there, so the impedance falls. A little of each wave reflects from it, after a round trip of 2x ÷ v. The echo slips in and out of step as the frequency rises. So it puts a ripple on the spectrum, every v ÷ 2x, and a nearer spot makes a wider ripple. The software turns each ripple into a round trip, then into a place with L = t × v ÷ 2. The result is the [[spot signature]]. Each spot is graded by [[DNORM]]: its sign gives the type of change, and its colour the severity. The picture: on the small cable drawing, an arrow runs from the set to the change and back. It is labelled with the round trip. Under it is L2's spectrum at 2.40 km. Its ripple is drawn many times bigger than real. Below that is the spot signature, by distance from the OSS, 0 to 2400 m. A tall mark at 2400 m reads \"end, B01\". A grey mark at 1620 m reads \"joint\". The change shows as a bar. It sits below the line for negative and above it for positive. A legend gives the colour bands, the same for either sign. Green is under 6 dB, amber 6 to 12 dB and red above 12 dB. These bands are practice values. On a real job they are a software or client setting. A Change at slider sets the distance from the OSS. It runs from 100 to 2300 m in steps of 1 m, and opens at 961 m. A Type of change switch has two settings, Water or damage and Shield break or bend. It opens on Water or damage. There are three readouts. Round trip, in µs to 2 places, = 2 × x ÷ 168.0. Ripple repeats every, in kHz to 1 place, = 168.0 × 10⁶ ÷ (2 × x) ÷ 1000. DNORM, in dB, uses practice values. It is −18 for water or damage and +18 for a shield break. The size stays the same, so only the sign changes. At 100 m: 1.19 µs and 840.0 kHz. At 961 m: 11.44 µs and 87.4 kHz. At 1441 m: 17.15 µs and 58.3 kHz. At 2300 m: 27.38 µs and 36.5 kHz. The prompt: \"Drag the change towards the OSS, then out towards B01. Then switch its type.\" Read: at 961 m the round trip is 11.44 µs. That is close to TDR's 11.43 µs. The ripple repeats every 87.4 kHz. At 100 m the arrow is short. The ripple is wide, every 840.0 kHz. At 2300 m it tightens to every 36.5 kHz. The spot follows the change along the cable. Switched to a shield break, the bar flips above the line in the same place. Still: change at 961 m, water or damage, DNORM −18 dB in the red band.\n\nScreen 5, Check. \"From the OSS, a second spot shows nearer the set than L2's spot at 961 m. How does its ripple in the spectrum compare?\" Choices: \"Wider: more kHz between its crests\"; \"Tighter: fewer kHz between its crests\"; \"The same: the cable's length sets it\". Right, the first: \"The echo from a nearer spot comes back sooner. The ripple repeats every v ÷ 2x. So a smaller x gives a wider ripple. At 100 m it repeats every 840.0 kHz, against 87.4 kHz at 961 m.\" Wrong, the second: \"That is a spot farther away. A nearer spot's echo comes back sooner. So its ripple is wider.\" Wrong, the third: \"The length sets the resonances, every v ÷ 2L. Each spot adds its own ripple, every v ÷ 2x. Its own distance sets it.\"\n\nScreen 6, Worked example, a line at each press. \"Take these practice values. LIRA runs from the OSS on L2. The software finds a ripple that repeats every 87.4 kHz. Where is the change that makes it?\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Set up on the dead cable, earthed and discharged at both ends. Connect the leads core to screen, as the test specification says, with the earths still on. Then lift L2's earth at your end under control. The B01 technician lifts L2's earth there, so its far end is open.\" Line 2: \"The rule: a ripple that repeats every Δ in frequency comes from an echo with a round trip of 1 ÷ Δ.\" Line 3: \"t = 1 ÷ 87 400 Hz = 11.44 µs.\" Line 4: \"Then the TDR rule: L = t × v ÷ 2.\" Line 5: \"L = 11.44 × 168.0 ÷ 2 = 961.0 m from the OSS.\" Line 6: \"TDR put the fault at 960.1 m. The two agree within 0.9 m.\" Line 7: \"When you finish, put the earths back on at both ends.\" Read: a ripple every 87.4 kHz means an echo with a round trip of 11.44 µs. At 168.0 m/µs, that is 11.44 × 168.0 ÷ 2 = 961.0 m from the OSS. That is within 0.9 m of TDR's 960.1 m. Still: all seven lines shown.\n\nScreen 7, Section A, question 7 (a). The scenario panel comes first. Then parts 6a and 6b carry forward the velocity, 168.0 m/µs, and the fault, 960.1 m from the OSS. Then the test is set out once: \"String B is earthed and discharged at both ends. At the OSS, the leads go on L2, core to screen, with the earths still on. Then you lift L2's earth at the OSS under control. The B01 technician lifts L2's earth there, so its far end is open. The sweep runs from 0 to 1.0 MHz.\" The question: \"(a) Determine the spacing of the resonances in L2's impedance spectrum.\" A typed answer, part 7a, in kHz: Δf = v ÷ 2L = 168.0 × 10⁶ ÷ (2 × 2400) = 35 000 Hz = 35.0 kHz. Slips: 70.0, \"That is v ÷ L. A dip comes each time another half wavelength fits the cable. So Δf = v ÷ 2L.\"; 17.5, \"That is the first dip, where a quarter wavelength fits. The dips after it come every v ÷ 2L.\"; 33.3, \"That uses 160 m/µs, a default. Use String B's 168.0 m/µs from 6(a).\" After two misses, it shows the working. Then: \"Turned round, the rule gives the length: L = v ÷ 2Δf = 168.0 × 10⁶ ÷ (2 × 35 000) = 2400 m. With v from the cable's data, that checks the route record.\"\n\nScreen 8, Section A, question 7 (b). Parts 6b and 7a carry forward 960.1 m and 35.0 kHz. \"From the OSS, L2's spot signature shows one spot at 961 m, DNORM negative and red. The B01 team then tests L2 from their end. Their spot is at 1441 m, also negative and red.\" The question: \"(b) Determine where the B01 reading puts the spot, measured from the OSS.\" A typed answer, part 7b, in m: 2400 − 1441 = 959 m. Slips: 1441, \"That is from B01. Take it from the length, 2400 − 1441.\"; 3841, \"That adds the two. The B01 distance runs back from the far end. So take it from the length.\" After two misses, it shows the working. Then: \"Three readings point to one place: 961 m, 959 m and TDR's 960.1 m. The two LIRA readings are 2 m apart. LIRA can place a spot within 0.5% of the length.[^3] On String B, that is 0.005 × 2400 = 12 m. Testing from both ends gives the best sensitivity.[^4] Two ends that agree confirm the place. Negative and red means a significant change, the kind that water, heat or mechanical damage makes. L1 and L3 show the end and the joint, but no spots. Keep their traces as their baseline. Record L2: one significant negative spot about 960 m from the OSS.\" The picture shows the route from the OSS to B01. The three readings sit close together near 960 m. The joint is at 1620 m.\n\nScreen 9, Section B: \"Explain what LIRA measures, and why it needs only one end.\" You write an answer, marked against three points. A full answer makes all three. You get one more go, then the model answer.\n\nScreen 10, Section A, changed numbers. \"Another cable, open at the far end. Its velocity is 168 m/µs, and its resonances are 25.0 kHz apart. Determine its length.\" A typed answer, in m: L = v ÷ 2Δf = 168 × 10⁶ ÷ (2 × 25 000) = 3360 m. Slips: 6720, \"That is v ÷ Δf. Each dip is another half wavelength. So L = v ÷ 2Δf.\"; 1680, \"That divides by 4. The spacing is v ÷ 2L. So L = v ÷ 2Δf.\" After two misses, it shows the working. Then: \"It is longer than String B. So its resonances sit closer together, 25.0 kHz apart against 35.0 kHz.\"\n\nScreen 11, The job, end to end. \"String B's tests on L2, in the order they ran.\" A table gives one row to each test. Core resistance: +0.41% at 20 °C, inside 2%. IR at 5 kV: 2.20 GΩ at 1 minute passes the client's 1 GΩ. But PI 1.09 and DAR 1.05 show a flat curve. Sheath: tripped at 3.2 kV, where L1 and L3 held 8.8 kV. VLF at 76.0 kV, 0.1 Hz: broke down at minute 12, then read 35 Ω core to screen. TDR from the OSS: a downward peak at 960.1 m. LIRA from both ends: one negative red spot, 961 m and 959 m from the OSS. Then: \"Gentle, low-voltage checks come first. The withstand test, which can break a weak cable down, comes near the end. The LIRA baseline comes last, so it records each healthy core as it goes into service. On a real job you would stop and report after the sheath failed. Here the VLF test ran anyway, so one fault shows in five tests.\"\n\nScreen 12, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "The spectrum is a sketch. Its dips and peaks sit where the rule puts them. Their heights are drawn for shape, with a little loss to round them off. The ripple from the change is drawn many times bigger than real so it can be seen. A real spot signature also shows a mirror image of each spot beyond the end, from a second reflection. The picture leaves it out. The velocity is one figure, 168.0 m/µs, along the whole cable. The DNORM values, the colour bands and String B's figures are practice values.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 12 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "String B's length (practice value), km",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B's field joint from the OSS (practice value), m",
+     "value": 1620,
+     "kind": "assumed"
+    },
+    {
+     "label": "TDR fault distance from the OSS, m",
+     "value": 960.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Online monitoring of energised cables: up to, kV",
+     "value": 33,
+     "kind": "constant"
+    },
+    {
+     "label": "String B's voltage (practice value), kV",
+     "value": 66,
+     "kind": "assumed"
+    },
+    {
+     "label": "Velocity from lesson 6, m/µs",
+     "value": 168,
+     "kind": "computed"
+    },
+    {
+     "label": "Length slider: from, km",
+     "value": 1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider: to, km",
+     "value": 4.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider: step, km",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length slider opens at String B's, km",
+     "value": 2.4,
+     "kind": "control"
+    },
+    {
+     "label": "Spectrum axis: to, MHz",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "At 1.20 km: resonance spacing, kHz",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1.20 km: first dip, kHz",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "At 2.40 km: resonance spacing, kHz",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "At 2.40 km: first dip, kHz",
+     "value": 17.5,
+     "kind": "computed"
+    },
+    {
+     "label": "At 4.80 km: resonance spacing, kHz",
+     "value": 17.5,
+     "kind": "computed"
+    },
+    {
+     "label": "At 4.80 km: first dip, kHz",
+     "value": 8.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Cable's own impedance, matched line (practice value), Ω",
+     "value": 27.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Change slider: from, m",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Change slider: to, m",
+     "value": 2300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Change slider: step, m",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Change slider opens at L2's spot (practice value), m",
+     "value": 961,
+     "kind": "control"
+    },
+    {
+     "label": "DNORM for water or damage (practice value), dB",
+     "value": -18,
+     "kind": "assumed"
+    },
+    {
+     "label": "DNORM for a shield break or bend (picture only), dB",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Colour band: green under, dB (practice value)",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Colour band: red above, dB (practice value)",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "At 100 m: round trip, µs",
+     "value": 1.19,
+     "kind": "computed"
+    },
+    {
+     "label": "At 100 m: ripple repeats every, kHz",
+     "value": 840,
+     "kind": "computed"
+    },
+    {
+     "label": "At 961 m: round trip, µs",
+     "value": 11.44,
+     "kind": "computed"
+    },
+    {
+     "label": "At 961 m: ripple repeats every, kHz",
+     "value": 87.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1441 m: round trip, µs",
+     "value": 17.15,
+     "kind": "computed"
+    },
+    {
+     "label": "At 1441 m: ripple repeats every, kHz",
+     "value": 58.3,
+     "kind": "computed"
+    },
+    {
+     "label": "At 2300 m: round trip, µs",
+     "value": 27.38,
+     "kind": "computed"
+    },
+    {
+     "label": "At 2300 m: ripple repeats every, kHz",
+     "value": 36.5,
+     "kind": "computed"
+    },
+    {
+     "label": "TDR's peak time for L2's fault, µs",
+     "value": 11.43,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: ripple period (practice value), kHz",
+     "value": 87.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: round trip, µs",
+     "value": 11.44,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: distance from the OSS, m",
+     "value": 961,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: gap to TDR, m",
+     "value": 0.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Lines in the worked example",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Part 7a: resonance spacing, kHz",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 7a slip: v ÷ L, kHz",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 7a slip: first dip, kHz",
+     "value": 17.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 7a slip: default 160 m/µs, kHz",
+     "value": 33.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Default velocity, m/µs",
+     "value": 160,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length back from the spacing, m",
+     "value": 2400,
+     "kind": "computed"
+    },
+    {
+     "label": "LIRA spot from the OSS (practice value), m",
+     "value": 961,
+     "kind": "assumed"
+    },
+    {
+     "label": "LIRA spot from B01 (practice value), m",
+     "value": 1441,
+     "kind": "assumed"
+    },
+    {
+     "label": "Part 7b: B01 reading from the OSS, m",
+     "value": 959,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 7b slip: B01 distance as it stands, m",
+     "value": 1441,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 7b slip: the two added, m",
+     "value": 3841,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap between the two LIRA readings, m",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "LIRA place accuracy, % of the length",
+     "value": 0.5,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "LIRA place accuracy on String B, m",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Section B: points, of which all make a full answer",
+     "value": "3, all 3",
+     "kind": "constant"
+    },
+    {
+     "label": "Changed numbers: velocity (practice value), m/µs",
+     "value": 168,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: resonance spacing (practice value), kHz",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: length, m",
+     "value": 3360,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: v ÷ Δf, m",
+     "value": 6720,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: divided by 4, m",
+     "value": 1680,
+     "kind": "computed"
+    },
+    {
+     "label": "Core resistance: L2 from factory at 20 °C, %",
+     "value": 0.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Core resistance tolerance, %",
+     "value": 2,
+     "kind": "constant"
+    },
+    {
+     "label": "IR test voltage (practice value), kV",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "L2 IR at 1 minute (practice value), GΩ",
+     "value": 2.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Client's IR figure (practice value), GΩ",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "L2 polarisation index",
+     "value": 1.09,
+     "kind": "computed"
+    },
+    {
+     "label": "L2 dielectric absorption ratio",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Sheath: L2 tripped at (practice value), kV",
+     "value": 3.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sheath test voltage held by L1 and L3, kV",
+     "value": 8.8,
+     "kind": "computed"
+    },
+    {
+     "label": "VLF test voltage, kV",
+     "value": 76,
+     "kind": "computed"
+    },
+    {
+     "label": "VLF frequency, Hz",
+     "value": 0.1,
+     "kind": "constant"
+    },
+    {
+     "label": "VLF breakdown at minute (practice value)",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "L2 core to screen after breakdown (practice value), Ω",
+     "value": 35,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tests per cable",
+     "value": 18,
+     "kind": "constant"
+    },
+    {
+     "label": "Keep this: pairs, each tested from both ends, in one way to reach 18 (practice value)",
+     "value": 9,
+     "kind": "assumed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "LIRA treats the cable as a line, as a TDR does. Wherever the impedance changes, part of a signal comes back. But LIRA reads the echoes in frequency, not in time. It sweeps thousands of small sine waves into one end. It records the cable's impedance at each frequency. That record is the cable's [[impedance spectrum]]. Every change along the cable leaves its mark on it.\n\nStart with a healthy core with its far end open. At low frequency, the core and screen are just a capacitor. So the impedance starts high and falls as the frequency rises. As the frequency climbs, each wave reaches the far end and comes back. Where a quarter wavelength fits the cable, the trip there and back is half a wavelength. It comes back upside down and cancels the wave going in. So the impedance dips. Where half a wavelength fits, the wave arrives back in step. Then the impedance peaks. Each extra half wavelength repeats the pattern. So the dips come every v ÷ 2L. A longer cable's resonances sit closer together. A far end matched exactly to the cable sends nothing back. Then there are no resonances.\n\nNow add a short length, x metres along, where water has got into the insulation. Water raises the permittivity. So the capacitance there rises, and the impedance falls. A little of each wave reflects from it. The echo comes back after a round trip of 2x ÷ v. It is late, so it slips in and out of step with the main signal as the frequency rises. It comes back in step every time the frequency rises by v ÷ 2x. So it puts a ripple on the spectrum with that spacing. LIRA's software turns each ripple back into a round trip. Then it turns the round trip into a place, with the TDR rule L = t × v ÷ 2. The result is the [[spot signature]]. Each spot is graded by [[DNORM]]. Its sign follows the type of change, and its colour gives the severity. This picture is simplified. Real cable loss rounds off the resonances. And the real software reads the phase of the impedance, which can show small changes better. On String B, LIRA confirms TDR's fault from both ends. The healthy cores' traces become the baseline for later years.\n\n**A cable's resonances come every v ÷ 2L. A local change adds a ripple every v ÷ 2x. LIRA turns that ripple into a spot x metres along.**[^5]"
+  },
+  "analogy": {
+   "text": "A guitar string rings at a set of evenly spaced notes. It gets one for each extra half wavelength that fits along it. A longer string's notes sit closer together. A cable fed at one end does the same. Its resonances come every v ÷ 2L.",
+   "breaks": "One pluck sounds many of a string's notes at once. LIRA drives the cable one frequency at a time and measures its impedance at each. And your ear cannot tell where along a string a nick is. LIRA's software turns the ripple from a local change into a place."
+  },
+  "practice": {
+   "text": "- Make it safe first. Earth and discharge both ends, so no energy is stored in the cable. Put a technician at each end, and talk before every change.\n- Connect the leads with the earths still on, as the test specification says. For example, core to screen.\n- Then lift the earths on the pair under test, under control. The far end lifts its earth too, so that end is open.\n- Set the software for the cable's length and type, then run the sweep.\n- Check the length. Work out L = v ÷ 2Δf from the resonance spacing. It should match the route record.\n- Read the spot signature. Find the end and the joints first, at their known places. Then look for spots, their sign and their colour.\n- Test from the other end too, for the best sensitivity.[^4] Measured from the same end, the two places should agree.\n- Keep the raw trace data with the report. There is no pass or fail. Compare each test with the baseline.\n- When you finish, put the earths back on at both ends.\n\n**Rule of thumb:** resonances every v ÷ 2L. A spot x metres away adds a ripple every v ÷ 2x.\n\n**Rule of thumb:** a negative DNORM points to water, heat or mechanical damage. A positive one points to bends and shield breaks.\n\n**Worked example:** take String B's practice values, 168.0 m/µs over 2400 m. The resonances come 168.0 × 10⁶ ÷ (2 × 2400) = 35 000 Hz = 35.0 kHz apart. LIRA from the OSS puts L2's spot at 961 m. From B01 it is at 1441 m. That is 2400 − 1441 = 959 m from the OSS. TDR said 960.1 m.\n\n**Common mistakes**\n- Testing from one end only.\n- Handing over a report with no raw trace data.\n- Reading a positive spot as water. Positive points to bends and shield breaks.\n- Expecting a pass or fail. Compare with the baseline.\n- Reading the B01 distance as if it were from the OSS: 1441 m instead of 959 m.\n- Taking a joint for a fault. Know the joints' places from the baseline."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain what LIRA measures, and why it needs only one end.",
+    "points": [
+     {
+      "text": "It sweeps many frequencies into two metal conductors, such as a core and its screen. It measures where the impedance between them changes.",
+      "cite": "Notes p.5; Physics-based modelling of cable insulation for FDR, INL (research)"
+     },
+     {
+      "text": "Water or damage changes the insulation's permittivity, and that changes the impedance where it happens.",
+      "cite": "Notes p.5"
+     },
+     {
+      "text": "Each wave travels to the far end and reflects back to the end it was sent from. So the set needs only that end.",
+      "cite": "Notes p.5; Wirescan white paper WP01, LIRA basics (research)"
+     }
+    ],
+    "need": 3,
+    "model": "LIRA measures where the impedance changes between two metal conductors, such as a core and its screen. It sweeps many frequencies into the pair and records the impedance at each. With the far end not matched, the cable resonates at frequencies set by its length and velocity. Water or damage changes the insulation's permittivity. That changes the impedance at that spot and adds a ripple to the spectrum. Each wave travels to the far end and reflects back to the end it was sent from. So the set needs only one end. In practice it is still tested from both ends, for the best sensitivity and to confirm where a spot is."
+   }
+  },
+  "summary": {
+   "title": "LIRA",
+   "for": "Condition and place, from one end. It finds the length, the joints, and water or damage along the cable. At commissioning, it sets the baseline for later years.",
+   "rule": "Δf = v ÷ 2L\nL = v ÷ 2Δf\nA spot x metres away: a round trip of 2x ÷ v, a ripple every v ÷ 2x\n\nDead cable: both ends earthed and discharged first.\nOne end is enough. Test from both, for sensitivity and to confirm.\nDNORM negative: water, heat or mechanical damage. Positive: bends, shield breaks.\nGreen mild, amber intermediate, red significant.\nNo acceptance criteria: compare with the baseline. Keep the raw trace.\n18 tests a cable, as the test specification sets.\nOne way to reach 18: core to screen, core to core and core to armour. That is 9 pairs, each from both ends.\nOnline monitoring of energised cables: up to 33 kV.",
+   "traps": [
+    {
+     "text": "Testing from one end only.",
+     "cite": "Notes p.6; EA Technology, Cable line resonance analysis (research)"
+    },
+    {
+     "text": "A report with no raw trace data.",
+     "cite": "Notes p.6"
+    },
+    {
+     "text": "Reading a positive spot as water. Positive points to bends and shield breaks.",
+     "cite": "Notes p.6"
+    },
+    {
+     "text": "Expecting a pass or fail. Compare with the baseline.",
+     "cite": "Notes p.6; EA Technology, Cable line resonance analysis (research)"
+    },
+    {
+     "text": "Reading a B01 distance as if it were from the OSS: 1441 m, not 959 m.",
+     "cite": "Notes p.6 (bi-directional testing); String B case, part 7b"
+    }
+   ],
+   "where": "At commissioning, on every core from both ends, as the baseline. Then at set intervals, and after a fault to confirm where it is.",
+   "figures": [
+    "7a",
+    "7b"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "US20090228222A1 - Line Resonance Analysis System",
+    "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222",
+    "quote": "vr=2L(fk+1−fk)/v0"
+   },
+   {
+    "n": 2,
+    "title": "[PDF] Physics-Based Modeling of Cable Insulation Conditions for Frequency ...",
+    "url": "https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf",
+    "quote": "Since the LIRA technique is based on line resonances that exist along the cable length, it is compatible with an arbitrary termination condition except for an exact match to the cable impedance."
+   },
+   {
+    "n": 3,
+    "title": "US20090228222A1 - Line Resonance Analysis System",
+    "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222",
+    "quote": "LIRA can estimate the location of the challenged part with an estimation error within 0.5% of the cable length."
+   },
+   {
+    "n": 4,
+    "title": "Cable Line Resonance Analysis (LIRA) | EA Technology Americas",
+    "url": "https://eatechnology.com/americas/services/condition-assessment/cable-condition-assessment/cable-line-resonance-analysis-lira/?utm_source=chatgpt.com",
+    "quote": "For the highest sensitivity, testing from both ends of a cable is recommended to overcome some signal loss across multiple impedance changes, although this is not a necessity."
+   },
+   {
+    "n": 5,
+    "title": "LIRA Technology Cable Condition Assessment and ...",
+    "url": "https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf",
+    "quote": "The resonance frequencies are used to determine the cable length while deviations in the phase spectrum is used to determine the overall condition of the cable and identify joints and degradations along the cable."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #prog .k-label, #prog .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .why, .pre { line-height: 1.6; }\n  .warn-note .wh { font-weight: 700; }\n  .warn-note p + p { margin-top: 6px; }\n  .ctl { display: grid; gap: 12px; }\n  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }\n  .carry .k-cr-value { grid-column: 2; grid-row: 2; }\n  .scene { display: block; width: 100%; }\n  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .scene .cur { stroke: var(--k-accent2); stroke-width: 1.6; fill: none; stroke-linejoin: round; }\n  .scene .cur.thin { stroke-width: 1.1; }\n  .scene .res { stroke: var(--k-muted); stroke-width: 1; fill: none; stroke-linejoin: round; }\n  .scene .ghost { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 4 3; fill: none; }\n  .scene .rip { stroke: var(--k-accent2); stroke-width: 2.4; fill: none; stroke-linejoin: round; }\n  .scene .cu { fill: var(--k-accent); fill-opacity: .16; }\n  .scene .br { stroke: var(--k-muted); stroke-width: 1.2; fill: none; }\n  .scene .brk { stroke: var(--k-accent2); stroke-width: 1.6; fill: none; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }\n  .scene .ddot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .scr { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .cond { stroke: var(--k-ink); stroke-width: 3; fill: none; }\n  .scene .jt { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .set { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.4; }\n  .scene .lead { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }\n  .scene .ldot { fill: var(--k-ink); }\n  .scene .term { fill: var(--k-accent); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .wave { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; }\n  .scene .fmark { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .trip { stroke: var(--k-accent2); stroke-width: 1.8; fill: none; }\n  .scene .head { fill: var(--k-accent2); }\n  .scene .hnd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; cursor: grab; }\n  .scene .endl { stroke: var(--k-ink); stroke-width: 2.5; }\n  .scene .jline { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .bg-g { fill: var(--k-good); fill-opacity: .12; }\n  .scene .bg-a { fill: var(--k-amber-line); fill-opacity: .16; }\n  .scene .bg-r { fill: var(--k-warn); fill-opacity: .1; }\n  .scene .base { stroke: var(--k-strong); stroke-width: 1; }\n  .scene .mk-l { stroke: var(--k-warn); stroke-width: 2.5; }\n  .scene .mk-t { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .jobs { display: grid; gap: 8px; }\n  .jr { display: flex; flex-wrap: wrap; gap: 2px 12px; padding: 8px 10px; border: 1px solid var(--k-line); border-radius: 10px; background: var(--k-panel); line-height: 1.45; }\n  .jr b { flex: 0 0 8rem; }\n  .jr span { flex: 1 1 11rem; min-width: 0; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .line + .line { margin-top: 10px; }\n  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }\n  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div class=\"carry\" id=\"carry7a\"></div>\n    <div class=\"carry\" id=\"carry7b\"></div>\n    <div class=\"pre\" id=\"pre\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n\n    <div id=\"wrapM\"><svg class=\"scene\" id=\"msvg\" viewBox=\"0 0 340 156\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"warn-note\" id=\"warnFor\"></div>\n    <p class=\"caption\" id=\"capM\"></p>\n\n    <div id=\"wrapS\"><p class=\"k-label\" id=\"titS\"></p><svg class=\"scene\" id=\"ssvg\" viewBox=\"0 0 340 380\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlS\"></div>\n    <div class=\"k-readouts\" id=\"outsS\"></div>\n    <p class=\"say\" id=\"sayS\"></p>\n    <p class=\"caption\" id=\"capS\"></p>\n\n    <div id=\"wrapP\"><p class=\"k-label\" id=\"titP\"></p><svg class=\"scene\" id=\"psvg\" viewBox=\"0 0 340 440\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlP\"></div>\n    <div class=\"k-readouts\" id=\"outsP\"></div>\n    <p class=\"say\" id=\"sayP\"></p>\n    <div class=\"why\" id=\"whyP\"></div>\n    <p class=\"caption\" id=\"capP\"></p>\n\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-7a\"></div>\n    <div id=\"ans-7b\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div id=\"wrapF\"><svg class=\"scene\" id=\"fsvg\" viewBox=\"0 0 340 142\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"job\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, helpers and the course's figures ----------\n  const rnd = (x, d) => { const k = Math.pow(10, d); return Math.sign(x) * Math.round(Math.abs(x) * k + 1e-7) / k; };\n  const r1 = (x) => rnd(x, 1), r2 = (x) => rnd(x, 2);\n  const f1 = (x) => r1(x).toFixed(1);\n  const f2 = (x) => r2(x).toFixed(2);\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const NB = ' ';\n  // Non-breaking spaces: before an operator, inside a number's thousands, and between a number and its unit.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=−]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=\\d{3}\\b)/g, '$1' + NB)\n    .replace(/(\\d) (?=(?:m\\/µs|µs|µF|kV|km|kHz|MHz|Hz|GΩ|Ω|dB|°C|m|V)(?![A-Za-z]))/g, '$1' + NB);\n  const str = (s, re) => { const m = re.exec(String(s || '')); return m ? m[1] : ''; };\n  const fx = (v) => (+v).toFixed(1);\n  function txt(parent, x, y, s, cls, anchor) {\n    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));\n    t.textContent = s;\n    return t;\n  }\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n  const kHz1 = (v) => (typeof v === 'number' && isFinite(v) ? f1(v) + ' kHz' : '—');\n\n  // String B, L2 and its tests, from the case file.\n  const fLen = F('p.len'), LEN_KM = fLen.value, LEN_M = Math.round(LEN_KM * 1000);\n  const fJoint = F('p.joint'), JOINT = fJoint.value;\n  const fTF = F('p.tFault');\n  const fZ0 = F('p.Z0'), Z0 = fZ0.value;\n  const f6b = F('6b'), V_B = F('6a').value, V_B_S = V_B.toFixed(1), VS = V_B * 1e6;\n  const fOSS = F('p.liraOSS'), SPOT_OSS = fOSS.value, SPOT_B01 = F('p.liraB01').value;\n  const DNS = F('p.dnormScale').text;\n  const DN = +String(str(DNS, /reads ([−-]?\\d+) dB/)).replace('−', '-');\n  const G_LO = +str(DNS, /under (\\d+) dB/), R_HI = +str(DNS, /above (\\d+) dB/);\n  const F_MAX_S = str(F('p.liraSweep').text, /to ([\\d.]+) MHz/), F_MAX = +F_MAX_S * 1e6;\n  const ONLINE = F('n.liraOnline').value;\n  const ACC_PCT = +str(F('t.liraAcc').text, /([\\d.]+)%/);\n  const f7a = F('7a'), f7b = F('7b'), fLenChk = F('l7.lenCheck'), fSpread = F('l7.spread'), fAcc = F('l7.accuracy');\n  const fRipO = F('l7.rippleOSS'), fWt = F('l7.wex.t'), fWx = F('l7.wex.x'), fWd = F('l7.wex.diff');\n  const RIP_HZ = str(fWt.work, /÷ ([\\d ]+) =/), RIP_N = +RIP_HZ.replace(/ /g, '');\n  const fChg = F('l7.changed'), CH_V = +str(fChg.work, /^([\\d.]+)/), CH_DF_HZ = +str(fChg.work, /\\(2 × ([\\d ]+)\\)/).replace(/ /g, '');\n  const CH_DF = (CH_DF_HZ / 1000).toFixed(1);\n  const V_DEF = +str(F('7a.slip2').work, /^([\\d.]+)/);\n  const W7B = String(f7b.work).split(';')[0];\n  const ABOUT = Math.round(f6b.value / 10) * 10;\n  // The picture's ranges, from the lesson: 1.20 to 4.80 km, a change from 100 to 2300 m, a close-up of 0 to 150 kHz.\n  const L_MIN = 1.2, L_MAX = 4.8, X_MIN = 100, X_MAX = 2300, CU_MAX = 150e3;\n\n  // ---------- the rule ----------\n  // Resonances of a line open at the far end: dips every v ÷ 2L, the first where a quarter wavelength fits.\n  const spacing = (Lm) => VS / (2 * Lm) / 1000;\n  const firstDip = (Lm) => VS / (4 * Lm) / 1000;\n  // A change x metres along: an echo after 2x ÷ v, which ripples the spectrum every v ÷ 2x.\n  const roundTrip = (x) => 2 * x / V_B;\n  const ripple = (x) => VS / (2 * x) / 1000;\n  // The drawn spectrum: |Z0 coth(γL)| with a little loss growing as √f to round it off (a sketch).\n  const KL = 0.03, RIPA = 0.4;\n  function zOpen(f, Lm) {\n    if (!(f > 0)) return 1e6;\n    const b = 2 * Math.PI * f * Lm / VS, a = KL * Math.sqrt(b);\n    const den = Math.cosh(2 * a) - Math.cos(2 * b), num = Math.hypot(Math.sinh(2 * a), Math.sin(2 * b));\n    return den > 1e-12 ? Z0 * num / den : 1e6;\n  }\n  const zMatched = () => Z0;\n  const band = (dn) => (Math.abs(dn) < G_LO ? 'g' : Math.abs(dn) <= R_HI ? 'a' : 'r');\n  const BAND_WORD = { g: 'mild', a: 'intermediate', r: 'significant' };\n  const BAND_FILL = { g: 'var(--k-good)', a: 'var(--k-amber-line)', r: 'var(--k-warn)' };\n  const dnTxt = (v) => (v > 0 ? '+' : '−') + Math.abs(v) + ' dB';\n\n  // ---------- the lesson's words ----------\n  const R_TASK = 'A LIRA spot signature shows a spot with a negative DNORM, in red. What could it be?';\n  const O1 = 'A bend, or a break in the shield', O2 = 'Water getting in, or heat or mechanical damage: significant', O3 = 'Water getting in, or heat or mechanical damage: mild';\n  const R_WORK = 'Negative points to water getting in, heat damage or mechanical damage. Positive points to bends and breaks in the shield. Red means significant, amber intermediate and green mild.';\n  const R_W1 = 'Bends and shield breaks give a positive DNORM. Negative points to water, heat or mechanical damage.';\n  const R_W3 = 'The type is right. But red means significant. Green is mild and amber intermediate.';\n\n  const FOR_TEXT = 'LIRA sends a sweep of small sine waves into one pair of conductors at one end. It records the cable\\'s impedance at each frequency. '\n    + 'From that record, it finds where the impedance changes between any two metal conductors. That can be a core and its screen, two cores, or a core and the armour. '\n    + 'It gives the length, the joints, and where water or dirt has got in. Each wave runs to the far end and back to the set. So it needs only one end.\\n\\n'\n    + 'It is used around loadout, during installation, at commissioning, and in service at set intervals. The commissioning record is the cable\\'s baseline. '\n    + 'LIRA gives no pass or fail. You compare each test with the baseline. So always keep the raw trace data.\\n\\n'\n    + 'Some systems also monitor energised cables, up to ' + ONLINE + ' kV, through sensors that do not touch the core. '\n    + 'String B runs at 66 kV, above that. So it is tested dead. Both ends are earthed and discharged first, so no energy is stored in the cable.';\n  const WARN_FOR = \"Skip it, and there is no baseline to compare with in later years. And L2's fault rests on one test, from one end.\";\n\n  const WHY_S = 'Take one core and its screen, with the far end open. At low frequency the pair is just a capacitor. Its reactance is 1 ÷ 2πfC. '\n    + 'It starts high and falls as the frequency rises.\\n\\n'\n    + 'As the frequency climbs, each wave reaches the far end and comes back. '\n    + 'Where a quarter wavelength fits the cable, the trip there and back is half a wavelength. So it comes back upside down and cancels the wave going in. '\n    + 'At the test end, the cable looks like a short, and the impedance dips. '\n    + 'Where half a wavelength fits, the round trip is a whole wavelength. The wave arrives back in step. The cable looks like an open, and the impedance peaks.\\n\\n'\n    + 'Each extra half wavelength repeats the pattern. So the dips come every v ÷ 2L, where v is the velocity and L the length. '\n    + 'A longer cable fits more half wavelengths into the same band. So its resonances crowd together.\\n\\n'\n    + \"This record of impedance against frequency is the cable's impedance spectrum. \"\n    + 'An end matched exactly to the cable soaks up every wave, so nothing comes back and there are no resonances.';\n  const READ_S = 'At ' + LEN_KM.toFixed(2) + ' km the dips sit ' + kHz1(spacing(LEN_M)) + ' apart. The first is at ' + kHz1(firstDip(LEN_M)) + '. '\n    + 'At ' + L_MIN.toFixed(2) + ' km they spread to ' + F('l7.pic.df12').text + ' apart. At ' + L_MAX.toFixed(2) + ' km they crowd to ' + F('l7.pic.df48').text + '. '\n    + 'With the end matched, no wave comes back. So the line goes flat at ' + fZ0.text + '.';\n\n  const WHY_P = 'Now give the core a short length of damaged insulation. Water raises the permittivity, so the capacitance there rises. '\n    + 'The impedance is the square root of L ÷ C per metre. So it falls. A little of each wave reflects from that spot, as a TDR pulse does. '\n    + \"Call the spot's distance x. The echo comes back after a round trip of 2x ÷ v. The echo is late. \"\n    + 'So it slips in and out of step with the main signal as the frequency rises. In step, it adds. Out of step, it takes away. '\n    + 'So it puts a small ripple on the spectrum. It comes back in step each time the frequency rises by 1 ÷ round trip. That is v ÷ 2x. '\n    + \"So a nearer spot makes a wider ripple. LIRA's software turns each ripple back into a round trip. \"\n    + 'Then it turns each round trip into a place with the TDR rule again, L = t × v ÷ 2. The result is the spot signature. '\n    + 'It lays the cable out by distance, with its end, its joints and any spots. '\n    + 'The software works on the phase of the impedance. The phase can show small changes better.';\n  const WHY_P2 = 'Each spot is graded by DNORM. Its sign follows the type of change. Negative means water, heat or mechanical damage. '\n    + 'Positive means bends and shield breaks. Its colour gives the severity. Green is mild, amber intermediate and red significant.\\n\\n'\n    + 'The bands here are practice values. On a real job they are a software or client setting.';\n  const READ_P = 'At ' + SPOT_OSS + ' m the round trip is ' + F('l7.pic.t961').text + \". That is close to TDR's \" + fTF.text + '. '\n    + 'The ripple repeats every ' + fRipO.text + '. At ' + X_MIN + ' m the arrow is short. The ripple is wide, every ' + F('l7.pic.r100').text + '. '\n    + 'At ' + X_MAX + ' m it tightens to every ' + F('l7.pic.r2300').text + '. The spot follows the change along the cable. '\n    + 'Switched to a shield break, the bar flips above the line in the same place.';\n\n  const C_TASK = \"From the OSS, a second spot shows nearer the set than L2's spot at \" + SPOT_OSS + ' m. How does its ripple in the spectrum compare?';\n  const C_O1 = 'Wider: more kHz between its crests', C_O2 = 'Tighter: fewer kHz between its crests', C_O3 = \"The same: the cable's length sets it\";\n  const C_RIGHT = 'The echo from a nearer spot comes back sooner. The ripple repeats every v ÷ 2x. So a smaller x gives a wider ripple. '\n    + 'At ' + X_MIN + ' m it repeats every ' + F('l7.pic.r100').text + ', against ' + fRipO.text + ' at ' + SPOT_OSS + ' m.';\n  const C_W2 = \"That is a spot farther away. A nearer spot's echo comes back sooner. So its ripple is wider.\";\n  const C_W3 = 'The length sets the resonances, every v ÷ 2L. Each spot adds its own ripple, every v ÷ 2x. Its own distance sets it.';\n\n  const WK_HEAD = 'Take these practice values. LIRA runs from the OSS on L2. The software finds a ripple that repeats every ' + fRipO.text + '. Where is the change that makes it?';\n  const WL = [\n    { w: 'Set up on the dead cable, earthed and discharged at both ends. Connect the leads core to screen, as the test specification says, with the earths still on. '\n      + \"Then lift L2's earth at your end under control. The B01 technician lifts L2's earth there, so its far end is open.\" },\n    { w: 'The rule: a ripple that repeats every Δ in frequency comes from an echo with a round trip of 1 ÷ Δ.', calc: true },\n    { w: 't = 1 ÷ ' + RIP_HZ + ' Hz = ' + fWt.text + '.', calc: true },\n    { w: 'Then the TDR rule: L = t × v ÷ 2.', calc: true },\n    { w: 'L = ' + fWx.work + ' from the OSS.', calc: true },\n    { w: 'TDR put the fault at ' + f6b.text + '. The two agree within ' + fWd.text + '.' },\n    { w: 'When you finish, put the earths back on at both ends.' },\n  ];\n  const WK_READ = 'A ripple every ' + fRipO.text + ' means an echo with a round trip of ' + fWt.text + '. At ' + V_B_S + ' m/µs, that is '\n    + fWx.work + ' from the OSS. That is within ' + fWd.text + \" of TDR's \" + f6b.text + '.';\n\n  const PRE_7A = 'String B is earthed and discharged at both ends. At the OSS, the leads go on L2, core to screen, with the earths still on. '\n    + \"Then you lift L2's earth at the OSS under control. The B01 technician lifts L2's earth there, so its far end is open. \"\n    + 'The sweep runs from 0 to ' + F_MAX_S + ' MHz.';\n  const Q7A = \"(a) Determine the spacing of the resonances in L2's impedance spectrum.\";\n  const PRE_7B = \"From the OSS, L2's spot signature shows one spot at \" + SPOT_OSS + ' m, DNORM negative and red. '\n    + 'The B01 team then tests L2 from their end. Their spot is at ' + SPOT_B01 + ' m, also negative and red.';\n  const Q7B = '(b) Determine where the B01 reading puts the spot, measured from the OSS.';\n  const Q_CH = 'Another cable, open at the far end. Its velocity is ' + CH_V + ' m/µs, and its resonances are ' + CH_DF + ' kHz apart. Determine its length.';\n  const AFTER_7B = 'Three readings point to one place: ' + SPOT_OSS + ' m, ' + f7b.text + \" and TDR's \" + f6b.text + '. '\n    + 'The two LIRA readings are ' + fSpread.text + ' apart. LIRA can place a spot within ' + ACC_PCT + '% of the length. On String B, that is ' + fAcc.work + '. '\n    + 'Testing from both ends gives the best sensitivity. Two ends that agree confirm the place.\\n\\n'\n    + 'Negative and red means a significant change, the kind that water, heat or mechanical damage makes. '\n    + 'L1 and L3 show the end and the joint, but no spots. Keep their traces as their baseline. '\n    + 'Record L2: one significant negative spot about ' + ABOUT + ' m from the OSS.';\n\n  const JOB = [\n    ['Core resistance', F('2c').text + ' at 20 °C, inside ' + F('n.tol').value + '%.'],\n    ['IR at ' + F('p.irV').value + ' kV', F('p.ir2.1m').text + \" at 1 minute passes the client's \" + F('p.irCrit').value + ' GΩ. But PI ' + F('3b').text + ' and DAR ' + F('l3.L2.DAR').text + ' show a flat curve.'],\n    ['Sheath', 'Tripped at ' + str(F('p.sheathL2').text, /at ([\\d.]+ kV)/) + ', where L1 and L3 held ' + F('4a').text + '.'],\n    ['VLF at ' + F('5a').text + ', ' + str(F('n.vlfF').text, /^([\\d.]+ Hz)/), 'Broke down at minute ' + str(F('p.vlfL2').text, /minute (\\d+)/) + ', then read ' + F('p.Rf').text + ' core to screen.'],\n    ['TDR from the OSS', 'A downward peak at ' + f6b.text + '.'],\n    ['LIRA from both ends', 'One negative red spot, ' + SPOT_OSS + ' m and ' + f7b.text + ' from the OSS.'],\n  ];\n  const JOB_TEXT = 'Gentle, low-voltage checks come first. The withstand test, which can break a weak cable down, comes near the end. '\n    + 'The LIRA baseline comes last, so it records each healthy core as it goes into service. '\n    + 'On a real job you would stop and report after the sheath failed. Here the VLF test ran anyway, so one fault shows in five tests.';\n\n  let lines = 0, lastStep = -1, finished = false, waveT = 0, waveKey = '', extL = 0;\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['baseline'],\n      still: () => { waveT = WAVE_END; drawWave(); } },\n    { show: true, name: 'The why: the cable rings', label: 'The why: the cable rings', text: WHY_S, terms: ['impedance spectrum'],\n      read: WHY_S.split('\\n\\n').join(' ') + ' ' + READ_S,\n      still: () => { extL = Math.round(L_MAX * 1000); farCtl.set('open'); lenCtl.set(LEN_KM); K.refresh(); } },\n    { show: true, name: 'The why: a change becomes a spot', label: 'The why: a change becomes a spot', text: WHY_P, terms: ['spot signature'],\n      read: WHY_P + ' ' + WHY_P2.split('\\n\\n').join(' ') + ' ' + READ_P, still: { x: SPOT_OSS, kind: 'water' } },\n    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },\n    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },\n    { name: 'Section A 7(a)', label: 'Section A · Question 7', pre: PRE_7A, part: Q7A, task: PRE_7A + ' ' + Q7A, want: f7a.text,\n      why: 'Δf = v ÷ 2L = ' + f7a.work + '.' },\n    { name: 'Section A 7(b)', label: 'Section A · Question 7', pre: PRE_7B, part: Q7B, task: PRE_7B + ' ' + Q7B, want: f7b.text,\n      why: 'From the OSS = ' + W7B + '. ' + AFTER_7B.replace('\\n\\n', ' ') },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: 'L = v ÷ 2Δf = ' + fChg.work + '.' },\n    { show: true, name: 'The job, end to end', label: 'The job, end to end', text: \"String B's tests on L2, in the order they ran.\" },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iRing = 2, iSpot = 3, iChk = 4, iWk = 5, i7A = 6, i7B = 7, iB1 = 8, iCh = 9, iJob = 10, iK = 11;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iWk, i7A, i7B, iCh];\n\n  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at0 = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });\n      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }\n      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at0 + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls, readouts and the model ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const lenCtl = K.control({ id: 'L', label: 'Length', min: L_MIN, max: L_MAX, step: 0.1, value: LEN_KM, fmt: (v) => (+v).toFixed(2) + ' km', snap: [L_MIN, LEN_KM, L_MAX], into: '#ctlS' });\n  const farCtl = K.choice({ id: 'far', label: 'Far end', options: [{ value: 'open', label: 'Open' }, { value: 'matched', label: 'Matched' }], value: 'open', into: '#ctlS' });\n  K.readout({ id: 'sp', label: 'Resonance spacing', fmt: kHz1, into: '#outsS' });\n  K.readout({ id: 'dip', label: 'First dip', fmt: kHz1, into: '#outsS' });\n  K.control({ id: 'x', label: 'Change at', min: X_MIN, max: X_MAX, step: 1, value: SPOT_OSS, fmt: (v) => Math.round(v) + ' m', snap: [X_MIN, SPOT_OSS, SPOT_B01, X_MAX], into: '#ctlP' });\n  K.choice({ id: 'kind', label: 'Type of change', options: [{ value: 'water', label: 'Water or damage' }, { value: 'break', label: 'Shield break or bend' }], value: 'water', into: '#ctlP' });\n  K.readout({ id: 'rt', label: 'Round trip', fmt: (v) => f2(v) + ' µs', into: '#outsP' });\n  K.readout({ id: 'rip', label: 'Ripple repeats every', fmt: kHz1, into: '#outsP' });\n  K.readout({ id: 'dn', label: 'DNORM', fmt: dnTxt, into: '#outsP' });\n\n  K.model((p) => {\n    const Lm = Math.round(+p.L * 1000), open = p.far !== 'matched', x = Math.round(+p.x);\n    return { sp: open ? spacing(Lm) : '—', dip: open ? firstDip(Lm) : '—', rt: roundTrip(x), rip: ripple(x), dn: p.kind === 'break' ? -DN : DN };\n  });\n\n  // ---------- what it is for: String B's L2, the LIRA set at the OSS, TDR's fault ----------\n  const mEl = el('msvg');\n  const M_ = (tag, a) => mEl.appendChild(K.svg(tag, a));\n  const CX0 = 100, CX1 = 330, XJ = CX0 + JOINT / LEN_M * (CX1 - CX0), XF = CX0 + f6b.value / LEN_M * (CX1 - CX0);\n  txt(mEl, 6, 14, 'on L2: core to screen', 'tk');\n  txt(mEl, XF, 30, 'TDR: fault', 'lb', 'middle');\n  txt(mEl, XF, 44, f6b.text, 'tk', 'middle');\n  M_('rect', { class: 'set', x: 6, y: 50, width: 46, height: 30, rx: 6 });\n  txt(mEl, 29, 70, 'LIRA', 'lb', 'middle');\n  M_('rect', { class: 'scr', x: CX0, y: 52, width: CX1 - CX0, height: 24 });\n  M_('rect', { class: 'jt', x: fx(XJ - 7), y: 47, width: 14, height: 34, rx: 4 });\n  M_('path', { class: 'cond', d: 'M86 64H' + CX1 });\n  M_('path', { class: 'lead', d: 'M52 58C70 58 72 64 86 64' });\n  M_('path', { class: 'lead', d: 'M52 74C72 74 82 72 100 72' });\n  M_('circle', { class: 'ldot', cx: 86, cy: 64, r: 2.5 });\n  M_('circle', { class: 'ldot', cx: 100, cy: 72, r: 2.5 });\n  M_('circle', { class: 'fmark', cx: fx(XF), cy: 64, r: 6 });\n  const waveP = M_('path', { class: 'wave', d: 'M-12 0q3 -7 6 0t6 0t6 0t6 0', opacity: 0, transform: 'translate(112 64)' });\n  txt(mEl, 29, 98, 'OSS', 'lb', 'middle');\n  txt(mEl, CX1, 98, 'B01', 'lb', 'end');\n  txt(mEl, XJ, 98, 'field joint', 'lb', 'middle');\n  txt(mEl, XJ, 114, fJoint.text, 'tk', 'middle');\n  M_('path', { class: 'br', d: 'M' + CX0 + ' 126V132H' + CX1 + 'V126' });\n  txt(mEl, (CX0 + CX1) / 2, 148, fLen.text, 'lb', 'middle');\n  mEl.setAttribute('aria-label', \"String B's L2 from the OSS to B01, \" + fLen.text + '. A LIRA set at the OSS end, its leads on the core and the screen. '\n    + 'The field joint at ' + fJoint.text + \". A mark at \" + f6b.text + \" shows TDR's fault. A small sine wave runs out to B01 and back.\");\n  const WAVE_END = 4;\n  function drawWave() {\n    const t = K.clamp(waveT, 0, WAVE_END), half = WAVE_END / 2;\n    const u = t <= half ? t / half : (WAVE_END - t) / half;\n    const a = t >= WAVE_END ? 0 : Math.max(0, Math.min(1, t / 0.4, (WAVE_END - t) / 0.4));\n    waveP.setAttribute('transform', 'translate(' + fx(K.lerp(CX0 + 12, CX1 - 12, u)) + ' 64)');\n    waveP.setAttribute('opacity', a.toFixed(2));\n  }\n  drawWave();\n\n  // ---------- the why: the cable rings. The cable, its whole sweep and a close-up ----------\n  const XA = 54, XB = 326, XW = XB - XA;\n  const yLog = (z, top, h) => top + (3 - Math.log10(K.clamp(z, 1, 1000))) / 3 * h;\n  const xW = (f) => XA + f / F_MAX * XW, yW = (z) => yLog(z, 86, 72);\n  const xC = (f) => XA + f / CU_MAX * XW, yC = (z) => yLog(z, 228, 92);\n  function specPath(n, fmax, xOf, yOf, zf) {\n    let d = '';\n    for (let k = 0; k <= n; k++) { const f = k * fmax / n; d += (k ? 'L' : 'M') + fx(xOf(f)) + ' ' + fx(yOf(zf(f))); }\n    return d;\n  }\n  const sEl = el('ssvg');\n  const S_ = (tag, a) => sEl.appendChild(K.svg(tag, a));\n  const cabX = (Lm) => 54 + Lm / (L_MAX * 1000) * 240;\n  S_('rect', { class: 'set', x: 4, y: 22, width: 42, height: 24, rx: 5 });\n  txt(sEl, 25, 38.5, 'LIRA', 'lb', 'middle');\n  txt(sEl, 25, 62, 'OSS', 'lb', 'middle');\n  const sBr = S_('path', { class: 'br', d: 'M0 0' });\n  const sLenT = txt(sEl, 114, 12, '', 'lb', 'middle');\n  const sScr = S_('rect', { class: 'scr', x: 54, y: 26, width: 120, height: 16 });\n  const sCore = S_('path', { class: 'cond', d: 'M46 34H174' });\n  const sTerm = S_('rect', { class: 'term', x: 0, y: 24, width: 10, height: 20, rx: 2 });\n  const sFarT = txt(sEl, 0, 62, '', 'tk', 'middle');\n  // The whole sweep.\n  S_('rect', { class: 'cu', x: XA, y: 86, width: fx(xW(CU_MAX) - XA), height: 72 });\n  txt(sEl, XA, 80, 'close-up', 'tk');\n  txt(sEl, XB, 80, 'whole sweep, 0 to ' + F_MAX_S + ' MHz', 'tk', 'end');\n  let axW = 'M' + XA + ' 86V158H' + XB;\n  [10, 100, 1000].forEach((z) => { const y = yW(z); axW += 'M' + (XA - 4) + ' ' + fx(y) + 'H' + XA; txt(sEl, XA - 6, y + 4.5, z === 1000 ? '1000 Ω' : String(z), 'tk', 'end'); });\n  [0, 0.5, 1].forEach((m) => { const x = xW(m * 1e6); axW += 'M' + fx(x) + ' 158V162'; txt(sEl, x, 176, m === 1 ? F_MAX_S + ' MHz' : String(m), 'tk', m === 1 ? 'end' : 'middle'); });\n  S_('path', { class: 'ax', d: axW });\n  const sWhole = S_('path', { class: 'cur thin', d: 'M0 0' });\n  // The close-up.\n  txt(sEl, XA, 196, 'close-up, 0 to 150 kHz', 'tk');\n  let axC = 'M' + XA + ' 228V320H' + XB;\n  [10, 100, 1000].forEach((z) => { const y = yC(z); axC += 'M' + (XA - 4) + ' ' + fx(y) + 'H' + XA; txt(sEl, XA - 6, y + 4.5, z === 1000 ? '1000 Ω' : String(z), 'tk', 'end'); });\n  [0, 50, 100, 150].forEach((k) => { const x = xC(k * 1000); axC += 'M' + fx(x) + ' 320V324'; txt(sEl, x, 338, k === 150 ? '150 kHz' : String(k), 'tk', k === 150 ? 'end' : 'middle'); });\n  S_('path', { class: 'ax', d: axC });\n  const sGhost = S_('path', { class: 'ghost', d: 'M0 0' });\n  const sClose = S_('path', { class: 'cur', d: 'M0 0' });\n  const sBrk = S_('path', { class: 'brk', d: 'M0 0' });\n  const sSpT = txt(sEl, 0, 214, 'spacing', 'lb', 'middle');\n  const sGuide = S_('path', { class: 'guide', d: 'M0 0' });\n  const sDot = S_('circle', { class: 'ddot', cx: 0, cy: 0, r: 4 });\n  const sDipT = txt(sEl, 0, 356, 'first dip', 'lb', 'middle');\n  const sFlatT = txt(sEl, XB, 0, 'flat at ' + fZ0.text, 'lb', 'end');\n  const sKey = S_('g', {});\n  sKey.appendChild(K.svg('path', { class: 'cur', d: 'M54 369H74' }));\n  const sKeyNow = txt(sKey, 80, 374, '', 'tk');\n  sKey.appendChild(K.svg('path', { class: 'ghost', d: 'M170 369H190' }));\n  const sKeyOld = txt(sKey, 196, 374, '', 'tk');\n  let ringKey = '';\n  function drawRing(p) {\n    const Lm = Math.round(+p.L * 1000), open = p.far !== 'matched';\n    if (Lm === Math.round(L_MIN * 1000) || Lm === Math.round(L_MAX * 1000)) extL = Lm;\n    const ghost = open && extL && extL !== Lm;\n    const key = Lm + '|' + open + '|' + (ghost ? extL : 0);\n    if (key === ringKey) return;\n    ringKey = key;\n    const c1 = cabX(Lm);\n    sScr.setAttribute('width', fx(c1 - 54));\n    sCore.setAttribute('d', 'M46 34H' + fx(open ? c1 - 3 : c1 + 3));\n    sBr.setAttribute('d', 'M54 22V16H' + fx(c1) + 'V22');\n    sLenT.setAttribute('x', fx((54 + c1) / 2));\n    sLenT.textContent = (Lm / 1000).toFixed(2) + ' km';\n    sTerm.setAttribute('x', fx(c1 + 3));\n    sTerm.setAttribute('display', open ? 'none' : 'inline');\n    sFarT.setAttribute('x', fx(K.clamp(c1 + 5, 100, 270)));\n    sFarT.textContent = open ? 'far end open' : 'matched, ' + fZ0.text;\n    const zf = open ? (f) => zOpen(f, Lm) : zMatched;\n    sWhole.setAttribute('d', specPath(1400, F_MAX, xW, yW, zf));\n    sClose.setAttribute('d', specPath(600, CU_MAX, xC, yC, zf));\n    sGhost.setAttribute('d', ghost ? specPath(600, CU_MAX, xC, yC, (f) => zOpen(f, extL)) : 'M0 0');\n    sKey.setAttribute('display', ghost ? 'inline' : 'none');\n    sKeyNow.textContent = (Lm / 1000).toFixed(2) + ' km';\n    sKeyOld.textContent = (extL / 1000).toFixed(2) + ' km';\n    [sBrk, sSpT, sGuide, sDot, sDipT].forEach((n) => n.setAttribute('display', open ? 'inline' : 'none'));\n    sFlatT.setAttribute('display', open ? 'none' : 'inline');\n    sFlatT.setAttribute('y', fx(yC(Z0) - 8));\n    if (open) {\n      const fd = VS / (4 * Lm), fd2 = fd + VS / (2 * Lm), xd = xC(fd), xd2 = xC(fd2), yd = yC(zOpen(fd, Lm));\n      sBrk.setAttribute('d', 'M' + fx(xd) + ' 224V218H' + fx(xd2) + 'V224');\n      sSpT.setAttribute('x', fx((xd + xd2) / 2));\n      sDot.setAttribute('cx', fx(xd)); sDot.setAttribute('cy', fx(yd));\n      sGuide.setAttribute('d', 'M' + fx(xd) + ' ' + fx(yd + 6) + 'V342');\n      sDipT.setAttribute('x', fx(K.clamp(xd, 40, 300)));\n    }\n    sEl.setAttribute('aria-label', 'A LIRA set at the OSS end of a ' + (Lm / 1000).toFixed(2) + ' km cable with its far end ' + (open ? 'open' : 'matched') + '. '\n      + 'Below, its impedance against frequency on a log scale: the whole sweep from 0 to ' + F_MAX_S + ' MHz, and a close-up of the first 150 kHz. '\n      + (open ? 'The impedance starts high, then swings between deep dips and tall peaks. A bracket marks the spacing between two dips, and a dot the first dip.'\n        + (ghost ? ' The ' + (extL / 1000).toFixed(2) + ' km curve shows faint and dashed behind.' : '')\n        : 'The line is flat at ' + fZ0.text + ', with no dips or peaks.'));\n  }\n  function sayRing(p, o) {\n    const Lm = Math.round(+p.L * 1000), open = p.far !== 'matched';\n    let s;\n    if (!open) s = \"With the far end matched to the cable's \" + fZ0.text + ', each wave soaks into the end. Nothing comes back, so the line is flat, with no dips or peaks.';\n    else s = 'On ' + (Lm / 1000).toFixed(2) + ' km of cable, the first dip sits at ' + kHz1(o.dip) + ', where a quarter wavelength fits. After that a dip comes every ' + kHz1(o.sp) + '.'\n      + (Lm === Math.round(L_MAX * 1000) ? ' This is the longest cable here, so its dips crowd closest.' : Lm === Math.round(L_MIN * 1000) ? ' This is the shortest here, so its dips spread widest.' : '');\n    el('sayS').textContent = nb(s);\n  }\n\n  // ---------- the why: a change becomes a spot. Cable, spectrum and spot signature ----------\n  const pEl = el('psvg');\n  const P_ = (tag, a) => pEl.appendChild(K.svg(tag, a));\n  const xs = (m) => XA + m / LEN_M * XW;\n  const yR = (z) => yLog(z, 104, 66);\n  const BASE = 306, DBU = 2;\n  // The cable, with the change on it and the round trip under it.\n  txt(pEl, 25, 12, 'OSS', 'lb', 'middle');\n  P_('rect', { class: 'set', x: 4, y: 16, width: 42, height: 42, rx: 5 });\n  txt(pEl, 25, 41.5, 'LIRA', 'lb', 'middle');\n  P_('rect', { class: 'scr', x: XA, y: 18, width: XW, height: 16 });\n  P_('path', { class: 'cond', d: 'M46 26H' + XB });\n  P_('rect', { class: 'jt', x: fx(xs(JOINT) - 5), y: 14, width: 10, height: 24, rx: 3 });\n  const pChg = P_('rect', { x: 0, y: 15, width: 8, height: 22, rx: 2 });\n  const pHnd = P_('circle', { class: 'hnd', cx: 0, cy: 26, r: 7 });\n  const pChgT = txt(pEl, 0, 11, 'change', 'lb', 'middle');\n  const pTrip = P_('path', { class: 'trip', d: 'M0 0' });\n  P_('path', { class: 'head', d: 'M46 52l9 -5v10z' });\n  const pMid = P_('path', { class: 'head', d: 'M0 0' });\n  const pTripT = txt(pEl, 0, 72, 'round trip', 'lb', 'middle');\n  txt(pEl, XB, 72, 'B01', 'lb', 'end');\n  // L2's spectrum at 2.40 km: the resonances faint, the change's ripple bold.\n  const pRBr = P_('path', { class: 'brk', d: 'M0 0' });\n  txt(pEl, XA, 93, 'ripple repeats every', 'tk');\n  txt(pEl, XB, 93, \"L2's spectrum\", 'tk', 'end');\n  let axP = 'M' + XA + ' 104V170H' + XB;\n  [10, 100, 1000].forEach((z) => { const y = yR(z); axP += 'M' + (XA - 4) + ' ' + fx(y) + 'H' + XA; txt(pEl, XA - 6, y + 4.5, z === 1000 ? '1000 Ω' : String(z), 'tk', 'end'); });\n  [0, 0.5, 1].forEach((m) => { const x = xW(m * 1e6); axP += 'M' + fx(x) + ' 170V174'; txt(pEl, x, 186, m === 1 ? F_MAX_S + ' MHz' : String(m), 'tk', m === 1 ? 'end' : 'middle'); });\n  P_('path', { class: 'ax', d: axP });\n  P_('path', { class: 'res', d: specPath(1400, F_MAX, xW, yR, (f) => zOpen(f, LEN_M)) });\n  const pRip = P_('path', { class: 'rip', d: 'M0 0' });\n  P_('path', { class: 'res', d: 'M54 199H74' });\n  txt(pEl, 80, 204, 'resonances, from the length', 'tk');\n  P_('path', { class: 'rip', d: 'M54 215H74' });\n  txt(pEl, 80, 220, 'ripple from the change, drawn bigger', 'tk');\n  // The spot signature, by distance from the OSS.\n  txt(pEl, XA, 240, 'spot signature, DNORM in dB', 'tk');\n  [['r', R_HI, 22], ['a', G_LO, R_HI], ['g', 0, G_LO]].forEach(([b, lo, top]) => {\n    P_('rect', { class: 'bg-' + b, x: XA, y: BASE - top * DBU, width: XW, height: (top - lo) * DBU });\n    P_('rect', { class: 'bg-' + b, x: XA, y: BASE + lo * DBU, width: XW, height: (top - lo) * DBU });\n  });\n  P_('path', { class: 'base', d: 'M' + XA + ' ' + BASE + 'H' + XB });\n  txt(pEl, XA - 6, BASE - R_HI * DBU + 4.5, '+' + R_HI, 'tk', 'end');\n  txt(pEl, XA - 6, BASE + 4.5, '0', 'tk', 'end');\n  txt(pEl, XA - 6, BASE + R_HI * DBU + 4.5, '−' + R_HI, 'tk', 'end');\n  P_('path', { class: 'jline', d: 'M' + fx(xs(JOINT)) + ' 262V350' });\n  txt(pEl, xs(JOINT), 256, 'joint', 'lb', 'middle');\n  P_('path', { class: 'endl', d: 'M' + XB + ' 262V350' });\n  txt(pEl, XB, 256, 'end, B01', 'lb', 'end');\n  let axS = 'M' + XA + ' 350H' + XB;\n  [0, 1000, 2000].forEach((m) => { axS += 'M' + fx(xs(m)) + ' 350V354'; txt(pEl, xs(m), 366, String(m), 'tk', 'middle'); });\n  P_('path', { class: 'ax', d: axS });\n  txt(pEl, XB, 382, 'distance from the OSS (m)', 'tk', 'end');\n  const pBar = P_('rect', { x: 0, y: BASE, width: 8, height: 1 });\n  [['g', 'under ' + G_LO + ' dB: mild'], ['a', G_LO + ' to ' + R_HI + ' dB: intermediate'], ['r', 'above ' + R_HI + ' dB: significant']].forEach(([b, t], k) => {\n    P_('rect', { x: XA, y: 393 + k * 16, width: 14, height: 10, rx: 2, style: 'fill:' + BAND_FILL[b] });\n    txt(pEl, XA + 20, 402 + k * 16, t, 'tk');\n  });\n  K.drag(pHnd, { control: 'x', toValue: (x) => K.clamp(Math.round((x - XA) / XW * LEN_M), X_MIN, X_MAX) });\n  let spotKey = '';\n  function drawSpot(p, o) {\n    const x = Math.round(+p.x), water = p.kind !== 'break', key = x + '|' + water;\n    if (key === spotKey) return;\n    spotKey = key;\n    const xc = xs(x), dn = water ? DN : -DN, b = band(dn), h = Math.abs(dn) * DBU;\n    pChg.setAttribute('x', fx(xc - 4)); pChg.setAttribute('style', 'fill:' + BAND_FILL[b]);\n    pHnd.setAttribute('cx', fx(xc));\n    pChgT.setAttribute('x', fx(K.clamp(xc, 80, 300)));\n    pTrip.setAttribute('d', 'M46 44H' + fx(xc) + 'V52H55');\n    if (xc - 46 > 30) { const m = (46 + xc) / 2; pMid.setAttribute('d', 'M' + fx(m - 4) + ' 39.5l9 4.5l-9 4.5z'); } else pMid.setAttribute('d', 'M0 0');\n    pTripT.setAttribute('x', fx(K.clamp((46 + xc) / 2, 90, 250)));\n    const tau = 2 * x / VS, sg = water ? -1 : 1;\n    pRip.setAttribute('d', specPath(800, F_MAX, xW, yR, (f) => Z0 * Math.pow(10, RIPA * sg * Math.cos(2 * Math.PI * f * tau))));\n    pRBr.setAttribute('d', 'M' + XA + ' 104V98H' + fx(xW(1 / tau)) + 'V104');\n    pBar.setAttribute('x', fx(xc - 4));\n    pBar.setAttribute('y', fx(dn < 0 ? BASE : BASE - h));\n    pBar.setAttribute('height', fx(h));\n    pBar.setAttribute('style', 'fill:' + BAND_FILL[b]);\n    pEl.setAttribute('aria-label', 'String B, ' + fLen.text + ', with a change ' + x + ' m from the OSS. An arrow runs from the LIRA set to the change and back. '\n      + \"Below, L2's spectrum: the resonances drawn faint, and the change's ripple drawn bold and many times bigger, with a bracket over one ripple. \"\n      + 'Below that, the spot signature from 0 to ' + LEN_M + ' m: the end at ' + LEN_M + ' m, the joint at ' + fJoint.text + ', and the spot at '\n      + x + ' m, ' + (dn < 0 ? 'below' : 'above') + ' the line in the ' + BAND_WORD[b] + ' band.');\n  }\n  function saySpot(p, o) {\n    const x = Math.round(+p.x), water = p.kind !== 'break', b = band(o.dn);\n    el('sayP').textContent = nb('The change is ' + x + ' m from the OSS. Its echo comes back after ' + f2(o.rt) + ' µs, so the ripple repeats every ' + kHz1(o.rip) + '. '\n      + (water ? 'Water or damage lowers the impedance there, so the spot sits below the line, at ' : 'A shield break or bend raises it, so the spot sits above the line, at ')\n      + dnTxt(o.dn) + ': ' + BAND_WORD[b] + '.');\n  }\n\n  // ---------- String B's result: three readings in one place ----------\n  (function result() {\n    const g = el('fsvg'), G_ = (tag, a) => g.appendChild(K.svg(tag, a));\n    const X0 = 40, X1 = 320, xm = (m) => X0 + m / LEN_M * (X1 - X0), xj = xm(JOINT), xf = xm(f6b.value);\n    const Z0m = 950, zx = (m) => 60 + (m - Z0m) * 12;\n    txt(g, X0, 12, 'OSS', 'lb');\n    txt(g, X1, 12, 'B01', 'lb', 'end');\n    txt(g, xj, 12, 'joint, ' + fJoint.text, 'tk', 'middle');\n    G_('rect', { class: 'scr', x: X0, y: 20, width: X1 - X0, height: 12 });\n    G_('path', { class: 'cond', d: 'M' + X0 + ' 26H' + X1 });\n    G_('rect', { class: 'jt', x: fx(xj - 5), y: 16, width: 10, height: 20, rx: 3 });\n    G_('circle', { class: 'fmark', cx: fx(xf), cy: 26, r: 6 });\n    G_('path', { class: 'guide', d: 'M' + fx(xf) + ' 34L60 80M' + fx(xf) + ' 34L300 80' });\n    G_('rect', { class: 'scr', x: 60, y: 80, width: 240, height: 14 });\n    const rB = f7b.value, rT = f6b.value, rO = SPOT_OSS;\n    G_('path', { class: 'mk-l', d: 'M' + fx(zx(rB)) + ' 76V98M' + fx(zx(rO)) + ' 76V98' });\n    G_('path', { class: 'mk-t', d: 'M' + fx(zx(rT)) + ' 76V98' });\n    txt(g, zx(rB) - 4, 114, 'LIRA from B01: ' + f7b.text, 'tk', 'end');\n    txt(g, zx(rO) + 4, 114, 'LIRA from OSS: ' + rO + ' m', 'tk');\n    txt(g, zx(rT), 132, 'TDR: ' + f6b.text, 'lb', 'middle');\n    g.setAttribute('aria-label', 'The route from the OSS to B01, with the joint at ' + fJoint.text + '. Near ' + ABOUT + ' m, a close-up shows three readings side by side: '\n      + 'LIRA from B01 at ' + f7b.text + \", TDR at \" + f6b.text + ' and LIRA from the OSS at ' + rO + ' m.');\n  })();\n\n  // ---------- one animation: a wave runs out and back on arrival ----------\n  const anim = K.anim({ button: false, label: 'Wave', step: (dt) => {\n    if (at() !== iFor) return false;\n    waveT = Math.min(WAVE_END, waveT + Math.min(dt, 0.1));\n    drawWave();\n    return waveT < WAVE_END;\n  } });\n\n  // ---------- picks: one tap answers ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', p0: R_WORK }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, p: R_WORK }; }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: C_RIGHT }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i7A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  const car7a = K.carried({ parts: ['6a', '6b'], into: '#carry7a' });\n  const car7b = K.carried({ parts: ['6b', '7a'], into: '#carry7b' });\n  const SPEC = {\n    [i7A]: { id: '7a', fig: f7a, dec: 1, accept: [], work: () => ['Δf = v ÷ 2L', '= ' + f7a.work],\n      slips: [{ value: F('7a.slip').value, hint: 'That is v ÷ L. A dip comes each time another half wavelength fits the cable. So Δf = v ÷ 2L.' },\n        { value: F('7a.slip3').value, hint: 'That is the first dip, where a quarter wavelength fits. The dips after it come every v ÷ 2L.' },\n        { value: F('7a.slip2').value, hint: 'That uses ' + V_DEF + \" m/µs, a default. Use String B's \" + V_B_S + ' m/µs from 6(a).' }],\n      hint: 'Not quite. Each dip is one more half wavelength: Δf = v ÷ 2L, with L in metres.',\n      after: 'Turned round, the rule gives the length: L = v ÷ 2Δf = ' + fLenChk.work + \". With v from the cable's data, that checks the route record.\" },\n    [i7B]: { id: '7b', fig: f7b, dec: 0, accept: [], work: () => ['From the OSS = length − distance from B01', '= ' + W7B],\n      slips: [{ value: F('7b.slip').value, hint: 'That is from B01. Take it from the length, ' + LEN_M + ' − ' + SPOT_B01 + '.' },\n        { value: F('7b.slip2').value, hint: 'That adds the two. The B01 distance runs back from the far end. So take it from the length.' }],\n      hint: 'Not quite. The B01 reading runs back from the far end. Take it from the length.',\n      after: AFTER_7B },\n    [iCh]: { id: 'l7.changed', fig: fChg, dec: 0, accept: [], work: () => ['L = v ÷ 2Δf', '= ' + fChg.work],\n      slips: [{ value: F('l7.changed.slip').value, hint: 'That is v ÷ Δf. Each dip is another half wavelength. So L = v ÷ 2Δf.' },\n        { value: F('l7.changed.slip2').value, hint: 'That divides by 4. The spacing is v ÷ 2L. So L = v ÷ 2Δf.' }],\n      hint: 'Not quite. Turn the rule round: L = v ÷ 2Δf, with Δf in hertz.',\n      after: 'It is longer than String B. So its resonances sit closer together, ' + CH_DF + ' kHz apart against ' + f7a.text + '.' },\n  };\n  const BOX = { [i7A]: '#ans-7a', [i7B]: '#ans-7b', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work() };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // ---------- Section B, the job and Keep this ----------\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and ' + (need >= n ? 'a full answer makes all ' + (WORDS[n] || n) : 'any ' + (WORDS[need] || need) + ' make a full answer') + '. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  (function job() {\n    const box = el('job'), list = box.appendChild(K.el('div', { class: 'jobs' }));\n    JOB.forEach((r) => list.appendChild(K.el('div', { class: 'jr' }, K.el('b', null, nb(r[0])), K.el('span', null, nb(r[1])))));\n    box.appendChild(write(K.el('p', { class: 'why' }), JOB_TEXT));\n  })();\n  K.summary({ into: '#keep' });\n  // Once the card has rendered: bind numbers to units, and a short term after × or ÷ to its operator (\"v ÷ 2x\").\n  function bindKeep() {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => {\n      const v = nb(n.nodeValue).replace(/([×÷]) (\\S{1,3})(?=[\\s,.;]|$)/g, '$1' + NB + '$2');\n      if (v !== n.nodeValue) n.nodeValue = v;\n    });\n  }\n  bindKeep();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const wbox = K.el('div', { class: 'wl' });\n  const wl = WL.map((x, k) => {\n    const box = K.el('div', { class: 'line' });\n    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));\n    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));\n    wbox.appendChild(box);\n    return box;\n  });\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wl.length) return;\n    const w = wl[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));\n  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));\n  el('capM').textContent = nb(\"String B's \" + fLen.text + ' and its joint at ' + fJoint.text + ' are practice values.');\n  el('titS').textContent = 'The cable and its impedance spectrum';\n  el('capS').textContent = nb('A sketch: the dips sit where the rule puts them. ' + V_B_S + ' m/µs and ' + fZ0.text + ' are practice values.');\n  el('titP').textContent = 'A change, its ripple and its spot';\n  paras(el('whyP'), WHY_P2, ['DNORM']);\n  el('capP').textContent = nb('The ripple is drawn many times bigger than real. The DNORM values are practice values.');\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));\n    if (f.p) fb.appendChild(write(K.el('p'), f.p));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return st.res === 'right' || st.shown;\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    return false;\n  }\n\n  const ON = { scen: [i7A], carry7a: [i7A], carry7b: [i7B], pre: [i7A, i7B],\n    wrapM: [iFor], warnFor: [iFor], capM: [iFor],\n    wrapS: [iRing], ctlS: [iRing], outsS: [iRing], sayS: [iRing], capS: [iRing],\n    wrapP: [iSpot], ctlP: [iSpot], outsP: [iSpot], sayP: [iSpot], whyP: [iSpot], capP: [iSpot],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-7a': [i7A], 'ans-7b': [i7B], 'ans-ch': [iCh], job: [iJob], wr1: [iB1], keep: [iK], fin: [iK] };\n  const ASK = {\n    [iRing]: 'Drag the length down to ' + L_MIN.toFixed(2) + ' km, then up to ' + L_MAX.toFixed(2) + ' km. Then switch the far end to Matched.',\n    [iSpot]: 'Drag the change towards the OSS, then out towards B01. Then switch its type.',\n    [iWk]: 'Work each line yourself first, then press Show.',\n  };\n  const CARRY = { [i7A]: car7a, [i7B]: car7b };\n\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i === iK) bindKeep();\n    if (i !== lastStep) {\n      if (lastStep !== -1) enter();\n      lastStep = i;\n      if (i === i7A) scen.el.open = true;\n      if (CARRY[i] && typeof CARRY[i].refresh === 'function') { try { CARRY[i].refresh(); } catch (e) { /* the panel keeps its last state */ } }\n    }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('pre'), d.pre || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text, d.terms);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (ASK[i] ? ' ask' : '');\n    sub.textContent = nb(ASK[i] ? ASK[i]\n      : i === iChk ? \"String B's figures are practice values.\"\n      : i === i7A ? 'Give it in kHz, to 1 place.'\n      : i === i7B ? 'Give it in m, to the nearest metre.'\n      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in m, to the nearest metre.'\n      : i === iB1 ? markLine('b1')\n      : i === iJob ? \"String B's results are practice values.\"\n      : i === iK ? 'One card to come back to on a real job.' : '');\n    sub.hidden = !sub.textContent;\n\n    drawRing(p);\n    sayRing(p, o);\n    drawSpot(p, o);\n    saySpot(p, o);\n    const wk = i === iFor ? 'W' : '';\n    if (wk && wk !== waveKey) { waveT = 0; drawWave(); if (!anim.playing()) anim.play(); }\n    waveKey = wk;\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    wl.forEach((w, k) => { w.hidden = k >= lines; });\n    nextLine.el.hidden = lines >= wl.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wl.length;\n\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const after = el('after');\n    paras(after, typedDone ? SPEC[i].after : '');\n    after.hidden = !after.textContent;\n    el('wrapF').hidden = !(i === i7B && typedDone);\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['wrapF', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);\n  const AL = (L, far) => K.at({ L: L, far: far || 'open' }), AX = (x, kind) => K.at({ x: x, kind: kind || 'water' });\n  K.check('Spacing and first dip at 1.20, 2.40 and 4.80 km: 70.0 and 35.0, 35.0 and 17.5, 17.5 and 8.8 kHz', () =>\n    near(r1(AL(1.2).sp), F('l7.pic.df12').value) && near(r1(AL(1.2).dip), F('l7.pic.dip12').value)\n    && near(r1(AL(2.4).sp), f7a.value) && near(r1(AL(2.4).dip), F('7a.slip3').value)\n    && near(r1(AL(4.8).sp), F('l7.pic.df48').value) && near(r1(AL(4.8).dip), F('l7.pic.dip48').value) && kHz1(AL(4.8).dip) === '8.8 kHz');\n  K.check('v = 2L(f(k+1) − f(k)): 2 × 2400 m × 35 000 Hz gives back 168.0 m/µs', () => near(2 * LEN_M * AL(2.4).sp * 1000 / 1e6, V_B, 1e-9),\n    { source: 'https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222' });\n  K.check('A far end matched exactly to the cable sends nothing back, so the spectrum has no resonances', () =>\n    AL(2.4, 'matched').sp === '—' && AL(2.4, 'matched').dip === '—' && [1e3, 17.5e3, 35e3, 5e5].every((f) => zMatched(f) === Z0),\n    { source: 'https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf' });\n  K.check('The dips sit where a quarter wavelength fits, the peaks where a half fits, and at low frequency the impedance falls like a capacitor', () =>\n    [1200, 2400, 4800].every((Lm) => {\n      const fd = VS / (4 * Lm), fp = VS / (2 * Lm), d = 500, xc = 1 / (2 * Math.PI * 1000 * (Lm / (VS * Z0)));\n      return zOpen(fd, Lm) < zOpen(fd - d, Lm) && zOpen(fd, Lm) < zOpen(fd + d, Lm) && zOpen(fp, Lm) > zOpen(fp - d, Lm) && zOpen(fp, Lm) > zOpen(fp + d, Lm)\n        && zOpen(fd, Lm) < Z0 && zOpen(fp, Lm) > Z0 && near(zOpen(1000, Lm) / xc, 1, 0.03) && zOpen(1000, Lm) > zOpen(2000, Lm);\n    }));\n  K.check('Round trip and ripple at 100, 961, 1441 and 2300 m: 1.19, 11.44, 17.15 and 27.38 µs; 840.0, 87.4, 58.3 and 36.5 kHz', () =>\n    near(r2(AX(100).rt), F('l7.pic.t100').value) && near(r2(AX(961).rt), F('l7.pic.t961').value) && near(r2(AX(1441).rt), F('l7.pic.t1441').value)\n    && near(r2(AX(2300).rt), F('l7.pic.t2300').value) && near(r1(AX(100).rip), F('l7.pic.r100').value) && near(r1(AX(961).rip), fRipO.value)\n    && near(r1(AX(1441).rip), F('l7.rippleB01').value) && near(r1(AX(2300).rip), F('l7.pic.r2300').value));\n  K.check('A nearer change gives a wider ripple; the spot flips side with its type and sits in the significant band', () => {\n    for (let x = X_MIN; x < X_MAX; x += 50) if (!(AX(x).rip > AX(x + 50).rip && AX(x).rt < AX(x + 50).rt)) return false;\n    return AX(961, 'water').dn === DN && DN < 0 && AX(961, 'break').dn === -DN && band(DN) === 'r' && band(-DN) === 'r' && band(G_LO - 1) === 'g' && band(R_HI) === 'a';\n  });\n  K.check(\"Worked example: 1 ÷ 87 400 Hz = 11.44 µs; 11.44 × 168.0 ÷ 2 = 961.0 m, 0.9 m from TDR's 960.1 m\", () =>\n    near(r2(1e6 / RIP_N), fWt.value) && near(r1(fWt.value * V_B / 2), fWx.value) && near(r1(fWx.value - f6b.value), fWd.value) && near(RIP_N / 1000, fRipO.value));\n  K.check('7(a) 35.0 kHz and back to 2400 m; 7(b) 2400 − 1441 = 959 m, 2 m from 961 m; changed numbers 3360 m', () =>\n    near(r1(VS / (2 * LEN_M) / 1000), f7a.value) && near(VS / (2 * f7a.value * 1000), fLenChk.value) && near(LEN_M - SPOT_B01, f7b.value)\n    && near(SPOT_OSS - f7b.value, fSpread.value) && near(CH_V * 1e6 / (2 * CH_DF_HZ), fChg.value));\n  K.check('Each slip is its own working: 70.0, 17.5 and 33.3 kHz; 1441 and 3841 m; 6720 and 1680 m', () =>\n    near(r1(VS / LEN_M / 1000), F('7a.slip').value) && near(r1(VS / (4 * LEN_M) / 1000), F('7a.slip3').value) && near(r1(V_DEF * 1e6 / (2 * LEN_M) / 1000), F('7a.slip2').value)\n    && near(SPOT_B01, F('7b.slip').value) && near(LEN_M + SPOT_B01, F('7b.slip2').value)\n    && near(CH_V * 1e6 / CH_DF_HZ, F('l7.changed.slip').value) && near(CH_V * 1e6 / (4 * CH_DF_HZ), F('l7.changed.slip2').value));\n  K.check('Within 0.5% of the length is 12 m on String B', () => near(ACC_PCT / 100 * LEN_M, fAcc.value));\n  K.check(\"Every slip lies outside its answer's accepted figures\", () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = 0.5;\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));\n  }));\n\n  K.ready();\n</script>",
+  "title": "L2's spectrum and its spot",
+  "brief": "The one thing you should see is a shorter round trip widening the ripple on L2's spectrum and sliding its spot along the cable, when you drag the local change towards the OSS.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Spacing and first dip at 1.20, 2.40 and 4.80 km: 70.0 and 35.0, 35.0 and 17.5, 17.5 and 8.8 kHz",
+     "ok": true
+    },
+    {
+     "label": "v = 2L(f(k+1) − f(k)): 2 × 2400 m × 35 000 Hz gives back 168.0 m/µs",
+     "ok": true,
+     "source": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222"
+    },
+    {
+     "label": "A far end matched exactly to the cable sends nothing back, so the spectrum has no resonances",
+     "ok": true,
+     "source": "https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf"
+    },
+    {
+     "label": "The dips sit where a quarter wavelength fits, the peaks where a half fits, and at low frequency the impedance falls like a capacitor",
+     "ok": true
+    },
+    {
+     "label": "Round trip and ripple at 100, 961, 1441 and 2300 m: 1.19, 11.44, 17.15 and 27.38 µs; 840.0, 87.4, 58.3 and 36.5 kHz",
+     "ok": true
+    },
+    {
+     "label": "A nearer change gives a wider ripple; the spot flips side with its type and sits in the significant band",
+     "ok": true
+    },
+    {
+     "label": "Worked example: 1 ÷ 87 400 Hz = 11.44 µs; 11.44 × 168.0 ÷ 2 = 961.0 m, 0.9 m from TDR's 960.1 m",
+     "ok": true
+    },
+    {
+     "label": "7(a) 35.0 kHz and back to 2400 m; 7(b) 2400 − 1441 = 959 m, 2 m from 961 m; changed numbers 3360 m",
+     "ok": true
+    },
+    {
+     "label": "Each slip is its own working: 70.0, 17.5 and 33.3 kHz; 1441 and 3841 m; 6720 and 1680 m",
+     "ok": true
+    },
+    {
+     "label": "Within 0.5% of the length is 12 m on String B",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "L",
+    "far",
+    "x",
+    "kind"
+   ],
+   "readouts": [
+    "sp",
+    "dip",
+    "rt",
+    "rip",
+    "dn"
+   ],
+   "outputs": [
+    "sp",
+    "dip",
+    "rt",
+    "rip",
+    "dn"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why: the cable rings",
+      "The why: a change becomes a spot",
+      "Check",
+      "Worked example",
+      "Section A 7(a)",
+      "Section A 7(b)",
+      "Section B",
+      "Changed numbers",
+      "The job, end to end",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "L",
+     "kind": "control",
+     "label": "Length",
+     "min": 1.2,
+     "max": 4.8,
+     "step": 0.1,
+     "log": false,
+     "value": 2.4,
+     "shown": false,
+     "snap": [
+      1.2,
+      2.4,
+      4.8
+     ]
+    },
+    {
+     "id": "far",
+     "kind": "choice",
+     "label": "Far end",
+     "options": [
+      "open",
+      "matched"
+     ],
+     "labels": [
+      "Open",
+      "Matched"
+     ],
+     "value": "open",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "x",
+     "kind": "control",
+     "label": "Change at",
+     "min": 100,
+     "max": 2300,
+     "step": 1,
+     "log": false,
+     "value": 961,
+     "shown": false,
+     "snap": [
+      100,
+      961,
+      1441,
+      2300
+     ]
+    },
+    {
+     "id": "kind",
+     "kind": "choice",
+     "label": "Type of change",
+     "options": [
+      "water",
+      "break"
+     ],
+     "labels": [
+      "Water or damage",
+      "Shield break or bend"
+     ],
+     "value": "water",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Wave"
+   ],
+   "answers": [
+    {
+     "id": "7a",
+     "answer": 35,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "7b",
+     "answer": 959,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "l7.changed",
+     "answer": 3360,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T03:38:36.421Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "[^5] sits on 'the two places should agree', but its quote only says testing from both ends gives the highest sensitivity; the citation belongs on the reason for the second test."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The notes say '18 total tests, typically core to screen and core to core'; '18 tests a cable' adds a per-cable count the notes do not give."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "'One pluck sounds all of a string's notes' is too absolute: a string plucked at its centre does not sound its even harmonics, so a pluck sounds many of its notes, not all."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "The 33 kV online-monitoring limit and the 18 tests are constants taken from the notes p.5, but carry no source and the lesson's sources hold only notes p.6; no web source confirms the 33 kV figure, so it rests on the notes alone."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,906 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog .k-label, #prog .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .why, .pre { line-height: 1.6; }
+  .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .ctl { display: grid; gap: 12px; }
+  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  .carry .k-cr-value { grid-column: 2; grid-row: 2; }
+  .scene { display: block; width: 100%; }
+  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .cur { stroke: var(--k-accent2); stroke-width: 1.6; fill: none; stroke-linejoin: round; }
+  .scene .cur.thin { stroke-width: 1.1; }
+  .scene .res { stroke: var(--k-muted); stroke-width: 1; fill: none; stroke-linejoin: round; }
+  .scene .ghost { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 4 3; fill: none; }
+  .scene .rip { stroke: var(--k-accent2); stroke-width: 2.4; fill: none; stroke-linejoin: round; }
+  .scene .cu { fill: var(--k-accent); fill-opacity: .16; }
+  .scene .br { stroke: var(--k-muted); stroke-width: 1.2; fill: none; }
+  .scene .brk { stroke: var(--k-accent2); stroke-width: 1.6; fill: none; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  .scene .ddot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .scr { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .cond { stroke: var(--k-ink); stroke-width: 3; fill: none; }
+  .scene .jt { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .set { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.4; }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }
+  .scene .ldot { fill: var(--k-ink); }
+  .scene .term { fill: var(--k-accent); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .wave { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; }
+  .scene .fmark { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .trip { stroke: var(--k-accent2); stroke-width: 1.8; fill: none; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .hnd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; cursor: grab; }
+  .scene .endl { stroke: var(--k-ink); stroke-width: 2.5; }
+  .scene .jline { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .bg-g { fill: var(--k-good); fill-opacity: .12; }
+  .scene .bg-a { fill: var(--k-amber-line); fill-opacity: .16; }
+  .scene .bg-r { fill: var(--k-warn); fill-opacity: .1; }
+  .scene .base { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .mk-l { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .mk-t { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .jobs { display: grid; gap: 8px; }
+  .jr { display: flex; flex-wrap: wrap; gap: 2px 12px; padding: 8px 10px; border: 1px solid var(--k-line); border-radius: 10px; background: var(--k-panel); line-height: 1.45; }
+  .jr b { flex: 0 0 8rem; }
+  .jr span { flex: 1 1 11rem; min-width: 0; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line { margin-top: 10px; }
+  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }
+  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div class="carry" id="carry7a"></div>
+    <div class="carry" id="carry7b"></div>
+    <div class="pre" id="pre"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+
+    <div id="wrapM"><svg class="scene" id="msvg" viewBox="0 0 340 156" width="100%" role="img" aria-label=""></svg></div>
+    <div class="warn-note" id="warnFor"></div>
+    <p class="caption" id="capM"></p>
+
+    <div id="wrapS"><p class="k-label" id="titS"></p><svg class="scene" id="ssvg" viewBox="0 0 340 380" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlS"></div>
+    <div class="k-readouts" id="outsS"></div>
+    <p class="say" id="sayS"></p>
+    <p class="caption" id="capS"></p>
+
+    <div id="wrapP"><p class="k-label" id="titP"></p><svg class="scene" id="psvg" viewBox="0 0 340 440" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlP"></div>
+    <div class="k-readouts" id="outsP"></div>
+    <p class="say" id="sayP"></p>
+    <div class="why" id="whyP"></div>
+    <p class="caption" id="capP"></p>
+
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-7a"></div>
+    <div id="ans-7b"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div id="wrapF"><svg class="scene" id="fsvg" viewBox="0 0 340 142" width="100%" role="img" aria-label=""></svg></div>
+    <div class="row" id="go"></div>
+    <div id="job"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, helpers and the course's figures ----------
+  const rnd = (x, d) => { const k = Math.pow(10, d); return Math.sign(x) * Math.round(Math.abs(x) * k + 1e-7) / k; };
+  const r1 = (x) => rnd(x, 1), r2 = (x) => rnd(x, 2);
+  const f1 = (x) => r1(x).toFixed(1);
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces: before an operator, inside a number's thousands, and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=−]) /g, NB + '$1 ')
+    .replace(/(\d) (?=\d{3}\b)/g, '$1' + NB)
+    .replace(/(\d) (?=(?:m\/µs|µs|µF|kV|km|kHz|MHz|Hz|GΩ|Ω|dB|°C|m|V)(?![A-Za-z]))/g, '$1' + NB);
+  const str = (s, re) => { const m = re.exec(String(s || '')); return m ? m[1] : ''; };
+  const fx = (v) => (+v).toFixed(1);
+  function txt(parent, x, y, s, cls, anchor) {
+    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));
+    t.textContent = s;
+    return t;
+  }
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+  const kHz1 = (v) => (typeof v === 'number' && isFinite(v) ? f1(v) + ' kHz' : '—');
+
+  // String B, L2 and its tests, from the case file.
+  const fLen = F('p.len'), LEN_KM = fLen.value, LEN_M = Math.round(LEN_KM * 1000);
+  const fJoint = F('p.joint'), JOINT = fJoint.value;
+  const fTF = F('p.tFault');
+  const fZ0 = F('p.Z0'), Z0 = fZ0.value;
+  const f6b = F('6b'), V_B = F('6a').value, V_B_S = V_B.toFixed(1), VS = V_B * 1e6;
+  const fOSS = F('p.liraOSS'), SPOT_OSS = fOSS.value, SPOT_B01 = F('p.liraB01').value;
+  const DNS = F('p.dnormScale').text;
+  const DN = +String(str(DNS, /reads ([−-]?\d+) dB/)).replace('−', '-');
+  const G_LO = +str(DNS, /under (\d+) dB/), R_HI = +str(DNS, /above (\d+) dB/);
+  const F_MAX_S = str(F('p.liraSweep').text, /to ([\d.]+) MHz/), F_MAX = +F_MAX_S * 1e6;
+  const ONLINE = F('n.liraOnline').value;
+  const ACC_PCT = +str(F('t.liraAcc').text, /([\d.]+)%/);
+  const f7a = F('7a'), f7b = F('7b'), fLenChk = F('l7.lenCheck'), fSpread = F('l7.spread'), fAcc = F('l7.accuracy');
+  const fRipO = F('l7.rippleOSS'), fWt = F('l7.wex.t'), fWx = F('l7.wex.x'), fWd = F('l7.wex.diff');
+  const RIP_HZ = str(fWt.work, /÷ ([\d ]+) =/), RIP_N = +RIP_HZ.replace(/ /g, '');
+  const fChg = F('l7.changed'), CH_V = +str(fChg.work, /^([\d.]+)/), CH_DF_HZ = +str(fChg.work, /\(2 × ([\d ]+)\)/).replace(/ /g, '');
+  const CH_DF = (CH_DF_HZ / 1000).toFixed(1);
+  const V_DEF = +str(F('7a.slip2').work, /^([\d.]+)/);
+  const W7B = String(f7b.work).split(';')[0];
+  const ABOUT = Math.round(f6b.value / 10) * 10;
+  // The picture's ranges, from the lesson: 1.20 to 4.80 km, a change from 100 to 2300 m, a close-up of 0 to 150 kHz.
+  const L_MIN = 1.2, L_MAX = 4.8, X_MIN = 100, X_MAX = 2300, CU_MAX = 150e3;
+
+  // ---------- the rule ----------
+  // Resonances of a line open at the far end: dips every v ÷ 2L, the first where a quarter wavelength fits.
+  const spacing = (Lm) => VS / (2 * Lm) / 1000;
+  const firstDip = (Lm) => VS / (4 * Lm) / 1000;
+  // A change x metres along: an echo after 2x ÷ v, which ripples the spectrum every v ÷ 2x.
+  const roundTrip = (x) => 2 * x / V_B;
+  const ripple = (x) => VS / (2 * x) / 1000;
+  // The drawn spectrum: |Z0 coth(γL)| with a little loss growing as √f to round it off (a sketch).
+  const KL = 0.03, RIPA = 0.4;
+  function zOpen(f, Lm) {
+    if (!(f > 0)) return 1e6;
+    const b = 2 * Math.PI * f * Lm / VS, a = KL * Math.sqrt(b);
+    const den = Math.cosh(2 * a) - Math.cos(2 * b), num = Math.hypot(Math.sinh(2 * a), Math.sin(2 * b));
+    return den > 1e-12 ? Z0 * num / den : 1e6;
+  }
+  const zMatched = () => Z0;
+  const band = (dn) => (Math.abs(dn) < G_LO ? 'g' : Math.abs(dn) <= R_HI ? 'a' : 'r');
+  const BAND_WORD = { g: 'mild', a: 'intermediate', r: 'significant' };
+  const BAND_FILL = { g: 'var(--k-good)', a: 'var(--k-amber-line)', r: 'var(--k-warn)' };
+  const dnTxt = (v) => (v > 0 ? '+' : '−') + Math.abs(v) + ' dB';
+
+  // ---------- the lesson's words ----------
+  const R_TASK = 'A LIRA spot signature shows a spot with a negative DNORM, in red. What could it be?';
+  const O1 = 'A bend, or a break in the shield', O2 = 'Water getting in, or heat or mechanical damage: significant', O3 = 'Water getting in, or heat or mechanical damage: mild';
+  const R_WORK = 'Negative points to water getting in, heat damage or mechanical damage. Positive points to bends and breaks in the shield. Red means significant, amber intermediate and green mild.';
+  const R_W1 = 'Bends and shield breaks give a positive DNORM. Negative points to water, heat or mechanical damage.';
+  const R_W3 = 'The type is right. But red means significant. Green is mild and amber intermediate.';
+
+  const FOR_TEXT = 'LIRA sends a sweep of small sine waves into one pair of conductors at one end. It records the cable\'s impedance at each frequency. '
+    + 'From that record, it finds where the impedance changes between any two metal conductors. That can be a core and its screen, two cores, or a core and the armour. '
+    + 'It gives the length, the joints, and where water or dirt has got in. Each wave runs to the far end and back to the set. So it needs only one end.\n\n'
+    + 'It is used around loadout, during installation, at commissioning, and in service at set intervals. The commissioning record is the cable\'s baseline. '
+    + 'LIRA gives no pass or fail. You compare each test with the baseline. So always keep the raw trace data.\n\n'
+    + 'Some systems also monitor energised cables, up to ' + ONLINE + ' kV, through sensors that do not touch the core. '
+    + 'String B runs at 66 kV, above that. So it is tested dead. Both ends are earthed and discharged first, so no energy is stored in the cable.';
+  const WARN_FOR = "Skip it, and there is no baseline to compare with in later years. And L2's fault rests on one test, from one end.";
+
+  const WHY_S = 'Take one core and its screen, with the far end open. At low frequency the pair is just a capacitor. Its reactance is 1 ÷ 2πfC. '
+    + 'It starts high and falls as the frequency rises.\n\n'
+    + 'As the frequency climbs, each wave reaches the far end and comes back. '
+    + 'Where a quarter wavelength fits the cable, the trip there and back is half a wavelength. So it comes back upside down and cancels the wave going in. '
+    + 'At the test end, the cable looks like a short, and the impedance dips. '
+    + 'Where half a wavelength fits, the round trip is a whole wavelength. The wave arrives back in step. The cable looks like an open, and the impedance peaks.\n\n'
+    + 'Each extra half wavelength repeats the pattern. So the dips come every v ÷ 2L, where v is the velocity and L the length. '
+    + 'A longer cable fits more half wavelengths into the same band. So its resonances crowd together.\n\n'
+    + "This record of impedance against frequency is the cable's impedance spectrum. "
+    + 'An end matched exactly to the cable soaks up every wave, so nothing comes back and there are no resonances.';
+  const READ_S = 'At ' + LEN_KM.toFixed(2) + ' km the dips sit ' + kHz1(spacing(LEN_M)) + ' apart. The first is at ' + kHz1(firstDip(LEN_M)) + '. '
+    + 'At ' + L_MIN.toFixed(2) + ' km they spread to ' + F('l7.pic.df12').text + ' apart. At ' + L_MAX.toFixed(2) + ' km they crowd to ' + F('l7.pic.df48').text + '. '
+    + 'With the end matched, no wave comes back. So the line goes flat at ' + fZ0.text + '.';
+
+  const WHY_P = 'Now give the core a short length of damaged insulation. Water raises the permittivity, so the capacitance there rises. '
+    + 'The impedance is the square root of L ÷ C per metre. So it falls. A little of each wave reflects from that spot, as a TDR pulse does. '
+    + "Call the spot's distance x. The echo comes back after a round trip of 2x ÷ v. The echo is late. "
+    + 'So it slips in and out of step with the main signal as the frequency rises. In step, it adds. Out of step, it takes away. '
+    + 'So it puts a small ripple on the spectrum. It comes back in step each time the frequency rises by 1 ÷ round trip. That is v ÷ 2x. '
+    + "So a nearer spot makes a wider ripple. LIRA's software turns each ripple back into a round trip. "
+    + 'Then it turns each round trip into a place with the TDR rule again, L = t × v ÷ 2. The result is the spot signature. '
+    + 'It lays the cable out by distance, with its end, its joints and any spots. '
+    + 'The software works on the phase of the impedance. The phase can show small changes better.';
+  const WHY_P2 = 'Each spot is graded by DNORM. Its sign follows the type of change. Negative means water, heat or mechanical damage. '
+    + 'Positive means bends and shield breaks. Its colour gives the severity. Green is mild, amber intermediate and red significant.\n\n'
+    + 'The bands here are practice values. On a real job they are a software or client setting.';
+  const READ_P = 'At ' + SPOT_OSS + ' m the round trip is ' + F('l7.pic.t961').text + ". That is close to TDR's " + fTF.text + '. '
+    + 'The ripple repeats every ' + fRipO.text + '. At ' + X_MIN + ' m the arrow is short. The ripple is wide, every ' + F('l7.pic.r100').text + '. '
+    + 'At ' + X_MAX + ' m it tightens to every ' + F('l7.pic.r2300').text + '. The spot follows the change along the cable. '
+    + 'Switched to a shield break, the bar flips above the line in the same place.';
+
+  const C_TASK = "From the OSS, a second spot shows nearer the set than L2's spot at " + SPOT_OSS + ' m. How does its ripple in the spectrum compare?';
+  const C_O1 = 'Wider: more kHz between its crests', C_O2 = 'Tighter: fewer kHz between its crests', C_O3 = "The same: the cable's length sets it";
+  const C_RIGHT = 'The echo from a nearer spot comes back sooner. The ripple repeats every v ÷ 2x. So a smaller x gives a wider ripple. '
+    + 'At ' + X_MIN + ' m it repeats every ' + F('l7.pic.r100').text + ', against ' + fRipO.text + ' at ' + SPOT_OSS + ' m.';
+  const C_W2 = "That is a spot farther away. A nearer spot's echo comes back sooner. So its ripple is wider.";
+  const C_W3 = 'The length sets the resonances, every v ÷ 2L. Each spot adds its own ripple, every v ÷ 2x. Its own distance sets it.';
+
+  const WK_HEAD = 'Take these practice values. LIRA runs from the OSS on L2. The software finds a ripple that repeats every ' + fRipO.text + '. Where is the change that makes it?';
+  const WL = [
+    { w: 'Set up on the dead cable, earthed and discharged at both ends. Connect the leads core to screen, as the test specification says, with the earths still on. '
+      + "Then lift L2's earth at your end under control. The B01 technician lifts L2's earth there, so its far end is open." },
+    { w: 'The rule: a ripple that repeats every Δ in frequency comes from an echo with a round trip of 1 ÷ Δ.', calc: true },
+    { w: 't = 1 ÷ ' + RIP_HZ + ' Hz = ' + fWt.text + '.', calc: true },
+    { w: 'Then the TDR rule: L = t × v ÷ 2.', calc: true },
+    { w: 'L = ' + fWx.work + ' from the OSS.', calc: true },
+    { w: 'TDR put the fault at ' + f6b.text + '. The two agree within ' + fWd.text + '.' },
+    { w: 'When you finish, put the earths back on at both ends.' },
+  ];
+  const WK_READ = 'A ripple every ' + fRipO.text + ' means an echo with a round trip of ' + fWt.text + '. At ' + V_B_S + ' m/µs, that is '
+    + fWx.work + ' from the OSS. That is within ' + fWd.text + " of TDR's " + f6b.text + '.';
+
+  const PRE_7A = 'String B is earthed and discharged at both ends. At the OSS, the leads go on L2, core to screen, with the earths still on. '
+    + "Then you lift L2's earth at the OSS under control. The B01 technician lifts L2's earth there, so its far end is open. "
+    + 'The sweep runs from 0 to ' + F_MAX_S + ' MHz.';
+  const Q7A = "(a) Determine the spacing of the resonances in L2's impedance spectrum.";
+  const PRE_7B = "From the OSS, L2's spot signature shows one spot at " + SPOT_OSS + ' m, DNORM negative and red. '
+    + 'The B01 team then tests L2 from their end. Their spot is at ' + SPOT_B01 + ' m, also negative and red.';
+  const Q7B = '(b) Determine where the B01 reading puts the spot, measured from the OSS.';
+  const Q_CH = 'Another cable, open at the far end. Its velocity is ' + CH_V + ' m/µs, and its resonances are ' + CH_DF + ' kHz apart. Determine its length.';
+  const AFTER_7B = 'Three readings point to one place: ' + SPOT_OSS + ' m, ' + f7b.text + " and TDR's " + f6b.text + '. '
+    + 'The two LIRA readings are ' + fSpread.text + ' apart. LIRA can place a spot within ' + ACC_PCT + '% of the length. On String B, that is ' + fAcc.work + '. '
+    + 'Testing from both ends gives the best sensitivity. Two ends that agree confirm the place.\n\n'
+    + 'Negative and red means a significant change, the kind that water, heat or mechanical damage makes. '
+    + 'L1 and L3 show the end and the joint, but no spots. Keep their traces as their baseline. '
+    + 'Record L2: one significant negative spot about ' + ABOUT + ' m from the OSS.';
+
+  const JOB = [
+    ['Core resistance', F('2c').text + ' at 20 °C, inside ' + F('n.tol').value + '%.'],
+    ['IR at ' + F('p.irV').value + ' kV', F('p.ir2.1m').text + " at 1 minute passes the client's " + F('p.irCrit').value + ' GΩ. But PI ' + F('3b').text + ' and DAR ' + F('l3.L2.DAR').text + ' show a flat curve.'],
+    ['Sheath', 'Tripped at ' + str(F('p.sheathL2').text, /at ([\d.]+ kV)/) + ', where L1 and L3 held ' + F('4a').text + '.'],
+    ['VLF at ' + F('5a').text + ', ' + str(F('n.vlfF').text, /^([\d.]+ Hz)/), 'Broke down at minute ' + str(F('p.vlfL2').text, /minute (\d+)/) + ', then read ' + F('p.Rf').text + ' core to screen.'],
+    ['TDR from the OSS', 'A downward peak at ' + f6b.text + '.'],
+    ['LIRA from both ends', 'One negative red spot, ' + SPOT_OSS + ' m and ' + f7b.text + ' from the OSS.'],
+  ];
+  const JOB_TEXT = 'Gentle, low-voltage checks come first. The withstand test, which can break a weak cable down, comes near the end. '
+    + 'The LIRA baseline comes last, so it records each healthy core as it goes into service. '
+    + 'On a real job you would stop and report after the sheath failed. Here the VLF test ran anyway, so one fault shows in five tests.';
+
+  let lines = 0, lastStep = -1, finished = false, waveT = 0, waveKey = '', extL = 0;
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['baseline'],
+      still: () => { waveT = WAVE_END; drawWave(); } },
+    { show: true, name: 'The why: the cable rings', label: 'The why: the cable rings', text: WHY_S, terms: ['impedance spectrum'],
+      read: WHY_S.split('\n\n').join(' ') + ' ' + READ_S,
+      still: () => { extL = Math.round(L_MAX * 1000); farCtl.set('open'); lenCtl.set(LEN_KM); K.refresh(); } },
+    { show: true, name: 'The why: a change becomes a spot', label: 'The why: a change becomes a spot', text: WHY_P, terms: ['spot signature'],
+      read: WHY_P + ' ' + WHY_P2.split('\n\n').join(' ') + ' ' + READ_P, still: { x: SPOT_OSS, kind: 'water' } },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },
+    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },
+    { name: 'Section A 7(a)', label: 'Section A · Question 7', pre: PRE_7A, part: Q7A, task: PRE_7A + ' ' + Q7A, want: f7a.text,
+      why: 'Δf = v ÷ 2L = ' + f7a.work + '.' },
+    { name: 'Section A 7(b)', label: 'Section A · Question 7', pre: PRE_7B, part: Q7B, task: PRE_7B + ' ' + Q7B, want: f7b.text,
+      why: 'From the OSS = ' + W7B + '. ' + AFTER_7B.replace('\n\n', ' ') },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: 'L = v ÷ 2Δf = ' + fChg.work + '.' },
+    { show: true, name: 'The job, end to end', label: 'The job, end to end', text: "String B's tests on L2, in the order they ran." },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iRing = 2, iSpot = 3, iChk = 4, iWk = 5, i7A = 6, i7B = 7, iB1 = 8, iCh = 9, iJob = 10, iK = 11;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWk, i7A, i7B, iCh];
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls, readouts and the model ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const lenCtl = K.control({ id: 'L', label: 'Length', min: L_MIN, max: L_MAX, step: 0.1, value: LEN_KM, fmt: (v) => (+v).toFixed(2) + ' km', snap: [L_MIN, LEN_KM, L_MAX], into: '#ctlS' });
+  const farCtl = K.choice({ id: 'far', label: 'Far end', options: [{ value: 'open', label: 'Open' }, { value: 'matched', label: 'Matched' }], value: 'open', into: '#ctlS' });
+  K.readout({ id: 'sp', label: 'Resonance spacing', fmt: kHz1, into: '#outsS' });
+  K.readout({ id: 'dip', label: 'First dip', fmt: kHz1, into: '#outsS' });
+  K.control({ id: 'x', label: 'Change at', min: X_MIN, max: X_MAX, step: 1, value: SPOT_OSS, fmt: (v) => Math.round(v) + ' m', snap: [X_MIN, SPOT_OSS, SPOT_B01, X_MAX], into: '#ctlP' });
+  K.choice({ id: 'kind', label: 'Type of change', options: [{ value: 'water', label: 'Water or damage' }, { value: 'break', label: 'Shield break or bend' }], value: 'water', into: '#ctlP' });
+  K.readout({ id: 'rt', label: 'Round trip', fmt: (v) => f2(v) + ' µs', into: '#outsP' });
+  K.readout({ id: 'rip', label: 'Ripple repeats every', fmt: kHz1, into: '#outsP' });
+  K.readout({ id: 'dn', label: 'DNORM', fmt: dnTxt, into: '#outsP' });
+
+  K.model((p) => {
+    const Lm = Math.round(+p.L * 1000), open = p.far !== 'matched', x = Math.round(+p.x);
+    return { sp: open ? spacing(Lm) : '—', dip: open ? firstDip(Lm) : '—', rt: roundTrip(x), rip: ripple(x), dn: p.kind === 'break' ? -DN : DN };
+  });
+
+  // ---------- what it is for: String B's L2, the LIRA set at the OSS, TDR's fault ----------
+  const mEl = el('msvg');
+  const M_ = (tag, a) => mEl.appendChild(K.svg(tag, a));
+  const CX0 = 100, CX1 = 330, XJ = CX0 + JOINT / LEN_M * (CX1 - CX0), XF = CX0 + f6b.value / LEN_M * (CX1 - CX0);
+  txt(mEl, 6, 14, 'on L2: core to screen', 'tk');
+  txt(mEl, XF, 30, 'TDR: fault', 'lb', 'middle');
+  txt(mEl, XF, 44, f6b.text, 'tk', 'middle');
+  M_('rect', { class: 'set', x: 6, y: 50, width: 46, height: 30, rx: 6 });
+  txt(mEl, 29, 70, 'LIRA', 'lb', 'middle');
+  M_('rect', { class: 'scr', x: CX0, y: 52, width: CX1 - CX0, height: 24 });
+  M_('rect', { class: 'jt', x: fx(XJ - 7), y: 47, width: 14, height: 34, rx: 4 });
+  M_('path', { class: 'cond', d: 'M86 64H' + CX1 });
+  M_('path', { class: 'lead', d: 'M52 58C70 58 72 64 86 64' });
+  M_('path', { class: 'lead', d: 'M52 74C72 74 82 72 100 72' });
+  M_('circle', { class: 'ldot', cx: 86, cy: 64, r: 2.5 });
+  M_('circle', { class: 'ldot', cx: 100, cy: 72, r: 2.5 });
+  M_('circle', { class: 'fmark', cx: fx(XF), cy: 64, r: 6 });
+  const waveP = M_('path', { class: 'wave', d: 'M-12 0q3 -7 6 0t6 0t6 0t6 0', opacity: 0, transform: 'translate(112 64)' });
+  txt(mEl, 29, 98, 'OSS', 'lb', 'middle');
+  txt(mEl, CX1, 98, 'B01', 'lb', 'end');
+  txt(mEl, XJ, 98, 'field joint', 'lb', 'middle');
+  txt(mEl, XJ, 114, fJoint.text, 'tk', 'middle');
+  M_('path', { class: 'br', d: 'M' + CX0 + ' 126V132H' + CX1 + 'V126' });
+  txt(mEl, (CX0 + CX1) / 2, 148, fLen.text, 'lb', 'middle');
+  mEl.setAttribute('aria-label', "String B's L2 from the OSS to B01, " + fLen.text + '. A LIRA set at the OSS end, its leads on the core and the screen. '
+    + 'The field joint at ' + fJoint.text + ". A mark at " + f6b.text + " shows TDR's fault. A small sine wave runs out to B01 and back.");
+  const WAVE_END = 4;
+  function drawWave() {
+    const t = K.clamp(waveT, 0, WAVE_END), half = WAVE_END / 2;
+    const u = t <= half ? t / half : (WAVE_END - t) / half;
+    const a = t >= WAVE_END ? 0 : Math.max(0, Math.min(1, t / 0.4, (WAVE_END - t) / 0.4));
+    waveP.setAttribute('transform', 'translate(' + fx(K.lerp(CX0 + 12, CX1 - 12, u)) + ' 64)');
+    waveP.setAttribute('opacity', a.toFixed(2));
+  }
+  drawWave();
+
+  // ---------- the why: the cable rings. The cable, its whole sweep and a close-up ----------
+  const XA = 54, XB = 326, XW = XB - XA;
+  const yLog = (z, top, h) => top + (3 - Math.log10(K.clamp(z, 1, 1000))) / 3 * h;
+  const xW = (f) => XA + f / F_MAX * XW, yW = (z) => yLog(z, 86, 72);
+  const xC = (f) => XA + f / CU_MAX * XW, yC = (z) => yLog(z, 228, 92);
+  function specPath(n, fmax, xOf, yOf, zf) {
+    let d = '';
+    for (let k = 0; k <= n; k++) { const f = k * fmax / n; d += (k ? 'L' : 'M') + fx(xOf(f)) + ' ' + fx(yOf(zf(f))); }
+    return d;
+  }
+  const sEl = el('ssvg');
+  const S_ = (tag, a) => sEl.appendChild(K.svg(tag, a));
+  const cabX = (Lm) => 54 + Lm / (L_MAX * 1000) * 240;
+  S_('rect', { class: 'set', x: 4, y: 22, width: 42, height: 24, rx: 5 });
+  txt(sEl, 25, 38.5, 'LIRA', 'lb', 'middle');
+  txt(sEl, 25, 62, 'OSS', 'lb', 'middle');
+  const sBr = S_('path', { class: 'br', d: 'M0 0' });
+  const sLenT = txt(sEl, 114, 12, '', 'lb', 'middle');
+  const sScr = S_('rect', { class: 'scr', x: 54, y: 26, width: 120, height: 16 });
+  const sCore = S_('path', { class: 'cond', d: 'M46 34H174' });
+  const sTerm = S_('rect', { class: 'term', x: 0, y: 24, width: 10, height: 20, rx: 2 });
+  const sFarT = txt(sEl, 0, 62, '', 'tk', 'middle');
+  // The whole sweep.
+  S_('rect', { class: 'cu', x: XA, y: 86, width: fx(xW(CU_MAX) - XA), height: 72 });
+  txt(sEl, XA, 80, 'close-up', 'tk');
+  txt(sEl, XB, 80, 'whole sweep, 0 to ' + F_MAX_S + ' MHz', 'tk', 'end');
+  let axW = 'M' + XA + ' 86V158H' + XB;
+  [10, 100, 1000].forEach((z) => { const y = yW(z); axW += 'M' + (XA - 4) + ' ' + fx(y) + 'H' + XA; txt(sEl, XA - 6, y + 4.5, z === 1000 ? '1000 Ω' : String(z), 'tk', 'end'); });
+  [0, 0.5, 1].forEach((m) => { const x = xW(m * 1e6); axW += 'M' + fx(x) + ' 158V162'; txt(sEl, x, 176, m === 1 ? F_MAX_S + ' MHz' : String(m), 'tk', m === 1 ? 'end' : 'middle'); });
+  S_('path', { class: 'ax', d: axW });
+  const sWhole = S_('path', { class: 'cur thin', d: 'M0 0' });
+  // The close-up.
+  txt(sEl, XA, 196, 'close-up, 0 to 150 kHz', 'tk');
+  let axC = 'M' + XA + ' 228V320H' + XB;
+  [10, 100, 1000].forEach((z) => { const y = yC(z); axC += 'M' + (XA - 4) + ' ' + fx(y) + 'H' + XA; txt(sEl, XA - 6, y + 4.5, z === 1000 ? '1000 Ω' : String(z), 'tk', 'end'); });
+  [0, 50, 100, 150].forEach((k) => { const x = xC(k * 1000); axC += 'M' + fx(x) + ' 320V324'; txt(sEl, x, 338, k === 150 ? '150 kHz' : String(k), 'tk', k === 150 ? 'end' : 'middle'); });
+  S_('path', { class: 'ax', d: axC });
+  const sGhost = S_('path', { class: 'ghost', d: 'M0 0' });
+  const sClose = S_('path', { class: 'cur', d: 'M0 0' });
+  const sBrk = S_('path', { class: 'brk', d: 'M0 0' });
+  const sSpT = txt(sEl, 0, 214, 'spacing', 'lb', 'middle');
+  const sGuide = S_('path', { class: 'guide', d: 'M0 0' });
+  const sDot = S_('circle', { class: 'ddot', cx: 0, cy: 0, r: 4 });
+  const sDipT = txt(sEl, 0, 356, 'first dip', 'lb', 'middle');
+  const sFlatT = txt(sEl, XB, 0, 'flat at ' + fZ0.text, 'lb', 'end');
+  const sKey = S_('g', {});
+  sKey.appendChild(K.svg('path', { class: 'cur', d: 'M54 369H74' }));
+  const sKeyNow = txt(sKey, 80, 374, '', 'tk');
+  sKey.appendChild(K.svg('path', { class: 'ghost', d: 'M170 369H190' }));
+  const sKeyOld = txt(sKey, 196, 374, '', 'tk');
+  let ringKey = '';
+  function drawRing(p) {
+    const Lm = Math.round(+p.L * 1000), open = p.far !== 'matched';
+    if (Lm === Math.round(L_MIN * 1000) || Lm === Math.round(L_MAX * 1000)) extL = Lm;
+    const ghost = open && extL && extL !== Lm;
+    const key = Lm + '|' + open + '|' + (ghost ? extL : 0);
+    if (key === ringKey) return;
+    ringKey = key;
+    const c1 = cabX(Lm);
+    sScr.setAttribute('width', fx(c1 - 54));
+    sCore.setAttribute('d', 'M46 34H' + fx(open ? c1 - 3 : c1 + 3));
+    sBr.setAttribute('d', 'M54 22V16H' + fx(c1) + 'V22');
+    sLenT.setAttribute('x', fx((54 + c1) / 2));
+    sLenT.textContent = (Lm / 1000).toFixed(2) + ' km';
+    sTerm.setAttribute('x', fx(c1 + 3));
+    sTerm.setAttribute('display', open ? 'none' : 'inline');
+    sFarT.setAttribute('x', fx(K.clamp(c1 + 5, 100, 270)));
+    sFarT.textContent = open ? 'far end open' : 'matched, ' + fZ0.text;
+    const zf = open ? (f) => zOpen(f, Lm) : zMatched;
+    sWhole.setAttribute('d', specPath(1400, F_MAX, xW, yW, zf));
+    sClose.setAttribute('d', specPath(600, CU_MAX, xC, yC, zf));
+    sGhost.setAttribute('d', ghost ? specPath(600, CU_MAX, xC, yC, (f) => zOpen(f, extL)) : 'M0 0');
+    sKey.setAttribute('display', ghost ? 'inline' : 'none');
+    sKeyNow.textContent = (Lm / 1000).toFixed(2) + ' km';
+    sKeyOld.textContent = (extL / 1000).toFixed(2) + ' km';
+    [sBrk, sSpT, sGuide, sDot, sDipT].forEach((n) => n.setAttribute('display', open ? 'inline' : 'none'));
+    sFlatT.setAttribute('display', open ? 'none' : 'inline');
+    sFlatT.setAttribute('y', fx(yC(Z0) - 8));
+    if (open) {
+      const fd = VS / (4 * Lm), fd2 = fd + VS / (2 * Lm), xd = xC(fd), xd2 = xC(fd2), yd = yC(zOpen(fd, Lm));
+      sBrk.setAttribute('d', 'M' + fx(xd) + ' 224V218H' + fx(xd2) + 'V224');
+      sSpT.setAttribute('x', fx((xd + xd2) / 2));
+      sDot.setAttribute('cx', fx(xd)); sDot.setAttribute('cy', fx(yd));
+      sGuide.setAttribute('d', 'M' + fx(xd) + ' ' + fx(yd + 6) + 'V342');
+      sDipT.setAttribute('x', fx(K.clamp(xd, 40, 300)));
+    }
+    sEl.setAttribute('aria-label', 'A LIRA set at the OSS end of a ' + (Lm / 1000).toFixed(2) + ' km cable with its far end ' + (open ? 'open' : 'matched') + '. '
+      + 'Below, its impedance against frequency on a log scale: the whole sweep from 0 to ' + F_MAX_S + ' MHz, and a close-up of the first 150 kHz. '
+      + (open ? 'The impedance starts high, then swings between deep dips and tall peaks. A bracket marks the spacing between two dips, and a dot the first dip.'
+        + (ghost ? ' The ' + (extL / 1000).toFixed(2) + ' km curve shows faint and dashed behind.' : '')
+        : 'The line is flat at ' + fZ0.text + ', with no dips or peaks.'));
+  }
+  function sayRing(p, o) {
+    const Lm = Math.round(+p.L * 1000), open = p.far !== 'matched';
+    let s;
+    if (!open) s = "With the far end matched to the cable's " + fZ0.text + ', each wave soaks into the end. Nothing comes back, so the line is flat, with no dips or peaks.';
+    else s = 'On ' + (Lm / 1000).toFixed(2) + ' km of cable, the first dip sits at ' + kHz1(o.dip) + ', where a quarter wavelength fits. After that a dip comes every ' + kHz1(o.sp) + '.'
+      + (Lm === Math.round(L_MAX * 1000) ? ' This is the longest cable here, so its dips crowd closest.' : Lm === Math.round(L_MIN * 1000) ? ' This is the shortest here, so its dips spread widest.' : '');
+    el('sayS').textContent = nb(s);
+  }
+
+  // ---------- the why: a change becomes a spot. Cable, spectrum and spot signature ----------
+  const pEl = el('psvg');
+  const P_ = (tag, a) => pEl.appendChild(K.svg(tag, a));
+  const xs = (m) => XA + m / LEN_M * XW;
+  const yR = (z) => yLog(z, 104, 66);
+  const BASE = 306, DBU = 2;
+  // The cable, with the change on it and the round trip under it.
+  txt(pEl, 25, 12, 'OSS', 'lb', 'middle');
+  P_('rect', { class: 'set', x: 4, y: 16, width: 42, height: 42, rx: 5 });
+  txt(pEl, 25, 41.5, 'LIRA', 'lb', 'middle');
+  P_('rect', { class: 'scr', x: XA, y: 18, width: XW, height: 16 });
+  P_('path', { class: 'cond', d: 'M46 26H' + XB });
+  P_('rect', { class: 'jt', x: fx(xs(JOINT) - 5), y: 14, width: 10, height: 24, rx: 3 });
+  const pChg = P_('rect', { x: 0, y: 15, width: 8, height: 22, rx: 2 });
+  const pHnd = P_('circle', { class: 'hnd', cx: 0, cy: 26, r: 7 });
+  const pChgT = txt(pEl, 0, 11, 'change', 'lb', 'middle');
+  const pTrip = P_('path', { class: 'trip', d: 'M0 0' });
+  P_('path', { class: 'head', d: 'M46 52l9 -5v10z' });
+  const pMid = P_('path', { class: 'head', d: 'M0 0' });
+  const pTripT = txt(pEl, 0, 72, 'round trip', 'lb', 'middle');
+  txt(pEl, XB, 72, 'B01', 'lb', 'end');
+  // L2's spectrum at 2.40 km: the resonances faint, the change's ripple bold.
+  const pRBr = P_('path', { class: 'brk', d: 'M0 0' });
+  txt(pEl, XA, 93, 'ripple repeats every', 'tk');
+  txt(pEl, XB, 93, "L2's spectrum", 'tk', 'end');
+  let axP = 'M' + XA + ' 104V170H' + XB;
+  [10, 100, 1000].forEach((z) => { const y = yR(z); axP += 'M' + (XA - 4) + ' ' + fx(y) + 'H' + XA; txt(pEl, XA - 6, y + 4.5, z === 1000 ? '1000 Ω' : String(z), 'tk', 'end'); });
+  [0, 0.5, 1].forEach((m) => { const x = xW(m * 1e6); axP += 'M' + fx(x) + ' 170V174'; txt(pEl, x, 186, m === 1 ? F_MAX_S + ' MHz' : String(m), 'tk', m === 1 ? 'end' : 'middle'); });
+  P_('path', { class: 'ax', d: axP });
+  P_('path', { class: 'res', d: specPath(1400, F_MAX, xW, yR, (f) => zOpen(f, LEN_M)) });
+  const pRip = P_('path', { class: 'rip', d: 'M0 0' });
+  P_('path', { class: 'res', d: 'M54 199H74' });
+  txt(pEl, 80, 204, 'resonances, from the length', 'tk');
+  P_('path', { class: 'rip', d: 'M54 215H74' });
+  txt(pEl, 80, 220, 'ripple from the change, drawn bigger', 'tk');
+  // The spot signature, by distance from the OSS.
+  txt(pEl, XA, 240, 'spot signature, DNORM in dB', 'tk');
+  [['r', R_HI, 22], ['a', G_LO, R_HI], ['g', 0, G_LO]].forEach(([b, lo, top]) => {
+    P_('rect', { class: 'bg-' + b, x: XA, y: BASE - top * DBU, width: XW, height: (top - lo) * DBU });
+    P_('rect', { class: 'bg-' + b, x: XA, y: BASE + lo * DBU, width: XW, height: (top - lo) * DBU });
+  });
+  P_('path', { class: 'base', d: 'M' + XA + ' ' + BASE + 'H' + XB });
+  txt(pEl, XA - 6, BASE - R_HI * DBU + 4.5, '+' + R_HI, 'tk', 'end');
+  txt(pEl, XA - 6, BASE + 4.5, '0', 'tk', 'end');
+  txt(pEl, XA - 6, BASE + R_HI * DBU + 4.5, '−' + R_HI, 'tk', 'end');
+  P_('path', { class: 'jline', d: 'M' + fx(xs(JOINT)) + ' 262V350' });
+  txt(pEl, xs(JOINT), 256, 'joint', 'lb', 'middle');
+  P_('path', { class: 'endl', d: 'M' + XB + ' 262V350' });
+  txt(pEl, XB, 256, 'end, B01', 'lb', 'end');
+  let axS = 'M' + XA + ' 350H' + XB;
+  [0, 1000, 2000].forEach((m) => { axS += 'M' + fx(xs(m)) + ' 350V354'; txt(pEl, xs(m), 366, String(m), 'tk', 'middle'); });
+  P_('path', { class: 'ax', d: axS });
+  txt(pEl, XB, 382, 'distance from the OSS (m)', 'tk', 'end');
+  const pBar = P_('rect', { x: 0, y: BASE, width: 8, height: 1 });
+  [['g', 'under ' + G_LO + ' dB: mild'], ['a', G_LO + ' to ' + R_HI + ' dB: intermediate'], ['r', 'above ' + R_HI + ' dB: significant']].forEach(([b, t], k) => {
+    P_('rect', { x: XA, y: 393 + k * 16, width: 14, height: 10, rx: 2, style: 'fill:' + BAND_FILL[b] });
+    txt(pEl, XA + 20, 402 + k * 16, t, 'tk');
+  });
+  K.drag(pHnd, { control: 'x', toValue: (x) => K.clamp(Math.round((x - XA) / XW * LEN_M), X_MIN, X_MAX) });
+  let spotKey = '';
+  function drawSpot(p, o) {
+    const x = Math.round(+p.x), water = p.kind !== 'break', key = x + '|' + water;
+    if (key === spotKey) return;
+    spotKey = key;
+    const xc = xs(x), dn = water ? DN : -DN, b = band(dn), h = Math.abs(dn) * DBU;
+    pChg.setAttribute('x', fx(xc - 4)); pChg.setAttribute('style', 'fill:' + BAND_FILL[b]);
+    pHnd.setAttribute('cx', fx(xc));
+    pChgT.setAttribute('x', fx(K.clamp(xc, 80, 300)));
+    pTrip.setAttribute('d', 'M46 44H' + fx(xc) + 'V52H55');
+    if (xc - 46 > 30) { const m = (46 + xc) / 2; pMid.setAttribute('d', 'M' + fx(m - 4) + ' 39.5l9 4.5l-9 4.5z'); } else pMid.setAttribute('d', 'M0 0');
+    pTripT.setAttribute('x', fx(K.clamp((46 + xc) / 2, 90, 250)));
+    const tau = 2 * x / VS, sg = water ? -1 : 1;
+    pRip.setAttribute('d', specPath(800, F_MAX, xW, yR, (f) => Z0 * Math.pow(10, RIPA * sg * Math.cos(2 * Math.PI * f * tau))));
+    pRBr.setAttribute('d', 'M' + XA + ' 104V98H' + fx(xW(1 / tau)) + 'V104');
+    pBar.setAttribute('x', fx(xc - 4));
+    pBar.setAttribute('y', fx(dn < 0 ? BASE : BASE - h));
+    pBar.setAttribute('height', fx(h));
+    pBar.setAttribute('style', 'fill:' + BAND_FILL[b]);
+    pEl.setAttribute('aria-label', 'String B, ' + fLen.text + ', with a change ' + x + ' m from the OSS. An arrow runs from the LIRA set to the change and back. '
+      + "Below, L2's spectrum: the resonances drawn faint, and the change's ripple drawn bold and many times bigger, with a bracket over one ripple. "
+      + 'Below that, the spot signature from 0 to ' + LEN_M + ' m: the end at ' + LEN_M + ' m, the joint at ' + fJoint.text + ', and the spot at '
+      + x + ' m, ' + (dn < 0 ? 'below' : 'above') + ' the line in the ' + BAND_WORD[b] + ' band.');
+  }
+  function saySpot(p, o) {
+    const x = Math.round(+p.x), water = p.kind !== 'break', b = band(o.dn);
+    el('sayP').textContent = nb('The change is ' + x + ' m from the OSS. Its echo comes back after ' + f2(o.rt) + ' µs, so the ripple repeats every ' + kHz1(o.rip) + '. '
+      + (water ? 'Water or damage lowers the impedance there, so the spot sits below the line, at ' : 'A shield break or bend raises it, so the spot sits above the line, at ')
+      + dnTxt(o.dn) + ': ' + BAND_WORD[b] + '.');
+  }
+
+  // ---------- String B's result: three readings in one place ----------
+  (function result() {
+    const g = el('fsvg'), G_ = (tag, a) => g.appendChild(K.svg(tag, a));
+    const X0 = 40, X1 = 320, xm = (m) => X0 + m / LEN_M * (X1 - X0), xj = xm(JOINT), xf = xm(f6b.value);
+    const Z0m = 950, zx = (m) => 60 + (m - Z0m) * 12;
+    txt(g, X0, 12, 'OSS', 'lb');
+    txt(g, X1, 12, 'B01', 'lb', 'end');
+    txt(g, xj, 12, 'joint, ' + fJoint.text, 'tk', 'middle');
+    G_('rect', { class: 'scr', x: X0, y: 20, width: X1 - X0, height: 12 });
+    G_('path', { class: 'cond', d: 'M' + X0 + ' 26H' + X1 });
+    G_('rect', { class: 'jt', x: fx(xj - 5), y: 16, width: 10, height: 20, rx: 3 });
+    G_('circle', { class: 'fmark', cx: fx(xf), cy: 26, r: 6 });
+    G_('path', { class: 'guide', d: 'M' + fx(xf) + ' 34L60 80M' + fx(xf) + ' 34L300 80' });
+    G_('rect', { class: 'scr', x: 60, y: 80, width: 240, height: 14 });
+    const rB = f7b.value, rT = f6b.value, rO = SPOT_OSS;
+    G_('path', { class: 'mk-l', d: 'M' + fx(zx(rB)) + ' 76V98M' + fx(zx(rO)) + ' 76V98' });
+    G_('path', { class: 'mk-t', d: 'M' + fx(zx(rT)) + ' 76V98' });
+    txt(g, zx(rB) - 4, 114, 'LIRA from B01: ' + f7b.text, 'tk', 'end');
+    txt(g, zx(rO) + 4, 114, 'LIRA from OSS: ' + rO + ' m', 'tk');
+    txt(g, zx(rT), 132, 'TDR: ' + f6b.text, 'lb', 'middle');
+    g.setAttribute('aria-label', 'The route from the OSS to B01, with the joint at ' + fJoint.text + '. Near ' + ABOUT + ' m, a close-up shows three readings side by side: '
+      + 'LIRA from B01 at ' + f7b.text + ", TDR at " + f6b.text + ' and LIRA from the OSS at ' + rO + ' m.');
+  })();
+
+  // ---------- one animation: a wave runs out and back on arrival ----------
+  const anim = K.anim({ button: false, label: 'Wave', step: (dt) => {
+    if (at() !== iFor) return false;
+    waveT = Math.min(WAVE_END, waveT + Math.min(dt, 0.1));
+    drawWave();
+    return waveT < WAVE_END;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', p0: R_WORK }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, p: R_WORK }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i7A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  const car7a = K.carried({ parts: ['6a', '6b'], into: '#carry7a' });
+  const car7b = K.carried({ parts: ['6b', '7a'], into: '#carry7b' });
+  const SPEC = {
+    [i7A]: { id: '7a', fig: f7a, dec: 1, accept: [], work: () => ['Δf = v ÷ 2L', '= ' + f7a.work],
+      slips: [{ value: F('7a.slip').value, hint: 'That is v ÷ L. A dip comes each time another half wavelength fits the cable. So Δf = v ÷ 2L.' },
+        { value: F('7a.slip3').value, hint: 'That is the first dip, where a quarter wavelength fits. The dips after it come every v ÷ 2L.' },
+        { value: F('7a.slip2').value, hint: 'That uses ' + V_DEF + " m/µs, a default. Use String B's " + V_B_S + ' m/µs from 6(a).' }],
+      hint: 'Not quite. Each dip is one more half wavelength: Δf = v ÷ 2L, with L in metres.',
+      after: 'Turned round, the rule gives the length: L = v ÷ 2Δf = ' + fLenChk.work + ". With v from the cable's data, that checks the route record." },
+    [i7B]: { id: '7b', fig: f7b, dec: 0, accept: [], work: () => ['From the OSS = length − distance from B01', '= ' + W7B],
+      slips: [{ value: F('7b.slip').value, hint: 'That is from B01. Take it from the length, ' + LEN_M + ' − ' + SPOT_B01 + '.' },
+        { value: F('7b.slip2').value, hint: 'That adds the two. The B01 distance runs back from the far end. So take it from the length.' }],
+      hint: 'Not quite. The B01 reading runs back from the far end. Take it from the length.',
+      after: AFTER_7B },
+    [iCh]: { id: 'l7.changed', fig: fChg, dec: 0, accept: [], work: () => ['L = v ÷ 2Δf', '= ' + fChg.work],
+      slips: [{ value: F('l7.changed.slip').value, hint: 'That is v ÷ Δf. Each dip is another half wavelength. So L = v ÷ 2Δf.' },
+        { value: F('l7.changed.slip2').value, hint: 'That divides by 4. The spacing is v ÷ 2L. So L = v ÷ 2Δf.' }],
+      hint: 'Not quite. Turn the rule round: L = v ÷ 2Δf, with Δf in hertz.',
+      after: 'It is longer than String B. So its resonances sit closer together, ' + CH_DF + ' kHz apart against ' + f7a.text + '.' },
+  };
+  const BOX = { [i7A]: '#ans-7a', [i7B]: '#ans-7b', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work() };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B, the job and Keep this ----------
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and ' + (need >= n ? 'a full answer makes all ' + (WORDS[n] || n) : 'any ' + (WORDS[need] || need) + ' make a full answer') + '. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  (function job() {
+    const box = el('job'), list = box.appendChild(K.el('div', { class: 'jobs' }));
+    JOB.forEach((r) => list.appendChild(K.el('div', { class: 'jr' }, K.el('b', null, nb(r[0])), K.el('span', null, nb(r[1])))));
+    box.appendChild(write(K.el('p', { class: 'why' }), JOB_TEXT));
+  })();
+  K.summary({ into: '#keep' });
+  // Once the card has rendered: bind numbers to units, and a short term after × or ÷ to its operator ("v ÷ 2x").
+  function bindKeep() {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => {
+      const v = nb(n.nodeValue).replace(/([×÷]) (\S{1,3})(?=[\s,.;]|$)/g, '$1' + NB + '$2');
+      if (v !== n.nodeValue) n.nodeValue = v;
+    });
+  }
+  bindKeep();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' });
+  const wl = WL.map((x, k) => {
+    const box = K.el('div', { class: 'line' });
+    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));
+    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));
+    wbox.appendChild(box);
+    return box;
+  });
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));
+  el('capM').textContent = nb("String B's " + fLen.text + ' and its joint at ' + fJoint.text + ' are practice values.');
+  el('titS').textContent = 'The cable and its impedance spectrum';
+  el('capS').textContent = nb('A sketch: the dips sit where the rule puts them. ' + V_B_S + ' m/µs and ' + fZ0.text + ' are practice values.');
+  el('titP').textContent = 'A change, its ripple and its spot';
+  paras(el('whyP'), WHY_P2, ['DNORM']);
+  el('capP').textContent = nb('The ripple is drawn many times bigger than real. The DNORM values are practice values.');
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i7A], carry7a: [i7A], carry7b: [i7B], pre: [i7A, i7B],
+    wrapM: [iFor], warnFor: [iFor], capM: [iFor],
+    wrapS: [iRing], ctlS: [iRing], outsS: [iRing], sayS: [iRing], capS: [iRing],
+    wrapP: [iSpot], ctlP: [iSpot], outsP: [iSpot], sayP: [iSpot], whyP: [iSpot], capP: [iSpot],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-7a': [i7A], 'ans-7b': [i7B], 'ans-ch': [iCh], job: [iJob], wr1: [iB1], keep: [iK], fin: [iK] };
+  const ASK = {
+    [iRing]: 'Drag the length down to ' + L_MIN.toFixed(2) + ' km, then up to ' + L_MAX.toFixed(2) + ' km. Then switch the far end to Matched.',
+    [iSpot]: 'Drag the change towards the OSS, then out towards B01. Then switch its type.',
+    [iWk]: 'Work each line yourself first, then press Show.',
+  };
+  const CARRY = { [i7A]: car7a, [i7B]: car7b };
+
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i === iK) bindKeep();
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+      if (i === i7A) scen.el.open = true;
+      if (CARRY[i] && typeof CARRY[i].refresh === 'function') { try { CARRY[i].refresh(); } catch (e) { /* the panel keeps its last state */ } }
+    }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('pre'), d.pre || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (ASK[i] ? ' ask' : '');
+    sub.textContent = nb(ASK[i] ? ASK[i]
+      : i === iChk ? "String B's figures are practice values."
+      : i === i7A ? 'Give it in kHz, to 1 place.'
+      : i === i7B ? 'Give it in m, to the nearest metre.'
+      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in m, to the nearest metre.'
+      : i === iB1 ? markLine('b1')
+      : i === iJob ? "String B's results are practice values."
+      : i === iK ? 'One card to come back to on a real job.' : '');
+    sub.hidden = !sub.textContent;
+
+    drawRing(p);
+    sayRing(p, o);
+    drawSpot(p, o);
+    saySpot(p, o);
+    const wk = i === iFor ? 'W' : '';
+    if (wk && wk !== waveKey) { waveT = 0; drawWave(); if (!anim.playing()) anim.play(); }
+    waveKey = wk;
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    el('wrapF').hidden = !(i === i7B && typedDone);
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['wrapF', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);
+  const AL = (L, far) => K.at({ L: L, far: far || 'open' }), AX = (x, kind) => K.at({ x: x, kind: kind || 'water' });
+  K.check('Spacing and first dip at 1.20, 2.40 and 4.80 km: 70.0 and 35.0, 35.0 and 17.5, 17.5 and 8.8 kHz', () =>
+    near(r1(AL(1.2).sp), F('l7.pic.df12').value) && near(r1(AL(1.2).dip), F('l7.pic.dip12').value)
+    && near(r1(AL(2.4).sp), f7a.value) && near(r1(AL(2.4).dip), F('7a.slip3').value)
+    && near(r1(AL(4.8).sp), F('l7.pic.df48').value) && near(r1(AL(4.8).dip), F('l7.pic.dip48').value) && kHz1(AL(4.8).dip) === '8.8 kHz');
+  K.check('v = 2L(f(k+1) − f(k)): 2 × 2400 m × 35 000 Hz gives back 168.0 m/µs', () => near(2 * LEN_M * AL(2.4).sp * 1000 / 1e6, V_B, 1e-9),
+    { source: 'https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222' });
+  K.check('A far end matched exactly to the cable sends nothing back, so the spectrum has no resonances', () =>
+    AL(2.4, 'matched').sp === '—' && AL(2.4, 'matched').dip === '—' && [1e3, 17.5e3, 35e3, 5e5].every((f) => zMatched(f) === Z0),
+    { source: 'https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf' });
+  K.check('The dips sit where a quarter wavelength fits, the peaks where a half fits, and at low frequency the impedance falls like a capacitor', () =>
+    [1200, 2400, 4800].every((Lm) => {
+      const fd = VS / (4 * Lm), fp = VS / (2 * Lm), d = 500, xc = 1 / (2 * Math.PI * 1000 * (Lm / (VS * Z0)));
+      return zOpen(fd, Lm) < zOpen(fd - d, Lm) && zOpen(fd, Lm) < zOpen(fd + d, Lm) && zOpen(fp, Lm) > zOpen(fp - d, Lm) && zOpen(fp, Lm) > zOpen(fp + d, Lm)
+        && zOpen(fd, Lm) < Z0 && zOpen(fp, Lm) > Z0 && near(zOpen(1000, Lm) / xc, 1, 0.03) && zOpen(1000, Lm) > zOpen(2000, Lm);
+    }));
+  K.check('Round trip and ripple at 100, 961, 1441 and 2300 m: 1.19, 11.44, 17.15 and 27.38 µs; 840.0, 87.4, 58.3 and 36.5 kHz', () =>
+    near(r2(AX(100).rt), F('l7.pic.t100').value) && near(r2(AX(961).rt), F('l7.pic.t961').value) && near(r2(AX(1441).rt), F('l7.pic.t1441').value)
+    && near(r2(AX(2300).rt), F('l7.pic.t2300').value) && near(r1(AX(100).rip), F('l7.pic.r100').value) && near(r1(AX(961).rip), fRipO.value)
+    && near(r1(AX(1441).rip), F('l7.rippleB01').value) && near(r1(AX(2300).rip), F('l7.pic.r2300').value));
+  K.check('A nearer change gives a wider ripple; the spot flips side with its type and sits in the significant band', () => {
+    for (let x = X_MIN; x < X_MAX; x += 50) if (!(AX(x).rip > AX(x + 50).rip && AX(x).rt < AX(x + 50).rt)) return false;
+    return AX(961, 'water').dn === DN && DN < 0 && AX(961, 'break').dn === -DN && band(DN) === 'r' && band(-DN) === 'r' && band(G_LO - 1) === 'g' && band(R_HI) === 'a';
+  });
+  K.check("Worked example: 1 ÷ 87 400 Hz = 11.44 µs; 11.44 × 168.0 ÷ 2 = 961.0 m, 0.9 m from TDR's 960.1 m", () =>
+    near(r2(1e6 / RIP_N), fWt.value) && near(r1(fWt.value * V_B / 2), fWx.value) && near(r1(fWx.value - f6b.value), fWd.value) && near(RIP_N / 1000, fRipO.value));
+  K.check('7(a) 35.0 kHz and back to 2400 m; 7(b) 2400 − 1441 = 959 m, 2 m from 961 m; changed numbers 3360 m', () =>
+    near(r1(VS / (2 * LEN_M) / 1000), f7a.value) && near(VS / (2 * f7a.value * 1000), fLenChk.value) && near(LEN_M - SPOT_B01, f7b.value)
+    && near(SPOT_OSS - f7b.value, fSpread.value) && near(CH_V * 1e6 / (2 * CH_DF_HZ), fChg.value));
+  K.check('Each slip is its own working: 70.0, 17.5 and 33.3 kHz; 1441 and 3841 m; 6720 and 1680 m', () =>
+    near(r1(VS / LEN_M / 1000), F('7a.slip').value) && near(r1(VS / (4 * LEN_M) / 1000), F('7a.slip3').value) && near(r1(V_DEF * 1e6 / (2 * LEN_M) / 1000), F('7a.slip2').value)
+    && near(SPOT_B01, F('7b.slip').value) && near(LEN_M + SPOT_B01, F('7b.slip2').value)
+    && near(CH_V * 1e6 / CH_DF_HZ, F('l7.changed.slip').value) && near(CH_V * 1e6 / (4 * CH_DF_HZ), F('l7.changed.slip2').value));
+  K.check('Within 0.5% of the length is 12 m on String B', () => near(ACC_PCT / 100 * LEN_M, fAcc.value));
+  K.check("Every slip lies outside its answer's accepted figures", () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.5;
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+
+  K.ready();
+</script>

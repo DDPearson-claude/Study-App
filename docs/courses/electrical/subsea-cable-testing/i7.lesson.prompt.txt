@@ -1,0 +1,511 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: HV Subsea Cable Testing
+Puzzle the course answers: String B, 2.40 km of 66 kV cable from B01 to the substation, passes its insulation resistance figure, yet core L2 is faulty. How do you prove it and find the fault, from the ends alone?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A subsea power cable is a long capacitor wrapped in layers, so it is made safe before and after every test, and each test checks one layer: the four-wire resistance test the conductors, the insulation resistance curve and the VLF withstand the insulation, at low stress and above its working stress, and the sheath test the outer jacket. When a test fails, TDR and LIRA treat the cable as a line that sends part of a signal back wherever it changes, and turn that echo into a distance from the end. This refresher takes your subsea cable testing course back through, test by test, on one made-up 66 …
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): HV Subsea Cable Testing
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The cable, and making it safe to test — Conductor and screen are the plates of a long capacitor, so a dead cable can hold charge and pick it up from a live neighbour: identify, isolate, prove dead, secure and earth at both ends, and know which layer each test checks. [mechanism]
+  i2  Phases and conductors: the four-wire measurement — Below 1 Ω the leads and contacts swamp a two-wire reading, so the DLRO drives current through the C leads and measures across the P leads inside them; three loop readings solve three cores, and a cold cable reads low until corrected to 20 … [skill] (needs i1)
+  i3  Insulation resistance over ten minutes: IR, DAR and PI — The tester's current is charging, absorption and leakage; as the first two die away a dry cable's resistance climbs, so PI and DAR, ratios taken minutes apart on the same cable, show moisture a single reading can pass. [quantity] (needs i1, i2)
+  i4  The sheath test: 4 kV per millimetre — The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face. [quantity] (needs i1, i3)
+  i5  VLF withstand: why 0.1 Hz — A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now. [quantity] (needs i1, i3)
+  i6  TDR: reading the reflections — A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length. [skill] (needs i2, i5)
+  i7  LIRA: the cable's impedance spectrum — An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, … [mechanism] (needs i6)   <-- THIS LESSON
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i7: "LIRA: the cable's impedance spectrum"
+What Dan should come away understanding: An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, from one end.
+Kind: mechanism. Builds on: i6 "TDR: reading the reflections".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "The cable, and making it safe to test"
+  Analogy: Think of a large capacitor bank you have isolated. You would not touch its terminals until it had been discharged and shorted to earth. You would leave the short on while you worked. A cable core is …
+  Interactive: The one thing you should see is the core's voltage creeping back, as charge held in the XLPE drifts out to the conductor, when you lift the earth straight after a discharge.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Body resistance at 55 V, Ω = 10000 (constant); Voltage for that resistance, V = 55 (constant); Body current, 55 ÷ 10 000, mA = 5.5; Potentially fatal current, mA = 50 (constant); Capacitance per core per km, µF/km = 0.22 (constant)
+- i2 "Phases and conductors: the four-wire measurement"
+  Analogy: You null your low-resistance ohmmeter's leads before an R1+R2 test. That takes the leads' own resistance off every reading. Four wires do the same job without nulling, and they leave out the contacts…
+  Interactive: The one thing you should see is the lead and contact resistance dropping out of the reading when you move the voltage measurement from the meter's own leads to P probes inside the C clamps.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Low resistance, below, Ω = 1 (constant); Worked example loop A, L1 to L2, mΩ = 76.9 (assumed); Worked example loop B, L2 to L3, mΩ = 80.49 (assumed); Worked example loop C, L3 to L1, mΩ = 81.16 (assumed); Worked example: A + C − B, mΩ = 77.57
+- i3 "Insulation resistance over ten minutes: IR, DAR and PI"
+  Terms: absorption current, polarisation index, dielectric absorption ratio
+  Analogy: Think of charging a battery bank through an ammeter. The current starts high and tapers as the cells fill. What is left at the end is the bank's own leak. A healthy bank tapers to a small current. A …
+  Interactive: The one thing you should see is the IR curve flattening, and PI and DAR falling towards 1, when you step the insulation from dry to wet, while the 1-minute reading still clears the client's figure.
+  Numbers: Screen, 1 to 13 (the stepper) = 0; Recall: reading at 1 minute, GΩ = 2 (assumed); Recall: reading at 10 minutes, GΩ = 6 (assumed); Recall: PI = 3; Recall slip: ratio upside down = 0.33; Recall slip: the rise, GΩ = 4
+- i4 "The sheath test: 4 kV per millimetre"
+  Terms: water treeing, outer electrode
+  Analogy: On an installation you pick the IR test voltage to suit the circuit. A 400 V circuit gets a higher test voltage than SELV. The test should stress the insulation enough to show a fault. It should not …
+  Interactive: The one thing you should see is the test voltage rising 4 kV per millimetre to the 10 kV cap at 2.5 mm, then staying flat while the stress falls, when you drag the sheath thickness.
+  Numbers: Screen, 1 to 11 (the stepper) = 0; Sheath test rate, kV d.c. per mm = 4 (constant); Sheath test cap, kV d.c. = 10 (constant); Sheath test duration, minutes = 1 (constant); Thickness where the cap applies, mm = 2.5; Recall: sheath thickness, mm = 2 (assumed)
+- i5 "VLF withstand: why 0.1 Hz"
+  Terms: electrical tree, charging current, U0
+  Analogy: Think of a power factor correction bank on a 50 Hz board. It draws a large current with almost no real load behind it. That current is charge flowing in and out of the capacitors, 50 times a second. …
+  Interactive: The one thing you should see is one String B core's charging current at 76 kV falling 500 times, from 12.61 A to 25.21 mA, when you step the frequency from 50 Hz down to 0.1 Hz.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Recall: the cable's rating, U0, kV = 12 (assumed); Recall: the cable's rating, between cores, kV = 20 (assumed); Low multiple of U0 = 1.5 (constant); High multiple of U0 = 2.5 (constant); Recall: lowest level, kV = 18
+- i6 "TDR: reading the reflections"
+  Terms: characteristic impedance, velocity factor, fingerprint
+  Analogy: Shout into a long tunnel and time the echo off the far wall. The sound goes there and back. So the wall is half the time × the speed of sound away. Use the wrong speed, and every wall you find is out…
+  Interactive: The one thing you should see is the end of L2's trace flipping from a downward to an upward peak, while the fault's dip at 11.43 µs stays down, when you switch the far end from linked to open.
+  Numbers: Screen, 1 to 12 (the stepper) = 0; Recall: reflection time, µs = 20 (assumed); Recall: velocity set, m/µs = 160 (assumed); Recall: distance, m = 1600; Recall slip: no ÷ 2, m = 3200; Recall slip: v/2 and halved again, m = 800
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? A refresher of my subsea cable testing course, taught back to me.
+- Where will you use it? As a reference for real cable testing and fault finding.
+- How do you like to learn? Recall first, the why where I need it, then practice on a real cable job.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Medium and Low Voltage Cable Measurements - TD, PD, LIRA — https://inis.iaea.org/records/d277e-pwz88
+    "LIRA technology is based on the transmission line theory, through the estimation and analysis of the complex line impedance as a function of the applied signal frequency."
+[2] condition monitoring & fault detection in cables using line ... — https://www.diatech.in/wp-content/uploads/2022/08/Condition-Assessment-Fault-Detection-in-Cables-using-Line-Impedance-Resonance-Analysis-1.pdf
+    "Line Impedance Resonance Analysis (LIRA) measures the surge impedance of a cable at a large range of frequencies."
+[3] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "LIRA (Line Resonance Analysis System) is based on transmission line theory, an established and well documented theory"
+[4] Your subsea cable testing course notes — material:notes#p5
+    "LIRA measures impedance irregularities between any two metallic conductors and needs access to only one end"
+[5] Your subsea cable testing course notes — material:notes#p5
+    "Based on frequency domain analysis of high-frequency resonance effects of unmatched transmission lines"
+[6] Your subsea cable testing course notes — material:notes#p5
+    "Sensitive to small changes of wire electric parameters, mainly insulation permittivity"
+[7] Your subsea cable testing course notes — material:notes#p5
+    "Changes in dielectric permittivity lead to changes in cable impedance"
+[8] [PDF] Physics-Based Modeling of Cable Insulation Conditions for Frequency ... — https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf
+    "The characteristics of a damaged segment are different primarily due to the change in cable capacitance within the damaged segment."
+[9] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "Any impedance changes along cable can be initiated by discontinuities such as joints, splices or defects."
+[10] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "Through frequency domain analysis, these changes can create a deviation in the input impedance spectrum."
+[11] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "The resonance frequencies are used to determine the cable length while deviations in the phase spectrum is used to determine the overall condition of the cable and identify joints and degradations along the cable."
+[12] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "vr=2L(fk+1−fk)/v0"
+[13] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "where L is the length of the cable"
+[14] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "wherein v0 is the speed of light in vacuum, and vr is an estimated relative phase velocity of an electrical signal in the cable"
+[15] [PDF] Physics-Based Modeling of Cable Insulation Conditions for Frequency ... — https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf
+    "Since the LIRA technique is based on line resonances that exist along the cable length, it is compatible with an arbitrary termination condition except for an exact match to the cable impedance."
+[16] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "The DNORM is a useful indicator which is to be used as a decision support tool to examine and evaluate the severity of local impedance changes."
+[17] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "the sign of the DNORM signature contains information that is useful in determining the type of impedance change."
+[18] condition monitoring & fault detection in cables using line ... — https://www.diatech.in/wp-content/uploads/2022/08/Condition-Assessment-Fault-Detection-in-Cables-using-Line-Impedance-Resonance-Analysis-1.pdf
+    "In DNORM, the spike delta (difference from the terminal peak (TP)) is normalized to the TP position, regardless of where the real spot is located."
+[19] condition monitoring & fault detection in cables using line ... — https://www.diatech.in/wp-content/uploads/2022/08/Condition-Assessment-Fault-Detection-in-Cables-using-Line-Impedance-Resonance-Analysis-1.pdf
+    "Any localized HotSpot produces a mirror image on the other side of the terminal peak"
+[20] condition monitoring & fault detection in cables using line ... — https://www.diatech.in/wp-content/uploads/2022/08/Condition-Assessment-Fault-Detection-in-Cables-using-Line-Impedance-Resonance-Analysis-1.pdf
+    "This is due to a second-order reflection of the damaged section."
+[21] Your subsea cable testing course notes — material:notes#p6
+    "Negative Thermal degradation · water penetration · mechanical causes"
+[22] Your subsea cable testing course notes — material:notes#p6
+    "Positive Bends · breaks (in shield)"
+[23] Your subsea cable testing course notes — material:notes#p6
+    "Severity colours: Green = mild · Amber = intermediate · Red = significant"
+[24] Your subsea cable testing course notes — material:notes#p6
+    "Normally testing shall be conducted bi-directionally for each cable"
+[25] Your subsea cable testing course notes — material:notes#p5
+    "A LIRA test takes roughly 1 minute"
+[26] Your subsea cable testing course notes — material:notes#p5
+    "18 total tests, typically core to screen and core to core"
+[27] Your subsea cable testing course notes — material:notes#p6
+    "No acceptance criteria"
+[28] Your subsea cable testing course notes — material:notes#p6
+    "Documentation must include the raw data format of the trace"
+[29] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "LIRA can estimate the location of the challenged part with an estimation error within 0.5% of the cable length."
+[30] Your subsea cable testing course notes — material:notes#p6
+    "Ensure both ends are earthed and discharged so no energy is stored in the cable"
+[31] Lecture 12 More on Transmission Lines — https://engineering.purdue.edu/wcchew/ece604f20/Lecture%20Notes/Lect12.pdf
+    "an open-circuited terminated short length of transmission line appears like an effective capacitor with C eff = Cl"
+[32] Lecture 12 More on Transmission Lines — https://engineering.purdue.edu/wcchew/ece604f20/Lecture%20Notes/Lect12.pdf
+    "These are resonances or anti-resonances of the transmission line, very much like an LC tank circuit."
+[33] Transmission Line Input Impedance — http://www.ittc.ku.edu/~jstiles/723/handouts/Transmission_Line_Input_Impedance.pdf
+    "The quarter-wave transmission line transforms a short-circuit into an open-circuit—and vice versa!"
+[34] 32 Input impedance and microwave resonators — https://courses.grainger.illinois.edu/ece329/sp2021/Lecture_notes/329lect32-L34.pdf
+    "it shows resonance if the stub length ℓ is an odd multiple of λ 4"
+[35] 32 Input impedance and microwave resonators — https://courses.grainger.illinois.edu/ece329/sp2021/Lecture_notes/329lect32-L34.pdf
+    "f = v 2 ℓ (1 2 + n ) for n = 0 , 1 , 2 , 3 , · · ·"
+[36] Techniques for Time Domain Measurements - Application Note — https://www.testequity.com/UserFiles/documents/pdfs/keysight/time-domain-measurements.pdf
+    "Alternatively, if frequency domain data is initially captured, then an Inverse FT (IFT) will result in a time domain representation of the data."
+[37] Time Domain Analysis Using a Network Analyzer PDF Asset Page | Keysight — https://www.keysight.com.cn/cn/zh/assets/7018-01451/application-notes/5989-5723.pdf
+    "The Fourier Transform of the network reflection coefficient as a function of frequency is the reflection coefficient as a function of time; i.e., the distance along a transmission line."
+[38] Techniques for Time Domain Measurements - Application Note — https://www.testequity.com/UserFiles/documents/pdfs/keysight/time-domain-measurements.pdf
+    "Knowing the propagation velocity along the transmission line allows the time measurement to be scaled to physical distance."
+[39] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "said wave reflections being due to discontinuities in electrical parameters of said cable, and calculating each of said locations xi by"
+[40] US20090228222A1 - Line Resonance Analysis System — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20090228222
+    "bandwidth 0-X MHz, where X depends on the cable length"
+[41] All you want to know about Wirescan Digital in What? How? Where? — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/646fa4d289f6ba16eb33e721/1685038303170/FAQs_WS_edited_2023.pdf
+    "The cable is exposed to a vector of 5,000-30,000 discrete frequencies and the resulting impedance spectrum, Z(f), is the basis for the methodology."
+[42] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "the Spot Signature trace is based on the Fast Fourier Transform (FFT) analysis on the input impedance phase spectrum, which can be more sensitive to detect soft defects with a low impedance variation"
+[43] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "injects a set of non-destructive, low amplitude, sine waves into the cable"
+[44] LIRA Technology Cable Condition Assessment and ... — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/5fd337f926fa4758b5af9ce3/1607677946102/WP01-LIRA+Basics+D2+(1).pdf
+    "These waves propagate to the far end of the cable and are reflected back to the injection port."
+[45] Bulk and Distributed Electrical Cable Non-Destructive Examination Methods for Nuclear Power Plant Cable Aging Management Programs — https://www.pnnl.gov/main/publications/external/technical_reports/PNNL-25634.pdf
+    "A separate bar chart display (DNORM) is available for severity assessment in which the identified features that exceed the DNORM threshold setting along the cable length are color-coded by severity rating"
+[46] Bulk and Distributed Electrical Cable Non-Destructive Examination Methods for Nuclear Power Plant Cable Aging Management Programs — https://www.pnnl.gov/main/publications/external/technical_reports/PNNL-25634.pdf
+    "The direction of the DNORM hotspot indicators (positive or negative) is a function of the type of impedance change producing the reflection and can be used to identify the local condition such as moisture ingress or thermal degradation."
+[47] Bulk and Distributed Electrical Cable Non-Destructive Examination Methods for Nuclear Power Plant Cable Aging Management Programs — https://www.pnnl.gov/main/publications/external/technical_reports/PNNL-25634.pdf
+    "exceeds the 0 dB dynamic normalization threshold for all three conductor pairs"
+[48] Cable Line Resonance Analysis (LIRA) | EA Technology Americas — https://eatechnology.com/americas/services/condition-assessment/cable-condition-assessment/cable-line-resonance-analysis-lira/?utm_source=chatgpt.com
+    "For the highest sensitivity, testing from both ends of a cable is recommended to overcome some signal loss across multiple impedance changes, although this is not a necessity."
+[49] Cable Line Resonance Analysis (LIRA) | EA Technology Americas — https://eatechnology.com/americas/services/condition-assessment/cable-condition-assessment/cable-line-resonance-analysis-lira/?utm_source=chatgpt.com
+    "Motors, transformers and other loads may remain connected during testing provided that they cause a change in impedance of sufficient magnitude to reflect the applied signal at the cable’s end."
+[50] Cable Line Resonance Analysis (LIRA) | EA Technology Americas — https://eatechnology.com/americas/services/condition-assessment/cable-condition-assessment/cable-line-resonance-analysis-lira/?utm_source=chatgpt.com
+    "LIRA is capable of being used on cables that are hundreds of kilometers in length and is thus suited to applications that other tests which involve energizing the circuit to working voltage are not."
+[51] Cable Line Resonance Analysis (LIRA) | EA Technology Americas — https://eatechnology.com/americas/services/condition-assessment/cable-condition-assessment/cable-line-resonance-analysis-lira/?utm_source=chatgpt.com
+    "It is considered best practice that an initial ‘fingerprint’ of a cable is taken before any faults are known to have occurred on a cable, such as during commissioning."
+[52] All you want to know about Wirescan Digital in What? How? Where? — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/646fa4d289f6ba16eb33e721/1685038303170/FAQs_WS_edited_2023.pdf
+    "LIRA measurements (fingerprinting) at crucial manufacturing milestones, factory acceptance tests, after transportation, before, during and after installation provides quality assurance along the whole cable journey."
+[53] Wirescan has offered the innovative and ... (PES Wind talking point) — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/60070a6662134b4d0ecc8b19/1611074153246/PES-W-4-19-Wirescan-Talking-point.pdf
+    "LIRA, TDR and OTDR are chosen as test and fingerprinting methods, and these technologies alone will generate more than 400 pdf reports if the testing is performed at FAT, spooling and commissioning."
+[54] Wirescan has offered the innovative and ... (PES Wind talking point) — https://static1.squarespace.com/static/5f903866e8c9924e679b44a8/t/60070a6662134b4d0ecc8b19/1611074153246/PES-W-4-19-Wirescan-Talking-point.pdf
+    "After installation and termination, the commissioning tests are performed to ensure cable quality and system integrity before energizing the system."
+[55] Line Resonance Analysis Implemented in a Cloud-based Monitoring System for Energized Power Cables – A Case Study | CSE — https://cse.cigre.org/cse-n024/line-resonance-analysis-implemented-in-a-cloud-based-monitoring-system-for-energized-power-cables-a-case-study.html
+    "These methods are typically restricted to offline measurements due to safety requirements which limits the usability for condition monitoring"
+[56] Line Resonance Analysis Implemented in a Cloud-based Monitoring System for Energized Power Cables – A Case Study | CSE — https://cse.cigre.org/cse-n024/line-resonance-analysis-implemented-in-a-cloud-based-monitoring-system-for-energized-power-cables-a-case-study.html
+    "In the online measurement configuration of energized cables, no galvanic contact with the cable core or screen is possible."
+[57] Line Resonance Analysis Implemented in a Cloud-based Monitoring System for Energized Power Cables – A Case Study | CSE — https://cse.cigre.org/cse-n024/line-resonance-analysis-implemented-in-a-cloud-based-monitoring-system-for-energized-power-cables-a-case-study.html
+    "The cables, AL/XLPE/CWS/PVC 1X630/16 RM, 12/10(24) kV, are manufactured by Hellenic Cables S.A. in Greece."
+[58] Line Resonance Analysis Implemented in a Cloud-based Monitoring System for Energized Power Cables – A Case Study | CSE — https://cse.cigre.org/cse-n024/line-resonance-analysis-implemented-in-a-cloud-based-monitoring-system-for-energized-power-cables-a-case-study.html
+    "acting as a band pass filter from 100 kHz to 20 MHz"
+[59] Next Generation Cable Testing Using LIRA® — https://www.fauske.com/blog/next-generation-cable-testing-using-lira
+    "Depending on the length of the test cable, a typical LIRA test will take about three minutes."
+[60] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "A TDR (time domain reflectometer) uses the radar principle to identify faults on cables."
+[61] Your subsea cable testing course notes — material:notes#p7
+    "TDR uses the radar principle to identify faults"
+[62] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "Reflections are caused by changes in the cable’s characteristic impedance, such as poor joints or discontinuities."
+[63] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "a positive reflection shows a higher impedance, a lower reflection shows a lower impedance"
+[64] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "Positive reflections are caused by increases in impedance as the conductors go farther apart."
+[65] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "Negative reflections are caused by decreases in impedance as the conductors get closer together."
+[66] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Open conductor A large positive trace."
+[67] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Short circuit A negative trace."
+[68] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Cable splice/joint A small positive followed by a small negative trace."
+[69] Your subsea cable testing course notes — material:notes#p8
+    "Upward (positive) peak Open conductor"
+[70] Your subsea cable testing course notes — material:notes#p8
+    "Downward (negative) peak Short circuit"
+[71] Your subsea cable testing course notes — material:notes#p8
+    "Small up-down ripple Splice / joint"
+[72] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Wet splice/water Short positive/negative trace"
+[73] Your subsea cable testing course notes — material:notes#p8
+    "Ragged/noisy trailing section Water ingress"
+[74] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "VF is the ratio of the speed of the cable to the speed of light."
+[75] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "If you do not know the VF of the cable under test it may be possible to test a known length and adjust the VF until the distance displayed to the end of the cable is correct."
+[76] Your subsea cable testing course notes — material:notes#p7
+    "You must input the speed of the pulse of the cable — this enables the TDR to convert pulses into distance from time"
+[77] Microsoft Word - Basic TDR Operation1.doc — https://portalvhds963slh4m3fqg2.blob.core.windows.net/megger-products/TDR_AN58_EN_V02.pdf
+    "Power XLPE 0.54 to 0.62 162 to 186"
+[78] [PDF] Physics-Based Modeling of Cable Insulation Conditions for Frequency ... — https://lwrs.inl.gov/content/uploads/11/2024/03/Physics-Based_Modeling_of_Cable_Insulation_Conditions_for_Frequency_Domain_Reflectometry_FDR.pdf
+    "by half the time it takes for the incident wave to travel to the impedance change and be reflected back to the signal generator"
+[79] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "By measuring the time between the transmitted pulse and the reception of the reflected pulse, and multiplying this by the speed of light and the velocity factor, the actual distance to the reflection point can be established."
+[80] Your subsea cable testing course notes — material:notes#p7
+    "Formula: L = t × v ÷ 2"
+[81] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "If this velocity factor is not correct for the cable under test, the displayed distance will be incorrect."
+[82] Time domain reflectometry: techniques and examples | Megger — https://www.megger.com/en-gb/et-online/september-2014/time-domain-reflectometry-techniques-and-examples
+    "For fault location it is essential always to bear in mind that an easily visible open reflection is not necessarily the end of the cable – it can also be a break or cut in the cable."
+[83] Your subsea cable testing course notes — material:notes#p8
+    "Perform open and closed tests to prove the end of the cable"
+[84] Your subsea cable testing course notes — material:notes#p8
+    "Link = negative peak (short)"
+[85] Your subsea cable testing course notes — material:notes#p8
+    "No link = positive peak (open)"
+[86] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "The instrument can be used on any cable consisting of at least two separate conductive elements, one of which may be the armouring or screen of the cable."
+[87] Your subsea cable testing course notes — material:notes#p7
+    "Requires 2 conductors running in parallel"
+[88] Your subsea cable testing course notes — material:notes#p7
+    "Pulse amplitude fixed at 50 V"
+[89] Your subsea cable testing course notes — material:notes#p8
+    "The shorter the cable, the shorter the wavelength (pulse width) used"
+[90] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "By testing the cable from both ends and recording the distance to fault in all pairs, it is possible to determine approximately how wide the problem is."
+[91] Time Domain Reflectometers - Applications — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_TDR_Application_Booklet.pdf
+    "After the water, distance readings may be erroneous due to a change in the VF (velocity factor) caused by the water."
+[92] Your subsea cable testing course notes — material:notes#p7
+    "Only works on low resistance faults — typically under 100 Ω (or 200 Ω for Teleflex)"
+[93] Your subsea cable testing course notes — material:notes#p7
+    "Generally accurate to ±0–1% of total cable length"
+[94] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "we can see that ρ has a range of values from +1 to -1, with 0 representing a matched load."
+[95] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "The coefficient ρ is the ratio of the reflected pulse amplitude to the incident pulse amplitude:"
+[96] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "The short circuit is measured as -1 ρ (rho) and the open circuit (infinite ohms) results in a ρ of +1."
+[97] TDR Impedance Measurements: A Foundation for Signal Integrity — https://www.tek.com/en/documents/fact-sheet/tdr-impedance-measurements-foundation-signal-integrity
+    "(Z<sub>L</sub> - Z<sub>O</sub>)"
+[98] Time Domain Reflectometry (TDR) Basics & Applications | Tektronix — https://www.tek.com/ko/documents/primer/understanding-and-applying-time-domain-reflectometry-tdr-using-real-time-oscilloscopes
+    "On the Rho scale, these waveforms are transformed to a –1 to +1 range, where –1 ρ represents a short circuit, 0 ρ represents a 50 Ω load, and +1 ρ represents an open circuit."
+[99] Time Domain Reflectometry (TDR) Basics & Applications | Tektronix — https://www.tek.com/ko/documents/primer/understanding-and-applying-time-domain-reflectometry-tdr-using-real-time-oscilloscopes
+    "A positive ρ indicates a high impedance discontinuity, while a negative ρ indicates a low impedance discontinuity."
+[100] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "Matched cable terminations absorb all the pulse hence no “end of cable” reflection will occur, the cable appearing endless."
+[101] Characteristic Impedance | Transmission Lines | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-14/characteristic-impedance
+    "the characteristic impedance of a transmission line is equal to the square root of the ratio of the line’s inductance per unit length divided by the line’s capacitance per unit length"
+[102] Characteristic Impedance | Transmission Lines | Electronics Textbook — https://www.allaboutcircuits.com/textbook/alternating-current/chpt-14/characteristic-impedance
+    "For any cable type, it is equal to the reciprocal (1/x) of the square root of the relative permittivity of the cable’s insulation."
+[103] Microwaves101 | Characteristic Impedance — https://www.microwaves101.com/encyclopedias/characteristic-impedance
+    "Both can be calculated from the characteristic impedance and the propagation velocity of the wave in a transmission line."
+[104] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "It has internal matching networks to allow testing of 25 Ω, 50 Ω, 75 Ω and 100 Ω cables. (These typically correspond to power, coaxial data and data/telecoms cable)."
+[105] Cable fault location | Megger — https://www.megger.com/en-ca/applications/cables/cable-fault-location
+    "Typically, if the fault is found to be below 100 Ohms, a low voltage pulse (e.g., 40 V) from a TDR (time domain reflectometer) can be used."
+[106] Cable fault location | Megger — https://www.megger.com/en-ca/applications/cables/cable-fault-location
+    "If the fault is a higher resistance (> 100 Ohm), a low voltage pulse will likely not see it."
+[107] How to effectively identify and locate power cable faults | Megger — https://www.megger.com/en-ca/blog/how-to-effectively-identify-and-locate-power-cable-faults
+    "If the fault is higher-resistance, a TDR will not be able to detect the issue."
+[108] How to effectively identify and locate power cable faults | Megger — https://www.megger.com/en-ca/blog/how-to-effectively-identify-and-locate-power-cable-faults
+    "This method involves sending a high-voltage pulse down the cable, which creates a temporary arc at the fault site. The arc behaves like a short-circuit fault, allowing the TDR to locate it."
+[109] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "Both traces (reference trace and fault trace) diverge at the position of the ignited arc, which corresponds to the fault position."
+[110] Teleflex SX-1 | Megger — https://www.megger.com/en-ca/products/teleflex-sx-1
+    "Length measuring range 160 km/99 mi Output pulse voltage 50 V fixed"
+[111] Teleflex VX - Reflectometer — https://www.megger.com/en/products/teleflex-vx
+    "Length measuring range 1280 km/7506 mi Output pulse voltage 30 - 160 V"
+[112] TDR500 User Guide — https://eadn-wc03-4179422.nxedge.io/wp-content/uploads/2025/03/User-guide-TDR500.pdf
+    "Output Pulse 5 volts peak to peak into open circuit from 100Ω source."
+[113] TDR500 User Guide — https://eadn-wc03-4179422.nxedge.io/wp-content/uploads/2025/03/User-guide-TDR500.pdf
+    "This instrument is not to be used on energised cable."
+[114] TDR1000/3 TDR1000/3P CFL510G TDR500/3 Time Domain Reflectometers User Manual — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Megger_CFL510G_Manual.pdf
+    "The circuit under test must be switched off, de-energised, securely isolated and proved safe before test connections are"
+[115] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "Distance range 20 m … 160 km at V/2 = 80 m/μs"
+[116] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "As V/2 or NVP value 10 … 149.9 m/μs or 33 … 492 ft/μs"
+[117] Teleflex SX-1 | Megger — https://www.megger.com/en-ca/products/teleflex-sx-1
+    "In TDR analyses, the velocity is always given in v/2"
+[118] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "If the setting for the propagation velocity value is out by 2%, then the measurement result will also be out by 2%."
+[119] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "If the correct physical length of the cable under test is known, the propagation velocity can be measured."
+[120] Microsoft Word - TDR1000_3_UG_en_V03.doc — https://www.instrumart.com/assets/Megger-TDR500-3-Manual.pdf
+    "If the measurement is made from both ends, then the combined answer should equal the expected length of the cable."
+[121] Locating Fault with a TDR — https://www.exfo.com/contentassets/26dab93bb1664d4498c7694a20897ed0/exfo_anote168_locating-faults-tdr_en.pdf
+    "If the test result shows that the fault is at 2050 ft when tested from one end and that the fault is at 3075 ft when tested from the other end, it will indicate that the VOP setting is too fast."
+[122] Subsea & Underground Transmission Line Solutions | Megger — https://www.megger.com/en/sector/renewable-energy-asset-testing/transmission-lines/subsea-underground
+    "Create TDR reference traces and cable fingerprints during HV cable commissioning, before the system enters service."
+[123] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "These readings can falsely be interpreted as a fault location, it is recommended to perform fingerprinting such that the location of the joints is known in the TDR trace in advance."
+[124] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "Regarding submarine cables, the length of the cable reduces the accuracy of Time Domain Reflectometry (TDR) method."
+[125] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "Sheath sectionalized joints are sometimes used."
+[126] Recommendations to improve HVDC cable systems reliability — https://eepublicdownloads.entsoe.eu/clean-documents/Publications/Position%20papers%20and%20reports/Joint%20paper%20HVDC%20Cable%20Reliability%20ENTSO-E%20Europacable.pdf
+    "It is important to perform a fingerprint of the cable system for later comparison (joint locations, transition to different conductor sizes, sheath/armour connections) and deducing the wave velocity."
+[127] en — https://www.megger.com/sites/g/files/utfabz201/files/acquiadam_assets/2023-04/teleflex_sx_1_ug_en.pdf?changed=1682008205
+    "not only fault positions, but also other changes in resistance such as, e.g. in joints are recorded"
+[128] [PDF] The ABCs of TDRs - Radiodetection — https://www.radiodetection.com/sites/default/files/TheABCsofTDRsApplicationNote.pdf
+    "The larger the pulse width, the larger the blind spot."
+[129] [PDF] The ABCs of TDRs - Radiodetection — https://www.radiodetection.com/sites/default/files/TheABCsofTDRsApplicationNote.pdf
+    "Even when testing very long lengths of cable, always start the fault finding procedure with the shortest pulse width available, as the fault may be only a short distance away."
+[130] Locating Fault with a TDR — https://www.exfo.com/contentassets/26dab93bb1664d4498c7694a20897ed0/exfo_anote168_locating-faults-tdr_en.pdf
+    "A wider pulse width makes it easier to detect small faults on the cable or faults located at a greater distance."
+[131] Locating Fault with a TDR — https://www.exfo.com/contentassets/26dab93bb1664d4498c7694a20897ed0/exfo_anote168_locating-faults-tdr_en.pdf
+    "smaller pulse widths will reduce or eliminate the blind spot, but at the expense of distance."
+[132] Thermal Distortion of Signal Propagation Modes Due to Dynamic Loading in Medium-Voltage Cables — https://www.mdpi.com/1996-1073/13/17/4436
+    "Near the maximum operating temperature of the cross-linked polyethylene insulation, the propagation velocity increases by 0.56% per degree centigrade but is an order of magnitude less sensitive at ambient temperature."
+[133] Thermal Distortion of Signal Propagation Modes Due to Dynamic Loading in Medium-Voltage Cables — https://www.mdpi.com/1996-1073/13/17/4436
+    "Near ambient temperature, the change is relatively small, measuring −0.068 %/°C (mean difference over measurements at 25.1 and 36.7 °C)."
+[134] The International System of Units (SI), 2019 Edition — https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.330-2019.pdf
+    "the speed of light in vacuum c is 299 792 458 m/s,"
+[135] TDR500 User Guide — https://eadn-wc03-4179422.nxedge.io/wp-content/uploads/2025/03/User-guide-TDR500.pdf
+    "[Note:- the measurement accuracy is for the indicated cursor position only and is conditional on the velocity factor being correct.]"
+[136] Your subsea cable testing course notes — material:notes#p1
+    "Inter-array cable (AC): Turbine → Offshore substation"
+[137] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/2024-03/leaflet_submarine_epr_66%20Kv_%20final_0.pdf
+    "Two times more power can be transported over a single array cable"
+[138] Your subsea cable testing course notes — material:notes#p2
+    "Identify → Isolated → Proved Dead → Secured → Earthed"
+[139] Your subsea cable testing course notes — material:notes#p2
+    "Treat disconnected cables as live until tested, discharged and earthed"
+[140] INTERNATIONAL STANDARD NORME INTERNATIONALE — https://webstore.iec.ch/en/iec_catalog/product/preview?id=L3B1Yi9wZGYvcHJldmlldy9pbmZvX2llYzYwNTAyLTJ7ZWQzLjB9Yi5wZGY%3D
+    "This part of IEC 60502 specifies the construction, dimensions and test requirements of power cables with extruded solid insulation from 6 kV up to 30 kV for fixed installations such as distribution networks or industrial installations."
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- LIRA is based on transmission line theory: it estimates and analyses the complex line impedance as a function of signal frequency, and measures the surge impedance over a wide range of frequencies. [1][2][3]
+- Your notes say LIRA needs access to only one end, works on frequency-domain resonance effects of unmatched lines, and is sensitive to small changes in insulation permittivity. [4][5][6]
+- Changes in dielectric permittivity change the cable impedance. A damaged segment differs mainly through a change in cable capacitance. [7][8]
+- Joints, splices or defects create a deviation in the input impedance spectrum. The resonance frequencies give the cable length and the phase spectrum shows condition and locates joints and degradation. [9][10][11]
+- Wirescan's patent gives the relative phase velocity from two consecutive resonance frequencies: vr = 2L(fk+1 − fk)/v0, where L is the length of the cable and v0 is the speed of light. [12][13][14]
+- LIRA works with any termination except an exact match to the cable impedance, which makes the cable look endless. [15]
+- DNORM indicates the severity of local impedance changes, and its sign helps determine the type of change. [16][17]
+- DNORM normalises the spike difference from the terminal peak, and a local spot has a mirror image beyond the terminal peak from a second-order reflection. [18][19][20]
+- Your notes give a negative DNORM for thermal degradation, water penetration and mechanical causes, and positive for bends and breaks in the shield. Colours run green mild, amber intermediate, red significant. [21][22][23]
+- Your notes say tests are normally bi-directional, take about a minute each, run to 18 tests of core to screen and core to core, have no acceptance criteria, and need the raw trace data kept. [24][25][26][27][28]
+- Wirescan's patent says LIRA can estimate the location of a degraded spot to within 0.5% of the cable length. [29]
+- Both ends are earthed and discharged before a LIRA test so no energy is stored in the cable. [30]
+- An open-ended line looks like a capacitor at low frequency, then resonates: the input impedance swings between a short and an open at frequencies set by length and velocity, spaced v divided by 2L apart (a quarter wavelength gives a short, a half wavelength an open). [31][32][33][34][35]
+- A frequency sweep cannot say where a mismatch is by itself; transforming the reflection data from frequency to distance does. Reflections from a mismatch show as a ripple on the frequency response, and the Fourier transform of the reflection coefficient against frequency gives it against distance. [36][37][38]
+- LIRA's patent finds each reflection's place from the power spectrum of the impedance after a transform: x = vr v0 f'' divided by 2, where f'' is the component in the transformed domain; the sweep runs from 0 to X MHz where X depends on the cable length; Wirescan's FAQ gives 5 000 to 30 000 discrete… [39][40][41]
+- Wirescan injects low-amplitude sine waves, they travel to the far end and reflect back, and the spot signature is an FFT of the input-impedance phase spectrum, which is more sensitive to soft defects with a small impedance change. [42][43][44]
+- DNORM severity is a bar chart of the features that exceed a DNORM threshold setting, colour-coded by severity; the direction (positive or negative) tells the type of impedance change, such as moisture ingress or thermal degradation. The threshold is a software setting (0 dB in one PNNL example), so… [45][46][47]
+- Test from both ends for the best sensitivity (it is not a necessity); other loads may stay connected if they reflect enough; LIRA suits cables hundreds of kilometres long, which tests at working voltage do not. [48][49][50]
+- Take an initial fingerprint at commissioning; measure at manufacturing milestones, factory acceptance tests, after transport and before, during and after installation; LIRA and TDR fingerprints at FAT, spooling and commissioning generate hundreds of reports, so the data must be kept in a usable for… [51][52][53][54]
+- Online LIRA exists for energised cables: offline methods are restricted by safety, so the online system uses non-galvanic capacitive and inductive sensors with a band-pass of 100 kHz to 20 MHz; the one case study is a 12/10(24) kV wind-farm cable. No source states a 33 kV limit: the notes' figure s… [55][56][57][58]
+- Test time: the notes say roughly 1 minute; a Fauske (US distributor) article says about three minutes depending on the cable length. [59]
+- A TDR uses the radar principle: a pulse goes down the cable and changes in impedance send reflections back, which are displayed as a map of the cable. [60][61][62]  (from an idea this one builds on)
+- A positive reflection shows a higher impedance and a negative one a lower impedance, because conductors moving apart or closer together change the impedance. [63][64][65]  (from an idea this one builds on)
+- An open conductor shows a large positive trace and a short circuit a negative trace. A joint shows a small positive followed by a small negative trace. [66][67][68][69][70][71]  (from an idea this one builds on)
+- A wet splice or water gives a short positive and negative trace, and your notes list a ragged trailing section for water ingress. [72][73]  (from an idea this one builds on)
+- The velocity factor is the ratio of the pulse speed in the cable to the speed of light, and it must be set for the cable. If unknown, test a known length and adjust it until the displayed end distance is correct. [74][75][76]  (from an idea this one builds on)
+- Megger lists a velocity factor of 0.54 to 0.62, which is 162 to 186 m per microsecond, for power XLPE cable. [77]  (from an idea this one builds on)
+- Distance comes from the time of the reflected pulse times the velocity, taking half of the time, because the pulse goes to the fault and back. Your notes write L = t × v ÷ 2. [78][79][80]  (from an idea this one builds on)
+- If the velocity factor is wrong for the cable, the displayed distance will be wrong. [81]  (from an idea this one builds on)
+- A clear open reflection is not necessarily the end of the cable, because it can also be a break or cut, so the end is proved with open and linked tests. Linked gives a negative peak, open a positive one. [82][83][84][85]  (from an idea this one builds on)
+- TDR needs two separate conductive elements, one of which may be the armour or screen. Your notes say two conductors in parallel, a fixed 50 V pulse, and shorter pulse width for shorter cables. [86][87][88][89]  (from an idea this one builds on)
+- Testing from both ends and recording the distance to fault helps work out how wide a problem is, and after water the velocity factor changes, so readings past the water may be wrong. [90][91]  (from an idea this one builds on)
+- Your notes say TDR only works on low resistance faults, typically under 100 Ω (200 Ω for Teleflex), with accuracy of 0 to 1% of cable length. [92][93]  (from an idea this one builds on)
+- The reflection coefficient is rho = (Z load - Z0) ÷ (Z load + Z0): the reflected pulse divided by the pulse sent. It runs from +1 for an open to -1 for a short, with 0 for a matched load that reflects nothing. [94][95][96][97][98]  (from an idea this one builds on)
+- A positive reflection means the impedance rose, a negative one that it fell. A matched end absorbs the whole pulse, so the cable looks endless and no end reflection comes back. [99][100]  (from an idea this one builds on)
+- Z0 = square root of (L per length ÷ C per length), and the velocity factor is 1 ÷ the square root of the relative permittivity. A cable's L and C per length follow from its Z0 and its velocity, so Z0 = 1 ÷ (v × C per length): used for the practice value for String B, 27.1 ohm from 168.0 m/µs and 0.… [101][102][103][104]  (from an idea this one builds on)
+- A fault of resistance Rf from core to screen sits across the line as a shunt, so the pulse sees Rf in parallel with Z0 and the reflection is rho = -Z0 ÷ (2 Rf + Z0). It falls steadily as Rf rises and has no cliff at 100 ohm; the notes' 100 ohm is where it gets too small to read. This is worked from… [99][94]  (from an idea this one builds on)
+- Megger says a fault below 100 ohm can be found with a low-voltage TDR pulse (it gives 40 V as an example), and that above 100 ohm the pulse will likely not see it. This agrees with the notes' 'under about 100 ohm'. A higher-resistance fault is not seen by TDR; the arc reflection method strikes an a… [105][106][107][108][109]  (from an idea this one builds on)
+- Pulse amplitude depends on the set: Megger's Teleflex SX-1 is 50 V fixed (as in the notes) its Teleflex VX is 30 to 160 V, and a hand-held TDR500 gives 5 V peak to peak. A TDR must only go on a de-energised, isolated cable; the TDR500 manual says it is not to be used on energised cable, and the CFL… [110][111][112][113][114]  (from an idea this one builds on)
+- The Teleflex takes the velocity as v/2 (half the pulse speed): Megger writes that in TDR analyses the velocity is always given in v/2, and its range is quoted at v/2 = 80 m/µs and settable from 10 to 149.9 m/µs. A set that asks for v/2 needs 84.0 where the notes' formula L = t × v ÷ 2 uses v = 168.… [115][116][117]  (from an idea this one builds on)
+- If the velocity setting is out by 2 per cent, every distance is out by 2 per cent. With the cable's length known, the velocity is found by moving it until the end sits at the known length. [118][119]  (from an idea this one builds on)
+- From both ends, the two distances to one fault should add up to the cable's length: the TDR500 manual says the combined answer should equal the expected length, and a maker's example (2050 ft from one end and 3075 ft from the other on a 5000 ft cable) shows the velocity set too fast. [120][121]  (from an idea this one builds on)
+- Record a TDR reference trace (fingerprint) when the cable is commissioned. Joints give reflections that can be taken for a fault, so the joints' places should be known on the trace beforehand; sheath-sectionalised joints can also mislead. The length of a submarine cable reduces TDR accuracy, so the… [122][123][124][125][126][127]  (from an idea this one builds on)
+- A wider pulse reaches further and shows smaller faults but has a bigger blind spot next to the instrument, so start with the shortest pulse; the notes' 'shorter cable, shorter pulse'. The blind-spot lengths published are for telephone cable, so no figure for String B is taken from them. [128][129][130][131]  (from an idea this one builds on)
+- Velocity is not one number for all XLPE: Megger's 162 to 186 m/µs (0.54 to 0.62) is typical. Temperature barely moves it at ambient (about 0.034 per cent per degree) but near the 90 °C operating limit it is 0.56 per cent per degree, so set the velocity from a known length at the cable's own tempera… [132][133]  (from an idea this one builds on)
+- The speed of light is exactly 299 792 458 m/s, 299.8 m/µs to 4 figures, so a velocity factor is the velocity in m/µs divided by 299.8. [134]  (from an idea this one builds on)
+- Accuracy: the notes say TDR is generally accurate to 0-1% of the cable's length. A maker states accuracy as a percentage of the range, at one velocity factor, and only if the velocity factor is right. [93][135]  (from an idea this one builds on)
+- Wind-farm inter-array cables run from a turbine to the offshore substation, and a 66 kV array cable carries two times the power of a 33 kV one, according to one maker. [136][137]  (whole topic)
+- Every test starts from the same safe sequence: identify, isolate, prove dead, secure and earth. The earths come off only under control for a test, and go back on at the end. [138][139]  (whole topic)
+- IEC 60502-2 covers extruded-insulation cables only up to 30 kV, so it does not cover a 66 kV cable such as String B. [140]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a mechanism idea: a moving diagram he drives himself, with the cause drawn: what your explanation's "because" says happens on the picture (heat creeping along a spoon), set off by an action he performs (a button, a drag), not a switch he flips and watches. Include a setting where the cause does not produce the effect, so he sees both sides of the rule.
+- Sound only when hearing teaches what the picture cannot (a string's note rising as it is tightened): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action, naming the cause as well as the change. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- Also: just before the takeaway, one sentence on the part this idea plays in answering the course's puzzle.
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i7",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.
