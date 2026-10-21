@@ -1,0 +1,375 @@
+{
+  "iid": "i3",
+  "title": "The variable speed drive",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the voltage falling in step with the frequency, so the volts per hertz and the flux hold level up to 50 Hz, when you drag the frequency down.",
+    "title": "V/f: drag the frequency",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Nine screens, with Back and Continue. One picture to play with, three quick choices and a card to keep. No marks and no timers.\n\nAssume one example motor on every screen: 400 V, 50 Hz, four poles. It is an example, not a maker's rating. Every other figure is worked from it.\n\nScreen 1, Do you still have it? The question: \"A four-pole motor runs on 50 Hz. How fast does its field turn?\" Three choices, in this order: \"3000 rpm\"; \"1500 rpm\"; \"750 rpm\". Right, the second: \"Still there. 120 × 50 ÷ 4 = 1500 rpm. The shaft runs a little below it. Change the frequency and that speed changes. That is how a drive sets speed.\" Wrong, the first: \"3000 rpm is a two-pole field. Four poles halve it: 120 × 50 ÷ 4 = 1500 rpm.\" Wrong, the third: \"750 rpm comes from using 60 instead of 120. 60 × f ÷ p works with pole pairs: 60 × 50 ÷ 2 = 1500 rpm.\" After a wrong choice, show the right answer and its reason, then go on to screen 2. No skip button. The feedback fades in.\n\nScreen 2, How it works. A still drawing, left to right: the 400 V, 50 Hz supply; the rectifier, drawn as a diode bridge; the DC bus, drawn as two rails with a capacitor across them, labelled \"about 540 V DC\"; the inverter, drawn as six transistor switches; the motor, labelled \"chosen frequency, matching voltage\". The words beside it: \"A drive sets a motor's speed by setting its frequency. The rectifier turns the incoming AC into DC. Capacitors on the DC bus smooth it. On 400 V the bus sits at about 400 × 1.35 = 540 V DC.[^1] The inverter switches that DC on and off very fast. It varies the width of the pulses to build AC at the frequency and voltage it is asked for. The field turns at 120 × f ÷ p. Lower f, and the field and the rotor slow down together.\" DC bus is the key term, marked in amber.\n\nScreen 3, V/f: drag the frequency. The picture to play with. At the top, a plot of the drive's output voltage, 0 to 400 V, against frequency, 0 to 60 Hz. The drive's line rises straight from 0 V at 0 Hz to 400 V at 50 Hz. Then it runs flat at 400 V to 60 Hz. A dot sits on the line at the chosen frequency. A dashed upright line at 50 Hz is labelled \"base speed\". Under the plot, the stator ring with the field drawn as an arrow, turning at a hundredth of its real speed. Beside it, a flux bar from 0 to 200% of rated, with a mark at 100%.\n\nThe controls. Frequency: a slider from 5 to 60 Hz in steps of 5, starting at 50 Hz. Hold 400 V: a switch that starts off. With it on, the drive gives 400 V at every frequency, as if it had no V/f rule, and a red line at 400 V, \"held at 400 V\", fades in. The readouts, in one row: Output voltage, in V. Field speed, in rpm. Volts per hertz, in V per Hz, to two places.\n\nThe rule it computes. Volts per hertz = rated volts ÷ rated hertz = 400 ÷ 50 = 8. Up to 50 Hz, output voltage = 8 × f. Above 50 Hz the voltage stays at 400 V, because the drive has no more to give. Field speed = 120 × f ÷ 4 = 30 × f. Flux, as a % of rated, = (output voltage ÷ f) ÷ 8 × 100. It is an ideal model: flux follows volts per hertz. At 40 Hz: 320 V, 1200 rpm, 8.00 V per Hz, flux 100%. At 60 Hz: 400 V, 1800 rpm, 400 ÷ 60 = 6.67 V per Hz, flux 6.67 ÷ 8 = 83%. With Hold 400 V on, 40 Hz gives 400 ÷ 40 = 10 V per Hz and flux 125%. 25 Hz gives 16 V per Hz and flux 200%. Above 100% the bar turns red, with the words \"Too much flux: the iron saturates and the current climbs.\" Past 200% it stays full, marked \"off the scale\". Below 100% the bar is labelled \"Field weakening: less torque\".\n\nThe words under the picture: \"50 Hz is the motor's base speed. The stator is a winding on iron, like a transformer. Its flux goes with the volts per hertz.\" Base speed is the key term, marked in amber. A live line under the readouts says what the chosen setting does. The prompt above the picture: \"Drag the frequency down, then up past 50 Hz. Then try Hold 400 V.\" Read: Below 50 Hz the voltage falls with the frequency, 8 V for every hertz. At 40 Hz the drive gives 320 V and the field turns at 1200 rpm. The volts per hertz stay at 8, so the flux stays at rated. Held at 400 V instead, 40 Hz would give 10 V per hertz. That asks for a quarter more flux, and the iron saturates. Above 50 Hz the voltage stays at 400 V. At 60 Hz the field turns at 1800 rpm and the flux falls to 83%. Still: frequency 40 Hz, Hold 400 V off; 320 V, 1200 rpm, 8.00 V per Hz, the flux bar at 100%.\n\nScreen 4, Check on the cause. \"The drive runs this 400 V, 50 Hz motor at 25 Hz. What voltage does it give?\" Three choices, in this order: \"400 V\"; \"100 V\"; \"200 V\". Right, the third: \"Right. 400 ÷ 50 = 8 V per hertz. 8 × 25 = 200 V. The volts per hertz stay at 8, so the flux stays at rated. The field turns at 120 × 25 ÷ 4 = 750 rpm.\" Wrong, the first: \"Full voltage at half the frequency doubles the volts per hertz, to 16. The flux would try to double. The iron saturates and the motor draws far too much current. So the drive halves the voltage too: 200 V.\" Wrong, the second: \"That halves the voltage twice. Halve the frequency and the voltage halves once: 8 × 25 = 200 V.\" After a wrong choice, show the right answer and its reason.\n\nScreen 5, How it behaves. A still drawing: the drive's voltage line again. The part below 50 Hz is labelled \"constant flux\" and the part above it \"field weakening\". Rows, each with a label.\n\nSpeed: \"Set by the frequency. The shaft runs a little below 120 × f ÷ p.\"\n\nStarting: \"The drive ramps up the frequency. No inrush and no jolt.\"\n\nBelow base speed: \"Constant flux. The motor can give its rated torque if it stays cool.\"\n\nAbove base speed: \"Field weakening. The volts stay at rated, so the flux falls. The power it can give stays about constant, so the torque it can give falls.\"\n\nLow speed: \"A self-cooled motor's fan slows too, so it cannot carry rated torque for long.\" Field weakening is the key term, marked in amber.\n\nScreen 6, Where it is used, and its limits. A still bar chart: power needed at 100%, 75% and 50% speed. A fan: 100%, 42% and 12.5%. A conveyor: 100%, 75% and 50%. Rows.\n\nUsed for: \"Pumps and fans, to save energy, and anything whose speed must be set. The only usual starter that also sets speed.\"\n\nAt sea: \"Cranes, winches, bow thrusters, ventilation, pumps, compressors and propulsion.\"\n\nSavings: \"Fan and pump power goes with speed cubed.[^2] Real systems save less.\"\n\nLimits: \"Drives are the main source of harmonics at sea. NATO warship rules cap voltage distortion at 5%.[^3] Fast pulses can also drive current through the bearings and wear them.\"\n\nScreen 7, Faults and tests. Rows.\n\nSafety first, in red: \"A cabinet's door switch may leave the input busbars live, so isolate the whole drive. Wait out its discharge time, 5 minutes on one maker's drive.[^4] Prove your tester. Then prove the DC bus, input and motor terminals dead.\"\n\nInsulation test: \"Disconnect the drive first. The tester can damage it.\"\n\nOvercurrent: \"A short, earth fault, loose joint or jammed load.\"\n\nEarth fault: \"Often damp insulation.\"\n\nInput phase loss: \"A blown fuse or loose input lead.\"\n\nRestarts by itself: \"An auto-reset drive can restart without warning. Label it.\"\n\nScreen 8, Find the fault. \"A drive on a big fan trips on overvoltage every time the fan is stopped quickly. Running, it is fine. What is the likely cause?\" Three choices, in this order: \"The fan drives the motor as it slows, pushing energy into the DC bus\"; \"The fan is overloaded and the motor draws too much current\"; \"The supply has lost a phase and the bus sags\". Right, the first: \"Right. The drive drops the frequency fast, but the heavy fan cannot slow that quickly. So the rotor runs faster than the field. The motor becomes a generator and pushes energy back into the DC bus. The bus voltage rises until the drive trips. One maker's 400 V drive trips at 840 V.[^5] Lengthen the deceleration time, or fit a brake chopper and resistor.\" Wrong, the second: \"An overloaded fan draws too much current while it runs. That trips on overcurrent, not on stopping.\" Wrong, the third: \"A lost input phase shows as an input phase fault, whether or not you stop. This trip comes only when the fan slows fast.\" After a wrong choice, show the right answer and its reason.\n\nScreen 9, Keep this: the summary card, drawn from the lesson's summary, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a shown rule, or a cited value. The 400 V, 50 Hz, four-pole motor is an example. The field arrow is slowed a hundred times.",
+    "ignores": "The model takes flux to follow volts per hertz exactly. At very low speed the winding's own resistance matters. Real drives usually add a little extra voltage there. The inverter's output is drawn as a smooth wave. Really it is fast pulses. The field speed is shown, not the shaft speed, which runs a little below it. With Hold 400 V on, the flux bar shows what the volts per hertz ask for. Real iron saturates first, so the flux grows far less and the current far more. The picture does not show torque or load.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 9 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Frequency slider, Hz (opening)",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Frequency slider range, Hz",
+        "value": "5 to 60",
+        "kind": "control"
+      },
+      {
+        "label": "Hold 400 V switch (opening off)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Example motor rated voltage, V",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor rated frequency, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor poles",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Volts per hertz, V per Hz",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Field speed at 50 Hz, rpm",
+        "value": 1500,
+        "kind": "computed"
+      },
+      {
+        "label": "Two-pole field speed at 50 Hz, rpm",
+        "value": 3000,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong-formula field speed, rpm",
+        "value": 750,
+        "kind": "computed"
+      },
+      {
+        "label": "Output voltage at 40 Hz, V",
+        "value": 320,
+        "kind": "computed"
+      },
+      {
+        "label": "Field speed at 40 Hz, rpm",
+        "value": 1200,
+        "kind": "computed"
+      },
+      {
+        "label": "Output voltage at 25 Hz, V",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Field speed at 25 Hz, rpm",
+        "value": 750,
+        "kind": "computed"
+      },
+      {
+        "label": "Field speed at 60 Hz, rpm",
+        "value": 1800,
+        "kind": "computed"
+      },
+      {
+        "label": "Volts per hertz at 60 Hz, V per Hz",
+        "value": 6.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Flux at 60 Hz, % of rated",
+        "value": 83,
+        "kind": "computed"
+      },
+      {
+        "label": "Held 400 V at 40 Hz, V per Hz",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Held 400 V at 40 Hz, flux % of rated",
+        "value": 125,
+        "kind": "computed"
+      },
+      {
+        "label": "Held 400 V at 25 Hz, V per Hz",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Held 400 V at 25 Hz, flux % of rated",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Flux bar full scale, % of rated",
+        "value": 200,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field arrow slowed, times",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "DC bus, times supply line voltage",
+        "value": 1.35,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "DC bus on a 400 V supply, V DC",
+        "value": 540,
+        "kind": "computed"
+      },
+      {
+        "label": "Fan power at 75% speed, % of full",
+        "value": 42,
+        "kind": "computed"
+      },
+      {
+        "label": "Fan power at 50% speed, % of full",
+        "value": 12.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Conveyor power at 75% speed, % of full",
+        "value": 75,
+        "kind": "computed"
+      },
+      {
+        "label": "Conveyor power at 50% speed, % of full",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Warship voltage distortion limit, %",
+        "value": 5,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Wait for DC bus to discharge, minutes",
+        "value": 5,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "One maker's DC overvoltage trip, 400 V drive, V",
+        "value": 840,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Ship's supply voltage, V",
+        "value": 440,
+        "kind": "constant",
+        "source": 17
+      },
+      {
+        "label": "Ship's supply frequency, Hz",
+        "value": 60,
+        "kind": "constant",
+        "source": 17
+      },
+      {
+        "label": "Volts per hertz on a 440 V, 60 Hz motor, V per Hz",
+        "value": 7.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed at 60 Hz over speed at 50 Hz",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Fan power at 60 Hz, times its 50 Hz power",
+        "value": 1.73,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A variable speed drive sets a motor's speed by setting its supply frequency. It turns the supply into DC, then builds new AC at the frequency it wants. It lowers the voltage in step with the frequency. That keeps the motor's flux where it should be.\n\nStart from what you know. The field turns at 120 × f ÷ p, and the rotor follows a little behind. So change f and you change the speed. The drive does that in three stages. A rectifier turns the incoming AC into DC. Capacitors on the [[DC bus]] smooth it. On a 400 V supply the bus sits at about 400 × 1.35 = 540 V DC.[^1] An inverter then switches that DC on and off very fast. It varies the width of its pulses to build AC at the frequency and voltage it is asked for.\n\nWhy change the voltage too? Each half cycle, the voltage drives the flux up in the iron. Halve the frequency and each half cycle lasts twice as long. So at full voltage the flux would try to double. The iron saturates, and the motor draws far too much current. So the drive keeps the volts per hertz constant. Take a motor rated 400 V at 50 Hz. That is 8 V per hertz. At 25 Hz it gets 8 × 25 = 200 V. The flux stays at rated, so the motor can still give its rated torque at low speed. But its own fan slows too. So a self-cooled motor cannot keep that up continuously.\n\nThis holds up to 50 Hz, the motor's [[base speed]]. Above it, the drive has no more volts to give. The frequency rises, the voltage stays at 400 V, and the flux falls. At 60 Hz it is 50 ÷ 60 = 83% of rated. That is [[field weakening]]. The motor runs at about constant power, so the torque it can give falls.\n\n**A drive sets the speed by the frequency. Up to base speed it keeps the volts per hertz constant, so the flux stays at rated.**[^6]"
+  },
+  "analogy": {
+    "text": "You know this from transformers. A transformer's core flux is set by its volts per hertz. Run a 50 Hz transformer at 25 Hz on full voltage and its core saturates. It draws a big magnetising current and runs hot. A motor's stator is the same kind of winding on iron. So the drive halves the volts when it halves the frequency.",
+    "breaks": "A transformer is never meant to run above its rated frequency. A motor on a drive often is. There the volts cannot follow. So the flux falls, and the motor gives less torque."
+  },
+  "practice": {
+    "text": "- A switch on a cabinet door may leave the input busbars live. Isolate the whole drive.[^15] Wait for the DC bus to discharge: 5 minutes on one maker's drive,[^4] longer on some. Then measure across DC+ and DC−, and from each to earth. Use a meter rated for the bus. Start work only when all read zero.\n- Prove the supply and the motor terminals dead too. Use a tester you prove before and after.[^16]\n- Disconnect the drive before you insulation test the motor or its cable.\n- Start and stop the motor from the drive, not the isolator.\n- Check the motor and the load can run safely over the whole speed range set on the drive.[^18] A fan at 60 Hz needs 1.2 × 1.2 × 1.2 = 1.73 times its 50 Hz power.\n- If the drive is set to reset itself after a trip, label the machine. It can restart by itself.\n\n**Rule of thumb:** volts per hertz = rated volts ÷ rated hertz. A 400 V, 50 Hz motor runs at 8 V per hertz up to base speed.\n\n**Worked example:** a fan on a drive, slowed to 75% speed. Its power goes with speed cubed. So 0.75 × 0.75 × 0.75 = 0.42, about 42% of full power. At 50% speed it is 0.5 × 0.5 × 0.5 = 0.125, so 12.5%. A conveyor at 75% speed still needs about 75% power, because its torque stays the same. Real systems save less.\n\n**Common mistakes**\n- Expecting full voltage at low speed. The volts fall with the frequency.\n- Expecting full torque above base speed. The flux falls there, so the torque does too.\n- Expecting big savings on a conveyor. They come on fans and pumps.\n- Insulation testing with the drive connected.\n- Touching the drive straight after isolating. The DC bus stays charged for minutes."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+    "title": "The variable speed drive",
+    "for": "Setting a cage motor's speed, and starting it with no inrush. It turns the supply into DC, then builds AC at the frequency it is asked for. Up to base speed, the voltage moves in step.",
+    "rule": "ns = 120 × f ÷ p\nVolts per hertz constant up to base speed: 400 V ÷ 50 Hz = 8 V per Hz\nFan or pump power goes with speed cubed\n\nBelow base speed: constant flux. Above it: the volts stop at rated and the flux falls.\nDC bus about 1.35 × supply volts: about 540 V DC on 400 V.\nCommon trips: overcurrent, earth fault, overvoltage on a fast stop, input phase loss.\nA ship's motor on 440 V, 60 Hz: 440 ÷ 60 = 7.33 V per Hz, and base speed is 60 Hz.",
+    "traps": [
+      {
+        "text": "Above base speed the volts stop rising. The flux falls, and so does the torque it can give. Yet a fan at 60 Hz needs 1.2³ = 1.73 times its 50 Hz power. Check the motor and the load can take the whole speed range.",
+        "cite": "[^7] [^8] [^18] [^2] ABB ACS580 technical eBook; ABB ACS800-37 hardware manual"
+      },
+      {
+        "text": "The big savings come on fans and pumps. Their power goes with speed cubed. Real systems save less.",
+        "cite": "[^2] [^9] US DOE motor tip sheet; ABB energy efficiency plan"
+      },
+      {
+        "text": "Isolate the whole drive, not just the door switch. Wait out its discharge time, 5 minutes on one maker's drive. Prove your tester. Then prove DC+ to DC−, each to earth, and the input and motor terminals dead. Charged, the bus holds about 540 V DC.",
+        "cite": "[^4] [^10] [^1] [^15] [^16] ABB ACS800-37 hardware manual; HSE GS38"
+      },
+      {
+        "text": "Disconnect the drive before you insulation test the motor or its cable.",
+        "cite": "[^11] [^12] VFD earth fault guide"
+      },
+      {
+        "text": "Overvoltage on a fast stop means the load is driving the motor. Lengthen the deceleration time or fit a brake chopper.",
+        "cite": "[^13] [^14] Eaton fault codes; ABB ACS880-01 hardware manual"
+      }
+    ],
+    "where": "Pumps, fans and compressors to save energy. Cranes, winches, bow thrusters and ventilation at sea. Anywhere the speed must be set."
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+      "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+      "quote": "Note: Nominal DC link voltage is U N × 1.35 or U N × 1.41 in V DC."
+    },
+    {
+      "n": 2,
+      "title": "Adjustable Speed Drive Part-Load Efficiency",
+      "url": "https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf",
+      "quote": "The input power requirement varies as the cube or third power of the speed ratio"
+    },
+    {
+      "n": 3,
+      "title": "VOLTAGE AND CURRENT HARMONIC DISTORTION ON MODERN NAVAL SHIPS ELECTRICAL SYSTEMS",
+      "url": "https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/49--Harmonics-MEKO_MedPower2002.pdf",
+      "quote": "the Total voltage Harmonic Distortion (THD) of a 60Hz and 400Hz network must not exceed 5%, while no harmonic should exceed 3% of the fundamental."
+    },
+    {
+      "n": 4,
+      "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+      "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+      "quote": "After switching off the input power, always wait for 5 min to let the intermediate circuit capacitors discharge before you start working on the drive, the motor or the motor cable."
+    },
+    {
+      "n": 5,
+      "title": "EN / ACS355 user’s manual",
+      "url": "https://library.e.abb.com/public/805f31a82d524d8aa8a750011e2cd001/EN_ACS355_UM_E_A5.pdf",
+      "quote": "The DC overvoltage trip limit is 420 V (for 200 V drives) and 840 V (for 400 V drives)."
+    },
+    {
+      "n": 6,
+      "title": "— Technical guide No. 1 Direct torque control – the world’s most advanced AC drive technology",
+      "url": "https://library.e.abb.com/public/3dc7259dcd684a55841165ddefe7eb3f/Technical_guide_No_1_3AFE58056685_RevD_EN.pdf?x-sign=KI4w8YYG7Vw4K1NM8Xi9c4EAplW34UcpnsXTN2EbBHC8IgGbBGAQkJXlgAVXKbEs",
+      "quote": "Constant magnetic flux is provided with constant V/f ratio"
+    },
+    {
+      "n": 7,
+      "title": "[PDF] — ACS580 general purpose drives Technical eBook - ABB",
+      "url": "https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf",
+      "quote": "The frequency range below the nominal frequency is called a constant flux range."
+    },
+    {
+      "n": 8,
+      "title": "[PDF] — ACS580 general purpose drives Technical eBook - ABB",
+      "url": "https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf",
+      "quote": "In the field weakening range, the motor can operate on constant power which is why the field weakening range is sometimes also called the constant power range."
+    },
+    {
+      "n": 9,
+      "title": "The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications",
+      "url": "https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2",
+      "quote": "The savings derived from the Affinity Laws should be treated as theoretical. In real applications the particular characteristics of the system will determine the actual savings achieved."
+    },
+    {
+      "n": 10,
+      "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+      "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+      "quote": "Measure the voltage between terminals UDC+ and UDC- (L+ and L–) with a multimeter (impedance at least 1 Mohm) to ensure that the drive is discharged before beginning work."
+    },
+    {
+      "n": 11,
+      "title": "VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices",
+      "url": "https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf",
+      "quote": "Best practice: Always disconnect the drive completely before meggering the motor or cable."
+    },
+    {
+      "n": 12,
+      "title": "VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices",
+      "url": "https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf",
+      "quote": "High-voltage DC from an insulation tester can damage VFD electronic components or give misleading readings through the drive’s input filters."
+    },
+    {
+      "n": 13,
+      "title": "10 most common fault codes and how to solve",
+      "url": "https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf",
+      "quote": "Increase deceleration time or add brake chopper"
+    },
+    {
+      "n": 14,
+      "title": "EN / ACS880-01 hardware manual",
+      "url": "https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY",
+      "quote": "The voltage rise is typically caused by deceleration (braking) of a high inertia motor."
+    },
+    {
+      "n": 15,
+      "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+      "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+      "quote": "The main switch on the cabinet door does not remove the voltage from the input busbars of the drive. Before working on the drive, isolate the whole drive from the supply."
+    },
+    {
+      "n": 16,
+      "title": "Electrical test equipment for use by electricians GS38",
+      "url": "https://www.hse.gov.uk/pubns/priced/gs38.pdf",
+      "quote": "Any device used to prove dead may fail to indicate danger (eg a faulty lamp not indicating a live circuit). Such devices should be proved before and after use."
+    },
+    {
+      "n": 17,
+      "title": "Electrical system design for warships (Journal of Naval Engineering)",
+      "url": "https://library.imarest.org/record/8911/files/v28b1p10a.pdf",
+      "quote": "It was not until 1946 that a 440 V, 60 Hz, 3-phase a.c. supply was introduced into four of the DARING Class destroyers, in line with U.S. Navy practice. This has been the preferred supply ever since."
+    },
+    {
+      "n": 18,
+      "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+      "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+      "quote": "make sure that the motor and all driven equipment are suitable for operation throughout the speed range provided by the drive."
+    }
+  ]
+}

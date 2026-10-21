@@ -66,6 +66,130 @@
       "sourceIds": [
         127
       ]
+    },
+    {
+      "claim": "During the start period the two windings are in parallel across the supply, on separate poles 90 electrical degrees apart. The start winding has fewer turns of finer wire (higher resistance) sitting nearer the slot surface (lower inductance), so its current is closer to in step with the supply voltage than the main winding's.",
+      "sourceIds": [
+        345,
+        344,
+        323,
+        336
+      ]
+    },
+    {
+      "claim": "The angle between the two currents is small, about 30 degrees, but enough to give a weak rotating field. Sources differ on its size: about 30 degrees (Kuphaldt, IDC, PEG-3722), about half of the ideal 90 (a textbook), and 25 degrees in one university worked example (currents 40 and 15 degrees behind the supply).",
+      "sourceIds": [
+        322,
+        335,
+        324,
+        325,
+        115
+      ],
+      "contested": "How big the split-phase angle is: Kuphaldt, IDC and PEG-3722 say about 30 degrees; Goodheart-Willcox says about half of 90; Utah's worked example has 25 (40 and 15 degrees behind the supply). The lesson uses a labelled example value."
+    },
+    {
+      "claim": "A worked example to compute from: a 1/3 hp, 120 V split-phase motor draws 5 A in the main winding and 3 A in the start winding on switching on, the currents 40 and 15 degrees behind the supply voltage (Utah ECE 3600 Ex. 1).",
+      "sourceIds": [
+        324,
+        325
+      ]
+    },
+    {
+      "claim": "The centrifugal switch holds the start-winding contacts closed at rest. The flyweights open them as the rotor reaches about 75 to 80 percent of speed, and let them close again as the motor slows, ready for the next start. It protects the start winding from destructive overload.",
+      "sourceIds": [
+        333,
+        334,
+        316,
+        321,
+        318,
+        118,
+        119,
+        120
+      ]
+    },
+    {
+      "claim": "The torque falls at the speed where the start winding drops out, and the main winding carries on alone.",
+      "sourceIds": [
+        317,
+        318
+      ]
+    },
+    {
+      "claim": "The start winding and capacitor are not rated for continuous duty. Frequent starts leave too little cooling time and the winding overheats: its current density is so high while starting that the temperature rise rules out frequent restarting or slow-starting loads. Start-winding failure is a common failure point of single-phase motors.",
+      "sourceIds": [
+        319,
+        320,
+        328,
+        318,
+        125
+      ]
+    },
+    {
+      "claim": "Split-phase starting torque and current: roughly 100 to 175 percent of rated torque at 500 to 800 percent of rated current (a study guide), against 700 to 1,000 percent of rated current in Microchip's note; the figures differ by source, so the lesson gives a range or a labelled example.",
+      "sourceIds": [
+        340,
+        123,
+        124
+      ],
+      "contested": "Split-phase starting current: Microchip says 700 to 1,000 percent of rated, a study guide says 500 to 800 percent."
+    },
+    {
+      "claim": "Start circuit open (switch stuck open or failing to close, open start winding): the motor hums and will not start; the run winding draws near locked-rotor current until the overload trips or heat damages it. A single winding cannot start the rotor, but once it is turning it develops torque, in whichever direction it was started.",
+      "sourceIds": [
+        338,
+        339,
+        329,
+        330,
+        327,
+        326,
+        30
+      ]
+    },
+    {
+      "claim": "Switch stuck closed (contacts stuck together): the start winding stays energized, overheats and burns, and the motor trips on overload.",
+      "sourceIds": [
+        331,
+        339,
+        320,
+        318
+      ]
+    },
+    {
+      "claim": "Diagnostic aids: a working centrifugal switch clicks almost at once on starting and again as the rotor slows after switching off, so no click suggests a faulty switch.",
+      "sourceIds": [
+        332
+      ]
+    },
+    {
+      "claim": "A centrifugal switch cannot be used in explosive atmospheres or inside hermetic compressors, because the arcing from switching can ignite gases.",
+      "sourceIds": [
+        337
+      ]
+    },
+    {
+      "claim": "Testing, with the motor isolated and locked off first: an ohmmeter across the motor's supply terminals reads the two windings in parallel, so less than either alone; zero is a short, infinity an open circuit; operating the centrifugal switch by hand should change the reading. Three-terminal check (stated for compressor motors with the same winding layout): start-to-common is typically three to five times run-to-common, and common-to-start plus common-to-run equals run-to-start.",
+      "sourceIds": [
+        311,
+        312,
+        313,
+        314,
+        342,
+        343
+      ]
+    },
+    {
+      "claim": "A motor with a thermal protector that resets itself can restart at any time, so isolate it before touching it.",
+      "sourceIds": [
+        315,
+        313
+      ]
+    },
+    {
+      "claim": "Reversing a single-phase motor: interchange the leads of the start winding relative to the run winding, not the supply leads.",
+      "sourceIds": [
+        341,
+        127
+      ]
     }
   ],
   "sources": [
@@ -188,7 +312,217 @@
       "title": "ECE 3600 Single-Phase Induction Motors",
       "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
       "quote": "Reverse the leads to either of the windings to get the motor to start in the opposite direction."
+    },
+    {
+      "n": 311,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "The ohmmeter will read the resistance of the starting and running windings. Since the windings are in parallel, their combined resistance is less than the resistance of either winding alone."
+    },
+    {
+      "n": 312,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "If the meter reads zero, a short is present. If the meter reads infinity, an open circuit is present."
+    },
+    {
+      "n": 313,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "Lock out and tag the starting mechanism per company policy."
+    },
+    {
+      "n": 314,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "If the motor is good, the resistance on the ohmmeter will decrease. If the resistance does not change, a problem exists."
+    },
+    {
+      "n": 315,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "Caution should be taken with any motor that has an automatic reset, as the motor can automatically restart at any time."
+    },
+    {
+      "n": 316,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "The starting winding is automatically removed by a centrifugal switch as the motor accelerates."
+    },
+    {
+      "n": 317,
+      "title": "Electrical Tech Note — 314",
+      "url": "https://www.maec.msu.edu/application/files/5316/4555/7425/Tech_Note_314_ac_Motor_Characteristics.pdf",
+      "quote": "There will be a decrease in torque at the point where the starting winding disconnects for a single-phase induction motor."
+    },
+    {
+      "n": 318,
+      "title": "Electrical Tech Note — 314",
+      "url": "https://www.maec.msu.edu/application/files/5316/4555/7425/Tech_Note_314_ac_Motor_Characteristics.pdf",
+      "quote": "In most cases the starting winding as well as the capacitor are not rated for continuous duty, so there is a device called a centrifugal switch that disconnects power to the starting winding when the motor shaft reaches about 80 percent of full speed."
+    },
+    {
+      "n": 319,
+      "title": "Electrical Tech Note — 313",
+      "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+      "quote": "Starting winding failure is a common failure pont of single-phase motors."
+    },
+    {
+      "n": 320,
+      "title": "Electrical Tech Note — 313",
+      "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+      "quote": "If a single-phase motor is required to start and stop frequently, there may not be sufficient cooling time between starts and the auxiliary winding may overheat."
+    },
+    {
+      "n": 321,
+      "title": "Split-phase motors for medium-duty applications",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Split_phase_motors_for_medium_duty_applications.pdf",
+      "quote": "When rotor speed reaches about 80 percent of its rated full-load synchronous speed, its built-in automatic centrifugal switch disconnects the starting winding, protecting it from destructive overload."
+    },
+    {
+      "n": 322,
+      "title": "Split-phase motors for medium-duty applications",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Split_phase_motors_for_medium_duty_applications.pdf",
+      "quote": "Although it is small, this phase difference is enough to provide a weak rotating magnetic field which interacts with the rotor, causing it to rotate."
+    },
+    {
+      "n": 323,
+      "title": "Split-phase motors for medium-duty applications",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Split_phase_motors_for_medium_duty_applications.pdf",
+      "quote": "The starting winding is wound with fewer turns of smaller-diameter, higher-resistance wire than the main winding."
+    },
+    {
+      "n": 324,
+      "title": "ECE 3600 Single-Phase Induction Motors",
+      "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+      "quote": "A Single-phase, 1/3-hp, 120-V split-phase motor draws 5 A in its main winding, and 3 A in its start winding when it is first switched on."
+    },
+    {
+      "n": 325,
+      "title": "ECE 3600 Single-Phase Induction Motors",
+      "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+      "quote": "The two currents lag the supply voltage by 40° and 15°."
+    },
+    {
+      "n": 326,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "If the rotor is started in the reverse direction, it will develop a similar large torque as it nears the speed of the backward rotating phasor."
+    },
+    {
+      "n": 327,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "Thus, the single phase coil will develop torque, once the rotor is started."
+    },
+    {
+      "n": 328,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "The current density in the auxiliary winding is so high during starting that the consequent rapid temperature rise precludes frequent restarting or slow starting loads."
+    },
+    {
+      "n": 329,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "When the start winding does not energize, the run winding continues to draw high current until the overload trips, or the run winding is damaged by the occurring heat."
+    },
+    {
+      "n": 330,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "A motor will not start again once a centrifugal switch fails to close after the last run cycle."
+    },
+    {
+      "n": 331,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "Contacts that stick together can cause the start winding to remain energized and damage the winding."
+    },
+    {
+      "n": 332,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "The weights on a centrifugal switch produce an audible clicking sound almost immediately when the motor is started and when the rotor slows down after turning off."
+    },
+    {
+      "n": 333,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "When the rotor speed reaches about 75% of the rated speed the weights thrust outward away from the shaft and result in breaking the start winding circuit."
+    },
+    {
+      "n": 334,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "The weights then return to the rest position and the contacts will close."
+    },
+    {
+      "n": 335,
+      "title": "[PDF] 13 Electric Motors - Goodheart-Willcox",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174883_ch13.pdf",
+      "quote": "The RSIR falls short of that by creating only about half the phase shift."
+    },
+    {
+      "n": 336,
+      "title": "[PDF] 13 Electric Motors - Goodheart-Willcox",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174883_ch13.pdf",
+      "quote": "has higher dc resistance but less inductive reactance resistance."
+    },
+    {
+      "n": 337,
+      "title": "[PDF] 13 Electric Motors - Goodheart-Willcox",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174883_ch13.pdf",
+      "quote": "A centrifugal switch cannot be used in explosive atmospheres or inside hermetic compressors. The arcing caused by switching current on and off can ignite gases."
+    },
+    {
+      "n": 338,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "A single-phase motor that hums but will not start has lost its starting circuit: an open start winding, a failed start capacitor, a centrifugal switch stuck open, or a failed starting relay"
+    },
+    {
+      "n": 339,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "Stuck open → hums, will not start. Stuck closed → starts, then burns the start winding and trips"
+    },
+    {
+      "n": 340,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "A split-phase motor develops roughly 100 to 175 percent starting torque at 500 to 800 percent starting current"
+    },
+    {
+      "n": 341,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "Single-phase motors are reversed by interchanging the leads of the start (auxiliary) winding relative to the run winding, not by interchanging the supply leads."
+    },
+    {
+      "n": 342,
+      "title": "The Proper Way to Ohm a Single Phase Compressor | LennoxPros",
+      "url": "https://m.lennoxpros.com/news/the-proper-way-to-ohm-a-single-phase-compressor",
+      "quote": "The resistance between start(S) to common(C) is typically three-to-five times higher than run to common winding."
+    },
+    {
+      "n": 343,
+      "title": "Compressor Motor Check-Out - ACCA HVAC Blog",
+      "url": "https://hvac-blog.acca.org/compressor-motor-check-out",
+      "quote": "Common to Start + Common to Run = Run to Start"
+    },
+    {
+      "n": 344,
+      "title": "Part 5 – Single Phase AC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-5-single-phase-ac-motors",
+      "quote": "Start coils are placed nearer the surface of the stator core slots which reduces the inductance of this winding and causes the start current to be more in phase with the supply voltage than the run current in the run winding."
+    },
+    {
+      "n": 345,
+      "title": "Part 5 – Single Phase AC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-5-single-phase-ac-motors",
+      "quote": "During the start period, both windings are connected in parallel across the applied voltage and the windings are wound on separate sets of field poles, which are set 90 electrical degrees apart."
     }
   ],
-  "at": "2026-10-21T05:47:31.686Z"
+  "at": "2026-10-21T11:14:26.134Z"
 }

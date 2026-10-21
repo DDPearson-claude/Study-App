@@ -1,0 +1,146 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A four-pole field on 50 Hz turns at 120 × 50 ÷ 4 = 1500 rpm. Two poles give 3000 rpm, and the pole-pair slip, 60 × 50 ÷ 4, gives 750 rpm",
+        "ok": true
+      },
+      {
+        "label": "Up to 50 Hz the drive keeps 8 V per hertz and rated flux: 320 V and 1200 rpm at 40 Hz, 200 V and 750 rpm at 25 Hz",
+        "ok": true
+      },
+      {
+        "label": "Above 50 Hz the volts stop at 400 V: at 60 Hz the field turns at 1800 rpm, with 6.67 V per hertz and 83% flux, and the flux falls as the frequency rises",
+        "ok": true
+      },
+      {
+        "label": "Held at 400 V, 40 Hz gets 10.00 V per hertz and 125% flux, and 25 Hz gets 16.00 V per hertz and 200%",
+        "ok": true
+      },
+      {
+        "label": "Nominal DC link voltage is 1.35 × the supply voltage: about 540 V DC on a 400 V supply",
+        "ok": true,
+        "source": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf"
+      },
+      {
+        "label": "Fan input power varies as the cube of the speed ratio: 0.75³ = 0.42, so 42% at 75% speed, and 12.5% at 50%",
+        "ok": true,
+        "source": "https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "freq",
+      "hold"
+    ],
+    "readouts": [
+      "outV",
+      "outN",
+      "outVf"
+    ],
+    "outputs": [
+      "volts",
+      "fieldRpm",
+      "vpf",
+      "fluxPct"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "How it works",
+          "Volts per hertz",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "freq",
+        "kind": "control",
+        "label": "Frequency",
+        "min": 5,
+        "max": 60,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "shown": false
+      },
+      {
+        "id": "hold",
+        "kind": "toggle",
+        "label": "Hold 400 V",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The field turning"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "freq = 32.5",
+    "hold = true"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/motors/i3.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i3.a8-1280-dark-end.png"
+  ]
+}

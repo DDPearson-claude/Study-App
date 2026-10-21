@@ -1,0 +1,525 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task.show.ask { font-weight: 700; }
+  .task > * + * { margin-top: 10px; }
+  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .task .card b, .task .warn-note b { font-weight: 700; }
+  .task .warn-note { line-height: 1.5; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .why { line-height: 1.6; }
+  .notes > * + * { margin-top: 8px; }
+  #scene > * + * { margin-top: 6px; }
+  .fig { display: block; width: 100%; height: auto; }
+  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .fig .wl { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; }
+  .fig .base { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fig .vfl { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .vfl.ref { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }
+  .fig .hl { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .fig .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .dot.bad { fill: var(--k-warn); }
+  .fig .hit { fill: var(--k-accent2); fill-opacity: 0; cursor: grab; touch-action: none; }
+  .fig .br { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .fig .stat { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; fill-rule: evenodd; }
+  .fig .slot { stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .farrow { fill: var(--k-accent2); }
+  .fig .bar { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .flux { fill: var(--k-accent2); }
+  .fig .flux.bad { fill: var(--k-warn); }
+  .fig .mk { stroke: var(--k-ink); stroke-width: 2; }
+  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .sw { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .swb { stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }
+  .fig .dio { fill: var(--k-ink); }
+  .fig .cap { stroke: var(--k-ink); stroke-width: 3; }
+  .fig .jn { fill: var(--k-ink); }
+  .fig .mot { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .b1 { fill: var(--k-cat1); }
+  .fig .b2 { fill: var(--k-cat2); }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }
+  #outs .k-readout { padding: 8px 8px 10px 10px; }
+  #outs .k-readout-value { font-size: 1.15rem; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .ans { font-weight: 700; }
+  #stepbox.enter { animation: screen-in .35s ease-out both; }
+  .fb { animation: fade-in .25s ease-out both; }
+  .fig .hl, .fig .hold { transition: opacity .25s ease-out; pointer-events: none; }
+  .fig .off { opacity: 0; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  html.k-testing .fb { animation: none; }
+  html.k-testing .fig .hl, html.k-testing .fig .hold { transition: none; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } .fig .hl, .fig .hold { transition: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="hwW"><svg class="fig" id="hw" viewBox="0 0 340 200" width="100%" role="img" aria-label=""></svg></div>
+    <div id="hbW"><svg class="fig" id="hb" viewBox="0 0 340 202" width="100%" role="img" aria-label=""></svg></div>
+    <div id="bcW"><svg class="fig" id="bc" viewBox="0 0 340 198" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div id="scene">
+      <svg class="fig" id="vf" viewBox="0 0 340 202" width="100%" role="img" aria-label=""></svg>
+      <svg class="fig" id="fx" viewBox="0 0 340 152" width="100%" role="img" aria-label=""></svg>
+    </div>
+    <div class="ctl" id="ctl"></div>
+    <div class="k-readouts" id="outs"></div>
+    <p class="say" id="say"></p>
+    <div class="notes" id="notes"></div>
+    <div class="picks" id="picks"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // ---------- the rule ----------
+  // The example motor: 400 V, 50 Hz, four poles (an example, not a maker's rating).
+  // Volts per hertz = 400 ÷ 50 = 8. Up to 50 Hz the drive gives 8 × f; above it, it stays at 400 V.
+  // Field speed = 120 × f ÷ poles. Flux, % of rated = (volts ÷ f) ÷ 8 × 100: an ideal model.
+  // Hold 400 V gives 400 V at every frequency, as if the drive had no V/f rule.
+  const VR = 400, FR = 50, POLES = 4, VPF = VR / FR;
+  const ns = (f, p) => 120 * f / p;
+  function drive(f, hold) {
+    const v = hold ? VR : Math.min(VPF * f, VR);
+    const vpf = v / f;
+    return { v: v, n: ns(f, POLES), vpf: vpf, flux: vpf / VPF * 100 };
+  }
+  const BUS_K = 1.35, BUS = VR * BUS_K;
+  const cube = (s) => Math.pow(s, 3);
+  const whole = (v) => String(Math.round(v + 1e-9));
+  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);
+  const pctTxt = (v) => (Math.abs(v * 2 - Math.round(v * 2)) < 1e-9 ? String(Math.round(v * 2) / 2) : whole(v)) + '%';
+  const FLUX_FULL = 200, SLOW = 100;
+
+  // ---------- the lesson's words ----------
+  const blk = (t, s) => ({ t: t, s: s });
+  const N = { vpf: whole(VPF), bus: whole(BUS), n50: whole(ns(FR, POLES)), n2: whole(ns(FR, 2)), nPairs: whole(60 * FR / POLES), nPairsRight: whole(60 * FR / (POLES / 2)),
+    v25: whole(VPF * 25), v25half: whole(VPF * 25 / 2), n25: whole(ns(25, POLES)), vpf25held: whole(VR / 25),
+    v40: whole(drive(40, false).v), n40: whole(drive(40, false).n), vpf40held: whole(drive(40, true).vpf),
+    n60: whole(drive(60, false).n), flux60: whole(drive(60, false).flux),
+    fan75: two(cube(0.75)), fan75p: pctTxt(cube(0.75) * 100) };
+  const HOW = [
+    blk('p', 'A drive sets a motor\'s speed by setting its frequency.'),
+    blk('p', 'The rectifier turns the incoming AC into DC. Capacitors on the *DC bus* smooth it. On 400 V the bus sits at about 400 × ' + BUS_K + ' = ' + N.bus + ' V DC.'),
+    blk('p', 'The inverter switches that DC on and off very fast. It varies the width of the pulses to build AC at the frequency and voltage it is asked for.'),
+    blk('p', 'The field turns at 120 × f ÷ p. Lower f, and the field and the rotor slow down together.'),
+  ];
+  const PLAY_TASK = 'Drag the frequency down, then up past 50 Hz. Then try Hold 400 V.';
+  const UNDER = '50 Hz is the motor\'s *base speed*. The stator is a winding on iron, like a transformer. Its flux goes with the volts per hertz.';
+  const NOTE = 'Example motor: 400 V, 50 Hz, four poles. The arrow turns ' + SLOW + ' times slower than the real field.';
+  const PLAY_READ = 'Below 50 Hz the voltage falls with the frequency, ' + N.vpf + ' V for every hertz. ' +
+    'At 40 Hz the drive gives ' + N.v40 + ' V and the field turns at ' + N.n40 + ' rpm. ' +
+    'The volts per hertz stay at ' + N.vpf + ', so the flux stays at rated. ' +
+    'Held at 400 V instead, 40 Hz would give ' + N.vpf40held + ' V per hertz. That asks for a quarter more flux, and the iron saturates. ' +
+    'Above 50 Hz the voltage stays at 400 V. At 60 Hz the field turns at ' + N.n60 + ' rpm and the flux falls to ' + N.flux60 + '%.';
+  const BEHAVE = [
+    blk('row', 'Speed: Set by the frequency. The shaft runs a little below 120 × f ÷ p.'),
+    blk('row', 'Starting: The drive ramps up the frequency. No inrush and no jolt.'),
+    blk('row', 'Below base speed: Constant flux. The motor can give its rated torque if it stays cool.'),
+    blk('row', 'Above base speed: *Field weakening*. The volts stay at rated, so the flux falls. The power it can give stays about constant, so the torque it can give falls.'),
+    blk('row', 'Low speed: A self-cooled motor\'s fan slows too, so it cannot carry rated torque for long.'),
+  ];
+  const USE = [
+    blk('row', 'Used for: Pumps and fans, to save energy, and anything whose speed must be set.'),
+    blk('row', 'At sea: Cranes, winches, bow thrusters, ventilation, pumps, compressors and propulsion.'),
+    blk('row', 'Savings: Fan and pump power goes with speed cubed. Real systems save less.'),
+    blk('row', 'Limits: Drives are the main source of harmonics at sea. NATO warship rules cap voltage distortion at 5%. Fast pulses can also drive current through the bearings and wear them.'),
+  ];
+  const FAULTS = [
+    blk('safe', 'Safety first: A cabinet\'s door switch may leave the input busbars live, so isolate the whole drive. Wait out its discharge time, 5 minutes on one maker\'s drive. Prove your tester. Then prove the DC bus, input and motor terminals dead.'),
+    blk('row', 'Insulation test: Disconnect the drive first. The tester can damage it.'),
+    blk('row', 'Overcurrent: A short, earth fault, loose joint or jammed load.'),
+    blk('row', 'Earth fault: Often damp insulation.'),
+    blk('row', 'Input phase loss: A blown fuse or loose input lead.'),
+    blk('row', 'Restarts by itself: An auto-reset drive can restart without warning. Label it.'),
+  ];
+  const words = (list) => list.map((b) => b.s).join('\n\n');
+  const R1 = N.n50 + ' rpm', R2 = N.n2 + ' rpm', R3 = N.nPairs + ' rpm';
+  const C1 = N.v25 + ' V', C2 = VR + ' V', C3 = N.v25half + ' V';
+  const F1 = 'The fan drives the motor as it slows, pushing energy into the DC bus', F2 = 'The fan is overloaded and the motor draws too much current', F3 = 'The supply has lost a phase and the bus sags';
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: 'A four-pole motor runs on 50 Hz. How fast does its field turn?',
+      opts: [R2, R1, R3], want: R1,
+      why: '120 × 50 ÷ 4 = ' + R1 + '. The shaft runs a little below it. Change the frequency and that speed changes. That is how a drive sets speed.',
+      slips: [R2 + ' is a two-pole field. Four poles halve it.', '',
+        R3 + ' comes from using 60 instead of 120. 60 × f ÷ p works with pole pairs: 60 × 50 ÷ 2 = ' + N.nPairsRight + ' rpm.'] },
+    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },
+    { show: true, name: 'Volts per hertz', label: 'Volts per hertz', text: PLAY_TASK + '\n\n' + UNDER.replace(/\*/g, '') + '\n\n' + NOTE,
+      read: PLAY_READ, still: () => stillAt40() },
+    { name: 'Check', label: 'Check on the cause',
+      task: 'The drive runs this 400 V, 50 Hz motor at 25 Hz. What voltage does it give?',
+      opts: [C2, C3, C1], want: C1,
+      why: '400 ÷ 50 = ' + N.vpf + ' V per hertz. ' + N.vpf + ' × 25 = ' + C1 + '. The volts per hertz stay at ' + N.vpf + ', so the flux stays at rated. The field turns at 120 × 25 ÷ 4 = ' + N.n25 + ' rpm.',
+      slips: ['Full voltage at half the frequency doubles the volts per hertz, to ' + N.vpf25held + '. The flux would try to double. The iron saturates and the motor draws far too much current. So the drive halves the voltage too.',
+        'That halves the voltage twice. Halve the frequency and the voltage halves once: ' + N.vpf + ' × 25 = ' + C1 + '.', ''] },
+    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },
+    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },
+    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },
+    { name: 'Find the fault', label: 'Find the fault',
+      task: 'A drive on a big fan trips on overvoltage every time the fan is stopped quickly. Running, it is fine. What is the likely cause?',
+      opts: [F1, F2, F3], want: F1,
+      why: 'The drive drops the frequency fast, but the heavy fan cannot slow that quickly. So the rotor runs faster than the field. The motor becomes a generator and pushes energy back into the DC bus. The bus voltage rises until the drive trips. One maker\'s 400 V drive trips at 840 V. Lengthen the deceleration time, or fit a brake chopper and resistor.',
+      slips: ['', 'An overloaded fan draws too much current while it runs. That trips on overcurrent, not on stopping.',
+        'A lost input phase shows as an input phase fault, whether or not you stop. This trip comes only when the fan slows fast.'] },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iHow = 1, iPic = 2, iChk = 3, iBeh = 4, iUse = 5, iFind = 7, iK = 8;
+  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));
+  let lastStep = -1, finished = false;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function addText(node, s) {
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function write(node, s) { node.textContent = ''; return addText(node, s); }
+  function blocks(node, list) {
+    node.textContent = '';
+    list.forEach((b, k) => {
+      if (k) node.appendChild(document.createTextNode(' '));
+      let e;
+      if (b.t === 'row' || b.t === 'safe') {
+        const cut = b.s.indexOf(': ');
+        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');
+        addText(e, b.s.slice(cut + 2));
+      } else e = addText(K.el('p'), b.s);
+      node.appendChild(e);
+    });
+  }
+
+  // ---------- drawing helpers ----------
+  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }
+  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }
+  const X0 = 48, PXH = 4.5, Y0 = 160, PYV = 0.3;
+  const X = (f) => X0 + PXH * f, Y = (v) => Y0 - PYV * v;
+
+  // The drive's voltage against frequency: axes, base speed and the V/f line.
+  function buildPlot(g, live) {
+    const P = {};
+    [200, 400].forEach((v) => ad(g, 'line', { x1: X0, y1: Y(v), x2: X(60), y2: Y(v), class: 'grid' }));
+    ad(g, 'path', { d: 'M' + X0 + ' ' + (Y(400) - 6) + 'V' + Y0 + 'H' + X(60), class: 'ax' });
+    [0, 10, 20, 30, 40, 50, 60].forEach((f) => { ad(g, 'line', { x1: X(f), y1: Y0, x2: X(f), y2: Y0 + 4, class: 'ax' }); txt(g, X(f), 178, String(f), 'lb', 'middle'); });
+    [0, 200, 400].forEach((v) => txt(g, X0 - 6, Y(v) + 4.5, String(v), 'lb', 'end'));
+    txt(g, 6, 14, 'Output voltage, V', 'hd');
+    txt(g, 140, 196, 'Frequency, Hz', 'hd', 'middle');
+    ad(g, 'line', { x1: X(50), y1: Y0, x2: X(50), y2: live ? 30 : 40, class: 'base' });
+    txt(g, X(50), 196, 'base speed', 'lb', 'middle');
+    P.vfl = ad(g, 'path', { d: 'M' + X(0) + ' ' + Y(0) + 'L' + X(FR) + ' ' + Y(VR) + 'H' + X(60), class: 'vfl' });
+    P.vfLab = txt(g, 150, 92, N.vpf + ' V per Hz', 'lb', 'end');
+    if (live) {
+      P.hl = ad(g, 'path', { d: 'M' + X(5) + ' ' + Y(VR) + 'H' + X(60), class: 'hl' });
+      P.hlLab = txt(g, X(5), 32, 'held at 400 V', 'wl hold');
+      P.dot = ad(g, 'circle', { cx: X(FR), cy: Y(VR), r: 6, class: 'dot' });
+      P.hit = ad(g, 'circle', { cx: X(FR), cy: Y(VR), r: 20, class: 'hit' });
+    } else {
+      ad(g, 'path', { d: 'M' + X0 + ' 36V30H' + (X(50) - 3) + 'V36', class: 'br' });
+      ad(g, 'path', { d: 'M' + (X(50) + 3) + ' 36V30H' + X(60) + 'V36', class: 'br' });
+      txt(g, 170, 22, 'constant flux', 'lb', 'middle');
+      txt(g, 336, 22, 'field weakening', 'lb', 'end');
+    }
+    return P;
+  }
+
+  // How it works: supply, rectifier (a diode bridge), DC bus (rails and a capacitor), inverter (six switches), motor.
+  function buildHw(g) {
+    const TOP = 44, BOT = 164, LR = [60, 80, 100], LI = [195, 225, 255], JY = [94, 104, 114], CX = 145, M = [308, 104], MR = 22;
+    txt(g, 80, 20, 'Rectifier', 'hd', 'middle');
+    txt(g, CX, 20, 'DC bus', 'hd', 'middle');
+    txt(g, 225, 20, 'Inverter', 'hd', 'middle');
+    txt(g, M[0], 20, 'Motor', 'hd', 'middle');
+    ad(g, 'path', { d: 'M' + LR[0] + ' ' + TOP + 'H' + LI[2] + 'M' + LR[0] + ' ' + BOT + 'H' + LI[2], class: 'w' });
+    // The rectifier's three legs, two diodes each, both pointing to the + rail.
+    const diode = (x, yc) => { ad(g, 'path', { d: 'M' + (x - 6) + ' ' + (yc + 5) + 'H' + (x + 6) + 'L' + x + ' ' + (yc - 5) + 'Z', class: 'dio' }); ad(g, 'path', { d: 'M' + (x - 6) + ' ' + (yc - 5) + 'H' + (x + 6), class: 'w' }); };
+    LR.forEach((x) => { ad(g, 'path', { d: 'M' + x + ' ' + TOP + 'V' + BOT, class: 'w' }); diode(x, 68); diode(x, 140); });
+    // The supply's three lines, each to its leg, hopping over the legs before it.
+    JY.forEach((y, k) => {
+      let d = 'M6 ' + y;
+      for (let j = 0; j < k; j++) d += 'H' + (LR[j] - 5) + 'A5 5 0 0 1 ' + (LR[j] + 5) + ' ' + y;
+      ad(g, 'path', { d: d + 'H' + LR[k], class: 'w' });
+      ad(g, 'circle', { cx: LR[k], cy: y, r: 2.6, class: 'jn' });
+    });
+    txt(g, 6, 84, 'Supply', 'hd');
+    txt(g, 6, 134, '400 V,');
+    txt(g, 6, 150, '50 Hz');
+    // The DC bus: a capacitor across the rails.
+    ad(g, 'path', { d: 'M' + CX + ' ' + TOP + 'V98M' + CX + ' 108V' + BOT, class: 'w' });
+    ad(g, 'line', { x1: CX - 12, y1: 98, x2: CX + 12, y2: 98, class: 'cap' });
+    ad(g, 'line', { x1: CX - 12, y1: 108, x2: CX + 12, y2: 108, class: 'cap' });
+    [TOP, BOT].forEach((y) => ad(g, 'circle', { cx: CX, cy: y, r: 2.6, class: 'jn' }));
+    txt(g, CX, 182, 'about', 'lb', 'middle');
+    txt(g, CX, 198, N.bus + ' V DC', 'lb', 'middle');
+    // The inverter's three legs, two transistor switches each.
+    const sw = (x, yc) => {
+      ad(g, 'line', { x1: x - 5, y1: yc - 8, x2: x - 5, y2: yc + 8, class: 'swb' });
+      ad(g, 'path', { d: 'M' + x + ' ' + (yc - 12) + 'V' + (yc - 7) + 'L' + (x - 5) + ' ' + (yc - 3) + 'M' + (x - 5) + ' ' + (yc + 3) + 'L' + x + ' ' + (yc + 7) + 'V' + (yc + 12), class: 'sw' });
+      ad(g, 'path', { d: 'M' + (x - 9) + ' ' + (yc - 6) + 'V' + (yc + 6) + 'M' + (x - 13) + ' ' + yc + 'H' + (x - 9), class: 'sw' });
+    };
+    LI.forEach((x) => { ad(g, 'path', { d: 'M' + x + ' ' + TOP + 'V58M' + x + ' 82V128M' + x + ' 152V' + BOT, class: 'w' }); sw(x, 70); sw(x, 140); });
+    // Each leg's output to the motor, hopping over the legs after it.
+    JY.forEach((y, k) => {
+      let d = 'M' + LI[k] + ' ' + y;
+      for (let j = k + 1; j < 3; j++) d += 'H' + (LI[j] - 5) + 'A5 5 0 0 1 ' + (LI[j] + 5) + ' ' + y;
+      const edge = M[0] - Math.sqrt(MR * MR - (y - M[1]) * (y - M[1]));
+      ad(g, 'path', { d: d + 'H' + edge.toFixed(1), class: 'w' });
+      ad(g, 'circle', { cx: LI[k], cy: y, r: 2.6, class: 'jn' });
+    });
+    ad(g, 'circle', { cx: M[0], cy: M[1], r: MR, class: 'mot' });
+    txt(g, M[0], M[1] + 5, 'M', 'hd', 'middle');
+    ['chosen', 'frequency,', 'matching', 'voltage'].forEach((s, k) => txt(g, 300, 146 + 15 * k, s, 'lb', 'middle'));
+    g.setAttribute('aria-label', 'How a drive works, left to right. The 400 V, 50 Hz supply feeds a rectifier drawn as six diodes. It charges the DC bus, two rails with a capacitor across them, at about ' + N.bus +
+      ' V DC. An inverter of six transistor switches builds AC for the motor at the chosen frequency and a matching voltage.');
+  }
+
+  // Where it is used: power needed at 100%, 75% and 50% speed, a fan against a conveyor.
+  function buildBars(g) {
+    const SP = [1, 0.75, 0.5], CXS = [95, 190, 285], BASE = 150;
+    txt(g, 6, 16, 'Power needed, % of full', 'hd');
+    ad(g, 'line', { x1: 40, y1: BASE, x2: 330, y2: BASE, class: 'ax' });
+    SP.forEach((s, k) => {
+      const c = CXS[k], fan = cube(s) * 100, conv = s * 100;
+      ad(g, 'rect', { x: c - 30, y: BASE - fan, width: 24, height: fan, class: 'b1' });
+      ad(g, 'rect', { x: c + 6, y: BASE - conv, width: 24, height: conv, class: 'b2' });
+      txt(g, c - 18, BASE - fan - 6, pctTxt(fan), 'lb', 'middle');
+      txt(g, c + 18, BASE - conv - 6, pctTxt(conv), 'lb', 'middle');
+      txt(g, c, 168, pctTxt(s * 100) + ' speed', 'lb', 'middle');
+    });
+    ad(g, 'rect', { x: 95, y: 181, width: 14, height: 12, rx: 2, class: 'b1' }); txt(g, 115, 192, 'Fan');
+    ad(g, 'rect', { x: 175, y: 181, width: 14, height: 12, rx: 2, class: 'b2' }); txt(g, 195, 192, 'Conveyor');
+    g.setAttribute('aria-label', 'Power needed at 100%, 75% and 50% speed. A fan needs ' + pctTxt(100) + ', ' + pctTxt(cube(0.75) * 100) + ' and ' + pctTxt(cube(0.5) * 100) +
+      ' of full power. A conveyor needs ' + pctTxt(100) + ', ' + pctTxt(75) + ' and ' + pctTxt(50) + '.');
+  }
+
+  // The field in the stator, and the flux bar.
+  const RC = [60, 62], F = {};
+  function buildFx(g) {
+    const ring = (r) => 'M' + (RC[0] - r) + ' ' + RC[1] + 'a' + r + ' ' + r + ' 0 1 0 ' + 2 * r + ' 0a' + r + ' ' + r + ' 0 1 0 ' + -2 * r + ' 0Z';
+    ad(g, 'path', { d: ring(48) + ring(36), class: 'stat' });
+    for (let k = 0; k < 12; k++) {
+      const a = k * Math.PI / 6, c = Math.cos(a), s = Math.sin(a);
+      ad(g, 'line', { x1: (RC[0] + 36 * c).toFixed(1), y1: (RC[1] + 36 * s).toFixed(1), x2: (RC[0] + 42 * c).toFixed(1), y2: (RC[1] + 42 * s).toFixed(1), class: 'slot' });
+    }
+    F.arrow = ad(g, 'g', {});
+    const cx = RC[0], cy = RC[1];
+    ad(F.arrow, 'polygon', { points: [[cx - 4, cy + 28], [cx - 4, cy - 14], [cx - 11, cy - 14], [cx, cy - 31], [cx + 11, cy - 14], [cx + 4, cy - 14], [cx + 4, cy + 28]].map((q) => q.join(',')).join(' '), class: 'farrow' });
+    txt(g, cx, 128, 'The field,', 'lb', 'middle');
+    txt(g, cx, 144, SLOW + ' times slower', 'lb', 'middle');
+    txt(g, 150, 22, 'Flux', 'hd');
+    F.off = txt(g, 330, 22, 'off the scale', 'wl', 'end');
+    ad(g, 'rect', { x: 150, y: 32, width: 180, height: 20, rx: 3, class: 'bar' });
+    F.fill = ad(g, 'rect', { x: 151, y: 33, width: 89, height: 18, rx: 2, class: 'flux' });
+    ad(g, 'line', { x1: 240, y1: 27, x2: 240, y2: 57, class: 'mk' });
+    txt(g, 150, 72, '0', 'lb');
+    txt(g, 240, 72, '100% rated', 'lb', 'middle');
+    txt(g, 330, 72, FLUX_FULL + '%', 'lb', 'end');
+    F.s = [96, 112, 128].map((y) => txt(g, 150, y, '', 'lb'));
+  }
+
+  buildHw(el('hw'));
+  const PS = buildPlot(el('hb'), false);
+  el('hb').setAttribute('aria-label', 'The drive\'s output voltage against frequency. It rises ' + N.vpf + ' V per hertz to 400 V at 50 Hz, base speed, then stays at 400 V to 60 Hz. Below base speed is constant flux. Above it is field weakening.');
+  buildBars(el('bc'));
+  const P = buildPlot(el('vf'), true);
+  buildFx(el('fx'));
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const freqCtl = K.control({ id: 'freq', label: 'Frequency', min: 5, max: 60, step: 5, value: FR, unit: 'Hz', into: '#ctl' });
+  const holdCtl = K.toggle({ id: 'hold', label: 'Hold 400 V', value: false, hint: '400 V at every frequency, with no V/f rule.', into: '#ctl' });
+  K.drag(P.hit, { control: 'freq', toValue: (x) => K.clamp(Math.round((x - X0) / PXH / 5) * 5, 5, 60) });
+  const RD = {
+    v: K.readout({ id: 'outV', label: 'Output voltage', fmt: (v) => whole(v) + ' V', into: '#outs' }),
+    n: K.readout({ id: 'outN', label: 'Field speed', fmt: (v) => whole(v) + ' rpm', into: '#outs' }),
+    vpf: K.readout({ id: 'outVf', label: 'Volts per hertz', fmt: (v) => two(v) + ' V per Hz', into: '#outs' }),
+  };
+  K.model((p) => { const d = drive(+p.freq || FR, !!p.hold); return { volts: d.v, fieldRpm: d.n, vpf: d.vpf, fluxPct: d.flux }; });
+
+  // ---------- the live picture ----------
+  let theta = 0;
+  function paintArrow() { F.arrow.setAttribute('transform', 'rotate(' + (REDUCE ? 0 : theta).toFixed(1) + ' ' + RC[0] + ' ' + RC[1] + ')'); }
+  function sayFor(f, hold, d) {
+    const same = hold ? ' Hold 400 V changes nothing here.' : '';
+    if (f === FR) return 'At 50 Hz, base speed, the drive gives its full 400 V. The flux is at rated and the field turns at ' + whole(d.n) + ' rpm.' + same;
+    if (f > FR) return 'At ' + f + ' Hz the drive has no more volts to give, so it stays at 400 V. The volts per hertz fall to ' + two(d.vpf) +
+      ', and the flux to ' + whole(d.flux) + '% of rated. Less flux, less torque.' + same;
+    if (hold) return 'Held at 400 V, ' + f + ' Hz gets ' + two(d.vpf) + ' V per hertz. That asks for ' + whole(d.flux) + '% of rated flux' +
+      (d.flux > FLUX_FULL + 0.5 ? ', off the scale' : '') + '. The iron saturates, so the current climbs instead.';
+    return 'At ' + f + ' Hz the drive gives ' + whole(d.v) + ' V: still ' + two(d.vpf) + ' V per hertz. So the flux stays at rated, and the field turns at ' + whole(d.n) + ' rpm.';
+  }
+  function paintLive(p) {
+    const f = +p.freq || FR, hold = !!p.hold, d = drive(f, hold), over = d.flux > 100.5, under = d.flux < 99.5;
+    const x = X(f), y = Y(d.v);
+    ['cx', 'cy'].forEach((a, k) => { P.dot.setAttribute(a, k ? y : x); P.hit.setAttribute(a, k ? y : x); });
+    P.dot.classList.toggle('bad', over);
+    P.vfl.classList.toggle('ref', hold);
+    P.vfLab.setAttribute('class', hold ? 'mu' : 'lb');
+    P.hl.classList.toggle('off', !hold);
+    P.hlLab.classList.toggle('off', !hold);
+    F.fill.setAttribute('width', (178 * Math.min(d.flux, FLUX_FULL) / FLUX_FULL).toFixed(1));
+    F.fill.classList.toggle('bad', over);
+    F.off.style.display = d.flux > FLUX_FULL + 0.5 ? '' : 'none';
+    const lines = over ? ['Too much flux: the iron', 'saturates and the current', 'climbs.'] : under ? ['Field weakening:', 'less torque'] : ['Rated flux'];
+    F.s.forEach((t, k) => { t.textContent = lines[k] || ''; t.setAttribute('class', over ? 'wl' : 'lb'); });
+    paintArrow();
+    RD.v.set(d.v); RD.n.set(d.n); RD.vpf.set(d.vpf);
+    el('say').textContent = sayFor(f, hold, d);
+    el('vf').setAttribute('aria-label', 'Output voltage against frequency. The drive\'s line rises ' + N.vpf + ' V per hertz to 400 V at 50 Hz, base speed, then stays at 400 V to 60 Hz.' +
+      (hold ? ' Hold 400 V is on, so the drive gives 400 V at every frequency.' : '') + ' The dot is at ' + f + ' Hz.');
+    el('fx').setAttribute('aria-label', 'The stator with the field drawn as an arrow, turning ' + SLOW + ' times slower than the real field. Beside it, the flux bar from 0 to ' + FLUX_FULL + '% of rated. ' +
+      (over ? 'It is over rated: too much flux.' : under ? 'It is below rated: field weakening.' : 'It sits at rated.'));
+  }
+  const spin = K.anim({ button: false, label: 'The field turning', step: (dt) => {
+    if (at() !== iPic || REDUCE) return false;
+    const p = K.params();
+    theta = (theta + drive(+p.freq || FR, !!p.hold).n / SLOW * 6 * Math.min(dt, 0.1)) % 360;
+    paintArrow();
+  } });
+  // The read-through's picture: 40 Hz, Hold 400 V off.
+  function stillAt40() { freqCtl.set(40); holdCtl.set(false); K.refresh(); }
+
+  // ---------- picks: one go, then the answer and its reason ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length || st.res) return;
+    st.pick = d.opts[k];
+    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: i === iR ? 'Still there.' : 'Right.', p: d.why }; }
+    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }
+    K.refresh();
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));
+    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));
+    if (f.p) fb.appendChild(addText(K.el('p'), f.p));
+  }
+
+  // ---------- Keep this ----------
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  el('notes').appendChild(addText(K.el('p', { class: 'why' }), UNDER));
+  el('notes').appendChild(K.el('p', { class: 'sub' }, NOTE));
+  const ON = { hwW: [iHow], hbW: [iBeh], bcW: [iUse], scene: [iPic], ctl: [iPic], outs: [iPic], say: [iPic], notes: [iPic], picks: [iR, iChk, iFind], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');
+    if (i === iPic) write(task, PLAY_TASK);
+    else if (d.show) blocks(task, d.blocks);
+    else if (d.kind) task.textContent = '';
+    else write(task, d.task);
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    if (i === iPic) {
+      paintLive(p);
+      if (!REDUCE && !spin.playing()) spin.play();
+    }
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paintFb(st.fb);
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i);
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('A four-pole field on 50 Hz turns at 120 × 50 ÷ 4 = 1500 rpm. Two poles give 3000 rpm, and the pole-pair slip, 60 × 50 ÷ 4, gives 750 rpm', () =>
+    R1 === '1500 rpm' && R2 === '3000 rpm' && R3 === '750 rpm' && N.nPairsRight === '1500');
+  K.check('Up to 50 Hz the drive keeps 8 V per hertz and rated flux: 320 V and 1200 rpm at 40 Hz, 200 V and 750 rpm at 25 Hz', () => {
+    const a = K.at({ freq: 40, hold: false }), b = K.at({ freq: 25, hold: false });
+    const level = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50].every((f) => K.near(drive(f, false).vpf, 8, 1e-9) && K.near(drive(f, false).flux, 100, 1e-9));
+    return level && K.near(a.volts, 320, 1e-9) && K.near(a.fieldRpm, 1200, 1e-9) && K.near(b.volts, 200, 1e-9) && K.near(b.fieldRpm, 750, 1e-9);
+  });
+  K.check('Above 50 Hz the volts stop at 400 V: at 60 Hz the field turns at 1800 rpm, with 6.67 V per hertz and 83% flux, and the flux falls as the frequency rises', () => {
+    const c = K.at({ freq: 60, hold: false });
+    return K.near(c.volts, 400, 1e-9) && K.near(c.fieldRpm, 1800, 1e-9) && two(c.vpf) === '6.67' && whole(c.fluxPct) === '83' && drive(55, false).flux > c.fluxPct && drive(55, false).flux < 100;
+  });
+  K.check('Held at 400 V, 40 Hz gets 10.00 V per hertz and 125% flux, and 25 Hz gets 16.00 V per hertz and 200%', () => {
+    const a = K.at({ freq: 40, hold: true }), b = K.at({ freq: 25, hold: true });
+    return two(a.vpf) === '10.00' && K.near(a.fluxPct, 125, 1e-9) && two(b.vpf) === '16.00' && K.near(b.fluxPct, 200, 1e-9);
+  });
+  K.check('Nominal DC link voltage is 1.35 × the supply voltage: about 540 V DC on a 400 V supply', () => K.near(BUS, 540, 1e-9) && N.bus === '540',
+    { source: 'https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf' });
+  K.check('Fan input power varies as the cube of the speed ratio: 0.75³ = 0.42, so 42% at 75% speed, and 12.5% at 50%', () =>
+    N.fan75 === '0.42' && N.fan75p === '42%' && pctTxt(cube(0.5) * 100) === '12.5%',
+    { source: 'https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf' });
+
+  K.ready();
+</script>

@@ -1,0 +1,553 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T11:14:26.134Z",
+ "startedAt": "2026-10-21T11:14:26.134Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "The variable speed drive",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the voltage falling in step with the frequency, so the volts per hertz and the flux hold level up to 50 Hz, when you drag the frequency down.",
+   "title": "V/f: drag the frequency",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 8,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Nine screens, with Back and Continue. One picture to play with, three quick choices and a card to keep. No marks and no timers.\n\nAssume one example motor on every screen: 400 V, 50 Hz, four poles. It is an example, not a maker's rating. Every other figure is worked from it.\n\nScreen 1, Do you still have it? The question: \"A four-pole motor runs on 50 Hz. How fast does its field turn?\" Three choices, in this order: \"3000 rpm\"; \"1500 rpm\"; \"750 rpm\". Right, the second: \"Still there. 120 × 50 ÷ 4 = 1500 rpm. The shaft runs a little below it. Change the frequency and that speed changes. That is how a drive sets speed.\" Wrong, the first: \"3000 rpm is a two-pole field. Four poles halve it: 120 × 50 ÷ 4 = 1500 rpm.\" Wrong, the third: \"750 rpm comes from using 60 instead of 120. 60 × f ÷ p works with pole pairs: 60 × 50 ÷ 2 = 1500 rpm.\" After a wrong choice, show the right answer and its reason, then go on to screen 2. No skip button. The feedback fades in.\n\nScreen 2, How it works. A still drawing, left to right: the 400 V, 50 Hz supply; the rectifier, drawn as a diode bridge; the DC bus, drawn as two rails with a capacitor across them, labelled \"about 540 V DC\"; the inverter, drawn as six transistor switches; the motor, labelled \"chosen frequency, matching voltage\". The words beside it: \"A drive sets a motor's speed by setting its frequency. The rectifier turns the incoming AC into DC. Capacitors on the DC bus smooth it. On 400 V the bus sits at about 400 × 1.35 = 540 V DC.[^1] The inverter switches that DC on and off very fast. It varies the width of the pulses to build AC at the frequency and voltage it is asked for. The field turns at 120 × f ÷ p. Lower f, and the field and the rotor slow down together.\" DC bus is the key term, marked in amber.\n\nScreen 3, V/f: drag the frequency. The picture to play with. At the top, a plot of the drive's output voltage, 0 to 400 V, against frequency, 0 to 60 Hz. The drive's line rises straight from 0 V at 0 Hz to 400 V at 50 Hz. Then it runs flat at 400 V to 60 Hz. A dot sits on the line at the chosen frequency. A dashed upright line at 50 Hz is labelled \"base speed\". Under the plot, the stator ring with the field drawn as an arrow, turning at a hundredth of its real speed. Beside it, a flux bar from 0 to 200% of rated, with a mark at 100%.\n\nThe controls. Frequency: a slider from 5 to 60 Hz in steps of 5, starting at 50 Hz. Hold 400 V: a switch that starts off. With it on, the drive gives 400 V at every frequency, as if it had no V/f rule, and a red line at 400 V, \"held at 400 V\", fades in. The readouts, in one row: Output voltage, in V. Field speed, in rpm. Volts per hertz, in V per Hz, to two places.\n\nThe rule it computes. Volts per hertz = rated volts ÷ rated hertz = 400 ÷ 50 = 8. Up to 50 Hz, output voltage = 8 × f. Above 50 Hz the voltage stays at 400 V, because the drive has no more to give. Field speed = 120 × f ÷ 4 = 30 × f. Flux, as a % of rated, = (output voltage ÷ f) ÷ 8 × 100. It is an ideal model: flux follows volts per hertz. At 40 Hz: 320 V, 1200 rpm, 8.00 V per Hz, flux 100%. At 60 Hz: 400 V, 1800 rpm, 400 ÷ 60 = 6.67 V per Hz, flux 6.67 ÷ 8 = 83%. With Hold 400 V on, 40 Hz gives 400 ÷ 40 = 10 V per Hz and flux 125%. 25 Hz gives 16 V per Hz and flux 200%. Above 100% the bar turns red, with the words \"Too much flux: the iron saturates and the current climbs.\" Past 200% it stays full, marked \"off the scale\". Below 100% the bar is labelled \"Field weakening: less torque\".\n\nThe words under the picture: \"50 Hz is the motor's base speed. The stator is a winding on iron, like a transformer. Its flux goes with the volts per hertz.\" Base speed is the key term, marked in amber. A live line under the readouts says what the chosen setting does. The prompt above the picture: \"Drag the frequency down, then up past 50 Hz. Then try Hold 400 V.\" Read: Below 50 Hz the voltage falls with the frequency, 8 V for every hertz. At 40 Hz the drive gives 320 V and the field turns at 1200 rpm. The volts per hertz stay at 8, so the flux stays at rated. Held at 400 V instead, 40 Hz would give 10 V per hertz. That asks for a quarter more flux, and the iron saturates. Above 50 Hz the voltage stays at 400 V. At 60 Hz the field turns at 1800 rpm and the flux falls to 83%. Still: frequency 40 Hz, Hold 400 V off; 320 V, 1200 rpm, 8.00 V per Hz, the flux bar at 100%.\n\nScreen 4, Check on the cause. \"The drive runs this 400 V, 50 Hz motor at 25 Hz. What voltage does it give?\" Three choices, in this order: \"400 V\"; \"100 V\"; \"200 V\". Right, the third: \"Right. 400 ÷ 50 = 8 V per hertz. 8 × 25 = 200 V. The volts per hertz stay at 8, so the flux stays at rated. The field turns at 120 × 25 ÷ 4 = 750 rpm.\" Wrong, the first: \"Full voltage at half the frequency doubles the volts per hertz, to 16. The flux would try to double. The iron saturates and the motor draws far too much current. So the drive halves the voltage too: 200 V.\" Wrong, the second: \"That halves the voltage twice. Halve the frequency and the voltage halves once: 8 × 25 = 200 V.\" After a wrong choice, show the right answer and its reason.\n\nScreen 5, How it behaves. A still drawing: the drive's voltage line again. The part below 50 Hz is labelled \"constant flux\" and the part above it \"field weakening\". Rows, each with a label.\n\nSpeed: \"Set by the frequency. The shaft runs a little below 120 × f ÷ p.\"\n\nStarting: \"The drive ramps up the frequency. No inrush and no jolt.\"\n\nBelow base speed: \"Constant flux. The motor can give its rated torque if it stays cool.\"\n\nAbove base speed: \"Field weakening. The volts stay at rated, so the flux falls. The power it can give stays about constant, so the torque it can give falls.\"\n\nLow speed: \"A self-cooled motor's fan slows too, so it cannot carry rated torque for long.\" Field weakening is the key term, marked in amber.\n\nScreen 6, Where it is used, and its limits. A still bar chart: power needed at 100%, 75% and 50% speed. A fan: 100%, 42% and 12.5%. A conveyor: 100%, 75% and 50%. Rows.\n\nUsed for: \"Pumps and fans, to save energy, and anything whose speed must be set. The only usual starter that also sets speed.\"\n\nAt sea: \"Cranes, winches, bow thrusters, ventilation, pumps, compressors and propulsion.\"\n\nSavings: \"Fan and pump power goes with speed cubed.[^2] Real systems save less.\"\n\nLimits: \"Drives are the main source of harmonics at sea. NATO warship rules cap voltage distortion at 5%.[^3] Fast pulses can also drive current through the bearings and wear them.\"\n\nScreen 7, Faults and tests. Rows.\n\nSafety first, in red: \"A cabinet's door switch may leave the input busbars live, so isolate the whole drive. Wait out its discharge time, 5 minutes on one maker's drive.[^4] Prove your tester. Then prove the DC bus, input and motor terminals dead.\"\n\nInsulation test: \"Disconnect the drive first. The tester can damage it.\"\n\nOvercurrent: \"A short, earth fault, loose joint or jammed load.\"\n\nEarth fault: \"Often damp insulation.\"\n\nInput phase loss: \"A blown fuse or loose input lead.\"\n\nRestarts by itself: \"An auto-reset drive can restart without warning. Label it.\"\n\nScreen 8, Find the fault. \"A drive on a big fan trips on overvoltage every time the fan is stopped quickly. Running, it is fine. What is the likely cause?\" Three choices, in this order: \"The fan drives the motor as it slows, pushing energy into the DC bus\"; \"The fan is overloaded and the motor draws too much current\"; \"The supply has lost a phase and the bus sags\". Right, the first: \"Right. The drive drops the frequency fast, but the heavy fan cannot slow that quickly. So the rotor runs faster than the field. The motor becomes a generator and pushes energy back into the DC bus. The bus voltage rises until the drive trips. One maker's 400 V drive trips at 840 V.[^5] Lengthen the deceleration time, or fit a brake chopper and resistor.\" Wrong, the second: \"An overloaded fan draws too much current while it runs. That trips on overcurrent, not on stopping.\" Wrong, the third: \"A lost input phase shows as an input phase fault, whether or not you stop. This trip comes only when the fan slows fast.\" After a wrong choice, show the right answer and its reason.\n\nScreen 9, Keep this: the summary card, drawn from the lesson's summary, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a shown rule, or a cited value. The 400 V, 50 Hz, four-pole motor is an example. The field arrow is slowed a hundred times.",
+   "ignores": "The model takes flux to follow volts per hertz exactly. At very low speed the winding's own resistance matters. Real drives usually add a little extra voltage there. The inverter's output is drawn as a smooth wave. Really it is fast pulses. The field speed is shown, not the shaft speed, which runs a little below it. With Hold 400 V on, the flux bar shows what the volts per hertz ask for. Real iron saturates first, so the flux grows far less and the current far more. The picture does not show torque or load.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 9 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider, Hz (opening)",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider range, Hz",
+     "value": "5 to 60",
+     "kind": "control"
+    },
+    {
+     "label": "Hold 400 V switch (opening off)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Example motor rated voltage, V",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor rated frequency, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor poles",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Volts per hertz, V per Hz",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Field speed at 50 Hz, rpm",
+     "value": 1500,
+     "kind": "computed"
+    },
+    {
+     "label": "Two-pole field speed at 50 Hz, rpm",
+     "value": 3000,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong-formula field speed, rpm",
+     "value": 750,
+     "kind": "computed"
+    },
+    {
+     "label": "Output voltage at 40 Hz, V",
+     "value": 320,
+     "kind": "computed"
+    },
+    {
+     "label": "Field speed at 40 Hz, rpm",
+     "value": 1200,
+     "kind": "computed"
+    },
+    {
+     "label": "Output voltage at 25 Hz, V",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Field speed at 25 Hz, rpm",
+     "value": 750,
+     "kind": "computed"
+    },
+    {
+     "label": "Field speed at 60 Hz, rpm",
+     "value": 1800,
+     "kind": "computed"
+    },
+    {
+     "label": "Volts per hertz at 60 Hz, V per Hz",
+     "value": 6.67,
+     "kind": "computed"
+    },
+    {
+     "label": "Flux at 60 Hz, % of rated",
+     "value": 83,
+     "kind": "computed"
+    },
+    {
+     "label": "Held 400 V at 40 Hz, V per Hz",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Held 400 V at 40 Hz, flux % of rated",
+     "value": 125,
+     "kind": "computed"
+    },
+    {
+     "label": "Held 400 V at 25 Hz, V per Hz",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Held 400 V at 25 Hz, flux % of rated",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Flux bar full scale, % of rated",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Field arrow slowed, times",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "DC bus, times supply line voltage",
+     "value": 1.35,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "DC bus on a 400 V supply, V DC",
+     "value": 540,
+     "kind": "computed"
+    },
+    {
+     "label": "Fan power at 75% speed, % of full",
+     "value": 42,
+     "kind": "computed"
+    },
+    {
+     "label": "Fan power at 50% speed, % of full",
+     "value": 12.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Conveyor power at 75% speed, % of full",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Conveyor power at 50% speed, % of full",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Warship voltage distortion limit, %",
+     "value": 5,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Wait for DC bus to discharge, minutes",
+     "value": 5,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "One maker's DC overvoltage trip, 400 V drive, V",
+     "value": 840,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "Ship's supply voltage, V",
+     "value": 440,
+     "kind": "constant",
+     "source": 17
+    },
+    {
+     "label": "Ship's supply frequency, Hz",
+     "value": 60,
+     "kind": "constant",
+     "source": 17
+    },
+    {
+     "label": "Volts per hertz on a 440 V, 60 Hz motor, V per Hz",
+     "value": 7.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed at 60 Hz over speed at 50 Hz",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Fan power at 60 Hz, times its 50 Hz power",
+     "value": 1.73,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A variable speed drive sets a motor's speed by setting its supply frequency. It turns the supply into DC, then builds new AC at the frequency it wants. It lowers the voltage in step with the frequency. That keeps the motor's flux where it should be.\n\nStart from what you know. The field turns at 120 × f ÷ p, and the rotor follows a little behind. So change f and you change the speed. The drive does that in three stages. A rectifier turns the incoming AC into DC. Capacitors on the [[DC bus]] smooth it. On a 400 V supply the bus sits at about 400 × 1.35 = 540 V DC.[^1] An inverter then switches that DC on and off very fast. It varies the width of its pulses to build AC at the frequency and voltage it is asked for.\n\nWhy change the voltage too? Each half cycle, the voltage drives the flux up in the iron. Halve the frequency and each half cycle lasts twice as long. So at full voltage the flux would try to double. The iron saturates, and the motor draws far too much current. So the drive keeps the volts per hertz constant. Take a motor rated 400 V at 50 Hz. That is 8 V per hertz. At 25 Hz it gets 8 × 25 = 200 V. The flux stays at rated, so the motor can still give its rated torque at low speed. But its own fan slows too. So a self-cooled motor cannot keep that up continuously.\n\nThis holds up to 50 Hz, the motor's [[base speed]]. Above it, the drive has no more volts to give. The frequency rises, the voltage stays at 400 V, and the flux falls. At 60 Hz it is 50 ÷ 60 = 83% of rated. That is [[field weakening]]. The motor runs at about constant power, so the torque it can give falls.\n\n**A drive sets the speed by the frequency. Up to base speed it keeps the volts per hertz constant, so the flux stays at rated.**[^6]"
+  },
+  "analogy": {
+   "text": "You know this from transformers. A transformer's core flux is set by its volts per hertz. Run a 50 Hz transformer at 25 Hz on full voltage and its core saturates. It draws a big magnetising current and runs hot. A motor's stator is the same kind of winding on iron. So the drive halves the volts when it halves the frequency.",
+   "breaks": "A transformer usually sits on one fixed supply frequency. A motor on a drive does not. It often runs above its rated frequency. There the volts cannot follow. So the flux falls, and the motor gives less torque."
+  },
+  "practice": {
+   "text": "- A switch on a cabinet door may leave the input busbars live. Isolate the whole drive.[^15] Wait for the DC bus to discharge: 5 minutes on one maker's drive,[^4] longer on some. Then measure across DC+ and DC−, and from each to earth. Use a meter rated for the bus. Start work only when all read zero.\n- Prove the supply and the motor terminals dead too. Use a tester you prove before and after.[^16]\n- Disconnect the drive before you insulation test the motor or its cable.\n- Start and stop the motor from the drive, not the isolator.\n- Check the motor and the load can run safely over the whole speed range set on the drive.[^18] A fan at 60 Hz needs 1.2 × 1.2 × 1.2 = 1.73 times its 50 Hz power.\n- If the drive is set to reset itself after a trip, label the machine. It can restart by itself.\n\n**Rule of thumb:** volts per hertz = rated volts ÷ rated hertz. A 400 V, 50 Hz motor runs at 8 V per hertz up to base speed.\n\n**Worked example:** a fan on a drive, slowed to 75% speed. Its power goes with speed cubed. So 0.75 × 0.75 × 0.75 = 0.42, about 42% of full power. At 50% speed it is 0.5 × 0.5 × 0.5 = 0.125, so 12.5%. A conveyor at 75% speed still needs about 75% power, because its torque stays the same. Real systems save less.\n\n**Common mistakes**\n- Expecting full voltage at low speed. The volts fall with the frequency.\n- Expecting full torque above base speed. The flux falls there, so the torque does too.\n- Expecting big savings on a conveyor. They come on fans and pumps.\n- Insulation testing with the drive connected.\n- Touching the drive straight after isolating. The DC bus stays charged for minutes."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+   "title": "The variable speed drive",
+   "for": "Setting a cage motor's speed, and starting it with no inrush. It turns the supply into DC, then builds AC at the frequency it is asked for. Up to base speed, the voltage moves in step.",
+   "rule": "ns = 120 × f ÷ p\nVolts per hertz constant up to base speed: 400 V ÷ 50 Hz = 8 V per Hz\nFan or pump power goes with speed cubed\n\nBelow base speed: constant flux. Above it: the volts stop at rated and the flux falls.\nDC bus about 1.35 × supply volts: about 540 V DC on 400 V.\nCommon trips: overcurrent, earth fault, overvoltage on a fast stop, input phase loss.\nA ship's motor on 440 V, 60 Hz: 440 ÷ 60 = 7.33 V per Hz, and base speed is 60 Hz.",
+   "traps": [
+    {
+     "text": "Above base speed the volts stop rising. The flux falls, and so does the torque it can give. Yet a fan at 60 Hz needs 1.2³ = 1.73 times its 50 Hz power. Check the motor and the load can take the whole speed range.",
+     "cite": "[^7] [^8] [^18] [^2] ABB ACS580 technical eBook; ABB ACS800-37 hardware manual"
+    },
+    {
+     "text": "The big savings come on fans and pumps. Their power goes with speed cubed. Real systems save less.",
+     "cite": "[^2] [^9] US DOE motor tip sheet; ABB energy efficiency plan"
+    },
+    {
+     "text": "Isolate the whole drive, not just the door switch. Wait out its discharge time, 5 minutes on one maker's drive. Prove your tester. Then prove DC+ to DC−, each to earth, and the input and motor terminals dead. Charged, the bus holds about 540 V DC.",
+     "cite": "[^4] [^10] [^1] [^15] [^16] ABB ACS800-37 hardware manual; HSE GS38"
+    },
+    {
+     "text": "Disconnect the drive before you insulation test the motor or its cable.",
+     "cite": "[^11] [^12] VFD earth fault guide"
+    },
+    {
+     "text": "Overvoltage on a fast stop means the load is driving the motor. Lengthen the deceleration time or fit a brake chopper.",
+     "cite": "[^13] [^14] Eaton fault codes; ABB ACS880-01 hardware manual"
+    }
+   ],
+   "where": "Pumps, fans and compressors to save energy. Cranes, winches, bow thrusters and ventilation at sea. Anywhere the speed must be set."
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+    "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+    "quote": "Note: Nominal DC link voltage is U N × 1.35 or U N × 1.41 in V DC."
+   },
+   {
+    "n": 2,
+    "title": "Adjustable Speed Drive Part-Load Efficiency",
+    "url": "https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf",
+    "quote": "The input power requirement varies as the cube or third power of the speed ratio"
+   },
+   {
+    "n": 3,
+    "title": "VOLTAGE AND CURRENT HARMONIC DISTORTION ON MODERN NAVAL SHIPS ELECTRICAL SYSTEMS",
+    "url": "https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/49--Harmonics-MEKO_MedPower2002.pdf",
+    "quote": "the Total voltage Harmonic Distortion (THD) of a 60Hz and 400Hz network must not exceed 5%, while no harmonic should exceed 3% of the fundamental."
+   },
+   {
+    "n": 4,
+    "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+    "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+    "quote": "After switching off the input power, always wait for 5 min to let the intermediate circuit capacitors discharge before you start working on the drive, the motor or the motor cable."
+   },
+   {
+    "n": 5,
+    "title": "EN / ACS355 user’s manual",
+    "url": "https://library.e.abb.com/public/805f31a82d524d8aa8a750011e2cd001/EN_ACS355_UM_E_A5.pdf",
+    "quote": "The DC overvoltage trip limit is 420 V (for 200 V drives) and 840 V (for 400 V drives)."
+   },
+   {
+    "n": 6,
+    "title": "— Technical guide No. 1 Direct torque control – the world’s most advanced AC drive technology",
+    "url": "https://library.e.abb.com/public/3dc7259dcd684a55841165ddefe7eb3f/Technical_guide_No_1_3AFE58056685_RevD_EN.pdf?x-sign=KI4w8YYG7Vw4K1NM8Xi9c4EAplW34UcpnsXTN2EbBHC8IgGbBGAQkJXlgAVXKbEs",
+    "quote": "Constant magnetic flux is provided with constant V/f ratio"
+   },
+   {
+    "n": 7,
+    "title": "[PDF] — ACS580 general purpose drives Technical eBook - ABB",
+    "url": "https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf",
+    "quote": "The frequency range below the nominal frequency is called a constant flux range."
+   },
+   {
+    "n": 8,
+    "title": "[PDF] — ACS580 general purpose drives Technical eBook - ABB",
+    "url": "https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf",
+    "quote": "In the field weakening range, the motor can operate on constant power which is why the field weakening range is sometimes also called the constant power range."
+   },
+   {
+    "n": 9,
+    "title": "The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications",
+    "url": "https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2",
+    "quote": "The savings derived from the Affinity Laws should be treated as theoretical. In real applications the particular characteristics of the system will determine the actual savings achieved."
+   },
+   {
+    "n": 10,
+    "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+    "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+    "quote": "Measure the voltage between terminals UDC+ and UDC- (L+ and L–) with a multimeter (impedance at least 1 Mohm) to ensure that the drive is discharged before beginning work."
+   },
+   {
+    "n": 11,
+    "title": "VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices",
+    "url": "https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf",
+    "quote": "Best practice: Always disconnect the drive completely before meggering the motor or cable."
+   },
+   {
+    "n": 12,
+    "title": "VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices",
+    "url": "https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf",
+    "quote": "High-voltage DC from an insulation tester can damage VFD electronic components or give misleading readings through the drive’s input filters."
+   },
+   {
+    "n": 13,
+    "title": "10 most common fault codes and how to solve",
+    "url": "https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf",
+    "quote": "Increase deceleration time or add brake chopper"
+   },
+   {
+    "n": 14,
+    "title": "EN / ACS880-01 hardware manual",
+    "url": "https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY",
+    "quote": "The voltage rise is typically caused by deceleration (braking) of a high inertia motor."
+   },
+   {
+    "n": 15,
+    "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+    "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+    "quote": "The main switch on the cabinet door does not remove the voltage from the input busbars of the drive. Before working on the drive, isolate the whole drive from the supply."
+   },
+   {
+    "n": 16,
+    "title": "Electrical test equipment for use by electricians GS38",
+    "url": "https://www.hse.gov.uk/pubns/priced/gs38.pdf",
+    "quote": "Any device used to prove dead may fail to indicate danger (eg a faulty lamp not indicating a live circuit). Such devices should be proved before and after use."
+   },
+   {
+    "n": 17,
+    "title": "Electrical system design for warships (Journal of Naval Engineering)",
+    "url": "https://library.imarest.org/record/8911/files/v28b1p10a.pdf",
+    "quote": "It was not until 1946 that a 440 V, 60 Hz, 3-phase a.c. supply was introduced into four of the DARING Class destroyers, in line with U.S. Navy practice. This has been the preferred supply ever since."
+   },
+   {
+    "n": 18,
+    "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+    "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+    "quote": "make sure that the motor and all driven equipment are suitable for operation throughout the speed range provided by the drive."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task.show.ask { font-weight: 700; }\n  .task > * + * { margin-top: 10px; }\n  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .task .card b, .task .warn-note b { font-weight: 700; }\n  .task .warn-note { line-height: 1.5; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .why { line-height: 1.6; }\n  .notes > * + * { margin-top: 8px; }\n  #scene > * + * { margin-top: 6px; }\n  .fig { display: block; width: 100%; height: auto; }\n  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }\n  .fig .wl { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .grid { stroke: var(--k-line); stroke-width: 1; }\n  .fig .base { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .fig .vfl { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .vfl.ref { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }\n  .fig .hl { fill: none; stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }\n  .fig .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .dot.bad { fill: var(--k-warn); }\n  .fig .hit { fill: var(--k-accent2); fill-opacity: 0; cursor: grab; touch-action: none; }\n  .fig .br { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .fig .stat { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; fill-rule: evenodd; }\n  .fig .slot { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .farrow { fill: var(--k-accent2); }\n  .fig .bar { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .flux { fill: var(--k-accent2); }\n  .fig .flux.bad { fill: var(--k-warn); }\n  .fig .mk { stroke: var(--k-ink); stroke-width: 2; }\n  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n  .fig .sw { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n  .fig .swb { stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }\n  .fig .dio { fill: var(--k-ink); }\n  .fig .cap { stroke: var(--k-ink); stroke-width: 3; }\n  .fig .jn { fill: var(--k-ink); }\n  .fig .mot { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .b1 { fill: var(--k-cat1); }\n  .fig .b2 { fill: var(--k-cat2); }\n  .ctl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }\n  #outs .k-readout { padding: 8px 8px 10px 10px; }\n  #outs .k-readout-value { font-size: 1.15rem; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .ans { font-weight: 700; }\n  #stepbox.enter { animation: screen-in .35s ease-out both; }\n  .fb { animation: fade-in .25s ease-out both; }\n  .fig .hl, .fig .hold { transition: opacity .25s ease-out; pointer-events: none; }\n  .fig .off { opacity: 0; }\n  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }\n  html.k-testing .fb { animation: none; }\n  html.k-testing .fig .hl, html.k-testing .fig .hold { transition: none; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } .fig .hl, .fig .hold { transition: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"hwW\"><svg class=\"fig\" id=\"hw\" viewBox=\"0 0 340 200\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"hbW\"><svg class=\"fig\" id=\"hb\" viewBox=\"0 0 340 202\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"bcW\"><svg class=\"fig\" id=\"bc\" viewBox=\"0 0 340 198\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div id=\"scene\">\n      <svg class=\"fig\" id=\"vf\" viewBox=\"0 0 340 202\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n      <svg class=\"fig\" id=\"fx\" viewBox=\"0 0 340 152\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n    </div>\n    <div class=\"ctl\" id=\"ctl\"></div>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"notes\" id=\"notes\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n\n  // ---------- the rule ----------\n  // The example motor: 400 V, 50 Hz, four poles (an example, not a maker's rating).\n  // Volts per hertz = 400 ÷ 50 = 8. Up to 50 Hz the drive gives 8 × f; above it, it stays at 400 V.\n  // Field speed = 120 × f ÷ poles. Flux, % of rated = (volts ÷ f) ÷ 8 × 100: an ideal model.\n  // Hold 400 V gives 400 V at every frequency, as if the drive had no V/f rule.\n  const VR = 400, FR = 50, POLES = 4, VPF = VR / FR;\n  const ns = (f, p) => 120 * f / p;\n  function drive(f, hold) {\n    const v = hold ? VR : Math.min(VPF * f, VR);\n    const vpf = v / f;\n    return { v: v, n: ns(f, POLES), vpf: vpf, flux: vpf / VPF * 100 };\n  }\n  const BUS_K = 1.35, BUS = VR * BUS_K;\n  const cube = (s) => Math.pow(s, 3);\n  const whole = (v) => String(Math.round(v + 1e-9));\n  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);\n  const pctTxt = (v) => (Math.abs(v * 2 - Math.round(v * 2)) < 1e-9 ? String(Math.round(v * 2) / 2) : whole(v)) + '%';\n  const FLUX_FULL = 200, SLOW = 100;\n\n  // ---------- the lesson's words ----------\n  const blk = (t, s) => ({ t: t, s: s });\n  const N = { vpf: whole(VPF), bus: whole(BUS), n50: whole(ns(FR, POLES)), n2: whole(ns(FR, 2)), nPairs: whole(60 * FR / POLES), nPairsRight: whole(60 * FR / (POLES / 2)),\n    v25: whole(VPF * 25), v25half: whole(VPF * 25 / 2), n25: whole(ns(25, POLES)), vpf25held: whole(VR / 25),\n    v40: whole(drive(40, false).v), n40: whole(drive(40, false).n), vpf40held: whole(drive(40, true).vpf),\n    n60: whole(drive(60, false).n), flux60: whole(drive(60, false).flux),\n    fan75: two(cube(0.75)), fan75p: pctTxt(cube(0.75) * 100) };\n  const HOW = [\n    blk('p', 'A drive sets a motor\\'s speed by setting its frequency.'),\n    blk('p', 'The rectifier turns the incoming AC into DC. Capacitors on the *DC bus* smooth it. On 400 V the bus sits at about 400 × ' + BUS_K + ' = ' + N.bus + ' V DC.'),\n    blk('p', 'The inverter switches that DC on and off very fast. It varies the width of the pulses to build AC at the frequency and voltage it is asked for.'),\n    blk('p', 'The field turns at 120 × f ÷ p. Lower f, and the field and the rotor slow down together.'),\n  ];\n  const PLAY_TASK = 'Drag the frequency down, then up past 50 Hz. Then try Hold 400 V.';\n  const UNDER = '50 Hz is the motor\\'s *base speed*. The stator is a winding on iron, like a transformer. Its flux goes with the volts per hertz.';\n  const NOTE = 'Example motor: 400 V, 50 Hz, four poles. The arrow turns ' + SLOW + ' times slower than the real field.';\n  const PLAY_READ = 'Below 50 Hz the voltage falls with the frequency, ' + N.vpf + ' V for every hertz. ' +\n    'At 40 Hz the drive gives ' + N.v40 + ' V and the field turns at ' + N.n40 + ' rpm. ' +\n    'The volts per hertz stay at ' + N.vpf + ', so the flux stays at rated. ' +\n    'Held at 400 V instead, 40 Hz would give ' + N.vpf40held + ' V per hertz. That asks for a quarter more flux, and the iron saturates. ' +\n    'Above 50 Hz the voltage stays at 400 V. At 60 Hz the field turns at ' + N.n60 + ' rpm and the flux falls to ' + N.flux60 + '%.';\n  const BEHAVE = [\n    blk('row', 'Speed: Set by the frequency. The shaft runs a little below 120 × f ÷ p.'),\n    blk('row', 'Starting: The drive ramps up the frequency. No inrush and no jolt.'),\n    blk('row', 'Below base speed: Constant flux. The motor can give its rated torque if it stays cool.'),\n    blk('row', 'Above base speed: *Field weakening*. The volts stay at rated, so the flux falls. The power it can give stays about constant, so the torque it can give falls.'),\n    blk('row', 'Low speed: A self-cooled motor\\'s fan slows too, so it cannot carry rated torque for long.'),\n  ];\n  const USE = [\n    blk('row', 'Used for: Pumps and fans, to save energy, and anything whose speed must be set.'),\n    blk('row', 'At sea: Cranes, winches, bow thrusters, ventilation, pumps, compressors and propulsion.'),\n    blk('row', 'Savings: Fan and pump power goes with speed cubed. Real systems save less.'),\n    blk('row', 'Limits: Drives are the main source of harmonics at sea. NATO warship rules cap voltage distortion at 5%. Fast pulses can also drive current through the bearings and wear them.'),\n  ];\n  const FAULTS = [\n    blk('safe', 'Safety first: A cabinet\\'s door switch may leave the input busbars live, so isolate the whole drive. Wait out its discharge time, 5 minutes on one maker\\'s drive. Prove your tester. Then prove the DC bus, input and motor terminals dead.'),\n    blk('row', 'Insulation test: Disconnect the drive first. The tester can damage it.'),\n    blk('row', 'Overcurrent: A short, earth fault, loose joint or jammed load.'),\n    blk('row', 'Earth fault: Often damp insulation.'),\n    blk('row', 'Input phase loss: A blown fuse or loose input lead.'),\n    blk('row', 'Restarts by itself: An auto-reset drive can restart without warning. Label it.'),\n  ];\n  const words = (list) => list.map((b) => b.s).join('\\n\\n');\n  const R1 = N.n50 + ' rpm', R2 = N.n2 + ' rpm', R3 = N.nPairs + ' rpm';\n  const C1 = N.v25 + ' V', C2 = VR + ' V', C3 = N.v25half + ' V';\n  const F1 = 'The fan drives the motor as it slows, pushing energy into the DC bus', F2 = 'The fan is overloaded and the motor draws too much current', F3 = 'The supply has lost a phase and the bus sags';\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?',\n      task: 'A four-pole motor runs on 50 Hz. How fast does its field turn?',\n      opts: [R2, R1, R3], want: R1,\n      why: '120 × 50 ÷ 4 = ' + R1 + '. The shaft runs a little below it. Change the frequency and that speed changes. That is how a drive sets speed.',\n      slips: [R2 + ' is a two-pole field. Four poles halve it.', '',\n        R3 + ' comes from using 60 instead of 120. 60 × f ÷ p works with pole pairs: 60 × 50 ÷ 2 = ' + N.nPairsRight + ' rpm.'] },\n    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },\n    { show: true, name: 'Volts per hertz', label: 'Volts per hertz', text: PLAY_TASK + '\\n\\n' + UNDER.replace(/\\*/g, '') + '\\n\\n' + NOTE,\n      read: PLAY_READ, still: () => stillAt40() },\n    { name: 'Check', label: 'Check on the cause',\n      task: 'The drive runs this 400 V, 50 Hz motor at 25 Hz. What voltage does it give?',\n      opts: [C2, C3, C1], want: C1,\n      why: '400 ÷ 50 = ' + N.vpf + ' V per hertz. ' + N.vpf + ' × 25 = ' + C1 + '. The volts per hertz stay at ' + N.vpf + ', so the flux stays at rated. The field turns at 120 × 25 ÷ 4 = ' + N.n25 + ' rpm.',\n      slips: ['Full voltage at half the frequency doubles the volts per hertz, to ' + N.vpf25held + '. The flux would try to double. The iron saturates and the motor draws far too much current. So the drive halves the voltage too.',\n        'That halves the voltage twice. Halve the frequency and the voltage halves once: ' + N.vpf + ' × 25 = ' + C1 + '.', ''] },\n    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },\n    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },\n    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },\n    { name: 'Find the fault', label: 'Find the fault',\n      task: 'A drive on a big fan trips on overvoltage every time the fan is stopped quickly. Running, it is fine. What is the likely cause?',\n      opts: [F1, F2, F3], want: F1,\n      why: 'The drive drops the frequency fast, but the heavy fan cannot slow that quickly. So the rotor runs faster than the field. The motor becomes a generator and pushes energy back into the DC bus. The bus voltage rises until the drive trips. One maker\\'s 400 V drive trips at 840 V. Lengthen the deceleration time, or fit a brake chopper and resistor.',\n      slips: ['', 'An overloaded fan draws too much current while it runs. That trips on overcurrent, not on stopping.',\n        'A lost input phase shows as an input phase fault, whether or not you stop. This trip comes only when the fan slows fast.'] },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iHow = 1, iPic = 2, iChk = 3, iBeh = 4, iUse = 5, iFind = 7, iK = 8;\n  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));\n  let lastStep = -1, finished = false;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function addText(node, s) {\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function write(node, s) { node.textContent = ''; return addText(node, s); }\n  function blocks(node, list) {\n    node.textContent = '';\n    list.forEach((b, k) => {\n      if (k) node.appendChild(document.createTextNode(' '));\n      let e;\n      if (b.t === 'row' || b.t === 'safe') {\n        const cut = b.s.indexOf(': ');\n        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');\n        addText(e, b.s.slice(cut + 2));\n      } else e = addText(K.el('p'), b.s);\n      node.appendChild(e);\n    });\n  }\n\n  // ---------- drawing helpers ----------\n  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }\n  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }\n  const X0 = 48, PXH = 4.5, Y0 = 160, PYV = 0.3;\n  const X = (f) => X0 + PXH * f, Y = (v) => Y0 - PYV * v;\n\n  // The drive's voltage against frequency: axes, base speed and the V/f line.\n  function buildPlot(g, live) {\n    const P = {};\n    [200, 400].forEach((v) => ad(g, 'line', { x1: X0, y1: Y(v), x2: X(60), y2: Y(v), class: 'grid' }));\n    ad(g, 'path', { d: 'M' + X0 + ' ' + (Y(400) - 6) + 'V' + Y0 + 'H' + X(60), class: 'ax' });\n    [0, 10, 20, 30, 40, 50, 60].forEach((f) => { ad(g, 'line', { x1: X(f), y1: Y0, x2: X(f), y2: Y0 + 4, class: 'ax' }); txt(g, X(f), 178, String(f), 'lb', 'middle'); });\n    [0, 200, 400].forEach((v) => txt(g, X0 - 6, Y(v) + 4.5, String(v), 'lb', 'end'));\n    txt(g, 6, 14, 'Output voltage, V', 'hd');\n    txt(g, 140, 196, 'Frequency, Hz', 'hd', 'middle');\n    ad(g, 'line', { x1: X(50), y1: Y0, x2: X(50), y2: live ? 30 : 40, class: 'base' });\n    txt(g, X(50), 196, 'base speed', 'lb', 'middle');\n    P.vfl = ad(g, 'path', { d: 'M' + X(0) + ' ' + Y(0) + 'L' + X(FR) + ' ' + Y(VR) + 'H' + X(60), class: 'vfl' });\n    P.vfLab = txt(g, 150, 92, N.vpf + ' V per Hz', 'lb', 'end');\n    if (live) {\n      P.hl = ad(g, 'path', { d: 'M' + X(5) + ' ' + Y(VR) + 'H' + X(60), class: 'hl' });\n      P.hlLab = txt(g, X(5), 32, 'held at 400 V', 'wl hold');\n      P.dot = ad(g, 'circle', { cx: X(FR), cy: Y(VR), r: 6, class: 'dot' });\n      P.hit = ad(g, 'circle', { cx: X(FR), cy: Y(VR), r: 20, class: 'hit' });\n    } else {\n      ad(g, 'path', { d: 'M' + X0 + ' 36V30H' + (X(50) - 3) + 'V36', class: 'br' });\n      ad(g, 'path', { d: 'M' + (X(50) + 3) + ' 36V30H' + X(60) + 'V36', class: 'br' });\n      txt(g, 170, 22, 'constant flux', 'lb', 'middle');\n      txt(g, 336, 22, 'field weakening', 'lb', 'end');\n    }\n    return P;\n  }\n\n  // How it works: supply, rectifier (a diode bridge), DC bus (rails and a capacitor), inverter (six switches), motor.\n  function buildHw(g) {\n    const TOP = 44, BOT = 164, LR = [60, 80, 100], LI = [195, 225, 255], JY = [94, 104, 114], CX = 145, M = [308, 104], MR = 22;\n    txt(g, 80, 20, 'Rectifier', 'hd', 'middle');\n    txt(g, CX, 20, 'DC bus', 'hd', 'middle');\n    txt(g, 225, 20, 'Inverter', 'hd', 'middle');\n    txt(g, M[0], 20, 'Motor', 'hd', 'middle');\n    ad(g, 'path', { d: 'M' + LR[0] + ' ' + TOP + 'H' + LI[2] + 'M' + LR[0] + ' ' + BOT + 'H' + LI[2], class: 'w' });\n    // The rectifier's three legs, two diodes each, both pointing to the + rail.\n    const diode = (x, yc) => { ad(g, 'path', { d: 'M' + (x - 6) + ' ' + (yc + 5) + 'H' + (x + 6) + 'L' + x + ' ' + (yc - 5) + 'Z', class: 'dio' }); ad(g, 'path', { d: 'M' + (x - 6) + ' ' + (yc - 5) + 'H' + (x + 6), class: 'w' }); };\n    LR.forEach((x) => { ad(g, 'path', { d: 'M' + x + ' ' + TOP + 'V' + BOT, class: 'w' }); diode(x, 68); diode(x, 140); });\n    // The supply's three lines, each to its leg, hopping over the legs before it.\n    JY.forEach((y, k) => {\n      let d = 'M6 ' + y;\n      for (let j = 0; j < k; j++) d += 'H' + (LR[j] - 5) + 'A5 5 0 0 1 ' + (LR[j] + 5) + ' ' + y;\n      ad(g, 'path', { d: d + 'H' + LR[k], class: 'w' });\n      ad(g, 'circle', { cx: LR[k], cy: y, r: 2.6, class: 'jn' });\n    });\n    txt(g, 6, 84, 'Supply', 'hd');\n    txt(g, 6, 134, '400 V,');\n    txt(g, 6, 150, '50 Hz');\n    // The DC bus: a capacitor across the rails.\n    ad(g, 'path', { d: 'M' + CX + ' ' + TOP + 'V98M' + CX + ' 108V' + BOT, class: 'w' });\n    ad(g, 'line', { x1: CX - 12, y1: 98, x2: CX + 12, y2: 98, class: 'cap' });\n    ad(g, 'line', { x1: CX - 12, y1: 108, x2: CX + 12, y2: 108, class: 'cap' });\n    [TOP, BOT].forEach((y) => ad(g, 'circle', { cx: CX, cy: y, r: 2.6, class: 'jn' }));\n    txt(g, CX, 182, 'about', 'lb', 'middle');\n    txt(g, CX, 198, N.bus + ' V DC', 'lb', 'middle');\n    // The inverter's three legs, two transistor switches each.\n    const sw = (x, yc) => {\n      ad(g, 'line', { x1: x - 5, y1: yc - 8, x2: x - 5, y2: yc + 8, class: 'swb' });\n      ad(g, 'path', { d: 'M' + x + ' ' + (yc - 12) + 'V' + (yc - 7) + 'L' + (x - 5) + ' ' + (yc - 3) + 'M' + (x - 5) + ' ' + (yc + 3) + 'L' + x + ' ' + (yc + 7) + 'V' + (yc + 12), class: 'sw' });\n      ad(g, 'path', { d: 'M' + (x - 9) + ' ' + (yc - 6) + 'V' + (yc + 6) + 'M' + (x - 13) + ' ' + yc + 'H' + (x - 9), class: 'sw' });\n    };\n    LI.forEach((x) => { ad(g, 'path', { d: 'M' + x + ' ' + TOP + 'V58M' + x + ' 82V128M' + x + ' 152V' + BOT, class: 'w' }); sw(x, 70); sw(x, 140); });\n    // Each leg's output to the motor, hopping over the legs after it.\n    JY.forEach((y, k) => {\n      let d = 'M' + LI[k] + ' ' + y;\n      for (let j = k + 1; j < 3; j++) d += 'H' + (LI[j] - 5) + 'A5 5 0 0 1 ' + (LI[j] + 5) + ' ' + y;\n      const edge = M[0] - Math.sqrt(MR * MR - (y - M[1]) * (y - M[1]));\n      ad(g, 'path', { d: d + 'H' + edge.toFixed(1), class: 'w' });\n      ad(g, 'circle', { cx: LI[k], cy: y, r: 2.6, class: 'jn' });\n    });\n    ad(g, 'circle', { cx: M[0], cy: M[1], r: MR, class: 'mot' });\n    txt(g, M[0], M[1] + 5, 'M', 'hd', 'middle');\n    ['chosen', 'frequency,', 'matching', 'voltage'].forEach((s, k) => txt(g, 300, 146 + 15 * k, s, 'lb', 'middle'));\n    g.setAttribute('aria-label', 'How a drive works, left to right. The 400 V, 50 Hz supply feeds a rectifier drawn as six diodes. It charges the DC bus, two rails with a capacitor across them, at about ' + N.bus +\n      ' V DC. An inverter of six transistor switches builds AC for the motor at the chosen frequency and a matching voltage.');\n  }\n\n  // Where it is used: power needed at 100%, 75% and 50% speed, a fan against a conveyor.\n  function buildBars(g) {\n    const SP = [1, 0.75, 0.5], CXS = [95, 190, 285], BASE = 150;\n    txt(g, 6, 16, 'Power needed, % of full', 'hd');\n    ad(g, 'line', { x1: 40, y1: BASE, x2: 330, y2: BASE, class: 'ax' });\n    SP.forEach((s, k) => {\n      const c = CXS[k], fan = cube(s) * 100, conv = s * 100;\n      ad(g, 'rect', { x: c - 30, y: BASE - fan, width: 24, height: fan, class: 'b1' });\n      ad(g, 'rect', { x: c + 6, y: BASE - conv, width: 24, height: conv, class: 'b2' });\n      txt(g, c - 18, BASE - fan - 6, pctTxt(fan), 'lb', 'middle');\n      txt(g, c + 18, BASE - conv - 6, pctTxt(conv), 'lb', 'middle');\n      txt(g, c, 168, pctTxt(s * 100) + ' speed', 'lb', 'middle');\n    });\n    ad(g, 'rect', { x: 95, y: 181, width: 14, height: 12, rx: 2, class: 'b1' }); txt(g, 115, 192, 'Fan');\n    ad(g, 'rect', { x: 175, y: 181, width: 14, height: 12, rx: 2, class: 'b2' }); txt(g, 195, 192, 'Conveyor');\n    g.setAttribute('aria-label', 'Power needed at 100%, 75% and 50% speed. A fan needs ' + pctTxt(100) + ', ' + pctTxt(cube(0.75) * 100) + ' and ' + pctTxt(cube(0.5) * 100) +\n      ' of full power. A conveyor needs ' + pctTxt(100) + ', ' + pctTxt(75) + ' and ' + pctTxt(50) + '.');\n  }\n\n  // The field in the stator, and the flux bar.\n  const RC = [60, 62], F = {};\n  function buildFx(g) {\n    const ring = (r) => 'M' + (RC[0] - r) + ' ' + RC[1] + 'a' + r + ' ' + r + ' 0 1 0 ' + 2 * r + ' 0a' + r + ' ' + r + ' 0 1 0 ' + -2 * r + ' 0Z';\n    ad(g, 'path', { d: ring(48) + ring(36), class: 'stat' });\n    for (let k = 0; k < 12; k++) {\n      const a = k * Math.PI / 6, c = Math.cos(a), s = Math.sin(a);\n      ad(g, 'line', { x1: (RC[0] + 36 * c).toFixed(1), y1: (RC[1] + 36 * s).toFixed(1), x2: (RC[0] + 42 * c).toFixed(1), y2: (RC[1] + 42 * s).toFixed(1), class: 'slot' });\n    }\n    F.arrow = ad(g, 'g', {});\n    const cx = RC[0], cy = RC[1];\n    ad(F.arrow, 'polygon', { points: [[cx - 4, cy + 28], [cx - 4, cy - 14], [cx - 11, cy - 14], [cx, cy - 31], [cx + 11, cy - 14], [cx + 4, cy - 14], [cx + 4, cy + 28]].map((q) => q.join(',')).join(' '), class: 'farrow' });\n    txt(g, cx, 128, 'The field,', 'lb', 'middle');\n    txt(g, cx, 144, SLOW + ' times slower', 'lb', 'middle');\n    txt(g, 150, 22, 'Flux', 'hd');\n    F.off = txt(g, 330, 22, 'off the scale', 'wl', 'end');\n    ad(g, 'rect', { x: 150, y: 32, width: 180, height: 20, rx: 3, class: 'bar' });\n    F.fill = ad(g, 'rect', { x: 151, y: 33, width: 89, height: 18, rx: 2, class: 'flux' });\n    ad(g, 'line', { x1: 240, y1: 27, x2: 240, y2: 57, class: 'mk' });\n    txt(g, 150, 72, '0', 'lb');\n    txt(g, 240, 72, '100% rated', 'lb', 'middle');\n    txt(g, 330, 72, FLUX_FULL + '%', 'lb', 'end');\n    F.s = [96, 112, 128].map((y) => txt(g, 150, y, '', 'lb'));\n  }\n\n  buildHw(el('hw'));\n  const PS = buildPlot(el('hb'), false);\n  el('hb').setAttribute('aria-label', 'The drive\\'s output voltage against frequency. It rises ' + N.vpf + ' V per hertz to 400 V at 50 Hz, base speed, then stays at 400 V to 60 Hz. Below base speed is constant flux. Above it is field weakening.');\n  buildBars(el('bc'));\n  const P = buildPlot(el('vf'), true);\n  buildFx(el('fx'));\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const freqCtl = K.control({ id: 'freq', label: 'Frequency', min: 5, max: 60, step: 5, value: FR, unit: 'Hz', into: '#ctl' });\n  const holdCtl = K.toggle({ id: 'hold', label: 'Hold 400 V', value: false, hint: '400 V at every frequency, with no V/f rule.', into: '#ctl' });\n  K.drag(P.hit, { control: 'freq', toValue: (x) => K.clamp(Math.round((x - X0) / PXH / 5) * 5, 5, 60) });\n  const RD = {\n    v: K.readout({ id: 'outV', label: 'Output voltage', fmt: (v) => whole(v) + ' V', into: '#outs' }),\n    n: K.readout({ id: 'outN', label: 'Field speed', fmt: (v) => whole(v) + ' rpm', into: '#outs' }),\n    vpf: K.readout({ id: 'outVf', label: 'Volts per hertz', fmt: (v) => two(v) + ' V per Hz', into: '#outs' }),\n  };\n  K.model((p) => { const d = drive(+p.freq || FR, !!p.hold); return { volts: d.v, fieldRpm: d.n, vpf: d.vpf, fluxPct: d.flux }; });\n\n  // ---------- the live picture ----------\n  let theta = 0;\n  function paintArrow() { F.arrow.setAttribute('transform', 'rotate(' + (REDUCE ? 0 : theta).toFixed(1) + ' ' + RC[0] + ' ' + RC[1] + ')'); }\n  function sayFor(f, hold, d) {\n    const same = hold ? ' Hold 400 V changes nothing here.' : '';\n    if (f === FR) return 'At 50 Hz, base speed, the drive gives its full 400 V. The flux is at rated and the field turns at ' + whole(d.n) + ' rpm.' + same;\n    if (f > FR) return 'At ' + f + ' Hz the drive has no more volts to give, so it stays at 400 V. The volts per hertz fall to ' + two(d.vpf) +\n      ', and the flux to ' + whole(d.flux) + '% of rated. Less flux, less torque.' + same;\n    if (hold) return 'Held at 400 V, ' + f + ' Hz gets ' + two(d.vpf) + ' V per hertz. That asks for ' + whole(d.flux) + '% of rated flux' +\n      (d.flux > FLUX_FULL + 0.5 ? ', off the scale' : '') + '. The iron saturates, so the current climbs instead.';\n    return 'At ' + f + ' Hz the drive gives ' + whole(d.v) + ' V: still ' + two(d.vpf) + ' V per hertz. So the flux stays at rated, and the field turns at ' + whole(d.n) + ' rpm.';\n  }\n  function paintLive(p) {\n    const f = +p.freq || FR, hold = !!p.hold, d = drive(f, hold), over = d.flux > 100.5, under = d.flux < 99.5;\n    const x = X(f), y = Y(d.v);\n    ['cx', 'cy'].forEach((a, k) => { P.dot.setAttribute(a, k ? y : x); P.hit.setAttribute(a, k ? y : x); });\n    P.dot.classList.toggle('bad', over);\n    P.vfl.classList.toggle('ref', hold);\n    P.vfLab.setAttribute('class', hold ? 'mu' : 'lb');\n    P.hl.classList.toggle('off', !hold);\n    P.hlLab.classList.toggle('off', !hold);\n    F.fill.setAttribute('width', (178 * Math.min(d.flux, FLUX_FULL) / FLUX_FULL).toFixed(1));\n    F.fill.classList.toggle('bad', over);\n    F.off.style.display = d.flux > FLUX_FULL + 0.5 ? '' : 'none';\n    const lines = over ? ['Too much flux: the iron', 'saturates and the current', 'climbs.'] : under ? ['Field weakening:', 'less torque'] : ['Rated flux'];\n    F.s.forEach((t, k) => { t.textContent = lines[k] || ''; t.setAttribute('class', over ? 'wl' : 'lb'); });\n    paintArrow();\n    RD.v.set(d.v); RD.n.set(d.n); RD.vpf.set(d.vpf);\n    el('say').textContent = sayFor(f, hold, d);\n    el('vf').setAttribute('aria-label', 'Output voltage against frequency. The drive\\'s line rises ' + N.vpf + ' V per hertz to 400 V at 50 Hz, base speed, then stays at 400 V to 60 Hz.' +\n      (hold ? ' Hold 400 V is on, so the drive gives 400 V at every frequency.' : '') + ' The dot is at ' + f + ' Hz.');\n    el('fx').setAttribute('aria-label', 'The stator with the field drawn as an arrow, turning ' + SLOW + ' times slower than the real field. Beside it, the flux bar from 0 to ' + FLUX_FULL + '% of rated. ' +\n      (over ? 'It is over rated: too much flux.' : under ? 'It is below rated: field weakening.' : 'It sits at rated.'));\n  }\n  const spin = K.anim({ button: false, label: 'The field turning', step: (dt) => {\n    if (at() !== iPic || REDUCE) return false;\n    const p = K.params();\n    theta = (theta + drive(+p.freq || FR, !!p.hold).n / SLOW * 6 * Math.min(dt, 0.1)) % 360;\n    paintArrow();\n  } });\n  // The read-through's picture: 40 Hz, Hold 400 V off.\n  function stillAt40() { freqCtl.set(40); holdCtl.set(false); K.refresh(); }\n\n  // ---------- picks: one go, then the answer and its reason ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length || st.res) return;\n    st.pick = d.opts[k];\n    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: i === iR ? 'Still there.' : 'Right.', p: d.why }; }\n    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }\n    K.refresh();\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));\n    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));\n    if (f.p) fb.appendChild(addText(K.el('p'), f.p));\n  }\n\n  // ---------- Keep this ----------\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n\n  el('notes').appendChild(addText(K.el('p', { class: 'why' }), UNDER));\n  el('notes').appendChild(K.el('p', { class: 'sub' }, NOTE));\n  const ON = { hwW: [iHow], hbW: [iBeh], bcW: [iUse], scene: [iPic], ctl: [iPic], outs: [iPic], say: [iPic], notes: [iPic], picks: [iR, iChk, iFind], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');\n    if (i === iPic) write(task, PLAY_TASK);\n    else if (d.show) blocks(task, d.blocks);\n    else if (d.kind) task.textContent = '';\n    else write(task, d.task);\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    if (i === iPic) {\n      paintLive(p);\n      if (!REDUCE && !spin.playing()) spin.play();\n    }\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    paintFb(st.fb);\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i);\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  K.check('A four-pole field on 50 Hz turns at 120 × 50 ÷ 4 = 1500 rpm. Two poles give 3000 rpm, and the pole-pair slip, 60 × 50 ÷ 4, gives 750 rpm', () =>\n    R1 === '1500 rpm' && R2 === '3000 rpm' && R3 === '750 rpm' && N.nPairsRight === '1500');\n  K.check('Up to 50 Hz the drive keeps 8 V per hertz and rated flux: 320 V and 1200 rpm at 40 Hz, 200 V and 750 rpm at 25 Hz', () => {\n    const a = K.at({ freq: 40, hold: false }), b = K.at({ freq: 25, hold: false });\n    const level = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50].every((f) => K.near(drive(f, false).vpf, 8, 1e-9) && K.near(drive(f, false).flux, 100, 1e-9));\n    return level && K.near(a.volts, 320, 1e-9) && K.near(a.fieldRpm, 1200, 1e-9) && K.near(b.volts, 200, 1e-9) && K.near(b.fieldRpm, 750, 1e-9);\n  });\n  K.check('Above 50 Hz the volts stop at 400 V: at 60 Hz the field turns at 1800 rpm, with 6.67 V per hertz and 83% flux, and the flux falls as the frequency rises', () => {\n    const c = K.at({ freq: 60, hold: false });\n    return K.near(c.volts, 400, 1e-9) && K.near(c.fieldRpm, 1800, 1e-9) && two(c.vpf) === '6.67' && whole(c.fluxPct) === '83' && drive(55, false).flux > c.fluxPct && drive(55, false).flux < 100;\n  });\n  K.check('Held at 400 V, 40 Hz gets 10.00 V per hertz and 125% flux, and 25 Hz gets 16.00 V per hertz and 200%', () => {\n    const a = K.at({ freq: 40, hold: true }), b = K.at({ freq: 25, hold: true });\n    return two(a.vpf) === '10.00' && K.near(a.fluxPct, 125, 1e-9) && two(b.vpf) === '16.00' && K.near(b.fluxPct, 200, 1e-9);\n  });\n  K.check('Nominal DC link voltage is 1.35 × the supply voltage: about 540 V DC on a 400 V supply', () => K.near(BUS, 540, 1e-9) && N.bus === '540',\n    { source: 'https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf' });\n  K.check('Fan input power varies as the cube of the speed ratio: 0.75³ = 0.42, so 42% at 75% speed, and 12.5% at 50%', () =>\n    N.fan75 === '0.42' && N.fan75p === '42%' && pctTxt(cube(0.5) * 100) === '12.5%',\n    { source: 'https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf' });\n\n  K.ready();\n</script>",
+  "title": "V/f: drag the frequency",
+  "brief": "The one thing you should see is the voltage falling in step with the frequency, so the volts per hertz and the flux hold level up to 50 Hz, when you drag the frequency down.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A four-pole field on 50 Hz turns at 120 × 50 ÷ 4 = 1500 rpm. Two poles give 3000 rpm, and the pole-pair slip, 60 × 50 ÷ 4, gives 750 rpm",
+     "ok": true
+    },
+    {
+     "label": "Up to 50 Hz the drive keeps 8 V per hertz and rated flux: 320 V and 1200 rpm at 40 Hz, 200 V and 750 rpm at 25 Hz",
+     "ok": true
+    },
+    {
+     "label": "Above 50 Hz the volts stop at 400 V: at 60 Hz the field turns at 1800 rpm, with 6.67 V per hertz and 83% flux, and the flux falls as the frequency rises",
+     "ok": true
+    },
+    {
+     "label": "Held at 400 V, 40 Hz gets 10.00 V per hertz and 125% flux, and 25 Hz gets 16.00 V per hertz and 200%",
+     "ok": true
+    },
+    {
+     "label": "Nominal DC link voltage is 1.35 × the supply voltage: about 540 V DC on a 400 V supply",
+     "ok": true,
+     "source": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf"
+    },
+    {
+     "label": "Fan input power varies as the cube of the speed ratio: 0.75³ = 0.42, so 42% at 75% speed, and 12.5% at 50%",
+     "ok": true,
+     "source": "https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "freq",
+    "hold"
+   ],
+   "readouts": [
+    "outV",
+    "outN",
+    "outVf"
+   ],
+   "outputs": [
+    "volts",
+    "fieldRpm",
+    "vpf",
+    "fluxPct"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 8,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "How it works",
+      "Volts per hertz",
+      "Check",
+      "How it behaves",
+      "Where it is used",
+      "Faults and tests",
+      "Find the fault",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "freq",
+     "kind": "control",
+     "label": "Frequency",
+     "min": 5,
+     "max": 60,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "shown": false
+    },
+    {
+     "id": "hold",
+     "kind": "toggle",
+     "label": "Hold 400 V",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Finish the lesson",
+    "Back",
+    "Continue",
+    "The field turning"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T11:14:26.134Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "\"Wait 5 minutes\" is stated as a general rule, but 5 minutes is one maker's figure for one drive range; some drives need longer, so the wait must follow the drive's own marked time before measuring."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "The safety row gives one maker's 5-minute wait as universal; the 5% THD cap is a NATO warship standard (8% under civil ship rules), not all warship rules; \"any frequency\" overstates a drive's range."
+   },
+   {
+    "path": "summary.traps[2].text",
+    "problem": "The keep card gives \"wait 5 minutes\" as a general rule; its cited quote is one ABB drive's figure and other drives can need longer."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "\"A transformer is never meant to run above its rated frequency\" is too absolute: a 50 Hz transformer runs safely at 60 Hz (less flux) and many are rated 50/60 Hz; the real contrast is a fixed versus a varied supply frequency."
+   },
+   {
+    "path": "explain.text",
+    "problem": "\"Start from the last two lessons\" is wrong: the field speed 120 × f ÷ p and slip come from the first lesson; the second (the DOL starter) does not teach them."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

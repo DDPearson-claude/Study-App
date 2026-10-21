@@ -1,0 +1,920 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Electric motors: what you need on each one
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "The variable speed drive" — A variable speed drive turns the supply to DC, then back to AC at a chosen frequency, with voltage in proportion up to rated speed. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 The split-phase motor — One single-phase winding alone makes a field that only pulses, so a thin-wire start winding adds a current out of step and the field turns.
+- i5 The capacitor-start motor — A capacitor in series with the start winding widens the angle between the two currents towards 90°, giving much more starting torque than split-phase.
+- i6 The DC series motor — One current feeds both field and turning armature, so torque climbs steeply with current, and with the load taken off the speed climbs dangerously.
+- i7 The DC shunt motor — With its field across the supply holding the flux steady, the speed dips only a little under load, though sources differ on how little.
+- i8 The DC compound motor — A series and a shunt field together give high starting torque yet a limited no-load speed, as long as the series field aids the shunt.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Your motor sheet: the variable speed drive — material:vsd#p1
+    "Converts the incoming alternating current (AC) power from the main supply into direct current (DC) power."
+[R2] Your motor sheet: the variable speed drive — material:vsd#p1
+    "Uses capacitors and other components to smooth out the rectified DC power"
+[R3] Your motor sheet: the variable speed drive — material:vsd#p1
+    "Uses a technique called Pulse Width Modulation (PWM), rapidly switching transistors (typically Insulated Gate Bipolar Transistors or IGBTs) on and off to create a simulated AC output."
+[R4] — Technical guide No. 1 Direct torque control – the world’s most advanced AC drive technology — https://library.e.abb.com/public/3dc7259dcd684a55841165ddefe7eb3f/Technical_guide_No_1_3AFE58056685_RevD_EN.pdf?x-sign=KI4w8YYG7Vw4K1NM8Xi9c4EAplW34UcpnsXTN2EbBHC8IgGbBGAQkJXlgAVXKbEs
+    "The rectifier rectifies the fixed frequency AC voltage of the grid into DC. The inverter converts the DC voltage into variable frequency and variable voltage."
+[R5] Electric motor - Synchronous, Rotating Fields, AC Motors | Britannica — https://www.britannica.com/technology/electric-motor/Synchronous-motors
+    "The effect of the stator current is to establish a magnetic field rotating at 120 f / p revolutions per minute for a frequency of f hertz and for p poles."
+[R6] ACIM Vector Control AN.book — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00908B.pdf
+    "If the motor is not mechanically overloaded, the motor will operate at a speed that is roughly proportional to the input frequency."
+[R7] — Technical guide No. 1 Direct torque control – the world’s most advanced AC drive technology — https://library.e.abb.com/public/3dc7259dcd684a55841165ddefe7eb3f/Technical_guide_No_1_3AFE58056685_RevD_EN.pdf?x-sign=KI4w8YYG7Vw4K1NM8Xi9c4EAplW34UcpnsXTN2EbBHC8IgGbBGAQkJXlgAVXKbEs
+    "Constant magnetic flux is provided with constant V/f ratio"
+[R8] ACIM Vector Control AN.book — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00908B.pdf
+    "As you decrease the frequency of the drive voltage, you also need to decrease the amplitude by a proportional amount. Otherwise, the motor will consume excessive current at low input frequencies."
+[R9] Overview about V/F Control-VEICHI — https://www.veichi.com/knowledge/v-f-control.html
+    "At a rated frequency, if voltage is set to a certain value and only reduce the frequency, then there will be large magnetic flux and magnetic circuit saturation (severely, it will burn motor)."
+[R10] [PDF] — ACS580 general purpose drives Technical eBook - ABB — https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf
+    "The frequency range below the nominal frequency is called a constant flux range."
+[R11] [PDF] — ACS580 general purpose drives Technical eBook - ABB — https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf
+    "In the field weakening range, the motor can operate on constant power which is why the field weakening range is sometimes also called the constant power range."
+[R12] ABB drives - Technical guide book — https://library.e.abb.com/public/a209d9dc29b24b789e0650b8de9c3f22/TechnicalGuideBook_EN_3AFE64514482_RevI.pdf?x-sign=W0ZwMiBJXlpbK5pdTBHsk8iNh9gEndwkkc4mRJYe1xqrUkhqZf6lBGHSZJXAmLmm
+    "Above the field weakening point the maximum torque decrease is inversely proportional to the square of the frequency"
+[R13] Your motor sheet: the variable speed drive — material:vsd#p2
+    "eliminate the initial inrush of high current and mechanical shock that occur when a motor is started abruptly."
+[R14] The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications — https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2
+    "The voltage varies in proportion to the speed, so power actually varies in proportion to the cube of the speed."
+[R15] 0908 ENG ABB 4-04 — https://library.e.abb.com/public/be6ebccd4fc05424c1256f57003ba84a/34-38%204M892.pdf
+    "To be more specific, the power required to run a pump is proportional to the cube of the speed."
+[R16] Variable frequency drives: energy savings for pumping applications — https://www.eaton.com/content/dam/eaton/markets/machinebuilding/Variable%20frequency%20drives_%20energy%20savings%20for%20pumping%20applications.pdf
+    "If speed decreases by 50%, power consumption decreases to 12.5%"
+[R17] The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications — https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2
+    "The savings derived from the Affinity Laws should be treated as theoretical. In real applications the particular characteristics of the system will determine the actual savings achieved."
+[R18] The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications — https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2
+    "Using a variable-speed drive to reduce a conveyors speed from 100 percent to 80 percent, saves 20 percent in energy. But with a pump or a fan, the same speed reduction means the saving is closer to 50 percent."
+[R19] The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications — https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2
+    "Running a motor with a variable-speed drive at 80 percent speed could only require 51 percent of the energy."
+[R20] Variable Frequency Drives in the Marine Industry — https://www.invertekdrives.com/vfd-industries/marine
+    "Invertek variable frequency Drives (VFD) allow precise, reliable and efficient control of electric motors in a wide variety of onboard applications, including cranes, winches, bow thrusters, ventilation, pumps and compressors."
+[R21] Your motor sheet: the variable speed drive — material:vsd#p2
+    "Marine: Controlling propulsion systems and other motor-driven equipment on vessels for improved energy efficiency."
+[R22] ABB drives - Technical guide No. 5 - Bearing currents in modern AC drive systems — https://library.e.abb.com/public/8c253c2417ed0238c125788f003cca8e/ABB_Technical_guide_No5_RevC.pdf
+    "This is because modern variable speed drives with their fast rising voltage pulses and high switching frequencies can cause current pulses through the bearings whose repeated discharging can gradually erode the bearing races."
+[R23] 10 most common fault codes and how to solve — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf
+    "Fault occurs during deceleration or when motor is over run"
+[R24] 10 most common fault codes and how to solve — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf
+    "Increase deceleration time or add brake chopper"
+[R25] PowerXL series trouble shooting guide AP050085EN — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/powerxl-dm1-variable-frequency-drives/powerxl-series-troubleshooting-guide-ap050085en.pdf
+    "If the drives deceleration time is too fast, the drive will not react fast enough and the drive will trip out on an over voltage trip."
+[R26] 10 most common fault codes and how to solve — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf
+    "Excess harmonics may be overcharging DC link capacitors."
+[R27] PowerXL series trouble shooting guide AP050085EN — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/powerxl-dm1-variable-frequency-drives/powerxl-series-troubleshooting-guide-ap050085en.pdf
+    "The earth fault is a software function that monitors the sum of all of the output currents."
+[R28] VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices — https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf
+    "Moisture is a frequent culprit in VFD earth fault causes – when a motor sits idle in a humid environment, condensation can form on the windings or in junction boxes."
+[R29] VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices — https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf
+    "Best practice: Always disconnect the drive completely before meggering the motor or cable."
+[R30] VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices — https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf
+    "High-voltage DC from an insulation tester can damage VFD electronic components or give misleading readings through the drive’s input filters."
+[R31] EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual — https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf
+    "After switching off the input power, always wait for 5 min to let the intermediate circuit capacitors discharge before you start working on the drive, the motor or the motor cable."
+[R32] EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual — https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf
+    "Measure the voltage between terminals UDC+ and UDC- (L+ and L–) with a multimeter (impedance at least 1 Mohm) to ensure that the drive is discharged before beginning work."
+[R33] 19_23-9ss — https://www.shareddocs.com/hvac/docs/1005/Public/02/19_23-9SS.pdf
+    "wait five (5) minutes for the DC bus capacitors to discharge and then check the voltage with a voltmeter rated for the DC bus voltage to ensure the DC bus capacitors are discharged before touching any internal components."
+[R34] EN / ACS880-01 hardware manual — https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY
+    "After you disconnect the drive from the input power, these remain at a dangerous voltage until the intermediate circuit capacitors discharge."
+[R35] 19_23-9ss — https://www.shareddocs.com/hvac/docs/1005/Public/02/19_23-9SS.pdf
+    "The voltage between DC+ and DC–, and from each DC terminal to the chassis must be zero before proceeding."
+[R36] EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual — https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf
+    "Note: Nominal DC link voltage is U N × 1.35 or U N × 1.41 in V DC."
+[R37] EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual — https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf
+    "Do not control the motor with the disconnecting device (means); instead, use the control panel keys"
+[R38] EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual — https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf
+    "The maximum allowed number of charging cycles of the DC capacitors (i.e. power-ups by applying power) is five in ten minutes."
+[R39] EN / ACS880-01 hardware manual — https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY
+    "If you need to start or stop the drive, use the control panel keys or commands through the I/O terminals of the drive or the fieldbus interface."
+[R40] EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual — https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf
+    "make sure that the motor and all driven equipment are suitable for operation throughout the speed range provided by the drive."
+[R41] [PDF] ACH580-01 drives (0.75 to 250 kW) hardware manual - ABB — https://library.e.abb.com/public/b039a4daed764f3782cfb7012dac708d/ACH580-01%20HW_revA_screen_A5.pdf
+    "Motor overspeed causes overvoltage that can damage or explode the capacitors in the intermediate circuit of the drive."
+[R42] 10 most common fault codes and how to solve — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf
+    "1. Overcurrent 2. Current limit controller 3. Ground fault 4. Output phase fault 5. Overvoltage Fault 6. Overvoltage controller 7. Undervoltage fault 8. Unit over temperature 9. Motor over temperature 10.Input phase fault"
+[R43] PowerXL™ DC1…E1 Variable Frequency Drives - Parameter Manual — https://www.eaton.com/content/dam/eaton/technicaldocumentation/mn/MN040022_EN.pdf
+    "O-I 03 Overcurrent at variable frequency drive output"
+[R44] PowerXL™ DC1…E1 Variable Frequency Drives - Parameter Manual — https://www.eaton.com/content/dam/eaton/technicaldocumentation/mn/MN040022_EN.pdf
+    "O-t 08 Overtemperature at heat sink. The drive is too hot."
+[R45] PowerXL™ DC1…E1 Variable Frequency Drives - Parameter Manual — https://www.eaton.com/content/dam/eaton/technicaldocumentation/mn/MN040022_EN.pdf
+    "P-LOss 14 Incoming power phase failure (only for devices with a three-phase power supply)"
+[R46] PowerXL™ DC1…E1 Variable Frequency Drives - Parameter Manual — https://www.eaton.com/content/dam/eaton/technicaldocumentation/mn/MN040022_EN.pdf
+    "Check the wiring to the motor and the motor itself for short-circuits and ground faults."
+[R47] 10 most common fault codes and how to solve — https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf
+    "Look for loose connections or fault in motor windings"
+[R48] EN / ACS355 user’s manual — https://library.e.abb.com/public/805f31a82d524d8aa8a750011e2cd001/EN_ACS355_UM_E_A5.pdf
+    "Input phase loss protection circuits supervise the input power cable connection status by detecting intermediate circuit ripple. If a phase is lost, the ripple increases."
+[R49] EN / ACS355 user’s manual — https://library.e.abb.com/public/805f31a82d524d8aa8a750011e2cd001/EN_ACS355_UM_E_A5.pdf
+    "The drive can automatically reset itself after overcurrent, overvoltage, undervoltage, external"
+[R50] [PDF] ACH580-01 drives (0.75 to 250 kW) hardware manual - ABB — https://library.e.abb.com/public/b039a4daed764f3782cfb7012dac708d/ACH580-01%20HW_revA_screen_A5.pdf
+    "These functions reset the drive automatically and continue operation after a fault."
+[R51] [PDF] EN / ACH580-01 hardware manual - ABB — https://library.e.abb.com/public/3a6cc07bb1cd4a80a2cc0a9e9e944a9a/EN_ACH580-01_HW_E_screen.pdf?x-sign=6GVTH7aQo5BFlGgpR4JRjdCq%2FHtjsEN6xncT2jxeTcB%2FCRV2H9X2VzN8uFXgJQtY
+    "the installation must be clearly marked as defined in IEC/EN/UL 61800-5-1, subclause 6.5.3, for example,"
+[R52] EN / ACS355 user’s manual — https://library.e.abb.com/public/805f31a82d524d8aa8a750011e2cd001/EN_ACS355_UM_E_A5.pdf
+    "The DC overvoltage trip limit is 420 V (for 200 V drives) and 840 V (for 400 V drives)."
+[R53] EN / ACS880-01 hardware manual — https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY
+    "Brake chopper. Conducts the surplus energy from the intermediate DC circuit of the drive to the brake resistor when necessary."
+[R54] EN / ACS880-01 hardware manual — https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY
+    "The voltage rise is typically caused by deceleration (braking) of a high inertia motor."
+[R55] EN / ACS880-01 hardware manual — https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY
+    "The brake chopper handles the extra energy generated by the motor during a quick deceleration. The extra energy increases the DC link voltage of the drive."
+[R56] ABB DRIVES Technical guide No. 6 Guide to harmonics with AC ... — https://library.e.abb.com/public/bc35ffb4386c4c039e3a8ec20cef89c5/Technical_guide_No_6_3AFE64292714_RevF_EN.pdf
+    "The most common rectifier circuit in 3-phase AC drives is a 6-pulse diode bridge."
+[R57] Active front end drive versus active filter solutions Decentralized vs. centralized mitigation strategies — https://library.e.abb.com/public/74ff1e10c3214d5fa4b9cccc421768c3/Technical_Note_060_Activefrontend_drive_versusactivefilter_solutions.pdf
+    "A 6-pulse drive with no internal impedance has a THDI of around 80%, but can reach as high as 120 % with some designs."
+[R58] Active front end drive versus active filter solutions Decentralized vs. centralized mitigation strategies — https://library.e.abb.com/public/74ff1e10c3214d5fa4b9cccc421768c3/Technical_Note_060_Activefrontend_drive_versusactivefilter_solutions.pdf
+    "An input AC line reactor or DC bus chokes can be added to a 6-pulse drive, to bring the THDI down into a 35 - 50% range."
+[R59] ABB DRIVES Technical guide No. 6 Guide to harmonics with AC ... — https://library.e.abb.com/public/bc35ffb4386c4c039e3a8ec20cef89c5/Technical_guide_No_6_3AFE64292714_RevF_EN.pdf
+    "Harmonics reduction can be achieved either by structural modifications in the drive system or by using external filtering."
+[R60] M Notice Template - MSF 5011 — https://assets.publishing.service.gov.uk/media/5a80d59140f0b62305b8d699/MGN_449.pdf
+    "In marine and offshore installations, variable speed drives are the main source of harmonic distortion to current and voltage waveforms."
+[R61] M Notice Template - MSF 5011 — https://assets.publishing.service.gov.uk/media/5a80d59140f0b62305b8d699/MGN_449.pdf
+    "the total harmonic distortion (THD) of the voltage waveform at any a.c. switchboard or section-board is not to exceed 8 per cent of the fundamental"
+[R62] VOLTAGE AND CURRENT HARMONIC DISTORTION ON MODERN NAVAL SHIPS ELECTRICAL SYSTEMS — https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/49--Harmonics-MEKO_MedPower2002.pdf
+    "the Total voltage Harmonic Distortion (THD) of a 60Hz and 400Hz network must not exceed 5%, while no harmonic should exceed 3% of the fundamental."
+[R63] [PDF] — Technical guide No. 7 Dimensioning of a drive system - ABB — https://library.e.abb.com/public/e555e5106a3c44e882f48b75a44f6807/Technical_guide_No_7_3AFE64362569_RevD_EN_lowres.pdf
+    "A standard induction motor is self ventilated. Because of the self ventilation the motor thermal loadability decreases as the motor speed decreases."
+[R64] [PDF] — Technical guide No. 7 Dimensioning of a drive system - ABB — https://library.e.abb.com/public/e555e5106a3c44e882f48b75a44f6807/Technical_guide_No_7_3AFE64362569_RevD_EN_lowres.pdf
+    "This kind of behaviour limits the continuous available torque at low speeds."
+[R65] [PDF] When Should Inverter-Duty Motors Be Specified? — https://www.energy.gov/sites/prod/files/2014/04/f15/motor_tip_sheet14.pdf
+    "Larger inverter-duty motors often have a constant-speed auxiliary blower to provide adequate cooling for motors operating at low speeds."
+[R66] [PDF] When Should Inverter-Duty Motors Be Specified? — https://www.energy.gov/sites/prod/files/2014/04/f15/motor_tip_sheet14.pdf
+    "The nonsinusoidal variable frequency output of PWM drives has several effects, including increased motor losses, inadequate ventilation at lower speeds, increased dielectric stresses on motor windings, magnetic noise, and shaft currents."
+[R67] Adjustable Speed Drive Part-Load Efficiency — https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf
+    "Because horsepower requirements equal the product of required torque and speed, input power varies linearly with speed for constant torque applications."
+[R68] Adjustable Speed Drive Part-Load Efficiency — https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf
+    "At half its rated operating speed, the fan delivers 50% of its rated airflow but requires only 1/8 full-load power."
+[R69] Your motor sheet: the variable speed drive — material:vsd#p1
+    "This is particularly effective for variable-torque loads like pumps and fans,"
+[R70] Adjustable Speed Drive Part-Load Efficiency — https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf
+    "The input power requirement varies as the cube or third power of the speed ratio"
+[R71] Adjustable Speed Drive Part-Load Efficiency — https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf
+    "Examples of constant torque loads include cranes, hoists, conveyors, extruders, mixers, positive displacement pumps, reciprocating air compressors, and rotary screw air compressors."
+[R72] Your motor sheet: the variable speed drive — material:vsd#p2
+    "By avoiding sudden jolts, VFDs prevent mechanical damage and stress to components like belts, gears, and bearings."
+[R73] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "VFDs have become more popular in recent years, primarily because they are the only option when motor speed control is required."
+[R74] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "These windings are physically arranged 120 electrical degrees apart. When energized, the three phase-shifted currents produce a combined magnetic field that rotates at a constant speed, called the synchronous speed."
+[R75] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "The rotating magnetic field cuts across the conductors of the motor's rotating inner part, the rotor."
+[R76] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "This rotor magnetic field interacts with the stator's rotating magnetic field, producing a rotational force, or torque, that causes the rotor and its shaft to spin."
+[R77] Your motor sheet: the three-phase induction motor — material:induction#p1
+    "If the rotor and the magnetic field moved at the same speed, no current would be induced, and no torque would be produced."
+[R78] 2-3-3. Characteristics of Induction Motors | NIDEC CORPORATION — https://www.nidec.com/en/technology/motor/basic/00027
+    "To that end, there must be a relative speed difference between the magnetic field and coil."
+[R79] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "With no relative motion between stator and rotor field no voltage will be induced in the motor."
+[R80] [PDF] CHAPTER 7 – INDUCTION MOTOR — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/666957712_3_induction_machines.pdf
+    "An induction motor can thus speed up to near synchronous speed but it can never reach synchronous speed."
+[R81] [PDF] CHAPTER 7 – INDUCTION MOTOR — https://abs.cu.edu.tr/Dokumanlar/2017/EEE318/666957712_3_induction_machines.pdf
+    "Induced Torque is zero at synchronous speed."
+[R82] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "The speed of an induction motor is therefore limited to a speed below synchronous speed and the difference between synchronous speed and actual speed is called slip ."
+[R83] 2-3-3. Characteristics of Induction Motors | NIDEC CORPORATION — https://www.nidec.com/en/technology/motor/basic/00027
+    "Slip is normally expressed in percentage. Slip of a power induction motor is 2 to 3% when the motor is operated under the rated load."
+[R84] AN887, AC Induction Motor Fundamentals — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf
+    "The difference between NS and Nb is called the slip. The slip varies with the load."
+[R85] AN887, AC Induction Motor Fundamentals — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf
+    "An increase in load will cause the rotor to slow down or increase slip. A decrease in load will cause the rotor to speed up or decrease slip."
+[R86] AN887, AC Induction Motor Fundamentals — https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf
+    "Typically, the full-load slip for the squirrel cage induction motor is less than 5%."
+[R87] Softstarter Handbook — https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf
+    "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+[R88] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p2
+    "High inrush current: The motor draws 6 to 8 times its normal full-load current during startup."
+[R89] Softstarter Handbook — https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf
+    "A small motor, e.g. ≤ 30 kW, normally has a value of between 1.5 and 2.5 times the rated torque"
+[R90] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "A small motor, e.g. ≤ 30 kW, normally has a value of between 2.5 and 3 times the rated torque"
+[R91] [PDF] — Baldor-Reliance ® Integral Horsepower AC Induction Motors - ABB — https://library.e.abb.com/public/1b412697e30b440b9d3a8c5833ae3309/MN408.pdf
+    "To reverse the direction of rotation, disconnect and lock out power and interchange any two of the three line leads for three phase motors."
+[R92] Forward/Reverse Control Circuits – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/forward-reverse-control-circuits/
+    "all that is needed is to interchange any two of the three line leads feeding the motor."
+[R93] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "Simple, rugged, and low-maintenance because it has no brushes or slip rings."
+[R94] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "Allows for a higher starting torque and a greater degree of speed control by adjusting the external resistance."
+[R95] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "The motor draws a large magnetizing current, which causes it to operate at a poor power factor, particularly under light loads."
+[R96] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "Ideal for constant-speed applications such as fans, pumps, conveyors, and compressors."
+[R97] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "As constant-speed machines, speed control can be difficult without additional equipment like a Variable Frequency Drive (VFD)."
+[R98] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "The initial inrush current during startup can be very high, which can cause voltage dips in the power line."
+[R99] The Induction Machine Handbook — https://web.mit.edu/kirtley/binlustuff/literature/electric%20machine/InductionMachineHandbook.pdf
+    "Induction motors are extensively used in marine environments for pumps, fans, compressors, etc. for power up to 700 kW or more."
+[R100] The Induction Machine Handbook — https://web.mit.edu/kirtley/binlustuff/literature/electric%20machine/InductionMachineHandbook.pdf
+    "Due to the aggressive environment, they are totally enclosed and may have aluminum (at low power), steel, or cast iron frames"
+[R101] An Evaluation of Electric Motors for Ship Propulsion - DTIC — https://apps.dtic.mil/sti/tr/pdf/ADA417341.pdf
+    "The U.K. has also selected the induction motor to be the prime mover in their Type-45 destroyer."
+[R102] 13.9: Single-phase Induction Motors — https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf
+    "However, it will not self-start. It may be hand started in either direction, coming up to speed in a few seconds."
+[R103] Causes and effects of single-phasing induction motors — https://ieeexplore.ieee.org/document/1307038
+    "the motor will heat up very quickly and it is essential that the motor be removed from service by the opening of a motor circuit breaker or some other type of protective device."
+[R104] Causes and effects of single-phasing induction motors — https://ieeexplore.ieee.org/document/1307038
+    "The single-phasing can occur as a result of a fuse blowing or protective device opening on one phase of the motor."
+[R105] Motor Protection - Voltage Unbalance & Single-Phasing — https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf
+    "Historically, the causes of motor failure can be attributed to: Overloads 30% Contaminants 19% Single-phasing 14% Bearing failure 13% Old age 10% Rotor failure 5% Miscellaneous 9% 100%"
+[R106] Motor Protection - Voltage Unbalance & Single-Phasing — https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf
+    "The number of contact kits sold each year confirms the fact that worn motor starter contacts are the most common cause of single-phasing."
+[R107] The missing link in motor condition monitoring | Megger — https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring
+    "This test will show if the motor is wet or contaminated, or if it has a dead short to earth."
+[R108] The missing link in motor condition monitoring | Megger — https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring
+    "When the resistance measurements are complete, the difference between the phase-to-phase readings is calculated. A delta of less than 1% is typical for a good winding."
+[R109] The missing link in motor condition monitoring | Megger — https://www.megger.com/en/et-online/may-2020/the-missing-link-in-motor-condition-monitoring
+    "An insulation resistance test cannot, however, confirm that a motor is in good condition, as it does not test the entire insulation system."
+[R110] Your motor sheet: the three-phase induction motor — material:induction#p3
+    "The absence of sparking brushes makes them safe for hazardous environments."
+[R111] Motors for hazardous areas | ABB UK — https://www.abb.com/gb/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/motors-for-explosive-atmospheres
+    "Our motors are rigorously engineered to prevent ignition in hazardous locations by eliminating sources of sparks, arcing, or excessive heat."
+[R112] Motors for hazardous areas | ABB UK — https://www.abb.com/gb/en/areas/motion/motors-generators/low-voltage-motors/iec-low-voltage-motors/motors-for-explosive-atmospheres
+    "Fully ATEX and IECEx certified, these motors are compliant with the latest global and regional safety standards"
+[R113] [PDF] Inductions Motors - Power & Energy Systems — https://energy.ece.illinois.edu/files/2016/10/9-16-16-induction-motor-seminar-handout.pdf
+    "Slip ( S ) = (synchronous speed – actual speed)"
+[R114] [PDF] Inductions Motors - Power & Energy Systems — https://energy.ece.illinois.edu/files/2016/10/9-16-16-induction-motor-seminar-handout.pdf
+    "At stall / locked rotor slip = 1.0 or 100%"
+[R115] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "A motor with two poles is supplied with power with frequency 50 Hz (1/s) . The rotation speed can be calculated as n = (50 1/s) (2 / 2) (60 s/min) = 3000 rpm (1/min)"
+[R116] Low voltage Process performance aluminum (ABB catalogue) — https://search.abb.com/library/Download.aspx?Action=Launch&DocumentID=9AAU00000000058&DocumentPartId&LanguageCode=en
+    "1500 r/min = 4 poles. 400 V 50 Hz."
+[R117] Electrical Tech Note — 314 — https://www.maec.msu.edu/application/files/5316/4555/7425/Tech_Note_314_ac_Motor_Characteristics.pdf
+    "The shaft speed at full-load as shown on the motor nameplate is less than synchronous speed"
+[R118] Your motor sheet: the three-phase induction motor — material:induction#p2
+    "5.5 kW 2950 rpm"
+[R119] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "10 Rated speed nN 1437 r/min"
+[R120] Determining Electric Motor Load and Efficiency — http://www1.eere.energy.gov/manufacturing/tech_assistance/pdfs/10097517.pdf
+    "The amount of slip present is proportional to the load imposed upon the motor by the driven equipment"
+[R121] Determining Electric Motor Load and Efficiency — http://www1.eere.energy.gov/manufacturing/tech_assistance/pdfs/10097517.pdf
+    "a motor running with a 50% load has a slip halfway between the full load and synchronous speeds."
+[R122] Induction Motor (Electrical Technology, chapter 34) — https://nit-edu.org/wp-content/uploads/2021/09/Ch-34-Induction-motor.pdf
+    "The difference in speeds depends upon the load on the motor."
+[R123] Induction Motor Speed Torque Characteristics — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.MOTOR.01&documentName=AR.MOTOR.01.pdf
+    "If additional load torque is required, the motor slows down or slips and develops more torque by moving up toward the breakdown torque point."
+[R124] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "Torque is proportional to slip, the degree to which the disk falls behind the rotating magnet."
+[R125] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "Thus, a loaded motor will slip in proportion to the mechanical load."
+[R126] [PDF] Inductions Motors - Power & Energy Systems — https://energy.ece.illinois.edu/files/2016/10/9-16-16-induction-motor-seminar-handout.pdf
+    "Rotor electrical frequency = slip x stator frequency"
+[R127] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "Slip at 100% torque is typically 5% or less in induction motors."
+[R128] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "12 No-load current 1,4 A"
+[R129] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "11 Rated current IN 1,90 A"
+[R130] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "Power factor at PN 0,7"
+[R131] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "21 _50_ **1,36 81 0,49**"
+[R132] Determining Electric Motor Load and Efficiency — https://www.energy.gov/sites/prod/files/2014/04/f15/10097517.pdf
+    "Below the 50% load point, due to reactive magnetizing current requirements, power factor degrades and the amperage curve becomes increasingly non-linear."
+[R133] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "13 Starting current Is/IN 5,9"
+[R134] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "15 Locked rotor torque TS/TN 3,5"
+[R135] ABB Motors and Technical Data Sheet - DOL Generators (M3AA 80ME 4, 0.75 kW) — https://docs.rs-online.com/1513/A700000007244947.pdf
+    "16 Maximum torque Tmax/TN 3,8"
+[R136] MOTOR CHARACTERISTICS - Applied Industrial Electricity — https://iastate.pressbooks.pub/electriccircuits/chapter/motor-characteristics
+    "The current is high because this is analogous to a shorted secondary on a transformer."
+[R137] Induction Motor Speed Torque Characteristics — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.MOTOR.01&documentName=AR.MOTOR.01.pdf
+    "Again, if the breakdown torque requirements are exceeded, the motor will stall."
+[R138] Improving Motor and Drive System Performance — https://www.energy.gov/sites/prod/files/2014/04/f15/amo_motors_sourcebook_web.pdf
+    "If the load exceeds this torque, the motor will stall, causing it to rapidly overheat and risking insulation failure if it is not properly protected."
+[R139] Single-Phasing, Rotation Checks, and Screw Compressors — https://open-exam-prep.com/study-guides/reta-ciro/three-phase-motors/single-phasing-rotation
+    "A motor at rest will not produce starting torque: it hums , may buzz or growl, and will not accelerate."
+[R140] Single-Phasing, Rotation Checks, and Screw Compressors — https://open-exam-prep.com/study-guides/reta-ciro/three-phase-motors/single-phasing-rotation
+    "The rotating field collapses into a pulsing single-phase field."
+[R141] Motor Protection - Voltage Unbalance & Single-Phasing — https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/fuses/solution-center/bus-ele-tech-lib-motor-single-phasing-voltage-unbalance.pdf
+    "When a motor is single-phased, the current in the remaining two phases increases to 173% of normal current."
+[R142] HVAC Compressor Motors Insulation Resistance and Testing | Fluke — https://www.fluke.com/en-my/learn/blog/hvac/insulation-resistance-and-electrical-testing-for-hvac-compressor-motors
+    "The IEEE 43 standard for the IR testing of electric motors gives a minimum acceptable value of 1 megohm plus 1 megohm per kilovolt of motor operating voltage."
+[R143] Insulation Resistance Guidelines (Fluke) — https://media.fluke.com/33561bb0-edb1-43f4-895a-b1060066d91b_original%20file.pdf
+    "However, actual minimum acceptable insulation resistance values are based on the type of insulating material being used, and on the physical and electrical characteristics of the equipment being evaluated."
+[R144] Megger Testing a Motor Before You Energise It (New India Electricals) — https://newindiaelectricals.com/blog/megger-testing-a-motor-before-you-energise-it-insulation-resistance-pi-ratio-and-what-the-numbers-actually-mean
+    "The WEG motor manual, citing IEEE 43, sets that minimum at 5 megohms for windings up to 1,000 V and 100 megohms above"
+[R145] Electrical system design for warships (Journal of Naval Engineering) — https://library.imarest.org/record/8911/files/v28b1p10a.pdf
+    "It was not until 1946 that a 440 V, 60 Hz, 3-phase a.c. supply was introduced into four of the DARING Class destroyers, in line with U.S. Navy practice. This has been the preferred supply ever since."
+[R146] Thermal Overload Relays Electronic ... — https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf
+    "In compliance with international and national standards, the setting current is the rated motor current and not the tripping current (no tripping at 1.05 x I setting current, tripping at 1.2 x I setting current)."
+[R147] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The isolator (2) when closed allows current to flow into the contactor."
+[R148] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Normally open (N/O) start button. This is 'sprung' meaning it'll return to N/O once released."
+[R149] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The coil magnetises the main contacts and pulls them closed and holds them in place, enabling the motor to connect to the supply and become energised."
+[R150] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p1
+    "The energized coil pulls the contactor's main contacts closed, applying the full line voltage to the motor."
+[R151] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "The unique component of the circuit, indeed the device that allows the circuit to provide low-voltage protection (LVP) , is the normally open instantaneous contact connected in parallel with the start button."
+[R152] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The start button 'makes' the circuit, the stop button 'breaks' the circuit."
+[R153] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "The bend in the strips causes the overload release contact to break the circuit, which de-energises the coil, releasing the contacts and isolating the motor from the supply."
+[R154] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "9 and 10 work together to disconnect the circuit in the same way as the stop button."
+[R155] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "the magnetic effect disappears and the latching contacts release."
+[R156] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Latching (maintaining) contacts. These 'pull' and 'hold' the main contacts in place, these are pulled into place by the magnetic field created by the energising of (4)."
+[R157] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "If a power outage occurs during normal operation, the starter coil will drop out and the motor will stop as well."
+[R158] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "The motor will not restart without further input from an operator as the holding contact will have returned to its normally open state."
+[R159] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp
+    "As a rule, if a circuit uses a magnetic contactor and a holding contact, it will provide low-voltage protection (LVP)."
+[R160] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp
+    "If it uses maintained contacts, then it most likely provides low-voltage release (LVR)."
+[R161] Low-Voltage Release vs. Low-Voltage Protection – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/lvr-lvp
+    "low-voltage protection (LVP) is a property that circuits have when upon a return of voltage following a power outage, loads will not automatically turn back on and will require further input from the operator."
+[R162] Manual Circuits – Basic Motor Control — https://lbcc.pressbooks.pub/basicmotorcontrol/chapter/manual-circuit/
+    "The normally closed contacts in series with the coil are controlled by the thermal action of the overload relays, and not the movement of the armature, so they remain closed as long as an overload does not occur."
+[R163] Thermal Overload Relays Electronic ... — https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf
+    "Fuses do not protect a motor against overload. They serve only as short-circuit protection of switchgear and cables."
+[R164] Thermal Overload Relays Electronic ... — https://library.e.abb.com/public/8489ed224735e6cac1256faf0028b970/2CDC106014C0201.pdf
+    "In order to protect motors against short-circuits, it is advisable to use fuses aM in conjunction with the thermal overload relay."
+[R165] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p2
+    "Circuit Breaker or Fuse: Provides short-circuit and overcurrent protection for the system."
+[R166] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "230V contactor coil (only connected to one phase and neutral meaning only 230V is present."
+[R167] Your group handout: DOL start and stop buttons — material:handout-dol-buttons#p1
+    "IMPORTANT TO GET THE COIL VOLTAGE RATING RIGHT"
+[R168] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "Check the coil voltages so that, the coil voltage corresponds to actual supply voltage."
+[R169] — Softstarters PSR, PSRC, PSE and PSTX — https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0
+    "DOL starting is uncontrolled, which means that the motor will start with maximum current and torque regardless of load type."
+[R170] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Generally used for the starting and stopping of small machinery up to 5kW."
+[R171] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p3
+    "DOL starters are typically limited to smaller motors (often under 4 kW) where the power supply can tolerate the voltage dip."
+[R172] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "Some utilities restrict DOL starting for motors rated at 5.5 kW / 7.5 hp or higher."
+[R173] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "Compressors, pumps and fans are typically controlled by DOL starters."
+[R174] Your DOL study sheet: the direct online starter — material:dol-sheet#p1
+    "DOL starters have thermal overloads, which can mean 'overuse' or regular stopping and starting can cause these to operate."
+[R175] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "The received starting current is about 30 % of the starting current during direct on line start and the starting torque is reduced to about 25 % of the torque available at a D.O.L start."
+[R176] — Softstarters PSR, PSRC, PSE and PSTX — https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0
+    "The starting current is about one third compared to direct-on-line starting, although it also reduces the starting torque to about 25 percent."
+[R177] Softstarter Handbook — https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf
+    "So when starting using Star-Delta start, the star connection results in a current of 33% compared to a delta connected motor."
+[R178] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "The motor must be delta connected during a normal run, in order to be able to use this starting method."
+[R179] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "The device normally consists of three contactors, an overload relay and a timer for setting the time in the star-position (starting position)."
+[R180] [PDF] SOFTSTARTER HANDBOOK - ABB — https://library.e.abb.com/public/2985284834bcff7fc1256f3a00274038/1SFC132002M0201.pdf
+    "This starting method only works when the application is light loaded during the start."
+[R181] — Softstarters PSR, PSRC, PSE and PSTX — https://new.abb.com/docs/librariesprovider22/default-document-library/softstartercatalog_2022.pdf?sfvrsn=ffc5c60a_0
+    "Current peaks will happen when switching from star to delta connection."
+[R182] Your group handout: the star-delta starter question — material:handout-star-delta#p2
+    "6186.88×3 = 18560.64 W."
+[R183] Your motor sheet: the DOL starter (web summary) — material:dol-starter#p2
+    "Applying full voltage at startup provides 100% of the motor's rated torque, which is necessary for some applications."
+[R184] Your group handout: DOL start and stop buttons — material:handout-dol-buttons#p1
+    "START BUTTONS ARE WIRED IN PARALLEL."
+[R185] Direct-On-Line and Automatic Star – Delta Starter — https://assets.new.siemens.com/siemens/assets/api/uuid:0439c3a6-f14d-4b93-bf1b-a874d46b4dd3/industrial-new-dol-11-55kwand-asd-22-55kw-operating-instruction.pdf
+    "Disconnect Power before proceeding with any work on this equipment"
+[R186] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Closing of the main contacts with approximately 6 to 8 times"
+[R187] What do the terms AC1 and AC3 mean? | Schneider Electric USA — https://www.se.com/us/en/faqs/FAQ000127417/
+    "On closing, the contactor makes the inrush current, which is about 5 to 7 times the rated full load current of the motor. On opening, the contactor breaks the rated full load current of the motor."
+[R188] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Attempting to restart the motor before it has come to a full stop will cause a current peak that theoretically can reach twice the current compared to starting the motor from a standstill."
+[R189] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "DOL starters connect the motor directly to the mains supply, thus carrying out starting at full voltage."
+[R190] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "The inrush and starting current can become very high in this case, which can cause disturbances like voltage dips to the supply system"
+[R191] Agn 090 B Motor Starting Fundamentals — https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN-090_B-Motor-Starting-Fundamentals.pdf
+    "Direct on Line: resulting in the highest levels of inrush currents (actually technically described as Locked Rotor currents)."
+[R192] Generating Set considerations AGN 068 - Motor Starting and Generating Set Considerations — https://www.stamford-avk.com/sites/stamfordavk/files/AGN068_B.pdf
+    "An electric motor that is being started DOL will be able to develop multiple levels of full load torque"
+[R193] Voltage dips in ship systems — https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/75--Voltage-dips-IEEE-ESTS-2007-Prousali.pdf
+    "Large power motors starting consecutively during ship maneuvering (e.g. driving thruster systems) can cause such severe voltage dips."
+[R194] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "During the starting phase, the motor windings are connected in a star configuration, reducing the voltage to 1/√3 (~58%) of the full line voltage."
+[R195] Motor Starting Solutions ( en — https://library.e.abb.com/public/86d98d43ec394d63841658bf28be428c/1SFC100125C0346_en_A_Solution%20Guide_%20Motor%20Starting%20Solutions.pdf?x-sign=8SIXiOql6KxHn2qO0yKzOqYZRE1MWVAffwdI2r53iwORMhU7Edf87B06zVo5EgKw
+    "The transition may briefly interrupt the power supply, causing a current spike that is typically lower than in a DOL start."
+[R196] Agn 090 B Motor Starting Fundamentals — https://www.stamford-avk.com/sites/stamfordavk/files/AGNs/AGN-090_B-Motor-Starting-Fundamentals.pdf
+    "at the transition from star to delta, there will be a second impact kVA condition, which could be as high as 5 x run kVA"
+[R197] — Thermal overload relay TF42 — https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj
+    "the setting current is the rated current of the motor and not the tripping current (no tripping at 1.05 x I, tripping at 1.2 x I; I = setting current)"
+[R198] — Thermal overload relay TF42 — https://library.e.abb.com/public/d8bf537bf3ba4d2c8014177d608e2db1/2CDC106023D0201_en_D_Data%20sheet%20-%20Thermal%20Overload%20Relay%20TF42.pdf?x-sign=XoKEuwmeYZ7UMMvwRJ3k8EPoPPVaAg6%2bdxd5WSAWCHeGasyXfGvCkoTMswQwLJZj
+    "They are used mainly to protect motors against overload and phase failures."
+[R199] Overload Relays & Thermal Unit Selection - Schneider Electric — https://iportal.se.com/Contents/docs/9065CT9701.PDF
+    "The overload relay has no power contacts and cannot disconnect the motor by itself."
+[R200] Overload Relays & Thermal Unit Selection - Schneider Electric — https://iportal.se.com/Contents/docs/9065CT9701.PDF
+    "Once tripped, the thermal overload relay will not reset until it has cooled, automatically allowing the motor to cool before it can be re-started."
+[R201] Contactor for capacitor switching: Type: 3TS1722-0A..5-8K — https://assets.new.siemens.com/siemens/assets/api/uuid:9fcd4883-33b5-4c50-97be-c7f9d0b23f98/oi-3ts17.pdf
+    "The voltage is to be maintained within 0.85 to 1.1 x rated coil voltage."
+[R202] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Too high continuous control voltage could also cause the coil to melt."
+[R203] What are the risks of applying too low control voltage to a contactor? | Schneider Electric USA — https://www.se.com/us/en/faqs/FA325555/
+    "Applying a control voltage below the specified operating range of a contactor can lead to serious malfunction and permanent damage of both the coil and the main contacts."
+[R204] Guidelines for Contactor inspection and maintenance ABB A/AF-line and EH/EK series Contactors — https://library.e.abb.com/public/ce3c940940e90386c1257d78002d8a93/1SFC101044M0201.pdf
+    "Control voltage less than 85% during pick up may not be enough to safely close the contactor and can cause the coil to melt due to over heating."
+[R205] Contactor Troubleshooting: Buzzing, Chattering & Coil Failure — https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure
+    "A buzzing or chattering contactor is commonly caused by unstable or insufficient coil voltage, a poor control-circuit connection, an incorrect coil, incomplete armature seating, contaminated magnet faces, mechanical binding, or a damaged shading ring in a conventional AC contactor."
+[R206] Contactor Troubleshooting: Buzzing, Chattering & Coil Failure — https://viox.com/contactor-troubleshooting-guide-buzzing-coil-failure
+    "A contactor can contain hazardous line voltage even when its coil circuit is off."
+[R207] Electricity at work: Safe working practices HSG85 — https://www.hse.gov.uk/pubns//priced/hsg85.pdf
+    "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead, even if the isolation has been achieved automatically through an interlocking system."
+[R208] Electricity at work: Safe working practices HSG85 — https://www.hse.gov.uk/pubns//priced/hsg85.pdf
+    "If it is a three-phase system or equipment with more than one supply, prove that all supply conductors are dead."
+[R209] Electrical test equipment for use by electricians GS38 — https://www.hse.gov.uk/pubns/priced/gs38.pdf
+    "Any device used to prove dead may fail to indicate danger (eg a faulty lamp not indicating a live circuit). Such devices should be proved before and after use."
+[R210] Electrician suffered shock when electrical supply had not been properly isolated - HSE — https://www.hse.gov.uk/electricity/maintenance/isolate.htm
+    "Electricity supplies should be made dead and proved to be dead before work is commenced, and the method of isolation should prevent inadvertent or deliberate re-energisation of the electrical system."
+[R211] Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/
+    "Wire all normally closed stop buttons in series with each other,"
+[R212] Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/
+    "pushing any one will interrupt the circuit and disconnect the motor starter"
+[R213] Three-Wire Circuit with Multiple Push Buttons – Basic Motor Control — https://opentextbc.ca/basicmotorcontrol/chapter/three-wire-with-multiple-push-buttons/
+    "Pushing any start pushbutton will provide a path for current to energize the motor starter."
+[R214] Overload Relays - Digital Asset Management - Siemens — https://assets.new.siemens.com/siemens/assets/api/uuid:db98727f-1c3d-43cb-ab6e-2055705305b4/version:1557325577/ic17-sect-03-rev031519.pdf
+    "An overload relay mounted onto the line contactor must be set to 0.58 times the motor current."
+[R215] Your motor sheet: the DC series motor — material:dc-series#p1
+    "A DC series motor is a type of direct current electric motor where the armature and field windings are connected in series, so the same current flows through both."
+[R216] Your motor sheet: the DC series motor — material:dc-series#p1
+    "A key characteristic is its poor speed regulation; the motor's speed varies significantly with load and can increase to dangerous levels if the motor runs without a load."
+[R217] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "It is zero when the motor is first turned on, meaning that the coil receives the full driving voltage and the motor draws maximum current when it is on but not turning."
+[R218] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "The motor thus acts as a generator whenever its coil rotates."
+A source whose address begins "material:" is a page of Dan's own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source's.
+Notes (claims, and the sources that support them):
+- A drive has three parts: a rectifier turns AC to DC, a DC bus with capacitors smooths it, and an inverter switches it back to AC at chosen frequency and voltage by pulse-width modulation. [R1][R2][R3][R4]
+- Motor speed follows the supply frequency, so a drive that sets the frequency sets the speed. [R5][R6]
+- Voltage is lowered in proportion to frequency so the flux stays constant (constant V/f); otherwise the motor draws excessive current at low frequency, with saturation. [R7][R8][R9]
+- Below the nominal frequency is the constant flux range; above it the voltage can rise no further and the motor is in field weakening, where it can run at constant power, so maximum torque falls with frequency. [R10][R11][R12]
+- A drive's soft start removes the inrush of a direct start and the mechanical shock. [R13]
+- For fans and pumps power varies roughly as the cube of speed: half speed needs about one eighth power in theory; a maker says treat the savings as theoretical. [R14][R15][R16][R17]
+- Slowing a conveyor from 100% to 80% saves 20% of energy while a pump or fan saves nearer 50%, so savings are large only on variable-torque loads. [R18][R19]
+- VFDs on ships are used on cranes, winches, bow thrusters, ventilation, pumps and compressors (a maker's list). [R20][R21]
+- Fast-rising voltage pulses and high switching frequencies of modern drives can send current pulses through motor bearings that erode the races. [R22]
+- A drive trip on over-voltage during stopping can come from regenerated energy: the fix named is a longer deceleration time or a brake chopper; harmonics can also overcharge the DC link capacitors. [R23][R24][R25][R26]
+- Earth-fault trips are found from the sum of the output currents and often from weak or damp insulation; disconnect the drive before an insulation resistance test on the motor and cable. [R27][R28][R29][R30]
+- Before any work on a drive, its motor or its motor cable: isolate the whole drive, wait 5 minutes for the DC bus capacitors to discharge, then measure across the DC terminals (UDC+ and UDC-) with a multimeter before starting. The isolator on the cabinet door may not remove voltage from the input bu… [R31][R32][R33][R34][R35]
+- The DC bus sits at about 1.35 times the supply line voltage (1.41 times the peak of a sine supply), so a 400 V drive holds roughly 540 to 565 V DC after the supply is off, until the capacitors are discharged. [R36]
+- Do not start and stop the motor with the isolator; use the drive's own start and stop. Power-ups are limited (five in ten minutes on one maker's drive) to protect the capacitor charging circuit. [R37][R38][R39]
+- Check the motor and all driven equipment can run safely across the whole speed range the drive allows, which can be above or below the speed on direct supply; a motor driven faster than set by the load raises the DC bus voltage and can damage the capacitors. [R40][R41]
+- A maker's list of the common drive faults: overcurrent, current limit, ground (earth) fault, output phase fault, overvoltage, undervoltage, drive over temperature, motor over temperature and input phase fault. [R42][R43][R44][R45]
+- Overcurrent trips point to the motor and its cable: check the wiring and the motor for short circuits and earth faults, loose connections or winding faults, and a motor that is blocked or overloaded. [R46][R47][R43]
+- An input phase failure is spotted by the ripple on the DC bus, which increases when a phase is lost; the drive trips on it (a blown fuse or loose input connection is the usual cause). [R48][R45]
+- A drive can be set to reset itself and carry on after a fault; where it is, the machine can restart by itself and must be labelled so. [R49][R50][R51]
+- On a 400 V drive one maker sets the DC overvoltage trip at 840 V; a brake chopper passes surplus energy from the DC bus into a brake resistor when the bus voltage rises above a set limit. [R52][R53][R54][R55]
+- A drive's diode rectifier draws current that is not a sine wave (harmonics); the common 6-pulse bridge with no choke can have a current distortion of around 80% and a line reactor or DC choke brings it to about 35 to 50%. [R56][R57][R58][R59]
+- On ships, variable speed drives are the main source of harmonic distortion; Lloyd's Register limits voltage distortion at a switchboard to 8% of the fundamental, and NATO warship standard STANAG 1008 limits voltage THD to 5% with no single harmonic above 3%. [R60][R61][R62]
+- A standard self-ventilated motor cools less as it slows, so the torque it can give continuously at low speed is limited; larger inverter-duty motors often have a constant-speed auxiliary blower. [R63][R64][R65]
+- The drive's non-sinusoidal output has effects on the motor: more losses, poor ventilation at low speed, stress on winding insulation, noise and shaft currents. [R66]
+- Power depends on the load: on a constant-torque load input power varies linearly with speed, whereas a fan at half speed needs only one eighth of full-load power. [R67][R68][R69][R70][R71]
+- Soft starting and stopping avoids mechanical jolts that damage belts, gears and bearings. [R72]
+- Compared with a direct start or star-delta, a drive is the only option when motor speed control is needed. [R73]
+- Three windings 120 electrical degrees apart, each fed from one phase, make one combined magnetic field that turns at a constant speed, the synchronous speed. [R74]  (from an idea this one builds on)
+- The turning field cuts the short-circuited rotor conductors and induces a current in them; that current makes its own field, which interacts with the stator field to give torque. [R75][R76]  (from an idea this one builds on)
+- The rotor has to turn slower than the field: with no speed difference there is no cutting, so no current is induced and no torque is produced. An induction motor can approach synchronous speed but never reach it. [R77][R78][R79][R80][R81]  (from an idea this one builds on)
+- Slip is the difference between synchronous and actual speed, normally written as a percentage. Load makes the rotor slow and slip grow; taking load off lets it speed up and slip shrink. [R82][R83][R84][R85]  (from an idea this one builds on)
+- Synchronous speed is 120 f / p rpm for f hertz and p poles. [R5]  (from an idea this one builds on)
+- Full-load slip of a cage motor is a few percent: about 2 to 3% (one maker) and under 5% (another). [R83][R86]  (from an idea this one builds on)
+- Starting from the supply direct, a motor draws usually 6 to 8 times its rated current and can draw more than 10 times. [R87][R88]  (from an idea this one builds on)
+- For a small motor (up to about 30 kW) ABB's 2010 handbook gives a direct-on-line starting torque of 1.5 to 2.5 times rated; its 2004 edition gave 2.5 to 3. The figure is a range. [R89][R90]  (from an idea this one builds on)
+- Swapping the supply connections on any two of the three coils reverses the field and so the direction of rotation. [R91][R92]  (from an idea this one builds on)
+- A cage rotor is simple, rugged and low-maintenance, with no brushes or slip rings; a wound rotor gives higher starting torque and speed control by external resistance, at more upkeep. Light load gives a poor power factor. [R93][R94][R95]  (from an idea this one builds on)
+- Cage induction motors suit constant-speed work such as fans, pumps, conveyors and compressors; their speed is hard to control without a drive and their starting current is high. [R96][R97][R98]  (from an idea this one builds on)
+- Induction motors are used on ships for pumps, fans and compressors up to 700 kW or more, totally enclosed; the UK chose an induction motor to drive its Type 45 destroyer. [R99][R100][R101]  (from an idea this one builds on)
+- A three-phase motor run from a single phase will not self-start but can be hand started; a motor already running when one phase is lost heats very quickly and must be taken off by its protection. [R102][R103][R104]  (from an idea this one builds on)
+- In one long-run record of motor failures, overloads were 30%, single-phasing 14% and bearing failure 13%; worn starter contacts are given as the most common cause of single-phasing. [R105][R106]  (from an idea this one builds on)
+- An insulation resistance test shows a wet or contaminated motor or a dead short to earth but cannot prove it good; a winding resistance test compares phases, and under 1% difference is typical of a good winding. [R107][R108][R109]  (from an idea this one builds on)
+- His sheet says a brushless motor is safe for hazardous areas; a maker builds hazardous-area motors to prevent ignition and certifies them to ATEX and IECEx. [R110][R111][R112]  [CONTESTED: Dan's sheet treats the absence of brushes as making these motors safe in hazardous areas; a maker presents certified, purpose-built motors for these areas.]  (from an idea this one builds on)
+- Slip is the fraction (synchronous speed minus actual speed) divided by synchronous speed: 0 at synchronous speed, 1 (100%) at standstill or locked rotor. [R113][R114]  (from an idea this one builds on)
+- Read the pole count from the nameplate speed: on 50 Hz a two-pole field turns at 3000 rpm and a four-pole one at 1500, and the full-load speed on the nameplate is a little below that. A 1500 r/min, four-pole motor is a maker's standard 50 Hz line. Dan's sheet motor, 5.5 kW at 2950 rpm, is therefore… [R115][R116][R117][R118]  (from an idea this one builds on)
+- The ABB 0.75 kW four-pole data sheet gives a rated speed of 1437 r/min on 50 Hz, so its full-load slip is (1500 - 1437) / 1500 = 4.2% (computed). [R119][R116]  (from an idea this one builds on)
+- Slip is proportional to the load: a motor at half load has slip halfway between its full-load slip and zero. [R120][R121]  (from an idea this one builds on)
+- When load goes up the rotor slows, slip grows, and rotor current and torque grow with it until the motor's torque balances the load's. At small slip the torque is directly proportional to slip. [R122][R123][R124][R125]  (from an idea this one builds on)
+- The rotor current's frequency is slip times the supply frequency, so at full load (slip 5% or less) it is only a few hertz: 2.5 Hz on a 50 Hz supply at 5% slip. [R126][R127]  (from an idea this one builds on)
+- Light-load power factor is poor because the magnetising current stays almost the same while the useful current falls. ABB's 0.75 kW four-pole motor draws 1.4 A with no load against 1.90 A at full load, with power factor 0.7 at full load and 0.49 at half load. Below about half load the power factor … [R128][R129][R130][R131][R132]  (from an idea this one builds on)
+- The ABB 0.75 kW four-pole data sheet gives a starting current of 5.9 times rated, a locked-rotor torque of 3.5 times rated and a maximum (breakdown) torque of 3.8 times rated. The starting current is high because a locked rotor is like a shorted transformer secondary. [R133][R134][R135][R136]  [CONTESTED: Starting torque of a direct-on-line cage motor: ABB's handbook gives 1.5 to 2.5 times rated for small motors, while the small ABB data sheet gives 3.5. It is a range that depends on the motor design, so read the data sheet for the motor in hand.]  (from an idea this one builds on)
+- If the load torque goes beyond the motor's breakdown torque the motor slows further instead of settling: it stalls, the current stays at the locked-rotor level, and it overheats rapidly and risks insulation failure if not protected. [R123][R137][R138]  (from an idea this one builds on)
+- With one line open at standstill the rotating field collapses into a pulsing single-phase field, so a motor at rest hums and will not start. If the motor was already running and one line is lost, the two remaining line currents rise to about 173% of normal. [R139][R140][R141]  (from an idea this one builds on)
+- The minimum acceptable insulation resistance for a motor winding depends on the standard, the winding and its age: the older IEEE 43 rule is 1 megohm plus 1 megohm per kV; a widely quoted newer figure is 5 megohms for windings up to 1,000 V (WEG, citing IEEE 43); a maker or the standard in force se… [R142][R143][R144]  [CONTESTED: The minimum insulation resistance for a motor: the older IEEE 43 rule (1 megohm plus 1 per kV), a newer 5 megohm figure for low-voltage windings, and a note that the real minimum depends on the insulation. The lesson should send him to the maker's figure rather than state one number.]  (from an idea this one builds on)
+- Royal Navy ships have used a 440 V, 60 Hz, three-phase main supply since 1946 (four Daring class destroyers, in line with US Navy practice); it has been the preferred supply ever since. So a motor at sea usually runs on 60 Hz. (Added for i1, review fix: why the 60 Hz choice matters.) [R145]  (from an idea this one builds on)
+- A motor's overload relay is set to the motor's rated current, not its tripping current: it does not trip at 1.05 times the setting and trips at 1.2 times. An overloaded motor draws more than its rated current until the relay trips. (Added for i1, review fix: how an overload shows and what to check.) [R146]  (from an idea this one builds on)
+- The isolator closes the supply; Start (normally open, sprung) makes the coil circuit; the coil pulls in the main contacts, and a latching contact across Start keeps the coil fed once Start is released. [R147][R148][R149][R150][R151]  (from an idea this one builds on)
+- Stop (normally closed) breaks the coil circuit, and so does the overload's release contact after its bimetal strips bend; the coil drops out and the contacts release. [R152][R153][R154][R155]  (from an idea this one builds on)
+- The coil does the pulling and holding of the main contacts; the latching contact's job is to keep the coil fed. (His sheet's item 7 words it as the latching contacts pulling and holding the main contacts.) [R149][R151][R156]  (from an idea this one builds on)
+- After a power cut the coil drops out and the motor stops; it does not restart by itself, because the holding contact has returned to open. A contactor with a holding contact gives low-voltage protection; maintained contacts give low-voltage release. [R157][R158][R159][R160][R161]  (from an idea this one builds on)
+- The overload's contacts sit in series with the coil and are operated by heat, not by the contactor's movement. [R162]  (from an idea this one builds on)
+- Overload relays protect against overload only: fuses or a breaker give the short-circuit protection, and a maker advises fuses with the thermal overload relay. [R163][R164][R165]  (from an idea this one builds on)
+- His coil is 230 V, fed from one phase and neutral; the coil rating must be right for how it is connected and for the supply voltage. [R166][R167][R168]  (from an idea this one builds on)
+- Direct-on-line starting is uncontrolled: full current and torque from the start. Start current is usually 6 to 8 times rated and can exceed 10 times. [R87][R88][R169]  (from an idea this one builds on)
+- His sheet gives DOL up to 5 kW; the web summary gives often under 4 kW; ABB says the limit depends on the area of use, and some utilities restrict DOL starting for motors of 5.5 kW or higher. [R170][R171][R172]  [CONTESTED: Rules of thumb for the largest DOL motor differ (5 kW, under 4 kW, 5.5 kW); the maker says it depends on the area of use and gives 5.5 kW as one utility limit.]  (from an idea this one builds on)
+- DOL starters are used for compressors, pumps and fans; repeated stopping and starting can make the thermal overload operate. [R173][R174]  (from an idea this one builds on)
+- Star-delta cuts starting current to about 30% (a third) and starting torque to about 25% of direct-on-line; the motor must be delta connected when running, and the starter uses three contactors, an overload and a timer. [R175][R176][R177][R178][R179]  (from an idea this one builds on)
+- Star-delta works only when the load is light at the start, and there are current peaks at the switch from star to delta. [R180][R181]  (from an idea this one builds on)
+- His group's star-delta worked answer multiplies the star power by 3 to get the delta power. [R182]  (from an idea this one builds on)
+- The web summary's wording that DOL gives 100% of rated torque is loose: ABB gives full starting torque as 1.5 to 2.5 times rated for a small motor. [R89][R183]  (from an idea this one builds on)
+- His group handout says that start buttons are wired in parallel. [R184]  (from an idea this one builds on)
+- Isolate and prove dead before work on a starter: the maker's own instruction is to disconnect power before any work on the equipment. [R185]  (from an idea this one builds on)
+- A contactor is rated for the motor it switches: for squirrel-cage motors (duty AC-3) it makes about 6 to 8 times the rated current when closing, or 5 to 7 on another maker's figure, and breaks only the rated current when opening; most contact wear comes from the making. [R186][R187]  (from an idea this one builds on)
+- Restarting a motor before it has stopped turning can give a current peak up to twice that of a start from standstill, so a quick Stop-then-Start is hard on the contacts. [R188]  (from an idea this one builds on)
+- A DOL starter connects the motor straight to the supply at full voltage; the start current can cause voltage dips on the supply and heavy forces in the cables and the motor windings. [R189][R190]  (from an idea this one builds on)
+- On a generator supply, DOL gives the highest inrush of any starting method, and the motor can develop several times full-load torque; on a ship the generator, not the starter, is the limit, and large motors starting one after another during manoeuvring can cause severe voltage dips. [R191][R192][R193]  (from an idea this one builds on)
+- Star-delta puts each winding on 1/sqrt(3) of the line voltage while starting; the changeover can briefly open the supply and give a current spike, which on one generator maker's figures can be as high as 5 x run kVA if it is badly timed, but ABB says is typically lower than a DOL start. [R194][R195][R196]  [CONTESTED: Sources differ on the size of the star-to-delta changeover spike: ABB says typically lower than a DOL start; a generator maker warns it can reach 5 x run kVA if the changeover is not set well.]  (from an idea this one builds on)
+- The overload relay is set to the motor's rated current, not its trip current: no trip at 1.05 times the setting, trip at 1.2 times; it also protects against phase failure, and it has no power contacts so it can only work through the contactor. [R197][R198][R199]  (from an idea this one builds on)
+- After an overload trip the relay will not reset until it has cooled, which lets the motor cool before it is restarted. [R200]  (from an idea this one builds on)
+- The contactor coil must have the right voltage: the usual limits are 0.85 to 1.1 times its rating; too low a voltage can fail to close it, make it chatter and melt the coil, and too high a voltage can burn it out. [R201][R202][R203][R204]  (from an idea this one builds on)
+- A buzzing or chattering contactor points to low or unstable coil voltage, a poor control connection, a wrong coil, dirty or unseated magnet faces, or a damaged shading ring; check the voltage across the coil terminals while it is closing. [R205]  (from an idea this one builds on)
+- A contactor can hold line voltage even when its coil circuit is off, so isolate and prove dead before touching a starter: prove all supply conductors dead, with a voltage indicator that is proved before and after use. [R206][R207][R208][R209][R210]  (from an idea this one builds on)
+- Several Stop buttons go in series (any one stops the motor) and several Start buttons in parallel with the holding contact (any one starts it). [R211][R212][R213]  (from an idea this one builds on)
+- Some supply utilities restrict direct-on-line starting for motors rated at 5.5 kW (7.5 hp) or higher. [R172]  (from an idea this one builds on)
+- In a star-delta starter only 1/sqrt(3) of the motor current flows through the main (line) contactor, so an overload relay mounted on it is set to 0.58 times the motor current. [R214]  (from an idea this one builds on)
+- The synchronous speed of the turning field is 120 f / p rpm for f hertz and p poles; an induction motor's shaft runs a little slower than it. [R82][R5]  (whole topic)
+- In a series motor the same current flows through field and armature, and its speed can climb to dangerous levels if it runs without a load. [R215][R216]  (whole topic)
+- A motor that is turning also acts as a generator; the emf it makes is called back emf and it opposes the supply. [R217][R218]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "The variable speed drive",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the voltage fall in step with the frequency, so the volts per hertz and the flux stay level up to 50 Hz, when you drag the frequency down.",
+  "title": "V/f: drag the frequency",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 8,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Nine screens, with Back and Continue. One picture to play with, three quick choices, and a card to keep. No marks and no timers.\n\nThe example motor on every screen is a 400 V, 50 Hz, four-pole motor. It is an example, not a maker's rating. Every other figure is worked from it.\n\nScreen 1, Do you still have it? The question: \"A four-pole motor runs on 50 Hz. How fast does its field turn?\" Three choices, in this order: \"1500 rpm\"; \"3000 rpm\"; \"750 rpm\". Right, the first: \"Still there. 120 × 50 ÷ 4 = 1500 rpm, and the shaft runs a little below it. Change the frequency and that speed changes. That is how a drive sets speed.\" Wrong, the second: \"3000 rpm is a two-pole field. Four poles halve it: 120 × 50 ÷ 4 = 1500 rpm.\" Wrong, the third: \"750 rpm comes from using 60 instead of 120. That form counts pole pairs, not poles. With 4 poles: 120 × 50 ÷ 4 = 1500 rpm.\" After a wrong choice, the right answer and its reason, then on to screen 2. No skip button.\n\nScreen 2, How it works. A still drawing, left to right: the 400 V, 50 Hz supply; the rectifier, drawn as a diode bridge; the DC bus, drawn as two rails with a capacitor across them, labelled \"about 540 V DC\"; the inverter, drawn as six transistor switches; the motor, labelled \"any frequency, matching voltage\". The words beside it: \"A drive sets a motor's speed by setting its frequency. The rectifier turns the incoming AC into DC. Capacitors on the DC bus smooth it. On 400 V the bus sits at about 400 × 1.35 = 540 V DC.[^1] The inverter switches that DC on and off very fast. By varying the width of the pulses, it builds AC at the frequency and voltage it is asked for. The field turns at 120 × f ÷ p. Lower f, and the field and the rotor slow down together.\" DC bus is the key term, marked in amber.\n\nScreen 3, V/f: drag the frequency. The picture to play with. At the top, a plot of the drive's output voltage, 0 to 400 V, against frequency, 0 to 60 Hz. The drive's line rises straight from 0 V at 0 Hz to 400 V at 50 Hz, then runs flat at 400 V to 60 Hz. A dot sits on the line at the chosen frequency. A dashed upright line at 50 Hz is labelled \"base speed\". Under the plot, the stator ring with the field drawn as an arrow, turning at a hundredth of its real speed. Beside it, a flux bar from 0 to 200% of rated, with a mark at 100%.\n\nThe controls. Frequency: a slider from 5 to 60 Hz in steps of 5, opening at 50 Hz. Hold 400 V: a switch, opening off. With it on, the drive gives 400 V at every frequency, as if it had no V/f rule. The readouts, in one row: Output voltage, in V. Field speed, in rpm. Volts per hertz, in V per Hz, to two places.\n\nThe rule it computes. Volts per hertz = rated volts ÷ rated hertz = 400 ÷ 50 = 8. Up to 50 Hz, output voltage = 8 × f. Above 50 Hz the voltage stays at 400 V, because the drive has no more to give. Field speed = 120 × f ÷ 4 = 30 × f. Flux, as a % of rated, = (output voltage ÷ f) ÷ 8 × 100. It is an ideal model: flux follows volts per hertz. At 40 Hz: 320 V, 1200 rpm, 8.00 V per Hz, flux 100%. At 60 Hz: 400 V, 1800 rpm, 400 ÷ 60 = 6.67 V per Hz, flux 6.67 ÷ 8 = 83%. With Hold 400 V on, 40 Hz gives 400 ÷ 40 = 10 V per Hz, flux 125%, and 25 Hz gives 16 V per Hz, flux 200%. Above 100% the bar turns red, with the words \"Too much flux: the iron saturates and the current climbs.\" Past 200% it stays full, marked \"off the scale\". Below 100% the bar is labelled \"Field weakening: less torque\".\n\nThe words under the picture: \"Drag the frequency down from 50 Hz. The voltage falls with it, 8 V for every hertz. So the volts per hertz stay at 8, and the flux stays at rated. Turn on Hold 400 V to see why it must fall. Above 50 Hz the drive has no more volts to give. The flux falls, and so does the torque.\" Base speed is the key term, marked in amber. The prompt above the picture: \"Drag the frequency down, then up past 50 Hz. Then try Hold 400 V.\" Read: As the frequency falls from 50 Hz, the voltage falls with it, 8 V for every hertz. At 40 Hz the drive gives 320 V and the field turns at 1200 rpm. The volts per hertz stay at 8, so the flux stays at rated. Held at 400 V instead, 40 Hz would give 10 V per hertz, a quarter more flux than rated, pushing the iron into saturation. Above 50 Hz the voltage stays at 400 V. At 60 Hz the field turns at 1800 rpm and the flux falls to 83%. Still: frequency 40 Hz, Hold 400 V off; 320 V, 1200 rpm, 8.00 V per Hz, the flux bar at 100%.\n\nScreen 4, Check on the cause. \"The drive runs this 400 V, 50 Hz motor at 25 Hz. What voltage does it give?\" Three choices, in this order: \"200 V\"; \"400 V\"; \"100 V\". Right, the first: \"Right. 400 ÷ 50 = 8 V per hertz, and 8 × 25 = 200 V. The volts per hertz stay at 8, so the flux stays at rated. The field turns at 120 × 25 ÷ 4 = 750 rpm.\" Wrong, the second: \"Full voltage at half the frequency doubles the volts per hertz, to 16. The flux would try to double. The iron saturates and the motor draws far too much current. So the drive halves the voltage too: 200 V.\" Wrong, the third: \"That halves the voltage twice. It falls in step with the frequency once: 8 V per hertz × 25 Hz = 200 V.\" After a wrong choice, the right answer and its reason.\n\nScreen 5, How it behaves. A still drawing: the drive's voltage line again, the part below 50 Hz labelled \"constant flux\" and the part above it \"field weakening\". Rows, each with a label.\n\nSpeed: \"Set by the frequency. The shaft runs a little below 120 × f ÷ p, as it does on the mains.\"\n\nStarting: \"The drive ramps the frequency up from low. So there is no starting inrush, and no jolt to belts, gears and bearings.\"\n\nBelow base speed: \"Constant flux. The motor can give its rated torque, as long as it stays cool.\"\n\nAbove base speed: \"Field weakening. The volts stay at rated, so the flux falls. The motor runs at about constant power, and its torque falls as it speeds up.\"\n\nLow speed: \"A self-cooled motor's fan slows too, so it can carry less torque continuously. Big inverter-duty motors often have their own blower.\" Field weakening is the key term, marked in amber.\n\nScreen 6, Where it is used, and its limits. A still bar chart: power needed at 100%, 75% and 50% speed. A fan: 100%, 42% and 12.5%. A conveyor: 100%, 75% and 50%. Rows.\n\nUsed for: \"Pumps and fans, to save energy. Anything whose speed must be set. It is the only one of the usual starters that also sets speed.\"\n\nAt sea: \"Cranes, winches, bow thrusters, ventilation, pumps, compressors and propulsion.\"\n\nSavings: \"Fan and pump power goes with speed cubed.[^2] At 75% speed that is 0.75³ = 0.42, so 42% of full power. A conveyor's power just follows its speed. So the big savings are on fans and pumps. Treat them as an ideal.\"\n\nLimits: \"Drives are the main source of harmonics at sea. Warship rules cap the voltage distortion at 5%.[^3] Fast pulses can also push current through the motor's bearings and wear them.\"\n\nScreen 7, Faults and tests. Rows.\n\nSafety first: \"Isolate the drive and wait 5 minutes.[^4] Then measure across DC+ and DC−, and from each to earth. All must read zero. Charged, the bus holds about 540 V DC.\"\n\nInsulation test: \"Disconnect the drive first, or the tester can damage it.\"\n\nOvercurrent: \"Look at the motor and its cable: a short, an earth fault, a loose joint, or a jammed load.\"\n\nEarth fault: \"Often damp insulation, such as a motor left idle in a humid space.\"\n\nInput phase loss: \"A blown fuse or a loose input connection.\"\n\nRestarts by itself: \"A drive set to reset itself can restart the machine without warning. Label it.\"\n\nScreen 8, Find the fault. \"A drive on a big fan trips on overvoltage every time the fan is stopped quickly. Running, it is fine. What is the likely cause?\" Three choices, in this order: \"The fan drives the motor as it slows, pushing energy into the DC bus\"; \"The fan is overloaded\"; \"The supply has lost a phase\". Right, the first: \"Right. The drive drops the frequency fast, but the heavy fan cannot slow that quickly. So the rotor runs faster than the field. The motor becomes a generator and pushes energy back into the DC bus. The bus voltage rises until the drive trips, at 840 V on one maker's 400 V drive.[^5] Lengthen the deceleration time, or fit a brake chopper and resistor.\" Wrong, the second: \"An overloaded fan draws too much current while it runs. That trips on overcurrent, not on stopping.\" Wrong, the third: \"A lost input phase shows as an input phase fault, whether or not you stop. This trip comes only when the fan slows fast.\" After a wrong choice, the right answer and its reason.\n\nScreen 9, Keep this: the summary card, drawn from the lesson's summary, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, or a cited value. The 400 V, 50 Hz, four-pole motor is an example motor, and the field arrow is slowed a hundred times.",
+  "ignores": "The model takes flux to follow volts per hertz exactly. At very low speed the winding's own resistance matters, and real drives usually add a little extra voltage there. The inverter's output is drawn as a smooth wave, though it is really fast pulses. The field speed is shown, not the shaft speed, which runs a little below it. With Hold 400 V on, the flux bar shows what the volts per hertz ask for. Real iron saturates first, so the flux grows far less and the current far more. The picture does not show torque or load.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 9 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Frequency slider, Hz (opening)",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Frequency slider range, Hz",
+    "value": "5 to 60",
+    "kind": "control"
+   },
+   {
+    "label": "Hold 400 V switch (opening off)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Example motor rated voltage, V",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example motor rated frequency, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example motor poles",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Volts per hertz, V per Hz",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Field speed at 50 Hz, rpm",
+    "value": 1500,
+    "kind": "computed"
+   },
+   {
+    "label": "Two-pole field speed at 50 Hz, rpm",
+    "value": 3000,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong-formula field speed, rpm",
+    "value": 750,
+    "kind": "computed"
+   },
+   {
+    "label": "Output voltage at 40 Hz, V",
+    "value": 320,
+    "kind": "computed"
+   },
+   {
+    "label": "Field speed at 40 Hz, rpm",
+    "value": 1200,
+    "kind": "computed"
+   },
+   {
+    "label": "Output voltage at 25 Hz, V",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Field speed at 25 Hz, rpm",
+    "value": 750,
+    "kind": "computed"
+   },
+   {
+    "label": "Field speed at 60 Hz, rpm",
+    "value": 1800,
+    "kind": "computed"
+   },
+   {
+    "label": "Volts per hertz at 60 Hz, V per Hz",
+    "value": 6.67,
+    "kind": "computed"
+   },
+   {
+    "label": "Flux at 60 Hz, % of rated",
+    "value": 83,
+    "kind": "computed"
+   },
+   {
+    "label": "Held 400 V at 40 Hz, V per Hz",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Held 400 V at 40 Hz, flux % of rated",
+    "value": 125,
+    "kind": "computed"
+   },
+   {
+    "label": "Held 400 V at 25 Hz, V per Hz",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Held 400 V at 25 Hz, flux % of rated",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Flux bar full scale, % of rated",
+    "value": 200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Field arrow slowed, times",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "DC bus, times supply line voltage",
+    "value": 1.35,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "DC bus on a 400 V supply, V DC",
+    "value": 540,
+    "kind": "computed"
+   },
+   {
+    "label": "Fan power at 75% speed, % of full",
+    "value": 42,
+    "kind": "computed"
+   },
+   {
+    "label": "Fan power at 50% speed, % of full",
+    "value": 12.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Conveyor power at 75% speed, % of full",
+    "value": 75,
+    "kind": "computed"
+   },
+   {
+    "label": "Conveyor power at 50% speed, % of full",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Warship voltage distortion limit, %",
+    "value": 5,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Wait for DC bus to discharge, minutes",
+    "value": 5,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "One maker's DC overvoltage trip, 400 V drive, V",
+    "value": 840,
+    "kind": "constant",
+    "source": 5
+   }
+  ]
+ },
+ "explain": {
+  "text": "A variable speed drive sets a motor's speed by setting its supply frequency. It turns the supply into DC, then builds new AC at the frequency it wants. It lowers the voltage in step with the frequency, so the motor's flux stays where it should be.\n\nStart from the last two lessons. The field turns at 120 × f ÷ p, and the rotor follows a little behind. So change f and you change the speed. The drive does that in three stages. A rectifier turns the incoming AC into DC. Capacitors on the [[DC bus]] smooth it. On a 400 V supply the bus sits at about 400 × 1.35 = 540 V DC.[^1] An inverter then switches that DC on and off very fast. By varying the width of its pulses, it builds AC at the frequency and voltage it is asked for.\n\nWhy change the voltage too? Each half cycle, the voltage drives the flux up in the iron. Halve the frequency and each half cycle lasts twice as long. So at full voltage the flux would try to double. The iron saturates, and the motor draws far too much current. So the drive keeps volts per hertz constant. Our example motor is rated 400 V at 50 Hz, which is 8 V per hertz. At 25 Hz it gets 8 × 25 = 200 V. The flux stays at rated, so the motor can still give its rated torque at low speed. Its own fan slows too, though, so a self-cooled motor cannot keep that up continuously. That holds up to 50 Hz, the motor's [[base speed]]. Above it, the drive has no more volts to give. The frequency rises, the voltage stays at 400 V, and the flux falls. At 60 Hz it is 50 ÷ 60 = 83% of rated. That is [[field weakening]]. The motor runs at about constant power, so the torque it can give falls.\n\n**A drive sets the speed by the frequency, and keeps the volts per hertz constant up to base speed, so the flux stays at rated.**[^6]"
+ },
+ "analogy": {
+  "text": "You know this from transformers. A transformer's core flux is set by its volts per hertz. Run a 50 Hz transformer at 25 Hz on full voltage and its core saturates. It draws a big magnetising current and runs hot. The motor's stator is the same kind of winding on iron. So the drive halves the volts when it halves the frequency.",
+  "breaks": "A transformer is never meant to run above its rated frequency. A motor on a drive often is. There the volts cannot follow, so the flux falls and the motor gives less torque."
+ },
+ "practice": {
+  "text": "- Isolate the drive. Wait 5 minutes for the DC bus to discharge.[^4] Then measure across DC+ and DC−, and from each to earth, with a meter rated for the bus. Start only when all read zero.\n- Prove the supply and the motor terminals dead too, with a tester you prove before and after.\n- Disconnect the drive before you insulation test the motor or its cable.\n- Start and stop the motor from the drive, not the isolator.\n- Check the motor and the load can run safely over the whole speed range set on the drive.\n- If the drive is set to reset itself after a trip, label the machine. It can restart by itself.\n\n**Rule of thumb:** volts per hertz = rated volts ÷ rated hertz. A 400 V, 50 Hz motor runs at 8 V per hertz up to base speed.\n\n**Worked example:** a fan on a drive, slowed to 75% speed. Its power goes with speed cubed, so 0.75 × 0.75 × 0.75 = 0.42, about 42% of full power. At 50% speed it is 0.5 × 0.5 × 0.5 = 0.125, so 12.5%. A conveyor at 75% speed still needs about 75% power, because its torque stays the same. Take the fan figures as the ideal. The real system sets the saving.\n\n**Common mistakes**\n- Expecting full voltage at low speed. The volts fall with the frequency.\n- Expecting full torque above base speed. The flux falls there, so the torque does too.\n- Expecting big savings on a conveyor. They come on fans and pumps.\n- Insulation testing with the drive connected.\n- Touching the drive straight after isolating. The DC bus stays charged for minutes."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "summary": {
+  "title": "The variable speed drive",
+  "for": "Setting a cage motor's speed, and starting it with no inrush. It turns the supply into DC, then builds AC at the frequency it is asked for, with the voltage in step up to base speed.",
+  "rule": "ns = 120 × f ÷ p\nVolts per hertz constant up to base speed: 400 V ÷ 50 Hz = 8 V per Hz\nFan or pump power goes with speed cubed\n\nBelow base speed: constant flux. Above it: the volts stop at rated and the flux falls.\nDC bus about 1.35 × supply volts: about 540 V DC on 400 V.\nCommon trips: overcurrent, earth fault, overvoltage, undervoltage, over temperature, input phase loss.",
+  "traps": [
+   {
+    "text": "Above base speed the volts stop rising. The flux falls, and so does the torque it can give.",
+    "cite": "[^7] [^8] ABB ACS580 technical eBook"
+   },
+   {
+    "text": "Big savings come on fans and pumps, where power goes with speed cubed. Treat them as an ideal.",
+    "cite": "[^2] [^9] US DOE motor tip sheet; ABB energy efficiency plan"
+   },
+   {
+    "text": "Isolate, wait 5 minutes, then prove the DC bus dead. Charged, it holds about 540 V DC.",
+    "cite": "[^4] [^10] [^1] ABB ACS800-37 hardware manual"
+   },
+   {
+    "text": "Disconnect the drive before you insulation test the motor or its cable.",
+    "cite": "[^11] [^12] VFD earth fault guide"
+   },
+   {
+    "text": "Overvoltage on a fast stop: the load is driving the motor. Lengthen the deceleration time or fit a brake chopper.",
+    "cite": "[^13] [^14] Eaton fault codes; ABB ACS880-01 hardware manual"
+   }
+  ],
+  "where": "Pumps, fans and compressors to save energy. Cranes, winches, bow thrusters and ventilation at sea. Anywhere the speed must be set."
+ },
+ "sources": [
+  {
+   "n": 1,
+   "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+   "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+   "quote": "Note: Nominal DC link voltage is U N × 1.35 or U N × 1.41 in V DC."
+  },
+  {
+   "n": 2,
+   "title": "Adjustable Speed Drive Part-Load Efficiency",
+   "url": "https://www.energy.gov/sites/default/files/2014/04/f15/motor_tip_sheet11.pdf",
+   "quote": "The input power requirement varies as the cube or third power of the speed ratio"
+  },
+  {
+   "n": 3,
+   "title": "VOLTAGE AND CURRENT HARMONIC DISTORTION ON MODERN NAVAL SHIPS ELECTRICAL SYSTEMS",
+   "url": "https://www.hna.gr/sites/default/files/hna_docs/tomeis/ththy/ikx/TOTAL-Ergasies-IKX-April25-fin/49--Harmonics-MEKO_MedPower2002.pdf",
+   "quote": "the Total voltage Harmonic Distortion (THD) of a 60Hz and 400Hz network must not exceed 5%, while no harmonic should exceed 3% of the fundamental."
+  },
+  {
+   "n": 4,
+   "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+   "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+   "quote": "After switching off the input power, always wait for 5 min to let the intermediate circuit capacitors discharge before you start working on the drive, the motor or the motor cable."
+  },
+  {
+   "n": 5,
+   "title": "EN / ACS355 user’s manual",
+   "url": "https://library.e.abb.com/public/805f31a82d524d8aa8a750011e2cd001/EN_ACS355_UM_E_A5.pdf",
+   "quote": "The DC overvoltage trip limit is 420 V (for 200 V drives) and 840 V (for 400 V drives)."
+  },
+  {
+   "n": 6,
+   "title": "— Technical guide No. 1 Direct torque control – the world’s most advanced AC drive technology",
+   "url": "https://library.e.abb.com/public/3dc7259dcd684a55841165ddefe7eb3f/Technical_guide_No_1_3AFE58056685_RevD_EN.pdf?x-sign=KI4w8YYG7Vw4K1NM8Xi9c4EAplW34UcpnsXTN2EbBHC8IgGbBGAQkJXlgAVXKbEs",
+   "quote": "Constant magnetic flux is provided with constant V/f ratio"
+  },
+  {
+   "n": 7,
+   "title": "[PDF] — ACS580 general purpose drives Technical eBook - ABB",
+   "url": "https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf",
+   "quote": "The frequency range below the nominal frequency is called a constant flux range."
+  },
+  {
+   "n": 8,
+   "title": "[PDF] — ACS580 general purpose drives Technical eBook - ABB",
+   "url": "https://library.e.abb.com/public/e670a466d31e469a80e653b759f40091/ACS580_technical_eBook_3AUA0000197173%20RevB_EN.pdf",
+   "quote": "In the field weakening range, the motor can operate on constant power which is why the field weakening range is sometimes also called the constant power range."
+  },
+  {
+   "n": 9,
+   "title": "The ABB energy efficiency & productivity improvement plan Efficient control of motor-driven applications",
+   "url": "https://new.abb.com/docs/librariesprovider53/about-downloads/energy-efficiency-productivity-plan.pdf?sfvrsn=2",
+   "quote": "The savings derived from the Affinity Laws should be treated as theoretical. In real applications the particular characteristics of the system will determine the actual savings achieved."
+  },
+  {
+   "n": 10,
+   "title": "EN / ACS800-37 Drives 55 to 2700 kW (75 to 3000 hp) Hardware Manual",
+   "url": "https://library.e.abb.com/public/3d5d587a24620771c1257b13003a6164/EN_ACS800_37_HWMan_F_scrres.pdf",
+   "quote": "Measure the voltage between terminals UDC+ and UDC- (L+ and L–) with a multimeter (impedance at least 1 Mohm) to ensure that the drive is discharged before beginning work."
+  },
+  {
+   "n": 11,
+   "title": "VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices",
+   "url": "https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf",
+   "quote": "Best practice: Always disconnect the drive completely before meggering the motor or cable."
+  },
+  {
+   "n": 12,
+   "title": "VFD Ground Fault Trip and Short-Circuit Faults: Causes, Detection, and Best Practices",
+   "url": "https://www.precision-elec.com/wp-content/uploads/2025/06/VFD-Ground-Fault-Trip-and-Short-Circuit-Faults-Causes-Detection-and-Best-Practices.pdf",
+   "quote": "High-voltage DC from an insulation tester can damage VFD electronic components or give misleading readings through the drive’s input filters."
+  },
+  {
+   "n": 13,
+   "title": "10 most common fault codes and how to solve",
+   "url": "https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/vfd-training/services/10-most-common-fault-codes-and-how-to-solve.pdf",
+   "quote": "Increase deceleration time or add brake chopper"
+  },
+  {
+   "n": 14,
+   "title": "EN / ACS880-01 hardware manual",
+   "url": "https://library.e.abb.com/public/0bac1275fc4d4228b00d195737643433/EN_ACS880-01_HW_V.pdf?x-sign=3C6YiUlXsdz2Fu5xHPtv1cKmn4u952WpNxYpzw5YjoosIrY8wzt2uD6kzQ6DojzY",
+   "quote": "The voltage rise is typically caused by deceleration (braking) of a high inertia motor."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text, summary.title, summary.for, summary.rule, summary.where, summary.traps[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,46 @@
+{
+  "values": [
+    {
+      "name": "exampleMotor",
+      "value": "400 V, 50 Hz, four-pole (1500 rpm field speed), base frequency 50 Hz",
+      "unit": "",
+      "why": "The lesson needs one motor to drag the frequency on. 400 V and 50 Hz are the usual UK three-phase supply and the brief's choice; a four-pole motor matches lesson 1's recall question. It is an example motor, not a maker's rating. Every other number on the picture (8 V per Hz, field speed 120 f ÷ p, flux) is computed from these three.",
+      "realValueLives": "The motor's rating plate: rated voltage, rated frequency, pole count (and the maker's data sheet for rated speed)."
+    },
+    {
+      "name": "fanRatedPower",
+      "value": 11,
+      "unit": "kW",
+      "why": "The fan-load switch needs a full-speed power to scale by the cube law (0.75 cubed is about 42%, 0.5 cubed is 12.5%, computed from the sourced rule). 11 kW is a plausible ship's ventilation fan size and only an example; the lesson also shows the result as a percentage of full power so nothing depends on the kW figure.",
+      "realValueLives": "The fan's data plate or the maker's fan curve at the duty point; the cube law is an ideal that real systems only approach (ABB: treat the savings as theoretical)."
+    },
+    {
+      "name": "lowSpeedCoolingWarningFrequency",
+      "value": 20,
+      "unit": "Hz",
+      "why": "The picture warns when a standard self-cooled motor is run slowly under a heavy load. Sources say only that a self-ventilated motor cools less as it slows and its continuous torque at low speed is limited; none gives a frequency. 20 Hz is a labelled example threshold for the picture's warning and is never shown as a rule.",
+      "realValueLives": "The motor maker's thermal loadability (derating) curve against speed, or the drive and motor maker's selection guide."
+    },
+    {
+      "name": "fastStopRampAndBusRise",
+      "value": "fast ramp 2 s: DC bus rises from 540 V to 700 V; slow ramp 30 s: stays near 540 V",
+      "unit": "s, V",
+      "why": "The fault check ('trips every time a big fan is stopped quickly') is taught with a bus-voltage gauge. The sources give the cause (energy returned to the DC bus when slowing a high-inertia load, fixed by a longer deceleration time or a brake chopper) and give the resting bus as 1.35 times the supply volts (540 V on 400 V, computed) and one maker's overvoltage trip at 840 V for a 400 V drive. They give no ramp times or peak. 2 s, 30 s and 700 V are example numbers, drawn clearly below the 840 V trip line, labelled as an example drive.",
+      "realValueLives": "The drive's own parameters (deceleration time, overvoltage trip level, brake chopper) in its manual, and the load's inertia."
+    },
+    {
+      "name": "dcBusAfterIsolation",
+      "value": 540,
+      "unit": "V DC",
+      "why": "Computed, not invented: nominal DC link voltage is the supply line voltage times 1.35 (ABB ACS800 hardware manual), so 400 V gives 540 V (the same manual also gives 1.41, about 564 V). Shown as 'roughly 540 V' so the safety screen says why waiting 5 minutes and measuring matters. Keep as a computed value, not a maker's figure for any one drive.",
+      "realValueLives": "Measure UDC+ to UDC- on the drive itself; the drive manual gives the wait time (ABB: 5 minutes) and the test points."
+    },
+    {
+      "name": "aboveBaseSpeedValues",
+      "value": "at 60 Hz: field speed 1800 rpm, flux 83% of rated (50 ÷ 60), torque about 83% of rated at constant power",
+      "unit": "",
+      "why": "Computed from the sourced rules (field speed 120 f ÷ p; volts stop rising at base frequency so flux falls as 1 ÷ f; constant-power region). The 83% figures are the ideal textbook trend, not any drive's measured curve, and are labelled as the ideal. The sources do not give per-unit curves.",
+      "realValueLives": "The motor's and drive's torque-speed capability curve in the maker's data."
+    }
+  ]
+}
