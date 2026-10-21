@@ -2804,7 +2804,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-21-d86c064";
+U.BUILD = "2026-10-21-4970949";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -3113,11 +3113,18 @@ U.go = function (hash) {
 // Back to the Library (the home) without adding a history entry (bad or unknown addresses). The address is spelled
 // out in full: a bare '#/' resolves against the document's base URL, which in a srcdoc frame is the
 // host page's, so the frame would load that page instead of moving to its own '#/'.
-U._home = function () {
+U._home = function () { U.replaceHash('#/'); };
+// Move to `hash` in place of the current address, so Back skips it (a redirect, a fallback). Spelled
+// out in full for the same reason as U._home; history.replaceState with a bare '#…' throws there.
+U.replaceHash = function (hash) {
   var before = location.hash;
-  try { location.replace(location.href.split('#')[0] + '#/'); } catch (e) { /* refused: handled below */ }
-  if (location.hash !== '#/') { U._memHash = '#/'; setTimeout(U._route, 0); }
-  else if (before === '#/' && U._memHash) { U._memHash = null; setTimeout(U._route, 0); }   // no hashchange will come
+  try { location.replace(location.href.split('#')[0] + hash); } catch (e) { /* refused: handled below */ }
+  if (location.hash !== hash) { U._memHash = hash; setTimeout(U._route, 0); }
+  else if (before === hash && U._memHash) { U._memHash = null; setTimeout(U._route, 0); }   // no hashchange will come
+};
+// The address bar only, without routing (the screen already shows what `hash` names).
+U.setHash = function (hash) {
+  try { history.replaceState(null, '', location.href.split('#')[0] + hash); } catch (e) { /* fine: the old address stays */ }
 };
 U._cleanup = null;
 U._routeSeq = 0;
@@ -10924,7 +10931,7 @@ U.interactive = (function () {
   var UNIT = new RegExp('^(?:' + PREFIX + BASE + '(?:²|³)?(?:/' + PREFIX + '(?:s|m|h|min|A|V|W|Ω|g|L|K|°C)(?:²|³)?)?|%|°|°C|°F)$');
   function unitKey(u) {
     return String(u || '').replace(/\s+/g, '').replace(/μ/g, 'µ').replace(/Ω/g, 'Ω').replace(/ohms?$/i, 'Ω')
-      .replace(/^u([A-Za-zΩ])/, 'µ$1').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
+      .replace(/(^|\/)u([A-Za-zΩ])/g, '$1µ$2').replace(/(^|\/)M(?=[A-Za-zΩ])/g, '$1mega:').replace(/\^2/g, '²').replace(/\^3/g, '³').replace(/([A-Za-z])2$/, '$1²').replace(/([A-Za-z])3$/, '$1³')
       .replace(/^deg(rees?)?$/i, '°').toLowerCase();
   }
   function readTyped(text, unit) {
@@ -11334,8 +11341,10 @@ U.interactive = (function () {
     }, 8000);
     U.rt.ready.then(function () {
       // The course's case file (a refresher course, built in Claude Code): its figures go into the
-      // lesson's frame, so every lesson shows the same ones. Most courses have none.
-      var kase = U.store.caseFile ? U.store.caseFile.get(tid).catch(function () { return null; }) : null;
+      // lesson's frame, so every lesson shows the same ones. Most courses have none (null). A read
+      // that fails is a load error with Try again: without its figures a refresher lesson would
+      // show "—" everywhere and mark every typed answer wrong.
+      var kase = U.store.caseFile ? U.store.caseFile.get(tid) : null;
       return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid), params.again ? stillSlipping() : null, kase]);
     }).then(function (r) {
       loaded = true;
@@ -11357,7 +11366,7 @@ U.interactive = (function () {
       // Today's link to an idea that is still slipping. A link that is stale (the idea was learned
       // again since, perhaps on another device) and Today's flag on its own open the lesson as it is.
       var again = requestOpen() || (!!params.again && r[3] !== false);
-      if (params.again) try { history.replaceState(null, '', '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid)); } catch (e) { /* fine */ }
+      if (params.again) U.setHash('#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid));
       // A ready-made course (topic.readyMade) is built in Claude Code: never rewritten or written
       // here. Its lesson not built yet says it is coming soon, and opens once it is whole.
       var made = !!topic.readyMade;
@@ -13597,8 +13606,7 @@ U.interactive = (function () {
       // No guide (an older lesson, a course written in the page) or no whole lesson: the lesson
       // as it is, at its own address.
       if (!st.topic || !st.idea || !st.guide || !(st.doc && st.doc.status === 'ready' && st.doc.lesson)) {
-        try { history.replaceState(null, '', quizHref); } catch (e) { /* fine */ }
-        U.go(quizHref);
+        U.replaceHash(quizHref);
         return;
       }
       U.setTitle((st.doc.lesson.title || st.idea.title) + ' · Read-through');
@@ -14332,6 +14340,9 @@ U.interactive = (function () {
       return todo.reduce(function (chain, t) {
         return chain.then(function () {
           return U.store.guide.get(t.tid, t.iid).then(function (g) {
+            // No guide yet (a course still being published): leave the lesson unstamped, so its
+            // puzzles are made once the guide arrives rather than recorded as made with none.
+            if (!g || !Array.isArray(g.pages)) { t.skip = true; return; }
             // A refresher lesson (its guide opens on the Keep this card) has written questions:
             // the lesson doc holds them. Other lessons need only the guide.
             var refresher = !!(g && Array.isArray(g.pages) && g.pages.some(function (p) { return p && (p.kind === 'summary' || p.written); }));
