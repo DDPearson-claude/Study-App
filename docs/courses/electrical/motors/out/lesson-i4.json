@@ -1,0 +1,647 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T12:26:30.765Z",
+ "startedAt": "2026-10-21T12:26:30.765Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "The split-phase motor",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the field's tip going round while the two currents are out of step, and only pulsing along one line when they are not, when you press Start.",
+   "title": "Two windings, one turning field",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 7,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.\n\nAssume one example motor on every screen: 230 V, 50 Hz, four poles, so its field turns at 120 × 50 ÷ 4 = 1500 rpm. On its rated load it runs at 1440 rpm. Its winding values are examples too. None of it is a maker's rating. Every other figure is worked out from these, or is a published value.\n\nScreen 1, How it works. A still drawing of the stator as a ring. Each winding is drawn with one pair of poles, so 90 electrical degrees shows as a right angle. The main winding's poles sit top and bottom, labelled \"Main winding: thicker wire, more turns\". The start winding's poles sit left and right, labelled \"Start winding: thin wire, fewer turns\". Both windings are wired in parallel across \"230 V, 50 Hz\". A centrifugal switch sits in series with the start winding only. It is drawn with its blade on its contact, labelled \"centrifugal switch, closed at rest\". The ring is labelled \"one pole pair drawn\". The rotor cage sits in the middle. The words beside it: \"One winding on one phase makes a field that only pulses. It grows, collapses and reverses along one line. At rest, that gives the rotor no push either way. So a start winding sits 90 electrical degrees round from the main winding, in parallel with it. It is thin wire with fewer turns. That gives more resistance and less inductance, so its current lags the supply less. The two currents peak at different moments, and the field turns. At about 75% speed a centrifugal switch drops the start winding out.\" Start winding and centrifugal switch are the key terms, marked in amber.\n\nScreen 2, Two windings, one turning field: the picture to play with. At the top, the stator ring from screen 1 with the rotor in the middle. The field is drawn as an arrow from the centre. Its tip leaves a short fading trail, so its path shows. Next comes one small panel. It shows the two winding currents as phasors from one point, with the angle between them marked. Beside them are the same currents as waves over one cycle, labelled \"main\" and \"start\" with their sizes. Then one row of three readouts: Rotor speed, in rpm. Angle between currents, in degrees. Torque, as a % of rated. Then one row of two bars: a torque bar with a mark at \"rated, 100%\", and a \"Start winding heat\" bar with no scale. On a phone the readouts, the status line and the bars sit straight under the ring, then the controls, then the panel. On a laptop the panel sits beside the ring. A status line under the readouts says what the motor is doing: \"At rest\", \"Running up\", \"Switch open: main winding only\", \"Humming: no start\", \"Overload tripped\".\n\nThe controls. Start and Stop: two buttons. Spin the rotor: a button that spins the rotor forwards to 150 rpm. Start winding: two named choices, \"Thin wire, as built\" and \"Wound like the main\". It starts on thin wire. Centrifugal switch: three named choices, \"Working\", \"Stuck open\" and \"Stuck closed\". It starts on working.\n\nThe rule it computes. Each winding follows the impedance triangle: Z = √(R² + X²), its current = 230 ÷ Z, and its angle behind the supply = arctan(X ÷ R). Main winding, example: R 15 Ω, X 18 Ω. Z = √(15² + 18²) = 23.43 Ω. Current 230 ÷ 23.43 = 9.82 A. Angle arctan(18 ÷ 15) = 50.2°. Start winding, thin wire, example: R 36 Ω, X 13.2 Ω. Z = √(36² + 13.2²) = 38.34 Ω. Current 230 ÷ 38.34 = 6.00 A. Angle arctan(13.2 ÷ 36) = 20.1°. The angle between them: 50.2 − 20.1 = 30.1°. Wound like the main, the start winding takes the main winding's values. Both currents are then 9.82 A at 50.2°, and the angle between them is 0°.\n\nThe field. Each winding's field points along its own poles. It is drawn in proportion to its current at that instant. The arrow is their sum. With the currents 30.1° apart, the tip traces a narrow ellipse and goes round. It turns from the start winding's poles towards the main winding's, because the start current peaks first. The rotor turns the same way. With 0° between them, or one winding alone, the tip only runs back and forth along one line. The arrow is slowed fifty times.\n\nThe torque, an example curve, not a maker's. Both windings in: 150% of rated at standstill, rising smoothly to 190% at 1125 rpm. Main winding alone: 0 at standstill, 110% at 1125 rpm, 100% at 1440 rpm and 0 at 1500 rpm. The curve is a smooth sketch through those points. With 0° between the currents the torque is 0 at standstill. The load is a fan. Assume its torque grows with speed squared, reaching 100% at 1440 rpm. The rotor speeds up while the motor's torque is above the load's, and settles where they meet: 1440 rpm and 100%. The run-up takes about four seconds on screen. The switch opens at 75% of 1500 = 1125 rpm. The torque steps down from 190% to 110%. The start wave and phasor fade, and the angle readout shows \"start winding out\". With the switch stuck open it reads \"not fed\". After Stop the rotor slows, and the switch closes again below 1125 rpm.\n\nThe faults. Stuck open: the start winding is never fed. Press Start and the field only pulses along the main winding's poles. The torque reads 0, the speed stays at 0 and the status reads \"Humming: no start\". After about five seconds on screen it reads \"Overload tripped\" and everything stops. Press Spin the rotor while it hums and the main winding alone carries the rotor up to 1440 rpm. Stuck closed: the motor starts as normal, but the start winding stays in past 1125 rpm. Its heat bar climbs to the red over about ten seconds on screen, Meanwhile the status says the start winding is still fed and heating up, and that speed and torque are drawn as for a working switch. Then it reads \"Start winding overheating: overload tripped\" and it stops. Wound like the main: the field pulses along one line, halfway between the two windings' poles. The torque reads 0, and it hums and trips as when stuck open.\n\nThe words under the picture: \"Assume a 230 V, 50 Hz, four-pole motor. Its field turns at 120 × 50 ÷ 4 = 1500 rpm. The switch opens at 75% of that, 1125 rpm. On its fan it runs at 1440 rpm. The field's tip turns only while the two currents are out of step. Spin the rotor is for the picture only: never spin a live motor by hand.\" The prompt above the picture: \"Press Start and watch the field's tip. Then wind the start winding like the main, and try each switch fault.\" Read: Once started, both windings are fed. Their currents peak 30.1° apart, so the field's tip traces an ellipse and goes round. The rotor runs up. At 1125 rpm the switch opens and the torque drops a step, from 190% to 110%. The windings' field now only pulses, but the rotor keeps turning on the main winding and settles at 1440 rpm. With the start winding wound like the main, both currents lag 50.2°. The field only pulses, and the motor hums at rest. Still: start winding thin wire, switch working, the instant after Start: both waves drawn 30.1° apart, the field's tip on its ellipse, speed 0 rpm, angle 30.1°, torque 150%.\n\nScreen 3, Check on the cause. \"Why is the start winding wound with thin wire and fewer turns?\" Three choices, in this order: \"So its current lags the supply less than the main winding's\"; \"So it can stay in and help the motor run\"; \"To give it more inductance, so its current lags more\". Right, the first: \"Right. More resistance and less inductance give a smaller angle in the impedance triangle. Take example windings. Main: 15 Ω resistance, 18 Ω reactance. Arctan(18 ÷ 15) = 50.2° behind. Start: 36 Ω and 13.2 Ω. Arctan(13.2 ÷ 36) = 20.1° behind. That 30.1° gap is what makes the field turn. Wound like the main, both lag 50.2°, and the field only pulses.\" Wrong, the second: \"It is not rated to stay in. Its thin wire carries a high current density and heats fast. So the switch drops it out at about 75% speed. Its job is to put its current out of step with the main winding's.\" Wrong, the third: \"That is the wrong way round. Thin wire and fewer turns can only make it lag less, and that is what puts the two out of step.\" After a wrong choice, the right answer and its reason.\n\nScreen 4, How it behaves. A still drawing: the example torque against speed, 0 to 1500 rpm across. The both-windings line rises from 150% to 190% at 1125 rpm. There it steps down to the main-winding line at 110%. That line falls through 100% at 1440 rpm to 0 at 1500 rpm. The fan's load line rises to meet it at 1440 rpm, marked \"runs here\". Labelled \"Example curve, not a maker's\". Rows, each with a label.\n\nStarting torque: \"low, typically 100 to 175% of rated.[^1] It goes with both currents and the sine of the angle between them.[^2] Sin 30° is 0.5, against 1 at 90°.\"\n\nStarting current: \"high, 5 to 10 times rated. Use the maker's figure.\"\n\nThe switch: \"opens at about 75 to 80% of full speed, and closes again as it slows.\"\n\nRunning: \"on the main winding alone, just below synchronous speed. A pulsing field acts like two equal fields turning opposite ways. Once the rotor turns, the one going its way pulls harder.\"\n\nScreen 5, Where it is used, and its limits. A still drawing: a small fan on the motor's shaft, labelled \"easy to start\". Rows.\n\nUsed for: \"fans, small pumps and other loads that are easy to start, usually up to about 250 W.[^3]\"\n\nStart winding: \"short-time rated. Frequent starts, or a slow start on a heavy load, overheat it.\"\n\nHard-to-start loads: \"too little starting torque. A capacitor-start motor handles those.\"\n\nExplosive atmospheres: \"never use a centrifugal switch there, or inside a sealed compressor. Its arcing can ignite gas.[^4]\"\n\nScreen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, and an ohmmeter across the motor's two supply terminals. Rows.\n\nSafety: \"isolate, lock off and prove dead. A self-resetting thermal cut-out can restart it at any time.[^5]\"\n\nStart circuit open: \"the switch stuck open, or the start winding burnt open. It hums, will not start, then trips.\"\n\nSwitch stuck closed: \"it starts, but the start winding stays in. It overheats and can burn out. The overload may trip first.\"\n\nResistance: \"the two windings read in parallel, so lower than either.[^6] Reading the main winding alone? The start circuit is open.\"\n\nWrong direction: \"swap the start winding's leads, not the supply.\"\n\nScreen 7, Find the fault. \"A small fan's split-phase motor hums and will not start. After a few seconds its overload trips. The operator says it ran once when he pushed the blades round. What is the likely fault?\" Three choices, in this order: \"The main winding is open\"; \"The centrifugal switch is stuck closed\"; \"The start circuit is open\". Right, the third: \"Right. With no start current the field only pulses, so it cannot start from rest. Once pushed round, the main winding alone carries it. Never start one by hand. Isolate it, then test the start winding and the switch.\" Wrong, the first: \"With the main winding open it might run up once pushed. But the switch then drops the start winding out, and nothing is left fed. It could not run steadily.\" Wrong, the second: \"A switch stuck closed keeps the start winding in. That motor starts well, then the start winding overheats. This one cannot start at all.\" After a wrong choice, the right answer and its reason.\n\nScreen 8, Keep this: the summary card, drawn from the lesson's summary with no case figures, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The example motor, its windings and its torque curve are examples, and the field arrow is slowed fifty times.",
+   "ignores": "The stator is drawn with one pair of poles for each winding. The example motor has four poles. That sets the field's speed, not the picture. Each winding's field is drawn in proportion to its current. A real start winding has fewer turns, so its field is weaker than drawn. The waves keep their standstill sizes. Real currents fall as the motor speeds up. The torque curve, the run-up time and the heat bar are sketches. With the switch stuck closed, the speed and torque are drawn as for a working switch. Spin the rotor is for the picture only. The meter readings in the practice are separate examples. A meter reads only the wire's resistance. So it reads less than the winding values here. Those also carry the rotor's effect at standstill. Once the rotor turns, its own currents make the real field turn more evenly. The picture draws only the windings' field.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 8 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Start winding choice (opening: thin wire, as built)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Centrifugal switch choice (opening: working)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Spin the rotor, speed given, rpm",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor supply voltage, V",
+     "value": 230,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor supply frequency, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor poles",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example motor field speed, rpm",
+     "value": 1500,
+     "kind": "computed"
+    },
+    {
+     "label": "Example motor speed on rated load, rpm",
+     "value": 1440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Windings apart, electrical degrees",
+     "value": 90,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Main winding resistance (example), ohm",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Main winding reactance (example), ohm",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Main winding impedance, ohm",
+     "value": 23.43,
+     "kind": "computed"
+    },
+    {
+     "label": "Main winding current at standstill, A",
+     "value": 9.82,
+     "kind": "computed"
+    },
+    {
+     "label": "Main winding current angle behind supply, degrees",
+     "value": 50.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Start winding resistance (example), ohm",
+     "value": 36,
+     "kind": "assumed"
+    },
+    {
+     "label": "Start winding reactance (example), ohm",
+     "value": 13.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Start winding impedance, ohm",
+     "value": 38.34,
+     "kind": "computed"
+    },
+    {
+     "label": "Start winding current at standstill, A",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Start winding current angle behind supply, degrees",
+     "value": 20.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle between the currents (example), degrees",
+     "value": 30.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle between the currents, wound like the main, degrees",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Typical angle between the currents, degrees",
+     "value": 30,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Sine of 30 degrees",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Angle where the sine is largest, degrees",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Switch opening speed, % of full speed",
+     "value": 75,
+     "kind": "constant",
+     "source": 9
+    },
+    {
+     "label": "Switch opening speed, other figure, % of full speed",
+     "value": 80,
+     "kind": "constant",
+     "source": 10
+    },
+    {
+     "label": "Switch opening speed in the picture, rpm",
+     "value": 1125,
+     "kind": "computed"
+    },
+    {
+     "label": "Example torque, both windings, standstill, % of rated",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example torque, both windings, at 1125 rpm, % of rated",
+     "value": 190,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example torque, main alone, at 1125 rpm, % of rated",
+     "value": 110,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example torque, main alone, at 1440 rpm, % of rated",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fan load torque at 1440 rpm, % of rated",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Run-up on screen, seconds",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stuck open: trip on screen after, seconds",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stuck closed: heat bar to red on screen, seconds",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Field arrow slowed, times",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Split-phase starting torque, low end, % of rated",
+     "value": 100,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Split-phase starting torque, high end, % of rated",
+     "value": 175,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Starting current, one guide, times rated",
+     "value": "5 to 8",
+     "kind": "constant",
+     "source": 11
+    },
+    {
+     "label": "Starting current, another guide, times rated",
+     "value": "7 to 10",
+     "kind": "constant",
+     "source": 12
+    },
+    {
+     "label": "Largest split-phase motor, W",
+     "value": 250,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Example main winding resistance on a meter, ohm",
+     "value": 4.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example start winding resistance on a meter, ohm",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sum of the two meter readings, ohm",
+     "value": 19.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Product of the two meter readings",
+     "value": 67.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Both windings in parallel on a meter, ohm",
+     "value": 3.46,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A single winding on one phase cannot start a motor, because its field only pulses. A split-phase motor adds a second winding whose current is out of step with the first. Together they make a field that turns, and the rotor follows it.\n\nStart from the three-phase motor. Three currents peak one after another in coils set round the stator, so the field turns. One winding has only one current. Its field grows, collapses and reverses along one line. At rest, that gives the rotor no push either way. Once the rotor is turning, though, the same winding keeps it going. One way to picture it: a pulsing field acts like two equal fields turning opposite ways. At rest they pull equally. Once the rotor turns one way, the field turning with it pulls harder.\n\nSo the motor gets a [[start winding]]. It sits 90 electrical degrees round from the main winding and is fed in parallel with it. It is thin wire with fewer turns, so it has more resistance and less inductance. In the impedance triangle, that gives a smaller angle. So its current lags the supply less than the main winding's. Now two coils at right angles carry currents that peak at different moments, and the field turns. The gap is small, often about 30°.[^8] It varies from motor to motor. Starting torque goes with both currents and the sine of the angle between them.[^2] Sin 30° is 0.5, against 1 at 90°, so the start is weak.\n\nAt about 75% of full speed a [[centrifugal switch]] opens and drops the start winding out.[^9] Its thin wire is not rated to stay in. The main winding runs the motor from there, a little below synchronous speed.\n\n**Give a second winding a current out of step with the main winding's, and a pulsing field becomes a turning one.**[^13]"
+  },
+  "analogy": {
+   "text": "Think of a steam engine. A single-cylinder engine stopped on dead centre cannot start. The piston pushes straight along the crank. Turn the flywheel off dead centre and it runs. So a two-cylinder locomotive has its cranks a quarter turn apart. One is always off dead centre, so the engine starts from anywhere. The start winding is that second cylinder.",
+   "breaks": "A single winding gives no push at any rotor position, not just at one dead point. The motor's two currents are only about 30° apart, not a quarter cycle, so its start is weak. And the start winding drops out once the motor runs. A locomotive's second cylinder keeps working."
+  },
+  "practice": {
+   "text": "- Isolate, lock off and prove dead before you touch it. A motor with a self-resetting thermal cut-out can restart at any time.[^5]\n- Listen as it starts and stops. A working centrifugal switch clicks soon after starting, and again as the motor slows.\n- Measure across the supply terminals. The two windings read in parallel, so lower than either alone.[^6] Zero means a short. Infinity means an open circuit.\n- Compare with the maker's figures, or a good motor of the same type.\n- To reverse it, swap the start winding's two leads. Swapping the supply leads does not reverse it.[^14]\n- Keep it to easy loads and few starts. The start winding is rated only for short bursts.\n\n**Rule of thumb:** hums and will not start, yet runs once turning? The start circuit is open: the switch or the start winding.\n\n**Worked example:** say the main winding reads 4.5 Ω and the start winding 15 Ω. These are example readings. In parallel: 4.5 × 15 ÷ (4.5 + 15) = 67.5 ÷ 19.5 = 3.46 Ω. So across the supply terminals, expect about 3.5 Ω. Read 4.5 Ω and the start circuit is open. Read 15 Ω and the main winding is open.\n\n**Common mistakes**\n- Swapping the supply leads to reverse it. Both currents reverse together, so it runs the same way.\n- Thinking momentum keeps it running. Once turning, the main winding alone makes torque.\n- Pushing a humming motor round to start it. Isolate it and find the fault.\n- Putting it on a hard-to-start or often-started load. The start winding can burn out."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+   "title": "The split-phase motor",
+   "for": "Running a small, easy-to-start load on one phase. A thin-wire start winding puts a second current out of step with the main one, so the field turns. A centrifugal switch drops it out at about 75% speed.",
+   "rule": "Main and start windings 90 electrical degrees apart, in parallel on one phase.\nStart winding: thin wire, fewer turns. More R, less L, so its current lags less.\nCurrents about 30° apart: a weak turning field.\nStarting torque goes with main current × start current × sine of the angle between them.\n\nStarting torque about 100 to 175% of rated. Starting current high: use the maker's figure.\nThe switch opens at about 75 to 80% speed and closes again as it slows.\nWindings in parallel read lower than either alone.\nExample: 4.5 Ω and 15 Ω windings read 4.5 × 15 ÷ 19.5 = 3.46 Ω together.",
+   "traps": [
+    {
+     "text": "Hums and will not start, yet runs once turning: the start circuit is open. Check the switch and the start winding.",
+     "cite": "[^15] [^16] Red Seal study guide; Lessons in Electric Circuits"
+    },
+    {
+     "text": "The start winding is short-time rated. Frequent or slow starts can burn it out, and so can a switch stuck closed.",
+     "cite": "[^17] [^18] MSU Tech Note 313; refrigeration text"
+    },
+    {
+     "text": "It is not momentum that keeps it running. Once turning, the main winding alone makes torque.",
+     "cite": "[^19] [^20] Lessons in Electric Circuits"
+    },
+    {
+     "text": "Isolate, lock off and prove dead first. A self-resetting thermal cut-out can restart it at any time.",
+     "cite": "[^5] [^21] Fluke"
+    },
+    {
+     "text": "Reverse it by swapping the start winding's leads. Swapping the supply leads does not reverse it.",
+     "cite": "[^14] [^22] Red Seal study guide; Utah ECE 3600"
+    }
+   ],
+   "where": "Small fans, pumps and other easy-starting loads, usually up to about 250 W. Not in explosive atmospheres: the switch arcs."
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "AN887, AC Induction Motor Fundamentals",
+    "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf",
+    "quote": "The starting torque is low, typically 100% to 175% of the rated torque."
+   },
+   {
+    "n": 2,
+    "title": "ECE 3600 Single-Phase Induction Motors",
+    "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+    "quote": "Proportional to the current magnitudes and the sine of the phase angle difference between the winding currents."
+   },
+   {
+    "n": 3,
+    "title": "13.9: Single-phase Induction Motors",
+    "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+    "quote": "This coil produces a moderate starting torque, which is disconnected by a centrifugal switch at 3/4 of synchronous speed. This simple (no capacitor) arrangement serves well for motors up to 1/3 horsepower (250 watts) driving easily started loads."
+   },
+   {
+    "n": 4,
+    "title": "[PDF] 13 Electric Motors - Goodheart-Willcox",
+    "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174883_ch13.pdf",
+    "quote": "A centrifugal switch cannot be used in explosive atmospheres or inside hermetic compressors. The arcing caused by switching current on and off can ignite gases."
+   },
+   {
+    "n": 5,
+    "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+    "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+    "quote": "Caution should be taken with any motor that has an automatic reset, as the motor can automatically restart at any time."
+   },
+   {
+    "n": 6,
+    "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+    "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+    "quote": "The ohmmeter will read the resistance of the starting and running windings. Since the windings are in parallel, their combined resistance is less than the resistance of either winding alone."
+   },
+   {
+    "n": 7,
+    "title": "Part 5 – Single Phase AC Motors – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-5-single-phase-ac-motors",
+    "quote": "During the start period, both windings are connected in parallel across the applied voltage and the windings are wound on separate sets of field poles, which are set 90 electrical degrees apart."
+   },
+   {
+    "n": 8,
+    "title": "Learn about \"Capacitor Start - Induction Run\" Motors",
+    "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf",
+    "quote": "the phase difference between Im and Is is almost 80 degrees as against 30 degrees in a split-phase induction motor."
+   },
+   {
+    "n": 9,
+    "title": "Your motor sheet: the split-phase motor",
+    "url": "material:split-phase#p1",
+    "quote": "Once the motor reaches about 75% of its running speed, a centrifugal switch opens to disconnect the starting winding, and the main winding sustains the motor's operation."
+   },
+   {
+    "n": 10,
+    "title": "Electrical Tech Note — 313",
+    "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+    "quote": "A centrifugal switch on the shaft disconnects the auxiliary winding when it reaches approximately 80% of full speed."
+   },
+   {
+    "n": 11,
+    "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+    "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+    "quote": "A split-phase motor develops roughly 100 to 175 percent starting torque at 500 to 800 percent starting current"
+   },
+   {
+    "n": 12,
+    "title": "AN887, AC Induction Motor Fundamentals",
+    "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf",
+    "quote": "The motor draws high starting current, approximately 700% to 1,000% of the rated current."
+   },
+   {
+    "n": 13,
+    "title": "ECE 3600 Single-Phase Induction Motors",
+    "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+    "quote": "The motor NEEDs a second winding to get started, AND the phase of the two currents NEED to be different in order to get some net rotating magnetic field."
+   },
+   {
+    "n": 14,
+    "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+    "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+    "quote": "Single-phase motors are reversed by interchanging the leads of the start (auxiliary) winding relative to the run winding, not by interchanging the supply leads."
+   },
+   {
+    "n": 15,
+    "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+    "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+    "quote": "A single-phase motor that hums but will not start has lost its starting circuit: an open start winding, a failed start capacitor, a centrifugal switch stuck open, or a failed starting relay"
+   },
+   {
+    "n": 16,
+    "title": "13.9: Single-phase Induction Motors",
+    "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+    "quote": "However, it will not self-start. It may be hand started in either direction, coming up to speed in a few seconds."
+   },
+   {
+    "n": 17,
+    "title": "Electrical Tech Note — 313",
+    "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+    "quote": "The auxiliary winding is not rated for continuous operation. If the motor is used on an application where it must start frequently, the auxiliary winding may overheat and fail."
+   },
+   {
+    "n": 18,
+    "title": "MRAC22e design sample",
+    "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+    "quote": "Contacts that stick together can cause the start winding to remain energized and damage the winding."
+   },
+   {
+    "n": 19,
+    "title": "13.9: Single-phase Induction Motors",
+    "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+    "quote": "Once started the auxiliary winding is optional."
+   },
+   {
+    "n": 20,
+    "title": "13.9: Single-phase Induction Motors",
+    "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+    "quote": "Thus, the single phase coil will develop torque, once the rotor is started."
+   },
+   {
+    "n": 21,
+    "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+    "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+    "quote": "Lock out and tag the starting mechanism per company policy."
+   },
+   {
+    "n": 22,
+    "title": "ECE 3600 Single-Phase Induction Motors",
+    "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+    "quote": "Reverse the leads to either of the windings to get the motor to start in the opposite direction."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 62rem; margin-inline: auto; }\n  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }\n  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task.show.ask { font-weight: 700; }\n  .task > * + * { margin-top: 10px; }\n  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .task .card b, .task .warn-note b { font-weight: 700; }\n  .task .warn-note, .notes .warn-note { line-height: 1.5; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .why { line-height: 1.6; }\n  .notes > * + * { margin-top: 8px; }\n  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }\n  .lcol > * + *, .rcol > * + * { margin-top: 12px; }\n  .btns { display: flex; flex-wrap: wrap; gap: 8px; }\n  .btns .k-btn { flex: 1 1 6rem; min-height: 48px; height: auto; white-space: normal; line-height: 1.25; padding: 8px 10px; }\n  .chs > * + * { margin-top: 10px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }\n  #outs .k-readout { padding: 8px 8px 10px 10px; }\n  #outs .k-readout-value { font-size: 1.1rem; }\n  .say b { font-weight: 700; }\n  .bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 10px 18px; }\n  .bar .bl { font-size: .95rem; font-weight: 600; margin: 0 0 8px; }\n  .track { position: relative; height: 18px; border-radius: 5px; background: var(--k-sunk); border: 1px solid var(--k-strong); }\n  .track .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 4px; background: var(--k-accent2); }\n  .track .fill.hot { background: var(--k-warn); }\n  .track .zone { position: absolute; right: 0; top: 0; bottom: 0; width: 20%; border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--k-warn) 25%, var(--k-sunk)); }\n  .track .mk { position: absolute; left: 50%; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--k-ink); }\n  .scale { position: relative; height: 1.5em; font-size: .85rem; color: var(--k-ink); margin-top: 5px; }\n  .scale span { position: absolute; top: 0; white-space: nowrap; }\n  .scale .at { left: 50%; transform: translateX(-50%); }\n  .scale .end { right: 0; color: var(--k-warn); }\n  .fig { display: block; width: 100%; height: auto; }\n  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }\n  .fig .stat { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; fill-rule: evenodd; vector-effect: non-scaling-stroke; }\n  .fig .pole { fill: var(--k-panel); }\n  .fig .pole-o { fill: none; stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }\n  .fig .c1 { fill: var(--k-cat1); }\n  .fig .c2 { fill: var(--k-cat2); }\n  .fig .rot { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; vector-effect: non-scaling-stroke; }\n  .fig .cage { fill: var(--k-muted); }\n  .fig .shaft { fill: var(--k-strong); }\n  .fig .fa { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }\n  .fig .fah { fill: var(--k-accent2); }\n  .fig .tr { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n  .fig .coil1 { fill: none; stroke: var(--k-cat1); stroke-width: 3.2; stroke-linecap: round; }\n  .fig .coil2 { fill: none; stroke: var(--k-cat2); stroke-width: 1.6; stroke-linecap: round; }\n  .fig .jn { fill: var(--k-ink); }\n  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .ang { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .fig .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .fig .ph1 { stroke: var(--k-cat1); stroke-width: 4; stroke-linecap: round; }\n  .fig .ph2 { stroke: var(--k-cat2); stroke-width: 2; stroke-linecap: round; }\n  .fig .phh1 { fill: var(--k-cat1); }\n  .fig .phh2 { fill: var(--k-cat2); }\n  .fig .wv1 { fill: none; stroke: var(--k-cat1); stroke-width: 4; stroke-linejoin: round; }\n  .fig .wv2 { fill: none; stroke: var(--k-cat2); stroke-width: 2; stroke-linejoin: round; }\n  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .grid { stroke: var(--k-line); stroke-width: 1; }\n  .fig .cur { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .fig .tq { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .tqs { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 4; }\n  .fig .ld { fill: none; stroke: var(--k-accent); stroke-width: 2.4; }\n  .fig .gd { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }\n  .fig .dotk { fill: var(--k-ink); }\n  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .fin { stroke: var(--k-line); stroke-width: 2; }\n  .fig .shf { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }\n  .fig .hdl { fill: var(--k-strong); }\n  .fig .lock { fill: var(--k-warn); }\n  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }\n  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }\n  .fig .lead { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .disp { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .ans { font-weight: 700; }\n  #stepbox.enter { animation: screen-in .35s ease-out both; }\n  .fb { animation: fade-in .25s ease-out both; }\n  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }\n  /* On a phone: the readouts and status line straight under the ring, the controls after them. */\n  @media (max-width: 38rem) {\n    .live .lcol, .live .rcol { display: contents; }\n    #ring { order: 1; } #outs { order: 2; } #say { order: 3; } .live .bars { order: 4; } #btns { order: 5; } #chs { order: 6; } #ph { order: 7; }\n  }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"hwW\"><svg class=\"fig\" id=\"hw\" viewBox=\"0 0 340 332\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"tqW\"><svg class=\"fig\" id=\"tqs\" viewBox=\"0 0 340 234\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"fanW\"><svg class=\"fig\" id=\"fan\" viewBox=\"0 0 340 124\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"fltW\"><svg class=\"fig\" id=\"flt\" viewBox=\"0 0 340 176\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <div class=\"live\" id=\"live\">\n      <div class=\"lcol\">\n        <svg class=\"fig\" id=\"ring\" viewBox=\"0 0 340 282\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"btns\" id=\"btns\"></div>\n        <div class=\"chs\" id=\"chs\"></div>\n      </div>\n      <div class=\"rcol\">\n        <svg class=\"fig\" id=\"ph\" viewBox=\"0 0 340 168\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-readouts\" id=\"outs\"></div>\n        <p class=\"say\" id=\"say\"></p>\n        <div class=\"bars\">\n          <div class=\"bar\"><p class=\"bl\">Torque</p><div class=\"track\"><i class=\"fill\" id=\"tqFill\"></i><i class=\"mk\"></i></div><div class=\"scale\"><span class=\"at\">rated, 100%</span></div></div>\n          <div class=\"bar\"><p class=\"bl\">Start winding heat</p><div class=\"track\"><i class=\"zone\"></i><i class=\"fill\" id=\"htFill\"></i></div><div class=\"scale\"><span class=\"end\">too hot</span></div></div>\n        </div>\n      </div>\n    </div>\n    <div class=\"notes\" id=\"notes\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  const DEG = Math.PI / 180;\n\n  // ---------- the rule ----------\n  // The example motor: 230 V, 50 Hz, four poles (an example, not a maker's rating).\n  const V = 230, HZ = 50, POLES = 4;\n  const NS = 120 * HZ / POLES;          // the field's speed: 120 × 50 ÷ 4 = 1500 rpm\n  const NRUN = 1440;                    // the example motor's speed on its rated load\n  const NSW = 0.75 * NS;                // the switch opens at 75% of 1500 = 1125 rpm\n  const SPIN = 150, SLOW = 50;          // Spin the rotor gives 150 rpm; the field arrow is slowed 50 times\n  // Each winding follows the impedance triangle: Z = √(R² + X²), current = 230 ÷ Z, angle behind the supply = arctan(X ÷ R).\n  function winding(R, X) { const Z = Math.sqrt(R * R + X * X); return { R: R, X: X, Z: Z, I: V / Z, phi: Math.atan(X / R) / DEG }; }\n  const MAIN = winding(15, 18), THIN = winding(36, 13.2);\n  const startW = (w) => (w === 'main' ? MAIN : THIN);   // wound like the main, it takes the main's values\n  const gapOf = (w) => MAIN.phi - startW(w).phi;\n  // The field: each winding's field points along its own poles, in proportion to its current at that instant.\n  // Start poles left and right (x), main poles top and bottom (y). The arrow is their sum.\n  const fieldXY = (th, S, sf, mf) => [sf * S.I * Math.sin((th - S.phi) * DEG), mf * MAIN.I * Math.sin((th - MAIN.phi) * DEG)];\n  // Example torque curves, % of rated (a sketch, not a maker's): smooth curves through the lesson's points.\n  function herm(x, x0, x1, y0, y1, m0, m1) {\n    const h = x1 - x0, t = (x - x0) / h, t2 = t * t, t3 = t2 * t;\n    return (2 * t3 - 3 * t2 + 1) * y0 + (t3 - 2 * t2 + t) * h * m0 + (-2 * t3 + 3 * t2) * y1 + (t3 - t2) * h * m1;\n  }\n  const TB0 = 150, TB1 = 190, TM1 = 110, TRUN = 100;\n  const tBoth = (n) => herm(K.clamp(n, 0, NSW), 0, NSW, TB0, TB1, (TB1 - TB0) / NSW, 0);\n  function tMain(n) {\n    if (n <= NSW) return herm(Math.max(0, n), 0, NSW, 0, TM1, 1.5 * TM1 / NSW, 0);\n    if (n <= NRUN) return herm(n, NSW, NRUN, TM1, TRUN, 0, -0.09);\n    return Math.max(0, herm(Math.min(n, NS), NRUN, NS, TRUN, 0, -0.09, -2.5));\n  }\n  const tLoad = (n) => TRUN * Math.pow(n / NRUN, 2);   // the fan: torque grows with speed squared, 100% at 1440 rpm\n  // The picture's timing, a sketch: run-up about 4 s, a hum trips after 5 s, a start winding left in trips after 10 s.\n  const KA = 4.5, MINR = 110, FRIC = 40, HUM_TRIP = 5, HEAT_T = 10, COOL_T = 20, FADE = 0.5;\n\n  const one = (v) => (Math.round(v * 10 + 1e-9) / 10).toFixed(1);\n  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);\n  const whole = (v) => String(Math.round(v + 1e-9));\n  const gapTxt = (w) => (gapOf(w) < 0.05 ? '0' : one(gapOf(w))) + '°';\n  const N = { phiM: one(MAIN.phi), phiS: one(THIN.phi), gap: one(gapOf('thin')), sw: whole(NSW), run: whole(NRUN), ns: whole(NS),\n    zM: two(MAIN.Z), zS: two(THIN.Z), iM: two(MAIN.I), iS: two(THIN.I), swPct: whole(NSW / NS * 100), tb0: whole(TB0), tb1: whole(TB1), tm1: whole(TM1),\n    sin30: String(Math.round(Math.sin(30 * DEG) * 10) / 10) };\n\n  // ---------- the motor in the picture ----------\n  function fresh() { return { on: false, n: 0, heat: 0, humT: 0, trip: '', mf: 0, sf: 0, th: 0, rot: 0 }; }\n  const swClosed = (s, sw) => (sw === 'closed' ? true : sw === 'open' ? false : s.n < NSW);\n  // Both windings in (thin wire, below 1125 rpm): the both-windings curve. Otherwise the main winding's curve\n  // (with the switch stuck closed, drawn as for a working switch). Wound like the main: nothing at standstill.\n  function torqueOf(s, w, sw) { if (!s.on) return 0; return swClosed(s, sw) && w !== 'main' && s.n < NSW ? tBoth(s.n) : tMain(s.n); }\n  function advance(s, dt, w, sw) {\n    const fed = s.on && swClosed(s, sw), T = torqueOf(s, w, sw), TL = tLoad(s.n);\n    if (s.on) { if (T > TL) s.n = Math.min(NRUN, s.n + Math.max(KA * (T - TL), MINR) * dt); }\n    else s.n = Math.max(0, s.n - KA * (TL + FRIC) * dt);\n    if (s.on && s.n < 0.5 && T <= 0) { s.humT += dt; if (s.humT >= HUM_TRIP - 1e-9) { s.on = false; s.trip = 'hum'; } }\n    else s.humT = 0;\n    if (fed) { s.heat = Math.min(1, s.heat + dt / HEAT_T); if (s.heat >= 1 - 1e-9) { s.on = false; s.trip = 'heat'; } }\n    else s.heat = Math.max(0, s.heat - dt / COOL_T);\n    const fedNow = s.on && swClosed(s, sw);\n    s.mf = K.clamp(s.mf + (s.on ? dt : -dt) / FADE, 0, 1);\n    s.sf = K.clamp(s.sf + (fedNow ? dt : -dt) / FADE, 0, 1);\n    s.th = (s.th + 360 * HZ / SLOW * dt) % 360;                // one pole pair drawn: the field goes round once a second\n    s.rot = (s.rot + 360 * HZ / SLOW * (s.n / NS) * dt) % 360; // the rotor at its share of the field's speed\n  }\n  function runFor(w, sw, secs, spinAt) {\n    const s = fresh(), ev = { open: null, settle: null, trip: null, why: '' }, DT = 0.01;\n    s.on = true;\n    for (let k = 0; k < Math.round(secs / DT); k++) {\n      if (spinAt != null && k === Math.round(spinAt / DT)) s.n = Math.max(s.n, SPIN);\n      const was = s.n;\n      advance(s, DT, w, sw);\n      const t = (k + 1) * DT;\n      if (ev.open === null && was < NSW && s.n >= NSW) ev.open = t;\n      if (ev.settle === null && s.n >= NRUN) ev.settle = t;\n      if (ev.trip === null && s.trip) { ev.trip = t; ev.why = s.trip; }\n    }\n    return { s: s, ev: ev };\n  }\n\n  // ---------- the lesson's words ----------\n  const blk = (t, s) => ({ t: t, s: s });\n  const HOW = [\n    blk('p', 'One winding on one phase makes a field that only pulses. It grows, collapses and reverses along one line. At rest, that gives the rotor no push either way.'),\n    blk('p', 'So a *start winding* sits 90 electrical degrees round from the main winding, in parallel with it. It is thin wire with fewer turns. That gives more resistance and less inductance, so its current lags the supply less.'),\n    blk('p', 'The two currents peak at different moments, and the field turns. At about ' + N.swPct + '% speed a *centrifugal switch* drops the start winding out.'),\n  ];\n  const PLAY_TASK = 'Press Start and watch the field\\'s tip. Then wind the start winding like the main, and try each switch fault.';\n  const UNDER = 'Assume a ' + V + ' V, ' + HZ + ' Hz, four-pole motor. Its field turns at 120 × ' + HZ + ' ÷ ' + POLES + ' = ' + N.ns + ' rpm. ' +\n    'The switch opens at 75% of that, ' + N.sw + ' rpm. On its fan it runs at ' + N.run + ' rpm. The field\\'s tip turns only while the two currents are out of step.';\n  const WARN = 'Spin the rotor is for the picture only: never spin a live motor by hand.';\n  const PLAY_READ = 'Once started, both windings are fed. Their currents peak ' + N.gap + '° apart, so the field\\'s tip traces an ellipse and goes round. The rotor runs up. ' +\n    'At ' + N.sw + ' rpm the switch opens and the torque drops a step, from ' + N.tb1 + '% to ' + N.tm1 + '%. ' +\n    'The windings\\' field now only pulses, but the rotor keeps turning on the main winding and settles at ' + N.run + ' rpm. ' +\n    'With the start winding wound like the main, both currents lag ' + N.phiM + '°. The field only pulses, and the motor hums at rest.';\n  const BEHAVE = [\n    blk('row', 'Starting torque: low, typically 100 to 175% of rated. It goes with both currents and the sine of the angle between them. Sin 30° is ' + N.sin30 + ', against 1 at 90°.'),\n    blk('row', 'Starting current: high, 5 to 10 times rated. Use the maker\\'s figure.'),\n    blk('row', 'The switch: opens at about 75 to 80% of full speed, and closes again as it slows.'),\n    blk('row', 'Running: on the main winding alone, just below synchronous speed. A pulsing field acts like two equal fields turning opposite ways. Once the rotor turns, the one going its way pulls harder.'),\n  ];\n  const USE = [\n    blk('row', 'Used for: fans, small pumps and other loads that are easy to start, usually up to about 250 W.'),\n    blk('row', 'Start winding: short-time rated. Frequent starts, or a slow start on a heavy load, overheat it.'),\n    blk('row', 'Hard-to-start loads: too little starting torque. A capacitor-start motor handles those.'),\n    blk('safe', 'Explosive atmospheres: never use a centrifugal switch there, or inside a sealed compressor. Its arcing can ignite gas.'),\n  ];\n  const FAULTS = [\n    blk('safe', 'Safety: isolate, lock off and prove dead. A self-resetting thermal cut-out can restart it at any time.'),\n    blk('row', 'Start circuit open: the switch stuck open, or the start winding burnt open. It hums, will not start, then trips.'),\n    blk('row', 'Switch stuck closed: it starts, but the start winding stays in. It overheats and can burn out. The overload may trip first.'),\n    blk('row', 'Resistance: the two windings read in parallel, so lower than either. Reading the main winding alone? The start circuit is open.'),\n    blk('row', 'Wrong direction: swap the start winding\\'s leads, not the supply.'),\n  ];\n  const words = (list) => list.map((b) => b.s.replace(/\\*/g, '')).join('\\n\\n');\n  const C1 = 'So it can stay in and help the motor run', C2 = 'So its current lags the supply less than the main winding\\'s', C3 = 'To give it more inductance, so its current lags more';\n  const F1 = 'The main winding is open', F2 = 'The start circuit is open', F3 = 'The centrifugal switch is stuck closed';\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const STEPS = [\n    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },\n    { show: true, name: 'The turning field', label: 'The turning field', text: PLAY_TASK + '\\n\\n' + UNDER + ' ' + WARN, read: PLAY_READ, still: () => stillAfterStart() },\n    { name: 'Check', label: 'Check on the cause',\n      task: 'Why is the start winding wound with thin wire and fewer turns?',\n      opts: [C2, C1, C3], want: C2,\n      why: 'More resistance and less inductance give a smaller angle in the impedance triangle. Take example windings. Main: ' + MAIN.R + ' Ω resistance, ' + MAIN.X + ' Ω reactance. ' +\n        'Arctan(' + MAIN.X + ' ÷ ' + MAIN.R + ') = ' + N.phiM + '° behind. Start: ' + THIN.R + ' Ω and ' + THIN.X + ' Ω. Arctan(' + THIN.X + ' ÷ ' + THIN.R + ') = ' + N.phiS + '° behind. That ' + N.gap + '° gap is what makes the field turn. Wound like the main, both lag ' + N.phiM + '°, and the field only pulses.',\n      slips: ['', 'It is not rated to stay in. Its thin wire carries a high current density and heats fast. So the switch drops it out at about ' + N.swPct + '% speed. Its job is to put its current out of step with the main winding\\'s.',\n        'That is the wrong way round. Thin wire and fewer turns can only make it lag less, and that is what puts the two out of step.'] },\n    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },\n    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },\n    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },\n    { name: 'Find the fault', label: 'Find the fault',\n      task: 'A small fan\\'s split-phase motor hums and will not start. After a few seconds its overload trips. The operator says it ran once when he pushed the blades round. What is the likely fault?',\n      opts: [F1, F3, F2], want: F2,\n      why: 'With no start current the field only pulses, so it cannot start from rest. Once pushed round, the main winding alone carries it. Never start one by hand. Isolate it, then test the start winding and the switch.',\n      slips: ['With the main winding open it might run up once pushed. But the switch then drops the start winding out, and nothing is left fed. It could not run steadily.',\n        'A switch stuck closed keeps the start winding in. That motor starts well, then the start winding overheats. This one cannot start at all.', ''] },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iHow = 0, iPic = 1, iChk = 2, iBeh = 3, iUse = 4, iFlt = 5, iFind = 6, iK = 7;\n  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));\n  let lastStep = -1, finished = false;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function addText(node, s) {\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function write(node, s) { node.textContent = ''; return addText(node, s); }\n  function blocks(node, list) {\n    node.textContent = '';\n    list.forEach((b, k) => {\n      if (k) node.appendChild(document.createTextNode(' '));\n      let e;\n      if (b.t === 'row' || b.t === 'safe') {\n        const cut = b.s.indexOf(': ');\n        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');\n        addText(e, b.s.slice(cut + 2));\n      } else e = addText(K.el('p'), b.s);\n      node.appendChild(e);\n    });\n  }\n\n  // ---------- drawing helpers ----------\n  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }\n  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }\n  function set(n, attrs) { Object.keys(attrs).forEach((k) => n.setAttribute(k, attrs[k])); }\n  const f1 = (v) => (+v).toFixed(1);\n  const circ = (r) => 'M' + (-r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0Z';\n  const POLE_FILL = 'M-13 -88V-68L-25.6 -57.6L-23.6 -53A58 58 0 0 1 23.6 -53L25.6 -57.6L13 -68V-88Z';\n  const POLE_LINE = 'M-13 -84.6V-68L-25.6 -57.6L-23.6 -53A58 58 0 0 1 23.6 -53L25.6 -57.6L13 -68V-84.6';\n  const coil = (x, y0, humps) => { let d = 'M' + x + ' ' + y0; for (let j = 0; j < humps; j++) d += 'a6 6 0 0 1 0 12'; return d; };\n\n  // The stator as a ring: main poles top and bottom (thicker coils), start poles left and right, the rotor cage in the middle.\n  function buildRing(g, cx, cy, k) {\n    const R = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ') scale(' + k + ')' });\n    ad(R, 'path', { d: circ(100) + circ(84), class: 'stat' });\n    [[0, 1], [180, 1], [90, 2], [270, 2]].forEach((q) => {\n      const P = ad(R, 'g', { transform: 'rotate(' + q[0] + ')' });\n      ad(P, 'rect', q[1] === 1 ? { x: -24, y: -80, width: 48, height: 12, rx: 3, class: 'c1' } : { x: -20, y: -78, width: 40, height: 8, rx: 3, class: 'c2' });\n      ad(P, 'path', { d: POLE_FILL, class: 'pole' });\n      ad(P, 'path', { d: POLE_LINE, class: 'pole-o' });\n    });\n    ad(R, 'circle', { r: 52, class: 'rot' });\n    const cage = ad(R, 'g', {});\n    for (let j = 0; j < 16; j++) ad(cage, 'rect', { x: -2.5, y: -48, width: 5, height: 9, rx: 1.5, class: 'cage', transform: 'rotate(' + (j * 22.5) + ')' });\n    return { R: R, cage: cage };\n  }\n\n  // How it works: the ring, then both windings in parallel across the supply, the switch in series with the start winding.\n  function buildHw(g) {\n    const cx = 170, cy = 112;\n    buildRing(g, cx, cy, 0.62);\n    txt(g, cx, 30, 'Main winding: thicker wire, more turns', 'lb', 'middle');\n    txt(g, cx, cy + 79, 'main', 'lb', 'middle');\n    txt(g, 336, cy + 79, 'one pole pair drawn', 'mu', 'end');\n    ['Start winding:', 'thin wire,', 'fewer turns'].forEach((s, j) => txt(g, 100, cy - 12 + 16 * j, s, 'lb', 'end'));\n    txt(g, 240, cy + 5, 'start', 'lb');\n    txt(g, cx, cy + 5, 'rotor', 'lb', 'middle');\n    const at = (a, r) => [cx + r * Math.cos(a * DEG), cy + r * Math.sin(a * DEG)].map(f1);\n    ad(g, 'path', { d: 'M' + at(-80, 70).join(' ') + 'A70 70 0 0 1 ' + at(-10, 70).join(' '), class: 'ang' });\n    const lp = at(-45, 82);\n    txt(g, lp[0], +lp[1] + 4, '90°', 'lb', 'middle');\n    // the wiring\n    ad(g, 'path', { d: 'M36 216H290V226M36 320H290V294M36 216V255M36 281V320M150 216V238M150 298V320M290 248V258', class: 'w' });\n    ad(g, 'circle', { cx: 36, cy: 268, r: 13, class: 'src' });\n    ad(g, 'path', { d: 'M28 268c3 -6 5 -6 8 0s5 6 8 0', class: 'w' });\n    txt(g, 56, 264, V + ' V,');\n    txt(g, 56, 280, HZ + ' Hz');\n    ad(g, 'path', { d: coil(150, 238, 5), class: 'coil1' });\n    txt(g, 164, 272, 'main');\n    ad(g, 'circle', { cx: 290, cy: 228, r: 2.6, class: 'jn' });\n    ad(g, 'path', { d: 'M290 228L294 248M284 248H296', class: 'w' });\n    ad(g, 'path', { d: coil(290, 258, 3), class: 'coil2' });\n    txt(g, 276, 236, 'centrifugal switch', 'lb', 'end');\n    txt(g, 276, 250, 'closed at rest', 'lb', 'end');\n    txt(g, 276, 282, 'start', 'lb', 'end');\n    [[150, 216], [150, 320]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));\n    g.setAttribute('aria-label', 'The stator drawn as a ring, with the rotor cage in the middle. The main winding\\'s poles sit top and bottom: thicker wire, more turns. ' +\n      'The start winding\\'s poles sit left and right, 90 electrical degrees round, with one pole pair drawn: thin wire, fewer turns. Below, both windings are wired in parallel across ' + V + ' V, ' + HZ +\n      ' Hz. A centrifugal switch, closed at rest, sits in series with the start winding only.');\n  }\n\n  // How it behaves: the example torque against speed, and the fan's load.\n  function buildTq(g) {\n    const X = (n) => 40 + 0.18 * n, Y = (t) => 190 - 0.78 * t;\n    const path = (fn, a, b, step) => { let d = ''; for (let n = a; n <= b + 1e-9; n += step) d += (d ? 'L' : 'M') + f1(X(n)) + ' ' + f1(Y(fn(n))); return d; };\n    [100, 200].forEach((t) => ad(g, 'line', { x1: 40, y1: Y(t), x2: 322, y2: Y(t), class: 'grid' }));\n    ad(g, 'path', { d: 'M40 30V190H322', class: 'ax' });\n    [0, 100, 200].forEach((t) => txt(g, 34, Y(t) + 4.5, String(t), 'lb', 'end'));\n    [0, 500, 1000, 1500].forEach((n) => txt(g, X(n), 206, String(n), 'lb', 'middle'));\n    txt(g, 4, 16, 'Torque, % of rated', 'hd');\n    txt(g, 336, 16, 'Example curve, not a maker\\'s', 'mu', 'end');\n    txt(g, 181, 226, 'Speed, rpm', 'hd', 'middle');\n    ad(g, 'path', { d: path(tLoad, 0, NS, 25), class: 'ld' });\n    ad(g, 'path', { d: path(tBoth, 0, NSW, 25), class: 'tq' });\n    ad(g, 'line', { x1: X(NSW), y1: Y(TB1), x2: X(NSW), y2: Y(TM1), class: 'tqs' });\n    ad(g, 'path', { d: path(tMain, NSW, NS, 5), class: 'tq' });\n    ad(g, 'line', { x1: X(NRUN), y1: Y(TRUN) + 5, x2: X(NRUN), y2: 190, class: 'gd' });\n    ad(g, 'circle', { cx: X(NRUN), cy: Y(TRUN), r: 4.5, class: 'dotk' });\n    txt(g, 60, 92, 'both windings');\n    txt(g, 236, 73, 'switch opens', 'lb', 'end');\n    txt(g, 336, 86, 'main winding', 'lb', 'end');\n    txt(g, 336, 100, 'only', 'lb', 'end');\n    txt(g, 96, 168, 'fan load');\n    txt(g, 292, 164, 'runs here,', 'lb', 'end');\n    txt(g, 292, 178, N.run + ' rpm', 'lb', 'end');\n    g.setAttribute('aria-label', 'Example torque against speed, 0 to ' + N.ns + ' rpm. With both windings in, the torque rises from ' + N.tb0 + '% of rated at standstill to ' + N.tb1 + '% at ' + N.sw +\n      ' rpm. There the switch opens and it steps down to the main winding\\'s line at ' + N.tm1 + '%. That line falls through ' + TRUN + '% at ' + N.run + ' rpm to 0 at ' + N.ns +\n      ' rpm. The fan\\'s load line rises to meet it at ' + N.run + ' rpm, where the motor runs.');\n  }\n\n  // Where it is used: a small fan on the motor's shaft.\n  function buildFan(g) {\n    ad(g, 'rect', { x: 16, y: 30, width: 112, height: 60, rx: 10, class: 'body' });\n    for (let x = 30; x <= 114; x += 12) ad(g, 'line', { x1: x, y1: 36, x2: x, y2: 84, class: 'fin' });\n    ad(g, 'rect', { x: 128, y: 40, width: 10, height: 40, rx: 3, class: 'body' });\n    ad(g, 'rect', { x: 30, y: 90, width: 84, height: 8, rx: 2, class: 'body' });\n    ad(g, 'line', { x1: 138, y1: 60, x2: 206, y2: 60, class: 'shf' });\n    ad(g, 'ellipse', { cx: 214, cy: 33, rx: 6, ry: 20, class: 'body', transform: 'rotate(10 214 33)' });\n    ad(g, 'ellipse', { cx: 210, cy: 87, rx: 6, ry: 20, class: 'body', transform: 'rotate(10 210 87)' });\n    ad(g, 'rect', { x: 204, y: 50, width: 16, height: 20, rx: 4, class: 'body' });\n    txt(g, 236, 54, 'fan,');\n    txt(g, 236, 70, 'easy to start');\n    txt(g, 72, 116, 'split-phase motor', 'lb', 'middle');\n    g.setAttribute('aria-label', 'A split-phase motor with a small fan on its shaft, labelled easy to start.');\n  }\n\n  // Faults and tests: the isolator open, locked and tagged; an ohmmeter across the motor's two supply terminals.\n  function buildFlt(g) {\n    txt(g, 71, 16, 'isolator: open', 'lb', 'middle');\n    ad(g, 'rect', { x: 24, y: 24, width: 94, height: 72, rx: 6, class: 'body' });\n    ad(g, 'path', { d: 'M0 48H40M0 72H40M40 48L72 34M40 72L72 58M84 48H233.5M84 72H233.5', class: 'w' });\n    [[40, 48], [40, 72], [84, 48], [84, 72]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    ad(g, 'rect', { x: 62, y: 96, width: 18, height: 8, rx: 2, class: 'hdl' });\n    ad(g, 'path', { d: 'M65 116V110a6 6 0 0 1 12 0V116', class: 'shk' });\n    ad(g, 'rect', { x: 61, y: 115, width: 20, height: 16, rx: 3, class: 'lock' });\n    ad(g, 'path', { d: 'M81 124L90 129', class: 'w' });\n    ad(g, 'polygon', { points: '92 126 110 126 110 150 88 150 88 130', class: 'tag' });\n    ad(g, 'circle', { cx: 93, cy: 131, r: 1.8, class: 'jn' });\n    txt(g, 118, 130, 'locked off');\n    txt(g, 118, 146, 'and tagged');\n    ad(g, 'rect', { x: 226, y: 36, width: 24, height: 48, rx: 3, class: 'disp' });\n    ad(g, 'path', { d: 'M242.5 48H266.5M242.5 72H266.5', class: 'w' });\n    ad(g, 'circle', { cx: 294, cy: 60, r: 30, class: 'body' });\n    txt(g, 294, 65, 'M', 'hd', 'middle');\n    [48, 72].forEach((y) => ad(g, 'circle', { cx: 238, cy: y, r: 4.5, class: 'term' }));\n    txt(g, 238, 24, 'supply terminals', 'lb', 'middle');\n    ad(g, 'rect', { x: 190, y: 112, width: 72, height: 40, rx: 6, class: 'body' });\n    ad(g, 'rect', { x: 198, y: 118, width: 56, height: 18, rx: 2, class: 'disp' });\n    txt(g, 226, 132, 'Ω', 'hd', 'middle');\n    ad(g, 'path', { d: 'M206 112C206 96 224 84 235 76M246 112C258 100 256 60 242 51', class: 'lead' });\n    txt(g, 226, 168, 'ohmmeter', 'lb', 'middle');\n    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. An ohmmeter is connected across the motor\\'s two supply terminals.');\n  }\n\n  buildHw(el('hw'));\n  buildTq(el('tqs'));\n  buildFan(el('fan'));\n  buildFlt(el('flt'));\n\n  // ---------- the live picture ----------\n  const KF = 3.6, NT = 16, TSTEP = 10;          // px per amp for the field; the trail: 16 pieces, 10° apart\n  const L = {};\n  (function () {\n    const g = el('ring'), CX = 170, CY = 128;\n    const r = buildRing(g, CX, CY, 1);\n    L.cage = r.cage;\n    ad(r.R, 'circle', { r: 7, class: 'shaft' });\n    const F = ad(g, 'g', { transform: 'translate(' + CX + ' ' + CY + ')' });\n    L.trailG = ad(F, 'g', {});\n    L.trail = [];\n    for (let k = 0; k < NT; k++) L.trail.push(ad(L.trailG, 'line', { class: 'tr', x1: 0, y1: 0, x2: 0, y2: 0, 'stroke-opacity': (0.55 * (1 - k / NT)).toFixed(2) }));\n    L.arrow = ad(F, 'g', { opacity: 0 });\n    L.line = ad(L.arrow, 'line', { class: 'fa', x1: 0, y1: 0, x2: 0, y2: 0 });\n    L.head = ad(L.arrow, 'polygon', { class: 'fah', points: '0 0 0 0 0 0' });\n    txt(g, CX, 20, 'main', 'lb', 'middle');\n    txt(g, CX, 246, 'main', 'lb', 'middle');\n    txt(g, 62, CY + 5, 'start', 'lb', 'end');\n    txt(g, 278, CY + 5, 'start', 'lb');\n    ad(g, 'line', { x1: 74, y1: 268, x2: 92, y2: 268, class: 'fa' });\n    ad(g, 'polygon', { points: '102 268 90 262 90 274', class: 'fah' });\n    txt(g, 110, 273, 'the field, slowed ' + SLOW + ' times');\n  })();\n  function drawArrow(hx, hy) {\n    const len = Math.hypot(hx, hy);\n    if (len < 9) { L.arrow.setAttribute('opacity', 0); return; }\n    L.arrow.setAttribute('opacity', 1);\n    const ux = hx / len, uy = hy / len, bx = hx - 11 * ux, by = hy - 11 * uy;\n    set(L.line, { x2: f1(bx), y2: f1(by) });\n    L.head.setAttribute('points', [hx, hy, bx - 6 * uy, by + 6 * ux, bx + 6 * uy, by - 6 * ux].map(f1).join(' '));\n  }\n\n  // The panel: the two currents as phasors from one point, and as waves over one cycle.\n  const O = [14, 52], PS = 9, WX0 = 136, WW = 196, WY = 80, WS = 5.4;\n  const P = { w: null };\n  const polar = (phi, len) => [O[0] + len * Math.cos(phi * DEG), O[1] + len * Math.sin(phi * DEG)];\n  const wavePath = (W) => { let d = ''; for (let a = 0; a <= 360; a += 6) d += (a ? 'L' : 'M') + f1(WX0 + a / 360 * WW) + ' ' + f1(WY - WS * W.I * Math.sin((a - W.phi) * DEG)); return d; };\n  (function () {\n    const g = el('ph');\n    ad(g, 'line', { x1: WX0, y1: WY, x2: WX0 + WW, y2: WY, class: 'ax' });\n    P.msg = txt(g, 170, 60, 'No supply, so no current.', 'mu', 'middle');\n    P.all = ad(g, 'g', {});\n    ad(P.all, 'line', { x1: O[0], y1: O[1], x2: 122, y2: O[1], class: 'ref' });\n    txt(P.all, 122, O[1] - 8, V + ' V', 'mu', 'end');\n    P.mW = ad(P.all, 'path', { class: 'wv1' });\n    P.sWg = ad(P.all, 'g', {});\n    P.sW = ad(P.sWg, 'path', { class: 'wv2' });\n    P.cur = ad(P.all, 'line', { x1: WX0, y1: 22, x2: WX0, y2: 140, class: 'cur' });\n    P.now = txt(P.all, 150, 14, 'now', 'mu', 'middle');\n    P.mD = ad(P.all, 'circle', { cx: WX0, cy: WY, r: 4.5, class: 'phh1' });\n    P.mL = ad(P.all, 'line', { class: 'ph1' });\n    P.mH = ad(P.all, 'polygon', { class: 'phh1', points: '0 0 0 0 0 0' });\n    P.mT = txt(P.all, 0, 0, 'main');\n    P.sPg = ad(P.all, 'g', {});\n    P.sD = ad(P.sPg, 'circle', { cx: WX0, cy: WY, r: 3.5, class: 'phh2' });\n    P.arc = ad(P.sPg, 'path', { class: 'ang' });\n    P.sL = ad(P.sPg, 'line', { class: 'ph2' });\n    P.sH = ad(P.sPg, 'polygon', { class: 'phh2', points: '0 0 0 0 0 0' });\n    P.sT = txt(P.sPg, 0, 0, 'start');\n    ad(P.all, 'line', { x1: 14, y1: 156, x2: 34, y2: 156, class: 'ph1' });\n    txt(P.all, 40, 160, 'main ' + N.iM + ' A');\n    ad(P.all, 'line', { x1: 150, y1: 156, x2: 170, y2: 156, class: 'ph2' });\n    P.kS = txt(P.all, 176, 160, '');\n  })();\n  function vec(line, head, t, hw) {\n    const dx = t[0] - O[0], dy = t[1] - O[1], len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, bx = t[0] - 10 * ux, by = t[1] - 10 * uy;\n    set(line, { x1: O[0], y1: O[1], x2: f1(bx), y2: f1(by) });\n    head.setAttribute('points', [t[0], t[1], bx - hw * uy, by + hw * ux, bx + hw * uy, by - hw * ux].map(f1).join(' '));\n  }\n\n  let M = fresh(), held = false, quiet = false, seenW = null, seenSw = null, lastSay = '', lastAriaR = '', lastAriaP = '';\n  const busy = () => M.on || M.n > 0 || M.heat > 0 || M.mf > 0 || M.sf > 0;\n  const wOf = (p) => (p.wind === 'main' ? 'main' : 'thin');\n  const swOf = (p) => (p.sw === 'open' || p.sw === 'closed' ? p.sw : 'ok');\n\n  // What the motor is doing, and why.\n  function statusOf(s, w, sw) {\n    const fed = s.on && swClosed(s, sw), T = torqueOf(s, w, sw);\n    if (s.trip === 'heat') return ['Start winding overheating: overload tripped.', sw === 'closed' ? 'The switch never opened, so the start winding stayed in until it was too hot.' : 'The start winding was in too long, too often. It is short-time rated.'];\n    if (s.trip === 'hum') return ['Overload tripped.', 'The motor hummed without starting, so the overload cut the supply.'];\n    if (!s.on) {\n      if (s.n < 0.5) return ['At rest.', 'No supply, so no current and no field.'];\n      if (sw !== 'ok') return ['Slowing down.', 'There is no supply now.'];\n      return ['Slowing down.', s.n >= NSW ? 'There is no supply now. Below ' + N.sw + ' rpm the switch closes again.' : 'There is no supply now. The switch has closed again, ready for the next start.'];\n    }\n    if (s.n < 0.5 && T <= 0) return ['Humming: no start.', fed ? 'Both currents lag ' + N.phiM + '°, so they peak together. The field only pulses along one line, so the rotor gets no push.' :\n      'Only the main winding is fed. Its field only pulses up and down, so the rotor gets no push.'];\n    if (fed && s.n >= NSW) return ['Switch stuck closed: start winding still in.', 'It is still fed and heating up. Speed and torque are drawn as for a working switch.'];\n    if (fed) return ['Running up.', w === 'main' ? 'The two currents peak together, so the field only pulses. But the rotor is turning, so it still gets torque.' :\n      'The two currents peak ' + N.gap + '° apart, so the field turns and pulls the rotor round.'];\n    return ['Switch open: main winding only.', 'The field only pulses, but the turning rotor still gets torque from it. ' +\n      (s.n >= NRUN - 0.5 ? 'It settles at ' + N.run + ' rpm, where its torque meets the fan\\'s.' : 'It is still speeding up.')];\n  }\n\n  function paintLive(w, sw) {\n    const s = M, S2 = startW(w), fed = s.on && swClosed(s, sw), T = torqueOf(s, w, sw);\n    // the ring: the rotor turns at its own speed; the field arrow is the sum of the two windings' fields\n    L.cage.setAttribute('transform', 'rotate(' + f1(-s.rot) + ')');\n    const showF = s.mf > 0.001;\n    L.trailG.style.display = showF ? '' : 'none';\n    if (showF) {\n      const tip = (th) => { const f = fieldXY(th, S2, s.sf, s.mf); return [KF * f[0], -KF * f[1]]; };\n      let a = tip(s.th);\n      const h = a;\n      L.trail.forEach((ln, k) => { const b = tip(s.th - (k + 1) * TSTEP); set(ln, { x1: f1(a[0]), y1: f1(a[1]), x2: f1(b[0]), y2: f1(b[1]) }); a = b; });\n      drawArrow(h[0], h[1]);\n    } else L.arrow.setAttribute('opacity', 0);\n    // the panel\n    P.msg.style.display = showF ? 'none' : '';\n    P.all.style.display = showF ? '' : 'none';\n    P.all.setAttribute('opacity', s.mf.toFixed(2));\n    P.sWg.setAttribute('opacity', s.sf.toFixed(2));\n    P.sPg.setAttribute('opacity', s.sf.toFixed(2));\n    if (P.w !== w) {\n      P.w = w;\n      const mt = polar(MAIN.phi, MAIN.I * PS), st = polar(S2.phi, S2.I * PS);\n      vec(P.mL, P.mH, mt, 6);\n      vec(P.sL, P.sH, st, 4.5);\n      set(P.mT, { x: f1(mt[0] + 6), y: f1(mt[1] + 12) });\n      if (w === 'main') set(P.sT, { x: f1(mt[0] - 4), y: f1(mt[1] + 14), 'text-anchor': 'end' });\n      else set(P.sT, { x: f1(st[0] + 8), y: f1(st[1] + 5), 'text-anchor': 'start' });\n      const open = gapOf(w) > 0.5;\n      P.arc.style.display = open ? '' : 'none';\n      if (open) P.arc.setAttribute('d', 'M' + polar(S2.phi, 28).map(f1).join(' ') + 'A28 28 0 0 1 ' + polar(MAIN.phi, 28).map(f1).join(' '));\n      P.mW.setAttribute('d', wavePath(MAIN));\n      P.sW.setAttribute('d', wavePath(S2));\n    }\n    const c = ((s.th % 360) + 360) % 360, cx = WX0 + c / 360 * WW;\n    set(P.cur, { x1: f1(cx), x2: f1(cx) });\n    P.now.setAttribute('x', f1(K.clamp(cx, 150, 322)));\n    set(P.mD, { cx: f1(cx), cy: f1(WY - WS * MAIN.I * Math.sin((c - MAIN.phi) * DEG)) });\n    set(P.sD, { cx: f1(cx), cy: f1(WY - WS * S2.I * Math.sin((c - S2.phi) * DEG)) });\n    P.kS.textContent = fed ? 'start ' + two(S2.I) + ' A' : 'start: not fed';\n    // readouts, bars and the status line\n    RD.n.set(s.n);\n    RD.g.set(!s.on || sw === 'open' ? 'not fed' : fed ? gapTxt(w) : 'start winding out');\n    RD.t.set(T);\n    el('tqFill').style.width = f1(Math.min(T, 200) / 2) + '%';\n    const hf = el('htFill');\n    hf.style.width = f1(s.heat * 100) + '%';\n    hf.classList.toggle('hot', s.heat >= 0.8);\n    const st = statusOf(s, w, sw), key = st.join('|');\n    if (key !== lastSay) {\n      lastSay = key;\n      const say = el('say');\n      say.textContent = '';\n      say.appendChild(K.el('b', null, st[0]));\n      say.appendChild(document.createTextNode(' ' + st[1]));\n    }\n    const fieldDesc = !showF ? 'There is no field.' : fed && w === 'thin' ? 'The field arrow goes round anticlockwise, its tip on a narrow ellipse.' :\n      fed ? 'The field arrow only pulses along one line, halfway between the two windings\\' poles.' : 'The field arrow only pulses up and down, along the main winding\\'s poles.';\n    const ar = 'The stator ring: the main winding\\'s poles top and bottom, the start winding\\'s left and right. ' + fieldDesc + ' The rotor turns at ' + whole(s.n) + ' rpm.';\n    if (ar !== lastAriaR) { lastAriaR = ar; el('ring').setAttribute('aria-label', ar); }\n    const ap = !showF ? 'The winding currents: no supply, so no current.' : 'The winding currents as phasors from one point and as waves over one cycle. Main ' + N.iM + ' A, ' + N.phiM +\n      '° behind the supply. ' + (fed ? 'Start ' + two(S2.I) + ' A, ' + one(S2.phi) + '° behind, so ' + gapTxt(w) + ' between them.' : 'The start winding is not fed.');\n    if (ap !== lastAriaP) { lastAriaP = ap; el('ph').setAttribute('aria-label', ap); }\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  K.button({ label: 'Start', into: '#btns', press: () => { held = false; M.trip = ''; M.on = true; M.humT = 0; K.refresh(); } });\n  K.button({ label: 'Stop', secondary: true, into: '#btns', press: () => { held = false; M.on = false; K.refresh(); } });\n  K.button({ label: 'Spin the rotor', secondary: true, into: '#btns', press: () => { held = false; M.n = Math.max(M.n, SPIN); K.refresh(); } });\n  const windCtl = K.choice({ id: 'wind', label: 'Start winding', options: [{ value: 'thin', label: 'Thin wire, as built' }, { value: 'main', label: 'Wound like the main' }], value: 'thin', into: '#chs' });\n  const swCtl = K.choice({ id: 'sw', label: 'Centrifugal switch', options: [{ value: 'ok', label: 'Working' }, { value: 'open', label: 'Stuck open' }, { value: 'closed', label: 'Stuck closed' }],\n    value: 'ok', hint: 'Each choice starts the motor again from rest.', into: '#chs' });\n  const RD = {\n    n: K.readout({ id: 'rdSpeed', label: 'Rotor speed', fmt: (v) => whole(v) + ' rpm', into: '#outs' }),\n    g: K.readout({ id: 'rdGap', label: 'Angle between currents', into: '#outs' }),\n    t: K.readout({ id: 'rdTorque', label: 'Torque, % of rated', fmt: (v) => whole(v) + '%', into: '#outs' }),\n  };\n  K.model((p) => {\n    const w = wOf(p), sw = swOf(p);\n    return { gapDeg: gapOf(w), mainA: MAIN.I, startA: startW(w).I, standPct: sw !== 'open' && w !== 'main' ? tBoth(0) : 0 };\n  });\n\n  const sim = K.anim({ button: false, label: 'The motor', step: (dt) => {\n    if (at() !== iPic || held) return false;\n    const p = K.params(), w = wOf(p), sw = swOf(p);\n    advance(M, dt, w, sw);\n    paintLive(w, sw);\n    return busy();\n  } });\n  // The read-through's picture: thin wire, switch working, the instant after Start.\n  function stillAfterStart() {\n    quiet = true;\n    windCtl.set('thin');\n    swCtl.set('ok');\n    quiet = false;\n    seenW = 'thin'; seenSw = 'ok';\n    const m = fresh();\n    m.on = true; m.mf = 1; m.sf = 1; m.th = 150;\n    M = m; held = true;\n    sim.pause();\n    K.refresh();\n  }\n\n  // ---------- picks: one go, then the answer and its reason ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length || st.res) return;\n    st.pick = d.opts[k];\n    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }\n    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }\n    K.refresh();\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));\n    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));\n    if (f.p) fb.appendChild(addText(K.el('p'), f.p));\n  }\n\n  // ---------- Keep this ----------\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n\n  el('notes').appendChild(K.el('p', { class: 'why' }, UNDER));\n  el('notes').appendChild(K.el('p', { class: 'warn-note' }, WARN));\n  const ON = { hwW: [iHow], tqW: [iBeh], fanW: [iUse], fltW: [iFlt], live: [iPic], notes: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');\n    if (i === iPic) write(task, PLAY_TASK);\n    else if (d.show) blocks(task, d.blocks);\n    else if (d.kind) task.textContent = '';\n    else write(task, d.task);\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    // the motor: a new choice starts it again from rest\n    const w = wOf(p), sw = swOf(p);\n    if (!quiet && seenW !== null && (w !== seenW || sw !== seenSw)) {\n      const m = fresh();\n      m.th = M.th; m.rot = M.rot; m.on = true;\n      M = m; held = false;\n    }\n    seenW = w; seenSw = sw;\n    paintLive(w, sw);\n    if (i === iPic && !held && busy() && !sim.playing()) sim.play();\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    paintFb(st.fb);\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i);\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  K.check('Main winding: 15 Ω and 18 Ω give 23.43 Ω, 9.82 A and 50.2° behind the supply. Start winding: 36 Ω and 13.2 Ω give 38.34 Ω, 6.00 A and 20.1°. So the currents are 30.1° apart, and 0° wound like the main', () =>\n    N.zM === '23.43' && N.iM === '9.82' && N.phiM === '50.2' && N.zS === '38.34' && N.iS === '6.00' && N.phiS === '20.1' && N.gap === '30.1' &&\n    K.near(K.at({ wind: 'main' }).gapDeg, 0, 1e-9) && one(K.at({ wind: 'thin' }).gapDeg) === '30.1');\n  K.check('As built, the field\\'s tip goes round from the start poles towards the main poles. Wound like the main it stays on one line between them, and on the main winding alone on the main poles\\' line', () => {\n    let turns = true, line = true, alone = true;\n    for (let th = 0; th < 360; th += 5) {\n      const a = fieldXY(th, THIN, 1, 1), b = fieldXY(th + 5, THIN, 1, 1);\n      if (a[0] * b[1] - a[1] * b[0] <= 0) turns = false;\n      const c = fieldXY(th, MAIN, 1, 1);\n      if (!K.near(c[0], c[1], 1e-9)) line = false;\n      if (fieldXY(th, THIN, 0, 1)[0] !== 0) alone = false;\n    }\n    return turns && line && alone && THIN.phi < MAIN.phi;\n  });\n  K.check('The example curves: 150% at standstill rising to 190% at 1125 rpm, a step down to the main winding\\'s 110%, and the fan\\'s load meeting its 100% at 1440 rpm. The main winding alone gives 0 at standstill and 0 at 1500 rpm', () =>\n    K.near(tBoth(0), 150, 1e-9) && K.near(tBoth(NSW), 190, 1e-9) && K.near(tMain(NSW), 110, 1e-9) && K.near(tMain(NRUN), 100, 1e-9) && K.near(tLoad(NRUN), 100, 1e-9) &&\n    K.near(tMain(0), 0, 1e-9) && K.near(tMain(NS), 0, 1e-9) && [200, 600, 1000, 1200, 1300, 1400, 1430].every((n) => tMain(n) > tLoad(n)) && tMain(1470) < tLoad(1470));\n  K.check('Started as built it passes 1125 rpm and settles at 1440 rpm in about four seconds. Stuck open it hums at 0 rpm and trips after 5 s, and stuck closed it trips on heat after 10 s. Spun while it hums, the main winding carries it to 1440 rpm', () => {\n    const a = runFor('thin', 'ok', 12), b = runFor('thin', 'open', 8), c = runFor('thin', 'closed', 12), d = runFor('thin', 'open', 12, 1), e = runFor('main', 'ok', 8);\n    return a.ev.open !== null && a.ev.settle > a.ev.open && a.ev.settle >= 3 && a.ev.settle <= 5 && !a.ev.trip && a.s.n === NRUN &&\n      b.s.n === 0 && b.ev.why === 'hum' && K.near(b.ev.trip, 5, 0.02) &&\n      c.ev.settle !== null && c.ev.why === 'heat' && K.near(c.ev.trip, 10, 0.02) &&\n      !d.ev.trip && d.s.n === NRUN && e.ev.why === 'hum' && K.near(e.ev.trip, 5, 0.02);\n  });\n  K.check('Starting torque is proportional to the current magnitudes and the sine of the phase angle difference between the winding currents: sin 30° is half of sin 90°, and 0° gives none', () =>\n    K.near(Math.sin(30 * DEG), 0.5, 1e-12) && K.near(Math.sin(90 * DEG), 1, 1e-12) && K.at({ wind: 'main' }).standPct === 0 && K.at({ wind: 'thin' }).standPct > 0,\n    { source: 'https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf' });\n  K.check('The start coil is disconnected by a centrifugal switch at 3/4 of synchronous speed: 0.75 × 1500 = 1125 rpm', () =>\n    NS === 1500 && NSW === 1125 && N.sw === '1125' && runFor('thin', 'ok', 4).ev.open !== null,\n    { source: 'https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf' });\n\n  K.ready();\n</script>",
+  "title": "Two windings, one turning field",
+  "brief": "The one thing you should see is the field's tip going round while the two currents are out of step, and only pulsing along one line when they are not, when you press Start.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Main winding: 15 Ω and 18 Ω give 23.43 Ω, 9.82 A and 50.2° behind the supply. Start winding: 36 Ω and 13.2 Ω give 38.34 Ω, 6.00 A and 20.1°. So the currents are 30.1° apart, and 0° wound like the main",
+     "ok": true
+    },
+    {
+     "label": "As built, the field's tip goes round from the start poles towards the main poles. Wound like the main it stays on one line between them, and on the main winding alone on the main poles' line",
+     "ok": true
+    },
+    {
+     "label": "The example curves: 150% at standstill rising to 190% at 1125 rpm, a step down to the main winding's 110%, and the fan's load meeting its 100% at 1440 rpm. The main winding alone gives 0 at standstill and 0 at 1500 rpm",
+     "ok": true
+    },
+    {
+     "label": "Started as built it passes 1125 rpm and settles at 1440 rpm in about four seconds. Stuck open it hums at 0 rpm and trips after 5 s, and stuck closed it trips on heat after 10 s. Spun while it hums, the main winding carries it to 1440 rpm",
+     "ok": true
+    },
+    {
+     "label": "Starting torque is proportional to the current magnitudes and the sine of the phase angle difference between the winding currents: sin 30° is half of sin 90°, and 0° gives none",
+     "ok": true,
+     "source": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf"
+    },
+    {
+     "label": "The start coil is disconnected by a centrifugal switch at 3/4 of synchronous speed: 0.75 × 1500 = 1125 rpm",
+     "ok": true,
+     "source": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "wind",
+    "sw"
+   ],
+   "readouts": [
+    "rdSpeed",
+    "rdGap",
+    "rdTorque"
+   ],
+   "outputs": [
+    "gapDeg",
+    "mainA",
+    "startA",
+    "standPct"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 7,
+     "step": 1,
+     "steps": [
+      "How it works",
+      "The turning field",
+      "Check",
+      "How it behaves",
+      "Where it is used",
+      "Faults and tests",
+      "Find the fault",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "wind",
+     "kind": "choice",
+     "label": "Start winding",
+     "options": [
+      "thin",
+      "main"
+     ],
+     "labels": [
+      "Thin wire, as built",
+      "Wound like the main"
+     ],
+     "value": "thin",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "sw",
+     "kind": "choice",
+     "label": "Centrifugal switch",
+     "options": [
+      "ok",
+      "open",
+      "closed"
+     ],
+     "labels": [
+      "Working",
+      "Stuck open",
+      "Stuck closed"
+     ],
+     "value": "ok",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Start",
+    "Stop",
+    "Spin the rotor",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Finish the lesson",
+    "Back",
+    "Continue",
+    "The motor"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T12:26:30.765Z",
+  "applied": [
+   {
+    "path": "analogy.text",
+    "problem": "A steam engine's direction is set by its valve gear, so turning it off dead centre does not make it run either way; and not all locomotives are two-cylinder with quartered cranks (three-cylinder engines are 120 degrees apart)."
+   },
+   {
+    "path": "explain.text",
+    "problem": "The size of the split-phase angle is contested (about 30 degrees in some sources, about half of 90 in another, 25 in a worked example); 'about 30° in a typical motor' states one figure as settled."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "'Up to about 250 W' reads as a hard limit where the source says the arrangement serves well up to 1/3 hp; the Read's 'the field now only pulses' is true only of the windings' field; and with the main open the switch would reclose as it slows, so 'could not keep running' is too absolute."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The practice's meter readings (main 4.5, start 15 ohm) clash unexplained with the picture's example winding values (15 and 36 ohm); and a running motor's real field is not purely pulsing, as the picture's main-winding-only arrow shows."
+   },
+   {
+    "path": "practice.text",
+    "problem": "'The start winding burns out' is absolute; the source says it may overheat and fail."
+   },
+   {
+    "path": "summary.traps[1].text",
+    "problem": "'Burn it out' is absolute; the sources say the winding may overheat and fail, or can be damaged."
+   },
+   {
+    "path": "summary.where",
+    "problem": "'Up to about 250 W' reads as a hard limit; the source says the arrangement serves well up to 1/3 hp (250 W)."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

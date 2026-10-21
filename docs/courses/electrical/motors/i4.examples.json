@@ -1,0 +1,67 @@
+{
+  "values": [
+    {
+      "name": "exampleMotor",
+      "value": "230 V, 50 Hz single-phase, four-pole (1500 rpm field speed), rated speed 1440 rpm, rated current 2.8 A, about 250 W (a third of a horsepower)",
+      "unit": "",
+      "why": "The picture needs one small split-phase motor to put numbers on. 230 V and 50 Hz are the usual UK single-phase supply; four poles gives a field speed of 120 x 50 / 4 = 1500 rpm (the rule from lesson 1); a third of a horsepower (250 W) is the top of the range sources give for split-phase motors. Rated speed 1440 rpm (4% slip) and rated current 2.8 A are plausible figures for that size. All of it is an example motor, labelled as one, never a maker's rating.",
+      "realValueLives": "The motor's rating plate (voltage, frequency, poles, rated speed and current) and the maker's data sheet."
+    },
+    {
+      "name": "mainWinding",
+      "value": "R = 15 ohm, X = 18 ohm at 50 Hz (L = 57.3 mH); Z = 23.43 ohm at 50.2 degrees; current 9.82 A, lagging the supply by 50.2 degrees",
+      "unit": "ohm",
+      "why": "Heavy wire, many turns: lower resistance, higher reactance (sources agree on the direction, none gives the values). Chosen so the arithmetic is clean and the starting current ratio lands inside the sourced range. Current = 230 / 23.43 = 9.82 A and angle = arctan(18/15) = 50.2 degrees, both computed from the impedance triangle of AC circuits lesson 6. Labelled as an example winding.",
+      "realValueLives": "The maker's winding data or a bench measurement; the lesson never presents these as a maker's figures."
+    },
+    {
+      "name": "startWinding",
+      "value": "R = 36 ohm, X = 13.2 ohm at 50 Hz (L = 42.0 mH); Z = 38.34 ohm at 20.1 degrees; current 6.00 A, lagging the supply by 20.1 degrees",
+      "unit": "ohm",
+      "why": "Thin wire, fewer turns, nearer the slot surface: higher resistance, lower reactance. Current = 230 / 38.34 = 6.00 A and angle = arctan(13.2/36) = 20.1 degrees, computed the same way. The two angles give a split of 50.2 - 20.1 = 30.1 degrees, which matches the 'about 30 degrees' sources give (Kuphaldt, IDC, PEG-3722). Sources differ on the size of the angle (a textbook says about half of 90, a university example has 25), so the lesson says 'about 30 degrees in a typical example' and the picture's winding values are the sliders' starting point.",
+      "realValueLives": "The maker's winding data; the angle varies from motor to motor."
+    },
+    {
+      "name": "angleBetweenCurrents",
+      "value": 30.1,
+      "unit": "degrees",
+      "why": "Computed, not chosen: 50.2 degrees (main) minus 20.1 degrees (start). Starting torque goes with Im x Is x sin(angle) (Utah ECE 3600, IDC); with the example windings that is 9.82 A x 6.00 A x sin 30.1 degrees = 29.5 A squared, shown only as a relative torque index (torque in newton metres is not computed).",
+      "realValueLives": "The rule is sourced (torque proportional to both currents and the sine of the angle); the angle for a real motor comes from its windings."
+    },
+    {
+      "name": "startingCurrentTotal",
+      "value": "15.3 A (phasor sum of the two winding currents at 38.9 degrees lag), about 5.5 times the rated 2.8 A",
+      "unit": "A",
+      "why": "Computed from the example windings: both are in parallel across 230 V at standstill, so the line current is the phasor sum. 5.5 times rated sits inside the sourced ranges for split-phase motors (500 to 800 percent in one study guide; 700 to 1,000 percent in Microchip AN887; the two differ, so the lesson shows the range as contested and the 5.5 as an example).",
+      "realValueLives": "The motor's locked-rotor current on its rating plate or data sheet (the starting current is the maker's figure)."
+    },
+    {
+      "name": "startingTorqueRated",
+      "value": 1.5,
+      "unit": "per unit of rated torque (150 percent)",
+      "why": "Microchip AN887 gives 100 to 175 percent of rated torque for split-phase starting torque; 150 percent is a plausible mid-range example for the picture's torque bar. Per-unit curve points below are the same kind of labelled example: both windings in at the switch speed 1.9 per unit; main winding alone just after the switch opens 1.1 per unit (the step down that MSU Tech Note 314 describes in words: 'a decrease in torque at the point where the starting winding disconnects'); rated torque 1.0 per unit at 1440 rpm. The drawn curve between points is a smooth line through them and is labelled 'example curve', never a maker's curve.",
+      "realValueLives": "The maker's torque-speed curve for the particular motor (NEMA/IEC data sheets show locked-rotor, pull-up and breakdown torque)."
+    },
+    {
+      "name": "switchOpeningSpeed",
+      "value": 75,
+      "unit": "percent of synchronous speed (1125 rpm of 1500)",
+      "why": "Sources give 75 percent (his sheet, Utah, PEG-3722, Goodheart-Willcox), 3/4 of synchronous speed (Kuphaldt) and about 80 percent (MSU, IDC). The picture uses 75 percent as its default and names 80 percent as the other figure; the closing speed as the motor slows is not sourced and the picture does not show a number for it.",
+      "realValueLives": "The motor's data sheet; the switch's actual speed varies by motor."
+    },
+    {
+      "name": "benchResistanceTest",
+      "value": "Example dc readings: main (run) winding 4.5 ohm, start winding 15 ohm (3.3 times higher), both in parallel across the supply terminals 3.5 ohm",
+      "unit": "ohm",
+      "why": "If the picture shows an ohmmeter reading: Fluke says the two windings in parallel read less than either alone; Lennox Pros says start-to-common is typically three to five times run-to-common (stated for compressor motors with the same winding layout) and ACCA that common-to-start plus common-to-run equals run-to-start. 4.5 ohm and 15 ohm (3.3 times) give 4.5 x 15 / 19.5 = 3.46 ohm in parallel. These are dc readings for an example motor, not the ac values in the windings above (the ac values include the effect of the rotor and iron), and they are labelled as examples. Shown only with the motor isolated and proved dead, never live.",
+      "realValueLives": "The maker's winding resistance table or the motor's own readings when new; compare a suspect motor against a known good one of the same type."
+    },
+    {
+      "name": "citedWorkedExample",
+      "value": "1/3 hp, 120 V split-phase motor: main winding 5 A lagging the supply by 40 degrees, start winding 3 A lagging by 15 degrees, so 25 degrees between them (Utah ECE 3600, Ex. 1)",
+      "unit": "",
+      "why": "A real, cited worked example the lesson can name (as 'a university worked example') if it wants a second set of numbers against the main example. It is a 120 V American motor and gives a 25 degree split; used only as the contrast that the angle varies, not as the lesson's main example.",
+      "realValueLives": "Utah ECE 3600 Single-Phase Induction Motors notes (source 324 and 325 in research.json)."
+    }
+  ]
+}

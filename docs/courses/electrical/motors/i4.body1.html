@@ -1,0 +1,764 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 62rem; margin-inline: auto; }
+  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }
+  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task.show.ask { font-weight: 700; }
+  .task > * + * { margin-top: 10px; }
+  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .task .card b, .task .warn-note b { font-weight: 700; }
+  .task .warn-note, .notes .warn-note { line-height: 1.5; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .why { line-height: 1.6; }
+  .notes > * + * { margin-top: 8px; }
+  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }
+  .lcol > * + *, .rcol > * + * { margin-top: 12px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btns .k-btn { flex: 1 1 6rem; min-height: 48px; height: auto; white-space: normal; line-height: 1.25; padding: 8px 10px; }
+  .chs > * + * { margin-top: 10px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }
+  #outs .k-readout { padding: 8px 8px 10px 10px; }
+  #outs .k-readout-value { font-size: 1.1rem; }
+  .say b { font-weight: 700; }
+  .bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 10px 18px; }
+  .bar .bl { font-size: .95rem; font-weight: 600; margin: 0 0 8px; }
+  .track { position: relative; height: 18px; border-radius: 5px; background: var(--k-sunk); border: 1px solid var(--k-strong); }
+  .track .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 4px; background: var(--k-accent2); }
+  .track .fill.hot { background: var(--k-warn); }
+  .track .zone { position: absolute; right: 0; top: 0; bottom: 0; width: 20%; border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--k-warn) 25%, var(--k-sunk)); }
+  .track .mk { position: absolute; left: 50%; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--k-ink); }
+  .scale { position: relative; height: 1.5em; font-size: .85rem; color: var(--k-ink); margin-top: 5px; }
+  .scale span { position: absolute; top: 0; white-space: nowrap; }
+  .scale .at { left: 50%; transform: translateX(-50%); }
+  .scale .end { right: 0; color: var(--k-warn); }
+  .fig { display: block; width: 100%; height: auto; }
+  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .fig .stat { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; fill-rule: evenodd; vector-effect: non-scaling-stroke; }
+  .fig .pole { fill: var(--k-panel); }
+  .fig .pole-o { fill: none; stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .fig .c1 { fill: var(--k-cat1); }
+  .fig .c2 { fill: var(--k-cat2); }
+  .fig .rot { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .fig .cage { fill: var(--k-muted); }
+  .fig .shaft { fill: var(--k-strong); }
+  .fig .fa { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .fig .fah { fill: var(--k-accent2); }
+  .fig .tr { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .coil1 { fill: none; stroke: var(--k-cat1); stroke-width: 3.2; stroke-linecap: round; }
+  .fig .coil2 { fill: none; stroke: var(--k-cat2); stroke-width: 1.6; stroke-linecap: round; }
+  .fig .jn { fill: var(--k-ink); }
+  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .ang { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .fig .ref { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fig .ph1 { stroke: var(--k-cat1); stroke-width: 4; stroke-linecap: round; }
+  .fig .ph2 { stroke: var(--k-cat2); stroke-width: 2; stroke-linecap: round; }
+  .fig .phh1 { fill: var(--k-cat1); }
+  .fig .phh2 { fill: var(--k-cat2); }
+  .fig .wv1 { fill: none; stroke: var(--k-cat1); stroke-width: 4; stroke-linejoin: round; }
+  .fig .wv2 { fill: none; stroke: var(--k-cat2); stroke-width: 2; stroke-linejoin: round; }
+  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; }
+  .fig .cur { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .fig .tq { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .tqs { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 4; }
+  .fig .ld { fill: none; stroke: var(--k-accent); stroke-width: 2.4; }
+  .fig .gd { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .fig .dotk { fill: var(--k-ink); }
+  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .fin { stroke: var(--k-line); stroke-width: 2; }
+  .fig .shf { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }
+  .fig .hdl { fill: var(--k-strong); }
+  .fig .lock { fill: var(--k-warn); }
+  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }
+  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .fig .lead { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .disp { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .ans { font-weight: 700; }
+  #stepbox.enter { animation: screen-in .35s ease-out both; }
+  .fb { animation: fade-in .25s ease-out both; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="hwW"><svg class="fig" id="hw" viewBox="0 0 340 332" width="100%" role="img" aria-label=""></svg></div>
+    <div id="tqW"><svg class="fig" id="tqs" viewBox="0 0 340 234" width="100%" role="img" aria-label=""></svg></div>
+    <div id="fanW"><svg class="fig" id="fan" viewBox="0 0 340 124" width="100%" role="img" aria-label=""></svg></div>
+    <div id="fltW"><svg class="fig" id="flt" viewBox="0 0 340 176" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div class="live" id="live">
+      <div class="lcol">
+        <svg class="fig" id="ring" viewBox="0 0 340 282" width="100%" role="img" aria-label=""></svg>
+        <div class="btns" id="btns"></div>
+        <div class="chs" id="chs"></div>
+      </div>
+      <div class="rcol">
+        <svg class="fig" id="ph" viewBox="0 0 340 168" width="100%" role="img" aria-label=""></svg>
+        <div class="k-readouts" id="outs"></div>
+        <p class="say" id="say"></p>
+        <div class="bars">
+          <div class="bar"><p class="bl">Torque</p><div class="track"><i class="fill" id="tqFill"></i><i class="mk"></i></div><div class="scale"><span class="at">rated, 100%</span></div></div>
+          <div class="bar"><p class="bl">Start winding heat</p><div class="track"><i class="zone"></i><i class="fill" id="htFill"></i></div><div class="scale"><span class="end">too hot</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes" id="notes"></div>
+    <div class="picks" id="picks"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const DEG = Math.PI / 180;
+
+  // ---------- the rule ----------
+  // The example motor: 230 V, 50 Hz, four poles (an example, not a maker's rating).
+  const V = 230, HZ = 50, POLES = 4;
+  const NS = 120 * HZ / POLES;          // the field's speed: 120 × 50 ÷ 4 = 1500 rpm
+  const NRUN = 1440;                    // the example motor's speed on its rated load
+  const NSW = 0.75 * NS;                // the switch opens at 75% of 1500 = 1125 rpm
+  const SPIN = 150, SLOW = 50;          // Spin the rotor gives 150 rpm; the field arrow is slowed 50 times
+  // Each winding follows the impedance triangle: Z = √(R² + X²), current = 230 ÷ Z, angle behind the supply = arctan(X ÷ R).
+  function winding(R, X) { const Z = Math.sqrt(R * R + X * X); return { R: R, X: X, Z: Z, I: V / Z, phi: Math.atan(X / R) / DEG }; }
+  const MAIN = winding(15, 18), THIN = winding(36, 13.2);
+  const startW = (w) => (w === 'main' ? MAIN : THIN);   // wound like the main, it takes the main's values
+  const gapOf = (w) => MAIN.phi - startW(w).phi;
+  // The field: each winding's field points along its own poles, in proportion to its current at that instant.
+  // Start poles left and right (x), main poles top and bottom (y). The arrow is their sum.
+  const fieldXY = (th, S, sf, mf) => [sf * S.I * Math.sin((th - S.phi) * DEG), mf * MAIN.I * Math.sin((th - MAIN.phi) * DEG)];
+  // Example torque curves, % of rated (a sketch, not a maker's): smooth curves through the lesson's points.
+  function herm(x, x0, x1, y0, y1, m0, m1) {
+    const h = x1 - x0, t = (x - x0) / h, t2 = t * t, t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * y0 + (t3 - 2 * t2 + t) * h * m0 + (-2 * t3 + 3 * t2) * y1 + (t3 - t2) * h * m1;
+  }
+  const TB0 = 150, TB1 = 190, TM1 = 110, TRUN = 100;
+  const tBoth = (n) => herm(K.clamp(n, 0, NSW), 0, NSW, TB0, TB1, (TB1 - TB0) / NSW, 0);
+  function tMain(n) {
+    if (n <= NSW) return herm(Math.max(0, n), 0, NSW, 0, TM1, 1.5 * TM1 / NSW, 0);
+    if (n <= NRUN) return herm(n, NSW, NRUN, TM1, TRUN, 0, -0.09);
+    return Math.max(0, herm(Math.min(n, NS), NRUN, NS, TRUN, 0, -0.09, -2.5));
+  }
+  const tLoad = (n) => TRUN * Math.pow(n / NRUN, 2);   // the fan: torque grows with speed squared, 100% at 1440 rpm
+  // The picture's timing, a sketch: run-up about 4 s, a hum trips after 5 s, a start winding left in trips after 10 s.
+  const KA = 4.5, MINR = 110, FRIC = 40, HUM_TRIP = 5, HEAT_T = 10, COOL_T = 20, FADE = 0.5;
+
+  const one = (v) => (Math.round(v * 10 + 1e-9) / 10).toFixed(1);
+  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);
+  const whole = (v) => String(Math.round(v + 1e-9));
+  const gapTxt = (w) => (gapOf(w) < 0.05 ? '0' : one(gapOf(w))) + '°';
+  const N = { phiM: one(MAIN.phi), phiS: one(THIN.phi), gap: one(gapOf('thin')), sw: whole(NSW), run: whole(NRUN), ns: whole(NS),
+    zM: two(MAIN.Z), zS: two(THIN.Z), iM: two(MAIN.I), iS: two(THIN.I), swPct: whole(NSW / NS * 100), tb0: whole(TB0), tb1: whole(TB1), tm1: whole(TM1),
+    sin30: String(Math.round(Math.sin(30 * DEG) * 10) / 10) };
+
+  // ---------- the motor in the picture ----------
+  function fresh() { return { on: false, n: 0, heat: 0, humT: 0, trip: '', mf: 0, sf: 0, th: 0, rot: 0 }; }
+  const swClosed = (s, sw) => (sw === 'closed' ? true : sw === 'open' ? false : s.n < NSW);
+  // Both windings in (thin wire, below 1125 rpm): the both-windings curve. Otherwise the main winding's curve
+  // (with the switch stuck closed, drawn as for a working switch). Wound like the main: nothing at standstill.
+  function torqueOf(s, w, sw) { if (!s.on) return 0; return swClosed(s, sw) && w !== 'main' && s.n < NSW ? tBoth(s.n) : tMain(s.n); }
+  function advance(s, dt, w, sw) {
+    const fed = s.on && swClosed(s, sw), T = torqueOf(s, w, sw), TL = tLoad(s.n);
+    if (s.on) { if (T > TL) s.n = Math.min(NRUN, s.n + Math.max(KA * (T - TL), MINR) * dt); }
+    else s.n = Math.max(0, s.n - KA * (TL + FRIC) * dt);
+    if (s.on && s.n < 0.5 && T <= 0) { s.humT += dt; if (s.humT >= HUM_TRIP - 1e-9) { s.on = false; s.trip = 'hum'; } }
+    else s.humT = 0;
+    if (fed) { s.heat = Math.min(1, s.heat + dt / HEAT_T); if (s.heat >= 1 - 1e-9) { s.on = false; s.trip = 'heat'; } }
+    else s.heat = Math.max(0, s.heat - dt / COOL_T);
+    const fedNow = s.on && swClosed(s, sw);
+    s.mf = K.clamp(s.mf + (s.on ? dt : -dt) / FADE, 0, 1);
+    s.sf = K.clamp(s.sf + (fedNow ? dt : -dt) / FADE, 0, 1);
+    s.th = (s.th + 360 * HZ / SLOW * dt) % 360;                // one pole pair drawn: the field goes round once a second
+    s.rot = (s.rot + 360 * HZ / SLOW * (s.n / NS) * dt) % 360; // the rotor at its share of the field's speed
+  }
+  function runFor(w, sw, secs, spinAt) {
+    const s = fresh(), ev = { open: null, settle: null, trip: null, why: '' }, DT = 0.01;
+    s.on = true;
+    for (let k = 0; k < Math.round(secs / DT); k++) {
+      if (spinAt != null && k === Math.round(spinAt / DT)) s.n = Math.max(s.n, SPIN);
+      const was = s.n;
+      advance(s, DT, w, sw);
+      const t = (k + 1) * DT;
+      if (ev.open === null && was < NSW && s.n >= NSW) ev.open = t;
+      if (ev.settle === null && s.n >= NRUN) ev.settle = t;
+      if (ev.trip === null && s.trip) { ev.trip = t; ev.why = s.trip; }
+    }
+    return { s: s, ev: ev };
+  }
+
+  // ---------- the lesson's words ----------
+  const blk = (t, s) => ({ t: t, s: s });
+  const HOW = [
+    blk('p', 'One winding on one phase makes a field that only pulses. It grows, collapses and reverses along one line. At rest, that gives the rotor no push either way.'),
+    blk('p', 'So a *start winding* sits 90° round from the main winding, in parallel with it. It is thin wire with fewer turns. That gives more resistance and less inductance, so its current lags the supply less.'),
+    blk('p', 'The two currents peak at different moments, and the field turns. At about ' + N.swPct + '% speed a *centrifugal switch* drops the start winding out.'),
+  ];
+  const PLAY_TASK = 'Press Start and watch the field\'s tip. Then wind the start winding like the main, and try each switch fault.';
+  const UNDER = 'An example motor and example windings. The field\'s tip turns only while the two currents are out of step.';
+  const WARN = 'Spin the rotor is for the picture only: never spin a live motor by hand.';
+  const PLAY_READ = 'Once started, both windings are fed. Their currents peak ' + N.gap + '° apart, so the field\'s tip traces an ellipse and goes round. The rotor runs up. ' +
+    'At ' + N.sw + ' rpm the switch opens and the torque drops a step, from ' + N.tb1 + '% to ' + N.tm1 + '%. ' +
+    'The windings\' field now only pulses, but the rotor keeps turning on the main winding and settles at ' + N.run + ' rpm. ' +
+    'With the start winding wound like the main, both currents lag ' + N.phiM + '°. The field only pulses, and the motor hums at rest. ' +
+    'With the switch stuck open it hums the same way. With it stuck closed, the start winding overheats.';
+  const BEHAVE = [
+    blk('row', 'Starting torque: Low: typically 100 to 175% of rated. It goes with the sine of the angle between the currents. Sin 30° is ' + N.sin30 + ', against 1 at 90°.'),
+    blk('row', 'Starting current: High: about 5 to 10 times rated. Use the maker\'s figure.'),
+    blk('row', 'The switch: Opens at about 75 to 80% of full speed, and the torque drops a step. It closes again as the motor slows.'),
+    blk('row', 'Running: Runs on the main winding alone, a little below synchronous speed. It is not momentum. Once turning, one winding still makes torque.'),
+  ];
+  const USE = [
+    blk('row', 'Used for: Fans, small pumps and other loads that are easy to start, usually up to about 250 W.'),
+    blk('row', 'Start winding: Short-time rated. Frequent starts, or a slow start on a heavy load, overheat it.'),
+    blk('row', 'Hard-to-start loads: Too little starting torque. A capacitor-start motor handles those.'),
+    blk('safe', 'Explosive atmospheres: Never use a centrifugal switch there, or inside a sealed compressor. Its arcing can ignite gas.'),
+  ];
+  const FAULTS = [
+    blk('safe', 'Safety first: Isolate, lock off and prove dead first. A self-resetting thermal cut-out can restart it at any time.'),
+    blk('row', 'Start circuit open: The switch is stuck open, or the start winding has burnt open. It hums, will not start, then trips.'),
+    blk('row', 'Switch stuck closed: It starts, but the start winding stays in. It overheats and burns, then the overload trips.'),
+    blk('row', 'Resistance: Across the supply terminals the two windings read in parallel, so lower than either. If it reads the main winding alone, the start circuit is open.'),
+    blk('row', 'Wrong direction: Swap the start winding\'s two leads, not the supply.'),
+  ];
+  const words = (list) => list.map((b) => b.s.replace(/\*/g, '')).join('\n\n');
+  const C1 = 'So it can stay in and help the motor run', C2 = 'So its current lags the supply less than the main winding\'s', C3 = 'To give it more inductance, so its current lags more';
+  const F1 = 'The main winding is open', F2 = 'The start circuit is open: the switch stuck open, or the start winding burnt out', F3 = 'The centrifugal switch is stuck closed';
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const STEPS = [
+    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },
+    { show: true, name: 'The turning field', label: 'The turning field', text: PLAY_TASK + '\n\n' + UNDER + ' ' + WARN, read: PLAY_READ, still: () => stillAfterStart() },
+    { name: 'Check', label: 'Check on the cause',
+      task: 'Why is the start winding wound with thin wire and fewer turns?',
+      opts: [C1, C2, C3], want: C2,
+      why: 'More resistance and less inductance give a smaller angle in the impedance triangle. In the example the start current lags ' + N.phiS + '° and the main ' + N.phiM +
+        '°. That ' + N.gap + '° gap is what makes the field turn. Wound like the main, both lag ' + N.phiM + '°, and the field only pulses.',
+      slips: ['It is not rated to stay in. Its thin wire carries a high current density and heats fast. So the switch drops it out at about ' + N.swPct + '% speed. Its job is to put its current out of step with the main winding\'s.',
+        '', 'That is the wrong way round. Fewer turns give less inductance, so its current lags less. Lagging less than the main is what puts the two out of step.'] },
+    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },
+    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },
+    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },
+    { name: 'Find the fault', label: 'Find the fault',
+      task: 'A small fan\'s split-phase motor hums and will not start. After a few seconds its overload trips. The operator says it ran once when he pushed the blades round. What is the likely fault?',
+      opts: [F1, F2, F3], want: F2,
+      why: 'With no start current the field only pulses, so it cannot start from rest. Once pushed round, the main winding alone carries it. Never start one by hand. Isolate it, then test the start winding and the switch.',
+      slips: ['With the main winding open it might run up once pushed. But the switch then drops the start winding out, and nothing is left fed. It could not run steadily.', '',
+        'A switch stuck closed keeps the start winding in. That motor starts well, then the start winding overheats. This one cannot start at all.'] },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iHow = 0, iPic = 1, iChk = 2, iBeh = 3, iUse = 4, iFlt = 5, iFind = 6, iK = 7;
+  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));
+  let lastStep = -1, finished = false;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function addText(node, s) {
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function write(node, s) { node.textContent = ''; return addText(node, s); }
+  function blocks(node, list) {
+    node.textContent = '';
+    list.forEach((b, k) => {
+      if (k) node.appendChild(document.createTextNode(' '));
+      let e;
+      if (b.t === 'row' || b.t === 'safe') {
+        const cut = b.s.indexOf(': ');
+        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, K.el('b', null, b.s.slice(0, cut + 1)), ' ');
+        addText(e, b.s.slice(cut + 2));
+      } else e = addText(K.el('p'), b.s);
+      node.appendChild(e);
+    });
+  }
+
+  // ---------- drawing helpers ----------
+  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }
+  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }
+  function set(n, attrs) { Object.keys(attrs).forEach((k) => n.setAttribute(k, attrs[k])); }
+  const f1 = (v) => (+v).toFixed(1);
+  const circ = (r) => 'M' + (-r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0Z';
+  const POLE_FILL = 'M-13 -88V-68L-25.6 -57.6L-23.6 -53A58 58 0 0 1 23.6 -53L25.6 -57.6L13 -68V-88Z';
+  const POLE_LINE = 'M-13 -84.6V-68L-25.6 -57.6L-23.6 -53A58 58 0 0 1 23.6 -53L25.6 -57.6L13 -68V-84.6';
+  const coil = (x, y0, humps) => { let d = 'M' + x + ' ' + y0; for (let j = 0; j < humps; j++) d += 'a6 6 0 0 1 0 12'; return d; };
+
+  // The stator as a ring: main poles top and bottom (thicker coils), start poles left and right, the rotor cage in the middle.
+  function buildRing(g, cx, cy, k) {
+    const R = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ') scale(' + k + ')' });
+    ad(R, 'path', { d: circ(100) + circ(84), class: 'stat' });
+    [[0, 1], [180, 1], [90, 2], [270, 2]].forEach((q) => {
+      const P = ad(R, 'g', { transform: 'rotate(' + q[0] + ')' });
+      ad(P, 'rect', q[1] === 1 ? { x: -24, y: -80, width: 48, height: 12, rx: 3, class: 'c1' } : { x: -20, y: -78, width: 40, height: 8, rx: 3, class: 'c2' });
+      ad(P, 'path', { d: POLE_FILL, class: 'pole' });
+      ad(P, 'path', { d: POLE_LINE, class: 'pole-o' });
+    });
+    ad(R, 'circle', { r: 52, class: 'rot' });
+    const cage = ad(R, 'g', {});
+    for (let j = 0; j < 16; j++) ad(cage, 'rect', { x: -2.5, y: -48, width: 5, height: 9, rx: 1.5, class: 'cage', transform: 'rotate(' + (j * 22.5) + ')' });
+    return { R: R, cage: cage };
+  }
+
+  // How it works: the ring, then both windings in parallel across the supply, the switch in series with the start winding.
+  function buildHw(g) {
+    const cx = 170, cy = 112;
+    buildRing(g, cx, cy, 0.62);
+    txt(g, cx, 30, 'Main winding: thicker wire, more turns', 'lb', 'middle');
+    txt(g, cx, cy + 79, 'main', 'lb', 'middle');
+    ['Start winding:', 'thin wire,', 'fewer turns'].forEach((s, j) => txt(g, 100, cy - 12 + 16 * j, s, 'lb', 'end'));
+    txt(g, 240, cy + 5, 'start', 'lb');
+    txt(g, cx, cy + 5, 'rotor', 'lb', 'middle');
+    const at = (a, r) => [cx + r * Math.cos(a * DEG), cy + r * Math.sin(a * DEG)].map(f1);
+    ad(g, 'path', { d: 'M' + at(-80, 70).join(' ') + 'A70 70 0 0 1 ' + at(-10, 70).join(' '), class: 'ang' });
+    const lp = at(-45, 82);
+    txt(g, lp[0], +lp[1] + 4, '90°', 'lb', 'middle');
+    // the wiring
+    ad(g, 'path', { d: 'M36 216H290V226M36 320H290V294M36 216V255M36 281V320M150 216V238M150 298V320M290 248V258', class: 'w' });
+    ad(g, 'circle', { cx: 36, cy: 268, r: 13, class: 'src' });
+    ad(g, 'path', { d: 'M28 268c3 -6 5 -6 8 0s5 6 8 0', class: 'w' });
+    txt(g, 56, 264, V + ' V,');
+    txt(g, 56, 280, HZ + ' Hz');
+    ad(g, 'path', { d: coil(150, 238, 5), class: 'coil1' });
+    txt(g, 164, 272, 'main');
+    ad(g, 'circle', { cx: 290, cy: 228, r: 2.6, class: 'jn' });
+    ad(g, 'path', { d: 'M290 228L295 247M284 248H296', class: 'w' });
+    ad(g, 'path', { d: coil(290, 258, 3), class: 'coil2' });
+    txt(g, 276, 236, 'centrifugal', 'lb', 'end');
+    txt(g, 276, 250, 'switch', 'lb', 'end');
+    txt(g, 276, 282, 'start', 'lb', 'end');
+    [[150, 216], [150, 320]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));
+    g.setAttribute('aria-label', 'The stator drawn as a ring, with the rotor cage in the middle. The main winding\'s poles sit top and bottom: thicker wire, more turns. ' +
+      'The start winding\'s poles sit left and right, 90° round: thin wire, fewer turns. Below, both windings are wired in parallel across ' + V + ' V, ' + HZ +
+      ' Hz. A centrifugal switch, drawn closed, sits in series with the start winding only.');
+  }
+
+  // How it behaves: the example torque against speed, and the fan's load.
+  function buildTq(g) {
+    const X = (n) => 40 + 0.18 * n, Y = (t) => 190 - 0.78 * t;
+    const path = (fn, a, b, step) => { let d = ''; for (let n = a; n <= b + 1e-9; n += step) d += (d ? 'L' : 'M') + f1(X(n)) + ' ' + f1(Y(fn(n))); return d; };
+    [100, 200].forEach((t) => ad(g, 'line', { x1: 40, y1: Y(t), x2: 322, y2: Y(t), class: 'grid' }));
+    ad(g, 'path', { d: 'M40 30V190H322', class: 'ax' });
+    [0, 100, 200].forEach((t) => txt(g, 34, Y(t) + 4.5, String(t), 'lb', 'end'));
+    [0, 500, 1000, 1500].forEach((n) => txt(g, X(n), 206, String(n), 'lb', 'middle'));
+    txt(g, 4, 16, 'Torque, % of rated', 'hd');
+    txt(g, 336, 16, 'Example curve, not a maker\'s', 'mu', 'end');
+    txt(g, 181, 226, 'Speed, rpm', 'hd', 'middle');
+    ad(g, 'path', { d: path(tLoad, 0, NS, 25), class: 'ld' });
+    ad(g, 'path', { d: path(tBoth, 0, NSW, 25), class: 'tq' });
+    ad(g, 'line', { x1: X(NSW), y1: Y(TB1), x2: X(NSW), y2: Y(TM1), class: 'tqs' });
+    ad(g, 'path', { d: path(tMain, NSW, NS, 5), class: 'tq' });
+    ad(g, 'line', { x1: X(NRUN), y1: Y(TRUN) + 5, x2: X(NRUN), y2: 190, class: 'gd' });
+    ad(g, 'circle', { cx: X(NRUN), cy: Y(TRUN), r: 4.5, class: 'dotk' });
+    txt(g, 60, 92, 'both windings');
+    txt(g, 236, 73, 'switch opens', 'lb', 'end');
+    txt(g, 336, 86, 'main winding', 'lb', 'end');
+    txt(g, 336, 100, 'only', 'lb', 'end');
+    txt(g, 96, 168, 'fan load');
+    txt(g, 292, 164, 'runs here,', 'lb', 'end');
+    txt(g, 292, 178, N.run + ' rpm', 'lb', 'end');
+    g.setAttribute('aria-label', 'Example torque against speed, 0 to ' + N.ns + ' rpm. With both windings in, the torque rises from ' + N.tb0 + '% of rated at standstill to ' + N.tb1 + '% at ' + N.sw +
+      ' rpm. There the switch opens and it steps down to the main winding\'s line at ' + N.tm1 + '%. That line falls through ' + TRUN + '% at ' + N.run + ' rpm to 0 at ' + N.ns +
+      ' rpm. The fan\'s load line rises to meet it at ' + N.run + ' rpm, where the motor runs.');
+  }
+
+  // Where it is used: a small fan on the motor's shaft.
+  function buildFan(g) {
+    ad(g, 'rect', { x: 16, y: 30, width: 112, height: 60, rx: 10, class: 'body' });
+    for (let x = 30; x <= 114; x += 12) ad(g, 'line', { x1: x, y1: 36, x2: x, y2: 84, class: 'fin' });
+    ad(g, 'rect', { x: 128, y: 40, width: 10, height: 40, rx: 3, class: 'body' });
+    ad(g, 'rect', { x: 30, y: 90, width: 84, height: 8, rx: 2, class: 'body' });
+    ad(g, 'line', { x1: 138, y1: 60, x2: 206, y2: 60, class: 'shf' });
+    ad(g, 'ellipse', { cx: 214, cy: 33, rx: 6, ry: 20, class: 'body', transform: 'rotate(10 214 33)' });
+    ad(g, 'ellipse', { cx: 210, cy: 87, rx: 6, ry: 20, class: 'body', transform: 'rotate(10 210 87)' });
+    ad(g, 'rect', { x: 204, y: 50, width: 16, height: 20, rx: 4, class: 'body' });
+    txt(g, 236, 54, 'fan,');
+    txt(g, 236, 70, 'easy to start');
+    txt(g, 72, 116, 'split-phase motor', 'lb', 'middle');
+    g.setAttribute('aria-label', 'A split-phase motor with a small fan on its shaft, labelled easy to start.');
+  }
+
+  // Faults and tests: the isolator open, locked and tagged; an ohmmeter across the motor's two supply terminals.
+  function buildFlt(g) {
+    txt(g, 71, 16, 'isolator: open', 'lb', 'middle');
+    ad(g, 'rect', { x: 24, y: 24, width: 94, height: 72, rx: 6, class: 'body' });
+    ad(g, 'path', { d: 'M0 48H40M0 72H40M40 48L72 34M40 72L72 58M84 48H233.5M84 72H233.5', class: 'w' });
+    [[40, 48], [40, 72], [84, 48], [84, 72]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    ad(g, 'rect', { x: 62, y: 96, width: 18, height: 8, rx: 2, class: 'hdl' });
+    ad(g, 'path', { d: 'M65 116V110a6 6 0 0 1 12 0V116', class: 'shk' });
+    ad(g, 'rect', { x: 61, y: 115, width: 20, height: 16, rx: 3, class: 'lock' });
+    ad(g, 'path', { d: 'M81 124L90 129', class: 'w' });
+    ad(g, 'polygon', { points: '92 126 110 126 110 150 88 150 88 130', class: 'tag' });
+    ad(g, 'circle', { cx: 93, cy: 131, r: 1.8, class: 'jn' });
+    txt(g, 118, 130, 'locked off');
+    txt(g, 118, 146, 'and tagged');
+    ad(g, 'rect', { x: 226, y: 36, width: 24, height: 48, rx: 3, class: 'disp' });
+    ad(g, 'path', { d: 'M242.5 48H266.5M242.5 72H266.5', class: 'w' });
+    ad(g, 'circle', { cx: 294, cy: 60, r: 30, class: 'body' });
+    txt(g, 294, 65, 'M', 'hd', 'middle');
+    [48, 72].forEach((y) => ad(g, 'circle', { cx: 238, cy: y, r: 4.5, class: 'term' }));
+    txt(g, 238, 24, 'supply terminals', 'lb', 'middle');
+    ad(g, 'rect', { x: 190, y: 112, width: 72, height: 40, rx: 6, class: 'body' });
+    ad(g, 'rect', { x: 198, y: 118, width: 56, height: 18, rx: 2, class: 'disp' });
+    txt(g, 226, 132, 'Ω', 'hd', 'middle');
+    ad(g, 'path', { d: 'M206 112C206 96 224 84 235 76M246 112C258 100 256 60 242 51', class: 'lead' });
+    txt(g, 226, 168, 'ohmmeter', 'lb', 'middle');
+    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. An ohmmeter is connected across the motor\'s two supply terminals.');
+  }
+
+  buildHw(el('hw'));
+  buildTq(el('tqs'));
+  buildFan(el('fan'));
+  buildFlt(el('flt'));
+
+  // ---------- the live picture ----------
+  const KF = 3.6, NT = 16, TSTEP = 10;          // px per amp for the field; the trail: 16 pieces, 10° apart
+  const L = {};
+  (function () {
+    const g = el('ring'), CX = 170, CY = 128;
+    const r = buildRing(g, CX, CY, 1);
+    L.cage = r.cage;
+    ad(r.R, 'circle', { r: 7, class: 'shaft' });
+    const F = ad(g, 'g', { transform: 'translate(' + CX + ' ' + CY + ')' });
+    L.trailG = ad(F, 'g', {});
+    L.trail = [];
+    for (let k = 0; k < NT; k++) L.trail.push(ad(L.trailG, 'line', { class: 'tr', x1: 0, y1: 0, x2: 0, y2: 0, 'stroke-opacity': (0.55 * (1 - k / NT)).toFixed(2) }));
+    L.arrow = ad(F, 'g', { opacity: 0 });
+    L.line = ad(L.arrow, 'line', { class: 'fa', x1: 0, y1: 0, x2: 0, y2: 0 });
+    L.head = ad(L.arrow, 'polygon', { class: 'fah', points: '0 0 0 0 0 0' });
+    txt(g, CX, 20, 'main', 'lb', 'middle');
+    txt(g, CX, 246, 'main', 'lb', 'middle');
+    txt(g, 62, CY + 5, 'start', 'lb', 'end');
+    txt(g, 278, CY + 5, 'start', 'lb');
+    ad(g, 'line', { x1: 74, y1: 268, x2: 92, y2: 268, class: 'fa' });
+    ad(g, 'polygon', { points: '102 268 90 262 90 274', class: 'fah' });
+    txt(g, 110, 273, 'the field, slowed ' + SLOW + ' times');
+  })();
+  function drawArrow(hx, hy) {
+    const len = Math.hypot(hx, hy);
+    if (len < 9) { L.arrow.setAttribute('opacity', 0); return; }
+    L.arrow.setAttribute('opacity', 1);
+    const ux = hx / len, uy = hy / len, bx = hx - 11 * ux, by = hy - 11 * uy;
+    set(L.line, { x2: f1(bx), y2: f1(by) });
+    L.head.setAttribute('points', [hx, hy, bx - 6 * uy, by + 6 * ux, bx + 6 * uy, by - 6 * ux].map(f1).join(' '));
+  }
+
+  // The panel: the two currents as phasors from one point, and as waves over one cycle.
+  const O = [14, 52], PS = 9, WX0 = 136, WW = 196, WY = 80, WS = 5.4;
+  const P = { w: null };
+  const polar = (phi, len) => [O[0] + len * Math.cos(phi * DEG), O[1] + len * Math.sin(phi * DEG)];
+  const wavePath = (W) => { let d = ''; for (let a = 0; a <= 360; a += 6) d += (a ? 'L' : 'M') + f1(WX0 + a / 360 * WW) + ' ' + f1(WY - WS * W.I * Math.sin((a - W.phi) * DEG)); return d; };
+  (function () {
+    const g = el('ph');
+    ad(g, 'line', { x1: WX0, y1: WY, x2: WX0 + WW, y2: WY, class: 'ax' });
+    P.msg = txt(g, 170, 60, 'No supply, so no current.', 'mu', 'middle');
+    P.all = ad(g, 'g', {});
+    ad(P.all, 'line', { x1: O[0], y1: O[1], x2: 122, y2: O[1], class: 'ref' });
+    txt(P.all, 122, O[1] - 8, V + ' V', 'mu', 'end');
+    P.mW = ad(P.all, 'path', { class: 'wv1' });
+    P.sWg = ad(P.all, 'g', {});
+    P.sW = ad(P.sWg, 'path', { class: 'wv2' });
+    P.cur = ad(P.all, 'line', { x1: WX0, y1: 22, x2: WX0, y2: 140, class: 'cur' });
+    P.now = txt(P.all, 150, 14, 'now', 'mu', 'middle');
+    P.mD = ad(P.all, 'circle', { cx: WX0, cy: WY, r: 4.5, class: 'phh1' });
+    P.mL = ad(P.all, 'line', { class: 'ph1' });
+    P.mH = ad(P.all, 'polygon', { class: 'phh1', points: '0 0 0 0 0 0' });
+    P.mT = txt(P.all, 0, 0, 'main');
+    P.sPg = ad(P.all, 'g', {});
+    P.sD = ad(P.sPg, 'circle', { cx: WX0, cy: WY, r: 3.5, class: 'phh2' });
+    P.arc = ad(P.sPg, 'path', { class: 'ang' });
+    P.sL = ad(P.sPg, 'line', { class: 'ph2' });
+    P.sH = ad(P.sPg, 'polygon', { class: 'phh2', points: '0 0 0 0 0 0' });
+    P.sT = txt(P.sPg, 0, 0, 'start');
+    ad(P.all, 'line', { x1: 14, y1: 156, x2: 34, y2: 156, class: 'ph1' });
+    txt(P.all, 40, 160, 'main ' + N.iM + ' A');
+    ad(P.all, 'line', { x1: 150, y1: 156, x2: 170, y2: 156, class: 'ph2' });
+    P.kS = txt(P.all, 176, 160, '');
+  })();
+  function vec(line, head, t, hw) {
+    const dx = t[0] - O[0], dy = t[1] - O[1], len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, bx = t[0] - 10 * ux, by = t[1] - 10 * uy;
+    set(line, { x1: O[0], y1: O[1], x2: f1(bx), y2: f1(by) });
+    head.setAttribute('points', [t[0], t[1], bx - hw * uy, by + hw * ux, bx + hw * uy, by - hw * ux].map(f1).join(' '));
+  }
+
+  let M = fresh(), held = false, quiet = false, seenW = null, seenSw = null, lastSay = '', lastAriaR = '', lastAriaP = '';
+  const busy = () => M.on || M.n > 0 || M.heat > 0 || M.mf > 0 || M.sf > 0;
+  const wOf = (p) => (p.wind === 'main' ? 'main' : 'thin');
+  const swOf = (p) => (p.sw === 'open' || p.sw === 'closed' ? p.sw : 'ok');
+
+  // What the motor is doing, and why.
+  function statusOf(s, w, sw) {
+    const fed = s.on && swClosed(s, sw), T = torqueOf(s, w, sw);
+    if (s.trip === 'heat') return ['Start winding overheating: overload tripped.', sw === 'closed' ? 'The switch never opened, so the start winding stayed in until it was too hot.' : 'The start winding was in too long, too often. It is short-time rated.'];
+    if (s.trip === 'hum') return ['Overload tripped.', 'The motor hummed without starting, so the overload cut the supply.'];
+    if (!s.on) {
+      if (s.n < 0.5) return ['At rest.', 'No supply, so no current and no field.'];
+      if (sw !== 'ok') return ['Slowing down.', 'There is no supply now.'];
+      return ['Slowing down.', s.n >= NSW ? 'There is no supply now. Below ' + N.sw + ' rpm the switch closes again.' : 'There is no supply now. The switch has closed again, ready for the next start.'];
+    }
+    if (s.n < 0.5 && T <= 0) return ['Humming: no start.', fed ? 'Both currents lag ' + N.phiM + '°, so they peak together. The field only pulses along one line, so the rotor gets no push.' :
+      'Only the main winding is fed. Its field only pulses up and down, so the rotor gets no push.'];
+    if (fed && s.n >= NSW) return ['Switch stuck closed: start winding still in.', 'The motor runs, but the start winding is still fed, and it is heating up.'];
+    if (fed) return ['Running up.', w === 'main' ? 'The two currents peak together, so the field only pulses. But the rotor is turning, so it still gets torque.' :
+      'The two currents peak ' + N.gap + '° apart, so the field turns and pulls the rotor round.'];
+    return ['Switch open: main winding only.', 'The field only pulses, but the turning rotor still gets torque from it. ' +
+      (s.n >= NRUN - 0.5 ? 'It settles at ' + N.run + ' rpm, where its torque meets the fan\'s.' : 'It is still speeding up.')];
+  }
+
+  function paintLive(w, sw) {
+    const s = M, S2 = startW(w), fed = s.on && swClosed(s, sw), T = torqueOf(s, w, sw);
+    // the ring: the rotor turns at its own speed; the field arrow is the sum of the two windings' fields
+    L.cage.setAttribute('transform', 'rotate(' + f1(-s.rot) + ')');
+    const showF = s.mf > 0.001;
+    L.trailG.style.display = showF ? '' : 'none';
+    if (showF) {
+      const tip = (th) => { const f = fieldXY(th, S2, s.sf, s.mf); return [KF * f[0], -KF * f[1]]; };
+      let a = tip(s.th);
+      const h = a;
+      L.trail.forEach((ln, k) => { const b = tip(s.th - (k + 1) * TSTEP); set(ln, { x1: f1(a[0]), y1: f1(a[1]), x2: f1(b[0]), y2: f1(b[1]) }); a = b; });
+      drawArrow(h[0], h[1]);
+    } else L.arrow.setAttribute('opacity', 0);
+    // the panel
+    P.msg.style.display = showF ? 'none' : '';
+    P.all.style.display = showF ? '' : 'none';
+    P.all.setAttribute('opacity', s.mf.toFixed(2));
+    P.sWg.setAttribute('opacity', s.sf.toFixed(2));
+    P.sPg.setAttribute('opacity', s.sf.toFixed(2));
+    if (P.w !== w) {
+      P.w = w;
+      const mt = polar(MAIN.phi, MAIN.I * PS), st = polar(S2.phi, S2.I * PS);
+      vec(P.mL, P.mH, mt, 6);
+      vec(P.sL, P.sH, st, 4.5);
+      set(P.mT, { x: f1(mt[0] + 6), y: f1(mt[1] + 12) });
+      if (w === 'main') set(P.sT, { x: f1(mt[0] - 4), y: f1(mt[1] + 14), 'text-anchor': 'end' });
+      else set(P.sT, { x: f1(st[0] + 8), y: f1(st[1] + 5), 'text-anchor': 'start' });
+      const open = gapOf(w) > 0.5;
+      P.arc.style.display = open ? '' : 'none';
+      if (open) P.arc.setAttribute('d', 'M' + polar(S2.phi, 28).map(f1).join(' ') + 'A28 28 0 0 1 ' + polar(MAIN.phi, 28).map(f1).join(' '));
+      P.mW.setAttribute('d', wavePath(MAIN));
+      P.sW.setAttribute('d', wavePath(S2));
+    }
+    const c = ((s.th % 360) + 360) % 360, cx = WX0 + c / 360 * WW;
+    set(P.cur, { x1: f1(cx), x2: f1(cx) });
+    P.now.setAttribute('x', f1(K.clamp(cx, 150, 322)));
+    set(P.mD, { cx: f1(cx), cy: f1(WY - WS * MAIN.I * Math.sin((c - MAIN.phi) * DEG)) });
+    set(P.sD, { cx: f1(cx), cy: f1(WY - WS * S2.I * Math.sin((c - S2.phi) * DEG)) });
+    P.kS.textContent = fed ? 'start ' + two(S2.I) + ' A' : 'start: not fed';
+    // readouts, bars and the status line
+    RD.n.set(s.n);
+    RD.g.set(!s.on ? 'not fed' : fed ? gapTxt(w) : 'start winding out');
+    RD.t.set(T);
+    el('tqFill').style.width = f1(Math.min(T, 200) / 2) + '%';
+    const hf = el('htFill');
+    hf.style.width = f1(s.heat * 100) + '%';
+    hf.classList.toggle('hot', s.heat >= 0.8);
+    const st = statusOf(s, w, sw), key = st.join('|');
+    if (key !== lastSay) {
+      lastSay = key;
+      const say = el('say');
+      say.textContent = '';
+      say.appendChild(K.el('b', null, st[0]));
+      say.appendChild(document.createTextNode(' ' + st[1]));
+    }
+    const fieldDesc = !showF ? 'There is no field.' : fed && w === 'thin' ? 'The field arrow goes round anticlockwise, its tip on a narrow ellipse.' :
+      fed ? 'The field arrow only pulses along one line, halfway between the two windings\' poles.' : 'The field arrow only pulses up and down, along the main winding\'s poles.';
+    const ar = 'The stator ring: the main winding\'s poles top and bottom, the start winding\'s left and right. ' + fieldDesc + ' The rotor turns at ' + whole(s.n) + ' rpm.';
+    if (ar !== lastAriaR) { lastAriaR = ar; el('ring').setAttribute('aria-label', ar); }
+    const ap = !showF ? 'The winding currents: no supply, so no current.' : 'The winding currents as phasors from one point and as waves over one cycle. Main ' + N.iM + ' A, ' + N.phiM +
+      '° behind the supply. ' + (fed ? 'Start ' + two(S2.I) + ' A, ' + one(S2.phi) + '° behind, so ' + gapTxt(w) + ' between them.' : 'The start winding is not fed.');
+    if (ap !== lastAriaP) { lastAriaP = ap; el('ph').setAttribute('aria-label', ap); }
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.button({ label: 'Start', into: '#btns', press: () => { held = false; M.trip = ''; M.on = true; M.humT = 0; K.refresh(); } });
+  K.button({ label: 'Stop', secondary: true, into: '#btns', press: () => { held = false; M.on = false; K.refresh(); } });
+  K.button({ label: 'Spin the rotor', secondary: true, into: '#btns', press: () => { held = false; M.n = Math.max(M.n, SPIN); K.refresh(); } });
+  const windCtl = K.choice({ id: 'wind', label: 'Start winding', options: [{ value: 'thin', label: 'Thin wire, as built' }, { value: 'main', label: 'Wound like the main' }], value: 'thin', into: '#chs' });
+  const swCtl = K.choice({ id: 'sw', label: 'Centrifugal switch', options: [{ value: 'ok', label: 'Working' }, { value: 'open', label: 'Stuck open' }, { value: 'closed', label: 'Stuck closed' }],
+    value: 'ok', hint: 'Each choice starts the motor again from rest.', into: '#chs' });
+  const RD = {
+    n: K.readout({ id: 'rdSpeed', label: 'Rotor speed', fmt: (v) => whole(v) + ' rpm', into: '#outs' }),
+    g: K.readout({ id: 'rdGap', label: 'Angle between currents', into: '#outs' }),
+    t: K.readout({ id: 'rdTorque', label: 'Torque, % of rated', fmt: (v) => whole(v) + '%', into: '#outs' }),
+  };
+  K.model((p) => {
+    const w = wOf(p), sw = swOf(p);
+    return { gapDeg: gapOf(w), mainA: MAIN.I, startA: startW(w).I, standPct: sw !== 'open' && w !== 'main' ? tBoth(0) : 0 };
+  });
+
+  const sim = K.anim({ button: false, label: 'The motor', step: (dt) => {
+    if (at() !== iPic || held) return false;
+    const p = K.params(), w = wOf(p), sw = swOf(p);
+    advance(M, dt, w, sw);
+    paintLive(w, sw);
+    return busy();
+  } });
+  // The read-through's picture: thin wire, switch working, the instant after Start.
+  function stillAfterStart() {
+    quiet = true;
+    windCtl.set('thin');
+    swCtl.set('ok');
+    quiet = false;
+    seenW = 'thin'; seenSw = 'ok';
+    const m = fresh();
+    m.on = true; m.mf = 1; m.sf = 1; m.th = 150;
+    M = m; held = true;
+    sim.pause();
+    K.refresh();
+  }
+
+  // ---------- picks: one go, then the answer and its reason ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length || st.res) return;
+    st.pick = d.opts[k];
+    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }
+    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }
+    K.refresh();
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));
+    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));
+    if (f.p) fb.appendChild(addText(K.el('p'), f.p));
+  }
+
+  // ---------- Keep this ----------
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  el('notes').appendChild(K.el('p', { class: 'why' }, UNDER));
+  el('notes').appendChild(K.el('p', { class: 'warn-note' }, WARN));
+  const ON = { hwW: [iHow], tqW: [iBeh], fanW: [iUse], fltW: [iFlt], live: [iPic], notes: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');
+    if (i === iPic) write(task, PLAY_TASK);
+    else if (d.show) blocks(task, d.blocks);
+    else if (d.kind) task.textContent = '';
+    else write(task, d.task);
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // the motor: a new choice starts it again from rest
+    const w = wOf(p), sw = swOf(p);
+    if (!quiet && seenW !== null && (w !== seenW || sw !== seenSw)) {
+      const m = fresh();
+      m.th = M.th; m.rot = M.rot; m.on = true;
+      M = m; held = false;
+    }
+    seenW = w; seenSw = sw;
+    paintLive(w, sw);
+    if (i === iPic && !held && busy() && !sim.playing()) sim.play();
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paintFb(st.fb);
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i);
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Main winding: 15 Ω and 18 Ω give 23.43 Ω, 9.82 A and 50.2° behind the supply. Start winding: 36 Ω and 13.2 Ω give 38.34 Ω, 6.00 A and 20.1°. So the currents are 30.1° apart, and 0° wound like the main', () =>
+    N.zM === '23.43' && N.iM === '9.82' && N.phiM === '50.2' && N.zS === '38.34' && N.iS === '6.00' && N.phiS === '20.1' && N.gap === '30.1' &&
+    K.near(K.at({ wind: 'main' }).gapDeg, 0, 1e-9) && one(K.at({ wind: 'thin' }).gapDeg) === '30.1');
+  K.check('As built, the field\'s tip goes round from the start poles towards the main poles. Wound like the main it stays on one line between them, and on the main winding alone on the main poles\' line', () => {
+    let turns = true, line = true, alone = true;
+    for (let th = 0; th < 360; th += 5) {
+      const a = fieldXY(th, THIN, 1, 1), b = fieldXY(th + 5, THIN, 1, 1);
+      if (a[0] * b[1] - a[1] * b[0] <= 0) turns = false;
+      const c = fieldXY(th, MAIN, 1, 1);
+      if (!K.near(c[0], c[1], 1e-9)) line = false;
+      if (fieldXY(th, THIN, 0, 1)[0] !== 0) alone = false;
+    }
+    return turns && line && alone && THIN.phi < MAIN.phi;
+  });
+  K.check('The example curves: 150% at standstill rising to 190% at 1125 rpm, a step down to the main winding\'s 110%, and the fan\'s load meeting its 100% at 1440 rpm. The main winding alone gives 0 at standstill and 0 at 1500 rpm', () =>
+    K.near(tBoth(0), 150, 1e-9) && K.near(tBoth(NSW), 190, 1e-9) && K.near(tMain(NSW), 110, 1e-9) && K.near(tMain(NRUN), 100, 1e-9) && K.near(tLoad(NRUN), 100, 1e-9) &&
+    K.near(tMain(0), 0, 1e-9) && K.near(tMain(NS), 0, 1e-9) && [200, 600, 1000, 1200, 1300, 1400, 1430].every((n) => tMain(n) > tLoad(n)) && tMain(1470) < tLoad(1470));
+  K.check('Started as built it passes 1125 rpm and settles at 1440 rpm in about four seconds. Stuck open it hums at 0 rpm and trips after 5 s, and stuck closed it trips on heat after 10 s. Spun while it hums, the main winding carries it to 1440 rpm', () => {
+    const a = runFor('thin', 'ok', 12), b = runFor('thin', 'open', 8), c = runFor('thin', 'closed', 12), d = runFor('thin', 'open', 12, 1), e = runFor('main', 'ok', 8);
+    return a.ev.open !== null && a.ev.settle > a.ev.open && a.ev.settle >= 3 && a.ev.settle <= 5 && !a.ev.trip && a.s.n === NRUN &&
+      b.s.n === 0 && b.ev.why === 'hum' && K.near(b.ev.trip, 5, 0.02) &&
+      c.ev.settle !== null && c.ev.why === 'heat' && K.near(c.ev.trip, 10, 0.02) &&
+      !d.ev.trip && d.s.n === NRUN && e.ev.why === 'hum' && K.near(e.ev.trip, 5, 0.02);
+  });
+  K.check('Starting torque is proportional to the current magnitudes and the sine of the phase angle difference between the winding currents: sin 30° is half of sin 90°, and 0° gives none', () =>
+    K.near(Math.sin(30 * DEG), 0.5, 1e-12) && K.near(Math.sin(90 * DEG), 1, 1e-12) && K.at({ wind: 'main' }).standPct === 0 && K.at({ wind: 'thin' }).standPct > 0,
+    { source: 'https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf' });
+  K.check('The start coil is disconnected by a centrifugal switch at 3/4 of synchronous speed: 0.75 × 1500 = 1125 rpm', () =>
+    NS === 1500 && NSW === 1125 && N.sw === '1125' && runFor('thin', 'ok', 4).ev.open !== null,
+    { source: 'https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf' });
+
+  K.ready();
+</script>

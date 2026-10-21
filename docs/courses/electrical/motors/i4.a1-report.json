@@ -1,0 +1,160 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Main winding: 15 Ω and 18 Ω give 23.43 Ω, 9.82 A and 50.2° behind the supply. Start winding: 36 Ω and 13.2 Ω give 38.34 Ω, 6.00 A and 20.1°. So the currents are 30.1° apart, and 0° wound like the main",
+        "ok": true
+      },
+      {
+        "label": "As built, the field's tip goes round from the start poles towards the main poles. Wound like the main it stays on one line between them, and on the main winding alone on the main poles' line",
+        "ok": true
+      },
+      {
+        "label": "The example curves: 150% at standstill rising to 190% at 1125 rpm, a step down to the main winding's 110%, and the fan's load meeting its 100% at 1440 rpm. The main winding alone gives 0 at standstill and 0 at 1500 rpm",
+        "ok": true
+      },
+      {
+        "label": "Started as built it passes 1125 rpm and settles at 1440 rpm in about four seconds. Stuck open it hums at 0 rpm and trips after 5 s, and stuck closed it trips on heat after 10 s. Spun while it hums, the main winding carries it to 1440 rpm",
+        "ok": true
+      },
+      {
+        "label": "Starting torque is proportional to the current magnitudes and the sine of the phase angle difference between the winding currents: sin 30° is half of sin 90°, and 0° gives none",
+        "ok": true,
+        "source": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf"
+      },
+      {
+        "label": "The start coil is disconnected by a centrifugal switch at 3/4 of synchronous speed: 0.75 × 1500 = 1125 rpm",
+        "ok": true,
+        "source": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "wind",
+      "sw"
+    ],
+    "readouts": [
+      "rdSpeed",
+      "rdGap",
+      "rdTorque"
+    ],
+    "outputs": [
+      "gapDeg",
+      "mainA",
+      "startA",
+      "standPct"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 7,
+        "step": 1,
+        "steps": [
+          "How it works",
+          "The turning field",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "wind",
+        "kind": "choice",
+        "label": "Start winding",
+        "options": [
+          "thin",
+          "main"
+        ],
+        "labels": [
+          "Thin wire, as built",
+          "Wound like the main"
+        ],
+        "value": "thin",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "sw",
+        "kind": "choice",
+        "label": "Centrifugal switch",
+        "options": [
+          "ok",
+          "open",
+          "closed"
+        ],
+        "labels": [
+          "Working",
+          "Stuck open",
+          "Stuck closed"
+        ],
+        "value": "ok",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Start",
+      "Stop",
+      "Spin the rotor",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue",
+      "The motor"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "wind = \"main\"",
+    "sw = \"open\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/motors/i4.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i4.a1-1280-dark-end.png"
+  ]
+}

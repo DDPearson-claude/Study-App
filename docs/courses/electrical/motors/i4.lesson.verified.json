@@ -1,0 +1,447 @@
+{
+  "iid": "i4",
+  "title": "The split-phase motor",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the field's tip going round while the two currents are out of step, and only pulsing along one line when they are not, when you press Start.",
+    "title": "Two windings, one turning field",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 7,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.\n\nAssume one example motor on every screen: 230 V, 50 Hz, four poles, so its field turns at 120 × 50 ÷ 4 = 1500 rpm. On its rated load it runs at 1440 rpm. Its winding values are examples too. None of it is a maker's rating. Every other figure is worked out from these, or is a published value.\n\nScreen 1, How it works. A still drawing of the stator as a ring. Each winding is drawn with one pair of poles, so 90 electrical degrees shows as a right angle. The main winding's poles sit top and bottom, labelled \"Main winding: thicker wire, more turns\". The start winding's poles sit left and right, labelled \"Start winding: thin wire, fewer turns\". Both windings are wired in parallel across \"230 V, 50 Hz\". A centrifugal switch sits in series with the start winding only. It is drawn with its blade on its contact, labelled \"centrifugal switch, closed at rest\". The ring is labelled \"one pole pair drawn\". The rotor cage sits in the middle. The words beside it: \"One winding on one phase makes a field that only pulses. It grows, collapses and reverses along one line. At rest, that gives the rotor no push either way. So a start winding sits 90 electrical degrees round from the main winding, in parallel with it. It is thin wire with fewer turns. That gives more resistance and less inductance, so its current lags the supply less. The two currents peak at different moments, and the field turns. At about 75% speed a centrifugal switch drops the start winding out.\" Start winding and centrifugal switch are the key terms, marked in amber.\n\nScreen 2, Two windings, one turning field: the picture to play with. At the top, the stator ring from screen 1 with the rotor in the middle. The field is drawn as an arrow from the centre. Its tip leaves a short fading trail, so its path shows. Next comes one small panel. It shows the two winding currents as phasors from one point, with the angle between them marked. Beside them are the same currents as waves over one cycle, labelled \"main\" and \"start\" with their sizes. Then one row of three readouts: Rotor speed, in rpm. Angle between currents, in degrees. Torque, as a % of rated. Then one row of two bars: a torque bar with a mark at \"rated, 100%\", and a \"Start winding heat\" bar with no scale. On a phone the readouts, the status line and the bars sit straight under the ring, then the controls, then the panel. On a laptop the panel sits beside the ring. A status line under the readouts says what the motor is doing: \"At rest\", \"Running up\", \"Switch open: main winding only\", \"Humming: no start\", \"Overload tripped\".\n\nThe controls. Start and Stop: two buttons. Spin the rotor: a button that spins the rotor forwards to 150 rpm. Start winding: two named choices, \"Thin wire, as built\" and \"Wound like the main\". It starts on thin wire. Centrifugal switch: three named choices, \"Working\", \"Stuck open\" and \"Stuck closed\". It starts on working.\n\nThe rule it computes. Each winding follows the impedance triangle: Z = √(R² + X²), its current = 230 ÷ Z, and its angle behind the supply = arctan(X ÷ R). Main winding, example: R 15 Ω, X 18 Ω. Z = √(15² + 18²) = 23.43 Ω. Current 230 ÷ 23.43 = 9.82 A. Angle arctan(18 ÷ 15) = 50.2°. Start winding, thin wire, example: R 36 Ω, X 13.2 Ω. Z = √(36² + 13.2²) = 38.34 Ω. Current 230 ÷ 38.34 = 6.00 A. Angle arctan(13.2 ÷ 36) = 20.1°. The angle between them: 50.2 − 20.1 = 30.1°. Wound like the main, the start winding takes the main winding's values. Both currents are then 9.82 A at 50.2°, and the angle between them is 0°.\n\nThe field. Each winding's field points along its own poles. It is drawn in proportion to its current at that instant. The arrow is their sum. With the currents 30.1° apart, the tip traces a narrow ellipse and goes round. It turns from the start winding's poles towards the main winding's, because the start current peaks first. The rotor turns the same way. With 0° between them, or one winding alone, the tip only runs back and forth along one line. The arrow is slowed fifty times.\n\nThe torque, an example curve, not a maker's. Both windings in: 150% of rated at standstill, rising smoothly to 190% at 1125 rpm. Main winding alone: 0 at standstill, 110% at 1125 rpm, 100% at 1440 rpm and 0 at 1500 rpm. The curve is a smooth sketch through those points. With 0° between the currents the torque is 0 at standstill. The load is a fan. Assume its torque grows with speed squared, reaching 100% at 1440 rpm. The rotor speeds up while the motor's torque is above the load's, and settles where they meet: 1440 rpm and 100%. The run-up takes about four seconds on screen. The switch opens at 75% of 1500 = 1125 rpm. The torque steps down from 190% to 110%. The start wave and phasor fade, and the angle readout shows \"start winding out\". With the switch stuck open it reads \"not fed\". After Stop the rotor slows, and the switch closes again below 1125 rpm.\n\nThe faults. Stuck open: the start winding is never fed. Press Start and the field only pulses along the main winding's poles. The torque reads 0, the speed stays at 0 and the status reads \"Humming: no start\". After about five seconds on screen it reads \"Overload tripped\" and everything stops. Press Spin the rotor while it hums and the main winding alone carries the rotor up to 1440 rpm. Stuck closed: the motor starts as normal, but the start winding stays in past 1125 rpm. Its heat bar climbs to the red over about ten seconds on screen, Meanwhile the status says the start winding is still fed and heating up, and that speed and torque are drawn as for a working switch. Then it reads \"Start winding overheating: overload tripped\" and it stops. Wound like the main: the field pulses along one line, halfway between the two windings' poles. The torque reads 0, and it hums and trips as when stuck open.\n\nThe words under the picture: \"Assume a 230 V, 50 Hz, four-pole motor. Its field turns at 120 × 50 ÷ 4 = 1500 rpm. The switch opens at 75% of that, 1125 rpm. On its fan it runs at 1440 rpm. The field's tip turns only while the two currents are out of step. Spin the rotor is for the picture only: never spin a live motor by hand.\" The prompt above the picture: \"Press Start and watch the field's tip. Then wind the start winding like the main, and try each switch fault.\" Read: Once started, both windings are fed. Their currents peak 30.1° apart, so the field's tip traces an ellipse and goes round. The rotor runs up. At 1125 rpm the switch opens and the torque drops a step, from 190% to 110%. The windings' field now only pulses, but the rotor keeps turning on the main winding and settles at 1440 rpm. With the start winding wound like the main, both currents lag 50.2°. The field only pulses, and the motor hums at rest. Still: start winding thin wire, switch working, the instant after Start: both waves drawn 30.1° apart, the field's tip on its ellipse, speed 0 rpm, angle 30.1°, torque 150%.\n\nScreen 3, Check on the cause. \"Why is the start winding wound with thin wire and fewer turns?\" Three choices, in this order: \"So its current lags the supply less than the main winding's\"; \"So it can stay in and help the motor run\"; \"To give it more inductance, so its current lags more\". Right, the first: \"Right. More resistance and less inductance give a smaller angle in the impedance triangle. Take example windings. Main: 15 Ω resistance, 18 Ω reactance. Arctan(18 ÷ 15) = 50.2° behind. Start: 36 Ω and 13.2 Ω. Arctan(13.2 ÷ 36) = 20.1° behind. That 30.1° gap is what makes the field turn. Wound like the main, both lag 50.2°, and the field only pulses.\" Wrong, the second: \"It is not rated to stay in. Its thin wire carries a high current density and heats fast. So the switch drops it out at about 75% speed. Its job is to put its current out of step with the main winding's.\" Wrong, the third: \"That is the wrong way round. Thin wire and fewer turns can only make it lag less, and that is what puts the two out of step.\" After a wrong choice, the right answer and its reason.\n\nScreen 4, How it behaves. A still drawing: the example torque against speed, 0 to 1500 rpm across. The both-windings line rises from 150% to 190% at 1125 rpm. There it steps down to the main-winding line at 110%. That line falls through 100% at 1440 rpm to 0 at 1500 rpm. The fan's load line rises to meet it at 1440 rpm, marked \"runs here\". Labelled \"Example curve, not a maker's\". Rows, each with a label.\n\nStarting torque: \"low, typically 100 to 175% of rated.[^1] It goes with both currents and the sine of the angle between them.[^2] Sin 30° is 0.5, against 1 at 90°.\"\n\nStarting current: \"high, 5 to 10 times rated. Use the maker's figure.\"\n\nThe switch: \"opens at about 75 to 80% of full speed, and closes again as it slows.\"\n\nRunning: \"on the main winding alone, just below synchronous speed. A pulsing field acts like two equal fields turning opposite ways. Once the rotor turns, the one going its way pulls harder.\"\n\nScreen 5, Where it is used, and its limits. A still drawing: a small fan on the motor's shaft, labelled \"easy to start\". Rows.\n\nUsed for: \"fans, small pumps and other loads that are easy to start, usually up to about 250 W.[^3]\"\n\nStart winding: \"short-time rated. Frequent starts, or a slow start on a heavy load, overheat it.\"\n\nHard-to-start loads: \"too little starting torque. A capacitor-start motor handles those.\"\n\nExplosive atmospheres: \"never use a centrifugal switch there, or inside a sealed compressor. Its arcing can ignite gas.[^4]\"\n\nScreen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, and an ohmmeter across the motor's two supply terminals. Rows.\n\nSafety: \"isolate, lock off and prove dead. A self-resetting thermal cut-out can restart it at any time.[^5]\"\n\nStart circuit open: \"the switch stuck open, or the start winding burnt open. It hums, will not start, then trips.\"\n\nSwitch stuck closed: \"it starts, but the start winding stays in. It overheats and can burn out. The overload may trip first.\"\n\nResistance: \"the two windings read in parallel, so lower than either.[^6] Reading the main winding alone? The start circuit is open.\"\n\nWrong direction: \"swap the start winding's leads, not the supply.\"\n\nScreen 7, Find the fault. \"A small fan's split-phase motor hums and will not start. After a few seconds its overload trips. The operator says it ran once when he pushed the blades round. What is the likely fault?\" Three choices, in this order: \"The main winding is open\"; \"The centrifugal switch is stuck closed\"; \"The start circuit is open\". Right, the third: \"Right. With no start current the field only pulses, so it cannot start from rest. Once pushed round, the main winding alone carries it. Never start one by hand. Isolate it, then test the start winding and the switch.\" Wrong, the first: \"With the main winding open it might run up once pushed. But the switch then drops the start winding out, and nothing is left fed. It could not run steadily.\" Wrong, the second: \"A switch stuck closed keeps the start winding in. That motor starts well, then the start winding overheats. This one cannot start at all.\" After a wrong choice, the right answer and its reason.\n\nScreen 8, Keep this: the summary card, drawn from the lesson's summary with no case figures, then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The example motor, its windings and its torque curve are examples, and the field arrow is slowed fifty times.",
+    "ignores": "The stator is drawn with one pair of poles for each winding. The example motor has four poles. That sets the field's speed, not the picture. Each winding's field is drawn in proportion to its current. A real start winding has fewer turns, so its field is weaker than drawn. The waves keep their standstill sizes. Real currents fall as the motor speeds up. The torque curve, the run-up time and the heat bar are sketches. With the switch stuck closed, the speed and torque are drawn as for a working switch. Spin the rotor is for the picture only. The meter readings in the practice are separate examples. A meter reads only the wire's resistance. So it reads less than the winding values here. Those also carry the rotor's effect at standstill. Once the rotor turns, its own currents make the real field turn more evenly. The picture draws only the windings' field.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 8 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Start winding choice (opening: thin wire, as built)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Centrifugal switch choice (opening: working)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Spin the rotor, speed given, rpm",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor supply voltage, V",
+        "value": 230,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor supply frequency, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor poles",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example motor field speed, rpm",
+        "value": 1500,
+        "kind": "computed"
+      },
+      {
+        "label": "Example motor speed on rated load, rpm",
+        "value": 1440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Windings apart, electrical degrees",
+        "value": 90,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Main winding resistance (example), ohm",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main winding reactance (example), ohm",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main winding impedance, ohm",
+        "value": 23.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Main winding current at standstill, A",
+        "value": 9.82,
+        "kind": "computed"
+      },
+      {
+        "label": "Main winding current angle behind supply, degrees",
+        "value": 50.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding resistance (example), ohm",
+        "value": 36,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start winding reactance (example), ohm",
+        "value": 13.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Start winding impedance, ohm",
+        "value": 38.34,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding current at standstill, A",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Start winding current angle behind supply, degrees",
+        "value": 20.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents (example), degrees",
+        "value": 30.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between the currents, wound like the main, degrees",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Typical angle between the currents, degrees",
+        "value": 30,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Sine of 30 degrees",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle where the sine is largest, degrees",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Switch opening speed, % of full speed",
+        "value": 75,
+        "kind": "constant",
+        "source": 9
+      },
+      {
+        "label": "Switch opening speed, other figure, % of full speed",
+        "value": 80,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Switch opening speed in the picture, rpm",
+        "value": 1125,
+        "kind": "computed"
+      },
+      {
+        "label": "Example torque, both windings, standstill, % of rated",
+        "value": 150,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example torque, both windings, at 1125 rpm, % of rated",
+        "value": 190,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example torque, main alone, at 1125 rpm, % of rated",
+        "value": 110,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example torque, main alone, at 1440 rpm, % of rated",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fan load torque at 1440 rpm, % of rated",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Run-up on screen, seconds",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stuck open: trip on screen after, seconds",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stuck closed: heat bar to red on screen, seconds",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Field arrow slowed, times",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Split-phase starting torque, low end, % of rated",
+        "value": 100,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Split-phase starting torque, high end, % of rated",
+        "value": 175,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Starting current, one guide, times rated",
+        "value": "5 to 8",
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Starting current, another guide, times rated",
+        "value": "7 to 10",
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Largest split-phase motor, W",
+        "value": 250,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Example main winding resistance on a meter, ohm",
+        "value": 4.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example start winding resistance on a meter, ohm",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sum of the two meter readings, ohm",
+        "value": 19.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Product of the two meter readings",
+        "value": 67.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Both windings in parallel on a meter, ohm",
+        "value": 3.46,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A single winding on one phase cannot start a motor, because its field only pulses. A split-phase motor adds a second winding whose current is out of step with the first. Together they make a field that turns, and the rotor follows it.\n\nStart from the three-phase motor. Three currents peak one after another in coils set round the stator, so the field turns. One winding has only one current. Its field grows, collapses and reverses along one line. At rest, that gives the rotor no push either way. Once the rotor is turning, though, the same winding keeps it going. One way to picture it: a pulsing field acts like two equal fields turning opposite ways. At rest they pull equally. Once the rotor turns one way, the field turning with it pulls harder.\n\nSo the motor gets a [[start winding]]. It sits 90 electrical degrees round from the main winding and is fed in parallel with it. It is thin wire with fewer turns, so it has more resistance and less inductance. In the impedance triangle, that gives a smaller angle. So its current lags the supply less than the main winding's. Now two coils at right angles carry currents that peak at different moments, and the field turns. The gap is small, often about 30°.[^8] It varies from motor to motor. Starting torque goes with both currents and the sine of the angle between them.[^2] Sin 30° is 0.5, against 1 at 90°, so the start is weak.\n\nAt about 75% of full speed a [[centrifugal switch]] opens and drops the start winding out.[^9] Its thin wire is not rated to stay in. The main winding runs the motor from there, a little below synchronous speed.\n\n**Give a second winding a current out of step with the main winding's, and a pulsing field becomes a turning one.**[^13]"
+  },
+  "analogy": {
+    "text": "Think of a steam engine. A single-cylinder engine stopped on dead centre cannot start. The piston pushes straight along the crank. Turn the flywheel off dead centre and it runs. So a two-cylinder locomotive has its cranks a quarter turn apart. One is always off dead centre, so the engine starts from anywhere. The start winding is that second cylinder.",
+    "breaks": "A single winding gives no push at any rotor position, not just at one dead point. The motor's two currents are only about 30° apart, not a quarter cycle, so its start is weak. And the start winding drops out once the motor runs. A locomotive's second cylinder keeps working."
+  },
+  "practice": {
+    "text": "- Isolate, lock off and prove dead before you touch it. A motor with a self-resetting thermal cut-out can restart at any time.[^5]\n- Listen as it starts and stops. A working centrifugal switch clicks soon after starting, and again as the motor slows.\n- Measure across the supply terminals. The two windings read in parallel, so lower than either alone.[^6] Zero means a short. Infinity means an open circuit.\n- Compare with the maker's figures, or a good motor of the same type.\n- To reverse it, swap the start winding's two leads. Swapping the supply leads does not reverse it.[^14]\n- Keep it to easy loads and few starts. The start winding is rated only for short bursts.\n\n**Rule of thumb:** hums and will not start, yet runs once turning? The start circuit is open: the switch or the start winding.\n\n**Worked example:** say the main winding reads 4.5 Ω and the start winding 15 Ω. These are example readings. In parallel: 4.5 × 15 ÷ (4.5 + 15) = 67.5 ÷ 19.5 = 3.46 Ω. So across the supply terminals, expect about 3.5 Ω. Read 4.5 Ω and the start circuit is open. Read 15 Ω and the main winding is open.\n\n**Common mistakes**\n- Swapping the supply leads to reverse it. Both currents reverse together, so it runs the same way.\n- Thinking momentum keeps it running. Once turning, the main winding alone makes torque.\n- Pushing a humming motor round to start it. Isolate it and find the fault.\n- Putting it on a hard-to-start or often-started load. The start winding can burn out."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+    "title": "The split-phase motor",
+    "for": "Running a small, easy-to-start load on one phase. A thin-wire start winding puts a second current out of step with the main one, so the field turns. A centrifugal switch drops it out at about 75% speed.",
+    "rule": "Main and start windings 90 electrical degrees apart, in parallel on one phase.\nStart winding: thin wire, fewer turns. More R, less L, so its current lags less.\nCurrents about 30° apart: a weak turning field.\nStarting torque goes with main current × start current × sine of the angle between them.\n\nStarting torque about 100 to 175% of rated. Starting current high: use the maker's figure.\nThe switch opens at about 75 to 80% speed and closes again as it slows.\nWindings in parallel read lower than either alone.\nExample: 4.5 Ω and 15 Ω windings read 4.5 × 15 ÷ 19.5 = 3.46 Ω together.",
+    "traps": [
+      {
+        "text": "Hums and will not start, yet runs once turning: the start circuit is open. Check the switch and the start winding.",
+        "cite": "[^15] [^16] Red Seal study guide; Lessons in Electric Circuits"
+      },
+      {
+        "text": "The start winding is short-time rated. Frequent or slow starts can burn it out, and so can a switch stuck closed.",
+        "cite": "[^17] [^18] MSU Tech Note 313; refrigeration text"
+      },
+      {
+        "text": "It is not momentum that keeps it running. Once turning, the main winding alone makes torque.",
+        "cite": "[^19] [^20] Lessons in Electric Circuits"
+      },
+      {
+        "text": "Isolate, lock off and prove dead first. A self-resetting thermal cut-out can restart it at any time.",
+        "cite": "[^5] [^21] Fluke"
+      },
+      {
+        "text": "Reverse it by swapping the start winding's leads. Swapping the supply leads does not reverse it.",
+        "cite": "[^14] [^22] Red Seal study guide; Utah ECE 3600"
+      }
+    ],
+    "where": "Small fans, pumps and other easy-starting loads, usually up to about 250 W. Not in explosive atmospheres: the switch arcs."
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "AN887, AC Induction Motor Fundamentals",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf",
+      "quote": "The starting torque is low, typically 100% to 175% of the rated torque."
+    },
+    {
+      "n": 2,
+      "title": "ECE 3600 Single-Phase Induction Motors",
+      "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+      "quote": "Proportional to the current magnitudes and the sine of the phase angle difference between the winding currents."
+    },
+    {
+      "n": 3,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "This coil produces a moderate starting torque, which is disconnected by a centrifugal switch at 3/4 of synchronous speed. This simple (no capacitor) arrangement serves well for motors up to 1/3 horsepower (250 watts) driving easily started loads."
+    },
+    {
+      "n": 4,
+      "title": "[PDF] 13 Electric Motors - Goodheart-Willcox",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174883_ch13.pdf",
+      "quote": "A centrifugal switch cannot be used in explosive atmospheres or inside hermetic compressors. The arcing caused by switching current on and off can ignite gases."
+    },
+    {
+      "n": 5,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "Caution should be taken with any motor that has an automatic reset, as the motor can automatically restart at any time."
+    },
+    {
+      "n": 6,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "The ohmmeter will read the resistance of the starting and running windings. Since the windings are in parallel, their combined resistance is less than the resistance of either winding alone."
+    },
+    {
+      "n": 7,
+      "title": "Part 5 – Single Phase AC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-5-single-phase-ac-motors",
+      "quote": "During the start period, both windings are connected in parallel across the applied voltage and the windings are wound on separate sets of field poles, which are set 90 electrical degrees apart."
+    },
+    {
+      "n": 8,
+      "title": "Learn about \"Capacitor Start - Induction Run\" Motors",
+      "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Learn_about_Capacitor_Start.pdf",
+      "quote": "the phase difference between Im and Is is almost 80 degrees as against 30 degrees in a split-phase induction motor."
+    },
+    {
+      "n": 9,
+      "title": "Your motor sheet: the split-phase motor",
+      "url": "material:split-phase#p1",
+      "quote": "Once the motor reaches about 75% of its running speed, a centrifugal switch opens to disconnect the starting winding, and the main winding sustains the motor's operation."
+    },
+    {
+      "n": 10,
+      "title": "Electrical Tech Note — 313",
+      "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+      "quote": "A centrifugal switch on the shaft disconnects the auxiliary winding when it reaches approximately 80% of full speed."
+    },
+    {
+      "n": 11,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "A split-phase motor develops roughly 100 to 175 percent starting torque at 500 to 800 percent starting current"
+    },
+    {
+      "n": 12,
+      "title": "AN887, AC Induction Motor Fundamentals",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ApplicationNotes/ApplicationNotes/00887a.pdf",
+      "quote": "The motor draws high starting current, approximately 700% to 1,000% of the rated current."
+    },
+    {
+      "n": 13,
+      "title": "ECE 3600 Single-Phase Induction Motors",
+      "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+      "quote": "The motor NEEDs a second winding to get started, AND the phase of the two currents NEED to be different in order to get some net rotating magnetic field."
+    },
+    {
+      "n": 14,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "Single-phase motors are reversed by interchanging the leads of the start (auxiliary) winding relative to the run winding, not by interchanging the supply leads."
+    },
+    {
+      "n": 15,
+      "title": "Single-Phase Motors: Split-Phase, Capacitor- | Free Guide 2026 | OpenExamPrep",
+      "url": "https://open-exam-prep.com/study-guides/ca-red-seal-electrician-industrial/motors-principles-characteristics/single-phase-motors",
+      "quote": "A single-phase motor that hums but will not start has lost its starting circuit: an open start winding, a failed start capacitor, a centrifugal switch stuck open, or a failed starting relay"
+    },
+    {
+      "n": 16,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "However, it will not self-start. It may be hand started in either direction, coming up to speed in a few seconds."
+    },
+    {
+      "n": 17,
+      "title": "Electrical Tech Note — 313",
+      "url": "https://www.maec.msu.edu/application/files/1116/4555/7425/Tech_Note_313_Single_Phase_Motors.pdf",
+      "quote": "The auxiliary winding is not rated for continuous operation. If the motor is used on an application where it must start frequently, the auxiliary winding may overheat and fail."
+    },
+    {
+      "n": 18,
+      "title": "MRAC22e design sample",
+      "url": "https://www.g-w.com/assets/files/pdf/sampchap/9798888174449_ch14.pdf",
+      "quote": "Contacts that stick together can cause the start winding to remain energized and damage the winding."
+    },
+    {
+      "n": 19,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "Once started the auxiliary winding is optional."
+    },
+    {
+      "n": 20,
+      "title": "13.9: Single-phase Induction Motors",
+      "url": "https://workforce.libretexts.org/@api/deki/pages/1474/pdf/13.9%253A%2bSingle-phase%2bInduction%2bMotors.pdf",
+      "quote": "Thus, the single phase coil will develop torque, once the rotor is started."
+    },
+    {
+      "n": 21,
+      "title": "Top Cause of Single-Phase Motor Malfunctions | Fluke",
+      "url": "https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors/centrifugal-thermal-and-capacitor-switches-cause-most-single-phase-motor-malfunctions",
+      "quote": "Lock out and tag the starting mechanism per company policy."
+    },
+    {
+      "n": 22,
+      "title": "ECE 3600 Single-Phase Induction Motors",
+      "url": "https://my.ece.utah.edu/~ece3600/ECE3600_Week09_F20.pdf",
+      "quote": "Reverse the leads to either of the windings to get the motor to start in the opposite direction."
+    }
+  ]
+}
