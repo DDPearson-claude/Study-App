@@ -107,32 +107,32 @@
   const F1 = 'One line is lost: single phasing', F2 = 'Two of the lines have been swapped', F3 = 'The overload has tripped';
   const blk = (t, s) => ({ t: t, s: s });
   const HOW = [
-    blk('p', 'Three windings sit 120 electrical degrees apart, one on each phase. Together they make one magnetic field that turns at a steady speed. That speed is the *synchronous speed*, ns = 120 × f ÷ p. Here f is the supply frequency and p the number of poles. A four-pole winding repeats its pattern twice round the stator. So its field moves half as far each cycle. Electrical degrees count along that pattern, so on four poles 120 electrical degrees is 60 degrees round the frame. On 50 Hz a two-pole field turns at 3000 rpm and a four-pole one at 1500 rpm.'),
-    blk('p', 'The field sweeps past the rotor bars and induces a voltage in them. The bars are shorted at both ends, so a current flows. A current in a magnetic field feels a force, so the bars are pushed round after the field.'),
-    blk('p', 'If the rotor ever caught the field, nothing would sweep past the bars. There would be no current and no torque. So under its own power, a motor\'s rotor always runs a little behind. Call the rotor\'s speed n. The shortfall, (ns − n) ÷ ns, is the *slip*.'),
+    blk('p', 'Three windings sit 120 electrical degrees apart, one on each phase. Together they make one field that turns at a steady speed, the *synchronous speed*: ns = 120 × f ÷ p. On 50 Hz, two poles turn at 3000 rpm and four poles at 1500 rpm.'),
+    blk('p', 'The field sweeps past the shorted rotor bars and induces a current in them. That current, sitting in the field, pushes the bars round after it.'),
+    blk('p', 'If the rotor caught the field, nothing would sweep the bars. No current, no torque. So it always runs a little behind. That shortfall, (ns − n) ÷ ns, is the *slip*.'),
   ];
   const PLAY = [blk('p', 'This view rides on the rotor, so the bars stand still. You see only how fast the field gains on them. Drag the load down to nothing, then back up. Watch how fast the field slides past the bars.')];
   const BEHAVE = [
-    blk('row', 'Speed: Nearly constant. A cage motor\'s full-load slip is a few percent. It is often 2 to 3%, and usually under 5%. The nameplate speed tells you the poles. Just under 3000 rpm on 50 Hz is two poles. Just under 1500 rpm is four.'),
-    blk('row', 'Starting: Started direct on line, a motor usually draws 6 to 8 times its rated current. It can draw more than 10 times. At standstill the field sweeps the bars at full speed, so the rotor acts like a shorted secondary. Starting torque depends on the design. For a small motor it is often 1.5 to 2.5 times rated torque. The 0.75 kW motor here starts with 3.5 times rated. So read the data sheet for the motor in hand.'),
-    blk('row', 'Stalling: The most torque this 0.75 kW motor can give is 3.8 times rated. Load it past that and it slows instead of settling. It stalls and keeps drawing starting current. It overheats fast unless its protection trips.'),
-    blk('row', 'Power factor: Poor at light load. The current that magnetises the motor barely changes with load. Only the useful current falls. The 0.75 kW motor\'s power factor is 0.7 at full load and 0.49 at half load. Unloaded it still draws 1.4 A, against 1.90 A at full load.'),
-    blk('p', 'A wound rotor brings its winding out on slip rings. Resistance added there gives more starting torque and some speed control. The cost is brushes to look after.'),
+    blk('row', 'Speed: Nearly constant. Full-load slip is a few percent, usually under 5%. Just under 3000 rpm on 50 Hz means two poles. Just under 1500 rpm means four.'),
+    blk('row', 'Starting: Direct on line it draws 6 to 8 times rated current, sometimes over 10. Starting torque varies with the design, so check the data sheet.'),
+    blk('row', 'Stalling: Load it past its peak torque and it stalls. It then draws starting current and overheats unless its protection trips.'),
+    blk('row', 'Power factor: Poor at light load. The magnetising current hardly changes with load, so a lightly loaded motor still draws much of its rated current.'),
+    blk('p', 'A wound rotor brings its winding out on slip rings. Resistance there gives more starting torque, at the cost of brushes to look after.'),
   ];
   const USE = [
-    blk('p', 'It does the constant-speed work: pumps, fans, compressors and conveyors. At sea it drives pumps, fans and compressors up to 700 kW or more. Those motors are totally enclosed against the harsh conditions. The UK chose an induction motor to drive the Type 45 destroyer.'),
+    blk('p', 'Constant-speed work: pumps, fans, compressors and conveyors. At sea it drives these up to 700 kW or more, totally enclosed. The UK chose an induction motor to drive the Type 45 destroyer.'),
     blk('head', 'Its limits'),
     blk('lim', 'A big starting current, which can dip the supply voltage.'),
-    blk('lim', 'Its speed is set mainly by the supply frequency and its poles. Changing it much usually needs a variable speed drive.'),
+    blk('lim', 'Its speed is fixed by the frequency and poles. Changing it needs a variable speed drive.'),
     blk('lim', 'A poor power factor at light load.'),
-    blk('warn', 'No brushes means one less source of sparks. That alone does not make a motor fit for a hazardous area. There, fit a motor built and certified for it, to ATEX or IECEx.'),
+    blk('warn', 'No brushes does not make it safe in a hazardous area. Fit a motor certified for it, to ATEX or IECEx.'),
   ];
   const FAULTS = [
     blk('danger', 'Isolate, lock off and prove dead before you open the terminal box or the starter.'),
-    blk('row', 'Single phasing: One line is lost. A blown fuse or a device open on one phase can do it. Worn starter contacts are the most common cause. At rest the field only pulses, so the motor hums and will not start. If it was already running, the other two lines carry about 173% of their normal current, or more. It heats fast. Its protection must take it off.'),
+    blk('row', 'Single phasing: One line is lost, often through worn starter contacts or a blown fuse. At rest it hums and will not start. Running, the other two lines carry about 173% of normal current. Its protection must trip it.'),
     blk('row', 'Wrong rotation: Two lines are swapped somewhere. To reverse it, isolate and swap any two of the three line leads.'),
-    blk('row', 'Overloads: An overloaded motor runs hot and draws more than its rated current, until the overload relay trips. Compare the running current with the nameplate. Check the relay is set to the motor\'s rated current. Overloads cause about 30% of motor failures. Single phasing causes about 14%, and worn bearings about 13%. These shares vary from one survey to another.'),
-    blk('row', 'Tests: Insulation resistance shows a wet or contaminated winding, or a dead short to earth. It cannot prove the motor good. Take the minimum from the maker. Then measure the winding resistances and compare the three. A good winding\'s readings agree within about 1%.'),
+    blk('row', 'Overloads: It runs hot and draws more than rated current until the overload relay trips. Check the relay is set to the nameplate current.'),
+    blk('row', 'Tests: Insulation resistance finds a wet winding or a short to earth, but cannot prove the motor good. Also compare the three winding resistances. They should agree within about 1%.'),
   ];
   const words = (list) => list.map((b) => b.s).join('\n\n');
 

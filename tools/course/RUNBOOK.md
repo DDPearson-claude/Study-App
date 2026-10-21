@@ -68,7 +68,8 @@ with him before planning. It is cheap; building the wrong course is not.
      Keep a picture's own pieces (cards, tiles) out of `K.button`: kit buttons are controls and are
      left out of the still. Details: `app/kit/REFRESHER.md`, STEPS entries.
    - **Partly** (calculus, probability, vectors): steps lessons whose SHOW screens carry a little
-     more explanation, up to a short paragraph.
+     more explanation, up to a short paragraph: at most about 90 words a screen (Dan, 21 Oct, on
+     Motors lesson 1's 120 to 240-word screens: "a bit too much text after the diagrams").
    - **No** (how things work, science mechanisms, history, AI): reading lessons with a mechanism
      interactive, written as long as the idea needs and no longer.
    Pictures: anything part-of-a-whole is a shape cut into equal parts with the parts shaded, as
