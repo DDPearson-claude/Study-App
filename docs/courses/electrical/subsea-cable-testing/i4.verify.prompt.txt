@@ -1,0 +1,803 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: HV Subsea Cable Testing
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "The sheath test: 4 kV per millimetre" — The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 VLF withstand: why 0.1 Hz — A long cable is a big capacitor, so a 50 Hz withstand needs a huge charging current; at 0.1 Hz the reactance is 500 times higher and a portable set can hold 1.5 to 2.5 U0 for 30 or 60 minutes, driving any severe defect to fail now.
+- i6 TDR: reading the reflections — A pulse runs along the pair and part of it returns wherever the impedance changes, up for an open and down for a short; distance is time × velocity ÷ 2, so the velocity must be set, best on a known length.
+- i7 LIRA: the cable's impedance spectrum — An unmatched line resonates at frequencies set by its length and velocity; a local change in the insulation's permittivity changes the impedance there and ripples the spectrum, which LIRA turns into a spot along the cable graded by DNORM, …
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards — https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007
+    "a d.c. voltage of 4 kV per millimetre of specified thickness of extruded oversheath shall be applied with a maximum of 10 kV d.c. between the underlying metallic layers and the outer electrode, for a period of 1 min."
+[R2] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards — https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007
+    "All metallic layers under the oversheath shall be connected together."
+[R3] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards — https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007
+    "No breakdown of the oversheath shall occur during the test."
+[R4] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards — https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007
+    "A d.c. voltage of 8 kV per millimetre of the specified nominal thickness of the extruded oversheath shall be applied for 1 min between the underlying metal layer at negative polarity"
+[R5] Your subsea cable testing course notes — material:notes#p4
+    "4 kV per mm of sheath thickness, up to a maximum of 10 kV, for 1 minute"
+[R6] Your subsea cable testing course notes — material:notes#p4
+    "Conductor, aluminium foil and screen all connected together"
+[R7] Your subsea cable testing course notes — material:notes#p4
+    "Pass = sheath thickness (mm) × 4 kV per mm, held for 1 minute"
+[R8] Your subsea cable testing course notes — material:notes#p4
+    "Lots of cables have sheath faults — this can cause full cable loss and be very expensive"
+[R9] IEC 60229:2007 | IEC — https://webstore.iec.ch/en/publication/1066
+    "in some cases, the oversheath is designed to act not only as a protection against corrosion, but also to reduce the risk of degradation of the cable insulation system."
+[R10] Your subsea cable testing course notes — material:notes#p4
+    "Negative connected to screen conductor"
+[R11] Your subsea cable testing course notes — material:notes#p4
+    "Positive connected to earth electrode"
+[R12] Your subsea cable testing course notes — material:notes#p4
+    "Positive (red) connected via roll spring to the semi-con layer"
+[R13] OCDS-GFS-00-001-R2-Submarine-Cables-Functional- ... — https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf
+    "If the cable design permits (i.e. if the outer sheath is insulating rather than semiconducting), a 10 kV DC Test for 1 minute between cable sheath and earth shall be carried out"
+[R14] Evaluation of cable moisture-proof measures based on AHP — https://iopscience.iop.org/article/10.1088/1755-1315/558/5/052043/pdf
+    "Water molecules passing through a damaged sheath or joint will cause water treeing under the action of electric fields."
+[R15] LONG-LIFE XLPE INSULATED POWER CABLE - Georgia Tech — https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content
+    "Jackets extend cable life by retarding the ingress of water and soluble ions from the ground"
+[R16] LONG-LIFE XLPE INSULATED POWER CABLE - Georgia Tech — https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content
+    "Water trees grow relatively slowly over a period of months or years."
+[R17] Assessment of Water Tree Formation in XLPE Insulation Variants to Validate Design of 132 kV Wet-Type Dynamic Cables - Session Materials | eCIGRE — https://www.e-cigre.org/publications/detail/b1-12618-2026-assessment-of-water-tree-formation-in-xlpe-insulation-variants-to-validate-design-of-132-kv-wet-type-dynamic-cables.html
+    "The combination of moisture, high electric field, insulation defects and a prolonged duration can promote water treeing"
+[R18] U1-4.15/NCI-20 Guide for High DC Voltage Field Testing of Insulated Power Cable (Seattle City Light) — https://web8.seattle.gov/city-light-engineering-standards/Home/GetPDF?libId=BrowseAll&searchForfileName=U1-4.15%20NCI-20.pdf
+    "A major cause of failure of these types of cable is failure of the enclosing sheath, and ingress of water."
+[R19] U1-4.15/NCI-20 Guide for High DC Voltage Field Testing of Insulated Power Cable (Seattle City Light) — https://web8.seattle.gov/city-light-engineering-standards/Home/GetPDF?libId=BrowseAll&searchForfileName=U1-4.15%20NCI-20.pdf
+    "Actual failure does not occur immediately after a breach of the sheath."
+[R20] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables/
+    "Failures in cables are more often due to sheath problems and relatively rarely to the main insulation."
+[R21] [PDF] 9.1 Testing of High Voltage Apparatus - SSEN — https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf
+    "New Cable Installation: 10kV DC for 1 minute"
+[R22] [PDF] 9.1 Testing of High Voltage Apparatus - SSEN — https://www.ssen.co.uk/globalassets/safety/s9/pr-net-osm-065.pdf
+    "a sheath withstand test Shall be carried out at 5 kV for 1 minute"
+[R23] TR-XLPE LONG-LIFE CABLES - Nexans — https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf
+    "A sheath integrity test (e.g., 1000 V minimum insulation resistance tester) applied between the outer-most metallic layer and earth can identify after-installation damage to the non-metallic outer sheath."
+[R24] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables/
+    "after-installation tests considered in these standards are limited to performance during voltage withstand tests on the main cable and sheath insulation."
+[R25] IEC 60840:2011 | IEC — https://webstore.iec.ch/en/publication/3676
+    "but not to special cables and their accessories, such as submarine cables, for which modifications to the standard tests may be necessary"
+[R26] Commissioning Testing HV Power Cables - INMR — https://www.inmr.com/commissioning-testing-hv-power-cables/
+    "to provide a continuous potential for the test so that the entire sheath insulation can be tested to identify possible damage during installation"
+[R27] OCDS-GFS-00-001-R2-Submarine-Cables-Functional- ... — https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf
+    "conductive layer to facilitate DC testing of the outer sheath."
+[R28] Semiconductive layer over the cable sheath. Problems and ... — https://voltplace.com/wp-content/uploads/Dmitriev_IEEE_2026.pdf
+    "Voltage is applied between the ungrounded screen and the ground"
+[R29] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/media/documents/20220329-pg-66kv-brochure-web.pdf
+    "Power core sheath Polyethylene sheath"
+[R30] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/media/documents/20220329-pg-66kv-brochure-web.pdf
+    "Outer Protection Polypropylene Yarns together with PE sheath"
+[R31] MFM 10-1 Mobile, battery operated sheath fault location system up to ± 10 kV DC — https://megger.no/images_hovedside/Energi/kappefeil/MFM10-1_DS_EN.pdf
+    "The very powerful 10 kV DC source with positive and negative polarity allows HV cables to be tested."
+[R32] Cable sheath testing and fault location system shirla — https://www.powertech.com.au/wp-content/uploads/2022/08/BAUR-Shirla-User-Manual.pdf
+    "The object under test is discharged by the integrated discharging device after completion of a test."
+[R33] Cable sheath testing and fault location system shirla — https://www.powertech.com.au/wp-content/uploads/2022/08/BAUR-Shirla-User-Manual.pdf
+    "Before any contact with the object under test it must be earthed."
+[R34] TR-XLPE LONG-LIFE CABLES - Nexans — https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf
+    "Earth the screens after an Insulation Resistance Test on a sheath for at least 5 minutes before handling or performing other tests."
+[R35] Semiconductive layer over the cable sheath. Problems and ... — https://voltplace.com/wp-content/uploads/Dmitriev_IEEE_2026.pdf
+    "the cables of this 132 kV line were exposed to AC 50 Hz grid voltage, for several days, without having any grounding of the screens."
+[R36] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "the item has acquired a charge either because it is live or because it has become charged by other means such as by static or induction charging"
+[R37] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "or has retained or regained a charge due to capacitance effects even though it may be disconnected from the rest of the system"
+[R38] Your subsea cable testing course notes — material:notes#p2
+    "Nearby energised circuits can induce voltage into an isolated cable"
+[R39] Your subsea cable testing course notes — material:notes#p2
+    "Treat disconnected cables as live until tested, discharged and earthed"
+[R40] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "On equipment that is capable of storing charge, such as capacitors and high-voltage cables, ensure that any stored charge has been safely discharged."
+[R41] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "Additional local earths at the point of work may also be necessary if this is remote from the point of isolation, but these should be applied only after proving dead at the point of work."
+[R42] Electricity at work: Safe working practices HSG85 — HSE — https://www.hse.gov.uk///pubns/priced/hsg85.pdf
+    "Having isolated the circuit or equipment, and before working on it, check that the parts to be worked on or near really are dead"
+[R43] The Electricity at Work Regulations 1989 — legislation.gov.uk — https://www.legislation.gov.uk/uksi/1989/635/regulation/12
+    "means the disconnection and separation of the electrical equipment from every source of electrical energy in such a way that this disconnection and separation is secure."
+[R44] The Electricity at Work Regulations 1989 — legislation.gov.uk — https://www.legislation.gov.uk/uksi/1989/635/regulation/13
+    "Adequate precautions shall be taken to prevent electrical equipment, which has been made dead in order to prevent danger while work is carried out on or near that equipment, from becoming electrically charged during that work"
+[R45] The Electricity at Work Regulations 1989. Guidance on Regulations — HSE — https://www.hse.gov.uk/pubns/priced/hsr25.pdf
+    "Isolation (as defined in regulation 12(2)) requires taking effective steps to ensure that it is dead and cannot become inadvertently re-energised or charged by induction or capacitance effects."
+[R46] The Electricity at Work Regulations 1989. Guidance on Regulations — HSE — https://www.hse.gov.uk/pubns/priced/hsr25.pdf
+    "Where a test instrument or voltage indicator is used for this purpose, this device should itself be proved immediately before and immediately after testing the conductors."
+[R47] Your subsea cable testing course notes — material:notes#p3
+    "The charging effect can create a huge imbalance — the energy in the insulation can recharge the conductor even after discharging it."
+[R48] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "It should be discharged for a period about four times as long as test voltage was applied in a previous test."
+[R49] Your subsea cable testing course notes — material:notes#p1
+    "4 shock factors: Voltage · Resistance · Path · Duration"
+[R50] Your subsea cable testing course notes — material:notes#p1
+    "Body natural resistance ≈ 10,000 Ω @ 55 V"
+[R51] Your subsea cable testing course notes — material:notes#p1
+    "50 mA or above = potentially fatal zone"
+[R52] HVAC cross-linked polyethylene (XLPE) Cables — ENTSO-E Technopedia — https://www.entsoe.eu/technopedia/techsheets/hvac-xlpe-cable/
+    "Due to the significant capacitance of the cable, the reactive power compensation needs to be applied."
+[R53] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "Three-core cables, nominal voltage 66 kV (Um = 72.5 kV)"
+[R54] XLPE Submarine Cable Systems Attachment to XLPE Land Cable Systems - User´s Guide — ABB — https://new.abb.com/docs/default-source/ewea-doc/xlpe-submarine-cable-systems-2gm5007.pdf
+    "240 18.1 9.0 38.5 1.6 129.0 26.8 31.3 0.22 2.6 0.38"
+[R55] HVAC cross-linked polyethylene (XLPE) Cables — ENTSO-E Technopedia — https://www.entsoe.eu/technopedia/techsheets/hvac-xlpe-cable/
+    "The submarine cable design is a three-core 132 kV XPLE cable, lead metallic screen and double galvanized steel armour."
+[R56] Medium Voltage Submarine Cable — https://lsvinacns.vn/Upload/pdf/Submarine%20Cable.pdf
+    "2. Conductor screen : extruded semi-conductive layer 3. XLPE insulation 4. Insulation screen : extruded semi-conductive layer"
+[R57] Medium Voltage Submarine Cable — https://lsvinacns.vn/Upload/pdf/Submarine%20Cable.pdf
+    "6. Screen : copper wires and copper helix(or copper tape) 7. Swelling tape 8. Laminated Aluminum tape 9. Outer sheath : PE or semi-conductive PE"
+[R58] XLPE DATASHEET | Submarine - prysmian.com — https://www.prysmian.com/staticres/525-kv-hvdc-new-cable-systems/documents/XLPE-DATASHEET---Submarine.pdf
+    "METALLIC SHEATH The insulated core has a lead alloy sheath applied over the longitudinal water barrier."
+[R59] [PDF] Marine Cable Catalogue - Prysmian — https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/Prysmian-Marine-Cable-Catalogue_%20North-Europe.pdf
+    "Uo the rated voltage between the conductor and earth, or between the conductor and the metal screen for which the cable is designed ."
+[R60] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "SINGLE CORE XLPE CABLE, 38/66(72.5)kV"
+[R61] HIGH VOLTAGE POWER CABLES — https://www.bahra-electric.com/Downloads/HVCatalogueLowRes.pdf
+    "36.0 60.0 66.0 69.0 72.5"
+[R62] IEC TS 60479-1:2005 | IEC — https://webstore.iec.ch/en/publication/2219
+    "The relationship between current and voltage is not linear because the impedance of the human body varies with the touch voltage, and data on this relationship is therefore required."
+[R63] IEC TS 60479-1:2005 | IEC — https://webstore.iec.ch/en/publication/2219
+    "The values of body impedance depend on a number of factors and, in particular, on current path, on touch voltage, duration of current flow, frequency, degree of moisture of the skin, surface area of contact, pressure exerted and temperature."
+[R64] A new model for human body impedance — https://researchspace.auckland.ac.nz/server/api/core/bitstreams/d68fe1a0-b382-491b-bab7-6dda7d3ee1fe/content
+    "The physical basis for this lies in the behaviour of the skin, which presents a relatively large impedance to low voltages, but breaks down for voltages on the order of a few hundred volts."
+[R65] A new model for human body impedance — https://researchspace.auckland.ac.nz/server/api/core/bitstreams/d68fe1a0-b382-491b-bab7-6dda7d3ee1fe/content
+    "we expect on physical grounds that the impedance characteristic of any individual will be monotone decreasing in voltage"
+[R66] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "The threshold of reaction of a human body is assumed to be 0.5 mA independent of time of exposure."
+[R67] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "A current of about 10 mA AC, is assumed for the threshold of let-go for adult males and 5 mA for the entire population"
+[R68] Electricity - OSHwiki | European Agency for Safety and Health at Work — https://oshwiki.osha.europa.eu/en/themes/electricity
+    "For shock durations of 1 s, the level is 50 mA and for durations longer than 3 s it drops to 40 mA."
+[R69] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "The magnitude of the induced voltage, due to inductive coupling, depends on the current in the source system, the distance between the two systems and the length of parallelism of the two systems."
+[R70] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "the magnitude of the inductive coupling induced voltage is independent of the systems voltage level."
+[R71] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "This induced voltage will be longitudinally on all metal parts of the cable whether in or out of service, i.e. armour, metal sheath, conductor and parallel earth wires"
+[R72] Induced Voltage and Current in Parallel Transmission Lines — https://efiling.energysafety.ca.gov/eFiling/Getfile.aspx?docket=2026-2028%20Base%20WMP%20DRs&fileid=59162&shareable=true
+    "This is contrary to magnetic-field induction, where the distance the lines are parallel to has a dramatic impact on the induced voltage."
+[R73] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "Together with the capacitance between the un-earthed object and earth, a capacitive voltage divider is formed, so that for an alternating voltage source, a proportion of the source voltage appears on the object."
+[R74] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "overhead lines or substation busbars can only influence insulated cables that are not shielded neither by the earth nor by an earthed screen."
+[R75] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "underground and offshore cables cannot generate capacitive coupling as the electric field is contained inside the shielded insulation."
+[R76] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "It should be noted that only a part of the cable system needs to be exposed to the electric field for the whole cable to be affected."
+[R77] Induced Voltage and Current in Parallel Transmission Lines — https://efiling.energysafety.ca.gov/eFiling/Getfile.aspx?docket=2026-2028%20Base%20WMP%20DRs&fileid=59162&shareable=true
+    "From (1), it can be seen that the units of length cancel; thus, the distance the two lines are paralleled has no impact on the magnitude of the induced voltage."
+[R78] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "Whenever a cable is left disconnected, the metal sheath and core conductor should be shunted and locally earthed, to prevent standing voltage."
+[R79] Guidelines for safe work on cable systems under induced voltages or currents | ELECTRA — https://electra.cigre.org/310-june-2020/technical-brochures/guidelines-for-safe-work-on-cable-systems-under-induced-voltages-or-currents.html
+    "dangerous voltages can occur unpredictably at any time due to external faults in electrical system or due to switching, lightning or other voltage surges."
+[R80] Impressed Voltages — https://electrical.theiet.org/wiring-matters/years/2018/72-september-2018/impressed-voltages
+    "‘Impressed voltages’ are a general, catch-all term used to cover induced or capacitive voltages appearing on metalwork."
+[R81] Impressed Voltages — https://electrical.theiet.org/wiring-matters/years/2018/72-september-2018/impressed-voltages
+    "There can also be ‘trapped charge’ arising from residual charge left on the capacitance of an item of equipment – for example after insulation resistance testing a length of cable."
+[R82] Capacitors | Environmental Health and Safety | Virginia Tech — https://ehs.vt.edu/programs/occupational-safety/electrical-safety-in-research-operations/capacitors.html
+    "Note: High voltage cables should be treated as capacitors because they have capacitance and thus can store energy."
+[R83] Using Ground Sticks to Discharge Capacitance — https://efcog.org/wp-content/uploads/Wgs/Safety%20Working%20Group/Best%20Practices/Worker%20Safety%20-%20Health/Electrical%20Safety/BP261%20Using%20Ground%20Sticks%20%28Hooks%29%20to%20Discharge%20Capacitance.pdf
+    "the capacitance of the coax cable is often overlooked and must be analyzed for risk to the workers, especially when disconnecting such cable."
+[R84] [PDF] Capacitor Application and Maintenance Guide - EPRI — https://restservice.epri.com/publicdownload/TR-112175/0/Product
+    "The electrostatic energy in watt- seconds or joules in the capacitor is given by J = ½ CV"
+[R85] Using Ground Sticks to Discharge Capacitance — https://efcog.org/wp-content/uploads/Wgs/Safety%20Working%20Group/Best%20Practices/Worker%20Safety%20-%20Health/Electrical%20Safety/BP261%20Using%20Ground%20Sticks%20%28Hooks%29%20to%20Discharge%20Capacitance.pdf
+    "A voltage recharge from 0.02 percent (polystyrene and polypropylene) up to 10 percent (some electrolytics) can occur a few minutes after the grounding or shorting device has been removed."
+[R86] Capacitance Current Switching | IEEE Technology Navigator — https://technav.ieee.org/topic/capacitance-current-switching/
+    "When a circuit breaker opens a capacitive current, the current passes through zero at a moment when the capacitor is near its peak charge, leaving a sustained voltage across the open contacts."
+[R87] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "Good insulation will show increasing resistance during the test as the charging currents disappear."
+[R88] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "In poor insulation the high leakage currents will hide the charging currents, and a graph of the insulation resistance over time will show a much flatter curve."
+[R89] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "The ratio of two time-resistance readings (such as a 60-second reading divided by a 30-second reading) is called a dielectric absorption ratio."
+[R90] “A Stitch in Time...” — Megger — https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/assets/1/26/Documents/Megger/MIT330_EN/mit330_en_doc_3.pdf
+    "If the ratio is a 10-minute reading divided by a 1-minute reading, the value is called the polarization index."
+[R91] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "In a polarisation index test, the insulation resistance of the test object is measured continuously for a period of 10 minutes."
+[R92] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "It has the advantage of being quick, sometimes no more than 60 seconds, and can be seen as independent of temperature."
+[R93] Insulation testing diagnostic techniques | Megger — https://www.megger.com/en/et-online/october-2008-%281%29/insulation-testing-diagnostic-techniques
+    "Two measurements are taken, at 1 minute and at 10 minutes, and these results are used to calculate a PI ratio."
+[R94] Electrical Insulation Testing Solutions | Megger — https://www.megger.com/en/type/electrical-insulation-testing
+    "A rising resistance value over time indicates healthy insulation, while a low or unstable PI can indicate moisture, contamination, or insulation breakdown."
+[R95] Your subsea cable testing course notes — material:notes#p9
+    "PI: <1 / 1–2 / 2–4 / >4 Poor / Questionable / Okay / Good"
+[R96] Your subsea cable testing course notes — material:notes#p9
+    "DAR: <1.25 / 1.25–1.6 / >1.6 Inadequate / Satisfactory / Excellent"
+[R97] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "If the insulation is in good condition, the PI will be 2.0 or higher."
+[R98] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "Typically, the DAR will be 1.4 or higher if the insulation being tested is in good condition."
+[R99] Polarization index (PI) test | Megger — https://www.megger.com/en-us/PIpredictor
+    "PI results of 1.00-2.00 would be considered acceptable for equipment with very low capacitance, such as short runs of house wiring."
+[R100] Q and A: Insulation resistance testing | Megger — https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing
+    "Since the test times are shorter, the DAR measurement is usually lower than the PI measurement."
+[R101] Your subsea cable testing course notes — material:notes#p4
+    "If possible, default to PI or DAR"
+[R102] Your subsea cable testing course notes — material:notes#p4
+    "Connect red to screen, black to core"
+[R103] Your subsea cable testing course notes — material:notes#p4
+    "Check device screen for discharged condition, use discharge stick, finally hook stick, then apply earths to core and reconnect screen to earth"
+[R104] Your subsea cable testing course notes — material:notes#p3
+    "Cable must be discharged after testing"
+[R105] Your subsea cable testing course notes — material:notes#p3
+    "Allow cable to discharge for 5× the charging time"
+[R106] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "If the operator performs a 10-minute PI test, he/she should allow the unit to discharge for 50 minutes."
+[R107] Insulation resistance testing: application note (Fluke) — https://media.fluke.com/c34d63d2-ca47-4635-8a9f-b10600665ad3_original%20file.pdf
+    "The grounding discharge time should be about five times the testing charge time."
+[R108] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "This is to guard against any stored dielectric absorption charge subsequently being released, thereby raising the voltage to potentially dangerous levels."
+[R109] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "Thus, if you know the capacitance of the test sample you can work out the charging time"
+[R110] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "If testing an underground cable, the positive terminal would normally be connected to the outside of the cable since this will be grounded by contact with the soil"
+[R111] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "on older insulation, a little-known phenomenon called electroendosmosis causes the lower reading to be obtained with the positive terminal connected to the grounded side of the insulation being tested."
+[R112] The importance of the guard terminal in insulation testing | Megger — https://www.megger.com/en/et-online/April-2019/The-importance-of-the-guard-terminal-in-insulation-testing
+    "Once transient currents such as capacitive charging current and absorption (or polarization) current have fallen to negligible values in the asset under test, we are left with a small steady-state current known as the conduction or leakage current."
+[R113] A Stitch in Time: The Complete Guide to Electrical Insulation Testing (Megger) — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "The resistance of insulating materials decreases markedly with an increase in temperature."
+[R114] Can we beat the heat? | Megger — https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29
+    "In general, for every 10°C increase in temperature, halve the resistance; or, for every 10°C decrease double the resistance."
+[R115] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "The benefits of the time resistance test are that it is relatively independent of temperature and can give conclusive information without the records of past tests."
+[R116] What are PI and DAR values? | Hioki — https://www.hioki.com/us-en/support/faq/detail/id_n1252407
+    "if the PI or DAR is close to 1, it is judged that the insulation of the object under test has deteriorated."
+[R117] Polarization index (PI) test | Megger — https://www.megger.com/en/PIpredictor
+    "there are materials that exhibit very little or no dielectric absorption"
+[R118] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "Some high values of PI (above 5) could indicate brittle or cracked insulation; this should be fairly obvious."
+[R119] Insulation Testing Quick Reference Guide (AEMC) — https://www.aemc.com/userfiles/files/resources/webinars/Insulation_Testing_Quick_Reference_Guide.pdf
+    "the Polarization Index (PI) test is not recommended as an assessment tool"
+[R120] Insulation resistance testing (Fluke) — https://media.fluke.com/04cae89f-1efe-42b1-bf7b-b1060066a93c_original%20file.pdf
+    "when testing electrical cabling or switchgear (low-capacitance equipment) the time-dependent capacitive leakage and absorption leakage currents become insignificant and decrease to zero almost instantly."
+[R121] A Stitch in Time: The Complete Guide to Electrical Insulation Testing (Megger) — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "Table I gives values of the ratios and corresponding relative conditions of the insulation that they indicate."
+[R122] A Stitch in Time: The Complete Guide to Electrical Insulation Testing (Megger) — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "1.0 to 1.25 1.4 to 1.6 Above 1.6"
+[R123] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "diagnostic testers have voltage outputs of 5 or 10 kV"
+[R124] A guide to diagnostic insulation testing above 1 kV (Megger) — https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf
+    "The first step in any insulation test is, therefore, to ensure that the insulation is completely discharged."
+[R125] Your subsea cable testing course notes — material:notes#p1
+    "Inter-array cable (AC): Turbine → Offshore substation"
+[R126] 66 kV Submarine Cable Systems - Prysmian Corporate — https://www.prysmian.com/sites/www.prysmian.com/files/2024-03/leaflet_submarine_epr_66%20Kv_%20final_0.pdf
+    "Two times more power can be transported over a single array cable"
+[R127] Your subsea cable testing course notes — material:notes#p2
+    "Identify → Isolated → Proved Dead → Secured → Earthed"
+[R128] INTERNATIONAL STANDARD NORME INTERNATIONALE — https://webstore.iec.ch/en/iec_catalog/product/preview?id=L3B1Yi9wZGYvcHJldmlldy9pbmZvX2llYzYwNTAyLTJ7ZWQzLjB9Yi5wZGY%3D
+    "This part of IEC 60502 specifies the construction, dimensions and test requirements of power cables with extruded solid insulation from 6 kV up to 30 kV for fixed installations such as distribution networks or industrial installations."
+A source whose address begins "material:" is a page of Dan's own course materials ("#p16": the page), checked word for word against that page: judge the lesson against its quote as you would a web source's.
+Notes (claims, and the sources that support them):
+- IEC 60229 sets a site test of 4 kV d.c. per millimetre of specified oversheath thickness, at most 10 kV, for 1 minute, between the underlying metallic layers and an outer electrode. [R1]
+- In that standard all metallic layers under the oversheath are connected together, and no breakdown of the oversheath may occur during the test. [R2][R3]
+- The factory routine test in IEC 60229 is stronger: 8 kV d.c. per millimetre for 1 minute, with the underlying metal layer at negative polarity. [R4]
+- Your notes give the same test: screen conductor to earth, 4 kV per mm of sheath thickness up to 10 kV for 1 minute, with conductor, foil and screen connected together. [R5][R6][R7]
+- Your notes say lots of cables have sheath faults, which can cause full cable loss and be very expensive. [R8]
+- IEC 60229 notes that an oversheath can be designed to protect the insulation as well as against corrosion, which is why its integrity matters. [R9]
+- For a sheath that is not semi-conductive, your notes connect negative to the screen conductor and positive to an earth electrode. For a semi-conductive sheath, positive goes through a roll spring to the semi-con layer. [R10][R11][R12]
+- One utility specification calls for a 10 kV d.c. test for 1 minute between sheath and earth where the outer sheath is insulating rather than semi-conducting. [R13]
+- A damaged sheath lets water in. Water that passes through a damaged sheath or joint causes water treeing once the electric field acts on it. [R14]
+- The outer jacket slows the ingress of water and ions from outside. Water trees are tiny branching cavities that grow slowly, over months or years, until the stress at a tip starts an electrical tree and the cable faults. Moisture, a high field, insulation defects and time together promote them. [R15][R16][R17]
+- A utility's guide names failure of the enclosing sheath, and the ingress of water, as a major cause of cable failure, and says actual failure does not come straight after the breach. A commissioning-test review of HV cable says failures are more often due to sheath problems than to the main insulat… [R18][R19][R20]
+- Sheath test levels differ by who sets them: the notes and IEC 60229 give 4 kV per mm up to 10 kV for 1 minute. A distribution network operator uses 10 kV DC for 1 minute on new installation of insulated-sheath cable and 5 kV for 1 minute on 6.6 to 33 kV polymeric cable. A cable maker's guide for me… [R21][R22][R23]
+- The IEC standards for 30 to 500 kV cable (IEC 60840 and IEC 62067) limit their after-installation tests to withstand tests on the main insulation and the sheath. IEC 60840 covers 66 kV cable but leaves submarine cables out of its scope, saying the standard tests may need modifying for them. So the … [R24][R25]
+- The outer face of the sheath needs a conductor for the test voltage to cross the sheath. On land cable a graphite or semi-conducting coating on the sheath gives a continuous potential. A submarine functional specification asks for graphite or an extruded conductive layer on the polyethylene outer s… [R26][R27][R28]
+- In a three-core 66 kV array cable each power core has its own polyethylene sheath over its screen. The armour wires and outer polypropylene yarn serving sit outside the three cores. So the sheath test of a three-core cable is made on each core's sheath; no source here describes testing the outer ya… [R29][R30]
+- Sheath test sets are made with 10 kV DC outputs of either polarity. The maker's manual says the test object is discharged by the set's discharge device after the test and must be earthed before any contact. [R31][R32][R33]
+- After a sheath test the screens need earthing for time before handling: a cable maker's guide says at least 5 minutes after a sheath insulation test. A case from a 132 kV line is where the screen earths were not put back after the sheath tests and the line ran energised for several days without the… [R34][R35]
+- A conductor that has been disconnected can still be charged. HSE counts a conductor as charged if it picked up charge by induction or kept or regained charge through capacitance effects while disconnected. [R36][R37]  (from an idea this one builds on)
+- Your notes say nearby energised circuits can induce voltage into an isolated cable, so a disconnected cable is treated as live until it has been tested, discharged and earthed. [R38][R39]  (from an idea this one builds on)
+- HSE says equipment that stores charge, such as high-voltage cables, must have the charge safely discharged, and that local earths at the point of work go on only after proving dead there. [R40][R41][R42]  (from an idea this one builds on)
+- The regulations require isolation to be secure, and precautions to stop dead equipment from becoming charged during the work. HSE guidance says isolation includes guarding against charge by induction or capacitance effects. [R43][R44][R45]  (from an idea this one builds on)
+- The voltage indicator used to prove dead is itself proved immediately before and immediately after testing the conductors. [R46]  (from an idea this one builds on)
+- Your notes warn that the energy stored in the insulation can recharge the conductor after it has been discharged, and Megger says that absorbed energy takes a while to release. [R47][R48]  (from an idea this one builds on)
+- Your notes give the shock factors as voltage, resistance, path and duration, with body resistance about 10,000 Ω at 55 V and 50 mA or more potentially fatal. [R49][R50][R51]  (from an idea this one builds on)
+- A long cable has significant capacitance. For a three-core 66 kV XLPE submarine cable at 240 mm², ABB lists 0.22 µF/km and 2.6 A/km charging current per phase at 50 Hz, in its 66 kV table. [R52][R53][R54]  (from an idea this one builds on)
+- A real three-core submarine design can carry a lead metallic screen and steel armour over the cores, which the notes' layer list leaves out. The oversheath can have a protective function for the insulation. [R55][R9]  (from an idea this one builds on)
+- A maker's three-core medium-voltage submarine cable lists, middle out: conductor screen, XLPE insulation, insulation screen, swelling tape, copper wires, laminated aluminium tape and a PE or semi-conductive PE outer sheath, so your notes' layer list matches a real build; the same maker's lead-sheat… [R56][R57][R58][R55][R9]  (from an idea this one builds on)
+- U0 is the rated voltage between the conductor and earth or the metal screen. For a 72.5 kV highest voltage, one maker names the cable 38/66 (72.5) kV while a rated-voltage table in another pairs 72.5 kV with U0 = 36 kV, so U0 is read from the cable's own data sheet (the case uses 38 kV, a practice … [R59][R60][R61]  (from an idea this one builds on)
+- The body's impedance is not a fixed number. It varies with the touch voltage, path, duration, skin moisture, contact area and temperature, and it falls as voltage rises because the skin breaks down at a few hundred volts. Your notes' 10 000 Ω at 55 V is the notes' figure; no source here gives a val… [R62][R63][R64][R65]  (from an idea this one builds on)
+- The effects thresholds: about 0.5 mA to react, about 10 mA AC as the let-go threshold for adult males (5 mA for the whole population), and ventricular fibrillation at 50 mA for a one-second shock, falling to 40 mA beyond 3 s. Your notes put 50 mA or more as potentially fatal. [R66][R67][R68]  (from an idea this one builds on)
+- For a screened cable the coupling that matters is inductive. It lands on all the metal parts of the cable, in or out of service (armour, sheath, conductor), depends on the neighbour's current, the distance and the length of parallelism, and not on the neighbour's voltage. So your notes' 'the longer… [R69][R70][R71][R72]  (from an idea this one builds on)
+- Capacitive coupling forms a voltage divider, so part of a live neighbour's voltage appears on an unearthed conductor. But overhead lines and busbars influence only conductors not screened by earth or an earthed screen, and offshore cables hold their field inside the shielded insulation. So the 'cap… [R73][R74][R75][R76][R77]  (from an idea this one builds on)
+- The rule that follows: a disconnected cable's sheath and core are shunted and earthed locally to prevent a standing voltage, and dangerous voltages can arrive unpredictably from faults, switching or lightning even when it is safe under normal conditions. [R78][R79]  (from an idea this one builds on)
+- 'Impressed voltages' is the term for induced or capacitive voltage on metalwork, and 'trapped charge' is residual charge left on the capacitance of equipment, for example after insulation resistance testing a length of cable. [R80][R81]  (from an idea this one builds on)
+- A high-voltage cable should be treated as a capacitor that can store energy, and its capacitance is easy to overlook when disconnecting it. The energy in a capacitor is ½CV². A capacitor can also recharge a few minutes after the shorting device is removed (dielectric absorption), which is why the e… [R82][R83][R84][R85]  (from an idea this one builds on)
+- A breaker opens a capacitive current as it passes through zero, which falls near the peak of the voltage, so the cable is left charged near its peak. [R86]  (from an idea this one builds on)
+- Good insulation shows rising resistance during the test as the charging currents disappear, while in poor insulation high leakage current hides them and the curve is much flatter. [R87][R88]  (from an idea this one builds on)
+- The dielectric absorption ratio is the ratio of two time-resistance readings, such as 60 s over 30 s. The polarization index is the 10-minute reading over the 1-minute reading. [R89][R90][R91]  (from an idea this one builds on)
+- Both ratios are taken on the same equipment minutes apart, and Megger says they can be seen as independent of temperature. Your notes add that a single reading swings with conditions. [R92][R93]  (from an idea this one builds on)
+- Healthy insulation shows rising resistance over time. A low or unstable PI can indicate moisture, contamination or insulation breakdown. [R94]  (from an idea this one builds on)
+- Your notes rate PI below 1 poor, 1 to 2 questionable, 2 to 4 okay and above 4 good, and DAR below 1.25 inadequate, 1.25 to 1.6 satisfactory and above 1.6 excellent. [R95][R96]  (from an idea this one builds on)
+- Makers' bands differ from the notes' names and cut-offs, so the client's criteria decide pass or fail. [R95][R96][R97][R98][R99]  [CONTESTED: Your notes rate PI 1 to 2 questionable and DAR 1.25 to 1.6 satisfactory. A Megger Q&A says PI of 2.0 or higher and DAR of 1.4 or higher indicate good insulation, and Megger accepts PI of 1 to 2 for very low-capacitance equipment.]  (from an idea this one builds on)
+- Megger says the DAR reading is usually lower than the PI reading because its test times are shorter. [R100]  (from an idea this one builds on)
+- Your notes pass an IR test if the voltage is held for the full duration and the resistance exceeds the client's criteria, and say to default to PI or DAR when possible. [R101][R102]  (from an idea this one builds on)
+- After the test the cable is discharged: check the device display, use the discharge stick, then the hook stick, then apply earths to core and screen. Your notes allow 5 times the charging time. [R103][R104][R105]  [CONTESTED: Your notes say to allow 5 times the charging time to discharge, without defining it. Megger's guide says to discharge for about four times as long as the test voltage was applied.]  (from an idea this one builds on)
+- Megger's guide gives the discharge time as about four times as long as the test voltage was applied in a previous test. [R48]  (from an idea this one builds on)
+- Megger's guide says to discharge the item under test for five times as long as it was tested, and gives the example of a 10-minute PI test, which needs 50 minutes. A Fluke application note says about five times the testing charge time. [R106][R107]  (from an idea this one builds on)
+- Megger's guide says to short out a tested item firmly after discharge until it is needed, because stored absorption charge can be released afterwards and raise the voltage to dangerous levels. [R108]  (from an idea this one builds on)
+- Megger's guide uses charging time in a second sense, the time the test set takes to charge the sample, which follows from the sample's capacitance. It is a separate idea from the five times rule, which counts the time the voltage was applied. [R109]  [CONTESTED: Your notes say five times the charging time without defining it. Megger's newer guide says five times as long as the item was tested, with 50 minutes after a 10-minute PI test, and a Fluke application note says about five times the testing charge time. Megger's older guide says about four times. Th…]  (from an idea this one builds on)
+- Megger puts the positive terminal on the grounded outside of a cable, so the negative lead goes to the conductor. For a plain IR test it says polarity rarely matters, but on older insulation electroendosmosis gives a lower reading when the positive terminal is on the grounded side. [R110][R111]  (from an idea this one builds on)
+- The current in an IR test is a charging current and an absorption current, which fall to negligible values, and a small steady leakage current that is left. [R112]  (from an idea this one builds on)
+- A single IR reading falls markedly as temperature rises, with a rule of thumb of halving for every 10 degrees C. A time-resistance ratio such as PI is relatively independent of temperature and needs no past records. [R113][R114][R115]  (from an idea this one builds on)
+- A PI or DAR close to 1 means the insulation is judged to have deteriorated. [R116]  (from an idea this one builds on)
+- Some materials show very little or no dielectric absorption, and a high PI above 5 may point to brittle or cracked insulation, so a PI is read with the material in mind. [R117][R118]  (from an idea this one builds on)
+- IEEE 43 (a rotating-machine practice) says the PI test is not recommended as an assessment tool when the 1-minute reading is above 5000 megohms. A long XLPE cable can read far above that. [R119][R120]  [CONTESTED: Your notes and Megger use PI on cables with no upper limit. IEEE 43 is written for rotating machines, not cables, and a Fluke note says cabling shows little absorption current. The lesson teaches PI as the notes do, flags that a very high 1-minute reading makes the ratio hard to trust, and leans on…]  (from an idea this one builds on)
+- Megger's Table I rates DAR (60/30 s) 1.0 to 1.25 questionable, 1.4 to 1.6 good and above 1.6 excellent, with a gap between 1.25 and 1.4, and PI below 1 dangerous, 1 to 2 questionable, 2 to 4 good and above 4 excellent. A Megger Q&A calls PI of 2.0 or higher and DAR of 1.4 or higher good. [R121][R122][R97][R98]  [CONTESTED: Your notes name the PI bands poor, questionable, okay, good and set DAR at 1.25 and 1.6 with no gap. Megger's names and DAR cut-offs differ. Teach the notes' bands for the practice, show Megger's as a maker's view, and let the client's criterion settle pass or fail.]  (from an idea this one builds on)
+- Megger says diagnostic testers for medium-voltage cables, machines and transformers normally have outputs of 5 or 10 kV, so a 5 kV IR test on a 66 kV cable is a normal diagnostic test voltage. [R123]  (from an idea this one builds on)
+- Every insulation test starts from fully discharged insulation. [R124]  (from an idea this one builds on)
+- Wind-farm inter-array cables run from a turbine to the offshore substation, and a 66 kV array cable carries two times the power of a 33 kV one, according to one maker. [R125][R126]  (whole topic)
+- Every test starts from the same safe sequence: identify, isolate, prove dead, secure and earth. The earths come off only under control for a test, and go back on at the end. [R127][R39]  (whole topic)
+- IEC 60502-2 covers extruded-insulation cables only up to 30 kV, so it does not cover a 66 kV cable such as String B. [R128]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "The sheath test: 4 kV per millimetre",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the test voltage rising 4 kV per millimetre to the 10 kV cap at 2.5 mm, then staying flat while the stress falls, when you drag the sheath thickness.",
+  "title": "The sheath at 4 kV per mm",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 10,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Eleven screens, with Back and Continue, on the sheath test: what it is for, why it runs at 4 kV per millimetre with a 10 kV cap, and how it is connected.\n\nScreen 1, Do you still have it? The question: \"A core's oversheath is 2.0 mm thick. What d.c. voltage does the sheath test put across it, and for how long?\" Three choices, in this order: \"4.0 kV for 1 minute\"; \"8.0 kV for 1 minute\"; \"10.0 kV for 1 minute\". Right, the second: \"Still there.\" Then the working: \"V = 4 kV per mm × thickness = 4 × 2.0 = 8.0 kV. That is under the 10 kV cap, so 8.0 kV d.c., held for 1 minute.\" A last line names the slips: 4.0 kV leaves out the thickness, and 10.0 kV is the cap, which only applies above 2.5 mm. Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 7. Wrong, the first: \"That is the rate for one millimetre. Multiply it by the thickness: 4 × 2.0.\" Wrong, the third: \"That is the cap. It only applies when 4 × the thickness goes over 10 kV, above 2.5 mm. Here 4 × 2.0 = 8.0 kV.\" Then the right working, and on to screen 2.\n\nScreen 2, What it is for. \"Each core's oversheath is the plastic layer outside its screen and foil. Its job is to keep water away from the insulation. The sheath test checks it on its own. It puts a d.c. voltage across the sheath, from the screen inside to a conductor on its outer face. It runs after the IR test and before VLF. It looks for damage done while the cable was laid.\" The picture: one core in cross-section, as in lesson 1, with the oversheath ring lit and the other rings faint. A small break in the oversheath lets drops of water through towards the screen. Fine branching lines grow into the XLPE beyond, labelled \"water trees: months or years later\". In red, what goes wrong if it is skipped: \"A hole in the sheath does not fail the cable on day one. It lets water in. Under the working voltage, that water grows water trees in the XLPE, slowly, until the insulation fails. Sheath faults can cost the whole cable.\"\n\nScreen 3, The why: volts per millimetre. \"The sheath test is an insulation test on the sheath alone. The screen inside is one electrode. A conductor on the sheath's outer face is the other, the outer electrode. Plastic breaks down when the field across it gets too strong, and that field is the voltage per millimetre of thickness. Put the same voltage across a thin sheath and a thick one, and the thin one takes far more stress. So the rule scales the voltage with the thickness: 4 kV d.c. per millimetre, at most 10 kV, for 1 minute.[^1] Use the thickness specified on the data sheet. Every sheath up to 2.5 mm gets the same 4 kV per mm. Above 2.5 mm the cap holds the voltage at 10 kV, so a thicker sheath sees less.\" Then: \"In the factory, a new sheath takes 8 kV per mm.[^2] The site test is half that. Not every spec uses the per-millimetre rule. One offshore cable spec asks for a flat 10 kV d.c. for 1 minute on an insulating sheath.[^3] The client's test spec sets the level on the job.\" The picture, on the left: a slice of sheath between two plates, the linked screen below and the outer electrode above. Its width follows the thickness. Field lines cross it, drawn closer together as the stress rises. On the right, a plot of test voltage against thickness, from 1.0 to 4.0 mm. The line rises 4 kV for every millimetre until it meets a dashed line at 10 kV, labelled \"cap\", at 2.5 mm, then runs flat along it. A dot sits on the line at the slider's thickness. A Sheath thickness slider runs from 1.0 to 4.0 mm in steps of 0.1 mm, opening at 2.2 mm, String B's thickness and a practice value. Two readouts: Test voltage, in kV to 1 place, = 4 × thickness, at most 10; Stress across the sheath, in kV/mm to 2 places, = test voltage ÷ thickness. At 1.0 mm: 4.0 kV and 4.00 kV/mm. At 2.2 mm: 8.8 kV and 4.00 kV/mm. At 2.5 mm: 10.0 kV and 4.00 kV/mm. At 3.0 mm: 10.0 kV and 3.33 kV/mm. At 4.0 mm: 10.0 kV and 2.50 kV/mm. The prompt: \"Drag the thickness from 2.2 mm up to 4.0 mm.\" Read: up to 2.5 mm the voltage rises 4 kV for every millimetre, and the stress stays at 4.00 kV/mm. String B's 2.2 mm sheath takes 8.8 kV. From 2.5 mm the voltage stays at the 10 kV cap, so the stress falls, to 2.50 kV/mm at 4.0 mm. Still: the slider at 4.0 mm, with String B's 2.2 mm marked on the line.\n\nScreen 4, The why: what to link, and where the leads go. \"The test must stress the sheath and nothing else. So the conductor, the foil and the screen are linked together, at both ends. The foil sits right under the sheath. Linked, it carries the full test voltage onto the sheath's inner face. The conductor is at the same voltage, so the XLPE between conductor and screen has nothing across it. The negative lead goes to the linked screen. The positive lead goes to the outer electrode. That is the same way round as the IR test: positive on the outside. The outer electrode must reach the whole length of the sheath, so the whole sheath is tested. Which one you use depends on the sheath.\" A named control, Sheath type, with two settings: Insulating; Semi-conductive. It opens on Insulating. Insulating: \"A plain plastic sheath has no conductor on its face. The earth around the cable is the outer electrode, so the positive goes to an earth rod.\" Semi-conductive: \"A semi-conductive sheath has a thin conducting skin on its outer face, the whole length of the cable. That skin is the outer electrode. The positive reaches it through a roll spring wound round the sheath.\" Then: \"Assume String B's core sheaths are semi-conductive. On a job, read the sheath type off the data sheet.\" The picture: the cable end in long section, from the middle out: conductor, XLPE, screen wires, foil and sheath. A link bar joins conductor, foil and screen. A small inset shows the same link at the far end. The black negative lead runs from the test set to the link. The red positive lead runs to an earth rod (Insulating) or to a coiled roll spring round the sheath, whose outer skin is drawn as a thin dark layer (Semi-conductive). Field arrows cross the sheath only. Two readouts, the same on both settings: Across the sheath, 8.8 kV; Across the XLPE, 0.0 kV. The prompt: \"Switch between the two sheath types.\" Read: on an insulating sheath the positive goes to an earth rod. On a semi-conductive sheath it goes through a roll spring to the sheath's conducting skin. Either way the negative is on the linked screen, the sheath takes the 8.8 kV, and the XLPE takes none. Still: Semi-conductive, String B's case.\n\nScreen 5, Check. \"Cable P has a 1.5 mm sheath and cable Q a 3.5 mm sheath. Each is tested at its own correct voltage. Which sheath takes the higher stress per millimetre?\" Choices: \"P, the 1.5 mm sheath\"; \"Q, the 3.5 mm sheath\"; \"Both the same, 4 kV per mm\". Right, the first: \"P takes 4 × 1.5 = 6.0 kV, so 6.0 ÷ 1.5 = 4.00 kV/mm. Q works out at 4 × 3.5 = 14.0 kV, over the cap, so it gets 10.0 kV. That is 10.0 ÷ 3.5 = 2.86 kV/mm. The cap leaves a thick sheath less stressed.\" Wrong, the second: \"Q gets the higher voltage, 10.0 kV against 6.0 kV. But stress is voltage per millimetre: 10.0 ÷ 3.5 = 2.86 kV/mm, against P's 4.00.\" Wrong, the third: \"That holds only up to 2.5 mm. Q works out at 4 × 3.5 = 14.0 kV, over the cap, so it gets 10.0 kV. That is 2.86 kV/mm.\"\n\nScreen 6, Worked example, a line at each press. \"A cable with insulating core sheaths, 1.8 mm thick by its data sheet. A practice value.\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Earth the screen and the conductor at both ends.\" Line 2: \"Link foil, screen and conductor together at both ends.\" Line 3: \"Negative lead to the linked screen. Positive lead to the earth rod.\" Line 4: \"Tell the far end. Lift the earths under control, with access restricted at both ends.\" Line 5: \"V = 4 × 1.8 = 7.2 kV d.c., under the 10 kV cap. Hold it for 1 minute.\" Line 6: \"It passes if the sheath holds 7.2 kV for the full minute with no breakdown.[^4]\" Line 7: \"Discharge in the same order as after the IR test: the display shows discharged, then the discharge stick, the hook stick and the hand earth. Earth the screen and the core at both ends. Keep them earthed for at least 5 × the 1 minute the voltage was on, so at least 5 minutes.[^5]\" A note under the lines: \"Put the screen earths back on at both ends before the cable is energised. Screens left unearthed after sheath tests have been energised that way, for days. The last line matters as much as the test: the sheath holds charge, as the core does.\" Read: on a 1.8 mm insulating sheath, earth both ends, link foil, screen and conductor at both ends, put the negative on the screen and the positive on the earth rod, then lift the earths under control. Hold 4 × 1.8 = 7.2 kV d.c. for 1 minute. It passes with no breakdown. Then discharge in the usual order, keep the screen and the core earthed for at least 5 minutes, and put the screen earths back before the cable is energised. Still: all seven lines shown, with the note.\n\nScreen 7, Section A, question 4 (a). The scenario panel, then part 3b carried forward: L2's PI, 1.09. Then the test, said once: \"Each core's oversheath is semi-conductive, 2.2 mm thick by the data sheet. These are practice values. Each core is tested in turn: conductor, foil and screen linked at both ends, negative to the screen, positive through the roll spring.\" The question: \"(a) Determine the d.c. test voltage for String B's core sheaths.\" A typed answer, part 4a, in kV: 4 × 2.2 = 8.8 kV. Slips: 10.0, \"That is the cap. It applies only when 4 × the thickness goes over 10 kV.\"; 4.0, \"That is the rate for one millimetre. Multiply by the thickness.\"; 17.6, \"That is 8 kV per mm, the factory test on a new sheath. On site, use 4 kV per mm.\" After two misses, the working. Then: \"8.8 kV is under the cap. Hold it for 1 minute. That is 8.8 ÷ 2.2 = 4.00 kV/mm across the sheath.\"\n\nScreen 8, String B's results. \"L1 and L3 each hold 8.8 kV for the full minute. On L2, the test set trips at 3.2 kV after 20 s. These are practice values. 3.2 kV across 2.2 mm is 3.2 ÷ 2.2 = 1.45 kV/mm. L2's sheath broke down far below the 4 kV/mm it should hold, so L2 fails. Set it beside its flat PI of 1.09. That pointed to a steady leakage in the insulation. Now the sheath will not hold, so water may have a way in. Record it, and find out why before you submit. On a real job you stop here and report. Each core is discharged after its test, and its screen and core stay earthed for at least 5 minutes.\" The picture: three bars, one for each core, showing the voltage each reached, against a dashed line at 8.8 kV labelled \"test voltage\". L1 and L3 reach the line, each labelled \"held 1 minute\". L2 stops at 3.2 kV, in red, labelled \"tripped after 20 s\".\n\nScreen 9, Section B: \"Explain why a failed sheath test matters even when the main insulation passes.\" A written answer, marked against four points. Any three make a full answer. One more go, then the model answer.\n\nScreen 10, Section A, changed numbers. \"Another cable's core sheath is 3.0 mm thick. Determine its sheath test voltage.\" A typed answer, in kV: 4 × 3.0 = 12.0 kV, over the cap, so 10.0 kV. Slips: 12.0, \"That is over the 10 kV cap. Use 10 kV.\"; 4.0, \"That is the rate for one millimetre. Multiply by the thickness first.\" Then: \"10.0 kV across 3.0 mm is 10.0 ÷ 3.0 = 3.33 kV/mm. The cap leaves a thick sheath below 4 kV per mm.\"\n\nScreen 11, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+  "ignores": "The stress is drawn as voltage ÷ thickness, an average across the sheath. A sheath is a ring, so the stress is a little higher at its inner face. The slice is drawn flat. The test set's ramp up to voltage is not shown, nor the small current that charges the sheath. How an earth rod reaches an insulating sheath's outer face on a laid subsea cable is not shown. String B's sheath type and thickness are practice values.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 11 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Sheath test rate, kV d.c. per mm",
+    "value": 4,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Sheath test cap, kV d.c.",
+    "value": 10,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Sheath test duration, minutes",
+    "value": 1,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Thickness where the cap applies, mm",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: sheath thickness, mm",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: test voltage, kV",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: the thickness left out, kV",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: the cap, kV",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Factory routine test, kV d.c. per mm",
+    "value": 8,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "A flat offshore spec level, kV d.c.",
+    "value": 10,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Slider: from, mm",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: to, mm",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: step, mm",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider opens at String B's thickness (practice value), mm",
+    "value": 2.2,
+    "kind": "control"
+   },
+   {
+    "label": "At 1.0 mm: test voltage, kV",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1.0 mm: stress, kV/mm",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2.2 mm: test voltage, kV",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2.2 mm: stress, kV/mm",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2.5 mm: test voltage, kV",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "At 3.0 mm: test voltage, kV",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "At 3.0 mm: stress, kV/mm",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "At 4.0 mm: test voltage, kV",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "At 4.0 mm: stress, kV/mm",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Across the XLPE when linked, kV",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: cable P's sheath, mm",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: cable Q's sheath, mm",
+    "value": 3.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: P's test voltage, kV",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: P's stress, kV/mm",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: Q by the rate alone, kV",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: Q's test voltage at the cap, kV",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: Q's stress, kV/mm",
+    "value": 2.86,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: sheath thickness (practice value), mm",
+    "value": 1.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: test voltage, kV",
+    "value": 7.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Earthed after the test for at least, times the test time",
+    "value": 5,
+    "kind": "constant",
+    "source": 5
+   },
+   {
+    "label": "Earthed after a 1-minute test for at least, minutes",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Lines in the worked example",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B L2's PI, from lesson 3",
+    "value": 1.09,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 4a: String B's test voltage, kV",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 4a: stress, kV/mm",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 4a slip: the factory rate, kV",
+    "value": 17.6,
+    "kind": "computed"
+   },
+   {
+    "label": "String B L2 trips at (practice value), kV",
+    "value": 3.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B L2 trips after (practice value), s",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stress across L2's sheath at the trip, kV/mm",
+    "value": 1.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: sheath thickness (practice value), mm",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: by the rate alone, kV",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: test voltage at the cap, kV",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: stress, kV/mm",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Explain example: one voltage, kV",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Explain example: thin sheath, mm",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Explain example: thick sheath, mm",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Explain example: stress on the thin sheath, kV/mm",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Explain example: stress on the thick sheath, kV/mm",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: a circuit's voltage, V",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Section B: points, of which any make a full answer",
+    "value": "4, any 3",
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "The oversheath keeps water away from the insulation, so it gets a test of its own. A d.c. voltage goes across the sheath alone, from the screen inside to a conductor on its outer face. A hole or a weak spot breaks down. Current finds a path through it from the screen to the outside, and the test set trips. A hole matters because water that gets in grows [[water treeing]] in the XLPE under the electric field. Water trees grow slowly, over months or years.[^6] So the main insulation can still pass its tests today.\n\nPlastic breaks down when the electric field across it gets too strong. Across a layer, that field is the voltage divided by the thickness: volts per millimetre. Put 8 kV across a 2 mm sheath and each millimetre takes 4 kV. Put the same 8 kV across 4 mm and each takes 2 kV. So one fixed voltage would push thin sheaths hard and test thick ones lightly. The rule scales the voltage with the thickness: 4 kV d.c. per millimetre of specified thickness, at most 10 kV, for 1 minute.[^1] Every sheath up to 2.5 mm sees the same 4 kV per mm. Above 2.5 mm the cap holds the voltage at 10 kV, so the stress falls.\n\nTwo things make the voltage land on the sheath and nowhere else. First, the conductor, foil and screen are linked together at both ends. The foil sits right under the sheath. Linked, it carries the full test voltage onto the sheath's inner face. The conductor sits at the same voltage, so the XLPE has nothing across it. Second, the sheath's outer face needs a conductor along its whole length: the [[outer electrode]]. A semi-conductive sheath brings its own, a thin conducting skin reached through a roll spring. An insulating sheath uses the earth around it, reached through an earth rod. The negative goes to the screen and the positive to the outer electrode. The stress figures here are simplified: each is an average across the sheath.\n\n**The sheath test puts 4 kV d.c. per millimetre of sheath, at most 10 kV, across the sheath alone for 1 minute. Linking the metal layers and using the right outer electrode make sure the sheath is what it tests.**"
+ },
+ "analogy": {
+  "text": "On an installation you pick the IR test voltage to suit the circuit: higher for a 400 V circuit than for SELV. The aim is a test that stresses the insulation enough to show a fault, without asking more of it than it was built for. The sheath test matches its voltage to the sheath in the same way, by its thickness.",
+  "breaks": "Your installation test voltage steps with the circuit's voltage, and it reads a resistance. The sheath test steps with the plastic's thickness, and it only asks whether the sheath holds the voltage for a minute without breaking down."
+ },
+ "practice": {
+  "text": "- Before you start: the cable is isolated, proved dead and earthed at both ends. Restrict access at both ends. Talk to the far end before every change.\n- Read the sheath type and its specified thickness off the cable data sheet.\n- Link foil, screen and conductor together at both ends.\n- Negative to the linked screen. Positive to the outer electrode: an earth rod for an insulating sheath, the roll spring on the conducting skin for a semi-conductive one.\n- Lift the earths the test needs, under control.\n- Set V = 4 kV × the thickness in mm, at most 10 kV d.c. Hold it for 1 minute.\n- It passes if the sheath holds the full voltage for the full minute with no breakdown.\n- Discharge in the order you use after the IR test, then earth the screen and the core at both ends. Keep them earthed for at least 5 minutes after a 1-minute test.[^5]\n- Put the screen earths back on at both ends before the cable is ever energised.\n\n**Rule of thumb:** up to 2.5 mm, the voltage is 4 kV for each millimetre. Above 2.5 mm, it is 10 kV.\n\n**Rule of thumb:** other specs set other levels, such as a flat 10 kV. The client's test spec decides.\n\n**Worked example:** a cable with insulating core sheaths 1.8 mm thick, a practice value. V = 4 × 1.8 = 7.2 kV d.c., under the cap. Link at both ends, negative to the screen, positive to the earth rod, and hold 7.2 kV for 1 minute. No breakdown, so it passes. Then discharge and keep it earthed for at least 5 minutes.\n\n**Common mistakes**\n- Forgetting the cap: 12 kV on a 3.0 mm sheath, where 10 kV is the most.\n- Using 10 kV on every sheath, whatever its thickness.\n- Using the factory test's 8 kV per mm on site.\n- Leaving a metal layer unlinked.\n- The positive on the wrong outer electrode for the sheath type.\n- Leaving the screen earths off after the test."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "Explain why a failed sheath test matters even when the main insulation passes.",
+   "points": [
+    {
+     "text": "The sheath slows water getting in from outside. That keeps water away from the insulation.",
+     "cite": "Georgia Tech, Long-life XLPE insulated power cable; IEC 60229:2007 scope, IEC webstore (research)"
+    },
+    {
+     "text": "Water that gets through a damaged sheath grows water trees in the XLPE under the electric field.",
+     "cite": "Notes p.4 (added background, checked); Evaluation of cable moisture-proof measures based on AHP (research)"
+    },
+    {
+     "text": "Water trees grow slowly, over months or years, so the cable does not fail straight away. The insulation can pass today and fail later.",
+     "cite": "Georgia Tech, Long-life XLPE insulated power cable; Seattle City Light, guide for high d.c. field testing (research)"
+    },
+    {
+     "text": "Sheath faults are common and can cost the whole cable. Cables fail more often from sheath problems than from the main insulation.",
+     "cite": "Notes p.4; INMR, Commissioning testing HV power cables (research)"
+    }
+   ],
+   "need": 3,
+   "model": "The sheath is there to keep water away from the insulation. If it is holed, water gets in. Under the electric field, that water grows water trees in the XLPE. They grow slowly, over months or years, so the cable does not fail on day one. The main insulation can pass every test today and still fail later. Sheath faults are common, and failures come more often from sheath problems than from the main insulation. A sheath fault left in place can cost the whole cable."
+  }
+ },
+ "summary": {
+  "title": "The sheath test",
+  "for": "Is the oversheath sound? A d.c. voltage across the sheath alone, from the linked screen to an outer electrode.",
+  "rule": "V = 4 kV/mm × specified thickness, at most 10 kV d.c.\nHold for 1 minute: no breakdown\nStress = V ÷ thickness\nEarthed after: at least 5 × the time the voltage was on\n\nLink conductor, foil and screen at both ends.\nNegative to the screen, positive to the outer electrode.\nInsulating sheath: earth rod. Semi-conductive sheath: roll spring on its conducting skin.\nThe cap applies above 2.5 mm.\nOther specs use other levels: the client's spec decides.",
+  "traps": [
+   {
+    "text": "Forgetting the cap: 12 kV on a 3.0 mm sheath, where 10 kV is the most.",
+    "cite": "Notes p.4; IEC 60229:2007 clause 5 (research)"
+   },
+   {
+    "text": "Using 10 kV on every sheath, whatever its thickness.",
+    "cite": "Notes p.4; IEC 60229:2007 clause 5 (research)"
+   },
+   {
+    "text": "Leaving a metal layer unlinked. Conductor, foil and screen are joined at both ends.",
+    "cite": "Notes p.4; IEC 60229:2007 clause 5 (research)"
+   },
+   {
+    "text": "The positive on the wrong outer electrode for the sheath type.",
+    "cite": "Notes p.4"
+   },
+   {
+    "text": "Leaving the screen earths off after the test.",
+    "cite": "Nexans, TR-XLPE long-life cables; Dmitriev, Semiconductive layer over the cable sheath (research)"
+   }
+  ],
+  "where": "After IR and PI, before VLF. Earth the screen and the core at both ends before the test and after it.",
+  "figures": [
+   "4a"
+  ]
+ },
+ "sources": [
+  {
+   "n": 1,
+   "title": "IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards",
+   "url": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007",
+   "quote": "a d.c. voltage of 4 kV per millimetre of specified thickness of extruded oversheath shall be applied with a maximum of 10 kV d.c. between the underlying metallic layers and the outer electrode, for a period of 1 min."
+  },
+  {
+   "n": 2,
+   "title": "IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards",
+   "url": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007",
+   "quote": "A d.c. voltage of 8 kV per millimetre of the specified nominal thickness of the extruded oversheath shall be applied for 1 min between the underlying metal layer at negative polarity"
+  },
+  {
+   "n": 3,
+   "title": "OCDS-GFS-00-001-R2-Submarine-Cables-Functional- ...",
+   "url": "https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf",
+   "quote": "If the cable design permits (i.e. if the outer sheath is insulating rather than semiconducting), a 10 kV DC Test for 1 minute between cable sheath and earth shall be carried out"
+  },
+  {
+   "n": 4,
+   "title": "IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards",
+   "url": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007",
+   "quote": "No breakdown of the oversheath shall occur during the test."
+  },
+  {
+   "n": 5,
+   "title": "TR-XLPE LONG-LIFE CABLES - Nexans",
+   "url": "https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf",
+   "quote": "Earth the screens after an Insulation Resistance Test on a sheath for at least 5 minutes before handling or performing other tests."
+  },
+  {
+   "n": 6,
+   "title": "LONG-LIFE XLPE INSULATED POWER CABLE - Georgia Tech",
+   "url": "https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content",
+   "quote": "Water trees grow relatively slowly over a period of months or years."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0; * is a written question's id): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text, written.*.q, written.*.points[i].text, written.*.model, summary.title, summary.for, summary.rule, summary.where, summary.traps[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

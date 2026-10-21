@@ -101,7 +101,7 @@ G("t.Ich66", "Charging current per phase at 50 Hz, same row (typical)", 2.6, uni
 G("t.vfXLPE", "TDR velocity factor, power XLPE (typical range)", "0.54 to 0.62 (162 to 186 m/µs)",
   cite="Megger application note TDR_AN58 'Basic TDR operation', typical VFs: to research")
 G("t.sheathIEC", "Oversheath test after installation", "4 kV d.c. per mm of specified thickness, maximum 10 kV d.c., 1 min, all metallic layers under the oversheath connected together",
-  cite="IEC 60229:2007 clause 5 (public preview): to research")
+  cite="IEC 60229:2007 clause 5, public preview on iTeh (quoted: research sources 125, 126 and 127)")
 
 # ---------------------------------------------------------------- the running case: practice values
 G("p.farm", "The job", "commissioning tests on string B of an offshore wind farm", cite=PV, practice=True)
@@ -141,6 +141,14 @@ G("p.sheathT", "Core oversheath, specified thickness", 2.2, unit="mm", text="2.2
 G("p.sheathL2", "L2 sheath result", "the test set tripped at 3.2 kV after 20 s; L1 and L3 held for 1 minute", cite=PV, practice=True)
 G("p.vlfSpec", "VLF test in the client's specification", "2 U0, sinusoidal, 0.1 Hz, 60 min, each core", cite=PV + "; inside the notes' 1.5-2.5 U0 (notes p.7)", practice=True)
 G("p.vlfL2", "L2 VLF result", "broke down at minute 12; L1 and L3 held 60 min", cite=PV, practice=True)
+G("t.vlfSet", "VLF set load rating (a maker's typical, 200 kV peak class)", "0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz, 3.75 µF at 0.02 Hz",
+  cite="High Voltage Inc, VLF-200CMF data sheet: 0 to 200 kV peak, 0.75 µF at 0.10 Hz to 3.75 µF at 0.02 Hz (research source 268); a set is rated by the load capacitance it can test at each frequency, and at 0.05 Hz twice the load or cable length can be tested (sources 265, 267); about 200 kV peak is the most any 0.1 Hz set offers (source 270)",
+  note="A typical published rating. The rating scales as 1 ÷ f: 0.75 × (0.1 ÷ 0.05) = 1.5 µF, 0.75 × (0.1 ÷ 0.02) = 3.75 µF. A smaller 120 kV peak set is 0.55 µF at 0.1 Hz (source 269).")
+G("t.vlfPeak", "A sine wave's rms against its peak", "rms = 0.707 × peak, so peak = rms × 1.4142",
+  cite="High Voltage Inc, quoting IEEE 400.2-2013 (research source 271): for a sinusoidal waveform the rms is 0.707 of the peak value; Table 3, 69 kV class: installation 75 kV rms, 106 kV peak (source 112)",
+  note="VLF sets are rated in kV peak, the test voltage in kV rms.")
+G("p.vlfSet", "VLF set on the job", "a 200 kV peak class set: 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz, 3.75 µF at 0.02 Hz",
+  cite=PV + "; modelled on t.vlfSet. The real rating is on the set's own data sheet and label", practice=True)
 G("p.Rf", "L2 core to screen after the breakdown", 35, unit="Ω", text="35 Ω", cite=PV, practice=True)
 G("p.tEnd", "TDR, end of cable, open, from the OSS", 28.57, unit="µs", text="28.57 µs", cite=PV + "; TDR reading", practice=True)
 G("p.tFault", "TDR, downward peak on L2, from the OSS", 11.43, unit="µs", text="11.43 µs", cite=PV + "; TDR reading", practice=True)
@@ -157,10 +165,16 @@ A("a.chargeTime", "The 'charging time' in the 5× discharge rule is the time the
   "The notes do not say. Research must quote the test-set maker's discharge guidance.")
 A("a.order", "The tests run in the order of the notes' test sequence",
   "Phase ID, core resistance, IR with PI and DAR, sheath, VLF, then LIRA (notes p.9, added background). TDR comes in when the VLF test breaks down.")
+G("t.sheathEarth", "Earthing the screens after a sheath test (a maker's typical value)", "at least 5 minutes after a sheath insulation test, before handling or other tests",
+  cite="Nexans, Medium Voltage TR-XLPE Cables, installation tests (quoted: research source 258); a medium-voltage cable and a 1000 V sheath test, so a floor for the case, not its rule")
+G("p.sheathEarth", "Time the screens stay earthed after the 8.8 kV sheath test", 5, unit="min", text="5 min", practice=True,
+  cite=PV + "; 5 × the 1 minute the voltage was applied (the Megger rule in t.discharge), which also meets the maker's 'at least 5 minutes' in t.sheathEarth. The real time is the client's or the cable maker's procedure.")
 A("a.vlfAfterSheath", "The client asks for the VLF test on all three cores despite L2's sheath result",
   "A story choice so one fault shows up in four tests. On a real job the engineer stops and reports first (notes p.10: figure out why before submitting).")
 A("a.semicon", "The core oversheaths are semi-conductive",
   "So the positive lead goes to the sheath's semi-con layer through the roll spring (notes p.4). Read it off the cable data sheet.")
+A("a.coreSheath", "The sheath test is made on each core's own oversheath",
+  "A three-core 66 kV array cable has a polyethylene sheath on each power core (research source 253); the armour and the polypropylene yarn serving sit outside the three cores (source 254) and are open to seawater, so the case does not test them. No source found says how the outer electrode is made on a subsea cable on site: the case uses the notes' two methods (roll spring on a semi-conductive sheath, earth electrode on an insulating one) and a.semicon.")
 A("a.trapped", "Worst case trapped charge: switched off at the peak of U0",
   "A de-energised cable can be left charged. The case works the most it could hold. Sourced: 'trapped charge' left on the capacitance of equipment, for example after insulation resistance testing a length of cable (IET Wiring Matters, research source 186); high-voltage cables are to be treated as capacitors that store energy (source 188); E = ½CV² (source 191). The peak-of-U0 worst case itself is the course's own.")
 A("a.vCal", "The TDR velocity is set from the known route length",
@@ -372,17 +386,61 @@ F("l3.check.Y", "Check: core Y's PI, 3.00 GΩ at 1 min and 9.00 GΩ at 10 min", 
 # Lesson 4
 F("l4.recall", "Recall: sheath test voltage for a 2.0 mm sheath", 4 * 2.0, 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
   {"t": "2.0 mm"}, "4 × 2.0 = {=}, under the 10 kV cap", "notes p.4", "i4")
-F("4a", "Sheath test voltage for the case cable's 2.2 mm sheath", min(4 * 2.2, 10), 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
+F("4a", "Sheath test voltage for String B's 2.2 mm core sheath", min(4 * 2.2, 10), 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
   {"t": "2.2 mm"}, "4 × 2.2 = {=}, under the 10 kV cap, held 1 minute", "n.sheath; t.sheathIEC; p.sheathT", "i4",
   kind="case", part="4a", practice=True)
-F("l4.stressL2", "Stress across L2's sheath when it tripped", 3.2 / 2.2, 2, "kV/mm", "stress = V ÷ t",
-  {"V": "3.2 kV", "t": "2.2 mm"}, "3.2 ÷ 2.2 = {=}", "p.sheathL2; p.sheathT", "i4", practice=True)
+F("4b", "Stress across L2's sheath when it tripped", 3.2 / 2.2, 2, "kV/mm", "stress = V ÷ t",
+  {"V": "3.2 kV", "t": "2.2 mm"}, "3.2 ÷ 2.2 = {=}", "p.sheathL2; p.sheathT", "i4", kind="case", part="4b", practice=True)
 F("l4.changed", "Changed numbers: a 3.0 mm sheath", min(4 * 3.0, 10), 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
   {"t": "3.0 mm"}, "4 × 3.0 = 12.0 kV, over the cap, so {=}", "n.sheath", "i4", practice=True)
 F("l4.changed.slip", "Slip: the 10 kV cap ignored", 4 * 3.0, 1, "kV", "4 × t", {"t": "3.0 mm"}, "4 × 3.0 = {=}",
   "n.sheath (the rule it breaks)", "i4", kind="slip")
 F("l4.changed.stress", "Stress across the 3.0 mm sheath at the cap", 10 / 3.0, 2, "kV/mm", "stress = V ÷ t",
   {"V": "10 kV", "t": "3.0 mm"}, "10 ÷ 3.0 = {=}", "n.sheath", "i4", practice=True)
+
+# Lesson 4: the slips its choices and typed answers name, the pictures' readouts, the check and the worked example
+F("l4.recall.slip1", "Recall slip: the 10 kV cap used whatever the thickness", 10, 1, "kV", "the cap taken for every sheath",
+  {"cap": "10 kV"}, "10 = {=}, the cap, used whatever the thickness", "n.sheath (the rule it breaks)", "i4", kind="slip")
+F("l4.recall.slip2", "Recall slip: the thickness left out", 4 * 1, 1, "kV", "4 kV/mm taken as the voltage",
+  {"rate": "4 kV/mm"}, "4 × 1 = {=}, the rate per mm with the thickness left out", "n.sheath (the rule it breaks)", "i4", kind="slip")
+F("4a.slip", "Slip: the 10 kV cap used for String B's sheath", 10, 1, "kV", "the cap taken for every sheath",
+  {"cap": "10 kV"}, "10 = {=}, the cap, used whatever the thickness", "n.sheath (the rule it breaks)", "i4", kind="slip")
+F("4a.slip2", "Slip: the thickness left out", 4 * 1, 1, "kV", "4 kV/mm taken as the voltage",
+  {"rate": "4 kV/mm"}, "4 × 1 = {=}, the rate per mm with the thickness left out", "n.sheath (the rule it breaks)", "i4", kind="slip")
+F("4a.slip3", "Slip: the factory routine rate, 8 kV/mm, used on site", 8 * 2.2, 1, "kV", "8 kV/mm × t (IEC 60229's factory routine test)",
+  {"rate": "8 kV/mm", "t": "2.2 mm"}, "8 × 2.2 = {=}", "IEC 60229 routine test (research source 128); the site rule is 4 kV/mm", "i4", kind="slip")
+F("4b.slip", "Slip: L2's stress worked at the full test voltage", 8.8 / 2.2, 2, "kV/mm", "stress = V ÷ t, with the test voltage for the trip voltage",
+  {"V": "8.8 kV", "t": "2.2 mm"}, "8.8 ÷ 2.2 = {=}", "4a; p.sheathT (L2 tripped at 3.2 kV)", "i4", kind="slip")
+F("4b.slip2", "Slip: thickness divided by voltage", 2.2 / 3.2, 2, "kV/mm", "t ÷ V, upside down",
+  {"t": "2.2 mm", "V": "3.2 kV"}, "2.2 ÷ 3.2 = {=}", "p.sheathL2; p.sheathT (the rule it breaks)", "i4", kind="slip")
+F("l4.changed.slip3", "Changed numbers slip: the factory routine rate, 8 kV/mm, used on site", 8 * 3.0, 1, "kV", "8 kV/mm × t (IEC 60229's factory routine test)",
+  {"rate": "8 kV/mm", "t": "3.0 mm"}, "8 × 3.0 = {=}", "IEC 60229 routine test (research source 128); the site rule is 4 kV/mm", "i4", kind="slip")
+F("l4.stress4a", "Stress across String B's 2.2 mm sheath at 8.8 kV", 8.8 / 2.2, 2, "kV/mm", "stress = V ÷ t",
+  {"V": "8.8 kV", "t": "2.2 mm"}, "8.8 ÷ 2.2 = {=}", "4a; p.sheathT", "i4", practice=True)
+F("l4.capT", "Thickness where 4 kV/mm meets the 10 kV cap", 10 / 4, 1, "mm", "t = 10 kV ÷ 4 kV/mm",
+  {"cap": "10 kV", "rate": "4 kV/mm"}, "10 ÷ 4 = {=}", "n.sheath; t.sheathIEC", "i4")
+F("l4.pic.t1", "Picture: test voltage for a 1.0 mm sheath (slider's low end)", 4 * 1.0, 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
+  {"t": "1.0 mm"}, "4 × 1.0 = {=}, under the 10 kV cap", "n.sheath", "i4")
+F("l4.pic.t4", "Picture: test voltage for a 4.0 mm sheath (slider's high end)", min(4 * 4.0, 10), 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
+  {"t": "4.0 mm"}, "4 × 4.0 = 16.0 kV, over the cap, so {=}", "n.sheath", "i4")
+F("l4.pic.t4s", "Picture: stress across a 4.0 mm sheath at the cap", 10 / 4.0, 2, "kV/mm", "stress = V ÷ t",
+  {"V": "10.0 kV", "t": "4.0 mm"}, "10.0 ÷ 4.0 = {=}", "n.sheath", "i4")
+F("l4.check.thin", "Check: test voltage for a 1.5 mm sheath", 4 * 1.5, 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
+  {"t": "1.5 mm"}, "4 × 1.5 = {=}, under the 10 kV cap", "n.sheath", "i4", practice=True)
+F("l4.check.thinS", "Check: stress across the 1.5 mm sheath", 6.0 / 1.5, 2, "kV/mm", "stress = V ÷ t",
+  {"V": "6.0 kV", "t": "1.5 mm"}, "6.0 ÷ 1.5 = {=}", "n.sheath", "i4", practice=True)
+F("l4.check.thick", "Check: test voltage for a 3.5 mm sheath", min(4 * 3.5, 10), 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
+  {"t": "3.5 mm"}, "4 × 3.5 = 14.0 kV, over the cap, so {=}", "n.sheath", "i4", practice=True)
+F("l4.check.thickS", "Check: stress across the 3.5 mm sheath at the cap", 10 / 3.5, 2, "kV/mm", "stress = V ÷ t",
+  {"V": "10.0 kV", "t": "3.5 mm"}, "10.0 ÷ 3.5 = {=}", "n.sheath", "i4", practice=True)
+F("l4.wex", "Worked example: test voltage for a 1.8 mm insulating sheath", 4 * 1.8, 1, "kV", "V = 4 kV/mm × t, at most 10 kV",
+  {"t": "1.8 mm (practice value)"}, "4 × 1.8 = {=}, under the 10 kV cap, held 1 minute", "n.sheath", "i4", practice=True)
+F("l4.earth", "Least time the screens stay earthed after a 1-minute sheath test", 5 * 1, 0, "min", "5 × the time the voltage was applied",
+  {"time": "1 min"}, "5 × 1 = {=}", "n.discharge; t.discharge; t.sheathEarth (at least 5 minutes)", "i4")
+F("l4.changed.slip2", "Changed numbers slip: the thickness left out", 4 * 1, 1, "kV", "4 kV/mm taken as the voltage",
+  {"rate": "4 kV/mm"}, "4 × 1 = {=}, the rate per mm with the thickness left out", "n.sheath (the rule it breaks)", "i4", kind="slip")
+assert rnd(10 / 3.5, 2) == 2.86 and rnd(3.2 / 2.2, 2) == 1.45 and rnd(8.8 / 2.2, 2) == 4.0 and rnd(10 / 3.0, 2) == 3.33
+assert min(4 * 2.2, 10) == 8.8 and 4 * 2.5 == 10 and rnd(8 * 2.2, 1) == 17.6
 
 # Lesson 5
 F("l5.recall.lo", "Recall: lowest VLF test voltage, 12/20 kV cable", 1.5 * 12, 1, "kV", "1.5 × U0", {"U0": "12 kV"},
@@ -402,13 +460,71 @@ I50 = F("5c", "Charging current of one core at 50 Hz and 76 kV", w50 * C * 1e-6 
         "I = 2πfC × V", {"f": "50 Hz", "C": "0.528 µF", "V": "76 kV"}, "2π × 50 × 0.528 × 10⁻⁶ × 76 000 = {=}",
         "1a; 5a", "i5", kind="case", part="5c", practice=True)
 F("l5.ratio", "How many times smaller at 0.1 Hz", 50 / 0.1, 0, "", "50 ÷ 0.1", {}, "50 ÷ 0.1 = {=}", "notes p.6 (added background, checked by arithmetic)", "i5")
-F("l5.kva50", "Reactive power the test set must supply at 50 Hz", 76 * (w50 * C * 1e-6 * 76000), 1, "kVA", "S = V × I",
-  {"V": "76 kV", "I": "12.61 A"}, "76 × 12.606 = {=}", "5c", "i5", practice=True)
-F("l5.kva01", "Reactive power at 0.1 Hz", 76 * (2 * math.pi * 0.1 * C * 1e-6 * 76000), 2, "kVA", "S = V × I",
-  {"V": "76 kV", "I": "25.21 mA"}, "76 × 0.025213 = {=}", "5b", "i5", practice=True)
+F("l5.kva50", "Reactive power the test set must supply at 50 Hz", 76 * I50, 1, "kVA", "S = V × I",
+  {"V": "76 kV", "I": "12.61 A"}, "76 × 12.61 = {=}", "5c", "i5", practice=True,
+  accept={"min": 958.0, "max": 958.5, "why": "the unrounded current, 12.607 A, gives 958.1 kVA"})
+F("l5.kva01", "Reactive power at 0.1 Hz", 76 * I01 / 1000, 2, "kVA", "S = V × I",
+  {"V": "76 kV", "I": "25.21 mA"}, "76 × 0.02521 = {=}", "5b", "i5", practice=True)
 F("l5.changed", "Changed numbers: a 3.10 km core at 0.1 Hz and 76 kV", 2 * math.pi * 0.1 * 0.22 * 3.10 * 1e-6 * 76000 * 1000, 2, "mA",
   "I = 2πfC × V", {"f": "0.1 Hz", "C": "0.22 × 3.10 = 0.682 µF", "V": "76 kV"}, "2π × 0.1 × 0.682 × 10⁻⁶ × 76 000 = {=}",
   "t.C66", "i5", practice=True)
+F("l5.peak", "The case test voltage as a peak value", 76 * math.sqrt(2), 1, "kV", "peak = rms × 1.4142", {"rms": "76 kV"},
+  "76 × 1.4142 = {=} peak", "5a; t.vlfPeak", "i5", practice=True)
+F("l5.maxLen", "Longest core one 0.75 µF set can test at 0.1 Hz", 0.75 / 0.22, 2, "km", "length = rating ÷ capacitance per km",
+  {"rating": "0.75 µF", "C": "0.22 µF/km"}, "0.75 ÷ 0.22 = {=}", "p.vlfSet; t.C66", "i5", practice=True)
+# Lesson 5: the pictures' readouts, the check, the slips and the changed numbers, as lesson i5 shows them
+assert F("l5.recall.slip1hi", "Recall slip: 20 kV taken as U0 (high end)", 2.5 * 20, 1, "kV", "2.5 × U", {"U": "20 kV"},
+         "2.5 × 20 = {=}", "notes p.7 (the rule it breaks)", "i5", kind="slip") == 50.0
+assert F("l5.cycle01", "One cycle at 0.1 Hz", 1 / 0.1, 0, "s", "T = 1 ÷ f", {"f": "0.1 Hz"}, "1 ÷ 0.1 = {=}",
+         "research source 38 (one full cycle takes 10 seconds at 0.1 Hz)", "i5") == 10
+assert F("l5.cycles", "50 Hz cycles in the 10 s of one 0.1 Hz cycle", 50 * 10, 0, "", "cycles = f × time",
+         {"f": "50 Hz", "time": "10 s"}, "50 × 10 = {=}", "l5.cycle01", "i5") == 500
+for fq, dp, un in ((10, 2, "A"), (1, 2, "mA")):
+    iq = 2 * math.pi * fq * C * 1e-6 * Vt * 1000
+    shown = F(f"l5.pic.I{fq}", f"Picture: one core's charging current at {fq} Hz and 76 kV", iq if un == "A" else iq * 1000, dp, un,
+              "I = 2πfC × V", {"f": f"{fq} Hz", "C": "0.528 µF", "V": "76 kV"},
+              f"2π × {fq} × 0.528 × 10⁻⁶ × 76 000 = " + (f"{iq:.5f} A = " if un == "mA" else "") + "{=}", "1a; 5a", "i5", practice=True)
+    amps = shown if un == "A" else rnd(iq, 5)
+    F(f"l5.pic.kva{fq}", f"Picture: power the set supplies at {fq} Hz", 76 * amps, 1 if un == "A" else 2, "kVA", "S = V × I",
+      {"V": "76 kV", "I": f"{shown} {un}"}, f"76 × {amps} = {{=}}", f"l5.pic.I{fq}", "i5", practice=True)
+assert rnd(2 * math.pi * 10 * C * 1e-6 * Vt * 1000, 2) == 2.52 and rnd(76 * 2.52, 1) == 191.5
+assert rnd(2 * math.pi * 1 * C * 1e-6 * Vt * 1e6, 2) == 252.13 and rnd(76 * 0.25213, 2) == 19.16
+assert F("l5.maxLen05", "Longest core the same set can test at 0.05 Hz", 1.5 / 0.22, 2, "km", "length = rating ÷ capacitance per km",
+         {"rating": "1.5 µF", "C": "0.22 µF/km"}, "1.5 ÷ 0.22 = {=}", "p.vlfSet; t.C66", "i5", practice=True) == 6.82
+for km in (0.5, 5.0, 8.0):
+    F(f"l5.pic.C{km:g}", f"Picture: capacitance of a {km:.1f} km core", 0.22 * km, 3, "µF", "C = C per km × length",
+      {"C per km": "0.22 µF/km", "length": f"{km:.1f} km"}, f"0.22 × {km:.1f} = {{=}}", "t.C66", "i5", practice=True)
+assert F("l5.check.half", "Check: one core's charging current at 0.05 Hz, from 25.21 mA at 0.1 Hz", I01 / 2, 2, "mA",
+         "I = 2πfCV, so halving f halves I", {"I at 0.1 Hz": "25.21 mA"}, "25.21 ÷ 2 = {=}", "5b", "i5", practice=True,
+         accept={"min": 12.60, "max": 12.61, "why": "2π × 0.05 × 0.528 × 10⁻⁶ × 76 000 gives 12.607 mA"}) == 12.61
+assert F("l5.check.slip", "Check slip: the current doubled", I01 * 2, 2, "mA", "I × 2", {"I at 0.1 Hz": "25.21 mA"},
+         "25.21 × 2 = {=}", "5b (the rule it breaks: lower f, higher Xc)", "i5", kind="slip") == 50.42
+assert F("5a.slip", "Slip: 66 kV between cores taken as U0", 2 * 66, 1, "kV", "2 × U", {"U": "66 kV"}, "2 × 66 = {=}",
+         "p.U0 (the rule it breaks: U0 is core to earth)", "i5", kind="slip") == 132.0
+assert F("5a.slip2", "Slip: U0 with the 2 left out", 1 * 38, 1, "kV", "1 × U0", {"U0": "38 kV"}, "1 × 38 = {=}",
+         "p.vlfSpec (the rule it breaks)", "i5", kind="slip") == 38.0
+assert F("5a.slip3", "Slip: the test voltage given as a peak", 76 * 1.4142, 1, "kV", "peak = rms × 1.4142", {"rms": "76 kV"},
+         "76 × 1.4142 = {=}", "t.vlfPeak (the test voltage is rms)", "i5", kind="slip") == 107.5
+assert F("5b.slip", "Slip: the 2π left out at 0.1 Hz", 0.1 * C * 1e-6 * Vt * 1000 * 1000, 2, "mA", "f × C × V",
+         {"f": "0.1 Hz", "C": "0.528 µF", "V": "76 kV"}, "0.1 × 0.528 × 10⁻⁶ × 76 000 = 0.00401 A = {=}", "the rule it breaks", "i5",
+         kind="slip") == 4.01
+assert F("5b.slip2", "Slip: the peak voltage used", 2 * math.pi * 0.1 * C * 1e-6 * 107.5e3 * 1000, 2, "mA", "I = 2πfC × V peak",
+         {"f": "0.1 Hz", "C": "0.528 µF", "V": "107.5 kV peak"}, "2π × 0.1 × 0.528 × 10⁻⁶ × 107 500 = 0.03566 A = {=}",
+         "the rule it breaks (the test voltage is rms)", "i5", kind="slip") == 35.66
+assert F("5b.slip3", "Slip: three cores counted", 3 * I01, 2, "mA", "3 × I", {"I": "25.21 mA"}, "3 × 25.21 = {=}",
+         "p.vlfSpec (each core is tested in turn)", "i5", kind="slip") == 75.63
+assert F("5c.slip", "Slip: the 2π left out at 50 Hz", 50 * C * 1e-6 * Vt * 1000, 2, "A", "f × C × V",
+         {"f": "50 Hz", "C": "0.528 µF", "V": "76 kV"}, "50 × 0.528 × 10⁻⁶ × 76 000 = {=}", "the rule it breaks", "i5", kind="slip") == 2.01
+assert F("5c.slip2", "Slip: the in-service voltage U0 used for the test voltage", w50 * C * 1e-6 * U0, 2, "A", "I = 2πfC × U0",
+         {"f": "50 Hz", "C": "0.528 µF", "U0": "38 kV"}, "2π × 50 × 0.528 × 10⁻⁶ × 38 000 = {=}", "l1.Ich (the rule it breaks: the test runs at 76 kV)",
+         "i5", kind="slip") == 6.30
+Cch = F("l5.changed.C", "Changed numbers: capacitance of a 3.10 km core", 0.22 * 3.10, 3, "µF", "C = C per km × length",
+        {"C per km": "0.22 µF/km", "length": "3.10 km"}, "0.22 × 3.10 = {=}", "t.C66", "i5", practice=True)
+assert Cch == 0.682
+assert F("l5.changed.slip", "Changed numbers slip: the 2π left out", 0.1 * Cch * 1e-6 * Vt * 1000 * 1000, 2, "mA", "f × C × V",
+         {"f": "0.1 Hz", "C": "0.682 µF", "V": "76 kV"}, "0.1 × 0.682 × 10⁻⁶ × 76 000 = 0.00518 A = {=}", "the rule it breaks", "i5",
+         kind="slip") == 5.18
+assert I01 == 25.21 and I50 == 12.61 and rnd(76 * 12.61, 1) == 958.4 and rnd(76 * 0.02521, 2) == 1.92
 
 # Lesson 6
 F("l6.recall", "Recall: distance for 20.0 µs at 160 m/µs", 20.0 * 160 / 2, 0, "m", "L = t × v ÷ 2",
@@ -455,8 +571,9 @@ toResearch = [
     {"id": "r.alpha", "needs": ["copper's temperature correction (IEC 60228 Annex B or a maker), to replace the notes' 'about 0.4% per °C' (quoted in the i2 research: sources 210-212)"], "for": ["l2.k", "2b", "2c"]},
     {"id": "r.discharge", "needs": ["the test-set maker's discharge rule after an IR test, and what 'charging time' means"], "for": ["3c"]},
     {"id": "r.pi", "needs": ["Megger 'A Stitch in Time' Table I (PI and DAR bands), and whether PI is meaningful on long XLPE cables with very high IR (contested)"], "for": ["3a", "3b"]},
-    {"id": "r.sheath", "needs": ["IEC 60229:2007 clause 5 word for word (t.sheathIEC)"], "for": ["4a"]},
-    {"id": "r.vlfU", "needs": ["IEEE 400.2-2024 Table 3 (or the 2013 table) for the 69 kV row and the U0 multiples; the notes' 1.5-2.5 U0 against the guide's '2 U0 to 3 U0' for installation and acceptance (contested)"], "for": ["5a", "l5.range.lo", "l5.range.hi"]},
+    {"id": "r.sheath", "needs": ["IEC 60229:2007 clause 5 word for word (t.sheathIEC)"], "for": ["4a"], "resolved": True, "found": "IEC 60229:2007 clause 5 word for word (sources 125-127); water through a damaged sheath causes water treeing (241-244, 245-246, 263); utilities' levels differ (247, 248, 259) and IEC 60840 leaves submarine cables out of its scope (262): contested (a.sheathLevels); a three-core cable's power cores each have their own PE sheath under the armour and yarn serving (253, 254): a.coreSheath; earth the screens at least 5 min after a sheath test (258): p.sheathEarth."},
+    {"id": "r.vlfU", "needs": ["IEEE 400.2-2024 Table 3 (or the 2013 table) for the 69 kV row and the U0 multiples; the notes' 1.5-2.5 U0 against the guide's '2 U0 to 3 U0' for installation and acceptance (contested)"], "for": ["5a", "l5.range.lo", "l5.range.hi"], "resolved": True, "found": "IEEE 400.2-2013 as reproduced by High Voltage Inc: installation and acceptance levels rest on 'from less than 2 U0 to 3U0' (source 108), maintenance about 75% of acceptance (109); Table 3, 69 kV class, sinusoidal: 75 kV rms (106 peak) installation, 84 (119) acceptance, 63 (89) maintenance (source 112); 60 min at 0.1 Hz for installation or acceptance on new cable, 30 min for a simple withstand on aged cable (110, 111); a shorter 15 to 30 min may be considered if the monitored characteristic stays stable (273). The 2024 tables are paywalled and were not seen. The notes' 1.5-2.5 U0 against the guide's 2 to 3 U0: contested (a.vlfRange). String B's 2 U0 = 76 kV rms sits between the table's 75 and 84 kV."},
+    {"id": "r.vlfSet", "needs": ["a VLF set maker's load rating (capacitance at 0.1 Hz) and output, to show why long cables need a lower frequency"], "for": ["l5.peak", "l5.maxLen", "l5.changed"], "resolved": True, "found": "High Voltage Inc: sets are rated by the load they can test at each frequency, the load scales as 1 over frequency (sources 265, 267); VLF-200CMF 200 kV peak, 0.75 uF at 0.1 Hz to 3.75 uF at 0.02 Hz (268); VLF-120CMF 120 kV peak, 0.55 uF at 0.1 Hz (269); largest 0.1 Hz sets about 200 kV peak (270); a sine's rms is 0.707 of its peak (271): t.vlfSet, t.vlfPeak, p.vlfSet. A cycle at 0.1 Hz takes 10 s, at 0.05 Hz 20 s, at 0.02 Hz 50 s (264)."},
     {"id": "r.vf", "needs": ["Megger TDR_AN58 typical VF for power XLPE (t.vfXLPE)"], "for": ["6a", "l6.VF"]},
     {"id": "r.lira", "needs": ["a LIRA paper on the input-impedance resonances of an unterminated line and the spot signature (Fantoni; Wirescan white paper WP01)"], "for": ["7a"]},
 ]
@@ -465,7 +582,7 @@ lessons = [
     {"n": 1, "title": "The cable, and making it safe to test", "sectionA": ["1a", "1b"]},
     {"n": 2, "title": "Phases and conductors: the four-wire measurement", "sectionA": ["2a", "2b", "2c"]},
     {"n": 3, "title": "Insulation resistance over ten minutes: IR, DAR and PI", "sectionA": ["3a", "3b", "3c"]},
-    {"n": 4, "title": "The sheath test: 4 kV per millimetre", "sectionA": ["4a"]},
+    {"n": 4, "title": "The sheath test: 4 kV per millimetre", "sectionA": ["4a", "4b"]},
     {"n": 5, "title": "VLF withstand: why 0.1 Hz", "sectionA": ["5a", "5b", "5c"]},
     {"n": 6, "title": "TDR: reading the reflections", "sectionA": ["6a", "6b", "6c"]},
     {"n": 7, "title": "LIRA: the cable's impedance spectrum", "sectionA": ["7a", "7b"]},
@@ -477,6 +594,19 @@ givens.extend(_L3["givens"]); assumptions.extend(_L3["assumptions"])
 for _k, _lst in (("assumptions", assumptions), ("toResearch", toResearch)):
     for _x in _L3["replace_" + _k]:
         _lst[[_y["id"] for _y in _lst].index(_x["id"])] = _x
+
+assumptions.append({"id": "a.vlfRange", "label": "The VLF voltage range: the notes' 1.5-2.5 U0 is used, and IEEE words it differently", "status": "contested",
+    "why": "The notes give 1.5 to 2.5 U0 for installation, acceptance and maintenance (notes p.7). IEEE 400.2-2013 as reproduced by High Voltage Inc bases installation and acceptance levels on the most used worldwide practice 'from less than 2 U0 to 3U0', with maintenance about 75% of acceptance (research sources 108, 109); its 69 kV class row is 75, 84 and 63 kV rms for installation, acceptance and maintenance (source 112). At U0 = 38 kV the case spec of 2 U0 = 76 kV rms sits inside both the notes' range and the guide's row. The lesson teaches the notes' range and the guide's wording side by side; the client's specification settles the level.",
+    "text": "Contested: the VLF voltage range. The notes give 1.5 to 2.5 U0; IEEE 400.2 (as reproduced by High Voltage Inc) rests its installation and acceptance levels on practice of less than 2 U0 up to 3 U0 and sets maintenance at about 75% of acceptance (research sources 108, 109, 112). The client's specification settles it."})
+assumptions.append({"id": "a.vlf66", "label": "A 66 kV array cable is withstand-tested at 0.1 Hz VLF in this case, though a resonant AC test is also used", "status": "contested",
+    "why": "The notes and IEEE 400.2 (a guide for shielded cable rated 5 kV and above; its table stops at the 69 kV class) teach a 0.1 Hz VLF withstand (research sources 108, 116). A test-system maker reads IEC 63026 as requiring a test frequency of 10 to 500 Hz for commissioning cables above 36 kV (source 286), and a contractor tests 66 kV array strings with resonant test sets per IEC 63026 (sources 285, 287, 288). CIGRE TB 490, as quoted by INMR, accepts a lower frequency range down to 10 Hz for long submarine cables (source 289). The IEC 63026 clause text is paywalled and was not seen. The case follows the notes, with a client specification that asks for VLF, and the lesson tells Dan a 66 kV job's specification may call for a resonant AC test instead.",
+    "text": "Contested: whether VLF is the test for a 66 kV array cable. The notes and IEEE 400.2 teach 0.1 Hz VLF; a test-system maker says IEC 63026 asks for 10 to 500 Hz on cables above 36 kV, and resonant sets are used on 66 kV array strings (research sources 285-289). The clause itself was not seen, so the client's specification settles it. The case asks for VLF."})
+assumptions.append({"id": "a.sheathLevels", "label": "The sheath test level: the notes' rule is used, and other levels exist", "status": "contested",
+    "why": "The notes and IEC 60229 give 4 kV d.c. per mm of specified thickness, at most 10 kV, for 1 minute (research sources 29, 125). A network operator specifies 10 kV d.c. for 1 minute on new insulated-sheath cable and 5 kV for 1 minute on 6.6 to 33 kV polymeric cable (sources 247, 248); a cable maker's guide for medium-voltage cable uses a 1000 V insulation test (source 259). IEC 60840, whose range includes 66 kV, leaves submarine cables out of its scope and says the standard tests may need modifying (source 262). The case uses the notes' rule; the client's specification settles the level on a real job.",
+    "text": "Contested: the sheath test level. The notes and IEC 60229 give 4 kV per mm up to 10 kV for 1 minute; a network operator uses a flat 10 kV (5 kV on 6.6 to 33 kV polymeric cable); a cable maker's medium-voltage guide uses 1000 V; IEC 60840 leaves submarine cables out of its scope (research sources 29, 125, 247, 248, 259, 262). The case uses the notes' rule and the client's specification settles it."})
+assumptions.append({"id": "a.sheathWater", "label": "A sheath fault matters because water gets in and degrades the insulation over time", "status": "sourced",
+    "why": "The notes' added background (water treeing years later) is supported: water passing through a damaged sheath or joint causes water treeing under the electric field (research source 241); water trees grow over months or years until an electrical tree forms and the cable faults (sources 242, 243); moisture, a high field, defects and time promote them (source 244). A utility guide says failure does not follow a breach at once (source 246) and a commissioning review says failures are more often due to sheath problems than to the main insulation (source 263).",
+    "text": "Sourced: a sheath fault lets water in, and water trees grow in the insulation over months or years (research sources 241-244, 246, 263). The notes' added background holds."})
 
 case = {
     "v": 1,

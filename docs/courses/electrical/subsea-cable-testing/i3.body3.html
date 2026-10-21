@@ -1,0 +1,826 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog .k-label, #prog .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .why, .pre { line-height: 1.6; }
+  .ctl { display: grid; gap: 12px; }
+  #outsC2 > * { flex: 1 1 100%; }
+  #outsC2 .k-num { white-space: normal; }
+  .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  .carry .k-cr-value { grid-column: 2; grid-row: 2; }
+  .sym { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lbA { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .cu { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .xl { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1; }
+  .scene .sw { fill: var(--k-strong); }
+  .scene .ar { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+  .scene .term { fill: var(--k-ink); }
+  .scene .tst { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .crit { stroke: var(--k-amber-line); stroke-width: 2; stroke-dasharray: 6 4; fill: none; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  .scene .cur { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .lk { fill: var(--k-fill3); }
+  .scene .lkl { stroke: var(--k-accent); stroke-width: 2; fill: none; }
+  .scene .ab { fill: var(--k-fill1); }
+  .scene .ch { fill: var(--k-sunk); stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .hair { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .merc { fill: var(--k-accent2); }
+  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bref { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .tOn { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .tE { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .tD { stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr)); gap: 8px; }
+  .card { border: 1px solid var(--k-line); border-radius: 10px; background: var(--k-panel); padding: 8px; }
+  .card svg { display: block; width: 100%; max-width: 6rem; margin: 4px auto; }
+  .card p { font-size: .9rem; line-height: 1.35; }
+  .card .ic { stroke: var(--k-strong); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .card .icS { stroke: var(--k-strong); stroke-width: 4.5; fill: none; stroke-linecap: round; }
+  .card .icF { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .card .icA { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line, .wl .line + .sub, .wl .sub + .sub { margin-top: 10px; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div class="carry" id="carry3b"></div>
+    <div class="carry" id="carry3c"></div>
+    <div class="pre" id="pre"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+
+    <div id="wrapX"><svg class="scene" id="xsec" viewBox="0 0 340 196" width="100%" role="img" aria-label=""></svg></div>
+    <div class="warn-note" id="warnFor"></div>
+
+    <p class="sub" id="noteC"></p>
+    <div id="wrapC"><svg class="scene" id="curves" viewBox="0 0 340 336" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlC"></div>
+    <div class="k-readouts" id="outsC"></div>
+    <div class="k-readouts" id="outsC2"></div>
+    <p class="sub" id="refC"></p>
+    <p class="say" id="sayC"></p>
+    <p class="caption" id="capC">A sketch, from one simple rule and practice values.</p>
+
+    <p class="sub" id="noteT"></p>
+    <div id="wrapT"><svg class="scene" id="therm" viewBox="0 0 340 192" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlT"></div>
+    <div class="k-readouts" id="outsT"></div>
+    <p class="say" id="sayT"></p>
+
+    <div id="disc">
+      <p class="k-label">The discharge order</p>
+      <div class="cards" id="cards"></div>
+      <svg class="scene" id="tline" viewBox="0 0 340 60" width="100%" role="img" aria-label=""></svg>
+    </div>
+
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-3a"></div>
+    <div id="ans-3b"></div>
+    <div id="ans-3c"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, helpers and the course's figures ----------
+  const r1 = (x) => Math.round(x * 10 + 1e-7) / 10;
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const f1 = (x) => r1(x).toFixed(1);
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = '\u00a0';
+  // Non-breaking spaces: before an operator, and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=−]) /g, NB + '$1 ')
+    .replace(/(\d) (?=(?:GΩ|MΩ|nA|µF|mC|kV|°C|min|J|s)(?![A-Za-z]))/g, '$1' + NB);
+  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };
+  function txt(parent, x, y, s, cls, anchor) {
+    const t = parent.appendChild(K.svg('text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }));
+    t.textContent = s;
+    return t;
+  }
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+
+  const fRec = F('l3.recall'), fS1 = F('l3.recall.slip1'), fS2 = F('l3.recall.slip2');
+  const f3a = F('3a'), f3b = F('3b'), f3c = F('3c');
+  const fL1D = F('l3.L1.DAR'), fL2D = F('l3.L2.DAR'), fL3P = F('l3.L3.PI'), fL3D = F('l3.L3.DAR');
+  const fQ = F('l3.charge'), fE = F('l3.energy'), fC1 = F('1a');
+  const fChg = F('l3.changed'), fX = F('l3.check.X'), fY = F('l3.check.Y');
+  const fV = F('p.irV'), fCrit = F('p.irCrit'), fPiT = F('p.piTime'), fTemp = F('p.temp');
+  const IR = {
+    1: ['p.ir1.30s', 'p.ir1.1m', 'p.ir1.10m'].map(F),
+    2: ['p.ir2.30s', 'p.ir2.1m', 'p.ir2.10m'].map(F),
+    3: ['p.ir3.30s', 'p.ir3.1m', 'p.ir3.10m'].map(F),
+  };
+  const KV = fV.value, VOLTS = KV * 1000, CRIT = fCrit.value, TAU = F('p.irTau').value, TAUC = F('p.irTauC').value;
+  const FIVE = F('n.discharge').value, PIMIN = fPiT.value, TEMP = fTemp.value;
+  // Practice values: the recall core, the check's two cores and the changed-numbers core.
+  const RC = { r1: 2.0, r10: 6.0 }, CX = { r1: 3.00, x10: 3.20, y10: 9.00 }, CH = { r1: 8.0, r10: 9.6 };
+  // Bands from the notes, and a maker's figures for good insulation.
+  const PI_EDGE = [1, 2, 4], DAR_EDGE = [1.25, 1.6], MAKER_PI = 2.0, MAKER_DAR = 1.4, IEEE_MOHM = 5000, OLD = 4;
+  const piBand = (v) => v < PI_EDGE[0] ? 'poor' : v < PI_EDGE[1] ? 'questionable' : v <= PI_EDGE[2] ? 'okay' : 'good';
+  const piRange = (v) => v < 1 ? 'below 1' : v < 2 ? '1 to 2' : v <= 4 ? '2 to 4' : 'above 4';
+  const darBand = (v) => v < DAR_EDGE[0] ? 'inadequate' : v <= DAR_EDGE[1] ? 'satisfactory' : 'excellent';
+
+  // ---------- the sketch's rule: 1 ÷ R = 1 ÷ R∞ + 0.061 × e^(−t ÷ 70 s), R in GΩ ----------
+  const ABS = 0.061, RINF = [64, 10, 2.4], NAMES = ['Dry', 'Damp', 'Wet'];
+  const Rof = (t, ri) => 1 / (1 / ri + ABS * Math.exp(-t / TAU));
+  const leakOf = (ri) => VOLTS / ri;                                   // nA, with R in GΩ
+  const absOf = (t) => VOLTS * ABS * Math.exp(-t / TAU);                // nA
+  const chgOf = (t) => fC1.value * VOLTS / TAUC * 1000 * Math.exp(-t / TAUC);   // nA: C × V ÷ τ
+  // A reading under 10 GΩ is shown to 2 places, one at 10 GΩ or more to 1 place.
+  const fmtR = (v) => (v < 10 ? r2(v).toFixed(2) : r1(v).toFixed(1));
+  const shownR = (v) => +fmtR(v);
+  const si = (v) => K.clamp(Math.round(+v || 0), 0, 2);
+  const tv = (v) => { const t = Math.round(+v); return isFinite(t) ? K.clamp(t, 0, 40) : 20; };
+  const R20_1 = shownR(Rof(60, RINF[0])), R20_10 = shownR(Rof(600, RINF[0]));
+  const factorAt = (t) => Math.pow(2, (20 - t) / 10);
+  const setOf = (s) => {
+    const ri = RINF[s], a = Rof(30, ri), b = Rof(60, ri), c = Rof(600, ri);
+    return { a, b, c, dar: r2(shownR(b) / shownR(a)), pi: r2(shownR(c) / shownR(b)), leak: leakOf(ri) };
+  };
+  const DRY = setOf(0), DAMP = setOf(1), WET = setOf(2);
+
+  // ---------- the lesson's words ----------
+  const O1 = fS1.text + ', ' + piBand(fS1.value), O2 = fRec.text + ', ' + piBand(fRec.value), O3 = fS2.value.toFixed(1) + ', ' + piBand(fS2.value);
+  const R_TASK = 'One core reads ' + f1(RC.r1) + ' GΩ at 1 minute and ' + f1(RC.r10) + ' GΩ at 10 minutes. What is its PI, and how does it rate?';
+  const R_WORK = 'PI = R10 ÷ R1 = ' + fRec.work.split(',')[0] + '. That sits in the ' + piRange(fRec.value) + ' band, ' + piBand(fRec.value) + '.';
+  const R_SLIPS = fS1.text + ' is the ratio upside down, and ' + fS2.value.toFixed(1) + ' is how far the reading rose.';
+  const R_W1 = 'That is the ratio upside down, ' + fS1.work.split(' = ')[0] + ". Put the 10-minute reading on top. A healthy core's PI comes out above 1.";
+  const R_W3 = 'That is the rise, ' + fS2.work.split(' = ')[0] + ' GΩ. PI is a ratio. Divide the 10-minute reading by the 1-minute reading.';
+  const FOR_TEXT = 'The IR test puts a steady d.c. voltage between a core and its screen. The tester measures the tiny current that gets through the XLPE and shows it as a resistance. '
+    + 'It answers one question: is the insulation dry and clean, at low stress? It runs after core resistance and before the sheath test. '
+    + 'On String B it runs at ' + fV.text + ". That is the client's choice, and a practice value here.";
+  const WARN_FOR = 'Damp or dirty insulation goes on to the high-voltage tests unseen. So does a core that passes on one reading but leaks steadily.';
+  const WHY_TEXT = 'The current the tester sees has three parts. A charging current fills the cable\'s capacitance and dies away in seconds. '
+    + 'An absorption current flows while the insulation slowly polarises. Charge inside the plastic shifts into line with the field, and that slow shift is a current. It dies away over minutes. '
+    + 'A leakage current runs through the insulation and stays.\n\n'
+    + 'The tester shows voltage ÷ current. So as the first two die away, the reading climbs. Water or dirt adds leakage, and leakage does not die away. It swamps the absorption, so the reading hardly climbs.';
+  const NOTE_C = 'One core at ' + KV + ' kV for 10 minutes. On both graphs, each mark up the side is ten times the last.';
+  const WHY_READ = 'The dry core climbs from ' + fmtR(DRY.a) + ' GΩ at 30 s to ' + fmtR(DRY.c) + ' GΩ at 10 minutes, a PI of ' + f2(DRY.pi) + '. '
+    + 'In the wet core, a steady ' + Math.round(WET.leak) + ' nA of leakage swamps the absorption. It reads ' + fmtR(WET.a) + ', ' + fmtR(WET.b) + ' and ' + fmtR(WET.c) + ' GΩ, a PI of ' + f2(WET.pi) + '. '
+    + 'Both clear ' + CRIT + ' GΩ at 1 minute. Only the climb tells them apart.';
+  const TEMP_TEXT = 'A single reading swings with temperature. As a rule of thumb, insulation resistance halves for every 10 °C rise and doubles for every 10 °C fall. '
+    + "So a reading on a warm day can look worse than last month's, with nothing wrong. "
+    + 'PI and DAR take two readings close together, on the same cable, at the same temperature. Warmth pulls both down together, so the ratio barely moves.';
+  const NOTE_T = 'The dry core from the last screen. Assume it was read at 20 °C, where it reads ' + f1(R20_1) + ' and ' + f1(R20_10) + ' GΩ.';
+  const TEMP_READ = 'At 20 °C the core reads ' + f1(R20_1) + ' GΩ at 1 minute. At 40 °C the same sound core reads ' + f1(R20_1 * factorAt(40)) + ' GΩ, a quarter as much. '
+    + 'Its PI stays at ' + f2(R20_10 / R20_1) + ' the whole way.';
+  const C_TASK = 'Two cores of one cable both read ' + f2(CX.r1) + " GΩ at 1 minute, well over the client's " + CRIT + ' GΩ. At 10 minutes, core X reads ' + f2(CX.x10)
+    + ' GΩ and core Y reads ' + f2(CX.y10) + ' GΩ. Which core has a steady leakage, such as moisture?';
+  const C_O1 = 'Core X', C_O2 = 'Core Y', C_O3 = 'Neither: both pass ' + CRIT + ' GΩ';
+  const C_RIGHT = "X's reading hardly climbs. PI = " + fX.work + '. A steady leakage current carries most of its current, and leakage does not die away. '
+    + 'Y climbs to a PI of ' + fY.work + ', as its absorption current dies.';
+  const C_W2 = "Y's reading changed the most, and that is the healthy sign. Its absorption current died away and left only a small leakage.";
+  const C_W3 = "Both pass on one reading. But X's flat curve points to a steady leakage that one reading cannot show.";
+  const DIS_TEXT = 'When the test stops, the core is a charged capacitor. One core of String B has ' + fC1.text + '. At ' + KV + ' kV it holds Q = C × V = ' + fQ.work + '. '
+    + 'Its energy is E = ½ × C × V² = ' + fE.work + '. Part of the charge has soaked into the insulation. It seeps back out after the core has been discharged, and can bring the voltage back.\n\n'
+    + "Never improvise the order. Check the tester's display shows discharged. Then the discharge stick, then the hook stick, then the hand earth. Earth the core and the screen at both ends.\n\n"
+    + 'Keep it discharging and earthed for at least ' + WORDS[FIVE] + ' times as long as the test voltage was on. After a 1-minute test, that is at least ' + (FIVE * 1) + ' minutes. '
+    + 'Some older guidance says ' + WORDS[OLD] + ' times. Use ' + WORDS[FIVE] + '. Then leave the earths on until the next test needs them.';
+  const WK_HEAD = 'L3 at ' + KV + ' kV reads ' + IR[3][0].text + ' at 30 s, ' + IR[3][1].text + ' at 1 minute and ' + IR[3][2].text + ' at 10 minutes. These are practice values.';
+  const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const WL = [
+    { w: 'DAR = R60s ÷ R30s = ' + fL3D.work + '. ' + cap1(darBand(fL3D.value)) + ': 1.25 to 1.6.' },
+    { w: 'PI = R10 ÷ R1 = ' + fL3P.work + '. ' + cap1(piBand(fL3P.value)) + ': ' + piRange(fL3P.value) + '.' },
+    { w: 'The voltage held for the full ' + PIMIN + ' minutes, and ' + IR[3][1].text + " beats the client's " + CRIT + ' GΩ. L3 passes.' },
+  ];
+  const WK_NOTES = [
+    'The DAR comes out lower than the PI. Its two readings are only 30 s apart, so it sees less of the climb.',
+    'Makers draw the bands in other places. Some call a PI of ' + MAKER_PI.toFixed(1) + ' or more good, and a DAR of ' + MAKER_DAR.toFixed(1) + " or more. On those bands, L3's PI counts as good, but its DAR of "
+      + fL3D.text + " falls short. The client's test spec decides pass or fail.",
+    'One more caution. L3 reads a very high ' + IR[3][1].text + ' at 1 minute. IEEE 43 does not recommend PI as an assessment tool when the 1-minute reading, corrected to 40 °C, is above '
+      + IEEE_MOHM + " MΩ. It was written for rotating machines, not cables. So take it as a caution here, not a rule. Read a very high core's PI as a guide. Set it beside the other two cores.",
+  ];
+  const WK_READ = "L3's DAR is " + fL3D.work + ', ' + darBand(fL3D.value) + '. Its PI is ' + fL3P.work + ', ' + piBand(fL3P.value) + '. It held the voltage for ' + PIMIN
+    + " minutes and beats the client's " + CRIT + ' GΩ. So it passes.';
+  const TEST_TEXT = 'Each core of String B is tested in turn at ' + fV.text + ', core to screen, for ' + PIMIN + ' minutes. The client asks for ' + fCrit.text + '. These are practice values. '
+    + 'L1 reads ' + IR[1][0].text + ' at 30 s, ' + IR[1][1].text + ' at 1 minute and ' + IR[1][2].text + ' at 10 minutes.';
+  const Q3A = '(a) Determine the polarisation index of core L1.';
+  const L2_TEXT = 'L2 reads ' + IR[2][0].text + ' at 30 s, ' + IR[2][1].text + ' at 1 minute and ' + IR[2][2].text + ' at 10 minutes.';
+  const Q3B = '(b) Determine the polarisation index of core L2.';
+  const C3_PRE = "L2's PI test held " + KV + ' kV for ' + PIMIN + ' minutes.';
+  const Q3C = '(c) Determine the least time L2 must then stay discharged and earthed.';
+  const Q_CH = "Another cable's core reads " + f1(CH.r1) + ' GΩ at 1 minute and ' + f1(CH.r10) + ' GΩ at 10 minutes. Determine its PI.';
+  const CH_WORK = 'PI = R10 ÷ R1 = ' + fChg.work.split(',')[0];
+
+  let lines = 0, lastStep = -1, finished = false, stillMode = false;
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_SLIPS },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['IR test'] },
+    { show: true, name: 'The why: three currents', label: 'The why: three currents', text: WHY_TEXT, terms: ['charging current', 'absorption current', 'leakage current'],
+      read: WHY_TEXT.replace('\n\n', ' ') + ' ' + WHY_READ, still: () => { stillMode = true; insCtl.set(2); K.refresh(); endMotion(); } },
+    { show: true, name: 'A ratio ignores the weather', label: 'The why: a ratio ignores the weather', text: TEMP_TEXT, terms: ['halves for every 10 °C rise'],
+      read: TEMP_TEXT + ' ' + TEMP_READ, still: { temp: 40 } },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },
+    { show: true, name: 'After the test: discharge', label: 'After the test: discharge', text: DIS_TEXT, terms: ['charged capacitor'] },
+    { show: true, name: 'Worked example', label: 'Worked example: L3', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },
+    { name: 'Section A 3(a)', label: 'Section A · Question 3', pre: TEST_TEXT, part: Q3A, task: TEST_TEXT + ' ' + Q3A, want: f3a.text, why: 'PI = R10 ÷ R1 = ' + f3a.work + '.' },
+    { name: 'Section A 3(b)', label: 'Section A · Question 3', pre: L2_TEXT, part: Q3B, task: L2_TEXT + ' ' + Q3B, want: f3b.text, why: 'PI = R10 ÷ R1 = ' + f3b.work + '.' },
+    { name: 'Section A 3(c)', label: 'Section A · Question 3', pre: C3_PRE, part: Q3C, task: C3_PRE + ' ' + Q3C, want: f3c.text, why: f3c.work + '.' },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: CH_WORK + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iTemp = 3, iChk = 4, iDis = 5, iWk = 6, i3A = 7, i3B = 8, i3C = 9, iB1 = 10, iCh = 11, iK = 12;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iDis, iWk, i3A, i3B, i3C, iCh];
+
+  // Words with key terms in amber (the <mark> element) and R10, R1, R60s, R30s with subscripts,
+  // built with K.el, never innerHTML.
+  const SUBS = { R10: '10', R1: '1', R60s: '60 s', R30s: '30 s' };
+  function addText(node, s) {
+    String(s).split(/(R10|R60s|R30s|R1(?![0-9]))/).forEach((part) => {
+      if (SUBS[part]) node.appendChild(K.el('span', { class: 'sym' }, 'R', K.el('sub', null, SUBS[part])));
+      else if (part) node.appendChild(document.createTextNode(nb(part)));
+    });
+  }
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { addText(node, rest); break; }
+      if (at0 > 0) addText(node, rest.slice(0, at0));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls and readouts ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const insCtl = K.stepper({ id: 'ins', label: 'Insulation', steps: NAMES, value: 0, compact: true, into: '#ctlC' });
+  K.readout({ id: 'r30', label: 'At 30 s', fmt: (v) => fmtR(v) + ' GΩ', into: '#outsC' });
+  K.readout({ id: 'r60', label: 'At 1 minute', fmt: (v) => fmtR(v) + ' GΩ', into: '#outsC' });
+  K.readout({ id: 'r600', label: 'At 10 minutes', fmt: (v) => fmtR(v) + ' GΩ', into: '#outsC' });
+  K.readout({ id: 'dar', label: 'DAR', fmt: (v) => f2(v) + ', ' + darBand(v), into: '#outsC2' });
+  K.readout({ id: 'pi', label: 'PI', fmt: (v) => f2(v) + ', ' + piBand(v), into: '#outsC2' });
+  K.control({ id: 'temp', label: 'Cable temperature', min: 0, max: 40, step: 1, value: 20, unit: '°C', snap: [TEMP, 40], into: '#ctlT' });
+  K.readout({ id: 'r1t', label: 'At 1 minute', unit: 'GΩ', decimals: 1, into: '#outsT' });
+  K.readout({ id: 'r10t', label: 'At 10 minutes', unit: 'GΩ', decimals: 1, into: '#outsT' });
+  K.readout({ id: 'piT', label: 'PI', decimals: 2, into: '#outsT' });
+
+  K.model((p) => {
+    const st = setOf(si(p.ins)), k = factorAt(tv(p.temp));
+    return { r30: st.a, r60: st.b, r600: st.c, dar: st.dar, pi: st.pi, r1t: R20_1 * k, r10t: R20_10 * k, piT: r2((R20_10 * k) / (R20_1 * k)) };
+  });
+
+  // ---------- what it is for: one core in cross-section ----------
+  const xEl = el('xsec');
+  const XC = 100, YC = 100;
+  xEl.appendChild(K.svg('circle', { class: 'xl', cx: XC, cy: YC, r: 76 }));
+  for (let k = 0; k < 40; k++) {
+    const a = k / 40 * 2 * Math.PI;
+    xEl.appendChild(K.svg('circle', { class: 'sw', cx: (XC + 80 * Math.cos(a)).toFixed(1), cy: (YC + 80 * Math.sin(a)).toFixed(1), r: 3.4 }));
+  }
+  xEl.appendChild(K.svg('circle', { class: 'cu', cx: XC, cy: YC, r: 26 }));
+  txt(xEl, XC, YC + 4.5, 'core', 'lb', 'middle');
+  txt(xEl, XC, 56, 'XLPE', 'lb', 'middle');
+  txt(xEl, XC, 160, 'nanoamps', 'lbA', 'middle');
+  txt(xEl, 4, 190, 'screen', 'lb');
+  xEl.appendChild(K.svg('path', { class: 'ax', d: 'M30 178L40 164' }));
+  xEl.appendChild(K.svg('rect', { class: 'tst', x: 226, y: 62, width: 104, height: 60, rx: 8 }));
+  txt(xEl, 278, 87, 'IR tester', 'lb', 'middle');
+  txt(xEl, 278, 106, fV.text, 'tk', 'middle');
+  xEl.appendChild(K.svg('path', { class: 'lead', d: 'M240 62V44H150L120.5 83' }));
+  xEl.appendChild(K.svg('path', { class: 'lead', d: 'M240 122V146H186L177 136' }));
+  [[240, 62], [240, 122], [120.5, 83], [177, 136]].forEach((q) => xEl.appendChild(K.svg('circle', { class: 'term', cx: q[0], cy: q[1], r: 3.5 })));
+  txt(xEl, 214, 36, 'black lead, −', 'tk', 'middle');
+  txt(xEl, 214, 164, 'red lead, +', 'tk', 'middle');
+  const arrG = xEl.appendChild(K.svg('g'));
+  const ARR = [];
+  [0, 50, 130, 180, 235].forEach((deg) => [0.25, 0.75].forEach((ph) => {
+    ARR.push({ deg, ph, el: arrG.appendChild(K.svg('path', { class: 'ar', d: 'M-7 0H5M1 -3.5L5 0L1 3.5' })) });
+  }));
+  let flowT = 0, flowLeft = 0, flowKey = '';
+  function drawArrows() {
+    ARR.forEach((a) => {
+      const f = (a.ph + flowT * 0.35) % 1, r = 72 - 40 * f, rad = a.deg * Math.PI / 180;
+      a.el.setAttribute('transform', 'translate(' + (XC + r * Math.cos(rad)).toFixed(1) + ' ' + (YC + r * Math.sin(rad)).toFixed(1) + ') rotate(' + (a.deg + 180) + ')');
+      a.el.style.opacity = K.clamp(Math.min((72 - r) / 6, (r - 32) / 6), 0, 1).toFixed(2);
+    });
+  }
+  drawArrows();
+  xEl.setAttribute('aria-label', 'One core in cross-section: the copper core in the middle, XLPE round it and the wire screen outside. An IR tester at ' + fV.text
+    + ' has its red lead on the screen and its black lead on the core. Small arrows cross the XLPE from the screen to the core: a current of nanoamps.');
+
+  // ---------- the why: the reading and the current over ten minutes ----------
+  const cEl = el('curves');
+  const X0 = 48, X1 = 296, xT = (t) => X0 + t / 600 * (X1 - X0);
+  const yR = (R) => 130 - Math.log10(R) * 50;
+  const YB = 290, YT = 182, yI = (I) => Math.max(YT, YB - (Math.log10(Math.max(I, 10)) - 1) * 36);
+  const S_ = (tag, a) => cEl.appendChild(K.svg(tag, a));
+  const ticks = (y) => { let d = 'M' + X0 + ' ' + y + 'H' + X1; for (let m = 0; m <= 10; m += 2) d += 'M' + xT(m * 60).toFixed(1) + ' ' + y + 'V' + (y + 4); return d; };
+  txt(cEl, 4, 16, 'Reading (GΩ)');
+  [10, 100].forEach((R) => S_('path', { class: 'grid', d: 'M' + X0 + ' ' + yR(R) + 'H' + X1 }));
+  [1, 10, 100].forEach((R) => txt(cEl, 42, yR(R) + 4.5, String(R), 'tk', 'end'));
+  S_('path', { class: 'crit', d: 'M' + X0 + ' ' + yR(CRIT) + 'H' + X1 });
+  S_('path', { class: 'ax', d: ticks(136) });
+  const refP = S_('path', { class: 'ref' }), curP = S_('path', { class: 'cur' });
+  const refL = txt(cEl, 300, 0, NAMES[0], 'tk'), curL = txt(cEl, 300, 0, '', 'lbA');
+  const dots = [30, 60, 600].map((t) => ({ t, el: S_('circle', { class: 'dot', r: 4 }) }));
+  S_('path', { class: 'crit', d: 'M8 148H26' });
+  txt(cEl, 32, 152, "client's " + CRIT + ' GΩ at 1 min', 'tk');
+  S_('circle', { class: 'dot', cx: 204, cy: 148, r: 4 });
+  txt(cEl, 214, 152, 'the three readings', 'tk');
+  txt(cEl, 4, 172, 'Current (nA)');
+  [100, 1000, 10000].forEach((I) => S_('path', { class: 'grid', d: 'M' + X0 + ' ' + yI(I) + 'H' + X1 }));
+  [[10, '10'], [100, '100'], [1000, '1000'], [10000, '10 000']].forEach((q) => txt(cEl, 42, yI(q[0]) + 4.5, q[1], 'tk', 'end'));
+  const lkA = S_('path', { class: 'lk' }), abA = S_('path', { class: 'ab' }), chA = S_('path', { class: 'ch' });
+  const lkL = S_('path', { class: 'lkl' }), totL = S_('path', { class: 'cur' });
+  S_('path', { class: 'ax', d: ticks(YB) });
+  for (let m = 0; m <= 10; m += 2) txt(cEl, xT(m * 60).toFixed(1), 306, m === 10 ? '10 min' : String(m), 'tk', 'middle');
+  S_('rect', { class: 'lk', x: 8, y: 318, width: 14, height: 10 }); txt(cEl, 28, 328, 'Leakage', 'tk');
+  S_('rect', { class: 'ab', x: 112, y: 318, width: 14, height: 10 }); txt(cEl, 132, 328, 'Absorption', 'tk');
+  S_('rect', { class: 'ch', x: 236, y: 318, width: 14, height: 10 }); txt(cEl, 256, 328, 'Charging', 'tk');
+  const hair = S_('g');
+  const hTop = hair.appendChild(K.svg('path', { class: 'hair' })), hBot = hair.appendChild(K.svg('path', { class: 'hair' }));
+  const hR = hair.appendChild(K.svg('circle', { class: 'dot', r: 4.5 })), hI = hair.appendChild(K.svg('circle', { class: 'dot', r: 4.5 }));
+  vis(hair, false);
+
+  const TS = []; for (let t = 0; t <= 600; t += 3) TS.push(t);
+  const CS = []; for (let t = 0; t <= 45; t += 0.5) CS.push(t);
+  const ptsPath = (pts, dec) => pts.map((q, k) => (k ? 'L' : 'M') + q[0].toFixed(dec) + ' ' + q[1].toFixed(dec)).join('');
+  const CACHE = {};
+  function pathsFor(s) {
+    if (CACHE[s]) return CACHE[s];
+    const ri = RINF[s], lk = leakOf(ri), yl = yI(lk).toFixed(1);
+    const tot = ptsPath(TS.map((t) => [xT(t), yI(lk + absOf(t))]), 1);
+    const up = CS.map((t) => [xT(t), yI(lk + absOf(t) + chgOf(t))]);
+    const dn = CS.slice().reverse().map((t) => [xT(t), yI(lk + absOf(t))]);
+    CACHE[s] = {
+      r: ptsPath(TS.map((t) => [xT(t), yR(Rof(t, ri))]), 1), tot,
+      ab: tot + 'L' + X1 + ' ' + yl + 'L' + X0 + ' ' + yl + 'Z',
+      lkA: 'M' + X0 + ' ' + yl + 'H' + X1 + 'V' + YB + 'H' + X0 + 'Z', lkL: 'M' + X0 + ' ' + yl + 'H' + X1,
+      ch: ptsPath(up.concat(dn), 2) + 'Z',
+    };
+    return CACHE[s];
+  }
+  let sweepPos = 600, fadeT = 1;
+  function drawCursor(p) {
+    const ri = RINF[si(p.ins)];
+    if (sweepPos >= 600 && fadeT >= 0.6) { vis(hair, false); return; }
+    vis(hair, true);
+    hair.style.opacity = (sweepPos < 600 ? 1 : K.clamp(1 - fadeT / 0.6, 0, 1)).toFixed(2);
+    const x = xT(sweepPos).toFixed(1);
+    hTop.setAttribute('d', 'M' + x + ' 30V130');
+    hBot.setAttribute('d', 'M' + x + ' ' + YT + 'V' + YB);
+    hR.setAttribute('cx', x); hR.setAttribute('cy', yR(Rof(sweepPos, ri)).toFixed(1));
+    hI.setAttribute('cx', x); hI.setAttribute('cy', yI(leakOf(ri) + absOf(sweepPos)).toFixed(1));
+  }
+  function drawCurves(p) {
+    const s = si(p.ins), ri = RINF[s], P = pathsFor(s), st = setOf(s);
+    curP.setAttribute('d', P.r);
+    refP.setAttribute('d', pathsFor(0).r);
+    vis(refP, s !== 0); vis(refL, s !== 0);
+    refL.setAttribute('y', (yR(DRY.c) + 4.5).toFixed(1));
+    curL.textContent = NAMES[s];
+    curL.setAttribute('y', (yR(st.c) + 4.5).toFixed(1));
+    dots.forEach((d) => { d.el.setAttribute('cx', xT(d.t).toFixed(1)); d.el.setAttribute('cy', yR(Rof(d.t, ri)).toFixed(1)); });
+    lkA.setAttribute('d', P.lkA); lkL.setAttribute('d', P.lkL); abA.setAttribute('d', P.ab); chA.setAttribute('d', P.ch); totL.setAttribute('d', P.tot);
+    drawCursor(p);
+    const lk = Math.round(st.leak), a30 = Math.round(absOf(30)), a60 = Math.round(absOf(60));
+    const SAY = [
+      'The dry core leaks only ' + lk + ' nA. The absorption current fades from ' + a30 + ' nA at 30 s to ' + a60 + ' nA at 1 minute, and is all but gone by 10 minutes. '
+        + 'So the reading climbs from ' + fmtR(st.a) + ' GΩ to ' + fmtR(st.c) + ' GΩ.',
+      'The damp core leaks a steady ' + lk + ' nA, so the fading absorption is a smaller share of the current. The reading climbs only from ' + fmtR(st.a) + ' GΩ to ' + fmtR(st.c) + ' GΩ.',
+      'The wet core leaks a steady ' + lk + ' nA. The ' + a60 + ' nA of absorption at 1 minute is lost under it, so the reading barely climbs, from ' + fmtR(st.a) + ' GΩ to '
+        + fmtR(st.c) + " GΩ. It still clears the client's " + CRIT + ' GΩ at 1 minute.',
+    ];
+    el('sayC').textContent = nb(SAY[s]);
+    el('refC').textContent = s === 0 ? '' : nb('Dry, for comparison: ' + fmtR(DRY.a) + ', ' + fmtR(DRY.b) + ' and ' + fmtR(DRY.c) + ' GΩ. DAR ' + f2(DRY.dar) + ', PI ' + f2(DRY.pi) + '.');
+    cEl.setAttribute('aria-label', 'Two graphs of one core over 10 minutes, ' + NAMES[s].toLowerCase() + '. Top: the reading, climbing ' + (s === 0 ? 'steeply' : s === 1 ? 'a little' : 'hardly at all')
+      + ', above the dashed line for the client\'s figure' + (s === 0 ? '.' : ', with the dry curve dashed for comparison.') + ' Underneath: the current, a flat band of leakage with the absorption current fading above it, and a charging spike off the top in the first seconds.');
+  }
+
+  // ---------- a ratio ignores the weather ----------
+  const tEl = el('therm');
+  const TX0 = 92, TX1 = 326, TMAX = 260, txs = (v) => TX0 + v / TMAX * (TX1 - TX0);
+  const ty = (t) => 140 - t / 40 * 104;
+  const tLab = txt(tEl, 6, 14, '');
+  const keyG = tEl.appendChild(K.svg('g'));
+  keyG.appendChild(K.svg('rect', { class: 'bref', x: 226, y: 5, width: 16, height: 10 }));
+  txt(keyG, 248, 14, 'at 20 °C', 'tk');
+  tEl.appendChild(K.svg('rect', { class: 'tube', x: 18, y: 28, width: 12, height: 124, rx: 6 }));
+  tEl.appendChild(K.svg('circle', { class: 'tube', cx: 24, cy: 158, r: 11 }));
+  tEl.appendChild(K.svg('circle', { class: 'merc', cx: 24, cy: 158, r: 8 }));
+  const merc = tEl.appendChild(K.svg('rect', { class: 'merc', x: 21, width: 6, y: 100, height: 52 }));
+  tEl.appendChild(K.svg('path', { class: 'ax', d: 'M30 ' + ty(20) + 'H37' }));
+  txt(tEl, 40, ty(20) + 4.5, '20 °C', 'tk');
+  txt(tEl, TX0, 48, 'At 1 minute');
+  txt(tEl, TX0, 100, 'At 10 minutes');
+  const bRef1 = tEl.appendChild(K.svg('rect', { class: 'bref', x: TX0, y: 54, width: (txs(R20_1) - TX0).toFixed(1), height: 20 }));
+  const bRef2 = tEl.appendChild(K.svg('rect', { class: 'bref', x: TX0, y: 106, width: (txs(R20_10) - TX0).toFixed(1), height: 20 }));
+  const bar1 = tEl.appendChild(K.svg('rect', { class: 'bar', x: TX0, y: 54, width: 10, height: 20 }));
+  const bar2 = tEl.appendChild(K.svg('rect', { class: 'bar', x: TX0, y: 106, width: 10, height: 20 }));
+  let axd = 'M' + TX0 + ' 146H' + TX1;
+  for (let v = 0; v <= 250; v += 50) { axd += 'M' + txs(v).toFixed(1) + ' 146V151'; txt(tEl, txs(v).toFixed(1), 164, String(v), 'tk', 'middle'); }
+  tEl.appendChild(K.svg('path', { class: 'ax', d: axd }));
+  txt(tEl, ((TX0 + TX1) / 2).toFixed(1), 184, 'Reading (GΩ)', 'tk', 'middle');
+  function drawTemp(p) {
+    const t = tv(p.temp), k = factorAt(t), a = R20_1 * k, b = R20_10 * k, pi = r2(b / a);
+    tLab.textContent = 'Cable at ' + t + ' °C';
+    const yt = ty(t);
+    merc.setAttribute('y', yt.toFixed(1));
+    merc.setAttribute('height', (158 - yt).toFixed(1));
+    bar1.setAttribute('width', Math.max(2, txs(a) - TX0).toFixed(1));
+    bar2.setAttribute('width', Math.max(2, txs(b) - TX0).toFixed(1));
+    [bRef1, bRef2, keyG].forEach((e) => vis(e, t !== 20));
+    const WORD = { 0: 'four times', 10: 'twice', 30: 'half', 40: 'a quarter' };
+    const was = f1(R20_1) + ' GΩ at 20 °C';
+    let s;
+    if (t === 20) s = 'At 20 °C the core reads ' + f1(a) + ' GΩ at 1 minute and ' + f1(b) + ' GΩ at 10 minutes, a PI of ' + f2(pi) + '.';
+    else {
+      const who = t === TEMP ? 'At ' + t + " °C, String B's temperature, the core reads " : 'At ' + t + ' °C the same sound core reads ';
+      const how = WORD[t] ? ', ' + WORD[t] + ' its ' + was + '. ' : ', ' + (t > 20 ? 'down' : 'up') + ' from ' + was + '. ';
+      s = who + f1(a) + ' GΩ at 1 minute' + how + 'Both readings ' + (t > 20 ? 'fell' : 'rose') + ' together, so the PI is still ' + f2(pi) + '.';
+    }
+    el('sayT').textContent = nb(s);
+    tEl.setAttribute('aria-label', 'A thermometer at ' + t + ' °C beside two bars: the reading at 1 minute and the reading at 10 minutes. '
+      + (t === 20 ? '' : 'Dashed outlines show the same readings at 20 °C. ') + 'Both bars change by the same factor.');
+  }
+
+  // ---------- after the test: the discharge order, and the time ----------
+  const CARDS = [
+    ['The display reads discharged', [['rect', { class: 'ic', x: 12, y: 4, width: 56, height: 40, rx: 5 }], ['rect', { class: 'icF', x: 19, y: 10, width: 42, height: 18, rx: 2 }],
+      ['path', { class: 'icA', d: 'M31 19l5 5 10-10' }], ['circle', { class: 'ic', cx: 26, cy: 37, r: 3 }], ['circle', { class: 'ic', cx: 54, cy: 37, r: 3 }]]],
+    ['Discharge stick', [['path', { class: 'icS', d: 'M10 42L48 15' }], ['path', { class: 'ic', d: 'M48 15L56 9' }], ['circle', { class: 'icF', cx: 59, cy: 8, r: 3.5 }],
+      ['path', { class: 'ic', d: 'M61 11C71 16 70 25 66 31' }], ['path', { class: 'ic', d: 'M58 31H74M61 36H71M64 41H68' }]]],
+    ['Hook stick', [['path', { class: 'icS', d: 'M10 42L48 15' }], ['path', { class: 'ic', d: 'M48 15L55 10C60 5 69 8 66 15C64 19 59 19 57 16' }]]],
+    ['Hand earth', [['path', { class: 'ic', d: 'M14 10H34V16H22V24H34V30H14Z' }], ['path', { class: 'ic', d: 'M34 20C46 20 54 24 56 30' }], ['path', { class: 'ic', d: 'M48 30H64M51 35H61M54 40H58' }]]],
+    ['Core and screen earthed, both ends', [['path', { class: 'icS', d: 'M16 12H64' }], ['path', { class: 'ic', d: 'M16 20H64' }],
+      ['path', { class: 'ic', d: 'M16 12V30M8 30H24M11 35H21M14 40H18M64 12V30M56 30H72M59 35H69M62 40H66' }]]],
+  ];
+  CARDS.forEach((c, k) => {
+    const svg = K.svg('svg', { viewBox: '0 0 80 48', 'aria-hidden': 'true' });
+    c[1].forEach((q) => svg.appendChild(K.svg(q[0], q[1])));
+    el('cards').appendChild(K.el('div', { class: 'card' }, K.el('p', { class: 'k-label' }, String(k + 1)), svg, K.el('p', null, c[0])));
+  });
+  (function timeline() {
+    const g = el('tline'), TEST_MIN = 1, EARTH_MIN = FIVE * TEST_MIN, X = (m) => 12 + m * 42;
+    g.appendChild(K.svg('rect', { class: 'tOn', x: X(0), y: 22, width: X(TEST_MIN) - X(0), height: 14 }));
+    g.appendChild(K.svg('rect', { class: 'tE', x: X(TEST_MIN), y: 22, width: X(TEST_MIN + EARTH_MIN) - X(TEST_MIN), height: 14 }));
+    g.appendChild(K.svg('path', { class: 'tD', d: 'M' + X(TEST_MIN + EARTH_MIN) + ' 29H322' }));
+    txt(g, (X(TEST_MIN) + X(TEST_MIN + EARTH_MIN)) / 2, 15, 'Earthed, at least ' + EARTH_MIN + ' min', 'lb', 'middle');
+    txt(g, X(0), 53, 'Test, ' + TEST_MIN + ' min', 'tk');
+    txt(g, 328, 53, 'earths stay on', 'tk', 'end');
+    g.setAttribute('aria-label', 'A timeline drawn to scale: the test voltage on for ' + TEST_MIN + ' minute, then discharged and earthed for at least ' + EARTH_MIN
+      + ' minutes, then the earths stay on.');
+  })();
+
+  // ---------- one animation: the current crossing the XLPE, or ten minutes passing ----------
+  function endMotion() { flowLeft = 0; sweepPos = 600; fadeT = 1; drawCursor(K.params()); if (anim.playing()) anim.pause(); }
+  const anim = K.anim({ button: false, label: 'Time', step: (dt) => {
+    const i = at(), d = Math.min(dt, 0.1);
+    if (i === iFor) { flowT += d; flowLeft -= d; drawArrows(); return flowLeft > 0; }
+    if (i === iWhy) {
+      if (sweepPos < 600) sweepPos = Math.min(600, sweepPos + d * 150); else fadeT += d;
+      drawCursor(K.params());
+      return fadeT < 0.6;
+    }
+    return false;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_SLIPS }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK] }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i3A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['3a'], into: '#carry3b' });
+  K.carried({ parts: ['3a', '3b'], into: '#carry3c' });
+  const UPSIDE = 'That is the ratio upside down. Put the 10-minute reading on top.', RISE = 'That is the rise in GΩ. PI is a ratio, so divide.';
+  const DARSLIP = (who, f) => 'That is ' + who + "'s DAR, " + f.work.split(' = ')[0] + '. PI uses the 1-minute and 10-minute readings.';
+  const SPEC = {
+    [i3A]: { id: '3a', fig: f3a, dec: 2, accept: [], work: () => ['PI = R10 ÷ R1', '= ' + f3a.work],
+      slips: [{ value: F('3a.slip').value, hint: UPSIDE }, { value: fL1D.value, hint: DARSLIP('L1', fL1D) }, { value: F('3a.slip2').value, hint: RISE }],
+      hint: "Not quite. Divide L1's 10-minute reading by its 1-minute reading.",
+      after: f3a.text + ' sits in ' + piRange(f3a.value) + ', ' + piBand(f3a.value) + ". L1's DAR is " + fL1D.work + ', ' + darBand(fL1D.value) + '. L3 works out at a PI of ' + fL3P.text + '.' },
+    [i3B]: { id: '3b', fig: f3b, dec: 2, accept: [], work: () => ['PI = R10 ÷ R1', '= ' + f3b.work],
+      slips: [{ value: F('3b.slip').value, hint: UPSIDE }, { value: fL2D.value, hint: DARSLIP('L2', fL2D) }, { value: F('3b.slip2').value, hint: RISE }],
+      hint: "Not quite. Divide L2's 10-minute reading by its 1-minute reading.",
+      after: f3b.text + ' sits in ' + piRange(f3b.value) + ', ' + piBand(f3b.value) + ". L2's DAR is " + fL2D.work + ', ' + darBand(fL2D.value) + '. Yet its 1-minute reading of '
+        + IR[2][1].text + " beats the client's " + CRIT + ' GΩ. On that reading alone, L2 would have gone through. Its flat curve says a steady leakage carries most of its current. '
+        + 'Record it, and find out why before you submit. The sheath test comes next.' },
+    [i3C]: { id: '3c', fig: f3c, dec: 0, accept: [], work: () => ['Discharge time = ' + FIVE + ' × the time the voltage was on', '= ' + f3c.work],
+      slips: [{ value: F('3c.slip').value, hint: 'That is how long the test ran. Allow five times that.' }, { value: F('3c.slip2').value, hint: 'That is four times, an older rule. Allow five times.' }],
+      hint: 'Not quite. Allow five times as long as the voltage was on.',
+      after: "Keep the earths on L2's core and screen at both ends for at least " + f3c.value + ' minutes. Leave them on until the next test needs them.' },
+    [iCh]: { id: 'l3.changed', fig: fChg, dec: 2, accept: [], work: () => [CH_WORK],
+      slips: [{ value: F('l3.changed.slip').value, hint: UPSIDE }, { value: F('l3.changed.slip2').value, hint: RISE }],
+      hint: 'Not quite. Divide the 10-minute reading by the 1-minute reading.',
+      after: fChg.text + ' sits in ' + piRange(fChg.value) + ', ' + piBand(fChg.value) + '. Find out why before you submit it.' },
+  };
+  const BOX = { [i3A]: '#ans-3a', [i3B]: '#ans-3b', [i3C]: '#ans-3c', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work() };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' });
+  const wl = WL.map((x) => { const box = K.el('div', { class: 'line' }); box.appendChild(write(K.el('p', { class: 'w' }), x.w)); wbox.appendChild(box); return box; });
+  const wnotes = WK_NOTES.map((t) => wbox.appendChild(K.el('p', { class: 'sub' }, nb(t))));
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));
+  el('noteC').textContent = nb(NOTE_C);
+  el('noteT').textContent = nb(NOTE_T);
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i3A, i3B, i3C], carry3b: [i3B], carry3c: [i3C], pre: [i3A, i3B, i3C],
+    wrapX: [iFor], warnFor: [iFor],
+    noteC: [iWhy], wrapC: [iWhy], ctlC: [iWhy], outsC: [iWhy], outsC2: [iWhy], refC: [iWhy], sayC: [iWhy], capC: [iWhy],
+    noteT: [iTemp], wrapT: [iTemp], ctlT: [iTemp], outsT: [iTemp], sayT: [iTemp], disc: [iDis],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-3a': [i3A], 'ans-3b': [i3B], 'ans-3c': [i3C], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };
+  const ASK = {
+    [iWhy]: 'Step from Dry to Wet.',
+    [iTemp]: 'Drag the temperature from 20 °C up to 40 °C.',
+    [iWk]: 'Work each line yourself first, then press Show.',
+  };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i3A || i === i3B || i === i3C) scen.el.open = i === i3A; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('pre'), d.pre || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (ASK[i] ? ' ask' : '');
+    sub.textContent = nb(ASK[i] ? ASK[i]
+      : i === i3A || i === i3B || i === iCh ? (i === iCh ? 'Same method, new numbers. These are practice values. ' : '') + 'Give it to 2 places. A ratio has no unit.'
+      : i === i3C ? 'Give it in minutes.'
+      : i === iDis ? KV + ' kV and ' + fC1.text + ' are practice values.'
+      : i === iB1 ? markLine('b1')
+      : i === iK ? 'One card to come back to on a real job.' : '');
+    sub.hidden = !sub.textContent;
+
+    drawCurves(p);
+    drawTemp(p);
+    el('refC').hidden = el('refC').hidden || !el('refC').textContent;
+    const fk = i === iFor ? 'F' : i === iWhy ? 'W' + si(p.ins) : '';
+    if (fk && fk !== flowKey && !stillMode) {
+      if (i === iFor) flowLeft = 4; else { sweepPos = 0; fadeT = 0; }
+      if (!anim.playing()) anim.play();
+    }
+    flowKey = fk;
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines, and the notes once they are all shown.
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    wnotes.forEach((n) => { n.hidden = lines < wl.length; });
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);
+  K.check('Dry 18.1, 24.1, 64.0 GΩ (DAR 1.33, PI 2.66); damp 7.16, 7.94, 10.00 (1.11, 1.26); wet 2.19, 2.26, 2.40 (1.03, 1.06)', () =>
+    [[DRY, '18.1', '24.1', '64.0', 1.33, 2.66], [DAMP, '7.16', '7.94', '10.00', 1.11, 1.26], [WET, '2.19', '2.26', '2.40', 1.03, 1.06]].every((q) =>
+      fmtR(q[0].a) === q[1] && fmtR(q[0].b) === q[2] && fmtR(q[0].c) === q[3] && near(q[0].dar, q[4]) && near(q[0].pi, q[5]))
+    && near(K.at({ ins: 2 }).pi, 1.06) && near(K.at({ ins: 0 }).dar, 1.33));
+  K.check('Leakage 78, 500 and 2083 nA; absorption 199 nA at 30 s, 129 nA at 1 minute and under 0.1 nA at 10 minutes', () =>
+    Math.round(DRY.leak) === 78 && Math.round(DAMP.leak) === 500 && Math.round(WET.leak) === 2083
+    && Math.round(absOf(30)) === 199 && Math.round(absOf(60)) === 129 && absOf(600) < 0.1);
+  K.check('Every setting clears 1 GΩ at 1 minute, and each wetter setting gives a lower DAR and PI', () =>
+    [0, 1, 2].every((s) => K.at({ ins: s }).r60 > CRIT) && K.at({ ins: 0 }).pi > K.at({ ins: 1 }).pi && K.at({ ins: 1 }).pi > K.at({ ins: 2 }).pi
+    && K.at({ ins: 0 }).dar > K.at({ ins: 1 }).dar && K.at({ ins: 1 }).dar > K.at({ ins: 2 }).dar);
+  K.check('A sound core reads 96.4 and 256.0 GΩ at 0 °C, 42.0 and 111.4 at 12 °C, 6.0 and 16.0 at 40 °C, and its PI is 2.66 at every temperature', () => {
+    for (let t = 0; t <= 40; t++) if (!near(K.at({ temp: t }).piT, 2.66)) return false;
+    const T = (t) => K.at({ temp: t });
+    return f1(T(0).r1t) === '96.4' && f1(T(0).r10t) === '256.0' && f1(T(10).r1t) === '48.2' && f1(T(12).r1t) === '42.0' && f1(T(12).r10t) === '111.4'
+      && f1(T(30).r1t) === '12.1' && f1(T(30).r10t) === '32.0' && f1(T(40).r1t) === '6.0' && f1(T(40).r10t) === '16.0';
+  });
+  K.check('Recall 3.00 (slips 0.33 and 4.0); check X 1.07 and Y 3.00; L1 PI 2.58, DAR 1.33; L2 PI 1.09, DAR 1.05; L3 PI 2.61, DAR 1.31; changed numbers 1.20', () => {
+    const v = (i, k) => IR[i][k].value;
+    return near(r2(RC.r10 / RC.r1), fRec.value) && near(r2(RC.r1 / RC.r10), fS1.value) && near(RC.r10 - RC.r1, fS2.value)
+      && near(r2(CX.x10 / CX.r1), fX.value) && near(r2(CX.y10 / CX.r1), fY.value)
+      && near(r2(v(1, 2) / v(1, 1)), f3a.value) && near(r2(v(1, 1) / v(1, 0)), fL1D.value) && near(r2(v(1, 1) / v(1, 2)), F('3a.slip').value) && near(v(1, 2) - v(1, 1), F('3a.slip2').value)
+      && near(r2(v(2, 2) / v(2, 1)), f3b.value) && near(r2(v(2, 1) / v(2, 0)), fL2D.value) && near(r2(v(2, 1) / v(2, 2)), F('3b.slip').value) && near(r2(v(2, 2) - v(2, 1)), F('3b.slip2').value)
+      && near(r2(v(3, 2) / v(3, 1)), fL3P.value) && near(r2(v(3, 1) / v(3, 0)), fL3D.value)
+      && near(r2(CH.r10 / CH.r1), fChg.value) && near(r2(CH.r1 / CH.r10), F('l3.changed.slip').value) && near(r1(CH.r10 - CH.r1), F('l3.changed.slip2').value);
+  });
+  K.check('One core of 0.528 µF at 5 kV holds 2.64 mC and 6.60 J; 3(c) is 5 × 10 = 50 min, with slips 10 and 40 min', () =>
+    near(fC1.value * 1e-6 * VOLTS * 1000, fQ.value) && near(0.5 * fC1.value * 1e-6 * VOLTS * VOLTS, fE.value)
+    && near(FIVE * PIMIN, f3c.value) && near(PIMIN, F('3c.slip').value) && near(OLD * PIMIN, F('3c.slip2').value));
+  K.check('The charging current falls under 10 000 nA within 15 s, long before the first reading at 30 s', () => chgOf(15) < 10000 && chgOf(0) > 10000);
+  K.check('Every slip lies outside its answer\'s accepted figures', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = sp.dec ? 0.005 : 0.5;
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+  K.check('For every 10 °C increase in temperature, halve the resistance; for every 10 °C decrease, double it', () =>
+    near(K.at({ temp: 30 }).r1t, K.at({ temp: 20 }).r1t / 2) && near(K.at({ temp: 10 }).r10t, K.at({ temp: 20 }).r10t * 2),
+    { source: 'https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29' });
+  K.check('After a 10-minute PI test, allow the unit to discharge for 50 minutes', () => near(FIVE * PIMIN, 50) && near(f3c.value, 50),
+    { source: 'https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf' });
+  K.check('DAR: under 1.25 inadequate, 1.25 to 1.6 satisfactory, over 1.6 excellent', () =>
+    darBand(1.24) === 'inadequate' && darBand(1.25) === 'satisfactory' && darBand(1.6) === 'satisfactory' && darBand(1.61) === 'excellent', { source: 'material:notes#p9' });
+  K.check('PI: under 1 poor, 1 to 2 questionable, 2 to 4 okay, over 4 good', () =>
+    piBand(0.99) === 'poor' && piBand(1) === 'questionable' && piBand(1.99) === 'questionable' && piBand(2) === 'okay' && piBand(4) === 'okay' && piBand(4.01) === 'good',
+    { source: 'material:notes#p9' });
+  K.check('If the insulation is in good condition, the PI will be 2.0 or higher: L3\'s 2.61 clears it', () => MAKER_PI === 2 && fL3P.value >= MAKER_PI,
+    { source: 'https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing' });
+  K.check('Typically the DAR will be 1.4 or higher in good condition: L3\'s 1.31 falls short', () => MAKER_DAR === 1.4 && fL3D.value < MAKER_DAR,
+    { source: 'https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing' });
+  K.check('The PI test is not recommended as an assessment tool above 5000 MΩ at 1 minute: L3 reads 23 000 MΩ', () => IEEE_MOHM === 5000 && IR[3][1].value * 1000 > IEEE_MOHM,
+    { source: 'https://www.aemc.com/userfiles/files/resources/webinars/Insulation_Testing_Quick_Reference_Guide.pdf' });
+
+  K.ready();
+</script>

@@ -1,0 +1,815 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  #prog .k-label, #prog .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .why, .pre { line-height: 1.6; }
+  .ctl { display: grid; gap: 12px; }
+  .warn-note .wh { font-weight: 700; }
+  .warn-note p + p { margin-top: 6px; }
+  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }
+  .carry .k-cr-value { grid-column: 2; grid-row: 2; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tkI { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .l-cond { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-semi { fill: var(--k-strong); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-xlpe { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-scr { fill: var(--k-muted); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-foil { fill: var(--k-line); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .l-over { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: .6; }
+  .scene .lit { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; }
+  .scene .faint { opacity: .35; }
+  .scene .gap { fill: var(--k-bg); }
+  .scene .drop { fill: var(--k-cat1); }
+  .scene .tree { stroke: var(--k-cat1); stroke-width: 1.4; fill: none; stroke-linecap: round; }
+  .scene .ldr { stroke: var(--k-muted); stroke-width: 1; fill: none; }
+  .scene .ldot { fill: var(--k-ink); }
+  .scene .plate { fill: var(--k-strong); }
+  .scene .slab { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .fl { stroke: var(--k-accent2); stroke-width: 1.4; fill: none; }
+  .scene .fh { fill: var(--k-accent2); }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 1.5; fill: none; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }
+  .scene .ref { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  .scene .cur { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .ring2 { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .scene .inset { fill: none; stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .tst { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .lead { stroke: var(--k-ink); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+  .scene .link { stroke: var(--k-ink); stroke-width: 3.5; fill: none; stroke-linejoin: round; }
+  .scene .linkS { stroke: var(--k-ink); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .scene .term { fill: var(--k-ink); }
+  .scene .soil { fill: var(--k-sunk); stroke: var(--k-line); stroke-width: 1; }
+  .scene .rod { stroke: var(--k-ink); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .skin { fill: var(--k-ink); }
+  .scene .spring { stroke: var(--k-ink); stroke-width: 1.6; fill: none; }
+  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .barW { fill: var(--k-warn); fill-opacity: .18; stroke: var(--k-warn); stroke-width: 1.5; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .line + .line, .wl .line + .sub, .wl .sub + .sub { margin-top: 10px; }
+  .wl .line { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 4px; }
+  .wl .n { color: var(--k-muted); font-variant-numeric: tabular-nums; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div class="carry" id="carry4a"></div>
+    <div class="pre" id="pre"></div>
+    <div id="wrapR"><svg class="scene" id="bars" viewBox="0 0 340 176" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+
+    <div id="wrapX"><svg class="scene" id="xsec" viewBox="0 0 340 204" width="100%" role="img" aria-label=""></svg></div>
+    <div class="warn-note" id="warnFor"></div>
+
+    <div id="wrapV"><svg class="scene" id="volts" viewBox="0 0 340 264" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlV"></div>
+    <div class="k-readouts" id="outsV"></div>
+    <p class="say" id="sayV"></p>
+    <div class="why" id="moreV"></div>
+    <p class="caption" id="capV"></p>
+
+    <div id="wrapL"><svg class="scene" id="longs" viewBox="0 0 340 224" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctlL"></div>
+    <p class="say" id="sayL"></p>
+    <div class="k-readouts" id="outsL"></div>
+    <p class="sub" id="noteL"></p>
+
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-4a"></div>
+    <div id="ans-4b"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="why" id="resNote"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, helpers and the course's figures ----------
+  const r1 = (x) => Math.round(x * 10 + 1e-7) / 10;
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const f1 = (x) => r1(x).toFixed(1);
+  const f2 = (x) => r2(x).toFixed(2);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces: before an operator, and between a number and its unit.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=−]) /g, NB + '$1 ')
+    .replace(/(\d) (?=(?:kV\/mm|kV|mm|min|s)(?![A-Za-z]))/g, '$1' + NB);
+  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };
+  const fx = (v) => (+v).toFixed(1);
+  function txt(parent, x, y, s, cls, anchor) {
+    const t = parent.appendChild(K.svg('text', { x: fx(x), y: fx(y), class: cls || 'lb', 'text-anchor': anchor || 'start' }));
+    t.textContent = s;
+    return t;
+  }
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+
+  // The rule: 4 kV d.c. per millimetre of specified thickness, at most 10 kV, for 1 minute.
+  const RATE = 4, CAP = 10, MIN = 1;
+  // The factory routine test on a new sheath (kV per mm), and one offshore spec's flat level (kV).
+  const FACT = 8, FLAT = 10;
+  const Vof = (t) => Math.min(RATE * t, CAP);
+  const tv = (v) => { const t = Math.round(+v * 10) / 10; return isFinite(t) ? K.clamp(t, 1, 4) : 2.2; };
+  const nLines = (E) => Math.max(2, Math.round(2 * E));       // two field lines for every kV/mm
+
+  const fT = F('p.sheathT'), T_B = fT.value;
+  const fCapT = F('l4.capT'), CAPT = fCapT.value;
+  const FIVE = F('n.discharge').value;
+  const fRec = F('l4.recall'), fRS1 = F('l4.recall.slip1'), fRS2 = F('l4.recall.slip2');
+  const fP = F('l4.check.thin'), fPs = F('l4.check.thinS'), fQ = F('l4.check.thick'), fQs = F('l4.check.thickS');
+  const fWex = F('l4.wex'), fEarth = F('l4.earth');
+  const f4a = F('4a'), fS4a = F('l4.stress4a'), f3b = F('3b');
+  const fL2s = F('4b'), fL2 = F('p.sheathL2');
+  const fChg = F('l4.changed'), fChgS = F('l4.changed.stress');
+  // Practice thicknesses, read from each figure's own working ("4 × 1.8 = 7.2 kV").
+  const tOf = (f) => { const m = /×\s*([\d.]+)/.exec(f.work || ''); return m ? +m[1] : NaN; };
+  const REC_T = tOf(fRec), P_T = tOf(fP), Q_T = tOf(fQ), WEX_T = tOf(fWex), CH_T = tOf(fChg);
+  // L2's trip, from the case: the voltage from its stress working, the time from the result.
+  const TRIP_KV = +((/^([\d.]+)/.exec(fL2s.work || '') || [0, NaN])[1]);
+  const TRIP_S = +((/after (\d+) s/.exec(String(fL2.text || '')) || [0, NaN])[1]);
+
+  // ---------- the lesson's words ----------
+  const forMin = MIN + ' minute';
+  const O1 = fRS2.text + ' for ' + forMin, O2 = fRec.text + ' for ' + forMin, O3 = fRS1.text + ' for ' + forMin;
+  const R_TASK = "A core's oversheath is " + f1(REC_T) + ' mm thick. What d.c. voltage does the sheath test put across it, and for how long?';
+  const R_WORK = 'V = ' + RATE + ' kV per mm × thickness = ' + fRec.work.split(',')[0] + '. That is under the ' + CAP + ' kV cap, so ' + fRec.text + ' d.c., held for ' + forMin + '.';
+  const R_SLIPS = fRS2.text + ' leaves out the thickness. ' + fRS1.text + ' is the cap, which only applies above ' + fCapT.text + '.';
+  const R_W1 = 'That is the rate for one millimetre. Multiply it by the thickness: ' + RATE + ' × ' + f1(REC_T) + '.';
+  const R_W3 = 'That is the cap. It only applies when ' + RATE + ' × the thickness goes over ' + CAP + ' kV, above ' + fCapT.text + '. Here ' + fRec.work.split(',')[0] + '.';
+
+  const FOR_TEXT = "Each core's oversheath is the plastic layer outside its screen and foil. Its job is to keep water away from the insulation. "
+    + 'The sheath test checks it on its own. It puts a d.c. voltage across the sheath, from the screen inside to a conductor on its outer face. '
+    + 'It runs after the IR test and before VLF. It looks for damage done while the cable was laid.';
+  const WARN_FOR = 'A hole in the sheath does not fail the cable on day one. It lets water in. Under the working voltage, that water can slowly grow water trees in the XLPE until the insulation fails. '
+    + 'Sheath faults can cost the whole cable.';
+  const TREE1 = 'water trees:', TREE2 = 'months or years later';
+
+  const WHY_TEXT = 'The sheath test is an insulation test on the sheath alone. The screen inside is one electrode. '
+    + "A conductor on the sheath's outer face is the other, the outer electrode. If the sheath has a hole, it breaks down there. "
+    + 'Current flows through the hole and the test set trips. Plastic breaks down when the field across it gets too strong. ' 
+    + 'That field is the voltage per millimetre of thickness. Put the same voltage across a thin sheath and a thick one. The thin one takes far more stress.\n\n'
+    + 'So the rule scales the voltage with the thickness. It sets ' + RATE + ' kV d.c. per millimetre, at most ' + CAP + ' kV, for ' + forMin + '. '
+    + 'Use the thickness specified on the data sheet. Every sheath up to ' + fCapT.text + ' gets the same ' + RATE + ' kV per mm. '
+    + 'Above ' + fCapT.text + ' the rule caps the voltage at ' + CAP + ' kV. A thicker sheath is simply tested more gently.';
+  const WHY_MORE = 'In the factory, the d.c. test on a new sheath uses ' + FACT + ' kV per mm. The site test is half that. Not every spec uses the per-millimetre rule. '
+    + 'Some specs use a flat ' + FLAT + ' kV d.c. for ' + forMin + " instead. The client's test spec sets the level on the job.";
+  const WHY_READ = 'Up to ' + fCapT.text + ' the voltage rises ' + RATE + ' kV for every millimetre, and the stress stays at ' + f2(RATE) + " kV/mm. String B's " + fT.text
+    + ' sheath takes ' + f1(Vof(T_B)) + ' kV. From ' + fCapT.text + ' the voltage stays at the ' + CAP + ' kV cap. So the stress falls, down to ' + f2(Vof(4) / 4) + ' kV/mm at 4.0 mm.';
+
+  const LINK_TEXT = 'The test must stress the sheath and nothing else. So the conductor, the foil and the screen are linked together at both ends. '
+    + "The foil sits right under the sheath. Once linked, it carries the full test voltage onto the sheath's inner face. "
+    + 'The conductor is at the same voltage, so the XLPE between conductor and screen has nothing across it.\n\n'
+    + 'The negative lead goes to the linked screen. The positive lead goes to the outer electrode. That is the same way round as the IR test: positive on the outside. '
+    + 'The outer electrode must reach the whole length of the sheath, so the whole sheath is tested. Which one you use depends on the sheath.';
+  const INS_TEXT = 'A plain plastic sheath has no conductor on its face. The earth around the cable is the outer electrode, so the positive goes to an earth rod. '
+    + "The picture shows a cable in soil. For a core inside a subsea cable, assume the maker's procedure says what the outer electrode is.";
+  const SEMI_TEXT = 'A semi-conductive sheath has a thin conducting skin on its outer face, the whole length of the cable. That skin is the outer electrode. '
+    + 'The positive reaches it through a roll spring wound round the sheath.';
+  const COND_TEXT = 'Left earthed, the conductor sits at earth with the outer electrode. The screen is ' + f4a.text + ' from both. '
+    + 'So the XLPE takes the full ' + f4a.text + ' as well. That is why every metal layer is linked.';
+  const NOTE_L = "Assume String B's core sheaths are semi-conductive. On a job, read the sheath type off the data sheet. "
+    + "Each core's own sheath is the one tested. The armour and outer yarn sit outside all three cores and are not tested.";
+  const LINK_READ = 'On an insulating sheath the positive goes to an earth rod. On a semi-conductive sheath it goes through a roll spring to the sheath\'s conducting skin. '
+    + 'Either way the negative is on the linked screen. The sheath takes the ' + f4a.text + ' and the XLPE takes none. '
+    + 'Leave the conductor earthed instead of linked, and the XLPE takes the ' + f4a.text + ' too.';
+
+  const vP = Vof(P_T), vQ = Vof(Q_T);
+  const C_TASK = 'Cable P has a ' + f1(P_T) + ' mm sheath and cable Q a ' + f1(Q_T) + ' mm sheath. Each is tested at its own correct voltage. Which sheath takes the higher stress per millimetre?';
+  const C_O1 = 'P, the ' + f1(P_T) + ' mm sheath', C_O2 = 'Q, the ' + f1(Q_T) + ' mm sheath', C_O3 = 'Both the same, ' + RATE + ' kV per mm';
+  const Q_RAW = RATE + ' × ' + f1(Q_T) + ' = ' + f1(RATE * Q_T) + ' kV';
+  const C_RIGHT = 'P takes ' + fP.work.split(',')[0] + '. That gives ' + fPs.work.replace(' kV/mm', '') + ' kV/mm. Q works out at ' + Q_RAW + '. That is over the cap, so it gets '
+    + fQ.text + '. That gives ' + f1(vQ) + ' ÷ ' + f1(Q_T) + ' = ' + fQs.text + '. The cap leaves a thick sheath less stressed.';
+  const C_W2 = 'Q gets the higher voltage, ' + fQ.text + ' against ' + fP.text + '. But stress is voltage per millimetre: ' + f1(vQ) + ' ÷ ' + f1(Q_T) + ' = ' + fQs.text
+    + ", against P's " + f2(fPs.value) + '.';
+  const C_W3 = 'That holds only up to ' + fCapT.text + '. Q works out at ' + Q_RAW + '. That is over the cap, so it gets ' + fQ.text + ', which is ' + fQs.text + '.';
+
+  const WK_HEAD = 'A cable with insulating core sheaths, ' + f1(WEX_T) + ' mm thick by its data sheet. A practice value.';
+  const WL = [
+    { w: 'Earth the screen and the conductor at both ends.' },
+    { w: 'Link foil, screen and conductor together at both ends.' },
+    { w: 'Negative lead to the linked screen. Positive lead to the earth rod.' },
+    { w: 'Tell the far end. Lift the earths under control, with access restricted at both ends.' },
+    { w: 'V = ' + fWex.work.split(',')[0] + ' d.c., under the ' + CAP + ' kV cap. Hold it for ' + forMin + '.', calc: true },
+    { w: 'It passes if the sheath holds ' + fWex.text + ' for the full minute with no breakdown.' },
+    { w: 'Discharge it as after the IR test. Wait for the display to show discharged. Then use the discharge stick, then the hook stick, then the hand earth. '
+      + 'Earth the screen and the core at both ends. Keep them earthed for at least ' + FIVE + ' × the ' + forMin + ' the voltage was on, so at least ' + fEarth.value + ' minutes.' },
+  ];
+  const WK_NOTE = 'Line 7 matters as much as the test. The sheath holds charge, just as the core does. Before the cable is energised, take the links off at both ends. '
+    + 'Then put the screen earths back on at both ends. Screens have been left unearthed after sheath tests, then energised that way for days.';
+  const WK_READ = 'On a ' + f1(WEX_T) + ' mm insulating sheath, first earth both ends. Link foil, screen and conductor at both ends. Put the negative on the screen and the positive on the earth rod. '
+    + 'Then lift the earths under control. Hold ' + fWex.work.split(',')[0] + ' d.c. for ' + forMin + '. It passes with no breakdown. Then discharge in the usual order. '
+    + 'Keep the screen and the core earthed for at least ' + fEarth.value + ' minutes. Take the links off at both ends, then put the screen earths back before the cable is energised.';
+
+  const PRE_4A = "Each core's oversheath is semi-conductive, " + fT.text + ' thick by the data sheet. These are practice values. Each core is tested in turn. '
+    + 'Conductor, foil and screen are linked at both ends. The negative goes to the screen, and the positive goes through the roll spring.';
+  const Q4A = "(a) Determine the d.c. test voltage for String B's core sheaths.";
+
+  const RES_P1 = 'L1 and L3 each hold ' + f4a.text + ' for the full minute. On L2, the test set trips at ' + f1(TRIP_KV) + ' kV after ' + TRIP_S + ' s. These are practice values.';
+  const Q4B = "(b) Determine the stress across L2's sheath when it tripped. Does L2 pass?";
+  const RES_V = "L2's sheath broke down far below the " + RATE + ' kV/mm it should hold, so L2 fails.';
+  const RES_P3 = "Set that beside L2's flat PI of " + f3b.text + '. The PI pointed to a steady leakage in the insulation. Now the sheath will not hold, so water may have a way in. '
+    + 'Record it. On a real job you stop here and report before any further test. Each core is discharged after its test. '
+    + 'Its screen and core then stay earthed for at least ' + fEarth.value + ' minutes.';
+
+  const Q_CH = "Another cable's core sheath is " + f1(CH_T) + ' mm thick. Determine its sheath test voltage.';
+
+  let lines = 0, lastStep = -1, finished = false;
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_SLIPS },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['oversheath'] },
+    { show: true, name: 'The why: volts per millimetre', label: 'The why: volts per millimetre', text: WHY_TEXT, terms: ['outer electrode', 'voltage per millimetre'],
+      read: WHY_TEXT.replace('\n\n', ' ') + ' ' + WHY_READ + ' ' + WHY_MORE, still: { t: 4 } },
+    { show: true, name: 'What to link, and where the leads go', label: 'The why: what to link, and where the leads go', text: LINK_TEXT, terms: ['linked together at both ends'],
+      read: LINK_TEXT.replace('\n\n', ' ') + ' ' + LINK_READ + ' ' + NOTE_L, still: () => { typeCtl.set('semi'); condCtl.set('link'); K.refresh(); } },
+    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },
+    { show: true, name: 'Worked example', label: 'Worked example', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },
+    { name: 'Section A 4(a)', label: 'Section A · Question 4', pre: PRE_4A, part: Q4A, task: PRE_4A + ' ' + Q4A, want: f4a.text,
+      why: 'V = ' + RATE + ' kV/mm × thickness = ' + f4a.work.split(',')[0] + '.' },
+    { name: 'Section A 4(b)', label: 'Section A · Question 4', pre: RES_P1, part: Q4B, task: RES_P1 + ' ' + Q4B, want: fL2s.text,
+      why: 'Stress = V ÷ thickness = ' + fL2s.work + '. ' + RES_V + ' ' + RES_P3 },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: fChg.work + '.' },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iLink = 3, iChk = 4, iWk = 5, i4A = 6, iRes = 7, iB1 = 8, iCh = 9, iK = 10;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWk, i4A, iRes, iCh];
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at0 = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });
+      if (at0 < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at0 > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at0))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at0 + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls, readouts and the model ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.control({ id: 't', label: 'Sheath thickness', min: 1, max: 4, step: 0.1, value: T_B, unit: 'mm', fmt: (v) => f1(tv(v)) + NB + 'mm', snap: [T_B, CAPT], into: '#ctlV' });
+  K.readout({ id: 'V', label: 'Test voltage', unit: 'kV', decimals: 1, into: '#outsV' });
+  K.readout({ id: 'E', label: 'Stress across the sheath', unit: 'kV/mm', decimals: 2, into: '#outsV' });
+  const typeCtl = K.choice({ id: 'sheath', label: 'Sheath type', options: [{ value: 'ins', label: 'Insulating' }, { value: 'semi', label: 'Semi-conductive' }], value: 'ins', into: '#ctlL' });
+  const condCtl = K.choice({ id: 'cond', label: 'Conductor', options: [{ value: 'link', label: 'Linked' }, { value: 'earth', label: 'Left earthed' }], value: 'link', into: '#ctlL' });
+  K.readout({ id: 'vSh', label: 'Across the sheath', unit: 'kV', decimals: 1, into: '#outsL' });
+  K.readout({ id: 'vX', label: 'Across the XLPE', unit: 'kV', decimals: 1, into: '#outsL' });
+
+  // The screen is the negative side (0 kV). Linked to it, the conductor sits at the same voltage.
+  // The outer electrode carries String B's test voltage, whichever kind it is, and sits at earth.
+  // Left earthed, the conductor sits with the outer electrode, so the XLPE takes the test voltage too.
+  K.model((p) => {
+    const t = tv(p.t), V = Vof(t);
+    const screen = 0, outer = Vof(T_B), conductor = p.cond === 'earth' ? outer : screen;
+    return { V: V, E: V / t, vSh: outer - screen, vX: conductor - screen };
+  });
+
+  // ---------- what it is for: one core in cross-section ----------
+  const xEl = el('xsec');
+  const XC = 88, YC = 102, ANG = -40;
+  const PL = (r, deg) => { const a = deg * Math.PI / 180; return [XC + r * Math.cos(a), YC + r * Math.sin(a)]; };
+  const seg = (a, b) => 'M' + fx(a[0]) + ' ' + fx(a[1]) + 'L' + fx(b[0]) + ' ' + fx(b[1]);
+  const LAYERS = [
+    { r: 24, cls: 'l-cond' }, { r: 28, cls: 'l-semi' }, { r: 52, cls: 'l-xlpe' }, { r: 56, cls: 'l-semi' },
+    { r: 62, cls: 'l-scr' }, { r: 65, cls: 'l-foil' }, { r: 76, cls: 'l-over', lit: true },
+  ];
+  for (let k = LAYERS.length - 1; k >= 0; k--) {
+    const L = LAYERS[k];
+    xEl.appendChild(K.svg('circle', { cx: XC, cy: YC, r: L.r, class: L.lit ? 'lit' : L.cls + ' faint' }));
+  }
+  (function notch() {
+    const a = PL(78, ANG - 5), b = PL(78, ANG + 5), c = PL(66, ANG + 5), d = PL(66, ANG - 5);
+    xEl.appendChild(K.svg('path', { class: 'gap', d: 'M' + fx(a[0]) + ' ' + fx(a[1]) + 'A78 78 0 0 1 ' + fx(b[0]) + ' ' + fx(b[1]) + 'L' + fx(c[0]) + ' ' + fx(c[1])
+      + 'A66 66 0 0 0 ' + fx(d[0]) + ' ' + fx(d[1]) + 'Z' }));
+  })();
+  // Water trees: fine branches growing from the outer semi-con into the XLPE, beyond the break.
+  const treeD = [
+    seg(PL(55, ANG), PL(36, ANG)), seg(PL(49, ANG), PL(41, ANG - 10)), seg(PL(41, ANG - 10), PL(35, ANG - 15)),
+    seg(PL(45, ANG), PL(37, ANG + 9)), seg(PL(51, ANG + 1), PL(46, ANG + 11)),
+    seg(PL(55, ANG + 15), PL(45, ANG + 15)), seg(PL(50, ANG + 15), PL(44, ANG + 21)),
+  ].join('');
+  xEl.appendChild(K.svg('path', { class: 'tree', d: treeD }));
+  txt(xEl, XC, YC + 44, 'XLPE', 'lb', 'middle');
+  // Labels down the right, each with a leader to its part.
+  const LX = 184;
+  [[PL(79, ANG + 3), [LX - 4, 62], 'break in the sheath', 66, 'lb'],
+   [PL(71, 8), [LX - 4, 108], 'oversheath', 112, 'lb'],
+   [PL(40, ANG - 2), [LX - 4, 141], TREE1, 146, 'lb'],
+   [PL(63.5, 50), [LX - 4, 188], 'screen and foil', 192, 'tk']].forEach((q) => {
+    xEl.appendChild(K.svg('path', { class: 'ldr', d: seg(q[0], q[1]) }));
+    xEl.appendChild(K.svg('circle', { class: 'ldot', cx: fx(q[0][0]), cy: fx(q[0][1]), r: 2 }));
+    txt(xEl, LX, q[3], q[2], q[4]);
+  });
+  txt(xEl, LX, 162, TREE2, 'tkI');
+  txt(xEl, LX, 34, 'water', 'lb');
+  const DROPS = [0, 1 / 3, 2 / 3].map((ph) => ({ ph, el: xEl.appendChild(K.svg('circle', { class: 'drop', r: 3.4 })) }));
+  let flowT = 0, flowLeft = 0, flowKey = '';
+  function drawDrops() {
+    DROPS.forEach((d) => {
+      const f = (d.ph + flowT * 0.3) % 1, r = 112 - 50 * f, q = PL(r, ANG);
+      d.el.setAttribute('cx', fx(q[0])); d.el.setAttribute('cy', fx(q[1]));
+      d.el.style.opacity = K.clamp(Math.min((112 - r) / 8, (r - 62) / 8), 0, 1).toFixed(2);
+    });
+  }
+  drawDrops();
+  xEl.setAttribute('aria-label', 'One core in cross-section, from the conductor in the middle out to the oversheath. The oversheath is lit and the other layers are faint. '
+    + 'Drops of water pass through a small break in the oversheath towards the screen. Beyond it, fine branching lines grow into the XLPE: water trees, months or years later.');
+
+  // ---------- the why: a slice of sheath, and the test voltage against thickness ----------
+  const vEl = el('volts');
+  const SX0 = 10, SW = 60, BOT = 206, SC = 30;
+  const PX0 = 166, PX1 = 328, PY0 = 206, PY1 = 46;
+  const px = (t) => PX0 + (t - 1) / 3 * (PX1 - PX0), py = (v) => PY0 - v / 12 * (PY0 - PY1);
+  const V_ = (tag, a) => vEl.appendChild(K.svg(tag, a));
+  V_('rect', { class: 'plate', x: SX0 - 2, y: BOT, width: SW + 4, height: 8 });
+  const slab = V_('rect', { class: 'slab', x: SX0, width: SW });
+  const topPlate = V_('rect', { class: 'plate', x: SX0 - 2, width: SW + 4, height: 8 });
+  const fieldG = V_('g');
+  const brk = V_('path', { class: 'brk' });
+  const outerL = txt(vEl, 6, 0, 'outer electrode, +');
+  const sheathL = txt(vEl, 84, 0, 'sheath', 'tk');
+  txt(vEl, 6, 232, 'linked screen, −');
+  V_('path', { class: 'fl', d: 'M12 244V256' });
+  V_('path', { class: 'fh', d: 'M8 252L12 258L16 252Z' });
+  txt(vEl, 24, 256, 'Field lines: closer together, more stress', 'tk');
+  // The plot.
+  txt(vEl, PX0 - 24, 28, 'Test voltage (kV)', 'tk');
+  let axd = 'M' + PX0 + ' ' + PY1 + 'V' + PY0 + 'H' + PX1;
+  [0, 4, 8, 12].forEach((v) => { axd += 'M' + (PX0 - 4) + ' ' + fx(py(v)) + 'H' + PX0; txt(vEl, PX0 - 7, py(v) + 4.5, String(v), 'tk', 'end'); });
+  [1, 2, CAPT, 3, 4].forEach((t) => { axd += 'M' + fx(px(t)) + ' ' + PY0 + 'V' + (PY0 + 4); txt(vEl, px(t), PY0 + 17, String(t), 'tk', 'middle'); });
+  V_('path', { class: 'ax', d: axd });
+  txt(vEl, (PX0 + PX1) / 2, 240, 'Sheath thickness (mm)', 'tk', 'middle');
+  V_('path', { class: 'ref', d: 'M' + PX0 + ' ' + fx(py(CAP)) + 'H' + PX1 });
+  txt(vEl, PX1, py(CAP) - 12, CAP + ' kV cap', 'tk', 'end');
+  V_('path', { class: 'cur', d: 'M' + fx(px(1)) + ' ' + fx(py(Vof(1))) + 'L' + fx(px(CAPT)) + ' ' + fx(py(Vof(CAPT))) + 'L' + fx(px(4)) + ' ' + fx(py(Vof(4))) });
+  V_('circle', { class: 'ring2', cx: fx(px(T_B)), cy: fx(py(Vof(T_B))), r: 7 });
+  txt(vEl, px(T_B) + 8, py(Vof(T_B)) + 16, 'String B', 'lb');
+  const vDot = V_('circle', { class: 'dot', r: 5.5 });
+
+  function drawVolts(p) {
+    const t = tv(p.t), V = Vof(t), E = V / t, h = t * SC, top = BOT - h, n = nLines(E);
+    slab.setAttribute('y', fx(top)); slab.setAttribute('height', fx(h));
+    topPlate.setAttribute('y', fx(top - 8));
+    outerL.setAttribute('y', fx(top - 14));
+    brk.setAttribute('d', 'M74 ' + fx(top) + 'H80V' + BOT + 'H74');
+    sheathL.setAttribute('y', fx((top + BOT) / 2 + 4.5));
+    fieldG.textContent = '';
+    const mid = (top + BOT) / 2;
+    let d = '', hd = '';
+    for (let k = 0; k < n; k++) {
+      const x = SX0 + (k + 0.5) * SW / n;
+      d += 'M' + fx(x) + ' ' + fx(top + 1) + 'V' + fx(BOT - 1);
+      hd += 'M' + fx(x - 3) + ' ' + fx(mid - 3) + 'L' + fx(x) + ' ' + fx(mid + 3) + 'L' + fx(x + 3) + ' ' + fx(mid - 3) + 'Z';
+    }
+    fieldG.appendChild(K.svg('path', { class: 'fl', d: d }));
+    fieldG.appendChild(K.svg('path', { class: 'fh', d: hd }));
+    vDot.setAttribute('cx', fx(px(t))); vDot.setAttribute('cy', fx(py(V)));
+    vEl.setAttribute('aria-label', 'Left: a slice of sheath ' + f1(t) + ' mm thick between the outer electrode above and the linked screen below, with ' + n
+      + ' field lines crossing it. Right: test voltage against sheath thickness. The line rises ' + RATE + ' kV for every millimetre to the ' + CAP + ' kV cap at '
+      + fCapT.text + ', then runs flat. A ring marks String B at ' + fT.text + ', and a dot marks this thickness.');
+    let s;
+    if (t < CAPT - 1e-9) {
+      s = (Math.abs(t - T_B) < 1e-9 ? "String B's " : 'A ') + f1(t) + ' mm sheath gets ' + RATE + ' × ' + f1(t) + ' = ' + f1(V) + ' kV. The stress is '
+        + f1(V) + ' ÷ ' + f1(t) + ' = ' + f2(E) + ' kV/mm, the full rate.';
+    } else if (Math.abs(t - CAPT) < 1e-9) {
+      s = RATE + ' × ' + f1(t) + ' = ' + f1(V) + ' kV, right at the cap. The stress is still ' + f2(E) + ' kV/mm. Any thicker, and it falls.';
+    } else {
+      s = RATE + ' × ' + f1(t) + ' would be ' + f1(RATE * t) + ' kV, over the cap. So the test holds at ' + f1(V) + ' kV, and the stress falls to '
+        + f1(V) + ' ÷ ' + f1(t) + ' = ' + f2(E) + ' kV/mm.';
+    }
+    el('sayV').textContent = nb(s);
+  }
+
+  // ---------- the why: what to link, and where the leads go (the cable end in long section) ----------
+  const lEl = el('longs');
+  const L_ = (tag, a, g) => (g || lEl).appendChild(K.svg(tag, a));
+  // The far end, linked the same way.
+  L_('rect', { class: 'inset', x: 4, y: 4, width: 112, height: 72, rx: 8 });
+  txt(lEl, 12, 22, 'far end', 'lb');
+  txt(lEl, 12, 38, 'linked too', 'tk');
+  [[66, 44, 44, 7, 'l-over'], [58, 51, 52, 3, 'l-foil'], [50, 54, 60, 4, 'l-scr'], [36, 58, 74, 6, 'l-xlpe'], [22, 64, 88, 6, 'l-cond']]
+    .forEach((q) => L_('rect', { class: q[4], x: q[0], y: q[1], width: q[2], height: q[3] }));
+  L_('path', { class: 'linkS', d: 'M58 52.5H12V67H22M50 56H12' });
+  [[58, 52.5], [50, 56], [22, 67]].forEach((q) => L_('circle', { class: 'term', cx: q[0], cy: q[1], r: 2.2 }));
+  // This end: the layers, stepped back so each one shows.
+  const LAY = [['sheath', 112, 26, 196, 'l-over', 127], ['foil', 138, 10, 212, 'l-foil', 146], ['screen', 148, 16, 228, 'l-scr', 162],
+    ['XLPE', 164, 32, 256, 'l-xlpe', 184], ['conductor', 196, 22, 288, 'l-cond', 211]];
+  LAY.forEach((q) => { L_('rect', { class: q[4], x: 78, y: q[1], width: q[3] - 78, height: q[2] }); txt(lEl, 72, q[5], q[0], 'tk', 'end'); });
+  const gIns = L_('g'), gSemi = L_('g');
+  // Insulating: the earth round the cable is the outer electrode, reached by an earth rod.
+  L_('rect', { class: 'soil', x: 78, y: 88, width: 118, height: 24 }, gIns);
+  txt(gIns, 72, 104, 'earth', 'tk', 'end');
+  L_('path', { class: 'lead', d: 'M232 30H150V66' }, gIns);
+  L_('path', { class: 'rod', d: 'M150 66V107' }, gIns);
+  L_('circle', { class: 'term', cx: 150, cy: 66, r: 3.5 }, gIns);
+  txt(gIns, 158, 72, 'earth rod', 'lb');
+  // Semi-conductive: the conducting skin is the outer electrode, reached by a roll spring.
+  L_('rect', { class: 'skin', x: 78, y: 108, width: 118, height: 4 }, gSemi);
+  txt(gSemi, 72, 113, 'skin', 'tk', 'end');
+  [171, 178, 185, 192].forEach((cx) => L_('ellipse', { class: 'spring', cx: cx, cy: 110, rx: 3.2, ry: 7 }, gSemi));
+  L_('path', { class: 'lead', d: 'M232 30H181V103' }, gSemi);
+  L_('circle', { class: 'term', cx: 181, cy: 103, r: 3.5 }, gSemi);
+  txt(gSemi, 166, 96, 'roll spring', 'lb', 'end');
+  // The link joins foil, screen and conductor; the negative lead goes to it.
+  L_('path', { class: 'link', d: 'M212 143H306V156M228 156H306' });
+  const gCond = L_('g'), gEarthC = L_('g'), gFx = L_('g');
+  L_('path', { class: 'link', d: 'M306 156V207H288' }, gCond);
+  // Left earthed: the conductor goes to earth instead, and the field crosses the XLPE too.
+  L_('path', { class: 'linkS', d: 'M288 207H322V211M314 211H330M317 215H327M320 219H324' }, gEarthC);
+  txt(gEarthC, 334, 200, 'earthed', 'tk', 'end');
+  [92, 116, 140].forEach((x) => {
+    L_('path', { class: 'fl', d: 'M' + x + ' 168V184' }, gFx);
+    L_('path', { class: 'fh', d: 'M' + (x - 4) + ' 182L' + x + ' 189L' + (x + 4) + ' 182Z' }, gFx);
+  });
+  txt(gFx, 152, 185, 'field', 'tkI');
+  [[212, 143], [228, 156], [288, 207]].forEach((q) => L_('circle', { class: 'term', cx: q[0], cy: q[1], r: 3.5 }));
+  txt(lEl, 262, 186, 'link', 'lb');
+  L_('rect', { class: 'tst', x: 232, y: 6, width: 100, height: 44, rx: 8 });
+  txt(lEl, 282, 25, 'test set', 'lb', 'middle');
+  txt(lEl, 282, 42, 'd.c.', 'tk', 'middle');
+  L_('path', { class: 'lead', d: 'M306 50V143' });
+  txt(lEl, 226, 22, 'red lead, +', 'tk', 'end');
+  txt(lEl, 300, 100, 'black lead, −', 'tk', 'end');
+  // The field crosses the sheath only.
+  [92, 116, 140].forEach((x) => {
+    L_('path', { class: 'fl', d: 'M' + x + ' 116V130' });
+    L_('path', { class: 'fh', d: 'M' + (x - 4) + ' 128L' + x + ' 135L' + (x + 4) + ' 128Z' });
+  });
+  txt(lEl, 152, 131, 'field', 'tkI');
+  function drawLong(p) {
+    const semi = p.sheath === 'semi', lifted = p.cond === 'earth';
+    vis(gIns, !semi); vis(gSemi, semi);
+    vis(gCond, !lifted); vis(gEarthC, lifted); vis(gFx, lifted);
+    el('sayL').textContent = nb((semi ? SEMI_TEXT : INS_TEXT) + (lifted ? ' ' + COND_TEXT : ''));
+    lEl.setAttribute('aria-label', 'The cable end in long section, from the middle out: conductor, XLPE, screen, foil and sheath. '
+      + (lifted ? 'A link joins foil and screen. The conductor is left earthed instead. ' : 'A link joins foil, screen and conductor. ')
+      + 'An inset shows the far end linked. '
+      + 'The black negative lead runs from the test set to the link. ' + (semi
+        ? 'The red positive lead runs to a roll spring wound round the sheath, on its thin conducting skin.'
+        : 'The red positive lead runs to an earth rod in the earth around the cable.') + (lifted ? ' Field arrows cross the sheath and the XLPE.' : ' Field arrows cross the sheath only.'));
+  }
+
+  // ---------- String B's results ----------
+  (function results() {
+    const g = el('bars'), BX0 = 44, BX1 = 324, bx = (v) => BX0 + v / 10 * (BX1 - BX0);
+    const B_ = (tag, a) => g.appendChild(K.svg(tag, a));
+    const rows = [['L1', f4a.value, 'held ' + forMin, 'bar'], ['L2', TRIP_KV, 'tripped after ' + TRIP_S + ' s', 'barW'], ['L3', f4a.value, 'held ' + forMin, 'bar']];
+    rows.forEach((q, k) => {
+      const y = 24 + 36 * k;
+      txt(g, 8, y + 17, q[0], 'lb');
+      B_('rect', { class: q[3], x: BX0, y: y, width: fx(bx(q[1]) - BX0), height: 24 });
+      if (q[3] === 'bar') txt(g, BX0 + 8, y + 17, q[2], 'tkI');
+      else txt(g, bx(q[1]) + 8, y + 17, q[2], 'tkI');
+    });
+    B_('path', { class: 'ref', d: 'M' + fx(bx(f4a.value)) + ' 20V132' });
+    txt(g, bx(f4a.value), 14, 'test voltage', 'tk', 'middle');
+    let d = 'M' + BX0 + ' 132H' + BX1;
+    [0, 2, 4, 6, 8, 10].forEach((v) => { d += 'M' + fx(bx(v)) + ' 132V136'; txt(g, bx(v), 150, String(v), 'tk', 'middle'); });
+    B_('path', { class: 'ax', d: d });
+    txt(g, (BX0 + BX1) / 2, 170, 'Voltage reached (kV)', 'tk', 'middle');
+    g.setAttribute('aria-label', 'Three bars, one for each core, showing the voltage each reached against a dashed line at the test voltage. L1 and L3 reach the line and held for '
+      + forMin + '. L2 stops far short, at ' + f1(TRIP_KV) + ' kV, and tripped after ' + TRIP_S + ' s.');
+  })();
+
+  // ---------- one animation: water drops passing through the break ----------
+  const anim = K.anim({ button: false, label: 'Water', step: (dt) => {
+    if (at() !== iFor) return false;
+    const d = Math.min(dt, 0.1);
+    flowT += d; flowLeft -= d; drawDrops();
+    return flowLeft > 0;
+  } });
+
+  // ---------- picks: one tap answers ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_SLIPS }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK] }; }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: C_RIGHT }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i4A); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['3b'], into: '#carry4a' });
+  const SPEC = {
+    [i4A]: { id: '4a', fig: f4a, dec: 1, accept: [], work: () => ['V = ' + RATE + ' kV/mm × thickness', '= ' + f4a.work.split(',')[0]],
+      slips: [{ value: F('4a.slip').value, hint: 'That is the cap. It applies only when ' + RATE + ' × the thickness goes over ' + CAP + ' kV.' },
+        { value: F('4a.slip2').value, hint: 'That is the rate for one millimetre. Multiply by the thickness.' },
+        { value: F('4a.slip3').value, hint: 'That is ' + FACT + ' kV per mm, the factory test on a new sheath. On site, use ' + RATE + ' kV per mm.' }],
+      hint: 'Not quite. Multiply ' + RATE + ' kV by the thickness in millimetres, then check it against the cap.',
+      after: f4a.text + ' is under the cap. Hold it for ' + forMin + '. That is ' + fS4a.work + ' across the sheath.' },
+    [iRes]: { id: '4b', fig: fL2s, dec: 2, accept: [], work: () => ['Stress = V ÷ thickness', '= ' + fL2s.work],
+      slips: [{ value: F('4b.slip').value, hint: 'That is the stress at the full ' + f4a.text + '. L2 tripped at ' + f1(TRIP_KV) + ' kV.' },
+        { value: F('4b.slip2').value, hint: 'That is the thickness ÷ the voltage. Stress is voltage ÷ thickness.' }],
+      hint: 'Not quite. Divide the voltage where it tripped by the thickness.',
+      after: RES_V },
+    [iCh]: { id: 'l4.changed', fig: fChg, dec: 1, accept: [], work: () => ['V = ' + RATE + ' kV/mm × thickness, at most ' + CAP + ' kV', '= ' + fChg.work],
+      slips: [{ value: F('l4.changed.slip').value, hint: 'That is over the ' + CAP + ' kV cap. Use ' + CAP + ' kV.' },
+        { value: F('l4.changed.slip2').value, hint: 'That is the rate for one millimetre. Multiply by the thickness first.' },
+        { value: F('l4.changed.slip3').value, hint: 'That is ' + FACT + ' kV per mm, the factory test on a new sheath. On site, use ' + RATE + ' kV per mm.' }],
+      hint: 'Not quite. Multiply ' + RATE + ' kV by the thickness, then check it against the cap.',
+      after: fChg.text + ' across ' + f1(CH_T) + ' mm is ' + f1(fChg.value) + ' ÷ ' + f1(CH_T) + ' = ' + fChgS.text + '. The cap leaves a thick sheath below ' + RATE + ' kV per mm.' },
+  };
+  const BOX = { [i4A]: '#ans-4a', [iRes]: '#ans-4b', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work() };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const wbox = K.el('div', { class: 'wl' });
+  const wl = WL.map((x, k) => {
+    const box = K.el('div', { class: 'line' });
+    box.appendChild(K.el('span', { class: 'n' }, String(k + 1)));
+    box.appendChild(write(K.el('p', { class: x.calc ? 'w' : '' }), x.w));
+    wbox.appendChild(box);
+    return box;
+  });
+  const wnote = wbox.appendChild(K.el('p', { class: 'sub' }, nb(WK_NOTE)));
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wl.length) return;
+    const w = wl[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));
+  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));
+  paras(el('moreV'), WHY_MORE);
+  el('capV').textContent = nb('The rule: ' + RATE + ' kV d.c. per millimetre, at most ' + CAP + " kV. String B's " + fT.text + ' is a practice value.');
+  el('noteL').textContent = nb(NOTE_L);
+  paras(el('resNote'), RES_P3);
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  const ON = { scen: [i4A], carry4a: [i4A], pre: [i4A],
+    wrapX: [iFor], warnFor: [iFor],
+    wrapV: [iWhy], ctlV: [iWhy], outsV: [iWhy], sayV: [iWhy], moreV: [iWhy], capV: [iWhy],
+    wrapL: [iLink], ctlL: [iLink], sayL: [iLink], outsL: [iLink], noteL: [iLink],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-4a': [i4A], 'ans-4b': [iRes], 'ans-ch': [iCh], wrapR: [iRes], resNote: [iRes], wr1: [iB1], keep: [iK], fin: [iK] };
+  const ASK = {
+    [iWhy]: 'Drag the thickness from ' + fT.text + ' up to 4.0 mm.',
+    [iLink]: 'Switch between the two sheath types. Then set the conductor to Left earthed.',
+    [iWk]: 'Work each line yourself first, then press Show.',
+  };
+
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i4A) scen.el.open = true; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    paras(el('pre'), d.pre || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, d.terms);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (ASK[i] ? ' ask' : '');
+    sub.textContent = nb(ASK[i] ? ASK[i]
+      : i === i4A ? 'Give it in kV, to 1 place.'
+      : i === iRes ? 'Give it in kV/mm, to 2 places.'
+      : i === iCh ? 'Same method, new numbers. These are practice values. Give it in kV, to 1 place.'
+      : i === iB1 ? markLine('b1')
+      : i === iK ? 'One card to come back to on a real job.' : '');
+    sub.hidden = !sub.textContent;
+
+    drawVolts(p);
+    drawLong(p);
+    const fk = i === iFor ? 'F' : '';
+    if (fk && fk !== flowKey) { flowLeft = 4; if (!anim.playing()) anim.play(); }
+    flowKey = fk;
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines, and the note once they are all shown.
+    wl.forEach((w, k) => { w.hidden = k >= lines; });
+    wnote.hidden = lines < wl.length;
+    nextLine.el.hidden = lines >= wl.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wl.length;
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '');
+    after.hidden = !after.textContent;
+    if (i === iRes) el('resNote').hidden = !typedDone;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['resNote', String(i)], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);
+  const IEC = 'https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007';
+  K.check('Test voltage 4.0 kV at 1.0 mm, 8.8 at 2.2, 10.0 at 2.5, 3.0 and 4.0 mm; stress 4.00, 4.00, 4.00, 3.33 and 2.50 kV/mm', () => {
+    const A = (t) => K.at({ t: t });
+    return f1(A(1).V) === '4.0' && f1(A(2.2).V) === '8.8' && f1(A(2.5).V) === '10.0' && f1(A(3).V) === '10.0' && f1(A(4).V) === '10.0'
+      && f2(A(1).E) === '4.00' && f2(A(2.2).E) === '4.00' && f2(A(2.5).E) === '4.00' && f2(A(3).E) === '3.33' && f2(A(4).E) === '2.50';
+  });
+  K.check('The voltage rises with thickness up to 2.5 mm, then stays at 10 kV while the stress falls', () => {
+    for (let k = 10; k < 40; k++) {
+      const a = K.at({ t: k / 10 }), b = K.at({ t: (k + 1) / 10 });
+      if (k < 25 && !(b.V > a.V && near(a.E, RATE) && near(b.E, RATE))) return false;
+      if (k >= 25 && !(near(b.V, CAP) && b.E < a.E)) return false;
+    }
+    return near(CAPT, CAP / RATE);
+  });
+  K.check('A d.c. voltage of 4 kV per millimetre of specified oversheath thickness, with a maximum of 10 kV d.c., for 1 min', () =>
+    RATE === 4 && CAP === 10 && MIN === 1 && near(Vof(2), 8) && near(Vof(3), 10), { source: IEC });
+  K.check('In the factory, a d.c. voltage of 8 kV per millimetre of specified nominal oversheath thickness for 1 min: 17.6 kV on 2.2 mm', () =>
+    FACT === 8 && near(r1(FACT * T_B), F('4a.slip3').value) && near(r1(FACT * CH_T), F('l4.changed.slip3').value) && near(FACT, 2 * RATE), { source: IEC });
+  K.check('An insulating outer sheath gets a 10 kV d.c. test for 1 minute between cable sheath and earth', () => FLAT === 10 && MIN === 1,
+    { source: 'https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf' });
+  K.check('Earth the screens after an insulation resistance test on a sheath for at least 5 minutes', () => near(fEarth.value, 5) && FIVE * MIN >= 5,
+    { source: 'https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf' });
+  K.check('Water trees grow relatively slowly over a period of months or years', () => TREE2 === 'months or years later',
+    { source: 'https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content' });
+  K.check('Recall 8.0 kV on 2.0 mm (slips 4.0 and 10.0); check P 6.0 kV and 4.00 kV/mm, Q 14.0 by the rate, so 10.0 kV and 2.86 kV/mm; worked example 7.2 kV on 1.8 mm', () =>
+    near(REC_T, 2) && near(r1(Vof(REC_T)), fRec.value) && near(RATE, fRS2.value) && near(CAP, fRS1.value)
+    && near(P_T, 1.5) && near(r1(vP), fP.value) && near(r2(vP / P_T), fPs.value)
+    && near(Q_T, 3.5) && near(r1(RATE * Q_T), 14) && near(r1(vQ), fQ.value) && near(r2(vQ / Q_T), fQs.value)
+    && near(WEX_T, 1.8) && near(r1(Vof(WEX_T)), fWex.value) && near(FIVE * MIN, fEarth.value));
+  K.check("4(a): 4 × 2.2 = 8.8 kV and 4.00 kV/mm; L2's trip at 3.2 kV after 20 s is 1.45 kV/mm; changed numbers 3.0 mm: 12.0 by the rate, so 10.0 kV and 3.33 kV/mm", () =>
+    near(r1(Vof(T_B)), f4a.value) && near(r2(Vof(T_B) / T_B), fS4a.value) && near(TRIP_KV, 3.2) && TRIP_S === 20 && near(r2(TRIP_KV / T_B), fL2s.value)
+    && near(CH_T, 3) && near(r1(RATE * CH_T), F('l4.changed.slip').value) && near(r1(Vof(CH_T)), fChg.value) && near(r2(Vof(CH_T) / CH_T), fChgS.value)
+    && near(K.at({ sheath: 'semi' }).vSh, f4a.value) && near(K.at({ sheath: 'ins' }).vSh, f4a.value));
+  K.check('With conductor, foil and screen linked, the XLPE has 0.0 kV across it on both sheath types; with the conductor left earthed, it takes 8.8 kV', () =>
+    K.at({ sheath: 'ins', cond: 'link' }).vX === 0 && K.at({ sheath: 'semi', cond: 'link' }).vX === 0
+    && near(K.at({ sheath: 'ins', cond: 'earth' }).vX, f4a.value) && near(K.at({ sheath: 'semi', cond: 'earth' }).vX, f4a.value)
+    && near(K.at({ cond: 'earth' }).vSh, f4a.value));
+  K.check("4(b) slips: 8.8 ÷ 2.2 = 4.00 at the full test voltage, 2.2 ÷ 3.2 = 0.69 upside down", () =>
+    near(r2(f4a.value / T_B), F('4b.slip').value) && near(r2(T_B / TRIP_KV), F('4b.slip2').value));
+  K.check('Field lines: 8 at 4.00 kV/mm, 7 at 3.33, 5 at 2.50 kV/mm', () =>
+    nLines(K.at({ t: 2.2 }).E) === 8 && nLines(K.at({ t: 3 }).E) === 7 && nLines(K.at({ t: 4 }).E) === 5);
+  K.check("Every slip lies outside its answer's accepted figures", () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.05;
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+
+  K.ready();
+</script>

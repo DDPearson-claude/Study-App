@@ -1,0 +1,107 @@
+{
+  "lesson": "i3",
+  "title": "Insulation resistance over ten minutes: IR, DAR and PI",
+  "reviewed": "2026-10-20",
+  "attempt": "a4 (i3.body.final.html matches i3.body4.html)",
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 4,
+    "trade": 4,
+    "honest": 3,
+    "pleasure": 4
+  },
+  "summary": "A clear, well-paced refresher. The recall and its skip work, the three-currents interactive shows the cause well, and every figure checks by hand against case.json. Honesty scores 3 because the IEEE 43 caution on screen 7 is misapplied: by the lesson's own halving rule, L3 at 12 °C is below the 5000 MΩ limit once corrected to 40 °C. One rewrite round is needed for the four fixes. Checked by hand: dry/damp/wet 18.1/24.1/64.0, 7.16/7.94/10.00 and 2.19/2.26/2.40 GΩ; DAR 1.33/1.11/1.03; PI 2.66/1.26/1.06; leakage 78/500/2083 nA; absorption 199 and 129 nA; temperature 96.4/256.0, 42.0/111.4, 12.1/32.0 and 6.0/16.0 GΩ; check X 1.07 and Y 3.00; Q 2.64 mC; E 6.60 J; L3 1.31 and 2.61; 3a 2.58; 3b 1.09 (DAR 1.05); 3c 50 min; changed numbers 1.20. All correct.",
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 7, worked example, third note (and case.json a.piHigh, and the matching K.check)",
+      "what": "The IEEE 43 caution is misapplied: the limit is 5000 MΩ corrected to 40 °C, but L3's 23.0 GΩ was read at 12 °C. By the lesson's own halve-per-10 °C rule, that is about 3.3 GΩ at 40 °C (23.0 × 2^−2.8), below the limit, so the caution does not apply to String B. The phrase 'corrected to 40 °C' is not in the research quote, and the sentence names a source. Replace it with the sourced caution that matters: some insulation shows very little absorption, so read a core's PI beside its sister cores. That way L2's 1.09 stands out against L1's 2.58 and L3's 2.61."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 3, the read sentence (WHY_READ)",
+      "what": "'Only the climb tells them apart' is absolute and untrue. The dry and wet cores differ tenfold at 1 minute (24.1 against 2.26 GΩ), and screen 7 itself says to set a core beside the other two. Write 'Against the client's 1 GΩ alone, only the climb tells them apart.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 13, Keep this card, The rule",
+      "what": "'Q = C × V   E = ½ × C × V²' renders as 'Q = C × V E = ½ × C × V²' because the spaces collapse, so it reads as one product. Put E = ½ × C × V² on its own line: one formula a line."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 5, right-answer feedback; screen 9 (3b), the text after the answer",
+      "what": "'A steady leakage current carries most of its current' and 'a steady leakage carries most of its current' each take two reads. Write 'Most of X's current is steady leakage, and leakage does not die away.' Write 'Most of L2's current is steady leakage.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Lesson JSON practice (the Book), Common mistakes, last-but-one bullet",
+      "what": "'Its absorption dies almost at once' is not in the cited quote, which only says 1 to 2 is acceptable for very low capacitance. The sourced reason is that such equipment shows very little absorption, so say that."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4, the bar picture",
+      "what": "On a linear 0 to 260 GΩ axis, the 1-minute bar is about 5 px wide at 40 °C, which is the still. So 'both bars shrink by the same factor' is hard to see at 360 px. A log axis would show the constant ratio, or a third bar for the PI."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4, the words under the picture",
+      "what": "The sketch scales both readings by exactly the same factor, so the PI is fixed at 2.66 by construction, while the text says 'barely moves'. Add one short line: 'The sketch assumes both readings fall alike.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9, Section A 3(b)",
+      "what": "The brief promised 'determine L2's PI and rate it'. The page asks only for the number, then tells him the rating and the 1 GΩ trap. A one-tap 'How does it rate, and would it go through?' after the typed answer would make him do the judgment the lesson is about."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 8 to 10, Section A",
+      "what": "The parts read as separate sums. A small test-record table could fill in L1, L2 and L3 as he answers: 30 s, 1 min, 10 min, DAR, PI, rating. It would read like the sheet he fills in on the job, and carry 3a into 3b."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 7 and 8, the givens against the working",
+      "what": "The givens are printed to 1 place (17.5, 23.0, 18.0, 24.0, 62.0 GΩ), but the working uses 2 places (23.00 ÷ 17.50, 62.00 ÷ 24.00). Print each given the way it is worked."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 13, Keep this card",
+      "what": "The card gives the discharge time but not the discharge order. Add the sequence as one line: display shows discharged, discharge stick, hook stick, hand earth, then earths on core and screen at both ends. It is the one sequence he would want in his hand on a real job."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2, What it is for",
+      "what": "Nothing links this to the IR test he already does on installations (500 V, MΩ, one reading). One sentence would start from what he knows: 'The same test you do on an installation, at 5 kV, read over 10 minutes instead of once.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 or screen 7",
+      "what": "The page never says why you would take a DAR instead of a PI: it is done in 1 minute rather than 10. Add one line if research supports it."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the line under the Dry setting",
+      "what": "'Is all but gone by 10 minutes' comes from the sketch's single 70 s time constant, not from real insulation. Write 'in this sketch, it is all but gone by 10 minutes'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6, the timeline",
+      "what": "The example uses a 1-minute test, but String B's IR test runs 10 minutes, so the timeline can read as String B's own test. Call it a 1-minute spot reading. Keeping 3(c)'s answer off this screen is right."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4, the temperature control",
+      "what": "The control's value reads '30°C', but the text writes '30 °C'. This is kit formatting."
+    },
+    {
+      "severity": "polish",
+      "where": "Build report a4, warnings",
+      "what": "The report warns: 'The page height keeps growing with the frame' at 340 px. Check that the lesson frame does not keep growing in the app."
+    }
+  ],
+  "checked": {
+    "motion": "Film s1: the current arrows cross the XLPE from the screen (red, +) to the core (black, −), fade in and out at the edges, and settle by 4.0 s. Film s2: the sweep cursor runs and settles by 4.6 s. Nothing pops in.",
+    "layout": "At 360 px light and dark, and at 1280 px, nothing is clipped or overlapping. Labels are legible. The report shows no overflow, clipping, undefined or NaN.",
+    "interactions": "Recall: one go. Right gives Still there, the working, Refresh the why and Skip to the practice (to 3a). Wrong names the slip and carries on. Check, slips, hints and the working after two misses are wired for 3a, 3b, 3c and the changed numbers. Section B moves on once answered. Steps that ask him to act (screens 3, 4 and 7) each have a read sentence and a still. There are no timers, marks or grades."
+  }
+}

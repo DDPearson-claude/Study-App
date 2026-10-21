@@ -302,7 +302,7 @@
    "label": "Oversheath test after installation",
    "value": "4 kV d.c. per mm of specified thickness, maximum 10 kV d.c., 1 min, all metallic layers under the oversheath connected together",
    "text": "4 kV d.c. per mm of specified thickness, maximum 10 kV d.c., 1 min, all metallic layers under the oversheath connected together",
-   "cite": "IEC 60229:2007 clause 5 (public preview): to research"
+   "cite": "IEC 60229:2007 clause 5, public preview on iTeh (quoted: research sources 125, 126 and 127)"
   },
   {
    "id": "p.farm",
@@ -603,6 +603,30 @@
    "cite": "practice value (the running case is made up for practice; no real wind farm)"
   },
   {
+   "id": "t.vlfSet",
+   "label": "VLF set load rating (a maker's typical, 200 kV peak class)",
+   "value": "0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz, 3.75 µF at 0.02 Hz",
+   "text": "0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz, 3.75 µF at 0.02 Hz",
+   "cite": "High Voltage Inc, VLF-200CMF data sheet: 0 to 200 kV peak, 0.75 µF at 0.10 Hz to 3.75 µF at 0.02 Hz (research source 268); a set is rated by the load capacitance it can test at each frequency, and at 0.05 Hz twice the load or cable length can be tested (sources 265, 267); about 200 kV peak is the most any 0.1 Hz set offers (source 270)",
+   "note": "A typical published rating. The rating scales as 1 ÷ f: 0.75 × (0.1 ÷ 0.05) = 1.5 µF, 0.75 × (0.1 ÷ 0.02) = 3.75 µF. A smaller 120 kV peak set is 0.55 µF at 0.1 Hz (source 269)."
+  },
+  {
+   "id": "t.vlfPeak",
+   "label": "A sine wave's rms against its peak",
+   "value": "rms = 0.707 × peak, so peak = rms × 1.4142",
+   "text": "rms = 0.707 × peak, so peak = rms × 1.4142",
+   "cite": "High Voltage Inc, quoting IEEE 400.2-2013 (research source 271): for a sinusoidal waveform the rms is 0.707 of the peak value; Table 3, 69 kV class: installation 75 kV rms, 106 kV peak (source 112)",
+   "note": "VLF sets are rated in kV peak, the test voltage in kV rms."
+  },
+  {
+   "id": "p.vlfSet",
+   "label": "VLF set on the job",
+   "value": "a 200 kV peak class set: 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz, 3.75 µF at 0.02 Hz",
+   "text": "a 200 kV peak class set: 0.75 µF at 0.1 Hz, 1.5 µF at 0.05 Hz, 3.75 µF at 0.02 Hz",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); modelled on t.vlfSet. The real rating is on the set's own data sheet and label"
+  },
+  {
    "id": "p.Rf",
    "label": "L2 core to screen after the breakdown",
    "value": 35,
@@ -646,6 +670,22 @@
    "text": "1441 m, DNORM negative, red",
    "practice": true,
    "cite": "practice value (the running case is made up for practice; no real wind farm); LIRA reading"
+  },
+  {
+   "id": "t.sheathEarth",
+   "label": "Earthing the screens after a sheath test (a maker's typical value)",
+   "value": "at least 5 minutes after a sheath insulation test, before handling or other tests",
+   "text": "at least 5 minutes after a sheath insulation test, before handling or other tests",
+   "cite": "Nexans, Medium Voltage TR-XLPE Cables, installation tests (quoted: research source 258); a medium-voltage cable and a 1000 V sheath test, so a floor for the case, not its rule"
+  },
+  {
+   "id": "p.sheathEarth",
+   "label": "Time the screens stay earthed after the 8.8 kV sheath test",
+   "value": 5,
+   "unit": "min",
+   "text": "5 min",
+   "practice": true,
+   "cite": "practice value (the running case is made up for practice; no real wind farm); 5 × the 1 minute the voltage was applied (the Megger rule in t.discharge), which also meets the maker's 'at least 5 minutes' in t.sheathEarth. The real time is the client's or the cable maker's procedure."
   },
   {
    "id": "p.irTau",
@@ -733,6 +773,13 @@
    "text": "Assumed: The core oversheaths are semi-conductive. So the positive lead goes to the sheath's semi-con layer through the roll spring (notes p.4). Read it off the cable data sheet."
   },
   {
+   "id": "a.coreSheath",
+   "label": "The sheath test is made on each core's own oversheath",
+   "why": "A three-core 66 kV array cable has a polyethylene sheath on each power core (research source 253); the armour and the polypropylene yarn serving sit outside the three cores (source 254) and are open to seawater, so the case does not test them. No source found says how the outer electrode is made on a subsea cable on site: the case uses the notes' two methods (roll spring on a semi-conductive sheath, earth electrode on an insulating one) and a.semicon.",
+   "status": "assumption",
+   "text": "Assumed: The sheath test is made on each core's own oversheath. A three-core 66 kV array cable has a polyethylene sheath on each power core (research source 253); the armour and the polypropylene yarn serving sit outside the three cores (source 254) and are open to seawater, so the case does not test them. No source found says how the outer electrode is made on a subsea cable on site: the case uses the notes' two methods (roll spring on a semi-conductive sheath, earth electrode on an insulating one) and a.semicon."
+  },
+  {
    "id": "a.trapped",
    "label": "Worst case trapped charge: switched off at the peak of U0",
    "why": "A de-energised cable can be left charged. The case works the most it could hold. Sourced: 'trapped charge' left on the capacitance of equipment, for example after insulation resistance testing a length of cable (IET Wiring Matters, research source 186); high-voltage cables are to be treated as capacitors that store energy (source 188); E = ½CV² (source 191). The peak-of-U0 worst case itself is the course's own.",
@@ -759,6 +806,34 @@
    "status": "contested",
    "why": "Megger's Table I names PI below 1 dangerous, 1 to 2 questionable, 2 to 4 good, above 4 excellent, and DAR 1.0 to 1.25 questionable, 1.4 to 1.6 good, above 1.6 excellent with a gap between 1.25 and 1.4 (research sources 239, 240); a Megger Q&A calls PI 2.0 or higher and DAR 1.4 or higher good (sources 96, 97). The notes use poor, questionable, okay, good and DAR 1.25 and 1.6 with no gap (sources 26, 27). Practice readings are placed on the notes' bands; the others are shown as a maker's view.",
    "text": "Contested: the lesson places String B on the notes' PI and DAR bands and shows Megger's Table I as a maker's different view (research sources 239, 240, 96, 97). The client's criterion settles pass or fail."
+  },
+  {
+   "id": "a.vlfRange",
+   "label": "The VLF voltage range: the notes' 1.5-2.5 U0 is used, and IEEE words it differently",
+   "status": "contested",
+   "why": "The notes give 1.5 to 2.5 U0 for installation, acceptance and maintenance (notes p.7). IEEE 400.2-2013 as reproduced by High Voltage Inc bases installation and acceptance levels on the most used worldwide practice 'from less than 2 U0 to 3U0', with maintenance about 75% of acceptance (research sources 108, 109); its 69 kV class row is 75, 84 and 63 kV rms for installation, acceptance and maintenance (source 112). At U0 = 38 kV the case spec of 2 U0 = 76 kV rms sits inside both the notes' range and the guide's row. The lesson teaches the notes' range and the guide's wording side by side; the client's specification settles the level.",
+   "text": "Contested: the VLF voltage range. The notes give 1.5 to 2.5 U0; IEEE 400.2 (as reproduced by High Voltage Inc) rests its installation and acceptance levels on practice of less than 2 U0 up to 3 U0 and sets maintenance at about 75% of acceptance (research sources 108, 109, 112). The client's specification settles it."
+  },
+  {
+   "id": "a.vlf66",
+   "label": "A 66 kV array cable is withstand-tested at 0.1 Hz VLF in this case, though a resonant AC test is also used",
+   "status": "contested",
+   "why": "The notes and IEEE 400.2 (a guide for shielded cable rated 5 kV and above; its table stops at the 69 kV class) teach a 0.1 Hz VLF withstand (research sources 108, 116). A test-system maker reads IEC 63026 as requiring a test frequency of 10 to 500 Hz for commissioning cables above 36 kV (source 286), and a contractor tests 66 kV array strings with resonant test sets per IEC 63026 (sources 285, 287, 288). CIGRE TB 490, as quoted by INMR, accepts a lower frequency range down to 10 Hz for long submarine cables (source 289). The IEC 63026 clause text is paywalled and was not seen. The case follows the notes, with a client specification that asks for VLF, and the lesson tells Dan a 66 kV job's specification may call for a resonant AC test instead.",
+   "text": "Contested: whether VLF is the test for a 66 kV array cable. The notes and IEEE 400.2 teach 0.1 Hz VLF; a test-system maker says IEC 63026 asks for 10 to 500 Hz on cables above 36 kV, and resonant sets are used on 66 kV array strings (research sources 285-289). The clause itself was not seen, so the client's specification settles it. The case asks for VLF."
+  },
+  {
+   "id": "a.sheathLevels",
+   "label": "The sheath test level: the notes' rule is used, and other levels exist",
+   "status": "contested",
+   "why": "The notes and IEC 60229 give 4 kV d.c. per mm of specified thickness, at most 10 kV, for 1 minute (research sources 29, 125). A network operator specifies 10 kV d.c. for 1 minute on new insulated-sheath cable and 5 kV for 1 minute on 6.6 to 33 kV polymeric cable (sources 247, 248); a cable maker's guide for medium-voltage cable uses a 1000 V insulation test (source 259). IEC 60840, whose range includes 66 kV, leaves submarine cables out of its scope and says the standard tests may need modifying (source 262). The case uses the notes' rule; the client's specification settles the level on a real job.",
+   "text": "Contested: the sheath test level. The notes and IEC 60229 give 4 kV per mm up to 10 kV for 1 minute; a network operator uses a flat 10 kV (5 kV on 6.6 to 33 kV polymeric cable); a cable maker's medium-voltage guide uses 1000 V; IEC 60840 leaves submarine cables out of its scope (research sources 29, 125, 247, 248, 259, 262). The case uses the notes' rule and the client's specification settles it."
+  },
+  {
+   "id": "a.sheathWater",
+   "label": "A sheath fault matters because water gets in and degrades the insulation over time",
+   "status": "sourced",
+   "why": "The notes' added background (water treeing years later) is supported: water passing through a damaged sheath or joint causes water treeing under the electric field (research source 241); water trees grow over months or years until an electrical tree forms and the cable faults (sources 242, 243); moisture, a high field, defects and time promote them (source 244). A utility guide says failure does not follow a breach at once (source 246) and a commissioning review says failures are more often due to sheath problems than to the main insulation (source 263).",
+   "text": "Sourced: a sheath fault lets water in, and water trees grow in the insulation over months or years (research sources 241-244, 246, 263). The notes' added background holds."
   }
  ],
  "lessons": [
@@ -792,7 +867,8 @@
    "n": 4,
    "title": "The sheath test: 4 kV per millimetre",
    "sectionA": [
-    "4a"
+    "4a",
+    "4b"
    ]
   },
   {
@@ -2368,7 +2444,7 @@
   },
   {
    "id": "4a",
-   "label": "Sheath test voltage for the case cable's 2.2 mm sheath",
+   "label": "Sheath test voltage for String B's 2.2 mm core sheath",
    "value": 8.8,
    "unit": "kV",
    "rule": "V = 4 kV/mm × t, at most 10 kV",
@@ -2385,7 +2461,7 @@
    "work": "4 × 2.2 = 8.8 kV, under the 10 kV cap, held 1 minute"
   },
   {
-   "id": "l4.stressL2",
+   "id": "4b",
    "label": "Stress across L2's sheath when it tripped",
    "value": 1.45,
    "unit": "kV/mm",
@@ -2395,9 +2471,10 @@
     "t": "2.2 mm"
    },
    "cite": "p.sheathL2; p.sheathT",
-   "kind": "worked",
+   "kind": "case",
    "status": "worked",
    "lesson": "i4",
+   "part": "4b",
    "practice": true,
    "text": "1.45 kV/mm",
    "work": "3.2 ÷ 2.2 = 1.45 kV/mm"
@@ -2452,6 +2529,341 @@
    "practice": true,
    "text": "3.33 kV/mm",
    "work": "10 ÷ 3.0 = 3.33 kV/mm"
+  },
+  {
+   "id": "l4.recall.slip1",
+   "label": "Recall slip: the 10 kV cap used whatever the thickness",
+   "value": 10,
+   "unit": "kV",
+   "rule": "the cap taken for every sheath",
+   "inputs": {
+    "cap": "10 kV"
+   },
+   "cite": "n.sheath (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "10.0 kV",
+   "work": "10 = 10.0 kV, the cap, used whatever the thickness"
+  },
+  {
+   "id": "l4.recall.slip2",
+   "label": "Recall slip: the thickness left out",
+   "value": 4,
+   "unit": "kV",
+   "rule": "4 kV/mm taken as the voltage",
+   "inputs": {
+    "rate": "4 kV/mm"
+   },
+   "cite": "n.sheath (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "4.0 kV",
+   "work": "4 × 1 = 4.0 kV, the rate per mm with the thickness left out"
+  },
+  {
+   "id": "4a.slip",
+   "label": "Slip: the 10 kV cap used for String B's sheath",
+   "value": 10,
+   "unit": "kV",
+   "rule": "the cap taken for every sheath",
+   "inputs": {
+    "cap": "10 kV"
+   },
+   "cite": "n.sheath (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "10.0 kV",
+   "work": "10 = 10.0 kV, the cap, used whatever the thickness"
+  },
+  {
+   "id": "4a.slip2",
+   "label": "Slip: the thickness left out",
+   "value": 4,
+   "unit": "kV",
+   "rule": "4 kV/mm taken as the voltage",
+   "inputs": {
+    "rate": "4 kV/mm"
+   },
+   "cite": "n.sheath (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "4.0 kV",
+   "work": "4 × 1 = 4.0 kV, the rate per mm with the thickness left out"
+  },
+  {
+   "id": "4a.slip3",
+   "label": "Slip: the factory routine rate, 8 kV/mm, used on site",
+   "value": 17.6,
+   "unit": "kV",
+   "rule": "8 kV/mm × t (IEC 60229's factory routine test)",
+   "inputs": {
+    "rate": "8 kV/mm",
+    "t": "2.2 mm"
+   },
+   "cite": "IEC 60229 routine test (research source 128); the site rule is 4 kV/mm",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "17.6 kV",
+   "work": "8 × 2.2 = 17.6 kV"
+  },
+  {
+   "id": "4b.slip",
+   "label": "Slip: L2's stress worked at the full test voltage",
+   "value": 4,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t, with the test voltage for the trip voltage",
+   "inputs": {
+    "V": "8.8 kV",
+    "t": "2.2 mm"
+   },
+   "cite": "4a; p.sheathT (L2 tripped at 3.2 kV)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "4.00 kV/mm",
+   "work": "8.8 ÷ 2.2 = 4.00 kV/mm"
+  },
+  {
+   "id": "4b.slip2",
+   "label": "Slip: thickness divided by voltage",
+   "value": 0.69,
+   "unit": "kV/mm",
+   "rule": "t ÷ V, upside down",
+   "inputs": {
+    "t": "2.2 mm",
+    "V": "3.2 kV"
+   },
+   "cite": "p.sheathL2; p.sheathT (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "0.69 kV/mm",
+   "work": "2.2 ÷ 3.2 = 0.69 kV/mm"
+  },
+  {
+   "id": "l4.changed.slip3",
+   "label": "Changed numbers slip: the factory routine rate, 8 kV/mm, used on site",
+   "value": 24,
+   "unit": "kV",
+   "rule": "8 kV/mm × t (IEC 60229's factory routine test)",
+   "inputs": {
+    "rate": "8 kV/mm",
+    "t": "3.0 mm"
+   },
+   "cite": "IEC 60229 routine test (research source 128); the site rule is 4 kV/mm",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "24.0 kV",
+   "work": "8 × 3.0 = 24.0 kV"
+  },
+  {
+   "id": "l4.stress4a",
+   "label": "Stress across String B's 2.2 mm sheath at 8.8 kV",
+   "value": 4,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t",
+   "inputs": {
+    "V": "8.8 kV",
+    "t": "2.2 mm"
+   },
+   "cite": "4a; p.sheathT",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "4.00 kV/mm",
+   "work": "8.8 ÷ 2.2 = 4.00 kV/mm"
+  },
+  {
+   "id": "l4.capT",
+   "label": "Thickness where 4 kV/mm meets the 10 kV cap",
+   "value": 2.5,
+   "unit": "mm",
+   "rule": "t = 10 kV ÷ 4 kV/mm",
+   "inputs": {
+    "cap": "10 kV",
+    "rate": "4 kV/mm"
+   },
+   "cite": "n.sheath; t.sheathIEC",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "2.5 mm",
+   "work": "10 ÷ 4 = 2.5 mm"
+  },
+  {
+   "id": "l4.pic.t1",
+   "label": "Picture: test voltage for a 1.0 mm sheath (slider's low end)",
+   "value": 4,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "1.0 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "4.0 kV",
+   "work": "4 × 1.0 = 4.0 kV, under the 10 kV cap"
+  },
+  {
+   "id": "l4.pic.t4",
+   "label": "Picture: test voltage for a 4.0 mm sheath (slider's high end)",
+   "value": 10,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "4.0 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "10.0 kV",
+   "work": "4 × 4.0 = 16.0 kV, over the cap, so 10.0 kV"
+  },
+  {
+   "id": "l4.pic.t4s",
+   "label": "Picture: stress across a 4.0 mm sheath at the cap",
+   "value": 2.5,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t",
+   "inputs": {
+    "V": "10.0 kV",
+    "t": "4.0 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "2.50 kV/mm",
+   "work": "10.0 ÷ 4.0 = 2.50 kV/mm"
+  },
+  {
+   "id": "l4.check.thin",
+   "label": "Check: test voltage for a 1.5 mm sheath",
+   "value": 6,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "1.5 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "6.0 kV",
+   "work": "4 × 1.5 = 6.0 kV, under the 10 kV cap"
+  },
+  {
+   "id": "l4.check.thinS",
+   "label": "Check: stress across the 1.5 mm sheath",
+   "value": 4,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t",
+   "inputs": {
+    "V": "6.0 kV",
+    "t": "1.5 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "4.00 kV/mm",
+   "work": "6.0 ÷ 1.5 = 4.00 kV/mm"
+  },
+  {
+   "id": "l4.check.thick",
+   "label": "Check: test voltage for a 3.5 mm sheath",
+   "value": 10,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "3.5 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "10.0 kV",
+   "work": "4 × 3.5 = 14.0 kV, over the cap, so 10.0 kV"
+  },
+  {
+   "id": "l4.check.thickS",
+   "label": "Check: stress across the 3.5 mm sheath at the cap",
+   "value": 2.86,
+   "unit": "kV/mm",
+   "rule": "stress = V ÷ t",
+   "inputs": {
+    "V": "10.0 kV",
+    "t": "3.5 mm"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "2.86 kV/mm",
+   "work": "10.0 ÷ 3.5 = 2.86 kV/mm"
+  },
+  {
+   "id": "l4.wex",
+   "label": "Worked example: test voltage for a 1.8 mm insulating sheath",
+   "value": 7.2,
+   "unit": "kV",
+   "rule": "V = 4 kV/mm × t, at most 10 kV",
+   "inputs": {
+    "t": "1.8 mm (practice value)"
+   },
+   "cite": "n.sheath",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "practice": true,
+   "text": "7.2 kV",
+   "work": "4 × 1.8 = 7.2 kV, under the 10 kV cap, held 1 minute"
+  },
+  {
+   "id": "l4.earth",
+   "label": "Least time the screens stay earthed after a 1-minute sheath test",
+   "value": 5,
+   "unit": "min",
+   "rule": "5 × the time the voltage was applied",
+   "inputs": {
+    "time": "1 min"
+   },
+   "cite": "n.discharge; t.discharge; t.sheathEarth (at least 5 minutes)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "5 min",
+   "work": "5 × 1 = 5 min"
+  },
+  {
+   "id": "l4.changed.slip2",
+   "label": "Changed numbers slip: the thickness left out",
+   "value": 4,
+   "unit": "kV",
+   "rule": "4 kV/mm taken as the voltage",
+   "inputs": {
+    "rate": "4 kV/mm"
+   },
+   "cite": "n.sheath (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i4",
+   "text": "4.0 kV",
+   "work": "4 × 1 = 4.0 kV, the rate per mm with the thickness left out"
   },
   {
    "id": "l5.recall.lo",
@@ -2610,7 +3022,7 @@
   {
    "id": "l5.kva50",
    "label": "Reactive power the test set must supply at 50 Hz",
-   "value": 958.1,
+   "value": 958.4,
    "unit": "kVA",
    "rule": "S = V × I",
    "inputs": {
@@ -2622,8 +3034,13 @@
    "status": "worked",
    "lesson": "i5",
    "practice": true,
-   "text": "958.1 kVA",
-   "work": "76 × 12.606 = 958.1 kVA"
+   "accept": {
+    "min": 958,
+    "max": 958.5,
+    "why": "the unrounded current, 12.607 A, gives 958.1 kVA"
+   },
+   "text": "958.4 kVA",
+   "work": "76 × 12.61 = 958.4 kVA"
   },
   {
    "id": "l5.kva01",
@@ -2641,7 +3058,7 @@
    "lesson": "i5",
    "practice": true,
    "text": "1.92 kVA",
-   "work": "76 × 0.025213 = 1.92 kVA"
+   "work": "76 × 0.02521 = 1.92 kVA"
   },
   {
    "id": "l5.changed",
@@ -2661,6 +3078,446 @@
    "practice": true,
    "text": "32.57 mA",
    "work": "2π × 0.1 × 0.682 × 10⁻⁶ × 76 000 = 32.57 mA"
+  },
+  {
+   "id": "l5.peak",
+   "label": "The case test voltage as a peak value",
+   "value": 107.5,
+   "unit": "kV",
+   "rule": "peak = rms × 1.4142",
+   "inputs": {
+    "rms": "76 kV"
+   },
+   "cite": "5a; t.vlfPeak",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "107.5 kV",
+   "work": "76 × 1.4142 = 107.5 kV peak"
+  },
+  {
+   "id": "l5.maxLen",
+   "label": "Longest core one 0.75 µF set can test at 0.1 Hz",
+   "value": 3.41,
+   "unit": "km",
+   "rule": "length = rating ÷ capacitance per km",
+   "inputs": {
+    "rating": "0.75 µF",
+    "C": "0.22 µF/km"
+   },
+   "cite": "p.vlfSet; t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "3.41 km",
+   "work": "0.75 ÷ 0.22 = 3.41 km"
+  },
+  {
+   "id": "l5.recall.slip1hi",
+   "label": "Recall slip: 20 kV taken as U0 (high end)",
+   "value": 50,
+   "unit": "kV",
+   "rule": "2.5 × U",
+   "inputs": {
+    "U": "20 kV"
+   },
+   "cite": "notes p.7 (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "50.0 kV",
+   "work": "2.5 × 20 = 50.0 kV"
+  },
+  {
+   "id": "l5.cycle01",
+   "label": "One cycle at 0.1 Hz",
+   "value": 10,
+   "unit": "s",
+   "rule": "T = 1 ÷ f",
+   "inputs": {
+    "f": "0.1 Hz"
+   },
+   "cite": "research source 38 (one full cycle takes 10 seconds at 0.1 Hz)",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "10 s",
+   "work": "1 ÷ 0.1 = 10 s"
+  },
+  {
+   "id": "l5.cycles",
+   "label": "50 Hz cycles in the 10 s of one 0.1 Hz cycle",
+   "value": 500,
+   "unit": "",
+   "rule": "cycles = f × time",
+   "inputs": {
+    "f": "50 Hz",
+    "time": "10 s"
+   },
+   "cite": "l5.cycle01",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "500",
+   "work": "50 × 10 = 500"
+  },
+  {
+   "id": "l5.pic.I10",
+   "label": "Picture: one core's charging current at 10 Hz and 76 kV",
+   "value": 2.52,
+   "unit": "A",
+   "rule": "I = 2πfC × V",
+   "inputs": {
+    "f": "10 Hz",
+    "C": "0.528 µF",
+    "V": "76 kV"
+   },
+   "cite": "1a; 5a",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "2.52 A",
+   "work": "2π × 10 × 0.528 × 10⁻⁶ × 76 000 = 2.52 A"
+  },
+  {
+   "id": "l5.pic.kva10",
+   "label": "Picture: power the set supplies at 10 Hz",
+   "value": 191.5,
+   "unit": "kVA",
+   "rule": "S = V × I",
+   "inputs": {
+    "V": "76 kV",
+    "I": "2.52 A"
+   },
+   "cite": "l5.pic.I10",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "191.5 kVA",
+   "work": "76 × 2.52 = 191.5 kVA"
+  },
+  {
+   "id": "l5.pic.I1",
+   "label": "Picture: one core's charging current at 1 Hz and 76 kV",
+   "value": 252.13,
+   "unit": "mA",
+   "rule": "I = 2πfC × V",
+   "inputs": {
+    "f": "1 Hz",
+    "C": "0.528 µF",
+    "V": "76 kV"
+   },
+   "cite": "1a; 5a",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "252.13 mA",
+   "work": "2π × 1 × 0.528 × 10⁻⁶ × 76 000 = 0.25213 A = 252.13 mA"
+  },
+  {
+   "id": "l5.pic.kva1",
+   "label": "Picture: power the set supplies at 1 Hz",
+   "value": 19.16,
+   "unit": "kVA",
+   "rule": "S = V × I",
+   "inputs": {
+    "V": "76 kV",
+    "I": "252.13 mA"
+   },
+   "cite": "l5.pic.I1",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "19.16 kVA",
+   "work": "76 × 0.25213 = 19.16 kVA"
+  },
+  {
+   "id": "l5.maxLen05",
+   "label": "Longest core the same set can test at 0.05 Hz",
+   "value": 6.82,
+   "unit": "km",
+   "rule": "length = rating ÷ capacitance per km",
+   "inputs": {
+    "rating": "1.5 µF",
+    "C": "0.22 µF/km"
+   },
+   "cite": "p.vlfSet; t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "6.82 km",
+   "work": "1.5 ÷ 0.22 = 6.82 km"
+  },
+  {
+   "id": "l5.pic.C0.5",
+   "label": "Picture: capacitance of a 0.5 km core",
+   "value": 0.11,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "0.5 km"
+   },
+   "cite": "t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "0.110 µF",
+   "work": "0.22 × 0.5 = 0.110 µF"
+  },
+  {
+   "id": "l5.pic.C5",
+   "label": "Picture: capacitance of a 5.0 km core",
+   "value": 1.1,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "5.0 km"
+   },
+   "cite": "t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "1.100 µF",
+   "work": "0.22 × 5.0 = 1.100 µF"
+  },
+  {
+   "id": "l5.pic.C8",
+   "label": "Picture: capacitance of a 8.0 km core",
+   "value": 1.76,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "8.0 km"
+   },
+   "cite": "t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "1.760 µF",
+   "work": "0.22 × 8.0 = 1.760 µF"
+  },
+  {
+   "id": "l5.check.half",
+   "label": "Check: one core's charging current at 0.05 Hz, from 25.21 mA at 0.1 Hz",
+   "value": 12.61,
+   "unit": "mA",
+   "rule": "I = 2πfCV, so halving f halves I",
+   "inputs": {
+    "I at 0.1 Hz": "25.21 mA"
+   },
+   "cite": "5b",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "accept": {
+    "min": 12.6,
+    "max": 12.61,
+    "why": "2π × 0.05 × 0.528 × 10⁻⁶ × 76 000 gives 12.607 mA"
+   },
+   "text": "12.61 mA",
+   "work": "25.21 ÷ 2 = 12.61 mA"
+  },
+  {
+   "id": "l5.check.slip",
+   "label": "Check slip: the current doubled",
+   "value": 50.42,
+   "unit": "mA",
+   "rule": "I × 2",
+   "inputs": {
+    "I at 0.1 Hz": "25.21 mA"
+   },
+   "cite": "5b (the rule it breaks: lower f, higher Xc)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "50.42 mA",
+   "work": "25.21 × 2 = 50.42 mA"
+  },
+  {
+   "id": "5a.slip",
+   "label": "Slip: 66 kV between cores taken as U0",
+   "value": 132,
+   "unit": "kV",
+   "rule": "2 × U",
+   "inputs": {
+    "U": "66 kV"
+   },
+   "cite": "p.U0 (the rule it breaks: U0 is core to earth)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "132.0 kV",
+   "work": "2 × 66 = 132.0 kV"
+  },
+  {
+   "id": "5a.slip2",
+   "label": "Slip: U0 with the 2 left out",
+   "value": 38,
+   "unit": "kV",
+   "rule": "1 × U0",
+   "inputs": {
+    "U0": "38 kV"
+   },
+   "cite": "p.vlfSpec (the rule it breaks)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "38.0 kV",
+   "work": "1 × 38 = 38.0 kV"
+  },
+  {
+   "id": "5a.slip3",
+   "label": "Slip: the test voltage given as a peak",
+   "value": 107.5,
+   "unit": "kV",
+   "rule": "peak = rms × 1.4142",
+   "inputs": {
+    "rms": "76 kV"
+   },
+   "cite": "t.vlfPeak (the test voltage is rms)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "107.5 kV",
+   "work": "76 × 1.4142 = 107.5 kV"
+  },
+  {
+   "id": "5b.slip",
+   "label": "Slip: the 2π left out at 0.1 Hz",
+   "value": 4.01,
+   "unit": "mA",
+   "rule": "f × C × V",
+   "inputs": {
+    "f": "0.1 Hz",
+    "C": "0.528 µF",
+    "V": "76 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "4.01 mA",
+   "work": "0.1 × 0.528 × 10⁻⁶ × 76 000 = 0.00401 A = 4.01 mA"
+  },
+  {
+   "id": "5b.slip2",
+   "label": "Slip: the peak voltage used",
+   "value": 35.66,
+   "unit": "mA",
+   "rule": "I = 2πfC × V peak",
+   "inputs": {
+    "f": "0.1 Hz",
+    "C": "0.528 µF",
+    "V": "107.5 kV peak"
+   },
+   "cite": "the rule it breaks (the test voltage is rms)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "35.66 mA",
+   "work": "2π × 0.1 × 0.528 × 10⁻⁶ × 107 500 = 0.03566 A = 35.66 mA"
+  },
+  {
+   "id": "5b.slip3",
+   "label": "Slip: three cores counted",
+   "value": 75.63,
+   "unit": "mA",
+   "rule": "3 × I",
+   "inputs": {
+    "I": "25.21 mA"
+   },
+   "cite": "p.vlfSpec (each core is tested in turn)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "75.63 mA",
+   "work": "3 × 25.21 = 75.63 mA"
+  },
+  {
+   "id": "5c.slip",
+   "label": "Slip: the 2π left out at 50 Hz",
+   "value": 2.01,
+   "unit": "A",
+   "rule": "f × C × V",
+   "inputs": {
+    "f": "50 Hz",
+    "C": "0.528 µF",
+    "V": "76 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "2.01 A",
+   "work": "50 × 0.528 × 10⁻⁶ × 76 000 = 2.01 A"
+  },
+  {
+   "id": "5c.slip2",
+   "label": "Slip: the in-service voltage U0 used for the test voltage",
+   "value": 6.3,
+   "unit": "A",
+   "rule": "I = 2πfC × U0",
+   "inputs": {
+    "f": "50 Hz",
+    "C": "0.528 µF",
+    "U0": "38 kV"
+   },
+   "cite": "l1.Ich (the rule it breaks: the test runs at 76 kV)",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "6.30 A",
+   "work": "2π × 50 × 0.528 × 10⁻⁶ × 38 000 = 6.30 A"
+  },
+  {
+   "id": "l5.changed.C",
+   "label": "Changed numbers: capacitance of a 3.10 km core",
+   "value": 0.682,
+   "unit": "µF",
+   "rule": "C = C per km × length",
+   "inputs": {
+    "C per km": "0.22 µF/km",
+    "length": "3.10 km"
+   },
+   "cite": "t.C66",
+   "kind": "worked",
+   "status": "worked",
+   "lesson": "i5",
+   "practice": true,
+   "text": "0.682 µF",
+   "work": "0.22 × 3.10 = 0.682 µF"
+  },
+  {
+   "id": "l5.changed.slip",
+   "label": "Changed numbers slip: the 2π left out",
+   "value": 5.18,
+   "unit": "mA",
+   "rule": "f × C × V",
+   "inputs": {
+    "f": "0.1 Hz",
+    "C": "0.682 µF",
+    "V": "76 kV"
+   },
+   "cite": "the rule it breaks",
+   "kind": "slip",
+   "status": "worked",
+   "lesson": "i5",
+   "text": "5.18 mA",
+   "work": "0.1 × 0.682 × 10⁻⁶ × 76 000 = 0.00518 A = 5.18 mA"
   },
   {
    "id": "l6.recall",
@@ -2978,7 +3835,9 @@
    ],
    "for": [
     "4a"
-   ]
+   ],
+   "resolved": true,
+   "found": "IEC 60229:2007 clause 5 word for word (sources 125-127); water through a damaged sheath causes water treeing (241-244, 245-246, 263); utilities' levels differ (247, 248, 259) and IEC 60840 leaves submarine cables out of its scope (262): contested (a.sheathLevels); a three-core cable's power cores each have their own PE sheath under the armour and yarn serving (253, 254): a.coreSheath; earth the screens at least 5 min after a sheath test (258): p.sheathEarth."
   },
   {
    "id": "r.vlfU",
@@ -2989,7 +3848,22 @@
     "5a",
     "l5.range.lo",
     "l5.range.hi"
-   ]
+   ],
+   "resolved": true,
+   "found": "IEEE 400.2-2013 as reproduced by High Voltage Inc: installation and acceptance levels rest on 'from less than 2 U0 to 3U0' (source 108), maintenance about 75% of acceptance (109); Table 3, 69 kV class, sinusoidal: 75 kV rms (106 peak) installation, 84 (119) acceptance, 63 (89) maintenance (source 112); 60 min at 0.1 Hz for installation or acceptance on new cable, 30 min for a simple withstand on aged cable (110, 111); a shorter 15 to 30 min may be considered if the monitored characteristic stays stable (273). The 2024 tables are paywalled and were not seen. The notes' 1.5-2.5 U0 against the guide's 2 to 3 U0: contested (a.vlfRange). String B's 2 U0 = 76 kV rms sits between the table's 75 and 84 kV."
+  },
+  {
+   "id": "r.vlfSet",
+   "needs": [
+    "a VLF set maker's load rating (capacitance at 0.1 Hz) and output, to show why long cables need a lower frequency"
+   ],
+   "for": [
+    "l5.peak",
+    "l5.maxLen",
+    "l5.changed"
+   ],
+   "resolved": true,
+   "found": "High Voltage Inc: sets are rated by the load they can test at each frequency, the load scales as 1 over frequency (sources 265, 267); VLF-200CMF 200 kV peak, 0.75 uF at 0.1 Hz to 3.75 uF at 0.02 Hz (268); VLF-120CMF 120 kV peak, 0.55 uF at 0.1 Hz (269); largest 0.1 Hz sets about 200 kV peak (270); a sine's rms is 0.707 of its peak (271): t.vlfSet, t.vlfPeak, p.vlfSet. A cycle at 0.1 Hz takes 10 s, at 0.05 Hz 20 s, at 0.02 Hz 50 s (264)."
   },
   {
    "id": "r.vf",
@@ -3011,5 +3885,5 @@
    ]
   }
  ],
- "updatedAt": "2026-10-20T23:45:15.798Z"
+ "updatedAt": "2026-10-21T01:08:42.086Z"
 }

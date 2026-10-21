@@ -1,0 +1,227 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Too wide: at 340 px: content is 385px wide in a 340px frame: <span.k-num> reaches 385px (at step = step 3); at 720 px: content is 777px wide in a 720px frame: <span.k-num> reaches 777px (at Text size XL, step = step 3)."
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": true,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Dry 18.1, 24.1, 64.0 GΩ (DAR 1.33, PI 2.66); damp 7.16, 7.94, 10.00 (1.11, 1.26); wet 2.19, 2.26, 2.40 (1.03, 1.06)",
+        "ok": true
+      },
+      {
+        "label": "Leakage 78, 500 and 2083 nA; absorption 199 nA at 30 s, 129 nA at 1 minute and under 0.1 nA at 10 minutes",
+        "ok": true
+      },
+      {
+        "label": "Every setting clears 1 GΩ at 1 minute, and each wetter setting gives a lower DAR and PI",
+        "ok": true
+      },
+      {
+        "label": "A sound core reads 96.4 and 256.0 GΩ at 0 °C, 42.0 and 111.4 at 12 °C, 6.0 and 16.0 at 40 °C, and its PI is 2.66 at every temperature",
+        "ok": true
+      },
+      {
+        "label": "Recall 3.00 (slips 0.33 and 4.0); check X 1.07 and Y 3.00; L1 PI 2.58, DAR 1.33; L2 PI 1.09, DAR 1.05; L3 PI 2.61, DAR 1.31; changed numbers 1.20",
+        "ok": true
+      },
+      {
+        "label": "One core of 0.528 µF at 5 kV holds 2.64 mC and 6.60 J; 3(c) is 5 × 10 = 50 min, with slips 10 and 40 min",
+        "ok": true
+      },
+      {
+        "label": "The charging current falls under 10 000 nA within 15 s, long before the first reading at 30 s",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "For every 10 °C increase in temperature, halve the resistance; for every 10 °C decrease, double it",
+        "ok": true,
+        "source": "https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29"
+      },
+      {
+        "label": "After a 10-minute PI test, allow the unit to discharge for 50 minutes",
+        "ok": true,
+        "source": "https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf"
+      },
+      {
+        "label": "DAR: under 1.25 inadequate, 1.25 to 1.6 satisfactory, over 1.6 excellent",
+        "ok": true,
+        "source": "material:notes#p9"
+      },
+      {
+        "label": "PI: under 1 poor, 1 to 2 questionable, 2 to 4 okay, over 4 good",
+        "ok": true,
+        "source": "material:notes#p9"
+      },
+      {
+        "label": "If the insulation is in good condition, the PI will be 2.0 or higher: L3's 2.61 clears it",
+        "ok": true,
+        "source": "https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing"
+      },
+      {
+        "label": "Typically the DAR will be 1.4 or higher in good condition: L3's 1.31 falls short",
+        "ok": true,
+        "source": "https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing"
+      },
+      {
+        "label": "The PI test is not recommended as an assessment tool above 5000 MΩ at 1 minute: L3 reads 23 000 MΩ",
+        "ok": true,
+        "source": "https://www.aemc.com/userfiles/files/resources/webinars/Insulation_Testing_Quick_Reference_Guide.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "ins",
+      "temp"
+    ],
+    "readouts": [
+      "r30",
+      "r60",
+      "r600",
+      "dar",
+      "pi",
+      "r1t",
+      "r10t",
+      "piT"
+    ],
+    "outputs": [
+      "r30",
+      "r60",
+      "r600",
+      "dar",
+      "pi",
+      "r1t",
+      "r10t",
+      "piT"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why: three currents",
+          "A ratio ignores the weather",
+          "Check",
+          "After the test: discharge",
+          "Worked example",
+          "Section A 3(a)",
+          "Section A 3(b)",
+          "Section A 3(c)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ins",
+        "kind": "stepper",
+        "label": "Insulation",
+        "min": 0,
+        "max": 2,
+        "step": 1,
+        "steps": [
+          "Dry",
+          "Damp",
+          "Wet"
+        ],
+        "value": 0
+      },
+      {
+        "id": "temp",
+        "kind": "control",
+        "label": "Cable temperature",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "log": false,
+        "value": 20,
+        "shown": false,
+        "snap": [
+          12,
+          40
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Time"
+    ],
+    "answers": [
+      {
+        "id": "3a",
+        "answer": 2.58,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3b",
+        "answer": 1.09,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "3c",
+        "answer": 50,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l3.changed",
+        "answer": 1.2,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "overflowDetail": "at 340 px: content is 385px wide in a 340px frame: <span.k-num> reaches 385px (at step = step 3); at 720 px: content is 777px wide in a 720px frame: <span.k-num> reaches 777px (at Text size XL, step = step 3)",
+    "foreign": [],
+    "unreachable": []
+  }
+}

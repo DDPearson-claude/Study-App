@@ -1,0 +1,217 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Test voltage 4.0 kV at 1.0 mm, 8.8 at 2.2, 10.0 at 2.5, 3.0 and 4.0 mm; stress 4.00, 4.00, 4.00, 3.33 and 2.50 kV/mm",
+        "ok": true
+      },
+      {
+        "label": "The voltage rises with thickness up to 2.5 mm, then stays at 10 kV while the stress falls",
+        "ok": true
+      },
+      {
+        "label": "A d.c. voltage of 4 kV per millimetre of specified oversheath thickness, with a maximum of 10 kV d.c., for 1 min",
+        "ok": true,
+        "source": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007"
+      },
+      {
+        "label": "In the factory, a d.c. voltage of 8 kV per millimetre of specified nominal oversheath thickness for 1 min: 17.6 kV on 2.2 mm",
+        "ok": true,
+        "source": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007"
+      },
+      {
+        "label": "An insulating outer sheath gets a 10 kV d.c. test for 1 minute between cable sheath and earth",
+        "ok": true,
+        "source": "https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf"
+      },
+      {
+        "label": "Earth the screens after an insulation resistance test on a sheath for at least 5 minutes",
+        "ok": true,
+        "source": "https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf"
+      },
+      {
+        "label": "Water trees grow relatively slowly over a period of months or years",
+        "ok": true,
+        "source": "https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content"
+      },
+      {
+        "label": "Recall 8.0 kV on 2.0 mm (slips 4.0 and 10.0); check P 6.0 kV and 4.00 kV/mm, Q 14.0 by the rate, so 10.0 kV and 2.86 kV/mm; worked example 7.2 kV on 1.8 mm",
+        "ok": true
+      },
+      {
+        "label": "4(a): 4 × 2.2 = 8.8 kV and 4.00 kV/mm; L2's trip at 3.2 kV after 20 s is 1.45 kV/mm; changed numbers 3.0 mm: 12.0 by the rate, so 10.0 kV and 3.33 kV/mm",
+        "ok": true
+      },
+      {
+        "label": "With conductor, foil and screen linked, the XLPE has 0.0 kV across it on both sheath types; with the conductor left earthed, it takes 8.8 kV",
+        "ok": true
+      },
+      {
+        "label": "4(b) slips: 8.8 ÷ 2.2 = 4.00 at the full test voltage, 2.2 ÷ 3.2 = 0.69 upside down",
+        "ok": true
+      },
+      {
+        "label": "Field lines: 8 at 4.00 kV/mm, 7 at 3.33, 5 at 2.50 kV/mm",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "t",
+      "sheath",
+      "cond"
+    ],
+    "readouts": [
+      "V",
+      "E",
+      "vSh",
+      "vX"
+    ],
+    "outputs": [
+      "V",
+      "E",
+      "vSh",
+      "vX"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why: volts per millimetre",
+          "What to link, and where the leads go",
+          "Check",
+          "Worked example",
+          "Section A 4(a)",
+          "Section A 4(b)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "t",
+        "kind": "control",
+        "label": "Sheath thickness",
+        "min": 1,
+        "max": 4,
+        "step": 0.1,
+        "log": false,
+        "value": 2.2,
+        "shown": false,
+        "snap": [
+          2.2,
+          2.5
+        ]
+      },
+      {
+        "id": "sheath",
+        "kind": "choice",
+        "label": "Sheath type",
+        "options": [
+          "ins",
+          "semi"
+        ],
+        "labels": [
+          "Insulating",
+          "Semi-conductive"
+        ],
+        "value": "ins",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "cond",
+        "kind": "choice",
+        "label": "Conductor",
+        "options": [
+          "link",
+          "earth"
+        ],
+        "labels": [
+          "Linked",
+          "Left earthed"
+        ],
+        "value": "link",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue",
+      "Water"
+    ],
+    "answers": [
+      {
+        "id": "4a",
+        "answer": 8.8,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "4b",
+        "answer": 1.45,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l4.changed",
+        "answer": 10,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

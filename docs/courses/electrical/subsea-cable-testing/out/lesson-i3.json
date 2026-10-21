@@ -1,0 +1,979 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-21T01:08:42.086Z",
+ "startedAt": "2026-10-21T01:08:42.086Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Insulation resistance over ten minutes: IR, DAR and PI",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the IR curve flattening, and PI and DAR falling towards 1, when you step the insulation from dry to wet, while the 1-minute reading still clears the client's figure.",
+   "title": "Ten minutes on one core",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen screens, with Back and Continue, on the insulation resistance test and the PI and DAR ratios.\n\nScreen 1, Do you still have it? The question: \"One core reads 2.0 GΩ at 1 minute and 6.0 GΩ at 10 minutes. What is its PI, and how does it rate?\" Three choices, in this order: \"0.33, poor\"; \"3.00, okay\"; \"4.0, okay\". Right, the second: \"Still there.\" Then the working: \"PI = R10 ÷ R1 = 6.0 ÷ 2.0 = 3.00. That sits in the 2 to 4 band, okay.\" A last line names the slips: 0.33 is the ratio upside down, and 4.0 is how far the reading rose. Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 8. Wrong, the first: \"That is the ratio upside down, 2.0 ÷ 6.0. Put the 10-minute reading on top. A healthy core's PI comes out above 1.\" Wrong, the third: \"That is the rise, 6.0 − 2.0 GΩ. PI is a ratio. Divide the 10-minute reading by the 1-minute reading.\" Then the right working, and on to screen 2.\n\nScreen 2, What it is for. \"The IR test puts a steady d.c. voltage between a core and its screen. It is the same test you do on an installation, read over 10 minutes instead of once. The tester measures the tiny current that gets through the XLPE and shows it as a resistance. It answers one question: is the insulation dry and clean, at low stress? It runs after core resistance and before the sheath test. On String B it runs at 5 kV d.c. That is the client's choice, and a practice value here.\" The picture shows one core in cross-section. The copper is in the middle, the XLPE round it and the screen outside. The tester sits beside it, red lead on the screen and black lead on the core. Small arrows cross the XLPE from screen to core, labelled \"nanoamps\". In red, what goes wrong if it is skipped: \"Damp or dirty insulation goes on to the high-voltage tests unseen. So does a core that passes on one reading but leaks steadily.\"\n\nScreen 3, The why: three currents. \"The current the tester sees has three parts. A charging current fills the cable's capacitance and dies away in seconds. An absorption current flows while the insulation slowly polarises. Charge inside the plastic shifts into line with the field, and that slow shift is a current. It dies away over minutes. A leakage current runs through the insulation and stays. The tester shows voltage ÷ current. So as the first two die away, the reading climbs. Water or dirt adds leakage, and leakage does not die away. It swamps the absorption, so the reading hardly climbs.\" The picture is a sketch of one core at 5 kV over 10 minutes. The top graph shows resistance against time, from 0 to 10 minutes. Its scale runs from 1 to 100 GΩ, and each mark is ten times the last. A caption: \"A sketch, from one simple rule and practice values.\" Marks at 30 s, 1 minute and 10 minutes carry the readings. The graph underneath shows current against time, in nanoamps. The absorption current falls away above a flat band of leakage current. The charging current is drawn as a spike in the first few seconds, off the top of the scale. A stepper named Insulation has three settings: Dry, Damp and Wet. It opens on Dry. The sketch's rule: 1 ÷ R = 1 ÷ R∞ + 0.061 × e^(−t ÷ 70 s), with R in GΩ. R∞ is the steady leakage as a resistance: 64 GΩ dry, 10 GΩ damp and 2.4 GΩ wet. The readouts show the readings at 30 s, 1 minute and 10 minutes. Then come DAR = R60s ÷ R30s and PI = R10 ÷ R1, each a plain number in its readout. Their bands in words sit on one line under the readouts, so they fit on a phone. Each is worked from the readings shown before it. Dry: 18.1, 24.1 and 64.0 GΩ. DAR 1.33, satisfactory. PI 2.66, okay. The leakage is 78 nA. The absorption falls from 199 nA at 30 s to 129 nA at 1 minute. By 10 minutes it is under 0.1 nA. Damp: 7.16, 7.94 and 10.00 GΩ. DAR 1.11, inadequate. PI 1.26, questionable. The leakage is 500 nA. Wet: 2.19, 2.26 and 2.40 GΩ. DAR 1.03, inadequate. PI 1.06, questionable. The leakage is 2083 nA. The 129 nA of absorption at 1 minute is lost under it. A dashed line marks 1 GΩ, the client's figure at 1 minute. All three cores clear it. The prompt: \"Step from Dry to Wet.\" Read: the dry core climbs from 18.1 GΩ at 30 s to 64.0 GΩ at 10 minutes, a PI of 2.66. In the wet core, a steady 2083 nA of leakage swamps the absorption. It reads 2.19, 2.26 and 2.40 GΩ, a PI of 1.06. Both clear 1 GΩ at 1 minute. Against the client's 1 GΩ alone, only the climb tells them apart. Still: the Dry and Wet curves are drawn together, each with its readings, DAR and PI.\n\nScreen 4, The why: a ratio ignores the weather. \"A single reading swings with temperature. As a rule of thumb, insulation resistance halves for every 10 °C rise and doubles for every 10 °C fall.[^1] So a reading on a warm day can look worse than last month's, with nothing wrong. PI and DAR take two readings close together, on the same cable, at the same temperature. Warmth pulls both down together, so the ratio barely moves.\" The picture shows the dry core from screen 3 as two bars beside a thermometer. One bar is the 1-minute reading and one the 10-minute reading. Assume it was read at 20 °C, where it reads 24.1 and 64.0 GΩ. The sketch assumes both readings fall alike. The scale along the bottom runs from 1 to 1000 GΩ, and each mark is ten times the last, so the gap between the two bar ends shows the PI. A Cable temperature slider runs from 0 to 40 °C in steps of 1 °C, opening at 20 °C. Each reading is its 20 °C figure × 2^((20 − t) ÷ 10), shown to 1 place. There are three readouts. At 1 minute and At 10 minutes are in GΩ. PI is to 2 places, worked from the unrounded readings. At 0 °C: 96.4 and 256.0 GΩ. At 10 °C: 48.2 and 128.0 GΩ. At 12 °C, String B's temperature: 42.0 and 111.4 GΩ. At 30 °C: 12.1 and 32.0 GΩ. At 40 °C: 6.0 and 16.0 GΩ. The PI reads 2.66 at every setting. The prompt: \"Drag the temperature from 20 °C up to 40 °C.\" Read: at 20 °C the core reads 24.1 GΩ at 1 minute. At 40 °C the same sound core reads 6.0 GΩ, a quarter as much. Both bars slide down together, and the gap between their ends stays the same. Its PI stays at 2.66 the whole way. Still: the bars at 40 °C, with the 20 °C bars drawn faintly behind.\n\nScreen 5, Check. \"Two cores of one cable both read 3.00 GΩ at 1 minute, well over the client's 1 GΩ. At 10 minutes, core X reads 3.20 GΩ and core Y reads 9.00 GΩ. Which core has a steady leakage, such as moisture?\" Choices: \"Core X\"; \"Core Y\"; \"Neither: both pass 1 GΩ\". Right, the first: \"X's reading hardly climbs. PI = 3.20 ÷ 3.00 = 1.07, questionable. Most of X's current is steady leakage, and leakage does not die away. Y climbs to a PI of 9.00 ÷ 3.00 = 3.00, okay, as its absorption current dies.\" Wrong, the second: \"Y's reading changed the most, and that is the healthy sign. Its absorption current died away and left only a small leakage.\" Wrong, the third: \"Both pass on one reading. But X's flat curve points to a steady leakage that one reading cannot show.\"\n\nScreen 6, After the test: discharge. \"When the test stops, the core is a charged capacitor. One core of String B has 0.528 µF. At 5 kV it holds Q = C × V = 0.528 × 10⁻⁶ × 5000 = 0.00264 C = 2.64 mC. Its energy is E = ½ × C × V² = 0.5 × 0.528 × 10⁻⁶ × 5000² = 6.60 J. Part of the charge has soaked into the insulation. It seeps back out after the core has been discharged, and can bring the voltage back.\" Then the order, which you never improvise: \"Check the tester's display shows discharged. Then the discharge stick, then the hook stick, then the hand earth. Earth the core and the screen at both ends.\" Then the time: \"Keep it discharging and earthed for at least five times as long as the test voltage was on.[^2] After a 1-minute spot reading, that is at least 5 minutes. Some older guidance says four times. Use five. Then leave the earths on until the next test needs them.\" The picture shows the five steps of the discharge as a strip of five cards, in order. Each card has a small drawing. They show the display reading discharged, the discharge stick, the hook stick, the hand earth, and earths on core and screen at both ends. Under it, a timeline drawn to scale shows a 1-minute spot reading, then 5 minutes earthed.\n\nScreen 7, Worked example, a line at each press. \"L3 at 5 kV reads 17.5 GΩ at 30 s, 23.0 GΩ at 1 minute and 60.0 GΩ at 10 minutes. These are practice values.\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"DAR = R60s ÷ R30s = 23.0 ÷ 17.5 = 1.31. Satisfactory: 1.25 to 1.6.[^3]\" Line 2: \"PI = R10 ÷ R1 = 60.0 ÷ 23.0 = 2.61. Okay: 2 to 4.[^4]\" Line 3: \"The voltage held for the full 10 minutes, and 23.0 GΩ beats the client's 1 GΩ. L3 passes.\" Notes under the lines: \"A DAR is done in 1 minute, where a PI takes 10. That makes it the quick check. It comes out lower than the PI. Its two readings are only 30 s apart, so it sees less of the climb.\" Then: \"Makers draw the bands in other places. Some call a PI of 2.0 or more good,[^5] and a DAR of 1.4 or more.[^6] On those bands, L3's PI counts as good, but its DAR of 1.31 falls short. The client's test spec decides pass or fail.\" Then: \"One more caution. Some insulation shows very little absorption, so its reading barely climbs even when it is sound.[^7] So read each core's PI beside its sister cores. The core that stands apart is the one to question.\" Read: L3's DAR is 23.0 ÷ 17.5 = 1.31, satisfactory. Its PI is 60.0 ÷ 23.0 = 2.61, okay. It held the voltage for 10 minutes and beats the client's 1 GΩ. So it passes. Still: all three lines are shown, with the notes.\n\nScreen 8, Section A, question 3 (a). The scenario panel comes first. Then the test is set out once: \"Each core of String B is tested in turn at 5 kV d.c., core to screen, for 10 minutes. The client asks for at least 1 GΩ at 1 minute. These are practice values. L1 reads 18.0 GΩ at 30 s, 24.0 GΩ at 1 minute and 62.0 GΩ at 10 minutes.\" The question: \"(a) Determine the polarisation index of core L1.\" You type the answer for part 3a, with no unit: 62.0 ÷ 24.0 = 2.58, to 2 places. Slips: 0.39, \"That is the ratio upside down. Put the 10-minute reading on top.\"; 1.33, \"That is L1's DAR, 24.0 ÷ 18.0. PI uses the 1-minute and 10-minute readings.\"; 38.0, \"That is the rise in GΩ. PI is a ratio, so divide.\" After two misses, the working. Then: \"2.58 sits in 2 to 4, okay. L1's DAR is 24.0 ÷ 18.0 = 1.33, satisfactory. L3 works out at a PI of 2.61.\"\n\nScreen 9, Section A, question 3 (b). Part (a) carried forward: 2.58. \"L2 reads 2.10 GΩ at 30 s, 2.20 GΩ at 1 minute and 2.40 GΩ at 10 minutes. (b) Determine the polarisation index of core L2.\" You type the answer for part 3b, with no unit: 2.40 ÷ 2.20 = 1.09, to 2 places. Slips: 0.92, \"That is the ratio upside down. Put the 10-minute reading on top.\"; 1.05, \"That is L2's DAR, 2.20 ÷ 2.10. PI uses the 1-minute and 10-minute readings.\"; 0.20, \"That is the rise in GΩ. PI is a ratio, so divide.\" After two misses, the working. Then a second question: \"How does it rate, and would it go through?\" Choices: \"Okay. It beats 1 GΩ, so it goes through.\"; \"Questionable. Record it and find out why first.\"; \"Poor. It fails outright.\" Right, the second: \"1.09 sits in 1 to 2, questionable. Its 1-minute reading of 2.20 GΩ beats the client's 1 GΩ. On that reading alone, L2 would have gone through. Its flat curve is what holds it back.\" Wrong, the first: \"It does beat the client's 1 GΩ at 1 minute. But a PI of 1.09 sits in 1 to 2, questionable. One reading misses that flat curve.\" Wrong, the third: \"Poor is below 1. A PI of 1.09 sits in 1 to 2, questionable.\" Then: \"L2's DAR is 2.20 ÷ 2.10 = 1.05, inadequate. Set beside L1's 2.58 and L3's 2.61, L2's PI stands out. Most of L2's current is steady leakage. Record it, and find out why before you submit. The sheath test comes next.\"\n\nOn screens 8 to 10 a test record sits under the working, like the sheet on the job. Its columns are L1, L2 and L3, and its rows the readings at 30 s, 1 minute and 10 minutes, in GΩ, then DAR, PI and rating. L3's column is filled from the worked example. L1's ratios fill in once part (a) is answered, and L2's column once part (b) and its rating are.\n\nScreen 10, Section A, question 3 (c). Parts (a) and (b) carried forward. \"L2's PI test held 5 kV for 10 minutes. (c) Determine the least time L2 must then stay discharged and earthed.\" You type the answer for part 3c, in minutes: 5 × 10 = 50 min. Slips: 10, \"That is how long the test ran. Allow five times that.\"; 40, \"That is four times, an older rule. Allow five times.\" After two misses, the working. Then: \"Keep the earths on L2's core and screen at both ends for at least 50 minutes. Leave them on until the next test needs them.\"\n\nScreen 11, Section B: \"Explain why a PI or DAR tells you more about a cable's insulation than a single IR reading.\" You write an answer, marked against five points. Any three make a full answer. You get one more go, then the model answer.\n\nScreen 12, Section A, changed numbers. \"Another cable's core reads 8.0 GΩ at 1 minute and 9.6 GΩ at 10 minutes. Determine its PI.\" You type the answer, with no unit: 9.6 ÷ 8.0 = 1.20. Slips: 0.83, \"That is the ratio upside down. Put the 10-minute reading on top.\"; 1.6, \"That is the rise in GΩ. PI is a ratio, so divide.\" Then: \"1.20 sits in 1 to 2, questionable. Find out why before you submit it.\"\n\nScreen 13, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+   "ignores": "The curves on screens 3 and 4 are a sketch, not String B's readings. They come from one simple rule with practice values, and every real cable has its own. The charging current is drawn as a spike in the first seconds. In fact it falls fast but never quite to nothing. Moisture is drawn as extra steady leakage only. Real water can change the absorption too. Halving for every 10 °C is a rule of thumb. Each insulation differs. Warmth also speeds up the absorption. So a real ratio moves a little with temperature, while the sketch's does not move at all. Current across the surface of the terminations is not shown. A guard terminal takes it out of the reading.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Recall: reading at 1 minute, GΩ",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: reading at 10 minutes, GΩ",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall: PI",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: ratio upside down",
+     "value": 0.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall slip: the rise, GΩ",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "PI bands: edges",
+     "value": "1, 2, 4",
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "DAR bands: edges",
+     "value": "1.25, 1.6",
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "A maker's PI for good insulation, at least",
+     "value": 2,
+     "kind": "constant",
+     "source": 5
+    },
+    {
+     "label": "A maker's DAR for good insulation, at least",
+     "value": 1.4,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Low-capacitance PI acceptable: from",
+     "value": 1,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "Low-capacitance PI acceptable: to",
+     "value": 2,
+     "kind": "constant",
+     "source": 8
+    },
+    {
+     "label": "String B IR test voltage (practice value), kV d.c.",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Same, in volts, V",
+     "value": 5000,
+     "kind": "assumed"
+    },
+    {
+     "label": "PI test duration, minutes",
+     "value": 10,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "DAR first reading, s",
+     "value": 30,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "DAR second reading, s",
+     "value": 60,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "PI first reading, minutes",
+     "value": 1,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Client's criterion at 1 minute (practice value), GΩ",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch: absorption term, per GΩ",
+     "value": 0.061,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch: absorption time constant, s",
+     "value": 70,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch: dry leakage as a resistance, GΩ",
+     "value": 64,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch: damp leakage as a resistance, GΩ",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch: wet leakage as a resistance, GΩ",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch scale: from, GΩ",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch scale: to, GΩ",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch scale: each step, times",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Dry: reading at 30 s, GΩ",
+     "value": 18.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Dry: reading at 1 minute, GΩ",
+     "value": 24.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Dry: reading at 10 minutes, GΩ",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "Dry: DAR",
+     "value": 1.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Dry: PI",
+     "value": 2.66,
+     "kind": "computed"
+    },
+    {
+     "label": "Dry: leakage current, nA",
+     "value": 78,
+     "kind": "computed"
+    },
+    {
+     "label": "Absorption current at 30 s, nA",
+     "value": 199,
+     "kind": "computed"
+    },
+    {
+     "label": "Absorption current at 1 minute, nA",
+     "value": 129,
+     "kind": "computed"
+    },
+    {
+     "label": "Absorption current at 10 minutes, under, nA",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Damp: reading at 30 s, GΩ",
+     "value": 7.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Damp: reading at 1 minute, GΩ",
+     "value": 7.94,
+     "kind": "computed"
+    },
+    {
+     "label": "Damp: reading at 10 minutes, GΩ",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Damp: DAR",
+     "value": 1.11,
+     "kind": "computed"
+    },
+    {
+     "label": "Damp: PI",
+     "value": 1.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Damp: leakage current, nA",
+     "value": 500,
+     "kind": "computed"
+    },
+    {
+     "label": "Wet: reading at 30 s, GΩ",
+     "value": 2.19,
+     "kind": "computed"
+    },
+    {
+     "label": "Wet: reading at 1 minute, GΩ",
+     "value": 2.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Wet: reading at 10 minutes, GΩ",
+     "value": 2.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Wet: DAR",
+     "value": 1.03,
+     "kind": "computed"
+    },
+    {
+     "label": "Wet: PI",
+     "value": 1.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Wet: leakage current, nA",
+     "value": 2083,
+     "kind": "computed"
+    },
+    {
+     "label": "Insulation resistance halves per rise of, °C",
+     "value": 10,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Temperature slider: from, °C",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature slider: to, °C",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature slider step, °C",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature slider opens at, °C",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "At 0 °C: 1 minute, GΩ",
+     "value": 96.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 0 °C: 10 minutes, GΩ",
+     "value": 256,
+     "kind": "computed"
+    },
+    {
+     "label": "At 10 °C: 1 minute, GΩ",
+     "value": 48.2,
+     "kind": "computed"
+    },
+    {
+     "label": "At 10 °C: 10 minutes, GΩ",
+     "value": 128,
+     "kind": "computed"
+    },
+    {
+     "label": "String B cable temperature (practice value), °C",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "At 12 °C: 1 minute, GΩ",
+     "value": 42,
+     "kind": "computed"
+    },
+    {
+     "label": "At 12 °C: 10 minutes, GΩ",
+     "value": 111.4,
+     "kind": "computed"
+    },
+    {
+     "label": "At 30 °C: 1 minute, GΩ",
+     "value": 12.1,
+     "kind": "computed"
+    },
+    {
+     "label": "At 30 °C: 10 minutes, GΩ",
+     "value": 32,
+     "kind": "computed"
+    },
+    {
+     "label": "At 40 °C: 1 minute, GΩ",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "At 40 °C: 10 minutes, GΩ",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Temperature sketch scale: from, GΩ",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Temperature sketch scale: to, GΩ",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: both cores at 1 minute, GΩ",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: core X at 10 minutes, GΩ",
+     "value": 3.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: core Y at 10 minutes, GΩ",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Check: core X's PI",
+     "value": 1.07,
+     "kind": "computed"
+    },
+    {
+     "label": "Check: core Y's PI",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "One core's capacitance, from lesson 1, µF",
+     "value": 0.528,
+     "kind": "computed"
+    },
+    {
+     "label": "Charge in one core at 5 kV, mC",
+     "value": 2.64,
+     "kind": "computed"
+    },
+    {
+     "label": "Energy in one core at 5 kV, J",
+     "value": 6.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Discharge for at least, times the test time",
+     "value": 5,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Older guidance: times the test time",
+     "value": 4,
+     "kind": "constant"
+    },
+    {
+     "label": "Discharge after a 1-minute test, minutes",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Steps in the discharge order",
+     "value": 5,
+     "kind": "constant"
+    },
+    {
+     "label": "String B L3 at 30 s (practice value), GΩ",
+     "value": 17.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B L3 at 1 minute (practice value), GΩ",
+     "value": 23,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B L3 at 10 minutes (practice value), GΩ",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: L3's DAR",
+     "value": 1.31,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: L3's PI",
+     "value": 2.61,
+     "kind": "computed"
+    },
+    {
+     "label": "String B L1 at 30 s (practice value), GΩ",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B L1 at 1 minute (practice value), GΩ",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B L1 at 10 minutes (practice value), GΩ",
+     "value": 62,
+     "kind": "assumed"
+    },
+    {
+     "label": "Part 3a: L1's PI",
+     "value": 2.58,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3a slip: upside down",
+     "value": 0.39,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3a slip: L1's DAR",
+     "value": 1.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3a slip: the rise, GΩ",
+     "value": 38,
+     "kind": "computed"
+    },
+    {
+     "label": "String B L2 at 30 s (practice value), GΩ",
+     "value": 2.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B L2 at 1 minute (practice value), GΩ",
+     "value": 2.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "String B L2 at 10 minutes (practice value), GΩ",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Part 3b: L2's PI",
+     "value": 1.09,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3b slip: upside down",
+     "value": 0.92,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3b slip and L2's DAR",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3b slip: the rise, GΩ",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3c: least discharge time, minutes",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3c slip: the test time, minutes",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Part 3c slip: four times, minutes",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers: 1 minute (practice value), GΩ",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: 10 minutes (practice value), GΩ",
+     "value": 9.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Changed numbers: PI",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: upside down",
+     "value": 0.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Changed numbers slip: the rise, GΩ",
+     "value": 1.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Section B: points, of which any make a full answer",
+     "value": "5, any 3",
+     "kind": "constant"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An IR test puts a steady d.c. voltage across the insulation and reads the current that gets through. On a long cable that current keeps falling for minutes, so the reading climbs. How far it climbs tells you more than where it starts. A ratio of two readings on the same cable, taken close together, measures that climb.\n\nThe current has three parts. A charging current fills the cable's capacitance and dies away in seconds. An [[absorption current]] flows while the insulation slowly polarises. Charge inside the plastic shifts into line with the field, and that slow shift is a current. It dies away over minutes. A leakage current runs through the insulation and stays. The tester shows voltage ÷ current. So the reading climbs as the first two fade. In dry, clean insulation the leakage is tiny, and the climb is steep. Water or dirt adds leakage that never fades. It swamps the absorption, and the curve stays flat.\n\nA single reading also swings with temperature. Insulation resistance roughly halves for every 10 °C rise.[^1] The two readings in a ratio are taken close together, at the same temperature. Warmth pulls both down together, so the ratio barely moves. The [[polarisation index]], PI, is the 10-minute reading over the 1-minute one. The [[dielectric absorption ratio]], DAR, is the 60-second reading over the 30-second one. You may also see it called the dynamic absorption ratio. Both can show moisture that one passing reading hides. The sketches are simplified. Every cable has its own absorption and leakage. Some insulation shows very little absorption at all.\n\n**A dry core's reading climbs as the charging and absorption currents fade. A wet core's stays flat. So on a long cable, a PI or DAR near 1 points to steady leakage. That holds even when the 1-minute reading passes.**"
+  },
+  "analogy": {
+   "text": "Think of charging a battery bank through an ammeter. The current starts high and tapers as the cells fill. What is left at the end is the bank's own leak. A healthy bank tapers to a small current. A bank with a fault keeps drawing a high current, and the taper is lost.",
+   "breaks": "A battery stores its charge in chemistry and tapers over hours. Insulation tapers over minutes, as charge settles into the plastic. A cable's leak comes from water and dirt in the insulation. It gets worse as the cable warms."
+  },
+  "practice": {
+   "text": "- Before you start, check the circuit is disconnected and nothing else can see the test voltage. Make sure the cable is discharged. Restrict access at both ends. Use the maker's test leads only.\n- Earth the core and the screen at both ends. Talk to the far end before every change.\n- Connect red to the screen and black to the core. Red is the positive, so it sits on the earthed outside of the insulation.\n- Lift the earths the test needs, under control. Run the test at the client's voltage. A PI needs 10 minutes. Note the readings at 30 s, 1 minute and 10 minutes.\n- It passes if the voltage held for the full time and the resistance beats the client's figure. Where you can, take a PI or a DAR too.\n- Work out DAR = R60s ÷ R30s and PI = R10 ÷ R1. Check each against its bands.\n- Discharge in order: the display shows discharged, then the discharge stick, then the hook stick, then the hand earth. Earth the core and the screen at both ends.\n- Keep it earthed for at least five times as long as the voltage was on. That is 50 minutes after a 10-minute PI.[^2] Leave the earths on until the next test needs them.\n\n**The bands:** PI below 1 poor, 1 to 2 questionable, 2 to 4 okay, above 4 good.[^4] DAR below 1.25 inadequate, 1.25 to 1.6 satisfactory, above 1.6 excellent.[^3] Makers' tables draw the lines elsewhere. The client's test spec decides pass or fail.\n\n**Rule of thumb:** a single reading roughly halves for every 10 °C rise. Only compare single readings taken at, or corrected to, the same temperature.\n\n**Rule of thumb:** a DAR is done in 1 minute, where a PI takes 10. The DAR usually comes out lower than the PI. Its readings are only 30 s apart, so it sees less of the climb.\n\n**Worked example:** L3 of String B at 5 kV reads 17.5 GΩ at 30 s, 23.0 GΩ at 1 minute and 60.0 GΩ at 10 minutes. These are practice values. DAR = 23.0 ÷ 17.5 = 1.31, satisfactory. PI = 60.0 ÷ 23.0 = 2.61, okay. The voltage held, and 23.0 GΩ beats the client's 1 GΩ. So L3 passes.\n\n**Common mistakes**\n- Passing a core on one reading that beats the client's figure, with a flat curve behind it.\n- Working the ratio upside down. A healthy core's PI is above 1.\n- Lifting the earths before the cable has had its full discharge time.\n- Reading a PI of 1 to 2 on a short, low-capacitance run as a fault. Such a run shows very little absorption, so 1 to 2 is acceptable there.[^8]\n- Comparing single readings taken at different temperatures."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "written": {
+   "b1": {
+    "q": "Explain why a PI or DAR tells you more about a cable's insulation than a single IR reading.",
+    "points": [
+     {
+      "text": "A single reading swings with temperature. Insulation resistance falls sharply as it warms, roughly halving for every 10 °C rise.",
+      "cite": "Megger, A Stitch in Time; Megger, Can we beat the heat? (research)"
+     },
+     {
+      "text": "PI and DAR compare two readings on the same cable, close together, at the same temperature. So the ratio barely moves with temperature.",
+      "cite": "Notes p.4 (default to PI or DAR); Megger, Insulation testing diagnostic techniques; Megger, guide to testing above 1 kV (research)"
+     },
+     {
+      "text": "In dry, clean insulation the charging and absorption currents die away and leave a small leakage current. So the reading climbs, and the ratio comes out well above 1.",
+      "cite": "Megger, Insulation testing diagnostic techniques; Megger, The importance of the guard terminal (research)"
+     },
+     {
+      "text": "Wet or dirty insulation carries a high, steady leakage current that hides the absorption. The curve stays flat and the ratio sits near 1.",
+      "cite": "Megger, Insulation testing diagnostic techniques; Hioki, What are PI and DAR values? (research)"
+     },
+     {
+      "text": "A core can beat the client's figure on one reading and still show a flat curve. The ratio catches the moisture that the single reading lets through.",
+      "cite": "Megger, Electrical insulation testing: a low PI can indicate moisture (research); notes p.4"
+     }
+    ],
+    "need": 3,
+    "model": "A single IR reading swings with temperature. Insulation resistance roughly halves for every 10 °C rise. So a reading on a warm day can look worse with nothing wrong. PI and DAR compare two readings on the same cable, close together, at the same temperature. So the ratio barely moves. The ratio also shows how the current behaves. In dry, clean insulation the charging and absorption currents die away and leave a small leakage. So the reading climbs, and the ratio comes out well above 1. In wet or dirty insulation a high, steady leakage hides the absorption. So the curve stays flat, and the ratio sits near 1. A core can beat the client's figure on one reading and still show a flat curve. The ratio catches it."
+   }
+  },
+  "summary": {
+   "title": "Insulation resistance: IR, DAR and PI",
+   "for": "Is the insulation dry and clean at low stress? Put a steady d.c. voltage between core and screen, and read it over 10 minutes.",
+   "rule": "PI = R10min ÷ R1min\nDAR = R60s ÷ R30s\nDischarge: at least 5 × the time the voltage was on\nDischarge order: display shows discharged, discharge stick, hook stick, hand earth, then earths on core and screen at both ends.\nQ = C × V\nE = ½ × C × V²\n\nPI: below 1 poor, 1–2 questionable, 2–4 okay, above 4 good.\nDAR: below 1.25 inadequate, 1.25–1.6 satisfactory, above 1.6 excellent.\nMakers' bands differ: the client's spec decides.\nRed to screen, black to core.\nNear 1 is the bad end: the curve is flat.\nOne reading roughly halves for every 10 °C rise. A ratio barely moves.",
+   "traps": [
+    {
+     "text": "Passing a core on one reading that beats the client's figure. A flat curve behind it points to moisture.",
+     "cite": "Notes p.4; Megger, Electrical insulation testing: a low PI can indicate moisture (research)"
+    },
+    {
+     "text": "Working the ratio upside down. PI is the 10-minute reading over the 1-minute one.",
+     "cite": "Notes p.4; Megger, A Stitch in Time (research)"
+    },
+    {
+     "text": "Lifting the earths too soon. Charge in the insulation can bring the voltage back.",
+     "cite": "Notes p.3; Megger, guide to testing above 1 kV (research)"
+    },
+    {
+     "text": "Comparing single readings taken at different temperatures.",
+     "cite": "Megger, Can we beat the heat? (research)"
+    },
+    {
+     "text": "Calling a short, low-capacitance run's PI of 1 to 2 a fault.",
+     "cite": "Megger, Polarization index (PI) test (research)"
+    }
+   ],
+   "where": "After core resistance, before the sheath test. Earth the core and the screen at both ends before the test and after it.",
+   "figures": [
+    "3a",
+    "3b",
+    "3c"
+   ]
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Can we beat the heat? | Megger",
+    "url": "https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29",
+    "quote": "In general, for every 10°C increase in temperature, halve the resistance; or, for every 10°C decrease double the resistance."
+   },
+   {
+    "n": 2,
+    "title": "A guide to diagnostic insulation testing above 1 kV (Megger)",
+    "url": "https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf",
+    "quote": "If the operator performs a 10-minute PI test, he/she should allow the unit to discharge for 50 minutes."
+   },
+   {
+    "n": 3,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p9",
+    "quote": "DAR: <1.25 / 1.25–1.6 / >1.6 Inadequate / Satisfactory / Excellent"
+   },
+   {
+    "n": 4,
+    "title": "Your subsea cable testing course notes",
+    "url": "material:notes#p9",
+    "quote": "PI: <1 / 1–2 / 2–4 / >4 Poor / Questionable / Okay / Good"
+   },
+   {
+    "n": 5,
+    "title": "Q and A: Insulation resistance testing | Megger",
+    "url": "https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing",
+    "quote": "If the insulation is in good condition, the PI will be 2.0 or higher."
+   },
+   {
+    "n": 6,
+    "title": "Q and A: Insulation resistance testing | Megger",
+    "url": "https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing",
+    "quote": "Typically, the DAR will be 1.4 or higher if the insulation being tested is in good condition."
+   },
+   {
+    "n": 7,
+    "title": "Polarization index (PI) test | Megger",
+    "url": "https://www.megger.com/en/PIpredictor",
+    "quote": "there are materials that exhibit very little or no dielectric absorption"
+   },
+   {
+    "n": 8,
+    "title": "Polarization index (PI) test | Megger",
+    "url": "https://www.megger.com/en-us/PIpredictor",
+    "quote": "PI results of 1.00-2.00 would be considered acceptable for equipment with very low capacitance, such as short runs of house wiring."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  #prog .k-label, #prog .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task > p + p, .why > p + p, .pre > p + p { margin-top: 10px; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }\n  .why, .pre { line-height: 1.6; }\n  .ctl { display: grid; gap: 12px; }\n  .warn-note .wh { font-weight: 700; }\n  .warn-note p + p { margin-top: 6px; }\n  .carry .k-cr { grid-template-columns: 2rem minmax(0, 1fr) 24px; }\n  .carry .k-cr-value { grid-column: 2; grid-row: 2; }\n  .sym { white-space: nowrap; }\n  .scene { display: block; width: 100%; }\n  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lbA { font: 700 13px var(--k-font); fill: var(--k-accent2); }\n  .scene .cu { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 2; }\n  .scene .xl { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1; }\n  .scene .sw { fill: var(--k-strong); }\n  .scene .ar { stroke: var(--k-accent2); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .lead { stroke: var(--k-ink); stroke-width: 2.5; fill: none; stroke-linejoin: round; }\n  .scene .term { fill: var(--k-ink); }\n  .scene .tst { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; fill: none; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; fill: none; }\n  .scene .crit { stroke: var(--k-amber-line); stroke-width: 2; stroke-dasharray: 6 4; fill: none; }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }\n  .scene .cur { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linejoin: round; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .lk { fill: var(--k-fill3); }\n  .scene .lkl { stroke: var(--k-accent); stroke-width: 2; fill: none; }\n  .scene .ab { fill: var(--k-fill1); }\n  .scene .ch { fill: var(--k-sunk); stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .hair { stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .merc { fill: var(--k-accent2); }\n  .scene .bar { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .bref { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .tOn { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .tE { fill: var(--k-fill3); stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .tD { stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }\n  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr)); gap: 8px; }\n  .card { border: 1px solid var(--k-line); border-radius: 10px; background: var(--k-panel); padding: 8px; }\n  .card svg { display: block; width: 100%; max-width: 6rem; margin: 4px auto; }\n  .card p { font-size: .9rem; line-height: 1.35; }\n  .card .ic { stroke: var(--k-strong); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .card .icS { stroke: var(--k-strong); stroke-width: 4.5; fill: none; stroke-linecap: round; }\n  .card .icF { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .card .icA { stroke: var(--k-accent2); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }\n  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .wl .line + .line, .wl .line + .sub, .wl .sub + .sub { margin-top: 10px; }\n  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .rec { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }\n  .rec caption { caption-side: top; text-align: left; font-weight: 700; padding-bottom: 6px; }\n  .rec th, .rec td { padding: 5px 4px; border-bottom: 1px solid var(--k-line); text-align: right; }\n  .rec thead th { color: var(--k-muted); font-weight: 600; }\n  .rec tbody th { text-align: left; color: var(--k-muted); font-weight: 400; }\n  #rate > * + * { margin-top: 10px; }\n  #stepbox.enter, .wl .line.enter, .fade { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing .wl .line.enter, html.k-testing .fade { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .line.enter, .fade { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"scen\"></div>\n    <div class=\"carry\" id=\"carry3b\"></div>\n    <div class=\"carry\" id=\"carry3c\"></div>\n    <div class=\"pre\" id=\"pre\"></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n\n    <div id=\"wrapX\"><svg class=\"scene\" id=\"xsec\" viewBox=\"0 0 340 196\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"warn-note\" id=\"warnFor\"></div>\n\n    <p class=\"sub\" id=\"noteC\"></p>\n    <div id=\"wrapC\"><svg class=\"scene\" id=\"curves\" viewBox=\"0 0 340 336\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlC\"></div>\n    <div class=\"k-readouts\" id=\"outsC\"></div>\n    <div class=\"k-readouts\" id=\"outsC2\"></div>\n    <p class=\"sub\" id=\"bandC\"></p>\n    <p class=\"sub\" id=\"refC\"></p>\n    <p class=\"say\" id=\"sayC\"></p>\n    <p class=\"caption\" id=\"capC\">A sketch, from one simple rule and practice values.</p>\n\n    <p class=\"sub\" id=\"noteT\"></p>\n    <div id=\"wrapT\"><svg class=\"scene\" id=\"therm\" viewBox=\"0 0 340 192\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"ctl\" id=\"ctlT\"></div>\n    <div class=\"k-readouts\" id=\"outsT\"></div>\n    <p class=\"say\" id=\"sayT\"></p>\n\n    <div id=\"disc\">\n      <p class=\"k-label\">The discharge order</p>\n      <div class=\"cards\" id=\"cards\"></div>\n      <svg class=\"scene\" id=\"tline\" viewBox=\"0 0 340 60\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n    </div>\n\n    <div id=\"worked\"></div>\n    <div class=\"row\" id=\"workedgo\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div id=\"ans-3a\"></div>\n    <div id=\"ans-3b\"></div>\n    <div id=\"ans-3c\"></div>\n    <div id=\"ans-ch\"></div>\n    <div class=\"row\" id=\"acts\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"rate\">\n      <p class=\"sub ask\">How does it rate, and would it go through?</p>\n      <div class=\"picks\" id=\"ratePicks\"></div>\n      <div class=\"fb\" id=\"rateFb\" aria-live=\"polite\"></div>\n    </div>\n    <div class=\"note why\" id=\"after\"></div>\n    <div id=\"rec\"></div>\n    <div class=\"row\" id=\"go\"></div>\n    <div id=\"wr1\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\" id=\"cap\">Each line is worked from the rounded figures shown before it.</p>\n\n<script>\n  // ---------- rounding, helpers and the course's figures ----------\n  const r1 = (x) => Math.round(x * 10 + 1e-7) / 10;\n  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;\n  const f1 = (x) => r1(x).toFixed(1);\n  const f2 = (x) => r2(x).toFixed(2);\n  const F = (id) => K.figure(id);\n  const el = (id) => document.getElementById(id);\n  const NB = '\\u00a0';\n  // Non-breaking spaces: before an operator, and between a number and its unit.\n  const nb = (s) => String(s == null ? '' : s)\n    .replace(/ ([×÷+=−]) /g, NB + '$1 ')\n    .replace(/(\\d) (?=(?:GΩ|MΩ|nA|µF|mC|kV|°C|min|J|s)(?![A-Za-z]))/g, '$1' + NB);\n  const vis = (e, on) => { if (on) e.removeAttribute('display'); else e.setAttribute('display', 'none'); };\n  function txt(parent, x, y, s, cls, anchor) {\n    const t = parent.appendChild(K.svg('text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }));\n    t.textContent = s;\n    return t;\n  }\n  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];\n\n  const fRec = F('l3.recall'), fS1 = F('l3.recall.slip1'), fS2 = F('l3.recall.slip2');\n  const f3a = F('3a'), f3b = F('3b'), f3c = F('3c');\n  const fL1D = F('l3.L1.DAR'), fL2D = F('l3.L2.DAR'), fL3P = F('l3.L3.PI'), fL3D = F('l3.L3.DAR');\n  const fQ = F('l3.charge'), fE = F('l3.energy'), fC1 = F('1a');\n  const fChg = F('l3.changed'), fX = F('l3.check.X'), fY = F('l3.check.Y');\n  const fV = F('p.irV'), fCrit = F('p.irCrit'), fPiT = F('p.piTime'), fTemp = F('p.temp');\n  const IR = {\n    1: ['p.ir1.30s', 'p.ir1.1m', 'p.ir1.10m'].map(F),\n    2: ['p.ir2.30s', 'p.ir2.1m', 'p.ir2.10m'].map(F),\n    3: ['p.ir3.30s', 'p.ir3.1m', 'p.ir3.10m'].map(F),\n  };\n  const KV = fV.value, VOLTS = KV * 1000, CRIT = fCrit.value, TAU = F('p.irTau').value, TAUC = F('p.irTauC').value;\n  const FIVE = F('n.discharge').value, PIMIN = fPiT.value, TEMP = fTemp.value;\n  // Practice values: the recall core, the check's two cores and the changed-numbers core.\n  const RC = { r1: 2.0, r10: 6.0 }, CX = { r1: 3.00, x10: 3.20, y10: 9.00 }, CH = { r1: 8.0, r10: 9.6 };\n  // Bands from the notes, and a maker's figures for good insulation.\n  const PI_EDGE = [1, 2, 4], DAR_EDGE = [1.25, 1.6], MAKER_PI = 2.0, MAKER_DAR = 1.4, OLD = 4;\n  const piBand = (v) => v < PI_EDGE[0] ? 'poor' : v < PI_EDGE[1] ? 'questionable' : v <= PI_EDGE[2] ? 'okay' : 'good';\n  const piRange = (v) => v < 1 ? 'below 1' : v < 2 ? '1 to 2' : v <= 4 ? '2 to 4' : 'above 4';\n  const darBand = (v) => v < DAR_EDGE[0] ? 'inadequate' : v <= DAR_EDGE[1] ? 'satisfactory' : 'excellent';\n\n  // ---------- the sketch's rule: 1 ÷ R = 1 ÷ R∞ + 0.061 × e^(−t ÷ 70 s), R in GΩ ----------\n  const ABS = 0.061, RINF = [64, 10, 2.4], NAMES = ['Dry', 'Damp', 'Wet'];\n  const Rof = (t, ri) => 1 / (1 / ri + ABS * Math.exp(-t / TAU));\n  const leakOf = (ri) => VOLTS / ri;                                   // nA, with R in GΩ\n  const absOf = (t) => VOLTS * ABS * Math.exp(-t / TAU);                // nA\n  const chgOf = (t) => fC1.value * VOLTS / TAUC * 1000 * Math.exp(-t / TAUC);   // nA: C × V ÷ τ\n  // A reading under 10 GΩ is shown to 2 places, one at 10 GΩ or more to 1 place.\n  const fmtR = (v) => (v < 10 ? r2(v).toFixed(2) : r1(v).toFixed(1));\n  const shownR = (v) => +fmtR(v);\n  const si = (v) => K.clamp(Math.round(+v || 0), 0, 2);\n  const tv = (v) => { const t = Math.round(+v); return isFinite(t) ? K.clamp(t, 0, 40) : 20; };\n  const R20_1 = shownR(Rof(60, RINF[0])), R20_10 = shownR(Rof(600, RINF[0]));\n  const factorAt = (t) => Math.pow(2, (20 - t) / 10);\n  const setOf = (s) => {\n    const ri = RINF[s], a = Rof(30, ri), b = Rof(60, ri), c = Rof(600, ri);\n    return { a, b, c, dar: r2(shownR(b) / shownR(a)), pi: r2(shownR(c) / shownR(b)), leak: leakOf(ri) };\n  };\n  const DRY = setOf(0), DAMP = setOf(1), WET = setOf(2);\n\n  // ---------- the lesson's words ----------\n  const O1 = fS1.text + ', ' + piBand(fS1.value), O2 = fRec.text + ', ' + piBand(fRec.value), O3 = fS2.value.toFixed(1) + ', ' + piBand(fS2.value);\n  const R_TASK = 'One core reads ' + f1(RC.r1) + ' GΩ at 1 minute and ' + f1(RC.r10) + ' GΩ at 10 minutes. What is its PI, and how does it rate?';\n  const R_WORK = 'PI = R10 ÷ R1 = ' + fRec.work.split(',')[0] + '. That sits in the ' + piRange(fRec.value) + ' band, ' + piBand(fRec.value) + '.';\n  const R_SLIPS = fS1.text + ' is the ratio upside down, and ' + fS2.value.toFixed(1) + ' is how far the reading rose.';\n  const R_W1 = 'That is the ratio upside down, ' + fS1.work.split(' = ')[0] + \". Put the 10-minute reading on top. A healthy core's PI comes out above 1.\";\n  const R_W3 = 'That is the rise, ' + fS2.work.split(' = ')[0] + ' GΩ. PI is a ratio. Divide the 10-minute reading by the 1-minute reading.';\n  const FOR_TEXT = 'The IR test puts a steady d.c. voltage between a core and its screen. It is the same test you do on an installation, read over 10 minutes instead of once. '\n    + 'The tester measures the tiny current that gets through the XLPE and shows it as a resistance. '\n    + 'It answers one question: is the insulation dry and clean, at low stress? It runs after core resistance and before the sheath test. '\n    + 'On String B it runs at ' + fV.text + \". That is the client's choice, and a practice value here.\";\n  const WARN_FOR = 'Damp or dirty insulation goes on to the high-voltage tests unseen. So does a core that passes on one reading but leaks steadily.';\n  const WHY_TEXT = 'The current the tester sees has three parts. A charging current fills the cable\\'s capacitance and dies away in seconds. '\n    + 'An absorption current flows while the insulation slowly polarises. Charge inside the plastic shifts into line with the field, and that slow shift is a current. It dies away over minutes. '\n    + 'A leakage current runs through the insulation and stays.\\n\\n'\n    + 'The tester shows voltage ÷ current. So as the first two die away, the reading climbs. Water or dirt adds leakage, and leakage does not die away. It swamps the absorption, so the reading hardly climbs.';\n  const NOTE_C = 'One core at ' + KV + ' kV for 10 minutes. On both graphs, each mark up the side is ten times the last.';\n  const WHY_READ = 'The dry core climbs from ' + fmtR(DRY.a) + ' GΩ at 30 s to ' + fmtR(DRY.c) + ' GΩ at 10 minutes, a PI of ' + f2(DRY.pi) + '. '\n    + 'In the wet core, a steady ' + Math.round(WET.leak) + ' nA of leakage swamps the absorption. It reads ' + fmtR(WET.a) + ', ' + fmtR(WET.b) + ' and ' + fmtR(WET.c) + ' GΩ, a PI of ' + f2(WET.pi) + '. '\n    + 'Both clear ' + CRIT + \" GΩ at 1 minute. Against the client's \" + CRIT + ' GΩ alone, only the climb tells them apart.';\n  const TEMP_TEXT = 'A single reading swings with temperature. As a rule of thumb, insulation resistance halves for every 10 °C rise and doubles for every 10 °C fall. '\n    + \"So a reading on a warm day can look worse than last month's, with nothing wrong. \"\n    + 'PI and DAR take two readings close together, on the same cable, at the same temperature. Warmth pulls both down together, so the ratio barely moves.';\n  const NOTE_T = 'The dry core from the last screen. Assume it was read at 20 °C, where it reads ' + f1(R20_1) + ' and ' + f1(R20_10) + ' GΩ. '\n    + 'The sketch assumes both readings fall alike. Each mark along the bottom is ten times the last.';\n  const TEMP_READ = 'At 20 °C the core reads ' + f1(R20_1) + ' GΩ at 1 minute. At 40 °C the same sound core reads ' + f1(R20_1 * factorAt(40)) + ' GΩ, a quarter as much. '\n    + 'Both bars slide down together, and the gap between their ends stays the same. Its PI stays at ' + f2(R20_10 / R20_1) + ' the whole way.';\n  const C_TASK = 'Two cores of one cable both read ' + f2(CX.r1) + \" GΩ at 1 minute, well over the client's \" + CRIT + ' GΩ. At 10 minutes, core X reads ' + f2(CX.x10)\n    + ' GΩ and core Y reads ' + f2(CX.y10) + ' GΩ. Which core has a steady leakage, such as moisture?';\n  const C_O1 = 'Core X', C_O2 = 'Core Y', C_O3 = 'Neither: both pass ' + CRIT + ' GΩ';\n  const C_RIGHT = \"X's reading hardly climbs. PI = \" + fX.work + \". Most of X's current is steady leakage, and leakage does not die away. \"\n    + 'Y climbs to a PI of ' + fY.work + ', as its absorption current dies.';\n  const C_W2 = \"Y's reading changed the most, and that is the healthy sign. Its absorption current died away and left only a small leakage.\";\n  const C_W3 = \"Both pass on one reading. But X's flat curve points to a steady leakage that one reading cannot show.\";\n  const DIS_TEXT = 'When the test stops, the core is a charged capacitor. One core of String B has ' + fC1.text + '. At ' + KV + ' kV it holds Q = C × V = ' + fQ.work + '. '\n    + 'Its energy is E = ½ × C × V² = ' + fE.work + '. Part of the charge has soaked into the insulation. It seeps back out after the core has been discharged, and can bring the voltage back.\\n\\n'\n    + \"Never improvise the order. Check the tester's display shows discharged. Then the discharge stick, then the hook stick, then the hand earth. Earth the core and the screen at both ends.\\n\\n\"\n    + 'Keep it discharging and earthed for at least ' + WORDS[FIVE] + ' times as long as the test voltage was on. After a 1-minute spot reading, that is at least ' + (FIVE * 1) + ' minutes. '\n    + 'Some older guidance says ' + WORDS[OLD] + ' times. Use ' + WORDS[FIVE] + '. Then leave the earths on until the next test needs them.';\n  const WK_HEAD = 'L3 at ' + KV + ' kV reads ' + IR[3][0].text + ' at 30 s, ' + IR[3][1].text + ' at 1 minute and ' + IR[3][2].text + ' at 10 minutes. These are practice values.';\n  const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);\n  const WL = [\n    { w: 'DAR = R60s ÷ R30s = ' + fL3D.work + '. ' + cap1(darBand(fL3D.value)) + ': 1.25 to 1.6.' },\n    { w: 'PI = R10 ÷ R1 = ' + fL3P.work + '. ' + cap1(piBand(fL3P.value)) + ': ' + piRange(fL3P.value) + '.' },\n    { w: 'The voltage held for the full ' + PIMIN + ' minutes, and ' + IR[3][1].text + \" beats the client's \" + CRIT + ' GΩ. L3 passes.' },\n  ];\n  const WK_NOTES = [\n    'A DAR is done in 1 minute, where a PI takes 10. That makes it the quick check. It comes out lower than the PI. Its two readings are only 30 s apart, so it sees less of the climb.',\n    'Makers draw the bands in other places. Some call a PI of ' + MAKER_PI.toFixed(1) + ' or more good, and a DAR of ' + MAKER_DAR.toFixed(1) + \" or more. On those bands, L3's PI counts as good, but its DAR of \"\n      + fL3D.text + \" falls short. The client's test spec decides pass or fail.\",\n    \"One more caution. Some insulation shows very little absorption, so its reading barely climbs even when it is sound. So read each core's PI beside its sister cores. \"\n      + 'The core that stands apart is the one to question.',\n  ];\n  const WK_READ = \"L3's DAR is \" + fL3D.work + ', ' + darBand(fL3D.value) + '. Its PI is ' + fL3P.work + ', ' + piBand(fL3P.value) + '. It held the voltage for ' + PIMIN\n    + \" minutes and beats the client's \" + CRIT + ' GΩ. So it passes.';\n  const TEST_TEXT = 'Each core of String B is tested in turn at ' + fV.text + ', core to screen, for ' + PIMIN + ' minutes. The client asks for ' + fCrit.text + '. These are practice values. '\n    + 'L1 reads ' + IR[1][0].text + ' at 30 s, ' + IR[1][1].text + ' at 1 minute and ' + IR[1][2].text + ' at 10 minutes.';\n  const Q3A = '(a) Determine the polarisation index of core L1.';\n  const L2_TEXT = 'L2 reads ' + IR[2][0].text + ' at 30 s, ' + IR[2][1].text + ' at 1 minute and ' + IR[2][2].text + ' at 10 minutes.';\n  const Q3B = '(b) Determine the polarisation index of core L2.';\n  const C3_PRE = \"L2's PI test held \" + KV + ' kV for ' + PIMIN + ' minutes.';\n  const Q3C = '(c) Determine the least time L2 must then stay discharged and earthed.';\n  const Q_CH = \"Another cable's core reads \" + f1(CH.r1) + ' GΩ at 1 minute and ' + f1(CH.r10) + ' GΩ at 10 minutes. Determine its PI.';\n  const CH_WORK = 'PI = R10 ÷ R1 = ' + fChg.work.split(',')[0];\n\n  let lines = 0, lastStep = -1, finished = false, stillMode = false;\n  const STEPS = [\n    { name: 'Do you still have it?', label: 'Do you still have it?', task: R_TASK, opts: [O1, O2, O3], want: O2, why: R_WORK + ' ' + R_SLIPS },\n    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT, terms: ['IR test'] },\n    { show: true, name: 'The why: three currents', label: 'The why: three currents', text: WHY_TEXT, terms: ['charging current', 'absorption current', 'leakage current'],\n      read: WHY_TEXT.replace('\\n\\n', ' ') + ' ' + WHY_READ, still: () => { stillMode = true; insCtl.set(2); K.refresh(); endMotion(); } },\n    { show: true, name: 'A ratio ignores the weather', label: 'The why: a ratio ignores the weather', text: TEMP_TEXT, terms: ['halves for every 10 °C rise'],\n      read: TEMP_TEXT + ' ' + TEMP_READ, still: { temp: 40 } },\n    { name: 'Check', label: 'Check', task: C_TASK, opts: [C_O1, C_O2, C_O3], want: C_O1, why: C_RIGHT },\n    { show: true, name: 'After the test: discharge', label: 'After the test: discharge', text: DIS_TEXT, terms: ['charged capacitor'] },\n    { show: true, name: 'Worked example', label: 'Worked example: L3', text: WK_HEAD, read: WK_HEAD + ' ' + WK_READ, still: () => { lines = WL.length; K.refresh(); } },\n    { name: 'Section A 3(a)', label: 'Section A · Question 3', pre: TEST_TEXT, part: Q3A, task: TEST_TEXT + ' ' + Q3A, want: f3a.text, why: 'PI = R10 ÷ R1 = ' + f3a.work + '.' },\n    { name: 'Section A 3(b)', label: 'Section A · Question 3', pre: L2_TEXT, part: Q3B, task: L2_TEXT + ' ' + Q3B, want: f3b.text, why: 'PI = R10 ÷ R1 = ' + f3b.work + '.',\n      still: () => { const st = S[i3B]; if (!(st.res === 'right' || st.shown)) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', w: SPEC[i3B].work() }; ANS[i3B].reveal(); } ratePick(1); } },\n    { name: 'Section A 3(c)', label: 'Section A · Question 3', pre: C3_PRE, part: Q3C, task: C3_PRE + ' ' + Q3C, want: f3c.text, why: f3c.work + '.' },\n    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },\n    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: Q_CH, task: Q_CH, want: fChg.text, why: CH_WORK + '.' },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iR = 0, iFor = 1, iWhy = 2, iTemp = 3, iChk = 4, iDis = 5, iWk = 6, i3A = 7, i3B = 8, i3C = 9, iB1 = 10, iCh = 11, iK = 12;\n  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));\n  const WORKING = [iDis, iWk, i3A, i3B, i3C, iCh];\n\n  // Words with key terms in amber (the <mark> element) and R10, R1, R60s, R30s with subscripts,\n  // built with K.el, never innerHTML.\n  const SUBS = { R10: '10', R1: '1', R60s: '60 s', R30s: '30 s' };\n  function addText(node, s) {\n    String(s).split(/(R10|R60s|R30s|R1(?![0-9]))/).forEach((part) => {\n      if (SUBS[part]) node.appendChild(K.el('span', { class: 'sym' }, 'R', K.el('sub', null, SUBS[part])));\n      else if (part) node.appendChild(document.createTextNode(nb(part)));\n    });\n  }\n  function write(node, s, terms) {\n    node.textContent = '';\n    let rest = String(s || '');\n    const list = (terms || []).slice();\n    while (rest) {\n      let at0 = -1, hit = null;\n      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at0 < 0 || k < at0)) { at0 = k; hit = t; } });\n      if (at0 < 0) { addText(node, rest); break; }\n      if (at0 > 0) addText(node, rest.slice(0, at0));\n      node.appendChild(K.el('mark', null, nb(hit)));\n      list.splice(list.indexOf(hit), 1);\n      rest = rest.slice(at0 + hit.length);\n    }\n    return node;\n  }\n  function paras(node, s, terms) {\n    node.textContent = '';\n    String(s || '').split('\\n\\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });\n  }\n\n  // ---------- controls and readouts ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const insCtl = K.stepper({ id: 'ins', label: 'Insulation', steps: NAMES, value: 0, compact: true, into: '#ctlC' });\n  K.readout({ id: 'r30', label: 'At 30 s', fmt: (v) => fmtR(v) + ' GΩ', into: '#outsC' });\n  K.readout({ id: 'r60', label: 'At 1 minute', fmt: (v) => fmtR(v) + ' GΩ', into: '#outsC' });\n  K.readout({ id: 'r600', label: 'At 10 minutes', fmt: (v) => fmtR(v) + ' GΩ', into: '#outsC' });\n  K.readout({ id: 'dar', label: 'DAR', decimals: 2, into: '#outsC2' });\n  K.readout({ id: 'pi', label: 'PI', decimals: 2, into: '#outsC2' });\n  K.control({ id: 'temp', label: 'Cable temperature', min: 0, max: 40, step: 1, value: 20, unit: '°C', fmt: (v) => Math.round(v) + NB + '°C', snap: [TEMP, 40], into: '#ctlT' });\n  K.readout({ id: 'r1t', label: 'At 1 minute', unit: 'GΩ', decimals: 1, into: '#outsT' });\n  K.readout({ id: 'r10t', label: 'At 10 minutes', unit: 'GΩ', decimals: 1, into: '#outsT' });\n  K.readout({ id: 'piT', label: 'PI', decimals: 2, into: '#outsT' });\n\n  K.model((p) => {\n    const st = setOf(si(p.ins)), k = factorAt(tv(p.temp));\n    return { r30: st.a, r60: st.b, r600: st.c, dar: st.dar, pi: st.pi, r1t: R20_1 * k, r10t: R20_10 * k, piT: r2((R20_10 * k) / (R20_1 * k)) };\n  });\n\n  // ---------- what it is for: one core in cross-section ----------\n  const xEl = el('xsec');\n  const XC = 100, YC = 100;\n  xEl.appendChild(K.svg('circle', { class: 'xl', cx: XC, cy: YC, r: 76 }));\n  for (let k = 0; k < 40; k++) {\n    const a = k / 40 * 2 * Math.PI;\n    xEl.appendChild(K.svg('circle', { class: 'sw', cx: (XC + 80 * Math.cos(a)).toFixed(1), cy: (YC + 80 * Math.sin(a)).toFixed(1), r: 3.4 }));\n  }\n  xEl.appendChild(K.svg('circle', { class: 'cu', cx: XC, cy: YC, r: 26 }));\n  txt(xEl, XC, YC + 4.5, 'core', 'lb', 'middle');\n  txt(xEl, XC, 56, 'XLPE', 'lb', 'middle');\n  txt(xEl, XC, 160, 'nanoamps', 'lbA', 'middle');\n  txt(xEl, 4, 190, 'screen', 'lb');\n  xEl.appendChild(K.svg('path', { class: 'ax', d: 'M30 178L40 164' }));\n  xEl.appendChild(K.svg('rect', { class: 'tst', x: 226, y: 62, width: 104, height: 60, rx: 8 }));\n  txt(xEl, 278, 87, 'IR tester', 'lb', 'middle');\n  txt(xEl, 278, 106, fV.text, 'tk', 'middle');\n  xEl.appendChild(K.svg('path', { class: 'lead', d: 'M240 62V44H150L120.5 83' }));\n  xEl.appendChild(K.svg('path', { class: 'lead', d: 'M240 122V146H186L177 136' }));\n  [[240, 62], [240, 122], [120.5, 83], [177, 136]].forEach((q) => xEl.appendChild(K.svg('circle', { class: 'term', cx: q[0], cy: q[1], r: 3.5 })));\n  txt(xEl, 214, 36, 'black lead, −', 'tk', 'middle');\n  txt(xEl, 214, 164, 'red lead, +', 'tk', 'middle');\n  const arrG = xEl.appendChild(K.svg('g'));\n  const ARR = [];\n  [0, 50, 130, 180, 235].forEach((deg) => [0.25, 0.75].forEach((ph) => {\n    ARR.push({ deg, ph, el: arrG.appendChild(K.svg('path', { class: 'ar', d: 'M-7 0H5M1 -3.5L5 0L1 3.5' })) });\n  }));\n  let flowT = 0, flowLeft = 0, flowKey = '';\n  function drawArrows() {\n    ARR.forEach((a) => {\n      const f = (a.ph + flowT * 0.35) % 1, r = 72 - 40 * f, rad = a.deg * Math.PI / 180;\n      a.el.setAttribute('transform', 'translate(' + (XC + r * Math.cos(rad)).toFixed(1) + ' ' + (YC + r * Math.sin(rad)).toFixed(1) + ') rotate(' + (a.deg + 180) + ')');\n      a.el.style.opacity = K.clamp(Math.min((72 - r) / 6, (r - 32) / 6), 0, 1).toFixed(2);\n    });\n  }\n  drawArrows();\n  xEl.setAttribute('aria-label', 'One core in cross-section: the copper core in the middle, XLPE round it and the wire screen outside. An IR tester at ' + fV.text\n    + ' has its red lead on the screen and its black lead on the core. Small arrows cross the XLPE from the screen to the core: a current of nanoamps.');\n\n  // ---------- the why: the reading and the current over ten minutes ----------\n  const cEl = el('curves');\n  const X0 = 48, X1 = 296, xT = (t) => X0 + t / 600 * (X1 - X0);\n  const yR = (R) => 130 - Math.log10(R) * 50;\n  const YB = 290, YT = 182, yI = (I) => Math.max(YT, YB - (Math.log10(Math.max(I, 10)) - 1) * 36);\n  const S_ = (tag, a) => cEl.appendChild(K.svg(tag, a));\n  const ticks = (y) => { let d = 'M' + X0 + ' ' + y + 'H' + X1; for (let m = 0; m <= 10; m += 2) d += 'M' + xT(m * 60).toFixed(1) + ' ' + y + 'V' + (y + 4); return d; };\n  txt(cEl, 4, 16, 'Reading (GΩ)');\n  [10, 100].forEach((R) => S_('path', { class: 'grid', d: 'M' + X0 + ' ' + yR(R) + 'H' + X1 }));\n  [1, 10, 100].forEach((R) => txt(cEl, 42, yR(R) + 4.5, String(R), 'tk', 'end'));\n  S_('path', { class: 'crit', d: 'M' + X0 + ' ' + yR(CRIT) + 'H' + X1 });\n  S_('path', { class: 'ax', d: ticks(136) });\n  const refP = S_('path', { class: 'ref' }), curP = S_('path', { class: 'cur' });\n  const refL = txt(cEl, 300, 0, NAMES[0], 'tk'), curL = txt(cEl, 300, 0, '', 'lbA');\n  const dots = [30, 60, 600].map((t) => ({ t, el: S_('circle', { class: 'dot', r: 4 }) }));\n  S_('path', { class: 'crit', d: 'M8 148H26' });\n  txt(cEl, 32, 152, \"client's \" + CRIT + ' GΩ at 1 min', 'tk');\n  S_('circle', { class: 'dot', cx: 204, cy: 148, r: 4 });\n  txt(cEl, 214, 152, 'the three readings', 'tk');\n  txt(cEl, 4, 172, 'Current (nA)');\n  [100, 1000, 10000].forEach((I) => S_('path', { class: 'grid', d: 'M' + X0 + ' ' + yI(I) + 'H' + X1 }));\n  [[10, '10'], [100, '100'], [1000, '1000'], [10000, '10 000']].forEach((q) => txt(cEl, 42, yI(q[0]) + 4.5, q[1], 'tk', 'end'));\n  const lkA = S_('path', { class: 'lk' }), abA = S_('path', { class: 'ab' }), chA = S_('path', { class: 'ch' });\n  const lkL = S_('path', { class: 'lkl' }), totL = S_('path', { class: 'cur' });\n  S_('path', { class: 'ax', d: ticks(YB) });\n  for (let m = 0; m <= 10; m += 2) txt(cEl, xT(m * 60).toFixed(1), 306, m === 10 ? '10 min' : String(m), 'tk', 'middle');\n  S_('rect', { class: 'lk', x: 8, y: 318, width: 14, height: 10 }); txt(cEl, 28, 328, 'Leakage', 'tk');\n  S_('rect', { class: 'ab', x: 112, y: 318, width: 14, height: 10 }); txt(cEl, 132, 328, 'Absorption', 'tk');\n  S_('rect', { class: 'ch', x: 236, y: 318, width: 14, height: 10 }); txt(cEl, 256, 328, 'Charging', 'tk');\n  const hair = S_('g');\n  const hTop = hair.appendChild(K.svg('path', { class: 'hair' })), hBot = hair.appendChild(K.svg('path', { class: 'hair' }));\n  const hR = hair.appendChild(K.svg('circle', { class: 'dot', r: 4.5 })), hI = hair.appendChild(K.svg('circle', { class: 'dot', r: 4.5 }));\n  vis(hair, false);\n\n  const TS = []; for (let t = 0; t <= 600; t += 3) TS.push(t);\n  const CS = []; for (let t = 0; t <= 45; t += 0.5) CS.push(t);\n  const ptsPath = (pts, dec) => pts.map((q, k) => (k ? 'L' : 'M') + q[0].toFixed(dec) + ' ' + q[1].toFixed(dec)).join('');\n  const CACHE = {};\n  function pathsFor(s) {\n    if (CACHE[s]) return CACHE[s];\n    const ri = RINF[s], lk = leakOf(ri), yl = yI(lk).toFixed(1);\n    const tot = ptsPath(TS.map((t) => [xT(t), yI(lk + absOf(t))]), 1);\n    const up = CS.map((t) => [xT(t), yI(lk + absOf(t) + chgOf(t))]);\n    const dn = CS.slice().reverse().map((t) => [xT(t), yI(lk + absOf(t))]);\n    CACHE[s] = {\n      r: ptsPath(TS.map((t) => [xT(t), yR(Rof(t, ri))]), 1), tot,\n      ab: tot + 'L' + X1 + ' ' + yl + 'L' + X0 + ' ' + yl + 'Z',\n      lkA: 'M' + X0 + ' ' + yl + 'H' + X1 + 'V' + YB + 'H' + X0 + 'Z', lkL: 'M' + X0 + ' ' + yl + 'H' + X1,\n      ch: ptsPath(up.concat(dn), 2) + 'Z',\n    };\n    return CACHE[s];\n  }\n  let sweepPos = 600, fadeT = 1;\n  function drawCursor(p) {\n    const ri = RINF[si(p.ins)];\n    if (sweepPos >= 600 && fadeT >= 0.6) { vis(hair, false); return; }\n    vis(hair, true);\n    hair.style.opacity = (sweepPos < 600 ? 1 : K.clamp(1 - fadeT / 0.6, 0, 1)).toFixed(2);\n    const x = xT(sweepPos).toFixed(1);\n    hTop.setAttribute('d', 'M' + x + ' 30V130');\n    hBot.setAttribute('d', 'M' + x + ' ' + YT + 'V' + YB);\n    hR.setAttribute('cx', x); hR.setAttribute('cy', yR(Rof(sweepPos, ri)).toFixed(1));\n    hI.setAttribute('cx', x); hI.setAttribute('cy', yI(leakOf(ri) + absOf(sweepPos)).toFixed(1));\n  }\n  function drawCurves(p) {\n    const s = si(p.ins), ri = RINF[s], P = pathsFor(s), st = setOf(s);\n    curP.setAttribute('d', P.r);\n    refP.setAttribute('d', pathsFor(0).r);\n    vis(refP, s !== 0); vis(refL, s !== 0);\n    refL.setAttribute('y', (yR(DRY.c) + 4.5).toFixed(1));\n    curL.textContent = NAMES[s];\n    curL.setAttribute('y', (yR(st.c) + 4.5).toFixed(1));\n    dots.forEach((d) => { d.el.setAttribute('cx', xT(d.t).toFixed(1)); d.el.setAttribute('cy', yR(Rof(d.t, ri)).toFixed(1)); });\n    lkA.setAttribute('d', P.lkA); lkL.setAttribute('d', P.lkL); abA.setAttribute('d', P.ab); chA.setAttribute('d', P.ch); totL.setAttribute('d', P.tot);\n    drawCursor(p);\n    const lk = Math.round(st.leak), a30 = Math.round(absOf(30)), a60 = Math.round(absOf(60));\n    const SAY = [\n      'The dry core leaks only ' + lk + ' nA. The absorption current fades from ' + a30 + ' nA at 30 s to ' + a60 + ' nA at 1 minute. In this sketch, it is all but gone by 10 minutes. '\n        + 'So the reading climbs from ' + fmtR(st.a) + ' GΩ to ' + fmtR(st.c) + ' GΩ.',\n      'The damp core leaks a steady ' + lk + ' nA, so the fading absorption is a smaller share of the current. The reading climbs only from ' + fmtR(st.a) + ' GΩ to ' + fmtR(st.c) + ' GΩ.',\n      'The wet core leaks a steady ' + lk + ' nA. The ' + a60 + ' nA of absorption at 1 minute is lost under it, so the reading barely climbs, from ' + fmtR(st.a) + ' GΩ to '\n        + fmtR(st.c) + \" GΩ. It still clears the client's \" + CRIT + ' GΩ at 1 minute.',\n    ];\n    el('sayC').textContent = nb(SAY[s]);\n    el('bandC').textContent = 'DAR: ' + darBand(st.dar) + '. PI: ' + piBand(st.pi) + '.';\n    el('refC').textContent = s === 0 ? '' : nb('Dry, for comparison: ' + fmtR(DRY.a) + ', ' + fmtR(DRY.b) + ' and ' + fmtR(DRY.c) + ' GΩ. DAR ' + f2(DRY.dar) + ', PI ' + f2(DRY.pi) + '.');\n    cEl.setAttribute('aria-label', 'Two graphs of one core over 10 minutes, ' + NAMES[s].toLowerCase() + '. Top: the reading, climbing ' + (s === 0 ? 'steeply' : s === 1 ? 'a little' : 'hardly at all')\n      + ', above the dashed line for the client\\'s figure' + (s === 0 ? '.' : ', with the dry curve dashed for comparison.') + ' Underneath: the current, a flat band of leakage with the absorption current fading above it, and a charging spike off the top in the first seconds.');\n  }\n\n  // ---------- a ratio ignores the weather ----------\n  const tEl = el('therm');\n  // A log scale, each mark ten times the last: the gap between the two bar ends is the PI, and it stays put.\n  const TX0 = 92, TX1 = 326, txs = (v) => TX0 + Math.log10(Math.max(v, 1)) / 3 * (TX1 - TX0);\n  const ty = (t) => 140 - t / 40 * 104;\n  const tLab = txt(tEl, 6, 14, '');\n  const keyG = tEl.appendChild(K.svg('g'));\n  keyG.appendChild(K.svg('rect', { class: 'bref', x: 226, y: 5, width: 16, height: 10 }));\n  txt(keyG, 248, 14, 'at 20 °C', 'tk');\n  tEl.appendChild(K.svg('rect', { class: 'tube', x: 18, y: 28, width: 12, height: 124, rx: 6 }));\n  tEl.appendChild(K.svg('circle', { class: 'tube', cx: 24, cy: 158, r: 11 }));\n  tEl.appendChild(K.svg('circle', { class: 'merc', cx: 24, cy: 158, r: 8 }));\n  const merc = tEl.appendChild(K.svg('rect', { class: 'merc', x: 21, width: 6, y: 100, height: 52 }));\n  tEl.appendChild(K.svg('path', { class: 'ax', d: 'M30 ' + ty(20) + 'H37' }));\n  txt(tEl, 40, ty(20) + 4.5, '20 °C', 'tk');\n  txt(tEl, TX0, 48, 'At 1 minute');\n  txt(tEl, TX0, 100, 'At 10 minutes');\n  const bRef1 = tEl.appendChild(K.svg('rect', { class: 'bref', x: TX0, y: 54, width: (txs(R20_1) - TX0).toFixed(1), height: 20 }));\n  const bRef2 = tEl.appendChild(K.svg('rect', { class: 'bref', x: TX0, y: 106, width: (txs(R20_10) - TX0).toFixed(1), height: 20 }));\n  const bar1 = tEl.appendChild(K.svg('rect', { class: 'bar', x: TX0, y: 54, width: 10, height: 20 }));\n  const bar2 = tEl.appendChild(K.svg('rect', { class: 'bar', x: TX0, y: 106, width: 10, height: 20 }));\n  let axd = 'M' + TX0 + ' 146H' + TX1;\n  [1, 10, 100, 1000].forEach((v) => { axd += 'M' + txs(v).toFixed(1) + ' 146V151'; txt(tEl, txs(v).toFixed(1), 164, String(v), 'tk', v === 1 ? 'start' : v === 1000 ? 'end' : 'middle'); });\n  tEl.appendChild(K.svg('path', { class: 'ax', d: axd }));\n  txt(tEl, ((TX0 + TX1) / 2).toFixed(1), 184, 'Reading (GΩ)', 'tk', 'middle');\n  function drawTemp(p) {\n    const t = tv(p.temp), k = factorAt(t), a = R20_1 * k, b = R20_10 * k, pi = r2(b / a);\n    tLab.textContent = 'Cable at ' + t + ' °C';\n    const yt = ty(t);\n    merc.setAttribute('y', yt.toFixed(1));\n    merc.setAttribute('height', (158 - yt).toFixed(1));\n    bar1.setAttribute('width', Math.max(2, txs(a) - TX0).toFixed(1));\n    bar2.setAttribute('width', Math.max(2, txs(b) - TX0).toFixed(1));\n    [bRef1, bRef2, keyG].forEach((e) => vis(e, t !== 20));\n    const WORD = { 0: 'four times', 10: 'twice', 30: 'half', 40: 'a quarter' };\n    const was = f1(R20_1) + ' GΩ at 20 °C';\n    let s;\n    if (t === 20) s = 'At 20 °C the core reads ' + f1(a) + ' GΩ at 1 minute and ' + f1(b) + ' GΩ at 10 minutes, a PI of ' + f2(pi) + '.';\n    else {\n      const who = t === TEMP ? 'At ' + t + \" °C, String B's temperature, the core reads \" : 'At ' + t + ' °C the same sound core reads ';\n      const how = WORD[t] ? ', ' + WORD[t] + ' its ' + was + '. ' : ', ' + (t > 20 ? 'down' : 'up') + ' from ' + was + '. ';\n      s = who + f1(a) + ' GΩ at 1 minute' + how + 'Both readings ' + (t > 20 ? 'fell' : 'rose') + ' together, so the PI is still ' + f2(pi) + '.';\n    }\n    el('sayT').textContent = nb(s);\n    tEl.setAttribute('aria-label', 'A thermometer at ' + t + ' °C beside two bars: the reading at 1 minute and the reading at 10 minutes. '\n      + (t === 20 ? '' : 'Dashed outlines show the same readings at 20 °C. ') + 'The scale is ten times per mark, so both bar ends move the same distance and the gap between them stays the same.');\n  }\n\n  // ---------- after the test: the discharge order, and the time ----------\n  const CARDS = [\n    ['The display reads discharged', [['rect', { class: 'ic', x: 12, y: 4, width: 56, height: 40, rx: 5 }], ['rect', { class: 'icF', x: 19, y: 10, width: 42, height: 18, rx: 2 }],\n      ['path', { class: 'icA', d: 'M31 19l5 5 10-10' }], ['circle', { class: 'ic', cx: 26, cy: 37, r: 3 }], ['circle', { class: 'ic', cx: 54, cy: 37, r: 3 }]]],\n    ['Discharge stick', [['path', { class: 'icS', d: 'M10 42L48 15' }], ['path', { class: 'ic', d: 'M48 15L56 9' }], ['circle', { class: 'icF', cx: 59, cy: 8, r: 3.5 }],\n      ['path', { class: 'ic', d: 'M61 11C71 16 70 25 66 31' }], ['path', { class: 'ic', d: 'M58 31H74M61 36H71M64 41H68' }]]],\n    ['Hook stick', [['path', { class: 'icS', d: 'M10 42L48 15' }], ['path', { class: 'ic', d: 'M48 15L55 10C60 5 69 8 66 15C64 19 59 19 57 16' }]]],\n    ['Hand earth', [['path', { class: 'ic', d: 'M14 10H34V16H22V24H34V30H14Z' }], ['path', { class: 'ic', d: 'M34 20C46 20 54 24 56 30' }], ['path', { class: 'ic', d: 'M48 30H64M51 35H61M54 40H58' }]]],\n    ['Core and screen earthed, both ends', [['path', { class: 'icS', d: 'M16 12H64' }], ['path', { class: 'ic', d: 'M16 20H64' }],\n      ['path', { class: 'ic', d: 'M16 12V30M8 30H24M11 35H21M14 40H18M64 12V30M56 30H72M59 35H69M62 40H66' }]]],\n  ];\n  CARDS.forEach((c, k) => {\n    const svg = K.svg('svg', { viewBox: '0 0 80 48', 'aria-hidden': 'true' });\n    c[1].forEach((q) => svg.appendChild(K.svg(q[0], q[1])));\n    el('cards').appendChild(K.el('div', { class: 'card' }, K.el('p', { class: 'k-label' }, String(k + 1)), svg, K.el('p', null, c[0])));\n  });\n  (function timeline() {\n    const g = el('tline'), TEST_MIN = 1, EARTH_MIN = FIVE * TEST_MIN, X = (m) => 12 + m * 42;\n    g.appendChild(K.svg('rect', { class: 'tOn', x: X(0), y: 22, width: X(TEST_MIN) - X(0), height: 14 }));\n    g.appendChild(K.svg('rect', { class: 'tE', x: X(TEST_MIN), y: 22, width: X(TEST_MIN + EARTH_MIN) - X(TEST_MIN), height: 14 }));\n    g.appendChild(K.svg('path', { class: 'tD', d: 'M' + X(TEST_MIN + EARTH_MIN) + ' 29H322' }));\n    txt(g, (X(TEST_MIN) + X(TEST_MIN + EARTH_MIN)) / 2, 15, 'Earthed, at least ' + EARTH_MIN + ' min', 'lb', 'middle');\n    txt(g, X(0), 53, 'Spot reading, ' + TEST_MIN + ' min', 'tk');\n    txt(g, 328, 53, 'earths stay on', 'tk', 'end');\n    g.setAttribute('aria-label', 'A timeline drawn to scale: a spot reading with the test voltage on for ' + TEST_MIN + ' minute, then discharged and earthed for at least ' + EARTH_MIN\n      + ' minutes, then the earths stay on.');\n  })();\n\n  // ---------- one animation: the current crossing the XLPE, or ten minutes passing ----------\n  function endMotion() { flowLeft = 0; sweepPos = 600; fadeT = 1; drawCursor(K.params()); if (anim.playing()) anim.pause(); }\n  const anim = K.anim({ button: false, label: 'Time', step: (dt) => {\n    const i = at(), d = Math.min(dt, 0.1);\n    if (i === iFor) { flowT += d; flowLeft -= d; drawArrows(); return flowLeft > 0; }\n    if (i === iWhy) {\n      if (sweepPos < 600) sweepPos = Math.min(600, sweepPos + d * 150); else fadeT += d;\n      drawCursor(K.params());\n      return fadeT < 0.6;\n    }\n    return false;\n  } });\n\n  // ---------- picks: one tap answers ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length) return;\n    if (i === iR) {\n      if (st.res) return;     // a recall gets one go\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Still there.', w: [R_WORK], p: R_SLIPS }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === O1 ? R_W1 : R_W3, w: [R_WORK] }; }\n    } else if (i === iChk) {\n      if (st.res === 'right') return;\n      st.pick = d.opts[k];\n      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: \"That's it.\", p0: C_RIGHT }; }\n      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: st.pick === C_O2 ? C_W2 : C_W3 }; }\n    }\n    K.refresh();\n  }\n  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });\n  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(i3A); } });\n\n  // ---------- Section A: typed answers on the course's figures ----------\n  const scen = K.scenario({ into: '#scen', open: true });\n  K.carried({ parts: ['3a'], into: '#carry3b' });\n  K.carried({ parts: ['3a', '3b'], into: '#carry3c' });\n  const UPSIDE = 'That is the ratio upside down. Put the 10-minute reading on top.', RISE = 'That is the rise in GΩ. PI is a ratio, so divide.';\n  const DARSLIP = (who, f) => 'That is ' + who + \"'s DAR, \" + f.work.split(' = ')[0] + '. PI uses the 1-minute and 10-minute readings.';\n  const SPEC = {\n    [i3A]: { id: '3a', fig: f3a, dec: 2, accept: [], work: () => ['PI = R10 ÷ R1', '= ' + f3a.work],\n      slips: [{ value: F('3a.slip').value, hint: UPSIDE }, { value: fL1D.value, hint: DARSLIP('L1', fL1D) }, { value: F('3a.slip2').value, hint: RISE }],\n      hint: \"Not quite. Divide L1's 10-minute reading by its 1-minute reading.\",\n      after: f3a.text + ' sits in ' + piRange(f3a.value) + ', ' + piBand(f3a.value) + \". L1's DAR is \" + fL1D.work + ', ' + darBand(fL1D.value) + '. L3 works out at a PI of ' + fL3P.text + '.' },\n    [i3B]: { id: '3b', fig: f3b, dec: 2, accept: [], work: () => ['PI = R10 ÷ R1', '= ' + f3b.work],\n      slips: [{ value: F('3b.slip').value, hint: UPSIDE }, { value: fL2D.value, hint: DARSLIP('L2', fL2D) }, { value: F('3b.slip2').value, hint: RISE }],\n      hint: \"Not quite. Divide L2's 10-minute reading by its 1-minute reading.\",\n      after: \"L2's DAR is \" + fL2D.work + ', ' + darBand(fL2D.value) + \". Set beside L1's \" + f3a.text + \" and L3's \" + fL3P.text + \", L2's PI stands out. Most of L2's current is steady leakage. \"\n        + 'Record it, and find out why before you submit. The sheath test comes next.' },\n    [i3C]: { id: '3c', fig: f3c, dec: 0, accept: [], work: () => ['Discharge time = ' + FIVE + ' × the time the voltage was on', '= ' + f3c.work],\n      slips: [{ value: F('3c.slip').value, hint: 'That is how long the test ran. Allow five times that.' }, { value: F('3c.slip2').value, hint: 'That is four times, an older rule. Allow five times.' }],\n      hint: 'Not quite. Allow five times as long as the voltage was on.',\n      after: \"Keep the earths on L2's core and screen at both ends for at least \" + f3c.value + ' minutes. Leave them on until the next test needs them.' },\n    [iCh]: { id: 'l3.changed', fig: fChg, dec: 2, accept: [], work: () => [CH_WORK],\n      slips: [{ value: F('l3.changed.slip').value, hint: UPSIDE }, { value: F('l3.changed.slip2').value, hint: RISE }],\n      hint: 'Not quite. Divide the 10-minute reading by the 1-minute reading.',\n      after: fChg.text + ' sits in ' + piRange(fChg.value) + ', ' + piBand(fChg.value) + '. Find out why before you submit it.' },\n  };\n  const BOX = { [i3A]: '#ans-3a', [i3B]: '#ans-3b', [i3C]: '#ans-3c', [iCh]: '#ans-ch' };\n  const ANS = {};\n  Object.keys(SPEC).forEach((key) => {\n    const i = +key, sp = SPEC[i];\n    const a = K.answer({ id: sp.id, unit: sp.fig.unit || '', answer: sp.fig.value, decimals: sp.dec, accept: sp.accept, slips: sp.slips, into: BOX[i],\n      onCheck: (r) => {\n        const st = S[i];\n        if (st.shown) return;\n        if (r.state === 'right') {\n          st.res = 'right';\n          st.fb = { ok: true, v: 'Right.', w: sp.work() };\n        } else if (r.state === 'wrong') {\n          st.tries += 1;\n          if (st.tries >= 2) {\n            st.shown = true; st.res = 'shown';\n            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work() };\n            a.reveal();\n          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }\n        } else { st.res = r.state; st.fb = null; }\n        K.refresh();\n      } });\n    ANS[i] = a;\n  });\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });\n\n  // 3(b) goes on to the judgment: how L2 rates, and whether it would go through.\n  const RATE_OPTS = ['Okay. It beats ' + CRIT + ' GΩ, so it goes through.', 'Questionable. Record it and find out why first.', 'Poor. It fails outright.'];\n  const RATE_RIGHT = f3b.text + ' sits in ' + piRange(f3b.value) + ', ' + piBand(f3b.value) + '. Its 1-minute reading of ' + IR[2][1].text + \" beats the client's \" + CRIT\n    + ' GΩ. On that reading alone, L2 would have gone through. Its flat curve is what holds it back.';\n  const RATE_W = [\"It does beat the client's \" + CRIT + ' GΩ at 1 minute. But a PI of ' + f3b.text + ' sits in ' + piRange(f3b.value) + ', ' + piBand(f3b.value) + '. One reading misses that flat curve.',\n    '', 'Poor is below 1. A PI of ' + f3b.text + ' sits in ' + piRange(f3b.value) + ', ' + piBand(f3b.value) + '.'];\n  const rate = { res: null, pick: null, fb: null };\n  const rateBtns = RATE_OPTS.map((o, k) => K.button({ label: nb(o), secondary: true, into: '#ratePicks', press: () => ratePick(k) }));\n  function ratePick(k) {\n    if (rate.res === 'right') return;\n    rate.pick = k;\n    if (k === 1) { rate.res = 'right'; rate.fb = { ok: true, v: \"That's it.\", p0: RATE_RIGHT }; }\n    else { rate.res = 'wrong'; rate.fb = { ok: false, v: 'Not quite.', p0: RATE_W[k] }; }\n    K.refresh();\n  }\n\n  // The test record, filled in as he answers, like the sheet on the job.\n  const recTbl = K.el('table', { class: 'rec' });\n  recTbl.appendChild(K.el('caption', null, 'Test record, String B. Readings in GΩ.'));\n  const recHead = recTbl.appendChild(K.el('thead')).appendChild(K.el('tr'));\n  ['', 'L1', 'L2', 'L3'].forEach((t) => recHead.appendChild(K.el('th', { scope: 'col' }, t)));\n  const recBody = recTbl.appendChild(K.el('tbody'));\n  const recCells = ['30 s', '1 min', '10 min', 'DAR', 'PI', 'Rating'].map((lab) => {\n    const tr = recBody.appendChild(K.el('tr'));\n    tr.appendChild(K.el('th', { scope: 'row' }, lab));\n    return [0, 1, 2].map(() => tr.appendChild(K.el('td')));\n  });\n  el('rec').appendChild(recTbl);\n  const bare = (f) => f.text.replace(/\\s*GΩ$/, '');\n  function drawRec(i) {\n    const done = (k) => S[k].res === 'right' || S[k].shown;\n    const reads = (c) => IR[c].map(bare);\n    const cols = [\n      reads(1).concat(done(i3A) ? [fL1D.text, f3a.text, piBand(f3a.value)] : []),\n      i >= i3B ? reads(2).concat(done(i3B) ? [fL2D.text, f3b.text] : []).concat(rate.res === 'right' ? [piBand(f3b.value)] : []) : [],\n      reads(3).concat([fL3D.text, fL3P.text, piBand(fL3P.value)]),\n    ];\n    recCells.forEach((cells, r) => cells.forEach((td, c) => { td.textContent = cols[c][r] || '–'; }));\n  }\n\n  // ---------- Section B and Keep this ----------\n  function markLine(id) {\n    const w = K.lesson && K.lesson.written && K.lesson.written[id];\n    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;\n    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'\n      : 'You write the answer, in your own words. You get one more go, then the model answer.';\n  }\n  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });\n  el('wr1').addEventListener('click', () => K.refresh());\n  K.summary({ into: '#keep' });\n  (function () {\n    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];\n    while (tw.nextNode()) ns.push(tw.currentNode);\n    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });\n  })();\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- the worked example, a line at each press ----------\n  const wbox = K.el('div', { class: 'wl' });\n  const wl = WL.map((x) => { const box = K.el('div', { class: 'line' }); box.appendChild(write(K.el('p', { class: 'w' }), x.w)); wbox.appendChild(box); return box; });\n  const wnotes = WK_NOTES.map((t) => wbox.appendChild(K.el('p', { class: 'sub' }, nb(t))));\n  el('worked').appendChild(wbox);\n  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {\n    if (at() !== iWk || lines >= wl.length) return;\n    const w = wl[lines]; lines += 1;\n    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');\n    K.refresh();\n  } });\n\n  // ---------- fixed words on their screens ----------\n  el('warnFor').appendChild(K.el('p', { class: 'wh' }, 'If it is skipped'));\n  el('warnFor').appendChild(K.el('p', null, nb(WARN_FOR)));\n  el('noteC').textContent = nb(NOTE_C);\n  el('noteT').textContent = nb(NOTE_T);\n\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n  const faded = {};\n  function fade(node, key) {\n    if (node.hidden) { faded[node.id] = ''; return; }\n    if (faded[node.id] === key) return;\n    faded[node.id] = key;\n    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');\n  }\n  function paintFb(f, box) {\n    const fb = box || el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));\n    (f.w || []).forEach((t) => fb.appendChild(write(K.el('p', { class: 'w' }), t)));\n    if (f.p) fb.appendChild(write(K.el('p'), f.p));\n  }\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.show) return true;\n    if (i === iR) return st.res === 'wrong';\n    if (i === iChk) return st.res === 'right';\n    if (ANS[i]) return (st.res === 'right' || st.shown) && (i !== i3B || rate.res === 'right');\n    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());\n    return false;\n  }\n\n  const ON = { scen: [i3A, i3B, i3C], carry3b: [i3B], carry3c: [i3C], pre: [i3A, i3B, i3C],\n    wrapX: [iFor], warnFor: [iFor],\n    noteC: [iWhy], wrapC: [iWhy], ctlC: [iWhy], outsC: [iWhy], outsC2: [iWhy], bandC: [iWhy], refC: [iWhy], sayC: [iWhy], capC: [iWhy],\n    noteT: [iTemp], wrapT: [iTemp], ctlT: [iTemp], outsT: [iTemp], sayT: [iTemp], disc: [iDis],\n    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],\n    'ans-3a': [i3A], 'ans-3b': [i3B], 'ans-3c': [i3C], 'ans-ch': [iCh], rec: [i3A, i3B, i3C], wr1: [iB1], keep: [iK], fin: [iK] };\n  const ASK = {\n    [iWhy]: 'Step from Dry to Wet.',\n    [iTemp]: 'Drag the temperature from 20 °C up to 40 °C.',\n    [iWk]: 'Work each line yourself first, then press Show.',\n  };\n\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i === i3A || i === i3B || i === i3C) scen.el.open = i === i3A; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('cap').hidden = WORKING.indexOf(i) < 0;\n\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n    paras(el('pre'), d.pre || '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) paras(task, d.text, d.terms);\n    else write(task, d.part || (d.kind ? '' : d.task));\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.className = 'sub' + (ASK[i] ? ' ask' : '');\n    sub.textContent = nb(ASK[i] ? ASK[i]\n      : i === i3A || i === i3B || i === iCh ? (i === iCh ? 'Same method, new numbers. These are practice values. ' : '') + 'Give it to 2 places. A ratio has no unit.'\n      : i === i3C ? 'Give it in minutes.'\n      : i === iDis ? KV + ' kV and ' + fC1.text + ' are practice values.'\n      : i === iB1 ? markLine('b1')\n      : i === iK ? 'One card to come back to on a real job.' : '');\n    sub.hidden = !sub.textContent;\n\n    drawCurves(p);\n    drawTemp(p);\n    el('refC').hidden = el('refC').hidden || !el('refC').textContent;\n    const fk = i === iFor ? 'F' : i === iWhy ? 'W' + si(p.ins) : '';\n    if (fk && fk !== flowKey && !stillMode) {\n      if (i === iFor) flowLeft = 4; else { sweepPos = 0; fadeT = 0; }\n      if (!anim.playing()) anim.play();\n    }\n    flowKey = fk;\n\n    // Picks.\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      const done = st.res === 'right' || (i === iR && st.res === 'wrong');\n      b.el.classList.toggle('is-right', done && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    // The worked example's lines, and the notes once they are all shown.\n    wl.forEach((w, k) => { w.hidden = k >= lines; });\n    wnotes.forEach((n) => { n.hidden = lines < wl.length; });\n    nextLine.el.hidden = lines >= wl.length;\n    if (i === iWk) el('workedgo').hidden = lines >= wl.length;\n\n    // Check, the feedback, and what follows a finished typed answer.\n    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);\n    checkBtn.el.hidden = !typed || typedDone;\n    el('acts').hidden = checkBtn.el.hidden;\n    paintFb(st.fb);\n    const rateOn = i === i3B && typedDone;\n    el('rate').hidden = !rateOn;\n    rateBtns.forEach((b, k) => {\n      b.el.classList.toggle('is-right', rate.res === 'right' && k === 1);\n      b.el.classList.toggle('is-wrong', rate.res === 'wrong' && k === rate.pick);\n      b.el.setAttribute('aria-pressed', rate.pick === k ? 'true' : 'false');\n    });\n    paintFb(rateOn ? rate.fb : null, el('rateFb'));\n    const after = el('after');\n    paras(after, typedDone && (i !== i3B || rate.res === 'right') ? SPEC[i].after : '');\n    after.hidden = !after.textContent;\n    drawRec(i);\n    el('go').hidden = !(i === iR && st.res === 'right');\n    [['fb', JSON.stringify(st.fb)], ['rate', String(rateOn)], ['rateFb', JSON.stringify(rate.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const near = (a, b, t) => K.near(a, b, t == null ? 1e-6 : t);\n  K.check('Dry 18.1, 24.1, 64.0 GΩ (DAR 1.33, PI 2.66); damp 7.16, 7.94, 10.00 (1.11, 1.26); wet 2.19, 2.26, 2.40 (1.03, 1.06)', () =>\n    [[DRY, '18.1', '24.1', '64.0', 1.33, 2.66], [DAMP, '7.16', '7.94', '10.00', 1.11, 1.26], [WET, '2.19', '2.26', '2.40', 1.03, 1.06]].every((q) =>\n      fmtR(q[0].a) === q[1] && fmtR(q[0].b) === q[2] && fmtR(q[0].c) === q[3] && near(q[0].dar, q[4]) && near(q[0].pi, q[5]))\n    && near(K.at({ ins: 2 }).pi, 1.06) && near(K.at({ ins: 0 }).dar, 1.33));\n  K.check('Leakage 78, 500 and 2083 nA; absorption 199 nA at 30 s, 129 nA at 1 minute and under 0.1 nA at 10 minutes', () =>\n    Math.round(DRY.leak) === 78 && Math.round(DAMP.leak) === 500 && Math.round(WET.leak) === 2083\n    && Math.round(absOf(30)) === 199 && Math.round(absOf(60)) === 129 && absOf(600) < 0.1);\n  K.check('Every setting clears 1 GΩ at 1 minute, and each wetter setting gives a lower DAR and PI', () =>\n    [0, 1, 2].every((s) => K.at({ ins: s }).r60 > CRIT) && K.at({ ins: 0 }).pi > K.at({ ins: 1 }).pi && K.at({ ins: 1 }).pi > K.at({ ins: 2 }).pi\n    && K.at({ ins: 0 }).dar > K.at({ ins: 1 }).dar && K.at({ ins: 1 }).dar > K.at({ ins: 2 }).dar);\n  K.check('A sound core reads 96.4 and 256.0 GΩ at 0 °C, 42.0 and 111.4 at 12 °C, 6.0 and 16.0 at 40 °C, and its PI is 2.66 at every temperature', () => {\n    for (let t = 0; t <= 40; t++) if (!near(K.at({ temp: t }).piT, 2.66)) return false;\n    const T = (t) => K.at({ temp: t });\n    return f1(T(0).r1t) === '96.4' && f1(T(0).r10t) === '256.0' && f1(T(10).r1t) === '48.2' && f1(T(12).r1t) === '42.0' && f1(T(12).r10t) === '111.4'\n      && f1(T(30).r1t) === '12.1' && f1(T(30).r10t) === '32.0' && f1(T(40).r1t) === '6.0' && f1(T(40).r10t) === '16.0';\n  });\n  K.check('Recall 3.00 (slips 0.33 and 4.0); check X 1.07 and Y 3.00; L1 PI 2.58, DAR 1.33; L2 PI 1.09, DAR 1.05; L3 PI 2.61, DAR 1.31; changed numbers 1.20', () => {\n    const v = (i, k) => IR[i][k].value;\n    return near(r2(RC.r10 / RC.r1), fRec.value) && near(r2(RC.r1 / RC.r10), fS1.value) && near(RC.r10 - RC.r1, fS2.value)\n      && near(r2(CX.x10 / CX.r1), fX.value) && near(r2(CX.y10 / CX.r1), fY.value)\n      && near(r2(v(1, 2) / v(1, 1)), f3a.value) && near(r2(v(1, 1) / v(1, 0)), fL1D.value) && near(r2(v(1, 1) / v(1, 2)), F('3a.slip').value) && near(v(1, 2) - v(1, 1), F('3a.slip2').value)\n      && near(r2(v(2, 2) / v(2, 1)), f3b.value) && near(r2(v(2, 1) / v(2, 0)), fL2D.value) && near(r2(v(2, 1) / v(2, 2)), F('3b.slip').value) && near(r2(v(2, 2) - v(2, 1)), F('3b.slip2').value)\n      && near(r2(v(3, 2) / v(3, 1)), fL3P.value) && near(r2(v(3, 1) / v(3, 0)), fL3D.value)\n      && near(r2(CH.r10 / CH.r1), fChg.value) && near(r2(CH.r1 / CH.r10), F('l3.changed.slip').value) && near(r1(CH.r10 - CH.r1), F('l3.changed.slip2').value);\n  });\n  K.check('One core of 0.528 µF at 5 kV holds 2.64 mC and 6.60 J; 3(c) is 5 × 10 = 50 min, with slips 10 and 40 min', () =>\n    near(fC1.value * 1e-6 * VOLTS * 1000, fQ.value) && near(0.5 * fC1.value * 1e-6 * VOLTS * VOLTS, fE.value)\n    && near(FIVE * PIMIN, f3c.value) && near(PIMIN, F('3c.slip').value) && near(OLD * PIMIN, F('3c.slip2').value));\n  K.check('The charging current falls under 10 000 nA within 15 s, long before the first reading at 30 s', () => chgOf(15) < 10000 && chgOf(0) > 10000);\n  K.check('Every slip lies outside its answer\\'s accepted figures', () => Object.keys(SPEC).every((k) => {\n    const sp = SPEC[k], tol = sp.dec ? 0.005 : 0.5;\n    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));\n  }));\n  K.check('For every 10 °C increase in temperature, halve the resistance; for every 10 °C decrease, double it', () =>\n    near(K.at({ temp: 30 }).r1t, K.at({ temp: 20 }).r1t / 2) && near(K.at({ temp: 10 }).r10t, K.at({ temp: 20 }).r10t * 2),\n    { source: 'https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29' });\n  K.check('After a 10-minute PI test, allow the unit to discharge for 50 minutes', () => near(FIVE * PIMIN, 50) && near(f3c.value, 50),\n    { source: 'https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf' });\n  K.check('DAR: under 1.25 inadequate, 1.25 to 1.6 satisfactory, over 1.6 excellent', () =>\n    darBand(1.24) === 'inadequate' && darBand(1.25) === 'satisfactory' && darBand(1.6) === 'satisfactory' && darBand(1.61) === 'excellent', { source: 'material:notes#p9' });\n  K.check('PI: under 1 poor, 1 to 2 questionable, 2 to 4 okay, over 4 good', () =>\n    piBand(0.99) === 'poor' && piBand(1) === 'questionable' && piBand(1.99) === 'questionable' && piBand(2) === 'okay' && piBand(4) === 'okay' && piBand(4.01) === 'good',\n    { source: 'material:notes#p9' });\n  K.check('If the insulation is in good condition, the PI will be 2.0 or higher: L3\\'s 2.61 clears it', () => MAKER_PI === 2 && fL3P.value >= MAKER_PI,\n    { source: 'https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing' });\n  K.check('Typically the DAR will be 1.4 or higher in good condition: L3\\'s 1.31 falls short', () => MAKER_DAR === 1.4 && fL3D.value < MAKER_DAR,\n    { source: 'https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing' });\n  K.check(\"There are materials that exhibit very little or no dielectric absorption: read beside its sister cores, L2's PI of 1.09 stands apart from L1's 2.58 and L3's 2.61\", () =>\n    near(f3b.value, 1.09) && near(f3a.value, 2.58) && near(fL3P.value, 2.61) && f3b.value < PI_EDGE[1] && f3a.value >= PI_EDGE[1] && fL3P.value >= PI_EDGE[1],\n    { source: 'https://www.megger.com/en/PIpredictor' });\n  K.check('Test record: L1 18.0, 24.0, 62.0 GΩ; L2 2.10, 2.20, 2.40 GΩ; L3 17.5, 23.0, 60.0 GΩ, each shown as worked', () =>\n    [1, 2, 3].every((c) => IR[c].every((f) => +bare(f) === f.value)) && fL3D.work.indexOf(bare(IR[3][0])) >= 0 && f3a.work.indexOf(bare(IR[1][2])) === 0);\n\n  K.ready();\n</script>",
+  "title": "Ten minutes on one core",
+  "brief": "The one thing you should see is the IR curve flattening, and PI and DAR falling towards 1, when you step the insulation from dry to wet, while the 1-minute reading still clears the client's figure.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Dry 18.1, 24.1, 64.0 GΩ (DAR 1.33, PI 2.66); damp 7.16, 7.94, 10.00 (1.11, 1.26); wet 2.19, 2.26, 2.40 (1.03, 1.06)",
+     "ok": true
+    },
+    {
+     "label": "Leakage 78, 500 and 2083 nA; absorption 199 nA at 30 s, 129 nA at 1 minute and under 0.1 nA at 10 minutes",
+     "ok": true
+    },
+    {
+     "label": "Every setting clears 1 GΩ at 1 minute, and each wetter setting gives a lower DAR and PI",
+     "ok": true
+    },
+    {
+     "label": "A sound core reads 96.4 and 256.0 GΩ at 0 °C, 42.0 and 111.4 at 12 °C, 6.0 and 16.0 at 40 °C, and its PI is 2.66 at every temperature",
+     "ok": true
+    },
+    {
+     "label": "Recall 3.00 (slips 0.33 and 4.0); check X 1.07 and Y 3.00; L1 PI 2.58, DAR 1.33; L2 PI 1.09, DAR 1.05; L3 PI 2.61, DAR 1.31; changed numbers 1.20",
+     "ok": true
+    },
+    {
+     "label": "One core of 0.528 µF at 5 kV holds 2.64 mC and 6.60 J; 3(c) is 5 × 10 = 50 min, with slips 10 and 40 min",
+     "ok": true
+    },
+    {
+     "label": "The charging current falls under 10 000 nA within 15 s, long before the first reading at 30 s",
+     "ok": true
+    },
+    {
+     "label": "Every slip lies outside its answer's accepted figures",
+     "ok": true
+    },
+    {
+     "label": "For every 10 °C increase in temperature, halve the resistance; for every 10 °C decrease, double it",
+     "ok": true,
+     "source": "https://www.megger.com/en-us/blog/august-2019/can-we-beat-the-heat-%281%29"
+    },
+    {
+     "label": "After a 10-minute PI test, allow the unit to discharge for 50 minutes",
+     "ok": true,
+     "source": "https://res.cloudinary.com/iwh/image/upload/q_auto%2Cg_center/assets/1/26/Megger_-_Testing_Above_1kV_Insulation_Guide.pdf"
+    },
+    {
+     "label": "DAR: under 1.25 inadequate, 1.25 to 1.6 satisfactory, over 1.6 excellent",
+     "ok": true,
+     "source": "material:notes#p9"
+    },
+    {
+     "label": "PI: under 1 poor, 1 to 2 questionable, 2 to 4 okay, over 4 good",
+     "ok": true,
+     "source": "material:notes#p9"
+    },
+    {
+     "label": "If the insulation is in good condition, the PI will be 2.0 or higher: L3's 2.61 clears it",
+     "ok": true,
+     "source": "https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing"
+    },
+    {
+     "label": "Typically the DAR will be 1.4 or higher in good condition: L3's 1.31 falls short",
+     "ok": true,
+     "source": "https://www.megger.com/en/et-online/june-2019/q-a-insulation-resistance-testing"
+    },
+    {
+     "label": "There are materials that exhibit very little or no dielectric absorption: read beside its sister cores, L2's PI of 1.09 stands apart from L1's 2.58 and L3's 2.61",
+     "ok": true,
+     "source": "https://www.megger.com/en/PIpredictor"
+    },
+    {
+     "label": "Test record: L1 18.0, 24.0, 62.0 GΩ; L2 2.10, 2.20, 2.40 GΩ; L3 17.5, 23.0, 60.0 GΩ, each shown as worked",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "ins",
+    "temp"
+   ],
+   "readouts": [
+    "r30",
+    "r60",
+    "r600",
+    "dar",
+    "pi",
+    "r1t",
+    "r10t",
+    "piT"
+   ],
+   "outputs": [
+    "r30",
+    "r60",
+    "r600",
+    "dar",
+    "pi",
+    "r1t",
+    "r10t",
+    "piT"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Do you still have it?",
+      "What it is for",
+      "The why: three currents",
+      "A ratio ignores the weather",
+      "Check",
+      "After the test: discharge",
+      "Worked example",
+      "Section A 3(a)",
+      "Section A 3(b)",
+      "Section A 3(c)",
+      "Section B",
+      "Changed numbers",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "ins",
+     "kind": "stepper",
+     "label": "Insulation",
+     "min": 0,
+     "max": 2,
+     "step": 1,
+     "steps": [
+      "Dry",
+      "Damp",
+      "Wet"
+     ],
+     "value": 0
+    },
+    {
+     "id": "temp",
+     "kind": "control",
+     "label": "Cable temperature",
+     "min": 0,
+     "max": 40,
+     "step": 1,
+     "log": false,
+     "value": 20,
+     "shown": false,
+     "snap": [
+      12,
+      40
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Refresh the why",
+    "Skip to the practice",
+    "Check",
+    "Okay. It beats 1 GΩ, so it goes through.",
+    "Questionable. Record it and find out why first.",
+    "Poor. It fails outright.",
+    "Finish the lesson",
+    "Show",
+    "Back",
+    "Continue",
+    "Time"
+   ],
+   "answers": [
+    {
+     "id": "3a",
+     "answer": 2.58,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "3b",
+     "answer": 1.09,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "3c",
+     "answer": 50,
+     "accept": [],
+     "ok": true
+    },
+    {
+     "id": "l3.changed",
+     "answer": 1.2,
+     "accept": [],
+     "ok": true
+    }
+   ],
+   "written": [
+    "b1"
+   ],
+   "ready": true,
+   "warnings": [
+    "The page height keeps growing with the frame (avoid vh units and height:100%). [at 340 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 4
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-21T01:08:42.086Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "IEEE 43's 5000 MΩ limit applies to the 1-minute reading corrected to 40 °C; L3's 23.0 GΩ is read at 12 °C (about 3.3 GΩ at 40 °C by the halving rule), so 'far above 5000 MΩ… above that' misstates it. Screen 4 also says DAR readings are minutes apart; they are 30 s apart."
+   },
+   {
+    "path": "explain.text",
+    "problem": "The DAR's two readings are 30 s apart, not minutes apart, which the lesson itself says elsewhere; and a ratio near 1 is only a pointer, since some insulation materials show very little absorption even when sound."
+   },
+   {
+    "path": "written.b1.points[1].text",
+    "problem": "The DAR's two readings are 30 s apart, not minutes apart."
+   },
+   {
+    "path": "written.b1.model",
+    "problem": "The DAR's two readings are 30 s apart, not minutes apart."
+   },
+   {
+    "path": "practice.text",
+    "problem": "Single readings are routinely compared once corrected to a reference temperature, so 'only compare readings taken at the same temperature' is too absolute."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "'Older guidance: times the test time' (4) and 'Steps in the discharge order' (5) are constants with no lesson source; the four-times rule rests on Megger's A Stitch in Time and the five-step order on notes p.10, neither among the lesson's sources (frozen)."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

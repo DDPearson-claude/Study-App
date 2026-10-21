@@ -1,0 +1,492 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: HV Subsea Cable Testing
+Idea: The sheath test: 4 kV per millimetre (The sheath keeps water away from the insulation, so it is tested on its own, screen to earth, at 4 kV d.c. per millimetre up to 10 kV for one minute, with every metal layer linked and an electrode on its outer face.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the test voltage rising 4 kV per millimetre to the 10 kV cap at 2.5 mm, then staying flat while the stress falls, when you drag the sheath thickness.
+Title (the app shows it above the frame, so do not repeat it): The sheath at 4 kV per mm
+The rule (the app shows it just above the frame, under "What you're looking at"): Eleven screens, with Back and Continue, on the sheath test: what it is for, why it runs at 4 kV per millimetre with a 10 kV cap, and how it is connected.
+
+Screen 1, Do you still have it? The question: "A core's oversheath is 2.0 mm thick. What d.c. voltage does the sheath test put across it, and for how long?" Three choices, in this order: "4.0 kV for 1 minute"; "8.0 kV for 1 minute"; "10.0 kV for 1 minute". Right, the second: "Still there." Then the working: "V = 4 kV per mm × thickness = 4 × 2.0 = 8.0 kV. That is under the 10 kV cap, so 8.0 kV d.c., held for 1 minute." A last line names the slips. 4.0 kV leaves out the thickness. 10.0 kV is the cap, which only applies above 2.5 mm. Then come two buttons. Refresh the why goes to screen 2. Skip to the practice goes to screen 7. Wrong, the first: "That is the rate for one millimetre. Multiply it by the thickness: 4 × 2.0." Wrong, the third: "That is the cap. It only applies when 4 × the thickness goes over 10 kV, above 2.5 mm. Here 4 × 2.0 = 8.0 kV." Then the right working, and on to screen 2.
+
+Screen 2, What it is for. "Each core's oversheath is the plastic layer outside its screen and foil. Its job is to keep water away from the insulation. The sheath test checks it on its own. It puts a d.c. voltage across the sheath, from the screen inside to a conductor on its outer face. It runs after the IR test and before VLF. It looks for damage done while the cable was laid." The picture: one core in cross-section, as in lesson 1. The oversheath ring is lit and the other rings are faint. A small break in the oversheath lets drops of water through towards the screen. Fine branching lines grow into the XLPE beyond, labelled "water trees: months or years later". In red, what goes wrong if it is skipped: "A hole in the sheath does not fail the cable on day one. It lets water in. Under the working voltage, that water can slowly grow water trees in the XLPE until the insulation fails. Sheath faults can cost the whole cable."
+
+Screen 3, The why: volts per millimetre. "The sheath test is an insulation test on the sheath alone. The screen inside is one electrode. A conductor on the sheath's outer face is the other, the outer electrode. Plastic breaks down when the field across it gets too strong. That field is the voltage per millimetre of thickness. Put the same voltage across a thin sheath and a thick one. The thin one takes far more stress. So the rule scales the voltage with the thickness. It sets 4 kV d.c. per millimetre, at most 10 kV, for 1 minute.[^1] Use the thickness specified on the data sheet. Every sheath up to 2.5 mm gets the same 4 kV per mm. Above 2.5 mm the cap holds the voltage at 10 kV, so a thicker sheath sees less." Then: "In the factory, the d.c. test on a new sheath uses 8 kV per mm.[^2] The site test is half that. Not every spec uses the per-millimetre rule. One offshore cable spec asks for a flat 10 kV d.c. for 1 minute on an insulating sheath.[^3] The client's test spec sets the level on the job." The picture, on the left: a slice of sheath between two plates, the linked screen below and the outer electrode above. Its width follows the thickness. Field lines cross it, drawn closer together as the stress rises. On the right, a plot of test voltage against thickness, from 1.0 to 4.0 mm. The line rises 4 kV for every millimetre. At 2.5 mm it meets a dashed line at 10 kV, labelled "cap". From there it runs flat along it. A dot sits on the line at the slider's thickness. A Sheath thickness slider runs from 1.0 to 4.0 mm in steps of 0.1 mm. It opens at 2.2 mm, String B's thickness. That is a practice value. Two readouts. Test voltage, in kV to 1 place, is 4 × thickness, at most 10. Stress across the sheath, in kV/mm to 2 places, is test voltage ÷ thickness. At 1.0 mm: 4.0 kV and 4.00 kV/mm. At 2.2 mm: 8.8 kV and 4.00 kV/mm. At 2.5 mm: 10.0 kV and 4.00 kV/mm. At 3.0 mm: 10.0 kV and 3.33 kV/mm. At 4.0 mm: 10.0 kV and 2.50 kV/mm. The prompt: "Drag the thickness from 2.2 mm up to 4.0 mm." Read: up to 2.5 mm the voltage rises 4 kV for every millimetre, and the stress stays at 4.00 kV/mm. String B's 2.2 mm sheath takes 8.8 kV. From 2.5 mm the voltage stays at the 10 kV cap. So the stress falls, down to 2.50 kV/mm at 4.0 mm. Still: the slider at 4.0 mm, with String B's 2.2 mm marked on the line.
+
+Screen 4, The why: what to link, and where the leads go. "The test must stress the sheath and nothing else. So the conductor, the foil and the screen are linked together at both ends. The foil sits right under the sheath. Once linked, it carries the full test voltage onto the sheath's inner face. The conductor is at the same voltage, so the XLPE between conductor and screen has nothing across it. The negative lead goes to the linked screen. The positive lead goes to the outer electrode. That is the same way round as the IR test: positive on the outside. The outer electrode must reach the whole length of the sheath, so the whole sheath is tested. Which one you use depends on the sheath." A named control, Sheath type, with two settings: Insulating; Semi-conductive. It opens on Insulating. Insulating: "A plain plastic sheath has no conductor on its face. The earth around the cable is the outer electrode, so the positive goes to an earth rod." Semi-conductive: "A semi-conductive sheath has a thin conducting skin on its outer face, the whole length of the cable. That skin is the outer electrode. The positive reaches it through a roll spring wound round the sheath." Then: "Assume String B's core sheaths are semi-conductive. On a job, read the sheath type off the data sheet." The picture: the cable end in long section, from the middle out: conductor, XLPE, screen wires, foil and sheath. A link bar joins conductor, foil and screen. A small inset shows the same link at the far end. The black negative lead runs from the test set to the link. On Insulating, the red positive lead runs to an earth rod. On Semi-conductive, it runs to a coiled roll spring round the sheath, and the sheath's outer skin is drawn as a thin dark layer. Field arrows cross the sheath only. Two readouts, the same on both settings: Across the sheath, 8.8 kV; Across the XLPE, 0.0 kV. The prompt: "Switch between the two sheath types." Read: on an insulating sheath the positive goes to an earth rod. On a semi-conductive sheath it goes through a roll spring to the sheath's conducting skin. Either way the negative is on the linked screen. The sheath takes the 8.8 kV and the XLPE takes none. Still: Semi-conductive, String B's case.
+
+Screen 5, Check. "Cable P has a 1.5 mm sheath and cable Q a 3.5 mm sheath. Each is tested at its own correct voltage. Which sheath takes the higher stress per millimetre?" Choices: "P, the 1.5 mm sheath"; "Q, the 3.5 mm sheath"; "Both the same, 4 kV per mm". Right, the first: "P takes 4 × 1.5 = 6.0 kV. That gives 6.0 ÷ 1.5 = 4.00 kV/mm. Q works out at 4 × 3.5 = 14.0 kV. That is over the cap, so it gets 10.0 kV. That gives 10.0 ÷ 3.5 = 2.86 kV/mm. The cap leaves a thick sheath less stressed." Wrong, the second: "Q gets the higher voltage, 10.0 kV against 6.0 kV. But stress is voltage per millimetre: 10.0 ÷ 3.5 = 2.86 kV/mm, against P's 4.00." Wrong, the third: "That holds only up to 2.5 mm. Q works out at 4 × 3.5 = 14.0 kV. That is over the cap, so it gets 10.0 kV, which is 2.86 kV/mm."
+
+Screen 6, Worked example, a line at each press. "A cable with insulating core sheaths, 1.8 mm thick by its data sheet. A practice value." The prompt: "Work each line yourself first, then press Show." Line 1: "Earth the screen and the conductor at both ends." Line 2: "Link foil, screen and conductor together at both ends." Line 3: "Negative lead to the linked screen. Positive lead to the earth rod." Line 4: "Tell the far end. Lift the earths under control, with access restricted at both ends." Line 5: "V = 4 × 1.8 = 7.2 kV d.c., under the 10 kV cap. Hold it for 1 minute." Line 6: "It passes if the sheath holds 7.2 kV for the full minute with no breakdown.[^4]" Line 7: "Discharge in the same order as after the IR test: the display shows discharged, then the discharge stick, the hook stick and the hand earth. Earth the screen and the core at both ends. Keep them earthed for at least 5 × the 1 minute the voltage was on, so at least 5 minutes.[^5]" A note under the lines: "Put the screen earths back on at both ends before the cable is energised. Screens have been left unearthed after sheath tests, then energised that way for days. The last line matters as much as the test. The sheath holds charge, just as the core does." Read: on a 1.8 mm insulating sheath, first earth both ends. Link foil, screen and conductor at both ends. Put the negative on the screen and the positive on the earth rod. Then lift the earths under control. Hold 4 × 1.8 = 7.2 kV d.c. for 1 minute. It passes with no breakdown. Then discharge in the usual order. Keep the screen and the core earthed for at least 5 minutes. Put the screen earths back before the cable is energised. Still: all seven lines shown, with the note.
+
+Screen 7, Section A, question 4 (a). The scenario panel, then part 3b carried forward: L2's PI, 1.09. Then the test, said once: "Each core's oversheath is semi-conductive, 2.2 mm thick by the data sheet. These are practice values. Each core is tested in turn. Conductor, foil and screen are linked at both ends. The negative goes to the screen, and the positive goes through the roll spring." The question: "(a) Determine the d.c. test voltage for String B's core sheaths." A typed answer, part 4a, in kV: 4 × 2.2 = 8.8 kV. Slips: 10.0, "That is the cap. It applies only when 4 × the thickness goes over 10 kV."; 4.0, "That is the rate for one millimetre. Multiply by the thickness."; 17.6, "That is 8 kV per mm, the factory test on a new sheath. On site, use 4 kV per mm." After two misses, the working. Then: "8.8 kV is under the cap. Hold it for 1 minute. That is 8.8 ÷ 2.2 = 4.00 kV/mm across the sheath."
+
+Screen 8, String B's results. "L1 and L3 each hold 8.8 kV for the full minute. On L2, the test set trips at 3.2 kV after 20 s. These are practice values. 3.2 kV across 2.2 mm is 3.2 ÷ 2.2 = 1.45 kV/mm. L2's sheath broke down far below the 4 kV/mm it should hold, so L2 fails. Set that beside L2's flat PI of 1.09. The PI pointed to a steady leakage in the insulation. Now the sheath will not hold, so water may have a way in. Record it, and find out why before you submit. On a real job you stop here and report. Each core is discharged after its test. Its screen and core then stay earthed for at least 5 minutes." The picture: three bars, one for each core, showing the voltage each reached, against a dashed line at 8.8 kV labelled "test voltage". L1 and L3 reach the line, each labelled "held 1 minute". L2 stops at 3.2 kV, in red, labelled "tripped after 20 s".
+
+Screen 9, Section B: "Explain why a failed sheath test matters even when the main insulation passes." A written answer, marked against four points. Any three make a full answer. One more go, then the model answer.
+
+Screen 10, Section A, changed numbers. "Another cable's core sheath is 3.0 mm thick. Determine its sheath test voltage." A typed answer, in kV: 4 × 3.0 = 12.0 kV, over the cap, so 10.0 kV. Slips: 12.0, "That is over the 10 kV cap. Use 10 kV."; 4.0, "That is the rate for one millimetre. Multiply by the thickness first." Then: "10.0 kV across 3.0 mm is 10.0 ÷ 3.0 = 3.33 kV/mm. The cap leaves a thick sheath below 4 kV per mm."
+
+Screen 11, Keep this: the summary card, then Finish the lesson.
+
+On the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The stress is drawn as voltage ÷ thickness. That is an average across the sheath. A sheath is a ring, so the stress is a little higher at its inner face. The slice is drawn flat. The test set's ramp up to voltage is not shown. Nor is the small current that charges the sheath. It does not show how an earth rod reaches an insulating sheath's outer face on a laid subsea cable. String B's sheath type and thickness are practice values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 10 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 11 (the stepper): 0 (control)
+- Sheath test rate, kV d.c. per mm: 4 (constant, source [1])
+- Sheath test cap, kV d.c.: 10 (constant, source [1])
+- Sheath test duration, minutes: 1 (constant, source [1])
+- Thickness where the cap applies, mm: 2.5 (computed)
+- Recall: sheath thickness, mm: 2 (assumed)
+- Recall: test voltage, kV: 8 (computed)
+- Recall slip: the thickness left out, kV: 4 (computed)
+- Recall slip: the cap, kV: 10 (computed)
+- Factory routine test, kV d.c. per mm: 8 (constant, source [2])
+- A flat offshore spec level, kV d.c.: 10 (constant, source [3])
+- Slider: from, mm: 1 (assumed)
+- Slider: to, mm: 4 (assumed)
+- Slider: step, mm: 0.1 (assumed)
+- Slider opens at String B's thickness (practice value), mm: 2.2 (control)
+- At 1.0 mm: test voltage, kV: 4 (computed)
+- At 1.0 mm: stress, kV/mm: 4 (computed)
+- At 2.2 mm: test voltage, kV: 8.8 (computed)
+- At 2.2 mm: stress, kV/mm: 4 (computed)
+- At 2.5 mm: test voltage, kV: 10 (computed)
+- At 3.0 mm: test voltage, kV: 10 (computed)
+- At 3.0 mm: stress, kV/mm: 3.33 (computed)
+- At 4.0 mm: test voltage, kV: 10 (computed)
+- At 4.0 mm: stress, kV/mm: 2.5 (computed)
+- Across the XLPE when linked, kV: 0 (computed)
+- Check: cable P's sheath, mm: 1.5 (assumed)
+- Check: cable Q's sheath, mm: 3.5 (assumed)
+- Check: P's test voltage, kV: 6 (computed)
+- Check: P's stress, kV/mm: 4 (computed)
+- Check: Q by the rate alone, kV: 14 (computed)
+- Check: Q's test voltage at the cap, kV: 10 (computed)
+- Check: Q's stress, kV/mm: 2.86 (computed)
+- Worked example: sheath thickness (practice value), mm: 1.8 (assumed)
+- Worked example: test voltage, kV: 7.2 (computed)
+- Earthed after the test for at least, times the test time: 5 (constant, source [5])
+- Earthed after a 1-minute test for at least, minutes: 5 (computed)
+- Lines in the worked example: 7 (assumed)
+- String B L2's PI, from lesson 3: 1.09 (computed)
+- Part 4a: String B's test voltage, kV: 8.8 (computed)
+- Part 4a: stress, kV/mm: 4 (computed)
+- Part 4a slip: the factory rate, kV: 17.6 (computed)
+- String B L2 trips at (practice value), kV: 3.2 (assumed)
+- String B L2 trips after (practice value), s: 20 (assumed)
+- Stress across L2's sheath at the trip, kV/mm: 1.45 (computed)
+- Changed numbers: sheath thickness (practice value), mm: 3 (assumed)
+- Changed numbers: by the rate alone, kV: 12 (computed)
+- Changed numbers: test voltage at the cap, kV: 10 (computed)
+- Changed numbers: stress, kV/mm: 3.33 (computed)
+- Explain example: one voltage, kV: 8 (assumed)
+- Explain example: thin sheath, mm: 2 (assumed)
+- Explain example: thick sheath, mm: 4 (assumed)
+- Explain example: stress on the thin sheath, kV/mm: 4 (computed)
+- Explain example: stress on the thick sheath, kV/mm: 2 (computed)
+- Analogy: a circuit's voltage, V: 400 (assumed)
+- Section B: points, of which any make a full answer: 4, any 3 (constant)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+The oversheath keeps water away from the insulation, so it gets a test of its own. A d.c. voltage goes across the sheath alone, from the screen inside to a conductor on its outer face. Under that voltage, a hole or a weak spot usually breaks down. Current finds a path through it, from the screen to the outside. Then the test set trips. A hole matters because water gets in. Under the electric field, that water can grow water treeing in the XLPE. Water trees grow slowly, over months or years. So the main insulation can still pass its tests today.
+
+Plastic breaks down when the electric field across it gets too strong. That field is the voltage across the layer divided by its thickness. It is measured in volts per millimetre. Put 8 kV across a 2 mm sheath and each millimetre takes 4 kV. Put the same 8 kV across 4 mm and each takes 2 kV. So one fixed voltage would push thin sheaths hard and test thick ones lightly. So the rule scales the voltage with the thickness. It sets 4 kV d.c. per millimetre of specified thickness, at most 10 kV, for 1 minute. Every sheath up to 2.5 mm sees the same 4 kV per mm. Above 2.5 mm the cap holds the voltage at 10 kV, so the stress falls.
+
+Two things make the voltage land on the sheath and nowhere else. First, the conductor, foil and screen are linked together at both ends. The foil sits right under the sheath. Once linked, it carries the full test v…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards (https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007): "a d.c. voltage of 4 kV per millimetre of specified thickness of extruded oversheath shall be applied with a maximum of 10 kV d.c. between the underlying metallic layers and the outer electrode, for a period of 1 min."
+[2] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards (https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007): "A d.c. voltage of 8 kV per millimetre of the specified nominal thickness of the extruded oversheath shall be applied for 1 min between the underlying metal layer at negative polarity"
+[3] OCDS-GFS-00-001-R2-Submarine-Cables-Functional- ... (https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf): "If the cable design permits (i.e. if the outer sheath is insulating rather than semiconducting), a 10 kV DC Test for 1 minute between cable sheath and earth shall be carried out"
+[4] IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards (https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007): "No breakdown of the oversheath shall occur during the test."
+[5] TR-XLPE LONG-LIFE CABLES - Nexans (https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf): "Earth the screens after an Insulation Resistance Test on a sheath for at least 5 minutes before handling or performing other tests."
+[6] LONG-LIFE XLPE INSULATED POWER CABLE - Georgia Tech (https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content): "Water trees grow relatively slowly over a period of months or years."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
+K.scenario({into, open?, title?, text?})                         the case's scenario panel (folds); a lesson may give its own
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

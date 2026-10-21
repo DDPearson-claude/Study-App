@@ -1,0 +1,416 @@
+{
+ "iid": "i4",
+ "title": "The sheath test: 4 kV per millimetre",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the test voltage rising 4 kV per millimetre to the 10 kV cap at 2.5 mm, then staying flat while the stress falls, when you drag the sheath thickness.",
+  "title": "The sheath at 4 kV per mm",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Screen",
+    "min": 0,
+    "max": 10,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Eleven screens, with Back and Continue, on the sheath test: what it is for, why it runs at 4 kV per millimetre with a 10 kV cap, and how it is connected.\n\nScreen 1, Do you still have it? The question: \"A core's oversheath is 2.0 mm thick. What d.c. voltage does the sheath test put across it, and for how long?\" Three choices, in this order: \"4.0 kV for 1 minute\"; \"8.0 kV for 1 minute\"; \"10.0 kV for 1 minute\". Right, the second: \"Still there.\" Then the working: \"V = 4 kV per mm × thickness = 4 × 2.0 = 8.0 kV. That is under the 10 kV cap, so 8.0 kV d.c., held for 1 minute.\" A last line names the slips: 4.0 kV leaves out the thickness, and 10.0 kV is the cap, which only applies above 2.5 mm. Then two buttons. Refresh the why goes to screen 2, and Skip to the practice goes to screen 7. Wrong, the first: \"That is the rate for one millimetre. Multiply it by the thickness: 4 × 2.0.\" Wrong, the third: \"That is the cap. It only applies when 4 × the thickness goes over 10 kV, above 2.5 mm. Here 4 × 2.0 = 8.0 kV.\" Then the right working, and on to screen 2.\n\nScreen 2, What it is for. \"Each core's oversheath is the plastic layer outside its screen and foil. Its job is to keep water away from the insulation. The sheath test checks it on its own. It puts a d.c. voltage across the sheath, from the screen inside to a conductor on its outer face. It runs after the IR test and before VLF. It looks for damage done while the cable was laid.\" The picture: one core in cross-section, as in lesson 1, with the oversheath ring lit and the other rings faint. A small break in the oversheath lets drops of water through towards the screen. Fine branching lines grow into the XLPE beyond, labelled \"water trees: months or years later\". In red, what goes wrong if it is skipped: \"A hole in the sheath does not fail the cable on day one. It lets water in. Under the working voltage, that water grows water trees in the XLPE, slowly, until the insulation fails. Sheath faults can cost the whole cable.\"\n\nScreen 3, The why: volts per millimetre. \"The sheath test is an insulation test on the sheath alone. The screen inside is one electrode. A conductor on the sheath's outer face is the other, the outer electrode. Plastic breaks down when the field across it gets too strong, and that field is the voltage per millimetre of thickness. Put the same voltage across a thin sheath and a thick one, and the thin one takes far more stress. So the rule scales the voltage with the thickness: 4 kV d.c. per millimetre, at most 10 kV, for 1 minute.[^1] Use the thickness specified on the data sheet. Every sheath up to 2.5 mm gets the same 4 kV per mm. Above 2.5 mm the cap holds the voltage at 10 kV, so a thicker sheath sees less.\" Then: \"In the factory, a new sheath takes 8 kV per mm.[^4] The site test is half that. Not every spec uses the per-millimetre rule. One offshore cable spec asks for a flat 10 kV d.c. for 1 minute on an insulating sheath.[^13] The client's test spec sets the level on the job.\" The picture, on the left: a slice of sheath between two plates, the linked screen below and the outer electrode above. Its width follows the thickness. Field lines cross it, drawn closer together as the stress rises. On the right, a plot of test voltage against thickness, from 1.0 to 4.0 mm. The line rises 4 kV for every millimetre until it meets a dashed line at 10 kV, labelled \"cap\", at 2.5 mm, then runs flat along it. A dot sits on the line at the slider's thickness. A Sheath thickness slider runs from 1.0 to 4.0 mm in steps of 0.1 mm, opening at 2.2 mm, String B's thickness and a practice value. Two readouts: Test voltage, in kV to 1 place, = 4 × thickness, at most 10; Stress across the sheath, in kV/mm to 2 places, = test voltage ÷ thickness. At 1.0 mm: 4.0 kV and 4.00 kV/mm. At 2.2 mm: 8.8 kV and 4.00 kV/mm. At 2.5 mm: 10.0 kV and 4.00 kV/mm. At 3.0 mm: 10.0 kV and 3.33 kV/mm. At 4.0 mm: 10.0 kV and 2.50 kV/mm. The prompt: \"Drag the thickness from 2.2 mm up to 4.0 mm.\" Read: up to 2.5 mm the voltage rises 4 kV for every millimetre, and the stress stays at 4.00 kV/mm. String B's 2.2 mm sheath takes 8.8 kV. From 2.5 mm the voltage stays at the 10 kV cap, so the stress falls, to 2.50 kV/mm at 4.0 mm. Still: the slider at 4.0 mm, with String B's 2.2 mm marked on the line.\n\nScreen 4, The why: what to link, and where the leads go. \"The test must stress the sheath and nothing else. So the conductor, the foil and the screen are linked together, at both ends. The foil sits right under the sheath. Linked, it carries the full test voltage onto the sheath's inner face. The conductor is at the same voltage, so the XLPE between conductor and screen has nothing across it. The negative lead goes to the linked screen. The positive lead goes to the outer electrode. That is the same way round as the IR test: positive on the outside. The outer electrode must reach the whole length of the sheath, so the whole sheath is tested. Which one you use depends on the sheath.\" A named control, Sheath type, with two settings: Insulating; Semi-conductive. It opens on Insulating. Insulating: \"A plain plastic sheath has no conductor on its face. The earth around the cable is the outer electrode, so the positive goes to an earth rod.\" Semi-conductive: \"A semi-conductive sheath has a thin conducting skin on its outer face, the whole length of the cable. That skin is the outer electrode. The positive reaches it through a roll spring wound round the sheath.\" Then: \"Assume String B's core sheaths are semi-conductive. On a job, read the sheath type off the data sheet.\" The picture: the cable end in long section, from the middle out: conductor, XLPE, screen wires, foil and sheath. A link bar joins conductor, foil and screen. A small inset shows the same link at the far end. The black negative lead runs from the test set to the link. The red positive lead runs to an earth rod (Insulating) or to a coiled roll spring round the sheath, whose outer skin is drawn as a thin dark layer (Semi-conductive). Field arrows cross the sheath only. Two readouts, the same on both settings: Across the sheath, 8.8 kV; Across the XLPE, 0.0 kV. The prompt: \"Switch between the two sheath types.\" Read: on an insulating sheath the positive goes to an earth rod. On a semi-conductive sheath it goes through a roll spring to the sheath's conducting skin. Either way the negative is on the linked screen, the sheath takes the 8.8 kV, and the XLPE takes none. Still: Semi-conductive, String B's case.\n\nScreen 5, Check. \"Cable P has a 1.5 mm sheath and cable Q a 3.5 mm sheath. Each is tested at its own correct voltage. Which sheath takes the higher stress per millimetre?\" Choices: \"P, the 1.5 mm sheath\"; \"Q, the 3.5 mm sheath\"; \"Both the same, 4 kV per mm\". Right, the first: \"P takes 4 × 1.5 = 6.0 kV, so 6.0 ÷ 1.5 = 4.00 kV/mm. Q works out at 4 × 3.5 = 14.0 kV, over the cap, so it gets 10.0 kV. That is 10.0 ÷ 3.5 = 2.86 kV/mm. The cap leaves a thick sheath less stressed.\" Wrong, the second: \"Q gets the higher voltage, 10.0 kV against 6.0 kV. But stress is voltage per millimetre: 10.0 ÷ 3.5 = 2.86 kV/mm, against P's 4.00.\" Wrong, the third: \"That holds only up to 2.5 mm. Q works out at 4 × 3.5 = 14.0 kV, over the cap, so it gets 10.0 kV. That is 2.86 kV/mm.\"\n\nScreen 6, Worked example, a line at each press. \"A cable with insulating core sheaths, 1.8 mm thick by its data sheet. A practice value.\" The prompt: \"Work each line yourself first, then press Show.\" Line 1: \"Earth the screen and the conductor at both ends.\" Line 2: \"Link foil, screen and conductor together at both ends.\" Line 3: \"Negative lead to the linked screen. Positive lead to the earth rod.\" Line 4: \"Tell the far end. Lift the earths under control, with access restricted at both ends.\" Line 5: \"V = 4 × 1.8 = 7.2 kV d.c., under the 10 kV cap. Hold it for 1 minute.\" Line 6: \"It passes if the sheath holds 7.2 kV for the full minute with no breakdown.[^3]\" Line 7: \"Discharge in the same order as after the IR test: the display shows discharged, then the discharge stick, the hook stick and the hand earth. Earth the screen and the core at both ends. Keep them earthed for at least 5 × the 1 minute the voltage was on, so at least 5 minutes.[^34]\" A note under the lines: \"Put the screen earths back on at both ends before the cable is energised. Screens left unearthed after sheath tests have been energised that way, for days. The last line matters as much as the test: the sheath holds charge, as the core does.\" Read: on a 1.8 mm insulating sheath, earth both ends, link foil, screen and conductor at both ends, put the negative on the screen and the positive on the earth rod, then lift the earths under control. Hold 4 × 1.8 = 7.2 kV d.c. for 1 minute. It passes with no breakdown. Then discharge in the usual order, keep the screen and the core earthed for at least 5 minutes, and put the screen earths back before the cable is energised. Still: all seven lines shown, with the note.\n\nScreen 7, Section A, question 4 (a). The scenario panel, then part 3b carried forward: L2's PI, 1.09. Then the test, said once: \"Each core's oversheath is semi-conductive, 2.2 mm thick by the data sheet. These are practice values. Each core is tested in turn: conductor, foil and screen linked at both ends, negative to the screen, positive through the roll spring.\" The question: \"(a) Determine the d.c. test voltage for String B's core sheaths.\" A typed answer, part 4a, in kV: 4 × 2.2 = 8.8 kV. Slips: 10.0, \"That is the cap. It applies only when 4 × the thickness goes over 10 kV.\"; 4.0, \"That is the rate for one millimetre. Multiply by the thickness.\"; 17.6, \"That is 8 kV per mm, the factory test on a new sheath. On site, use 4 kV per mm.\" After two misses, the working. Then: \"8.8 kV is under the cap. Hold it for 1 minute. That is 8.8 ÷ 2.2 = 4.00 kV/mm across the sheath.\"\n\nScreen 8, String B's results. \"L1 and L3 each hold 8.8 kV for the full minute. On L2, the test set trips at 3.2 kV after 20 s. These are practice values. 3.2 kV across 2.2 mm is 3.2 ÷ 2.2 = 1.45 kV/mm. L2's sheath broke down far below the 4 kV/mm it should hold, so L2 fails. Set it beside its flat PI of 1.09. That pointed to a steady leakage in the insulation. Now the sheath will not hold, so water may have a way in. Record it, and find out why before you submit. On a real job you stop here and report. Each core is discharged after its test, and its screen and core stay earthed for at least 5 minutes.\" The picture: three bars, one for each core, showing the voltage each reached, against a dashed line at 8.8 kV labelled \"test voltage\". L1 and L3 reach the line, each labelled \"held 1 minute\". L2 stops at 3.2 kV, in red, labelled \"tripped after 20 s\".\n\nScreen 9, Section B: \"Explain why a failed sheath test matters even when the main insulation passes.\" A written answer, marked against four points. Any three make a full answer. One more go, then the model answer.\n\nScreen 10, Section A, changed numbers. \"Another cable's core sheath is 3.0 mm thick. Determine its sheath test voltage.\" A typed answer, in kV: 4 × 3.0 = 12.0 kV, over the cap, so 10.0 kV. Slips: 12.0, \"That is over the 10 kV cap. Use 10 kV.\"; 4.0, \"That is the rate for one millimetre. Multiply by the thickness first.\" Then: \"10.0 kV across 3.0 mm is 10.0 ÷ 3.0 = 3.33 kV/mm. The cap leaves a thick sheath below 4 kV per mm.\"\n\nScreen 11, Keep this: the summary card, then Finish the lesson.\n\nOn the screens with working, a caption says each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+  "ignores": "The stress is drawn as voltage ÷ thickness, an average across the sheath. A sheath is a ring, so the stress is a little higher at its inner face. The slice is drawn flat. The test set's ramp up to voltage is not shown, nor the small current that charges the sheath. How an earth rod reaches an insulating sheath's outer face on a laid subsea cable is not shown. String B's sheath type and thickness are practice values.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 11 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Sheath test rate, kV d.c. per mm",
+    "value": 4,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Sheath test cap, kV d.c.",
+    "value": 10,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Sheath test duration, minutes",
+    "value": 1,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Thickness where the cap applies, mm",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall: sheath thickness, mm",
+    "value": 2.0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Recall: test voltage, kV",
+    "value": 8.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: the thickness left out, kV",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Recall slip: the cap, kV",
+    "value": 10.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Factory routine test, kV d.c. per mm",
+    "value": 8,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "A flat offshore spec level, kV d.c.",
+    "value": 10,
+    "kind": "constant",
+    "source": 13
+   },
+   {
+    "label": "Slider: from, mm",
+    "value": 1.0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: to, mm",
+    "value": 4.0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider: step, mm",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider opens at String B's thickness (practice value), mm",
+    "value": 2.2,
+    "kind": "control"
+   },
+   {
+    "label": "At 1.0 mm: test voltage, kV",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "At 1.0 mm: stress, kV/mm",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2.2 mm: test voltage, kV",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2.2 mm: stress, kV/mm",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "At 2.5 mm: test voltage, kV",
+    "value": 10.0,
+    "kind": "computed"
+   },
+   {
+    "label": "At 3.0 mm: test voltage, kV",
+    "value": 10.0,
+    "kind": "computed"
+   },
+   {
+    "label": "At 3.0 mm: stress, kV/mm",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "At 4.0 mm: test voltage, kV",
+    "value": 10.0,
+    "kind": "computed"
+   },
+   {
+    "label": "At 4.0 mm: stress, kV/mm",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Across the XLPE when linked, kV",
+    "value": 0.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: cable P's sheath, mm",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: cable Q's sheath, mm",
+    "value": 3.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Check: P's test voltage, kV",
+    "value": 6.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: P's stress, kV/mm",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: Q by the rate alone, kV",
+    "value": 14.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: Q's test voltage at the cap, kV",
+    "value": 10.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Check: Q's stress, kV/mm",
+    "value": 2.86,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: sheath thickness (practice value), mm",
+    "value": 1.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: test voltage, kV",
+    "value": 7.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Earthed after the test for at least, times the test time",
+    "value": 5,
+    "kind": "constant",
+    "source": 34
+   },
+   {
+    "label": "Earthed after a 1-minute test for at least, minutes",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Lines in the worked example",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B L2's PI, from lesson 3",
+    "value": 1.09,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 4a: String B's test voltage, kV",
+    "value": 8.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 4a: stress, kV/mm",
+    "value": 4.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Part 4a slip: the factory rate, kV",
+    "value": 17.6,
+    "kind": "computed"
+   },
+   {
+    "label": "String B L2 trips at (practice value), kV",
+    "value": 3.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "String B L2 trips after (practice value), s",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stress across L2's sheath at the trip, kV/mm",
+    "value": 1.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: sheath thickness (practice value), mm",
+    "value": 3.0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Changed numbers: by the rate alone, kV",
+    "value": 12.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: test voltage at the cap, kV",
+    "value": 10.0,
+    "kind": "computed"
+   },
+   {
+    "label": "Changed numbers: stress, kV/mm",
+    "value": 3.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Explain example: one voltage, kV",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Explain example: thin sheath, mm",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Explain example: thick sheath, mm",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Explain example: stress on the thin sheath, kV/mm",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Explain example: stress on the thick sheath, kV/mm",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: a circuit's voltage, V",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "Section B: points, of which any make a full answer",
+    "value": "4, any 3",
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "The oversheath keeps water away from the insulation, so it gets a test of its own. A d.c. voltage goes across the sheath alone, from the screen inside to a conductor on its outer face. A hole or a weak spot breaks down. Current finds a path through it from the screen to the outside, and the test set trips. A hole matters because water that gets in grows [[water treeing]] in the XLPE under the electric field. Water trees grow slowly, over months or years.[^16] So the main insulation can still pass its tests today.\n\nPlastic breaks down when the electric field across it gets too strong. Across a layer, that field is the voltage divided by the thickness: volts per millimetre. Put 8 kV across a 2 mm sheath and each millimetre takes 4 kV. Put the same 8 kV across 4 mm and each takes 2 kV. So one fixed voltage would push thin sheaths hard and test thick ones lightly. The rule scales the voltage with the thickness: 4 kV d.c. per millimetre of specified thickness, at most 10 kV, for 1 minute.[^1] Every sheath up to 2.5 mm sees the same 4 kV per mm. Above 2.5 mm the cap holds the voltage at 10 kV, so the stress falls.\n\nTwo things make the voltage land on the sheath and nowhere else. First, the conductor, foil and screen are linked together at both ends. The foil sits right under the sheath. Linked, it carries the full test voltage onto the sheath's inner face. The conductor sits at the same voltage, so the XLPE has nothing across it. Second, the sheath's outer face needs a conductor along its whole length: the [[outer electrode]]. A semi-conductive sheath brings its own, a thin conducting skin reached through a roll spring. An insulating sheath uses the earth around it, reached through an earth rod. The negative goes to the screen and the positive to the outer electrode. The stress figures here are simplified: each is an average across the sheath.\n\n**The sheath test puts 4 kV d.c. per millimetre of sheath, at most 10 kV, across the sheath alone for 1 minute. Linking the metal layers and using the right outer electrode make sure the sheath is what it tests.**"
+ },
+ "analogy": {
+  "text": "On an installation you pick the IR test voltage to suit the circuit: higher for a 400 V circuit than for SELV. The aim is a test that stresses the insulation enough to show a fault, without asking more of it than it was built for. The sheath test matches its voltage to the sheath in the same way, by its thickness.",
+  "breaks": "Your installation test voltage steps with the circuit's voltage, and it reads a resistance. The sheath test steps with the plastic's thickness, and it only asks whether the sheath holds the voltage for a minute without breaking down."
+ },
+ "practice": {
+  "text": "- Before you start: the cable is isolated, proved dead and earthed at both ends. Restrict access at both ends. Talk to the far end before every change.\n- Read the sheath type and its specified thickness off the cable data sheet.\n- Link foil, screen and conductor together at both ends.\n- Negative to the linked screen. Positive to the outer electrode: an earth rod for an insulating sheath, the roll spring on the conducting skin for a semi-conductive one.\n- Lift the earths the test needs, under control.\n- Set V = 4 kV × the thickness in mm, at most 10 kV d.c. Hold it for 1 minute.\n- It passes if the sheath holds the full voltage for the full minute with no breakdown.\n- Discharge in the order you use after the IR test, then earth the screen and the core at both ends. Keep them earthed for at least 5 minutes after a 1-minute test.[^34]\n- Put the screen earths back on at both ends before the cable is ever energised.\n\n**Rule of thumb:** up to 2.5 mm, the voltage is 4 kV for each millimetre. Above 2.5 mm, it is 10 kV.\n\n**Rule of thumb:** other specs set other levels, such as a flat 10 kV. The client's test spec decides.\n\n**Worked example:** a cable with insulating core sheaths 1.8 mm thick, a practice value. V = 4 × 1.8 = 7.2 kV d.c., under the cap. Link at both ends, negative to the screen, positive to the earth rod, and hold 7.2 kV for 1 minute. No breakdown, so it passes. Then discharge and keep it earthed for at least 5 minutes.\n\n**Common mistakes**\n- Forgetting the cap: 12 kV on a 3.0 mm sheath, where 10 kV is the most.\n- Using 10 kV on every sheath, whatever its thickness.\n- Using the factory test's 8 kV per mm on site.\n- Leaving a metal layer unlinked.\n- The positive on the wrong outer electrode for the sheath type.\n- Leaving the screen earths off after the test."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards",
+   "url": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007",
+   "quote": "a d.c. voltage of 4 kV per millimetre of specified thickness of extruded oversheath shall be applied with a maximum of 10 kV d.c. between the underlying metallic layers and the outer electrode, for a period of 1 min."
+  },
+  {
+   "n": 3,
+   "title": "IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards",
+   "url": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007",
+   "quote": "No breakdown of the oversheath shall occur during the test."
+  },
+  {
+   "n": 4,
+   "title": "IEC 60229:2007 Electric Cables Oversheath Tests Special Protective — iTeh Standards",
+   "url": "https://standards.iteh.ai/catalog/standards/iec/aacabf76-da34-460c-aece-fd3e29ad1988/iec-60229-2007",
+   "quote": "A d.c. voltage of 8 kV per millimetre of the specified nominal thickness of the extruded oversheath shall be applied for 1 min between the underlying metal layer at negative polarity"
+  },
+  {
+   "n": 13,
+   "title": "OCDS-GFS-00-001-R2-Submarine-Cables-Functional- ...",
+   "url": "https://cms.eirgrid.ie/sites/default/files/publications/OCDS-GFS-00-001-R2-Submarine-Cables-Functional-Specification.pdf",
+   "quote": "If the cable design permits (i.e. if the outer sheath is insulating rather than semiconducting), a 10 kV DC Test for 1 minute between cable sheath and earth shall be carried out"
+  },
+  {
+   "n": 16,
+   "title": "LONG-LIFE XLPE INSULATED POWER CABLE - Georgia Tech",
+   "url": "https://repository.gatech.edu/server/api/core/bitstreams/fb791a4d-a217-43bf-8f1a-c7d9874ad539/content",
+   "quote": "Water trees grow relatively slowly over a period of months or years."
+  },
+  {
+   "n": 34,
+   "title": "TR-XLPE LONG-LIFE CABLES - Nexans",
+   "url": "https://www.nexans.co.nz/en/dam/jcr:f1babdb7-b5d7-40aa-9780-92a90e341bd3/Section%20Four.pdf",
+   "quote": "Earth the screens after an Insulation Resistance Test on a sheath for at least 5 minutes before handling or performing other tests."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "written": {
+  "b1": {
+   "q": "Explain why a failed sheath test matters even when the main insulation passes.",
+   "points": [
+    {
+     "text": "The sheath slows water getting in from outside. That keeps water away from the insulation.",
+     "cite": "Georgia Tech, Long-life XLPE insulated power cable; IEC 60229:2007 scope, IEC webstore (research)"
+    },
+    {
+     "text": "Water that gets through a damaged sheath grows water trees in the XLPE under the electric field.",
+     "cite": "Notes p.4 (added background, checked); Evaluation of cable moisture-proof measures based on AHP (research)"
+    },
+    {
+     "text": "Water trees grow slowly, over months or years, so the cable does not fail straight away. The insulation can pass today and fail later.",
+     "cite": "Georgia Tech, Long-life XLPE insulated power cable; Seattle City Light, guide for high d.c. field testing (research)"
+    },
+    {
+     "text": "Sheath faults are common and can cost the whole cable. Cables fail more often from sheath problems than from the main insulation.",
+     "cite": "Notes p.4; INMR, Commissioning testing HV power cables (research)"
+    }
+   ],
+   "need": 3,
+   "model": "The sheath is there to keep water away from the insulation. If it is holed, water gets in. Under the electric field, that water grows water trees in the XLPE. They grow slowly, over months or years, so the cable does not fail on day one. The main insulation can pass every test today and still fail later. Sheath faults are common, and failures come more often from sheath problems than from the main insulation. A sheath fault left in place can cost the whole cable."
+  }
+ },
+ "summary": {
+  "title": "The sheath test",
+  "for": "Is the oversheath sound? A d.c. voltage across the sheath alone, from the linked screen to an outer electrode.",
+  "rule": "V = 4 kV/mm × specified thickness, at most 10 kV d.c.\nHold for 1 minute: no breakdown\nStress = V ÷ thickness\nEarthed after: at least 5 × the time the voltage was on\n\nLink conductor, foil and screen at both ends.\nNegative to the screen, positive to the outer electrode.\nInsulating sheath: earth rod. Semi-conductive sheath: roll spring on its conducting skin.\nThe cap applies above 2.5 mm.\nOther specs use other levels: the client's spec decides.",
+  "traps": [
+   {
+    "text": "Forgetting the cap: 12 kV on a 3.0 mm sheath, where 10 kV is the most.",
+    "cite": "Notes p.4; IEC 60229:2007 clause 5 (research)"
+   },
+   {
+    "text": "Using 10 kV on every sheath, whatever its thickness.",
+    "cite": "Notes p.4; IEC 60229:2007 clause 5 (research)"
+   },
+   {
+    "text": "Leaving a metal layer unlinked. Conductor, foil and screen are joined at both ends.",
+    "cite": "Notes p.4; IEC 60229:2007 clause 5 (research)"
+   },
+   {
+    "text": "The positive on the wrong outer electrode for the sheath type.",
+    "cite": "Notes p.4"
+   },
+   {
+    "text": "Leaving the screen earths off after the test.",
+    "cite": "Nexans, TR-XLPE long-life cables; Dmitriev, Semiconductive layer over the cable sheath (research)"
+   }
+  ],
+  "where": "After IR and PI, before VLF. Earth the screen and the core at both ends before the test and after it.",
+  "figures": [
+   "4a"
+  ]
+ }
+}

@@ -1,0 +1,77 @@
+{
+  "scores": {
+    "lands": 4,
+    "why": 4,
+    "cause": 4,
+    "trade": 4,
+    "honest": 4,
+    "pleasure": 4
+  },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 3, the paragraph under the readouts (WHY_MORE, also in the step's read)",
+      "what": "\"One offshore cable spec asks for a flat 10 kV d.c. for 1 minute on an insulating sheath\" tells him where the figure comes from. Say it plainly instead: \"Some specs use a flat 10 kV d.c. for 1 minute instead.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 8, String B's results (RES_P3, the resNote paragraph and the step's read)",
+      "what": "\"Record it, and find out why before you submit. On a real job you stop here and report.\" gives two instructions that pull against each other. Keep one: \"Record it. On a real job you stop here and report before any further test.\""
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 6 worked-example note (WK_NOTE), the practice list and the Keep this card's rule",
+      "what": "Each says to put the screen earths back before the cable is energised, but nothing says to take off the conductor-foil-screen links fitted at both ends. As written, the sequence ends with a core bonded to its earthed screen when it is energised. Add \"Take the links off at both ends\" before the screen earths go back on. His notes already do this after the core resistance test."
+    },
+    {
+      "severity": "fix",
+      "where": "Keep this card, the rule line \"Earthed after: at least 5 × the time the voltage was on\"",
+      "what": "After a trip like L2's at 20 s, this rule allows only 100 s of earthing. That is below the cable maker's minimum of 5 minutes after a sheath test, which the case file and screen 8 already use. Write it as \"Earthed after: at least 5 minutes (5 × the 1-minute test)\"."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 2 to 4 (the why)",
+      "what": "No screen says how a hole shows up during the test: the sheath breaks down, current flows through the hole and the set trips. That text is in the explain JSON, and the brief's pinhole option was not built. So Dan first meets \"trips\" on screen 8 without the cause. Add one short sentence on screen 3, or the pinhole state."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3, the why of the 10 kV cap",
+      "what": "The screen shows the stress falling above 2.5 mm but never says why a cap exists, so a thick sheath can look under-tested. Give a sourced reason if research has one. If not, say once that the rule caps it there and a thicker sheath is simply tested more gently."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4, readouts Across the sheath / Across the XLPE",
+      "what": "Both readouts stay at 8.8 kV and 0.0 kV whatever he does, because the only control swaps the outer electrode. The interactive never shows what linking prevents. A \"conductor not linked (left earthed)\" state that puts the 8.8 kV across the XLPE would show the cause of the trap the card names."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 4, Insulating setting (the soil and earth rod picture)",
+      "what": "The picture is a land cable in soil. Nothing on screen says what the earth is for a core sheath inside a cable lying on the seabed, or that the armour and outer yarn sit outside the three cores and are not tested (case a.coreSheath). One short sentence, labelled as an assumption where it is unsourced, would keep the offshore framing honest."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6, worked-example line 7 and the note under it",
+      "what": "\"Discharge in the same order as after the IR test: the display shows discharged, then the discharge stick, the hook stick and the hand earth.\" is a 26-word sentence with a list after a colon. Split it into short steps. In the note, \"The last line matters as much as the test\" is unclear: it could mean line 7 or the screen-earths sentence. Name the step it means."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 7 and 8, Section A",
+      "what": "Only one part is typed (4a). Screen 8 tells him L2's stress at the trip (1.45 kV/mm) and its verdict instead of asking for them. A part (b), \"Determine the stress across L2's sheath when it tripped, and say whether L2 passes\", would read more like a real test record worked step by step."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 10, changed numbers, typed answer slips",
+      "what": "Add the factory-rate slip 24.0 kV (8 × 3.0), with the same hint as on 4a. It is the same slip that 4a already catches at 17.6 kV."
+    },
+    {
+      "severity": "polish",
+      "where": "Keep this card, the String B figure and the traps",
+      "what": "The figure label reads \"Sheath test voltage for the case cable's 2.2 mm sheath\". \"Case cable\" sounds like course talk, so make it \"String B's 2.2 mm core sheath\" in the case file's 4a label. The card's traps also leave out the factory 8 kV per mm used on site, which the practice list names."
+    },
+    {
+      "severity": "polish",
+      "where": "Explain text (lesson JSON, used in the Book and read-through), paragraph 2",
+      "what": "Two sentences in a row start with \"So\": \"So one fixed voltage would push thin sheaths hard... So the rule scales the voltage...\". Merge them or drop the second \"So\"."
+    }
+  ]
+}
