@@ -33,7 +33,8 @@ Every course brief starts from this: never re-teach what these cover, pitch abov
   Location (Sept 2026); a Navy Advanced Apprenticeship with Maths and English proxies.
 - So an electrical course assumes BS 7671 design and verification (cable sizing, voltage drop, earth fault loop
   impedance, protective devices, inspection and test) and cable fault location; it adds what marine and naval work
-  needs beyond them. Ask him for his course syllabi and build to them when he shares them.
+  needs beyond them. He has no syllabi for the Navy courses ahead (Dan, 24 Oct): don't ask for them; plan new
+  content against the public apprenticeship standards for his path, and say where a choice is a guess.
 
 ## Code rules
 - Plain JS, no frameworks, no dependencies in the shipped page. One global namespace `U`.
