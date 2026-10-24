@@ -1,0 +1,160 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Worked by hand: shunt 1.050, 5.0% and 2.00; at 15%, flux 0.8575 and 1.15, 1.224, 22.4%, 2.30 and 0.824; at 30%, 0.715, 1.469, 46.9%, 1.30 and 2.60; series, 0.05 and 4.00; Differential 15%, 1.1425, 0.919, −8.1%, 0.85, 1.115 and 1.70; the working prints these lines",
+        "ok": true
+      },
+      {
+        "label": "Every line passes through rated, 1.00 and 1.00, at every share; on Cumulative more share gives a higher no-load speed and more torque at 2.00; on Differential from 10% the speed at 2.00 is above the no-load speed; the share stops at 50% on Differential",
+        "ok": true
+      },
+      {
+        "label": "In a cumulative compound motor there is a distinct no-load speed: at the 15% example it settles at 1.224, inside the plot, while a plain series motor has only 0.05 of its flux running light",
+        "ok": true,
+        "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/"
+      },
+      {
+        "label": "Cumulative compound motors are not as effective as shunt motors at speed regulation: every share from 5 to 95% droops more than the shunt motor's 5.0%",
+        "ok": true,
+        "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/"
+      },
+      {
+        "label": "If the series field is reversed, its mmf subtracts from the shunt field's and the net flux decreases with increasing load: on Differential from 10 to 50%, the flux at 2.00 is below the flux running light and the speed rises with load",
+        "ok": true,
+        "source": "https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html"
+      },
+      {
+        "label": "Standard compound wound motors have a speed regulation of approximately 15-25%: the 15% example gives 22.4%",
+        "ok": true,
+        "source": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "share",
+      "fields"
+    ],
+    "readouts": [
+      "rdNl",
+      "rdReg",
+      "rdT"
+    ],
+    "outputs": [
+      "flux0",
+      "flux2",
+      "nl",
+      "n2",
+      "torque",
+      "reg"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 7,
+        "step": 1,
+        "steps": [
+          "How it works",
+          "Between shunt and series",
+          "Check",
+          "How it behaves",
+          "Where it is used",
+          "Faults and tests",
+          "Find the fault",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "share",
+        "kind": "control",
+        "label": "Series share, % of full-load field",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 15,
+        "shown": false,
+        "snap": [
+          0,
+          15,
+          30,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "fields",
+        "kind": "choice",
+        "label": "Fields",
+        "options": [
+          "cum",
+          "diff"
+        ],
+        "labels": [
+          "Cumulative",
+          "Differential"
+        ],
+        "value": "cum",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Finish the lesson",
+      "Back",
+      "Continue"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "share = 75",
+    "fields = \"diff\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/motors/i8.a2-360-light.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-360-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-360-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-1280-light.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-1280-dark.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/motors/i8.a2-1280-dark-end.png"
+  ]
+}

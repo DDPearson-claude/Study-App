@@ -1,0 +1,673 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 62rem; margin-inline: auto; }
+  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }
+  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task.show.ask { font-weight: 700; }
+  .task > * + * { margin-top: 10px; }
+  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .task .card b, .task .warn-note b { font-weight: 700; }
+  .task .warn-note { line-height: 1.5; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .why { line-height: 1.6; }
+  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }
+  .lcol > * + *, .rcol > * + * { margin-top: 12px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  #outs .k-readout { padding: 8px 8px 10px 10px; }
+  #outs .k-readout-value { font-size: 1.1rem; }
+  #outs .k-readout.hot .k-readout-value { color: var(--k-warn); }
+  .trip { color: var(--k-warn); font-weight: 700; line-height: 1.5; }
+  .work { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .work .wh { margin: 0; font-weight: 700; }
+  .work .wl { margin: 6px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }
+  .fig { display: block; width: 100%; height: auto; }
+  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }
+  .fig .wt { font: 600 13px var(--k-font); fill: var(--k-warn); }
+  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .ah { fill: var(--k-ink); }
+  .fig .plt { stroke: var(--k-ink); stroke-width: 2; }
+  .fig .plt2 { stroke: var(--k-ink); stroke-width: 5; }
+  .fig .coilT { fill: none; stroke: var(--k-ink); stroke-width: 1.3; stroke-linecap: round; }
+  .fig .coilS { fill: none; stroke: var(--k-ink); stroke-width: 3.4; stroke-linecap: round; }
+  .fig .ia { fill: var(--k-accent2); }
+  .fig .arm { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .slot { fill: var(--k-muted); }
+  .fig .brush { fill: var(--k-strong); }
+  .fig .hub { fill: var(--k-strong); }
+  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .shaft { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }
+  .fig .fa { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }
+  .fig .fah { fill: var(--k-accent); }
+  .fig .opp .fa { stroke: var(--k-warn); }
+  .fig .opp .fah { fill: var(--k-warn); }
+  .fig .barO { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .barF { fill: var(--k-accent2); }
+  .fig .tick { stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 3 3; }
+  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .fig .grid { stroke: var(--k-line); stroke-width: 1; }
+  .fig .band { fill: var(--k-warn); fill-opacity: .12; }
+  .fig .dl { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .fig .rl { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 4; }
+  .fig .ln0 { fill: none; stroke: var(--k-muted); stroke-width: 1.8; }
+  .fig .ln1 { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .fig .lnC { fill: none; stroke: var(--k-accent2); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .lnC.bad { stroke: var(--k-warn); }
+  .fig .dotS { fill: var(--k-accent2); stroke: var(--k-panel); stroke-width: 2; }
+  .fig .dotS.hot { fill: var(--k-warn); }
+  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .jn { fill: var(--k-ink); }
+  .fig .hdl { fill: var(--k-strong); }
+  .fig .lock { fill: var(--k-warn); }
+  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }
+  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }
+  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .sheet { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .ans { font-weight: 700; }
+  #stepbox.enter { animation: screen-in .35s ease-out both; }
+  .fb { animation: fade-in .25s ease-out both; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="hwW"><svg class="fig" id="hw" viewBox="0 0 340 212" width="100%" role="img" aria-label=""></svg></div>
+    <div id="behW"><svg class="fig" id="beh" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg></div>
+    <div id="useW"><svg class="fig" id="use" viewBox="0 0 340 160" width="100%" role="img" aria-label=""></svg></div>
+    <div id="fltW"><svg class="fig" id="flt" viewBox="0 0 340 204" width="100%" role="img" aria-label=""></svg></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <p class="why" id="pre"></p>
+    <div class="live" id="live">
+      <div class="lcol">
+        <svg class="fig" id="mot" viewBox="0 0 340 212" width="100%" role="img" aria-label=""></svg>
+        <svg class="fig" id="flux" viewBox="0 0 340 110" width="100%" role="img" aria-label=""></svg>
+        <div class="k-controls" id="ctl"></div>
+        <p class="sub" id="cnote"></p>
+      </div>
+      <div class="rcol">
+        <svg class="fig" id="plot" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+        <div class="k-readouts" id="outs"></div>
+        <p class="trip" id="trip"></p>
+        <p class="say" id="say"></p>
+        <div class="work" id="work"></div>
+        <p class="caption">A sketch from the simplified per-unit rule, not a maker's data.</p>
+      </div>
+    </div>
+    <div class="picks" id="picks"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const SRC_PEG = 'https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/';
+  const SRC_ETK = 'https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html';
+  const SRC_BAL = 'https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331';
+
+  // ---------- the rule ----------
+  // A simplified compound motor in per unit: flux follows the field currents in a straight line,
+  // with no saturation, armature reaction or brush drop.
+  const DROP = 0.05, ILT = 0.05, IHI = 2, BACK = 1 - DROP;          // example drop, example light-load current, plot's right edge
+  const TOP = 2, OPEN = 15, W30 = 30, DMAX = 50;                   // plot top, opening share, second case, Differential's top
+  const ST_LO = 125, ST_HI = 200;                                   // usual starting limit, % of full load
+  const r4 = (v) => Math.round(v * 10000 + 1e-9) / 10000;
+  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);
+  const three = (v) => (Math.round(v * 1000 + 1e-9) / 1000).toFixed(3);
+  const pct = (v) => { const r = Math.round(Math.abs(v) * 10 + 1e-9) / 10; return (v < 0 && r > 0 ? '−' : '') + r.toFixed(1); };
+  const fl = (v) => { let t = r4(v).toFixed(4); while (/\.\d\d\d*0$/.test(t)) t = t.slice(0, -1); return t; };
+  const TLr = +two((1 - DROP * ILT) / BACK);   // 1.05, the top of the speed rule running light, over 0.95
+  const THr = +two(1 - DROP * IHI);            // 0.90, the top at twice rated current
+  function rule(sh, diff) {
+    const s = sh / 100, A = diff ? 1 + s : 1 - s, k = diff ? -s : s;
+    const flux = (I) => A + k * I, speed = (I) => (1 - DROP * I) / (BACK * flux(I));
+    const n0 = speed(ILT);
+    return { s: s, A: A, k: k, flux: flux, speed: speed, f0: flux(ILT), f2: flux(IHI), n0: n0, n2: speed(IHI), t2: flux(IHI) * IHI,
+      reg: (+three(n0) - 1) * 100, over: sh === 100 || +three(n0) > TOP };
+  }
+  const DIFF = (p) => !!p && p.fields === 'diff';
+  const SH = (p) => {
+    const v = K.clamp(Math.round((+(p && p.share != null ? p.share : OPEN) || 0) / 5) * 5, 0, 100);
+    return DIFF(p) ? Math.min(v, DMAX) : v;
+  };
+
+  // The worked lines, each from the rounded figures before it.
+  const WORK_RL = 'Running light, Ia = ' + two(ILT) + ': back-emf = 1 − ' + two(DROP) + ' × ' + two(ILT) + ' = ' + fl(1 - DROP * ILT) + '. Then ' + fl(1 - DROP * ILT) + ' ÷ ' + two(BACK) + ' = ' + two(TLr) + ', for every share.';
+  function workFor(sh, diff) {
+    if (sh === 0) {
+      const n0 = three(TLr / 1);
+      return 'Shunt, 0%: flux ' + two(1) + '. No-load speed ' + two(TLr) + ' ÷ ' + two(1) + ' = ' + n0 + '. Regulation (' + n0 + ' − ' + three(1) + ') ÷ ' + three(1) + ' = ' + pct((+n0 - 1) * 100) + '%. Torque at ' + two(IHI) + ': ' + two(1) + ' × ' + two(IHI) + ' = ' + two(IHI) + '.';
+    }
+    if (sh === 100) {
+      const r = rule(100, false);
+      return 'Series, 100%: flux at ' + two(IHI) + ' = ' + two(r.f2) + ', so torque = ' + two(r.f2) + ' × ' + two(IHI) + ' = ' + two(r.t2) + '. Running light, the flux is only ' + fl(r.f0) + '. It runs away.';
+    }
+    const s = sh / 100, A = +two(diff ? 1 + s : 1 - s), S = two(s);
+    const f0 = r4(diff ? A - s * ILT : A + s * ILT), n0 = three(TLr / f0), over = +n0 > TOP, reg = (+n0 - 1) * 100;
+    let t = (diff ? 'Differential, ' : 'Compound, ') + sh + '%: flux running light = ' + two(A) + (diff ? ' − ' : ' + ') + S + ' × ' + two(ILT) + ' = ' + fl(f0) + '. ';
+    t += over ? 'No-load speed = ' + two(TLr) + ' ÷ ' + fl(f0) + ', over ' + two(TOP) + '. '
+      : 'No-load speed = ' + two(TLr) + ' ÷ ' + fl(f0) + ' = ' + n0 + '. ' +
+        'Regulation (' + n0 + ' − ' + three(1) + ') ÷ ' + three(1) + ' = ' + pct(reg) + '%. ' + (diff && reg < 0 ? 'So the speed rises with load. ' : '');
+    const f2 = r4(diff ? A - s * IHI : A + s * IHI), d = r4(BACK * f2), n2 = three(THr / d);
+    t += 'Flux at ' + two(IHI) + ' = ' + two(A) + (diff ? ' − ' + two(s * IHI) : ' + ' + S + ' × ' + two(IHI)) + ' = ' + fl(f2) + '. ';
+    const tq = 'Torque = ' + fl(f2) + ' × ' + two(IHI) + ' = ' + two(f2 * IHI) + '.';
+    const sp = 'Speed at ' + two(IHI) + ' = ' + two(THr) + ' ÷ (' + two(BACK) + ' × ' + fl(f2) + ') = ' + two(THr) + ' ÷ ' + fl(d) + ' = ' + n2 + '.';
+    return t + (diff ? sp + ' ' + tq : tq + ' ' + sp);
+  }
+  const R0 = rule(0, false), R15 = rule(OPEN, false), R30 = rule(W30, false), D15 = rule(OPEN, true);
+
+  // ---------- the lesson's words ----------
+  const blk = (t, s) => ({ t: t, s: s });
+  const HOW = [
+    blk('p', 'A compound motor has two field windings. It starts harder than a shunt motor, yet settles at a definite speed running light.'),
+    blk('p', 'The shunt field sits across the supply. The series field is in line with the armature.'),
+    blk('p', 'If the fields aid, it is *cumulative compound*. Only the series part of the flux grows with the load.'),
+    blk('p', 'Reverse the series field and the fields oppose. That is *differential compound*, rarely used as it can be unstable.'),
+    blk('p', 'This is long shunt. Short shunt puts the shunt field across the armature only.'),
+  ];
+  const PLAY_TASK = 'Slide the series share up. Then switch to Differential.';
+  const PRE = 'Torque goes with flux × Ia. Speed goes with back-emf ÷ flux.';
+  const WORK_HEAD = 'Worked in per unit, where ' + two(1) + ' is rated volts, current, flux, speed and torque';
+  const WORK_SET = [
+    'Assume the armature circuit drops ' + Math.round(DROP * 100) + '% of the supply at rated current. Running light, it draws ' + two(ILT) + ' of rated current. Both are examples.',
+    'Flux = shunt part + series part × Ia, or minus it on Differential.',
+    'Back-emf = 1 − ' + two(DROP) + ' × Ia. That is the supply less the drop. Speed = back-emf ÷ (' + two(BACK) + ' × flux). ' + two(BACK) + ' is the back-emf at rated current. Dividing by it makes rated speed ' + two(1) + '.',
+  ];
+  const WORK_END = 'The plot runs to twice rated current. A starter usually holds the starting current to ' + ST_LO + ' to ' + ST_HI + '% of full load.';
+  const PLAY_READ = 'At 0% the compound line lies on the shunt line. It runs light at ' + three(R0.n0) + ' and gives a torque of ' + two(R0.t2) + ' at twice rated current. ' +
+    'At ' + OPEN + '% the flux running light falls to ' + fl(R15.f0) + '. So the no-load speed rises to ' + three(R15.n0) + '. The flux at twice rated current rises to ' + fl(R15.f2) + '. So the torque rises to ' + two(R15.t2) + '. ' +
+    'At ' + W30 + '% the no-load speed reaches ' + three(R30.n0) + '. The torque reaches ' + two(R30.t2) + '. At 100% it is a series motor. Running light, it runs away. ' +
+    'On Differential at ' + OPEN + '%, the flux falls as the current rises. The speed rises from ' + three(D15.n0) + ' running light to ' + three(D15.n2) + ' at twice rated current. The torque falls to ' + two(D15.t2) + '.';
+  const BEHAVE = [
+    blk('row', 'Starting torque: At the same current, higher than a shunt motor\'s and lower than a series motor\'s.'),
+    blk('row', 'Running light: A definite no-load speed. Safe to run light while the shunt field is connected at full strength.'),
+    blk('row', 'Speed regulation: Typically 15 to 25%. Some standard motors run about 30%. Better than a series motor\'s. It droops more than a shunt motor\'s.'),
+    blk('row', 'Series share: More share, more starting torque and a higher no-load speed.'),
+    blk('row', 'Reversing: Swap the armature leads, or both fields. Swap one field alone and it turns differential.'),
+  ];
+  const USE = [
+    blk('row', 'Used for: Punch presses, shears, crushers and reciprocating compressors. Heavy loads that come and go.'),
+    blk('row', 'Why: The series field takes the heavy stroke. The shunt field stops it racing when the load drops off.'),
+    blk('row', 'Limits: Not for wide speed control by weakening the shunt field. The no-load speed can get very high. When it brakes by feeding power back, the armature current reverses through the series field. The fields then oppose, so such drives use a plain shunt motor. Brushes and commutator need regular care.'),
+  ];
+  const FAULTS = [
+    blk('safe', 'Safety first: Isolate, lock off and prove dead.'),
+    blk('row', 'Series field reversed: It turns *differential compound*. The speed can rise with load and surge. A rebuild can reverse it.'),
+    blk('row', 'Polarity: Check it against the maker\'s connection diagram. Never find it by running the motor light at full voltage.'),
+    blk('row', 'Shunt field open: Only the series field is left. On a light load it can race like a series motor.'),
+    blk('row', 'Sparking: Worn brushes, a rough commutator or an armature fault.'),
+    blk('row', 'Tests: Megger the windings to frame. Measure the armature, series field and shunt field resistance.'),
+  ];
+  const words = (list) => list.map((b) => b.s.replace(/\*/g, '')).join('\n\n');
+  const C1 = 'It runs away, like a series motor', C2 = 'It rises to a definite no-load speed and holds there', C3 = 'It hardly changes, like a shunt motor';
+  const F1 = 'The shunt field circuit is open', F2 = 'The brushes have worn down', F3 = 'The series field is connected the wrong way round';
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const STEPS = [
+    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },
+    { show: true, name: 'Between shunt and series', label: 'Between shunt and series', text: PLAY_TASK + '\n\n' + PRE, read: PLAY_READ, still: () => stillAt() },
+    { name: 'Check', label: 'Check on the cause',
+      task: 'A cumulative compound motor drives a shear. The coupling breaks and the load comes off. What does the speed do?',
+      opts: [C1, C2, C3], want: C2,
+      why: 'The current falls, so the series part of the flux fades and the speed rises. The shunt part stays, so the flux holds up. The speed levels off at a definite no-load speed. On the picture at ' + OPEN + '%, it rises from ' + two(1) + ' to ' + three(R15.n0) + '.',
+      slips: ['That is the series motor, whose whole field fades with the current. Here the shunt field keeps enough flux, so the speed levels off.', '',
+        'The shunt part holds, but the series part fades. With less flux, it must turn faster to make the same back-emf. On the picture at ' + OPEN + '%, that is about ' + Math.round(R15.reg) + '% more.'] },
+    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },
+    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },
+    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },
+    { name: 'Find the fault', label: 'Find the fault',
+      task: 'A compound motor is back from a rewind. Now its speed rises as the load goes on, and on a heavy load it surges. What is the most likely fault?',
+      opts: [F1, F2, F3], want: F3,
+      why: 'A reversed series field subtracts from the shunt field. More load means less flux, so more speed. It has turned differential. Isolate and prove dead. Then check the series field connections against the maker\'s diagram. If they are right, check the brush position next.',
+      slips: ['An open shunt field leaves only the series field. The motor would race on a light load and slow as the load goes on. Here the speed rises with load.',
+        'Worn brushes spark and make poor contact. They do not make the speed rise with load.', ''] },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iHow = 0, iPic = 1, iChk = 2, iBeh = 3, iUse = 4, iFlt = 5, iFind = 6, iK = 7;
+  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));
+  let lastStep = -1, finished = false;
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function addText(node, s) {
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function write(node, s) { node.textContent = ''; return addText(node, s); }
+  function blocks(node, list) {
+    node.textContent = '';
+    list.forEach((b, k) => {
+      if (k) node.appendChild(document.createTextNode(' '));
+      let e;
+      if (b.t === 'row' || b.t === 'safe') {
+        const cut = b.s.indexOf(': ');
+        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, addText(K.el('b'), b.s.slice(0, cut + 1)), ' ');
+        addText(e, b.s.slice(cut + 2));
+      } else e = addText(K.el('p'), b.s);
+      node.appendChild(e);
+    });
+  }
+
+  // ---------- drawing helpers ----------
+  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }
+  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }
+  const f1 = (v) => (+v).toFixed(1);
+  const show = (n, on) => { n.style.display = on ? '' : 'none'; };
+  const humps = (x, y, n, r) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a' + r + ' ' + r + ' 0 0 1 ' + 2 * r + ' 0'; return d; };
+  const vhumps = (x, y, n, r) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a' + r + ' ' + r + ' 0 0 1 0 ' + 2 * r; return d; };
+  function arrow(g, x1, y1, x2, y2, lc, hc) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x2 - 9 * ux, by = y2 - 9 * uy;
+    ad(g, 'line', { x1: x1, y1: y1, x2: f1(bx), y2: f1(by), class: lc });
+    ad(g, 'polygon', { points: [x2, y2, bx - 5 * uy, by + 5 * ux, bx + 5 * uy, by - 5 * ux].map(f1).join(' '), class: hc });
+  }
+  function armature(g, cx, cy, r) {
+    ad(g, 'circle', { cx: cx, cy: cy, r: r, class: 'arm' });
+    const sl = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ')' });
+    for (let j = 0; j < 8; j++) ad(sl, 'rect', { x: -2, y: -(r - 2), width: 4, height: 6, rx: 1, class: 'slot', transform: 'rotate(' + (j * 45) + ')' });
+    return sl;
+  }
+
+  // The long-shunt compound motor: the shunt field across the supply; the series field in line with the armature.
+  function makeCircuit(g, live) {
+    const C = {};
+    ad(g, 'path', { d: 'M20 40V112M20 124V204M20 40H214V56M20 204H214V178M86 40V62M86 142V204M214 104V122', class: 'w' });
+    ad(g, 'path', { d: 'M8 112H32', class: 'plt' });
+    ad(g, 'path', { d: 'M14 124H26', class: 'plt2' });
+    txt(g, 36, 116, 'DC');
+    txt(g, 36, 132, 'supply');
+    [[86, 40], [86, 204]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    ad(g, 'polygon', { points: '58 40 48 35 48 45', class: 'ia' });
+    txt(g, 46, 28, 'line current', 'lb', 'middle');
+    ad(g, 'polygon', { points: '162 40 152 35 152 45', class: 'ia' });
+    txt(g, 156, 28, live ? 'Ia' : 'armature current', 'lb', 'middle');
+    ad(g, 'polygon', { points: '86 58 81 48 91 48', class: 'ia' });
+    txt(g, 96, 62, 'field current');
+    ad(g, 'path', { d: vhumps(86, 62, 8, 5), class: 'coilT' });
+    txt(g, 78, 76, 'shunt', 'lb', 'end');
+    txt(g, 78, 92, 'field', 'lb', 'end');
+    arrow(g, 104, 96, 104, 138, 'fa', 'fah');
+    ad(g, 'path', { d: vhumps(214, 56, 3, 8), class: 'coilS' });
+    txt(g, 250, 70, 'series field');
+    C.down = ad(g, 'g', {});
+    arrow(C.down, 238, 58, 238, 102, 'fa', 'fah');
+    C.up = ad(g, 'g', { class: 'opp' });
+    arrow(C.up, 238, 102, 238, 58, 'fa', 'fah');
+    C.aid = ad(g, 'g', {});
+    txt(C.aid, 250, 92, 'fields aid:'); txt(C.aid, 250, 108, 'cumulative');
+    C.opp = ad(g, 'g', {});
+    txt(C.opp, 250, 92, 'fields oppose:', 'wt'); txt(C.opp, 250, 108, 'differential', 'wt');
+    armature(g, 214, 150, 20);
+    ad(g, 'rect', { x: 208, y: 122, width: 12, height: 8, rx: 1.5, class: 'brush' });
+    ad(g, 'rect', { x: 208, y: 170, width: 12, height: 8, rx: 1.5, class: 'brush' });
+    txt(g, 244, 156, 'armature');
+    C.set = (diff) => { show(C.down, !diff); show(C.up, diff); show(C.aid, !diff); show(C.opp, diff); };
+    C.set(false);
+    return C;
+  }
+
+  // The plot: speed against armature current, both per unit.
+  const PX = (i) => 50 + 138 * i, PY = (n) => 218 - 95 * n;
+  function linePath(sh, diff) {
+    const r = rule(sh, diff);
+    // Where a line runs off the top, it starts at the top edge: 1 − 0.05 x = 2.00 × 0.95 × flux(x).
+    const x0 = r.speed(ILT) > TOP ? (1 - TOP * BACK * r.A) / (DROP + TOP * BACK * r.k) : ILT;
+    const pts = [[x0, Math.min(r.speed(x0), TOP)]];
+    for (let j = Math.floor(x0 * 40 + 1e-9) + 1; j <= 80; j++) pts.push([j / 40, r.speed(j / 40)]);
+    return 'M' + pts.map((q) => f1(PX(q[0])) + ' ' + f1(PY(q[1]))).join('L');
+  }
+  function makePlot(g, live) {
+    const P = {};
+    [0.5, 1, 1.5].forEach((n) => ad(g, 'line', { x1: 50, y1: PY(n), x2: 326, y2: PY(n), class: 'grid' }));
+    if (!live) {
+      txt(g, 326, 44, 'sketch from', 'mu', 'end');
+      txt(g, 326, 60, 'the example rule', 'mu', 'end');
+    }
+    ad(g, 'line', { x1: PX(1), y1: PY(TOP), x2: PX(1), y2: PY(0), class: 'rl' });
+    txt(g, PX(1) + 4, 210, 'rated', 'mu');
+    ad(g, 'path', { d: 'M50 ' + PY(TOP) + 'V218H326', class: 'ax' });
+    [0, 0.5, 1, 1.5, 2].forEach((n) => txt(g, 44, PY(n) + 4.5, n ? two(n) : '0', 'lb', 'end'));
+    [0, 0.5, 1, 1.5, 2].forEach((i) => { ad(g, 'line', { x1: f1(PX(i)), y1: 218, x2: f1(PX(i)), y2: 223, class: 'ax' }); txt(g, f1(PX(i)), 236, i ? two(i) : '0', 'lb', 'middle'); });
+    txt(g, 4, 16, 'Speed, per unit', 'hd');
+    txt(g, 188, 254, 'Armature current Ia, per unit', 'hd', 'middle');
+    ad(g, 'path', { d: linePath(0, false), class: 'ln0' });
+    ad(g, 'path', { d: linePath(100, false), class: 'ln1' });
+    P.line = ad(g, 'path', { d: linePath(OPEN, false), class: 'lnC' });
+    txt(g, 126, 22, 'runs away', 'wt');
+    if (live) {
+      P.d0 = ad(g, 'circle', { cx: f1(PX(ILT)), cy: f1(PY(R15.n0)), r: 6, class: 'dotS' });
+      P.d2 = ad(g, 'circle', { cx: f1(PX(IHI)), cy: f1(PY(R15.n2)), r: 6, class: 'dotS' });
+    }
+    // the key, under the axis
+    ad(g, 'line', { x1: 6, y1: 270, x2: 28, y2: 270, class: 'ln0' });
+    txt(g, 34, 274, 'shunt, 0%');
+    ad(g, 'line', { x1: 6, y1: 288, x2: 28, y2: 288, class: 'ln1' });
+    txt(g, 34, 292, 'series, 100%');
+    P.keyC = ad(g, 'line', { x1: 150, y1: 270, x2: 174, y2: 270, class: 'lnC' });
+    P.keyT = txt(g, 182, 274, 'compound, ' + OPEN + '%');
+    if (live) {
+      ad(g, 'circle', { cx: 162, cy: 288, r: 5, class: 'dotS' });
+      txt(g, 182, 292, 'at Ia ' + two(ILT) + ' and ' + two(IHI));
+    }
+    return P;
+  }
+
+  // The two flux bars, 0 to 2.00 with rated at 1.00.
+  function makeFlux(g) {
+    const B = {};
+    txt(g, 8, 14, 'Flux running light');
+    ad(g, 'rect', { x: 8, y: 22, width: 240, height: 14, rx: 2, class: 'barO' });
+    B.b0 = ad(g, 'rect', { x: 8, y: 22, width: 0, height: 14, rx: 2, class: 'barF' });
+    B.t0 = txt(g, 334, 34, '', 'lb', 'end');
+    txt(g, 8, 60, 'Flux at ' + two(IHI) + ' × rated current');
+    ad(g, 'rect', { x: 8, y: 68, width: 240, height: 14, rx: 2, class: 'barO' });
+    B.b2 = ad(g, 'rect', { x: 8, y: 68, width: 0, height: 14, rx: 2, class: 'barF' });
+    B.t2 = txt(g, 334, 80, '', 'lb', 'end');
+    [[20, 38], [66, 84]].forEach((q) => ad(g, 'line', { x1: 128, y1: q[0], x2: 128, y2: q[1], class: 'tick' }));
+    txt(g, 8, 104, '0', 'mu');
+    txt(g, 128, 104, two(1) + ' rated', 'mu', 'middle');
+    txt(g, 248, 104, two(TOP), 'mu', 'middle');
+    return B;
+  }
+
+  // Where it is used: the motor belt-drives the flywheel of a punch press.
+  function buildUse(g) {
+    const m = [100, 110, 9], w = [196, 62, 40];
+    const dx = w[0] - m[0], dy = w[1] - m[1], d = Math.hypot(dx, dy), th = Math.atan2(dy, dx), b = Math.acos((m[2] - w[2]) / d);
+    ad(g, 'line', { x1: 196, y1: 62, x2: 250, y2: 62, class: 'shaft' });
+    [1, -1].forEach((sg) => { const a = th + sg * b; ad(g, 'line', { x1: f1(m[0] + m[2] * Math.cos(a)), y1: f1(m[1] + m[2] * Math.sin(a)), x2: f1(w[0] + w[2] * Math.cos(a)), y2: f1(w[1] + w[2] * Math.sin(a)), class: 'w' }); });
+    ad(g, 'rect', { x: 8, y: 86, width: 74, height: 48, rx: 10, class: 'body' });
+    txt(g, 45, 106, 'compound', 'lb', 'middle');
+    txt(g, 45, 122, 'motor', 'lb', 'middle');
+    ad(g, 'line', { x1: 82, y1: 110, x2: 98, y2: 110, class: 'shaft' });
+    ad(g, 'circle', { cx: m[0], cy: m[1], r: m[2], class: 'drum' });
+    ad(g, 'circle', { cx: w[0], cy: w[1], r: w[2], class: 'drum' });
+    for (let j = 0; j < 6; j++) { const a = j * Math.PI / 3; ad(g, 'line', { x1: f1(w[0] + 8 * Math.cos(a)), y1: f1(w[1] + 8 * Math.sin(a)), x2: f1(w[0] + 34 * Math.cos(a)), y2: f1(w[1] + 34 * Math.sin(a)), class: 'w' }); }
+    ad(g, 'circle', { cx: w[0], cy: w[1], r: 5, class: 'hub' });
+    txt(g, 196, 14, 'flywheel', 'lb', 'middle');
+    ad(g, 'rect', { x: 248, y: 48, width: 84, height: 28, rx: 4, class: 'body' });
+    ad(g, 'rect', { x: 314, y: 76, width: 18, height: 62, class: 'body' });
+    ad(g, 'rect', { x: 248, y: 138, width: 84, height: 16, rx: 3, class: 'body' });
+    ad(g, 'path', { d: 'M282 76V86', class: 'w' });
+    ad(g, 'rect', { x: 266, y: 86, width: 32, height: 22, rx: 3, class: 'body' });
+    ad(g, 'rect', { x: 277, y: 108, width: 10, height: 12, rx: 1.5, class: 'hub' });
+    ad(g, 'rect', { x: 258, y: 132, width: 48, height: 6, rx: 1, class: 'sheet' });
+    txt(g, 290, 40, 'punch press', 'lb', 'middle');
+    g.setAttribute('aria-label', 'A compound motor drives a punch press. A belt runs from the motor\'s pulley to a heavy flywheel on the press\'s shaft. Below the press\'s crown, the ram carries a punch down onto a sheet on the bed.');
+  }
+
+  // Faults and tests: the isolator locked off and tagged; a megger from the windings to the frame;
+  // an ohmmeter across the series field's leads; the brushes on the commutator.
+  function buildFlt(g) {
+    txt(g, 56, 16, 'isolator: open', 'lb', 'middle');
+    ad(g, 'rect', { x: 16, y: 24, width: 80, height: 60, rx: 6, class: 'body' });
+    ad(g, 'path', { d: 'M0 44H30M0 68H30M30 44L54 32M30 68L54 56M66 44H112M66 68H112', class: 'w' });
+    [[30, 44], [30, 68], [66, 44], [66, 68]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));
+    ad(g, 'rect', { x: 48, y: 84, width: 16, height: 8, rx: 2, class: 'hdl' });
+    ad(g, 'path', { d: 'M51 104V98a5 5 0 0 1 10 0V104', class: 'shk' });
+    ad(g, 'rect', { x: 49, y: 103, width: 14, height: 14, rx: 3, class: 'lock' });
+    ad(g, 'path', { d: 'M63 110L72 115', class: 'w' });
+    ad(g, 'polygon', { points: '74 112 92 112 92 134 70 134 70 116', class: 'tag' });
+    ad(g, 'circle', { cx: 75, cy: 117, r: 1.6, class: 'jn' });
+    txt(g, 98, 120, 'locked off');
+    txt(g, 98, 136, 'and tagged');
+    ad(g, 'rect', { x: 178, y: 22, width: 58, height: 36, rx: 6, class: 'body' });
+    txt(g, 207, 45, 'megger', 'lb', 'middle');
+    ad(g, 'rect', { x: 266, y: 52, width: 64, height: 56, rx: 10, class: 'body' });
+    ad(g, 'rect', { x: 280, y: 40, width: 28, height: 12, rx: 2, class: 'term' });
+    txt(g, 294, 32, 'windings', 'lb', 'middle');
+    txt(g, 298, 86, 'frame', 'lb', 'middle');
+    ad(g, 'path', { d: 'M236 30H252V46H280M236 50H246V80H266', class: 'w' });
+    [[280, 46], [266, 80]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));
+    ad(g, 'rect', { x: 10, y: 150, width: 74, height: 32, rx: 6, class: 'body' });
+    txt(g, 47, 171, 'ohmmeter', 'lb', 'middle');
+    ad(g, 'path', { d: 'M84 158H114M84 174H172V158H162', class: 'w' });
+    ad(g, 'path', { d: humps(114, 158, 3, 8), class: 'coilS' });
+    txt(g, 138, 196, 'series field', 'lb', 'middle');
+    ad(g, 'circle', { cx: 262, cy: 152, r: 20, class: 'drum' });
+    for (let j = 0; j < 8; j++) { const a = j * Math.PI / 4; ad(g, 'line', { x1: f1(262 + 8 * Math.cos(a)), y1: f1(152 + 8 * Math.sin(a)), x2: f1(262 + 20 * Math.cos(a)), y2: f1(152 + 20 * Math.sin(a)), class: 'w' }); }
+    ad(g, 'circle', { cx: 262, cy: 152, r: 8, class: 'drum' });
+    ad(g, 'rect', { x: 232, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });
+    ad(g, 'rect', { x: 282, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });
+    ad(g, 'path', { d: 'M220 152H232M292 152H304', class: 'w' });
+    txt(g, 237, 136, 'brushes', 'lb', 'middle');
+    txt(g, 262, 192, 'commutator', 'lb', 'middle');
+    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. A megger is connected from the motor\'s windings to its frame. ' +
+      'An ohmmeter is connected across the series field\'s two leads. The two brushes press on the commutator.');
+  }
+
+  makeCircuit(el('hw'), false);
+  el('hw').setAttribute('aria-label', 'A long-shunt compound motor. A DC supply has two branches across it. On the left, the shunt field: many turns of thin wire. ' +
+    'On the right, the series field, a few turns of thick wire, in line with the armature between its brushes. The line current splits into a small field current and the armature current. ' +
+    'An arrow on each field winding points the same way: the fields aid, cumulative.');
+  makePlot(el('beh'), false);
+  el('beh').setAttribute('aria-label', 'A sketch from the example rule: speed against armature current, both per unit. The shunt line is nearly flat. The series line runs off the top on the left. ' +
+    'The compound line at ' + OPEN + '% sits between them. All three pass through rated, ' + two(1) + ' and ' + two(1) + '.');
+  buildUse(el('use'));
+  buildFlt(el('flt'));
+  const CIR = makeCircuit(el('mot'), true);
+  const FB = makeFlux(el('flux'));
+  const PL = makePlot(el('plot'), true);
+
+  // ---------- controls and readouts ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const shareCtl = K.control({ id: 'share', label: 'Series share, % of full-load field', min: 0, max: 100, step: 5, value: OPEN, fmt: (v) => Math.round(v) + '%', snap: [0, OPEN, W30, DMAX, 100], into: '#ctl' });
+  const fieldsCtl = K.choice({ id: 'fields', label: 'Fields', options: [{ value: 'cum', label: 'Cumulative' }, { value: 'diff', label: 'Differential' }], value: 'cum', into: '#ctl' });
+  const RD = {
+    nl: K.readout({ id: 'rdNl', label: 'No-load speed, per unit', into: '#outs' }),
+    reg: K.readout({ id: 'rdReg', label: 'Speed regulation', into: '#outs' }),
+    t: K.readout({ id: 'rdT', label: 'Torque, ' + two(IHI) + ' × rated current', into: '#outs' }),
+  };
+  K.model((p) => {
+    const r = rule(SH(p), DIFF(p));
+    return { flux0: r.f0, flux2: r.f2, nl: r.n0, n2: r.n2, torque: r.t2, reg: r.reg };
+  });
+
+  el('pre').textContent = PRE;
+  el('cnote').textContent = 'On Differential the share stops at ' + DMAX + '%.';
+  el('work').appendChild(K.el('p', { class: 'wh' }, WORK_HEAD));
+  WORK_SET.forEach((s) => el('work').appendChild(K.el('p', { class: 'wl' }, s)));
+  el('work').appendChild(K.el('p', { class: 'wl' }, WORK_RL));
+  const workLine = el('work').appendChild(K.el('p', { class: 'wl' }, ''));
+  el('work').appendChild(K.el('p', { class: 'wl' }, WORK_END));
+
+  function sayFor(sh, diff, r) {
+    if (sh === 0) return 'With no series share, this is a plain shunt motor. Its flux stays at ' + two(1) + ' at any current. So it runs light at only ' + three(r.n0) + ', and gives a torque of ' + two(r.t2) + ' at twice rated current.';
+    if (diff) return 'With the series field reversed, the flux falls as the current rises, from ' + fl(r.f0) + ' running light to ' + fl(r.f2) + ' at twice rated current. ' +
+      (r.reg < 0 ? 'So the speed rises with load, from ' + three(r.n0) + ' to ' + three(r.n2) + '. '
+        : 'At this small share the speed still falls a little, from ' + three(r.n0) + ' to ' + three(r.n2) + '. ') +
+      'The torque at twice rated current is only ' + two(r.t2) + '.';
+    if (sh === 100) return 'At 100% it is a plain series motor. Running light, its flux is only ' + fl(r.f0) + ', so it runs away. At twice rated current the torque is ' + two(r.t2) + '.';
+    return 'With a ' + sh + '% series share, the flux running light falls to ' + fl(r.f0) + '. ' +
+      (r.over ? 'So running light it goes over ' + two(TOP) + '. '
+        : 'So it runs light faster, at ' + three(r.n0) + '. ') +
+      'At twice rated current the flux rises to ' + fl(r.f2) + ', so the torque there rises to ' + two(r.t2) + '.';
+  }
+
+  function paintLive(p) {
+    const sh = SH(p), diff = DIFF(p), r = rule(sh, diff), rising = !r.over && r.reg < 0;
+    CIR.set(diff);
+    FB.b0.setAttribute('width', f1(120 * r.f0)); FB.t0.textContent = fl(r.f0);
+    FB.b2.setAttribute('width', f1(120 * r.f2)); FB.t2.textContent = fl(r.f2);
+    PL.line.setAttribute('d', linePath(sh, diff));
+    PL.line.classList.toggle('bad', rising);
+    PL.keyC.classList.toggle('bad', rising);
+    PL.keyT.textContent = 'compound, ' + sh + '%';
+    show(PL.d0, !r.over);
+    if (!r.over) PL.d0.setAttribute('cy', f1(PY(r.n0)));
+    PL.d0.classList.toggle('hot', rising);
+    PL.d2.setAttribute('cy', f1(PY(r.n2)));
+    PL.d2.classList.toggle('hot', rising);
+    RD.nl.set(sh === 100 ? 'Runs away' : r.over ? 'over ' + two(TOP) : three(r.n0));
+    RD.nl.el.classList.toggle('hot', r.over);
+    RD.reg.set(r.over ? 'over ' + Math.round((TOP - 1) * 100) + '%' : pct(r.reg) + '%');
+    RD.reg.el.classList.toggle('hot', rising);
+    RD.t.set(two(r.t2));
+    el('trip').textContent = rising ? 'Speed rises with load.' : '';
+    el('trip').hidden = !rising;
+    el('say').textContent = sayFor(sh, diff, r);
+    workLine.textContent = workFor(sh, diff);
+    el('mot').setAttribute('aria-label', 'The compound motor\'s circuit: a DC supply with the shunt field across it, and the series field in line with the armature. ' +
+      (diff ? 'The series field\'s arrow points the other way: the fields oppose, differential.' : 'The two field arrows point the same way: the fields aid, cumulative.'));
+    el('flux').setAttribute('aria-label', 'Two flux bars on a scale of 0 to ' + two(TOP) + ', with rated at ' + two(1) + '. Flux running light, ' + fl(r.f0) + '. Flux at ' + two(IHI) + ' times rated current, ' + fl(r.f2) + '.');
+    el('plot').setAttribute('aria-label', 'Speed against armature current, both per unit. Three lines pass through rated, ' + two(1) + ' and ' + two(1) + ': the shunt line, nearly flat; the series line, which runs off the top on the left; ' +
+      'and the compound line at a ' + sh + '% series share' + (rising ? ', which rises as the current rises' : '') + '. Dots mark it running light and at ' + two(IHI) + ' times rated current.');
+  }
+
+  // The read-through's picture: the opening share, the fields aiding.
+  function stillAt() { fieldsCtl.set('cum'); shareCtl.set(OPEN); K.refresh(); }
+
+  // ---------- picks: one go, then the answer and its reason ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length || st.res) return;
+    st.pick = d.opts[k];
+    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }
+    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }
+    K.refresh();
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));
+    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));
+    if (f.p) fb.appendChild(addText(K.el('p'), f.p));
+  }
+
+  // ---------- Keep this ----------
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  const ON = { hwW: [iHow], behW: [iBeh], useW: [iUse], fltW: [iFlt], pre: [iPic], live: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };
+
+  K.update((p) => {
+    // On Differential the share stops at 50%: a higher setting moves down to it.
+    if (DIFF(p) && +p.share > DMAX) shareCtl.set(DMAX, true);
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');
+    if (i === iPic) write(task, PLAY_TASK);
+    else if (d.show) blocks(task, d.blocks);
+    else if (d.kind) task.textContent = '';
+    else write(task, d.task);
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    paintLive(p);
+
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paintFb(st.fb);
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i);
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Worked by hand: shunt 1.050, 5.0% and 2.00; at 15%, flux 0.8575 and 1.15, 1.224, 22.4%, 2.30 and 0.824; at 30%, 0.715, 1.469, 46.9%, 1.30 and 2.60; series, 0.05 and 4.00; Differential 15%, 1.1425, 0.919, −8.1%, 0.85, 1.115 and 1.70; the working prints these lines', () => {
+    const a = K.at({ share: 0 }), b = K.at({ share: 15 }), c = K.at({ share: 30 }), d = K.at({ share: 100 }), e = K.at({ share: 15, fields: 'diff' });
+    return three(a.nl) === '1.050' && pct(a.reg) === '5.0' && two(a.torque) === '2.00' &&
+      fl(b.flux0) === '0.8575' && three(b.nl) === '1.224' && pct(b.reg) === '22.4' && fl(b.flux2) === '1.15' && two(b.torque) === '2.30' && three(b.n2) === '0.824' &&
+      fl(c.flux0) === '0.715' && three(c.nl) === '1.469' && pct(c.reg) === '46.9' && fl(c.flux2) === '1.30' && two(c.torque) === '2.60' &&
+      fl(d.flux0) === '0.05' && fl(d.flux2) === '2.00' && two(d.torque) === '4.00' &&
+      fl(e.flux0) === '1.1425' && three(e.nl) === '0.919' && pct(e.reg) === '−8.1' && fl(e.flux2) === '0.85' && three(e.n2) === '1.115' && two(e.torque) === '1.70' &&
+      WORK_RL === 'Running light, Ia = 0.05: back-emf = 1 − 0.05 × 0.05 = 0.9975. Then 0.9975 ÷ 0.95 = 1.05, for every share.' &&
+      workFor(0, false) === 'Shunt, 0%: flux 1.00. No-load speed 1.05 ÷ 1.00 = 1.050. Regulation (1.050 − 1.000) ÷ 1.000 = 5.0%. Torque at 2.00: 1.00 × 2.00 = 2.00.' &&
+      workFor(15, false) === 'Compound, 15%: flux running light = 0.85 + 0.15 × 0.05 = 0.8575. No-load speed = 1.05 ÷ 0.8575 = 1.224. Regulation (1.224 − 1.000) ÷ 1.000 = 22.4%. Flux at 2.00 = 0.85 + 0.15 × 2.00 = 1.15. Torque = 1.15 × 2.00 = 2.30. Speed at 2.00 = 0.90 ÷ (0.95 × 1.15) = 0.90 ÷ 1.0925 = 0.824.' &&
+      workFor(100, false) === 'Series, 100%: flux at 2.00 = 2.00, so torque = 2.00 × 2.00 = 4.00. Running light, the flux is only 0.05. It runs away.' &&
+      workFor(15, true) === 'Differential, 15%: flux running light = 1.15 − 0.15 × 0.05 = 1.1425. No-load speed = 1.05 ÷ 1.1425 = 0.919. Regulation (0.919 − 1.000) ÷ 1.000 = −8.1%. So the speed rises with load. Flux at 2.00 = 1.15 − 0.30 = 0.85. Speed at 2.00 = 0.90 ÷ (0.95 × 0.85) = 0.90 ÷ 0.8075 = 1.115. Torque = 0.85 × 2.00 = 1.70.' &&
+      workFor(30, false).indexOf('1.05 ÷ 0.715 = 1.469. Regulation (1.469 − 1.000) ÷ 1.000 = 46.9%.') >= 0;
+  });
+  K.check('Every line passes through rated, 1.00 and 1.00, at every share; on Cumulative more share gives a higher no-load speed and more torque at 2.00; on Differential from 10% the speed at 2.00 is above the no-load speed; the share stops at 50% on Differential', () => {
+    for (let sh = 0; sh <= 100; sh += 5) for (const diff of [false, true]) {
+      if (diff && sh > DMAX) continue;
+      const r = rule(sh, diff);
+      if (!(K.near(r.speed(1), 1, 1e-9) && K.near(r.flux(1), 1, 1e-9))) return false;
+      if (!diff && sh < 100) { const n = rule(sh + 5, false); if (!(n.n0 > r.n0 && n.t2 > r.t2)) return false; }
+      if (diff && sh >= 10 && !(r.n2 > r.n0)) return false;
+    }
+    return K.near(K.at({ share: 80, fields: 'diff' }).nl, K.at({ share: 50, fields: 'diff' }).nl, 1e-9);
+  });
+  K.check('In a cumulative compound motor there is a distinct no-load speed: at the 15% example it settles at 1.224, inside the plot, while a plain series motor has only 0.05 of its flux running light', () => {
+    const b = K.at({ share: 15 }), d = K.at({ share: 100 });
+    return three(b.nl) === '1.224' && b.nl < TOP && K.near(d.flux0, 0.05, 1e-9) && d.nl > 10 * TOP;
+  }, { source: SRC_PEG });
+  K.check('Cumulative compound motors are not as effective as shunt motors at speed regulation: every share from 5 to 95% droops more than the shunt motor\'s 5.0%', () => {
+    const base = K.at({ share: 0 }).reg;
+    for (let sh = 5; sh <= 95; sh += 5) if (!(K.at({ share: sh }).reg > base)) return false;
+    return pct(base) === '5.0';
+  }, { source: SRC_PEG });
+  K.check('If the series field is reversed, its mmf subtracts from the shunt field\'s and the net flux decreases with increasing load: on Differential from 10 to 50%, the flux at 2.00 is below the flux running light and the speed rises with load', () => {
+    for (let sh = 10; sh <= DMAX; sh += 5) { const o = K.at({ share: sh, fields: 'diff' }); if (!(o.flux2 < o.flux0 && o.n2 > o.nl && o.reg < 0)) return false; }
+    return true;
+  }, { source: SRC_ETK });
+  K.check('Standard compound wound motors have a speed regulation of approximately 15-25%: the 15% example gives 22.4%', () => {
+    const r = K.at({ share: 15 }).reg;
+    return pct(r) === '22.4' && r >= 15 && r <= 25;
+  }, { source: SRC_BAL });
+
+  K.ready();
+</script>

@@ -1,0 +1,668 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-24T14:07:06.544Z",
+ "startedAt": "2026-10-24T14:07:06.544Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i8",
+  "title": "The DC compound motor",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the flux running light fall and the no-load speed climb towards a series motor's, while the flux and torque at heavy current rise, when you slide the series share up.",
+   "title": "Slide between shunt and series",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Screen",
+     "min": 0,
+     "max": 7,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.\n\nAssume one motor on every screen, worked in per unit: 1.00 is its rated voltage, armature current, flux, speed and torque. Its armature circuit is the armature plus the series field. It drops 5% of the supply at rated current. Running light, it draws 0.05 of rated current. That is just enough to turn its own friction. Both are examples, not a maker's. Every other figure is worked from these, or is a labelled example.\n\nScreen 1, How it works. A still drawing of a long-shunt compound motor. A DC supply. Across it, the shunt field winding, many turns of thin wire, labelled \"shunt field\". Beside it, one branch with the series field, a few turns of thick wire, then the armature between its brushes, labelled \"series field\" and \"armature\". The line current splits into a small shunt field current and the armature current, which runs through the series field. An arrow on each field winding points the same way, labelled \"fields aid: cumulative\". The words beside it: \"A compound motor has two field windings. It starts harder than a shunt motor, yet settles at a definite speed running light. The shunt field sits across the supply. The series field is in line with the armature. If the fields aid, it is cumulative compound. Only the series part of the flux grows with the load. Reverse the series field and the fields oppose. That is differential compound, rarely used as it can be unstable. This is long shunt. Short shunt puts the shunt field across the armature only.\" Cumulative compound and differential compound are the key terms, marked in amber.\n\nScreen 2, Between shunt and series: the picture to play with. At the top, screen 1's circuit redrawn small. The series field's arrow flips when the switch is set to Differential. Beside it, two bars on a scale of 0 to 2.00 with a tick at 1.00, rated: \"Flux running light\" and \"Flux at 2.00 × rated current\". Below, a plot of speed, 0 to 2.00 per unit, against armature current, 0 to 2.00 per unit, with a dashed line at 1.00 labelled \"rated\". Three lines, all passing through 1.00, 1.00. A thin line labelled \"shunt, 0%\". A thin line labelled \"series, 100%\", which runs off the top at the left, labelled \"runs away\". A thick line labelled \"compound\" with the slider's share, drawn in full. Dots on the compound line at 0.05, running light, and at 2.00. Then one row of three readouts: No-load speed, per unit. Speed regulation, %. Torque at 2.00 × rated current, per unit. Above 2.00 the no-load speed reads \"over 2.00\", in red. At 100% it reads \"Runs away\". A negative speed regulation turns red, labelled \"speed rises with load\". The compound line and its dots turn red too. On a phone these sit one under another. On a laptop the plot sits beside the circuit.\n\nThe controls. Series share: a slider from 0 to 100% of the full-load field, in steps of 5. It starts at 15. 0% is a plain shunt motor. 100% is a plain series motor. Fields: a switch, Cumulative or Differential. It starts on Cumulative. On Differential the slider stops at 50%. A higher setting moves down to 50%. A line under the controls says \"On Differential the share stops at 50%.\"\n\nThe rule is for a simplified compound motor. Flux follows the field currents in a straight line. There is no saturation, no armature reaction and no brush drop. s is the series share as a fraction.\nCumulative flux = (1 − s) + s × Ia. Differential flux = (1 + s) − s × Ia. Both are 1.00 at rated current, so every line passes through the rated point.\nSpeed = (1 − 0.05 × Ia) ÷ (0.95 × flux). The top is the back-emf: the supply less the armature-circuit drop. The 0.95 makes rated speed 1.00. Dividing by the flux follows from back-emf going with flux × speed.\nTorque = flux × Ia.\nSpeed regulation = (no-load speed − rated speed) ÷ rated speed. No load means Ia = 0.05.\n\nWorked under the readouts, headed \"Worked in per unit, where 1.00 is rated volts, current, flux, speed and torque\". First the set-up: \"Assume the armature circuit drops 5% of the supply at rated current. Running light, it draws 0.05 of rated current. Both are examples. Flux = shunt part + series part × Ia, or minus it on Differential. Back-emf = 1 − 0.05 × Ia. That is the supply less the drop. Speed = back-emf ÷ (0.95 × flux). 0.95 is the back-emf at rated current. Dividing by it makes rated speed 1.00.\" Then each line uses the rounded figures before it:\nRunning light, Ia = 0.05: back-emf = 1 − 0.05 × 0.05 = 0.9975. Then 0.9975 ÷ 0.95 = 1.05, for every share.\nShunt, 0%: flux 1.00. No-load speed 1.05 ÷ 1.00 = 1.050. Regulation (1.050 − 1.000) ÷ 1.000 = 5.0%. Torque at 2.00: 1.00 × 2.00 = 2.00.\nCompound, 15%: flux running light = 0.85 + 0.15 × 0.05 = 0.8575. No-load speed = 1.05 ÷ 0.8575 = 1.224. Regulation (1.224 − 1.000) ÷ 1.000 = 22.4%. Flux at 2.00 = 0.85 + 0.15 × 2.00 = 1.15. Torque = 1.15 × 2.00 = 2.30. Speed at 2.00 = 0.90 ÷ (0.95 × 1.15) = 0.90 ÷ 1.0925 = 0.824.\nCompound, 30%: flux running light = 0.70 + 0.30 × 0.05 = 0.715. No-load speed = 1.05 ÷ 0.715 = 1.469. Regulation 46.9%. Flux at 2.00 = 0.70 + 0.60 = 1.30. Torque = 1.30 × 2.00 = 2.60.\nSeries, 100%: flux at 2.00 = 2.00, so torque = 2.00 × 2.00 = 4.00. Running light, the flux is only 0.05. It runs away.\nDifferential, 15%: flux running light = 1.15 − 0.15 × 0.05 = 1.1425. No-load speed = 1.05 ÷ 1.1425 = 0.919. Regulation (0.919 − 1.000) ÷ 1.000 = −8.1%. So the speed rises with load. Flux at 2.00 = 1.15 − 0.30 = 0.85. Speed at 2.00 = 0.90 ÷ (0.95 × 0.85) = 0.90 ÷ 0.8075 = 1.115. Torque = 0.85 × 2.00 = 1.70.\nLast: \"The plot runs to twice rated current. A starter usually holds the starting current to 125 to 200% of full load.[^1]\"\n\nThe words on the screen, above the picture: \"Torque goes with flux × Ia. Speed goes with back-emf ÷ flux.\" The prompt above the picture: \"Slide the series share up. Then switch to Differential.\" Read: At 0% the compound line lies on the shunt line. It runs light at 1.050 and gives a torque of 2.00 at twice rated current. At 15% the flux running light falls to 0.8575. So the no-load speed rises to 1.224. The flux at twice rated current rises to 1.15. So the torque rises to 2.30. At 30% the no-load speed reaches 1.469. The torque reaches 2.60. At 100% it is a series motor. Running light, it runs away. On Differential at 15%, the flux falls as the current rises. The speed rises from 0.919 running light to 1.115 at twice rated current. The torque falls to 1.70. Still: the share at 15% and the fields Cumulative. The flux bars stand at 0.8575 and 1.15. The compound line sits between the shunt and series lines. It runs from 1.224 running light, through 1.00 at rated, to 0.824 at twice rated current. The readouts show 1.224, 22.4% and 2.30.\n\nScreen 3, Check on the cause. \"A cumulative compound motor drives a shear. The coupling breaks and the load comes off. What does the speed do?\" Three choices, in this order, each left-aligned: \"It runs away, like a series motor\"; \"It rises to a definite no-load speed and holds there\"; \"It hardly changes, like a shunt motor\". Right, the second: \"Right. The current falls, so the series part of the flux fades and the speed rises. The shunt part stays, so the flux holds up. The speed levels off at a definite no-load speed. On the picture at 15%, it rises from 1.00 to 1.224.\" Wrong, the first: \"That is the series motor, whose whole field fades with the current. Here the shunt field keeps enough flux, so the speed levels off.\" Wrong, the third: \"The shunt part holds, but the series part fades. With less flux, it must turn faster to make the same back-emf. On the picture at 15%, that is about 22% more.\" After a wrong choice, the right answer and its reason.\n\nScreen 4, How it behaves. A still drawing: screen 2's three lines at 15%, labelled \"sketch from the example rule\". Rows, each with a label.\n\nStarting torque: \"At the same current, higher than a shunt motor's and lower than a series motor's.\"\n\nRunning light: \"A definite no-load speed. Safe to run light while the shunt field is connected at full strength.[^2]\"\n\nSpeed regulation: \"Typically 15 to 25%.[^3] Some standard motors run about 30%.[^4] Better than a series motor's. It droops more than a shunt motor's.[^5]\"\n\nSeries share: \"More share, more starting torque and a higher no-load speed.\"\n\nReversing: \"Swap the armature leads, or both fields.[^6] Swap one field alone and it turns differential.\"\n\nNo new key term on this screen.\n\nScreen 5, Where it is used, and its limits. A still drawing: the motor driving a punch press with a heavy flywheel. Rows.\n\nUsed for: \"Punch presses, shears, crushers and reciprocating compressors. Heavy loads that come and go.\"\n\nWhy: \"The series field takes the heavy stroke. The shunt field stops it racing when the load drops off.[^7]\"\n\nLimits: \"Not for wide speed control by weakening the shunt field. The no-load speed can get very high.[^8] When it brakes by feeding power back, the armature current reverses through the series field. The fields then oppose, so such drives use a plain shunt motor.[^9] Brushes and commutator need regular care.\"\n\nScreen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger from the windings to frame, an ohmmeter across the series field leads, and the brushes on the commutator. Rows.\n\nSafety first: \"Isolate, lock off and prove dead.\"\n\nSeries field reversed: \"It turns differential compound. The speed can rise with load and surge. A rebuild can reverse it.[^10]\"\n\nPolarity: \"Check it against the maker's connection diagram. Never find it by running the motor light at full voltage.[^11]\"\n\nShunt field open: \"Only the series field is left. On a light load it can race like a series motor.\"\n\nSparking: \"Worn brushes, a rough commutator or an armature fault.\"\n\nTests: \"Megger the windings to frame. Measure the armature, series field and shunt field resistance.\"\n\nDifferential compound is marked in amber in the series field row.\n\nScreen 7, Find the fault. \"A compound motor is back from a rewind. Now its speed rises as the load goes on, and on a heavy load it surges. What is the most likely fault?\" Three choices, in this order, each left-aligned: \"The shunt field circuit is open\"; \"The brushes have worn down\"; \"The series field is connected the wrong way round\". Right, the third: \"Right. A reversed series field subtracts from the shunt field. More load means less flux, so more speed. It has turned differential. Isolate and prove dead. Then check the series field connections against the maker's diagram. If they are right, check the brush position next.[^12]\" Wrong, the first: \"An open shunt field leaves only the series field. The motor would race on a light load and slow as the load goes on. Here the speed rises with load.\" Wrong, the second: \"Worn brushes spark and make poor contact. They do not make the speed rise with load.\" After a wrong choice, the right answer and its reason.\n\nScreen 8, Keep this: the summary card, with no case figures. Then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The examples are the 5% drop, the 0.05 light-load current and the 15% opening share.",
+   "ignores": "The picture is a simplified compound motor in per unit. Its flux follows the field currents in a straight line, with no saturation, so real curves bend more at heavy current. It ignores armature reaction, brush drop and the time the motor takes to change speed. Its series line includes the 5% drop. So it sits a little below an ideal series line. The plot runs to twice rated current. A motor carries that overload only briefly, as when starting. The 5% drop, the light-load current and the 15% share are examples, not a maker's.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 8 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Series share slider, opening, % of full-load field",
+     "value": 15,
+     "kind": "control"
+    },
+    {
+     "label": "Series share slider, lowest, %",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Series share slider, highest, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Series share slider, step, %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Series share slider, top on Differential, %",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Fields switch, opening (Cumulative)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Series share in the second worked case, %",
+     "value": 30,
+     "kind": "control"
+    },
+    {
+     "label": "Rated value of every quantity, per unit",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Armature-circuit drop at rated current, % of supply (example)",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Light-load armature current, per unit (example)",
+     "value": 0.05,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current at the right of the plot, per unit of rated (example, the top of the usual starting limit)",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Starting current limit, low end, % of full load",
+     "value": 125,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Starting current limit, high end, % of full load",
+     "value": 200,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Speed axis top, per unit",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current axis top, per unit",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Back-emf share at rated current, 1 − 0.05",
+     "value": 0.95,
+     "kind": "computed"
+    },
+    {
+     "label": "Back-emf share running light, 1 − 0.0025",
+     "value": 0.9975,
+     "kind": "computed"
+    },
+    {
+     "label": "Drop running light, 0.05 × 0.05",
+     "value": 0.0025,
+     "kind": "computed"
+    },
+    {
+     "label": "Top of the speed rule running light",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Top of the speed rule at twice rated current",
+     "value": 0.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Shunt: no-load speed, per unit",
+     "value": 1.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Shunt: speed regulation, %",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Shunt: torque at twice rated current, per unit",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: shunt part of the flux",
+     "value": 0.85,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: flux running light",
+     "value": 0.8575,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: no-load speed, per unit",
+     "value": 1.224,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: speed regulation, %",
+     "value": 22.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: flux at twice rated current",
+     "value": 1.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: torque at twice rated current, per unit",
+     "value": 2.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: 0.95 × 1.15",
+     "value": 1.0925,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: speed at twice rated current, per unit",
+     "value": 0.824,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 15%: speed rise when the load comes off, about %",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: shunt part of the flux",
+     "value": 0.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: series part running light, 0.30 × 0.05",
+     "value": 0.015,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: flux running light",
+     "value": 0.715,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: no-load speed, per unit",
+     "value": 1.469,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: speed regulation, %",
+     "value": 46.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: series part at twice rated current",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: flux at twice rated current",
+     "value": 1.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Compound 30%: torque at twice rated current, per unit",
+     "value": 2.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Series 100%: flux at twice rated current",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Series 100%: torque at twice rated current, per unit",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Series 100%: flux running light",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: series part running light, 0.15 × 0.05",
+     "value": 0.0075,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: flux running light",
+     "value": 1.1425,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: no-load speed, per unit",
+     "value": 0.919,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: speed regulation, %",
+     "value": -8.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: series part at twice rated current",
+     "value": 0.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: flux at twice rated current",
+     "value": 0.85,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: 0.95 × 0.85",
+     "value": 0.8075,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: speed at twice rated current, per unit",
+     "value": 1.115,
+     "kind": "computed"
+    },
+    {
+     "label": "Differential 15%: torque at twice rated current, per unit",
+     "value": 1.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed regulation, typical figures, low, %",
+     "value": 15,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Speed regulation, typical figures, high, %",
+     "value": 25,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Speed regulation, some standard motors, about, %",
+     "value": 30,
+     "kind": "constant",
+     "source": 4
+    }
+   ]
+  },
+  "explain": {
+   "text": "A DC compound motor has two field windings on the same poles. One is a shunt field across the supply. The other is a series field in line with the armature. When their fields aid each other, it is [[cumulative compound]]. Its series field gives it a harder start than a shunt motor. Yet running light, it settles at a definite speed. It does not run away.\n\nTorque goes with flux times armature current. Speed goes with back-emf over flux. In this motor the flux is a steady shunt part plus a series part that grows with the current. Put a heavy load on and the current rises. The series part adds flux, so the torque climbs faster than the current. Take the load off and the current falls to a trickle. The series part fades, but the shunt part stays. In a series motor the whole field fades with the current. Here the shunt part keeps the flux up. So the speed rises to a definite no-load speed and holds there.\n\nThe price is speed regulation. The flux falls as the load comes off, so the speed rises further than a shunt motor's. Take the example motor on the picture. Its series winding gives 15% of the full-load field. Its speed rises by 22.4% from rated load to running light. A compound motor is steadier than a series motor, but not as steady as a shunt motor. More series share gives more starting torque and a higher no-load speed.\n\nReverse the series field and it subtracts from the shunt field. That is [[differential compound]]. Now the flux falls as the load rises. With a very light series winding, the speed stays almost constant as the load goes on. It may even rise slightly. With a heavier one, the speed rises with load. It can become unstable. It is rarely used. **In a cumulative compound motor, the series field takes the heavy load. The shunt field stops it racing when the load comes off.**"
+  },
+  "analogy": {
+   "text": "Think of a series motor as a gearbox that changes gear by load alone. A compound motor is the same gearbox with a top gear it cannot pass. Heavy load, it drops to a low gear: slow and strong. Light load, it changes up. But it only goes as far as that top gear. So when the load comes off, it tops out instead of over-revving.",
+   "breaks": "A gearbox steps between fixed gears. The motor slides smoothly. Its \"gear\" is the flux. Its top gear is not fixed either. Weaken the shunt field and the top gear rises, so the no-load speed can get very high."
+  },
+  "practice": {
+   "text": "- Isolate, lock off and prove dead before you touch the motor or its starter.\n- After a rewind or rebuild, check the series field's polarity against the maker's connection diagram.\n- Never find the polarity by running the motor light at full voltage.[^11]\n- Start through the starter, at full shunt field.\n- On the first run, watch the speed as the load goes on. It should dip, not rise.\n- Megger the windings to frame. Measure the armature, series field and shunt field resistance. Check the brushes and commutator.\n\n**Rule of thumb:** more series share means more starting torque and a higher no-load speed.\n\n**Worked example:** take a motor whose series winding gives 15% of the full-load field. That share is an example. Use the maker's figure on a real job. Work in per unit, where 1.00 is rated. Assume its armature circuit drops 5% at rated current. Assume it draws 0.05 of rated current running light.\nFlux = 0.85 + 0.15 × Ia. Torque = flux × Ia. Speed = (1 − 0.05 × Ia) ÷ (0.95 × flux).\nAt twice rated current, as at a start: flux = 0.85 + 0.30 = 1.15. Torque = 1.15 × 2.00 = 2.30. A shunt motor gives 1.00 × 2.00 = 2.00.\nRunning light: flux = 0.85 + 0.15 × 0.05 = 0.8575. Speed = (1 − 0.0025) ÷ 0.95 ÷ 0.8575 = 0.9975 ÷ 0.95 ÷ 0.8575 = 1.05 ÷ 0.8575 = 1.224.\nSpeed regulation = (1.224 − 1.000) ÷ 1.000 = 22.4%. Real motors are typically 15 to 25%.[^3] Some run about 30%.[^4]\n\n**Common mistakes**\n- Swapping one field to reverse it. That makes it differential. Swap the armature leads, or both fields.\n- Weakening the shunt field a long way for more speed. The no-load speed can get very high.\n- Expecting it to hold speed like a shunt motor. It droops more.\n- Treating it like a series motor and never running it light. It is safe light while the shunt field is connected at full strength."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+   "title": "The DC compound motor",
+   "for": "Heavy loads that come and go, such as presses and shears. A series field adds torque under load. A shunt field holds a definite no-load speed.",
+   "rule": "Shunt field across the supply. Series field in line with the armature.\nCumulative: flux = shunt part + series part × Ia.\nTorque goes with flux × Ia. Speed goes with back-emf E ÷ flux.\n\nStarting torque at the same current: series most, compound next, shunt least.\nRunning light: series runs away. Compound rises to a definite speed. Shunt barely moves.\nSpeed regulation: shunt best, compound between, series worst. Use the maker's figure.\nUsed for: series for hoists and traction. Shunt for steady speed. Compound for presses and shears.\nReverse it: swap the armature leads, or both fields.",
+   "traps": [
+    {
+     "text": "Differential can be unstable. If the speed rises as load goes on, suspect the series field opposing the shunt field.",
+     "cite": "[^13] [^14] [^15] [^16] DC compound motor sheet; MTU chapter 11; electrotechnik; electricaleasy"
+    },
+    {
+     "text": "After a rewind, check the series field polarity against the maker's diagram. Never find it by running the motor light at full voltage.",
+     "cite": "[^10] [^11] Industrial Monitor Direct"
+    },
+    {
+     "text": "Reverse it by swapping the armature leads, or both fields. Swapping one field alone makes it differential.",
+     "cite": "[^6] [^17] electrotechnik; Industrial Monitor Direct"
+    },
+    {
+     "text": "Do not use it for wide speed control by weakening the shunt field. The no-load speed can get very high.",
+     "cite": "[^8] Baldor-Reliance"
+    },
+    {
+     "text": "Isolate, lock off and prove dead. Then megger to frame, measure each winding's resistance, and check the brushes and commutator.",
+     "cite": "[^18] [^19] [^20] Pump & Motor Works"
+    }
+   ],
+   "where": "Punch presses, shears, crushers and reciprocating compressors, often with a flywheel."
+  },
+  "sources": [
+   {
+    "n": 1,
+    "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+    "quote": "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+   },
+   {
+    "n": 2,
+    "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+    "quote": "In a cumulative compound motor, there is a distinct no-load speed, and it can be safely operated under such conditions."
+   },
+   {
+    "n": 3,
+    "title": "— Baldor-Reliance® Integral horsepower DC motors",
+    "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+    "quote": "Standard compound wound motors will have a speed regulation of approximately 15-25%."
+   },
+   {
+    "n": 4,
+    "title": "— Baldor-Reliance® Integral horsepower DC motors",
+    "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+    "quote": "A standard compound wound motor has a speed regulation of approximately 30% in accordance with NEMA Standard MG1- 12.65.2."
+   },
+   {
+    "n": 5,
+    "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+    "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+    "quote": "However, when it comes to speed regulation, cumulative compound motors are not as effective as shunt motors."
+   },
+   {
+    "n": 6,
+    "title": "DC Compound Motor - An Overview",
+    "url": "https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html",
+    "quote": "Reversing the direction of rotation of compound or stabilized – shunt motors is accomplished by reversing the armature branch or reversing both the series field and the shunt field."
+   },
+   {
+    "n": 7,
+    "title": "Characteristics of DC motors | electricaleasy.com",
+    "url": "https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html",
+    "quote": "winding takes care of the heavy load, whereas the shunt winding prevents the motor from running at dangerously high speed when the load is suddenly removed."
+   },
+   {
+    "n": 8,
+    "title": "— Baldor-Reliance® Integral horsepower DC motors",
+    "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+    "quote": "Compound wound motors are not suitable for operation over an extended field range by shunt field weakening because of the very high no-load speeds that may result."
+   },
+   {
+    "n": 9,
+    "title": "— Baldor-Reliance® Integral horsepower DC motors",
+    "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+    "quote": "On regenerative drives, it is necessary to wind the motor as a straight shunt; otherwise, the series winding would oppose the shunt winding when the motor is reversed or during regeneration."
+   },
+   {
+    "n": 10,
+    "title": "Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct",
+    "url": "https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field",
+    "quote": "A rebuild can reverse an internal series field, and brush-ring position after a rebuild sets the neutral."
+   },
+   {
+    "n": 11,
+    "title": "Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct",
+    "url": "https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts",
+    "quote": "Do not discover polarity by running an uncoupled or unloaded motor at normal voltage; weak or opposing flux can allow excessive speed."
+   },
+   {
+    "n": 12,
+    "title": "Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct",
+    "url": "https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field",
+    "quote": "Speed climbs as armature current climbs: suspect a hidden differential series or compound winding, reversed commutating (interpole) polarity, or brushes off neutral."
+   },
+   {
+    "n": 13,
+    "title": "Your motor sheet: the DC compound motor",
+    "url": "material:dc-compound#p1",
+    "quote": "The magnetic fields of the series and shunt windings oppose each other. This type is rarely used because it can lead to unstable operation when the load changes."
+   },
+   {
+    "n": 14,
+    "title": "CHAPTER 11",
+    "url": "https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf",
+    "quote": "The speed rises as the load increases, and this may lead to instability."
+   },
+   {
+    "n": 15,
+    "title": "DC Compound Motor - An Overview",
+    "url": "https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html",
+    "quote": "If the series field is reversed with respect to the shunt field, its mmf will subtract from the shunt field mmf, causing the net flux to decrease with increasing load, resulting in excessive speed, which is differential compound motor."
+   },
+   {
+    "n": 16,
+    "title": "Characteristics of DC motors | electricaleasy.com",
+    "url": "https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html",
+    "quote": "Due to this, the speed remains almost constant or even it may increase slightly with increase in load"
+   },
+   {
+    "n": 17,
+    "title": "Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct",
+    "url": "https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts",
+    "quote": "Reversing only one field changes cumulative operation to differential operation."
+   },
+   {
+    "n": 18,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+   },
+   {
+    "n": 19,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+   },
+   {
+    "n": 20,
+    "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+    "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+    "quote": "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 62rem; margin-inline: auto; }\n  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }\n  .pz > #stepbox, #stepbox > .live { max-width: 62rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task.show.ask { font-weight: 700; }\n  .task > * + * { margin-top: 10px; }\n  .task .card { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }\n  .task .card b, .task .warn-note b { font-weight: 700; }\n  .task .warn-note { line-height: 1.5; }\n  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }\n  .why { line-height: 1.6; }\n  .live { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px 28px; align-items: start; }\n  .lcol > * + *, .rcol > * + * { margin-top: 12px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  #outs .k-readout { padding: 8px 8px 10px 10px; }\n  #outs .k-readout-value { font-size: 1.1rem; }\n  #outs .k-readout.hot .k-readout-value { color: var(--k-warn); }\n  .trip { color: var(--k-warn); font-weight: 700; line-height: 1.5; }\n  .work { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); }\n  .work .wh { margin: 0; font-weight: 700; }\n  .work .wl { margin: 6px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }\n  .fig { display: block; width: 100%; height: auto; }\n  .fig .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }\n  .fig .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .fig .mu { font: 500 13px var(--k-font); fill: var(--k-muted); }\n  .fig .wt { font: 600 13px var(--k-font); fill: var(--k-warn); }\n  .fig .w { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n  .fig .ah { fill: var(--k-ink); }\n  .fig .plt { stroke: var(--k-ink); stroke-width: 2; }\n  .fig .plt2 { stroke: var(--k-ink); stroke-width: 5; }\n  .fig .coilT { fill: none; stroke: var(--k-ink); stroke-width: 1.3; stroke-linecap: round; }\n  .fig .coilS { fill: none; stroke: var(--k-ink); stroke-width: 3.4; stroke-linecap: round; }\n  .fig .ia { fill: var(--k-accent2); }\n  .fig .arm { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .slot { fill: var(--k-muted); }\n  .fig .brush { fill: var(--k-strong); }\n  .fig .hub { fill: var(--k-strong); }\n  .fig .drum { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .shaft { stroke: var(--k-strong); stroke-width: 6; stroke-linecap: round; }\n  .fig .fa { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .fah { fill: var(--k-accent); }\n  .fig .opp .fa { stroke: var(--k-warn); }\n  .fig .opp .fah { fill: var(--k-warn); }\n  .fig .barO { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .barF { fill: var(--k-accent2); }\n  .fig .tick { stroke: var(--k-ink); stroke-width: 1.4; stroke-dasharray: 3 3; }\n  .fig .ax { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .fig .grid { stroke: var(--k-line); stroke-width: 1; }\n  .fig .band { fill: var(--k-warn); fill-opacity: .12; }\n  .fig .dl { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .fig .rl { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 4; }\n  .fig .ln0 { fill: none; stroke: var(--k-muted); stroke-width: 1.8; }\n  .fig .ln1 { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .fig .lnC { fill: none; stroke: var(--k-accent2); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .lnC.bad { stroke: var(--k-warn); }\n  .fig .dotS { fill: var(--k-accent2); stroke: var(--k-panel); stroke-width: 2; }\n  .fig .dotS.hot { fill: var(--k-warn); }\n  .fig .body { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .jn { fill: var(--k-ink); }\n  .fig .hdl { fill: var(--k-strong); }\n  .fig .lock { fill: var(--k-warn); }\n  .fig .shk { fill: none; stroke: var(--k-strong); stroke-width: 3; }\n  .fig .tag { fill: var(--k-panel); stroke: var(--k-warn); stroke-width: 2; }\n  .fig .term { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .sheet { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }\n  .picks { display: flex; flex-direction: column; gap: 10px; }\n  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }\n  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }\n  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }\n  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }\n  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }\n  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }\n  .fb > * + * { margin-top: 6px; }\n  .fb .v { font-weight: 700; font-size: 1.05rem; }\n  .fb.ok .v { color: var(--k-good); }\n  .fb .ans { font-weight: 700; }\n  #stepbox.enter { animation: screen-in .35s ease-out both; }\n  .fb { animation: fade-in .25s ease-out both; }\n  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing .fb, html.k-testing #stepbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .fb { animation: none; } }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <p class=\"k-label count\" id=\"count\"></p>\n  <div id=\"stepbox\">\n    <div id=\"hwW\"><svg class=\"fig\" id=\"hw\" viewBox=\"0 0 340 212\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"behW\"><svg class=\"fig\" id=\"beh\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"useW\"><svg class=\"fig\" id=\"use\" viewBox=\"0 0 340 160\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div id=\"fltW\"><svg class=\"fig\" id=\"flt\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"></svg></div>\n    <div class=\"task\" id=\"task\"></div>\n    <p class=\"sub\" id=\"sub\"></p>\n    <p class=\"why\" id=\"pre\"></p>\n    <div class=\"live\" id=\"live\">\n      <div class=\"lcol\">\n        <svg class=\"fig\" id=\"mot\" viewBox=\"0 0 340 212\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <svg class=\"fig\" id=\"flux\" viewBox=\"0 0 340 110\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-controls\" id=\"ctl\"></div>\n        <p class=\"sub\" id=\"cnote\"></p>\n      </div>\n      <div class=\"rcol\">\n        <svg class=\"fig\" id=\"plot\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"></svg>\n        <div class=\"k-readouts\" id=\"outs\"></div>\n        <p class=\"trip\" id=\"trip\"></p>\n        <p class=\"say\" id=\"say\"></p>\n        <div class=\"work\" id=\"work\"></div>\n        <p class=\"caption\">A sketch from the simplified per-unit rule, not a maker's data.</p>\n      </div>\n    </div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"fb\" id=\"fb\" aria-live=\"polite\"></div>\n    <div id=\"keep\"></div>\n    <div class=\"row\" id=\"fin\"></div>\n    <p class=\"say\" id=\"donefb\"></p>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  const el = (id) => document.getElementById(id);\n  const SRC_PEG = 'https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/';\n  const SRC_ETK = 'https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html';\n  const SRC_BAL = 'https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331';\n\n  // ---------- the rule ----------\n  // A simplified compound motor in per unit: flux follows the field currents in a straight line,\n  // with no saturation, armature reaction or brush drop.\n  const DROP = 0.05, ILT = 0.05, IHI = 2, BACK = 1 - DROP;          // example drop, example light-load current, plot's right edge\n  const TOP = 2, OPEN = 15, W30 = 30, DMAX = 50;                   // plot top, opening share, second case, Differential's top\n  const ST_LO = 125, ST_HI = 200;                                   // usual starting limit, % of full load\n  const r4 = (v) => Math.round(v * 10000 + 1e-9) / 10000;\n  const two = (v) => (Math.round(v * 100 + 1e-9) / 100).toFixed(2);\n  const three = (v) => (Math.round(v * 1000 + 1e-9) / 1000).toFixed(3);\n  const pct = (v) => { const r = Math.round(Math.abs(v) * 10 + 1e-9) / 10; return (v < 0 && r > 0 ? '−' : '') + r.toFixed(1); };\n  const fl = (v) => { let t = r4(v).toFixed(4); while (/\\.\\d\\d\\d*0$/.test(t)) t = t.slice(0, -1); return t; };\n  const TLr = +two((1 - DROP * ILT) / BACK);   // 1.05, the top of the speed rule running light, over 0.95\n  const THr = +two(1 - DROP * IHI);            // 0.90, the top at twice rated current\n  function rule(sh, diff) {\n    const s = sh / 100, A = diff ? 1 + s : 1 - s, k = diff ? -s : s;\n    const flux = (I) => A + k * I, speed = (I) => (1 - DROP * I) / (BACK * flux(I));\n    const n0 = speed(ILT);\n    return { s: s, A: A, k: k, flux: flux, speed: speed, f0: flux(ILT), f2: flux(IHI), n0: n0, n2: speed(IHI), t2: flux(IHI) * IHI,\n      reg: (+three(n0) - 1) * 100, over: sh === 100 || +three(n0) > TOP };\n  }\n  const DIFF = (p) => !!p && p.fields === 'diff';\n  const SH = (p) => {\n    const v = K.clamp(Math.round((+(p && p.share != null ? p.share : OPEN) || 0) / 5) * 5, 0, 100);\n    return DIFF(p) ? Math.min(v, DMAX) : v;\n  };\n\n  // The worked lines, each from the rounded figures before it.\n  const WORK_RL = 'Running light, Ia = ' + two(ILT) + ': back-emf = 1 − ' + two(DROP) + ' × ' + two(ILT) + ' = ' + fl(1 - DROP * ILT) + '. Then ' + fl(1 - DROP * ILT) + ' ÷ ' + two(BACK) + ' = ' + two(TLr) + ', for every share.';\n  function workFor(sh, diff) {\n    if (sh === 0) {\n      const n0 = three(TLr / 1);\n      return 'Shunt, 0%: flux ' + two(1) + '. No-load speed ' + two(TLr) + ' ÷ ' + two(1) + ' = ' + n0 + '. Regulation (' + n0 + ' − ' + three(1) + ') ÷ ' + three(1) + ' = ' + pct((+n0 - 1) * 100) + '%. Torque at ' + two(IHI) + ': ' + two(1) + ' × ' + two(IHI) + ' = ' + two(IHI) + '.';\n    }\n    if (sh === 100) {\n      const r = rule(100, false);\n      return 'Series, 100%: flux at ' + two(IHI) + ' = ' + two(r.f2) + ', so torque = ' + two(r.f2) + ' × ' + two(IHI) + ' = ' + two(r.t2) + '. Running light, the flux is only ' + fl(r.f0) + '. It runs away.';\n    }\n    const s = sh / 100, A = +two(diff ? 1 + s : 1 - s), S = two(s);\n    const f0 = r4(diff ? A - s * ILT : A + s * ILT), n0 = three(TLr / f0), over = +n0 > TOP, reg = (+n0 - 1) * 100;\n    let t = (diff ? 'Differential, ' : 'Compound, ') + sh + '%: flux running light = ' + two(A) + (diff ? ' − ' : ' + ') + S + ' × ' + two(ILT) + ' = ' + fl(f0) + '. ';\n    t += over ? 'No-load speed = ' + two(TLr) + ' ÷ ' + fl(f0) + ', over ' + two(TOP) + '. '\n      : 'No-load speed = ' + two(TLr) + ' ÷ ' + fl(f0) + ' = ' + n0 + '. ' +\n        'Regulation (' + n0 + ' − ' + three(1) + ') ÷ ' + three(1) + ' = ' + pct(reg) + '%. ' + (diff && reg < 0 ? 'So the speed rises with load. ' : '');\n    const f2 = r4(diff ? A - s * IHI : A + s * IHI), d = r4(BACK * f2), n2 = three(THr / d);\n    t += 'Flux at ' + two(IHI) + ' = ' + two(A) + (diff ? ' − ' + two(s * IHI) : ' + ' + S + ' × ' + two(IHI)) + ' = ' + fl(f2) + '. ';\n    const tq = 'Torque = ' + fl(f2) + ' × ' + two(IHI) + ' = ' + two(f2 * IHI) + '.';\n    const sp = 'Speed at ' + two(IHI) + ' = ' + two(THr) + ' ÷ (' + two(BACK) + ' × ' + fl(f2) + ') = ' + two(THr) + ' ÷ ' + fl(d) + ' = ' + n2 + '.';\n    return t + (diff ? sp + ' ' + tq : tq + ' ' + sp);\n  }\n  const R0 = rule(0, false), R15 = rule(OPEN, false), R30 = rule(W30, false), D15 = rule(OPEN, true);\n\n  // ---------- the lesson's words ----------\n  const blk = (t, s) => ({ t: t, s: s });\n  const HOW = [\n    blk('p', 'A compound motor has two field windings. It starts harder than a shunt motor, yet settles at a definite speed running light.'),\n    blk('p', 'The shunt field sits across the supply. The series field is in line with the armature.'),\n    blk('p', 'If the fields aid, it is *cumulative compound*. Only the series part of the flux grows with the load.'),\n    blk('p', 'Reverse the series field and the fields oppose. That is *differential compound*, rarely used as it can be unstable.'),\n    blk('p', 'This is long shunt. Short shunt puts the shunt field across the armature only.'),\n  ];\n  const PLAY_TASK = 'Slide the series share up. Then switch to Differential.';\n  const PRE = 'Torque goes with flux × Ia. Speed goes with back-emf ÷ flux.';\n  const WORK_HEAD = 'Worked in per unit, where ' + two(1) + ' is rated volts, current, flux, speed and torque';\n  const WORK_SET = [\n    'Assume the armature circuit drops ' + Math.round(DROP * 100) + '% of the supply at rated current. Running light, it draws ' + two(ILT) + ' of rated current. Both are examples.',\n    'Flux = shunt part + series part × Ia, or minus it on Differential.',\n    'Back-emf = 1 − ' + two(DROP) + ' × Ia. That is the supply less the drop. Speed = back-emf ÷ (' + two(BACK) + ' × flux). ' + two(BACK) + ' is the back-emf at rated current. Dividing by it makes rated speed ' + two(1) + '.',\n  ];\n  const WORK_END = 'The plot runs to twice rated current. A starter usually holds the starting current to ' + ST_LO + ' to ' + ST_HI + '% of full load.';\n  const PLAY_READ = 'At 0% it is a shunt motor: ' + three(R0.n0) + ' running light, and a torque of ' + two(R0.t2) + ' at twice rated current. ' +\n    'At ' + OPEN + '% the shunt field is smaller, so there is less flux running light. The series part adds flux under load. The no-load speed rises to ' + three(R15.n0) + ' and the torque to ' + two(R15.t2) + '. ' +\n    'At 100% it is a series motor, and running light it runs away. ' +\n    'On Differential at ' + OPEN + '%, the speed rises with load, from ' + three(D15.n0) + ' to ' + three(D15.n2) + '. The torque falls to ' + two(D15.t2) + '.';\n  const BEHAVE = [\n    blk('row', 'Starting torque: At the same current, higher than a shunt motor\\'s and lower than a series motor\\'s.'),\n    blk('row', 'Running light: A definite no-load speed. Safe to run light while the shunt field is connected at full strength.'),\n    blk('row', 'Speed regulation: Typically 15 to 25%. Some standard motors run about 30%. Better than a series motor\\'s. It droops more than a shunt motor\\'s.'),\n    blk('row', 'Series share: More share, more starting torque and a higher no-load speed.'),\n    blk('row', 'Reversing: Swap the armature leads, or both fields. Swap one field alone and it turns differential.'),\n  ];\n  const USE = [\n    blk('row', 'Used for: Punch presses, shears, crushers and reciprocating compressors. Heavy loads that come and go.'),\n    blk('row', 'Why: The series field takes the heavy stroke. The shunt field stops it racing when the load drops off.'),\n    blk('row', 'Limits: Not for wide speed control by weakening the shunt field. The no-load speed can get very high. When it brakes by feeding power back, the armature current reverses through the series field. The fields then oppose, so such drives use a plain shunt motor. Brushes and commutator need regular care.'),\n  ];\n  const FAULTS = [\n    blk('safe', 'Safety first: Isolate, lock off and prove dead.'),\n    blk('row', 'Series field reversed: It turns *differential compound*. The speed can rise with load and surge. A rebuild can reverse it.'),\n    blk('row', 'Polarity: Check it against the maker\\'s connection diagram. Never find it by running the motor light at full voltage.'),\n    blk('row', 'Shunt field open: Only the series field is left. On a light load it can race like a series motor.'),\n    blk('row', 'Sparking: Worn brushes, a rough commutator or an armature fault.'),\n    blk('row', 'Tests: Megger the windings to frame. Measure the armature, series field and shunt field resistance.'),\n  ];\n  const words = (list) => list.map((b) => b.s.replace(/\\*/g, '')).join('\\n\\n');\n  const C1 = 'It runs away, like a series motor', C2 = 'It rises to a definite no-load speed and holds there', C3 = 'It hardly changes, like a shunt motor';\n  const F1 = 'The shunt field circuit is open', F2 = 'The brushes have worn down', F3 = 'The series field is connected the wrong way round';\n\n  // ---------- the lesson: SHOW steps teach, DO steps ask ----------\n  const STEPS = [\n    { show: true, name: 'How it works', label: 'How it works', blocks: HOW, text: words(HOW) },\n    { show: true, name: 'Between shunt and series', label: 'Between shunt and series', text: PLAY_TASK + '\\n\\n' + PRE, read: PLAY_READ, still: () => stillAt() },\n    { name: 'Check', label: 'Check on the cause',\n      task: 'A cumulative compound motor drives a shear. The coupling breaks and the load comes off. What does the speed do?',\n      opts: [C1, C2, C3], want: C2,\n      why: 'The current falls, so the series part of the flux fades and the speed rises. The shunt part stays, so the flux holds up. The speed levels off at a definite no-load speed. On the picture at ' + OPEN + '%, it rises from ' + two(1) + ' to ' + three(R15.n0) + '.',\n      slips: ['That is the series motor, whose whole field fades with the current. Here the shunt field keeps enough flux, so the speed levels off.', '',\n        'The shunt part holds, but the series part fades. With less flux, it must turn faster to make the same back-emf. On the picture at ' + OPEN + '%, that is about ' + Math.round(R15.reg) + '% more.'] },\n    { show: true, name: 'How it behaves', label: 'How it behaves', blocks: BEHAVE, text: words(BEHAVE) },\n    { show: true, name: 'Where it is used', label: 'Where it is used, and its limits', blocks: USE, text: words(USE) },\n    { show: true, name: 'Faults and tests', label: 'Faults and tests', blocks: FAULTS, text: words(FAULTS) },\n    { name: 'Find the fault', label: 'Find the fault',\n      task: 'A compound motor is back from a rewind. Now its speed rises as the load goes on, and on a heavy load it surges. What is the most likely fault?',\n      opts: [F1, F2, F3], want: F3,\n      why: 'A reversed series field subtracts from the shunt field. More load means less flux, so more speed. It has turned differential. Isolate and prove dead. Then check the series field connections against the maker\\'s diagram. If they are right, check the brush position next.',\n      slips: ['An open shunt field leaves only the series field. The motor would race on a light load and slow as the load goes on. Here the speed rises with load.',\n        'Worn brushes spark and make poor contact. They do not make the speed rise with load.', ''] },\n    { kind: 'summary', name: 'Keep this', label: 'Keep this' },\n  ];\n  const iHow = 0, iPic = 1, iChk = 2, iBeh = 3, iUse = 4, iFlt = 5, iFind = 6, iK = 7;\n  const S = STEPS.map(() => ({ res: null, pick: null, fb: null }));\n  let lastStep = -1, finished = false;\n\n  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.\n  function addText(node, s) {\n    String(s || '').split(/(\\*[^*]+\\*)/).forEach((b) => {\n      if (!b) return;\n      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));\n      else node.appendChild(document.createTextNode(b));\n    });\n    return node;\n  }\n  function write(node, s) { node.textContent = ''; return addText(node, s); }\n  function blocks(node, list) {\n    node.textContent = '';\n    list.forEach((b, k) => {\n      if (k) node.appendChild(document.createTextNode(' '));\n      let e;\n      if (b.t === 'row' || b.t === 'safe') {\n        const cut = b.s.indexOf(': ');\n        e = K.el('p', { class: b.t === 'safe' ? 'warn-note' : 'card' }, addText(K.el('b'), b.s.slice(0, cut + 1)), ' ');\n        addText(e, b.s.slice(cut + 2));\n      } else e = addText(K.el('p'), b.s);\n      node.appendChild(e);\n    });\n  }\n\n  // ---------- drawing helpers ----------\n  function ad(g, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; g.appendChild(n); return n; }\n  function txt(g, x, y, s, cls, anchor) { return ad(g, 'text', { x: x, y: y, class: cls || 'lb', 'text-anchor': anchor || 'start' }, s); }\n  const f1 = (v) => (+v).toFixed(1);\n  const show = (n, on) => { n.style.display = on ? '' : 'none'; };\n  const humps = (x, y, n, r) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a' + r + ' ' + r + ' 0 0 1 ' + 2 * r + ' 0'; return d; };\n  const vhumps = (x, y, n, r) => { let d = 'M' + x + ' ' + y; for (let j = 0; j < n; j++) d += 'a' + r + ' ' + r + ' 0 0 1 0 ' + 2 * r; return d; };\n  function arrow(g, x1, y1, x2, y2, lc, hc) {\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x2 - 9 * ux, by = y2 - 9 * uy;\n    ad(g, 'line', { x1: x1, y1: y1, x2: f1(bx), y2: f1(by), class: lc });\n    ad(g, 'polygon', { points: [x2, y2, bx - 5 * uy, by + 5 * ux, bx + 5 * uy, by - 5 * ux].map(f1).join(' '), class: hc });\n  }\n  function armature(g, cx, cy, r) {\n    ad(g, 'circle', { cx: cx, cy: cy, r: r, class: 'arm' });\n    const sl = ad(g, 'g', { transform: 'translate(' + cx + ' ' + cy + ')' });\n    for (let j = 0; j < 8; j++) ad(sl, 'rect', { x: -2, y: -(r - 2), width: 4, height: 6, rx: 1, class: 'slot', transform: 'rotate(' + (j * 45) + ')' });\n    return sl;\n  }\n\n  // The long-shunt compound motor: the shunt field across the supply; the series field in line with the armature.\n  function makeCircuit(g, live) {\n    const C = {};\n    ad(g, 'path', { d: 'M20 40V112M20 124V204M20 40H214V56M20 204H214V178M86 40V62M86 142V204M214 104V122', class: 'w' });\n    ad(g, 'path', { d: 'M8 112H32', class: 'plt' });\n    ad(g, 'path', { d: 'M14 124H26', class: 'plt2' });\n    txt(g, 36, 116, 'DC');\n    txt(g, 36, 132, 'supply');\n    [[86, 40], [86, 204]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    ad(g, 'polygon', { points: '58 40 48 35 48 45', class: 'ia' });\n    txt(g, 46, 28, 'line current', 'lb', 'middle');\n    ad(g, 'polygon', { points: '162 40 152 35 152 45', class: 'ia' });\n    txt(g, 156, 28, live ? 'Ia' : 'armature current', 'lb', 'middle');\n    ad(g, 'polygon', { points: '86 58 81 48 91 48', class: 'ia' });\n    txt(g, 96, 62, 'field current');\n    ad(g, 'path', { d: vhumps(86, 62, 8, 5), class: 'coilT' });\n    txt(g, 78, 76, 'shunt', 'lb', 'end');\n    txt(g, 78, 92, 'field', 'lb', 'end');\n    arrow(g, 104, 96, 104, 138, 'fa', 'fah');\n    ad(g, 'path', { d: vhumps(214, 56, 3, 8), class: 'coilS' });\n    txt(g, 250, 70, 'series field');\n    C.down = ad(g, 'g', {});\n    arrow(C.down, 238, 58, 238, 102, 'fa', 'fah');\n    C.up = ad(g, 'g', { class: 'opp' });\n    arrow(C.up, 238, 102, 238, 58, 'fa', 'fah');\n    C.aid = ad(g, 'g', {});\n    txt(C.aid, 250, 92, 'fields aid:'); txt(C.aid, 250, 108, 'cumulative');\n    C.opp = ad(g, 'g', {});\n    txt(C.opp, 250, 92, 'fields oppose:', 'wt'); txt(C.opp, 250, 108, 'differential', 'wt');\n    armature(g, 214, 150, 20);\n    ad(g, 'rect', { x: 208, y: 122, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 208, y: 170, width: 12, height: 8, rx: 1.5, class: 'brush' });\n    txt(g, 244, 156, 'armature');\n    C.set = (diff) => { show(C.down, !diff); show(C.up, diff); show(C.aid, !diff); show(C.opp, diff); };\n    C.set(false);\n    return C;\n  }\n\n  // The plot: speed against armature current, both per unit.\n  const PX = (i) => 50 + 138 * i, PY = (n) => 218 - 95 * n;\n  function linePath(sh, diff) {\n    const r = rule(sh, diff);\n    // Where a line runs off the top, it starts at the top edge: 1 − 0.05 x = 2.00 × 0.95 × flux(x).\n    const x0 = r.speed(ILT) > TOP ? (1 - TOP * BACK * r.A) / (DROP + TOP * BACK * r.k) : ILT;\n    const pts = [[x0, Math.min(r.speed(x0), TOP)]];\n    for (let j = Math.floor(x0 * 40 + 1e-9) + 1; j <= 80; j++) pts.push([j / 40, r.speed(j / 40)]);\n    return 'M' + pts.map((q) => f1(PX(q[0])) + ' ' + f1(PY(q[1]))).join('L');\n  }\n  function makePlot(g, live) {\n    const P = {};\n    [0.5, 1, 1.5].forEach((n) => ad(g, 'line', { x1: 50, y1: PY(n), x2: 326, y2: PY(n), class: 'grid' }));\n    if (!live) {\n      txt(g, 326, 44, 'sketch from', 'mu', 'end');\n      txt(g, 326, 60, 'the example rule', 'mu', 'end');\n    }\n    ad(g, 'line', { x1: PX(1), y1: PY(TOP), x2: PX(1), y2: PY(0), class: 'rl' });\n    txt(g, PX(1) + 4, 210, 'rated', 'mu');\n    ad(g, 'path', { d: 'M50 ' + PY(TOP) + 'V218H326', class: 'ax' });\n    [0, 0.5, 1, 1.5, 2].forEach((n) => txt(g, 44, PY(n) + 4.5, n ? two(n) : '0', 'lb', 'end'));\n    [0, 0.5, 1, 1.5, 2].forEach((i) => { ad(g, 'line', { x1: f1(PX(i)), y1: 218, x2: f1(PX(i)), y2: 223, class: 'ax' }); txt(g, f1(PX(i)), 236, i ? two(i) : '0', 'lb', 'middle'); });\n    txt(g, 4, 16, 'Speed, per unit', 'hd');\n    txt(g, 188, 254, 'Armature current Ia, per unit', 'hd', 'middle');\n    ad(g, 'path', { d: linePath(0, false), class: 'ln0' });\n    ad(g, 'path', { d: linePath(100, false), class: 'ln1' });\n    P.line = ad(g, 'path', { d: linePath(OPEN, false), class: 'lnC' });\n    txt(g, 126, 22, 'runs away', 'wt');\n    if (live) {\n      P.d0 = ad(g, 'circle', { cx: f1(PX(ILT)), cy: f1(PY(R15.n0)), r: 6, class: 'dotS' });\n      P.d2 = ad(g, 'circle', { cx: f1(PX(IHI)), cy: f1(PY(R15.n2)), r: 6, class: 'dotS' });\n    }\n    // the key, under the axis\n    ad(g, 'line', { x1: 6, y1: 270, x2: 28, y2: 270, class: 'ln0' });\n    txt(g, 34, 274, 'shunt, 0%');\n    ad(g, 'line', { x1: 6, y1: 288, x2: 28, y2: 288, class: 'ln1' });\n    txt(g, 34, 292, 'series, 100%');\n    P.keyC = ad(g, 'line', { x1: 150, y1: 270, x2: 174, y2: 270, class: 'lnC' });\n    P.keyT = txt(g, 182, 274, 'compound, ' + OPEN + '%');\n    if (live) {\n      ad(g, 'circle', { cx: 162, cy: 288, r: 5, class: 'dotS' });\n      txt(g, 182, 292, 'at Ia ' + two(ILT) + ' and ' + two(IHI));\n    }\n    return P;\n  }\n\n  // The two flux bars, 0 to 2.00 with rated at 1.00.\n  function makeFlux(g) {\n    const B = {};\n    txt(g, 8, 14, 'Flux running light');\n    ad(g, 'rect', { x: 8, y: 22, width: 240, height: 14, rx: 2, class: 'barO' });\n    B.b0 = ad(g, 'rect', { x: 8, y: 22, width: 0, height: 14, rx: 2, class: 'barF' });\n    B.t0 = txt(g, 334, 34, '', 'lb', 'end');\n    txt(g, 8, 60, 'Flux at ' + two(IHI) + ' × rated current');\n    ad(g, 'rect', { x: 8, y: 68, width: 240, height: 14, rx: 2, class: 'barO' });\n    B.b2 = ad(g, 'rect', { x: 8, y: 68, width: 0, height: 14, rx: 2, class: 'barF' });\n    B.t2 = txt(g, 334, 80, '', 'lb', 'end');\n    [[20, 38], [66, 84]].forEach((q) => ad(g, 'line', { x1: 128, y1: q[0], x2: 128, y2: q[1], class: 'tick' }));\n    txt(g, 8, 104, '0', 'mu');\n    txt(g, 128, 104, two(1) + ' rated', 'mu', 'middle');\n    txt(g, 248, 104, two(TOP), 'mu', 'middle');\n    return B;\n  }\n\n  // Where it is used: the motor belt-drives the flywheel of a punch press.\n  function buildUse(g) {\n    const m = [100, 110, 9], w = [196, 62, 40];\n    const dx = w[0] - m[0], dy = w[1] - m[1], d = Math.hypot(dx, dy), th = Math.atan2(dy, dx), b = Math.acos((m[2] - w[2]) / d);\n    ad(g, 'line', { x1: 196, y1: 62, x2: 250, y2: 62, class: 'shaft' });\n    [1, -1].forEach((sg) => { const a = th + sg * b; ad(g, 'line', { x1: f1(m[0] + m[2] * Math.cos(a)), y1: f1(m[1] + m[2] * Math.sin(a)), x2: f1(w[0] + w[2] * Math.cos(a)), y2: f1(w[1] + w[2] * Math.sin(a)), class: 'w' }); });\n    ad(g, 'rect', { x: 8, y: 86, width: 74, height: 48, rx: 10, class: 'body' });\n    txt(g, 45, 106, 'compound', 'lb', 'middle');\n    txt(g, 45, 122, 'motor', 'lb', 'middle');\n    ad(g, 'line', { x1: 82, y1: 110, x2: 98, y2: 110, class: 'shaft' });\n    ad(g, 'circle', { cx: m[0], cy: m[1], r: m[2], class: 'drum' });\n    ad(g, 'circle', { cx: w[0], cy: w[1], r: w[2], class: 'drum' });\n    for (let j = 0; j < 6; j++) { const a = j * Math.PI / 3; ad(g, 'line', { x1: f1(w[0] + 8 * Math.cos(a)), y1: f1(w[1] + 8 * Math.sin(a)), x2: f1(w[0] + 34 * Math.cos(a)), y2: f1(w[1] + 34 * Math.sin(a)), class: 'w' }); }\n    ad(g, 'circle', { cx: w[0], cy: w[1], r: 5, class: 'hub' });\n    txt(g, 196, 14, 'flywheel', 'lb', 'middle');\n    ad(g, 'rect', { x: 248, y: 48, width: 84, height: 28, rx: 4, class: 'body' });\n    ad(g, 'rect', { x: 314, y: 76, width: 18, height: 62, class: 'body' });\n    ad(g, 'rect', { x: 248, y: 138, width: 84, height: 16, rx: 3, class: 'body' });\n    ad(g, 'path', { d: 'M282 76V86', class: 'w' });\n    ad(g, 'rect', { x: 266, y: 86, width: 32, height: 22, rx: 3, class: 'body' });\n    ad(g, 'rect', { x: 277, y: 108, width: 10, height: 12, rx: 1.5, class: 'hub' });\n    ad(g, 'rect', { x: 258, y: 132, width: 48, height: 6, rx: 1, class: 'sheet' });\n    txt(g, 290, 40, 'punch press', 'lb', 'middle');\n    g.setAttribute('aria-label', 'A compound motor drives a punch press. A belt runs from the motor\\'s pulley to a heavy flywheel on the press\\'s shaft. Below the press\\'s crown, the ram carries a punch down onto a sheet on the bed.');\n  }\n\n  // Faults and tests: the isolator locked off and tagged; a megger from the windings to the frame;\n  // an ohmmeter across the series field's leads; the brushes on the commutator.\n  function buildFlt(g) {\n    txt(g, 56, 16, 'isolator: open', 'lb', 'middle');\n    ad(g, 'rect', { x: 16, y: 24, width: 80, height: 60, rx: 6, class: 'body' });\n    ad(g, 'path', { d: 'M0 44H30M0 68H30M30 44L54 32M30 68L54 56M66 44H112M66 68H112', class: 'w' });\n    [[30, 44], [30, 68], [66, 44], [66, 68]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 3, class: 'jn' }));\n    ad(g, 'rect', { x: 48, y: 84, width: 16, height: 8, rx: 2, class: 'hdl' });\n    ad(g, 'path', { d: 'M51 104V98a5 5 0 0 1 10 0V104', class: 'shk' });\n    ad(g, 'rect', { x: 49, y: 103, width: 14, height: 14, rx: 3, class: 'lock' });\n    ad(g, 'path', { d: 'M63 110L72 115', class: 'w' });\n    ad(g, 'polygon', { points: '74 112 92 112 92 134 70 134 70 116', class: 'tag' });\n    ad(g, 'circle', { cx: 75, cy: 117, r: 1.6, class: 'jn' });\n    txt(g, 98, 120, 'locked off');\n    txt(g, 98, 136, 'and tagged');\n    ad(g, 'rect', { x: 178, y: 22, width: 58, height: 36, rx: 6, class: 'body' });\n    txt(g, 207, 45, 'megger', 'lb', 'middle');\n    ad(g, 'rect', { x: 266, y: 52, width: 64, height: 56, rx: 10, class: 'body' });\n    ad(g, 'rect', { x: 280, y: 40, width: 28, height: 12, rx: 2, class: 'term' });\n    txt(g, 294, 32, 'windings', 'lb', 'middle');\n    txt(g, 298, 86, 'frame', 'lb', 'middle');\n    ad(g, 'path', { d: 'M236 30H252V46H280M236 50H246V80H266', class: 'w' });\n    [[280, 46], [266, 80]].forEach((q) => ad(g, 'circle', { cx: q[0], cy: q[1], r: 2.6, class: 'jn' }));\n    ad(g, 'rect', { x: 10, y: 150, width: 74, height: 32, rx: 6, class: 'body' });\n    txt(g, 47, 171, 'ohmmeter', 'lb', 'middle');\n    ad(g, 'path', { d: 'M84 158H114M84 174H172V158H162', class: 'w' });\n    ad(g, 'path', { d: humps(114, 158, 3, 8), class: 'coilS' });\n    txt(g, 138, 196, 'series field', 'lb', 'middle');\n    ad(g, 'circle', { cx: 262, cy: 152, r: 20, class: 'drum' });\n    for (let j = 0; j < 8; j++) { const a = j * Math.PI / 4; ad(g, 'line', { x1: f1(262 + 8 * Math.cos(a)), y1: f1(152 + 8 * Math.sin(a)), x2: f1(262 + 20 * Math.cos(a)), y2: f1(152 + 20 * Math.sin(a)), class: 'w' }); }\n    ad(g, 'circle', { cx: 262, cy: 152, r: 8, class: 'drum' });\n    ad(g, 'rect', { x: 232, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });\n    ad(g, 'rect', { x: 282, y: 146, width: 10, height: 12, rx: 1.5, class: 'brush' });\n    ad(g, 'path', { d: 'M220 152H232M292 152H304', class: 'w' });\n    txt(g, 237, 136, 'brushes', 'lb', 'middle');\n    txt(g, 262, 192, 'commutator', 'lb', 'middle');\n    g.setAttribute('aria-label', 'The isolator is open, locked off and tagged. A megger is connected from the motor\\'s windings to its frame. ' +\n      'An ohmmeter is connected across the series field\\'s two leads. The two brushes press on the commutator.');\n  }\n\n  makeCircuit(el('hw'), false);\n  el('hw').setAttribute('aria-label', 'A long-shunt compound motor. A DC supply has two branches across it. On the left, the shunt field: many turns of thin wire. ' +\n    'On the right, the series field, a few turns of thick wire, in line with the armature between its brushes. The line current splits into a small field current and the armature current. ' +\n    'An arrow on each field winding points the same way: the fields aid, cumulative.');\n  makePlot(el('beh'), false);\n  el('beh').setAttribute('aria-label', 'A sketch from the example rule: speed against armature current, both per unit. The shunt line is nearly flat. The series line runs off the top on the left. ' +\n    'The compound line at ' + OPEN + '% sits between them. All three pass through rated, ' + two(1) + ' and ' + two(1) + '.');\n  buildUse(el('use'));\n  buildFlt(el('flt'));\n  const CIR = makeCircuit(el('mot'), true);\n  const FB = makeFlux(el('flux'));\n  const PL = makePlot(el('plot'), true);\n\n  // ---------- controls and readouts ----------\n  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const shareCtl = K.control({ id: 'share', label: 'Series share, % of full-load field', min: 0, max: 100, step: 5, value: OPEN, fmt: (v) => Math.round(v) + '%', snap: [0, OPEN, W30, DMAX, 100], into: '#ctl' });\n  const fieldsCtl = K.choice({ id: 'fields', label: 'Fields', options: [{ value: 'cum', label: 'Cumulative' }, { value: 'diff', label: 'Differential' }], value: 'cum', into: '#ctl' });\n  const RD = {\n    nl: K.readout({ id: 'rdNl', label: 'No-load speed, per unit', into: '#outs' }),\n    reg: K.readout({ id: 'rdReg', label: 'Speed regulation', into: '#outs' }),\n    t: K.readout({ id: 'rdT', label: 'Torque, ' + two(IHI) + ' × rated current', into: '#outs' }),\n  };\n  K.model((p) => {\n    const r = rule(SH(p), DIFF(p));\n    return { flux0: r.f0, flux2: r.f2, nl: r.n0, n2: r.n2, torque: r.t2, reg: r.reg };\n  });\n\n  el('pre').textContent = PRE;\n  el('cnote').textContent = 'On Differential the share stops at ' + DMAX + '%.';\n  el('work').appendChild(K.el('p', { class: 'wh' }, WORK_HEAD));\n  WORK_SET.forEach((s) => el('work').appendChild(K.el('p', { class: 'wl' }, s)));\n  el('work').appendChild(K.el('p', { class: 'wl' }, WORK_RL));\n  const workLine = el('work').appendChild(K.el('p', { class: 'wl' }, ''));\n  el('work').appendChild(K.el('p', { class: 'wl' }, WORK_END));\n\n  function sayFor(sh, diff, r) {\n    if (sh === 0) return 'With no series share, this is a plain shunt motor. Its flux stays at ' + two(1) + ' at any current. So it runs light at only ' + three(r.n0) + ', and gives a torque of ' + two(r.t2) + ' at twice rated current.';\n    if (diff) return 'With the series field reversed, the flux falls as the current rises, from ' + fl(r.f0) + ' running light to ' + fl(r.f2) + ' at twice rated current. ' +\n      (r.reg < 0 ? 'So the speed rises with load, from ' + three(r.n0) + ' to ' + three(r.n2) + '. '\n        : 'At this small share the speed still falls a little, from ' + three(r.n0) + ' to ' + three(r.n2) + '. ') +\n      'The torque at twice rated current is only ' + two(r.t2) + '.';\n    if (sh === 100) return 'At 100% it is a plain series motor. Running light, its flux is only ' + fl(r.f0) + ', so it runs away. At twice rated current the torque is ' + two(r.t2) + '.';\n    return 'With a ' + sh + '% series share, the flux running light falls to ' + fl(r.f0) + '. ' +\n      (r.over ? 'So running light it goes over ' + two(TOP) + '. '\n        : 'So it runs light faster, at ' + three(r.n0) + '. ') +\n      'At twice rated current the flux rises to ' + fl(r.f2) + ', so the torque there rises to ' + two(r.t2) + '.';\n  }\n\n  function paintLive(p) {\n    const sh = SH(p), diff = DIFF(p), r = rule(sh, diff), rising = !r.over && r.reg < 0;\n    CIR.set(diff);\n    FB.b0.setAttribute('width', f1(120 * r.f0)); FB.t0.textContent = fl(r.f0);\n    FB.b2.setAttribute('width', f1(120 * r.f2)); FB.t2.textContent = fl(r.f2);\n    PL.line.setAttribute('d', linePath(sh, diff));\n    PL.line.classList.toggle('bad', rising);\n    PL.keyC.classList.toggle('bad', rising);\n    PL.keyT.textContent = 'compound, ' + sh + '%';\n    show(PL.d0, !r.over);\n    if (!r.over) PL.d0.setAttribute('cy', f1(PY(r.n0)));\n    PL.d0.classList.toggle('hot', rising);\n    PL.d2.setAttribute('cy', f1(PY(r.n2)));\n    PL.d2.classList.toggle('hot', rising);\n    RD.nl.set(sh === 100 ? 'Runs away' : r.over ? 'over ' + two(TOP) : three(r.n0));\n    RD.nl.el.classList.toggle('hot', r.over);\n    RD.reg.set(r.over ? 'over ' + Math.round((TOP - 1) * 100) + '%' : pct(r.reg) + '%');\n    RD.reg.el.classList.toggle('hot', rising);\n    RD.t.set(two(r.t2));\n    el('trip').textContent = rising ? 'Speed rises with load.' : '';\n    el('trip').hidden = !rising;\n    el('say').textContent = sayFor(sh, diff, r);\n    workLine.textContent = workFor(sh, diff);\n    el('mot').setAttribute('aria-label', 'The compound motor\\'s circuit: a DC supply with the shunt field across it, and the series field in line with the armature. ' +\n      (diff ? 'The series field\\'s arrow points the other way: the fields oppose, differential.' : 'The two field arrows point the same way: the fields aid, cumulative.'));\n    el('flux').setAttribute('aria-label', 'Two flux bars on a scale of 0 to ' + two(TOP) + ', with rated at ' + two(1) + '. Flux running light, ' + fl(r.f0) + '. Flux at ' + two(IHI) + ' times rated current, ' + fl(r.f2) + '.');\n    el('plot').setAttribute('aria-label', 'Speed against armature current, both per unit. Three lines pass through rated, ' + two(1) + ' and ' + two(1) + ': the shunt line, nearly flat; the series line, which runs off the top on the left; ' +\n      'and the compound line at a ' + sh + '% series share' + (rising ? ', which rises as the current rises' : '') + '. Dots mark it running light and at ' + two(IHI) + ' times rated current.');\n  }\n\n  // The read-through's picture: the opening share, the fields aiding.\n  function stillAt() { fieldsCtl.set('cum'); shareCtl.set(OPEN); K.refresh(); }\n\n  // ---------- picks: one go, then the answer and its reason ----------\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));\n  function pick(k) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.opts || k >= d.opts.length || st.res) return;\n    st.pick = d.opts[k];\n    if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'Right.', p: d.why }; }\n    else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: d.slips[k], ans: d.want + '.', p: d.why }; }\n    K.refresh();\n  }\n  function paintFb(f) {\n    const fb = el('fb');\n    fb.textContent = '';\n    fb.hidden = !f;\n    if (!f) return;\n    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');\n    fb.appendChild(K.el('p', { class: 'v' }, f.v));\n    if (f.p0) fb.appendChild(addText(K.el('p'), f.p0));\n    if (f.ans) fb.appendChild(K.el('p', { class: 'ans' }, 'The answer: ' + f.ans));\n    if (f.p) fb.appendChild(addText(K.el('p'), f.p));\n  }\n\n  // ---------- Keep this ----------\n  K.summary({ into: '#keep' });\n  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {\n    if (at() !== iK) return;\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n    K.refresh();\n  } });\n\n  // ---------- nav ----------\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });\n  function canGo(i) { const d = STEPS[i]; return d.show ? true : d.opts ? !!S[i].res : false; }\n  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }\n\n  const ON = { hwW: [iHow], behW: [iBeh], useW: [iUse], fltW: [iFlt], pre: [iPic], live: [iPic], picks: [iChk, iFind], keep: [iK], fin: [iK] };\n\n  K.update((p) => {\n    // On Differential the share stops at 50%: a higher setting moves down to it.\n    if (DIFF(p) && +p.share > DMAX) shareCtl.set(DMAX, true);\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; }\n    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;\n\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '') + (i === iPic ? ' ask' : '');\n    if (i === iPic) write(task, PLAY_TASK);\n    else if (d.show) blocks(task, d.blocks);\n    else if (d.kind) task.textContent = '';\n    else write(task, d.task);\n    task.hidden = !task.textContent;\n    const sub = el('sub');\n    sub.textContent = i === iK ? 'One card to come back to on a real job.' : '';\n    sub.hidden = !sub.textContent;\n\n    paintLive(p);\n\n    const opts = d.opts || [];\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.classList.toggle('is-right', !!st.res && opts[k] === d.want);\n      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    paintFb(st.fb);\n\n    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';\n    el('donefb').hidden = !el('donefb').textContent;\n    backBtn.el.hidden = i === 0;\n    nextBtn.el.hidden = i === iK || !canGo(i);\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  K.check('Worked by hand: shunt 1.050, 5.0% and 2.00; at 15%, flux 0.8575 and 1.15, 1.224, 22.4%, 2.30 and 0.824; at 30%, 0.715, 1.469, 46.9%, 1.30 and 2.60; series, 0.05 and 4.00; Differential 15%, 1.1425, 0.919, −8.1%, 0.85, 1.115 and 1.70; the working prints these lines', () => {\n    const a = K.at({ share: 0 }), b = K.at({ share: 15 }), c = K.at({ share: 30 }), d = K.at({ share: 100 }), e = K.at({ share: 15, fields: 'diff' });\n    return three(a.nl) === '1.050' && pct(a.reg) === '5.0' && two(a.torque) === '2.00' &&\n      fl(b.flux0) === '0.8575' && three(b.nl) === '1.224' && pct(b.reg) === '22.4' && fl(b.flux2) === '1.15' && two(b.torque) === '2.30' && three(b.n2) === '0.824' &&\n      fl(c.flux0) === '0.715' && three(c.nl) === '1.469' && pct(c.reg) === '46.9' && fl(c.flux2) === '1.30' && two(c.torque) === '2.60' &&\n      fl(d.flux0) === '0.05' && fl(d.flux2) === '2.00' && two(d.torque) === '4.00' &&\n      fl(e.flux0) === '1.1425' && three(e.nl) === '0.919' && pct(e.reg) === '−8.1' && fl(e.flux2) === '0.85' && three(e.n2) === '1.115' && two(e.torque) === '1.70' &&\n      WORK_RL === 'Running light, Ia = 0.05: back-emf = 1 − 0.05 × 0.05 = 0.9975. Then 0.9975 ÷ 0.95 = 1.05, for every share.' &&\n      workFor(0, false) === 'Shunt, 0%: flux 1.00. No-load speed 1.05 ÷ 1.00 = 1.050. Regulation (1.050 − 1.000) ÷ 1.000 = 5.0%. Torque at 2.00: 1.00 × 2.00 = 2.00.' &&\n      workFor(15, false) === 'Compound, 15%: flux running light = 0.85 + 0.15 × 0.05 = 0.8575. No-load speed = 1.05 ÷ 0.8575 = 1.224. Regulation (1.224 − 1.000) ÷ 1.000 = 22.4%. Flux at 2.00 = 0.85 + 0.15 × 2.00 = 1.15. Torque = 1.15 × 2.00 = 2.30. Speed at 2.00 = 0.90 ÷ (0.95 × 1.15) = 0.90 ÷ 1.0925 = 0.824.' &&\n      workFor(100, false) === 'Series, 100%: flux at 2.00 = 2.00, so torque = 2.00 × 2.00 = 4.00. Running light, the flux is only 0.05. It runs away.' &&\n      workFor(15, true) === 'Differential, 15%: flux running light = 1.15 − 0.15 × 0.05 = 1.1425. No-load speed = 1.05 ÷ 1.1425 = 0.919. Regulation (0.919 − 1.000) ÷ 1.000 = −8.1%. So the speed rises with load. Flux at 2.00 = 1.15 − 0.30 = 0.85. Speed at 2.00 = 0.90 ÷ (0.95 × 0.85) = 0.90 ÷ 0.8075 = 1.115. Torque = 0.85 × 2.00 = 1.70.' &&\n      workFor(30, false).indexOf('1.05 ÷ 0.715 = 1.469. Regulation (1.469 − 1.000) ÷ 1.000 = 46.9%.') >= 0;\n  });\n  K.check('Every line passes through rated, 1.00 and 1.00, at every share; on Cumulative more share gives a higher no-load speed and more torque at 2.00; on Differential from 10% the speed at 2.00 is above the no-load speed; the share stops at 50% on Differential', () => {\n    for (let sh = 0; sh <= 100; sh += 5) for (const diff of [false, true]) {\n      if (diff && sh > DMAX) continue;\n      const r = rule(sh, diff);\n      if (!(K.near(r.speed(1), 1, 1e-9) && K.near(r.flux(1), 1, 1e-9))) return false;\n      if (!diff && sh < 100) { const n = rule(sh + 5, false); if (!(n.n0 > r.n0 && n.t2 > r.t2)) return false; }\n      if (diff && sh >= 10 && !(r.n2 > r.n0)) return false;\n    }\n    return K.near(K.at({ share: 80, fields: 'diff' }).nl, K.at({ share: 50, fields: 'diff' }).nl, 1e-9);\n  });\n  K.check('In a cumulative compound motor there is a distinct no-load speed: at the 15% example it settles at 1.224, inside the plot, while a plain series motor has only 0.05 of its flux running light', () => {\n    const b = K.at({ share: 15 }), d = K.at({ share: 100 });\n    return three(b.nl) === '1.224' && b.nl < TOP && K.near(d.flux0, 0.05, 1e-9) && d.nl > 10 * TOP;\n  }, { source: SRC_PEG });\n  K.check('Cumulative compound motors are not as effective as shunt motors at speed regulation: every share from 5 to 95% droops more than the shunt motor\\'s 5.0%', () => {\n    const base = K.at({ share: 0 }).reg;\n    for (let sh = 5; sh <= 95; sh += 5) if (!(K.at({ share: sh }).reg > base)) return false;\n    return pct(base) === '5.0';\n  }, { source: SRC_PEG });\n  K.check('If the series field is reversed, its mmf subtracts from the shunt field\\'s and the net flux decreases with increasing load: on Differential from 10 to 50%, the flux at 2.00 is below the flux running light and the speed rises with load', () => {\n    for (let sh = 10; sh <= DMAX; sh += 5) { const o = K.at({ share: sh, fields: 'diff' }); if (!(o.flux2 < o.flux0 && o.n2 > o.nl && o.reg < 0)) return false; }\n    return true;\n  }, { source: SRC_ETK });\n  K.check('Standard compound wound motors have a speed regulation of approximately 15-25%: the 15% example gives 22.4%', () => {\n    const r = K.at({ share: 15 }).reg;\n    return pct(r) === '22.4' && r >= 15 && r <= 25;\n  }, { source: SRC_BAL });\n\n  K.ready();\n</script>",
+  "title": "Slide between shunt and series",
+  "brief": "The one thing you should see is the flux running light fall and the no-load speed climb towards a series motor's, while the flux and torque at heavy current rise, when you slide the series share up.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Worked by hand: shunt 1.050, 5.0% and 2.00; at 15%, flux 0.8575 and 1.15, 1.224, 22.4%, 2.30 and 0.824; at 30%, 0.715, 1.469, 46.9%, 1.30 and 2.60; series, 0.05 and 4.00; Differential 15%, 1.1425, 0.919, −8.1%, 0.85, 1.115 and 1.70; the working prints these lines",
+     "ok": true
+    },
+    {
+     "label": "Every line passes through rated, 1.00 and 1.00, at every share; on Cumulative more share gives a higher no-load speed and more torque at 2.00; on Differential from 10% the speed at 2.00 is above the no-load speed; the share stops at 50% on Differential",
+     "ok": true
+    },
+    {
+     "label": "In a cumulative compound motor there is a distinct no-load speed: at the 15% example it settles at 1.224, inside the plot, while a plain series motor has only 0.05 of its flux running light",
+     "ok": true,
+     "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/"
+    },
+    {
+     "label": "Cumulative compound motors are not as effective as shunt motors at speed regulation: every share from 5 to 95% droops more than the shunt motor's 5.0%",
+     "ok": true,
+     "source": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/"
+    },
+    {
+     "label": "If the series field is reversed, its mmf subtracts from the shunt field's and the net flux decreases with increasing load: on Differential from 10 to 50%, the flux at 2.00 is below the flux running light and the speed rises with load",
+     "ok": true,
+     "source": "https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html"
+    },
+    {
+     "label": "Standard compound wound motors have a speed regulation of approximately 15-25%: the 15% example gives 22.4%",
+     "ok": true,
+     "source": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "share",
+    "fields"
+   ],
+   "readouts": [
+    "rdNl",
+    "rdReg",
+    "rdT"
+   ],
+   "outputs": [
+    "flux0",
+    "flux2",
+    "nl",
+    "n2",
+    "torque",
+    "reg"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Lesson",
+     "min": 0,
+     "max": 7,
+     "step": 1,
+     "steps": [
+      "How it works",
+      "Between shunt and series",
+      "Check",
+      "How it behaves",
+      "Where it is used",
+      "Faults and tests",
+      "Find the fault",
+      "Keep this"
+     ],
+     "value": 0
+    },
+    {
+     "id": "share",
+     "kind": "control",
+     "label": "Series share, % of full-load field",
+     "min": 0,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 15,
+     "shown": false,
+     "snap": [
+      0,
+      15,
+      30,
+      50,
+      100
+     ]
+    },
+    {
+     "id": "fields",
+     "kind": "choice",
+     "label": "Fields",
+     "options": [
+      "cum",
+      "diff"
+     ],
+     "labels": [
+      "Cumulative",
+      "Differential"
+     ],
+     "value": "cum",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Finish the lesson",
+    "Back",
+    "Continue"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-24T14:07:06.544Z",
+  "applied": [
+   {
+    "path": "summary.traps[0].text",
+    "problem": "Too absolute: a very light differential winding keeps the speed almost constant (the lesson's own explain), and a speed that rises with load can also come from interpole polarity, brushes off neutral or armature reaction, so 'is unstable' and 'is opposing' overstate."
+   },
+   {
+    "path": "explain.text",
+    "problem": "'Starts hard like a series motor' contradicts the lesson's own ranking and picture (series 4.00, compound 2.30, shunt 2.00 at twice rated current); and the 22.4% rise is from rated load with 15% of the full-load field, which the sentence leaves out."
+   },
+   {
+    "path": "practice.text",
+    "problem": "'Safe light while the shunt field is connected' needs full field: the practice itself warns a weakened shunt field gives a very high no-load speed; 'dip a little' undersells a 15-30% droop; and the same maker's about 30% is dropped from 'typical real figures'."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 4's 'safe to run light while the shunt field is connected' needs full field (screen 5: weakening it gives very high no-load speeds); screen 6's 'the speed rises with load' is too sure, as a very light reversed series winding only flattens it."
+   },
+   {
+    "path": "summary.rule",
+    "problem": "The starting-torque ranking holds at the same current; stated flatly it overreaches, since sources differ on a shunt motor's starting torque (lesson 7's contested point)."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

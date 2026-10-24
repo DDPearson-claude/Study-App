@@ -1,0 +1,476 @@
+{
+  "iid": "i8",
+  "title": "The DC compound motor",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the flux running light fall and the no-load speed climb towards a series motor's, while the flux and torque at heavy current rise, when you slide the series share up.",
+    "title": "Slide between shunt and series",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Screen",
+        "min": 0,
+        "max": 7,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.\n\nAssume one motor on every screen, worked in per unit: 1.00 is its rated voltage, armature current, flux, speed and torque. Its armature circuit is the armature plus the series field. It drops 5% of the supply at rated current. Running light, it draws 0.05 of rated current. That is just enough to turn its own friction. Both are examples, not a maker's. Every other figure is worked from these, or is a labelled example.\n\nScreen 1, How it works. A still drawing of a long-shunt compound motor. A DC supply. Across it, the shunt field winding, many turns of thin wire, labelled \"shunt field\". Beside it, one branch with the series field, a few turns of thick wire, then the armature between its brushes, labelled \"series field\" and \"armature\". The line current splits into a small shunt field current and the armature current, which runs through the series field. An arrow on each field winding points the same way, labelled \"fields aid: cumulative\". The words beside it: \"A compound motor has two field windings. It starts harder than a shunt motor, yet settles at a definite speed running light. The shunt field sits across the supply. The series field is in line with the armature. If the fields aid, it is cumulative compound. Only the series part of the flux grows with the load. Reverse the series field and the fields oppose. That is differential compound, rarely used as it can be unstable. This is long shunt. Short shunt puts the shunt field across the armature only.\" Cumulative compound and differential compound are the key terms, marked in amber.\n\nScreen 2, Between shunt and series: the picture to play with. At the top, screen 1's circuit redrawn small. The series field's arrow flips when the switch is set to Differential. Beside it, two bars on a scale of 0 to 2.00 with a tick at 1.00, rated: \"Flux running light\" and \"Flux at 2.00 × rated current\". Below, a plot of speed, 0 to 2.00 per unit, against armature current, 0 to 2.00 per unit, with a dashed line at 1.00 labelled \"rated\". Three lines, all passing through 1.00, 1.00. A thin line labelled \"shunt, 0%\". A thin line labelled \"series, 100%\", which runs off the top at the left, labelled \"runs away\". A thick line labelled \"compound\" with the slider's share, drawn in full. Dots on the compound line at 0.05, running light, and at 2.00. Then one row of three readouts: No-load speed, per unit. Speed regulation, %. Torque at 2.00 × rated current, per unit. Above 2.00 the no-load speed reads \"over 2.00\", in red. At 100% it reads \"Runs away\". A negative speed regulation turns red, labelled \"speed rises with load\". The compound line and its dots turn red too. On a phone these sit one under another. On a laptop the plot sits beside the circuit.\n\nThe controls. Series share: a slider from 0 to 100% of the full-load field, in steps of 5. It starts at 15. 0% is a plain shunt motor. 100% is a plain series motor. Fields: a switch, Cumulative or Differential. It starts on Cumulative. On Differential the slider stops at 50%. A higher setting moves down to 50%. A line under the controls says \"On Differential the share stops at 50%.\"\n\nThe rule is for a simplified compound motor. Flux follows the field currents in a straight line. There is no saturation, no armature reaction and no brush drop. s is the series share as a fraction.\nCumulative flux = (1 − s) + s × Ia. Differential flux = (1 + s) − s × Ia. Both are 1.00 at rated current, so every line passes through the rated point.\nSpeed = (1 − 0.05 × Ia) ÷ (0.95 × flux). The top is the back-emf: the supply less the armature-circuit drop. The 0.95 makes rated speed 1.00. Dividing by the flux follows from back-emf going with flux × speed.\nTorque = flux × Ia.\nSpeed regulation = (no-load speed − rated speed) ÷ rated speed. No load means Ia = 0.05.\n\nWorked under the readouts, headed \"Worked in per unit, where 1.00 is rated volts, current, flux, speed and torque\". First the set-up: \"Assume the armature circuit drops 5% of the supply at rated current. Running light, it draws 0.05 of rated current. Both are examples. Flux = shunt part + series part × Ia, or minus it on Differential. Back-emf = 1 − 0.05 × Ia. That is the supply less the drop. Speed = back-emf ÷ (0.95 × flux). 0.95 is the back-emf at rated current. Dividing by it makes rated speed 1.00.\" Then each line uses the rounded figures before it:\nRunning light, Ia = 0.05: back-emf = 1 − 0.05 × 0.05 = 0.9975. Then 0.9975 ÷ 0.95 = 1.05, for every share.\nShunt, 0%: flux 1.00. No-load speed 1.05 ÷ 1.00 = 1.050. Regulation (1.050 − 1.000) ÷ 1.000 = 5.0%. Torque at 2.00: 1.00 × 2.00 = 2.00.\nCompound, 15%: flux running light = 0.85 + 0.15 × 0.05 = 0.8575. No-load speed = 1.05 ÷ 0.8575 = 1.224. Regulation (1.224 − 1.000) ÷ 1.000 = 22.4%. Flux at 2.00 = 0.85 + 0.15 × 2.00 = 1.15. Torque = 1.15 × 2.00 = 2.30. Speed at 2.00 = 0.90 ÷ (0.95 × 1.15) = 0.90 ÷ 1.0925 = 0.824.\nCompound, 30%: flux running light = 0.70 + 0.30 × 0.05 = 0.715. No-load speed = 1.05 ÷ 0.715 = 1.469. Regulation 46.9%. Flux at 2.00 = 0.70 + 0.60 = 1.30. Torque = 1.30 × 2.00 = 2.60.\nSeries, 100%: flux at 2.00 = 2.00, so torque = 2.00 × 2.00 = 4.00. Running light, the flux is only 0.05. It runs away.\nDifferential, 15%: flux running light = 1.15 − 0.15 × 0.05 = 1.1425. No-load speed = 1.05 ÷ 1.1425 = 0.919. Regulation (0.919 − 1.000) ÷ 1.000 = −8.1%. So the speed rises with load. Flux at 2.00 = 1.15 − 0.30 = 0.85. Speed at 2.00 = 0.90 ÷ (0.95 × 0.85) = 0.90 ÷ 0.8075 = 1.115. Torque = 0.85 × 2.00 = 1.70.\nLast: \"The plot runs to twice rated current. A starter usually holds the starting current to 125 to 200% of full load.[^1]\"\n\nThe words on the screen, above the picture: \"Torque goes with flux × Ia. Speed goes with back-emf ÷ flux.\" The prompt above the picture: \"Slide the series share up. Then switch to Differential.\" Read: At 0% the compound line lies on the shunt line. It runs light at 1.050 and gives a torque of 2.00 at twice rated current. At 15% the flux running light falls to 0.8575. So the no-load speed rises to 1.224. The flux at twice rated current rises to 1.15. So the torque rises to 2.30. At 30% the no-load speed reaches 1.469. The torque reaches 2.60. At 100% it is a series motor. Running light, it runs away. On Differential at 15%, the flux falls as the current rises. The speed rises from 0.919 running light to 1.115 at twice rated current. The torque falls to 1.70. Still: the share at 15% and the fields Cumulative. The flux bars stand at 0.8575 and 1.15. The compound line sits between the shunt and series lines. It runs from 1.224 running light, through 1.00 at rated, to 0.824 at twice rated current. The readouts show 1.224, 22.4% and 2.30.\n\nScreen 3, Check on the cause. \"A cumulative compound motor drives a shear. The coupling breaks and the load comes off. What does the speed do?\" Three choices, in this order, each left-aligned: \"It runs away, like a series motor\"; \"It rises to a definite no-load speed and holds there\"; \"It hardly changes, like a shunt motor\". Right, the second: \"Right. The current falls, so the series part of the flux fades and the speed rises. The shunt part stays, so the flux holds up. The speed levels off at a definite no-load speed. On the picture at 15%, it rises from 1.00 to 1.224.\" Wrong, the first: \"That is the series motor, whose whole field fades with the current. Here the shunt field keeps enough flux, so the speed levels off.\" Wrong, the third: \"The shunt part holds, but the series part fades. With less flux, it must turn faster to make the same back-emf. On the picture at 15%, that is about 22% more.\" After a wrong choice, the right answer and its reason.\n\nScreen 4, How it behaves. A still drawing: screen 2's three lines at 15%, labelled \"sketch from the example rule\". Rows, each with a label.\n\nStarting torque: \"At the same current, higher than a shunt motor's and lower than a series motor's.\"\n\nRunning light: \"A definite no-load speed. Safe to run light while the shunt field is connected at full strength.[^2]\"\n\nSpeed regulation: \"Typically 15 to 25%.[^3] Some standard motors run about 30%.[^4] Better than a series motor's. It droops more than a shunt motor's.[^5]\"\n\nSeries share: \"More share, more starting torque and a higher no-load speed.\"\n\nReversing: \"Swap the armature leads, or both fields.[^6] Swap one field alone and it turns differential.\"\n\nNo new key term on this screen.\n\nScreen 5, Where it is used, and its limits. A still drawing: the motor driving a punch press with a heavy flywheel. Rows.\n\nUsed for: \"Punch presses, shears, crushers and reciprocating compressors. Heavy loads that come and go.\"\n\nWhy: \"The series field takes the heavy stroke. The shunt field stops it racing when the load drops off.[^7]\"\n\nLimits: \"Not for wide speed control by weakening the shunt field. The no-load speed can get very high.[^8] When it brakes by feeding power back, the armature current reverses through the series field. The fields then oppose, so such drives use a plain shunt motor.[^9] Brushes and commutator need regular care.\"\n\nScreen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger from the windings to frame, an ohmmeter across the series field leads, and the brushes on the commutator. Rows.\n\nSafety first: \"Isolate, lock off and prove dead.\"\n\nSeries field reversed: \"It turns differential compound. The speed can rise with load and surge. A rebuild can reverse it.[^10]\"\n\nPolarity: \"Check it against the maker's connection diagram. Never find it by running the motor light at full voltage.[^11]\"\n\nShunt field open: \"Only the series field is left. On a light load it can race like a series motor.\"\n\nSparking: \"Worn brushes, a rough commutator or an armature fault.\"\n\nTests: \"Megger the windings to frame. Measure the armature, series field and shunt field resistance.\"\n\nDifferential compound is marked in amber in the series field row.\n\nScreen 7, Find the fault. \"A compound motor is back from a rewind. Now its speed rises as the load goes on, and on a heavy load it surges. What is the most likely fault?\" Three choices, in this order, each left-aligned: \"The shunt field circuit is open\"; \"The brushes have worn down\"; \"The series field is connected the wrong way round\". Right, the third: \"Right. A reversed series field subtracts from the shunt field. More load means less flux, so more speed. It has turned differential. Isolate and prove dead. Then check the series field connections against the maker's diagram. If they are right, check the brush position next.[^12]\" Wrong, the first: \"An open shunt field leaves only the series field. The motor would race on a light load and slow as the load goes on. Here the speed rises with load.\" Wrong, the second: \"Worn brushes spark and make poor contact. They do not make the speed rise with load.\" After a wrong choice, the right answer and its reason.\n\nScreen 8, Keep this: the summary card, with no case figures. Then Finish the lesson.\n\nEvery figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The examples are the 5% drop, the 0.05 light-load current and the 15% opening share.",
+    "ignores": "The picture is a simplified compound motor in per unit. Its flux follows the field currents in a straight line, with no saturation, so real curves bend more at heavy current. It ignores armature reaction, brush drop and the time the motor takes to change speed. Its series line includes the 5% drop. So it sits a little below an ideal series line. The plot runs to twice rated current. A motor carries that overload only briefly, as when starting. The 5% drop, the light-load current and the 15% share are examples, not a maker's.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 8 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Series share slider, opening, % of full-load field",
+        "value": 15,
+        "kind": "control"
+      },
+      {
+        "label": "Series share slider, lowest, %",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Series share slider, highest, %",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Series share slider, step, %",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Series share slider, top on Differential, %",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Fields switch, opening (Cumulative)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Series share in the second worked case, %",
+        "value": 30,
+        "kind": "control"
+      },
+      {
+        "label": "Rated value of every quantity, per unit",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Armature-circuit drop at rated current, % of supply (example)",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Light-load armature current, per unit (example)",
+        "value": 0.05,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current at the right of the plot, per unit of rated (example, the top of the usual starting limit)",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Starting current limit, low end, % of full load",
+        "value": 125,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Starting current limit, high end, % of full load",
+        "value": 200,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Speed axis top, per unit",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current axis top, per unit",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Back-emf share at rated current, 1 − 0.05",
+        "value": 0.95,
+        "kind": "computed"
+      },
+      {
+        "label": "Back-emf share running light, 1 − 0.0025",
+        "value": 0.9975,
+        "kind": "computed"
+      },
+      {
+        "label": "Drop running light, 0.05 × 0.05",
+        "value": 0.0025,
+        "kind": "computed"
+      },
+      {
+        "label": "Top of the speed rule running light",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Top of the speed rule at twice rated current",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Shunt: no-load speed, per unit",
+        "value": 1.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Shunt: speed regulation, %",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Shunt: torque at twice rated current, per unit",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: shunt part of the flux",
+        "value": 0.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: flux running light",
+        "value": 0.8575,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: no-load speed, per unit",
+        "value": 1.224,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: speed regulation, %",
+        "value": 22.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: flux at twice rated current",
+        "value": 1.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: torque at twice rated current, per unit",
+        "value": 2.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: 0.95 × 1.15",
+        "value": 1.0925,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: speed at twice rated current, per unit",
+        "value": 0.824,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 15%: speed rise when the load comes off, about %",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: shunt part of the flux",
+        "value": 0.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: series part running light, 0.30 × 0.05",
+        "value": 0.015,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: flux running light",
+        "value": 0.715,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: no-load speed, per unit",
+        "value": 1.469,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: speed regulation, %",
+        "value": 46.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: series part at twice rated current",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: flux at twice rated current",
+        "value": 1.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Compound 30%: torque at twice rated current, per unit",
+        "value": 2.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Series 100%: flux at twice rated current",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Series 100%: torque at twice rated current, per unit",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Series 100%: flux running light",
+        "value": 0.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: series part running light, 0.15 × 0.05",
+        "value": 0.0075,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: flux running light",
+        "value": 1.1425,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: no-load speed, per unit",
+        "value": 0.919,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: speed regulation, %",
+        "value": -8.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: series part at twice rated current",
+        "value": 0.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: flux at twice rated current",
+        "value": 0.85,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: 0.95 × 0.85",
+        "value": 0.8075,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: speed at twice rated current, per unit",
+        "value": 1.115,
+        "kind": "computed"
+      },
+      {
+        "label": "Differential 15%: torque at twice rated current, per unit",
+        "value": 1.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed regulation, typical figures, low, %",
+        "value": 15,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Speed regulation, typical figures, high, %",
+        "value": 25,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Speed regulation, some standard motors, about, %",
+        "value": 30,
+        "kind": "constant",
+        "source": 4
+      }
+    ]
+  },
+  "explain": {
+    "text": "A DC compound motor has two field windings on the same poles. One is a shunt field across the supply. The other is a series field in line with the armature. When their fields aid each other, it is [[cumulative compound]]. Its series field gives it a harder start than a shunt motor. Yet running light, it settles at a definite speed. It does not run away.\n\nTorque goes with flux times armature current. Speed goes with back-emf over flux. In this motor the flux is a steady shunt part plus a series part that grows with the current. Put a heavy load on and the current rises. The series part adds flux, so the torque climbs faster than the current. Take the load off and the current falls to a trickle. The series part fades, but the shunt part stays. In a series motor the whole field fades with the current. Here the shunt part keeps the flux up. So the speed rises to a definite no-load speed and holds there.\n\nThe price is speed regulation. The flux falls as the load comes off, so the speed rises further than a shunt motor's. Take the example motor on the picture. Its series winding gives 15% of the full-load field. Its speed rises by 22.4% from rated load to running light. A compound motor is steadier than a series motor, but not as steady as a shunt motor. More series share gives more starting torque and a higher no-load speed.\n\nReverse the series field and it subtracts from the shunt field. That is [[differential compound]]. Now the flux falls as the load rises. With a very light series winding, the speed stays almost constant as the load goes on. It may even rise slightly. With a heavier one, the speed rises with load. It can become unstable. It is rarely used. **In a cumulative compound motor, the series field takes the heavy load. The shunt field stops it racing when the load comes off.**"
+  },
+  "analogy": {
+    "text": "Think of a series motor as a gearbox that changes gear by load alone. A compound motor is the same gearbox with a top gear it cannot pass. Heavy load, it drops to a low gear: slow and strong. Light load, it changes up. But it only goes as far as that top gear. So when the load comes off, it tops out instead of over-revving.",
+    "breaks": "A gearbox steps between fixed gears. The motor slides smoothly. Its \"gear\" is the flux. Its top gear is not fixed either. Weaken the shunt field and the top gear rises, so the no-load speed can get very high."
+  },
+  "practice": {
+    "text": "- Isolate, lock off and prove dead before you touch the motor or its starter.\n- After a rewind or rebuild, check the series field's polarity against the maker's connection diagram.\n- Never find the polarity by running the motor light at full voltage.[^11]\n- Start through the starter, at full shunt field.\n- On the first run, watch the speed as the load goes on. It should dip, not rise.\n- Megger the windings to frame. Measure the armature, series field and shunt field resistance. Check the brushes and commutator.\n\n**Rule of thumb:** more series share means more starting torque and a higher no-load speed.\n\n**Worked example:** take a motor whose series winding gives 15% of the full-load field. That share is an example. Use the maker's figure on a real job. Work in per unit, where 1.00 is rated. Assume its armature circuit drops 5% at rated current. Assume it draws 0.05 of rated current running light.\nFlux = 0.85 + 0.15 × Ia. Torque = flux × Ia. Speed = (1 − 0.05 × Ia) ÷ (0.95 × flux).\nAt twice rated current, as at a start: flux = 0.85 + 0.30 = 1.15. Torque = 1.15 × 2.00 = 2.30. A shunt motor gives 1.00 × 2.00 = 2.00.\nRunning light: flux = 0.85 + 0.15 × 0.05 = 0.8575. Speed = (1 − 0.0025) ÷ 0.95 ÷ 0.8575 = 0.9975 ÷ 0.95 ÷ 0.8575 = 1.05 ÷ 0.8575 = 1.224.\nSpeed regulation = (1.224 − 1.000) ÷ 1.000 = 22.4%. Real motors are typically 15 to 25%.[^3] Some run about 30%.[^4]\n\n**Common mistakes**\n- Swapping one field to reverse it. That makes it differential. Swap the armature leads, or both fields.\n- Weakening the shunt field a long way for more speed. The no-load speed can get very high.\n- Expecting it to hold speed like a shunt motor. It droops more.\n- Treating it like a series motor and never running it light. It is safe light while the shunt field is connected at full strength."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "summary": {
+    "title": "The DC compound motor",
+    "for": "Heavy loads that come and go, such as presses and shears. A series field adds torque under load. A shunt field holds a definite no-load speed.",
+    "rule": "Shunt field across the supply. Series field in line with the armature.\nCumulative: flux = shunt part + series part × Ia.\nTorque goes with flux × Ia. Speed goes with back-emf E ÷ flux.\n\nStarting torque at the same current: series most, compound next, shunt least.\nRunning light: series runs away. Compound rises to a definite speed. Shunt barely moves.\nSpeed regulation: shunt best, compound between, series worst. Use the maker's figure.\nUsed for: series for hoists and traction. Shunt for steady speed. Compound for presses and shears.\nReverse it: swap the armature leads, or both fields.",
+    "traps": [
+      {
+        "text": "Differential can be unstable. If the speed rises as load goes on, suspect the series field opposing the shunt field.",
+        "cite": "[^13] [^14] [^15] [^16] DC compound motor sheet; MTU chapter 11; electrotechnik; electricaleasy"
+      },
+      {
+        "text": "After a rewind, check the series field polarity against the maker's diagram. Never find it by running the motor light at full voltage.",
+        "cite": "[^10] [^11] Industrial Monitor Direct"
+      },
+      {
+        "text": "Reverse it by swapping the armature leads, or both fields. Swapping one field alone makes it differential.",
+        "cite": "[^6] [^17] electrotechnik; Industrial Monitor Direct"
+      },
+      {
+        "text": "Do not use it for wide speed control by weakening the shunt field. The no-load speed can get very high.",
+        "cite": "[^8] Baldor-Reliance"
+      },
+      {
+        "text": "Isolate, lock off and prove dead. Then megger to frame, measure each winding's resistance, and check the brushes and commutator.",
+        "cite": "[^18] [^19] [^20] Pump & Motor Works"
+      }
+    ],
+    "where": "Punch presses, shears, crushers and reciprocating compressors, often with a flywheel."
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Part 8 – DC Motor Starters – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters",
+      "quote": "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+    },
+    {
+      "n": 2,
+      "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+      "quote": "In a cumulative compound motor, there is a distinct no-load speed, and it can be safely operated under such conditions."
+    },
+    {
+      "n": 3,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "Standard compound wound motors will have a speed regulation of approximately 15-25%."
+    },
+    {
+      "n": 4,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "A standard compound wound motor has a speed regulation of approximately 30% in accordance with NEMA Standard MG1- 12.65.2."
+    },
+    {
+      "n": 5,
+      "title": "Part 7 – DC Motors – PEG-3722 Electrotechnology",
+      "url": "https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/",
+      "quote": "However, when it comes to speed regulation, cumulative compound motors are not as effective as shunt motors."
+    },
+    {
+      "n": 6,
+      "title": "DC Compound Motor - An Overview",
+      "url": "https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html",
+      "quote": "Reversing the direction of rotation of compound or stabilized – shunt motors is accomplished by reversing the armature branch or reversing both the series field and the shunt field."
+    },
+    {
+      "n": 7,
+      "title": "Characteristics of DC motors | electricaleasy.com",
+      "url": "https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html",
+      "quote": "winding takes care of the heavy load, whereas the shunt winding prevents the motor from running at dangerously high speed when the load is suddenly removed."
+    },
+    {
+      "n": 8,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "Compound wound motors are not suitable for operation over an extended field range by shunt field weakening because of the very high no-load speeds that may result."
+    },
+    {
+      "n": 9,
+      "title": "— Baldor-Reliance® Integral horsepower DC motors",
+      "url": "https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331",
+      "quote": "On regenerative drives, it is necessary to wind the motor as a straight shunt; otherwise, the series winding would oppose the shunt winding when the motor is reversed or during regeneration."
+    },
+    {
+      "n": 10,
+      "title": "Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field",
+      "quote": "A rebuild can reverse an internal series field, and brush-ring position after a rebuild sets the neutral."
+    },
+    {
+      "n": 11,
+      "title": "Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts",
+      "quote": "Do not discover polarity by running an uncoupled or unloaded motor at normal voltage; weak or opposing flux can allow excessive speed."
+    },
+    {
+      "n": 12,
+      "title": "Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field",
+      "quote": "Speed climbs as armature current climbs: suspect a hidden differential series or compound winding, reversed commutating (interpole) polarity, or brushes off neutral."
+    },
+    {
+      "n": 13,
+      "title": "Your motor sheet: the DC compound motor",
+      "url": "material:dc-compound#p1",
+      "quote": "The magnetic fields of the series and shunt windings oppose each other. This type is rarely used because it can lead to unstable operation when the load changes."
+    },
+    {
+      "n": 14,
+      "title": "CHAPTER 11",
+      "url": "https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf",
+      "quote": "The speed rises as the load increases, and this may lead to instability."
+    },
+    {
+      "n": 15,
+      "title": "DC Compound Motor - An Overview",
+      "url": "https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html",
+      "quote": "If the series field is reversed with respect to the shunt field, its mmf will subtract from the shunt field mmf, causing the net flux to decrease with increasing load, resulting in excessive speed, which is differential compound motor."
+    },
+    {
+      "n": 16,
+      "title": "Characteristics of DC motors | electricaleasy.com",
+      "url": "https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html",
+      "quote": "Due to this, the speed remains almost constant or even it may increase slightly with increase in load"
+    },
+    {
+      "n": 17,
+      "title": "Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts",
+      "quote": "Reversing only one field changes cumulative operation to differential operation."
+    },
+    {
+      "n": 18,
+      "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+      "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+      "quote": "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+    },
+    {
+      "n": 19,
+      "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+      "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+      "quote": "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+    },
+    {
+      "n": 20,
+      "title": "DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc.",
+      "url": "https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2",
+      "quote": "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+    }
+  ]
+}

@@ -1,0 +1,630 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Electric motors: what you need on each one
+Puzzle the course answers: After a one-second power cut, a pump on its DOL starter stays stopped, though nobody pressed Stop. Why does it not start again by itself?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: An AC induction motor works by making a magnetic field that turns and drags the rotor round a little behind it: three-phase windings make that turning field by themselves, while a single-phase motor needs a second winding, sometimes with a capacitor, to get it going. How you start and run it, straight on through a contactor or through a drive that sets the frequency, decides the current it draws as it starts and the speed it runs at. How a DC motor's speed and torque change with load comes from how its field is wired, in series, across the supply or both, and each machine has its own uses, it…
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Motors
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The three-phase induction motor — The rotor always turns a little slower than the windings' rotating field, because only that shortfall, called slip, induces the rotor current that makes torque. [mechanism]
+  i2  The DOL starter — Start pulls in the contactor, a contact across Start keeps its coil fed; Stop, overload or power cut drops it out until restarted. [mechanism] (needs i1)
+  i3  The variable speed drive — A variable speed drive turns the supply to DC, then back to AC at a chosen frequency, with voltage in proportion up to rated speed. [quantity] (needs i1, i2)
+  i4  The split-phase motor — One single-phase winding alone makes a field that only pulses, so a thin-wire start winding adds a current out of step and the field turns. [mechanism] (needs i1)
+  i5  The capacitor-start motor — A capacitor in series with the start winding widens the angle between the two currents towards 90°, giving much more starting torque than split-phase. [quantity] (needs i4)
+  i6  The DC series motor — One current feeds both field and turning armature, so torque climbs steeply with current, and with the load taken off the speed climbs dangerously. [quantity]
+  i7  The DC shunt motor — With its field across the supply holding the flux steady, the speed dips only a little under load, though sources differ on how little. [mechanism] (needs i6)
+  i8  The DC compound motor — A series and a shunt field together give high starting torque yet a limited no-load speed, as long as the series field aids the shunt. [concept] (needs i6, i7)   <-- THIS LESSON
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i8: "The DC compound motor"
+What Dan should come away understanding: A series and a shunt field together give high starting torque yet a limited no-load speed, as long as the series field aids the shunt.
+Kind: concept. Builds on: i6 "The DC series motor", i7 "The DC shunt motor".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "The three-phase induction motor"
+  Terms: synchronous speed, slip
+  Analogy: Think of the motor as a transformer. The stator is the primary, and the rotor bars are a secondary shorted on itself. At standstill the field sweeps past the bars at full speed, so the rotor is a sho…
+  Interactive: The one thing you should see is the field slide past the rotor bars more slowly, and the slip, rotor current and torque shrink towards zero, when you drag the load off.
+  Numbers: Screen, 1 to 9 (the stepper) = 0; Load, % of rated (opening setting) = 100; Supply frequency choices, Hz = 50 or 60; Royal Navy ships' main supply frequency, Hz = 60 (constant); Pole choices = 2 or 4; Windings apart, electrical degrees = 120 (constant)
+- i2 "The DOL starter"
+  Terms: latching contact, no-volt protection
+  Analogy: Think of a fire door held open by a magnet. While the magnet is fed, the door stays open. If the fire alarm or a power cut cuts its supply, the door swings shut. When the power returns, the door stay…
+  Interactive: The one thing you should see is the latching contact (7) keeping the coil fed after Start springs back, until its circuit opens and it drops out for good, when you press and release Start.
+  Numbers: Screen, 1 to 10 (the stepper) = 0; Motor current, % of overload setting (opening) = 100; Motor current slider range, % = 100 to 150; Part numbers on the drawing = 1 to 10 (constant); Coil voltage, phase to neutral, V = 230 (constant); Supply voltage line to line, V (example motor) = 400 (assumed)
+- i3 "The variable speed drive"
+  Terms: DC bus, base speed, field weakening
+  Analogy: You know this from transformers. A transformer's core flux is set by its volts per hertz. Run a 50 Hz transformer at 25 Hz on full voltage and its core saturates. It draws a big magnetising current a…
+  Interactive: The one thing you should see is the voltage falling in step with the frequency, so the volts per hertz and the flux hold level up to 50 Hz, when you drag the frequency down.
+  Numbers: Screen, 1 to 9 (the stepper) = 0; Frequency slider, Hz (opening) = 50; Frequency slider range, Hz = 5 to 60; Hold 400 V switch (opening off) = 0; Example motor rated voltage, V = 400 (assumed); Example motor rated frequency, Hz = 50 (assumed)
+- i4 "The split-phase motor"
+  Terms: start winding, centrifugal switch
+  Analogy: Think of a steam engine. A single-cylinder engine stopped on dead centre cannot start. The piston pushes straight along the crank. Turn the flywheel a little and it runs, either way. So locomotives h…
+  Interactive: The one thing you should see is the field's tip going round while the two currents are out of step, and only pulsing along one line when they are not, when you press Start.
+  Numbers: Screen, 1 to 8 (the stepper) = 0; Start winding choice (opening: thin wire, as built) = 0; Centrifugal switch choice (opening: working) = 0; Spin the rotor, speed given, rpm = 150 (assumed); Example motor supply voltage, V = 230 (assumed); Example motor supply frequency, Hz = 50 (assumed)
+- i5 "The capacitor-start motor"
+  Terms: start capacitor
+  Analogy: You know power factor correction. A capacitor's leading current cancels part of a motor's lagging current. That pulls the total current back into step with the voltage. The start capacitor uses the s…
+  Interactive: The one thing you should see is the angle between the two winding currents open towards 90° and the starting torque rise to a peak then fall, when you drag the start capacitor.
+  Numbers: Screen, 1 to 9 (the stepper) = 0; Start capacitor slider, opening, µF = 100; Start capacitor slider, lowest, µF = 20; Start capacitor slider, highest, µF = 300; Start capacitor slider, step, µF = 5; Example motor supply voltage, V = 230 (assumed)
+- i6 "The DC series motor"
+  Terms: back-emf, runaway
+  Analogy: Think of an automatic gearbox that changes gear by load alone. Heavy load, and it drops to a low gear: slow and strong. Light load, and it changes up: fast and weak. A series motor does the same by i…
+  Interactive: The one thing you should see is the field weaken, the torque fall with the current squared and the speed climb into the red when you drag the load current down.
+  Numbers: Screen, 1 to 8 (the stepper) = 0; Load current slider, opening, per unit = 1; Load current slider, lowest, per unit = 0.25; Load current slider, highest, per unit = 1; Load current slider, step, per unit = 0.05; Field, torque and speed at full load, per unit = 1
+- i7 "The DC shunt motor"
+  Terms: shunt field, speed regulation
+  Analogy: An induction motor works the same way. It slows a little under load. That slip is what makes the rotor current that carries the torque. A shunt motor does the same with back-emf. It slows a little, s…
+  Interactive: The one thing you should see is the field hold steady and the speed dip only slightly, as the back-emf falls a little and the armature current rises, when you drag the load up.
+  Numbers: Screen, 1 to 9 (the stepper) = 0; Example motor supply voltage, V = 600 (constant); Example motor armature resistance, ohm = 0.07 (constant); Example motor field resistance, ohm = 80 (constant); Example motor line current at rated load, A = 353 (constant); Example motor rated speed, rpm = 2000 (constant)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? What I need to know on each motor, as a reference.
+- Where will you use it? At work: running, starting and fault-finding motors.
+- How do you like to learn? How it works, one picture to play with, then the faults and a card to keep.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] Your motor sheet: the DC compound motor — material:dc-compound#p1
+    "A DC compound motor is an electric motor that combines the characteristics of both a series-wound and a shunt-wound DC motor by using both a series field winding and a shunt field winding."
+[2] Your motor sheet: the DC compound motor — material:dc-compound#p1
+    "The series and shunt fields work together, with their magnetic fluxes in the same direction."
+[3] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "The short or the long shunt can be connected so that the two fields reinforce each other - cumulative compounding or so that they are in opposition to each other - differential compounding"
+[4] Your motor sheet: the DC compound motor — material:dc-compound#p1
+    "The magnetic fields of the series and shunt windings oppose each other. This type is rarely used because it can lead to unstable operation when the load changes."
+[5] What is the Difference between DC Series, DC Shunt, and DC Compound Motors? | CircuitBread — https://www.circuitbread.com/ee-faq/difference-between-dcseries-dcshunt-and-dccompound-motors
+    "The shunt field flux of the compound motor maintains enough flux at starting to guarantee a safe no-load operating speed unlike the DC series motor."
+[6] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "If a shunt coil is added to a series motor at light loads (when a series motor tends to overspeed) the added shunt field flux limits the top speed, eliminating self-destruction."
+[7] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "In a cumulative compound motor, there is a distinct no-load speed, and it can be safely operated under such conditions."
+[8] ELECTRICAL SYSTEMS AND SAFETY OVERSIGHT QUALIFICATION STANDARD REFERENCE GUIDE — https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf
+    "The compounded motor has a greater torque than a shunt motor due to the series field; however, it has a fairly constant speed due to the shunt field winding."
+[9] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "However, when it comes to speed regulation, cumulative compound motors are not as effective as shunt motors."
+[10] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "The relative proportions of the shunt and series winding can be varied in order to make the characteristics nearer those of the series motor or those of the shunt-wound motor."
+[11] Characteristics of DC motors | electricaleasy.com — https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html
+    "Since in differential field motors, series flux opposes shunt flux, the total flux decreases with increase in load."
+[12] Characteristics of DC motors | electricaleasy.com — https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html
+    "Due to this, the speed remains almost constant or even it may increase slightly with increase in load"
+[13] What is the Difference between DC Series, DC Shunt, and DC Compound Motors? | CircuitBread — https://www.circuitbread.com/ee-faq/difference-between-dcseries-dcshunt-and-dccompound-motors
+    "The former is rarely used hence we will limit our discussion only to the cumulatively compounded DC motors."
+[14] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "The long-shunt connection : the shunt winding is located directly across the terminals of the machine, and the series winding is connected between the shunt and the armature."
+[15] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "The short-shunt connection : the shunt winding is directly in parallel with the armature, and the series winding is between the shunt winding and the terminals of the machine."
+[16] Your motor sheet: the DC compound motor — material:dc-compound#p1
+    "compound motors are used for applications like punch presses, shears, crushers, and reciprocating compressors."
+[17] Section I General Standards Applying to All Machines Part ... — https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf
+    "A compound-wound motor is a direct-current motor which has two separate field windings-one, usually the predominating field, connected as in a straight shunt-wound motor, and the other connected in series with the armature circuit."
+[18] Section I General Standards Applying to All Machines Part ... — https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf
+    "The percent of the total field-ampere turns at full load that is contributed by the series field."
+[19] DC Compound Motor - An Overview — https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html
+    "provide approximately 3 to 10 percent of the total field mmf at rated load."
+[20] DC Compound Motor - An Overview — https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html
+    "The speed of stabilized – shunt motors is fairly constant, with only a slight droop in speed with increasing load."
+[21] DC Compound Motor - An Overview — https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html
+    "Typical compound motors designed for industrial application obtain approximately 50% of their mmf from the series field wen operating at rated load."
+[22] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "A standard compound wound motor has a speed regulation of approximately 30% in accordance with NEMA Standard MG1- 12.65.2."
+[23] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "Standard compound wound motors will have a speed regulation of approximately 15-25%."
+[24] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "For the cumulatively compounded machine, the series winding provides additional flux as the load current increases."
+[25] DC Compound Motor - An Overview — https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html
+    "If the series field is reversed with respect to the shunt field, its mmf will subtract from the shunt field mmf, causing the net flux to decrease with increasing load, resulting in excessive speed, which is differential compound motor."
+[26] COMPOUND MOTOR - Integrated Publishing — https://electriciantraining.tpub.com/14177/css/Compound-Motor-52.htm
+    "The series field gives it the advantage of being able to develop a large torque when the motor is started under a heavy load."
+[27] COMPOUND MOTOR - Integrated Publishing — https://electriciantraining.tpub.com/14177/css/Compound-Motor-52.htm
+    "The shunt field gives this type of motor the constant speed advantage of a regular shunt motor."
+[28] DOE-HDBK-1011/2-92; DOE Fundamentals Handbook Electrical Science Volume 2 of 4 — https://www.energy.gov/sites/default/files/2026-04/DOE-HDBK-1011-92_VOL2.pdf
+    "The compounded motor has a greater torque than a shunt motor due to the series field; however, it has a fairly constant speed due to the shunt field winding."
+[29] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "The compound motor responds better to heavy load changes than a shunt motor because of the increased current through the series field coils boosting the field strength and providing added torque and speed."
+[30] Characteristics of DC Motors — Series, Shunt and Compound — https://www.engineeringdevotion.com/electrical-machines/lecture/dc-motor-characteristics.html
+    "Has none of the disadvantages of the series motor at light or no load."
+[31] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "When the load increases, it causes an increase in torque and a small decrease in speed"
+[32] DC Direct Current Compound Motor Review — https://www.engineersedge.com/motors/dc_compound_motor.htm
+    "Cumulative compound motors connect the series field to aid the shunt field, which provides higher starting torque but less speed regulation."
+[33] Section I General Standards Applying to All Machines Part ... — https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf
+    "The speed regulation of a dc motor is the difference between the steady no-load speed and the steady rated-load speed expressed in percent of rated-load speed."
+[34] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "Compound wound motors are not suitable for operation over an extended field range by shunt field weakening because of the very high no-load speeds that may result."
+[35] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "Essentially, they combine a series motor with a small number of shunt turns to prevent the motor from running uncontrollably in no-load situations."
+[36] CHAPTER 11 — https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf
+    "The speed rises as the load increases, and this may lead to instability."
+[37] Characteristics of DC Motors — Series, Shunt and Compound — https://www.engineeringdevotion.com/electrical-machines/lecture/dc-motor-characteristics.html
+    "Under a heavy enough load the machine can lose its flux entirely and stall or reverse."
+[38] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "They operate at a constant speed under varying load conditions and give better constant speed regulation than the standard shunt motor."
+[39] DC Direct Current Compound Motor Review — https://www.engineersedge.com/motors/dc_compound_motor.htm
+    "Differential compound DC motors have good speed regulation and are typically operated at constant speed."
+[40] Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts
+    "Reversing only one field changes cumulative operation to differential operation."
+[41] DC Compound Motor - An Overview — https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html
+    "Reversing the direction of rotation of compound or stabilized – shunt motors is accomplished by reversing the armature branch or reversing both the series field and the shunt field."
+[42] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "On regenerative drives, it is necessary to wind the motor as a straight shunt; otherwise, the series winding would oppose the shunt winding when the motor is reversed or during regeneration."
+[43] Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field
+    "Speed climbs as armature current climbs: suspect a hidden differential series or compound winding, reversed commutating (interpole) polarity, or brushes off neutral."
+[44] Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field
+    "A rebuild can reverse an internal series field, and brush-ring position after a rebuild sets the neutral."
+[45] Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts
+    "Do not discover polarity by running an uncoupled or unloaded motor at normal voltage; weak or opposing flux can allow excessive speed."
+[46] Stabilized Shunt DC Motor: Correct Direction Reversal Method - Industrial Monitor Direct — https://industrialmonitordirect.com/blogs/knowledgebase/stabilized-shunt-dc-motor-rotation-reversal-wiring-fix
+    "Under high starting current conditions, the series winding can overpower the shunt field, potentially re-reversing the direction of rotation."
+[47] Application Report AC Drives for Punch Press — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.PUNCH.02&documentName=AR.PUNCH.02.pdf
+    "A mechanical press derives much of its working energy during the work stroke from the flywheel."
+[48] Application Report AC Drives for Punch Press — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.PUNCH.02&documentName=AR.PUNCH.02.pdf
+    "During the remainder of the cycle, the motor brings the flywheel back to rated speed to restore its energy."
+[49] Application Report AC Drives for Punch Press — https://www.yaskawa.com/o/getAttachment?cmd=documents&documentId=AR.PUNCH.02&documentName=AR.PUNCH.02.pdf
+    "Flywheel kinetic energy is proportional to the square of its speed."
+[50] parametric design of a flywheel for an electric punch press — https://egrove.olemiss.edu/cgi/viewcontent.cgi?article=2866&context=hon_thesis
+    "During the relatively long period between two punching operations, the motor will accelerate the flywheel back to its original speed."
+[51] Characteristics of DC motors | electricaleasy.com — https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html
+    "These motors have generally employed a flywheel, where sudden and temporary loads are applied like in rolling mills."
+[52] Characteristics of DC motors | electricaleasy.com — https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html
+    "winding takes care of the heavy load, whereas the shunt winding prevents the motor from running at dangerously high speed when the load is suddenly removed."
+[53] DOE-HDBK-1011/2-92; DOE Fundamentals Handbook Electrical Science Volume 2 of 4 — https://www.energy.gov/sites/default/files/2026-04/DOE-HDBK-1011-92_VOL2.pdf
+    "Loads such as presses, shears, and reciprocating machines are often driven by compounded motors."
+[54] Characteristics of DC Motors — Series, Shunt and Compound — https://www.engineeringdevotion.com/electrical-machines/lecture/dc-motor-characteristics.html
+    "The series field changes the flux by 0.4 % per ampere of armature current."
+[55] Your motor sheet: the DC series motor — material:dc-series#p1
+    "A DC series motor is a type of direct current electric motor where the armature and field windings are connected in series, so the same current flows through both."
+[56] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "It is zero when the motor is first turned on, meaning that the coil receives the full driving voltage and the motor draws maximum current when it is on but not turning."
+[57] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "When a mechanical load is placed on the motor, like an electric wheelchair going up a hill, the motor slows, the back emf drops, more current flows, and more work can be done."
+[58] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "The motor thus acts as a generator whenever its coil rotates."
+[59] Part 8 – DC Motor Starters – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters
+    "At the moment a DC motor is started the armature is stationary therefore no counter EMF is being generated."
+[60] Part 8 – DC Motor Starters – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters
+    "In order to reduce this very high starting current, an external resistance must be placed in series with the armature during the starting period."
+[61] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "Starting currents often have to be limited to prevent electrical and mechanical damage."
+[62] 13.6 Electric Generators and Back Emf - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/13-6-electric-generators-and-back-emf
+    "The back emf is calculated based on the difference between the supplied voltage and the loss from the current through the resistance."
+[63] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "If we assume the machine is working in its linear region,"
+[64] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "This results in the developed torque being proportional to the square of the armature current."
+[65] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "Series motors develop very high starting torque because of the large starting current in motors."
+[66] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "Series motors are known for their exceptional ability to generate substantial torque when starting from a standstill."
+[67] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "If the motor load is lost, TD will get quite small, causing Ia to become small which, in turn, results in overspeeding the motor. Series motors must always be fitted with overspeed protection."
+[68] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "Speed continues to increase until the physical force of rotation damages the motor."
+[69] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "This type of DC motor is only used for direct coupling and other work where the load ( or part of the load ) is permanently coupled to the motor."
+[70] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "This will be seen from the speed-torque characteristic, which shows that on no load or light load the speed will be very high and therefore dangerous."
+[71] DC series motor caution - EDN — https://www.edn.com/dc-series-motor-caution
+    "It is stridently recommended that any mechanical load being driven by a DC series motor be coupled to that motor by a gear mechanism and never by a belt because a belt can break."
+[72] DC series motor caution - EDN — https://www.edn.com/dc-series-motor-caution
+    "A DC shunt motor or a DC compound motor can be safely operated without a mechanical load (separate discussions), but a DC series motor CANNOT be safely operated that way."
+[73] 23.6 Back Emf - College Physics for AP® Courses 2e | OpenStax — https://openstax.org/books/college-physics-ap-courses-2e/pages/23-6-back-emf
+    "On the other hand, if there is no mechanical load on the motor, it will increase its angular velocity until the back emf is nearly equal to the driving emf."
+[74] Your motor sheet: the DC series motor — material:dc-series#p1
+    "Crane hoists, elevators, and large excavators where a high starting torque is crucial."
+[75] Universal motor - Wikipedia — https://en.wikipedia.org/wiki/Series-wound_motor
+    "The universal motor is a type of electric motor that can operate on either AC or DC power and uses an electromagnet as its stator to create its magnetic field."
+[76] Part 8 – DC Motor Starters – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters
+    "For example, a 10-hp motor with an armature resistance of 0.4 ohms, if supplied by a 260 VDC source, would result in a current of 650 amps, which is approximately twelve times greater than its actual full-load current."
+[77] Part 8 – DC Motor Starters – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters
+    "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+[78] DC Motor Starting Methods | Electrical A2Z — https://electricala2z.com/dc-machines/dc-motor-starting-methods
+    "A general guide is to limit the maximum starting current to about two or three times full-load current."
+[79] Starters - Types, Necessity, Working Principle, Construction | DC Motors — https://ece.poriyaan.in/topic/starters-20029
+    "Without using starter, if the motor is started directly, the starting current is around 13 times of the full-load current."
+[80] Starters - Types, Necessity, Working Principle, Construction | DC Motors — https://ece.poriyaan.in/topic/starters-20029
+    "In order to start and accelerate the motor within a reasonable time, it may be enough to have 2 to 3 times the rated current as the starting current."
+[81] DC Generators and Motors — https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf
+    "Because the dc resistance of most motor armatures is low (0.05 to 0.5 ohm), and because the counter emf does not exist until the armature begins to turn"
+[82] DC Generators and Motors — https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf
+    "it is necessary to use an external starting resistance in series with the armature of a dc motor to keep the initial armature current to a safe value."
+[83] PowerPoint Presentation — https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf
+    "Hence, for series motor, the speed is inversely proportional to the armature current as shown in the speed-armature current curve."
+[84] PowerPoint Presentation — https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffcourses&url=45_24985_EE328_2016_1__2_1_Lecture3.pdf
+    "When armature current is very small the speed becomes dangerously high."
+[85] Characteristics of DC motors | electricaleasy.com — https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html
+    "As we know, flux is directly proportional to Ia, speed is inversely proportional to Ia."
+[86] Characteristics of DC motors | electricaleasy.com — https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html
+    "After magnetic saturation of the field poles, flux ɸ is independent of armature current Ia. Therefore, the torque varies proportionally to Ia only, T ∝ Ia."
+[87] 13 ELECTRIC MOTORS — https://ocw.mit.edu/courses/2-154-maneuvering-and-control-of-surface-and-underwater-vehicles-13-49-fall-2004/ce5eaf21d79aa48ece7b44d190952777_lec13.pdf
+    "The starting torque from this kind of motor is exceptionally high, and the series field winding finds wide application in railway locomotives."
+[88] High Starting performance separately excited DC motor — https://aast.edu/pheed/staffadminview/pdf_retreive.php?stafftype=staffpdf&url=24795_45_89_High%20Starting%20DC%20Motor.pdf
+    "Also the direction of speed cannot be reversed by reversing supply voltage because reversing armature voltage will reverse both field and armature current."
+[89] DC Generators and Motors — https://www.cedengineering.com/userfiles/E04-008%20-%20DC%20Generators%20and%20Motors%20-%20US.pdf
+    "If both are reversed, rotation will continue in the original direction."
+[90] 13.12: AC Commutator Motors — https://workforce.libretexts.org/@api/deki/pages/1477/pdf/13.12%253A%2bAC%2bCommutator%2bMotors.pdf
+    "If a DC series motor equipped with a laminated field is connected to AC, the lagging reactance of the field coil will considerably reduce the field current."
+[91] Starters - Types, Necessity, Working Principle, Construction | DC Motors — https://ece.poriyaan.in/topic/starters-20029
+    "A two-point starter is used for starting de motor which has the problem of over- speeding due to loss of load from its shaft."
+[92] Starters - Types, Necessity, Working Principle, Construction | DC Motors — https://ece.poriyaan.in/topic/starters-20029
+    "The hold-on electromagnet is connected in series with the armature circuit. If the motor losses its load, current decreases and hence the strength of the electromagnet also decreases."
+[93] Understanding DC Motor Starters: Types, Working, and Importance | electricaleasy.com — https://www.electricaleasy.com/2014/01/starting-methods-of-dc-motor.html
+    "The decrease in current activates the NLR coil, releasing the start arm and disconnecting the motor."
+[94] RTM Front Matter Template — https://wiki.pttlink.org/images/e/ef/NEETS_Module_5_-_Generators_and_Motors_%28Sep_2011%29.pdf
+    "In a series dc motor, the field is connected in series with the armature. The field is wound with a few turns of large wire, because it must carry full armature current."
+[95] RTM Front Matter Template — https://wiki.pttlink.org/images/e/ef/NEETS_Module_5_-_Generators_and_Motors_%28Sep_2011%29.pdf
+    "This makes it especially useful for operating equipment, such as winches, cranes, and missile launchers, which must move in different directions and at varying speeds."
+[96] Electrical Installations of the United States Navy (Continued) | Proceedings - 1907 Vol. 33/2/122 — https://www.usni.org/magazines/proceedings/1907/april/electrical-installations-united-states-navy-continued
+    "It is series-wound, good starting torque for this class of service being important."
+[97] Electrical Installations of the United States Navy (Continued) | Proceedings - 1907 Vol. 33/2/122 — https://www.usni.org/magazines/proceedings/1907/april/electrical-installations-united-states-navy-continued
+    "the series motor is most frequently used, it being usually considered that the electric and mechanical losses of the motor, including the load occasioned by the gears, is sufficient to guard against racing"
+[98] US20130062891A1 - ENGINE CRANKING MOTOR SOFT-START SYSTEM AND METHOD — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20130062891
+    "The high moment of inertia of the engine and its load cause motor current and torque to reach extreme levels before the motor reaches a speed where its counter-EMF acts to reduce the current and torque."
+[99] US20130062891A1 - ENGINE CRANKING MOTOR SOFT-START SYSTEM AND METHOD — https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/20130062891
+    "These locomotives use two 32 V series-wound cranking motors connected in series"
+[100] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. — https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2
+    "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+[101] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. — https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2
+    "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+[102] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. — https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2
+    "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+[103] TECHNICAL DATA SHEET — https://www.mersen.com/sites/default/files/files_imported/2017-ptt-tds-01-good-carbon-brush-mersen.pdf
+    "Regardless of the source, sparking is always a potential problem since it is a damaging form of the electrical energy"
+[104] Common Faults and Troubleshooting for DC Motors - Jiuying OWO Electric — https://owoelectric.com/common-faults-and-troubleshooting-for-dc-motors
+    "Power not connected · Motor leads shorted or grounded · Poor contact between brushes and commutator · Motor overload · Short circuit or open circuit in the field"
+[105] Universal motors | IEEE Technology Navigator — https://technav.ieee.org/topic/universal-motors/
+    "Universal motors are series-wound electric motors capable of operating on either alternating current (AC) or direct current (DC) supply at comparable speeds and torque levels."
+[106] Universal motors | IEEE Technology Navigator — https://technav.ieee.org/topic/universal-motors/
+    "Portable power tools such as drills, circular saws, and angle grinders"
+[107] Your motor sheet: the DC shunt motor — material:dc-shunt#p1
+    "If the motor load increases, the speed initially drops, which in turn reduces the back electromotive force (EMF) generated by the armature."
+[108] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "Its speed is nearly constant, falling off as the load increases due to resistance drop and armature reaction."
+[109] Your motor sheet: the DC shunt motor — material:dc-shunt#p1
+    "This allows more current to flow to the armature, increasing the motor's torque and causing it to speed back up to compensate for the load."
+[110] 18 NO. EXPERIMENT — https://engr.siu.edu/staff/spezia/Web332A/Labs/Lab%206.pdf
+    "It is computed by dividing the change in speed by the full load speed."
+[111] Your motor sheet: the DC shunt motor — material:dc-shunt#p1
+    "The motor's speed changes only slightly between no-load and full-load conditions, typically varying by 10–20%."
+[112] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "Speed control obtained in this way is extremely stable and the speed regulation between no load and full load at any particular setting is from 7 to 10%, depending on the size and design of the equipment."
+[113] What is the Difference between DC Series, DC Shunt, and DC Compound Motors? | CircuitBread — https://www.circuitbread.com/ee-faq/difference-between-dcseries-dcshunt-and-dccompound-motors
+    "The I a R a drop even at full loads is about 5%."
+[114] What is the Difference between DC Series, DC Shunt, and DC Compound Motors? | CircuitBread — https://www.circuitbread.com/ee-faq/difference-between-dcseries-dcshunt-and-dccompound-motors
+    "In other words, speed is greater when there is lower field flux."
+[115] ELECTRICAL SYSTEMS AND SAFETY OVERSIGHT QUALIFICATION STANDARD REFERENCE GUIDE — https://www.energy.gov/sites/default/files/2013/10/f4/QSR-ElectricalSafetySystems.pdf
+    "If the field flux of a DC motor is decreased, the motor speed will increase."
+[116] Your motor sheet: the DC shunt motor — material:dc-shunt#p2
+    "Placing a variable resistance (rheostat) in series with the field winding changes the field current and, thus, the speed. This method can achieve speeds above the motor's normal rated speed."
+[117] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "The most common and preferred method is placing a rheostat in series with the field winding rather than using an armature rheostat."
+[118] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "Speed regulation on shunt and compound-wound motors is obtained by resistance in series with the shunt-field winding only."
+[119] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "it is most important to see that the shunt rheostat ( for speed control ) is in the slow-speed position."
+[120] Lesson 15: Dc Motor Control Components and Diagrams — https://www.engr.siu.edu/staff2/spezia/Web332A/Lecture%20Notes/Lesson%2015%20332ac.pdf
+    "Note: that the field rheostat is shorted out by contact FA while the motor is starting. Motor will accelerate to running speed with full field current applied."
+[121] Your motor sheet: the DC shunt motor — material:dc-shunt#p2
+    "Compared to series DC motors, shunt motors produce lower starting torque."
+[122] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "Shunt motors do not have good starting torque because the shunt field overrides the series field."
+[123] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "The starting torque is as high as in the series motor."
+[124] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "However, the shunt, or separately-excited, motor has a safe no-load speed, providing that the field circuit is not de-energized."
+[125] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "Loss-of-field protection is usually provided to guard against overspeeding."
+[126] Your motor sheet: the DC shunt motor — material:dc-shunt#p3
+    "If the field winding fails, the motor's speed can become uncontrollable, potentially leading to a runaway condition."
+[127] Your motor sheet: the DC shunt motor — material:dc-shunt#p2
+    "Requires regular maintenance for the brushes and commutator, which can wear down over time."
+[128] Your motor sheet: the DC shunt motor — material:dc-shunt#p3
+    "DC shunt motors are well-suited for applications that require constant speed and moderate starting torque."
+[129] SHUNT FIELD DC MOTOR — https://www.idc-online.com/technical_references/pdfs/electronic_engineering/Shunt_Field_Dc_Motor.pdf
+    "The governing equations for steady-state operation of the DC motor are as follows: Vt = I a Ra + Ea It = Ia + I f Ea = K a φ ω = Φ(P/A)Z(N/60) Ea = Vt − I a Ra where K a is the machine constant."
+[130] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "In DC motors, the back EMF, denoted Ea, is proportional to the flux, times the shaft speed."
+[131] Electrical Tech Note 318: DC motors — https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf
+    "If the load increases, the I × R drop will increase and less induced voltage is needed, therefore, the rotor will slow down."
+[132] Electrical Tech Note 318: DC motors — https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf
+    "As the torque requirement increases, the motor will slow down and current will increase."
+[133] DC Motors.pdf — https://web.uettaxila.edu.pk/CMS/SP2013/ectEMbs/notes/DC%20Motors.pdf
+    "Hence torque in a d.c. motor is directly proportional to flux per pole and armature current. (i) For a shunt motor, flux φ is practically constant."
+[134] Section I General Standards Applying to All Machines Part ... — https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf
+    "A constant-speed motor is one in which the speed of normal operation is constant or practically constant; for example, a synchronous motor, an induction motor with small slip, or a dc shunt-wound motor."
+[135] DC Motors: Advantages, Types, and Common Hazards Explained — https://resources.galco.com/motion-control/dc-motors
+    "In either case, this type of motor has good speed regulation (5% to 10%) and is capable of delivering 300 percent of its full load torque for a very short period of time."
+[136] Basic Maintenance and Testing of DC Electric Motors — https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf
+    "This design provides approximately 250% starting torque, 5-10% speed regulation and the windings are separately powered and provide speed control by up to 200% with field weakening control and decrease speed by reducing armature voltage."
+[137] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "The speed of the driving motor is controlled by varying the voltage applied to the armature, by means of the rheostat in the shunt winding circuit of the generator."
+[138] [PDF] 25-1 DC motors DC motors are important in many applications. In ... — https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_25.pdf
+    "A DC shunt motor is rated at 600V, 255hp, 2000rpm. It has an armature resistance of 0.07Ω and a total field resistance of 80Ω. It draws a current of 353A from the supply when delivering rated load."
+[139] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "The standard DC motor has a separately excited straight shunt field which may have a rising speed characteristic."
+[140] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "This adder provides a stabilizing winding that will ensure a drooping speed characteristic."
+[141] Section I General Standards Applying to All Machines Part ... — https://www.nema.org/docs/default-source/standards-document-library/mg-1-part-1-watermark.pdf
+    "A stabilized shunt-wound motor is a direct-current motor ... which also has a light series winding added to prevent a rise in speed or to obtain a slight reduction in speed with increase in load."
+[142] Basic Maintenance and Testing of DC Electric Motors — https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf
+    "The Shunt Machine, as shown in Figure 3, is a more common machine meant for speed control and tends to be applied in pumps, fans, blowers, conveyors, machine tools, printing and similar applications."
+[143] DC motors | IEEE Technology Navigator — https://technav.ieee.org/topic/dc-motors
+    "Shunt motors wire the field and armature in parallel, yielding a nearly constant field flux and a flat speed-torque curve that suits machine tools, pumps, and blowers where speed must remain close to the set point across load changes."
+[144] Electrical Tech Note 318: DC motors — https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf
+    "A disadvantage of this type of motor is that it has low starting torque."
+[145] Lesson 12 Shunt Connected Dc motors — https://www.engr.siu.edu/staff/spezia/Web332A/Lecture%20Notes/Lesson%2012%20332ac.pdf
+    "Shunt motor gives almost constant speed for over wide range of mechanical load torques."
+[146] Basic Maintenance and Testing of DC Electric Motors — https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf
+    "The result of the connection of the armature circuit to the series circuit is a machine that can provide a very high starting torque of up to 500%."
+[147] M4000-FXM5 Field Controller installation manual — https://www.kollmorgen.com/sites/default/files/public_downloads/M4000-FXM5-Field-Controller_Installation_en-US_RevD.pdf
+    "In this configuration, the armature voltage Va is increased to a maximum with a fixed field current I f to provide constant torque up to base speed."
+[148] M4000-FXM5 Field Controller installation manual — https://www.kollmorgen.com/sites/default/files/public_downloads/M4000-FXM5-Field-Controller_Installation_en-US_RevD.pdf
+    "Further increase of speed results in the field being weakened, providing constant power output."
+[149] DC Motors: Advantages, Types, and Common Hazards Explained — https://resources.galco.com/motion-control/dc-motors
+    "Armature voltage control is used for speeds below base speed, resulting in a constant torque capacity. Shunt field control is used to obtain speeds above base speeds resulting in a constant horsepower capacity."
+[150] DC Motors: Advantages, Types, and Common Hazards Explained — https://resources.galco.com/motion-control/dc-motors
+    "For example, a motor with a base speed of 1750 RPM and armature voltage of 500 VDC will run at 875 RPM with a 50% reduction in armature voltage (to 250 VDC)."
+[151] DC Motors: Advantages, Types, and Common Hazards Explained — https://resources.galco.com/motion-control/dc-motors
+    "Increasing the field voltage to obtain a speed below base speed cannot be used, as the field will overheat at higher than rated current."
+[152] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "This is because the field current is lower than the armature current, resulting in reduced power loss across the rheostat and making more current available for motor operation."
+[153] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "Stock 180 volt armature motors have straight shunt winding, i.e., no series field, for motors having a field weakened speed not greater than 105% base speed."
+[154] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "Motor speed under any condition must not exceed maximum safe speed on nameplate."
+[155] — Baldor-Reliance® Integral horsepower DC motors — https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331
+    "Inherent speed regulation may cause high speed field weakened motors to exceed safe speeds at light loads."
+[156] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "Many starters have the speed regulator interlocked with the starting handle so that the motor cannot be started with a weak field."
+[157] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "The starting handle is held in position by the no-volt coil, marked NV , which automatically allows the starter to return to the off position if the supply fails."
+[158] Classes, Speed Control and Starting of DC motors — https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Classes_Speed_Control_and_Starting_of_Dc_motors.pdf
+    "Overload protection is obtained by means of the overload coil, marked OL , which on overload short-circuits the no-volt coil by means of the contacts marked a and b ."
+[159] Speed Control of D.C. Motors — https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf
+    "In a three-point starter, the no-volt release coil is connected in series with the shunt field circuit so that it carries the shunt field current."
+[160] Speed Control of D.C. Motors — https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf
+    "It may be noted that the three- point starter also provides protection against an open- field circuit."
+[161] Speed Control of D.C. Motors — https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf
+    "While exercising speed control through field regulator, the field current may be weakened to such an extent that the no-volt release coil may not be able to keep the starter arm in the ON position."
+[162] Speed Control of D.C. Motors — https://engineering.uodiyala.edu.iq/uploads/depts/power/teacher%20lectures/Speed+Control+of+DC+motors.pdf
+    "In a four-point starter, the no-volt release coil is connected directly across the supply line through a protective resistance R."
+[163] Electrical Tech Note 318: DC motors — https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf
+    "Complete loss of the dc supply to the field will result in a significant increase in armature speed if there is little or no load on the motor."
+[164] DS 5-17 Motors and Adjustable Speed Drives (Data Sheet) — https://www.fm.com/FMAApi/data/ApprovalStandardsDownload?isGated=false&itemId=%7BA23ED704-D145-41A8-A17B-0E5FEEF38627%7D
+    "An electrical device that senses loss of field to prevent over speed in shunt-wound DC motors."
+[165] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "When the field winding is disconnected in a shunt motor, it tends to keep running instead of coming to a stop."
+[166] Part 7 – DC Motors – PEG-3722 Electrotechnology — https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/
+    "This happens due to the lingering magnetic field in the pole pieces, which results from residual magnetism."
+[167] Electrical Tech Note 318: DC motors — https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf
+    "A change in armature rotation direction is obtained by reversing the leads of the armature with respect to the leads of the field."
+[168] Electrical Tech Note 318: DC motors — https://www.maec.msu.edu/application/files/2316/4555/7426/Tech_Note_318_DC_Motors.pdf
+    "Lowering the current through the field winding will decrease the field flux."
+[169] Basic Maintenance and Testing of DC Electric Motors — https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf
+    "Unlike the AC induction motor, the DC electric motor has a number of moving and wear parts that are in contact with each other."
+[170] Basic Maintenance and Testing of DC Electric Motors — https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf
+    "In particular, one of the most common areas for carbon brush dust to collect is between the commutator and motor shaft with the next most common area being in the armature winding itself."
+[171] Basic Maintenance and Testing of DC Electric Motors — https://www.motordoc.org/wp-content/uploads/2019/01/Basic-Maintenance-and-Testing-of-DC-Electric-Motors-1.pdf
+    "The very basic steps include: Insulation resistance; Circuit resistance; and, Blowing out the motor."
+[172] Brushes, Sparking and Machine Maintenance — https://www.helwigcarbon.com/wp-content/uploads/2018/07/ta1_96_2013-brushes_sprkng_mach-maint-single-pages.pdf
+    "Defective armature windings: Any defect in the windings may show up as sparking at the brushes."
+[173] INSPECT, TEST AND RECONDITION DC PROPULSION GENERATORS & MOTORS IN-PLACE — https://www.dcms.uscg.mil/Portals/10/CG-4/documents/SFLC/StandardSpec2020/SFLC-Std-Spec-2350-(2020).pdf
+    "the commutator for signs of surface roughness, loose bars, uneven bar height, mica degradation, and"
+[174] IEEE SA - IEEE 43-2013 — https://standards.ieee.org/ieee/43/4791/
+    "This document describes a procedure for measuring insulation resistance of armature and field windings in rotating machines rated 750 W or greater. It applies to synchronous machines, induction machines, dc machines, and synchronous condensers."
+[175] — DC motors and controls — https://www.baldor.com/~/media/download%20center/literature/catalog/ca501_2022/section%2016%20dc%20motors.ashx
+    "Motors suitable for IEEE 45 shipboard applications"
+[176] DC Shunt Wound | ABB UK — https://www.abb.com/gb/en/areas/motion/motors-generators/low-voltage-motors/dc-motors/dc-shunt-wound
+    "Shunt-wound motors pair extremely well with SCR drives, which provide smooth low-speed performance, tighter control, long-proven industrial pairing."
+[177] ABB drives - Technical guide No. 4, Guide to variable speed drives — https://library.e.abb.com/public/5212850908d44d979d34b61b703feeaa/ABB_Technical_guide_No_4_REVC.pdf
+    "The market share of DC drives is diminishing, and the total DC market size remains approximately constant."
+[178] ABB drives - Technical guide No. 4, Guide to variable speed drives — https://library.e.abb.com/public/5212850908d44d979d34b61b703feeaa/ABB_Technical_guide_No_4_REVC.pdf
+    "These brushes need regular maintenance and the commutator itself complicates the motor structure and consumes energy."
+[179] Electrical Induction Motors - Synchronous Speed — https://www.engineeringtoolbox.com/synchronous-motor-frequency-speed-d_649.html
+    "The speed of an induction motor is therefore limited to a speed below synchronous speed and the difference between synchronous speed and actual speed is called slip ."
+[180] Electric motor - Synchronous, Rotating Fields, AC Motors | Britannica — https://www.britannica.com/technology/electric-motor/Synchronous-motors
+    "The effect of the stator current is to establish a magnetic field rotating at 120 f / p revolutions per minute for a frequency of f hertz and for p poles."
+[181] Your motor sheet: the DC series motor — material:dc-series#p1
+    "A key characteristic is its poor speed regulation; the motor's speed varies significantly with load and can increase to dangerous levels if the motor runs without a load."
+A source whose address begins "material:" is a page of Dan's own course materials (his slides, formula sheet, pack, guide or drawings; "#p16" is the page): cite it like any source, and in the text call it by what it is ("your course slides, p.16"), never a web page.
+
+Research notes (claims, and the sources that support them):
+- A compound motor has both a series and a shunt field winding. [1]
+- In a cumulative compound motor the series and shunt fields work together, with fluxes in the same direction; in a differential one they oppose. [2][3][4]
+- A shunt coil added to a series motor limits the top speed at light load, and a cumulative compound motor has a definite no-load speed and can run safely with no load. [5][6][7]
+- A cumulative compound motor has more starting torque than a shunt motor and steadier speed than a series motor, but not as steady as a shunt motor. [8][9][10]
+- A differential compound motor is rarely used because it can run unstably when the load changes; because the series flux opposes the shunt flux, flux falls with load and the speed can rise with load. [4][11][12][13]
+- A long-shunt connection puts the shunt winding across the supply with the series winding between it and the armature; a short-shunt connection puts the shunt winding across the armature only. [14][15]
+- Compound motors suit presses, shears, crushers and reciprocating compressors. [16]
+- NEMA defines a compound-wound motor as a direct-current motor with two separate field windings: one, usually the predominating field, connected as in a straight shunt-wound motor, and the other connected in series with the armature circuit. [17]
+- Percent compounding is the share of the total field ampere-turns at full load that the series field contributes (NEMA). A stabilised-shunt motor takes about 3 to 10 percent from its series winding; one trade source says a typical industrial compound motor takes about 50 percent. [18][19][20][21]
+- CONTESTED share: computed from the lesson's flux rule, a 50 percent series share would double the no-load speed, far outside the 15 to 30 percent speed regulation makers quote. The lesson uses a labelled example share (i8.examples.json) and does not teach 50 percent as a fact. [22][23]
+- Flux rule for the picture: in a cumulative compound motor the series winding adds flux as the load current rises, so flux = shunt part + series part x armature current; in a differential one the series part is taken away (net flux falls with load). Speed follows applied voltage minus the armature-c… [24][25]
+- Cumulative: the series part supplies a large torque when the motor is started under a heavy load and the shunt part gives the constant-speed advantage of a shunt motor (US Navy training text). A compound motor has more torque than a shunt motor because of the series field, with a fairly constant sp… [26][27][28][29][30]
+- Speed regulation of a cumulative compound motor is poorer than a shunt motor's: a load makes the speed fall further because the flux grows with load (PEG-3722; Engineers Edge says 'less speed regulation'). NEMA defines speed regulation as no-load minus rated-load speed, in percent of rated-load spe… [31][32][9][33]
+- Makers' figures for a standard compound motor's speed regulation: about 30 percent (Baldor-Reliance, quoting NEMA MG1 12.65.2) and 15 to 25 percent (another Baldor-Reliance frame range). CONTESTED against his sheet, which says 'good speed regulation (like a shunt motor)': teach it as better than a … [22][23]
+- A compound motor is not suited to speed control by weakening its shunt field, because of the very high no-load speeds that can result (Baldor-Reliance). Its shunt part gives it a definite no-load speed and keeps it from running uncontrollably when the load goes (PEG-3722, existing sources 165 and 1… [34][35][5][7]
+- Differential compound: the series field opposes the shunt field, so the net flux falls with load and the speed rises as the load increases, which may lead to instability. A heavy enough load can take the flux to zero so the machine stalls or reverses. It is rarely used (his sheet, existing source 1… [36][25][37][4][11][12]
+- CONTESTED detail: PEG-3722 and Engineers Edge describe a differential motor as running at a constant speed with better regulation than a shunt motor. Both follow flux = shunt part - series part x current: a small series part only cancels the usual speed droop (flat), a large one makes the speed ris… [38][39]
+- Reversing the series field alone (or the shunt field alone) turns cumulative into differential; reversing both fields together does not change whether they aid or oppose. To reverse the direction of rotation of a compound motor, reverse the armature leads, or reverse both fields. A maker winds a mo… [40][41][42]
+- Fault to find after a repair or rebuild: a speed that climbs as armature current climbs points to a hidden differential series winding (a rebuild can reverse an internal series field), reversed interpole polarity or brushes off neutral. Check against the maker's connection diagram. [43][44]
+- Safety and weight of evidence: do not find out the polarity by running the motor unloaded at normal voltage, because weak or opposing flux can allow excessive speed. One trade note adds that under high starting current a differentially connected series winding can overpower the shunt field and driv… [45][46]
+- Why a flywheel goes with a compound motor on a press or shear: the machine takes its working energy during the work stroke from the flywheel and the motor then brings the flywheel back to rated speed; flywheel kinetic energy is proportional to the square of its speed (Yaskawa; a university thesis s… [47][48][49][50]
+- A compound motor is generally used with a flywheel where sudden, temporary loads come on, as in rolling mills: the series winding takes the heavy load and the shunt winding stops dangerous speed when the load is suddenly removed. NO SOURCE says the speed droop is what lets the flywheel give up its … [51][52]
+- Uses: presses, shears and reciprocating machines are often driven by compounded motors (DOE Fundamentals Handbook; his sheet, existing source 201); a compound motor suits a reciprocating press or shear where a relatively consistent speed is wanted with irregular loads. [53][16]
+- Long and short shunt (existing sources 199, 200): the lesson's drawing of his sheet is long shunt (shunt winding across the supply, series winding between it and the armature). Source gap: no source states the short-shunt current rule in quotable words, so the picture uses long shunt only. [14][15]
+- Marine and naval line: the only support found is a US Navy training text (NEETS) describing the compound motor as one shunt winding in parallel with the armature and one series winding in series with it, with the speed and torque characteristics a combination of series and shunt motors. NO source w… [26][27]
+- Example-set note: one worked tutorial uses a flux that changes by 0.4 percent for each ampere of armature current (240 V, 0.20 ohm). That is an example value, not a maker's; the lesson uses its own labelled per-unit set (i8.examples.json). [54]
+- In a series motor the same current flows through field and armature. [55]  (from an idea this one builds on)
+- A turning armature makes a back emf opposing the supply; it is zero at standstill, so a motor not yet turning draws maximum current, and a load that slows it drops the back emf and raises the current. [56][57][58][59]  (from an idea this one builds on)
+- The armature current is limited at start by armature resistance alone, so an external starting resistance is placed in series with the armature. [59][60][61]  (from an idea this one builds on)
+- The motor's back emf is the supply voltage less the voltage lost in the resistance. [62]  (from an idea this one builds on)
+- In its linear (unsaturated) region a series motor's torque goes with the square of the armature current, so it has very high starting torque. [63][64][65][66]  (from an idea this one builds on)
+- Remove the load and the current falls, the field weakens, and the speed rises towards destruction: series motors must have overspeed protection and be coupled directly, never belt driven. [67][68][69][70][71]  (from an idea this one builds on)
+- A shunt or compound motor can be run safely with no load but a series motor cannot. [72][73]  (from an idea this one builds on)
+- A series motor suits crane hoists, elevators and large excavators, where a high starting torque is crucial. [74]  (from an idea this one builds on)
+- A universal motor can operate on either AC or DC power and uses an electromagnet as its stator. [75]  (from an idea this one builds on)
+- Starting current is supply voltage over armature resistance. Worked case: a 10 hp motor, 0.4 ohm armature, 260 V would draw 650 A, about twelve times full load; a 0.5 ohm, 220 V, 7.5 kW motor draws 440 A against 34 A. Guides for the limit differ (125 to 200 percent, or two to three times full-load … [76][77][78][79][80]  (from an idea this one builds on)
+- Armature resistance is low (0.05 to 0.5 ohm for most motor armatures), and counter emf does not exist until the armature turns, so an external starting resistance goes in series with the armature to keep the first current safe. [81][82]  (from an idea this one builds on)
+- Series motor laws: below saturation flux follows current, so speed goes with 1 over current (very small current gives dangerous speed). After saturation flux is fixed and torque goes only with current, so the square law holds only below saturation. Starting torque is exceptionally high; railway loc… [83][84][85][86][87]  (from an idea this one builds on)
+- Reversing: reverse the armature or the field connections, not both. Reversing the supply reverses both, so direction is unchanged. [88][89]  (from an idea this one builds on)
+- On AC, a plain DC series motor with a laminated field has its field current cut by the field coil reactance, so it runs poorly; small universal motors are built for either supply. [90]  (from an idea this one builds on)
+- The series-motor starter is a two-point starter with a no-load release (hold-on) coil in series with the armature: if the load is lost the current falls, the coil lets go and the arm springs back to OFF, preventing overspeed. It also drops out on voltage loss. [91][92][93]  (from an idea this one builds on)
+- Naval and marine, dated: US Navy training text says dc motors suit winches, cranes and missile launchers; its series field is a few turns of large wire carrying full armature current. A 1907 US Navy text uses series motors for boat cranes and winches and says gear and motor losses were thought enou… [94][95][96][97]  (from an idea this one builds on)
+- Engine cranking: diesel locomotives crank with two 32 V series-wound motors in series from a 64 V battery; engine inertia lets current and torque reach extreme levels before counter emf builds (locomotive, not marine). [98][99]  (from an idea this one builds on)
+- Faults and tests (isolate and prove dead first): brush and commutator wear causes sparking; megger windings to frame; measure armature and field winding resistance (open circuits, shorted turns); no start can come from an open field, grounded leads or poor brush contact. [100][101][102][103][104]  (from an idea this one builds on)
+- Universal motors are series-wound motors that run on AC or DC; portable power tools such as angle grinders use them (for i6: the grinder as a series motor Dan has used). [105][106]  (from an idea this one builds on)
+- In a shunt motor the field is across the supply, so its current and flux stay steady. [107][5]  (from an idea this one builds on)
+- A heavier load slows the motor, which lowers the back emf, lets more armature current flow and raises the torque; the speed settles a little lower than before. [57][107][108]  (from an idea this one builds on)
+- His sheet says the extra current makes the motor 'speed back up to compensate'; the fuller sources say the speed falls off as the load increases. [108][109]  [CONTESTED: Dan's sheet says a loaded shunt motor speeds back up to compensate; textbooks say its speed is nearly constant but falls off as load increases.]  (from an idea this one builds on)
+- Speed regulation is the change in speed from no load to full load divided by the full-load speed; sources differ: his sheet 10 to 20%, IDC 7 to 10%, one site puts the armature drop at about 5%. [110][111][112][113]  [CONTESTED: Sources differ on how far a shunt motor's speed falls between no load and full load: 10-20% (his sheet), 7-10% (IDC), about 5% (a circuits site).]  (from an idea this one builds on)
+- Weakening the field raises the speed: a rheostat in series with the shunt field gives speeds above rated, and is the usual method. [114][115][116][117][118]  (from an idea this one builds on)
+- Start a shunt motor with the field rheostat in the slow-speed position, so the field current is at its maximum: starting torque goes with field current. [119][120]  (from an idea this one builds on)
+- Lower starting torque than a series motor: his sheet and a text say so, while Rose-Hulman says the starting torque is as high as in the series motor. [121][122][123]  [CONTESTED: Whether a shunt motor's starting torque is lower than a series motor's: his sheet and PEG-3722 say lower; Rose-Hulman says as high.]  (from an idea this one builds on)
+- A shunt motor has a safe no-load speed as long as the field is not de-energised; if the field fails the speed can run away, so loss-of-field protection is usual. [124][125][126]  (from an idea this one builds on)
+- Brushes and commutator need regular maintenance. [127]  (from an idea this one builds on)
+- Shunt motors suit constant-speed work such as machine tools and pumps. [128]  (from an idea this one builds on)
+- The supply voltage is shared between the back emf and the drop across the armature: V = Eb + Ia Ra, so Ia = (V - Eb) / Ra; the field current is a separate branch (It = Ia + If). Back emf is proportional to flux times speed. [129][130]  (from an idea this one builds on)
+- Why the armature current follows the load: put the load on and the armature slows; the I x R drop takes a bigger share of the supply, so less back emf is needed, and the armature current and torque climb until they match the load. [131][132][57]  (from an idea this one builds on)
+- Torque is proportional to flux times armature current; in a shunt motor the flux is practically constant, so torque is proportional to Ia. Speed is proportional to the supply voltage over the field flux. [133][130][115]  (from an idea this one builds on)
+- Speed regulation is defined by the standard as the no-load speed minus the rated-load speed, as a percent of rated-load speed, and a dc shunt-wound motor is named as an example of a constant-speed motor. [33][134]  (from an idea this one builds on)
+- How far a shunt motor's speed falls from no load to full load: two industry guides give 5 to 10%, his sheet gives 10 to 20%, and the armature drop alone gives about 4 to 5% (the lesson computes about 4% from the cited Rose-Hulman example). The IDC '7 to 10%' figure sits under IDC's Ward-Leonard hea… [135][136][33][137][111][113][112]  [CONTESTED: How far a shunt motor's speed falls from no load to full load: his sheet says 10-20%; two industry guides say 5-10%; the armature drop alone gives about 4-5%. IDC's 7-10% belongs to Ward-Leonard control, not to a plain shunt motor.]  (from an idea this one builds on)
+- A cited worked example the lesson can use for its numbers: a DC shunt motor rated 600 V, 255 hp, 2000 rpm, armature resistance 0.07 ohm, total field resistance 80 ohm, drawing 353 A at rated load. The lesson computes the rest from these: field current 7.5 A, armature current 345.5 A, back emf 575.8… [138]  (from an idea this one builds on)
+- Whether the speed falls or rises as load goes on: the resistance drop gives a slight fall, and textbooks say so; but armature reaction weakens the flux and can make a plain 'straight shunt' motor's speed rise with load, so makers add a light series winding (stabilised shunt) to make the speed droop… [139][140][141][108][109]  [CONTESTED: Does a loaded shunt motor's speed fall or rise? The usual rule is a slight fall; a plain straight shunt motor can rise because of armature reaction (so makers add a stabilising series winding); his sheet says it speeds back up to compensate.]  (from an idea this one builds on)
+- Shunt motors suit work where the speed must stay near the set point as the load changes: pumps, fans, blowers, conveyors, machine tools and printing. The drawback noted is low starting torque. [142][143][144][145]  (from an idea this one builds on)
+- Starting torque: a maker-neutral guide gives about 250% for a shunt machine against up to 500% for a series machine, and another says a shunt motor can deliver 300% of full-load torque for a very short time. This supports his sheet (lower than a series motor) and not Rose-Hulman's 'as high as in th… [136][146][135][144][121][123]  [CONTESTED: Whether a shunt motor's starting torque is lower than a series motor's: his sheet, PEG-3722, MSU and Motordoc (about 250% against up to 500%) say lower; Rose-Hulman says as high.]  (from an idea this one builds on)
+- Speed control in two ranges: below base speed lower the armature voltage (constant torque), above base speed weaken the field (constant power). A motor with 1750 rpm base speed on 500 V runs at 875 rpm on 250 V. Making the field stronger than rated to go slower is not allowed because the field over… [147][148][149][150][151]  (from an idea this one builds on)
+- The field rheostat is the preferred way to adjust speed because the field current is much smaller than the armature current, so less power is lost in the rheostat; a rheostat in the armature circuit wastes more power and only lowers the speed. [152][117][116]  (from an idea this one builds on)
+- Limits of field weakening: a maker winds its stock 180 V motors as plain straight shunt only for a field-weakened speed up to 105% of base speed, always keeps the speed within the maximum safe speed on the nameplate, and warns that a field-weakened motor can exceed safe speed at light load. [153][154][155]  (from an idea this one builds on)
+- Starting: with no back emf at standstill only the armature resistance limits the current (a 10 hp, 0.4 ohm armature on 260 V would take 650 A, about twelve times full load); starting resistors limit it to 125 to 200 percent of full-load current. Start with the field rheostat at the slow-speed posit… [76][77][156][59][60][119][120]  (from an idea this one builds on)
+- The faceplate starter: the handle is held by the no-volt coil and springs back to off if the supply fails; the overload coil short-circuits the no-volt coil on overload, so the handle is released. [157][158]  (from an idea this one builds on)
+- Three-point and four-point starters: in a three-point starter the no-volt coil is in series with the shunt field, so it also protects against an open field; but weakening the field for speed can let the coil drop out. In a four-point starter the coil is across the supply, which frees the speed cont… [159][160][161][162]  (from an idea this one builds on)
+- Field failure: with little or no load, losing the field supply makes the speed rise a great deal (a runaway) and damages the motor; a loss-of-field relay (device 40) is the protection named for shunt-wound DC motors, and Rose-Hulman says loss-of-field protection is usual. [163][164][124][125][126]  [CONTESTED: What an open field does: with little or no load the speed runs away (MSU, Rose-Hulman, his sheet); PEG-3722 says the motor tends to keep running on residual magnetism. Both follow speed = back emf / flux: how fast depends on the load and the residual flux.]  (from an idea this one builds on)
+- Residual magnetism in the poles keeps a weak field after the field winding is disconnected, and the armature keeps drawing current from the supply. [165][166]  (from an idea this one builds on)
+- Reversing: swap either the armature leads or the field leads (not both); reversing both leaves the direction unchanged. [167][89]  (from an idea this one builds on)
+- Lowering the field current weakens the flux, and the rotor speeds up to make the back emf the circuit needs. [168][114][115]  (from an idea this one builds on)
+- Faults and tests (isolate and prove dead first): brushes and commutator are wear parts and dust collects inside; the basic checks are insulation resistance and circuit (winding) resistance; sparking at the brushes can come from the armature winding; a commutator is inspected for roughness, loose ba… [169][170][171][172][173][174][127][100][101][102][103][104]  (from an idea this one builds on)
+- Marine and drive context: a maker lists DC motors suitable for IEEE 45 shipboard applications; a US Coast Guard specification covers DC propulsion generators and motors; shunt-wound motors pair well with SCR drives; AC drives have reduced DC machines in new large installations. [175][173][176]  (from an idea this one builds on)
+- For i7 (where it is used): AC drives have taken market share from DC drives, mainly because a DC motor's brushes need regular maintenance and its commutator complicates the motor and consumes energy; a link back to lesson 3, the VSD. [177][178]  (from an idea this one builds on)
+- The synchronous speed of the turning field is 120 f / p rpm for f hertz and p poles; an induction motor's shaft runs a little slower than it. [179][180]  (whole topic)
+- In a series motor the same current flows through field and armature, and its speed can climb to dangerous levels if it runs without a load. [55][181]  (whole topic)
+- A motor that is turning also acts as a generator; the emf it makes is called back emf and it opposes the supply. [56][58]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a concept idea: a sorter: he picks how to group a fair set of cases (a named choice) and watches them regroup; or he moves one case across a real boundary and sees its label change.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- Also: just before the takeaway, one sentence on the part this idea plays in answering the course's puzzle.
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i8",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

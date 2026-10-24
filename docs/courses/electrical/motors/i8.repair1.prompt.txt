@@ -1,0 +1,424 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Electric motors: what you need on each one
+Idea: The DC compound motor (A series and a shunt field together give high starting torque yet a limited no-load speed, as long as the series field aids the shunt.)
+Kind: concept
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the flux running light fall and the no-load speed climb towards a series motor's, while the flux and torque at heavy current rise, when you slide the series share up.
+Title (the app shows it above the frame, so do not repeat it): Slide between shunt and series
+The rule (the app shows it just above the frame, under "What you're looking at"): Eight screens, with Back and Continue. One picture to play with, two quick choices and a card to keep. No marks and no timers.
+
+Assume one motor on every screen, worked in per unit: 1.00 is its rated voltage, armature current, flux, speed and torque. Its armature circuit is the armature plus the series field. It drops 5% of the supply at rated current. Running light, it draws 0.05 of rated current. That is just enough to turn its own friction. Both are examples, not a maker's. Every other figure is worked from these, or is a labelled example.
+
+Screen 1, How it works. A still drawing of a long-shunt compound motor. A DC supply. Across it, the shunt field winding, many turns of thin wire, labelled "shunt field". Beside it, one branch with the series field, a few turns of thick wire, then the armature between its brushes, labelled "series field" and "armature". The line current splits into a small shunt field current and the armature current, which runs through the series field. An arrow on each field winding points the same way, labelled "fields aid: cumulative". The words beside it: "A compound motor has two field windings on the same poles. The shunt field sits across the supply. The series field is a few thick turns in line with the armature. When the two fields aid each other, it is cumulative compound. That is the usual kind. The series part of the flux grows with the load current. The shunt part stays steady. This drawing is long shunt. In short shunt, the shunt field sits across the armature only." Cumulative compound is the key term, marked in amber.
+
+Screen 2, Between shunt and series: the picture to play with. At the top, screen 1's circuit redrawn small. The series field's arrow flips when the switch is set to Differential. Beside it, two bars on a scale of 0 to 2.00 with a tick at 1.00, rated: "Flux running light" and "Flux at 2.00 × rated current". Below, a plot of speed, 0 to 2.00 per unit, against armature current, 0 to 2.00 per unit, with a dashed line at 1.00 labelled "rated". Three lines, all passing through 1.00, 1.00. A thin line labelled "shunt, 0%". A thin line labelled "series, 100%", which runs off the top at the left, labelled "runs away". A thick line labelled "compound" with the slider's share, drawn in full. A band above 1.25 is shaded red and labelled "example limit, not a maker's". Dots on the compound line at 0.05, running light, and at 2.00. Then one row of three readouts: No-load speed, per unit. Speed regulation, %. Torque at 2.00 × rated current, per unit. The no-load speed turns red above 1.25. Above 2.00 it reads "over 2.00". At 100% it reads "Runs away". A negative speed regulation turns red, labelled "speed rises with load". The compound line turns red too. On a phone these sit one under another. On a laptop the plot sits beside the circuit.
+
+The controls. Series share: a slider from 0 to 100% of the full-load field, in steps of 5. It starts at 15. 0% is a plain shunt motor. 100% is a plain series motor. Fields: a switch, Cumulative or Differential. It starts on Cumulative. On Differential the slider stops at 50%. A higher setting moves down to 50%.
+
+The rule is for a simplified compound motor. Flux follows the field currents in a straight line. There is no saturation, no armature reaction and no brush drop. s is the series share as a fraction.
+Cumulative flux = (1 − s) + s × Ia. Differential flux = (1 + s) − s × Ia. Both are 1.00 at rated current, so every line passes through the rated point.
+Speed = (1 − 0.05 × Ia) ÷ (0.95 × flux). The top is the back-emf: the supply less the armature-circuit drop. The 0.95 makes rated speed 1.00. Dividing by the flux follows from back-emf going with flux × speed.
+Torque = flux × Ia.
+Speed regulation = (no-load speed − rated speed) ÷ rated speed. No load means Ia = 0.05.
+
+Worked under the readouts. Each line uses the rounded figures before it:
+Running light, Ia = 0.05: the top is (1 − 0.0025) ÷ 0.95 = 0.9975 ÷ 0.95 = 1.05, for every share.
+Shunt, 0%: flux 1.00. No-load speed 1.05 ÷ 1.00 = 1.050. Regulation (1.050 − 1.000) ÷ 1.000 = 5.0%. Torque at 2.00: 1.00 × 2.00 = 2.00.
+Compound, 15%: flux running light = 0.85 + 0.15 × 0.05 = 0.8575. No-load speed = 1.05 ÷ 0.8575 = 1.224. Regulation (1.224 − 1.000) ÷ 1.000 = 22.4%. Flux at 2.00 = 0.85 + 0.15 × 2.00 = 1.15. Torque = 1.15 × 2.00 = 2.30. Speed at 2.00 = 0.90 ÷ (0.95 × 1.15) = 0.90 ÷ 1.0925 = 0.824.
+Compound, 30%: flux running light = 0.70 + 0.30 × 0.05 = 0.715. No-load speed = 1.05 ÷ 0.715 = 1.469. That is past the example limit. Regulation 46.9%. Flux at 2.00 = 0.70 + 0.60 = 1.30. Torque = 1.30 × 2.00 = 2.60.
+Series, 100%: flux at 2.00 = 2.00, so torque = 2.00 × 2.00 = 4.00. Running light, the flux is only 0.05. It runs away.
+Differential, 15%: flux running light = 1.15 − 0.15 × 0.05 = 1.1425. No-load speed = 1.05 ÷ 1.1425 = 0.919. Regulation (0.919 − 1.000) ÷ 1.000 = −8.1%. So the speed rises with load. Flux at 2.00 = 1.15 − 0.30 = 0.85. Speed at 2.00 = 0.90 ÷ (0.95 × 0.85) = 0.90 ÷ 0.8075 = 1.115. Torque = 0.85 × 2.00 = 1.70.
+
+The words on the screen, above the picture: "Assume a per-unit motor: 1.00 is rated volts, current, flux, speed and torque. Flux = shunt part + series part × Ia. Speed goes with back-emf ÷ flux. Torque goes with flux × Ia. The 5% drop, the light-load current, the 15% share and the red limit are examples. The 2.00 current is the top of the usual starting limit. That limit is 125 to 200% of full load.[^1]" The prompt above the picture: "Slide the series share up. Then switch to Differential." Read: At 0% the compound line lies on the shunt line. It runs light at 1.050 and gives a torque of 2.00 at twice rated current. At 15% the flux running light falls to 0.8575. So the no-load speed rises to 1.224. The flux at twice rated current rises to 1.15. So the torque rises to 2.30. At 30% the no-load speed reaches 1.469, past the example limit. The torque reaches 2.60. At 100% it is a series motor. Running light, it runs away. On Differential at 15%, the flux falls as the current rises. The speed rises from 0.919 running light to 1.115 at twice rated current. The torque falls to 1.70. Still: the share at 15% and the fields Cumulative. The flux bars stand at 0.8575 and 1.15. The compound line sits between the shunt and series lines. It runs from 1.224 running light, through 1.00 at rated, to 0.824 at twice rated current. The readouts show 1.224, 22.4% and 2.30.
+
+Screen 3, Check on the cause. "A cumulative compound motor drives a shear. The coupling breaks and the load comes off. What does the speed do?" Three choices, in this order: "It runs away, like a series motor"; "It rises to a definite no-load speed and holds there"; "It hardly changes, like a shunt motor". Right, the second: "Right. The current falls, so the series part of the flux fades and the speed rises. The shunt part stays, so the flux holds up. The speed levels off at a definite no-load speed. On the picture at 15%, it rises from 1.00 to 1.224." Wrong, the first: "That is the series motor, whose whole field fades with the current. Here the shunt field keeps enough flux, so the speed levels off." Wrong, the third: "The shunt part holds, but the series part fades. Less flux needs more speed. On the picture at 15%, that is about 22% more." After a wrong choice, the right answer and its reason.
+
+Screen 4, How it behaves. A still drawing: screen 2's three lines at 15%, labelled "sketch from the example rule". Rows, each with a label.
+
+Starting torque: "Higher than a shunt motor's, lower than a series motor's."
+
+Running light: "A definite no-load speed. Safe to run light while the shunt field is connected at full strength."
+
+Speed regulation: "Typically 15 to 25%.[^2] Some standard motors run about 30%.[^3] Better than a series motor's. It droops more than a shunt motor's."
+
+Series share: "More share, more starting torque and a higher no-load speed."
+
+Reversing: "Swap the armature leads, or both fields.[^4] Swap one field alone and it turns differential."
+
+No new key term on this screen.
+
+Screen 5, Where it is used, and its limits. A still drawing: the motor driving a punch press with a heavy flywheel. Rows.
+
+Used for: "Punch presses, shears, crushers and reciprocating compressors. Heavy loads that come and go."
+
+Why: "The series field takes the heavy stroke. The shunt field stops it racing when the load drops off."
+
+Limits: "Not for wide speed control by weakening the shunt field. The no-load speed gets very high.[^5] A regenerative drive needs a straight shunt motor.[^6] Otherwise the series field opposes the shunt field when it regenerates. Brushes and commutator need regular care."
+
+Screen 6, Faults and tests. A still drawing: the isolator open with a lock and tag on it, a megger from the windings to frame, an ohmmeter across the series field leads, and the brushes on the commutator. Rows.
+
+Safety first: "Isolate, lock off and prove dead first."
+
+Series field reversed: "It turns differential compound. The speed can rise with load and surge. A rebuild can reverse it.[^7]"
+
+Polarity: "Check it against the maker's connection diagram. Never find it by running the motor light at full voltage.[^8]"
+
+Shunt field open: "Only the series field is left. On a light load it can race like a series motor."
+
+Sparking: "Worn brushes, a rough commutator or an armature fault."
+
+Tests: "Megger the windings to frame. Measure the armature, series field and shunt field resistance."
+
+Differential compound is marked in amber in the series field row.
+
+Screen 7, Find the fault. "A compound motor is back from a rewind. Now its speed rises as the load goes on, and on a heavy load it surges. What is the most likely fault?" Three choices, in this order: "The shunt field circuit is open"; "The brushes have worn down"; "The series field is connected the wrong way round". Right, the third: "Right. A reversed series field subtracts from the shunt field. More load means less flux, so more speed. It has turned differential. Isolate and prove dead. Then check the series field connections against the maker's diagram. If they are right, check the interpole polarity and the brush position next.[^9]" Wrong, the first: "An open shunt field leaves only the series field. The motor would race on a light load and slow as the load goes on. Here the speed rises with load." Wrong, the second: "Worn brushes cause sparking and poor contact. They make a motor weak, not faster under load." After a wrong choice, the right answer and its reason.
+
+Screen 8, Keep this: the summary card, with no case figures. Then Finish the lesson.
+
+Every figure on these screens is a control, worked from a rule shown, a cited value or a labelled example. The examples are the 5% drop, the 0.05 light-load current, the 15% share and the 1.25 limit.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture is a simplified compound motor in per unit. Its flux follows the field currents in a straight line, with no saturation, so real curves bend more at heavy current. It ignores armature reaction, brush drop and the time the motor takes to change speed. Its series line includes the 5% drop. So it sits a little below an ideal series line. The plot runs to twice rated current. A motor carries that overload only briefly, as when starting. The 5% drop, the light-load current, the 15% share and the red limit are examples, not a maker's.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Screen, from 0 to 7 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 8 (the stepper): 0 (control)
+- Series share slider, opening, % of full-load field: 15 (control)
+- Series share slider, lowest, %: 0 (control)
+- Series share slider, highest, %: 100 (control)
+- Series share slider, step, %: 5 (control)
+- Series share slider, top on Differential, %: 50 (control)
+- Fields switch, opening (Cumulative): 0 (control)
+- Series share in the second worked case, %: 30 (control)
+- Rated value of every quantity, per unit: 1 (assumed)
+- Armature-circuit drop at rated current, % of supply (example): 5 (assumed)
+- Light-load armature current, per unit (example): 0.05 (assumed)
+- Current at the right of the plot, per unit of rated (example, the top of the usual starting limit): 2 (assumed)
+- Starting current limit, low end, % of full load: 125 (constant, source [1])
+- Starting current limit, high end, % of full load: 200 (constant, source [1])
+- Speed limit drawn in red, per unit (example): 1.25 (assumed)
+- Speed axis top, per unit: 2 (assumed)
+- Current axis top, per unit: 2 (assumed)
+- Back-emf share at rated current, 1 − 0.05: 0.95 (computed)
+- Back-emf share running light, 1 − 0.0025: 0.9975 (computed)
+- Drop running light, 0.05 × 0.05: 0.0025 (computed)
+- Top of the speed rule running light: 1.05 (computed)
+- Top of the speed rule at twice rated current: 0.9 (computed)
+- Shunt: no-load speed, per unit: 1.05 (computed)
+- Shunt: speed regulation, %: 5 (computed)
+- Shunt: torque at twice rated current, per unit: 2 (computed)
+- Compound 15%: shunt part of the flux: 0.85 (computed)
+- Compound 15%: flux running light: 0.8575 (computed)
+- Compound 15%: no-load speed, per unit: 1.224 (computed)
+- Compound 15%: speed regulation, %: 22.4 (computed)
+- Compound 15%: flux at twice rated current: 1.15 (computed)
+- Compound 15%: torque at twice rated current, per unit: 2.3 (computed)
+- Compound 15%: 0.95 × 1.15: 1.0925 (computed)
+- Compound 15%: speed at twice rated current, per unit: 0.824 (computed)
+- Compound 15%: speed rise when the load comes off, about %: 22 (computed)
+- Compound 30%: shunt part of the flux: 0.7 (computed)
+- Compound 30%: series part running light, 0.30 × 0.05: 0.015 (computed)
+- Compound 30%: flux running light: 0.715 (computed)
+- Compound 30%: no-load speed, per unit: 1.469 (computed)
+- Compound 30%: speed regulation, %: 46.9 (computed)
+- Compound 30%: series part at twice rated current: 0.6 (computed)
+- Compound 30%: flux at twice rated current: 1.3 (computed)
+- Compound 30%: torque at twice rated current, per unit: 2.6 (computed)
+- Series 100%: flux at twice rated current: 2 (computed)
+- Series 100%: torque at twice rated current, per unit: 4 (computed)
+- Series 100%: flux running light: 0.05 (computed)
+- Differential 15%: series part running light, 0.15 × 0.05: 0.0075 (computed)
+- Differential 15%: flux running light: 1.1425 (computed)
+- Differential 15%: no-load speed, per unit: 0.919 (computed)
+- Differential 15%: speed regulation, %: -8.1 (computed)
+- Differential 15%: series part at twice rated current: 0.3 (computed)
+- Differential 15%: flux at twice rated current: 0.85 (computed)
+- Differential 15%: 0.95 × 0.85: 0.8075 (computed)
+- Differential 15%: speed at twice rated current, per unit: 1.115 (computed)
+- Differential 15%: torque at twice rated current, per unit: 1.7 (computed)
+- Speed regulation, typical figures, low, %: 15 (constant, source [2])
+- Speed regulation, typical figures, high, %: 25 (constant, source [2])
+- Speed regulation, some standard motors, about, %: 30 (constant, source [3])
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: SVG text "shunt field" has a line through it (<path.w>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 24 more settings)
+- Text cut off: SVG text "shunt field" has a line through it (<path.w>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 2, and 3 more settings)
+- Advice: The check "In a cumulative compound motor there is a distinct no-load speed: at the 15% example it settles at 1.224, inside the pl…" cites [10], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "Cumulative compound motors are not as effective as shunt motors at speed regulation: every share from 5 to 95% droops m…" cites [10], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "If the series field is reversed, its mmf subtracts from the shunt field's and the net flux decreases with increasing lo…" cites [4], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Part 8 – DC Motor Starters – PEG-3722 Electrotechnology (https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-8-dc-motor-starters): "Therefore, starting resistors are typically incorporated into the motor design to limit the starting current to 125 to 200 percent of the full load current."
+[2] — Baldor-Reliance® Integral horsepower DC motors (https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331): "Standard compound wound motors will have a speed regulation of approximately 15-25%."
+[3] — Baldor-Reliance® Integral horsepower DC motors (https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331): "A standard compound wound motor has a speed regulation of approximately 30% in accordance with NEMA Standard MG1- 12.65.2."
+[4] DC Compound Motor - An Overview (https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html): "Reversing the direction of rotation of compound or stabilized – shunt motors is accomplished by reversing the armature branch or reversing both the series field and the shunt field."
+[5] — Baldor-Reliance® Integral horsepower DC motors (https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331): "Compound wound motors are not suitable for operation over an extended field range by shunt field weakening because of the very high no-load speeds that may result."
+[6] — Baldor-Reliance® Integral horsepower DC motors (https://www.baldor.com/mvc/DownloadCenter/Files/9AKK107331): "On regenerative drives, it is necessary to wind the motor as a straight shunt; otherwise, the series winding would oppose the shunt winding when the motor is reversed or during regeneration."
+[7] Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field): "A rebuild can reverse an internal series field, and brush-ring position after a rebuild sets the neutral."
+[8] Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts): "Do not discover polarity by running an uncoupled or unloaded motor at normal voltage; weak or opposing flux can allow excessive speed."
+[9] Shunt DC Motor Overspeed: Field Current Diagnosis Guide - Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/why-does-a-shunt-field-dc-motor-overspeed-at-20-a-field): "Speed climbs as armature current climbs: suspect a hidden differential series or compound winding, reversed commutating (interpole) polarity, or brushes off neutral."
+[10] Part 7 – DC Motors – PEG-3722 Electrotechnology (https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/): "In a cumulative compound motor, there is a distinct no-load speed, and it can be safely operated under such conditions."
+[11] Part 7 – DC Motors – PEG-3722 Electrotechnology (https://ecampusontario.pressbooks.pub/electrotechnology/chapter/part-7-dc-motors/): "However, when it comes to speed regulation, cumulative compound motors are not as effective as shunt motors."
+[12] Characteristics of DC motors | electricaleasy.com (https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html): "Due to this, the speed remains almost constant or even it may increase slightly with increase in load"
+[13] CHAPTER 11 (https://pages.mtu.edu/~avsergue/EET2233/Lectures/CHAPTER11.pdf): "The speed rises as the load increases, and this may lead to instability."
+[14] Characteristics of DC motors | electricaleasy.com (https://www.electricaleasy.com/2014/07/characteristics-of-dc-motors.html): "winding takes care of the heavy load, whereas the shunt winding prevents the motor from running at dangerously high speed when the load is suddenly removed."
+[15] Your motor sheet: the DC compound motor (material:dc-compound#p1): "The magnetic fields of the series and shunt windings oppose each other. This type is rarely used because it can lead to unstable operation when the load changes."
+[16] DC Compound Motor - An Overview (https://www.electrotechnik.net/2017/03/dc-compound-motor-overview_13.html): "If the series field is reversed with respect to the shunt field, its mmf will subtract from the shunt field mmf, causing the net flux to decrease with increasing load, resulting in excessive speed, which is differential compound motor."
+[17] Compound DC Motor vs. Stabilizing Shunt: Key Tests - Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/identifying-compound-dc-motors-and-stabilizing-shunts): "Reversing only one field changes cumulative operation to differential operation."
+[18] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. (https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2): "Insulation Resistance Testing : Using a megohmmeter (megger), insulation resistance between windings and ground is measured to detect deterioration or contamination."
+[19] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. (https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2): "Winding Resistance Measurement : A precise ohmmeter measures the resistance of armature and field windings."
+[20] DC Motor Testing Protocols and Failure Modes - The Pump & Motor Works, Inc. (https://www.pmwus.com/dc-motor-testing-protocols-and-failure-modes-2): "Brush and Commutator Wear : Brushes wear down over time, and the commutator surface may become pitted or grooved, causing poor electrical contact and sparking."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/motors/i8.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
