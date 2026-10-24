@@ -124,7 +124,7 @@ The order of lessons 1 to 9 and the one-course decision do not change.
   differ, the nine-lesson list below and `lessons.json` are current.
 
 ## The short version
-**One course, nine lessons, taught back to you as a refresher** (`format/refresher.md`), in five
+**One course, ten lessons, taught back to you as a refresher** (`format/refresher.md`), in five
 units that follow your course's order (slides p.6, the flowchart):
 1. Design current: what the circuit really draws (the load)
 2. Maximum demand: what the whole building draws (the load)
@@ -136,6 +136,9 @@ units that follow your course's order (slides p.6, the flowchart):
    Cmax)
 8. The showroom, end to end (the whole job)
 9. Verification and handover (the whole job)
+10. A second job: the lathe, start to finish (the whole job; added 24 Oct from the Level 4 extras,
+    `extras-plan.md`: the course mock's lathe as one Section A, whether a smaller cpc will do, and
+    steel armour as the cpc, alone or with a core in parallel)
 
 **Every lesson has the same shape**, about eleven screens: a question from memory ("Do you still
 have it?", with Skip to the practice when he has); what the step is for and what goes wrong if it is

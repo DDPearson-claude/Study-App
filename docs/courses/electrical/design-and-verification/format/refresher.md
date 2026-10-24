@@ -52,7 +52,7 @@ against his project guide's key points, and lesson 9 verifies it as built.
 
 ## 1. The lessons, in order
 
-Five units, nine lessons. "EAL" means his own course: the slides (`slides p.N`), the formula sheet,
+Five units, ten lessons (lesson 10 added 24 Oct: `../extras-plan.md`). "EAL" means his own course: the slides (`slides p.N`), the formula sheet,
 the flowchart, the learner pack (`pack p.N`), the project guide (`guide p.N`) and the drawings.
 "C&G" means the shape of a City & Guilds 2396 question (P1 to P3 in `../brief.md`), always with the
 scenario and numbers changed. Every number below is in `../case.json`, worked from the rule shown;
@@ -227,6 +227,29 @@ scenario and numbers changed. Every number below is in `../case.json`, worked fr
 - To source: everything beyond the arithmetic (his materials have no verification method): BS 7671
   Part 6 and GN3 on comparing readings, the correction rule, the basis temperature of the OSG's mΩ/m
   values, the inspection interval guidance, the handover documents.
+
+**10. A second job: the lathe, start to finish** (added 24 Oct, Dan: "Build lesson 10, skip lesson 11")
+- Sources: the course mock, parts 1 and 2 (the lathe circuit, with answers); the SWA-as-cpc handout;
+  his BS 7671 Appendix 4 pages (Tables 4B1, 4C1, 4E1A, 4E1B, 4D1A, 4D1B) and On-Site Guide pages
+  (Tables I1, I3, B6). C&G: a whole Section A, question 1 parts (a) to (g) and question 2 (cpc from
+  design Zs and thermal constraints) as in papers 4 and 5, shapes only; the changed-numbers item takes
+  paper 4's distribution-circuit shape with every figure changed.
+- Recalls: "The lathe's cpc is cut from 4 mm² to 2.5 mm². Which checks must you work again?" Zs
+  against the breaker's maximum, and the heat check (Zs rises from 0.719 Ω to 0.815 Ω).
+- Re-teaches: nothing new in the chain (lessons 1 to 7). The why: the smallest cpc is set by
+  whichever check fails first, and on this circuit it is the loop, not the heat. Then the cpc that is
+  not a copper core: armour by Table 54.7's k1 ÷ k2 × S, armour and a core in parallel, and the two
+  fixes when armour falls short.
+- Practises: A, the lathe as one question, 5(a) to 5(h), each part carried forward (Ib 21.74 A at
+  388 V, 25 A type C, It 35.01 A, 4 mm², 17.87 V from the intake, Table 54.7's 4 mm², Zs 0.815 Ω with
+  a 2.5 mm² cpc, 0.69 mm² for the heat). B, should the cpc be cut to 2.5 mm², and what must the
+  inspector be told. Changed numbers: a distribution circuit with its drop limit given in volts
+  (It 60.79 A).
+- Main picture: the lathe circuit from DB2 with a cpc chooser (1.5, 2.5, 4 mm²) and a length slider
+  (10 to 40 m): Zs against its 0.87 Ω line, and the least cpc the heat needs against the cpc fitted.
+- To source: `../extras-plan.md` section 5 (Table 54.7's k1 ÷ k2 rule, armour and a core in parallel,
+  the 16 mm² power-factor rule, a 40 A BS 88-2 fuse's time, 543.1). Every figure is in `../case.json`
+  (lesson 10); Zs at DB2 is taken as part 2's 0.4 Ω (a.lathe.zdb).
 
 ---
 
