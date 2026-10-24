@@ -31,6 +31,8 @@ Every course brief starts from this: never re-teach what these cover, pitch abov
   115 V among them) and DC. So the electrical topics that matter most are 440 V distribution,
   AC/DC conversion, the main battery (charging, cells, hydrogen), insulated systems and earth faults, and diesel
   generators. Never ask him for more about his boat, and never put anything beyond this outline in a course.
+  His Drive holds submarine qualification (SMQ) books marked OFFICIAL: never read them into a build, quote them
+  or use them for content.
 - What he wants from new content (Dan, 24 Oct): "The marine engineering course is general engineering first, then
   moves into submarine and nuclear propulsion later. I simply need foundational skills that can see me through any
   new topics I may encounter. I don't need you to remake the course, I'll already be doing it next year." So never
