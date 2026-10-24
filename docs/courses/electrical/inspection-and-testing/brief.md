@@ -1,3 +1,5 @@
+> **Not to be built (Dan, 24 Oct 2026):** "Let's just leave them, don't really need them built. I have GN3." Inspection and testing and a short Earthing systems course are both dropped; GN3 is his reference. The plan below is kept for the record only.
+
 # Inspection and testing: the section brief
 
 Written 20 Oct 2026 for Dan, answering the course brief in `tools/course/RUNBOOK.md` section 0 for a

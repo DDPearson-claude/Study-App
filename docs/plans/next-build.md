@@ -33,7 +33,7 @@ cost. "Ready" means nothing is stopping it.
 | 9 | Maths: Vectors, then Differential equations | None | Medium, then later | 6 + 6 | 6.5M each | Ready |
 | 10 | Design and verification 11: other supplies | Greenhouse handout, C&G paper 4 | Low. Its generator part fits course 2 | 1 | 1.2M | Optional |
 | 11 | EV charging | Two webinar videos | Low. Shore only | 3–4 | 4M | Low priority |
-| – | Inspection and testing, 3 courses | The most of any topic | High | 17 | 19M | **On hold** until you say go |
+| – | Inspection and testing, 3 courses | The most of any topic | – | – | – | **Dropped** (24 Oct): you have GN3 |
 | – | PAT | One mock paper | Medium | 4 | 4M | On hold. Needs your slides |
 | – | Amendments 3 and 4; Building Regs | – | – | – | – | Dropped, as you said |
 | – | 33 more maths courses | – | Your long-run wish | about 230 | about 230M | Not next |
