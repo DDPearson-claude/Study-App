@@ -1,3 +1,5 @@
+> **Dropped (Dan, 24 Oct 2026):** "I don't want a course on what changed in amendment 3 and 4, that's pointless." Not to be built. The A3/A4 changes live in the courses themselves instead: Design and verification is corrected to A4 (dv-audit.md), and Inspection and testing will be built to A4 (a4-for-inspection-and-testing.md).
+
 # Amendments 3 and 4: what changed. The course brief
 
 Written 20 Oct 2026 for Dan, answering the course brief in `tools/course/RUNBOOK.md` section 0. A plan
