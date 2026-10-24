@@ -27,7 +27,8 @@ Every course brief starts from this: never re-teach what these cover, pitch abov
   faults, confined spaces, a closed atmosphere). Teach only from public sources and never claim how the Royal Navy or a
   particular boat does it; a submarine's own systems are not public. The plant in outline, as Dan gave it (24 Oct)
   and as is public: a Rolls-Royce PWR2 pressurised water reactor, a 440 V nominal supply, AC and DC systems, diesel
-  generator backup and a large main battery. So the electrical topics that matter most are 440 V distribution,
+  generator backup and a large main battery. There are many voltage systems, AC three-phase at several levels (440 V and
+  115 V among them) and DC. So the electrical topics that matter most are 440 V distribution,
   AC/DC conversion, the main battery (charging, cells, hydrogen), insulated systems and earth faults, and diesel
   generators. Never ask him for more about his boat, and never put anything beyond this outline in a course.
 - Electrician, now committed to the electrical and electrical engineering path in the Royal Navy. Next: leading rate
