@@ -31,6 +31,12 @@ Every course brief starts from this: never re-teach what these cover, pitch abov
   115 V among them) and DC. So the electrical topics that matter most are 440 V distribution,
   AC/DC conversion, the main battery (charging, cells, hydrogen), insulated systems and earth faults, and diesel
   generators. Never ask him for more about his boat, and never put anything beyond this outline in a course.
+- What he wants from new content (Dan, 24 Oct): "The marine engineering course is general engineering first, then
+  moves into submarine and nuclear propulsion later. I simply need foundational skills that can see me through any
+  new topics I may encounter. I don't need you to remake the course, I'll already be doing it next year." So never
+  build a course that re-teaches his Navy course (marine, submarine or nuclear propulsion systems). Build the
+  foundations that make any new topic easy: maths, engineering science (mechanics, energy, heat, fluids, materials)
+  and electrical and electronic principles, with marine and submarine examples only where they help.
 - Electrician, now committed to the electrical and electrical engineering path in the Royal Navy. Next: leading rate
   engineering qualifications, a level 3 marine engineering qualification and a level 4 management and leadership
   qualification (at HMS Drake / HMS Collingwood). Educationally qualified for Upper Yardman and Senior Upper Yardman.
