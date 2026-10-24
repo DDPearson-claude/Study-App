@@ -2,7 +2,7 @@
   "v": 1,
   "title": "The showroom",
   "course": "design-and-verification",
-  "updated": "2026-10-20",
+  "updated": "2026-10-24",
   "about": "The running case for the refresher (format/refresher.md section 4): the showroom givens, the course's own assumptions, and every figure each lesson works out, with its rule and inputs. Built by a script that works each figure from the inputs shown with it. Reshaped 20 Oct for the app (RUNBOOK section 8): a flat figures list, each naming its lesson and, for a Section A part, its part; figures still to be worked are in pending (see case.notes.md).",
   "edition": "Worked to BS 7671:2018+A2:2022, as Dan's course taught it (flowchart title). Checked against A3:2024 and A4:2026 on 20 Oct 2026 (build/electrical/bs7671-amendments/dv-audit.md). No figure changes. Word fixes in lessons 2, 6, 7, 8 and 9.",
   "rounding": "Each figure is worked from the inputs shown with it, rounded half up: currents, voltages, powers and kW to 2 decimal places, impedances to 3, CSA to 2, lengths to 1. A maximum is rounded down. A typed answer is accepted within \"accept\" where given (it covers √3 taken as 1.73, as slides p.13 do, and unrounded working).",
@@ -13,7 +13,10 @@
     "pack": "source/eal-ed4-assign-01a-learner-pack.pdf, PDF page",
     "guide": "source/eal-l4-project-presentation.pptx (pptx-pdf/), slide",
     "power dwg": "source/eal-l4-drawing-power.pdf",
-    "lighting dwg": "source/eal-l4-drawing-lighting.pdf"
+    "lighting dwg": "source/eal-l4-drawing-lighting.pdf",
+    "mock 1": "source/extras/pdf/mock-part1-answers.pdf (material mock-1), page",
+    "mock 2": "source/extras/pdf/mock-part2-answers.pdf (material mock-2), page",
+    "swa handout": "source/extras/pdf/swa-as-cpc.pdf (material swa-cpc), page"
   },
   "scenario": {
     "title": "Your showroom: the motor",
@@ -803,6 +806,280 @@
       "practice": true,
       "cite": "no source: a labelled example reading, under the 0.294 Ω of Ze + (R1+R2) of the submain (p.as.Ze + p.as.r12.sub)",
       "note": "A practice value, not a measurement."
+    },
+    {
+      "id": "g.lathe.P",
+      "label": "Lathe motor output",
+      "value": 12.5,
+      "unit": "kW",
+      "text": "12.5 kW",
+      "cite": "mock 1 p.1 and mock 2 p.1 (research sources 518, 519)",
+      "note": "Three-phase motor driving an industrial lathe."
+    },
+    {
+      "id": "g.lathe.pf",
+      "label": "Lathe motor power factor, full load",
+      "value": 0.91,
+      "unit": "",
+      "text": "0.91",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.eff",
+      "label": "Lathe motor efficiency, full load",
+      "value": 94,
+      "unit": "%",
+      "text": "94%",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.L",
+      "label": "Lathe circuit length",
+      "value": 27,
+      "unit": "m",
+      "text": "27 m",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.amb",
+      "label": "Lathe circuit ambient temperature",
+      "value": 25,
+      "unit": "°C",
+      "text": "25 °C",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.group",
+      "label": "Lathe circuit grouping",
+      "value": "two other circuits in the trunking",
+      "unit": "",
+      "text": "two other circuits in the trunking, three in all",
+      "cite": "mock 1 p.1 and mock 2 p.1 (research sources 520, 523)"
+    },
+    {
+      "id": "g.lathe.cable",
+      "label": "Lathe circuit cable",
+      "value": "90 °C thermosetting singles, non-armoured, in trunking",
+      "unit": "",
+      "text": "90 °C thermosetting singles, non-armoured, in trunking",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.dev",
+      "label": "Lathe circuit device",
+      "value": "type C circuit-breaker to BS EN 60898",
+      "unit": "",
+      "text": "type C, BS EN 60898",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.up",
+      "label": "Voltage drop of DB2's distribution circuit",
+      "value": 3,
+      "unit": "%",
+      "text": "3%",
+      "cite": "mock 1 p.1 and mock 2 p.1 (research sources 521, 524)",
+      "note": "DB2 is the board the lathe circuit is fed from."
+    },
+    {
+      "id": "g.lathe.zdb",
+      "label": "Zs at DB2 (mock part 2)",
+      "value": 0.4,
+      "unit": "Ω",
+      "text": "0.4 Ω",
+      "cite": "mock 2 p.1 (research source 528; mock 1 prints 0.97 Ω, research source 522)",
+      "note": "Part 1 prints 0.97 Ω (mock 1 p.1); the lesson takes part 2's 0.4 Ω (a.lathe.zdb)."
+    },
+    {
+      "id": "g.lathe.ze",
+      "label": "Ze at the origin, lathe job",
+      "value": 0.12,
+      "unit": "Ω",
+      "text": "0.12 Ω",
+      "cite": "mock 1 p.1 and mock 2 p.1"
+    },
+    {
+      "id": "g.lathe.ipf",
+      "label": "Prospective fault current at the origin, lathe job",
+      "value": 8,
+      "unit": "kA",
+      "text": "8 kA",
+      "cite": "mock 1 p.1 and mock 2 p.1",
+      "note": "Given at the origin only, so DB2's own fault level cannot be worked (breaking capacity is not asked)."
+    },
+    {
+      "id": "g.lathe.supply",
+      "label": "Lathe job: supply",
+      "value": "TN-C-S, 400 V three-phase",
+      "unit": "",
+      "text": "TN-C-S, 400 V",
+      "cite": "mock 1 p.1 (TN-C-S; its working starts from 400 V); mock 2 p.1"
+    },
+    {
+      "id": "g.ca.25.90",
+      "label": "Ca, 25 °C ambient, 90 °C thermosetting",
+      "value": 1.02,
+      "unit": "",
+      "text": "1.02",
+      "cite": "BS 7671 Table 4B1, your copy p.441, 25 °C row, 90 °C thermosetting column (the same 1.02 is quoted in p.Ca, research)"
+    },
+    {
+      "id": "g.cg.3",
+      "label": "Cg, three circuits bunched or enclosed",
+      "value": 0.7,
+      "unit": "",
+      "text": "0.70",
+      "cite": "BS 7671 Table 4C1, your copy p.443, item 1 (bunched in air, on a surface, embedded or enclosed), 3 circuits"
+    },
+    {
+      "id": "g.4e1a.4.c5",
+      "label": "It, 4 mm² 90 °C singles, Method B, three loaded cables",
+      "value": 37,
+      "unit": "A",
+      "text": "37 A",
+      "cite": "BS 7671 Table 4E1A, your copy p.458, column 5, 4 mm² row (research source 553)"
+    },
+    {
+      "id": "g.4e1a.25.c5",
+      "label": "It, 2.5 mm² 90 °C singles, Method B, three loaded cables",
+      "value": 28,
+      "unit": "A",
+      "text": "28 A",
+      "cite": "BS 7671 Table 4E1A, your copy p.458, column 5 (as g.it.2p5)"
+    },
+    {
+      "id": "g.4e1b.4.c6",
+      "label": "mV/A/m, 4 mm² 90 °C singles, Methods A and B, three-phase",
+      "value": 10,
+      "unit": "mV/A/m",
+      "text": "10 mV/A/m",
+      "cite": "BS 7671 Table 4E1B, your copy p.459, column 6, 4 mm² row (research source 554)"
+    },
+    {
+      "id": "g.r12.4_25",
+      "label": "(R1+R2) per metre, 4 mm² line with a 2.5 mm² cpc, copper, 20 °C",
+      "value": 12.02,
+      "unit": "mΩ/m",
+      "text": "12.02 mΩ/m",
+      "cite": "On-Site Guide Table I1, your copy p.218 (the row is missing from the saved text; read from the page image, page-images/osg-p218.png, 24 Oct) (research source 556, on the corrected page)"
+    },
+    {
+      "id": "g.r12.4_15",
+      "label": "(R1+R2) per metre, 4 mm² line with a 1.5 mm² cpc, copper, 20 °C",
+      "value": 16.71,
+      "unit": "mΩ/m",
+      "text": "16.71 mΩ/m",
+      "cite": "On-Site Guide Table I1, your copy p.218 (the row is missing from the saved text; read from the page image, page-images/osg-p218.png, 24 Oct) (research source 555, on the corrected page)"
+    },
+    {
+      "id": "g.ia.C25",
+      "label": "Current that opens a 25 A type C breaker within 0.1 s, Ia",
+      "value": 250,
+      "unit": "A",
+      "text": "250 A",
+      "cite": "a.iaC: 10 × In, the top of the type C band of 5 to 10 × In (research sources 234, 357); the 0.87 Ω of g.zmax.C25 is 230 × 0.95 ÷ 250"
+    },
+    {
+      "id": "g.swa6.4c.armour",
+      "label": "Armour cross-section, four-core 6 mm² XLPE/SWA/PVC",
+      "value": 36,
+      "unit": "mm²",
+      "text": "36 mm²",
+      "cite": "Prysmian BS 5467 data sheet, four-core column, 6 mm² row: 36 mm² (research source 388); his SWA handout prints the same 36 mm² (swa handout p.1)"
+    },
+    {
+      "id": "g.swa25.5c.armourR",
+      "label": "Maximum armour resistance, five-core 25 mm² XLPE/SWA/PVC, 20 °C",
+      "value": 1.8,
+      "unit": "mΩ/m",
+      "text": "1.8 mΩ/m",
+      "cite": "Prysmian BS 5467 data sheet, five-core column, 25 mm² row: 1.8 Ω/km (research source 583)"
+    },
+    {
+      "id": "g.swa25.5c.armour",
+      "label": "Armour cross-section, five-core 25 mm² XLPE/SWA/PVC",
+      "value": 88,
+      "unit": "mm²",
+      "text": "88 mm²",
+      "cite": "Prysmian BS 5467 data sheet, five-core column, 25 mm² row: 88 mm² (research source 583)"
+    },
+    {
+      "id": "g.swa25.4c.armour",
+      "label": "Armour cross-section, four-core 25 mm² XLPE/SWA/PVC",
+      "value": 70,
+      "unit": "mm²",
+      "text": "70 mm²",
+      "cite": "Prysmian BS 5467 data sheet, four-core column, 25 mm² row: 70 mm² and 2.3 Ω/km (research source 583)",
+      "note": "His handout prints 80 mm² and 2.1 mΩ/m from \"Table F7C/F7A\" in a design book that is not in the repo. Makers differ; use the figures for the cable bought."
+    },
+    {
+      "id": "g.r.25",
+      "label": "Maximum resistance, 25 mm² copper conductor, 20 °C",
+      "value": 0.727,
+      "unit": "mΩ/m",
+      "text": "0.727 mΩ/m",
+      "cite": "Prysmian BS 5467 data sheet, 25 mm² row: 0.727 Ω/km (tools/77-web_fetch.json; to add to research.json)"
+    },
+    {
+      "id": "g.k2.steel90",
+      "label": "k2, steel armour of a 90 °C thermosetting cable (Table 54.4)",
+      "value": 46,
+      "unit": "A√s/mm²",
+      "text": "46 A√s/mm²",
+      "cite": "Table 54.4 as printed in a Certsure pocket guide (research sources 437, 438); a trade calculator (394); his SWA handout (\"Table 54.4\", k2 46, swa handout p.1) (research sources 536, 570, 571 for the k1 ÷ k2 rule)",
+      "practice": true,
+      "note": "The same value as p.k.steel, and still a practice value until read from your copy of Table 54.4."
+    },
+    {
+      "id": "g.k1.cu90",
+      "label": "k1, the copper line conductors, 90 °C thermosetting (Table 43.1)",
+      "value": 143,
+      "unit": "A√s/mm²",
+      "text": "143 A√s/mm²",
+      "cite": "as g.k.cu90: slides p.68 (Table 43.1, k 143); research sources 395, 396",
+      "note": "k1 in Table 54.7's rule for a cpc of another material, k1 ÷ k2 × S."
+    },
+    {
+      "id": "g.ca.35.70",
+      "label": "Ca, 35 °C ambient, 70 °C thermoplastic",
+      "value": 0.94,
+      "unit": "",
+      "text": "0.94",
+      "cite": "BS 7671 Table 4B1, your copy p.441, 35 °C row, 70 °C thermoplastic column; slides p.42 (as g.heater.Ca) (research source 549)"
+    },
+    {
+      "id": "g.4d1a.10.c5",
+      "label": "It, 10 mm² 70 °C singles, Method B, three loaded cables",
+      "value": 50,
+      "unit": "A",
+      "text": "50 A",
+      "cite": "BS 7671 Table 4D1A, your copy p.448, column 5, 10 mm² row (research source 550)"
+    },
+    {
+      "id": "g.4d1a.16.c5",
+      "label": "It, 16 mm² 70 °C singles, Method B, three loaded cables",
+      "value": 68,
+      "unit": "A",
+      "text": "68 A",
+      "cite": "BS 7671 Table 4D1A, your copy p.448, column 5, 16 mm² row (research source 551)"
+    },
+    {
+      "id": "g.4d1b.16.c6",
+      "label": "mV/A/m, 16 mm² 70 °C singles, Methods A and B, three-phase",
+      "value": 2.4,
+      "unit": "mV/A/m",
+      "text": "2.4 mV/A/m",
+      "cite": "BS 7671 Table 4D1B, your copy p.449, column 6, 16 mm² row (research source 552)"
+    },
+    {
+      "id": "p.swa.t",
+      "label": "Disconnection time of the 40 A BS 88-2 fuse at about 2.5 kA, SWA example (practice value)",
+      "value": 0.1,
+      "unit": "s",
+      "text": "0.1 s",
+      "practice": true,
+      "cite": "a maker's gate table shows an 80 A gG fuse operating within 0.1 s by 1 100 A (Mersen, research source 582), and a 40 A fuse is the smaller fuse; his handout reads 0.1 s from Fig 3A3(b) (swa handout p.3, a noisy scan, research source 546); the 40 A rating's own figure was not found",
+      "note": "A practice value: no quotable maker's data for the 40 A fuse itself. Read the real time at this current from Figure 3A3(b) in your copy of BS 7671 or the fuse maker's time-current curve. The heat check uses it as t in the adiabatic equation (assumption a.swa.t)."
     }
   ],
   "assumptions": [
@@ -1066,6 +1343,42 @@
     {
       "id": "a.pme",
       "text": "Assume the TN-C-S supply is PME, the usual public supply. The certificate now asks whether a TN-C-S supply is PME or PNB."
+    },
+    {
+      "id": "a.lathe.zdb",
+      "label": "Zs at DB2 is 0.4 Ω",
+      "status": "assumption",
+      "text": "The course's own assumption: Zs at DB2 is taken as 0.4 Ω, as in part 2 of the mock. Part 1 prints 0.97 Ω; with that, no 25 A type C could pass: Zs is at least 1.289 Ω even with a 4 mm² cpc, against 0.87 Ω."
+    },
+    {
+      "id": "a.lathe.method",
+      "label": "Trunking on a wall: Reference Method B",
+      "status": "assumption",
+      "text": "The course's own assumption: the trunking is on a wall, so Reference Method B (Table 4A2 item for cables in trunking); the two other circuits in it are loaded."
+    },
+    {
+      "id": "a.lathe.terminals",
+      "label": "The lathe's terminals allow 90 °C",
+      "status": "assumption",
+      "text": "The course's own assumption: the lathe's terminals and the breaker allow the cable to run at 90 °C. On a real job, check the maker's data (Table 4E1A note 1, your copy p.458)."
+    },
+    {
+      "id": "a.lathe.cpc",
+      "label": "The cpc is a single core in the same trunking",
+      "status": "assumption",
+      "text": "The course's own assumption: the cpc is a single core in the same trunking, so k is 143 (Table 54.3) and the Table I3 multiplier is 1.28 (g.mult.90ts)."
+    },
+    {
+      "id": "a.lathe.t",
+      "label": "The breaker opens within 0.1 s at the Cmax current",
+      "status": "assumption",
+      "text": "The course's own assumption: at the Cmax current the breaker opens within 0.1 s: 310.43 A is past 10 × 25 A (g.ia.C25, g.t.thermal)."
+    },
+    {
+      "id": "a.swa.t",
+      "label": "SWA example: the 40 A BS 88-2 fuse clears within 0.1 s",
+      "status": "assumption",
+      "text": "The course's own assumption: in the SWA example the 40 A BS 88-2 fuse clears within 0.1 s at over 2 kA, a practice value (p.swa.t): read the real time from Figure 3A3(b) in your copy. The 1.28 multiplier is used on the armour too, as in lesson 7 (a.armourR): cautious, since armour runs cooler."
     }
   ],
   "lessons": [
@@ -1146,6 +1459,21 @@
         "4(a)",
         "4(b)",
         "4(c)"
+      ]
+    },
+    {
+      "n": 10,
+      "title": "A second job: the lathe, start to finish",
+      "sectionA": [
+        "5(a)",
+        "5(b)",
+        "5(c)",
+        "5(d)",
+        "5(e)",
+        "5(f)",
+        "5(g)",
+        "5(h)",
+        "Section B: a smaller cpc (b1)"
       ]
     }
   ],
@@ -6691,6 +7019,741 @@
       "cite": "IET Guidance Note 3 Table 3.2 via QBE and Tidyco; OSG p.189; pack question 9a",
       "text": "5 years",
       "work": "commercial installations 5 years; offices and shops 5; industrial 3: the showroom is commercial, so 5 years, shorter if maintenance will be poor"
+    },
+    {
+      "id": "l10.recall.r44",
+      "label": "Recall: R1+R2 at the lathe, 4 mm² cpc",
+      "value": 0.319,
+      "unit": "Ω",
+      "rule": "mΩ/m × 1.28 × L ÷ 1000",
+      "cite": "OSG p.218 (Table I1, g.r1r2.4), p.220 (g.mult.90ts)",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.319 Ω",
+      "work": "9.22 × 1.28 × 27 ÷ 1000 = 0.319 Ω"
+    },
+    {
+      "id": "l10.recall.zs44",
+      "label": "Recall: Zs at the lathe, 4 mm² cpc",
+      "value": 0.719,
+      "unit": "Ω",
+      "rule": "Zdb + R1+R2",
+      "cite": "formula sheet step 13; mock 2 p.1 (Zdb)",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.719 Ω",
+      "work": "0.4 + 0.319 = 0.719 Ω"
+    },
+    {
+      "id": "l10.U",
+      "label": "Voltage at DB2",
+      "value": 388,
+      "unit": "V",
+      "rule": "U × (1 − upstream drop)",
+      "cite": "mock 1 p.1 (3% to DB2)",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "388.00 V",
+      "work": "400 × 0.97 = 388.00 V"
+    },
+    {
+      "id": "5a",
+      "label": "The lathe's design current, Ib",
+      "value": 21.74,
+      "unit": "A",
+      "rule": "Ib = P ÷ (√3 × U × eff × pf), U at DB2",
+      "cite": "mock 1 p.1; slides p.13",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5a",
+      "accept": {
+        "min": 21.7,
+        "max": 21.77,
+        "why": "21.7 A as the mock prints it; 21.77 A with √3 taken as 1.73"
+      },
+      "text": "21.74 A",
+      "work": "√3 × 388 = 672.04; × 0.91 = 611.56; × 0.94 = 574.87; 12 500 ÷ 574.87 = 21.74 A"
+    },
+    {
+      "id": "5a.slip1",
+      "label": "5(a) slip: 400 V used, not the 388 V at DB2",
+      "value": 21.09,
+      "unit": "A",
+      "rule": "P ÷ (√3 × 400 × eff × pf)",
+      "cite": "mock 1 p.1 (the board is 3% down)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "21.09 A",
+      "work": "12 500 ÷ (√3 × 400 × 0.91 × 0.94) = 21.09 A"
+    },
+    {
+      "id": "5a.slip2",
+      "label": "5(a) slip: efficiency left out",
+      "value": 20.44,
+      "unit": "A",
+      "rule": "P ÷ (√3 × U × pf)",
+      "cite": "slides p.13 (the rule it breaks)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "20.44 A",
+      "work": "12 500 ÷ 611.56 = 20.44 A"
+    },
+    {
+      "id": "5a.slip3",
+      "label": "5(a) slip: power factor left out",
+      "value": 19.79,
+      "unit": "A",
+      "rule": "P ÷ (√3 × U × eff)",
+      "cite": "slides p.13 (the rule it breaks)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "19.79 A",
+      "work": "672.04 × 0.94 = 631.72; 12 500 ÷ 631.72 = 19.79 A"
+    },
+    {
+      "id": "5a.slip4",
+      "label": "5(a) slip: √3 left out",
+      "value": 37.66,
+      "unit": "A",
+      "rule": "P ÷ (U × eff × pf)",
+      "cite": "slides p.13 (the rule it breaks)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "37.66 A",
+      "work": "388 × 0.91 × 0.94 = 331.89; 12 500 ÷ 331.89 = 37.66 A"
+    },
+    {
+      "id": "5b",
+      "label": "The breaker rating, In",
+      "value": 25,
+      "unit": "A",
+      "rule": "smallest standard In ≥ Ib; type C for the motor's starting current",
+      "cite": "mock 1 p.1 (type C, BS EN 60898); slides p.13",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5b",
+      "text": "25 A",
+      "work": "25 A ≥ 21.74 A (20 A is below Ib)"
+    },
+    {
+      "id": "5b.slip1",
+      "label": "5(b) slip: 20 A, below Ib",
+      "value": 20,
+      "unit": "A",
+      "rule": "In ≥ Ib",
+      "cite": "Regulation 433.1.1 as the course teaches it (Ib ≤ In ≤ Iz)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "20.00 A",
+      "work": "20 A < 21.74 A"
+    },
+    {
+      "id": "l10.f",
+      "label": "Lathe: the factors together",
+      "value": 0.714,
+      "unit": "",
+      "rule": "Ca × Cg",
+      "cite": "g.ca.25.90, g.cg.3",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.714",
+      "work": "1.02 × 0.70 = 0.714"
+    },
+    {
+      "id": "5c",
+      "label": "The minimum tabulated current, It",
+      "value": 35.01,
+      "unit": "A",
+      "rule": "It ≥ In ÷ (Ca × Cg)",
+      "cite": "mock 1 p.1 (the mock's own working gives 35.01 A); Tables 4B1, 4C1",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5c",
+      "text": "35.01 A",
+      "work": "25 ÷ 0.714 = 35.01 A"
+    },
+    {
+      "id": "5c.slip1",
+      "label": "5(c) slip: Ca left out",
+      "value": 35.71,
+      "unit": "A",
+      "rule": "In ÷ Cg",
+      "cite": "Table 4B1 (Ca above 1 below 30 °C)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "35.71 A",
+      "work": "25 ÷ 0.70 = 35.71 A"
+    },
+    {
+      "id": "5c.slip2",
+      "label": "5(c) slip: Cg left out",
+      "value": 24.51,
+      "unit": "A",
+      "rule": "In ÷ Ca",
+      "cite": "Table 4C1",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "24.51 A",
+      "work": "25 ÷ 1.02 = 24.51 A"
+    },
+    {
+      "id": "5c.slip3",
+      "label": "5(c) slip: worked from Ib, not In",
+      "value": 30.45,
+      "unit": "A",
+      "rule": "Ib ÷ (Ca × Cg)",
+      "cite": "slides p.13 (It from In)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "30.45 A",
+      "work": "21.74 ÷ 0.714 = 30.45 A"
+    },
+    {
+      "id": "5d",
+      "label": "The conductor size",
+      "value": 4,
+      "unit": "mm²",
+      "rule": "Table 4E1A column 5: the first size with It ≥ 35.01 A",
+      "cite": "g.4e1a.4.c5, g.4e1a.25.c5; mock 1 p.1",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5d",
+      "text": "4 mm²",
+      "work": "2.5 mm² 28 A < 35.01 A; 4 mm² 37 A ≥ 35.01 A; Iz = 37 × 0.714 = 26.42 A ≥ 25 A"
+    },
+    {
+      "id": "l10.vd",
+      "label": "The lathe circuit's own drop",
+      "value": 5.87,
+      "unit": "V",
+      "rule": "mV/A/m × Ib × L ÷ 1000",
+      "cite": "g.4e1b.4.c6; formula sheet step 7",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "5.87 V",
+      "work": "10 × 21.74 × 27 ÷ 1000 = 5.87 V"
+    },
+    {
+      "id": "5e",
+      "label": "The drop from the intake to the lathe",
+      "value": 17.87,
+      "unit": "V",
+      "rule": "upstream drop + the circuit's drop, three-phase throughout, against 5% of 400 V",
+      "cite": "mock 1 p.1 (3%), p.2 (the mock's own total, 17.859 V); slides (5% for power)",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5e",
+      "accept": {
+        "min": 17.86,
+        "max": 17.88,
+        "why": "17.86 V from the mock's 21.7 A; 17.88 V from 21.77 A (√3 as 1.73)"
+      },
+      "text": "17.87 V",
+      "work": "400 × 0.03 = 12.00 V; 12.00 + 5.87 = 17.87 V ≤ 20.00 V"
+    },
+    {
+      "id": "5e.slip1",
+      "label": "5(e) slip: the circuit's drop only",
+      "value": 5.87,
+      "unit": "V",
+      "rule": "circuit drop alone",
+      "cite": "a.drops (drops add from the intake)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "5.87 V",
+      "work": "10 × 21.74 × 27 ÷ 1000 = 5.87 V"
+    },
+    {
+      "id": "5e.slip2",
+      "label": "5(e) slip: the upstream drop wrongly divided by √3",
+      "value": 12.8,
+      "unit": "V",
+      "rule": "upstream ÷ √3 + circuit",
+      "cite": "both drops are three-phase: nothing to convert",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "12.80 V",
+      "work": "12.00 ÷ √3 = 6.93; 6.93 + 5.87 = 12.80 V"
+    },
+    {
+      "id": "5f",
+      "label": "The suitable cpc, Table 54.7",
+      "value": 4,
+      "unit": "mm²",
+      "rule": "Table 54.7: S ≤ 16 mm², the cpc the same size as the line",
+      "cite": "mock 1 p.2; flowchart note 2 (suitable is not minimum, research source 71); research source 441",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5f",
+      "text": "4 mm²",
+      "work": "S = 4 mm², so 4 mm²"
+    },
+    {
+      "id": "l10.r12.25",
+      "label": "R1+R2 at the lathe, 2.5 mm² cpc",
+      "value": 0.415,
+      "unit": "Ω",
+      "rule": "mΩ/m × 1.28 × L ÷ 1000",
+      "cite": "g.r12.4_25, g.mult.90ts; mock 2 p.1 (12.02 × 1.28 × 27)",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.415 Ω",
+      "work": "12.02 × 1.28 × 27 ÷ 1000 = 0.415 Ω"
+    },
+    {
+      "id": "5g",
+      "label": "Zs at the lathe, 2.5 mm² cpc",
+      "value": 0.815,
+      "unit": "Ω",
+      "rule": "Zs = Zdb + (R1+R2), against the maximum Zs",
+      "cite": "mock 2 p.1 and p.2; g.zmax.C25; formula sheet step 13",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5g",
+      "accept": {
+        "min": 0.81,
+        "max": 0.82,
+        "why": "0.81 Ω as the mock prints it, cut short; 0.82 Ω is 0.815 Ω rounded to two places"
+      },
+      "text": "0.815 Ω",
+      "work": "0.4 + 0.415 = 0.815 Ω ≤ 0.87 Ω"
+    },
+    {
+      "id": "5g.slip1",
+      "label": "5(g) slip: the multiplier left out",
+      "value": 0.725,
+      "unit": "Ω",
+      "rule": "R1+R2 at 20 °C",
+      "cite": "OSG p.220 (Table I3)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.725 Ω",
+      "work": "12.02 × 27 ÷ 1000 = 0.325 Ω; 0.4 + 0.325 = 0.725 Ω"
+    },
+    {
+      "id": "5g.slip2",
+      "label": "5(g) slip: Ze in place of Zs at DB2",
+      "value": 0.535,
+      "unit": "Ω",
+      "rule": "Ze + (R1+R2) for a circuit fed from a sub-board",
+      "cite": "formula sheet step 13 (the rule it breaks)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.535 Ω",
+      "work": "0.12 + 0.415 = 0.535 Ω"
+    },
+    {
+      "id": "5g.slip3",
+      "label": "5(g) slip: the 4 mm² cpc kept",
+      "value": 0.719,
+      "unit": "Ω",
+      "rule": "R1+R2 with the 4/4 row",
+      "cite": "OSG p.218 (Table I1)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.719 Ω",
+      "work": "9.22 × 1.28 × 27 ÷ 1000 = 0.319 Ω; 0.4 + 0.319 = 0.719 Ω"
+    },
+    {
+      "id": "l10.imin",
+      "label": "Lathe: the fault current at Cmin, 2.5 mm² cpc",
+      "value": 268.1,
+      "unit": "A",
+      "rule": "Uo × Cmin ÷ Zs, against Ia",
+      "cite": "formula sheet step 15; g.ia.C25; mock 2 p.2",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "268.10 A",
+      "work": "230 × 0.95 = 218.5; 218.5 ÷ 0.815 = 268.10 A ≥ 250 A"
+    },
+    {
+      "id": "l10.imax",
+      "label": "Lathe: the fault current at Cmax, 2.5 mm² cpc",
+      "value": 310.43,
+      "unit": "A",
+      "rule": "Uo × Cmax ÷ Zs",
+      "cite": "slides p.60, 62; mock 2 p.2",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "310.43 A",
+      "work": "230 × 1.1 = 253; 253 ÷ 0.815 = 310.43 A"
+    },
+    {
+      "id": "5h",
+      "label": "The minimum cpc for the heat",
+      "value": 0.69,
+      "unit": "mm²",
+      "rule": "S = √(I² × t) ÷ k, I at Cmax",
+      "cite": "mock 2 p.2 (0.69 mm²); slides p.58 to 62; g.k.cu90; a.lathe.t",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "part": "5h",
+      "text": "0.69 mm²",
+      "work": "√(310.43² × 0.1) ÷ 143 = 0.69 mm² ≤ 2.5 mm²"
+    },
+    {
+      "id": "5h.slip1",
+      "label": "5(h) slip: the heat at the Cmin current",
+      "value": 0.59,
+      "unit": "mm²",
+      "rule": "I at Cmin",
+      "cite": "slides p.58 to 62 (heat at Cmax)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.59 mm²",
+      "work": "√(268.10² × 0.1) ÷ 143 = 0.59 mm²"
+    },
+    {
+      "id": "5h.slip2",
+      "label": "5(h) slip: t taken as 0.4 s",
+      "value": 1.37,
+      "unit": "mm²",
+      "rule": "t from Table 41.1",
+      "cite": "a.lathe.t (the breaker opens within 0.1 s)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "1.37 mm²",
+      "work": "√(310.43² × 0.4) ÷ 143 = 1.37 mm²"
+    },
+    {
+      "id": "5h.slip3",
+      "label": "5(h) slip: k 115 (70 °C thermoplastic)",
+      "value": 0.85,
+      "unit": "mm²",
+      "rule": "k for the wrong insulation",
+      "cite": "Table 54.3 (k 143 for 90 °C thermosetting)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.85 mm²",
+      "work": "√(310.43² × 0.1) ÷ 115 = 0.85 mm²"
+    },
+    {
+      "id": "l10.why.15",
+      "label": "Why: a 1.5 mm² cpc at 27 m",
+      "value": 0.977,
+      "unit": "Ω",
+      "rule": "Zdb + mΩ/m × 1.28 × L ÷ 1000; then Cmin and Cmax currents and S",
+      "cite": "g.r12.4_15, g.mult.90ts, g.zmax.C25, g.ia.C25",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "note": "Fails on Zs.",
+      "text": "0.977 Ω",
+      "work": "16.71 × 1.28 × 27 ÷ 1000 = 0.577 Ω; 0.4 + 0.577 = 0.977 Ω > 0.87 Ω; Cmin 218.5 ÷ 0.977 = 223.64 A < 250 A; Cmax 253 ÷ 0.977 = 258.96 A; S = √(258.96² × 0.1) ÷ 143 = 0.57 mm²: fails on Zs, not on heat"
+    },
+    {
+      "id": "l10.why.4",
+      "label": "Why: a 4 mm² cpc at 27 m, least cpc for the heat",
+      "value": 0.78,
+      "unit": "mm²",
+      "rule": "S = √(I² × t) ÷ k, I at Cmax",
+      "cite": "l10.recall.zs44; g.k.cu90",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.78 mm²",
+      "work": "Zs 0.719 Ω; Cmin 218.5 ÷ 0.719 = 303.89 A; Cmax 253 ÷ 0.719 = 351.88 A; S = √(351.88² × 0.1) ÷ 143 = 0.78 mm²"
+    },
+    {
+      "id": "l10.lmax15",
+      "label": "Longest lathe run with a 1.5 mm² cpc",
+      "value": 21.9,
+      "unit": "m",
+      "rule": "(maximum Zs − Zdb) × 1000 ÷ (mΩ/m × 1.28), rounded down",
+      "cite": "g.zmax.C25; i6's longest-run rule (l6.A.maxRun)",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "21.9 m",
+      "work": "16.71 × 1.28 = 21.39; (0.87 − 0.4) × 1000 = 470; 470 ÷ 21.39 = 21.9 m (rounded down)"
+    },
+    {
+      "id": "l10.lmax25",
+      "label": "Longest lathe run with a 2.5 mm² cpc",
+      "value": 30.5,
+      "unit": "m",
+      "rule": "(maximum Zs − Zdb) × 1000 ÷ (mΩ/m × 1.28), rounded down",
+      "cite": "g.zmax.C25; i6's longest-run rule (l6.A.maxRun)",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "30.5 m",
+      "work": "12.02 × 1.28 = 15.39; (0.87 − 0.4) × 1000 = 470; 470 ÷ 15.39 = 30.5 m (rounded down)"
+    },
+    {
+      "id": "l10.lmax4",
+      "label": "Longest lathe run with a 4 mm² cpc",
+      "value": 39.8,
+      "unit": "m",
+      "rule": "(maximum Zs − Zdb) × 1000 ÷ (mΩ/m × 1.28), rounded down",
+      "cite": "g.zmax.C25; i6's longest-run rule (l6.A.maxRun)",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "39.8 m",
+      "work": "9.22 × 1.28 = 11.80; (0.87 − 0.4) × 1000 = 470; 470 ÷ 11.80 = 39.8 m (rounded down)"
+    },
+    {
+      "id": "l10.check",
+      "label": "Check: Zs at 32 m, 2.5 mm² cpc",
+      "value": 0.892,
+      "unit": "Ω",
+      "rule": "Zdb + mΩ/m × 1.28 × L ÷ 1000",
+      "cite": "g.r12.4_25, g.zmax.C25",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.892 Ω",
+      "work": "12.02 × 1.28 × 32 ÷ 1000 = 0.492 Ω; 0.4 + 0.492 = 0.892 Ω > 0.87 Ω: not acceptable"
+    },
+    {
+      "id": "l10.check.slip1",
+      "label": "Check slip: the heat check only",
+      "value": 0.63,
+      "unit": "mm²",
+      "rule": "S = √(I² × t) ÷ k, I at Cmax, at 32 m",
+      "cite": "Zs must also be within the maximum",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.63 mm²",
+      "work": "253 ÷ 0.892 = 283.63 A; √(283.63² × 0.1) ÷ 143 = 0.63 mm² ≤ 2.5 mm²: the heat passes, but Zs (0.892 Ω) fails"
+    },
+    {
+      "id": "l10.check.slip2",
+      "label": "Check slip: R1+R2 set against the maximum, Zdb left out",
+      "value": 0.492,
+      "unit": "Ω",
+      "rule": "R1+R2 alone",
+      "cite": "formula sheet step 13 (Zs = Zdb + R1+R2)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.492 Ω",
+      "work": "12.02 × 1.28 × 32 ÷ 1000 = 0.492 Ω"
+    },
+    {
+      "id": "l10.cold",
+      "label": "Expected cold Zs at the lathe, 20 °C, 2.5 mm² cpc",
+      "value": 0.725,
+      "unit": "Ω",
+      "rule": "Zdb + R1+R2 at 20 °C",
+      "cite": "OSG p.218 (values at 20 °C); i9",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "note": "Zdb is used as given; a reading of Zdb would itself be cold.",
+      "text": "0.725 Ω",
+      "work": "12.02 × 27 ÷ 1000 = 0.325 Ω; 0.4 + 0.325 = 0.725 Ω; with the 4 mm² cpc 9.22 × 27 ÷ 1000 = 0.249 Ω, 0.4 + 0.249 = 0.649 Ω"
+    },
+    {
+      "id": "l10.cold.lim",
+      "label": "Rule-of-thumb cold limit, 90 °C cable, 20 °C, 25 A type C",
+      "value": 0.68,
+      "unit": "Ω",
+      "rule": "Table 41.3 figure × (t + 230) ÷ 320",
+      "cite": "i9's Keep this card (the 320 rule); OSG p.146 Table B8 note 1",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "note": "0.725 Ω is over it, though the circuit complies hot: hand the inspector the expected reading and the corrected limit.",
+      "text": "0.680 Ω",
+      "work": "0.87 × 250 ÷ 320 = 0.680 Ω (0.6797)"
+    },
+    {
+      "id": "l10.swa.a",
+      "label": "SWA: armour needed, 6 mm² four-core (Table 54.7)",
+      "value": 18.65,
+      "unit": "mm²",
+      "rule": "k1 ÷ k2 × S (S ≤ 16 mm²)",
+      "cite": "swa handout p.1 (18.65 mm²); Table 54.7 rule to research (extras-plan section 5 item 1); g.k1.cu90, g.k2.steel90, g.swa6.4c.armour",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "18.65 mm²",
+      "work": "143 × 6 ÷ 46 = 18.65 mm² ≤ 36 mm²: the armour is enough"
+    },
+    {
+      "id": "l10.swa.b",
+      "label": "SWA: armour needed, 25 mm² four-core (Table 54.7)",
+      "value": 49.74,
+      "unit": "mm²",
+      "rule": "k1 ÷ k2 × 16 (16 < S ≤ 35 mm²)",
+      "cite": "swa handout p.2 (printed 49.73 mm², cut short); Table 54.7 rule to research; g.swa25.4c.armour",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "49.74 mm²",
+      "work": "143 × 16 ÷ 46 = 49.74 mm² ≤ 70 mm²: the armour is enough"
+    },
+    {
+      "id": "l10.swa.par",
+      "label": "SWA: a 25 mm² core and the armour in parallel as the cpc",
+      "value": 0.518,
+      "unit": "mΩ/m",
+      "rule": "R2 = 1 ÷ (1 ÷ Rc + 1 ÷ Ra)",
+      "cite": "swa handout p.3 (printed 0.52, cut short); g.r.25, g.swa25.5c.armourR",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "0.518 mΩ/m",
+      "work": "1 ÷ (1 ÷ 0.727 + 1 ÷ 1.8) = 0.518 mΩ/m"
+    },
+    {
+      "id": "l10.swa.r12",
+      "label": "SWA: R1+R2 of the 26 m five-core run",
+      "value": 0.041,
+      "unit": "Ω",
+      "rule": "(R1 + R2 per metre) × 1.28 × L ÷ 1000",
+      "cite": "swa handout; a.swa.t (1.28 on the armour, as a.armourR)",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "0.041 Ω",
+      "work": "(0.727 + 0.518) × 1.28 × 26 ÷ 1000 = 0.041 Ω"
+    },
+    {
+      "id": "l10.swa.zs",
+      "label": "SWA: Zs of the five-core run",
+      "value": 0.101,
+      "unit": "Ω",
+      "rule": "Ze + R1+R2",
+      "cite": "swa handout (Ze 0.06 Ω, its own example)",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "0.101 Ω",
+      "work": "0.06 + 0.041 = 0.101 Ω"
+    },
+    {
+      "id": "l10.swa.imax",
+      "label": "SWA: the fault current at Cmax",
+      "value": 2504.95,
+      "unit": "A",
+      "rule": "Uo × Cmax ÷ Zs",
+      "cite": "slides p.60, 62 (heat at Cmax; the handout used Cmin, 2185 A)",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "2 504.95 A",
+      "work": "253 ÷ 0.101 = 2 504.95 A"
+    },
+    {
+      "id": "l10.swa.sa",
+      "label": "SWA: armour alone, least area for the heat",
+      "value": 17.22,
+      "unit": "mm²",
+      "rule": "S = √(I² × t) ÷ k2",
+      "cite": "g.k2.steel90; a.swa.t",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "17.22 mm²",
+      "work": "√(2 504.95² × 0.1) ÷ 46 = 17.22 mm² ≤ 88 mm²"
+    },
+    {
+      "id": "l10.swa.sc",
+      "label": "SWA: the copper core alone, least area for the heat",
+      "value": 5.54,
+      "unit": "mm²",
+      "rule": "S = √(I² × t) ÷ k1",
+      "cite": "g.k1.cu90; a.swa.t",
+      "kind": "worked",
+      "status": "worked",
+      "lesson": "i10",
+      "practice": true,
+      "text": "5.54 mm²",
+      "work": "√(2 504.95² × 0.1) ÷ 143 = 5.54 mm² ≤ 25 mm²"
+    },
+    {
+      "id": "l10.changed",
+      "label": "Changed numbers: It for a 40 A distribution circuit",
+      "value": 60.79,
+      "unit": "A",
+      "rule": "It ≥ In ÷ (Ca × Cg)",
+      "cite": "g.ca.35.70, g.cg.3, g.4d1a.10.c5, g.4d1a.16.c5, g.4d1b.16.c6; C&G 2396 paper 4 Section A shape, numbers changed",
+      "kind": "lathe",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "60.79 A",
+      "work": "0.94 × 0.70 = 0.658; 40 ÷ 0.658 = 60.79 A: 16 mm² (68 A; 10 mm² is 50 A); drop 2.4 × 32 × 26 ÷ 1000 = 2.00 V ≤ 6 V"
+    },
+    {
+      "id": "l10.changed.slip1",
+      "label": "Changed slip: Cg left out",
+      "value": 42.55,
+      "unit": "A",
+      "rule": "In ÷ Ca",
+      "cite": "Table 4C1",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "42.55 A",
+      "work": "40 ÷ 0.94 = 42.55 A"
+    },
+    {
+      "id": "l10.changed.slip2",
+      "label": "Changed slip: Ca left out",
+      "value": 57.14,
+      "unit": "A",
+      "rule": "In ÷ Cg",
+      "cite": "Table 4B1",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "57.14 A",
+      "work": "40 ÷ 0.70 = 57.14 A"
+    },
+    {
+      "id": "l10.changed.slip3",
+      "label": "Changed slip: worked from Ib, not In",
+      "value": 48.63,
+      "unit": "A",
+      "rule": "Ib ÷ (Ca × Cg)",
+      "cite": "slides p.13 (It from In)",
+      "kind": "slip",
+      "status": "worked",
+      "lesson": "i10",
+      "text": "48.63 A",
+      "work": "32 ÷ 0.658 = 48.63 A"
     }
   ],
   "pending": [],
@@ -6793,6 +7856,51 @@
       ],
       "researched": "i7 top-up, 20 Oct 2026: assumption a.pfcTwice (research sources 412 to 416); the Appendix 14 wording itself is quoted only second-hand from a forum post and is not among the pages saved from your copy",
       "worked": "figure l6.showroom.nominal, 2e"
+    },
+    {
+      "id": "r.l10.k1k2",
+      "status": "researched",
+      "needs": [
+        "Table 54.7's rule for a cpc of another material: k1 ÷ k2 × S, and × 16 for 16 < S ≤ 35 mm² (NICEIC/ELECSA, research source 439's page)"
+      ],
+      "for": "l10.swa.a, l10.swa.b",
+      "researched": "i10 top-up: Table 54.7 for a cpc of another material is (k1 ÷ k2) × S up to 16 mm² and (k1 ÷ k2) × 16 over 16 up to 35 mm², k1 for the line conductor, k2 for the cpc (his swa handout p.1 and p.2, research sources 537, 542; a cable maker's page, 570 to 572, which is the Singapore adoption, so the formula is corroborated, not its regulation number; NICEIC, 567). Selection must not be used where the line conductors are sized only by short-circuit current or the earth fault current is less than the short-circuit current, and it gives a larger csa than calculation (562 to 564)."
+    },
+    {
+      "id": "r.l10.parallel",
+      "status": "researched",
+      "needs": [
+        "armour and a core in parallel as the cpc; the fixes when armour falls short (an extra core, or a cpc run alongside)"
+      ],
+      "for": "l10.swa.par and the worked example",
+      "researched": "i10 top-up: armour with a core in parallel: his handout (545, 547, 544); fixes when armour falls short, an extra core or a cpc alongside (539, 540, 568, 569); a separate cpc in parallel with SWA is permitted by 521.5.1 and must be sized for the full earth fault current, as fault current does not share equally (573 to 576, a practitioner's guide (a cable-fitting surveyor's page, last updated 2012), so the lesson states it as that guide's reading); the reciprocal rule for parallel paths (577, an IET forum post)."
+    },
+    {
+      "id": "r.l10.pf16",
+      "status": "not found",
+      "needs": [
+        "Appendix 4: with a known power factor, conductors of 16 mm² or less, the drop may be taken as tabulated × cos φ (research source 312's page)"
+      ],
+      "for": "l10.vd.pf (leave 5(e)'s note out if not quoted)",
+      "researched": "i10 top-up: no quotable source for 'tabulated × cos φ' for 16 mm² or less (searched twice). The figure l10.vd.pf is removed and 5(e)'s reveal says only that the table gives one value up to 16 mm² and it is used as it stands (research sources 312, 314, 320: the r and x split matters above 16 mm²)."
+    },
+    {
+      "id": "r.l10.fuse40",
+      "status": "practice value",
+      "needs": [
+        "a 40 A BS 88-2 gG fuse's time at about 2 to 2.5 kA, from a maker's time-current data"
+      ],
+      "for": "a.swa.t",
+      "researched": "i10 top-up: no maker's data for the 40 A rating at about 2.5 kA was found. The lesson uses the practice value p.swa.t (0.1 s), labelled; supporting gate table (Mersen, 581, 582)."
+    },
+    {
+      "id": "r.l10.543",
+      "status": "researched",
+      "needs": [
+        "Regulation 543.1.1 / 543.1.3: a cpc sized by calculation in place of Table 54.7 (if flowchart note 2 and source 441 are not enough)"
+      ],
+      "for": "Section B point 5",
+      "researched": "i10 top-up: Regulation 543.1.1 allows calculation (543.1.3, adiabatic) or selection (Table 54.7); selection gives the larger csa and is not allowed where the line conductors are sized only by short-circuit current (NICEIC, research sources 562 to 564; flowchart note 2 and sources 441 and 439 as before)."
     }
   ]
 }

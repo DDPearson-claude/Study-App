@@ -1,0 +1,951 @@
+{
+  "iid": "i10",
+  "title": "A second job: the lathe, start to finish",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the Zs bar cross the 0.87 Ω line at 0.977 Ω while the heat bar still passes, when you swap the lathe’s cpc from 2.5 mm² to 1.5 mm² at 27 m.",
+    "title": "Which check sets the smallest cpc?",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Thirteen screens, with Back and Continue: a lathe motor's circuit designed end to end, whether its cpc can be smaller, and steel armour as the cpc.\n\nScreen 1, Do you still have it? The question: “A motor circuit runs 27 m in 4 mm² singles with a 4 mm² cpc. Zs is 0.4 Ω at its board and 0.719 Ω at the motor. The client wants the cpc cut to 2.5 mm². Which checks must you work again?” Three choices, in this order: “Zs against the breaker's maximum, and the heat check”; “Only the heat check”; “The current rating and the voltage drop”. Right: “Still there.” Then the working. R1+R2 becomes 12.02 × 1.28 × 27 ÷ 1000 = 0.415 Ω, so Zs rises from 0.719 Ω to 0.815 Ω, against the breaker's maximum. The thinner cpc must still take the fault's heat. The cpc carries no load current, so the rating and the drop stay as they were. Then two buttons: Refresh the why (screen 2) and Skip to the practice (screen 6). Wrong, the second: “A thinner cpc has more resistance, so Zs rises too. Check it against the breaker's maximum.” Wrong, the third: “The cpc carries no load current, so neither changes. Its size changes Zs and the heat it can take.” Then the right working, and on to screen 2.\n\nScreen 2, What it is for. “One whole job in one pass, on a circuit unlike the showroom's. A lathe motor is fed from a board that sits below 400 V. Its cable shares trunking with two other circuits. Then a question every designer meets. Can the cpc be smaller than Table 54.7's size? Yes, if two checks still pass. Zs must stay within the breaker's maximum. And the cpc must take the fault's heat.” In red, what goes wrong if it is skipped: “Cut the cpc on the heat check alone and Zs can rise past the maximum. Then the breaker may not open in time.”\n\nScreen 3, The why: which check sets the smallest cpc. The picture: the lathe circuit from DB2, a line conductor and a cpc running to the motor, with the loop drawn as two parts: Zs at DB2, a fixed 0.4 Ω, and the circuit's R1+R2, which grows with the run and with a thinner cpc. A choice of cpc: 1.5, 2.5 or 4 mm², opening on 4 mm². A slider, run length, 10 to 40 m in steps of 0.5 m, opening on 27 m. Two bars. The first is Zs, built from the 0.4 Ω and the R1+R2, against a dashed line at 0.87 Ω, the maximum for the 25 A type C breaker.[^264] Past the line it turns red. The second is the least cpc the heat needs, against a mark at the cpc fitted. Two readouts: the Cmin fault current, to 2 places, against 250 A; and the longest run this cpc allows, to 1 place. The rule beside it: “R1+R2 = mΩ/m × 1.28 × length ÷ 1000. Zs = 0.4 + R1+R2. The maximum, 0.87 Ω, is 218.5 ÷ 250. Fault current at Cmin = 218.5 ÷ Zs, at Cmax = 253 ÷ Zs. Least cpc = √(I² × 0.1) ÷ 143, with I at Cmax.” The mΩ/m for the 4 mm² line with each cpc: 16.71 with 1.5 mm², 12.02 with 2.5 mm², 9.22 with 4 mm². Where the Cmax current is under 250 A, the breaker may not open within 0.1 s, so the heat bar reads “not worked: no 0.1 s trip”.\n\nWhat he sees, at 27 m. 4 mm²: Zs 0.719 Ω, heat needs 0.78 mm². 2.5 mm²: R1+R2 0.415 Ω, Zs 0.815 Ω, heat needs 0.69 mm². 1.5 mm²: Zs 0.977 Ω, over the line, and 223.64 A at Cmin, under 250 A, yet the heat needs only 0.57 mm². The words under it: “A thinner cpc adds resistance, so Zs rises and the fault current falls. Less current heats the cpc less, while the breaker still trips at once. So the heat check gets easier as the breaker check gets harder. On the lathe the loop, not the heat, sets the smallest cpc. The 2.5 mm² cpc allows up to 30.5 m, the 4 mm² up to 39.8 m.” The prompt above the picture: “Pick a thinner cpc, then drag the length.” Read: at 27 m the 2.5 mm² cpc gives Zs 0.815 Ω, within 0.87 Ω, and needs only 0.69 mm² for the heat. The 1.5 mm² cpc gives 0.977 Ω and fails on Zs. Still: 2.5 mm², 27 m.\n\nScreen 4, Check. “Keep the 2.5 mm² cpc. The lathe moves, and the run becomes 32 m. Is the circuit still acceptable?” Choices: “No: Zs is 0.892 Ω, over 0.87 Ω”; “Yes: the cpc needs only 0.63 mm² for the heat”; “Yes: R1+R2 is 0.492 Ω, within 0.87 Ω”. Right, the first: “R1+R2 = 12.02 × 1.28 × 32 ÷ 1000 = 0.492 Ω. Zs = 0.4 + 0.492 = 0.892 Ω, over 0.87 Ω. The longest run with 2.5 mm² is 30.5 m. Go back to the 4 mm² cpc, good to 39.8 m.” Wrong, the second: “The heat check does pass. But Zs is over the maximum, so the breaker may not open in time.” Wrong, the third: “Add Zs at DB2, 0.4 Ω. The breaker sees the whole loop.”\n\nScreen 5, Worked example: steel armour as the cpc, a line at each press. The prompt: “Work each step yourself first, then press Show.” Said once: “Steel armour can be the cpc, if a calculation shows it is enough. Steel's k is far lower than copper's, so it needs more area. Take k1 = 143 for the copper cores and k2 = 46 for the steel. 46 is a practice value: check it in Table 54.4 of your copy.” The lines:\nA 6 mm² four-core 90 °C SWA, 40 m. For a cpc of another material, Table 54.7 gives k1 ÷ k2 × S. Armour needed = 143 × 6 ÷ 46 = 18.65 mm². The maker's sheet gives 36 mm². Enough.\nA 25 mm² four-core, 26 m. Above 16 mm², Table 54.7 uses 16 in place of S.[^52] Armour needed = 143 × 16 ÷ 46 = 49.74 mm². The maker gives 70 mm². Enough.\nHad it fallen short: choose a cable with an extra core, or run a separate cpc alongside. A separate cpc must take the whole fault current, because the current does not share evenly.\nA 25 mm² five-core, 26 m, on a 40 A BS 88-2 fuse. Take Ze as 0.06 Ω. The fifth core and the armour share the cpc's job. R2 = 1 ÷ (1 ÷ 0.727 + 1 ÷ 1.8) = 0.518 mΩ/m. R1+R2 = (0.727 + 0.518) × 1.28 × 26 ÷ 1000 = 0.041 Ω. Zs = 0.06 + 0.041 = 0.101 Ω. Fault current at Cmax = 253 ÷ 0.101 = 2504.95 A. Take 0.1 s for the fuse here. That is a practice value: read the real time from Figure 3A3. Armour alone: √(2504.95² × 0.1) ÷ 46 = 17.22 mm², within its 88 mm². Core alone: √(2504.95² × 0.1) ÷ 143 = 5.54 mm², within 25 mm². Both pass.\nA note under the lines: “You may have 49.73 mm², 0.52, 0.04 and 0.10 written down: the same figures, cut short. Work the heat at Cmax, not Cmin: it gives the larger area. Take armour areas from the maker's sheet for the cable you buy.” Read: both four-core cables have more armour than Table 54.7 asks. With the core and the armour in parallel, Zs is 0.101 Ω and each path alone takes the heat.\n\nScreen 6, Section A, question 5 (a). The scenario panel, titled “The lathe at DB2”, in place of the showroom: “A workshop on a 400 V three-phase TN-C-S supply, Ze 0.12 Ω, prospective fault current 8 kA at the origin. DB2 is fed by a distribution circuit that drops 3%. Zs at DB2 is 0.4 Ω. From DB2, a circuit feeds a 12.5 kW three-phase lathe motor, power factor 0.91 and efficiency 94% at full load. It runs 27 m in 90 °C thermosetting singles in trunking on a wall, with two other loaded circuits, at 25 °C. Protection is a type C circuit-breaker to BS EN 60898.” Said once: “Assume the lathe's terminals and the breaker allow the cable to run at 90 °C. If you have 0.97 Ω written down for DB2, use 0.4 Ω. With 0.97 Ω no 25 A type C could pass.” The question: “(a) Determine the design current of the lathe circuit.” A typed answer, part 5a. U at DB2 = 400 × 0.97 = 388 V. √3 × 388 = 672.04. × 0.91 = 611.56. × 0.94 = 574.87. Ib = 12 500 ÷ 574.87 = 21.74 A. Accepted too: 21.7 A, and 21.77 A with √3 taken as 1.73. Slips: 21.09 A, “That is at 400 V. DB2 sits 3% down, at 388 V.” 20.44 A, “Divide by the efficiency too. The motor draws more than its output.” 19.79 A, “Divide by the power factor too.” 37.66 A, “It is three-phase: divide by √3 as well.” After two misses, the working.\n\nScreen 7, Section A, question 5 (b) and (c). Part 5(a) carried forward. Shown as working: “(b) The next standard rating above 21.74 A is 25 A, type C.” Said once: “Ca is 1.02 for 90 °C thermosetting cable at 25 °C. It is above 1 because the tables are set at 30 °C, and a cooler room takes heat away faster. Cg is 0.70 for three circuits in the trunking.” The question: “(c) Determine the minimum tabulated current-carrying capacity, It.” A typed answer, part 5c. Factors together = 1.02 × 0.70 = 0.714. It = 25 ÷ 0.714 = 35.01 A. Slips: 35.71 A, “Divide by Ca too. At 1.02 it lowers It a little.” 24.51 A, “Divide by Cg too. Three circuits share the trunking.” 30.45 A, “Work It from In, 25 A, not Ib.” After two misses, the working. Then (d): “Table 4E1A, column 5, three loaded singles: 2.5 mm² gives 28 A, too small. 4 mm² gives 37 A. Iz = 37 × 0.714 = 26.42 A, at least 25 A. So 4 mm².”\n\nScreen 8, Section A, question 5 (e). Parts 5(a) to 5(d) carried forward. The question: “(e) Determine the voltage drop from the intake to the lathe, and state whether it complies.” A typed answer, part 5e. Upstream = 400 × 0.03 = 12.00 V. The lathe circuit, at 10 mV/A/m for 4 mm² three-phase: 10 × 21.74 × 27 ÷ 1000 = 5.87 V. Total = 12.00 + 5.87 = 17.87 V. Accepted too: 17.86 V from 21.7 A, and 17.88 V from 21.77 A. Slips: 5.87 V, “That is the lathe circuit alone. Add DB2's 3%, 12.00 V.” 12.80 V, “The whole path is three-phase, so add the 12.00 V as it is.” After two misses, the working. Then: “The limit for a power circuit is 5% of 400 V, 20.00 V, so it complies.”\n\nScreen 9, Section A, question 5 (f) and (g). Parts 5(a) to 5(e) carried forward. Shown first: “(f) Table 54.7: a copper cpc with a line of 16 mm² or less is the line's size, so 4 mm².” Said once: “The client asks for a 2.5 mm² cpc to save copper.” The question: “(g) Determine Zs at the lathe with a 2.5 mm² cpc, and state whether the circuit meets the requirements for automatic disconnection.” A typed answer, part 5g. R1+R2 = 12.02 × 1.28 × 27 ÷ 1000 = 0.415 Ω. Zs = 0.4 + 0.415 = 0.815 Ω. Accepted too: 0.81 Ω. Slips: 0.725 Ω, “Multiply by 1.28 to take the cable up to its running temperature.” 0.535 Ω, “Start from Zs at DB2, 0.4 Ω, not Ze at the origin.” 0.719 Ω, “That is with the 4 mm² cpc. Use 12.02 mΩ/m, for 4 mm² with 2.5 mm².” After two misses, the working. Then: “0.815 Ω is within 0.87 Ω. At Cmin, 218.5 ÷ 0.815 = 268.10 A, past the 250 A that opens the breaker within 0.1 s. So it complies.”\n\nScreen 10, Section A, question 5 (h). Parts 5(a) to 5(g) carried forward. The question: “(h) Determine the minimum csa of the cpc for thermal constraints, and state whether 2.5 mm² is adequate.” A typed answer, part 5h. Fault current at Cmax = 230 × 1.1 ÷ 0.815 = 310.43 A. That is past 250 A, so the breaker opens within 0.1 s: take t = 0.1 s. k = 143 for a copper cpc bunched with 90 °C thermosetting cables. S = √(310.43² × 0.1) ÷ 143 = 0.69 mm². Slips: 0.59 mm², “Work the heat at Cmax, 310.43 A. It gives the larger area.” 1.37 mm², “The breaker opens within 0.1 s at this current. 0.4 s is the limit, not the time.” 0.85 mm², “115 is for 70 °C thermoplastic. These cables are 90 °C thermosetting, so 143.” After two misses, the working. Then: “0.69 mm² is well under 2.5 mm², so it is adequate. Both checks pass, and the loop is the closer: 0.815 Ω against 0.87 Ω.”\n\nScreen 11, Section B: “The client asks for the lathe's cpc to be cut to 2.5 mm² to save copper. Explain whether you would agree, and what the inspector must be told.” Written, marked against five points, any three of which make a full answer. One more go, then the model answer.\n\nScreen 12, Section A, changed numbers. “A 40 A BS 88-2 fuse-switch feeds a 63 A TP&N workshop board through a 26 m distribution circuit. After diversity it carries 32 A per phase. It is 70 °C thermoplastic singles in trunking with two other circuits, at 35 °C. The drop must not exceed 6 V. Determine the minimum tabulated current-carrying capacity, It.” A typed answer, in A. Ca = 0.94 at 35 °C, Cg = 0.70. Factors together = 0.94 × 0.70 = 0.658. It = 40 ÷ 0.658 = 60.79 A. Slips: 42.55 A, “Divide by Cg too.” 57.14 A, “Divide by Ca too.” 48.63 A, “Work It from In, 40 A, not the 32 A load.” After it: “Table 4D1A, column 5: 10 mm² gives 50 A, too small, so 16 mm² at 68 A. Its drop is 2.4 × 32 × 26 ÷ 1000 = 2.00 V, inside 6 V. The board's 63 A rating is at least the 40 A fuse ahead of it, as Regulation 536.4.202 asks.[^83]”\n\nScreen 13, Keep this: the summary card, its figures headed “The lathe so far”, then Finish the lesson.\n\nOn every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.",
+    "ignores": "The picture holds Zs at DB2 at 0.4 Ω and takes the whole run at 90 °C through the 1.28 multiplier. It takes the breaker to open within 0.1 s whenever the Cmax current reaches 250 A, and works the heat only then. It leaves out the motor’s starting current, parallel earth paths and DB2’s own fault level. The armour example puts the 1.28 multiplier on the steel too. That is cautious, since armour runs cooler than the cores.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 13 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Recall and lathe: run length, m",
+        "value": 27,
+        "kind": "constant"
+      },
+      {
+        "label": "Recall and lathe: Zs at DB2, Ω",
+        "value": 0.4,
+        "kind": "constant",
+        "source": 27
+      },
+      {
+        "label": "4 mm² line with 4 mm² cpc, mΩ/m",
+        "value": 9.22,
+        "kind": "constant",
+        "source": 37
+      },
+      {
+        "label": "4 mm² line with 2.5 mm² cpc, mΩ/m",
+        "value": 12.02,
+        "kind": "constant",
+        "source": 35
+      },
+      {
+        "label": "4 mm² line with 1.5 mm² cpc, mΩ/m",
+        "value": 16.71,
+        "kind": "constant",
+        "source": 44
+      },
+      {
+        "label": "Multiplier, cable bunched, 90 °C",
+        "value": 1.28,
+        "kind": "constant",
+        "source": 38
+      },
+      {
+        "label": "Recall: Zs with the 4 mm² cpc, Ω",
+        "value": 0.719,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall: R1+R2 with the 2.5 mm² cpc, Ω",
+        "value": 0.415,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall: Zs with the 2.5 mm² cpc, Ω",
+        "value": 0.815,
+        "kind": "computed"
+      },
+      {
+        "label": "Maximum Zs, 25 A type C, Table 41.3, Ω",
+        "value": 0.87,
+        "kind": "constant",
+        "source": 264
+      },
+      {
+        "label": "Ia, 25 A type C, A",
+        "value": 250,
+        "kind": "constant",
+        "source": 31
+      },
+      {
+        "label": "Cmin",
+        "value": 0.95,
+        "kind": "constant",
+        "source": 247
+      },
+      {
+        "label": "Cmax",
+        "value": 1.1,
+        "kind": "constant",
+        "source": 314
+      },
+      {
+        "label": "Nominal voltage to earth, V",
+        "value": 230,
+        "kind": "constant"
+      },
+      {
+        "label": "230 × 0.95, V",
+        "value": 218.5,
+        "kind": "computed"
+      },
+      {
+        "label": "230 × 1.1, V",
+        "value": 253,
+        "kind": "computed"
+      },
+      {
+        "label": "Breaker time at 10 × In or more, s",
+        "value": 0.1,
+        "kind": "constant",
+        "source": 159
+      },
+      {
+        "label": "k, copper cpc with 90 °C thermosetting",
+        "value": 143,
+        "kind": "constant",
+        "source": 32
+      },
+      {
+        "label": "Why: cpc choices, mm²",
+        "value": "1.5, 2.5, 4",
+        "kind": "control"
+      },
+      {
+        "label": "Why: run length slider, m",
+        "value": "10 to 40, step 0.5",
+        "kind": "control"
+      },
+      {
+        "label": "Why: 4 mm² cpc, heat needs, mm²",
+        "value": 0.78,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: 2.5 mm² cpc, heat needs, mm²",
+        "value": 0.69,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: 1.5 mm² cpc, Zs at 27 m, Ω",
+        "value": 0.977,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: 1.5 mm² cpc, Cmin current, A",
+        "value": 223.64,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: 1.5 mm² cpc, heat needs, mm²",
+        "value": 0.57,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: longest run, 1.5 mm² cpc, m",
+        "value": 21.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: longest run, 2.5 mm² cpc, m",
+        "value": 30.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Why: longest run, 4 mm² cpc, m",
+        "value": 39.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: new run length, m",
+        "value": 32,
+        "kind": "assumed"
+      },
+      {
+        "label": "Check: R1+R2 at 32 m, Ω",
+        "value": 0.492,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: Zs at 32 m, Ω",
+        "value": 0.892,
+        "kind": "computed"
+      },
+      {
+        "label": "Check slip: heat needs at 32 m, mm²",
+        "value": 0.63,
+        "kind": "computed"
+      },
+      {
+        "label": "k1, copper cores, 90 °C thermosetting",
+        "value": 143,
+        "kind": "constant",
+        "source": 32
+      },
+      {
+        "label": "k2, steel armour, 90 °C cable (practice value)",
+        "value": 46,
+        "kind": "constant",
+        "source": 46
+      },
+      {
+        "label": "Worked: 6 mm² four-core, run, m",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked: armour needed, 6 mm² four-core, mm²",
+        "value": 18.65,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: armour, 6 mm² four-core, mm²",
+        "value": 36,
+        "kind": "constant",
+        "source": 60
+      },
+      {
+        "label": "Worked: Table 54.7 size used above 16 mm², mm²",
+        "value": 16,
+        "kind": "constant",
+        "source": 52
+      },
+      {
+        "label": "Worked: 25 mm² cables, run, m",
+        "value": 26,
+        "kind": "constant",
+        "source": 56
+      },
+      {
+        "label": "Worked: armour needed, 25 mm² four-core, mm²",
+        "value": 49.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: armour, 25 mm² four-core, mm²",
+        "value": 70,
+        "kind": "constant",
+        "source": 59
+      },
+      {
+        "label": "Worked: 25 mm² core, mΩ/m",
+        "value": 0.727,
+        "kind": "constant",
+        "source": 59
+      },
+      {
+        "label": "Worked: armour, 25 mm² five-core, mΩ/m",
+        "value": 1.8,
+        "kind": "constant",
+        "source": 59
+      },
+      {
+        "label": "Worked: armour, 25 mm² five-core, mm²",
+        "value": 88,
+        "kind": "constant",
+        "source": 59
+      },
+      {
+        "label": "Worked: core and armour in parallel, mΩ/m",
+        "value": 0.518,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: R1+R2, five-core, Ω",
+        "value": 0.041,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: Ze, five-core example, Ω",
+        "value": 0.06,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked: Zs, five-core, Ω",
+        "value": 0.101,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: fault current at Cmax, A",
+        "value": 2504.95,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: fuse time (practice value), s",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked: 40 A BS 88-2 fuse rating, A",
+        "value": 40,
+        "kind": "constant",
+        "source": 76
+      },
+      {
+        "label": "Worked: armour alone, heat needs, mm²",
+        "value": 17.22,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: core alone, heat needs, mm²",
+        "value": 5.54,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked: figures you may have cut short",
+        "value": "49.73, 0.52, 0.04, 0.10",
+        "kind": "constant",
+        "source": 49
+      },
+      {
+        "label": "Lathe: motor output, kW",
+        "value": 12.5,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Lathe: power factor",
+        "value": 0.91,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Lathe: efficiency, %",
+        "value": 94,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Lathe: ambient, °C",
+        "value": 25,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Lathe: circuits in the trunking",
+        "value": 3,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Lathe: upstream drop, %",
+        "value": 3,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Lathe: Ze at the origin, Ω",
+        "value": 0.12,
+        "kind": "constant"
+      },
+      {
+        "label": "Lathe: prospective fault current, kA",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "Lathe: Zs at DB2 in part 1, Ω",
+        "value": 0.97,
+        "kind": "constant",
+        "source": 34
+      },
+      {
+        "label": "Supply line voltage, V",
+        "value": 400,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Part 5a: voltage at DB2, V",
+        "value": 388,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5a: √3 × 388",
+        "value": 672.04,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5a: × 0.91",
+        "value": 611.56,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5a: × 0.94",
+        "value": 574.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5a: Ib, A",
+        "value": 21.74,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5a: accepted, A",
+        "value": "21.7 and 21.77",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5a: √3 taken as",
+        "value": 1.73,
+        "kind": "constant",
+        "source": 8
+      },
+      {
+        "label": "Part 5a slips, A",
+        "value": "21.09, 20.44, 19.79, 37.66",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5b: breaker rating, A",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5c: Ca, 25 °C, 90 °C thermosetting",
+        "value": 1.02,
+        "kind": "constant",
+        "source": 10
+      },
+      {
+        "label": "Part 5c: Cg, three circuits",
+        "value": 0.7,
+        "kind": "constant",
+        "source": 11
+      },
+      {
+        "label": "Part 5c: factors together",
+        "value": 0.714,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5c: It, A",
+        "value": 35.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5c slips, A",
+        "value": "35.71, 24.51, 30.45",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5d: 4 mm², Table 4E1A column 5, A",
+        "value": 37,
+        "kind": "constant",
+        "source": 12
+      },
+      {
+        "label": "Part 5d: 2.5 mm², Table 4E1A column 5, A",
+        "value": 28,
+        "kind": "constant",
+        "source": 13
+      },
+      {
+        "label": "Part 5d: Iz, A",
+        "value": 26.42,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5e: 4 mm² three-phase, mV/A/m",
+        "value": 10,
+        "kind": "constant",
+        "source": 15
+      },
+      {
+        "label": "Part 5e: upstream drop, V",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5e: lathe circuit drop, V",
+        "value": 5.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5e: drop from the intake, V",
+        "value": 17.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5e: accepted, V",
+        "value": "17.86 and 17.88",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5e slip: ÷ √3, V",
+        "value": 12.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5e: limit, 5% of 400 V, V",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5f: suitable cpc, Table 54.7, mm²",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5g: Zs, Ω",
+        "value": 0.815,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5g: accepted, Ω",
+        "value": 0.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5g slips, Ω",
+        "value": "0.725, 0.535, 0.719",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5g: Cmin current, A",
+        "value": 268.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5h: Cmax current, A",
+        "value": 310.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5h: least cpc for the heat, mm²",
+        "value": 0.69,
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5h slips, mm²",
+        "value": "0.59, 1.37, 0.85",
+        "kind": "computed"
+      },
+      {
+        "label": "Part 5h slip: k, 70 °C thermoplastic",
+        "value": 115,
+        "kind": "constant"
+      },
+      {
+        "label": "Section B: points, of which any make a full answer",
+        "value": "5, any 3",
+        "kind": "constant"
+      },
+      {
+        "label": "Section B: expected cold Zs at 20 °C, Ω",
+        "value": 0.725,
+        "kind": "computed"
+      },
+      {
+        "label": "Section B: rule-of-thumb cold limit, 90 °C cable, Ω",
+        "value": 0.68,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: fuse rating, A",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: board rating, A",
+        "value": 63,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: run, m",
+        "value": 26,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: load per phase, A",
+        "value": 32,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: ambient, °C",
+        "value": 35,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: drop limit, V",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Changed: Ca, 35 °C, 70 °C thermoplastic",
+        "value": 0.94,
+        "kind": "constant",
+        "source": 77
+      },
+      {
+        "label": "Changed: factors together",
+        "value": 0.658,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: It, A",
+        "value": 60.79,
+        "kind": "computed"
+      },
+      {
+        "label": "Changed slips, A",
+        "value": "42.55, 57.14, 48.63",
+        "kind": "computed"
+      },
+      {
+        "label": "Changed: 10 mm², Table 4D1A column 5, A",
+        "value": 50,
+        "kind": "constant",
+        "source": 78
+      },
+      {
+        "label": "Changed: 16 mm², Table 4D1A column 5, A",
+        "value": 68,
+        "kind": "constant",
+        "source": 79
+      },
+      {
+        "label": "Changed: 16 mm² three-phase, mV/A/m",
+        "value": 2.4,
+        "kind": "constant",
+        "source": 80
+      },
+      {
+        "label": "Changed: drop, V",
+        "value": 2,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Table 54.7's cpc needs no calculation. For a copper line of 16 mm² or less, it is the line's own size. That is the suitable size, not the smallest.[^320] The smallest that works is the [[minimum cpc]], and only a calculation finds it. A thinner cpc saves copper, but it has more resistance. So R1+R2 rises, and Zs with it. Two checks must still pass.\n\nThe first is the loop. The breaker trips at once at 250 A. At Cmin the supply can sag to 218.5 V. So the loop must stay under 218.5 ÷ 250 = 0.874 Ω, printed 0.87 Ω. A bigger loop lets less than 250 A flow, and the breaker may not open in time. The second is the heat. The cpc must carry the fault until the breaker opens, worked at the Cmax current.[^43]\n\nThe two checks pull opposite ways. A higher Zs lets less fault current flow. While the breaker still trips at once, less current heats the cpc less. So the heat check gets easier as the loop check gets harder. Past that point the breaker slows down, and the heat climbs again. On the lathe, a 2.5 mm² cpc gives Zs 0.815 Ω and needs only 0.69 mm² for the heat. A 1.5 mm² cpc fails on Zs, at 0.977 Ω, though it would pass the heat.\n\nSteel armour can be the cpc when a calculation justifies it. Steel's k is far lower than copper's. The same fault heats it further, so it needs more area. Table 54.7 scales the line's size by k1 ÷ k2, the copper's k over the steel's. Above 16 mm² it uses 16 in place of the line's size.[^52] If the armour falls short, use a cable with an extra core, or run a separate cpc alongside. A separate cpc must take the whole fault current, because the current does not share evenly.[^70] Where a core and the armour share the job, their resistances combine in parallel.\n\n**Table 54.7's cpc needs no calculation. A smaller one passes only when Zs and the heat check both still hold. On the lathe, the loop runs out first.**"
+  },
+  "analogy": {
+    "text": "Think of a crane’s safe working load. Two limits set it: the rope’s strength and the jib’s tipping. Close in, the rope runs out first. Far out along the jib, tipping does. The cpc has two limits as well: the loop and the heat. On a short run with plenty of copper, neither bites. Lengthen the run or thin the cpc, and on the lathe the loop runs out first.",
+    "breaks": "A crane’s limits are fixed by its maker and printed on a chart. A cpc’s limits move with the board’s Zs, the breaker and the run, so you work both for every circuit. And a lower fault current eases the heat only while the breaker still trips at once."
+  },
+  "practice": {
+    "text": "- Work Ib at the board's own voltage: U × (1 − the upstream drop).\n- Choose the breaker: the next standard rating at or above Ib. Type C suits a motor's starting current.\n- Find It = In ÷ (the factors that act together). Read the cable from the column for its method.\n- Add every drop from the intake. Judge the total against 3% or 5% of the supply.\n- Take Table 54.7's cpc. To go smaller, work Zs with the smaller cpc against the maximum, then the heat at the Cmax current.\n- Work the longest run the cpc allows: (max Zs − Zs at the board) × 1000 ÷ (mΩ/m × multiplier).\n- For armour as the cpc, use Table 54.7 with k1 ÷ k2, or the adiabatic with the steel's k. Take the armour's area and resistance from the maker's sheet for the cable you buy.\n- Where a cpc passes by a small margin, hand the inspector the expected cold reading.\n\n**Rule of thumb:** if the cpc is smaller than the line, work both checks, Zs first.\n\n**Worked example:** the lathe at 27 m, 4 mm² line, 2.5 mm² cpc. R1+R2 = 12.02 × 1.28 × 27 ÷ 1000 = 0.415 Ω. Zs = 0.4 + 0.415 = 0.815 Ω, within 0.87 Ω. At Cmax, 253 ÷ 0.815 = 310.43 A, and √(310.43² × 0.1) ÷ 143 = 0.69 mm². Both pass, up to 30.5 m.\n\n**Common mistakes**\n- Checking only the heat when the cpc is cut.\n- Working the heat at the Cmin current.\n- Calling Table 54.7's size the minimum.\n- Working Ib at 400 V when the board sits lower.\n- Taking armour areas from an old handout. Use the maker's sheet for the cable bought."
+  },
+  "say": null,
+  "checks": [],
+  "written": {
+    "b1": {
+      "q": "The client asks for the lathe’s cpc to be cut to 2.5 mm² to save copper. Explain whether you would agree, and what the inspector must be told.",
+      "points": [
+        {
+          "text": "Zs at the lathe is 0.815 Ω, within the breaker’s 0.87 Ω maximum. So the fault current at Cmin, 268.10 A, opens it within 0.1 s.",
+          "cite": "BS 7671 Table 41.3 (0.87 Ω, 25 A type C); Fig 3A5, Ia 250 A (mock 2 p.2); slides p.47 (Cmin)"
+        },
+        {
+          "text": "The cpc needs only 0.69 mm² for the fault’s heat at the Cmax current, so 2.5 mm² is enough.",
+          "cite": "Slides p.58 to 62 (S = √(I²t) ÷ k, Cmax); Table 54.3, k 143 (mock 2 p.2)"
+        },
+        {
+          "text": "The margin is thin. With 2.5 mm² the run can be no longer than 30.5 m, so a longer route or a later extension would fail.",
+          "cite": "OSG Table I1 p.218 (12.02 mΩ/m); OSG Table I3 p.220 (1.28); the longest-run rule, lesson 6"
+        },
+        {
+          "text": "Tested cold at 20 °C it should read about 0.725 Ω. The 0.87 Ω scaled to 20 °C for a 90 °C cable is 0.87 × 250 ÷ 320 = 0.680 Ω. The reading is over that, though the circuit complies. So hand the inspector the expected reading and why it passes.",
+          "cite": "OSG p.139 and p.146 (Table B8, (t + 230) rule); Voltimum (cold reading 80% of tabulated); lesson 9"
+        },
+        {
+          "text": "Table 54.7’s 4 mm² is the suitable size, not the minimum. A smaller cpc is allowed only when the calculation shows it passes.",
+          "cite": "Course flowchart note 2; NICEIC/ELECSA, Table 54.7 as an alternative to calculation"
+        }
+      ],
+      "need": 3,
+      "model": "It complies, but I would advise against it. With a 2.5 mm² cpc, Zs at the lathe is 0.815 Ω, within the breaker’s 0.87 Ω, so 268.10 A at Cmin opens it within 0.1 s. For the heat the cpc needs only 0.69 mm², so 2.5 mm² is enough. But the margin is thin: the run can be no longer than 30.5 m. Table 54.7’s 4 mm² is the suitable size. A smaller cpc stands only on this calculation. Tested cold, it should read about 0.725 Ω, over the 0.680 Ω rule of thumb. So I would keep 4 mm², or fit 2.5 mm² only with the expected reading and the working handed to the inspector."
+    }
+  },
+  "summary": {
+    "title": "A second job: the lathe, start to finish",
+    "for": "One pass through a whole design. Work Ib at the board’s own voltage. Choose the device, then the cable for where it runs. Add every drop from the intake. Then choose the cpc. Table 54.7’s size needs no calculation. A smaller one is fine only when Zs and the heat check both pass.",
+    "rule": "U at the board = U × (1 − the upstream drop)\nIt ≥ In ÷ (Ca × Cg). Ca is above 1 below 30 °C\nDrop from the intake = upstream + mV/A/m × Ib × L ÷ 1000\nSmaller cpc: Zs ≤ max Zs, and S ≥ √(I² × t) ÷ k at Cmax\nLongest run = (max Zs − Zs at the board) × 1000 ÷ (mΩ/m × multiplier)\nArmour: at least k1 ÷ k2 × S, with 16 for S above 16 mm²\nCore and armour: R2 = 1 ÷ (1 ÷ Ra + 1 ÷ Rc)\n\nArmour short? Use a cable with an extra core, or a separate cpc sized for the whole fault current.",
+    "traps": [
+      {
+        "text": "Checking only the heat when the cpc is cut. A thinner cpc raises Zs too.",
+        "cite": "Mock part 2 p.1 (ADS asked first); OSG Table I1 p.218"
+      },
+      {
+        "text": "Working the cpc’s heat at the Cmin current. Cmax gives the larger area.",
+        "cite": "Slides p.48 and p.62"
+      },
+      {
+        "text": "Calling Table 54.7’s size the minimum. It is the suitable size. Only a calculation gives the minimum.",
+        "cite": "Course flowchart note 2; NICEIC/ELECSA (Table 54.7 as an alternative to calculation)"
+      },
+      {
+        "text": "Passing a cpc by a hair, then finding it reads over the inspector’s cold limit. Work the expected reading and hand it over.",
+        "cite": "OSG p.139 and p.146; Voltimum (cold reading at most 80% of tabulated)"
+      },
+      {
+        "text": "Working Ct with the It the device needs, not the tabulated It of the cable chosen.",
+        "cite": "BS 7671 Appendix 4 Ct formula, It the tabulated rating (TiSoft; myElectrical), as lesson 5"
+      }
+    ],
+    "where": "BS 7671 Section 543 and Table 54.7, with Table 54.4 for armour’s k. Appendix 4 for the cable tables and factors. Table 41.3 for the maximum Zs. On-Site Guide Tables I1 and I3 for R1+R2 per metre and the multiplier. The maker’s sheet for armour.",
+    "figures": [
+      "5a",
+      "5c",
+      "5e",
+      "5g",
+      "5h",
+      "l10.lmax25"
+    ],
+    "figuresLabel": "The lathe so far"
+  },
+  "sources": [
+    {
+      "n": 1,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "The circuit is supplying a 12.5kW 3-phase motor powering an industrial lathe."
+    },
+    {
+      "n": 2,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "The motor has a known PF of 0.91 and an EFF% of 94% when at full load."
+    },
+    {
+      "n": 3,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "The trunking already contains 2 other circuits and the ambient temp is 25C."
+    },
+    {
+      "n": 4,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "is supplied by a distribution circuit with a 3% voltage drop."
+    },
+    {
+      "n": 7,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "VL = Line to line voltage (400V)"
+    },
+    {
+      "n": 8,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "√3 = Square root of 3 (1.73)"
+    },
+    {
+      "n": 10,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p441",
+      "quote": "25 1.04 1.03 1.02 1.07 1.04"
+    },
+    {
+      "n": 11,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p443",
+      "quote": "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+    },
+    {
+      "n": 12,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "4 35 31 42 37 46 41"
+    },
+    {
+      "n": 13,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "2.5 26 23 31 28 34 31"
+    },
+    {
+      "n": 15,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "4 12 12 12 12 10 10 10 10"
+    },
+    {
+      "n": 27,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p1",
+      "quote": "DB2 has a Zdb of 0.4ohms."
+    },
+    {
+      "n": 31,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p2",
+      "quote": "fi 3AS STATES THE la OF THE DEVICE IS 250A"
+    },
+    {
+      "n": 32,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p2",
+      "quote": "K IS FOUND IN TABLE 54.3 AND IS 143 FOR THIS CIRCUIT."
+    },
+    {
+      "n": 34,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "DB2 has a Zdb of 0.97 ohms."
+    },
+    {
+      "n": 35,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 2.5 12.02"
+    },
+    {
+      "n": 37,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 4 9.22"
+    },
+    {
+      "n": 38,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p220",
+      "quote": "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+    },
+    {
+      "n": 43,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p48",
+      "quote": "It’s advisable to use Cmax when we’re determining the fault current carrying capacity of conductors."
+    },
+    {
+      "n": 44,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 1.5 16.71"
+    },
+    {
+      "n": 46,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "(Table 54.4) K2=46"
+    },
+    {
+      "n": 49,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p2",
+      "quote": "=49.73mm²"
+    },
+    {
+      "n": 52,
+      "title": "Sizing protective conductors: the adiabatic equation | Goldberg Kabel Singapore",
+      "url": "https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638",
+      "quote": "|16 < S ≤ 35 |16 |(k ₁ / k ₂ ) × 16 |"
+    },
+    {
+      "n": 56,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p2",
+      "quote": "25mm² 4core, circular cores 90°C Thermosetting Armoured cable - 26m in length"
+    },
+    {
+      "n": 59,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "25 0.727 - - 42 3.7 62 2.5 70 2.3 88 1.8"
+    },
+    {
+      "n": 60,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "6 3.08 - - 22 7.0 23 6.7 36 4.3 40 3.9"
+    },
+    {
+      "n": 70,
+      "title": "SWA as a CPC - GADS Services",
+      "url": "https://gadsolutions.biz/regulations/swa-as-a-cpc",
+      "quote": "This CPC should be adequately sized to handle the full potential earth fault current not just to provide sufficient additional capacity to the SWA armour to meet the required CSA."
+    },
+    {
+      "n": 76,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p3",
+      "quote": "BS88-2 system E, supplying"
+    },
+    {
+      "n": 77,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p441",
+      "quote": "35 0.91 0.94 0.96 0.93 0.96"
+    },
+    {
+      "n": 78,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "10 46 42 57 50 65 59"
+    },
+    {
+      "n": 79,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "16 61 56 76 68 87 79"
+    },
+    {
+      "n": 80,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p449",
+      "quote": "16 2.8 2.8 2.8 2.8 2.4 2.4 2.4 2.4"
+    },
+    {
+      "n": 83,
+      "title": "18th Edition Amendment 4 - Hager bitesize guide",
+      "url": "https://assets.sc.hager.com/uk/-/media/project/hagerdeep/united-kingdom/hager/b2b-uk/support/bitesize-guide-amd4.pdf",
+      "quote": "The rated current or current setting of the upstream protective device (In) is less than or equal to the rated current of the assembly (InA) and any outgoing unit (Inc)."
+    },
+    {
+      "n": 159,
+      "title": "— Electrical installation solutions for buildings – Technical details MCBs",
+      "url": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj",
+      "quote": "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+    },
+    {
+      "n": 247,
+      "title": "REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671",
+      "url": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf",
+      "quote": "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+    },
+    {
+      "n": 264,
+      "title": "Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard)",
+      "url": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671",
+      "quote": "C25 0.87 Ω 0.70 Ω"
+    },
+    {
+      "n": 314,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p67",
+      "quote": "230 x 1.1 / 1.23 = 205.6A"
+    },
+    {
+      "n": 320,
+      "title": "Circuit design calculation process: the 20-step flowchart",
+      "url": "material:flowchart#p1",
+      "quote": "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

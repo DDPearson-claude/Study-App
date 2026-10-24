@@ -198,15 +198,19 @@
       read: 'R1+R2 is ' + f3(wR12) + ' Ω. Zs is ' + f3(wZs) + ' Ω, within ' + WH.zmax + ' Ω. The fault current is ' + f2(wI) + ' A, over the Ia of ' + WH.ia + ' A. So it opens within 0.1 s.' },
     { name: 'Section A 2(a)', label: 'Section A · Question 2', part: Q2A, task: ASSUME_A + ' ' + Q2A,
       want: f2a.text, why: f2a.work,
-      read: 'R1+R2 = ' + MPM['2.5'] + ' × ' + M90 + ' × ' + f1(RUN) + ' ÷ 1000 = ' + f3(A0.r12) + ' Ω. Zs = ' + ZDB.toFixed(3) + ' + ' + f3(A0.r12) + ' = ' + f2a.text + ', taking the practice ' + ZD + ' Ω at DBP2.' },
+      read: 'The run from DBP2 to the starter is ' + f1(RUN) + ' m of 2.5 mm² line and cpc. Use ' + MPM['2.5'] + ' mΩ/m and a multiplier of ' + M90 + '. Zs at DBP2 is the practice ' + ZD + ' Ω. What is Zs at the starter?' },
     { name: 'Section A 2(b)', label: 'Section A · Question 2', part: Q2B, task: Q2B,
       want: f2b.text, why: f2b.work,
-      read: UO + ' × ' + CMIN + ' ÷ ' + f3(f2a.value) + ' = ' + f2b.text + ', over ' + IA + ' A. ' + f2a.text + ' is within ' + Z87 + ' Ω, so it is acceptable.' },
+      read: 'Zs at the starter is ' + f2a.text + '. What fault current flows at the lowest supply voltage? Is that Zs acceptable?',
+      // The read-through's still: the call made, as the sentence ends.
+      still: () => { S[iB].call = 'Acceptable'; K.refresh(); } },
     { kind: 'written', written: 'b1', name: 'Section B (1)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
     { kind: 'written', written: 'b2', name: 'Section B (2)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
     { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,
       want: fCh.text, why: fCh.work,
-      read: MPM['4'] + ' × ' + M70.toFixed(2) + ' × ' + CH.len + ' ÷ 1000 = ' + f3(chR) + ' Ω. Zs is ' + fCh.text + ', over ' + Z87 + ' Ω, so it is too high. 6 mm² gives ' + f3(chFixZ) + ' Ω.' },
+      read: 'A circuit runs ' + CH.len + ' m in 70 °C singles, a 4 mm² line and cpc at ' + MPM['4'] + ' mΩ/m. Zs at its board is ' + CH.zb.toFixed(2) + ' Ω. Its 25 A type C breaker allows up to ' + Z87 + ' Ω. What is Zs at the far end, and is it acceptable?',
+      // The read-through's still: the call made, as the sentence ends.
+      still: () => { S[iCh].call = 'Too high'; K.refresh(); } },
     { kind: 'summary', name: 'Keep this', label: 'Keep this' },
   ];
   const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iHigh = 4, iWk = 5, iA = 6, iB = 7, iB1 = 8, iB2 = 9, iCh = 10, iK = 11;

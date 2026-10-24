@@ -1,0 +1,730 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p, .assume > p + p, .note > p + p, .why > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .sub.ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .assume { line-height: 1.6; }
+  .ctl { display: grid; gap: 12px; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .fig { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .fig.over { fill: var(--k-warn); }
+  .scene .on { font: 600 13px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .cond { stroke: var(--k-strong); stroke-width: 5; stroke-linecap: round; }
+  .scene .cpcw { stroke: var(--k-accent2); stroke-linecap: round; }
+  .scene .motor { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 1.5; fill: none; }
+  .scene .trk { fill: var(--k-sunk); }
+  .scene .p0 { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .p1 { fill: var(--k-accent2); }
+  .scene .p2 { fill: var(--k-warn); }
+  .scene .heat { fill: var(--k-accent); }
+  .scene .heat.off { fill: var(--k-line); }
+  #outs .k-readout.warn .k-readout-value { color: var(--k-warn); }
+  .scene .lim { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .fit { stroke: var(--k-ink); stroke-width: 3; }
+  .scene .grab { fill: var(--k-bg); fill-opacity: 0; pointer-events: all; cursor: ew-resize; }
+  .scene .drag { touch-action: none; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .w { margin-top: 6px; }
+  .wl .sub { margin-top: 10px; }
+  .blk + .blk { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--k-line); }
+  .blk > p + p { margin-top: 6px; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; justify-content: flex-start; padding: 10px 14px; }
+  .picks .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .why { line-height: 1.6; }
+  #stepbox.enter, .blk.enter, .fade { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .blk.enter, html.k-testing .fade { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .blk.enter, .fade { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carry1"></div>
+    <div id="carry2"></div>
+    <div id="carry3"></div>
+    <div id="carry4"></div>
+    <div class="wl" id="shown"></div>
+    <div class="assume" id="assume"></div>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div class="warn-note" id="warn2"></div>
+    <div id="wrap"><svg class="scene" id="scene" viewBox="0 0 340 296" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="k-readouts" id="outs"></div>
+    <p class="say" id="say"></p>
+    <div class="note why" id="beside"></div>
+    <div class="why" id="under"></div>
+    <div id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-5a"></div>
+    <div id="ans-5c"></div>
+    <div id="ans-5e"></div>
+    <div id="ans-5g"></div>
+    <div id="ans-5h"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="note why" id="after"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, and the course's figures ----------
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;
+  const down1 = (x) => Math.floor(x * 10 + 1e-7) / 10;
+  const f2 = (x) => r2(x).toFixed(2), f3 = (x) => r3(x).toFixed(3);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+  const NB = ' ';
+  // Non-breaking spaces before operators, between a number and its unit, and in 'type C'.
+  const nb = (s) => String(s == null ? '' : s)
+    .replace(/ ([×÷+=]) /g, NB + '$1 ')
+    .replace(/(\d) (?=\d{3}\b)/g, '$1' + NB)
+    .replace(/(\d) (?=(?:mm²|mΩ\/m|mV\/A\/m|°C|Ω|kW|kA|A|V|m|s)(?![A-Za-z²]))/g, '$1' + NB)
+    .replace(/\btype ([BCD])\b/g, 'type' + NB + '$1');
+  const seg = (f) => String((f && f.work) || '').split('; ');
+  const cut = (s, at) => String(s).split(at)[0];
+  const num = (v) => { const x = Math.round(v * 100) / 100; return String(x); };
+
+  // The lathe job.
+  const P = F('g.lathe.P'), PF = F('g.lathe.pf'), EFF = F('g.lathe.eff'), fRun = F('g.lathe.L'), AMB = F('g.lathe.amb');
+  const UPf = F('g.lathe.up'), fZdb = F('g.lathe.zdb'), fZe = F('g.lathe.ze'), fIpf = F('g.lathe.ipf');
+  const CA = F('g.ca.25.90'), CG = F('g.cg.3'), IT4 = F('g.4e1a.4.c5'), IT25 = F('g.4e1a.25.c5'), MV4 = F('g.4e1b.4.c6');
+  const RUN = fRun.value, ZDB = fZdb.value, UP = UPf.value;
+  const MULT = F('g.mult.90ts').value, ZMAX = F('g.zmax.C25').value, IA = F('g.ia.C25').value, K143 = F('g.k.cu90').value;
+  const U0 = F('g.U0').value, UL = 400, CMIN = 0.95, CMAX = 1.1, T01 = 0.1, IN = F('5b').value;
+  const VMIN = r2(U0 * CMIN), VMAX = r2(U0 * CMAX);           // 218.5 V and 253 V
+  const RPM = { '1.5': F('g.r12.4_15').value, '2.5': F('g.r12.4_25').value, '4': F('g.r1r2.4').value };
+  const CPCS = [1.5, 2.5, 4];
+  const ZMAX_T = f2(ZMAX) + ' Ω';
+
+  // The rule: the lathe's loop and the heat its cpc must take.
+  function loopAt(c, L) {
+    const per = RPM[String(c)];
+    const r12 = r3(per * MULT * L / 1000);
+    const zs = r3(ZDB + r12);
+    const imin = r2(VMIN / zs), imax = r2(VMAX / zs);
+    const worked = imax >= IA;
+    const s = worked ? r2(Math.sqrt(imax * imax * T01) / K143) : 0;
+    const lmax = down1((ZMAX - ZDB) * 1000 / r2(per * MULT));
+    return { r12, zs, imin, imax, worked: worked ? 1 : 0, s, lmax };
+  }
+  const cpcOf = (p) => (RPM[String(+p.cpc)] ? +p.cpc : 4);
+  const lenOf = (p) => K.clamp(Math.round((p.len == null ? RUN : +p.len) * 2) / 2, 10, 40);
+  const fmtL = (v) => { const x = Math.round(v * 2) / 2; return Number.isInteger(x) ? String(x) : x.toFixed(1); };
+
+  // Recall, why and check figures.
+  const fRecR = F('l10.recall.r44'), fRecZ = F('l10.recall.zs44'), fR25 = F('l10.r12.25');
+  const fWhy15 = F('l10.why.15'), fWhy4 = F('l10.why.4'), fL15 = F('l10.lmax15'), fL25 = F('l10.lmax25'), fL4 = F('l10.lmax4');
+  const fChk = F('l10.check'), fChk1 = F('l10.check.slip1'), fChk2 = F('l10.check.slip2');
+  const CKL = 32, CK = loopAt(2.5, CKL);
+
+  // The worked example: steel armour as the cpc.
+  const K1 = F('g.k1.cu90').value, K2 = F('g.k2.steel90').value;
+  const A6 = F('g.swa6.4c.armour').value, A25_4 = F('g.swa25.4c.armour').value, A25_5 = F('g.swa25.5c.armour').value;
+  const RA = F('g.swa25.5c.armourR').value, RC = F('g.r.25').value, TF = F('p.swa.t').value;
+  const SW = { ze: 0.06, run25: 26 };
+  SW.needA = r2(K1 * 6 / K2); SW.needB = r2(K1 * 16 / K2);
+  SW.r2 = r3(1 / (1 / RC + 1 / RA)); SW.r12 = r3((RC + SW.r2) * MULT * SW.run25 / 1000); SW.zs = r3(SW.ze + SW.r12);
+  SW.imax = r2(VMAX / SW.zs); SW.sa = r2(Math.sqrt(SW.imax * SW.imax * TF) / K2); SW.sc = r2(Math.sqrt(SW.imax * SW.imax * TF) / K1);
+
+  // Section A, question 5.
+  const f5a = F('5a'), f5b = F('5b'), f5c = F('5c'), f5d = F('5d'), f5e = F('5e'), f5f = F('5f'), f5g = F('5g'), f5h = F('5h');
+  const fU = F('l10.U'), fFac = F('l10.f'), fVd = F('l10.vd'), fImin = F('l10.imin'), fImax = F('l10.imax');
+  const A = {};
+  A.U = r2(UL * (1 - UP / 100)); A.s3 = r2(Math.sqrt(3) * A.U); A.pf = r2(A.s3 * PF.value); A.eff = r2(A.pf * EFF.value / 100);
+  A.ib = r2(P.value * 1000 / A.eff);
+  A.ib173 = r2(P.value * 1000 / r2(r2(r2(1.73 * A.U) * PF.value) * EFF.value / 100));
+  A.f = r3(CA.value * CG.value); A.it = r2(IN / A.f); A.iz = r2(IT4.value * A.f);
+  A.up = r2(UL * UP / 100); A.vd = r2(MV4.value * A.ib * RUN / 1000); A.vt = r2(A.up + A.vd); A.vlim = r2(UL * 0.05);
+  A.vt217 = r2(A.up + r2(MV4.value * 21.7 * RUN / 1000)); A.vt2177 = r2(A.up + r2(MV4.value * A.ib173 * RUN / 1000));
+  const LA = loopAt(2.5, RUN);
+  A.r12 = LA.r12; A.zs = LA.zs; A.imin = LA.imin; A.imax = LA.imax; A.s = LA.s;
+  // Changed numbers: a 40 A distribution circuit.
+  const fCh = F('l10.changed');
+  const CH = { In: 40, board: 63, run: 26, load: 32, amb: 35, lim: 6 };
+  CH.ca = F('g.ca.35.70').value; CH.f = r3(CH.ca * CG.value); CH.it = r2(CH.In / CH.f);
+  CH.t10 = F('g.4d1a.10.c5').value; CH.t16 = F('g.4d1a.16.c5').value; CH.mv = F('g.4d1b.16.c6').value;
+  CH.vd = r2(CH.mv * CH.load * CH.run / 1000);
+
+  // ---------- the lesson's words ----------
+  const REC_TASK = 'A motor circuit runs ' + fRun.text + ' in 4 mm² singles with a 4 mm² cpc. Zs is ' + fZdb.text + ' at its board and ' + fRecZ.text + ' at the motor. The client wants the cpc cut to 2.5 mm². Which checks must you work again?';
+  const O_RIGHT = "Zs against the breaker's maximum, and the heat check", O_HEAT = 'Only the heat check', O_RATE = 'The current rating and the voltage drop';
+  const REC_W = 'R1+R2 = ' + fR25.work;
+  const REC_P = 'So Zs rises from ' + fRecZ.text + ' to ' + f5g.text + ", which must stay within the breaker's maximum. The thinner cpc must still take the fault's heat. The cpc carries no load current, so the rating and the drop stay as they were.";
+  const FOR_TEXT = "One whole job in one pass, on a circuit unlike the showroom's. A lathe motor is fed from a board that sits below 400 V. Its cable shares trunking with two other circuits.\n\nThen a question every designer meets. Can the cpc be smaller than Table 54.7's size? Yes, if two checks still pass. Zs must stay within the breaker's maximum. And the cpc must take the fault's heat.";
+  const WHY_TEXT = "The lathe's circuit from DB2: a line conductor and a cpc running to the motor. The loop has two parts. Zs at DB2 is a fixed " + fZdb.text + ". The circuit's R1+R2 grows with the run, and with a thinner cpc.";
+  const WHY_READ = 'At ' + fRun.text + ' the 2.5 mm² cpc gives Zs ' + f5g.text + ', within ' + ZMAX_T + '. It needs only ' + f5h.text + ' for the heat. The 1.5 mm² cpc gives ' + fWhy15.text + ' and fails on Zs.';
+  const BESIDE = 'Zs = ' + ZDB + ' + mΩ/m × ' + f2(MULT) + ' × length ÷ 1000. It must stay within ' + ZMAX_T + '.\n\n'
+    + 'Least cpc = √(I² × ' + T01 + ') ÷ ' + K143 + ', with I = ' + VMAX + ' ÷ Zs, the fault current at Cmax.';
+  const UNDER = 'A thinner cpc raises Zs. That eases the heat but tightens the loop. On the lathe the loop, not the heat, sets the smallest cpc.';
+  const CHK_TASK = 'Keep the 2.5 mm² cpc. The lathe moves, and the run becomes ' + CKL + ' m. Is the circuit still acceptable?';
+  const C_RIGHT = 'No: Zs is ' + f3(CK.zs) + ' Ω, over ' + ZMAX_T, C_HEAT = 'Yes: the cpc needs only ' + f2(CK.s) + ' mm² for the heat', C_R12 = 'Yes: R1+R2 is ' + f3(CK.r12) + ' Ω, within ' + ZMAX_T;
+  const CHK_WHY = 'R1+R2 = ' + RPM['2.5'] + ' × ' + f2(MULT) + ' × ' + CKL + ' ÷ 1000 = ' + f3(CK.r12) + ' Ω. Zs = ' + ZDB + ' + ' + f3(CK.r12) + ' = ' + f3(CK.zs) + ' Ω, over ' + ZMAX_T + '. The longest run with 2.5 mm² is ' + fL25.text + '. Go back to the 4 mm² cpc, good to ' + fL4.text + '.';
+  const WK_TEXT = "Steel armour can be the cpc if it is big enough, by Table 54.7's ratio or by the adiabatic. Steel's k is far lower than copper's, so it needs more area.";
+  const WK_READ = 'Both four-core cables have more armour than Table 54.7 asks. With the core and the armour in parallel, Zs is ' + f3(SW.zs) + ' Ω. Each path alone takes the heat.';
+  const SCEN_TITLE = 'The lathe at DB2';
+  const SCEN_TEXT = 'A workshop on a 400 V three-phase TN-C-S supply, Ze ' + fZe.text + ', prospective fault current ' + fIpf.text + ' at the origin. DB2 is fed by a distribution circuit that drops ' + UPf.text + '. Zs at DB2 is ' + fZdb.text + '. From DB2, a circuit feeds a ' + P.text + ' three-phase lathe motor, power factor ' + PF.text + ' and efficiency ' + EFF.text + ' at full load. It runs ' + fRun.text + ' in 90 °C thermosetting singles in trunking on a wall, with two other loaded circuits, at ' + AMB.text + '. Protection is a type C circuit-breaker to BS EN 60898.';
+  const AS_5A = 'Use ' + fZdb.text + ' for Zs at DB2, even if you have 0.97 Ω written down. At 0.97 Ω no 25 A type C could pass.';
+  const Q5A = '(a) Determine the design current of the lathe circuit.';
+  const SHOWN_B = '(b) The next standard rating above ' + f5a.text + ' is ' + f5b.text + ', type C.';
+  const AS_5C = "Assume the lathe's terminals and the breaker allow the cable to run at 90 °C.\n\nTable 4B1 gives Ca " + CA.text + ' for 90 °C thermosetting cable at ' + AMB.text + '. It is above 1 because the tables are set at 30 °C. A cooler room takes heat away faster.\n\nTable 4C1 gives Cg ' + CG.text + ' for three circuits in the trunking.';
+  const AS_5E = 'Table 4E1B gives ' + MV4.text + ' for 4 mm², three-phase.';
+  const Q5C = '(c) Determine the minimum tabulated current-carrying capacity, It.';
+  const Q5E = '(e) Determine the voltage drop from the intake to the lathe, and state whether it complies.';
+  const SHOWN_F = "(f) Table 54.7: a copper cpc with a line of 16 mm² or less is the line's size, so " + f5f.text + '.';
+  const AS_5G = 'The client asks for a 2.5 mm² cpc to save copper.\n\nTable I1 gives ' + RPM['2.5'] + ' mΩ/m for a 4 mm² line with a 2.5 mm² cpc. Table I3 gives ' + f2(MULT) + ' to bring it up to 90 °C.';
+  const AS_5H = 'Table 54.3 gives k ' + K143 + ' for a copper cpc bunched with 90 °C thermosetting cables.';
+  const Q5G = '(g) Determine Zs at the lathe with a 2.5 mm² cpc, and state whether the circuit meets the requirements for automatic disconnection.';
+  const Q5H = '(h) Determine the minimum csa of the cpc for thermal constraints, and state whether 2.5 mm² is adequate.';
+  const AS_CH = 'A ' + CH.In + ' A BS 88-2 fuse-switch feeds a ' + CH.board + ' A TP&N workshop board through a ' + CH.run + ' m distribution circuit. After diversity it carries ' + CH.load + ' A per phase. It is 70 °C thermoplastic singles in trunking with two other circuits, at ' + CH.amb + ' °C. The drop must not exceed ' + CH.lim + ' V. Table 4B1 gives Ca ' + CH.ca + ' at ' + CH.amb + ' °C. Table 4C1 gives Cg ' + CG.text + ' for three circuits.';
+  const Q_CH = 'Determine the minimum tabulated current-carrying capacity, It.';
+
+  const W5A = ['U at DB2 = ' + fU.work].concat(seg(f5a).map((t, k, a) => (k === a.length - 1 ? 'Ib = ' : '') + t));
+  const W5C = ['Factors together = ' + fFac.work, 'It = ' + f5c.work];
+  const W5E = ['Upstream = ' + seg(f5e)[0], 'The lathe circuit, at ' + MV4.text + ' for 4 mm² three-phase: ' + fVd.work, 'Total = ' + cut(seg(f5e)[1], ' ≤')];
+  const W5G = ['R1+R2 = ' + fR25.work, 'Zs = ' + cut(f5g.work, ' ≤')];
+  const W5H = ['Fault current at Cmax = ' + U0 + ' × ' + CMAX + ' ÷ ' + f3(A.zs) + ' = ' + f2(A.imax) + ' A', 'That is past ' + IA + ' A, so the breaker opens within ' + T01 + ' s. Take t = ' + T01 + ' s.',
+    'k = ' + K143 + ' for a copper cpc bunched with 90 °C thermosetting cables.', 'S = ' + cut(f5h.work, ' ≤')];
+  const WCH = ['Ca = ' + CH.ca + ' at ' + CH.amb + ' °C, Cg = ' + CG.text, 'Factors together = ' + CH.ca + ' × ' + CG.text + ' = ' + f3(CH.f), 'It = ' + CH.In + ' ÷ ' + f3(CH.f) + ' = ' + f2(CH.it) + ' A'];
+
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?', task: REC_TASK,
+      opts: [O_HEAT, O_RIGHT, O_RATE], want: O_RIGHT, why: REC_W + '. ' + REC_P },
+    { show: true, name: 'What it is for', label: 'What it is for', text: FOR_TEXT },
+    { show: true, name: 'The why', label: 'The why: which check sets the smallest cpc', text: WHY_TEXT, read: WHY_READ, still: { cpc: 2.5, len: RUN } },
+    { name: 'Check', label: 'Check', task: CHK_TASK, opts: [C_HEAT, C_R12, C_RIGHT], want: C_RIGHT, why: CHK_WHY },
+    { show: true, name: 'Worked example', label: 'Worked example: steel armour as the cpc', text: WK_TEXT, read: WK_READ,
+      still: () => { lines = WCOUNT; K.refresh(); } },
+    { name: 'Section A 5(a)', label: 'Section A · Question 5', assume: AS_5A, part: Q5A,
+      task: AS_5A.split('\n\n').join(' ') + ' ' + Q5A, want: f5a.text, why: W5A.join('. ') },
+    { name: 'Section A 5(b) and (c)', label: 'Section A · Question 5', shown: SHOWN_B, assume: AS_5C, part: Q5C,
+      task: SHOWN_B + ' ' + AS_5C.split('\n\n').join(' ') + ' ' + Q5C, want: f5c.text, why: W5C.join('. ') },
+    { name: 'Section A 5(e)', label: 'Section A · Question 5', assume: AS_5E, part: Q5E, task: AS_5E + ' ' + Q5E, want: f5e.text, why: W5E.join('. ') },
+    { name: 'Section A 5(f) and (g)', label: 'Section A · Question 5', shown: SHOWN_F, assume: AS_5G, part: Q5G,
+      task: SHOWN_F + ' ' + AS_5G.split('\n\n').join(' ') + ' ' + Q5G, want: f5g.text, why: W5G.join('. ') },
+    { name: 'Section A 5(h)', label: 'Section A · Question 5', assume: AS_5H, part: Q5H, task: AS_5H + ' ' + Q5H, want: f5h.text, why: W5H.join(' ') },
+    { kind: 'written', written: 'b1', name: 'Section B', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', assume: AS_CH, part: Q_CH,
+      task: AS_CH + ' ' + Q_CH, want: fCh.text, why: WCH.join('. ') },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iWk = 4, i5A = 5, i5C = 6, i5E = 7, i5G = 8, i5H = 9, iB1 = 10, iCh = 11, iK = 12;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null }));
+  const WORKING = [iWhy, iChk, iWk, i5A, i5C, i5E, i5G, i5H, iCh];
+  const TERMS = { [iFor]: ['two checks'], [iWhy]: ['two parts'], [iWk]: ['far lower'] };
+  let lastStep = -1, finished = false, lines = 0;
+
+  // Words with key terms in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s, terms) {
+    node.textContent = '';
+    let rest = String(s || '');
+    const list = (terms || []).slice();
+    while (rest) {
+      let at = -1, hit = null;
+      list.forEach((t) => { const k = rest.indexOf(t); if (k >= 0 && (at < 0 || k < at)) { at = k; hit = t; } });
+      if (at < 0) { node.appendChild(document.createTextNode(nb(rest))); break; }
+      if (at > 0) node.appendChild(document.createTextNode(nb(rest.slice(0, at))));
+      node.appendChild(K.el('mark', null, nb(hit)));
+      list.splice(list.indexOf(hit), 1);
+      rest = rest.slice(at + hit.length);
+    }
+    return node;
+  }
+  function paras(node, s, terms) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t, terms)); });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.choice({ id: 'cpc', label: 'cpc fitted', options: CPCS.map((c) => ({ value: c, label: c + NB + 'mm²' })), value: 4, into: '#ctl' });
+  K.control({ id: 'len', label: 'Run length', min: 10, max: 40, step: 0.5, value: RUN, fmt: (v) => fmtL(v) + NB + 'm', snap: [RUN, CKL], into: '#ctl' });
+  const imR = K.readout({ id: 'imin', label: 'Fault current at Cmin', unit: 'A', decimals: 2, hint: 'Needs ' + IA + NB + 'A or more', into: '#outs' });
+  K.readout({ id: 'lmax', label: 'Longest run, this cpc', unit: 'm', decimals: 1, into: '#outs' });
+
+  // Picks: one tap answers.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      if (st.pick === d.want) {
+        st.res = 'right';
+        st.fb = { ok: true, v: 'Still there.', w: [REC_W], p: REC_P };
+      } else {
+        st.res = 'wrong';
+        st.fb = { ok: false, v: 'Not quite.',
+          p0: st.pick === O_HEAT ? "A thinner cpc has more resistance, so Zs rises too. Check it against the breaker's maximum."
+            : 'The cpc carries no load current, so neither changes. Its size changes Zs and the heat it can take.',
+          w: [REC_W], p: REC_P };
+      }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: "That's it.", p0: CHK_WHY }; }
+      else if (st.pick === C_HEAT) { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'The heat check does pass. But Zs is over the maximum, so the breaker may not open in time.' }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'Add Zs at DB2, ' + fZdb.text + '. The breaker sees the whole loop.' }; }
+    }
+    K.refresh();
+  }
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iWk); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  const scen = K.scenario({ into: '#scen', open: true, title: SCEN_TITLE, text: SCEN_TEXT });
+  K.carried({ parts: ['5a'], into: '#carry1' });
+  K.carried({ parts: ['5a', '5b', '5c', '5d'], into: '#carry2' });
+  K.carried({ parts: ['5a', '5b', '5c', '5d', '5e'], into: '#carry3' });
+  K.carried({ parts: ['5a', '5b', '5c', '5d', '5e', '5f', '5g'], into: '#carry4' });
+  const near2 = (a, b) => a != null && Math.abs(a - b) < 0.0051;
+  const near3 = (a, b) => a != null && Math.abs(a - b) < 0.00051;
+  const SPEC = {
+    [i5A]: { id: '5a', fig: f5a, unit: 'A', decimals: 2, accept: [21.7, A.ib173], work: W5A,
+      slips: [
+        { value: F('5a.slip1').value, hint: 'That is at 400 V. DB2 sits ' + UPf.text + ' down, at ' + num(A.U) + ' V.' },
+        { value: F('5a.slip2').value, hint: 'Divide by the efficiency too. The motor draws more than its output.' },
+        { value: F('5a.slip3').value, hint: 'Divide by the power factor too.' },
+        { value: F('5a.slip4').value, hint: 'It is three-phase: divide by √3 as well.' },
+      ],
+      hint: "Not quite. Work at DB2's own voltage, then divide by √3, the power factor and the efficiency.",
+      rightNote: (r) => (near2(r.value, A.ib173) ? 'That takes √3 as 1.73. With √3 in full, it is ' + f5a.text + '.'
+        : near2(r.value, 21.7) ? 'That is the same figure, to one place. To two places it is ' + f5a.text + '.' : ''),
+      after: '' },
+    [i5C]: { id: '5c', fig: f5c, unit: 'A', decimals: 2, accept: [], work: W5C,
+      slips: [
+        { value: F('5c.slip1').value, hint: 'Divide by Ca too. At ' + CA.text + ' it lowers It a little.' },
+        { value: F('5c.slip2').value, hint: 'Divide by Cg too. Three circuits share the trunking.' },
+        { value: F('5c.slip3').value, hint: 'Work It from In, ' + f5b.text + ', not Ib.' },
+      ],
+      hint: 'Not quite. Divide In by both factors together.',
+      after: '(d) In Table 4E1A, column 5, for three loaded singles, 2.5 mm² gives ' + IT25.text + '. That is too small. 4 mm² gives ' + IT4.text + '. Iz = ' + IT4.value + ' × ' + f3(A.f) + ' = ' + f2(A.iz) + ' A, at least ' + f5b.text + '. So ' + f5d.text + '.' },
+    [i5E]: { id: '5e', fig: f5e, unit: 'V', decimals: 2, accept: [A.vt217, A.vt2177], work: W5E,
+      slips: [
+        { value: F('5e.slip1').value, hint: "That is the lathe circuit alone. Add DB2's " + UPf.text + ', ' + f2(A.up) + ' V.' },
+        { value: F('5e.slip2').value, hint: 'The whole path is three-phase, so add the ' + f2(A.up) + ' V as it is.' },
+      ],
+      hint: "Not quite. Add DB2's " + UPf.text + " to the lathe circuit's own drop.",
+      rightNote: (r) => (near2(r.value, A.vt217) ? 'That comes from Ib as 21.7 A. From ' + f5a.text + ' it is ' + f5e.text + '.'
+        : near2(r.value, A.vt2177) ? 'That comes from Ib as ' + f2(A.ib173) + ' A. From ' + f5a.text + ' it is ' + f5e.text + '.' : ''),
+      after: 'The limit for a power circuit is 5% of 400 V, ' + f2(A.vlim) + ' V, so it complies.' },
+    [i5G]: { id: '5g', fig: f5g, unit: 'Ω', decimals: 3, accept: [0.81, 0.82], work: W5G,
+      slips: [
+        { value: F('5g.slip1').value, hint: 'Multiply by ' + f2(MULT) + ' to take the cable up to its running temperature.' },
+        { value: F('5g.slip2').value, hint: 'Start from Zs at DB2, ' + fZdb.text + ', not Ze at the origin.' },
+        { value: F('5g.slip3').value, hint: 'That is with the 4 mm² cpc. Use ' + RPM['2.5'] + ' mΩ/m, for 4 mm² with 2.5 mm².' },
+      ],
+      hint: 'Not quite. Work R1+R2 for 4 mm² with 2.5 mm², hot, then add Zs at DB2.',
+      rightNote: (r) => (near3(r.value, 0.82) ? 'That is the same figure, rounded to two places. To three it is ' + f5g.text + '.'
+        : near3(r.value, 0.81) ? 'That is the figure cut short. Rounded to two places it is 0.82 Ω. To three, ' + f5g.text + '.' : ''),
+      after: f5g.text + ' is within ' + ZMAX_T + '. At Cmin, ' + cut(seg(fImin)[1], ' ≥') + '. That is past the ' + IA + ' A that opens the breaker within ' + T01 + ' s. So it complies.' },
+    [i5H]: { id: '5h', fig: f5h, unit: 'mm²', decimals: 2, accept: [], work: W5H,
+      slips: [
+        { value: F('5h.slip1').value, hint: 'Work the heat at Cmax, ' + f2(A.imax) + ' A. It gives the larger area.' },
+        { value: F('5h.slip2').value, hint: 'The breaker opens within ' + T01 + ' s at this current. 0.4 s is the limit, not the time.' },
+        { value: F('5h.slip3').value, hint: '115 is for 70 °C thermoplastic. These cables are 90 °C thermosetting, so ' + K143 + '.' },
+      ],
+      hint: 'Not quite. Work the fault current at Cmax, then S = √(I² × t) ÷ k.',
+      terms: ['The loop is the closer one'],
+      after: f5h.text + ' is well under 2.5 mm², so it is adequate. Both checks pass. The loop is the closer one, at ' + f5g.text + ' against ' + ZMAX_T + '.' },
+    [iCh]: { id: 'l10.changed', fig: fCh, unit: 'A', decimals: 2, accept: [], work: WCH,
+      slips: [
+        { value: F('l10.changed.slip1').value, hint: 'Divide by Cg too.' },
+        { value: F('l10.changed.slip2').value, hint: 'Divide by Ca too.' },
+        { value: F('l10.changed.slip3').value, hint: 'Work It from In, ' + CH.In + ' A, not the ' + CH.load + ' A load.' },
+      ],
+      hint: 'Not quite. Divide In by Ca and Cg together.',
+      after: 'In Table 4D1A, column 5, 10 mm² gives ' + CH.t10 + ' A. That is too small, so 16 mm² at ' + CH.t16 + ' A. Its drop is ' + CH.mv + ' × ' + CH.load + ' × ' + CH.run + ' ÷ 1000 = ' + f2(CH.vd) + ' V, inside ' + CH.lim + ' V.\n\n'
+        + "The board's " + CH.board + ' A rating is at least the ' + CH.In + ' A fuse ahead of it, as Regulation 536.4.202 asks.' },
+  };
+  const BOX = { [i5A]: '#ans-5a', [i5C]: '#ans-5c', [i5E]: '#ans-5e', [i5G]: '#ans-5g', [i5H]: '#ans-5h', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: sp.decimals, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') {
+          st.res = 'right';
+          st.fb = { ok: true, v: 'Right.', w: sp.work, p: sp.rightNote ? sp.rightNote(r) : '' };
+        } else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: sp.work };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // ---------- Section B and Keep this ----------
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    if (n && need >= n) return 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and a full answer makes all ' + (WORDS[n] || n) + '. You get one more go, then the model answer.';
+    return n && need ? 'You write the answer. It is marked against ' + (WORDS[n] || n) + ' points, and any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'You write the answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  // Keep a number and its unit together on the card.
+  (function () {
+    const tw = document.createTreeWalker(el('keep'), NodeFilter.SHOW_TEXT), ns = [];
+    while (tw.nextNode()) ns.push(tw.currentNode);
+    ns.forEach((n) => { n.nodeValue = nb(n.nodeValue); });
+  })();
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+    K.refresh();
+  } });
+
+  // ---------- the worked example, a block at each press ----------
+  const BLOCKS = [
+    { p: ['A 6 mm² four-core 90 °C SWA. Table 54.7 asks for k1 ÷ k2 × S of armour. Take k1 = ' + K1 + ' for the copper and k2 = ' + K2 + ' for the steel. ' + K2 + ' is a practice value. On a real job, check it in Table 54.4.'],
+      w: ['Armour needed = ' + K1 + ' × 6 ÷ ' + K2 + ' = ' + f2(SW.needA) + ' mm²'], end: 'The cable has ' + A6 + ' mm² of armour. Enough.' },
+    { p: ['A 25 mm² four-core. Above 16 mm², up to 35 mm², Table 54.7 uses 16 in place of S.'],
+      w: ['Armour needed = ' + K1 + ' × 16 ÷ ' + K2 + ' = ' + f2(SW.needB) + ' mm²'], end: "The cable has " + A25_4 + " mm². Enough. Take armour areas from the maker's sheet for the cable you buy." },
+    { p: ['If it had fallen short, choose a cable with an extra core, or run a separate cpc alongside. A separate cpc must be sized for the whole fault current.'], w: [] },
+    { p: ['A 25 mm² five-core, ' + SW.run25 + " m, on a 40 A BS 88-2 fuse. Take Ze as " + SW.ze + " Ω. The fifth core and the armour share the cpc's job. Take " + f2(MULT) + ' on the armour too. It runs cooler, so this errs safe.'],
+      w: ['R2 = 1 ÷ (1 ÷ ' + RC + ' + 1 ÷ ' + RA + ') = ' + f3(SW.r2) + ' mΩ/m',
+        'R1+R2 = (' + RC + ' + ' + f3(SW.r2) + ') × ' + f2(MULT) + ' × ' + SW.run25 + ' ÷ 1000 = ' + f3(SW.r12) + ' Ω',
+        'Zs = ' + SW.ze + ' + ' + f3(SW.r12) + ' = ' + f3(SW.zs) + ' Ω',
+        'Fault current at Cmax = ' + VMAX + ' ÷ ' + f3(SW.zs) + ' = ' + f2(SW.imax) + ' A'] },
+    { p: ['Work the heat at Cmax. It gives the larger area. Take ' + TF + ' s for the fuse here, as a practice value. On a real job, read the time from Figure 3A3.'],
+      w: ['Armour alone: √(' + f2(SW.imax) + '² × ' + TF + ') ÷ ' + K2 + ' = ' + f2(SW.sa) + ' mm², within its ' + A25_5 + ' mm²',
+        'Core alone: √(' + f2(SW.imax) + '² × ' + TF + ') ÷ ' + K1 + ' = ' + f2(SW.sc) + ' mm², within 25 mm²'], end: 'Both pass.' },
+  ];
+  const wbox = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'Steel armour as the cpc'));
+  const wblocks = BLOCKS.map((b) => {
+    const d = K.el('div', { class: 'blk' });
+    b.p.forEach((t) => d.appendChild(K.el('p', null, nb(t))));
+    b.w.forEach((t) => d.appendChild(K.el('p', { class: 'w' }, nb(t))));
+    if (b.end) d.appendChild(K.el('p', null, nb(b.end)));
+    wbox.appendChild(d);
+    return d;
+  });
+  const WCOUNT = wblocks.length;
+  el('worked').appendChild(wbox);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= WCOUNT) return;
+    const w = wblocks[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+    K.refresh();
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    const wn = el('warn2');
+    wn.appendChild(K.el('b', null, 'If Zs is not rechecked: '));
+    wn.appendChild(document.createTextNode(nb('Cut the cpc on the heat check alone and Zs can rise past the maximum. Then the breaker may not open in time.')));
+    paras(el('beside'), BESIDE);
+    paras(el('under'), UNDER, ['the loop, not the heat, sets the smallest cpc']);
+  })();
+
+  // ---------- the why: the lathe's circuit, then the loop and the heat as two bars ----------
+  const svg = el('scene');
+  function add(parent, tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; parent.appendChild(n); return n; }
+  function txt(x, y, s, cls, anchor) { return add(svg, 'text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, nb(s)); }
+  const XM = (L) => 156 + (L - 10) * 4.3;           // the motor's left edge: 10 m at 156, 40 m at 285
+  const XZ = (z) => 8 + z * 249.2;                  // the loop bar: 0 Ω at 8, 1.3 Ω at 332
+  const XS = (s) => 8 + s * 64.8;                   // the heat bar: 0 mm² at 8, 5 mm² at 332
+  const CPCW = { '1.5': 2.5, '2.5': 4, '4': 6 };
+  // The circuit.
+  add(svg, 'rect', { x: 6, y: 30, width: 66, height: 58, rx: 6, class: 'box' });
+  txt(39, 53, 'DB2', 'lb', 'middle');
+  txt(39, 74, 'Zs ' + fZdb.text, 'tk', 'middle');
+  const lineC = add(svg, 'line', { x1: 72, y1: 44, x2: 200, y2: 44, class: 'cond' });
+  const cpcC = add(svg, 'line', { x1: 72, y1: 74, x2: 200, y2: 74, class: 'cpcw', 'stroke-width': 6 });
+  txt(80, 34, 'Line 4 mm²', 'tk');
+  const cpcT = txt(80, 96, 'cpc 4 mm²', 'lb');
+  const motor = add(svg, 'g', { class: 'drag' });
+  const grab = add(motor, 'rect', { x: 150, y: 16, width: 52, height: 104, class: 'grab' });
+  const mC = add(motor, 'circle', { cx: 176, cy: 59, r: 19, class: 'motor' });
+  const mM = add(motor, 'text', { x: 176, y: 64, class: 'lb', 'text-anchor': 'middle' }, 'M');
+  const mL = add(motor, 'text', { x: 176, y: 30, class: 'lb', 'text-anchor': 'middle' }, 'Lathe');
+  const brk = add(svg, 'path', { d: '', class: 'brk' });
+  const runT = txt(120, 130, '', 'lb', 'middle');
+  K.drag(motor, { control: 'len', toValue: (x) => K.clamp(Math.round(((x - 20 - 156) / 4.3 + 10) * 2) / 2, 10, 40) });
+  // The loop: Zs at DB2 plus R1+R2, against the maximum.
+  const zHead = txt(8, 150, '', 'fig');
+  add(svg, 'rect', { x: 8, y: 158, width: 324, height: 26, rx: 4, class: 'trk' });
+  add(svg, 'rect', { x: 8, y: 158, width: (XZ(ZDB) - 8).toFixed(1), height: 26, class: 'p0' });
+  txt((8 + XZ(ZDB)) / 2, 175.5, 'At DB2', 'lb', 'middle');
+  const z1 = add(svg, 'rect', { x: XZ(ZDB).toFixed(1), y: 158, width: 0, height: 26, class: 'p1' });
+  const z2 = add(svg, 'rect', { x: XZ(ZMAX).toFixed(1), y: 158, width: 0, height: 26, class: 'p2' });
+  const z1T = add(svg, 'text', { x: 0, y: 175.5, class: 'on', 'text-anchor': 'middle' }, 'R1+R2');
+  add(svg, 'line', { x1: XZ(ZMAX).toFixed(1), y1: 154, x2: XZ(ZMAX).toFixed(1), y2: 190, class: 'lim' });
+  txt(XZ(ZMAX), 205, 'Max ' + ZMAX_T, 'tk', 'middle');
+  // The heat: the least cpc it needs, against the cpc fitted.
+  const hHead = txt(8, 230, '', 'fig');
+  add(svg, 'rect', { x: 8, y: 240, width: 324, height: 26, rx: 4, class: 'trk' });
+  const hBar = add(svg, 'rect', { x: 8, y: 240, width: 0, height: 26, class: 'heat' });
+  const hNote = txt(170, 257.5, 'The breaker may take longer than ' + T01 + ' s.', 'lb', 'middle');
+  const fitL = add(svg, 'line', { x1: 0, y1: 234, x2: 0, y2: 272, class: 'fit' });
+  const fitT = txt(0, 288, '', 'lb', 'middle');
+
+  function drawWhy(p, o) {
+    const c = cpcOf(p), L = lenOf(p), xm = XM(L), cx = xm + 20;
+    lineC.setAttribute('x2', (xm + 7).toFixed(1));
+    cpcC.setAttribute('x2', (xm + 7).toFixed(1));
+    cpcC.setAttribute('stroke-width', CPCW[String(c)]);
+    cpcT.textContent = nb('cpc ' + c + ' mm²');
+    grab.setAttribute('x', (xm - 6).toFixed(1));
+    [mC].forEach((n) => n.setAttribute('cx', cx.toFixed(1)));
+    [mM, mL].forEach((n) => n.setAttribute('x', cx.toFixed(1)));
+    brk.setAttribute('d', 'M72 104 V116 M72 110 H' + xm.toFixed(1) + ' M' + xm.toFixed(1) + ' 104 V116');
+    runT.setAttribute('x', ((72 + xm) / 2).toFixed(1));
+    runT.textContent = nb(fmtL(L) + ' m');
+    // The loop bar.
+    const over = o.zs > ZMAX + 1e-9;
+    const zEnd = XZ(Math.min(o.zs, ZMAX));
+    z1.setAttribute('width', Math.max(0, zEnd - XZ(ZDB)).toFixed(1));
+    z2.setAttribute('width', over ? (XZ(Math.min(o.zs, 1.3)) - XZ(ZMAX)).toFixed(1) : '0');
+    z1T.setAttribute('x', ((XZ(ZDB) + zEnd) / 2).toFixed(1));
+    z1T.setAttribute('display', zEnd - XZ(ZDB) >= 52 ? 'inline' : 'none');
+    zHead.textContent = nb('The loop: Zs = ' + ZDB + ' + ' + f3(o.r12) + ' = ' + f3(o.zs) + ' Ω');
+    zHead.setAttribute('class', 'fig' + (over ? ' over' : ''));
+    // The heat bar.
+    hBar.setAttribute('width', o.worked ? (XS(o.s) - 8).toFixed(1) : '324');
+    hBar.setAttribute('class', 'heat' + (o.worked ? '' : ' off'));
+    hNote.setAttribute('display', o.worked ? 'none' : 'inline');
+    [fitL, fitT].forEach((n) => n.setAttribute('display', o.worked ? 'inline' : 'none'));
+    hHead.textContent = nb(o.worked ? 'The heat: needs at least ' + f2(o.s) + ' mm²' : 'Heat: not worked here.');
+    imR.el.classList.toggle('warn', o.imin < IA);
+    const xf = XS(c);
+    fitL.setAttribute('x1', xf.toFixed(1)); fitL.setAttribute('x2', xf.toFixed(1));
+    fitT.setAttribute('x', xf.toFixed(1));
+    fitT.textContent = nb(c + ' mm² fitted');
+    // Words.
+    const lead = 'With a ' + c + ' mm² cpc over ' + fmtL(L) + ' m, Zs is ' + f3(o.zs) + ' Ω';
+    let s;
+    if (!o.worked) s = lead + ', well past the ' + ZMAX_T + ' line. Even at Cmax the fault current stays under ' + IA + ' A. So the breaker may not open within ' + T01 + ' s, and the heat is not worked.';
+    else if (over) s = lead + ', past the ' + ZMAX_T + ' line, so the breaker may not open in time. Yet the heat needs only ' + f2(o.s) + ' mm². The loop fails first.';
+    else s = lead + ', inside the ' + ZMAX_T + ' line. The heat needs only ' + f2(o.s) + ' mm² of the ' + c + ' mm² fitted. Both checks pass.';
+    el('say').textContent = nb(s);
+    svg.setAttribute('aria-label', "The lathe's circuit from DB2 with a " + c + ' mm² cpc over ' + fmtL(L) + ' m. The loop bar shows Zs ' + f3(o.zs) + ' Ω, '
+      + (over ? 'past' : 'inside') + ' the ' + ZMAX_T + ' line. ' + (o.worked ? 'The heat bar shows ' + f2(o.s) + ' mm² needed, against ' + c + ' mm² fitted.' : 'The heat is not worked.'));
+  }
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  // Feedback and after notes fade in as the step does, whenever they change.
+  const faded = {};
+  function fade(node, key) {
+    if (node.hidden) { faded[node.id] = ''; return; }
+    if (faded[node.id] === key) return;
+    faded[node.id] = key;
+    node.classList.remove('fade'); void node.offsetWidth; node.classList.add('fade');
+  }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(K.el('p', null, nb(f.p0)));
+    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, nb(t))));
+    if (f.p) fb.appendChild(K.el('p', null, nb(f.p)));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return st.res === 'right' || st.shown;
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    return false;
+  }
+
+  K.model((p) => {
+    const w = loopAt(cpcOf(p), lenOf(p));
+    return { imin: w.imin, lmax: w.lmax, zs: w.zs, r12: w.r12, imax: w.imax, worked: w.worked, s: w.s };
+  });
+
+  const ON = { scen: [i5A, i5C, i5E, i5G, i5H], carry1: [i5C], carry2: [i5E], carry3: [i5G], carry4: [i5H], shown: [i5C, i5G], assume: [i5A, i5C, i5E, i5G, i5H, iCh],
+    warn2: [iFor], wrap: [iWhy], ctl: [iWhy], outs: [iWhy], say: [iWhy], beside: [iWhy], under: [iWhy],
+    worked: [iWk], workedgo: [iWk], picks: [iR, iChk],
+    'ans-5a': [i5A], 'ans-5c': [i5C], 'ans-5e': [i5E], 'ans-5g': [i5G], 'ans-5h': [i5H], 'ans-ch': [iCh], wr1: [iB1], keep: [iK], fin: [iK] };
+
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { if (lastStep !== -1) enter(); lastStep = i; if (i >= i5A && i <= i5H) scen.el.open = i === i5A; }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    const sh = el('shown');
+    sh.textContent = '';
+    if (d.shown) sh.appendChild(K.el('p', { class: 'w' }, nb(d.shown)));
+    paras(el('assume'), d.assume || '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text, TERMS[i]);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    const asks = i === iWhy || i === iWk;
+    sub.className = 'sub' + (asks ? ' ask' : '');
+    sub.textContent = i === iWhy ? 'Pick a thinner cpc, then drag the length.'
+      : i === iWk ? 'Work each step yourself first, then press Show.'
+      : i === i5C ? nb('Give It in A, to two places.')
+      : i === i5E ? nb('Give the drop in V, to two places. Whether it complies follows.')
+      : i === i5G ? nb('Give Zs in Ω. Whether it complies follows.')
+      : i === i5H ? nb('Give the area in mm², to two places. Whether it is adequate follows.')
+      : i === iB1 ? markLine('b1')
+      : i === iCh ? nb('Same method, new numbers. Give It in A, to two places.')
+      : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    drawWhy(p, o);
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's blocks, and the note once they are all shown.
+    wblocks.forEach((w, k) => { w.hidden = k >= lines; });
+    nextLine.el.hidden = lines >= WCOUNT;
+    if (i === iWk) el('workedgo').hidden = lines >= WCOUNT;
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const after = el('after');
+    paras(after, typedDone ? SPEC[i].after : '', typedDone ? SPEC[i].terms : null);
+    after.hidden = !after.textContent;
+    el('go').hidden = !(i === iR && st.res === 'right');
+    [['fb', JSON.stringify(st.fb)], ['after', i + after.textContent], ['go', String(i)]].forEach(([id, key]) => fade(el(id), key));
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b) => K.near(a, b, 1e-9);
+  K.check('At 27 m: 4 mm² gives Zs 0.719 Ω and needs 0.78 mm²; 2.5 mm² gives 0.415 and 0.815 Ω and needs 0.69 mm²', () => {
+    const a = K.at({ cpc: 4, len: 27 }), b = K.at({ cpc: 2.5, len: 27 });
+    return near(a.zs, fRecZ.value) && near(a.s, fWhy4.value) && near(b.r12, fR25.value) && near(b.zs, f5g.value) && near(b.s, f5h.value) && b.zs <= ZMAX;
+  });
+  K.check('At 27 m the 1.5 mm² cpc crosses the line at 0.977 Ω, with 223.64 A at Cmin, yet the heat needs only 0.57 mm²', () => {
+    const o = K.at({ cpc: 1.5, len: 27 });
+    return near(o.zs, fWhy15.value) && o.zs > ZMAX && near(o.imin, 223.64) && o.imin < IA && o.worked === 1 && near(o.s, 0.57);
+  });
+  K.check('Longest runs: 21.9 m with 1.5 mm², 30.5 m with 2.5 mm², 39.8 m with 4 mm²', () =>
+    near(K.at({ cpc: 1.5 }).lmax, fL15.value) && near(K.at({ cpc: 2.5 }).lmax, fL25.value) && near(K.at({ cpc: 4 }).lmax, fL4.value)
+    && K.at({ cpc: 2.5, len: 30.5 }).zs <= ZMAX && K.at({ cpc: 2.5, len: 31 }).zs > ZMAX);
+  K.check('Zs rises with the run and with a thinner cpc, while the heat needed falls as long as the breaker trips within 0.1 s', () => {
+    for (let k = 0; k < CPCS.length; k++) {
+      let prev = null;
+      for (let L = 10; L <= 40; L += 0.5) {
+        const o = K.at({ cpc: CPCS[k], len: L });
+        if (k > 0 && !(K.at({ cpc: CPCS[k - 1], len: L }).zs > o.zs)) return false;
+        if (prev && (o.zs < prev.zs || (o.worked && prev.worked && o.s > prev.s))) return false;
+        prev = o;
+      }
+    }
+    return true;
+  });
+  K.check('Past 1.012 Ω the Cmax current falls under 250 A, and the heat is not worked (1.5 mm² at 40 m)', () => {
+    const o = K.at({ cpc: 1.5, len: 40 });
+    return o.zs > VMAX / IA && o.imax < IA && o.worked === 0 && K.at({ cpc: 1.5, len: 28.5 }).worked === 1;
+  });
+  K.check('The recall: 0.319 and 0.719 Ω with the 4 mm² cpc. The check at 32 m: 0.492 Ω, 0.892 Ω, and 0.63 mm² for the heat', () =>
+    near(loopAt(4, RUN).r12, fRecR.value) && near(CK.r12, fChk2.value) && near(CK.zs, fChk.value) && near(CK.s, fChk1.value) && CK.zs > ZMAX);
+  K.check('The armour: 18.65 and 49.74 mm² needed; 0.518 mΩ/m, 0.041 Ω, Zs 0.101 Ω, 2504.95 A; 17.22 and 5.54 mm²', () =>
+    near(SW.needA, F('l10.swa.a').value) && near(SW.needB, F('l10.swa.b').value) && near(SW.r2, F('l10.swa.par').value) &&
+    near(SW.r12, F('l10.swa.r12').value) && near(SW.zs, F('l10.swa.zs').value) && near(SW.imax, F('l10.swa.imax').value) &&
+    near(SW.sa, F('l10.swa.sa').value) && near(SW.sc, F('l10.swa.sc').value) && SW.needA < A6 && SW.needB < A25_4 && SW.sa < A25_5 && SW.sc < 25);
+  K.check('Parts 5a to 5e: 388 V, 21.74 A (21.77 A with 1.73), 0.714, 35.01 A, 26.42 A, 12.00 + 5.87 = 17.87 V within 20.00 V', () =>
+    near(A.U, fU.value) && near(A.ib, f5a.value) && near(A.ib173, 21.77) && A.ib > F('5b.slip1').value && near(IN, 25) && near(A.f, fFac.value) &&
+    near(A.it, f5c.value) && near(A.iz, 26.42) && A.iz >= IN && IT25.value < A.it && IT4.value >= A.it &&
+    near(A.vd, fVd.value) && near(A.vt, f5e.value) && near(A.vt217, 17.86) && near(A.vt2177, 17.88) && A.vt <= A.vlim);
+  K.check('Parts 5g and 5h: Zs 0.815 Ω, 268.10 A at Cmin, 310.43 A at Cmax, 0.69 mm² for the heat', () =>
+    near(A.zs, f5g.value) && near(A.imin, fImin.value) && near(A.imax, fImax.value) && near(A.s, f5h.value) && A.imin >= IA);
+  K.check('Changed numbers: 0.658, It 60.79 A, 16 mm² at 68 A, drop 2.00 V within 6 V', () =>
+    near(CH.f, 0.658) && near(CH.it, fCh.value) && CH.t10 < CH.it && CH.t16 >= CH.it && near(CH.vd, 2) && CH.vd <= CH.lim);
+  K.check('Every slip lies outside its answer\'s accepted figures', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.5 * Math.pow(10, -sp.decimals);
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol && sp.accept.every((x) => Math.abs(s.value - x) > tol));
+  }));
+  K.check('Table 41.3: a 25 A type C circuit-breaker has a maximum Zs of 0.87 Ω', () => ZMAX === 0.87,
+    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });
+  K.check('For a supply to ESQCR, Cmin is 0.95', () => CMIN === 0.95 && near(VMIN, 218.5),
+    { source: 'https://electrical.theiet.org/media/1442/maximum-zs-values.pdf' });
+  K.check('A type C breaker trips within 0.1 s at 10 × In', () => near(10 * IN, IA) && T01 === 0.1,
+    { source: 'https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj' });
+  K.check('Above 16 mm², up to 35 mm², Table 54.7 gives (k1 ÷ k2) × 16', () => near(SW.needB, r2(K1 / K2 * 16)),
+    { source: 'https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638' });
+  K.check('BS 5467 cables: 25 mm² cores 0.727 mΩ/m, armour 70 mm² four-core and 88 mm² at 1.8 mΩ/m five-core; 6 mm² four-core armour 36 mm²', () =>
+    RC === 0.727 && A25_4 === 70 && A25_5 === 88 && RA === 1.8 && A6 === 36,
+    { source: 'https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf' });
+  K.check('The upstream device rating is at most the rated current of the assembly', () => CH.In <= CH.board,
+    { source: 'https://assets.sc.hager.com/uk/-/media/project/hagerdeep/united-kingdom/hager/b2b-uk/support/bitesize-guide-amd4.pdf' });
+
+  K.ready();
+</script>

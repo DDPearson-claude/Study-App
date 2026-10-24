@@ -1,0 +1,58 @@
+{
+  "draft": "i10.lesson.draft1.txt",
+  "validator": "ok, no problems, no soft problems",
+  "faults": [
+    {
+      "fault": "explanation skips the causal step",
+      "where": "explain, paragraph 2",
+      "finding": "It says Zs must stay within the breaker's maximum or the Cmin current may not open it in time, but never says what the maximum is: the loop that still lets 250 A, the breaker's instant-trip current, flow at Cmin (230 × 0.95 ÷ 250 = 0.874, printed 0.87). Without it the two checks look like two rules, not one mechanism.",
+      "fix": "Add one sentence tying 0.87 Ω to 218.5 V ÷ 250 A."
+    },
+    {
+      "fault": "false absolute",
+      "where": "explain, paragraph 3",
+      "finding": "'Less current heats the cpc less, so the heat check gets easier' is true only while the breaker still trips at once. Below 250 A the time jumps and the heat rises. The screen-3 words say so; the explain does not.",
+      "fix": "Add 'while the breaker still trips at once' and say what happens past it."
+    },
+    {
+      "fault": "text talks about the idea instead of teaching it",
+      "where": "explain, paragraph 1",
+      "finding": "'This is a whole design in one pass, on a second circuit... Every step is one you know' describes the lesson. It should lead with the point.",
+      "fix": "Open on the point: the table's cpc is safe, a smaller one must pass two checks, and on the lathe the loop decides."
+    },
+    {
+      "fault": "explanation skips the causal step (armour)",
+      "where": "explain, paragraph 4",
+      "finding": "'Steel's k is far lower than copper's, so it needs more area' skips why a low k means more area: the same fault energy heats steel further.",
+      "fix": "Say the same fault heats steel more, so it needs more area to stay under its limit."
+    },
+    {
+      "fault": "length (not one of the seven, but a limit)",
+      "where": "interactive.whatAmILookingAt",
+      "finding": "12 462 characters, near the 12 000 bound on whatAmILookingAt. Screen 1 repeats its working in the slip feedback; screen 3's 'What he sees' repeats the words under it.",
+      "fix": "Cut the repeats; keep every figure the builder needs. Draft 2: 12 219 characters, no length problem reported."
+    },
+    {
+      "fault": "unreadable labels / plain writing",
+      "where": "written.b1.points[3]",
+      "finding": "'the 0.680 Ω rule-of-thumb limit for a 90 °C cable' gives no way to see where 0.680 comes from.",
+      "fix": "Say it is the 0.87 Ω scaled down to 20 °C for a 90 °C cable, 0.87 × 250 ÷ 320."
+    }
+  ],
+  "checked_and_clear": [
+    "Interactive brief shows the cause: the loop is drawn as Zs at DB2 plus R1+R2, and R1+R2 grows as the cpc thins, so the rise in Zs is visible, not just its effect.",
+    "Checks test reasoning, not recall: the recall opener and the 32 m check each need the loop worked, and each slip is a real slip (heat only; DB2 left out).",
+    "Research is not decorative: every table value has its row quoted (Tables 4B1, 4C1, 4E1A, 4E1B, 4D1A, 4D1B; OSG I1, I3) and the armour rules are quoted (Table 54.7 k1 ÷ k2 × 16; a separate cpc sized for the whole fault current).",
+    "Practice values are named as such wherever they appear: k2 46 and the fuse's 0.1 s on screen 5 and in numbers.",
+    "Refresher pattern holds: recall with Refresh the why / Skip to the practice; what it is for with the red consequence; the why with its interactive, still and read; a check; the worked example with read and the cut-short figures noted; Section A 5(a) to 5(h) with the scenario, carried parts and typed answers; Section B b1; one changed-numbers item; Keep this.",
+    "No handout error repeated: 49.74 not 49.73; 70 mm² armour (maker) not 80 mm²; heat at Cmax not Cmin; Zs at DB2 0.4 Ω, not 0.97 Ω; Table 54.7's size called the suitable size, not the minimum; the 16 mm² power-factor rule left out (not sourced).",
+    "Plain writing: no source is named in a sentence; footnotes only on figures or rules he would look up (0.87 Ω, k1 ÷ k2 × 16, suitable vs minimum, Cmax for heat, a separate cpc's sizing, 536.4.202)."
+  ],
+  "case_file": "l10.check.slip1 corrected: at 32 m the Cmax current is 253 ÷ 0.892 = 283.63 A and the heat needs 0.63 mm², not the 27 m figure of 0.69 mm².",
+  "verdict": "Rewrite as draft 2 with the six fixes above.",
+  "draft2": {
+    "file": "i10.lesson.draft2.txt",
+    "validator": "ok, no problems, no soft problems",
+    "finalise": "passing, i10.lesson.final.json: format steps, mode read, written b1, summary"
+  }
+}

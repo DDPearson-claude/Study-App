@@ -1,0 +1,680 @@
+{
+  "notes": [
+    {
+      "claim": "The lathe job: a 12.5 kW three-phase motor, power factor 0.91, efficiency 94%, in 90 degrees C thermosetting singles in trunking, with two other circuits, at 25 degrees C, behind a distribution circuit that drops 3%; the board voltage for Ib is therefore 388 V, and Ib = P / (sqrt3 x U x efficiency x pf) = 21.74 A (the mock prints 21.7 A).",
+      "sourceIds": [
+        518,
+        519,
+        520,
+        521,
+        524,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "claim": "Reference Method B (Table 4A2); Ca 1.02 at 25 degrees C for 90 degrees C thermosetting, Cg 0.70 for three circuits, It = In / (Ca x Cg) = 35.01 A, so 4 mm2 (37 A) from Table 4E1A column 5 where 2.5 mm2 (28 A) is too small; the terminals are assumed to allow 90 degrees C (the Table 4E1A note says the cable is rated at the lower of the cable's and the equipment's temperature).",
+      "sourceIds": [
+        523,
+        211,
+        212,
+        553,
+        296,
+        247
+      ]
+    },
+    {
+      "claim": "Drop: 4 mm2 three-phase is 10 mV/A/m (Table 4E1B), 10 x 21.74 x 27 / 1000 = 5.87 V on the circuit, added to the 12 V upstream gives 17.87 V against the 20 V limit (the mock prints 17.859 V). For conductors of 16 mm2 or less the table gives one value and the lesson uses it as it stands; the rule 'tabulated value x cos phi' for 16 mm2 or less was not found in any quotable source, so the lesson does not teach it (the tabulated r and x split matters above 16 mm2).",
+      "sourceIds": [
+        554,
+        525,
+        526,
+        312,
+        314,
+        320
+      ]
+    },
+    {
+      "claim": "Table 54.7 selection: same material as the line conductor and a line conductor of 16 mm2 or less gives a cpc of the line conductor's size, here 4 mm2. It is selection as an alternative to calculation, gives a larger csa than calculation, and a non-standard result needs the next size up; selection must not be used where the line conductors are sized only by short-circuit current or where earth fault current is less than short-circuit current (543.1.1).",
+      "sourceIds": [
+        527,
+        562,
+        563,
+        564,
+        441,
+        439
+      ]
+    },
+    {
+      "claim": "A smaller cpc: with the board's Zdb 0.4 ohm (mock part 2; part 1's 0.97 ohm leaves no 25 A type C breaker able to pass), a 2.5 mm2 cpc with the 4 mm2 line gives R1+R2 12.02 mohm/m (On-Site Guide Table I1), x 1.28 x 27 m / 1000 = 0.415 ohm, Zs 0.815 ohm within the 25 A type C's 0.87 ohm; Ia is 250 A (Fig 3A5, 10 x In); the cpc carries Cmax current 310.43 A and the adiabatic S = sqrt(I2 t) / k with k 143 (Table 54.3) gives 0.69 mm2, under 2.5 mm2.",
+      "sourceIds": [
+        528,
+        529,
+        530,
+        531,
+        532,
+        533,
+        534,
+        522,
+        556,
+        557,
+        333,
+        335,
+        339,
+        340,
+        58,
+        59,
+        47
+      ]
+    },
+    {
+      "claim": "R1+R2 per metre for a 4 mm2 line with a 1.5 mm2 cpc is 16.71 mohm/m and with a 4 mm2 cpc 9.22 mohm/m (Table I1, corrected from the page image), so a 1.5 mm2 cpc at 27 m gives Zs 0.977 ohm, over 0.87 ohm.",
+      "sourceIds": [
+        555,
+        556,
+        333
+      ]
+    },
+    {
+      "claim": "Table 54.7 for a cpc of a different material from the line conductor is (k1 / k2) x S for a line conductor up to 16 mm2 and (k1 / k2) x 16 for over 16 up to 35 mm2, k1 for the line conductor and k2 for the protective conductor, each for its own material and insulation; his group handout works 143 x 6 / 46 = 18.65 mm2 and 143 x 16 / 46 = 49.73 mm2 (cut short from 49.74) with k2 = 46 for steel armour. The Goldberg Kabel page is a Singapore (SS 638) adoption of the same table, so the formula is corroborated, not the regulation number.",
+      "sourceIds": [
+        535,
+        536,
+        537,
+        542,
+        543,
+        570,
+        571,
+        572,
+        567,
+        394
+      ]
+    },
+    {
+      "claim": "Armour as the cpc: its csa must be at least that found by calculation or by selection; it is thermally stressed in an earth fault and its end-to-end impedance (with glands and terminations) adds to Zs. A 6 mm2 four-core SWA has 36 mm2 of armour (needs 18.65 mm2), a 25 mm2 four-core has 70 mm2 (Prysmian, armour 2.3 ohm/km) and a 25 mm2 five-core 88 mm2 (1.8 ohm/km) against the 49.74 mm2 Table 54.7 needs.",
+      "sourceIds": [
+        538,
+        541,
+        565,
+        566,
+        583,
+        388
+      ]
+    },
+    {
+      "claim": "When armour falls short: use a cable with an extra core, or run a separate cpc alongside; a separate cpc in parallel with an SWA cable is permitted (Regulation 521.5.1, as one practitioner's guide states) and must be sized for the full earth fault current, since the current does not share equally. With a core and the armour both as the cpc, R2 is the two in parallel, 1 / (1/0.727 + 1/1.8) = 0.518 mohm/m, and each path alone must also carry the fault current for the heat check, as his handout does.",
+      "sourceIds": [
+        539,
+        540,
+        544,
+        545,
+        547,
+        548,
+        568,
+        569,
+        573,
+        574,
+        575,
+        576,
+        577,
+        583
+      ]
+    },
+    {
+      "claim": "The 40 A BS 88-2 fuse in the SWA example is taken to clear within 0.1 s at about 2.5 kA: not sourced for the 40 A rating. A maker's gate table shows an 80 A gG fuse operating within 0.1 s by 1100 A, and a 40 A fuse is the smaller fuse, so 2.5 kA is well past it; the lesson uses 0.1 s as a labelled practice value (case.json p.swa.t) and tells Dan to read the real time from Fig 3A3 in his copy.",
+      "sourceIds": [
+        581,
+        582,
+        546
+      ]
+    },
+    {
+      "claim": "Changed numbers: 70 degrees C thermoplastic at 35 degrees C has Ca 0.94 (Table 4B1); Cg 0.70 for three circuits; Table 4D1A column 5 gives 10 mm2 50 A and 16 mm2 68 A; Table 4D1B three-phase 16 mm2 is 2.4 mV/A/m. For the board, the upstream device's rated current must not exceed the board's rated current InA (Regulation 536.4.202, A4 wording as the Hager guide explains it), and InA is at least the sum of the design currents loaded together (IET Wiring Matters).",
+      "sourceIds": [
+        549,
+        212,
+        550,
+        551,
+        552,
+        578,
+        579,
+        580
+      ]
+    },
+    {
+      "claim": "The Section A shapes of the C&G papers (design a final circuit end to end behind a distribution circuit, then the minimum suitable cpc considering design Zs and thermal constraints under fault conditions) are used as shapes only; every figure is Dan's mock's or changed.",
+      "sourceIds": [
+        558,
+        559,
+        560,
+        561
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "n": 3,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "Ib = P / VL x Eff% x PF x √3"
+    },
+    {
+      "n": 4,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "VL = Line to line voltage (400V)"
+    },
+    {
+      "n": 5,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p13",
+      "quote": "√3 = Square root of 3 (1.73)"
+    },
+    {
+      "n": 47,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p48",
+      "quote": "It’s advisable to use Cmax when we’re determining the fault current carrying capacity of conductors."
+    },
+    {
+      "n": 58,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p58",
+      "quote": "S = √I² x t / K"
+    },
+    {
+      "n": 59,
+      "title": "EAL Level 4 Design and Verification: course slides",
+      "url": "material:eal-slides#p59",
+      "quote": "To find k we need to use one the following tables: 54.2, 54.3, 54.4, 54.5 or 54.6"
+    },
+    {
+      "n": 211,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p441",
+      "quote": "25 1.04 1.03 1.02 1.07 1.04"
+    },
+    {
+      "n": 212,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p443",
+      "quote": "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+    },
+    {
+      "n": 247,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "maximum operating temperature of the cable, the cables should be rated at the maximum"
+    },
+    {
+      "n": 296,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "2.5 26 23 31 28 34 31"
+    },
+    {
+      "n": 312,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "Where circuit cable conductors exceed 16 mm², which is common in distribution circuits used in industrial or commercial type installations, the tables for current-carrying capacity and voltage-drop in Appendix 4 of BS 7671 give separate values"
+    },
+    {
+      "n": 314,
+      "title": "Impedance and its impact on voltage-drop in cables - Professional Electrician (NICEIC)",
+      "url": "https://professional-electrician.com/technical/impedance-and-its-impact-on-voltage-drop-in-cables",
+      "quote": "However, if the load power factor is known, then using the tabulated (mV/A/m)r and (mV/A/m)x values will provide a more accurate assessment of voltage-drop"
+    },
+    {
+      "n": 320,
+      "title": "Electrical design guide - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/29716/electrical-design-guide",
+      "quote": "The tables of voltage drop represent this as two parts - the resistive bit, and the reactive bit - for thin cables, carrying lower currents, at least at 50Hz there is an assumption the inductive stuff can be safely neglected"
+    },
+    {
+      "n": 333,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 4 9.22"
+    },
+    {
+      "n": 335,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p220",
+      "quote": "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+    },
+    {
+      "n": 339,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p145",
+      "quote": "3&C 5.82 3.49 2.91 1.75 1.16 1.09 0.87 0.7 0.58 0.55 0.44 0.38 0.35 0.27 0.17"
+    },
+    {
+      "n": 340,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p145",
+      "quote": "Maximum measured earth fault loop impedance (in"
+    },
+    {
+      "n": 388,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "6 3.08 - - 22 7.0 23 6.7 36 4.3 40 3.9"
+    },
+    {
+      "n": 394,
+      "title": "Free Adiabatic Equation Calculator & CPC Sizer - TMUK GROUP LTD",
+      "url": "https://tmuk.org/free-adiabatic-equation-calculator-cpc-sizer/",
+      "quote": "46 - Steel Wire Armour (SWA - 90°C XLPE)"
+    },
+    {
+      "n": 439,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician)",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/",
+      "quote": "Although the main purpose of the metallic armouring is to provide mechanical protection, it may also be used as a protective conductor if all the relevant requirements of BS 7671 for such use are satisfied."
+    },
+    {
+      "n": 441,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA, Professional Electrician)",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor/",
+      "quote": "Using Table 54.7 of BS 7671 for selection, when permitted, and as an alternative to calculation."
+    },
+    {
+      "n": 518,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "The circuit is supplying a 12.5kW 3-phase motor powering an industrial lathe."
+    },
+    {
+      "n": 519,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "The motor has a known PF of 0.91 and an EFF% of 94% when at full load."
+    },
+    {
+      "n": 520,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "The trunking already contains 2 other circuits and the ambient temp is 25C."
+    },
+    {
+      "n": 521,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "is supplied by a distribution circuit with a 3% voltage drop."
+    },
+    {
+      "n": 522,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "DB2 has a Zdb of 0.97 ohms."
+    },
+    {
+      "n": 523,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "REFERENCE METHOD B (TABLE 4A2)"
+    },
+    {
+      "n": 524,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p1",
+      "quote": "THEREFORE VOLTAGE PRESENT TO CALCULATE Ib FOR FINAL CIRCUIT 15: 388 v"
+    },
+    {
+      "n": 525,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p2",
+      "quote": "TOTAL VOLT DROP 17.859v"
+    },
+    {
+      "n": 526,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p2",
+      "quote": "ALLOWED IS 20v (SY)"
+    },
+    {
+      "n": 527,
+      "title": "Your course mock, part 1: the lathe circuit (worked)",
+      "url": "material:mock-1#p2",
+      "quote": "DUE TO SAME MATERIAL AS LINE CONDUCTOR AND LINE CSA BEING NO"
+    },
+    {
+      "n": 528,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p1",
+      "quote": "DB2 has a Zdb of 0.4ohms."
+    },
+    {
+      "n": 529,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p1",
+      "quote": "a) If the CPC was to be reduced in CSA to 2.5mm, would the circuit meet the requirements for ADS?"
+    },
+    {
+      "n": 530,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p1",
+      "quote": "b) Would the new CSA of 2.5mm be adequate for fault conditions?"
+    },
+    {
+      "n": 531,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p1",
+      "quote": "12.02 x 1.28 x27"
+    },
+    {
+      "n": 532,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p2",
+      "quote": "fi 3AS STATES THE la OF THE DEVICE IS 250A"
+    },
+    {
+      "n": 533,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p2",
+      "quote": "K IS FOUND IN TABLE 54.3 AND IS 143 FOR THIS CIRCUIT."
+    },
+    {
+      "n": 534,
+      "title": "Your course mock, part 2: the lathe's cpc (worked)",
+      "url": "material:mock-2#p2",
+      "quote": "THE 2.5mm CONDUCTOR WILL NEED TO CARRY 312.3A OF PEFC UNTIL THE DEVICE DISCONNECTS IN O.IS,"
+    },
+    {
+      "n": 535,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "Calculating SWA used as CPC"
+    },
+    {
+      "n": 536,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "(Table 54.4) K2=46"
+    },
+    {
+      "n": 537,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "143×6=18.65mm²"
+    },
+    {
+      "n": 538,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "Actual CSA -36mm² This is acceptable!"
+    },
+    {
+      "n": 539,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "an extra core to"
+    },
+    {
+      "n": 540,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p1",
+      "quote": "run a seperate CPC in"
+    },
+    {
+      "n": 541,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p2",
+      "quote": "25mm² 4core, circular cores 90°C Thermosetting Armoured cable - 26m in length"
+    },
+    {
+      "n": 542,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p2",
+      "quote": "Table 54.7 - Kix 16 - 143 x 16 K2"
+    },
+    {
+      "n": 543,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p2",
+      "quote": "=49.73mm²"
+    },
+    {
+      "n": 544,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p2",
+      "quote": "This cable, has both a copper cpc (25mm) and the SWA CPC Resistance of SWA"
+    },
+    {
+      "n": 545,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p3",
+      "quote": "(of 2 cpcs in parallel to one another"
+    },
+    {
+      "n": 546,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p3",
+      "quote": "BS88-2 system E, supplying"
+    },
+    {
+      "n": 547,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p3",
+      "quote": "Individually, both the SWA and the copper"
+    },
+    {
+      "n": 548,
+      "title": "Your group handout: SWA as the cpc",
+      "url": "material:swa-cpc#p4",
+      "quote": "Earth fault current and are adequate"
+    },
+    {
+      "n": 549,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p441",
+      "quote": "35 0.91 0.94 0.96 0.93 0.96"
+    },
+    {
+      "n": 550,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "10 46 42 57 50 65 59"
+    },
+    {
+      "n": 551,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p448",
+      "quote": "16 61 56 76 68 87 79"
+    },
+    {
+      "n": 552,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p449",
+      "quote": "16 2.8 2.8 2.8 2.8 2.4 2.4 2.4 2.4"
+    },
+    {
+      "n": 553,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p458",
+      "quote": "4 35 31 42 37 46 41"
+    },
+    {
+      "n": 554,
+      "title": "Your copy of BS 7671:2018+A2:2022 (pages 441 to 491)",
+      "url": "material:bs7671#p459",
+      "quote": "4 12 12 12 12 10 10 10 10"
+    },
+    {
+      "n": 555,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 1.5 16.71"
+    },
+    {
+      "n": 556,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 2.5 12.02"
+    },
+    {
+      "n": 557,
+      "title": "Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022)",
+      "url": "material:osg#p218",
+      "quote": "4 - 4.61"
+    },
+    {
+      "n": 558,
+      "title": "City & Guilds 2396 practice paper 4 (December 2014)",
+      "url": "material:cg-paper-4#p3",
+      "quote": "Determine the minimum sultable csa of the cpc giving consideration to"
+    },
+    {
+      "n": 559,
+      "title": "City & Guilds 2396 practice paper 4 (December 2014)",
+      "url": "material:cg-paper-4#p3",
+      "quote": "2 A single-core 70 °C thermoplastic copper cable is to be used as the distribution circuit"
+    },
+    {
+      "n": 560,
+      "title": "City & Guilds 2396 practice paper 5 (March 2013)",
+      "url": "material:cg-paper-5#p2",
+      "quote": "Determine, for the cable size selected in Question 1 above, a suitably sized separate circuit"
+    },
+    {
+      "n": 561,
+      "title": "City & Guilds 2396 practice paper 5 (March 2013)",
+      "url": "material:cg-paper-5#p2",
+      "quote": "ii) thermal constraints under fault conditions."
+    },
+    {
+      "n": 562,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA) - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor",
+      "quote": "However, where the line conductors are sized only by considerations of short-circuit current or where the earth fault current is expected to be less than the short-circuit current the method of selection must not be used (543.1.1)."
+    },
+    {
+      "n": 563,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA) - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor",
+      "quote": "Where the application of Table 54.7 produces a non-standard size it will be necessary to select a conductor with a larger csa."
+    },
+    {
+      "n": 564,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA) - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor",
+      "quote": "This will consequently produce a larger required minimum csa."
+    },
+    {
+      "n": 565,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA) - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor",
+      "quote": "Where the armouring of a cable is used as a cpc it is likely to experience some thermal stress (heating effects) when subjected to earth fault current."
+    },
+    {
+      "n": 566,
+      "title": "Armouring of a cable as a protective conductor (NICEIC & ELECSA) - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/armouring-of-a-cable-as-a-protective-conductor",
+      "quote": "careful consideration must be given to its end-to-end impedance as this will contribute to the earth fault loop impedance"
+    },
+    {
+      "n": 567,
+      "title": "Exporting a PME supply to an outbuilding using an SWA cable | NICEIC - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/exporting-a-pme-supply-to-an-outbuilding-using-an-swa-cable-niceic",
+      "quote": "Using the formula from column 3 of Table 54.7:"
+    },
+    {
+      "n": 568,
+      "title": "Exporting a PME supply to an outbuilding using an SWA cable | NICEIC - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/exporting-a-pme-supply-to-an-outbuilding-using-an-swa-cable-niceic",
+      "quote": "install a three-core 10 mm² SWA cable and use one of the cores as the protective conductor;"
+    },
+    {
+      "n": 569,
+      "title": "Exporting a PME supply to an outbuilding using an SWA cable | NICEIC - Professional Electrician",
+      "url": "https://professional-electrician.com/technical/exporting-a-pme-supply-to-an-outbuilding-using-an-swa-cable-niceic",
+      "quote": "install a separate protective conductor having a csa of 10 mm² alongside the SWA; or"
+    },
+    {
+      "n": 570,
+      "title": "Sizing protective conductors: the adiabatic equation | Goldberg Kabel Singapore",
+      "url": "https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638",
+      "quote": "If you do not calculate, Table 54.7 (Regulation 543.1.4L) sets the minimum size of the protective conductor from the size of the line conductor, S:"
+    },
+    {
+      "n": 571,
+      "title": "Sizing protective conductors: the adiabatic equation | Goldberg Kabel Singapore",
+      "url": "https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638",
+      "quote": "k ₁ is the k value for the line conductor and k ₂ the k value for the protective conductor, each for its own material and insulation."
+    },
+    {
+      "n": 572,
+      "title": "Sizing protective conductors: the adiabatic equation | Goldberg Kabel Singapore",
+      "url": "https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638",
+      "quote": "|16 < S ≤ 35 |16 |(k ₁ / k ₂ ) × 16 |"
+    },
+    {
+      "n": 573,
+      "title": "SWA as a CPC - GADS Services",
+      "url": "https://gadsolutions.biz/regulations/swa-as-a-cpc",
+      "quote": "Regulation 521.5.1 permits the use of a separate protective conductor to be run in parallel with an SWA cable."
+    },
+    {
+      "n": 574,
+      "title": "SWA as a CPC - GADS Services",
+      "url": "https://gadsolutions.biz/regulations/swa-as-a-cpc",
+      "quote": "This CPC should be adequately sized to handle the full potential earth fault current not just to provide sufficient additional capacity to the SWA armour to meet the required CSA."
+    },
+    {
+      "n": 575,
+      "title": "SWA as a CPC - GADS Services",
+      "url": "https://gadsolutions.biz/regulations/swa-as-a-cpc",
+      "quote": "This is required as the currents flowing under fault conditions would not be equally distributed over the cables due to differences in impedance."
+    },
+    {
+      "n": 576,
+      "title": "SWA as a CPC - GADS Services",
+      "url": "https://gadsolutions.biz/regulations/swa-as-a-cpc",
+      "quote": "If the armour is found to be undersized then a full sized separate CPC must be provided."
+    },
+    {
+      "n": 577,
+      "title": "SWA plus separate cpc - Wiring and the Regulations BS 7671 - IET EngX",
+      "url": "https://engx.theiet.org/f/wiring-and-regulations/30233/swa-plus-separate-cpc/139002",
+      "quote": "Once the impedance has been calculated for the armour and the external CPC I use the reciprocal method of adding fractions when adding impedances in parallel."
+    },
+    {
+      "n": 578,
+      "title": "How does the installation of microgeneration affect the rated current of a consumer unit? - IET Wiring Matters",
+      "url": "https://electrical.theiet.org/wiring-matters/years/2024/103-november-2024/how-does-the-installation-of-microgeneration-affect-the-rated-current-of-a-consumer-unit",
+      "quote": "should be equal to, or greater than, the maximum sum of the design current of all the circuits that are loaded simultaneously."
+    },
+    {
+      "n": 579,
+      "title": "18th Edition Amendment 4 - Hager bitesize guide",
+      "url": "https://assets.sc.hager.com/uk/-/media/project/hagerdeep/united-kingdom/hager/b2b-uk/support/bitesize-guide-amd4.pdf",
+      "quote": "Regulation 536.4.202 covers the coordination between low voltage switchgear and controlgear assemblies and the overload protective device."
+    },
+    {
+      "n": 580,
+      "title": "18th Edition Amendment 4 - Hager bitesize guide",
+      "url": "https://assets.sc.hager.com/uk/-/media/project/hagerdeep/united-kingdom/hager/b2b-uk/support/bitesize-guide-amd4.pdf",
+      "quote": "The rated current or current setting of the upstream protective device (In) is less than or equal to the rated current of the assembly (InA) and any outgoing unit (Inc)."
+    },
+    {
+      "n": 581,
+      "title": "IEC 60269 gG and aM standard low voltage fuses - Mersen EduPack training module",
+      "url": "https://us.mersen.com/sites/default/files/files_imported_ep/TM-104-Mersen-EduPack-IEC60269-gG-aM-Standard-Low-Voltage-Fuses.pdf",
+      "quote": "Gates for some ratings as per IEC 60269"
+    },
+    {
+      "n": 582,
+      "title": "IEC 60269 gG and aM standard low voltage fuses - Mersen EduPack training module",
+      "url": "https://us.mersen.com/sites/default/files/files_imported_ep/TM-104-Mersen-EduPack-IEC60269-gG-aM-Standard-Low-Voltage-Fuses.pdf",
+      "quote": "80 215 425 610 1100"
+    },
+    {
+      "n": 583,
+      "title": "Standard Power Cables BS5467 - Prysmian United Kingdom",
+      "url": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf",
+      "quote": "25 0.727 - - 42 3.7 62 2.5 70 2.3 88 1.8"
+    }
+  ],
+  "at": "2026-10-24T16:07:02.322Z"
+}

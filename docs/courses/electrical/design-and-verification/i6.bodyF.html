@@ -1,0 +1,677 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.45; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task > p + p { margin-top: 10px; }
+  .sub { font-size: .95rem; color: var(--k-muted); line-height: 1.5; }
+  .ask { font-size: 1rem; font-weight: 700; color: var(--k-ink); }
+  .assume { line-height: 1.6; }
+  .scene { display: block; width: 100%; }
+  .scene .lb { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .hd { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .cond { fill: none; stroke: var(--k-strong); stroke-linecap: round; stroke-linejoin: round; }
+  .scene .flow { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 13; }
+  .scene .box { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .bolt { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .b0 { fill: var(--k-warn); fill-opacity: .22; }
+  .scene .b1 { fill: var(--k-fill2); }
+  .scene .b2 { fill: var(--k-fill1); }
+  .scene .ia { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot.low { fill: var(--k-warn); }
+  .ctl { display: grid; gap: 12px; }
+  .wk { display: grid; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); }
+  .wk .r { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 2px; align-items: baseline; }
+  .wk .n { grid-column: 1 / -1; font-weight: 700; line-height: 1.4; }
+  .wk .f { grid-column: 1; color: var(--k-muted); font-size: .92rem; line-height: 1.4; font-variant-numeric: tabular-nums; }
+  .wk .v { grid-column: 2; grid-row: 2; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wk .r.bad .v, .wk .r.bad .f { color: var(--k-warn); }
+  .rule1 { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.6; }
+  .rows { display: grid; gap: 8px; }
+  .rows p { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .rows b { font-weight: 700; }
+  .w { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wl { padding: 10px 12px; border-radius: 10px; background: var(--k-panel); border: 1px solid var(--k-line); line-height: 1.5; }
+  .wl .w { margin-top: 6px; }
+  .picks { display: flex; flex-direction: column; gap: 10px; }
+  .picks .k-btn { width: 100%; min-height: 56px; height: auto; font-size: 1.02rem; line-height: 1.35; white-space: normal; text-align: left; padding: 10px 14px; }
+  .picks .k-btn.is-right, #jrow .k-btn.is-right { border-color: var(--k-good); color: var(--k-good); box-shadow: inset 0 0 0 1px var(--k-good); }
+  .picks .k-btn.is-wrong, #jrow .k-btn.is-wrong { border-color: var(--k-warn); color: var(--k-warn); }
+  #judge > * + * { margin-top: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 9rem; min-height: 48px; }
+  .fb { padding: 12px 14px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid var(--k-line); line-height: 1.5; }
+  .fb.ok { box-shadow: inset 4px 0 0 var(--k-good); }
+  .fb.bad { box-shadow: inset 4px 0 0 var(--k-warn); }
+  .fb > * + * { margin-top: 6px; }
+  .fb .v { font-weight: 700; font-size: 1.05rem; }
+  .fb.ok .v { color: var(--k-good); }
+  .fb .sl { font-size: .95rem; color: var(--k-muted); }
+  .why { line-height: 1.6; }
+  .debate > * + * { margin-top: 4px; }
+  #stepbox.enter, .wl .w.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing .wl .w.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, .wl .w.enter { animation: none; } }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <div id="stepbox">
+    <div id="scen"></div>
+    <div id="carry1"></div>
+    <div id="carry2"></div>
+    <p class="assume" id="assume"></p>
+    <div class="task" id="task"></div>
+    <p class="sub" id="sub"></p>
+    <div id="wrap"><svg class="scene" id="scene" viewBox="0 0 340 244" width="100%" role="img" aria-label=""></svg></div>
+    <div class="ctl" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="wk" id="wk"></div>
+    <p class="sub" id="lim"></p>
+    <p class="sub" id="bands"></p>
+    <div class="note why" id="under"></div>
+    <div class="rule1" id="rule1"></div>
+    <div class="warn-note" id="warn2"></div>
+    <div class="rows" id="cards"></div>
+    <div class="note debate" id="debate"></div>
+    <div class="rows" id="worked"></div>
+    <div class="row" id="workedgo"></div>
+    <div class="picks" id="picks"></div>
+    <div id="ans-2a"></div>
+    <div id="ans-2b"></div>
+    <div id="ans-ch"></div>
+    <div class="row" id="acts"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div id="judge"><p class="ask" id="jask"></p><div class="row" id="jrow"></div><p class="say" id="jmsg" aria-live="polite"></p></div>
+    <div class="note why" id="after"></div>
+    <div class="row" id="go"></div>
+    <div id="wr1"></div>
+    <div id="wr2"></div>
+    <div id="keep"></div>
+    <div class="row" id="fin"></div>
+    <p class="say" id="donefb"></p>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Each line is worked from the rounded figures shown before it.</p>
+
+<script>
+  // ---------- rounding, and the course's figures ----------
+  const r2 = (x) => Math.round(x * 100 + 1e-7) / 100;
+  const r3 = (x) => Math.round(x * 1000 + 1e-6) / 1000;
+  const f1 = (x) => (Math.round(x * 10 + 1e-7) / 10).toFixed(1);
+  const f2 = (x) => r2(x).toFixed(2);
+  const f3 = (x) => r3(x).toFixed(3);
+  const F = (id) => K.figure(id);
+  const el = (id) => document.getElementById(id);
+
+  // The case file's givens and practice values.
+  const UO = F('g.U0').value, ZE = F('g.Ze').value, ZDB = F('p.ZsDBP2').value, ZMAX = F('g.zmax.C25').value;
+  const M90 = F('g.mult.90ts').value, LEG = F('p.legLen').value;
+  const MPM = { '2.5': F('g.r1r2.2p5').value, '4': F('g.r1r2.4').value, '6': F('g.r1r2.6').value };
+  const CMIN = 0.95, CMAX = 1.1, M70 = 1.2, IN = 25, IA = 10 * IN, ILO = 5 * IN, RUN = 11.4, IMAX = 750;   // the axis stops at 750 A: above it the dot waits at the top
+  const RCD = { 30: 1667, 100: 500 };              // Table 41.5, ohms
+  const Z87 = ZMAX.toFixed(2), ZD = ZDB.toFixed(2);
+
+  // The rule: R1+R2 = mΩ/m × multiplier × length ÷ 1000; Zs = Zs at DBP2 + R1+R2; fault current = 230 × 0.95 ÷ Zs.
+  // Each line is worked from the rounded figure before it.
+  function loop(len, size, hot) {
+    const L = Math.round((+len || 0) * 10) / 10;
+    const m = MPM[String(size)] || MPM['2.5'];
+    const r12 = r3(m * (hot ? M90 : 1) * L / 1000);
+    const zs = r3(ZDB + r12);
+    return { r12, zs, ifl: r2(UO * CMIN / zs) };
+  }
+  // The longest run within the maximum Zs, rounded down.
+  const longest = (m, mult) => Math.floor((ZMAX - ZDB) * 1000 / r2(m * mult) * 10 + 1e-7) / 10;
+
+  const fR = F('l6.recall'), fR1 = F('l6.recall.slip1'), fR2 = F('l6.recall.slip2');
+  const fHot = F('l6.check.hot'), fCold = F('l6.check.cold');
+  const f38 = F('l6.why.38'), f50 = F('l6.why.50'), f504 = F('l6.why.50.4');
+  const fMax = F('l6.A.maxRun'), fMax4 = F('l6.why.max4'), fMax6 = F('l6.why.max6');
+  const fZm = F('l6.maxzs.C25'), fTB = F('l6.typeB25');
+  const fWr = F('l6.worked.r12'), fWz = F('l6.worked.zs'), fWi = F('l6.worked.pefc'), fOrg = F('l6.showroom.pefc');
+  const f2a = F('2a'), f2b = F('2b'), fLeg = F('l6.A.atMotor');
+  const f2a1 = F('2a.slip1'), f2a2 = F('2a.slip2'), f2a3 = F('2a.slip3'), f2b1 = F('2b.slip1'), f2b2 = F('2b.slip2');
+  const fCh = F('l6.A.changed'), fCh1 = F('l6.A.changed.slip1'), fCh2 = F('l6.A.changed.slip2'), fCh3 = F('l6.A.changed.slip3'), fChF = F('l6.A.changed.fix');
+
+  // The figures each screen quotes, worked by the rule.
+  const A0 = loop(RUN, '2.5', true);
+  const C40h = loop(40, '2.5', true), C40c = loop(40, '2.5', false), GAP = r3(C40h.zs - C40c.zs);
+  const W50 = loop(50, '2.5', true), W504 = loop(50, '4', true);
+  const MAX25 = longest(MPM['2.5'], M90);
+  const ZRULE = r3(UO * CMIN / IA), ZB25 = r3(UO * CMIN / ILO);
+  const ZR = 7.28;                                 // a 6 A type B's maximum Zs (Table 41.3)
+  const RC = { right: r2(UO * CMIN / ZR), noC: r2(UO / ZR), cmax: r2(UO * CMAX / ZR) };
+  const RECALL_WORK = UO + ' × ' + CMIN + ' ÷ ' + ZR + ' = ' + f2(RC.right) + ' A';
+  // The heater worked example: 3 kW on 15 m of 1.5 mm² 70 °C singles, Ze 0.21 Ω, a 16 A type B.
+  const WH = { mpm: 24.2, mult: 1.2, len: 15, ze: 0.21, zmax: 2.73, ia: 80 };
+  const wR12 = r3(WH.mpm * WH.mult * WH.len / 1000), wZs = r3(WH.ze + wR12), wI = r2(UO * CMIN / wZs), oI = r2(UO * CMIN / ZE);
+  // Section A: the starter-to-motor leg, and the changed-numbers circuit.
+  const legR = r3(WH.mpm * M90 * LEG / 1000), atMotor = r3(A0.zs + legR);
+  const ZUN = Math.round((ZDB + MPM['2.5'] * M90 * RUN / 1000) * 1e5) / 1e5;  // Zs before rounding, to 5 places: 0.36625 Ω
+  const CH = { len: 52, zb: 0.35 };
+  const chR = r3(MPM['4'] * M70 * CH.len / 1000), chZ = r3(CH.zb + chR);
+  const chFixR = r3(MPM['6'] * M70 * CH.len / 1000), chFixZ = r3(CH.zb + chFixR);
+
+  // ---------- the lesson: SHOW steps teach, DO steps ask ----------
+  const O_NOC = f2(RC.noC) + ' A: ' + UO + ' ÷ ' + ZR, O_RIGHT = f2(RC.right) + ' A: ' + UO + ' × ' + CMIN + ' ÷ ' + ZR, O_CMAX = f2(RC.cmax) + ' A: ' + UO + ' × ' + CMAX + ' ÷ ' + ZR;
+  const O_HOT = f3(C40h.zs) + ' Ω: the limit assumes conductors at working temperature';
+  const O_COLD = f3(C40c.zs) + ' Ω: the cable is installed at 20 °C';
+  const O_EITHER = 'Either: the gap is only rounding';
+  const ASSUME_WHY = 'Assume the motor is fed from DBP2 through the 25 A type C breaker from lesson 3. The cable to the starter is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Take Zs at DBP2 as ' + ZD + ' Ω for practice. On a real job, measure it or work it out from the submain\'s design.';
+  const ASSUME_A = 'Assume these for the motor circuit. DBP2 to the starter is ' + f1(RUN) + ' m on plan. That is approximate. A real design adds the vertical runs. The cable is a 2.5 mm² line with a 2.5 mm² cpc, 90 °C thermosetting singles in conduit. Zs at DBP2 is the practice ' + ZD + ' Ω. Use ' + MPM['2.5'] + ' mΩ/m and a multiplier of ' + M90 + '.';
+  const Q2A = '(a) Determine, for the motor circuit, the total earth fault loop impedance (Zs) at the starter.';
+  const Q2B = '(b) Determine if the value of earth fault loop impedance is acceptable.';
+  const CH_Q = 'A single-phase circuit is wired in 70 °C thermoplastic singles in conduit: a 4 mm² line and a 4 mm² cpc, ' + CH.len + ' m long. A 25 A type C breaker to BS EN 60898 protects it. Its maximum Zs is ' + Z87 + ' Ω. Zs at its board is ' + CH.zb.toFixed(2) + ' Ω. Use ' + MPM['4'] + ' mΩ/m for the 4 mm² pair. Determine the total earth fault loop impedance, and whether it is acceptable.';
+  const WK_TEXT = 'A 3 kW immersion heater on ' + WH.len + ' m of 1.5 mm² 70 °C thermoplastic singles in conduit. Ze is ' + WH.ze + ' Ω. A 16 A type B breaker protects it, on a TN-S supply. It is a final circuit under 32 A, so it has 0.4 s.';
+  const HIGH_TEXT = 'Stretch the motor\'s run to 50 m. Zs is ' + f3(W50.zs) + ' Ω, over ' + Z87 + ' Ω. The fault current is ' + f2(W50.ifl) + ' A, under ' + IA + ' A. Zs at DBP2 is still the practice ' + ZD + ' Ω. There are four ways out.';
+
+  const STEPS = [
+    { name: 'Do you still have it?', label: 'Do you still have it?',
+      task: 'A lighting circuit has a 6 A type B breaker. Its maximum Zs is ' + ZR + ' Ω. At that Zs, how much earth fault current does the design count on?',
+      opts: [O_NOC, O_RIGHT, O_CMAX], want: O_RIGHT, why: RECALL_WORK + ', the breaker\'s Ia of 30 A.',
+      read: RECALL_WORK + ', the breaker\'s Ia. The maximum Zs is the one that still lets Ia flow at the lowest supply voltage.' },
+    { show: true, name: 'What it is for', label: 'What it is for',
+      text: 'The earlier lessons sized the circuit to carry its load. Now ask whether it disconnects on an *earth fault*. It must do so fast enough to protect anyone touching metalwork that has gone live.\n\nThe fault current runs round a loop. It goes out on the line conductor, back on the cpc, and home through the supply. The loop\'s impedance is *Zs = Ze + (R1+R2)*. The lower Zs is, the more current flows. Enough current opens the device within the time allowed.',
+      read: 'Zs = Ze + (R1+R2) must not exceed the device\'s maximum. Then the fault current opens it within 0.4 s for final circuits up to 32 A, or 5 s for distribution circuits.' },
+    { show: true, name: 'The why', label: 'The why: the fault loop, metre by metre', text: ASSUME_WHY,
+      read: 'At ' + f1(RUN) + ' m, Zs is ' + f3(A0.zs) + ' Ω and the fault current ' + f2(A0.ifl) + ' A. Near ' + f1(MAX25) + ' m, Zs reaches ' + Z87 + ' Ω and the current falls to about ' + IA + ' A. At 50 m, 4 mm² brings Zs back to ' + f3(W504.zs) + ' Ω.' },
+    { name: 'Check', label: 'Check',
+      task: 'The same 2.5 mm² run is now 40 m long. Zs at DBP2 is still the practice ' + ZD + ' Ω. One designer works R1+R2 hot and gets Zs ' + f3(C40h.zs) + ' Ω, a fail. Another leaves out the multiplier and gets ' + f3(C40c.zs) + ' Ω, a pass. Which figure do you compare with ' + Z87 + ' Ω?',
+      opts: [O_HOT, O_COLD, O_EITHER], want: O_HOT,
+      why: 'The milliohm figures are for copper at 20 °C. The maximum Zs values assume conductors at working temperature. The multiplier brings R1+R2 up to that.',
+      read: 'Compare the hot figure, ' + f3(C40h.zs) + ' Ω, with ' + Z87 + ' Ω. At 40 m the run fails.' },
+    { show: true, name: 'When Zs is too high', label: 'When Zs is too high', text: HIGH_TEXT,
+      read: 'At 50 m, Zs is ' + f3(W50.zs) + ' Ω and fails. 4 mm² brings it to ' + f3(W504.zs) + ' Ω. An RCD needs far less earth path. Supplementary bonding is the route where the time cannot be met.' },
+    { show: true, name: 'Worked example', label: 'Worked example', text: WK_TEXT,
+      read: 'R1+R2 is ' + f3(wR12) + ' Ω. Zs is ' + f3(wZs) + ' Ω, within ' + WH.zmax + ' Ω. The fault current is ' + f2(wI) + ' A, over the Ia of ' + WH.ia + ' A. So it opens within 0.1 s.' },
+    { name: 'Section A 2(a)', label: 'Section A · Question 2', part: Q2A, task: ASSUME_A + ' ' + Q2A,
+      want: f2a.text, why: f2a.work,
+      read: 'The run from DBP2 to the starter is ' + f1(RUN) + ' m of 2.5 mm² line and cpc. Use ' + MPM['2.5'] + ' mΩ/m and a multiplier of ' + M90 + '. Zs at DBP2 is the practice ' + ZD + ' Ω. What is Zs at the starter?' },
+    { name: 'Section A 2(b)', label: 'Section A · Question 2', part: Q2B, task: Q2B,
+      want: f2b.text, why: f2b.work,
+      read: 'Zs at the starter is ' + f2a.text + '. What fault current flows at the lowest supply voltage? Is that Zs acceptable?',
+      // The read-through's still: the call made, as the sentence ends.
+      still: () => { S[iB].call = 'Acceptable'; K.refresh(); } },
+    { kind: 'written', written: 'b1', name: 'Section B (1)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { kind: 'written', written: 'b2', name: 'Section B (2)', label: 'Section B · Short answer', task: 'A short written answer, in your own words.' },
+    { name: 'Changed numbers', label: 'Section A · Changed numbers', part: CH_Q, task: CH_Q,
+      want: fCh.text, why: fCh.work,
+      read: 'A circuit runs ' + CH.len + ' m in 70 °C singles, a 4 mm² line and cpc at ' + MPM['4'] + ' mΩ/m. Zs at its board is ' + CH.zb.toFixed(2) + ' Ω. Its 25 A type C breaker allows up to ' + Z87 + ' Ω. What is Zs at the far end, and is it acceptable?',
+      // The read-through's still: the call made, as the sentence ends.
+      still: () => { S[iCh].call = 'Too high'; K.refresh(); } },
+    { kind: 'summary', name: 'Keep this', label: 'Keep this' },
+  ];
+  const iR = 0, iFor = 1, iWhy = 2, iChk = 3, iHigh = 4, iWk = 5, iA = 6, iB = 7, iB1 = 8, iB2 = 9, iCh = 10, iK = 11;
+  const S = STEPS.map(() => ({ res: null, pick: null, tries: 0, shown: false, fb: null, call: null }));
+  const WORKING = [iWhy, iChk, iHigh, iWk, iA, iB, iCh];
+  let lastStep = -1, finished = false, lines = 0;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // Text with key terms (*term*) highlighted in amber (the <mark> element), built with K.el, never innerHTML.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split(/(\*[^*]+\*)/).forEach((b) => {
+      if (!b) return;
+      if (b.length > 2 && b.charAt(0) === '*' && b.charAt(b.length - 1) === '*') node.appendChild(K.el('mark', null, b.slice(1, -1)));
+      else node.appendChild(document.createTextNode(b));
+    });
+    return node;
+  }
+  function paras(node, s) {
+    node.textContent = '';
+    String(s || '').split('\n\n').forEach((t) => { if (t) node.appendChild(write(K.el('p'), t)); });
+  }
+  const workLines = (w) => String(w || '').split('; ');
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Lesson', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const ctlLen = K.control({ id: 'len', label: 'Run length', hint: 'DBP2 to the starter', min: 0, max: 100, step: 0.2, value: RUN,
+    fmt: (v) => f1(v) + ' m', snap: [RUN, 37.8, 38, 40, 50], into: '#ctl' });
+  K.choice({ id: 'size', label: 'Line and cpc', options: [{ value: '2.5', label: '2.5 mm²' }, { value: '4', label: '4 mm²' }, { value: '6', label: '6 mm²' }], value: '2.5', into: '#ctl' });
+  K.toggle({ id: 'hot', label: 'Worked hot, × ' + M90, value: true, into: '#ctl' });
+
+  // The current flows round the loop, faster the more of it there is.
+  let flowEl = null, flowOff = 0;
+  const flow = K.anim({ button: false, label: 'Current round the loop', step: (dt) => {
+    if (at() !== iWhy || REDUCE) return false;
+    const o = K.outputs() || {};
+    flowOff = (flowOff - dt * Math.max(6, (+o.ifl || 0) * 0.05)) % 160;
+    if (flowEl) flowEl.setAttribute('stroke-dashoffset', flowOff.toFixed(1));
+  } });
+
+  // Picks: one tap answers.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => pick(k) }));
+  function pick(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.opts || k >= d.opts.length) return;
+    if (i === iR) {
+      if (st.res) return;     // a recall gets one go
+      st.pick = d.opts[k];
+      const slips = [f2(RC.noC) + ' A leaves out Cmin.', f2(RC.cmax) + ' A uses Cmax, ' + CMAX + ', in its place.'];
+      if (st.pick === d.want) {
+        st.res = 'right';
+        st.fb = { ok: true, v: 'Still there.', w: [RECALL_WORK],
+          p: 'That is the breaker\'s *Ia* of 30 A. The maximum Zs is simply the Zs that still lets Ia flow at the lowest supply voltage.', xs: slips };
+      } else {
+        st.res = 'wrong';
+        st.fb = st.pick === O_NOC
+          ? { ok: false, v: 'You left out Cmin.', p0: 'The supply can sag to 218.5 V, so the fault current is worked at ' + CMIN + ' of ' + UO + ' V.',
+            w: ['The working: ' + RECALL_WORK], p: 'That is the breaker\'s *Ia* of 30 A. Continue, and the refresh starts from here.' }
+          : { ok: false, v: 'That is Cmax, ' + CMAX + '.', p0: 'It gives the largest current. You need that for conductor heating, in lesson 7. Whether the breaker opens in time is judged on the smallest current.',
+            w: ['The working: ' + RECALL_WORK], p: 'That is the breaker\'s *Ia* of 30 A. Continue, and the refresh starts from here.' };
+      }
+    } else if (i === iChk) {
+      if (st.res === 'right') return;
+      st.pick = d.opts[k];
+      if (st.pick === d.want) { st.res = 'right'; st.fb = { ok: true, v: 'That\'s it.', p0: d.why }; }
+      else if (st.pick === O_COLD) { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'A fault happens on a working, warm circuit. A cold reading is a verification job, checked against lower limits. That comes in lesson 9.' }; }
+      else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite.', p0: 'The ' + f3(GAP) + ' Ω between them is the whole difference between a pass and a fail here.' }; }
+    }
+  }
+
+  // Recall right: on to the why, or straight to the practice.
+  K.button({ label: 'Refresh the why', into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iFor); } });
+  K.button({ label: 'Skip to the practice', secondary: true, into: '#go', press: () => { if (at() === iR && S[iR].res === 'right') stepper.set(iA); } });
+
+  // ---------- Section A: typed answers on the course's figures ----------
+  K.scenario({ into: '#scen', open: true });
+  K.carried({ parts: ['1a', '1c'], into: '#carry1' });
+  K.carried({ parts: ['2a'], into: '#carry2' });
+  const ACC2A = 0.37, ACC2B = r2(UO * CMIN / ZUN);   // 0.366 Ω to two places; 596.59 A from the unrounded Zs
+  // An accepted answer that is not the printed figure is told so.
+  const differs = (r, f, dp) => r.value != null && Math.abs(r.value - f.value) > 0.5 * Math.pow(10, -dp) + 1e-9;
+  const SPEC = {
+    [iA]: { id: '2a', fig: f2a, unit: 'Ω', dp: 3, accept: [ACC2A],
+      slips: [
+        { value: f2a1.value, hint: 'You left out the multiplier. The table figures are for cold copper.' },
+        { value: f2a2.value, hint: 'You used Ze, ' + ZE + ' Ω. This circuit starts at DBP2, so start from Zs there.' },
+        { value: f2a3.value, hint: M70.toFixed(2) + ' is for 70 °C cable. These singles are 90 °C thermosetting, so use ' + M90 + '.' },
+      ],
+      hint: 'Not quite. Work R1+R2 as mΩ/m × multiplier × length ÷ 1000, then add Zs at DBP2.',
+      rightNote: (r) => (differs(r, f2a, 3) ? ACC2A.toFixed(2) + ' Ω is ' + f2a.text + ' rounded to two places. Part (b) starts from ' + f2a.text + '.' : ''),
+      missNote: 'Part (b) starts from ' + f2a.text + '.',
+      after: 'Take the starter-to-motor leg as ' + LEG.toFixed(1) + ' m, another practice value. In 1.5 mm² with a 1.5 mm² cpc it adds ' + WH.mpm + ' × ' + M90 + ' × ' + LEG + ' ÷ 1000 = ' + f3(legR) + ' Ω. Zs at the motor is ' + f3(atMotor) + ' Ω, still inside.' },
+    [iB]: { id: '2b', fig: f2b, unit: 'A', dp: 2, accept: [ACC2B],
+      slips: [
+        { value: f2b1.value, hint: 'You left out Cmin.' },
+        { value: f2b2.value, hint: 'That is Cmax. It is for conductor heating, in lesson 7.' },
+      ],
+      hint: 'Not quite. The fault current is ' + UO + ' × ' + CMIN + ' ÷ Zs.',
+      rightNote: (r) => (differs(r, f2b, 2) ? 'That comes from the unrounded Zs, ' + ZUN.toFixed(5) + ' Ω. Worked from the ' + f2a.text + ' shown, it is ' + f2b.text + '.' : ''),
+      missNote: '',
+      after: f2b.text + ' is well over the ' + IA + ' A that opens the breaker within 0.1 s. And ' + f2a.text + ' is within ' + Z87 + ' Ω. So it is acceptable. This rests on the practice ' + ZD + ' Ω at DBP2. The run could grow to near ' + fMax.text + ' before it failed.' },
+    [iCh]: { id: 'l6.A.changed', fig: fCh, unit: 'Ω', dp: 3, accept: [],
+      slips: [
+        { value: fCh1.value, hint: 'You left out the multiplier. That turns a fail into a false pass.' },
+        { value: fCh2.value, hint: M90 + ' is for 90 °C cable. These are 70 °C singles, so use ' + M70.toFixed(2) + '.' },
+        { value: fCh3.value, hint: 'That is R1+R2 alone. Add the board\'s ' + CH.zb.toFixed(2) + ' Ω.' },
+      ],
+      hint: 'Not quite. Work R1+R2 with the 70 °C multiplier, then add Zs at the board.',
+      rightNote: () => '', missNote: '',
+      after: 'That is over ' + Z87 + ' Ω, so it is too high. Go up to a 6 mm² line and cpc: ' + MPM['6'] + ' × ' + M70.toFixed(2) + ' × ' + CH.len + ' ÷ 1000 = ' + f3(chFixR) + ' Ω. Zs is then ' + f3(chFixZ) + ' Ω, inside. Or add an RCD.' },
+  };
+  const BOX = { [iA]: '#ans-2a', [iB]: '#ans-2b', [iCh]: '#ans-ch' };
+  const ANS = {};
+  Object.keys(SPEC).forEach((key) => {
+    const i = +key, sp = SPEC[i];
+    const a = K.answer({ id: sp.id, unit: sp.unit, answer: sp.fig.value, decimals: sp.dp, accept: sp.accept, slips: sp.slips, into: BOX[i],
+      onCheck: (r) => {
+        const st = S[i];
+        if (st.shown) return;
+        if (r.state === 'right') { st.res = 'right'; st.fb = { ok: true, v: 'Right.', w: workLines(sp.fig.work), p: sp.rightNote(r) }; }
+        else if (r.state === 'wrong') {
+          st.tries += 1;
+          if (st.tries >= 2) {
+            st.shown = true; st.res = 'shown';
+            st.fb = { ok: false, v: 'Here is the working.', p0: r.hint || '', w: workLines(sp.fig.work), p: sp.missNote };
+            a.reveal();
+          } else { st.res = 'wrong'; st.fb = { ok: false, v: 'Not quite. One more go.', p0: r.hint || sp.hint }; }
+        } else { st.res = r.state; st.fb = null; }
+        K.refresh();
+      } });
+    ANS[i] = a;
+  });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => { const a = ANS[at()]; if (a) a.check(); } });
+
+  // After the typed figure, he makes the call himself.
+  const CALLS = ['Acceptable', 'Too high'];
+  const JUDGE = { [iB]: { fig: () => f2a.text, want: 'Acceptable' }, [iCh]: { fig: () => fCh.text, want: 'Too high' } };
+  const jBtns = CALLS.map((t) => K.button({ label: t, secondary: true, into: '#jrow', press: () => judge(t) }));
+  function judge(t) {
+    const i = at(), jd = JUDGE[i], st = S[i];
+    if (!jd || !(st.res === 'right' || st.shown) || st.call) return;
+    st.call = t;
+    K.refresh();
+  }
+
+  // ---------- Section B and Keep this ----------
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+  function markLine(id) {
+    const w = K.lesson && K.lesson.written && K.lesson.written[id];
+    const n = w && Array.isArray(w.points) ? w.points.length : 0, need = w ? +w.need : 0;
+    return n && need ? 'A written answer, marked against ' + (WORDS[n] || n) + ' points. Any ' + (WORDS[need] || need) + ' make a full answer. You get one more go, then the model answer.'
+      : 'A written answer, in your own words. You get one more go, then the model answer.';
+  }
+  const wB1 = K.written({ id: 'b1', into: '#wr1', onMark: () => K.refresh() });
+  const wB2 = K.written({ id: 'b2', into: '#wr2', onMark: () => K.refresh() });
+  el('wr1').addEventListener('click', () => K.refresh());
+  el('wr2').addEventListener('click', () => K.refresh());
+  K.summary({ into: '#keep' });
+  K.button({ label: 'Finish the lesson', into: '#fin', press: () => {
+    if (at() !== iK) return;
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+
+  // ---------- the worked example, a line at each press ----------
+  const WLINES = [
+    'A 1.5 mm² line and cpc is ' + WH.mpm + ' mΩ/m, and the multiplier is ' + WH.mult + '.',
+    'R1+R2 = ' + WH.mpm + ' × ' + WH.mult + ' × ' + WH.len + ' ÷ 1000 = ' + f3(wR12) + ' Ω',
+    'Zs = ' + WH.ze + ' + ' + f3(wR12) + ' = ' + f3(wZs) + ' Ω, within the breaker\'s ' + WH.zmax + ' Ω',
+    'Fault current = ' + UO + ' × ' + CMIN + ' ÷ ' + f3(wZs) + ' = ' + f2(wI) + ' A',
+    'That is over its Ia of ' + WH.ia + ' A. So it opens within 0.1 s, well inside the 0.4 s allowed.',
+    'The same rule at the showroom\'s origin, where Ze is ' + ZE + ' Ω: ' + UO + ' × ' + CMIN + ' ÷ ' + ZE + ' = ' + f2(oI) + ' A',
+  ];
+  const wlines = [];
+  (function () {
+    const box = K.el('div', { class: 'wl' }, K.el('p', { class: 'k-label' }, 'The heater, a line at each press'));
+    WLINES.forEach((t) => { const w = K.el('p', { class: 'w' }, t); box.appendChild(w); wlines.push(w); });
+    el('worked').appendChild(box);
+  })();
+  const cutNote = K.el('p', { class: 'sub' }, 'You may have ' + fWr.value.toFixed(3).slice(0, 4) + ' Ω, ' + fWz.value.toFixed(3).slice(0, 4) + ' Ω and 341.4 A written down. Those figures were rounded down partway through. The pass is the same.');
+  el('worked').appendChild(cutNote);
+  const nextLine = K.button({ label: 'Show', into: '#workedgo', press: () => {
+    if (at() !== iWk || lines >= wlines.length) return;
+    const w = wlines[lines]; lines += 1;
+    w.classList.remove('enter'); void w.offsetWidth; w.classList.add('enter');
+  } });
+
+  // ---------- fixed words on their screens ----------
+  (function fixed() {
+    const r = el('rule1');
+    r.appendChild(K.el('span', { class: 'k-label' }, 'Time allowed'));
+    r.appendChild(K.el('p', null, 'On a 230 V TN supply, final circuits up to 32 A get 0.4 s. So do socket-outlet circuits up to 63 A. Distribution circuits and other final circuits get up to 5 s. These are the longest times allowed, not how long it will take.'));
+    const wn = el('warn2');
+    wn.appendChild(K.el('b', null, 'If it is skipped: '));
+    wn.appendChild(document.createTextNode('A Zs over the device\'s maximum goes unnoticed. The fault current is then too small to be sure of opening the device in time.'));
+    write(el('bands'), 'A type C breaker trips instantly somewhere between 5 and 10 times its rating, so ' + ILO + ' to ' + IA + ' A here. Below that, only its slower thermal part works. Take *Ia* as ' + IA + ' A, the top of the band. That is the worst case, and the maximum Zs tables use it too.');
+    el('lim').textContent = 'The limit is ' + Z87 + ' Ω, the 25 A type C\'s maximum Zs. It comes from ' + UO + ' × ' + CMIN + ' ÷ ' + IA + ' = ' + f3(ZRULE) + ' Ω, printed as ' + Z87 + '.';
+    write(el('under'), 'Each metre adds resistance to the loop. A conductor that has been carrying current is warm, and warm copper has more resistance. The *multiplier* allows for that. The loop sets how much current the supply can push at its lowest voltage. The breaker is sure to open in time only once that current reaches Ia.');
+    const cards = el('cards');
+    const card = (head, rest) => { const p = K.el('p'); p.appendChild(K.el('b', null, head)); if (rest) p.appendChild(document.createTextNode(' ' + rest)); cards.appendChild(p); };
+    card('Bring R1+R2 down.', 'Use bigger conductors, a bigger cpc or a shorter run. A 4 mm² line and cpc gives ' + f3(W504.zs) + ' Ω.');
+    card('Use a breaker that trips instantly on less current.', 'A type B does so at 3 to 5 times In, so its maximum Zs is higher. For a 25 A type B the rule gives ' + UO + ' × ' + CMIN + ' ÷ ' + ILO + ' = ' + f3(ZB25) + ' Ω. On a job, read the real figure from Table 41.3. A type B does not suit this motor, though. In lesson 3 we chose type C so it rides through the starting current.');
+    card('Add an RCD for fault protection.', 'It trips when line and neutral differ by its rating, 30 mA say. So even a poor earth path lets enough current flow to trip it. Table 41.5 allows ' + RCD[30] + ' Ω for 30 mA and ' + RCD[100] + ' Ω for 100 mA.');
+    const p4 = K.el('p'); p4.appendChild(K.el('b', null, 'Where the time cannot be met at all, add ')); p4.appendChild(K.el('mark', null, 'supplementary protective equipotential bonding')); p4.appendChild(document.createTextNode('.'));
+    cards.appendChild(p4);
+    const db = el('debate');
+    db.appendChild(K.el('span', { class: 'k-label' }, 'Debated'));
+    db.appendChild(K.el('p', null, 'The regulations point to this bonding when the times cannot be met. Some engineers argue it does not hold the touch voltage to 50 V in every fault.'));
+  })();
+
+  // The working under the picture: the rule, line by line, at the controls' settings.
+  const wk = el('wk');
+  function wkRow() {
+    const n = K.el('span', { class: 'n' }), f = K.el('span', { class: 'f' }), v = K.el('span', { class: 'v' });
+    const r = K.el('div', { class: 'r' }, n, f, v); wk.appendChild(r); return { r, n, f, v };
+  }
+  const WK = [wkRow(), wkRow(), wkRow()];
+
+  // ---------- the picture: the fault loop, and the current it lets flow ----------
+  const svg = el('scene');
+  function add(tag, attrs, text) { const n = K.svg(tag, attrs); if (text != null) n.textContent = text; svg.appendChild(n); return n; }
+  function txt(x, y, s, cls, anchor) { return add('text', { x, y, class: cls, 'text-anchor': anchor || 'start' }, s); }
+  const AX = 228, AY0 = 230, AY1 = 26, TOP = 41, BOT = 186, LEFT = 20;
+  const yI = (i) => AY0 - K.clamp(i, 0, IMAX) / IMAX * (AY0 - AY1);
+  const xrOf = (len) => 126 + 0.81 * K.clamp(+len || 0, 0, 100);
+  const WID = { '2.5': 3, '4': 4.5, '6': 6 };
+  function drawLoop(p, o) {
+    svg.textContent = '';
+    const xr = +xrOf(p.len).toFixed(1), w = WID[String(p.size)] || 3, low = o.ifl < IA;
+    // The breaker's three bands along the current axis, and its Ia.
+    add('rect', { x: AX, y: yI(ILO).toFixed(1), width: 10, height: (AY0 - yI(ILO)).toFixed(1), class: 'b0' });
+    add('rect', { x: AX, y: yI(IA).toFixed(1), width: 10, height: (yI(ILO) - yI(IA)).toFixed(1), class: 'b1' });
+    add('rect', { x: AX, y: AY1, width: 10, height: (yI(IA) - AY1).toFixed(1), class: 'b2' });
+    add('line', { x1: AX, y1: AY1, x2: AX, y2: AY0, class: 'axis' });
+    add('line', { x1: 214, y1: yI(IA).toFixed(1), x2: 242, y2: yI(IA).toFixed(1), class: 'ia' });
+    txt(244, 14, 'Fault current', 'hd');
+    txt(244, 31, IMAX + ' A and up', 'tk');
+    txt(222, 234, '0 A', 'tk', 'end');
+    txt(246, (yI(IA) - 4).toFixed(1), 'Ia, ' + IA + ' A', 'lb');
+    txt(244, ((AY1 + yI(IA)) / 2 + 5).toFixed(1), 'Within 0.1 s', 'lb');
+    txt(244, ((yI(IA) + yI(ILO)) / 2 + 5).toFixed(1), 'May trip', 'lb');
+    txt(244, ((yI(ILO) + AY0) / 2 + 5).toFixed(1), 'Thermal: slow', 'lb');
+    // The loop: line out along the top, the fault at the starter, the cpc back along the bottom, the supply side up the left.
+    add('path', { d: 'M' + LEFT + ' ' + BOT + ' V54', class: 'cond', 'stroke-width': 3 });
+    add('path', { d: 'M56 ' + TOP + ' H' + xr + ' V96 M' + xr + ' 140 V' + BOT + ' H' + LEFT, class: 'cond', 'stroke-width': w });
+    flowEl = add('path', { d: 'M56 ' + TOP + ' H' + xr + ' V' + BOT + ' H' + LEFT + ' V54', class: 'flow', 'stroke-dashoffset': flowOff.toFixed(1) });
+    add('rect', { x: LEFT - 7, y: 132, width: 14, height: 44, rx: 3, class: 'box' });
+    add('rect', { x: 4, y: 28, width: 52, height: 26, rx: 5, class: 'box' });
+    txt(30, 46, 'DBP2', 'hd', 'middle');
+    add('rect', { x: xr - 13, y: 96, width: 26, height: 44, rx: 4, class: 'box' });
+    add('path', { d: 'M' + xr + ' 99 L' + (xr - 6) + ' 116 L' + (xr + 5) + ' 120 L' + (xr - 1) + ' 137', class: 'bolt' });
+    txt(((56 + xr) / 2).toFixed(1), 22, 'Line out (R1)', 'lb', 'middle');
+    txt(xr - 18, 112, 'Fault at', 'lb', 'end');
+    txt(xr - 18, 128, 'the starter', 'lb', 'end');
+    txt(34, 154, 'Supply side', 'lb');
+    txt(34, 171, ZD + ' Ω', 'hd');
+    txt(((LEFT + xr) / 2).toFixed(1), 205, 'cpc back (R2)', 'lb', 'middle');
+    txt(4, 228, p.hot ? 'Worked hot, × ' + M90 : 'Worked cold, at 20 °C', 'tk');
+    // The fault current: a dot on the axis.
+    add('circle', { cx: AX + 5, cy: yI(o.ifl).toFixed(1), r: 7, class: 'dot' + (low ? ' low' : '') });
+    svg.setAttribute('aria-label', 'The earth fault loop: DBP2, the line out to a fault at the starter, the cpc back, and the supply side. ' + f1(p.len) + ' m of ' + p.size + ' mm², ' +
+      (p.hot ? 'worked hot' : 'worked cold') + '. On the current axis, the fault current sits ' + (low ? 'below' : 'above') + ' Ia, ' + IA + ' A.');
+  }
+  function sayFor(p, o) {
+    const hotO = loop(p.len, p.size, true), bad = o.zs > ZMAX + 1e-9;
+    if (!p.hot) {
+      if (!bad && hotO.zs > ZMAX + 1e-9) return 'Worked cold, Zs looks like a pass at ' + f3(o.zs) + ' Ω, but it is false. Worked hot, the same run is ' + f3(hotO.zs) + ' Ω, and only ' + f2(hotO.ifl) + ' A flows.';
+      if (!bad) return 'Worked cold, Zs is ' + f3(o.zs) + ' Ω. The ' + Z87 + ' Ω limit assumes warm conductors, so switch Worked hot back on before you compare.';
+      return 'Even worked cold, Zs is ' + f3(o.zs) + ' Ω, over ' + Z87 + ' Ω. Worked hot, it is worse: ' + f3(hotO.zs) + ' Ω.';
+    }
+    if (!bad) return 'The loop is ' + f3(o.zs) + ' Ω, within ' + Z87 + ' Ω, so ' + f2(o.ifl) + ' A flows at the lowest supply voltage. That is more than the ' + IA + ' A that opens the breaker within 0.1 s.';
+    if (o.ifl >= IA) return 'Zs is ' + f3(o.zs) + ' Ω, just over the ' + Z87 + ' Ω limit, so the run fails. The current is still just over ' + IA + ' A here, because the table prints ' + f3(ZRULE) + ' Ω as ' + Z87 + '.';
+    if (o.ifl >= ILO) return 'Zs is ' + f3(o.zs) + ' Ω, over ' + Z87 + ' Ω, so only ' + f2(o.ifl) + ' A flows. That is under the ' + IA + ' A that is sure to open the breaker, so it may not trip instantly.';
+    return 'Zs is ' + f3(o.zs) + ' Ω, so only ' + f2(o.ifl) + ' A flows. That is under ' + ILO + ' A, where only the breaker\'s slower thermal part works.';
+  }
+  function drawWorking(p, o) {
+    const m = MPM[String(p.size)] || MPM['2.5'], bad = o.zs > ZMAX + 1e-9;
+    WK[0].n.textContent = p.hot ? 'R1+R2 = mΩ/m × multiplier × length ÷ 1000' : 'R1+R2 = mΩ/m × length ÷ 1000, no multiplier';
+    WK[0].f.textContent = p.hot ? m + ' × ' + M90 + ' × ' + f1(p.len) + ' ÷ 1000' : m + ' × ' + f1(p.len) + ' ÷ 1000';
+    WK[0].v.textContent = f3(o.r12) + ' Ω';
+    WK[1].n.textContent = 'Zs = Zs at DBP2 + R1+R2';
+    WK[1].f.textContent = ZD + ' + ' + f3(o.r12) + (bad ? ', over the ' + Z87 + '\u00a0Ω limit' : ', within ' + Z87 + '\u00a0Ω');
+    WK[1].v.textContent = f3(o.zs) + ' Ω';
+    WK[1].r.classList.toggle('bad', bad);
+    WK[2].n.textContent = 'Fault current = ' + UO + ' × Cmin ÷ Zs';
+    WK[2].f.textContent = UO + ' × ' + CMIN + ' ÷ ' + f3(o.zs);
+    WK[2].v.textContent = f2(o.ifl) + ' A';
+  }
+
+  function enter() { const b = el('stepbox'); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+  function paintFb(f) {
+    const fb = el('fb');
+    fb.textContent = '';
+    fb.hidden = !f;
+    if (!f) return;
+    fb.className = 'fb ' + (f.ok ? 'ok' : 'bad');
+    fb.appendChild(K.el('p', { class: 'v' }, f.v));
+    if (f.p0) fb.appendChild(write(K.el('p'), f.p0));
+    (f.w || []).forEach((t) => fb.appendChild(K.el('p', { class: 'w' }, t)));
+    if (f.p) fb.appendChild(write(K.el('p'), f.p));
+    (f.xs || []).forEach((t) => fb.appendChild(K.el('p', { class: 'sl' }, t)));
+  }
+
+  // ---------- nav ----------
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => { if (at() > 0) stepper.set(at() - 1); } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => { const i = at(); if (canGo(i) && i < iK) stepper.set(i + 1); } });
+  function canGo(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.show) return true;
+    if (i === iR) return st.res === 'wrong';
+    if (i === iChk) return st.res === 'right';
+    if (ANS[i]) return (st.res === 'right' || st.shown) && (!JUDGE[i] || !!st.call);
+    if (i === iB1) return !!(wB1 && wB1.answered && wB1.answered());
+    if (i === iB2) return !!(wB2 && wB2.answered && wB2.answered());
+    return false;
+  }
+
+  K.model((p) => loop(p.len, p.size, p.hot));
+
+  const ON = { scen: [iA, iB], carry1: [iA], carry2: [iB], assume: [iA],
+    wrap: [iWhy], ctl: [iWhy], say: [iWhy], wk: [iWhy], lim: [iWhy], bands: [iWhy], under: [iWhy],
+    rule1: [iFor], warn2: [iFor], cards: [iHigh], debate: [iHigh], worked: [iWk], workedgo: [iWk],
+    picks: [iR, iChk], 'ans-2a': [iA], 'ans-2b': [iB], 'ans-ch': [iCh], wr1: [iB1], wr2: [iB2], keep: [iK], fin: [iK] };
+
+  K.update((p, o) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) {
+      if (lastStep !== -1) enter();
+      lastStep = i;
+    }
+    Object.keys(ON).forEach((id) => { el(id).hidden = ON[id].indexOf(i) < 0; });
+    el('cap').hidden = WORKING.indexOf(i) < 0;
+
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.label;
+    el('assume').textContent = i === iA ? ASSUME_A : '';
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) paras(task, d.text);
+    else write(task, d.part || (d.kind ? '' : d.task));
+    task.hidden = !task.textContent;
+    const sub = el('sub');
+    sub.className = 'sub' + (i === iWhy || i === iWk || i === iB ? ' ask' : '');
+    sub.textContent = i === iWhy ? 'Drag the run longer and watch Zs and the dot.'
+      : i === iWk ? 'Work each step yourself first, then press Show.'
+      : i === iB ? 'First, the fault current at Cmin.'
+      : i === iB1 ? markLine('b1') : i === iB2 ? 'This one is 18th Edition ground: Section 722, EV charging on a PME supply. ' + markLine('b2')
+      : i === iCh ? 'The same kind of question, with new numbers.'
+      : i === iK ? 'One card to come back to on a real job.' : '';
+    sub.hidden = !sub.textContent;
+
+    // The why: the loop, the working and the sentence, at the controls' settings.
+    if (i === iWhy) {
+      drawLoop(p, o);
+      drawWorking(p, o);
+      el('say').textContent = sayFor(p, o);
+      if (!REDUCE && !flow.playing()) flow.play();
+    } else { svg.textContent = ''; flowEl = null; }
+
+    // Picks.
+    const opts = d.opts || [];
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      const done = st.res === 'right' || (i === iR && st.res === 'wrong');
+      b.el.classList.toggle('is-right', done && opts[k] === d.want);
+      b.el.classList.toggle('is-wrong', st.res === 'wrong' && opts[k] === st.pick);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    // The worked example's lines.
+    wlines.forEach((w, k) => { w.hidden = k >= lines; });
+    cutNote.hidden = lines < wlines.length;
+    nextLine.el.hidden = lines >= wlines.length;
+    if (i === iWk) el('workedgo').hidden = lines >= wlines.length;
+
+    // Check, the feedback, and what follows a finished typed answer.
+    const typed = !!ANS[i], typedDone = typed && (st.res === 'right' || st.shown);
+    checkBtn.el.hidden = !typed || typedDone;
+    el('acts').hidden = checkBtn.el.hidden;
+    paintFb(st.fb);
+    const jd = JUDGE[i], showJ = !!jd && typedDone;
+    el('judge').hidden = !showJ;
+    if (showJ) {
+      el('jask').textContent = 'Now make the call. Is ' + jd.fig() + ' acceptable here?';
+      jBtns.forEach((b, k) => {
+        b.el.classList.toggle('is-right', !!st.call && CALLS[k] === jd.want);
+        b.el.classList.toggle('is-wrong', !!st.call && CALLS[k] === st.call && st.call !== jd.want);
+        b.el.setAttribute('aria-pressed', st.call === CALLS[k] ? 'true' : 'false');
+      });
+      el('jmsg').textContent = !st.call ? '' : st.call === jd.want ? 'Right.' : 'Not quite. It is ' + jd.want.toLowerCase() + '.';
+      el('jmsg').hidden = !st.call;
+    }
+    const after = el('after');
+    after.textContent = typedDone && SPEC[i].after && (!jd || st.call) ? SPEC[i].after : '';
+    after.hidden = !after.textContent;
+    el('go').hidden = !(i === iR && st.res === 'right');
+
+    el('donefb').textContent = finished && i === iK ? 'Lesson finished. Back is there whenever you want another look.' : '';
+    el('donefb').hidden = !el('donefb').textContent;
+
+    backBtn.el.hidden = i === 0;
+    nextBtn.el.hidden = i === iK || !canGo(i) || (i === iR && st.res === 'right');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const near = (a, b) => K.near(a, b, 1e-9);
+  K.check('At 11.4 m of 2.5 mm², worked hot: R1+R2 0.216 Ω, Zs 0.366 Ω and 596.99 A, as parts 2a and 2b work it', () => {
+    const o = K.at({ len: RUN, size: '2.5', hot: true }); return near(o.r12, 0.216) && near(o.zs, f2a.value) && near(o.ifl, f2b.value);
+  });
+  K.check('Near 37.9 m the run meets the limit: 0.867 Ω and 252.02 A at 37.8 m, 0.871 Ω and 250.86 A at 38.0 m', () => {
+    const a = K.at({ len: 37.8, size: '2.5', hot: true }), b = K.at({ len: 38, size: '2.5', hot: true });
+    return near(a.zs, 0.867) && near(a.ifl, 252.02) && a.zs <= ZMAX && near(b.zs, f38.value) && near(b.ifl, 250.86) && b.zs > ZMAX && near(MAX25, fMax.value);
+  });
+  K.check('At 50 m: 2.5 mm² gives 1.098 Ω and 199.00 A, 4 mm² gives 0.740 Ω and 295.27 A', () => {
+    const a = K.at({ len: 50, size: '2.5', hot: true }), b = K.at({ len: 50, size: '4', hot: true });
+    return near(a.r12, 0.948) && near(a.zs, f50.value) && near(a.ifl, 199) && near(b.r12, 0.59) && near(b.zs, f504.value) && near(b.ifl, 295.27);
+  });
+  K.check('At 40 m: worked hot 0.909 Ω and 240.37 A, cold 0.743 Ω and 294.08 A, a gap of 0.166 Ω', () => {
+    const h = K.at({ len: 40, size: '2.5', hot: true }), c = K.at({ len: 40, size: '2.5', hot: false });
+    return near(h.zs, fHot.value) && near(h.ifl, 240.37) && near(c.r12, 0.593) && near(c.zs, fCold.value) && near(c.ifl, 294.08) && near(GAP, 0.166);
+  });
+  K.check('Longest runs within 0.87 Ω: 37.9 m in 2.5 mm², 61.0 m in 4 mm², 91.3 m in 6 mm²', () =>
+    near(longest(MPM['2.5'], M90), fMax.value) && near(longest(MPM['4'], M90), fMax4.value) && near(longest(MPM['6'], M90), fMax6.value));
+  K.check('Every metre adds: Zs never falls and the fault current never rises as the run lengthens', () => {
+    for (const s of ['2.5', '4', '6']) for (const h of [true, false]) {
+      let prev = null;
+      for (let L = 0; L <= 100; L += 0.2) {
+        const o = loop(L, s, h);
+        if (prev && (o.zs < prev.zs || o.ifl > prev.ifl)) return false;
+        prev = o;
+      }
+    }
+    return true;
+  });
+  K.check('No run at all: Zs is the 0.15 Ω at DBP2, and 1456.67 A flows; the dot waits at the top of the 750 A axis', () => {
+    const o = K.at({ len: 0 }); return near(o.zs, ZDB) && near(o.ifl, 1456.67) && o.ifl > IMAX && near(yI(o.ifl), AY1);
+  });
+  K.check('Maximum Zs from the rule: 230 × 0.95 ÷ 250 = 0.874 Ω for the 25 A type C, 230 × 0.95 ÷ 125 = 1.748 Ω for a 25 A type B', () =>
+    near(ZRULE, fZm.value) && near(ZB25, fTB.value));
+  K.check('The recall: 230 × 0.95 ÷ 7.28 = 30.01 A; 31.59 A without Cmin, 34.75 A with Cmax', () =>
+    near(RC.right, fR.value) && near(RC.noC, fR1.value) && near(RC.cmax, fR2.value));
+  K.check('The heater: 0.436 Ω, 0.646 Ω and 338.24 A; the showroom origin 2185.00 A', () =>
+    near(wR12, fWr.value) && near(wZs, fWz.value) && near(wI, fWi.value) && near(oI, fOrg.value));
+  K.check('Section A slips and the changed numbers come out as the case file works them', () =>
+    near(r3(ZDB + r3(MPM['2.5'] * RUN / 1000)), f2a1.value) && near(r3(ZE + A0.r12), f2a2.value) && near(r3(ZDB + r3(MPM['2.5'] * M70 * RUN / 1000)), f2a3.value) &&
+    near(r2(UO / f2a.value), f2b1.value) && near(r2(UO * CMAX / f2a.value), f2b2.value) && near(ACC2B, 596.59) && near(atMotor, fLeg.value) &&
+    near(chZ, fCh.value) && near(r3(CH.zb + r3(MPM['4'] * CH.len / 1000)), fCh1.value) && near(r3(CH.zb + r3(MPM['4'] * M90 * CH.len / 1000)), fCh2.value) &&
+    near(chR, fCh3.value) && near(chFixZ, fChF.value));
+  K.check('Every slip lies outside its answer\'s accepted figures', () => Object.keys(SPEC).every((k) => {
+    const sp = SPEC[k], tol = 0.5 * Math.pow(10, -sp.dp);
+    return sp.slips.every((s) => Math.abs(s.value - sp.fig.value) > tol * 2 && sp.accept.every((x) => Math.abs(s.value - x) > tol * 2));
+  }));
+  K.check('For a low voltage supply under the ESQCR, Cmin is 0.95', () => CMIN === 0.95,
+    { source: 'https://electrical.theiet.org/media/1442/maximum-zs-values.pdf' });
+  K.check('Table 41.3 gives a C25 breaker a maximum Zs of 0.87 Ω', () => near(ZMAX, 0.87),
+    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });
+  K.check('Table 41.5 gives 1667 Ω for a 30 mA device and 500 Ω for a 100 mA device', () => RCD[30] === 1667 && RCD[100] === 500,
+    { source: 'https://www.elec-mate.com/guides/maximum-zs-values-bs-7671' });
+
+  K.ready();
+</script>

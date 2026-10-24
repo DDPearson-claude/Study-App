@@ -111,6 +111,10 @@ node tools/eval/sources.mjs --reply $D/research.reply.txt --tools $D/tools --top
 Every tool call saved verbatim as `$D/tools/NN-<tool>.json` = `{"tool", "input", "output"}`; every
 quote copied word for word from a tool result; sources.mjs keeps only sources the tools returned
 with their quote on the page. Aim for 10-14 kept sources and notes for every idea.
+`research.json` is generated: a later source or note goes at the end of `research.reply.txt` and
+sources.mjs is run again, never into `research.json` by hand. (24 Oct: lesson 10's top-up rebuilt
+research.json and dropped the 11 A4 sources added there by hand on 20 Oct; they were restored.)
+The same holds for a course's `case.json` when a `case.make.py` builds it.
 
 The researcher never retypes a result into a file (Percentages lost every source that way, 11 Oct).
 Its prompt carries a unique marker line, and the tool files are harvested from its own transcript:

@@ -1,0 +1,597 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Design and verification, a Level 4 refresher
+Idea: A second job: the lathe, start to finish (A whole design in one pass on a circuit unlike the showroom's, then the cpc: the table's size is safe, a smaller one passes only if Zs and the heat check both still hold, and steel armour, alone or with a core in parallel, can do the job.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the Zs bar cross the 0.87 Ω line at 0.977 Ω while the heat bar still passes, when you swap the lathe’s cpc from 2.5 mm² to 1.5 mm² at 27 m.
+Title (the app shows it above the frame, so do not repeat it): Which check sets the smallest cpc?
+The rule (the app shows it just above the frame, under "What you're looking at"): Thirteen screens, with Back and Continue: a lathe motor's circuit designed end to end, whether its cpc can be smaller, and steel armour as the cpc.
+
+Screen 1, Do you still have it? The question: “A motor circuit runs 27 m in 4 mm² singles with a 4 mm² cpc. Zs is 0.4 Ω at its board and 0.719 Ω at the motor. The client wants the cpc cut to 2.5 mm². Which checks must you work again?” Three choices, in this order: “Zs against the breaker's maximum, and the heat check”; “Only the heat check”; “The current rating and the voltage drop”. Right: “Still there.” Then the working. R1+R2 becomes 12.02 × 1.28 × 27 ÷ 1000 = 0.415 Ω. So Zs rises from 0.719 Ω to 0.815 Ω, which must stay within the breaker's maximum. The thinner cpc must still take the fault's heat. The cpc carries no load current, so the rating and the drop stay as they were. Then two buttons: Refresh the why (screen 2) and Skip to the practice (screen 6). Wrong, the second: “A thinner cpc has more resistance, so Zs rises too. Check it against the breaker's maximum.” Wrong, the third: “The cpc carries no load current, so neither changes. Its size changes Zs and the heat it can take.” Then the right working, and on to screen 2.
+
+Screen 2, What it is for. “One whole job in one pass, on a circuit unlike the showroom's. A lathe motor is fed from a board that sits below 400 V. Its cable shares trunking with two other circuits. Then a question every designer meets. Can the cpc be smaller than Table 54.7's size? Yes, if two checks still pass. Zs must stay within the breaker's maximum. And the cpc must take the fault's heat.” In red, what goes wrong if it is skipped: “Cut the cpc on the heat check alone and Zs can rise past the maximum. Then the breaker may not open in time.”
+
+Screen 3, The why: which check sets the smallest cpc. The picture: the lathe circuit from DB2, a line conductor and a cpc running to the motor, with the loop drawn as two parts: Zs at DB2, a fixed 0.4 Ω, and the circuit's R1+R2, which grows with the run and with a thinner cpc. A choice of cpc: 1.5, 2.5 or 4 mm², opening on 4 mm². A slider, run length, 10 to 40 m in steps of 0.5 m, opening on 27 m. Two bars. The first is Zs, built from the 0.4 Ω and the R1+R2, against a dashed line at 0.87 Ω, the maximum for the 25 A type C breaker.[^1] Past the line it turns red. The second is the least cpc the heat needs, against a mark at the cpc fitted. Two readouts. The first is the Cmin fault current, to 2 places, against 250 A. The second is the longest run this cpc allows, to 1 place. The rule beside it: “R1+R2 = mΩ/m × 1.28 × length ÷ 1000. Zs = 0.4 + R1+R2. The maximum, 0.87 Ω, is 218.5 ÷ 250. Fault current at Cmin = 218.5 ÷ Zs, at Cmax = 253 ÷ Zs. Least cpc = √(I² × 0.1) ÷ 143, with I at Cmax.” The mΩ/m for the 4 mm² line with each cpc: 16.71 with 1.5 mm², 12.02 with 2.5 mm², 9.22 with 4 mm². Below 250 A at Cmax, the breaker may not open within 0.1 s. Then the heat bar reads “not worked: no 0.1 s trip”.
+
+What he sees, at 27 m. 4 mm²: Zs 0.719 Ω, heat needs 0.78 mm². 2.5 mm²: R1+R2 0.415 Ω, Zs 0.815 Ω, heat needs 0.69 mm². 1.5 mm²: Zs 0.977 Ω, over the line. That gives 223.64 A at Cmin, under 250 A. Yet the heat needs only 0.57 mm². The words under it: “A thinner cpc adds resistance, so Zs rises and the fault current falls. Less current heats the cpc less, while the breaker still trips at once. So the heat check gets easier as the breaker check gets harder. On the lathe the loop, not the heat, sets the smallest cpc. The 2.5 mm² cpc allows up to 30.5 m, the 4 mm² up to 39.8 m.” The prompt above the picture: “Pick a thinner cpc, then drag the length.” Read: at 27 m the 2.5 mm² cpc gives Zs 0.815 Ω, within 0.87 Ω. It needs only 0.69 mm² for the heat. The 1.5 mm² cpc gives 0.977 Ω and fails on Zs. Still: 2.5 mm², 27 m.
+
+Screen 4, Check. “Keep the 2.5 mm² cpc. The lathe moves, and the run becomes 32 m. Is the circuit still acceptable?” Choices: “No: Zs is 0.892 Ω, over 0.87 Ω”; “Yes: the cpc needs only 0.63 mm² for the heat”; “Yes: R1+R2 is 0.492 Ω, within 0.87 Ω”. Right, the first: “R1+R2 = 12.02 × 1.28 × 32 ÷ 1000 = 0.492 Ω. Zs = 0.4 + 0.492 = 0.892 Ω, over 0.87 Ω. The longest run with 2.5 mm² is 30.5 m. Go back to the 4 mm² cpc, good to 39.8 m.” Wrong, the second: “The heat check does pass. But Zs is over the maximum, so the breaker may not open in time.” Wrong, the third: “Add Zs at DB2, 0.4 Ω. The breaker sees the whole loop.”
+
+Screen 5, Worked example: steel armour as the cpc, a line at each press. The prompt: “Work each step yourself first, then press Show.” Said once: “Steel armour can be the cpc, if a calculation shows it is enough. Steel's k is far lower than copper's. So it needs more area. Take k1 = 143 for the copper cores and k2 = 46 for the steel. 46 is a practice value. On a real job, check it in Table 54.4.” The lines:
+A 6 mm² four-core 90 °C SWA, 40 m. For a cpc of another material, Table 54.7 gives k1 ÷ k2 × S. Armour needed = 143 × 6 ÷ 46 = 18.65 mm². The cable has 36 mm² of armour. Enough.
+A 25 mm² four-core, 26 m. Above 16 mm², up to 35 mm², Table 54.7 uses 16 in place of S.[^2] Armour needed = 143 × 16 ÷ 46 = 49.74 mm². The cable has 70 mm². Enough.
+If it had fallen short, choose a cable with an extra core, or run a separate cpc alongside. A separate cpc must take the whole fault current, because the current does not share evenly.
+A 25 mm² five-core, 26 m, on a 40 A BS 88-2 fuse. Take Ze as 0.06 Ω. The fifth core and the armour share the cpc's job. R2 = 1 ÷ (1 ÷ 0.727 + 1 ÷ 1.8) = 0.518 mΩ/m. R1+R2 = (0.727 + 0.518) × 1.28 × 26 ÷ 1000 = 0.041 Ω. Zs = 0.06 + 0.041 = 0.101 Ω. Fault current at Cmax = 253 ÷ 0.101 = 2504.95 A. Take 0.1 s for the fuse here, as a practice value. On a real job, read the time from Figure 3A3. Armour alone: √(2504.95² × 0.1) ÷ 46 = 17.22 mm², within its 88 mm². Core alone: √(2504.95² × 0.1) ÷ 143 = 5.54 mm², within 25 mm². Both pass.
+A note under the lines: “If you have 49.73 mm², 0.52, 0.04 and 0.10, they are the same figures, cut short. Work the heat at Cmax, not Cmin. With the time at 0.1 s either way, Cmax gives the larger area. Take armour areas from the maker's sheet for the cable you buy.” Read: both four-core cables have more armour than Table 54.7 asks. With the core and the armour in parallel, Zs is 0.101 Ω. Each path alone takes the heat.
+
+Screen 6, Section A, question 5 (a). The scenario panel, titled “The lathe at DB2”, in place of the showroom: “A workshop on a 400 V three-phase TN-C-S supply, Ze 0.12 Ω, prospective fault current 8 kA at the origin. DB2 is fed by a distribution circuit that drops 3%. Zs at DB2 is 0.4 Ω. From DB2, a circuit feeds a 12.5 kW three-phase lathe motor, power factor 0.91 and efficiency 94% at full load. It runs 27 m in 90 °C thermosetting singles in trunking on a wall, with two other loaded circuits, at 25 °C. Protection is a type C circuit-breaker to BS EN 60898.” Said once: “Assume the lathe's terminals and the breaker allow the cable to run at 90 °C. Use 0.4 Ω for Zs at DB2, even if you have 0.97 Ω written down. At 0.97 Ω no 25 A type C could pass.” The question: “(a) Determine the design current of the lathe circuit.” A typed answer, part 5a. U at DB2 = 400 × 0.97 = 388 V. √3 × 388 = 672.04. × 0.91 = 611.56. × 0.94 = 574.87. Ib = 12 500 ÷ 574.87 = 21.74 A. Accepted too: 21.7 A, and 21.77 A with √3 taken as 1.73. Slips: 21.09 A, “That is at 400 V. DB2 sits 3% down, at 388 V.” 20.44 A, “Divide by the efficiency too. The motor draws more than its output.” 19.79 A, “Divide by the power factor too.” 37.66 A, “It is three-phase: divide by √3 as well.” After two misses, the working.
+
+Screen 7, Section A, question 5 (b) and (c). Part 5(a) carried forward. Shown as working: “(b) The next standard rating above 21.74 A is 25 A, type C.” Said once: “Ca is 1.02 for 90 °C thermosetting cable at 25 °C. It is above 1 because the tables are set at 30 °C. A cooler room takes heat away faster. Cg is 0.70 for three circuits in the trunking.” The question: “(c) Determine the minimum tabulated current-carrying capacity, It.” A typed answer, part 5c. Factors together = 1.02 × 0.70 = 0.714. It = 25 ÷ 0.714 = 35.01 A. Slips: 35.71 A, “Divide by Ca too. At 1.02 it lowers It a little.” 24.51 A, “Divide by Cg too. Three circuits share the trunking.” 30.45 A, “Work It from In, 25 A, not Ib.” After two misses, the working. Then (d): “In Table 4E1A, column 5, for three loaded singles, 2.5 mm² gives 28 A. That is too small. 4 mm² gives 37 A. Iz = 37 × 0.714 = 26.42 A, at least 25 A. So 4 mm².”
+
+Screen 8, Section A, question 5 (e). Parts 5(a) to 5(d) carried forward. The question: “(e) Determine the voltage drop from the intake to the lathe, and state whether it complies.” A typed answer, part 5e. Upstream = 400 × 0.03 = 12.00 V. The lathe circuit, at 10 mV/A/m for 4 mm² three-phase: 10 × 21.74 × 27 ÷ 1000 = 5.87 V. Total = 12.00 + 5.87 = 17.87 V. Accepted too: 17.86 V from 21.7 A, and 17.88 V from 21.77 A. Slips: 5.87 V, “That is the lathe circuit alone. Add DB2's 3%, 12.00 V.” 12.80 V, “The whole path is three-phase, so add the 12.00 V as it is.” After two misses, the working. Then: “The limit for a power circuit is 5% of 400 V, 20.00 V, so it complies.”
+
+Screen 9, Section A, question 5 (f) and (g). Parts 5(a) to 5(e) carried forward. Shown first: “(f) Table 54.7: a copper cpc with a line of 16 mm² or less is the line's size, so 4 mm².” Said once: “The client asks for a 2.5 mm² cpc to save copper.” The question: “(g) Determine Zs at the lathe with a 2.5 mm² cpc, and state whether the circuit meets the requirements for automatic disconnection.” A typed answer, part 5g. R1+R2 = 12.02 × 1.28 × 27 ÷ 1000 = 0.415 Ω. Zs = 0.4 + 0.415 = 0.815 Ω. Accepted too: 0.81 Ω. Slips: 0.725 Ω, “Multiply by 1.28 to take the cable up to its running temperature.” 0.535 Ω, “Start from Zs at DB2, 0.4 Ω, not Ze at the origin.” 0.719 Ω, “That is with the 4 mm² cpc. Use 12.02 mΩ/m, for 4 mm² with 2.5 mm².” After two misses, the working. Then: “0.815 Ω is within 0.87 Ω. At Cmin, 218.5 ÷ 0.815 = 268.10 A. That is past the 250 A that opens the breaker within 0.1 s. So it complies.”
+
+Screen 10, Section A, question 5 (h). Parts 5(a) to 5(g) carried forward. The question: “(h) Determine the minimum csa of the cpc for thermal constraints, and state whether 2.5 mm² is adequate.” A typed answer, part 5h. Fault current at Cmax = 230 × 1.1 ÷ 0.815 = 310.43 A. That is past 250 A, so the breaker opens within 0.1 s. Take t = 0.1 s. k = 143 for a copper cpc bunched with 90 °C thermosetting cables. S = √(310.43² × 0.1) ÷ 143 = 0.69 mm². Slips: 0.59 mm², “Work the heat at Cmax, 310.43 A. It gives the larger area.” 1.37 mm², “The breaker opens within 0.1 s at this current. 0.4 s is the limit, not the time.” 0.85 mm², “115 is for 70 °C thermoplastic. These cables are 90 °C thermosetting, so 143.” After two misses, the working. Then: “0.69 mm² is well under 2.5 mm², so it is adequate. Both checks pass. The loop is the closer one, at 0.815 Ω against 0.87 Ω.”
+
+Screen 11, Section B: “The client asks for the lathe's cpc to be cut to 2.5 mm² to save copper. Explain whether you would agree, and what the inspector must be told.” Written, marked against five points, any three of which make a full answer. One more go, then the model answer.
+
+Screen 12, Section A, changed numbers. “A 40 A BS 88-2 fuse-switch feeds a 63 A TP&N workshop board through a 26 m distribution circuit. After diversity it carries 32 A per phase. It is 70 °C thermoplastic singles in trunking with two other circuits, at 35 °C. The drop must not exceed 6 V. Determine the minimum tabulated current-carrying capacity, It.” A typed answer, in A. Ca = 0.94 at 35 °C, Cg = 0.70. Factors together = 0.94 × 0.70 = 0.658. It = 40 ÷ 0.658 = 60.79 A. Slips: 42.55 A, “Divide by Cg too.” 57.14 A, “Divide by Ca too.” 48.63 A, “Work It from In, 40 A, not the 32 A load.” After it: “In Table 4D1A, column 5, 10 mm² gives 50 A. That is too small, so 16 mm² at 68 A. Its drop is 2.4 × 32 × 26 ÷ 1000 = 2.00 V, inside 6 V. The board's 63 A rating is at least the 40 A fuse ahead of it, as Regulation 536.4.202 asks.[^3]”
+
+Screen 13, Keep this: the summary card, its figures headed “The lathe so far”, then Finish the lesson.
+
+On every screen, each line is worked from the rounded figures shown before it. Each screen that uses a practice value says so.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture holds Zs at DB2 at 0.4 Ω and takes the whole run at 90 °C through the 1.28 multiplier. It takes the breaker to open within 0.1 s whenever the Cmax current reaches 250 A, and works the heat only then. It leaves out the motor’s starting current, parallel earth paths and DB2’s own fault level. The armour example puts the 1.28 multiplier on the steel too. That errs on the safe side, because armour runs cooler than the cores.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Recall and lathe: run length, m: 27 (constant)
+- Recall and lathe: Zs at DB2, Ω: 0.4 (constant, source [4])
+- 4 mm² line with 4 mm² cpc, mΩ/m: 9.22 (constant, source [5])
+- 4 mm² line with 2.5 mm² cpc, mΩ/m: 12.02 (constant, source [6])
+- 4 mm² line with 1.5 mm² cpc, mΩ/m: 16.71 (constant, source [7])
+- Multiplier, cable bunched, 90 °C: 1.28 (constant, source [8])
+- Recall: Zs with the 4 mm² cpc, Ω: 0.719 (computed)
+- Recall: R1+R2 with the 2.5 mm² cpc, Ω: 0.415 (computed)
+- Recall: Zs with the 2.5 mm² cpc, Ω: 0.815 (computed)
+- Maximum Zs, 25 A type C, Table 41.3, Ω: 0.87 (constant, source [1])
+- Ia, 25 A type C, A: 250 (constant, source [9])
+- Cmin: 0.95 (constant, source [10])
+- Cmax: 1.1 (constant, source [11])
+- Nominal voltage to earth, V: 230 (constant)
+- 230 × 0.95, V: 218.5 (computed)
+- 230 × 1.1, V: 253 (computed)
+- Breaker time at 10 × In or more, s: 0.1 (constant, source [12])
+- k, copper cpc with 90 °C thermosetting: 143 (constant, source [13])
+- Why: cpc choices, mm²: 1.5, 2.5, 4 (control)
+- Why: run length slider, m: 10 to 40, step 0.5 (control)
+- Why: 4 mm² cpc, heat needs, mm²: 0.78 (computed)
+- Why: 2.5 mm² cpc, heat needs, mm²: 0.69 (computed)
+- Why: 1.5 mm² cpc, Zs at 27 m, Ω: 0.977 (computed)
+- Why: 1.5 mm² cpc, Cmin current, A: 223.64 (computed)
+- Why: 1.5 mm² cpc, heat needs, mm²: 0.57 (computed)
+- Why: longest run, 1.5 mm² cpc, m: 21.9 (computed)
+- Why: longest run, 2.5 mm² cpc, m: 30.5 (computed)
+- Why: longest run, 4 mm² cpc, m: 39.8 (computed)
+- Check: new run length, m: 32 (assumed)
+- Check: R1+R2 at 32 m, Ω: 0.492 (computed)
+- Check: Zs at 32 m, Ω: 0.892 (computed)
+- Check slip: heat needs at 32 m, mm²: 0.63 (computed)
+- k1, copper cores, 90 °C thermosetting: 143 (constant, source [13])
+- k2, steel armour, 90 °C cable (practice value): 46 (constant, source [14])
+- Worked: 6 mm² four-core, run, m: 40 (assumed)
+- Worked: armour needed, 6 mm² four-core, mm²: 18.65 (computed)
+- Worked: armour, 6 mm² four-core, mm²: 36 (constant, source [15])
+- Worked: Table 54.7 size used above 16 mm², mm²: 16 (constant, source [2])
+- Worked: 25 mm² cables, run, m: 26 (constant, source [16])
+- Worked: armour needed, 25 mm² four-core, mm²: 49.74 (computed)
+- Worked: armour, 25 mm² four-core, mm²: 70 (constant, source [17])
+- Worked: 25 mm² core, mΩ/m: 0.727 (constant, source [17])
+- Worked: armour, 25 mm² five-core, mΩ/m: 1.8 (constant, source [17])
+- Worked: armour, 25 mm² five-core, mm²: 88 (constant, source [17])
+- Worked: core and armour in parallel, mΩ/m: 0.518 (computed)
+- Worked: R1+R2, five-core, Ω: 0.041 (computed)
+- Worked: Ze, five-core example, Ω: 0.06 (assumed)
+- Worked: Zs, five-core, Ω: 0.101 (computed)
+- Worked: fault current at Cmax, A: 2504.95 (computed)
+- Worked: fuse time (practice value), s: 0.1 (assumed)
+- Worked: 40 A BS 88-2 fuse rating, A: 40 (constant, source [18])
+- Worked: armour alone, heat needs, mm²: 17.22 (computed)
+- Worked: core alone, heat needs, mm²: 5.54 (computed)
+- Worked: figures you may have cut short: 49.73, 0.52, 0.04, 0.10 (constant, source [19])
+- Lathe: motor output, kW: 12.5 (constant, source [20])
+- Lathe: power factor: 0.91 (constant, source [21])
+- Lathe: efficiency, %: 94 (constant, source [21])
+- Lathe: ambient, °C: 25 (constant, source [22])
+- Lathe: circuits in the trunking: 3 (constant, source [22])
+- Lathe: upstream drop, %: 3 (constant, source [23])
+- Lathe: Ze at the origin, Ω: 0.12 (constant)
+- Lathe: prospective fault current, kA: 8 (constant)
+- Lathe: Zs at DB2 in part 1, Ω: 0.97 (constant, source [24])
+- Supply line voltage, V: 400 (constant, source [25])
+- Part 5a: voltage at DB2, V: 388 (computed)
+- Part 5a: √3 × 388: 672.04 (computed)
+- Part 5a: × 0.91: 611.56 (computed)
+- Part 5a: × 0.94: 574.87 (computed)
+- Part 5a: Ib, A: 21.74 (computed)
+- Part 5a: accepted, A: 21.7 and 21.77 (computed)
+- Part 5a: √3 taken as: 1.73 (constant, source [26])
+- Part 5a slips, A: 21.09, 20.44, 19.79, 37.66 (computed)
+- Part 5b: breaker rating, A: 25 (computed)
+- Part 5c: Ca, 25 °C, 90 °C thermosetting: 1.02 (constant, source [27])
+- Part 5c: Cg, three circuits: 0.7 (constant, source [28])
+- Part 5c: factors together: 0.714 (computed)
+- Part 5c: It, A: 35.01 (computed)
+- Part 5c slips, A: 35.71, 24.51, 30.45 (computed)
+- Part 5d: 4 mm², Table 4E1A column 5, A: 37 (constant, source [29])
+- Part 5d: 2.5 mm², Table 4E1A column 5, A: 28 (constant, source [30])
+- Part 5d: Iz, A: 26.42 (computed)
+- Part 5e: 4 mm² three-phase, mV/A/m: 10 (constant, source [31])
+- Part 5e: upstream drop, V: 12 (computed)
+- Part 5e: lathe circuit drop, V: 5.87 (computed)
+- Part 5e: drop from the intake, V: 17.87 (computed)
+- Part 5e: accepted, V: 17.86 and 17.88 (computed)
+- Part 5e slip: ÷ √3, V: 12.8 (computed)
+- Part 5e: limit, 5% of 400 V, V: 20 (computed)
+- Part 5f: suitable cpc, Table 54.7, mm²: 4 (computed)
+- Part 5g: Zs, Ω: 0.815 (computed)
+- Part 5g: accepted, Ω: 0.81 (computed)
+- Part 5g slips, Ω: 0.725, 0.535, 0.719 (computed)
+- Part 5g: Cmin current, A: 268.1 (computed)
+- Part 5h: Cmax current, A: 310.43 (computed)
+- Part 5h: least cpc for the heat, mm²: 0.69 (computed)
+- Part 5h slips, mm²: 0.59, 1.37, 0.85 (computed)
+- Part 5h slip: k, 70 °C thermoplastic: 115 (constant)
+- Section B: points, of which any make a full answer: 5, any 3 (constant)
+- Section B: expected cold Zs at 20 °C, Ω: 0.725 (computed)
+- Section B: rule-of-thumb cold limit, 90 °C cable, Ω: 0.68 (computed)
+- Changed: fuse rating, A: 40 (assumed)
+- Changed: board rating, A: 63 (assumed)
+- Changed: run, m: 26 (assumed)
+- Changed: load per phase, A: 32 (assumed)
+- Changed: ambient, °C: 35 (assumed)
+- Changed: drop limit, V: 6 (assumed)
+- Changed: Ca, 35 °C, 70 °C thermoplastic: 0.94 (constant, source [32])
+- Changed: factors together: 0.658 (computed)
+- Changed: It, A: 60.79 (computed)
+- Changed slips, A: 42.55, 57.14, 48.63 (computed)
+- Changed: 10 mm², Table 4D1A column 5, A: 50 (constant, source [33])
+- Changed: 16 mm², Table 4D1A column 5, A: 68 (constant, source [34])
+- Changed: 16 mm² three-phase, mV/A/m: 2.4 (constant, source [35])
+- Changed: drop, V: 2 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Table 54.7's cpc needs no calculation. For a copper line of 16 mm² or less, it is the line's own size. That is the suitable size, not the smallest. The smallest that works is the minimum cpc, and only a calculation finds it. A thinner cpc saves copper, but it has more resistance. So R1+R2 rises, and Zs with it. Two checks must still pass.
+
+The first is the loop. At 250 A the breaker opens within 0.1 s. At Cmin the supply can sag to 218.5 V. So the loop must stay under 218.5 ÷ 250 = 0.874 Ω. The table rounds it to 0.87 Ω. A bigger loop lets less than 250 A flow, and the breaker may not open in time. The second is the heat. The cpc must carry the fault until the breaker opens. Work it at the Cmax current.
+
+The two checks pull opposite ways. A higher Zs lets less fault current flow. While the breaker still trips at once, less current heats the cpc less. So the heat check gets easier as the loop check gets harder. Once the current is too low for that, the breaker slows down. Then the heat climbs again. On the lathe, a 2.5 mm² cpc gives Zs 0.815 Ω and needs only 0.69 mm² for the heat. A 1.5 mm² cpc fails on Zs, at 0.977 Ω. Worked at the Cmax current, it would still pass the heat.
+
+Steel armour can be the cpc when a calculation shows it is enough. Steel's k is far lower than copper's. The same fault heats it further, so it needs more area. Table 54.7 scales the line's size by k1 ÷ k…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Maximum Zs Values BS 7671: Complete Table Guide (Elec-Mate, a trade app site, not a standard) (https://www.elec-mate.com/guides/maximum-zs-values-bs-7671): "C25 0.87 Ω 0.70 Ω"
+[2] Sizing protective conductors: the adiabatic equation | Goldberg Kabel Singapore (https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638): "|16 < S ≤ 35 |16 |(k ₁ / k ₂ ) × 16 |"
+[3] 18th Edition Amendment 4 - Hager bitesize guide (https://assets.sc.hager.com/uk/-/media/project/hagerdeep/united-kingdom/hager/b2b-uk/support/bitesize-guide-amd4.pdf): "The rated current or current setting of the upstream protective device (In) is less than or equal to the rated current of the assembly (InA) and any outgoing unit (Inc)."
+[4] Your course mock, part 2: the lathe's cpc (worked) (material:mock-2#p1): "DB2 has a Zdb of 0.4ohms."
+[5] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "4 4 9.22"
+[6] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "4 2.5 12.02"
+[7] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p218): "4 1.5 16.71"
+[8] Your copy of the IET On-Site Guide (BS 7671:2018+A2:2022) (material:osg#p220): "Incorporated in a cable or bunched (NOTE 2) 1.20 1.28 1.28"
+[9] Your course mock, part 2: the lathe's cpc (worked) (material:mock-2#p2): "fi 3AS STATES THE la OF THE DEVICE IS 250A"
+[10] REDUCTION IN MAXIMUM VALUES OF EARTH FAULT LOOP IMPEDANCE IN BS 7671 (https://electrical.theiet.org/media/1442/maximum-zs-values.pdf): "NOTE 1: For a low voltage supply given in accordance with ESQCR, Cmin is given the value 0.95."
+[11] EAL Level 4 Design and Verification: course slides (material:eal-slides#p67): "230 x 1.1 / 1.23 = 205.6A"
+[12] — Electrical installation solutions for buildings – Technical details MCBs (https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj): "C 0.5 to 63 A 1.13 · In > 1 h 5 · In > 0.1 s 1.45 · In < 1 h 10 · In < 0.1 s"
+[13] Your course mock, part 2: the lathe's cpc (worked) (material:mock-2#p2): "K IS FOUND IN TABLE 54.3 AND IS 143 FOR THIS CIRCUIT."
+[14] Your group handout: SWA as the cpc (material:swa-cpc#p1): "(Table 54.4) K2=46"
+[15] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "6 3.08 - - 22 7.0 23 6.7 36 4.3 40 3.9"
+[16] Your group handout: SWA as the cpc (material:swa-cpc#p2): "25mm² 4core, circular cores 90°C Thermosetting Armoured cable - 26m in length"
+[17] Standard Power Cables BS5467 - Prysmian United Kingdom (https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf): "25 0.727 - - 42 3.7 62 2.5 70 2.3 88 1.8"
+[18] Your group handout: SWA as the cpc (material:swa-cpc#p3): "BS88-2 system E, supplying"
+[19] Your group handout: SWA as the cpc (material:swa-cpc#p2): "=49.73mm²"
+[20] Your course mock, part 1: the lathe circuit (worked) (material:mock-1#p1): "The circuit is supplying a 12.5kW 3-phase motor powering an industrial lathe."
+[21] Your course mock, part 1: the lathe circuit (worked) (material:mock-1#p1): "The motor has a known PF of 0.91 and an EFF% of 94% when at full load."
+[22] Your course mock, part 1: the lathe circuit (worked) (material:mock-1#p1): "The trunking already contains 2 other circuits and the ambient temp is 25C."
+[23] Your course mock, part 1: the lathe circuit (worked) (material:mock-1#p1): "is supplied by a distribution circuit with a 3% voltage drop."
+[24] Your course mock, part 1: the lathe circuit (worked) (material:mock-1#p1): "DB2 has a Zdb of 0.97 ohms."
+[25] EAL Level 4 Design and Verification: course slides (material:eal-slides#p13): "VL = Line to line voltage (400V)"
+[26] EAL Level 4 Design and Verification: course slides (material:eal-slides#p13): "√3 = Square root of 3 (1.73)"
+[27] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p441): "25 1.04 1.03 1.02 1.07 1.04"
+[28] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p443): "Bunched in air, on a | 1.00 | 0.80 | 0.70 | 0.65 | 0.60 | 0.57 | 0.54 | 0.52 | 0.50 | 0.45 | 0.41 | 0.38 A to F"
+[29] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "4 35 31 42 37 46 41"
+[30] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p458): "2.5 26 23 31 28 34 31"
+[31] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p459): "4 12 12 12 12 10 10 10 10"
+[32] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p441): "35 0.91 0.94 0.96 0.93 0.96"
+[33] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p448): "10 46 42 57 50 65 59"
+[34] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p448): "16 61 56 76 68 87 79"
+[35] Your copy of BS 7671:2018+A2:2022 (pages 441 to 491) (material:bs7671#p449): "16 2.8 2.8 2.8 2.8 2.4 2.4 2.4 2.4"
+[36] Circuit design calculation process: the 20-step flowchart (material:flowchart#p1): "Note 2: Suitable protective conductor size and minimum protective conductor size are not the same thing."
+[37] EAL Level 4 Design and Verification: course slides (material:eal-slides#p48): "It’s advisable to use Cmax when we’re determining the fault current carrying capacity of conductors."
+[38] SWA as a CPC - GADS Services (https://gadsolutions.biz/regulations/swa-as-a-cpc): "This CPC should be adequately sized to handle the full potential earth fault current not just to provide sufficient additional capacity to the SWA armour to meet the required CSA."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+
+## Refresher lessons: typed answers, written answers, the case file, the summary
+
+A refresher course's steps lesson (a ready-made course built in Claude Code) has four more kit
+pieces. The app passes the page two pieces of checked data, as it passes the theme: the course's
+case file (`K.caseFile`) and the lesson's own `{written, summary}` (`K.lesson`). Name what you want
+by id; the kit draws the checked words, so never retype a figure, a point or a summary line.
+
+```
+K.figure(id) -> {id, label, value, unit, text, part, lesson, rule, work, practice}   a given or worked figure; print f.text ("23.08 A"), f.work its working; practice is true for a practice value
+K.scenario({into, open?, title?, text?})                         the case's scenario panel (folds); a lesson may give its own
+K.carried({parts: ['1a'], into})  -> {el, refresh()}             earlier Section A parts at the course's figures
+K.answer({id, label?, unit, answer, decimals?, tolerance?, accept?, slips?, into, onCheck?, onEnter?})
+    -> {el, input, check(), result, right(), missed(), reveal(), reset(), set(text)}
+K.answer.grade(text, spec) -> {state: 'right'|'wrong'|'empty'|'unreadable', value, accepted?, slip?, hint?}
+K.written({id, into, onMark?}) -> {el, id, stage(), answered()}
+K.summary({into, kept?})
+```
+
+**Typed answers** (Section A, where a C&G paper has him write a figure). A decimal-keypad field;
+your Check button calls `a.check()` (Enter does too) and you write the feedback from the result.
+`answer` is the course's figure, each line worked from the rounded figures shown; it is accepted
+within half a unit in its last place (`decimals`, default 2). `accept: [13.32]` adds the answer
+worked from unrounded figures; `slips: [{value: 50, hint: 'You left out √3.'}]` names a usual slip
+and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give the part's
+case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
+and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
+After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+The self-test grades every answer: its figure and each accepted one right (with the unit too), a
+near miss and each slip refused, and the figure typed into the field and checked on its step.
+
+**Written answers** (Section B: "Explain why…", "State two…"). `K.written({id: 'b1', into})` shows
+`lesson.written.b1`'s question, a box for his words and Check my answer. Claude marks them against
+the lesson's points through the app (never from the page): each point comes back with an ink tick
+or a dashed ring, a statement that is wrong named in red, one line on what he did well and one
+nudge; one more go, then the model answer. Without Claude, the points are a checklist he ticks.
+No marks, no grades, nothing to score. `onMark(r)` runs when a result is drawn; let him Continue
+once `answered()`.
+
+**The summary** (Keep this, the last step). `K.summary({into: '#keep'})` draws `lesson.summary`
+as a card (what it is for, the rule, the traps, the case's figures so far, where it lives) and says
+it is the first page of the chapter in his Book. A figure resting on a practice value is tagged so; the
+traps' and points' cites stay as data and are never shown. Then the Finish button calls `K.complete()`.
+
+**STEPS entries** (tools/course/guide.mjs reads them for the Book and the read-through): a
+typed-answer step keeps `want` (the answer as printed, '13.33 A'); a written step is `{kind:
+'written', written: 'b1', name, task}`; the summary step is `{kind: 'summary', name: 'Keep this'}`;
+the recall opener is a DO step like any other. The read-through (and the Book) shows each step as
+it looks finished, as a still picture with no controls, and its words in its place. Three fields
+make that read as plain sense (Dan, 20 Oct: "some of the text doesn't make sense… the images are
+blank"):
+- `read` on a SHOW step: its sentence for reading, when its own words ask him to act ("Drag…",
+  "Work each step yourself first, then show it"). Say what the finished picture shows.
+- `read` on a DO step only when its task asks him to act on the screen: the same question, asked
+  for reading. Never the answer: the read-through shows the question, the choices, the answer
+  and why on their own (guide.mjs keeps the task and warns when a `read` gives the answer away).
+- `still`: the state the picture shows, when the step's end needs his moves: `{control id: value}`
+  (`{h: 35}`), or a function that sets it (`still: () => runTo(SPLIT)`, cards placed in their
+  phases; `still: () => pick(...)`, a second question on the step answered too). The state is the
+  one its sentence ends on. `still: false` leaves the picture out. guide.mjs leaves out a still
+  that would show an empty box (a lane with no cards), and warns about it and about choices on
+  the screen that nobody chose, so give those steps a `still`.
+The guide drops a sentence that tells him to drag, tap, press or choose, a "Right." or "Still
+there." verdict, and the scenario after its first showing; write the step so it still reads
+whole without them.
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

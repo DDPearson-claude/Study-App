@@ -1,0 +1,249 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At 27 m: 4 mm² gives Zs 0.719 Ω and needs 0.78 mm²; 2.5 mm² gives 0.415 and 0.815 Ω and needs 0.69 mm²",
+        "ok": true
+      },
+      {
+        "label": "At 27 m the 1.5 mm² cpc crosses the line at 0.977 Ω, with 223.64 A at Cmin, yet the heat needs only 0.57 mm²",
+        "ok": true
+      },
+      {
+        "label": "Longest runs: 21.9 m with 1.5 mm², 30.5 m with 2.5 mm², 39.8 m with 4 mm²",
+        "ok": true
+      },
+      {
+        "label": "Zs rises with the run and with a thinner cpc, while the heat needed falls as long as the breaker trips within 0.1 s",
+        "ok": true
+      },
+      {
+        "label": "Past 1.012 Ω the Cmax current falls under 250 A, and the heat is not worked (1.5 mm² at 40 m)",
+        "ok": true
+      },
+      {
+        "label": "The recall: 0.319 and 0.719 Ω with the 4 mm² cpc. The check at 32 m: 0.492 Ω, 0.892 Ω, and 0.63 mm² for the heat",
+        "ok": true
+      },
+      {
+        "label": "The armour: 18.65 and 49.74 mm² needed; 0.518 mΩ/m, 0.041 Ω, Zs 0.101 Ω, 2504.95 A; 17.22 and 5.54 mm²",
+        "ok": true
+      },
+      {
+        "label": "Parts 5a to 5e: 388 V, 21.74 A (21.77 A with 1.73), 0.714, 35.01 A, 26.42 A, 12.00 + 5.87 = 17.87 V within 20.00 V",
+        "ok": true
+      },
+      {
+        "label": "Parts 5g and 5h: Zs 0.815 Ω, 268.10 A at Cmin, 310.43 A at Cmax, 0.69 mm² for the heat",
+        "ok": true
+      },
+      {
+        "label": "Changed numbers: 0.658, It 60.79 A, 16 mm² at 68 A, drop 2.00 V within 6 V",
+        "ok": true
+      },
+      {
+        "label": "Every slip lies outside its answer's accepted figures",
+        "ok": true
+      },
+      {
+        "label": "Table 41.3: a 25 A type C circuit-breaker has a maximum Zs of 0.87 Ω",
+        "ok": true,
+        "source": "https://www.elec-mate.com/guides/maximum-zs-values-bs-7671"
+      },
+      {
+        "label": "For a supply to ESQCR, Cmin is 0.95",
+        "ok": true,
+        "source": "https://electrical.theiet.org/media/1442/maximum-zs-values.pdf"
+      },
+      {
+        "label": "A type C breaker trips within 0.1 s at 10 × In",
+        "ok": true,
+        "source": "https://library.e.abb.com/public/887c88977d614f32854aca99b37ed120/B_EPBP_Cat_2018_01_MCBs.pdf?x-sign=NqUifdEQY53bQHaDL42gCLBSlPkD+BWA/sbmhMd4Zi1NBVYG2l94faT0rjFOoWKj"
+      },
+      {
+        "label": "Above 16 mm², up to 35 mm², Table 54.7 gives (k1 ÷ k2) × 16",
+        "ok": true,
+        "source": "https://goldbergkabel.com/blogs/technical-resources/protective-conductor-adiabatic-equation-ss-638"
+      },
+      {
+        "label": "BS 5467 cables: 25 mm² cores 0.727 mΩ/m, armour 70 mm² four-core and 88 mm² at 1.8 mΩ/m five-core; 6 mm² four-core armour 36 mm²",
+        "ok": true,
+        "source": "https://uk.prysmian.com/sites/default/files/atoms/files/BS5467.pdf"
+      },
+      {
+        "label": "The upstream device rating is at most the rated current of the assembly",
+        "ok": true,
+        "source": "https://assets.sc.hager.com/uk/-/media/project/hagerdeep/united-kingdom/hager/b2b-uk/support/bitesize-guide-amd4.pdf"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "cpc",
+      "len"
+    ],
+    "readouts": [
+      "imin",
+      "lmax"
+    ],
+    "outputs": [
+      "imin",
+      "lmax",
+      "zs",
+      "r12",
+      "imax",
+      "worked",
+      "s"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Lesson",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Do you still have it?",
+          "What it is for",
+          "The why",
+          "Check",
+          "Worked example",
+          "Section A 5(a)",
+          "Section A 5(b) and (c)",
+          "Section A 5(e)",
+          "Section A 5(f) and (g)",
+          "Section A 5(h)",
+          "Section B",
+          "Changed numbers",
+          "Keep this"
+        ],
+        "value": 0
+      },
+      {
+        "id": "cpc",
+        "kind": "choice",
+        "label": "cpc fitted",
+        "options": [
+          1.5,
+          2.5,
+          4
+        ],
+        "labels": [
+          "1.5 mm²",
+          "2.5 mm²",
+          "4 mm²"
+        ],
+        "value": 4,
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "len",
+        "kind": "control",
+        "label": "Run length",
+        "min": 10,
+        "max": 40,
+        "step": 0.5,
+        "log": false,
+        "value": 27,
+        "shown": false,
+        "snap": [
+          27,
+          32
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Refresh the why",
+      "Skip to the practice",
+      "Check",
+      "Finish the lesson",
+      "Show",
+      "Back",
+      "Continue"
+    ],
+    "answers": [
+      {
+        "id": "5a",
+        "answer": 21.74,
+        "accept": [
+          21.7,
+          21.77
+        ],
+        "ok": true
+      },
+      {
+        "id": "5c",
+        "answer": 35.01,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "5e",
+        "answer": 17.87,
+        "accept": [
+          17.86,
+          17.88
+        ],
+        "ok": true
+      },
+      {
+        "id": "5g",
+        "answer": 0.815,
+        "accept": [
+          0.81
+        ],
+        "ok": true
+      },
+      {
+        "id": "5h",
+        "answer": 0.69,
+        "accept": [],
+        "ok": true
+      },
+      {
+        "id": "l10.changed",
+        "answer": 60.79,
+        "accept": [],
+        "ok": true
+      }
+    ],
+    "written": [
+      "b1"
+    ],
+    "ready": true,
+    "warnings": [
+      "The page height keeps growing with the frame (avoid vh units and height:100%)."
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}
