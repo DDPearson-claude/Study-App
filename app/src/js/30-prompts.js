@@ -1086,10 +1086,11 @@
   }
   function sentences(t) { return plain(t).split(/[.!?]+(?:\s|$)/).filter(function (x) { return x.trim().length > 2; }).length; }
 
-  // opts.maxIdeas: a ready-made course built from an approved brief may plan more ideas than the
-  // in-page planner's 8 (Negative numbers has 9); the page's own plans keep 5-8.
+  // opts.maxIdeas / opts.minIdeas: a ready-made course built from an approved brief may plan more
+  // ideas than the in-page planner's 8 (Negative numbers has 9), or fewer than 5 (a short course
+  // Dan asked for, such as a four-lesson test); the page's own plans keep 5-8.
   function vPlan(o, opts) {
-    var v = V(), most = opts && opts.maxIdeas > 8 ? opts.maxIdeas : 8;
+    var v = V(), most = opts && opts.maxIdeas > 8 ? opts.maxIdeas : 8, least = opts && opts.minIdeas >= 2 && opts.minIdeas < 5 ? opts.minIdeas : 5;
     if (!isObj(o)) return ['The reply must be one JSON object with title, hook, oneBreath, ideas and calibration.'];
     v.str(o.title, 'title', 90);
     if (v.str(o.hook, 'hook', 320)) {
@@ -1100,7 +1101,7 @@
     var ids = [];
     if (!Array.isArray(o.ideas)) v.add('ideas must be a list of 5-8 ideas.');
     else {
-      if (o.ideas.length < 5 || o.ideas.length > most) v.add('ideas has ' + o.ideas.length + ' entries; give 5-' + most + '.');
+      if (o.ideas.length < least || o.ideas.length > most) v.add('ideas has ' + o.ideas.length + ' entries; give ' + least + '-' + most + '.');
       o.ideas.forEach(function (i, k) {
         var p = 'ideas[' + k + ']';
         if (!isObj(i)) { v.add(p + ' must be an object.'); return; }

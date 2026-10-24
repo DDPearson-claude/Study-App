@@ -223,7 +223,7 @@ if (cmd === 'docs') {
       : { status: 'failed', at: now, sources: 0, error: null, reason: 'none_confirmed', tries: 1 },
   };
   // A ready-made course follows its approved brief, which may have more than the page's 8 ideas.
-  const pv = U.validate.plan(plan, existsSync(join(dir, 'shelf.json')) ? { maxIdeas: 12 } : undefined);
+  const pv = U.validate.plan(plan, existsSync(join(dir, 'shelf.json')) ? { maxIdeas: 12, minIdeas: 3 } : undefined);
   if (pv && pv.problems && U.validate.hard(pv.problems).length) problems.push('plan: ' + U.validate.hard(pv.problems).join(' | '));
   writeFileSync(join(out, 'topic.json'), JSON.stringify(topicDoc, null, 1) + '\n');
   manifest.unshift({ collection: 'topics', doc_id: tid, file: join(out, 'topic.json') });

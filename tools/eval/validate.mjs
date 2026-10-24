@@ -26,7 +26,7 @@
 // carry a target check but has none; with --topic, only for a kind that can have one). Replies may
 // contain prose or fences around the JSON; the answer is picked the way the app picks it
 // (U.parseJson.pick: the last JSON value in the reply that passes the validator).
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
@@ -48,6 +48,9 @@ const text = readFileSync(process.argv[3], 'utf8');
 let problems, warnings = [], verified = null, kept = null;
 try {
   const opts = {};
+  // A ready-made course's plan (a shelf.json beside the reply): its approved brief may give 3 to 12
+  // ideas, as assemble allows.
+  if (kind === 'plan' && existsSync(join(dirname(process.argv[3]), 'shelf.json'))) { opts.maxIdeas = 12; opts.minIdeas = 3; }
   if (kind === 'verify') {
     if (!arg('lesson')) throw new Error('verify needs --lesson (the lesson it checked)');
     opts.lesson = lessonOf(JSON.parse(readFileSync(arg('lesson'), 'utf8')));
