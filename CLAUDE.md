@@ -22,6 +22,10 @@ changing code; it is the contract between modules.
 
 ## Dan's background (Dan, 18 Oct 2026)
 Every course brief starts from this: never re-teach what these cover, pitch above it, and use it for examples.
+- A submariner (Dan, 24 Oct: "Remember I'm a submariner"): "at sea" means a submarine, not a surface ship. Pick
+  examples, priorities and courses for submarine electrical work (DC and battery systems, insulated systems and earth
+  faults, confined spaces, a closed atmosphere). Teach only from public sources and never claim how the Royal Navy or a
+  particular boat does it; a submarine's own systems are not public.
 - Electrician, now committed to the electrical and electrical engineering path in the Royal Navy. Next: leading rate
   engineering qualifications, a level 3 marine engineering qualification and a level 4 management and leadership
   qualification (at HMS Drake / HMS Collingwood). Educationally qualified for Upper Yardman and Senior Upper Yardman.
