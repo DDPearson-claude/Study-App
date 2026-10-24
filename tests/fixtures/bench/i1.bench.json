@@ -1,0 +1,245 @@
+{
+ "v": 1,
+ "idea": "i1",
+ "title": "The pump that won't run",
+ "supply": { "line": "L", "neutral": "N", "volts": "Vsupply" },
+ "quantities": [
+  { "id": "Vsupply", "label": "Control supply, line to neutral", "value": 230, "unit": "V", "src": [60] },
+  { "id": "Vcoil230", "label": "The coil's rating", "value": 230, "unit": "V", "src": [60, 61] },
+  { "id": "Vcoil400", "label": "The wrong coil's rating", "value": 400, "unit": "V", "example": true },
+  { "id": "bandLo", "label": "Pull-in band, low end", "value": 85, "unit": "%", "src": [245], "sayAsExample": true },
+  { "id": "bandHi", "label": "Pull-in band, high end", "value": 110, "unit": "%", "src": [245], "sayAsExample": true },
+  { "id": "coilShare", "label": "The wrong coil's share of its rating", "value": 58, "unit": "%", "compute": "ratio", "inputs": ["Vsupply", "Vcoil400"] },
+  { "id": "halve6", "label": "Halving six places, worst case", "value": 3, "unit": "", "compute": "halvingWorst", "inputs": [6] },
+  { "id": "piece6", "label": "Piece by piece, six places, worst case", "value": 5, "unit": "", "compute": "pieceWorst", "inputs": [6] }
+ ],
+ "coilBand": { "lo": "bandLo", "hi": "bandHi" },
+ "points": [
+  { "id": "P0", "label": "P0" }, { "id": "P1", "label": "P1" }, { "id": "P2", "label": "P2" },
+  { "id": "R1", "label": "R1" }, { "id": "R2", "label": "R2" }, { "id": "P3", "label": "P3" },
+  { "id": "P4", "label": "P4" }, { "id": "P5", "label": "P5" }, { "id": "N", "label": "N" }
+ ],
+ "parts": [
+  { "id": "feed", "name": "Control supply", "kind": "wire", "a": "L", "b": "P0" },
+  { "id": "fuse", "name": "Control fuse", "kind": "fuse", "a": "P0", "b": "P1" },
+  { "id": "pstop", "name": "Stop at the panel", "kind": "nc", "a": "P1", "b": "P2", "src": [46, 262] },
+  { "id": "coreA1", "name": "Core out, to the joint", "kind": "core", "a": "P2", "b": "Ja" },
+  { "id": "coreA2", "name": "Core out, joint to pump", "kind": "core", "a": "Ja", "b": "R1" },
+  { "id": "rstop", "name": "The pump's Stop", "kind": "nc", "a": "R1", "b": "R2", "src": [262] },
+  { "id": "coreB2", "name": "Core back, pump to joint", "kind": "core", "a": "R2", "b": "Jb" },
+  { "id": "coreB1", "name": "Core back, joint to panel", "kind": "core", "a": "Jb", "b": "P3" },
+  { "id": "start", "name": "Start", "kind": "no", "a": "P3", "b": "P4", "src": [42, 78] },
+  { "id": "holdin", "name": "Hold-in contact", "kind": "aux", "with": "coil", "a": "P3", "b": "P4", "src": [45, 50, 52] },
+  { "id": "ol", "name": "Overload contact", "kind": "nc", "a": "P4", "b": "P5", "src": [48] },
+  { "id": "coil", "name": "Contactor coil", "kind": "coil", "a": "P5", "b": "N", "rating": "Vcoil230", "src": [60, 61, 62] }
+ ],
+ "toggles": [
+  { "id": "startHeld", "part": "start", "label": "Hold Start in" },
+  { "id": "rstopHeld", "part": "rstop", "label": "Hold the pump's Stop pressed" },
+  { "id": "pstopHeld", "part": "pstop", "label": "Press the panel Stop", "drawn": false }
+ ],
+ "classes": { "near zero": "Near zero: a path", "over range": "Over range: open", "coil": "A coil's reading" },
+ "kinds": ["Open circuit", "Short circuit", "Wrong part fitted", "High resistance"],
+ "faults": [
+  { "id": "f1", "part": "holdin", "effect": "open", "kind": "Open circuit", "name": "The hold-in contact's wire" },
+  { "id": "f2", "part": "coreA1", "effect": "open", "kind": "Open circuit", "name": "The core out to the pump" },
+  { "id": "f3", "effect": "bridge", "nodes": ["Ja", "Jb"], "kind": "Short circuit", "name": "The joint" },
+  { "id": "f4", "part": "coil", "effect": "rating", "rating": "Vcoil400", "kind": "Wrong part fitted", "name": "The coil" },
+  { "id": "f5", "part": "fuse", "effect": "open", "kind": "Open circuit", "name": "The control fuse", "role": "distractor" },
+  { "id": "f6", "part": "ol", "effect": "open", "kind": "Open circuit", "name": "The overload contact", "role": "distractor" },
+  { "id": "f7", "part": "coil", "effect": "open", "kind": "Open circuit", "name": "The coil's winding", "role": "distractor" },
+  { "id": "f8", "part": "rstop", "effect": "open", "kind": "Open circuit", "name": "The pump's Stop", "role": "distractor" },
+  { "id": "f9", "part": "coreB1", "effect": "open", "kind": "Open circuit", "name": "The core back from the pump", "role": "distractor" }
+ ],
+ "tests": [
+  { "id": "cont", "kind": "continuity", "label": "Continuity" },
+  { "id": "vn", "kind": "voltageToN", "label": "Voltage to N, Start held", "hold": ["startHeld"], "reason": { "src": ["material:hsg85#p8", "material:hsg85#p9", 260] } },
+  { "id": "look", "kind": "look", "label": "Look", "targets": [
+   { "id": "t1314", "label": "Terminals 13 and 14", "shows": { "healthy": "Both wires are tight.", "f1": "Terminal 14 is empty. The hold-in wire was never moved across." }, "src": [45, 52] },
+   { "id": "flag", "label": "The overload's flag", "shows": { "healthy": "Not tripped." }, "src": [48] },
+   { "id": "plate", "label": "The coil's rating plate", "shows": { "healthy": "Coil 230 V AC", "f4": "Coil 400 V AC" }, "src": [60, 61] },
+   { "id": "joint", "label": "The joint, opened", "needs": "dead", "shows": { "healthy": "Two connectors, one core each.", "f3": "All four core ends sit in one connector." } }
+  ] },
+  { "id": "play", "kind": "play", "label": "Operate it", "coil": "coil",
+   "words": { "runs": "It pulls in and runs.", "buzzes": "It buzzes and won't run.", "off": "No click." },
+   "checks": [
+    { "id": "start", "label": "Press Start", "seq": [["on", "startHeld"]] },
+    { "id": "hold", "label": "Start, then let go", "seq": [["on", "startHeld"], ["off", "startHeld"]], "words": { "runs": "It keeps running.", "off": "It stops." } },
+    { "id": "pstop", "label": "Press the panel Stop", "seq": [["on", "startHeld"], ["off", "startHeld"], ["on", "pstopHeld"]], "words": { "runs": "It keeps running.", "off": "It stops." } },
+    { "id": "rstop", "label": "Press the pump's Stop", "seq": [["on", "startHeld"], ["off", "startHeld"], ["on", "rstopHeld"]], "words": { "runs": "It keeps running.", "off": "It stops." } }
+   ] }
+ ],
+ "isolation": {
+  "steps": [
+   { "id": "iso", "text": "Isolate", "stage": "isolate", "src": ["material:hsg85#p14", "material:hsg85#p15"] },
+   { "id": "lock", "text": "Lock off and tag", "stage": "lock", "src": ["material:hsg85#p15"] },
+   { "id": "prove1", "text": "Prove the tester on a known supply", "stage": "proveTester", "src": ["material:hsg85#p16", 260] },
+   { "id": "dead", "text": "Test dead where you'll work", "stage": "testDead", "src": ["material:hsg85#p15"] },
+   { "id": "prove2", "text": "Prove the tester again", "stage": "reproveTester", "src": ["material:hsg85#p16", 260] }
+  ],
+  "shown": ["dead", "iso", "prove2", "lock", "prove1"],
+  "asBefore": "Isolate and prove dead, as before"
+ },
+ "restore": { "text": "Locks off, people told, supply back on.", "src": ["material:hsg85#p15", "material:nvq-health-safety#p2"] },
+ "intro": { "text": "Three jobs on one starter. Each starts with a report. You choose the tests and say what you expect. Then read the meter. Name the fault and prove it fixed. Theory turns up when a reading surprises you.", "buttons": ["Job 1", "Job 2", "Job 3"] },
+ "jobs": [
+  { "id": "j1", "title": "No click", "faults": ["f2"], "mode": "coached",
+   "report": "Report: Pump 2 won't start from the panel. No click from the starter. The overload hasn't tripped.",
+   "offer": ["cont", "look", "vn", "play"], "notes": ["N1", "N2", "N5"],
+   "route": [
+    { "do": "safe" },
+    { "do": "test", "test": "cont", "a": "P0", "b": "P3", "reads": "over range", "thought": "The break is in the top half: the fuse, the panel Stop or the pump's Stop loop." },
+    { "do": "test", "test": "cont", "a": "P0", "b": "P2", "reads": "near zero", "thought": "Fuse and panel Stop are whole. It's in the pump's Stop loop." },
+    { "do": "test", "test": "cont", "a": "R1", "b": "R2", "reads": "near zero", "thought": "The Stop is fine, so a core is open." },
+    { "do": "test", "test": "cont", "a": "P2", "b": "R1", "reads": "over range", "thought": "The core out to the pump is open." },
+    { "do": "name", "fault": "f2", "kind": "Open circuit" },
+    { "do": "fix", "fault": "f2" },
+    { "do": "restore" },
+    { "do": "test", "test": "play", "check": "start" },
+    { "do": "test", "test": "play", "check": "hold" },
+    { "do": "test", "test": "play", "check": "pstop" },
+    { "do": "test", "test": "play", "check": "rstop" }
+   ],
+   "others": [
+    { "id": "live", "label": "Carry on live", "route": [
+     { "do": "test", "test": "vn", "a": "P3" },
+     { "do": "test", "test": "vn", "a": "P2" }
+    ] }
+   ] },
+  { "id": "j2", "title": "The Stop that won't stop", "faults": ["f3"], "mode": "coached",
+   "report": "Report: Pump 2's cable was damaged and joined yesterday. Now the Stop at the pump doesn't stop it. The panel Stop does.",
+   "offer": ["cont", "look", "play"], "notes": ["N3"],
+   "route": [
+    { "do": "safe" },
+    { "do": "test", "test": "look", "target": "joint", "thought": "Both cores sit in one connector. The pump's Stop is joined out." },
+    { "do": "test", "test": "cont", "a": "R1", "b": "R2", "hold": ["rstopHeld"], "reads": "near zero", "thought": "Held pressed, it still reads near zero. Something bridges it." },
+    { "do": "name", "fault": "f3", "kind": "Short circuit" },
+    { "do": "fix", "fault": "f3" },
+    { "do": "restore" },
+    { "do": "test", "test": "play", "check": "rstop" },
+    { "do": "test", "test": "play", "check": "pstop" },
+    { "do": "test", "test": "play", "check": "start" },
+    { "do": "test", "test": "play", "check": "hold" }
+   ] },
+  { "id": "j3", "title": "After a contactor change", "faults": ["f4", "f1"], "mode": "solo",
+   "report": "Report: The contactor on Pump 2 was changed yesterday. Now it buzzes when Start is pressed, and the pump won't run.",
+   "offer": ["cont", "look", "vn", "play"], "notes": ["N4"],
+   "route": [
+    { "do": "safe" },
+    { "do": "test", "test": "look", "target": "plate", "reads": "Coil 400 V AC", "thought": "The circuit feeds the coil from one line and neutral, so 230 V. This coil wants 400 V." },
+    { "do": "name", "fault": "f4", "kind": "Wrong part fitted" },
+    { "do": "fix", "fault": "f4" },
+    { "do": "restore" },
+    { "do": "test", "test": "play", "check": "start", "reads": "runs" },
+    { "do": "test", "test": "play", "check": "hold", "reads": "off", "thought": "Your fix worked, but the job isn't done." },
+    { "do": "safe" },
+    { "do": "test", "test": "look", "target": "t1314", "thought": "Terminal 14 is empty. The hold-in wire was never moved across." },
+    { "do": "name", "fault": "f1", "kind": "Open circuit" },
+    { "do": "fix", "fault": "f1" },
+    { "do": "restore" },
+    { "do": "test", "test": "play", "check": "start" },
+    { "do": "test", "test": "play", "check": "hold" },
+    { "do": "test", "test": "play", "check": "pstop" },
+    { "do": "test", "test": "play", "check": "rstop" }
+   ] }
+ ],
+ "notes": [
+  { "id": "N0", "title": "What keeps the coil fed", "trigger": [{ "on": "wrong", "screen": "s1" }, { "on": "notSure", "screen": "s1" }], "src": [42, 45, 49, 50, 52],
+   "words": "Press Start and current reaches the coil through the button. The coil pulls in the main contacts. A small hold-in contact, wired across Start, closes with them. Let go and Start springs open. Now the coil is fed through the hold-in contact instead. If that contact or its wires are open, the coil drops out the moment you let go." },
+  { "id": "N1", "title": "Split it in half", "trigger": { "on": "pieceByPiece", "count": 3, "job": "j1" }, "uses": ["halve6", "piece6"],
+   "words": "Six places could hold the break. Test across the top three. Whichever way it reads, you've cleared three. Test across half of what's left and you're down to one or two. Piece by piece can take five tests. Halving takes three at most." },
+  { "id": "N2", "title": "A healthy open contact", "trigger": { "on": "surprise", "test": "cont", "a": "P3", "b": "P4" }, "src": [42, 52],
+   "words": "Start is normally open. Dead, with nobody pressing it, it reads over range even when it's perfect. Hold it in, or use the toggle, before you call it faulty. The hold-in contact is open too while the contactor is out." },
+  { "id": "N3", "title": "Test it the way it's used", "trigger": { "on": "surprise", "job": "j2", "test": "cont", "a": "R1", "b": "R2" }, "src": [46, 262],
+   "words": "A Stop is normally closed, so it reads near zero at rest. That proves it closes, not that it opens. Hold it pressed and test again. A healthy Stop now reads over range. Near zero means something bridges it." },
+  { "id": "N4", "title": "The right voltage for the wrong coil", "trigger": [{ "on": "namedWrong", "job": "j3" }, { "on": "askRoute", "job": "j3" }], "src": [60, 61, 62, 245, 248], "uses": ["coilShare"],
+   "words": "The circuit feeds the coil from one line and neutral, so it gets 230 V. That's only healthy if the coil is rated 230 V. This one is rated 400 V, so it gets about 58% of its rating. A coil is made to pull in within a band, for example 85% to 110% of its rating. Below it, the armature can't seat fully, so it buzzes." },
+  { "id": "N5", "title": "What a dead reading means", "trigger": { "on": "surprise" }, "src": ["material:nvq-fault-finding#p4", 42, 52],
+   "words": "A whole wire or a closed contact reads near zero. A break reads over range. So does a healthy normally open contact, unless it is held in. The coil reads in between." }
+ ],
+ "screens": [
+  { "id": "s0", "kind": "look", "text": "Three jobs on one starter. Each starts with a report. You choose the tests and say what you expect. Then read the meter. Name the fault and prove it fixed. Theory turns up when a reading surprises you.", "buttons": ["Job 1", "Job 2", "Job 3"] },
+  { "id": "s1", "kind": "choose", "sure": true, "text": "Quick one first. Pump 2 runs only while someone holds Start. Let go and it stops. What do you check?",
+   "options": [
+    { "text": "The overload", "slip": "A tripped overload stops it pulling in at all. Here it pulls in." },
+    { "text": "The hold-in contact and its wire", "right": true, "why": "Yes. The coil pulls in, so its whole path works. Only the path that keeps it fed after Start springs back is in doubt." },
+    { "text": "The coil", "slip": "The coil pulls in while Start is held. It works." },
+    { "text": "The motor's insulation", "slip": "The motor runs while Start is held. The fault is in what keeps it running." }
+   ] },
+  { "id": "s2", "kind": "choose", "job": "j1", "report": true, "sure": true, "text": "What's your first move?",
+   "options": [
+    { "text": "Isolate, then test along the coil's circuit", "right": true, "why": "Yes. No click means the coil never pulled in. Find where its path is broken, dead." },
+    { "text": "Reset the overload and try again", "slip": "The flag shows no trip. There's nothing to reset." },
+    { "text": "Fit a new coil", "slip": "Nothing points at the coil yet. Swapping parts before testing is guessing." },
+    { "text": "Insulation test the motor", "slip": "No click means the contactor never closed. The motor isn't reached yet." }
+   ] },
+  { "id": "s3", "kind": "chips", "job": "j1", "text": "Tap every part that could cause this.",
+   "options": [
+    { "text": "Fuse", "right": true }, { "text": "Stop at the panel", "right": true }, { "text": "Stop at the pump and its cable", "right": true },
+    { "text": "Start", "right": true }, { "text": "Hold-in" }, { "text": "Overload contact", "right": true }, { "text": "Coil", "right": true }
+   ],
+   "after": "Anything in the coil's path could. The hold-in contact can't, because with Start held it plays no part. The overload flag makes a trip unlikely, but its contact or wires could still be open." },
+  { "id": "s4", "kind": "order", "job": "j1", "text": "Before you touch a terminal, make it dead and prove it. Put the steps in order.",
+   "after": "That's the order. A tester that fails can show dead on a live circuit, so prove it before and after." },
+  { "id": "s5", "kind": "choose", "job": "j1", "text": "How will you trace it?",
+   "options": [
+    { "text": "Isolate, and test continuity dead", "right": true, "why": "Good. A dead test will find an open circuit, so there's no reason to work live." },
+    { "text": "Leave it live and trace the voltage", "warn": true, "src": ["material:hsg85#p12", "material:hsg85#p7", "material:hsg85#p8"], "slip": "Accidents often happen in fault-finding, when there's pressure to get plant running. The law allows live work only when it's unreasonable for the circuit to be dead. Here a dead continuity test will find it, so working live can't be justified. Isolate instead?" }
+   ] },
+  { "id": "s6", "kind": "loop", "job": "j1", "text": "Pick a test and two points. Say what you expect, then read it.", "hint": "Try a test that clears half of what's left, whichever way it reads." },
+  { "id": "s7", "kind": "name", "job": "j1", "text": "Where is the break, and what is it?",
+   "options": [
+    { "text": "Open circuit", "right": true, "why": "Yes. The core out to the pump's Stop is open. The Stop itself reads near zero." },
+    { "text": "Short circuit", "slip": "Nothing here joins two wires that should be apart." },
+    { "text": "Wrong part fitted", "slip": "Every part is the one that was there before." },
+    { "text": "High resistance", "slip": "It reads over range, not a little high." }
+   ],
+   "review": { "text": "P0 to P3 over range. P0 to P2 near zero. R1 to R2 near zero. P2 to R1 over range. Where is the break?",
+    "options": [{ "text": "The core out to the pump", "right": true }, { "text": "The panel Stop" }, { "text": "The pump's Stop" }, { "text": "The core back from the pump" }] } },
+  { "id": "s8", "kind": "choose", "job": "j2", "report": true, "sure": true, "text": "What's your first move?",
+   "options": [
+    { "text": "Change the Stop button at the pump", "slip": "It worked before the repair. Start with what changed." },
+    { "text": "Trace it live while it runs", "warn": true, "src": ["material:hsg85#p7"], "slip": "A running pump with a Stop that doesn't work is a hazard. A dead test will find this. Stop it and isolate." },
+    { "text": "Stop it at the panel, isolate, then open the new joint", "right": true, "why": "Yes. Make it safe, then start with what changed." },
+    { "text": "Leave it, the panel Stop works", "warn": true, "src": ["material:nvq-fault-finding#p6"], "slip": "Someone at the pump would press Stop and nothing would happen. It stays off until it's found." }
+   ] },
+  { "id": "s9", "kind": "loop", "job": "j2", "text": "Isolate and prove dead, as before. Then look inside the joint." },
+  { "id": "s10", "kind": "pickAll", "job": "j2", "text": "Which checks prove the fix?",
+   "options": [
+    { "text": "Press the pump's Stop: it stops", "right": true }, { "text": "Insulation test the motor" },
+    { "text": "Start, then let go: it keeps running", "right": true }, { "text": "Press the panel Stop: it stops", "right": true }
+   ],
+   "after": "You worked on the control circuit, so prove everything it does: start, hold, and every Stop." },
+  { "id": "s11", "kind": "loop", "job": "j3", "report": true, "text": "You're on your own for this one." },
+  { "id": "s12", "kind": "proof", "job": "j3", "text": "Start: it pulls in and runs. Let go: it stops. Your fix worked, but the job isn't done.",
+   "review": { "text": "You fitted the right coil. Start, let go, and it stops. Where now?",
+    "options": [{ "text": "The new coil again" }, { "text": "The overload" }, { "text": "The pump's Stop" }, { "text": "The hold-in contact's wiring", "right": true }] } },
+  { "id": "s13", "kind": "written", "text": "Teach it back." },
+  { "id": "s14", "kind": "keep" }
+ ],
+ "written": {
+  "b1": {
+   "q": "A new AB on your section asks why Pump 2 buzzed, and why it still wouldn't keep running after you fixed that. Tell them in a few plain sentences.",
+   "points": [
+    { "text": "The buzz meant the coil was getting power.", "src": [248] },
+    { "text": "A 400 V coil fed 230 V can't pull in fully. It gets about 58% of its rating, below its band.", "src": [60, 245, 248] },
+    { "text": "Then the hold-in wire hadn't been moved to the new contactor, so it stopped when Start was let go.", "src": [45, 52] },
+    { "text": "After any change, prove start, hold and every Stop.", "src": [262] },
+    { "text": "Plain words a new hand would follow.", "plain": true }
+   ],
+   "need": 4,
+   "model": "It buzzed, so the coil was getting power. But the new coil was rated 400 V, and this circuit feeds it 230 V from one line and neutral. That's too little for it to pull in, so it buzzed. With a 230 V coil fitted, it ran only while Start was held. The hold-in wire had never been moved to the new contactor. Always prove start, hold and every Stop after a change."
+  }
+ },
+ "keep": {
+  "title": "The pump that won't run",
+  "for": "Finding why a DOL starter won't start, won't stop or won't hold.",
+  "rule": "Make it safe, then start with what changed.\nNo click, overload not tripped: split the coil's path in half, dead.\nTest a contact the way it's used: Start held in, Stop held pressed.\nRuns only while Start is held: the hold-in contact or its wire.\nBuzzes: read the coil's rating, then how it's fed.\nAfter any control repair, prove start, hold and every Stop.",
+  "traps": [
+   { "text": "A healthy Start reads open. A bridged Stop reads closed, just like a healthy one.", "src": [42, 46, 262] },
+   { "text": "230 V at the coil is only right for a 230 V coil.", "src": [60, 62] },
+   { "text": "One fix can hide a second fault.", "src": [262] }
+  ],
+  "where": "Any DOL starter: pumps, fans and compressors."
+ }
+}
