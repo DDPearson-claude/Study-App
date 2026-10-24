@@ -188,8 +188,11 @@ if (cmd === 'docs') {
     if (cp.length) problems.push('case.json: ' + cp.join(' | '));
     else {
       const doc = { v: 1, ...caseFile, updatedAt: now };
-      const text = JSON.stringify(doc, null, 1);
-      if (Buffer.byteLength(text, 'utf8') > 250 * 1024) problems.push('case.json over 250 KB');
+      // Indented to read, compact when that is what keeps it under the db's limit (the store keeps
+      // documents compact anyway, so the limit is on the compact size).
+      let text = JSON.stringify(doc, null, 1);
+      if (Buffer.byteLength(text, 'utf8') > 250 * 1024) text = JSON.stringify(doc);
+      if (Buffer.byteLength(text, 'utf8') > 250 * 1024) problems.push('case.json over 250 KB, even written compact');
       else {
         writeFileSync(join(out, 'case.json'), text + '\n');
         manifest.push({ collection: 'topics/' + tid + '/case', doc_id: 'file', file: join(out, 'case.json') });
