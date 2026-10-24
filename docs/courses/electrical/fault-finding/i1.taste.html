@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Fault Bench taste test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#FAFAF8;--surface:#FFFFFF;--sunk:#F2F3F4;--ink:#1D1F22;--muted:#5F6670;--teal:#0B6A70;--red:#9F3038;--green:#2E7D4F;--green-tint:#E5F1E9;--line:#E1E4E7;--line-strong:#A9AFB6;--edge:#1D1F22;--dot:#D9D9D4;
+--sans:"Barlow","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+--cond:"Barlow Semi Condensed","Roboto Condensed","Arial Narrow",sans-serif-condensed,"Barlow",system-ui,sans-serif;
+--mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141619;--surface:#1D2024;--sunk:#24282D;--ink:#ECEDEE;--muted:#A3A9B1;--teal:#6CC7BD;--red:#F2A6AC;--green:#6FCB94;--green-tint:#16291F;--line:#33373D;--line-strong:#5A6068;--edge:#D7D9DC;--dot:#2A2E33;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141619;--surface:#1D2024;--sunk:#24282D;--ink:#ECEDEE;--muted:#A3A9B1;--teal:#6CC7BD;--red:#F2A6AC;--green:#6FCB94;--green-tint:#16291F;--line:#33373D;--line-strong:#5A6068;--edge:#D7D9DC;--dot:#2A2E33;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(var(--dot) 1px,transparent 1.3px);background-size:16px 16px;color:var(--ink);font:400 16px/1.5 var(--sans)}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+p{margin:0}
+.crumb{font:500 13px/1.3 var(--mono);color:var(--muted);margin-bottom:8px}
+h1{font:700 28px/1.12 var(--sans);letter-spacing:-.01em;margin:0 0 6px}
+h2{font:700 22px/1.2 var(--sans);letter-spacing:-.01em;margin:36px 0 4px;padding-top:20px;border-top:2px solid var(--edge)}
+h3{font:700 19px/1.2 var(--sans);margin:0 0 4px}
+.dek{color:var(--muted)}
+.eyebrow{font:600 12.5px/1.4 var(--cond);letter-spacing:.09em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.screen{margin-top:24px}
+.panel{background:var(--sunk);border-radius:10px;padding:12px 14px}
+.intro{margin-bottom:12px}
+figure{margin:0;background:var(--surface);border-radius:16px;box-shadow:0 0 0 1.5px var(--line);overflow:hidden}
+figure svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto}
+.toggles{display:grid;gap:8px;margin-top:10px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:8px 12px 8px 14px;background:var(--surface);border:2px solid var(--edge);border-radius:14px;font-weight:600;line-height:1.3}
+.sw{flex:none;position:relative;width:44px;height:26px;border-radius:13px;background:var(--sunk);box-shadow:inset 0 0 0 2px var(--line-strong)}
+.sw::after{content:"";position:absolute;left:4px;top:4px;width:18px;height:18px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--line-strong)}
+.q{font-weight:600;margin:12px 0 10px}
+.report{line-height:1.45}
+.opts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.opt{display:flex;gap:12px;align-items:center;min-height:44px;padding:7px 12px;font-size:15.5px;background:var(--surface);border:1.5px solid var(--line-strong);border-radius:12px;line-height:1.35}
+.opt::before{content:"";flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--line-strong)}
+.sure{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.btn{min-height:44px;display:flex;align-items:center;justify-content:center;border:2px solid var(--edge);border-radius:14px;background:var(--surface);font-weight:700}
+.warm{margin-top:12px}
+.warm b{display:block;margin-bottom:2px}
+.job{margin-top:16px;background:var(--sunk);border-radius:14px;padding:14px}
+.route{list-style:none;margin:10px 0 0;padding:0}
+.row{display:grid;grid-template-columns:112px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--line-strong)}
+.row.full{display:block}
+.row.full .lab{margin-bottom:3px}
+.k{min-width:0}
+.lab{display:block;font:600 11.5px/1.3 var(--cond);letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:2px}
+.pts{display:block;font:700 14px/1.35 var(--mono)}
+.what{display:block;font-weight:600;line-height:1.3}
+.hold{display:block;font-size:13px;line-height:1.3;color:var(--muted);margin-top:2px}
+.rd{display:inline-block;margin-top:6px;padding:1px 7px;border:1.5px solid var(--edge);border-radius:999px;background:var(--surface);font:600 12px/1.4 var(--cond)}
+.t{font-size:15px;line-height:1.4}
+.proof{margin:0}
+.proof>div{display:grid;grid-template-columns:132px 1fr;gap:10px;padding:2px 0}
+.proof dt{font-weight:600}
+.proof dd{margin:0}
+.proof .th{font-weight:700}
+.th{display:block;margin-top:2px}
+.steps{margin:0;padding-left:1.25em}
+.steps li{padding-left:2px}
+.found{margin-top:4px;padding:12px 14px;background:var(--surface);border-radius:12px;box-shadow:0 0 0 1.5px var(--line)}
+.found .lab{margin-bottom:4px}
+.faults{list-style:none;margin:0;padding:0}
+.faults li{display:flex;flex-wrap:wrap;gap:0 10px;align-items:baseline;line-height:1.35}
+.faults li+li{margin-top:4px}
+.faults span{color:var(--muted)}
+.done{display:flex;align-items:center;gap:6px;margin-top:8px;color:var(--green);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="crumb">Fault-finding · Lesson 1 · Taste test</p>
+<h1>The pump that won't run</h1>
+<p class="dek">Finding why a DOL starter won't start, won't stop or won't hold.</p>
+</header>
+
+<section class="screen">
+<p class="eyebrow">The bench</p>
+<p class="intro">Three jobs on one starter. Each starts with a report. You choose the tests and say what you expect. Then read the meter. Name the fault and prove it fixed. Theory turns up when a reading surprises you.</p>
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" class="fb-bench" viewBox="0 0 328 584" width="328" height="584" role="img" aria-labelledby="fb-bench-title"><title id="fb-bench-title">The pump that won't run: the starter's control circuit, top to bottom. Test points P0 to P5, R1, R2 and N.</title><style>
+.fb-bench{--c-ink:var(--ink,#1D1F22);--c-surface:var(--surface,#FFFFFF);--c-sunk:var(--sunk,#F2F3F4);--c-teal:var(--teal,#0B6A70);--c-muted:var(--muted,#5F6670);--c-faint:var(--line-strong,#A9AFB6);--c-cond:var(--cond,"Barlow Semi Condensed","Roboto Condensed","Arial Narrow",sans-serif-condensed,"Barlow",system-ui,sans-serif);--c-mono:var(--mono,"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace)}
+.fb-bench .w{fill:none;stroke:var(--c-ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fb-bench .act{stroke-width:1.5;stroke-dasharray:3 3;stroke-linecap:butt}
+.fb-bench .sym{fill:var(--c-surface);stroke:var(--c-ink);stroke-width:2}
+.fb-bench .jt{fill:var(--c-surface);stroke:var(--c-ink);stroke-width:1.5}
+.fb-bench .jc{fill:var(--c-sunk);stroke:var(--c-ink);stroke-width:1.5}
+.fb-bench .dot{fill:var(--c-ink)}
+.fb-bench .term{fill:var(--c-surface);stroke:var(--c-ink);stroke-width:2}
+.fb-bench .zone{fill:none;stroke:var(--c-faint);stroke-width:1.5;stroke-dasharray:5 4}
+.fb-bench .cl{fill:var(--c-teal);font:600 12.5px var(--c-cond)}
+.fb-bench .zl{fill:var(--c-teal);font:600 11px var(--c-cond);letter-spacing:.08em}
+.fb-bench .tn{fill:var(--c-teal);font:500 10.5px var(--c-mono)}
+.fb-bench .pill{fill:var(--c-surface);stroke:var(--c-ink);stroke-width:1.5}
+.fb-bench .pl{fill:var(--c-ink);font:700 12px var(--c-mono)}
+.fb-bench .node{fill:var(--c-surface);stroke:var(--c-ink);stroke-width:2}
+.fb-bench .tick{fill:none;stroke:var(--c-ink);stroke-width:1.5}
+.fb-bench .hit{fill:transparent}
+.fb-bench .faint .w{stroke:var(--c-faint);stroke-width:1.5}
+.fb-bench .faint .mc{fill:none;stroke:var(--c-faint);stroke-width:1.5}
+.fb-bench .faint .fl{fill:var(--c-muted);font:500 11.5px var(--c-cond)}
+.fb-bench .faint .fm{fill:var(--c-muted);font:600 15px var(--c-cond)}
+@media (prefers-color-scheme:dark){:root.fb-bench{--ink:#ECEDEE;--surface:#1D2024;--sunk:#24282D;--teal:#6CC7BD;--muted:#A3A9B1;--line-strong:#5A6068}}
+</style>
+<g class="zone-pump" data-zone="pump"><rect class="zone" x="184" y="178" width="140" height="154" rx="12"/><text class="zl" x="194" y="194">AT THE PUMP</text></g>
+<g class="look" data-look="joint"><rect class="jt" x="130" y="204" width="36" height="116" rx="8"/><text class="cl" x="148" y="266.5" text-anchor="middle">Joint</text></g>
+<g class="part" data-part="feed"><path class="w" d="M56 26V60"/><circle class="term" cx="56" cy="22" r="4"/><text class="cl" x="44" y="26.5" text-anchor="end">L</text><text class="cl" x="70" y="26.5">Control supply, 230 V</text></g>
+<g class="part" data-part="fuse"><path class="w" d="M56 60V86"/><path class="w" d="M56 114V140"/><rect class="sym" x="49" y="86" width="14" height="28" rx="2"/><path class="w thin" d="M56 86V114"/><text class="cl" x="76" y="104.5">Control fuse</text></g>
+<g class="part" data-part="pstop"><path class="w" d="M56 140V166"/><path class="w" d="M56 194V220"/><path class="w" d="M56 166H69"/><path class="w" d="M56 194L70 162"/><path class="w act" d="M63 178H82"/><path class="w" d="M86 171H82V185H86"/><text class="cl" x="94" y="184.5">Stop at the panel</text></g>
+<g class="part" data-part="coreA1"><path class="w" d="M56 220H148"/></g><g class="part" data-part="coreA2"><path class="w" d="M148 220H268"/></g>
+<text class="cl" x="74" y="212">Core out</text>
+<g class="part" data-part="rstop"><path class="w" d="M268 220V248"/><path class="w" d="M268 276V304"/><path class="w" d="M268 248H281"/><path class="w" d="M268 276L282 244"/><path class="w act" d="M275 260H294"/><path class="w" d="M298 253H294V267H298"/><text class="cl" x="256" y="258" text-anchor="end">The pump's</text><text class="cl" x="256" y="275" text-anchor="end">Stop</text></g>
+<g class="part" data-part="coreB2"><path class="w" d="M268 304H148"/></g><g class="part" data-part="coreB1"><path class="w" d="M148 304H56"/></g>
+<text class="cl" x="74" y="320">Core back</text>
+<g data-look="joint"><rect class="jc" data-node="Ja" x="142" y="214" width="12" height="12" rx="2"/><rect class="jc" data-node="Jb" x="142" y="298" width="12" height="12" rx="2"/></g>
+<path class="w" d="M56 304V332"/><path class="w" d="M56 408V428"/>
+<g class="part" data-part="start"><path class="w" d="M56 332V356"/><path class="w" d="M56 384V408"/><path class="w" d="M56 384L68 358"/><path class="w act" d="M62 371H82"/><path class="w" d="M86 364H82V378H86"/><text class="cl" x="94" y="374.5">Start</text></g>
+<g class="part" data-part="holdin"><g data-look="t1314"><path class="w" d="M56 332H150V356"/><path class="w" d="M150 384V408H56"/><path class="w" d="M150 384L162 358"/><text class="tn" x="142" y="352" text-anchor="end">13</text><text class="tn" x="142" y="396" text-anchor="end">14</text><text class="cl" x="172" y="374.5">Hold-in contact</text></g></g>
+<circle class="dot" cx="56" cy="332" r="3.2"/><circle class="dot" cx="56" cy="408" r="3.2"/>
+<g class="part" data-part="ol"><g data-look="flag"><path class="w" d="M56 428V444"/><path class="w" d="M56 472V488"/><path class="w" d="M56 444H69"/><path class="w" d="M56 472L70 440"/><text class="cl" x="80" y="462.5">Overload contact</text></g></g>
+<g class="part" data-part="coil"><g data-look="plate"><path class="w" d="M56 488V510"/><path class="w" d="M56 530V560"/><rect class="sym" x="40" y="510" width="32" height="20" rx="2"/><text class="cl" x="82" y="524.5">Contactor coil</text></g></g>
+<g class="faint" data-layer="power" aria-hidden="true"><text class="fl" x="228" y="446">Main contacts</text><path class="w" d="M244 452V464"/><path class="w" d="M244 492L254 466"/><path class="w" d="M244 492V531.3"/><path class="w" d="M262 452V464"/><path class="w" d="M262 492L272 466"/><path class="w" d="M262 492V520.0"/><path class="w" d="M280 452V464"/><path class="w" d="M280 492L290 466"/><path class="w" d="M280 492V531.3"/><path class="w act" d="M249 479H285"/><circle class="mc" cx="262" cy="540" r="20"/><text class="fm" x="262" y="545.5" text-anchor="middle">M</text><text class="fl" x="288" y="544.5">Motor</text></g>
+<g class="tp" id="fb-tp-P0" data-point="P0"><rect class="hit" x="2" y="38" width="70" height="44" rx="10"/><path class="tick" d="M51 60H42"/><rect class="pill" x="6" y="48" width="36" height="24" rx="12"/><text class="pl" x="24" y="64.5" text-anchor="middle">P0</text><circle class="node" cx="56" cy="60" r="5"/></g>
+<g class="tp" id="fb-tp-P1" data-point="P1"><rect class="hit" x="2" y="118" width="70" height="44" rx="10"/><path class="tick" d="M51 140H42"/><rect class="pill" x="6" y="128" width="36" height="24" rx="12"/><text class="pl" x="24" y="144.5" text-anchor="middle">P1</text><circle class="node" cx="56" cy="140" r="5"/></g>
+<g class="tp" id="fb-tp-P2" data-point="P2"><rect class="hit" x="2" y="198" width="70" height="44" rx="10"/><path class="tick" d="M51 220H42"/><rect class="pill" x="6" y="208" width="36" height="24" rx="12"/><text class="pl" x="24" y="224.5" text-anchor="middle">P2</text><circle class="node" cx="56" cy="220" r="5"/></g>
+<g class="tp" id="fb-tp-P3" data-point="P3"><rect class="hit" x="2" y="282" width="70" height="44" rx="10"/><path class="tick" d="M51 304H42"/><rect class="pill" x="6" y="292" width="36" height="24" rx="12"/><text class="pl" x="24" y="308.5" text-anchor="middle">P3</text><circle class="node" cx="56" cy="304" r="5"/></g>
+<g class="tp" id="fb-tp-P4" data-point="P4"><rect class="hit" x="2" y="406" width="70" height="44" rx="10"/><path class="tick" d="M51 428H42"/><rect class="pill" x="6" y="416" width="36" height="24" rx="12"/><text class="pl" x="24" y="432.5" text-anchor="middle">P4</text><circle class="node" cx="56" cy="428" r="5"/></g>
+<g class="tp" id="fb-tp-P5" data-point="P5"><rect class="hit" x="2" y="466" width="70" height="44" rx="10"/><path class="tick" d="M51 488H42"/><rect class="pill" x="6" y="476" width="36" height="24" rx="12"/><text class="pl" x="24" y="492.5" text-anchor="middle">P5</text><circle class="node" cx="56" cy="488" r="5"/></g>
+<g class="tp" id="fb-tp-N" data-point="N"><rect class="hit" x="2" y="538" width="70" height="44" rx="10"/><path class="tick" d="M51 560H42"/><rect class="pill" x="6" y="548" width="36" height="24" rx="12"/><text class="pl" x="24" y="564.5" text-anchor="middle">N</text><circle class="node" cx="56" cy="560" r="5"/></g>
+<g class="tp" id="fb-tp-R1" data-point="R1"><rect class="hit" x="252" y="198" width="70" height="44" rx="10"/><path class="tick" d="M273 220H282"/><rect class="pill" x="282" y="208" width="36" height="24" rx="12"/><text class="pl" x="300" y="224.5" text-anchor="middle">R1</text><circle class="node" cx="268" cy="220" r="5"/></g>
+<g class="tp" id="fb-tp-R2" data-point="R2"><rect class="hit" x="252" y="282" width="70" height="44" rx="10"/><path class="tick" d="M273 304H282"/><rect class="pill" x="282" y="292" width="36" height="24" rx="12"/><text class="pl" x="300" y="308.5" text-anchor="middle">R2</text><circle class="node" cx="268" cy="304" r="5"/></g>
+</svg>
+</figure>
+<div class="toggles"><div class="toggle"><span>Hold Start in</span><span class="sw" aria-hidden="true"></span></div><div class="toggle"><span>Hold the pump's Stop pressed</span><span class="sw" aria-hidden="true"></span></div></div>
+</section>
+
+<section class="screen">
+<p class="eyebrow">Warm-up</p>
+<p class="q">Quick one first. Pump 2 runs only while someone holds Start. Let go and it stops. What do you check?</p>
+<ul class="opts"><li class="opt">The overload</li><li class="opt">The hold-in contact and its wire</li><li class="opt">The coil</li><li class="opt">The motor's insulation</li></ul><div class="sure"><span class="btn">Sure</span><span class="btn">Not sure</span></div>
+</section>
+
+<section class="screen"><p class="eyebrow">Job 1 · No click</p><p class="panel report"><b>Report:</b> Pump 2 won't start from the panel. No click from the starter. The overload hasn't tripped.</p><p class="q">What's your first move?</p><ul class="opts"><li class="opt">Isolate, then test along the coil's circuit</li><li class="opt">Reset the overload and try again</li><li class="opt">Fit a new coil</li><li class="opt">Insulation test the motor</li></ul><div class="sure"><span class="btn">Sure</span><span class="btn">Not sure</span></div></section>
+<section class="screen"><p class="eyebrow">Job 2 · The Stop that won't stop</p><p class="panel report"><b>Report:</b> Pump 2's cable was damaged and joined yesterday. Now the Stop at the pump doesn't stop it. The panel Stop does.</p><p class="q">What's your first move?</p><ul class="opts"><li class="opt">Change the Stop button at the pump</li><li class="opt">Trace it live while it runs</li><li class="opt">Stop it at the panel, isolate, then open the new joint</li><li class="opt">Leave it, the panel Stop works</li></ul><div class="sure"><span class="btn">Sure</span><span class="btn">Not sure</span></div></section>
+<section class="screen"><p class="eyebrow">Job 3 · After a contactor change</p><p class="panel report"><b>Report:</b> The contactor on Pump 2 was changed yesterday. Now it buzzes when Start is pressed, and the pump won't run.</p><p class="q">You're on your own for this one.</p></section>
+
+<h2>Watch it found</h2>
+<div class="job warm"><p class="eyebrow">Warm-up</p><b>The hold-in contact and its wire</b><p>The coil pulls in, so its whole path works. Only the path that keeps it fed after Start springs back is in doubt.</p></div>
+<article class="job"><p class="eyebrow">Job 1 · Coached</p><h3>No click</h3><ol class="route"><li class="row full"><span class="lab">Make it safe</span><div class="t"><ol class="steps"><li>Identify the right circuit</li><li>Isolate it from every supply</li><li>Lock off and post a notice</li><li>Prove the tester on a known supply</li><li>Test dead where you'll work</li><li>Prove the tester again</li></ol></div></li><li class="row"><div class="k"><span class="lab">Continuity</span><span class="pts">P0 to P3</span><span class="rd">Over range: open</span></div><div class="t">The break is in the top half: the fuse, the panel Stop or the pump's Stop loop.</div></li><li class="row"><div class="k"><span class="pts">P0 to P2</span><span class="rd">Near zero: a path</span></div><div class="t">Fuse and panel Stop are whole. It's in the pump's Stop loop.</div></li><li class="row"><div class="k"><span class="pts">R1 to R2</span><span class="rd">Near zero: a path</span></div><div class="t">The pump's Stop closes, so a core is open.</div></li><li class="row"><div class="k"><span class="pts">P2 to R1</span><span class="rd">Over range: open</span></div><div class="t">The core out to the pump is open.</div></li><li class="row full"><span class="lab">Fix it, then restore</span><div class="t">Check nothing will start by surprise. Locks removed, people told, supply back on.</div></li><li class="row full"><span class="lab">Operate it</span><div class="t"><dl class="proof"><div><dt>Press Start</dt><dd>It pulls in and runs.</dd></div><div><dt>Start, then let go</dt><dd>It keeps running.</dd></div><div><dt>Press the panel Stop</dt><dd>It stops.</dd></div><div><dt>Press the pump's Stop</dt><dd>It stops.</dd></div></dl></div></li></ol><div class="found"><p class="lab">The hidden fault</p><ol class="faults"><li><b>The core out to the pump</b><span>Open circuit</span></li></ol><p class="done"><svg class="ok" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Proven fixed</p></div></article>
+<article class="job"><p class="eyebrow">Job 2 · Coached</p><h3>The Stop that won't stop</h3><ol class="route"><li class="row full"><span class="lab">Make it safe</span><div class="t">Isolate and prove dead, as before.</div></li><li class="row"><div class="k"><span class="lab">Look</span><span class="what">The joint, opened</span></div><div class="t">Both cores sit in one connector. The pump's Stop is joined out.</div></li><li class="row"><div class="k"><span class="lab">Continuity</span><span class="pts">R1 to R2</span><span class="hold">Hold the pump's Stop pressed</span><span class="rd">Near zero: a path</span></div><div class="t">Held pressed, it still reads near zero. Something bridges it.</div></li><li class="row full"><span class="lab">Fix it, then restore</span><div class="t">Check nothing will start by surprise. Locks removed, people told, supply back on.</div></li><li class="row full"><span class="lab">Operate it</span><div class="t"><dl class="proof"><div><dt>Press the pump's Stop</dt><dd>It stops.</dd></div><div><dt>Press the panel Stop</dt><dd>It stops.</dd></div><div><dt>Press Start</dt><dd>It pulls in and runs.</dd></div><div><dt>Start, then let go</dt><dd>It keeps running.</dd></div></dl></div></li></ol><div class="found"><p class="lab">The hidden fault</p><ol class="faults"><li><b>The joint</b><span>Short circuit</span></li></ol><p class="done"><svg class="ok" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Proven fixed</p></div></article>
+<article class="job"><p class="eyebrow">Job 3 · On your own</p><h3>After a contactor change</h3><ol class="route"><li class="row full"><span class="lab">Make it safe</span><div class="t">Isolate and prove dead, as before.</div></li><li class="row"><div class="k"><span class="lab">Look</span><span class="what">The coil's rating plate</span><span class="rd">Coil 400 V AC</span></div><div class="t">The circuit feeds the coil from one line and neutral, so 230 V. This coil wants 400 V. Wrong part fitted.</div></li><li class="row full"><span class="lab">Fix it, then restore</span><div class="t">Check nothing will start by surprise. Locks removed, people told, supply back on.</div></li><li class="row full"><span class="lab">Operate it</span><div class="t"><dl class="proof"><div><dt>Press Start</dt><dd>It pulls in and runs.</dd></div><div><dt>Start, then let go</dt><dd>It stops.<span class="th">Your fix worked, but the job isn't done.</span></dd></div></dl></div></li><li class="row full"><span class="lab">Make it safe</span><div class="t">Isolate and prove dead, as before.</div></li><li class="row"><div class="k"><span class="lab">Look</span><span class="what">Terminals 13 and 14</span></div><div class="t">Terminal 14 is empty. The hold-in wire was never moved across.</div></li><li class="row full"><span class="lab">Fix it, then restore</span><div class="t">Check nothing will start by surprise. Locks removed, people told, supply back on.</div></li><li class="row full"><span class="lab">Operate it</span><div class="t"><dl class="proof"><div><dt>Press Start</dt><dd>It pulls in and runs.</dd></div><div><dt>Start, then let go</dt><dd>It keeps running.</dd></div><div><dt>Press the panel Stop</dt><dd>It stops.</dd></div><div><dt>Press the pump's Stop</dt><dd>It stops.</dd></div></dl></div></li></ol><div class="found"><p class="lab">The hidden faults</p><ol class="faults"><li><b>The coil</b><span>Wrong part fitted</span></li><li><b>The hold-in contact's wire</b><span>Open circuit</span></li></ol><p class="done"><svg class="ok" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Proven fixed</p></div></article>
+</main>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "title": "Fault-finding: from symptom to cause",
+  "hook": "After a cable repair, a pump's Stop button no longer stops it, yet a meter across that Stop reads a perfect path. How can a healthy reading hide a dangerous fault?",
+  "oneBreath": "Finding a fault is a chain of guesses you can prove: start from the report and what changed, make it safe, and choose each test so that, whichever way it reads, it rules out about half of what is left. Say what you expect before you read the meter, and test each part the way it is used, because a reading taken at rest can look healthy when it is not. The same method works on a starter's control circuit, a motor's power circuit and an insulated ship's board, and a job is done only when a proof shows everything works, because one fix can hide a second fault.",
+  "ideas": [
+    { "id": "i1", "title": "The pump that won't run", "oneLine": "On a starter's control circuit, tests that each rule out about half of what could be wrong find the break in a few readings.", "deps": [], "kind": "skill" },
+    { "id": "i2", "title": "The motor that hums, trips or runs hot", "oneLine": "How a motor fails, humming, tripping at once or tripping later, usually points to what to test first: a contact, insulation or load.", "deps": ["i1"], "kind": "skill" },
+    { "id": "i3", "title": "The earth fault that doesn't trip", "oneLine": "On an insulated ship's supply, a first earth fault only raises an alarm, so it can be traced while essential services keep running.", "deps": ["i1"], "kind": "mechanism" },
+    { "id": "i4", "title": "A watch's defects", "oneLine": "When several defects arrive in one watch, the most dangerous is made safe first, and the next watch gets a short, clear brief.", "deps": ["i1", "i2", "i3"], "kind": "skill" }
+  ],
+  "calibration": [
+    { "id": "c1", "iid": "i1", "q": "A starter's Start button is perfect. With the power off and nobody pressing it, you put a meter across it. What does it read?", "options": ["Near zero: a path", "Over range: no path", "Somewhere in between, like a coil"], "answer": 1, "why": "Start is normally open. It only closes while pressed, so a perfect one reads over range at rest. Near zero would mean something bridges it. Hold it in before you call it faulty." },
+    { "id": "c2", "iid": "i3", "q": "On a ship's board with no line tied to earth, three lamps each join one line to earth. One lamp goes dark and the other two glow brighter. What does that tell you?", "options": ["That lamp has failed", "That line is overloaded", "That line is touching earth", "The board's voltage has dropped"], "answer": 2, "why": "A line touching earth leaves little voltage across its own lamp, so it dims. The other two now sit nearer the full line-to-line voltage and brighten. A failed lamp would leave the other two dimmer, not brighter." }
+  ]
+}
