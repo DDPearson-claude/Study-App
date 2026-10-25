@@ -1,0 +1,1388 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  sup { font-size: .74em; line-height: 0; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */
+  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+  .scene .sup { font-size: 13px; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax, .scene .xt { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 700 24px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.main { fill: var(--k-accent2); }
+  .scene .lab.teal { fill: var(--k-accent); }
+  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.eq { font: 500 16px var(--k-font); }
+  .scene .nt { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .key.ink { fill: var(--k-ink); }
+  /* Position against time, its envelope, the rest line, the level guide and the newest point. */
+  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .trace.bad { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .env { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 4; }
+  .scene .rest { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 5; }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 1.5 4; stroke-linecap: round; }
+  .scene .mkr { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 2 4; }
+  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }
+  .scene .brk.bad { stroke: var(--k-warn); }
+  /* Swing against push rate: the hills, the dots, the natural frequency and the guides. */
+  .scene .hill { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .hill.ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }
+  .scene .hill.teal { stroke: var(--k-accent); }
+  .scene .hill.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .nat { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 3 4; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 2 3; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .cur { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  /* The force arrows, end to end, and the push they add up to. */
+  .scene .fa { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .fa.f1 { stroke: var(--k-cat1); }
+  .scene .fa.f2 { stroke: var(--k-cat2); }
+  .scene .fa.f3 { stroke: var(--k-cat3); }
+  .scene .fa.push { stroke: var(--k-ink); stroke-width: 2.4; stroke-dasharray: 5 4; }
+  .scene .fa.bad { stroke: var(--k-warn); }
+  .scene .jn { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 1.5 3; }
+  .scene .org { fill: var(--k-ink); }
+  /* The spring, the damper, the mass and its push. */
+  .scene .hl { stroke: var(--k-ink); stroke-opacity: .5; stroke-width: 1.4; }
+  .scene .ceil { fill: url(#hatch); }
+  .scene .wall { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .spr { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .dmp { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .rod { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .pis { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .mass { fill: var(--k-accent2); }
+  .scene text.mtxt { font: italic 700 13px var(--k-font); fill: var(--k-on-accent2); stroke: none; }
+  .scene .parr { fill: none; stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  /* The loop, the bars, the ship. */
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .src { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .bar0 { fill: var(--k-fill1); }
+  .scene .bar1 { fill: var(--k-accent2); }
+  .scene .bar1.bad { fill: var(--k-warn); }
+  .scene .barq { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }
+  .scene .hull { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .scene .keel { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .water { fill: none; stroke: var(--k-accent); stroke-width: 1.8; }
+  .scene #art *, .scene #top * { pointer-events: none; }
+  /* The readouts: they wrap one to a row when the text is large. */
+  .reads { display: flex; flex-wrap: wrap; gap: 8px; }
+  .reads .rd { flex: 1 1 auto; min-width: 8rem; background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 10px; }
+  .reads .rd .k-label { display: block; text-transform: none; letter-spacing: 0; }
+  .reads .rd b { display: block; font-size: 1.15rem; white-space: nowrap; margin-top: 2px; }
+  .reads .rd small { display: block; color: var(--k-muted); font-size: .85rem; margin-top: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead" id="lead">A 1&nbsp;kg mass hangs on a 4&nbsp;N/m spring, with a 0.5&nbsp;N·s/m damper. A 1&nbsp;N push swings it. Every value is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><line class="hl" x1="3" y1="0" x2="3" y2="6"></line></pattern></defs><g id="art"></g><g id="top"></g></svg>
+    <div class="k-controls" id="wbox"></div>
+    <div class="k-controls" id="cbox"></div>
+    <div class="k-controls" id="vbox"></div>
+    <div class="reads" id="reads">
+      <div class="rd" id="rd1"><span class="k-label" id="l1"></span><b id="v1"></b><small id="s1"></small></div>
+      <div class="rd" id="rd2"><span class="k-label" id="l2"></span><b id="v2"></b><small id="s2"></small></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every trace, dot, arrow and bar is worked out from the rule on its screen.</p>
+
+<script>
+  // ---------- the rule ----------
+  // A mass on a spring with a damper, pushed: m x″ + c x′ + k x = F cos ωt. From rest, the answer is
+  // the steady swing X cos(ωt − φ), with X = F ÷ √((k − mω²)² + (cω)²), plus the free ringing (the
+  // transient) that the start needs. The loop: L q″ + R q′ + q ÷ C = V cos ωt, the same rule.
+  const M = 1, KS = 4, F0 = 1, C0 = 0.5, CMAX = 6, W0 = 1, WMIN = 0.25, WMAX = 4, T1 = 30, YL = 1.2;
+  const WN = Math.sqrt(KS / M), TAU = 2 * M / C0, CC = 2 * Math.sqrt(M * KS), CH = Math.sqrt(2 * M * KS);
+  const C6 = 6, W2 = 2, W4 = 4;
+  const LH = 1, RL = 0.5, CL = 1 / KS, VS = 1;                       // the loop: coil, resistor, capacitor, supply
+  const EV = 10, EW = 1000, EL = 100 / 1000, EC = 10 / 1e6, ER = 40;   // the worked example's loop
+  const KEEL = 1;                                                     // the ship sketch: damping with keels, twice the bare 0.5
+  const PUSHPX = 30;                                                  // the push arrow on the mass: 30 units a newton
+  const ALLW = K.linspace(WMIN, WMAX, 16).map((v) => Math.round(v * 4) / 4);
+  const SLIDEC = K.linspace(C0, CMAX, 12).map((v) => Math.round(v * 2) / 2);
+  const SRC_USNA = 'https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf';
+  const SRC_OS = 'https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit';
+
+  const amp = (w, c) => F0 / Math.hypot(KS - M * w * w, (c == null ? C0 : c) * w);
+  const lag = (w, c) => Math.atan2((c == null ? C0 : c) * w, KS - M * w * w);
+  // The top of the hill: it exists only while c² is below 2mk.
+  function peak(c) {
+    const d = KS / M - c * c / (2 * M * M);
+    if (d <= 1e-12) return null;
+    const w = Math.sqrt(d);
+    return { w, X: amp(w, c) };
+  }
+  // The free motion from x0, v0 (no push): two real roots, one twice, or a ringing pair.
+  function free(c, x0, v0) {
+    const d = c * c - 4 * M * KS, E = Math.exp;
+    if (d < -1e-12) {
+      const a = -c / (2 * M), b = Math.sqrt(-d) / (2 * M), A = x0, B = (v0 - a * x0) / b, R = Math.hypot(A, B);
+      return { a, b, x: (t) => E(a * t) * (A * Math.cos(b * t) + B * Math.sin(b * t)),
+        v: (t) => E(a * t) * ((a * A + b * B) * Math.cos(b * t) + (a * B - b * A) * Math.sin(b * t)), env: (t) => R * E(a * t) };
+    }
+    if (d <= 1e-12) {
+      const r = -c / (2 * M), B = v0 - r * x0;
+      return { a: r, b: 0, x: (t) => (x0 + B * t) * E(r * t), v: (t) => (B + r * (x0 + B * t)) * E(r * t), env: (t) => (Math.abs(x0) + Math.abs(B) * t) * E(r * t) };
+    }
+    const s = Math.sqrt(d), r1 = (-c + s) / (2 * M), r2 = (-c - s) / (2 * M), A = (v0 - r2 * x0) / (r1 - r2), B = x0 - A;
+    return { a: r1, b: 0, x: (t) => A * E(r1 * t) + B * E(r2 * t), v: (t) => r1 * A * E(r1 * t) + r2 * B * E(r2 * t), env: (t) => Math.abs(A) * E(r1 * t) + Math.abs(B) * E(r2 * t) };
+  }
+  // Pushed at ω from x0, v0: the steady swing plus the transient. Its envelope is X plus the transient's.
+  const SOL = {};
+  function forced(w, c, x0, v0) {
+    c = c == null ? C0 : c; x0 = x0 || 0; v0 = v0 || 0;
+    const key = w + '|' + c + '|' + x0 + '|' + v0;
+    if (SOL[key]) return SOL[key];
+    const X = amp(w, c), ph = lag(w, c);
+    const xp = (t) => X * Math.cos(w * t - ph), vp = (t) => -X * w * Math.sin(w * t - ph);
+    const h = free(c, x0 - xp(0), v0 - vp(0));
+    return (SOL[key] = { w, c, X, ph, xp, h, x: (t) => xp(t) + h.x(t), v: (t) => vp(t) + h.v(t), env: (t) => X + h.env(t) });
+  }
+  const pushAt = (w, t) => F0 * Math.cos(w * t);
+  // The last peak of the steady swing inside the trace's 30 s.
+  function lastPeak(s) { const n = Math.floor((s.w * T1 - s.ph) / (2 * Math.PI)); return (s.ph + 2 * Math.PI * n) / s.w; }
+  const peakT = (s, n) => (s.ph + 2 * Math.PI * n) / s.w;
+  // The worked example's loop: current and capacitor voltage at its supply's rate.
+  const exXL = EW * EL, exXC = 1 / (EW * EC), exI = (R) => EV / Math.hypot(R, exXL - exXC), exVC = (R) => exI(R) * exXC;
+
+  let P = { w: W0, c: C0, view: 'spring' };
+
+  // ---------- numbers, written the lesson's way ----------
+  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s);
+  function fmtD(v, dp) {
+    const m = Math.pow(10, dp), r = Math.round(v * m) / m;
+    if (r === 0) return '0';
+    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));
+  }
+  const f1 = (v) => fmtD(v, 1), f2 = (v) => fmtD(v, 2), f3 = (v) => fmtD(v, 3), f4 = (v) => fmtD(v, 4);
+  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\*/g, '');
+  // As a screen reader says it.
+  const say = (s) => plain(s).replace(/e\^\(([^)]*)\)/g, 'e to the power $1').replace(/N·s\/m/g, ' newton seconds per metre').replace(/N\/m/g, ' newtons per metre')
+    .replace(/rad\/s/g, ' radians a second').replace(/µF/g, ' microfarads').replace(/mH/g, ' millihenries').replace(/Ω/g, ' ohms').replace(/ω/g, ' omega ')
+    .replace(/″/g, ' double prime').replace(/′/g, ' prime').replace(/²/g, ' squared').replace(/√/g, ' root ').replace(/÷/g, ' divided by ').replace(/×/g, ' times ')
+    .replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/·/g, ', ').replace(/\s+/g, ' ').trim();
+
+  // ---------- words with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  function put(parent, s, svg) {
+    if (!s) return;
+    if (svg && parent.__lift) { const b = K.svg('tspan', { dy: 6 }); b.textContent = s; parent.appendChild(b); parent.__lift = false; return; }
+    parent.appendChild(document.createTextNode(s));
+  }
+  function itNode(parent, s, svg) {
+    const sp = svg ? K.svg('tspan', { class: 'v', 'font-style': 'italic' }) : K.el('span', { class: 'v' });
+    if (svg && parent.__lift) { sp.setAttribute('dy', 6); parent.__lift = false; }
+    sp.textContent = s;
+    parent.appendChild(sp);
+  }
+  // Inside maths every letter is italic, except the words cos and sin and the letters e and d.
+  function ital(parent, s, svg) {
+    const re = /cos|sin|[A-Za-zωφ]/g;
+    let at = 0, m;
+    s = String(s);
+    while ((m = re.exec(s))) {
+      if (m[0].length > 1 || m[0] === 'e' || m[0] === 'd') continue;
+      put(parent, s.slice(at, m.index), svg);
+      itNode(parent, m[0], svg);
+      at = m.index + 1;
+    }
+    put(parent, s.slice(at), svg);
+  }
+  // Maths: italic letters, and e^(…) written as a raised power.
+  function maths(parent, s, svg) {
+    String(s).split(/\^\(([^)]*)\)/).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2 === 0) { ital(parent, p, svg); return; }
+      const sp = svg ? K.svg('tspan', { class: 'sup', dy: parent.__lift ? 0 : -6 }) : K.el('sup');
+      if (svg) parent.__lift = false;
+      ital(sp, p, svg);
+      parent.appendChild(sp);
+      if (svg) parent.__lift = true;
+    });
+  }
+  // No line break inside a quantity: a number keeps its unit, and ÷, × or ± keeps both its sides.
+  const UNITS = new RegExp('(\\d) (?=(?:N·s/m|N/m|rad/s|kg|Hz|mH|µF|ms|Ω|H|F|V|A|C|N|m|s)(?![A-Za-z]))', 'g');
+  const nb = (s) => String(s == null ? '' : s).replace(UNITS, '$1 ').replace(/(\S) ([÷×±]) (?=\S)/g, '$1 $2 ');
+  function write(el, s) {
+    el.textContent = '';
+    s = nb(s);
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  function svgWords(t, s) {
+    t.__lift = false;
+    String(nb(s)).split('`').forEach((seg, k) => { if (seg) { if (k % 2) maths(t, seg, true); else put(t, seg, true); } });
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // scene: 'tr' (the mass beside its trace), 'trg' (the trace above the swing-against-rate graph),
+  // 'ph' (the forces as arrows end to end), 'hill' (the whole hill), 'loop9' (spring or loop over
+  // the hill), 'rlc' (a loop and its voltages), 'alg' (lines of working), 'ship' (a rolling ship's
+  // hills). draw(st) paints the step in that state; a SHOW step's timetable is in its draw, in
+  // seconds from when the screen opens.
+  const PICK = 'Tap one of the answers.';
+  const FB = 2.0;      // how long the motion after an answer plays
+  const SOFT = 0.6;
+  const RUN = 2.6;     // a push-rate move on the main screen: the trace runs, then its dot drops
+  const EDROP = 3.8, QDROP = 2.0;
+  const LEAD_0 = 'A 1 kg mass hangs on a 4 N/m spring, with a 0.5 N·s/m damper. A 1 N push swings it. Every value is an example.';
+  const LEAD_6 = 'The same 1 kg mass and 4 N/m spring, now with a 6 N·s/m damper.';
+  const LEAD_C = 'A 10 V supply at 1000 rad/s feeds a 100 mH coil, a 10 µF capacitor and a 40 Ω resistor in series. Every value is an example.';
+  const LEAD_U = 'A capacitor discharges through a resistor from 12 V.';
+  const LEAD_R = 'A ship rolling in waves, drawn with the same rule. A sketch, not a real ship\'s numbers.';
+  const O1 = ['About 2 rad/s', '1 rad/s', '1.5 rad/s'];
+  const O3 = ['0.25 m', '1 m', 'It grows without limit'];
+  const O5 = ['About 2 m', '1 m', 'About 0.08 m'];
+  const O7 = ['At 2 rad/s, its natural frequency', 'At the slowest push, about 0.24 m', 'At 4 rad/s'];
+  const O9 = ['10 V', '4 V', '25 V'];
+  const O10 = ['The start: it does not give 12 V at `t` = 0', 'The units: `RC × t` is in s², and a power must have no units', 'None: it passes both'];
+  const O11 = ['No resonance at all', 'A smaller peak, though resonance can still occur', 'The same peak, with only the start-up wobble dying sooner'];
+  const swingTile = () => [{ l: 'Steady swing `X`', v: f3(amp(P.w)) + ' m' }];
+  const STEPS = [
+    { show: true, name: 'The push', scene: 'tr', dur: 4.6, rule: true, lead: LEAD_0, key: ['trace', 'env', 'push', 'rest'], letters: true,
+      tag: () => 'push rate `ω` = ' + f2(W0) + ' rad/s',
+      text: 'Now a 1 N push swings back and forth, `F cos ωt`. Here `ω` is how fast the push swings, in rad/s. The rule becomes `m x″ + c x′ + k x = F cos ωt`, and every term is a force in newtons. The mass starts at rest, pushed at 1 rad/s. The trace starts lumpy, because the spring\'s own ringing mixes in. That ringing is the *transient*. It dies inside the envelope, with a 4 s time constant. By about 20 s an even swing is left.',
+      draw() {
+        const s = forced(W0), tm = T1 * prog(0.6, 3.4);
+        trBase();
+        part(vis(0.4), 0, () => envelope(s, 0, T1));
+        if (tm > 0) trace(s.x, 0, tm);
+        rider(tm, s.x(tm));
+        const m = massCol(G.y(s.x(tm)), pushAt(W0, tm), { letters: true });
+        levelGuide(m, tm);
+        part(vis(3.6), 0, () => settleMarks());
+        ruleRow(vis(0.4), vis(1.0));
+        said.push('The trace starts lumpy while the ringing dies inside the envelope, then settles to an even swing by about 20 seconds.');
+      } },
+    { kind: 'pick', name: 'How often', scene: 'tr', work: 2, lead: LEAD_0,
+      key: (st) => (st.res === 'wrong' && st.pick === O1[2] ? ['trace', 'r15', 'rest'] : ['trace', 'rest']),
+      tag: () => 'push rate `ω` = ' + f2(W0) + ' rad/s',
+      task: 'Once it has settled, how often does the mass swing?',
+      opts: O1, want: O1[1],
+      why: 'The ringing is the transient, and it dies. What is left is driven by the push, so it keeps the push\'s time. Each derivative of a cosine at rate `ω` is a cosine at the same rate. So every term can swing at 1 rad/s and match the push at every instant. One settled swing takes 6.28 s, which is 2π ÷ 1.',
+      hint: 'Not quite. Compare the settled swing with the push.',
+      hints: { [O1[0]]: 'Not quite. That is its own ringing, and the ringing dies away.', [O1[2]]: 'Not quite. Nothing here swings at a rate halfway between.' },
+      draw(st) {
+        const r = RW(st), s = forced(W0);
+        trBase();
+        trace(s.x, 0, T1);
+        rider(T1, s.x(T1));
+        const m = massCol(G.y(s.x(T1)), pushAt(W0, T1));
+        levelGuide(m, T1);
+        if (r.ok) {
+          REC.answer = true;
+          const ta = peakT(s, 3), tb = peakT(s, 4), y = G.y(s.X) - 12;
+          part(vis(0.2), 0, () => { hBracketDown(G.x(ta), G.x(tb), y, 'brk'); label((G.x(ta) + G.x(tb)) / 2, y - 7, f2(tb - ta) + ' s', 'lab main', 'middle'); });
+          REC.period = tb - ta;
+          workLines([{ s: 'one settled swing takes ' + f2(tb - ta) + ' s', a: vis(0.4) }, { s: '2π ÷ ' + f2(tb - ta) + ' s = ' + f2(2 * Math.PI / (tb - ta)) + ' rad/s, the push\'s rate', a: vis(1.0) }]);
+        } else if (r.w === O1[0]) {
+          REC.bad++;
+          const tr = 2 * Math.PI / s.h.b, y = G.PT + 10;
+          part(vis(0.1), 0, () => { hBracketDown(G.x(0), G.x(tr), y, 'brk bad'); label(G.x(tr) + 6, y + 5, 'one ring: ' + f2(tr) + ' s', 'lab bad', 'start'); });
+          workLines([{ s: 'about 2 rad/s is the ringing, and it dies by 20 s', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const g = prog(0.1, 1.0), f15 = (t) => s.X * Math.cos(1.5 * t - s.ph);
+          trace(f15, 20, 20 + 10 * g, 'trace bad');
+          workLines([{ s: 'a 1.5 rad/s swing drifts out of step', bad: true, a: vis(0.4) }]);
+        }
+        said.push('The trace from rest at 1 radian a second, over 30 seconds.');
+      } },
+    { show: true, name: 'Three forces', scene: 'ph', dur: 3.2, w: true, lead: '', reads: swingTile,
+      text: 'Once settled, the mass swings with a fixed size `X`, at the push\'s rate. So every term swings at that rate, and their sizes add like AC phasors. The spring\'s pull `kX` points one way. The mass term `mω²X` points the opposite way. The damper\'s drag `cωX` is a quarter cycle round, at right angles. End to end, the three make the 1 N push. Drag the push rate to change them. At 1 rad/s the spring\'s arrow is much longer than the mass\'s, and the swing is 0.329 m.',
+      read: 'Once settled, the mass swings with a fixed size `X`, at the push\'s rate. So every term swings at that rate, and their sizes add like AC phasors. The spring\'s pull `kX` points one way. The mass term `mω²X` points the opposite way. The damper\'s drag `cωX` is a quarter cycle round, at right angles. End to end, the three make the 1 N push. As the push rate changes, so do the arrows. At 1 rad/s the spring\'s arrow is much longer than the mass\'s, and the swing is 0.329 m.',
+      still: { w: 1 },
+      draw() {
+        const w = P.w, X = amp(w);
+        phBase();
+        forceArrows(w, X, [eg(0.4), eg(1.0), eg(1.6), vis(2.2)]);
+        forceKey(forceVals(w, X));
+        said.push('At ' + say(f2(w)) + ' radians a second the spring\'s arrow is ' + (KS > M * w * w ? 'longer' : KS < M * w * w ? 'shorter' : 'as long as') + ' the mass\'s.');
+      } },
+    { kind: 'pick', name: 'At 2 rad/s', scene: 'ph', work: 2, lead: LEAD_0,
+      tag: () => 'push rate `ω` = ' + f2(W2) + ' rad/s',
+      task: 'The push now swings at 2 rad/s. How big is the steady swing?',
+      opts: O3, want: O3[1],
+      why: 'At 2 rad/s, `mω²` = 1 × 4 = 4, the same as `k`. So the spring and mass arrows are both 4 N, and they cancel. That leaves the damper\'s drag `cωX` alone to match the 1 N push. So `X` = 1 ÷ (0.5 × 2) = 1 m.',
+      hint: 'Not quite. Work out `k` and `mω²` at 2 rad/s.',
+      hints: { [O3[0]]: 'Not quite. 0.25 m is the swing for a very slow push. At 2 rad/s the mass term matters too.', [O3[2]]: 'Not quite. The damper\'s drag grows with the swing, and it holds it.' },
+      draw(st) {
+        const r = RW(st), X = amp(W2);
+        phBase();
+        if (r.ok) {
+          REC.answer = true;
+          forceArrows(W2, X, [eg(0.1, 0.5), eg(0.6, 0.5), eg(1.1, 0.5), vis(1.4)]);
+          forceKey(forceVals(W2, X));
+          workLines([{ s: '`k` = ' + f2(KS) + ' and `mω²` = ' + f2(M * W2 * W2) + ', so the spring and mass arrows cancel', a: vis(0.4) }, { s: 'so `cωX` = 1 N, and `X` = 1 ÷ (' + f2(C0) + ' × ' + f2(W2) + ') = ' + f2(X) + ' m', a: vis(1.0) }]);
+        } else if (r.w === O3[0]) {
+          REC.bad++;
+          const Xw = F0 / KS;
+          pushArrow(W2, X, vis(0.1));
+          forceArrows(W2, Xw, [eg(0.1, 0.5), eg(0.6, 0.5), eg(1.1, 0.5), 0], { bad: true });
+          forceKey([null, null, null, F0]);
+          workLines([{ s: 'at ' + f2(Xw) + ' m they add to only ' + f2(C0 * W2 * Xw) + ' N, not the 1 N push', bad: true, a: vis(0.6) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const Xw = 2, g = eg(0.1, 0.8);
+          pushArrow(W2, X, vis(0.1));
+          if (g > 0) arrow(OX + 7, OY, OX + 7, OY - C0 * W2 * Xw * SN * g, 'fa bad', 8);
+          part(vis(0.9), 0, () => label(OX + 14, OY - C0 * W2 * Xw * SN + 12, 'drag at ' + f2(Xw) + ' m: ' + f2(C0 * W2 * Xw) + ' N', 'lab bad', 'start'));
+          forceKey([null, null, null, F0]);
+          workLines([{ s: 'the drag `cωX` grows with the swing: at ' + f2(Xw) + ' m it is ' + f2(C0 * W2 * Xw) + ' N, twice the push', bad: true, a: vis(0.6) }]);
+        } else {
+          forceKey([null, null, null, F0]);
+          part(1, 0, () => text(OX + 120, OY - 40, '?', 'big', 'middle'));
+        }
+        said.push('The forces as arrows at 2 radians a second.');
+      } },
+    { show: true, name: 'The hill', scene: 'trg', dur: 4.4, w: true, run: true, lead: '', reads: swingTile, key: ['trace', 'push', 'dot'],
+      text: 'The trace now sits above a graph of steady swing against push rate. Each setting runs the trace from rest. Once the wobble dies, its steady swing drops a dot on the graph. Step the push rate from 0.25 up to 4 rad/s, and the dots trace a hill. The slowest push gives about 0.25 m, the spring\'s own stretch under 1 N. Near 2 rad/s the spring and mass terms cancel, and the swing is about 1 m. That rate is the *natural frequency*. The peak there is *resonance*.',
+      read: 'The trace now sits above a graph of steady swing against push rate. Each setting runs the trace from rest. Once the wobble dies, its steady swing drops a dot on the graph. The dots trace a hill, from 0.25 m for the slowest push, up to about 1 m near 2 rad/s, and down to 0.08 m at 4 rad/s. The slowest push gives the spring\'s own stretch under 1 N. Near 2 rad/s the spring and mass terms cancel. That rate is the *natural frequency*. The peak there is *resonance*.',
+      still: () => { ALLW.forEach((v) => VISITED.add(v)); wCtl.set(2); settle(); K.refresh(); },
+      draw() {
+        const w = P.w, s = forced(w), q = RUNMODE === 'quick';
+        const tr0 = q ? 0 : 0.6, trd = q ? 1.9 : 3.0, td = q ? QDROP : EDROP;
+        const tm = T1 * prog(tr0, trd);
+        trBase();
+        qBase('steady swing `X` (m)', 'push rate `ω` (rad/s)');
+        if (tm > 0) trace(s.x, 0, tm);
+        rider(tm, s.x(tm));
+        const m = massCol(G.y(s.x(tm)), pushAt(w, tm));
+        levelGuide(m, tm);
+        VISITED.forEach((v) => { if (v !== w) graphDot(v, amp(v), 'dot'); });
+        const g = VISITED.has(w) ? 1 : K.ease(prog(td, SOFT));
+        if (g >= 1) graphDot(w, s.X, 'dot', true);
+        else if (g > 0) {
+          const tp = lastPeak(s), x = K.lerp(G.x(tp), G.qx(w), g), y = K.lerp(G.y(s.X), G.qy(s.X), g);
+          add(K.svg('circle', { class: 'dot', cx: r2(x), cy: r2(y), r: 4.5 }));
+          REC.drop = { x, y, g };
+        }
+        said.push('Pushed at ' + say(f2(w)) + ' radians a second, the mass settles to a steady swing, and that swing is a dot on the graph.');
+      } },
+    { kind: 'pick', name: 'A fast push', scene: 'ph', work: 2, lead: LEAD_0,
+      tag: () => 'push rate `ω` = ' + f2(W4) + ' rad/s',
+      task: 'The push now swings at 4 rad/s. How big is the steady swing?',
+      opts: O5, want: O5[2],
+      why: 'At 4 rad/s, `mω²` = 16 while `k` = 4. So the mass term is 16X against the spring\'s 4X, and they leave 12X. The damper adds `cω` = 2 at right angles. So `X` = 1 ÷ √(12² + 2²) = 1 ÷ 12.17, about 0.08 m. The push is too quick for the mass to follow.',
+      hint: 'Not quite. Compare `mω²` with `k` at 4 rad/s.',
+      hints: { [O5[0]]: 'Not quite. A faster push does not always give a bigger swing.', [O5[1]]: 'Not quite. The spring and mass terms cancel only at 2 rad/s.' },
+      draw(st) {
+        const r = RW(st), X = amp(W4);
+        phBase();
+        if (r.ok) {
+          REC.answer = true;
+          forceArrows(W4, X, [eg(0.1, 0.5), eg(0.6, 0.5), eg(1.1, 0.5), vis(1.4)]);
+          forceKey(forceVals(W4, X));
+          workLines([{ s: '`mω²` = ' + f2(M * W4 * W4) + ' against `k` = ' + f2(KS) + ': they leave ' + f2(M * W4 * W4 - KS) + '`X`', a: vis(0.4) }, { s: '`X` = 1 ÷ √(' + f2(M * W4 * W4 - KS) + '² + ' + f2(C0 * W4) + '²) = ' + f2(X) + ' m', a: vis(1.0) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const Xw = r.w === O5[0] ? 2 : 1, mN = M * W4 * W4 * Xw, g = eg(0.1, 0.8);
+          if (g > 0) arrow(OX, OY + 9, OX - (OX - 12) * g, OY + 9, 'fa bad', 8);
+          part(vis(0.9), 0, () => label(14, OY + 30, '`mω²X` = ' + f2(mN) + ' N, off the page', 'lab bad', 'start'));
+          forceKey([null, null, null, F0]);
+          workLines([{ s: 'at ' + f2(Xw) + ' m the mass term alone is ' + f2(mN) + ' N, far more than the 1 N push', bad: true, a: vis(0.6) }]);
+        } else {
+          forceKey([null, null, null, F0]);
+          part(1, 0, () => text(OX + 120, OY - 40, '?', 'big', 'middle'));
+        }
+        said.push('The forces as arrows at 4 radians a second.');
+      } },
+    { show: true, name: 'Damping', scene: 'hill', dur: 3.0, c: true, lead: '',
+      key: () => (P.c === C0 ? ['hillc'] : ['hillc', 'ghost']),
+      reads: () => { const pk = peak(P.c); return [pk ? { l: 'Top of the hill', v: f2(pk.X) + ' m', s: 'near ' + f2(pk.w) + ' rad/s' } : { l: 'Top of the hill', v: 'No hill', s: 'The swing only shrinks as the push speeds up.' }]; },
+      text: 'Now set the damping. The whole hill is drawn for the damping you set, with a ghost of the 0.5 hill. As the damping grows, the hill drops and its top slides lower. At 1 the top is 0.52 m near 1.87 rad/s. At 2 it is 0.29 m near 1.41 rad/s. More damping always gives a smaller peak. The hill goes near damping 2.83. So from damping 3 there is no hill, and the swing only shrinks as the push speeds up.',
+      read: 'The whole hill is drawn for the damping set, with a ghost of the 0.5 hill. As the damping grows, the hill drops and its top slides lower. At damping 2 the top of the hill is 0.29 m near 1.41 rad/s. More damping always gives a smaller peak. The hill goes near damping 2.83. So from damping 3 there is no hill, and the swing only shrinks as the push speeds up.',
+      still: { c: 2 },
+      draw() {
+        const c = P.c, gr = K.ease(prog(0.4, 1.6)), pk = peak(c);
+        qBase('steady swing `X` (m)', 'push rate `ω` (rad/s)');
+        if (c !== C0) part(vis(0.4), 0, () => curve((w) => amp(w, C0), 'hill ghost'));
+        curve((w) => amp(w, c), 'hill', WMAX * gr);
+        if (pk) part(vis(2.2), 0, () => topMark(pk));
+        REC.top = pk; REC.c = c;
+        said.push(pk ? 'At damping ' + say(f1(c)) + ' the hill has a top.' : 'At damping ' + say(f1(c)) + ' there is no hill: the swing only falls as the push speeds up.');
+      } },
+    { kind: 'pick', name: 'Heavy damping', scene: 'hill', work: 2, lead: LEAD_6,
+      key: (st) => (st.res === 'right' ? ['hill6', 'ghost'] : ['ghost']),
+      tag: () => 'damping `c` = ' + f1(C6) + ' N·s/m',
+      task: 'At damping 6 the spring is overdamped. Where is its steady swing largest?',
+      opts: O7, want: O7[1],
+      why: 'At damping 6, `c²` = 36 is well past `2mk` = 8. The drag `cω` grows with the push\'s speed faster than the gap between `k` and `mω²` closes. So the swing only shrinks as the push speeds up. It is largest at the slowest push, 1 ÷ √(3.94² + 1.5²), about 0.24 m.',
+      hint: 'Not quite. Heavy damping changes the shape of the hill.',
+      hints: { [O7[0]]: 'Not quite. Heavy drag removes the hill, so nothing peaks there.', [O7[2]]: 'Not quite. The drag grows with the push\'s speed, so a fast push swings least.' },
+      draw(st) {
+        const r = RW(st);
+        qBase('steady swing `X` (m)', 'push rate `ω` (rad/s)');
+        curve((w) => amp(w, C0), 'hill ghost');
+        if (r.ok) {
+          REC.answer = true;
+          curve((w) => amp(w, C6), 'hill', WMAX * K.ease(prog(0.1, 1.0)));
+          part(vis(1.1), 0, () => { const X = amp(WMIN, C6); graphDot(WMIN, X, 'dot'); label(G.qx(WMIN) + 8, G.qy(X) - 10, f2(X) + ' m', 'lab main', 'start', [[G.qx(WMIN) + 8, G.qy(X) + 20, 'start']]); });
+          workLines([{ s: '`c²` = ' + f2(C6 * C6) + ' is past `2mk` = ' + f2(2 * M * KS) + ': no hill', a: vis(0.4) }, { s: 'largest at the slowest push: ' + f2(amp(WMIN, C6)) + ' m', a: vis(1.0) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const wv = r.w === O7[0] ? W2 : W4, X = amp(wv, C6);
+          part(vis(0.1), 0, () => { graphDot(wv, X, 'dot bad'); ringAt(G.qx(wv), G.qy(X), 9, 'ring'); label(G.qx(wv) + (wv === W4 ? -12 : 12), G.qy(X) - 14, f2(X) + ' m', 'lab bad', wv === W4 ? 'end' : 'start'); });
+          workLines([{ s: 'at ' + f2(wv) + ' rad/s it swings only ' + f2(X) + ' m', bad: true, a: vis(0.4) }]);
+        } else part(1, 0, () => text(G.qx(2.8), G.qy(0.62), '?', 'big', 'middle'));
+        said.push('The swing against the push rate, with the light damping\'s hill as a ghost.');
+      } },
+    { show: true, name: 'The loop', scene: 'loop9', dur: 3.2, w: true, view: true, lead: '',
+      reads: () => { const X = amp(P.w), lp = P.view === 'loop'; return lp ? [{ l: 'Charge swing', v: f3(X) + ' C' }, { l: 'Current swing', v: f3(P.w * X) + ' A' }] : [{ l: 'Steady swing `X`', v: f3(X) + ' m' }]; },
+      text: 'An AC supply on a series loop obeys the same equation, with new names. Switch to the loop. The 1 H coil takes the mass\'s place. The 0.5 Ω resistor takes the damper\'s. The 0.25 F capacitor takes the spring\'s, because `1 ÷ C` is 4. The 1 V supply is the push. The hill is unchanged. It now plots the swing of the capacitor\'s charge, in coulombs. The current swings `ω` times as much. At 2 rad/s the charge swings 1 C and the current 2 A.',
+      read: 'An AC supply on a series loop obeys the same equation, with new names. The 1 H coil takes the mass\'s place. The 0.5 Ω resistor takes the damper\'s. The 0.25 F capacitor takes the spring\'s, because `1 ÷ C` is 4. The 1 V supply is the push. As a loop, the hill plots the swing of the capacitor\'s charge, in coulombs. The current swings `ω` times as much. It is largest at exactly 2 rad/s, where the charge swings 1 C and the current 2 A.',
+      still: { view: 'loop', w: 2 },
+      draw() {
+        const lp = P.view === 'loop', w = P.w, X = amp(w);
+        part(vis(0.4), 0, () => { if (lp) loopSmall(); else springSmall(); names(lp); });
+        qBase(lp ? 'capacitor\'s charge swing (C)' : 'steady swing `X` (m)', lp ? 'supply rate `ω` (rad/s)' : 'push rate `ω` (rad/s)');
+        curve((v) => amp(v), 'hill', WMAX * K.ease(prog(0.8, 1.4)));
+        part(vis(2.4), 0, () => marker(w, X));
+        REC.loop = lp;
+        said.push(lp ? 'The same hill, now the capacitor\'s charge swing in coulombs.' : 'The hill of the spring\'s steady swing.');
+      } },
+    { kind: 'pick', name: 'At resonance', scene: 'rlc', work: 3, lead: LEAD_C,
+      task: 'A 10 V supply at 1000 rad/s, which is 159 Hz, feeds 100 mH, 10 µF and 40 Ω in series. What voltage does the capacitor see?',
+      opts: O9, want: O9[2],
+      why: '`ωL` = 1000 × 0.1 = 100 Ω. `1 ÷ ωC` = 1 ÷ (1000 × 0.00001) = 100 Ω. They cancel, so only the 40 Ω holds the current back. The current is 10 ÷ 40 = 0.25 A. The capacitor sees 0.25 A × 100 Ω = 25 V. That is two and a half times the supply, so rate parts and meters for it.',
+      hint: 'Not quite. Find the current first, then the capacitor\'s share.',
+      hints: { [O9[0]]: 'Not quite. Near resonance a part can see more than the supply.', [O9[1]]: 'Not quite. Find the current, then times it by the capacitor\'s 100 Ω.' },
+      draw(st) {
+        const r = RW(st);
+        loopBig();
+        barsBase();
+        if (r.ok) {
+          REC.answer = true;
+          const v = exVC(ER), g = K.ease(prog(0.2, 1.0));
+          capBar(v * g, 'bar1', vis(1.2) > 0 ? v : null, 'lab main');
+          REC.vc = v;
+          workLines([{ s: '`ωL` = ' + f2(exXL) + ' Ω and `1 ÷ ωC` = ' + f2(exXC) + ' Ω: they cancel', a: vis(0.3) }, { s: 'current = ' + f2(EV) + ' ÷ ' + f2(ER) + ' = ' + f2(exI(ER)) + ' A', a: vis(0.8) }, { s: 'capacitor: ' + f2(exI(ER)) + ' A × ' + f2(exXC) + ' Ω = ' + f2(v) + ' V', a: vis(1.3) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const v = r.w === O9[0] ? EV : EV * ER / exXC, g = K.ease(prog(0.2, 1.0));
+          capBar(v * g, 'bar1 bad', vis(1.2) > 0 ? v : null, 'lab bad');
+          workLines([{ s: r.w === O9[0] ? 'near resonance a part can see more than the supply' : f2(EV) + ' × ' + f2(ER) + ' ÷ ' + f2(exXC) + ' = ' + f2(v) + ' mixes up the parts', bad: true, a: vis(0.4) }]);
+        } else capBar(0, null, null);
+        said.push('A series loop with a 10 volt supply, and the voltage swings of the supply and the capacitor.');
+      } },
+    { kind: 'pick', name: 'Check the units', scene: 'alg', work: 3, lead: LEAD_U,
+      task: 'Someone offers `v = 12e^(−RCt)` as the answer to `dv/dt = −v ÷ RC` from 12 V. Which check catches the mistake?',
+      opts: O10, want: O10[1],
+      why: '`RC` is a time, in seconds. So `RC × t` is in seconds squared. A power must be a plain number with no units. The right answer is `v = 12e^(−t ÷ RC)`, where `t ÷ RC` has no units. Both forms give 12 V at the start, so the start check alone misses the slip.',
+      hint: 'Not quite. Try both checks in turn.',
+      hints: { [O10[0]]: 'Not quite. Put in `t` = 0. Then `e^(0)` = 1, so it does give 12 V.', [O10[2]]: 'Not quite. Look at the units inside the power.' },
+      draw(st) {
+        const r = RW(st);
+        const ex = offered();
+        if (r.ok) {
+          REC.answer = true;
+          part(vis(0.2), 0, () => ringBox(ex, 'ring'));
+          workLines([{ s: '`RC × t` is in s × s = s², but a power has no units', a: vis(0.3) }, { s: 'the start passes: `12e^(0)` = 12 V', a: vis(0.8) }, { s: 'the right answer is `v = 12e^(−t ÷ RC)`', a: vis(1.3) }]);
+        } else if (r.w === O10[0]) {
+          REC.bad++;
+          workLines([{ s: 'put in `t` = 0: `12e^(0)` = 12 V, so the start passes', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          part(vis(0.1), 0, () => ringBox(ex, 'ring'));
+          workLines([{ s: 'one check fails: look at the units in the power', bad: true, a: vis(0.4) }]);
+        }
+        said.push('The rule and the offered answer.');
+      } },
+    { kind: 'pick', name: 'Bilge keels', scene: 'ship', work: 2, lead: LEAD_R,
+      key: (st) => (st.res === 'right' ? ['bare', 'keels'] : st.res === 'wrong' && st.pick === O11[0] ? ['bare', 'heavy'] : ['bare']),
+      task: 'A ship rolls in waves that come near its own roll frequency. Bilge keels add roll damping. What happens to the roll there?',
+      opts: O11, want: O11[1],
+      why: 'At the roll frequency the swing is `F ÷ cω`. More damping gives a smaller peak. Bilge keels add some damping, not enough to remove the hill. So resonance can still occur, with a smaller roll. This straight-line rule fits only small rolls.',
+      hint: 'Not quite. Think of what damping does to the hill.',
+      hints: { [O11[0]]: 'Not quite. Only heavy damping removes the peak.', [O11[2]]: 'Not quite. At the natural frequency the swing is `F ÷ cω`, so more damping lowers it.' },
+      draw(st) {
+        const r = RW(st);
+        shipBase();
+        curve((w) => amp(w, C0), 'hill');
+        if (r.ok) {
+          REC.answer = true;
+          curve((w) => amp(w, KEEL), 'hill teal', WMAX * K.ease(prog(0.2, 1.0)));
+          part(vis(1.2), 0, () => {
+            const p0 = peak(C0), p1 = peak(KEEL), x = G.qx(WN) + 12;
+            vBracket(x, G.qy(p0.X), G.qy(p1.X), 'brk');
+            label(x + 9, (G.qy(p0.X) + G.qy(p1.X)) / 2 + 5, 'smaller peak', 'lab main', 'start');
+          });
+          workLines([{ s: 'more damping lowers the peak', a: vis(0.4) }, { s: 'but a peak remains: resonance can still occur', a: vis(1.0) }]);
+        } else if (r.w === O11[0]) {
+          REC.bad++;
+          curve((w) => amp(w, 3), 'hill bad', WMAX * K.ease(prog(0.1, 1.0)));
+          workLines([{ s: 'only heavy damping removes the peak', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const p0 = peak(C0);
+          part(vis(0.1), 0, () => ringAt(G.qx(p0.w), G.qy(p0.X), 10, 'ring'));
+          workLines([{ s: 'the peak is `F ÷ cω`: more `c`, a smaller peak', bad: true, a: vis(0.4) }]);
+        }
+        said.push('A rolling ship with bilge keels, and its roll against the wave rate.');
+      } },
+  ];
+  const FINISH = 'Pushed back and forth, a lightly damped spring or circuit settles to a steady swing at the push\'s rate. It swings hardest near its natural frequency. More damping gives a smaller peak, and heavy damping leaves no peak at all.';
+
+  // ---------- the layout ----------
+  const SC = {
+    tr: { PL: 70, PR: 300, y0: 136, ky: 56, t1: T1, lim: YL, ceil: 30, tickY: 18, keyY: 249 },
+    trg: { PL: 70, PR: 300, y0: 98, ky: 40, t1: T1, lim: YL, ceil: 22, tickY: 16, QL: 44, QR: 304, QT: 206, QB: 316, keyY: 376 },
+    ph: { fixedH: 294 },
+    hill: { QL: 44, QR: 304, QT: 60, QB: 256, keyY: 314 },
+    loop9: { QL: 44, QR: 304, QT: 178, QB: 300, keyY: 352 },
+    rlc: { fixedH: 262 },
+    alg: { fixedH: 112 },
+    ship: { QL: 30, QR: 304, QT: 136, QB: 262, keyY: 306 },
+  };
+  const OX = 86, OY = 156, SN = 56;   // the force arrows: their start and 56 units a newton
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  function geoOf(d, st, rows) {
+    const g = Object.assign({ sc: d.scene }, SC[d.scene]);
+    if (g.ky) {
+      g.PT = g.y0 - g.lim * g.ky; g.PB = g.y0 + g.lim * g.ky; g.kx = (g.PR - g.PL) / g.t1;
+      g.x = (t) => g.PL + t * g.kx; g.y = (v) => g.y0 - v * g.ky;
+    }
+    if (g.QL != null) { g.qx = (w) => g.QL + w / WMAX * (g.QR - g.QL); g.qy = (X) => g.QB - X / YL * (g.QB - g.QT); }
+    let y = g.fixedH != null ? g.fixedH : rows ? g.keyY + 20 * (rows - 1) + 8 : g.keyY - 14;
+    g.ruleY = y + 30; y += d.rule ? 58 : 0;
+    const working = st.res === 'right' || st.res === 'wrong';
+    g.workY = y + 22; y += (working ? d.work || 0 : 0) * 26;
+    g.H = y + 12;
+    return g;
+  }
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open.
+  function blank() { return { pick: null, res: null, why: false }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });
+  let S = STEPS.map(() => blank());
+  let VISITED = new Set();           // the push rates whose dots have dropped on the main screen
+  let RUNMODE = 'entry';             // 'entry' when a screen opens, 'quick' after a push-rate move
+  let finished = false, lastStep = -1, lastDone = false, lastKey = null, lastW = null, TM = Infinity;
+  let motionEnd = 0;
+  let REC = null, G = null, said = [], placed = [], obst = [], queue = [];
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top');
+  let into = null, curA = 1;
+  const add = (node) => (into || art).appendChild(node);
+  // The timetable: how far a part due at t0 has arrived, noting it for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? SOFT : d; note(t0, d); return K.arrive(TM, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t, SOFT));
+  function prog(t0, dur) { note(t0, dur); return K.clamp((TM - t0) / dur, 0, 1); }
+  const eg = (t0, d) => K.ease(prog(t0, d == null ? SOFT : d));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into, keepA = curA;
+    into = g; curA = a * keepA;
+    draw();
+    into = keep; curA = keepA;
+  }
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function addObst(x1, y1, x2, y2) {
+    const n = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3));
+    for (let k = 0; k <= n; k++) obst.push([x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n]);
+  }
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });
+    svgWords(t, s);
+    REC.texts.push(plain(s));
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    svgWords(t, s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return plain(s).length * 7.4;
+  }
+  // A label, painted above the drawing once everything else is down. It takes the first of its
+  // places that is clear of other words and of the lines and curves; failing that, it moves up or
+  // down a line from the first.
+  function label(x, y, s, cls, anchor, alts) { queue.push({ x, y, s, cls, anchor, alts: alts || [], a: curA }); }
+  function placeLabel(q) {
+    const w = tw(q.s, q.cls);
+    const leftOf = (xx, an) => K.clamp(an === 'end' ? xx - w : an === 'middle' ? xx - w / 2 : xx, 4, 336 - w);
+    const box = (lx, yv) => ({ x: lx - 2, y: yv - 12, w: w + 4, h: 15 });
+    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h) ||
+      obst.some((o) => o[0] > b.x && o[0] < b.x + b.w && o[1] > b.y && o[1] < b.y + b.h);
+    const cands = [[q.x, q.y, q.anchor]].concat(q.alts);
+    let pos = null;
+    for (const c of cands) { const lx = leftOf(c[0], c[2] || q.anchor); if (!hits(box(lx, c[1]))) { pos = [lx, c[1]]; break; } }
+    if (!pos) {
+      const lx = leftOf(q.x, q.anchor);
+      pos = [lx, q.y];
+      for (const dy of [-15, 15, -30, 30]) { if (!hits(box(lx, q.y + dy))) { pos = [lx, q.y + dy]; break; } }
+    }
+    placed.push(box(pos[0], pos[1]));
+    const g = topG.appendChild(K.svg('g'));
+    K.fade(g, q.a);
+    const t = K.svg('text', { class: q.cls, x: r2(pos[0]), y: r2(pos[1]), 'text-anchor': 'start' });
+    svgWords(t, q.s);
+    g.appendChild(t);
+    REC.texts.push(plain(q.s));
+    said.push(say(q.s) + '.');
+  }
+  // A word that sits in a fixed place (a title, a tick), kept clear of the labels.
+  function fixed(x, y, s, cls, anchor) {
+    const w = tw(s, cls), left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;
+    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });
+    return text(x, y, s, cls, anchor);
+  }
+  // An arrow in any direction, with its head at the far end.
+  function arrow(x0, y0, x1, y1, cls, hd) {
+    const L = Math.hypot(x1 - x0, y1 - y0);
+    if (L < 2) return;
+    hd = Math.min(hd || 8, L * 0.6);
+    const ux = (x1 - x0) / L, uy = (y1 - y0) / L, bx = x1 - ux * hd, by = y1 - uy * hd, px = -uy * hd * 0.6, py = ux * hd * 0.6;
+    add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y0) + ' L' + r2(x1) + ' ' + r2(y1) + ' M' + r2(bx + px) + ' ' + r2(by + py) + ' L' + r2(x1) + ' ' + r2(y1) + ' L' + r2(bx - px) + ' ' + r2(by - py) }));
+    addObst(x0, y0, x1, y1);
+  }
+  function ringAt(x, y, r, cls) {
+    add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+    for (let k = 0; k < 16; k++) obst.push([x + r * Math.cos(k * Math.PI / 8), y + r * Math.sin(k * Math.PI / 8)]);
+  }
+  function hBracketDown(x0, x1, y, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y + 5) + ' V' + r2(y) + ' H' + r2(x1) + ' V' + r2(y + 5) })); addObst(x0, y, x1, y); }
+  function hBracketUp(x0, x1, y, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y - 5) + ' V' + r2(y) + ' H' + r2(x1) + ' V' + r2(y - 5) })); addObst(x0, y, x1, y); }
+  function vBracket(x, y0, y1, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x - 5) + ' ' + r2(y0) + ' H' + r2(x) + ' V' + r2(y1) + ' H' + r2(x - 5) })); addObst(x, y0, x, y1); }
+
+  // The trace: v = f(t) from t0 to t1, against time.
+  function trace(f, t0, t1, cls) {
+    if (t1 <= t0 + 1e-12) return null;
+    const n = Math.max(2, Math.ceil((t1 - t0) / G.t1 * 600));
+    let d = '';
+    for (let j = 0; j <= n; j++) {
+      const t = t0 + (t1 - t0) * j / n, X = G.x(t), Y = G.y(K.clamp(f(t), -G.lim, G.lim));
+      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);
+      if (j % 2 === 0) obst.push([X, Y]);
+    }
+    add(K.svg('path', { class: cls || 'trace', d }));
+    REC.traces.push({ f, t0, t1, cls: cls || 'trace' });
+    return [t1, f(t1)];
+  }
+  // The envelope: the steady swing's size plus the transient's dying envelope, either side of rest.
+  function envelope(s, t0, t1) {
+    [1, -1].forEach((sg) => {
+      let d = '';
+      for (let j = 0; j <= 150; j++) {
+        const t = t0 + (t1 - t0) * j / 150, X = G.x(t), Y = G.y(K.clamp(sg * s.env(t), -G.lim, G.lim));
+        d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);
+        if (j % 2 === 0) obst.push([X, Y]);
+      }
+      add(K.svg('path', { class: 'env', d }));
+    });
+    REC.env = true;
+  }
+  function rider(t, v) {
+    add(K.svg('circle', { class: 'rider', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5 }));
+    REC.heads.push({ t, v, y: G.y(v) });
+  }
+  function restLine() {
+    const y = G.y(0);
+    line('rest', G.PL, y, G.PR, y); addObst(G.PL, y, G.PR, y);
+  }
+  // The trace's axes: ±1 m gridlines, ticks on the right, time below.
+  function trBase() {
+    [-1, 1].forEach((v) => line('gl', G.PL, G.y(v), G.PR, G.y(v)));
+    [1, 0, -1].forEach((v) => fixed(G.PR + 8, G.y(v) + 4.5, fmtD(v, 0), 'tk', 'start'));
+    const ty = G.PB + G.tickY;
+    [0, 10, 20, 30].forEach((t) => { line('xt', G.x(t), G.PB, G.x(t), G.PB + 4); fixed(G.x(t), ty, String(t), 'tk', 'middle'); });
+    fixed(G.PL - 10, ty, '`t` (s)', 'tk', 'end');
+    line('ax', G.PL, G.PB, G.PR, G.PB); line('ax', G.PL, G.PT, G.PL, G.PB);
+    addObst(G.PL, G.PT, G.PL, G.PB);
+    fixed(G.PL, G.PT - 10, 'position `x` (m)', 'ttl', 'start');
+    restLine();
+  }
+  // The 4 s time constant along the time axis, and the line where it has settled.
+  function settleMarks() {
+    const y = G.PB - 10, x1 = G.x(TAU);
+    hBracketUp(G.x(0), x1, y, 'brk');
+    label(x1 + 6, y + 4, 'time constant ' + f2(TAU) + ' s', 'lab main', 'start');
+    const x20 = G.x(5 * TAU);
+    line('mkr', x20, G.PT, x20, G.PB); addObst(x20, G.PT, x20, G.PB);
+    label(x20 + 5, G.PT + 12, 'settled', 'lab', 'start', [[x20 - 5, G.PT + 12, 'end']]);
+    REC.marks = { tau: TAU, settle: 5 * TAU };
+  }
+  // The rule under the key, each term named.
+  function ruleRow(a, a2) {
+    const y = G.ruleY;
+    const cols = [[52, '`m x″`', 'mass term'], [124, '`c x′`', 'damper'], [192, '`k x`', 'spring'], [274, '`F cos ωt`', 'push']];
+    part(a, 6, () => {
+      cols.forEach((c) => { fixed(c[0], y, c[1], 'te eq', 'middle'); fixed(c[0], y + 20, c[2], 'nt', 'middle'); });
+      [[88, '+'], [158, '+'], [228, '=']].forEach((o) => fixed(o[0], y, o[1], 'te eq', 'middle'));
+    });
+    part(a2, 0, () => fixed(170, y + 40, 'every term is a force, in newtons', 'nt', 'middle'));
+    if (a >= 0.5) said.push('The rule: m x double prime, plus c x prime, plus k x, equals F cos omega t. Every term is a force in newtons.');
+  }
+
+  // The mass on its spring and damper, its centre at height cy, with the push arrow beside it.
+  function massCol(cy, push, o) {
+    o = o || {};
+    const x0 = o.x0 != null ? o.x0 : 12, x1 = x0 + 28, sx = x0 + 8, dx = x0 + 21, ceil = o.ceil != null ? o.ceil : G.ceil, px = x1 + 10, top = cy - 9;
+    add(K.svg('rect', { class: 'ceil', x: x0 - 6, y: ceil - 7, width: 40, height: 7 }));
+    line('wall', x0 - 6, ceil, x1 + 6, ceil);
+    placed.push({ x: x0 - 6, y: ceil - 8, w: 40, h: 9 });
+    const lead = 4, n = 8, y0 = ceil + lead, y1 = top - lead, ampz = 4;
+    let d = 'M' + sx + ' ' + ceil + ' V' + r2(y0);
+    for (let j = 1; j < n; j++) d += ' L' + (sx + (j % 2 ? ampz : -ampz)) + ' ' + r2(y0 + (y1 - y0) * j / n);
+    d += ' L' + sx + ' ' + r2(y1) + ' V' + r2(top);
+    add(K.svg('path', { class: 'spr', d }));
+    add(K.svg('rect', { class: 'dmp', x: dx - 4, y: ceil, width: 8, height: 18, rx: 1.5 }));
+    const py = ceil + 4 + 12 * K.clamp((top - ceil - 30) / 90, 0, 1);
+    line('rod', dx, py, dx, top); line('pis', dx - 2.5, py, dx + 2.5, py);
+    addObst(sx - ampz, ceil, sx - ampz, top); addObst(sx + ampz, ceil, sx + ampz, top); addObst(dx, ceil, dx, top);
+    add(K.svg('rect', { class: 'mass', x: x0, y: r2(top), width: 28, height: 18, rx: 3 }));
+    const mt = add(K.svg('text', { class: 'mtxt', x: x0 + 14, y: r2(cy + 4.5), 'text-anchor': 'middle' }));
+    svgWords(mt, '`m`');
+    placed.push({ x: x0, y: top, w: 28, h: 18 });
+    if (o.letters) {
+      const my = (ceil + top) / 2 + 5;
+      fixed(sx - 8, my, '`k`', 'lab', 'end');
+      fixed(dx, ceil + 32 < top - 4 ? ceil + 32 : ceil - 12, '`c`', 'lab', 'middle');
+    }
+    if (push != null && Math.abs(push) * PUSHPX >= 2) arrow(px, cy, px, cy - push * PUSHPX, 'parr', 6);
+    if (o.pushLabel) fixed(px + 6, cy - push * PUSHPX * 0.55, '`F`', 'lab', 'start');
+    REC.mass = { x0, cy, push };
+    return { px, cy };
+  }
+  // The dotted level guide from the mass to the trace's newest point.
+  function levelGuide(m, t) {
+    const a0 = m.px + 7, a1 = G.x(t) - 8;
+    if (a1 > a0) { line('lvl', a0, m.cy, a1, m.cy); addObst(a0, m.cy, a1, m.cy); }
+    REC.level = m.cy;
+  }
+
+  // The graph of swing against push rate: its axes, ticks and the natural frequency.
+  function qBase(ytitle, xtitle) {
+    [0.5, 1].forEach((v) => line('gl', G.QL, G.qy(v), G.QR, G.qy(v)));
+    [0, 0.5, 1].forEach((v) => fixed(G.QL - 6, G.qy(v) + 4.5, f1(v), 'tk', 'end'));
+    [0, 1, 2, 3, 4].forEach((w) => { line('xt', G.qx(w), G.QB, G.qx(w), G.QB + 4); fixed(G.qx(w), G.QB + 17, String(w), 'tk', 'middle'); });
+    line('ax', G.QL, G.QB, G.QR, G.QB); line('ax', G.QL, G.QT, G.QL, G.QB);
+    addObst(G.QL, G.QT, G.QL, G.QB); addObst(G.QL, G.QB, G.QR, G.QB);
+    fixed(4, G.QT - 10, ytitle, 'ttl', 'start');
+    fixed(G.QR, G.QB + 34, xtitle, 'tk', 'end');
+    natLine('natural frequency');
+  }
+  function natLine(name) {
+    const x = G.qx(WN);
+    line('nat', x, G.QT, x, G.QB); addObst(x, G.QT, x, G.QB);
+    fixed(x + 5, G.QT + 4, name, 'lab', 'start');
+  }
+  // A hill: f(ω) from 0 up to w1.
+  function curve(f, cls, w1) {
+    w1 = w1 == null ? WMAX : w1;
+    if (w1 <= 1e-9) return;
+    const n = Math.max(2, Math.ceil(w1 / WMAX * 240));
+    let d = '';
+    for (let j = 0; j <= n; j++) {
+      const w = w1 * j / n, X = G.qx(w), Y = G.qy(Math.min(f(w), YL));
+      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);
+      if (j % 2 === 0) obst.push([X, Y]);
+    }
+    add(K.svg('path', { class: cls, d }));
+    REC.curves.push({ cls, w1 });
+  }
+  function graphDot(w, X, cls, cur) {
+    const x = G.qx(w), y = G.qy(Math.min(X, YL));
+    add(K.svg('circle', { class: cls || 'dot', cx: r2(x), cy: r2(y), r: 4.5 }));
+    placed.push({ x: x - 5, y: y - 5, w: 10, h: 10 });
+    if (cur) ringAt(x, y, 8.5, 'cur');
+    REC.dots.push({ w, X, x, y, cls });
+  }
+  // The top of the hill, with guides to both axes.
+  function topMark(pk) {
+    const x = G.qx(pk.w), y = G.qy(pk.X);
+    line('guide', x, y + 7, x, G.QB); line('guide', G.QL, y, x - 7, y);
+    addObst(x, y + 7, x, G.QB); addObst(G.QL, y, x - 7, y);
+    graphDot(pk.w, pk.X, 'dot');
+    label(x + 9, y - 8, 'top of the hill', 'lab main', 'start', [[x + 9, y + 18, 'start'], [x - 9, y - 8, 'end']]);
+    REC.topMark = { w: pk.w, X: pk.X };
+  }
+  // The push rate's own point on the hill, with guides.
+  function marker(w, X) {
+    const x = G.qx(w), y = G.qy(X);
+    line('guide', x, y + 9, x, G.QB); addObst(x, y + 9, x, G.QB);
+    graphDot(w, X, 'dot', true);
+  }
+
+  // The forces of the steady swing as arrows, end to end: the spring's pull along the line, the
+  // mass term back the other way (drawn just under it), the damper's drag at right angles, and the
+  // push from the start to where they end.
+  function forceVals(w, X) { return [KS * X, M * w * w * X, C0 * w * X, F0]; }
+  function phBase() {
+    line('gl', 8, OY, 332, OY); addObst(8, OY, 332, OY);
+    add(K.svg('circle', { class: 'org', cx: OX, cy: OY, r: 3 }));
+    fixed(4, 36, 'each force\'s swing, as an arrow', 'ttl', 'start');
+    const sy = OY + 38, x0 = 268;
+    line('ax', x0, sy, x0 + SN, sy); line('ax', x0, sy - 4, x0, sy + 4); line('ax', x0 + SN, sy - 4, x0 + SN, sy + 4);
+    addObst(x0, sy, x0 + SN, sy);
+    fixed(x0 + SN / 2, sy - 8, '1 N', 'tk', 'middle');
+  }
+  function forceArrows(w, X, g, o) {
+    o = o || {};
+    const bad = o.bad ? ' bad' : '', kx = KS * X, mx = M * w * w * X, cx = C0 * w * X;
+    const xs = OX + kx * SN, xn = OX + (kx - mx) * SN, yt = OY - cx * SN, low = OY + 9;
+    const A = { kx, mx, cx, springEnd: [xs, OY], massEnd: [xn, low], damperEnd: [xn, yt], pushEnd: null };
+    if (g[0] > 0) arrow(OX, OY, OX + kx * SN * g[0], OY, 'fa f1' + bad, 8);
+    if (g[1] > 0) {
+      line('jn', xs, OY, xs, low); addObst(xs, OY, xs, low);
+      arrow(xs, low, xs - mx * SN * g[1], low, 'fa f2' + bad, 8);
+    }
+    if (g[2] > 0) {
+      line('jn', xn, low, xn, OY); addObst(xn, low, xn, OY);
+      arrow(xn, OY, xn, OY - cx * SN * g[2], 'fa f3' + bad, 8);
+    }
+    if (g[3] > 0) { part(g[3], 0, () => arrow(OX, OY, xn, yt, 'fa push', 8)); A.pushEnd = [xn, yt]; }
+    REC.arrows = A;
+  }
+  // The push alone, where the true steady swing's forces end.
+  function pushArrow(w, X, a) {
+    const kx = KS * X, mx = M * w * w * X, cx = C0 * w * X;
+    part(a, 0, () => arrow(OX, OY, OX + (kx - mx) * SN, OY - cx * SN, 'fa push', 8));
+  }
+  function forceKey(vals) {
+    const rows = [['f1', 'spring\'s pull `kX`'], ['f2', 'mass term `mω²X`'], ['f3', 'damper\'s drag `cωX`'], ['push', 'push `F`']];
+    rows.forEach((r, k) => {
+      const y = 222 + 20 * k;
+      arrow(6, y - 5, 26, y - 5, 'fa ' + r[0], 6);
+      fixed(34, y, r[1] + ' = ' + (vals[k] == null ? '?' : f2(vals[k]) + ' N'), 'key ink', 'start');
+    });
+  }
+
+  // The spring and the loop, small, above the hill, with their names.
+  function springSmall() { massCol(92, F0, { x0: 46, ceil: 34, letters: true, pushLabel: true }); }
+  function loopSmall() {
+    const x0 = 22, x1 = 128, top = 42, bot = 126, ym = 84, c0 = 46, c1 = 98;
+    const wire = (d) => add(K.svg('path', { class: 'wire', d }));
+    wire('M' + x0 + ' ' + (ym - 12) + ' V' + top + ' H' + c0);
+    let d = 'M' + c0 + ' ' + top;
+    for (let j = 0; j < 4; j++) d += ' a6.5 6.5 0 0 1 13 0';
+    wire(d);
+    wire('M' + c1 + ' ' + top + ' H' + x1 + ' V' + (ym - 18));
+    add(K.svg('rect', { class: 'res', x: x1 - 6, y: ym - 18, width: 12, height: 36 }));
+    wire('M' + x1 + ' ' + (ym + 18) + ' V' + bot + ' H80');
+    line('plate', 80, bot - 12, 80, bot + 12); line('plate', 70, bot - 12, 70, bot + 12);
+    wire('M70 ' + bot + ' H' + x0 + ' V' + (ym + 12));
+    add(K.svg('circle', { class: 'src', cx: x0, cy: ym, r: 12 }));
+    add(K.svg('path', { class: 'wire', d: 'M' + (x0 - 7) + ' ' + ym + ' q3.5 -7 7 0 t7 0' }));
+    addObst(x0, top, x1, top); addObst(x1, top, x1, bot); addObst(x0, bot, x1, bot); addObst(x0, top, x0, bot);
+    placed.push({ x: x0 - 13, y: ym - 13, w: 26, h: 26 });
+    fixed((c0 + c1) / 2, top - 10, '`L`', 'lab', 'middle');
+    fixed(x1 + 11, ym + 5, '`R`', 'lab', 'start');
+    fixed(75, bot + 28, '`C`', 'lab', 'middle');
+    fixed(x0 + 18, ym + 5, '`V`', 'lab', 'start');
+  }
+  function names(lp) {
+    const rows = lp ? ['coil `L` = ' + f2(LH) + ' H', 'resistor `R` = ' + f2(RL) + ' Ω', 'capacitor `C` = ' + f2(CL) + ' F', 'supply `V` = ' + f2(VS) + ' V']
+      : ['mass `m` = ' + f2(M) + ' kg', 'damper `c` = ' + f2(C0) + ' N·s/m', 'spring `k` = ' + f2(KS) + ' N/m', 'push `F` = ' + f2(F0) + ' N'];
+    rows.forEach((s, k) => fixed(160, 52 + 26 * k, s, 'lab', 'start'));
+    REC.names = rows.map(plain);
+  }
+
+  // The worked example's loop, larger, with its voltages as bars below.
+  function loopBig() {
+    const x0 = 34, x1 = 306, top = 48, bot = 128, ym = 88, c0 = 70, c1 = 150, rr0 = 196, rr1 = 256, cp = 170;
+    const wire = (d) => add(K.svg('path', { class: 'wire', d }));
+    wire('M' + x0 + ' ' + (ym - 13) + ' V' + top + ' H' + c0);
+    let d = 'M' + c0 + ' ' + top;
+    for (let j = 0; j < 5; j++) d += ' a8 8 0 0 1 16 0';
+    wire(d);
+    wire('M' + c1 + ' ' + top + ' H' + rr0);
+    add(K.svg('rect', { class: 'res', x: rr0, y: top - 7, width: rr1 - rr0, height: 14 }));
+    wire('M' + rr1 + ' ' + top + ' H' + x1 + ' V' + bot + ' H' + (cp + 5));
+    line('plate', cp + 5, bot - 13, cp + 5, bot + 13); line('plate', cp - 5, bot - 13, cp - 5, bot + 13);
+    wire('M' + (cp - 5) + ' ' + bot + ' H' + x0 + ' V' + (ym + 13));
+    add(K.svg('circle', { class: 'src', cx: x0, cy: ym, r: 13 }));
+    add(K.svg('path', { class: 'wire', d: 'M' + (x0 - 8) + ' ' + ym + ' q4 -8 8 0 t8 0' }));
+    addObst(x0, top, x1, top); addObst(x1, top, x1, bot); addObst(x0, bot, x1, bot); addObst(x0, top, x0, bot);
+    placed.push({ x: x0 - 14, y: ym - 14, w: 28, h: 28 });
+    fixed((c0 + c1) / 2, top - 16, f2(EL * 1000) + ' mH', 'lab', 'middle');
+    fixed((rr0 + rr1) / 2, top - 16, f2(ER) + ' Ω', 'lab', 'middle');
+    fixed(cp, bot + 30, f2(EC * 1e6) + ' µF', 'lab', 'middle');
+    fixed(x0 + 22, ym - 2, f2(EV) + ' V', 'lab', 'start');
+    fixed(x0 + 22, ym + 16, f2(EW) + ' rad/s', 'lab', 'start');
+  }
+  const BX = 104, BS = 6.6, BY1 = 192, BY2 = 222;
+  function barsBase() {
+    fixed(4, 174, 'voltage swing (V)', 'ttl', 'start');
+    fixed(BX - 8, BY1 + 5, 'supply', 'lab', 'end');
+    fixed(BX - 8, BY2 + 5, 'capacitor', 'lab', 'end');
+    [0, 10, 20, 30].forEach((v) => { const x = BX + v * BS; line('xt', x, 236, x, 240); fixed(x, 254, String(v), 'tk', 'middle'); });
+    line('ax', BX, 236, BX + 30 * BS, 236); line('ax', BX, 182, BX, 236);
+    add(K.svg('rect', { class: 'bar0', x: BX, y: BY1 - 8, width: r2(EV * BS), height: 16 }));
+    fixed(BX + EV * BS + 6, BY1 + 5, f2(EV) + ' V', 'lab', 'start');
+  }
+  function capBar(v, cls, shown, lcls) {
+    if (!cls) { add(K.svg('rect', { class: 'barq', x: BX, y: BY2 - 8, width: r2(10 * BS), height: 16 })); fixed(BX + 10 * BS + 8, BY2 + 6, '?', 'lab', 'start'); return; }
+    if (v > 0.05) add(K.svg('rect', { class: cls, x: BX, y: BY2 - 8, width: r2(v * BS), height: 16 }));
+    if (shown != null) label(BX + shown * BS + 6, BY2 + 5, f2(shown) + ' V', lcls, 'start');
+    REC.bar = v;
+  }
+
+  // The offered answer, with its power drawn raised so a ring can mark it.
+  function offered() {
+    fixed(4, 26, 'the rule: `dv/dt = −v ÷ RC`, from 12 V', 'te', 'start');
+    fixed(4, 50, '`v` in volts, `t` and `RC` in seconds', 'nt', 'start');
+    const base = 'offered: `v = 12e`', wB = tw(base, 'te eq'), x = 20 + wB + 1, pw = '`−RCt`', wP = tw(pw, 'te');
+    fixed(20, 92, base, 'te eq', 'start');
+    fixed(x, 82, pw, 'te', 'start');
+    return { x: x - 3, y: 68, w: wP + 6, h: 19 };
+  }
+  function ringBox(b, cls) {
+    add(K.svg('rect', { class: cls, x: r2(b.x), y: r2(b.y), width: r2(b.w), height: r2(b.h), rx: 6 }));
+    addObst(b.x, b.y, b.x + b.w, b.y); addObst(b.x, b.y + b.h, b.x + b.w, b.y + b.h);
+    REC.ring = true;
+  }
+
+  // The ship: a hull with bilge keels, rolling in waves, over its roll against the wave rate.
+  function shipBase() {
+    const g = add(K.svg('g', { transform: 'rotate(-9 62 60)' }));
+    g.appendChild(K.svg('path', { class: 'hull', d: 'M18 40 L106 40 L104 64 Q100 90 62 92 Q24 90 20 64 Z' }));
+    g.appendChild(K.svg('line', { class: 'keel', x1: 28, y1: 84, x2: 19, y2: 92 }));
+    g.appendChild(K.svg('line', { class: 'keel', x1: 96, y1: 84, x2: 105, y2: 92 }));
+    let d = 'M4 62';
+    for (let j = 0; j < 8; j++) d += ' q8 -5 16 0';
+    add(K.svg('path', { class: 'water', d }));
+    addObst(4, 62, 132, 62);
+    placed.push({ x: 8, y: 26, w: 116, h: 76 });
+    fixed(140, 92, 'bilge keel', 'lab', 'start');
+    line('ax', G.QL, G.QB, G.QR, G.QB); line('ax', G.QL, G.QT, G.QL, G.QB);
+    addObst(G.QL, G.QT, G.QL, G.QB); addObst(G.QL, G.QB, G.QR, G.QB);
+    fixed(4, G.QT - 10, 'roll angle', 'ttl', 'start');
+    fixed(G.QR, G.QB + 18, 'wave rate', 'tk', 'end');
+    natLine('roll natural frequency');
+  }
+
+  // Lines of working under the picture.
+  function workLines(lines) {
+    lines.forEach((w, k) => {
+      const a = w.a == null ? 1 : w.a;
+      part(a, 6, () => text(4, G.workY + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));
+      if (a >= 0.5) said.push(say(w.s) + '.');
+      REC.work.push({ s: plain(w.s), bad: !!w.bad });
+    });
+  }
+  function tagLine(s) { fixed(336, 16, s, 'tag2', 'end'); said.push(say(s) + '.'); }
+  // The key, inside the drawing; it wraps to more rows if it must.
+  const sw = (cls) => (x, y) => line(cls, x, y, x + 18, y);
+  const KEYS = {
+    trace: [() => 'position `x`', sw('trace')],
+    env: [() => 'envelope', sw('env')],
+    rest: [() => 'rest', sw('rest')],
+    push: [() => 'push `F cos ωt`', (x, y) => arrow(x + 9, y + 7, x + 9, y - 7, 'parr', 5)],
+    dot: [() => 'settled swing', (x, y) => add(K.svg('circle', { class: 'dot', cx: x + 9, cy: y, r: 4.5 }))],
+    r15: [() => 'a 1.5 rad/s swing', sw('trace bad')],
+    hillc: [() => 'damping `c` = ' + f1(P.c), sw('hill')],
+    ghost: [() => 'damping 0.5', sw('hill ghost')],
+    hill6: [() => 'damping 6', sw('hill')],
+    bare: [() => 'without bilge keels', sw('hill')],
+    keels: [() => 'with bilge keels', sw('hill teal')],
+    heavy: [() => 'heavy damping', sw('hill bad')],
+  };
+  function keyLayout(items, d) {
+    const out = [];
+    let x = 4, row = 0;
+    items.forEach((k) => {
+      const s = KEYS[k][0](d), w = 24 + tw(s, 'key');
+      if (x + w > 336 && x > 4) { row++; x = 4; }
+      out.push({ k, s, x, row });
+      x += w + 14;
+    });
+    return { out, rows: Math.max(1, row + 1) };
+  }
+  function keyRow(lay) {
+    const y = G.keyY;
+    lay.out.forEach((o) => { const yy = y + 20 * o.row; KEYS[o.k][1](o.x, yy - 5); text(o.x + 24, yy, o.s, 'key', 'start'); placed.push({ x: o.x - 2, y: yy - 13, w: 26 + tw(o.s, 'key'), h: 17 }); });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; topG.textContent = '';
+    into = null; curA = 1; placed = []; obst = []; queue = []; said = [];
+    REC = { traces: [], heads: [], texts: [], dots: [], curves: [], work: [], bad: 0, answer: false, mass: null, level: null, arrows: null, topMark: null, drop: null, env: false };
+    const keys = typeof d.key === 'function' ? d.key(st) : d.key || [];
+    const lay = keyLayout(keys, d);
+    G = geoOf(d, st, keys.length ? lay.rows : 0);
+    REC.G = G;
+    if (d.tag) tagLine(d.tag(st));
+    d.draw(st, d);
+    if (keys.length) keyRow(lay);
+    queue.forEach(placeLabel);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.round(G.H));
+    svg.setAttribute('aria-label', said.join(' '));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const wCtl = K.control({ id: 'w', label: 'Push rate ω', min: WMIN, max: WMAX, step: 0.25, value: W0, snap: [1, 2, 4], fmt: (v) => nb(f2(v) + ' rad/s'), into: '#wbox' });
+  K.control({ id: 'c', label: 'Damping c', min: C0, max: CMAX, step: 0.5, value: C0, snap: [2, 3], fmt: (v) => nb(f1(v) + ' N·s/m'), into: '#cbox' });
+  K.choice({ id: 'view', label: 'Draw it as', options: [{ value: 'spring', label: 'Spring' }, { value: 'loop', label: 'RLC loop' }], value: 'spring', into: '#vbox' });
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); TM = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    RUNMODE = 'entry';
+    if (d.run) VISITED.delete(P.w);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); VISITED = new Set(); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    TM += dt;
+    paint();
+    commit(at());
+    return TM < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); commit(at()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; TM = 0; anim.play();
+  }
+  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }
+  // On the main screen, a push rate's dot stays once it has dropped.
+  function commit(i) {
+    const d = STEPS[i];
+    if (!d || !d.run) return;
+    const td = RUNMODE === 'quick' ? QDROP : EDROP;
+    if (TM >= td + SOFT) VISITED.add(P.w);
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  function setRich(node, s) { if (node.__s === s) return; node.__s = s; write(node, s); }
+  K.update((p) => {
+    P = { w: K.clamp(Math.round(p.w * 4) / 4, WMIN, WMAX), c: K.clamp(Math.round(p.c * 2) / 2, C0, CMAX), view: p.view === 'loop' ? 'loop' : 'spring' };
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    // A control moved on its screen: the main screen runs the trace again and drops its dot; any
+    // other screen shows the finished picture for the new setting at once.
+    const key = P.w + '|' + P.c + '|' + P.view;
+    if (key !== lastKey) {
+      if (lastKey !== null && i === lastStep) {
+        if (d.run && P.w !== lastW) { RUNMODE = 'quick'; play(RUN); }
+        else settle();
+      }
+      lastKey = key; lastW = P.w;
+    }
+    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox'); RUNMODE = 'entry';
+      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('lead').textContent = nb(d.lead || '');
+    el('lead').hidden = !d.lead;
+    paint(i);
+    commit(i);
+
+    el('wbox').hidden = !d.w;
+    el('cbox').hidden = !d.c;
+    el('vbox').hidden = !d.view;
+    const tiles = d.reads ? d.reads() : [];
+    el('reads').hidden = !tiles.length;
+    [1, 2].forEach((k) => {
+      const t = tiles[k - 1];
+      el('rd' + k).hidden = !t;
+      if (!t) return;
+      setRich(el('l' + k), t.l);
+      el('v' + k).textContent = nb(t.v);
+      el('s' + k).textContent = t.s ? nb(t.s) : '';
+      el('s' + k).hidden = !t.s;
+    });
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => plain(o).length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      setRich(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or t seconds into its motion, with the controls at p).
+  function drawn(i, st, t, p, seen, mode) {
+    const keepS = S[i], keepT = TM, keepP = P, keepV = VISITED, keepM = RUNMODE;
+    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;
+    if (p) P = Object.assign({}, P, p);
+    if (seen) VISITED = seen;
+    if (mode) RUNMODE = mode;
+    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; P = keepP; VISITED = keepV; RUNMODE = keepM; paint(); }
+  }
+
+  K.check('The motion is a steady swing set by the push plus a transient set by the start: from rest, from 0.3 m and from a 1 m/s kick at 1 rad/s the traces differ at first and agree within 0.01 m after 20 s; every trace obeys m x″ + c x′ + k x = F cos ωt; and once settled each swings at the push\'s rate', () => {
+    const a = forced(1, C0, 0, 0), b = forced(1, C0, 0.3, 0), c2 = forced(1, C0, 0, 1);
+    const differ = Math.abs(a.x(1) - b.x(1)) > 0.05 && Math.abs(a.x(1) - c2.x(1)) > 0.05;
+    const agree = K.linspace(20, 30, 101).every((t) => Math.abs(a.x(t) - b.x(t)) < 0.01 && Math.abs(a.x(t) - c2.x(t)) < 0.01);
+    const h = 1e-3;
+    const obeys = ALLW.every((w) => [C0, 2, CC, C6].every((c) => {
+      const s = forced(w, c);
+      if (Math.abs(s.x(0)) > 1e-12 || Math.abs(s.v(0)) > 1e-12) return false;
+      return K.linspace(0.1, 29.9, 25).every((t) => {
+        const x = s.x(t), v = (s.x(t + h) - s.x(t - h)) / (2 * h), acc = (s.x(t + h) - 2 * x + s.x(t - h)) / (h * h);
+        return Math.abs(M * acc + c * v + KS * x - F0 * Math.cos(w * t)) < 1e-4 && close(v, s.v(t), 1e-5);
+      });
+    }));
+    const rate = [1, 2, 3, 4].every((w) => {
+      const s = forced(w), ups = [];
+      for (let t = 20; t < 50 && ups.length < 3; t += 0.002) if (s.x(t) < 0 && s.x(t + 0.002) >= 0) ups.push(t);
+      return ups.length === 3 && Math.abs((ups[2] - ups[0]) / 2 - 2 * Math.PI / w) < 0.01 * 2 * Math.PI / w;
+    });
+    return differ && agree && obeys && rate;
+  });
+  K.check('A system swings with its largest amplitude when the push\'s frequency equals its natural frequency: with light damping the largest steady swing on the drive slider sits at the natural frequency, the square root of k ÷ m, and the true top of the hill lies within two percent of it', () => {
+    const best = ALLW.reduce((a, w) => (amp(w) > amp(a) ? w : a), ALLW[0]), pk = peak(C0);
+    return close(best, WN) && close(WN, 2) && Math.abs(pk.w - WN) / WN < 0.02;
+  }, { source: SRC_USNA });
+  K.check('Resonance can still occur with more damping, but the amplitude at resonance is reduced: each step up in damping, from the lightest to just below where the hill goes, lowers the swing at the natural frequency and the top of the hill, and every one of them still has a top', () => {
+    const cs = SLIDEC.filter((c) => c * c < 2 * M * KS);
+    return cs.length >= 5 && cs.every((c, k) => peak(c) && (k === 0 || (amp(WN, c) < amp(WN, cs[k - 1]) && peak(c).X < peak(cs[k - 1]).X)));
+  }, { source: SRC_USNA });
+  K.check('The driven series RLC circuit is the electrical analog of the driven damped spring: the loop, worked out in volts step by step through time from no charge, settles to the same charge swing as the spring\'s steady swing at four push rates', () => {
+    const run = (w) => {
+      let q = 0, i = 0, t = 0, big = 0;
+      const dt = 0.002, T = 60, from = T - 2 * (2 * Math.PI / w);
+      const f = (tt, qq, ii) => (VS * Math.cos(w * tt) - RL * ii - qq / CL) / LH;
+      while (t < T) {
+        const k1q = i, k1i = f(t, q, i);
+        const k2q = i + dt / 2 * k1i, k2i = f(t + dt / 2, q + dt / 2 * k1q, i + dt / 2 * k1i);
+        const k3q = i + dt / 2 * k2i, k3i = f(t + dt / 2, q + dt / 2 * k2q, i + dt / 2 * k2i);
+        const k4q = i + dt * k3i, k4i = f(t + dt, q + dt * k3q, i + dt * k3i);
+        q += dt / 6 * (k1q + 2 * k2q + 2 * k3q + k4q); i += dt / 6 * (k1i + 2 * k2i + 2 * k3i + k4i); t += dt;
+        if (t >= from) big = Math.max(big, Math.abs(q));
+      }
+      return big;
+    };
+    return [0.5, 1, 2, 3].every((w) => Math.abs(run(w) - amp(w)) < 1e-3 * amp(w));
+  }, { source: SRC_OS });
+  K.check('Every number is right: 0.329 m at 1 rad/s from 9 and 0.25, with arrows 1.32, 0.33 and 0.16 N; 2 rad/s natural, 1 m there with 4, 4 and 1 N; 0.25 m slow, 16 and 0.08 m at 4 rad/s, 12.17; tops 1.01 at 1.97, 0.52 at 1.87, 0.29 at 1.41, the hill gone past 2.83, none at 3, critical 4, 0.24 m at damping 6 from 3.94 and 1.5; a 4 s time constant, 20 s, 0.0067 left; one swing 6.28 s, ringing 1.98; the loop 0.25 F, 1 C, 2 A; the example 1000 rad/s, 159 Hz, 100 Ω each, 1600 and 20000, 0.25 A, 25 V, 2.5, 4 V and 12.5 V', () => {
+    const X1 = amp(1), X2 = amp(2), X4 = amp(4);
+    const spring = f3(X1) === '0.329' && close(Math.pow(KS - M, 2), 9) && close(Math.pow(C0 * 1, 2), 0.25) &&
+      f2(KS * X1) === '1.32' && f2(M * X1) === '0.33' && f2(C0 * X1) === '0.16' &&
+      close(WN, 2) && close(X2, 1) && close(KS * X2, 4) && close(M * 4 * X2, 4) && close(C0 * 2 * X2, 1) && close(F0 / (C0 * WN), 1) &&
+      f2(amp(WMIN)) === '0.25' && close(F0 / KS, 0.25) && close(M * 16, 16) && f2(X4) === '0.08' && f2(Math.hypot(12, 2)) === '12.17' &&
+      f2(peak(0.5).X) === '1.01' && f2(peak(0.5).w) === '1.97' && f2(peak(1).X) === '0.52' && f2(peak(1).w) === '1.87' &&
+      f2(peak(2).X) === '0.29' && f2(peak(2).w) === '1.41' && f2(CH) === '2.83' && peak(2.5) && !peak(3) && close(CC, 4) &&
+      f2(amp(WMIN, C6)) === '0.24' && f2(KS - M * WMIN * WMIN) === '3.94' && close(C6 * WMIN, 1.5) && close(C6 * C6, 36) && close(2 * M * KS, 8) &&
+      close(TAU, 4) && close(5 * TAU, 20) && f4(Math.exp(-5)) === '0.0067' && Math.exp(-5) < 0.01 &&
+      f2(2 * Math.PI) === '6.28' && f2(free(C0, 0, 0).b) === '1.98' && close(peakT(forced(1), 4) - peakT(forced(1), 3), 2 * Math.PI);
+    const loop = close(CL, 0.25) && close(amp(2), 1) && close(2 * amp(2), 2) && close(VS / RL, 2) &&
+      K.linspace(0.01, WMAX, 3991).every((w) => w * amp(w) <= 2 + 1e-12);
+    const ex = close(1 / Math.sqrt(EL * EC), 1000, 1e-6) && Math.round(1000 / (2 * Math.PI)) === 159 && close(exXL, 100, 1e-9) && close(exXC, 100, 1e-9) &&
+      close(ER * ER, 1600) && close(2 * EL / EC, 20000, 1e-6) && close(exI(ER), 0.25, 1e-9) && close(exVC(ER), 25, 1e-9) && close(exVC(ER) / EV, 2.5, 1e-9) &&
+      close(EV * ER / exXC, 4, 1e-9) && close(exVC(80), 12.5, 1e-9);
+    return !!(spring && loop && ex);
+  });
+  K.check('The picture follows the rule: every dot on the main screen sits at the steady swing for its push rate; the mass stays level with the trace\'s newest point; the three force arrows, end to end, always reach the tip of the 1 N push; the hill\'s top mark sits at its largest swing, and from damping 3 up there is no top and the swing only falls', () => {
+    const iH = idx('The hill'), iF = idx('Three forces'), iD = idx('Damping');
+    const r4 = drawn(iH, {}, null, { w: 2 }, new Set(ALLW));
+    const dots = r4.dots.length === ALLW.length && r4.dots.every((p) => close(p.X, amp(p.w)) && close(p.y, r4.G.qy(p.X), 1e-9) && close(p.x, r4.G.qx(p.w), 1e-9));
+    const level = [WMIN, 1, 2, 4].every((w) => [0, 0.8, 1.5, 2.5, 3.5, null].every((t) => {
+      const rr = drawn(iH, {}, t, { w }, new Set(), 'entry'), hd = rr.heads[rr.heads.length - 1];
+      return hd && rr.mass && close(rr.mass.cy, hd.y, 1e-9) && close(rr.level, hd.y, 1e-9) && close(hd.v, forced(w).x(hd.t), 1e-12);
+    }));
+    const arrowsOk = ALLW.every((w) => {
+      const A = drawn(iF, {}, null, { w }).arrows, X = amp(w);
+      return A && A.pushEnd && close(Math.hypot(A.kx - A.mx, A.cx), F0, 1e-9) && close(A.pushEnd[0], A.damperEnd[0], 1e-9) && close(A.pushEnd[1], A.damperEnd[1], 1e-9) &&
+        close(A.kx, KS * X) && close(A.mx, M * w * w * X) && close(A.cx, C0 * w * X);
+    });
+    const grid = K.linspace(0, WMAX, 4001);
+    const tops = SLIDEC.every((c) => {
+      const rr = drawn(iD, {}, null, { c }), mx = Math.max.apply(null, grid.map((w) => amp(w, c)));
+      if (c * c < 2 * M * KS) return rr.topMark && rr.topMark.X >= mx - 1e-9 && close(rr.topMark.X, amp(rr.topMark.w, c));
+      return !rr.topMark && grid.every((w, k) => k === 0 || amp(w, c) < amp(grid[k - 1], c));
+    });
+    return dots && level && arrowsOk && tops;
+  });
+  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check('Before Check, no puzzle\'s picture shows its answer or a mistake, and no working is drawn', () =>
+    DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0 && r.work.length === 0; }));
+  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; a push-rate move on the main screen drops its dot within 3 s; every answer\'s motion, right or wrong, finishes within 2 s', () => {
+    const keepT = TM;
+    const timed = (i, st, limit, mode) => {
+      const keepS = S[i], keepM = RUNMODE, keepV = VISITED;
+      TM = Infinity; latest = 0; earliest = Infinity;
+      S[i] = Object.assign(blank(), st); RUNMODE = mode || 'entry'; VISITED = new Set();
+      try { paint(i); } finally { S[i] = keepS; RUNMODE = keepM; VISITED = keepV; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return d.dur <= 5 && d.dur >= 3 && timed(i, {}, d.dur) && earliest >= FADE && (!d.run || timed(i, {}, 3, 'quick'));
+      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));
+    });
+    TM = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

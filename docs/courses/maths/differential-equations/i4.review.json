@@ -1,0 +1,33 @@
+{
+  "scores": { "lands": 5, "why": 4, "cause": 5, "trade": 4, "honest": 5, "pleasure": 4 },
+  "findings": [
+    { "severity": "fix", "where": "Screen 6 (Halve the step): hint and Why?",
+      "what": "The hint 'Look at how the drift changed when the step halved before' points at log rows where halving did not halve the drift (4.41 to 1.41 V is x0.32, 1.41 to 0.62 V is x0.44), and no earlier screen says the drift shrinks roughly in proportion to the step, so 'about 0.11 V' can only be guessed or read from Why?, whose first sentence just restates the answer; screen 5 should say that for small steps the drift is about proportional to h, and the hint should point at the 0.25 s and 0.1 s rows (0.62 and 0.23 V, both shrinking about 2.5 times)." },
+    { "severity": "fix", "where": "Screen 1 (One step), text",
+      "what": "The screen opens with three sentences of circuit values, rule and slope field before the method, and the point of Euler's method (it needs only the rule, so it works where no formula exists) does not appear until screen 9, which breaks 'lead with the point'; 'Euler's method walks instead' says too little to stand as the definition." },
+    { "severity": "fix", "where": "Screens 9, 10 and 13 (the tank) and the explain text",
+      "what": "The letter h means the step size on screens 1 to 7 ('h = 0.5 s', 'Choose a step size, h') and then the tank's level ('dh/dt = 0.3 − 0.2 √h', 'At 1 m, √h is 1'), and the explain uses it both ways in consecutive paragraphs, so rename the level (for example y or L)." },
+    { "severity": "polish", "where": "Screen 1, plot label 'h = 0.5 s'",
+      "what": "The picture shows 'h = 0.5 s' from the first screen, but the text only says h is the step size on screen 5." },
+    { "severity": "polish", "where": "Screen 1, first sentence under the lead",
+      "what": "'A 100 µF capacitor discharges from 12 V through 10 kΩ' repeats the lead line directly above it at 360 px, which wastes the screen's opening words." },
+    { "severity": "polish", "where": "Screen 7 (Too big a step), text",
+      "what": "At exactly 90 words the screen packs four ideas: the wider plot, the steady state, the factor 1 − h ÷ τ and three step sizes; moving the 2 s case into the working line would let it breathe." },
+    { "severity": "polish", "where": "Screen 7 (Too big a step), opening state",
+      "what": "The screen opens on 1 s steps, which land on 0 V and stay, so the swing the screen is about only appears after a tap, while the read-through still uses 1.5 s." },
+    { "severity": "polish", "where": "Screen 9 (A tank), text",
+      "what": "The screen does not show how 2.25 m comes from the rule (0.3 = 0.2 √h, so √h = 1.5), and it never says the outflow grows with the square root of the depth, so the 0.2 √h term is unexplained; the screen has room for one more sentence (74 words)." },
+    { "severity": "polish", "where": "Screens 3, 5, 6, 9 and 13: drawing colours",
+      "what": "The drift is hatched and bracketed in amber, and the slope-read arrows and earlier walks are teal, but the brief chose hatched ink for the drift and ink for curves and arrows, keeping teal for small labels and amber for key terms." },
+    { "severity": "polish", "where": "Screen 5 (Step size) or practice",
+      "what": "No screen says what a smaller step costs (more steps to work, one spreadsheet row each), so the step-size trade reads as accuracy only, and a learner may ask why not always take tiny steps." },
+    { "severity": "polish", "where": "Screen 9 or practice",
+      "what": "The brief's naval hook, a submarine's dive stepped the same way, is missing; one plain line would tie the method to Dan's work." },
+    { "severity": "polish", "where": "Screens 8 and 10 (puzzles): motion",
+      "what": "The film log (i4.a1.film.json, steps 7 and 9) records one change at about 0.5 s on these two puzzle screens, which should open still like the other puzzles, so something there may pop in or shift after the screen opens; check it." },
+    { "severity": "polish", "where": "Explain, second paragraph",
+      "what": "'Take the capacitor from before, now discharging through 10 kΩ. So τ = RC = 1 s.' never names the 100 µF, so the τ cannot be checked from that paragraph alone." },
+    { "severity": "polish", "where": "Practice, Common mistakes, fourth bullet",
+      "what": "'Trusting a walk that swings either side of its steady line, in a rule whose rate depends only on the value.' runs to 22 words with a trailing clause and should be split." }
+  ]
+}

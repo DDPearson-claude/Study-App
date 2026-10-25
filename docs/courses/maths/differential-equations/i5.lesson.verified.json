@@ -1,0 +1,335 @@
+{
+  "iid": "i5",
+  "title": "The spring and the circuit: one equation",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the mass and the capacitor's charge tracing one curve, with the inertia, loss and store bars adding to zero, when you move the time marker along it.",
+    "title": "Spring and circuit, side by side",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "This is a short lesson in thirteen small screens. On the left, a 1 kg mass hangs on a spring, with a damper beside it. On the right, a 1 H coil, a 0.5 Ω resistor and a 0.25 F capacitor sit in one loop. Their values are picked so the numbers match. The damping is 0.5 N·s/m. The stiffness is 4 N/m, which is 1 ÷ 0.25. Screen 1 shows the spring alone. The mass is lifted 0.5 m above its rest and let go. Its weight is balanced at rest. One arrow on it shows the net pull of spring and weight, measured from rest. Another shows the damper's drag. Beside it, a trace of its position against time draws itself. Position runs up the side, from −0.6 to 0.6 m. Time runs along the bottom, from 0 to 10 s. The mass moves only up and down. It stays level with the trace's newest point. The rule m x″ + c x′ + k x = 0 sits under it. Screen 2 asks for the mass's acceleration at the moment it is let go. The choices are 2 m/s² downward, none because it is still, or 2 m/s² upward. Screen 3 shows the circuit alone. The capacitor starts with 0.5 C on it, which is 2 V. The switch closes and current flows. The charge traces the same kind of curve. Its rule L q″ + R q′ + q ÷ C = 0 sits under it. Screen 4 asks which capacitor matches a stiffer spring. The choices are a smaller C, a bigger C, or the same C with more R. Screen 5 puts the two side by side over one trace. Three sliders each carry two names. Mass and L run from 0.5 to 2. Damping and R run from 0.25 to 1.25. Stiffness and 1 ÷ C run from 1 to 8. A readout gives C in farads. A Let go button releases both at once. A solid line traces the mass. A dashed line traces the loop's charge, worked out from its own rule, and lands on it. Position is in metres and charge in coulombs. On a phone the sliders stack. Screen 6 asks which way the mass moves while its trace runs across. The choices are only up and down, along the curve, or to the right. Screen 7 adds a time marker on the trace, with three bars under it. Inertia is m x″ or L q″. Loss is c x′ or R q′. Store is k x or q ÷ C. The bars read in newtons or volts, from −2 to 2. Their sum shows 0 at every moment. At the release the bars read −2, 0 and 2. At 0.5 s they read −0.78, −0.37 and 1.15. Screen 8 shows the 1 s moment with the inertia bar hidden. There the store bar reads −0.45 N and the loss bar −0.36 N. It asks what the inertia bar reads. The choices are 0.81 N, −0.81 N or 0.09 N. Screen 9 lets the mass go twice from 0.5 m. Once it starts at rest. Once it starts with a push of 1 m/s downward. The mass drawn is the pushed run. The two traces differ. Screen 10 starts the circuit with the capacitor empty and 0.8 A in the coil. It asks what happens next. One answer is that the coil keeps the current flowing and charge builds on the capacitor. Another is that nothing happens, because the capacitor is empty. The third is that the current stops at once. Screens 11 to 13 mix it all. Screen 11 gives a 2 H coil, a 3 Ω resistor and a 0.5 F capacitor. It asks for the matching spring. The first choice is 2 kg, 3 N·s/m and 2 N/m. The second is 2 kg, 3 N·s/m and 0.5 N/m. The third is 0.5 kg, 3 N·s/m and 2 N/m. Screen 12 gives 2 x″ = −8 x − 0.6 x′. It asks which capacitor matches its spring. The choices are 0.125 F, 8 F or −0.125 F. Screen 13 shows the mass near 4.75 s. It is still for an instant at the bottom of a swing. The store bar reads −0.61 N. It asks what the other two bars read. The first choice is loss 0 N and inertia 0.61 N. The second is loss 0.61 N and inertia 0 N. The third is both at −0.61 N. Each puzzle offers three answers.",
+    "ignores": "Time runs slowly here. The parts are picked so the two sets of numbers match. A 1 H coil with a 0.25 F capacitor would be unusual. Circuits with everyday values swing far faster. The spring and damper are assumed ideal. The pull grows in step with the distance from rest. The drag grows in step with the speed. The mass hangs, so gravity pulls on it too. Measuring from where it hangs at rest cancels gravity, so the rule is unchanged. The coil, resistor and capacitor are assumed ideal too. Every setting here swings. Heavier damping can creep back without swinging. The next lesson shows when.",
+    "numbers": [
+      {
+        "label": "Opening mass in kg, and coil in H",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Opening damping in N·s/m, and resistance in Ω",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Opening stiffness in N/m, and 1 ÷ C per farad",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Opening capacitance, 1 ÷ 4, in F",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Mass and L slider lowest, in kg or H",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Mass and L slider highest, in kg or H",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Damping and R slider lowest, in N·s/m or Ω",
+        "value": 0.25,
+        "kind": "control"
+      },
+      {
+        "label": "Damping and R slider highest, in N·s/m or Ω",
+        "value": 1.25,
+        "kind": "control"
+      },
+      {
+        "label": "Stiffness and 1 ÷ C slider lowest, in N/m or per F",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Stiffness and 1 ÷ C slider highest, in N/m or per F",
+        "value": 8,
+        "kind": "control"
+      },
+      {
+        "label": "Lift at release, in m",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor's starting charge, in C",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitor's starting voltage, 0.5 ÷ 0.25, in V",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Plot's top position, in m",
+        "value": 0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Plot's lowest position, in m",
+        "value": -0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Plot's last time, in s",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Store term at release, 4 × 0.5, in N",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Loss term at release, in N",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Inertia term at release, in N",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Acceleration at release, −2 ÷ 1, in m/s²",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Bars' top reading, in N or V",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Bars' lowest reading, in N or V",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Marked moment, in s",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Store term at 0.5 s, in N",
+        "value": 1.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Loss term at 0.5 s, in N",
+        "value": -0.37,
+        "kind": "computed"
+      },
+      {
+        "label": "Inertia term at 0.5 s, in N",
+        "value": -0.78,
+        "kind": "computed"
+      },
+      {
+        "label": "Hidden bar's moment, in s",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Store term at 1 s, in N",
+        "value": -0.45,
+        "kind": "computed"
+      },
+      {
+        "label": "Loss term at 1 s, in N",
+        "value": -0.36,
+        "kind": "computed"
+      },
+      {
+        "label": "Inertia term at 1 s, in N",
+        "value": 0.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, sign lost, in N",
+        "value": -0.81,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, −(−0.45 + 0.36), in N",
+        "value": 0.09,
+        "kind": "computed"
+      },
+      {
+        "label": "Downward push at the second release, in m/s",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Coil's starting current, screen 10, in A",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 coil, in H",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 resistor, in Ω",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 capacitor, in F",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 11 stiffness, 1 ÷ 0.5, in N/m",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 mass, in kg",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 stiffness, in N/m",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 damping, in N·s/m",
+        "value": 0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 matching capacitor, 1 ÷ 8, in F",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, sign kept, in F",
+        "value": -0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Bottom of a swing, near, in s",
+        "value": 4.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Store term there, in N",
+        "value": -0.61,
+        "kind": "computed"
+      },
+      {
+        "label": "Inertia term there, in N",
+        "value": 0.61,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice coil, in mH",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice coil, in H",
+        "value": 0.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice resistor, in Ω",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice capacitor, in µF",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice capacitor, in F",
+        "value": 0.0001,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice 1 ÷ C, per farad",
+        "value": 10000,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice starting voltage, in V",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice starting charge, 0.0001 × 12, in C",
+        "value": 0.0012,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice coil's term at the start, in V",
+        "value": -12,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice current's starting rate, −12 ÷ 0.01, in A/s",
+        "value": -1200,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A mass on a spring with a damper obeys the same rule as a coil, resistor and capacitor in one loop. Write out each equation and they match term for term. The mass plays the coil. The damper plays the resistor. The spring plays 1 ÷ C.[^1] So in this model, any result for one gives the matching result for the other.\n\nStart with the spring. Here x is the distance from rest, x′ is the speed and x″ is the acceleration. The mass hangs, but its weight is balanced at rest. So measured from rest, only the extra pull counts. The ideal model assumes two things. The spring's extra pull grows in step with x, so it is −k x. The damper's drag grows in step with the speed, so it is −c x′. Newton's second law says mass × acceleration = the force on it. So m x″ = −k x − c x′. Move it all to one side to get m x″ + c x′ + k x = 0. Its highest derivative is the second, x″. That makes it a [[second-order]] differential equation. Its c is the [[damping]], and its k is the [[stiffness]].\n\nNow the circuit. Say the capacitor is charged, then the loop is closed. With no supply, the volts round the loop add to zero. The coil drops L di/dt. The resistor drops R i, and the capacitor q ÷ C. The current is the rate the charge moves. So i = q′ and di/dt = q″. That gives L q″ + R q′ + q ÷ C = 0. Charge plays position, and current plays speed. L sits where m sits, R where c sits, and 1 ÷ C where k sits. So a stiffer spring matches a smaller capacitor. A smaller C gives more volts for the same charge, so it pushes back harder.\n\nEach term has a job. The first is inertia. The mass, or the coil, resists a change in motion. The second is loss. The damper, or the resistor, turns energy into heat. The third is the store. The spring, or the capacitor, holds energy and pushes back. Each term is in newtons for the spring and volts for the circuit. With no push or supply, they add to zero at every moment. That sum is the equation itself, read at one instant. Say the mass is lifted 0.5 m, with a stiffness of 4 N/m, and let go. It is still, so the loss is 0. The store is 4 × 0.5 = 2 N, so the inertia term is −2 N. With 1 kg, the mass accelerates downward at 2 m/s². It does so even though its speed is zero.\n\nA start needs two values, because the rule gives the acceleration. Euler's method shows why. At each step, the acceleration updates the speed, and the speed updates the position. So you need where it starts and how fast it is going. In the circuit, those are the capacitor's charge and the coil's current. Take a coil carrying 0.8 A into an empty capacitor. The charge does not stay at zero. The coil keeps the current flowing, so charge builds on the capacitor. And the time graph is not the mass's path. The mass only moves up and down. The trace runs across because time does.\n\nBecause the equations match, a circuit left to itself moves in the same three ways as a spring.[^2] The next lesson sorts them. This is a simplified model with ideal parts. It holds only while each part keeps to its straight-line rule.\n\n**A damped spring and a series RLC circuit obey one second-order equation, term for term: mass as inductance, damping as resistance and stiffness as 1 ÷ C.[^1]**"
+  },
+  "analogy": {
+    "text": "A coil acts like a flywheel. A flywheel keeps turning, and a coil keeps its current going. Both fight a change. A capacitor acts like a spring. The more charge you pack in, the harder it pushes back. A resistor acts like a brake that warms up. Couple a flywheel to a shaft that twists like a spring. Add a light brake. It swings back and forth, as the loop can.",
+    "breaks": "A capacitor matches the spring's give, not its stiffness. So a bigger capacitor is a softer spring. The match also assumes ideal parts on both sides."
+  },
+  "practice": {
+    "text": "- Find the three parts. One carries the motion on: a mass or a coil. One loses energy: a damper or a resistor. One stores it and pushes back: a spring or a capacitor.\n- Put every value in base units first: kilograms, henries, ohms and farads.\n- Write each part's term. For a spring, the terms are m x″, c x′ and k x, in newtons. For a circuit, they are L q″, R q′ and q ÷ C, in volts.\n- With no push or supply, put all three on one side, equal to zero.\n- To swap between them, use m for L, c for R and k for 1 ÷ C. Position goes with charge. Speed goes with current.\n- Give two starting values: position and speed, or charge and current.\n- Check the start. With no push and no speed, the inertia term is minus the store term.\n\n**Rules of thumb:** a stiffer spring is a smaller capacitor. A heavier mass is a bigger coil. More damping is more resistance.\n\n**Worked example:** a 10 mH coil, a 2 Ω resistor and a 100 µF capacitor sit in one loop. The capacitor starts at 12 V with no current. In base units the coil is 0.01 H and the capacitor is 0.0001 F. So 1 ÷ C = 10000. The equation is 0.01 q″ + 2 q′ + 10000 q = 0. The starting charge is CV = 0.0001 × 12 = 0.0012 C. At the start the current is zero, so the resistor's term is 0 V. The capacitor's term is 12 V. So the coil's term is −12 V. The current starts at 0 A. It changes at −12 ÷ 0.01 = −1200 A a second. The minus means the charge is leaving the capacitor. The matching spring has a 0.01 kg mass, damping of 2 N·s/m and a stiffness of 10000 N/m.\n\n**Common mistakes**\n- Matching the spring to C. It matches 1 ÷ C.\n- Giving only one starting value. A second-order equation needs two.\n- Reading the time graph as the mass's path.\n- Losing a sign when moving terms across. m x″ = −k x − c x′ becomes m x″ + c x′ + k x = 0.\n- Mixing mH or µF with H or F."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "P301 E5 — University of Illinois",
+      "url": "https://courses.physics.illinois.edu/phys401/fa2018/Files/RLC/E5_TransientsInRLC_20120125_v2.pdf",
+      "quote": "the mass behaves the same as an inductor, and the spring the same as an inverse capacitance."
+    },
+    {
+      "n": 2,
+      "title": "6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics",
+      "url": "https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit",
+      "quote": "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+    }
+  ]
+}

@@ -1,0 +1,550 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Differential equations, from cooling to resonance
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "One small step at a time: Euler's method" — Euler's method walks short straight steps along the rule's slope, solving equations that have no formula, and smaller steps drift less from the true curve. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 The spring and the circuit: one equation — A damped spring and series RLC circuit obey the same second-order equation, term for term: mass as inductance, damping as resistance, stiffness as 1 ÷ C.
+- i6 Overdamped, critical and ringing — The roots of mr² + cr + k = 0 decide whether it creeps back, returns quickest without ringing, or rings inside a dying envelope.
+- i7 Pushing it: resonance, and reading a model — Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 7.3: Euler's Method - Mathematics LibreTexts — LibreTexts Mathematics — https://math.libretexts.org/Under_Construction/Purgatory/Book%3A_Active_Calculus_(Boelkins_et_al.)/07%3A_Differential_Equations/7.03%3A_Euler's_Method
+    "Euler’s method is an algorithm for approximating the solution to an initial value problem by following the tangent lines while we take horizontal steps across the"
+[R2] ES.1803 S24: Reading: Topic 11: Numerical Methods for First-Order Differential Equations — MIT OpenCourseWare — https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf
+    "We know that the slope of the solution curve through (𝑥0, 𝑦0) is 𝑦 ′ = 𝑓(𝑥0, 𝑦0)."
+[R3] Euler's Method (First Order Runge-Kutta) — https://lpsa.swarthmore.edu/NumInt/NumIntFirst.html
+    "Obviously a smaller h would result in a better approximation, and a larger _h_ in a worse approximation."
+[R4] 19 19 — Loughborough University (HELM) — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf
+    "Newton’s law of cooling states that the rate of cooling of liquid is proportional to the difference between its temperature and the temperature of its environment (the ambient temperature)."
+[R5] 19.2 — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/images/First_order_odes.pdf
+    "It is so-called because we rearrange the equation to be solved such that all terms involving the dependent variable appear on one side of the equation, and all terms involving the independent variable appear on the other."
+[R6] Decay constant | Definition, Formula, & Facts | Britannica — Encyclopaedia Britannica — https://www.britannica.com/science/decay-constant
+    "This shows that the population decays exponentially at a rate that depends on the decay constant."
+[R7] RC Circuits — Michigan State University — https://web.pa.msu.edu/courses/2000fall/phy232/lectures/rccircuits/rc.html
+    "This produces a characteristic time dependence that turns out to be exponential. The crucial parameter that describes the time dependence is the "time constant"
+[R8] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "In each successive time , the current falls to 0.368 of the preceding value"
+[R9] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+[R10] DOE-HDBK-1019/2-93; DOE Fundamentals Handbook Nuclear Physics and Reactor Theory Volume 2 of 2 — US Department of Energy — http://large.stanford.edu/courses/2013/ph241/waisberg1/docs/h1019v2.pdf
+    "The reactor period is defined as the time required for reactor power to change by a factor of "e," where "e" is the base of the natural logarithm and is equal to about 2.718."
+[R11] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The initial current is zero and approaches _I_ ₀ = _V/R_ with a _characteristic time constant_ _τ_ for an _RL_ circuit"
+[R12] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+[R13] 15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics — https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations
+    "The general solution is a sum of a transient solution that depends on initial conditions, and a steady state that is independent of initial conditions and depends only on the driving amplitude"
+[R14] An advanced model autopilot control system (National Research Council Canada) — https://nrc-publications.canada.ca/fra/voir/td?id=b9d45f26-f67e-42fc-b367-ef85776e9836
+    "The first-order Nomoto steering model relates the rudder angle to the heading angle, characterizing the steering of a vessel with two parameters, K and T, that vary as a function of forward speed."
+[R15] 19.2 — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/images/First_order_odes.pdf
+    "We have shown that for an RC circuit finding the steady state solution of the differential equation with a single frequency input voltage yields the same result for"
+[R16] 15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit
+    "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+Notes (claims, and the sources that support them):
+- Euler's method approximates the solution of an initial value problem by following tangent lines, taking horizontal steps across the t-axis. [R1]
+- The slope of the solution curve at each point is set by the equation, and Euler's method uses that slope for each step. [R2][R1]
+- A smaller step gives a better approximation and a larger step a worse one. [R3]
+- Newton's law of cooling gives the rate of cooling of a liquid as proportional to the difference between its temperature and its surroundings' temperature. [R4]  (from an idea this one builds on)
+- The slope of the solution curve through a point is set by the equation itself, as y′ = f(x, y) at that point. [R2]  (from an idea this one builds on)
+- Separation of variables rearranges the equation so every term in the unknown is on one side and every term in the independent variable is on the other. [R5]  (from an idea this one builds on)
+- Radioactive atoms decay exponentially, at a rate that depends on the decay constant. [R6]  (from an idea this one builds on)
+- In an RC circuit the charge and discharge are exponential in time, and the time constant RC sets the pace. [R7]  (from an idea this one builds on)
+- When a coil's supply is switched off, its current falls to 0.368 of the preceding value in each successive time constant. [R8]  (from an idea this one builds on)
+- An exponential never exactly reaches its final value, but covers 0.632 of what remains in every time constant. [R9]  (from an idea this one builds on)
+- Reactor period is the time for reactor power to change by a factor of e, so a reactor's power grows exponentially (added for i2: the plus-sign example). [R10]  (from an idea this one builds on)
+- When a coil is switched onto a supply, the current starts at zero and approaches V divided by R, with a characteristic time constant for an RL circuit. [R11]  (from an idea this one builds on)
+- The time constant for an RL circuit is defined as L divided by R. [R12]  (from an idea this one builds on)
+- The current covers 0.632 of the remainder to its final value in every time constant. [R9]  (from an idea this one builds on)
+- A driven damped system's general solution is a transient that depends on the starting conditions plus a steady state that depends only on the drive. [R13]  (from an idea this one builds on)
+- The first-order Nomoto steering model links a ship's rudder angle to its heading with two parameters, a gain K and a time constant T (added for i3: a ship answering its rudder). [R14]  (from an idea this one builds on)
+- For an RC circuit, the steady-state solution with a single-frequency input voltage gives the same result as the impedance method (added for i3: the sine input). [R15]  (from an idea this one builds on)
+- A driven RLC series circuit is the electrical analog of a driven damped harmonic oscillator, so one family of ideas covers springs and circuits. [R16]  (whole topic)
+- The time constant of an RL circuit is L divided by R, and the current covers 0.632 of the remainder to its final value in every time constant. [R12][R9]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "One small step at a time: Euler's method",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the hatched drift between the straight steps and the faint exact curve shrinking as you choose smaller step sizes for the capacitor's discharge.",
+  "title": "The stepper",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "This is a short lesson in thirteen small screens. A 100 µF capacitor charged to 12 V discharges through a 10 kΩ resistor. So τ = RC = 1 s. Its rule is dV/dt = −V ÷ 1, in volts and seconds. Voltage runs up the side, from 0 to 12 V. Time runs along the bottom, from 0 to 3 s. A faint slope field fills the plot. A faint exact curve, V = 12 e^(−t), runs through it. Euler's method walks on top. At each point it reads the arrow there. It walks straight along it for one step size h. Then it reads again. So new value = old value + h × slope at the old value. The gap between the walk and the curve is hatched. That is the drift. Screen 1 starts a dot at 12 V. The arrow there slopes −12 V a second. The dot walks 0.5 s along it, down to 6 V. Screen 2 asks where the next 0.5 s step lands. The choices are 3 V, 0 V or 4.41 V. Screen 3 draws both steps and the curve. At 1 s the walk reads 3 V and the curve 4.41 V. The drift of 1.41 V is hatched. Short tangent ticks along the first step show the curve easing off while the step keeps its starting slope. Screen 4 asks where 0.25 s steps are at 0.5 s. The choices are 6.75 V, 7.28 V or 6 V. Screen 5 offers a named choice of step size: 0.05, 0.1, 0.25, 0.5 or 1 s. It opens on 0.5 s. Each step's starting arrow is drawn where it begins, so every step is seen to use the slope at its start. A table logs the value at 1 s for each step size chosen, beside the curve's 4.41 V. The rows read 4.30, 4.18, 3.80, 3.00 and 0 V. Their drifts are 0.11, 0.23, 0.62, 1.41 and 4.41 V. As the steps shrink, the value at 1 s climbs towards 4.41 V. On a phone the table's columns wrap. Screen 6 asks the drift with 0.05 s steps, given 0.23 V with 0.1 s steps. The choices are about 0.11 V, about 0.23 V or about 0.06 V. The 0.05 s row stays hidden until he checks. Screen 7 widens the plot to run from −12 to 12 V and from 0 to 6 s. A named choice offers 1, 1.5 or 2 s steps. A dashed line marks the steady state at 0 V. Each step adds h × (−V ÷ τ), so it multiplies the value by 1 − h ÷ τ. With 1 s steps the walk drops to 0 V at 1 s and stays there. With 1.5 s steps it goes 12, −6, 3, −1.5 and 0.75 V. It swings either side of 0 V and dies away. With 2 s steps it goes 12, −12, 12 and −12 V, for ever. The curve itself never crosses 0 V. Screen 8 asks the first 1.5 s step from 12 V. The choices are −6 V, 0 V or 2.68 V. Screen 9 swaps in a tank. Its level h obeys dh/dt = 0.3 − 0.2 √h, in metres and minutes. It fills from empty. Level runs up the side, from 0 to 2.5 m, and time along the bottom, from 0 to 20 min. A dashed line marks the steady level, 2.25 m. There is no faint curve, because this rule has no tidy formula. A named choice offers steps of 2, 1, 0.5 or 0.25 min. Each walk is drawn on top of the others. Readouts log the level at 4 min: 0.89, 0.79, 0.75 and 0.73 m. Each halving moves the answer less. Screen 10 asks one 1 min step from 1 m. The choices are 1.1 m, 1.3 m or 0.1 m. Screens 11 to 13 mix it all. Screen 11 steps the coil from the last lesson, di/dt = (24 − 10 i) ÷ 0.5, from 0 A, in two steps of 0.01 s. The choices are 0.864 A, 0.96 A or 0.791 A. Screen 12 shows the same coil stepped with 0.075 s steps. Its current reads 0, 3.6, 1.8 and 2.7 A. It asks why. The choices are: the step is longer than τ, so it overshoots; the current really rings; or the steady value is 3.6 A. Screen 13 shows the tank at 4 min reading 0.79 m with 1 min steps and 0.75 m with 0.5 min steps. It asks what to do next. The choices are: halve the step again and compare; take 0.79 m; or average them to 0.77 m. Each puzzle offers three answers.",
+  "ignores": "The steps are drawn slowed down and much larger than a computer would take. A computer also rounds each number a little, and this lesson leaves that out. The capacitor and resistor are ideal. The tank's rule is an example rule, with its outflow growing as the square root of the level. A real tank's outflow depends on its outlet. Euler's method is the simplest stepper. Textbooks add that better ones read the slope more than once in each step.",
+  "numbers": [
+   {
+    "label": "Example capacitance, in µF",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example start voltage, in V",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example resistance, in kΩ",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Time constant RC, in seconds",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Plot's last time, in seconds, screens 1 to 6",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Starting slope, −12 ÷ 1, in V a second",
+    "value": -12,
+    "kind": "computed"
+   },
+   {
+    "label": "First step size, in seconds, screens 1 to 3",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "After one 0.5 s step, 12 − 0.5 × 12, in V",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "After two 0.5 s steps, 6 − 0.5 × 6, in V",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, starting slope reused, in V",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Exact value at 1 s, 12 e^(−1), in V",
+    "value": 4.41,
+    "kind": "computed"
+   },
+   {
+    "label": "Drift at 1 s with 0.5 s steps, in V",
+    "value": 1.41,
+    "kind": "computed"
+   },
+   {
+    "label": "Smaller step, in seconds, screen 4",
+    "value": 0.25,
+    "kind": "assumed"
+   },
+   {
+    "label": "After one 0.25 s step, in V",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "After two 0.25 s steps, in V",
+    "value": 6.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Exact value at 0.5 s, 12 e^(−0.5), in V",
+    "value": 7.28,
+    "kind": "computed"
+   },
+   {
+    "label": "Step size choice, smallest, in seconds",
+    "value": 0.05,
+    "kind": "control"
+   },
+   {
+    "label": "Step size choice, in seconds",
+    "value": 0.1,
+    "kind": "control"
+   },
+   {
+    "label": "Step size choice, largest on screen 5, in seconds",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Value at 1 s, 0.05 s steps, in V",
+    "value": 4.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Value at 1 s, 0.1 s steps, in V",
+    "value": 4.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Value at 1 s, 0.25 s steps, in V",
+    "value": 3.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Drift at 1 s, 0.05 s steps, in V",
+    "value": 0.11,
+    "kind": "computed"
+   },
+   {
+    "label": "Drift at 1 s, 0.1 s steps, in V",
+    "value": 0.23,
+    "kind": "computed"
+   },
+   {
+    "label": "Drift at 1 s, 0.25 s steps, in V",
+    "value": 0.62,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, drift quartered, in V",
+    "value": 0.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Wide plot's lowest voltage, in V, screen 7",
+    "value": -12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Wide plot's last time, in seconds, screen 7",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Big step choice, in seconds",
+    "value": 1.5,
+    "kind": "control"
+   },
+   {
+    "label": "Big step choice, largest, in seconds",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Factor per 1.5 s step, 1 − 1.5 ÷ 1",
+    "value": -0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "After one 1.5 s step, in V",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "After three 1.5 s steps, in V",
+    "value": -1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "After four 1.5 s steps, in V",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Factor per 2 s step, 1 − 2 ÷ 1",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Exact value at 1.5 s, 12 e^(−1.5), in V",
+    "value": 2.68,
+    "kind": "computed"
+   },
+   {
+    "label": "Fall in one 1.5 s step, 1.5 × 12, in V",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank's inflow, in m a minute",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank's outflow figure, per root metre a minute",
+    "value": 0.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank's top level on the plot, in m",
+    "value": 2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank plot's last time, in minutes",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank's steady level, (0.3 ÷ 0.2)², in m",
+    "value": 2.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank step choices, in minutes",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Tank step choice, smallest, in minutes",
+    "value": 0.25,
+    "kind": "control"
+   },
+   {
+    "label": "Tank time logged, in minutes",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Level at 4 min, 2 min steps, in m",
+    "value": 0.89,
+    "kind": "computed"
+   },
+   {
+    "label": "Level at 4 min, 1 min steps, in m",
+    "value": 0.79,
+    "kind": "computed"
+   },
+   {
+    "label": "Level at 4 min, 0.5 min steps, in m",
+    "value": 0.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Level at 4 min, 0.25 min steps, in m",
+    "value": 0.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank start level, screen 10, in m",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank slope at 1 m, 0.3 − 0.2, in m a minute",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Level after one 1 min step, in m",
+    "value": 1.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, outflow left out, 1 + 0.3, in m",
+    "value": 1.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil supply, in V",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil resistance, in Ω",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil inductance, in H",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil step size, in seconds, screen 11",
+    "value": 0.01,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil starting slope, 24 ÷ 0.5, in A a second",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil after one 0.01 s step, in A",
+    "value": 0.48,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil slope at 0.48 A, in A a second",
+    "value": 38.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil after two 0.01 s steps, in A",
+    "value": 0.864,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, starting slope reused, in A",
+    "value": 0.96,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil exact at 0.02 s, 2.4 (1 − e^(−0.4)), in A",
+    "value": 0.791,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil exact time, two steps, in seconds",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil time constant, 0.5 ÷ 10, in seconds",
+    "value": 0.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil steady current, 24 ÷ 10, in A",
+    "value": 2.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil big step, in seconds, screen 12",
+    "value": 0.075,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil after one 0.075 s step, in A",
+    "value": 3.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil after two 0.075 s steps, in A",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil after three 0.075 s steps, in A",
+    "value": 2.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, average of 0.79 and 0.75, in m",
+    "value": 0.77,
+    "kind": "computed"
+   },
+   {
+    "label": "Value at 1 s with 0.1 s steps below exact, in %",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Coil rise in the second step, 0.01 × 38.4, in A",
+    "value": 0.384,
+    "kind": "computed"
+   },
+   {
+    "label": "Resistor's volts at 0.48 A, 10 × 0.48, in V",
+    "value": 4.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Slope at 6 V, in V a second",
+    "value": -6,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Euler's method solves a rule by walking it. Stand at the start. Read the slope the rule gives there. Walk a short straight step along it. Then read the slope again where you land, and repeat.[^1] It needs no formula, only the rule. So it works on rules that have none.\n\nTake the capacitor from before, now with 10 kΩ. So τ = RC = 1 s. Its rule is dV/dt = −V ÷ 1. At 12 V the slope is −12 V a second. Walk 0.5 s along it and you fall 6 V, to 6 V. At 6 V the slope is −6 V a second. So the next 0.5 s takes you to 3 V. Each step is new value = old value + h × slope, where h is the [[step size]]. That is [[Euler's method]].\n\nNow compare. The exact curve reads 4.41 V at 1 s, but the walk reads 3 V. The reason is in each step. A step keeps the slope it read at its start. Along the step the voltage falls, so the true slope eases off. The straight line does not. So it falls too far, and the walk drifts below the curve. Shorter steps re-read the slope more often. So a smaller step gives a better answer and a larger one a worse answer.[^2] At 1 s, 0.1 s steps give 4.18 V and 0.05 s steps give 4.30 V. Halving the step roughly halved the drift here.\n\nToo big a step does worse than drift. Each step adds h × (−V ÷ τ) to V. So each step multiplies the voltage by 1 − h ÷ τ. With 1.5 s steps that is −0.5. The first step reads −12 V a second and walks for 1.5 s. It falls 18 V, straight past 0 V to −6 V. Then it swings back. The real voltage never goes below 0 V, so the swing comes only from the steps. With 2 s steps it swings for ever. In a rule like these, the rate depends only on the value. Then the true curve cannot cross its steady line. So a walk that swings across it is taking steps that are too big.\n\nThe same walk works where no formula exists. Take a tank filled at a steady rate that drains through its base. Say its level h obeys dh/dt = 0.3 − 0.2 √h, in metres and minutes. Its steady level is where the two balance, at 2.25 m. You cannot rearrange this rule into a tidy formula for h against time. So step it, then halve the step and step again. From empty, the level at 4 min reads 0.89 m with 2 min steps. Then 0.79 m, 0.75 m and 0.73 m as the steps halve. Each halving moves the answer less. When it barely moves, you can trust it.\n\n**Euler's method walks short straight steps along the rule's slope, re-reading it after each one. Smaller steps drift less from the true curve. For a decay, steps longer than the time constant overshoot.**"
+ },
+ "analogy": {
+  "text": "It is dead reckoning. You know where the boat is, its course and its speed. Run on that course for a set time and mark the new position. Then take the new course and speed and run again. Long runs between updates drift further from the true track.",
+  "breaks": "A navigator's course is set by the helm, not by where the boat is. Euler's slope changes with the value itself. And a navigator gets fixes that reset the error. Euler's method never gets one, so its drift is only kept small by short steps."
+ },
+ "practice": {
+  "text": "- Write the rule as slope = f(value, time).\n- Choose a step size h. For a decay, start well under the time constant.\n- Find the slope at the start.\n- New value = old value + h × slope. New time = old time + h.\n- Find the slope at the new value, and repeat.\n- Halve h and run it again. If the answer barely moves, trust it.\n\n**Rules of thumb:** steps of a tenth of τ gave a value about 5% low at one τ here. For a decay, steps longer than τ overshoot the steady state. A spreadsheet does this well, with one row per step.\n\n**Worked example:** take the coil from before, di/dt = (24 − 10 i) ÷ 0.5, starting at 0 A. Use steps of 0.01 s. The starting slope is 24 ÷ 0.5 = 48 A a second. So after 0.01 s, i = 0 + 0.01 × 48 = 0.48 A. The slope there is (24 − 4.8) ÷ 0.5 = 38.4 A a second. So after 0.02 s, i = 0.48 + 0.384 = 0.864 A. The exact formula gives 0.791 A. The walk runs high, because this curve flattens as it rises and each step keeps its steeper starting slope.\n\n**Common mistakes**\n- Reusing the starting slope for every step. Re-read it at each new value.\n- Expecting the steps to land on the exact curve. They drift from it, and the drift builds up.\n- Adding the slope instead of h × slope.\n- Trusting a walk that swings either side of its steady line. Shrink the step.\n- Trusting one run. Halve the step and compare."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "7.3: Euler's Method - Mathematics LibreTexts — LibreTexts Mathematics",
+   "url": "https://math.libretexts.org/Under_Construction/Purgatory/Book%3A_Active_Calculus_(Boelkins_et_al.)/07%3A_Differential_Equations/7.03%3A_Euler's_Method",
+   "quote": "Euler’s method is an algorithm for approximating the solution to an initial value problem by following the tangent lines while we take horizontal steps across the"
+  },
+  {
+   "n": 2,
+   "title": "Euler's Method (First Order Runge-Kutta)",
+   "url": "https://lpsa.swarthmore.edu/NumInt/NumIntFirst.html",
+   "quote": "Obviously a smaller h would result in a better approximation, and a larger _h_ in a worse approximation."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

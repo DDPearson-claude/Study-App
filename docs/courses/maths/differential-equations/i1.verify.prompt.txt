@@ -1,0 +1,316 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Differential equations, from cooling to resonance
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "A rule for change" — A differential equation gives a rate from the quantity itself, as cooling does, so its answer is a curve that follows the rule's slope everywhere. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Decay: separate and integrate — A rate in proportion to what is left, as in a discharging capacitor, separates and integrates to y = Ae^(−t/τ), with time constant τ.
+- i3 Steady state plus a dying transient — Switch a coil onto a supply and its current is the steady value E ÷ R plus a gap that dies away as decay does.
+- i4 One small step at a time: Euler's method — Euler's method walks short straight steps along the rule's slope, solving equations that have no formula, and smaller steps drift less from the true curve.
+- i5 The spring and the circuit: one equation — A damped spring and series RLC circuit obey the same second-order equation, term for term: mass as inductance, damping as resistance, stiffness as 1 ÷ C.
+- i6 Overdamped, critical and ringing — The roots of mr² + cr + k = 0 decide whether it creeps back, returns quickest without ringing, or rings inside a dying envelope.
+- i7 Pushing it: resonance, and reading a model — Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 19 19 — Loughborough University (HELM) — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf
+    "Newton’s law of cooling states that the rate of cooling of liquid is proportional to the difference between its temperature and the temperature of its environment (the ambient temperature)."
+[R2] ES.1803 S24: Reading: Topic 11: Numerical Methods for First-Order Differential Equations — MIT OpenCourseWare — https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf
+    "We know that the slope of the solution curve through (𝑥0, 𝑦0) is 𝑦 ′ = 𝑓(𝑥0, 𝑦0)."
+[R3] 15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit
+    "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+[R4] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+[R5] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+Notes (claims, and the sources that support them):
+- Newton's law of cooling gives the rate of cooling of a liquid as proportional to the difference between its temperature and its surroundings' temperature. [R1]
+- The slope of the solution curve through a point is set by the equation itself, as y′ = f(x, y) at that point. [R2]
+- A driven RLC series circuit is the electrical analog of a driven damped harmonic oscillator, so one family of ideas covers springs and circuits. [R3]  (whole topic)
+- The time constant of an RL circuit is L divided by R, and the current covers 0.632 of the remainder to its final value in every time constant. [R4][R5]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "A rule for change",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is a curve following the arrows down from 80 °C and levelling off towards the flat room line, when you drop a start on the slope field.",
+  "title": "The rule drawn as arrows",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on one grid: temperature in °C up the side, from 0 to 100, and time in minutes along the bottom, from 0 to 40. A hot part sits in a room at 20 °C. Its rule is dT/dt = −0.1 × (T − 20). Each minute it loses a tenth of its gap to the room, so at 80 °C it falls 6 °C a minute. A probe shows a short arrow with the rule's slope at its point, and a readout in °C a minute. The arrow is steep down when the part is hot, flat at 20 °C and points up below it, because the slope follows the gap. Each arrow the probe leaves stays on the grid, and Show all fills in the rest. A start dropped on the grid draws its curve by following the arrows from there. A room slider moves the flat line at the room's temperature, and every curve heads for it. Try a curve lays a straight line from 80 °C, falling 6 °C a minute, on the field. It is marked red wherever its slope and the rule's disagree. A switch swaps in a second rule, dy/dt = 2t, on its own grid from t = −3 to 3. Its arrows depend on time only, and its curves are parabolas. Screen by screen: 1 shows the rule and the arrow at 80 °C. 2 asks what −6 °C a minute is. 3 fills in the field. 4 asks for the arrow at 35 °C. 5 drops starts at 80, 50 and 10 °C. 6 asks whether the solution is a number or a curve. 7 shows the flat steady line and the room slider. 8 asks for the steady state in a 30 °C room. 9 tries the straight line. 10 asks whether it is a solution. 11 swaps in dy/dt = 2t. 12 and 13 mix it all: which curve solves dy/dt = 2t, from y = t² + 4, y = 2t and the flat y = 3, and which way a part at 15 °C in the 20 °C room goes. Each puzzle offers three answers, and a wrong pick is drawn on the grid so you can see where it fails.",
+  "ignores": "The curves are drawn at once, not in real time. Each curve closes in on the room line but never quite reaches it, though on the grid it looks as if it touches. The part is treated as having one temperature, when a real part is hotter inside than at its surface. The figure 0.1 per minute is an example, and a real part's figure depends on its size, its metal and the air around it. The rule holds best for a modest gap to the room, and a very hot part cools faster than it says. The second rule, dy/dt = 2t, is an example with no units.",
+  "numbers": [
+   {
+    "label": "Grid's top temperature, in °C",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid's last time, in minutes",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example room temperature, in °C, screens 1 to 6",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example part's start temperature, in °C",
+    "value": 80,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example cooling figure k, per minute",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Gap to the room at 80 °C, in °C",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Rate at 80 °C, −0.1 × 60, in °C a minute, screen 1",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "Rate at 50 °C, −0.1 × 30, in °C a minute, screen 3",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Rate at 20 °C, in °C a minute, screen 3",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Example temperature below the room, in °C, screen 3",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rate at 10 °C, −0.1 × −10, in °C a minute, screen 3",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Probe at 35 °C, screen 4",
+    "value": 35,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rate at 35 °C, −0.1 × 15, in °C a minute, screen 4",
+    "value": -1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −0.1 × 35, gap not used, screen 4",
+    "value": -3.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick with the sign lost, screen 4",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Room slider lowest, in °C",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Room slider highest, in °C",
+    "value": 40,
+    "kind": "control"
+   },
+   {
+    "label": "Room slider's step, in °C",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Example room temperature in screens 7 and 8, in °C",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Straight line from 80 °C reaches 50 °C at 5 minutes, screen 9",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Straight line reaches 20 °C at 10 minutes, screen 9",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Second rule's grid runs from t = −3 to 3, screen 11",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example time t = 2 for the second rule, screen 11",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rule's slope 2t at t = 2, screen 11",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Example parabola y = t² + 4, screen 12",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example flat line y = 3, screen 12",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example part at 15 °C in the 20 °C room, screen 13",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its rate, −0.1 × −5, in °C a minute, screen 13",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick −0.1 × 15, gap not used, screen 13",
+    "value": -1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example part at 70 °C, in °C",
+    "value": 70,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example room at 25 °C, in °C",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example cooling figure, per minute",
+    "value": 0.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example start rate, −0.2 × 45, in °C a minute",
+    "value": -9,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example rate at 40 °C, −0.2 × 15, in °C a minute",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Straight line falling 9 °C a minute reaches 40 °C near 3.3 minutes",
+    "value": 3.3,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A [[differential equation]] is a rule that gives how fast something changes from the thing itself. So its answer is not a number. It is a whole curve, the value at every moment. You have used a rate already. i = C dv/dt ties a capacitor's current to how fast its voltage changes. Cooling is a rate too. Newton's law of cooling says a liquid cools at a rate proportional to the difference between its temperature and the room's.[^1] Textbooks add that a small hot part in still air cools in about the same way. Write T for the part's temperature in °C and t for the time in minutes. The rule is dT/dt = −k(T − T_room). Here k says how quickly this part sheds heat, say 0.1 per minute. The minus sign makes it fall when it is above the room. dT/dt is a rate in °C a minute, not an amount of change. At 80 °C in a 20 °C room the gap is 60 °C, so the part is falling at 0.1 × 60 = 6 °C a minute. Textbooks call this a first-order equation, because the highest rate in it is dT/dt itself.\n\nAt every time and temperature, the rule gives the slope a solution curve must have there.[^2] Draw that slope as a short arrow at each point and you have a [[slope field]]. Here the slope depends only on the gap, so every arrow at one height matches. The arrows point steeply down when the part is hot, flatter near the room, flat at 20 °C, and up below it. At 50 °C the gap is 30 °C, so the slope is −3 °C a minute. A solution is a curve that follows the arrows everywhere. Start at 80 °C and the curve falls steeply, then levels off towards the room. It levels off because the gap shrinks as the part cools, and the rate shrinks with the gap. A start at 50 °C gives a different curve under the same arrows. So the rule fixes the shape, and a starting value picks one curve, as a start fixed the + c in Calculus fundamentals.\n\nAt 20 °C the gap is zero, so the rate is zero. The flat line T = 20 °C has a slope of zero, and the rule asks for zero all along it. So it is a solution, a [[steady state]]. In this rule, a part that starts at room temperature stays there. The steady state is a curve that never changes, not just a number. To check a candidate, compare its slope with the rule's at every point. A straight line from 80 °C falling 6 °C a minute matches at the start. At 50 °C it still falls 6, while the rule wants 3, so it is not a solution. A rule can depend on time instead. dy/dt = 2t has flat arrows all down t = 0. Yet no flat line solves it, because at t = 2 the rule wants a slope of 4. The parabolas y = t² + c are solutions, because the slope of t² + c is 2t at every t. A coil's current settling and a circuit ringing are both curves set by rules like these, so reading the arrows is where telling them apart starts. Newton's rule is a simplified model, and a real part cools less evenly than it says, faster still when very hot.\n\n**A differential equation gives the slope at every point from the quantity itself,[^2] so its solution is a whole curve that matches that slope everywhere, and a starting value picks which curve.**"
+ },
+ "analogy": {
+  "text": "Drop a float in a tideway and it drifts with the current. A tidal chart gives only an arrow at each spot, yet the float's track follows those arrows all the way. Drop it somewhere else and it draws a different track under the same arrows. A slope field works the same way: the rule gives an arrow at each point, and a start picks the curve.",
+  "breaks": "A tide's arrows are a velocity across a map, in any direction, and they change hour by hour. A slope field's arrows are only a slope on a temperature against time grid, and time always moves on to the right, so a solution curve never doubles back the way a float can."
+ },
+ "practice": {
+  "text": "- Name the unknown and what it changes with: here the temperature T against the time t.\n- Read the units of the rate: dT/dt is in °C a minute, a rate at that moment.\n- Find the steady state: set the rate to zero and solve. It is a flat line, and a solution.\n- Work out the slope at a few points and sketch the arrows. For cooling, they point down above the room and up below it.\n- To check a candidate, compare its slope with the rule's at several points, not just one.\n\n**Rule of thumb:** The rule gives the slope. The start picks the curve.\n\n**Worked example:** Say a part at 70 °C sits in a 25 °C room, with k = 0.2 per minute. Its starting rate is −0.2 × 45 = −9 °C a minute. At 40 °C the gap is 15 °C, so the rate is −0.2 × 15 = −3 °C a minute. The steady state is the flat line T = 25 °C. A straight line falling 9 °C a minute reaches 40 °C near 3.3 minutes, still falling 9 when the rule wants 3. So it is not a solution.\n\n**Common mistakes**\n- Giving a number as the answer. The answer is the curve, the temperature at every moment.\n- Reading dT/dt as an amount. −6 °C a minute is how fast it is falling now, not the total drop.\n- Treating the steady state as just a number. It is a flat curve, a solution like any other.\n- Calling any place with flat arrows a steady state. For dy/dt = 2t the arrows are flat at t = 0 only, so no flat line solves it.\n- Checking a candidate at one point. It must match the rule everywhere.\n- Taking the rule for the answer. y = 2t has slope 2, not 2t, so it does not solve dy/dt = 2t."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "19 19 — Loughborough University (HELM)",
+   "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf",
+   "quote": "Newton’s law of cooling states that the rate of cooling of liquid is proportional to the difference between its temperature and the temperature of its environment (the ambient temperature)."
+  },
+  {
+   "n": 2,
+   "title": "ES.1803 S24: Reading: Topic 11: Numerical Methods for First-Order Differential Equations — MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf",
+   "quote": "We know that the slope of the solution curve through (𝑥0, 𝑦0) is 𝑦 ′ = 𝑓(𝑥0, 𝑦0)."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

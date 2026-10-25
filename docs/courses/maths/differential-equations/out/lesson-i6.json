@@ -1,0 +1,559 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T10:54:27.882Z",
+ "startedAt": "2026-10-25T10:54:27.882Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Overdamped, critical and ringing",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the two roots sliding together along the real axis, meeting, then splitting into a mirror pair, as the trace turns from a creep to ringing, when you drag the damping down.",
+   "title": "The roots and the motion",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "This is a short lesson in thirteen small screens. It uses the last lesson's spring. A 1 kg mass hangs on a 4 N/m spring. It is lifted 0.5 m and let go at rest. Only the damping changes. Screen 1 puts the guess x = e^(rt) into m x″ + c x′ + k x = 0, one line at a time. Each derivative brings out one r. Then every term carries e^(rt). That factor is never zero, so it drops out. What is left is m r² + c r + k = 0. Screen 2 asks for the roots of r² + 5r + 4 = 0. The choices are −1 and −4, 1 and 4, or −2 twice. Screen 3 is the main picture. It gives the rule r = (−c ± √(c² − 4mk)) ÷ 2m, and says the sign of c² − 4mk sorts the three kinds. On the left is the complex plane. Its real axis runs across from −6 to 1. Its j axis runs up from −2.5 to 2.5. Both are in per second. Two dots mark the roots. On the right is the mass's position against time. It runs from −0.5 to 0.5 m, over 6 s. A damping slider runs from 6 down to 0 N·s/m in steps of 0.5. It opens at 6. Readouts give c² − 4mk and the two roots. From 6 to 4, the dots slide together along the real axis, and the trace creeps back. At 4 they meet at −2. Below 4 they split into a pair, one above the real axis and one below. Then the trace rings. At 0 they sit on the j axis at ±j2. In this ideal model, the ringing then never dies. Screen 4 asks which damping makes the roots meet. The choices are 4, 16 or 2 N·s/m. Screen 5 shows damping 5, with roots −1 and −4. Here x = A e^(−t) + B e^(−4t). Starting at 0.5 m gives A + B = 0.5, and starting at rest gives −A − 4B = 0. So A = 0.667 and B = −0.167. Each part is drawn faintly. The fast part has almost gone by 1 s. So the slow one sets the creep. Screen 6 sets the damping to 6, with roots −0.76 and −5.24. It asks whether the mass gets back faster or slower. At 2 s it is 0.13 m from rest. With damping 5 it was 0.09 m. One choice is slower, because the slow root is nearer zero. Another is faster, because more damping stops it sooner. The third is the same, because the start is the same. Screen 7 says critical damping is the quickest return that never swings past rest. It shows damping 4, with one root, −2, twice. Here x = (0.5 + t)e^(−2t). Then x′ = −2t e^(−2t) and x″ = (4t − 2)e^(−2t), and x″ + 4x′ + 4x = 0. Damping 5 and damping 3 sit beside it. At 2 s it is 0.05 m from rest. Damping 3 reaches rest sooner, at about 1.8 s, but swings past it. Screen 8 asks why A e^(−2t) alone cannot be the answer at damping 4. One choice says it has one constant, and the start needs two values. Another says e^(−2t) never reaches zero. The third says a repeated root has no answer. Screen 9 shows damping 2, with a mirror pair α ± jβ, here −1 ± j1.732. A ghost envelope wraps the trace. A switch shows an arrow that turns at 1.732 radians a second as it shrinks. Its shadow on the real axis is the trace. The mirror root's arrow turns the other way, so the two add to a real number. The mass moves only up and down. Screen 10 asks what the roots −1 ± j1.732 say. One choice says the envelope falls to 0.368 of itself each second, and it rings at 1.732 rad/s. Another says the envelope falls to 0.368 each second, and it rings at 1 rad/s. The third says it rings at 1.732 rad/s and never dies. Screens 11 to 13 mix it all. Screen 11 shows two sketched traces from 0.5 m. In one, the peaks halve each swing: 0.5, 0.25 and 0.125 m. In the other, they drop 0.1 m each swing: 0.5, 0.4 and 0.3 m. It asks which could come from m x″ + c x′ + k x = 0. A ship's roll at small angles dies away like the first. Screen 12 gives a 100 mH coil, a 10 µF capacitor and 40 Ω, and asks what the loop does. One choice says it rings near 980 rad/s, about 156 Hz, inside an e^(−200t) envelope. Another says it creeps back, with roots −200 and −980. The third says it rings at 980 rad/s for ever. Screen 13 asks which resistor makes that loop critical. The choices are 200 Ω, 40000 Ω or 1000 Ω. Each puzzle offers three answers.",
+   "ignores": "Time runs slowly here, as in the last lesson. The spring, damper and circuit parts are ideal. The pull grows in step with the distance from rest. The drag grows in step with the speed. A drag of fixed size, such as dry friction, is not in this equation. The dots on the plane are rates, not places. The mass only moves up and down. The turning arrow is a picture of a complex number. Only its shadow is the real answer. With no damping, the ringing never dies here. But every real spring or circuit loses a little.",
+   "numbers": [
+    {
+     "label": "Mass, in kg",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stiffness, in N/m",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Lift at release, in m",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Damping slider highest and opening, in N·s/m",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Damping slider lowest, in N·s/m",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Damping slider step, in N·s/m",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Plane's real axis left end, per second",
+     "value": -6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Plane's real axis right end, per second",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Plane's j axis top, per second",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Plane's j axis bottom, per second",
+     "value": -2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trace's top position, in m",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trace's lowest position, in m",
+     "value": -0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trace's last time, in s",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example damping, screens 2 and 5, in N·s/m",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slow root at damping 5, per second",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Fast root at damping 5, per second",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, signs lost, per second",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slow part's size at damping 5, in m",
+     "value": 0.667,
+     "kind": "computed"
+    },
+    {
+     "label": "Fast part's size at damping 5, in m",
+     "value": -0.167,
+     "kind": "computed"
+    },
+    {
+     "label": "Critical damping, 2√(1 × 4), in N·s/m",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, 4mk without the root, in N·s/m",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, √(mk), in N·s/m",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Repeated root at damping 4, per second",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "c² − 4mk at damping 6, in kg²/s²",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Slow root at damping 6, per second",
+     "value": -0.76,
+     "kind": "computed"
+    },
+    {
+     "label": "Fast root at damping 6, per second",
+     "value": -5.24,
+     "kind": "computed"
+    },
+    {
+     "label": "Position at 2 s, damping 6, in m",
+     "value": 0.13,
+     "kind": "computed"
+    },
+    {
+     "label": "Position at 2 s, damping 5, in m",
+     "value": 0.09,
+     "kind": "computed"
+    },
+    {
+     "label": "Position at 2 s, damping 4, in m",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Comparison damping, screen 7, in N·s/m",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ringing example damping, in N·s/m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Real part at damping 2, per second",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "j part at damping 2, √12 ÷ 2, in rad/s",
+     "value": 1.732,
+     "kind": "computed"
+    },
+    {
+     "label": "Envelope kept each second at damping 2",
+     "value": 0.368,
+     "kind": "computed"
+    },
+    {
+     "label": "Roots with no damping, j part, in rad/s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Sketch peaks, equal fractions, in m",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch third peak, equal fractions, in m",
+     "value": 0.125,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch peaks, equal steps, second, in m",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch peaks, equal steps, third, in m",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch equal step, in m",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example coil, in mH",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example coil, in H",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor, in µF",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example capacitor, in F",
+     "value": 0.00001,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 1 ÷ C, per farad",
+     "value": 100000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example resistor, in Ω",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "R² for the example, in Ω²",
+     "value": 1600,
+     "kind": "computed"
+    },
+    {
+     "label": "4L ÷ C for the example, in Ω²",
+     "value": 40000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example real part, −40 ÷ 0.2, per second",
+     "value": -200,
+     "kind": "computed"
+    },
+    {
+     "label": "Example j part, near, in rad/s",
+     "value": 980,
+     "kind": "computed"
+    },
+    {
+     "label": "Example ringing, 980 ÷ 2π, near, in Hz",
+     "value": 156,
+     "kind": "computed"
+    },
+    {
+     "label": "Example undamped ringing, 1 ÷ √(LC), in rad/s",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example undamped ringing, in Hz",
+     "value": 159,
+     "kind": "computed"
+    },
+    {
+     "label": "Example envelope's time constant, in ms",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example critical resistor, 2√(L ÷ C), in Ω",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, 4L ÷ C without the root, in Ω",
+     "value": 40000,
+     "kind": "computed"
+    },
+    {
+     "label": "Roots' product, k ÷ m, per second squared",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, the undamped rate read as Ω",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Roots' sum at damping 5, −c ÷ m, per second",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Roots' sum at damping 6, −c ÷ m, per second",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Damping 3 first reaches rest, near, in s",
+     "value": 1.8,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Let a damped spring or an RLC loop go, and it does one of three things. It creeps back. It returns as fast as it can without ringing. Or it rings while its swings die. Two numbers decide which: the roots of m r² + c r + k = 0.\n\nThe guess that solved decay works here too. There, e^(rt) solved a first-order rule, because its rate is r times itself. Here, x′ = r e^(rt) and x″ = r² e^(rt). Put them in, and every term carries e^(rt): (m r² + c r + k) e^(rt) = 0. An exponential is never zero, so m r² + c r + k = 0. This quadratic is the [[characteristic equation]]. Each root is a rate, per second. The quadratic formula gives r = (−c ± √(c² − 4mk)) ÷ 2m. The sign of c² − 4mk sorts the three cases.[^1]\n\nWhen c² is bigger than 4mk, there are two real roots, both negative. The answer is two decays added together. Take the 1 kg mass and 4 N/m spring with damping 5. The roots are −1 and −4. Let it go from 0.5 m at rest, and x = 0.667e^(−t) − 0.167e^(−4t). The fast part has almost gone by 1 s, so the slow root sets the creep. This is [[overdamped]]. Past critical, heavier damping creeps back slower. The reason is that the two roots always multiply to k ÷ m and add to −c ÷ m. Here they multiply to 4. At damping 6 they add to −6, not −5. To keep the product at 4, the fast root moves away from zero and the slow one moves in. At damping 6 the roots are −0.76 and −5.24. At 2 s the mass is still 0.13 m out, against 0.09 m at damping 5.\n\nWhen c² equals 4mk, there is one root, twice. Here that happens at damping 4, and the root is −2. But e^(−2t) alone has one constant. The start needs two values, position and speed. The second answer is t e^(−2t). You can check it by putting it back in. From 0.5 m at rest, x = (0.5 + t)e^(−2t). Of all the settings that do not ring, critical damping settles fastest.[^2] Here is why. With the product fixed at 4, two equal roots put the slower one as far from zero as a real root can go. Damping 3 reaches rest sooner, at about 1.8 s, but swings past it.\n\nWhen c² is smaller than 4mk, the square root is of a negative number. The roots are then a mirror pair, α ± jβ. Here α = −c ÷ 2m and β = √(4mk − c²) ÷ 2m. At damping 2 they are −1 ± j1.732. Now e^((α + jβ)t) is e^(αt) × e^(jβt). The second factor is an arrow of length 1, turning at β radians a second. The first factor shrinks it. The mirror root's arrow turns the other way. So the two add to a real answer. It is the arrow's shadow: a swing inside a dying envelope e^(αt). This is [[underdamped]]. The real part sets how fast it dies. The j part sets how fast it rings. At damping 2, the envelope keeps 0.368 of itself each second. With no damping, the roots sit at ±j2. In this ideal model it then rings for ever.\n\nThe RLC loop has the same three cases, with L, R and 1 ÷ C in place of m, c and k.[^3] This is a simplified model with ideal parts. Its drag is in step with the speed. That is why each swing keeps the same fraction of the last. A drag of fixed size, such as dry friction, is not in this equation. Its swings do not shrink that way.\n\nA ship's roll is this kind of swing. At small angles this straight equation fits it. Bigger rolls need a fuller model, because the damping and the righting stop growing in step.[^4] Measured roll decay is an exponentially decaying cosine, the ringing case.[^5] The roll damping grows with forward speed.[^6]\n\n**The roots of m r² + c r + k = 0 set the motion. Two real roots creep back. One repeated root returns quickest without ringing. A complex pair α ± jβ rings at β inside a dying envelope e^(αt).**"
+  },
+  "analogy": {
+   "text": "Think of the needle on an analogue meter. The moving coil and needle carry on moving. The hairspring pulls them back. Eddy currents in the coil's former drag in step with the speed. With too little drag, the needle overshoots and wobbles round the reading. With too much, it creeps up to it. Damped near critical, it swings to the reading and stops.",
+   "breaks": "The needle is a real case of the equation only as far as its parts are ideal. Pivot friction is a drag of fixed size, which this equation leaves out. It can leave the needle resting a little short of the true reading."
+  },
+  "practice": {
+   "text": "- Write the rule as m x″ + c x′ + k x = 0, or L q″ + R q′ + q ÷ C = 0, in base units.\n- Write its characteristic equation, m r² + c r + k = 0.\n- Compare c² with 4mk, or R² with 4L ÷ C. Bigger is overdamped, equal is critical, smaller is underdamped.\n- Find the roots with the quadratic formula.\n- Read them. A real root r is a decay with time constant 1 ÷ |r|. A pair α ± jβ rings at β radians a second, which is β ÷ 2π hertz. It rings inside an envelope e^(αt), with time constant 1 ÷ |α|.\n- Use the two starting values to fix the two constants.\n\n**Rules of thumb:** critical damping is c = 2√(mk), or R = 2√(L ÷ C). Past it, more damping is slower, not faster. With light damping, it rings just below √(k ÷ m), or 1 ÷ √(LC).\n\n**Worked example:** a 100 mH coil, a 10 µF capacitor and a 40 Ω resistor sit in one loop. In base units, L = 0.1 H and C = 0.00001 F, so 1 ÷ C = 100000. The characteristic equation is 0.1 r² + 40 r + 100000 = 0. R² = 1600 and 4L ÷ C = 40000. R² is smaller, so it rings. The roots are (−40 ± √(1600 − 40000)) ÷ 0.2. That is −200 ± j980, near enough. So it rings at about 980 rad/s, which is about 156 Hz. With no resistance it would ring at 1000 rad/s, or 159 Hz. Its envelope is e^(−200t), with a time constant of 5 ms. To make it critical, R = 2√(0.1 ÷ 0.00001) = 200 Ω.\n\n**Common mistakes**\n- Thinking more damping always settles faster.\n- Using one exponential for a repeated root. It needs (A + Bt)e^(rt).\n- Reading β as hertz. It is in radians a second.\n- Leaving out the square root. Critical is c = 2√(mk), not 4mk.\n- Reading the trace or the turning arrow as the mass's path. The mass only moves up and down.\n- Expecting dry friction to die away as e^(αt) does. A drag of fixed size is not in this equation."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare",
+    "url": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf",
+    "quote": "There are three cases depending on the sign of the expression under the square root"
+   },
+   {
+    "n": 2,
+    "title": "18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare",
+    "url": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf",
+    "quote": "It is worth noting that for a fixed _m_ and _k_ , choosing _b_ to be the critical damping value gives the fastest return of the system to its equilibrium position."
+   },
+   {
+    "n": 3,
+    "title": "6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics",
+    "url": "https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit",
+    "quote": "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+   },
+   {
+    "n": 4,
+    "title": "Estimation of Rolling Motion of Ship in Random Beam Seas by Efficient Analytical and Numerical Approaches — Journal of Marine Science and Application (Springer)",
+    "url": "https://link.springer.com/article/10.1007/s11804-020-00183-x",
+    "quote": "roll motion of ships with nonlinear damping and restoring moments for all times is modeled by a second-order nonlinear differential equation."
+   },
+   {
+    "n": 5,
+    "title": "100-Year Analysis of Roll Decay for Surface-Ship Models — ASME J. Verif. Valid. Uncert.",
+    "url": "https://asmedigitalcollection.asme.org/verification/article/10/1/011001/1212613/100-Year-Analysis-of-Roll-Decay-for-Surface-Ship",
+    "quote": "a curve fit of exponentially decaying cosine function"
+   },
+   {
+    "n": 6,
+    "title": "EN455 Course Notes Chapter 4 Reviseday21 — US Naval Academy",
+    "url": "https://www.usna.edu/NAOE/_files/documents/Courses/EN455/EN455_Course_Notes_Chapter_4_revisedAY21.pdf",
+    "quote": "The roll damping increases with forward speed."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  sup { font-size: .74em; line-height: 0; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */\n  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }\n  .scene .sup { font-size: 13px; }\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .frame { fill: none; stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax, .scene .xt { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .big { font: 700 18px var(--k-font); fill: var(--k-ink); }\n  .scene .big.mut { fill: var(--k-muted); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.main { fill: var(--k-accent2); }\n  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }\n  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .te.eq { font: 500 16px var(--k-font); }\n  .scene .nt { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  /* Traces of position against time, the envelope, the rest line and the level guide. */\n  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .trace.cmp { stroke: var(--k-muted); stroke-width: 2; }\n  .scene .trace.teal { stroke: var(--k-accent); stroke-width: 2.2; }\n  .scene .trace.p1 { stroke: var(--k-cat1); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .scene .trace.p2 { stroke: var(--k-cat2); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .scene .trace.cand { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 5; }\n  .scene .trace.bad { stroke: var(--k-warn); }\n  .scene .env { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 4; }\n  .scene .env.main { stroke: var(--k-accent2); }\n  .scene .env.bad { stroke: var(--k-warn); }\n  .scene .rest { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 5; }\n  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 1.5 4; stroke-linecap: round; }\n  .scene .mkr { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 2 4; }\n  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }\n  /* The roots on the plane. */\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot.bad { fill: var(--k-warn); }\n  .scene .dot.c1 { fill: var(--k-cat1); }\n  .scene .dot.c2 { fill: var(--k-cat2); }\n  .scene .cring { fill: none; stroke: var(--k-muted); stroke-width: 2; }\n  .scene .dring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .dring.bad, .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }\n  .scene .tring { fill: none; stroke: var(--k-accent); stroke-width: 2.2; }\n  .scene .locus { fill: none; stroke: var(--k-accent2); stroke-opacity: .25; stroke-width: 7; stroke-linecap: round; }\n  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }\n  .scene .brk.bad { stroke: var(--k-warn); }\n  /* The turning arrow, its tip's path and its shadow. */\n  .scene .tarrow { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .tip { fill: none; stroke: var(--k-accent); stroke-width: 1.6; }\n  .scene .shadow { stroke: var(--k-accent2); stroke-width: 1.4; stroke-dasharray: 3 3; }\n  .scene .sdot { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.4; }\n  .scene .slope { fill: none; stroke: var(--k-muted); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .flat { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }\n  .scene .cell { fill: var(--k-fill2); }\n  /* The spring, the damper and the mass. */\n  .scene .hl { stroke: var(--k-ink); stroke-opacity: .5; stroke-width: 1.4; }\n  .scene .ceil { fill: url(#hatch); }\n  .scene .wall { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .spr { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .dmp { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .rod { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .pis { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .mass { fill: var(--k-accent2); }\n  .scene text.mtxt { font: italic 700 13px var(--k-font); fill: var(--k-on-accent2); stroke: none; }\n  /* The loop. */\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .plate { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }\n  .scene #art *, .scene #top * { pointer-events: none; }\n  /* The readouts: c² − 4mk and the roots. They wrap one to a row when the text is large. */\n  .reads { display: flex; flex-wrap: wrap; gap: 8px; }\n  .reads .rd { flex: 1 1 auto; min-width: 7rem; background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 10px; }\n  .reads .rd .k-label { display: block; text-transform: none; letter-spacing: 0; }\n  .reads .rd b { display: block; font-size: 1.15rem; white-space: nowrap; margin-top: 2px; }\n  .reads .rd small { display: block; color: var(--k-muted); font-size: .85rem; margin-top: 2px; white-space: nowrap; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\" id=\"lead\">A 1&nbsp;kg mass hangs on a 4&nbsp;N/m spring. It is lifted 0.5&nbsp;m and let go at rest. Every value is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><pattern id=\"hatch\" patternUnits=\"userSpaceOnUse\" width=\"6\" height=\"6\" patternTransform=\"rotate(45)\"><line class=\"hl\" x1=\"3\" y1=\"0\" x2=\"3\" y2=\"6\"></line></pattern></defs><g id=\"art\"></g><g id=\"top\"></g></svg>\n    <div class=\"k-controls\" id=\"cbox\"></div>\n    <div class=\"reads\" id=\"reads\">\n      <div class=\"rd\"><span class=\"k-label\" id=\"dlab\"></span><b id=\"dval\"></b><small id=\"dsub\"></small></div>\n      <div class=\"rd\"><span class=\"k-label\" id=\"rlab\"></span><b id=\"rval\"></b><small id=\"rsub\"></small></div>\n    </div>\n    <div class=\"k-controls\" id=\"abox\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every dot, trace and arrow is worked out from the rule on its screen.</p>\n\n<script>\n  // ---------- the rule ----------\n  // A mass on a spring with a damper: m x″ + c x′ + k x = 0. The guess x = e^(rt) turns it into\n  // m r² + c r + k = 0, whose two roots set the motion. The loop: L q″ + R q′ + q ÷ C = 0, the same\n  // rule with L for m, R for c and 1 ÷ C for k.\n  const M = 1, KS = 4, X0 = 0.5, CMAX = 6, TEND = 6;\n  const C5 = 5, C6 = 6, CC = 2 * Math.sqrt(M * KS), C3 = 3, C2 = 2;\n  const TNOW = 1.6;                          // where the turning arrow stops once its motion has played\n  const LH = 100 / 1000, CF = 10 / 1e6, INVC = Math.round(1 / CF), R40 = 40, RC = 2 * Math.sqrt(LH * INVC);\n  const TL = 0.025;                          // the loop's trace runs 25 ms\n  const TS = 2.5;                            // the sketches: one swing every 2.5 s\n  const SRC = 'https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf';\n\n  // The roots of m r² + c r + k = 0: two real ones (slow r1, fast r2), one twice, or a pair a ± jb.\n  function roots(c, m, k) {\n    m = m == null ? M : m; k = k == null ? KS : k;\n    const d = c * c - 4 * m * k, tol = 1e-12 * Math.max(1, c * c, 4 * m * k);\n    if (d > tol) { const s = Math.sqrt(d); return { d, kind: 'over', r1: (-c + s) / (2 * m), r2: (-c - s) / (2 * m) }; }\n    if (d >= -tol) return { d: 0, kind: 'crit', r1: -c / (2 * m), r2: -c / (2 * m) };\n    return { d, kind: 'under', a: -c / (2 * m), b: Math.sqrt(-d) / (2 * m) };\n  }\n  // The exact answer from x(0) = x0, x′(0) = v0, with its speed. For a pair, the turning arrow\n  // z(t) = (A − jB) e^((a + jb)t) too: its real part is x, its length the envelope.\n  function solve(c, m, k, x0, v0) {\n    const R = roots(c, m, k), E = Math.exp;\n    if (R.kind === 'over') {\n      const r1 = R.r1, r2 = R.r2, A = (v0 - r2 * x0) / (r1 - r2), B = x0 - A;\n      return { R, A, B, x: (t) => A * E(r1 * t) + B * E(r2 * t), v: (t) => r1 * A * E(r1 * t) + r2 * B * E(r2 * t),\n        slow: (t) => A * E(r1 * t), fast: (t) => B * E(r2 * t) };\n    }\n    if (R.kind === 'crit') {\n      const r = R.r1, B = v0 - r * x0;\n      return { R, A: x0, B, x: (t) => (x0 + B * t) * E(r * t), v: (t) => (B + r * (x0 + B * t)) * E(r * t) };\n    }\n    const a = R.a, b = R.b, A = x0, B = (v0 - a * x0) / b, amp = Math.hypot(A, B);\n    return { R, A, B, amp,\n      x: (t) => E(a * t) * (A * Math.cos(b * t) + B * Math.sin(b * t)),\n      v: (t) => E(a * t) * ((a * A + b * B) * Math.cos(b * t) + (a * B - b * A) * Math.sin(b * t)),\n      env: (t) => amp * E(a * t),\n      z: (t) => [E(a * t) * (A * Math.cos(b * t) + B * Math.sin(b * t)), E(a * t) * (A * Math.sin(b * t) - B * Math.cos(b * t))] };\n  }\n  const sol = (c) => solve(c, M, KS, X0, 0);\n  const loopSol = (R) => solve(R, LH, INVC, 1, 0);   // the loop from a charged start, no current\n  let P = { c: CMAX, arrow: false };\n\n  // ---------- numbers, written the lesson's way ----------\n  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\\.$/, '') : s);\n  function fmtD(v, dp) {\n    const m = Math.pow(10, dp), r = Math.round(v * m) / m;\n    if (r === 0) return '0';\n    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));\n  }\n  const f2 = (v) => fmtD(v, 2), f3 = (v) => fmtD(v, 3);\n  const ex = (r) => (Math.abs(r + 1) < 1e-12 ? '−t' : f2(r) + 't');\n  function rootsText(R) {\n    if (R.kind === 'over') return f2(R.r1) + ' and ' + f2(R.r2);\n    if (R.kind === 'crit') return f2(R.r1) + ', twice';\n    return Math.abs(R.a) < 1e-12 ? '±j' + f3(R.b) : f2(R.a) + ' ± j' + f3(R.b);\n  }\n  const cTag = (c) => '`c` = ' + f2(c) + ' N·s/m';\n  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\\*/g, '');\n  // As a screen reader says it.\n  const say = (s) => plain(s).replace(/e\\^\\(([^)]*)\\)/g, 'e to the power $1').replace(/kg²\\/s²/g, ' kilograms squared per second squared')\n    .replace(/N·s\\/m/g, ' newton seconds per metre').replace(/N\\/m/g, ' newtons per metre').replace(/rad\\/s/g, ' radians a second')\n    .replace(/µF/g, ' microfarads').replace(/mH/g, ' millihenries').replace(/Ω/g, ' ohms').replace(/″/g, ' double prime').replace(/′/g, ' prime')\n    .replace(/²/g, ' squared').replace(/±/g, ' plus or minus ').replace(/√/g, ' root ').replace(/÷/g, ' divided by ').replace(/×/g, ' times ')\n    .replace(/=/g, ' equals ').replace(/\\+/g, ' plus ').replace(/−/g, ' minus ').replace(/·/g, ', ').replace(/\\s+/g, ' ').trim();\n\n  // ---------- words with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  function put(parent, s, svg) {\n    if (!s) return;\n    if (svg && parent.__lift) { const b = K.svg('tspan', { dy: 6 }); b.textContent = s; parent.appendChild(b); parent.__lift = false; return; }\n    parent.appendChild(document.createTextNode(s));\n  }\n  function itNode(parent, s, svg) {\n    const sp = svg ? K.svg('tspan', { class: 'v', 'font-style': 'italic' }) : K.el('span', { class: 'v' });\n    if (svg && parent.__lift) { sp.setAttribute('dy', 6); parent.__lift = false; }\n    sp.textContent = s;\n    parent.appendChild(sp);\n  }\n  const VARS = /[xrtmckqABLRCαβ]/;\n  function ital(parent, s, svg) {\n    let buf = '';\n    for (const ch of String(s)) {\n      if (VARS.test(ch)) { put(parent, buf, svg); buf = ''; itNode(parent, ch, svg); } else buf += ch;\n    }\n    put(parent, buf, svg);\n  }\n  // Maths: italic letters, and e^(…) written as a raised power.\n  function maths(parent, s, svg) {\n    String(s).split(/\\^\\(([^)]*)\\)/).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2 === 0) { ital(parent, p, svg); return; }\n      const sp = svg ? K.svg('tspan', { class: 'sup', dy: parent.__lift ? 0 : -6 }) : K.el('sup');\n      if (svg) parent.__lift = false;\n      ital(sp, p, svg);\n      parent.appendChild(sp);\n      if (svg) parent.__lift = true;\n    });\n  }\n  // No line break inside a quantity: a number keeps its unit, and ÷, × or ± keeps both its sides.\n  const UNITS = new RegExp('(\\\\d) (?=(?:kg²/s²|kg|N·s/m|N/m|rad/s|Hz|mH|µF|ms|Ω|H|F|m|s)(?![A-Za-z]))', 'g');\n  const nb = (s) => String(s == null ? '' : s).replace(UNITS, '$1 ').replace(/(\\S) ([÷×±]) (?=\\S)/g, '$1 $2 ');\n  function write(el, s) {\n    el.textContent = '';\n    s = nb(s);\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  function svgWords(t, s) {\n    t.__lift = false;\n    String(nb(s)).split('`').forEach((seg, k) => { if (seg) { if (k % 2) maths(t, seg, true); else put(t, seg, true); } });\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // scene: 'algebra' (lines of working), 'pt' (the roots' plane on the left, the position against\n  // time on the right), 'sketch' (two sketched traces), 'loop' (the coil, resistor and capacitor over\n  // its charge). draw(st, d) paints the step in that state; a SHOW step's timetable is in its draw,\n  // in seconds from when the screen opens.\n  const PICK = 'Tap one of the answers.';\n  const FB = 2.0;   // how long the motion after an answer plays\n  const SOFT = 0.6;\n  const LEAD_S = 'A 1 kg mass hangs on a 4 N/m spring. It is lifted 0.5 m and let go at rest. Every value is an example.';\n  const LEAD_K = 'Two sketches of a swing dying away, each starting from 0.5 m.';\n  const LEAD_C = 'A 100 mH coil, a 10 µF capacitor and a 40 Ω resistor sit in one loop. Every value is an example.';\n  const O9 = ['The envelope falls to 0.368 of itself each second, and it rings at 1.732 rad/s', 'The envelope falls to 0.368 each second, and it rings at 1 rad/s', 'It rings at 1.732 rad/s and never dies'];\n  const O11 = ['It rings near 980 rad/s inside an `e^(−200t)` envelope', 'It creeps back, with roots −200 and −980', 'It rings at 980 rad/s for ever'];\n  const O5 = ['Slower, because the slow root is nearer zero', 'Faster, because more damping stops it sooner', 'The same, because the start is the same'];\n  const O7 = ['It has one constant, and the start needs two values', '`e^(−2t)` never reaches zero', 'A repeated root has no answer'];\n  const STEPS = [\n    { show: true, name: 'The guess', scene: 'algebra', dur: 4.6, lead: LEAD_S,\n      text: 'The spring obeys `m x″ + c x′ + k x = 0`. Try the guess that solved decay, `x = e^(rt)`. Each derivative brings out one `r`. Then every term carries `e^(rt)`. That factor is never zero, so it drops out. What is left is `m r² + c r + k = 0`. This is the *characteristic equation*. Its two roots are rates, per second. They decide how the mass moves.',\n      draw() { algebra(); } },\n    { kind: 'pick', name: 'Find the roots', scene: 'pt', key: ['trace', 'rest'], work: 2, lead: LEAD_S, tag: () => cTag(C5),\n      rule: () => '`r² + ' + f2(C5 / M) + 'r + ' + f2(KS / M) + ' = 0`',\n      task: 'At damping 5, the characteristic equation is `r² + 5r + 4 = 0`. What are its two roots?',\n      opts: ['−1 and −4', '1 and 4', '−2 twice'], want: '−1 and −4',\n      why: 'It factorises as `(r + 1)(r + 4) = 0`. So `r` = −1 or `r` = −4. Check one: 1 − 5 + 4 = 0. The roots multiply to 4 and add to −5. In general they multiply to `k ÷ m` and add to `−c ÷ m`.',\n      hint: 'Not quite. Find two numbers that multiply to 4 and add to 5.',\n      hints: { '1 and 4': 'Not quite. Put in `r` = 1: 1 + 5 + 4 is 10, not 0. Watch the signs.', '−2 twice': 'Not quite. −2 twice gives `r² + 4r + 4`, with 4r in the middle, not 5r.' },\n      draw(st) {\n        const r = RW(st), s = sol(C5), R = s.R;\n        ptBase('plane');\n        trace(s.x, 0, TEND);\n        if (r.ok) {\n          REC.answer = true;\n          part(vis(0.2), 0, () => { dotAt(R.r1, 0); label(PX(R.r1), Y0 - 11, f2(R.r1), 'lab main', 'middle'); });\n          part(vis(0.6), 0, () => { dotAt(R.r2, 0); label(PX(R.r2), Y0 - 11, f2(R.r2), 'lab main', 'middle'); });\n          workLines([{ s: '`(r + ' + f2(-R.r1) + ')(r + ' + f2(-R.r2) + ') = 0`', a: vis(0.3) }, { s: 'so `r` = ' + f2(R.r1) + ' or `r` = ' + f2(R.r2), a: vis(0.9) }]);\n        } else if (r.w === '1 and 4') {\n          REC.bad++;\n          part(vis(0.1), 0, () => { dotAt(1, 0, 'dot bad'); label(PX(1) - 6, Y0 - 11, '1', 'lab bad', 'end'); });\n          workLines([{ s: 'put in 1: 1 + ' + f2(C5) + ' + ' + f2(KS) + ' = ' + f2(1 + C5 + KS) + ', not 0', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => { dotAt(-2, 0, 'dot bad'); ringAt(PX(-2), Y0, 10, 'ring'); });\n          workLines([{ s: '`(r + 2)² = r² + 4r + 4`, not `5r`', bad: true, a: vis(0.4) }]);\n        }\n        said.push('The mass creeps back to rest at damping ' + f2(C5) + '.');\n      } },\n    { show: true, name: 'The roots and the motion', scene: 'pt', key: ['root', 'locus', 'trace', 'rest'], dur: 4.6, slider: true, lead: '',\n      text: 'The roots are `r = (−c ± √(c² − 4mk)) ÷ 2m`. The sign of `c² − 4mk` sorts three kinds of motion. The dots on the left are the roots. Drag the damping down from 6. From 6 to 4, the roots slide together along the real axis, and the mass creeps back. At 4 they meet at −2. Below 4 they split into a mirror pair, and the trace rings. At 0 they sit on the j axis, at ±j2. Then, in this ideal model, the ringing never dies.',\n      read: 'The roots are `r = (−c ± √(c² − 4mk)) ÷ 2m`. The sign of `c² − 4mk` sorts three kinds of motion. The dots on the left are the roots. As the damping falls from 6 to 4, the roots slide together along the real axis, and the mass creeps back. At 4 they meet at −2. Below 4 they split into a mirror pair, and the trace rings. At 0 they sit on the j axis, at ±j2. Then, in this ideal model, the ringing never dies.',\n      still: { c: 2 },\n      draw() {\n        const c = P.c, s = sol(c), tm = simT(0.9, 3.4);\n        ptBase('plane');\n        locus(vis(0.4));\n        part(vis(0.4), 0, () => rootDots(s.R, 'dot'));\n        if (tm > 0) trace(s.x, 0, tm);\n        rider(tm, s.x(tm));\n        REC.cNow = c;\n        said.push(caseSay(c, s.R));\n      } },\n    { kind: 'pick', name: 'Where they meet', scene: 'pt', key: ['trace', 'rest'], work: 2, lead: LEAD_S,\n      task: 'Which damping makes the two roots meet?',\n      opts: ['4 N·s/m', '16 N·s/m', '2 N·s/m'], want: '4 N·s/m',\n      why: 'They meet when `c² − 4mk` is zero, so the square root adds nothing. Then `c² = 4mk`. Here `4mk` = 4 × 1 × 4 = 16. So `c` = √16 = 4 N·s/m. That is `2√(mk)`, the critical damping.',\n      hint: 'Not quite. The roots meet when `c² − 4mk` is zero.',\n      hints: { '16 N·s/m': 'Not quite. 16 is `c²`, not `c`. Take its square root.', '2 N·s/m': 'Not quite. 2 is `√(mk)`. The roots meet at twice that.' },\n      draw(st) {\n        const r = RW(st);\n        let target = CMAX, cls = 'dot';\n        if (r.ok) { target = CC; REC.answer = true; }\n        else if (r.w) { REC.bad++; cls = 'dot bad'; target = r.w === '16 N·s/m' ? 4 * M * KS : Math.sqrt(M * KS); }\n        const g = r.ok || r.w ? K.ease(prog(0.2, 1.4)) : 0, c = CMAX + (target - CMAX) * g, s = sol(c);\n        tagLine(cTag(c));\n        ptBase('plane');\n        trace(s.x, 0, TEND);\n        rootDots(s.R, cls, { labels: g === 0 || (r.ok && g >= 1) });\n        if (r.w && g >= 1 && REC.off) part(1, 0, () => label(14, Y0 - 12, 'off the plane', 'lab bad', 'start'));\n        REC.cNow = c;\n        if (r.ok) workLines([{ s: '`c² = 4mk` = 4 × ' + f2(M) + ' × ' + f2(KS) + ' = ' + f2(4 * M * KS), a: vis(0.6) }, { s: 'so `c` = √' + f2(4 * M * KS) + ' = ' + f2(CC) + ' N·s/m', a: vis(1.0) }]);\n        else if (r.w === '16 N·s/m') workLines([{ s: 'at ' + f2(target) + ' N·s/m the roots move apart', bad: true, a: vis(0.6) }]);\n        else if (r.w) workLines([{ s: 'at ' + f2(target) + ' N·s/m they have met and split', bad: true, a: vis(0.6) }]);\n        said.push(caseSay(c, s.R));\n      } },\n    { show: true, name: 'Two decays', scene: 'pt', key: ['trace', 'slow', 'fast', 'rest'], traceName: 'position `x`, the two added', dur: 4.6, lead: '', tag: () => cTag(C5),\n      text: 'At damping 5, the roots are −1 and −4. Each real root gives a decay, and the answer adds the two, `x = A e^(−t) + B e^(−4t)`. Starting at 0.5 m gives `A + B = 0.5`. Starting at rest gives `−A − 4B = 0`. So `A` = 0.667 and `B` = −0.167. Each part is drawn faintly. The fast part has almost gone by 1 s. So the slow root sets the creep. This is *overdamped*.',\n      draw() {\n        const s = sol(C5), R = s.R, tm = simT(0.9, 3.0);\n        ptBase('plane');\n        part(vis(0.4), 0, () => { dotAt(R.r1, 0, 'dot c1'); label(PX(R.r1), Y0 - 11, f2(R.r1), 'lab', 'middle'); });\n        part(vis(0.6), 0, () => { dotAt(R.r2, 0, 'dot c2'); label(PX(R.r2), Y0 - 11, f2(R.r2), 'lab', 'middle'); });\n        if (tm > 0) { trace(s.slow, 0, tm, 'trace p1'); trace(s.fast, 0, tm, 'trace p2'); trace(s.x, 0, tm); }\n        rider(tm, s.x(tm));\n        part(vis(3.6), 0, () => { const x = G.x(1); line('mkr', x, PT, x, PB); addObst(x, PT, x, PB); label(x + 5, PT + 12, '1 s', 'lab', 'start'); });\n        REC.parts = { A: s.A, B: s.B, fastAt1: s.fast(1) };\n        said.push('The slow part and the fast part add to the creep. By 1 second the fast part has almost gone.');\n      } },\n    { kind: 'pick', name: 'Heavier damping', scene: 'pt', key: ['r6', 'r5', 'c6', 'c5', 'rest'], work: 2, lead: LEAD_S, tag: () => cTag(C6),\n      task: 'Now the damping is 6, and the roots are −0.76 and −5.24. Does the mass get back faster or slower than at damping 5?',\n      opts: O5, want: O5[0],\n      why: 'The roots always multiply to `k ÷ m` = 4 and add to `−c ÷ m`. At damping 6 they add to −6, not −5. To keep the product at 4, the fast root moves away from zero and the slow one moves in. The slow root sets the creep, and a root of −0.76 dies slower than −1. At 2 s the mass is still 0.13 m out, against 0.09 m at damping 5.',\n      hint: 'Not quite. Look at the slow root.',\n      hints: { [O5[1]]: 'Not quite. Past critical, heavier damping creeps back slower. Look at the slow root.', [O5[2]]: 'Not quite. The roots have moved, so the creep changes.' },\n      draw(st) {\n        const r = RW(st), s5 = sol(C5), s6 = sol(C6);\n        ptBase('plane');\n        rootDots(s5.R, 'cring');\n        rootDots(s6.R, 'dot', { labels: true });\n        trace(s5.x, 0, TEND, 'trace cmp');\n        if (r.ok || r.w) {\n          if (r.ok) REC.answer = true; else REC.bad++;\n          const g = prog(0.2, 1.2);\n          trace(s6.x, 0, TEND * g, r.ok ? 'trace' : 'trace bad');\n          part(vis(1.2), 0, () => {\n            const x = G.x(2);\n            line('mkr', x, PT, x, PB); addObst(x, PT, x, PB);\n            label(x + 5, PT + 12, '2 s', 'lab', 'start');\n            add(K.svg('circle', { class: r.ok ? 'dot' : 'dot bad', cx: r2(x), cy: r2(G.y(s6.x(2))), r: 4 }));\n          });\n          REC.at2 = { c6: s6.x(2), c5: s5.x(2) };\n          if (r.ok) workLines([{ s: 'the slow root moved in, from ' + f2(s5.R.r1) + ' to ' + f2(s6.R.r1), a: vis(0.4) }, { s: 'at 2 s: ' + f2(s6.x(2)) + ' m out, against ' + f2(s5.x(2)) + ' m', a: vis(1.0) }]);\n          else if (r.w === O5[1]) workLines([{ s: 'at 2 s it is still ' + f2(s6.x(2)) + ' m out, against ' + f2(s5.x(2)) + ' m', bad: true, a: vis(0.6) }]);\n          else workLines([{ s: 'the roots moved, so the creep changed', bad: true, a: vis(0.6) }]);\n        }\n        said.push('The rings mark the roots at damping 5, the dots the roots at damping 6.');\n      } },\n    { show: true, name: 'Critical', scene: 'pt', key: ['c4', 'c5', 'c3', 'rest'], dur: 4.6, lead: '', tag: () => cTag(CC),\n      text: '*Critical damping* is the quickest return that never swings past rest. At damping 4, the roots meet at −2, one root twice. So the answer needs a second part, `x = (0.5 + t)e^(−2t)`. Then `x′ = −2t e^(−2t)` and `x″ = (4t − 2)e^(−2t)`. Put in, `x″ + 4x′ + 4x` = 0. At 2 s it is 0.05 m out, nearer than with damping 5. Damping 3 reaches rest sooner, at about 1.8 s, but swings past it.',\n      draw() {\n        const s4 = sol(CC), s5 = sol(C5), s3 = sol(C3), tm = simT(0.9, 3.0);\n        ptBase('plane');\n        part(vis(0.4), 0, () => rootDots(s4.R, 'dot', { labels: true }));\n        if (tm > 0) { trace(s5.x, 0, tm, 'trace cmp'); trace(s3.x, 0, tm, 'trace teal'); trace(s4.x, 0, tm); }\n        rider(tm, s4.x(tm));\n        const tc = crossing(s3.x);\n        part(vis(3.6), 0, () => {\n          const x = G.x(2), y = G.y(s4.x(2));\n          add(K.svg('circle', { class: 'dot', cx: r2(x), cy: r2(y), r: 4 }));\n          label(x + 6, y - 9, f2(s4.x(2)) + ' m', 'lab main', 'start', [[x + 8, y - 22, 'start']]);\n          ringAt(G.x(tc), Y0, 9, 'tring');\n          label(G.x(tc) + 4, Y0 + 26, 'swings past rest', 'lab', 'start', [[G.x(tc) - 4, Y0 + 26, 'end']]);\n        });\n        REC.cross3 = tc; REC.at2 = s4.x(2);\n        said.push('At damping 4 the mass returns fastest without swinging past rest. At damping 3 it crosses rest and swings a little past.');\n      } },\n    { kind: 'pick', name: 'One root, twice', scene: 'pt', key: (st) => (st.res === 'right' ? ['trace', 'cand', 'rest'] : ['trace', 'rest']), work: 2, lead: LEAD_S, tag: () => cTag(CC),\n      task: 'At damping 4, why can\\'t `A e^(−2t)` alone be the answer?',\n      opts: O7, want: O7[0],\n      why: 'The start fixes two values, the position and the speed. One constant can match only one of them. With `A` = 0.5 the position fits, but the mass would start moving instead of at rest. So a second part, `t e^(−2t)`, brings a second constant.',\n      hint: 'Not quite. Count what the start fixes.',\n      hints: { [O7[1]]: 'Not quite. The true answer never reaches zero either.', [O7[2]]: 'Not quite. It has one, `(0.5 + t)e^(−2t)`.' },\n      draw(st) {\n        const r = RW(st), s = sol(CC), R = s.R, form = '`(' + f2(X0) + ' + t)e^(' + ex(R.r1) + ')`';\n        ptBase('plane');\n        rootDots(R, 'dot', { labels: true });\n        trace(s.x, 0, TEND);\n        if (r.ok) {\n          REC.answer = true;\n          const g = prog(0.2, 1.0), cand = (t) => X0 * Math.exp(R.r1 * t);\n          trace(cand, 0, TEND * g, 'trace cand');\n          part(vis(0.8), 0, () => {\n            const x0 = G.x(0), y0 = G.y(X0), t1 = 0.3, x1 = G.x(t1), y1 = G.y(X0 + R.r1 * X0 * t1);\n            arrow(x0, y0, x1, y1, 'slope', 7);\n            line('flat', x0, y0, G.x(0.8), y0); addObst(x0, y0, G.x(0.8), y0);\n            label(x1 + 5, y1 + 6, 'starts moving', 'lab', 'start');\n            label(G.x(0.8) + 6, y0 - 7, 'at rest', 'lab main', 'start', [[G.x(0.8) + 6, y0 - 20, 'start']]);\n          });\n          REC.slope = R.r1 * X0;\n          workLines([{ s: '`A` = ' + f2(X0) + ' matches the ' + f2(X0) + ' m start', a: vis(0.4) }, { s: 'but then it starts moving, not at rest', a: vis(1.0) }]);\n        } else if (r.w === O7[1]) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ringAt(G.x(4.5), G.y(s.x(4.5)), 11, 'ring'));\n          workLines([{ s: form + ' never reaches 0 either', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ringAt(G.x(0), G.y(X0), 11, 'ring'));\n          workLines([{ s: 'it has one: ' + form, bad: true, a: vis(0.4) }]);\n        }\n        said.push('The trace is ' + say(form) + '.');\n      } },\n    { show: true, name: 'Ringing', scene: 'pt', arrowSwitch: true, dur: 4.6, lead: '',\n      key: () => (P.arrow ? ['trace', 'env', 'tip', 'shadow', 'level'] : ['root', 'trace', 'env', 'rest']),\n      tag: () => cTag(C2) + (P.arrow ? ' · roots ' + rootsText(roots(C2)) : ''),\n      text: 'At damping 2, the roots are a mirror pair `α ± jβ`, here −1 ± j1.732. The trace rings inside a ghost *envelope*, `e^(αt)`. The real part, −1, sets how fast it dies. The j part, 1.732, sets how fast it rings, in radians a second. Switch on the arrow. It shrinks as it turns. Its shadow on the real axis is the trace. The mirror root\\'s arrow turns the other way, so the two add to a real number. The mass moves only up and down. This is *underdamped*.',\n      read: 'At damping 2, the roots are a mirror pair `α ± jβ`, here −1 ± j1.732. The trace rings inside a ghost *envelope*, `e^(αt)`. The real part, −1, sets how fast it dies. The j part, 1.732, sets how fast it rings, in radians a second. With the switch on, an arrow shrinks as it turns. Its shadow on the real axis is the trace. The mirror root\\'s arrow turns the other way, so the two add to a real number. The mass moves only up and down. This is *underdamped*.',\n      still: { arrow: true },\n      draw() {\n        const s = sol(C2), R = s.R;\n        if (P.arrow) {\n          const tA = TNOW * prog(0.4, 4.0);\n          ptBase('arrow');\n          envelope(s, 0, TEND, 'env');\n          turning(s, tA);\n          if (tA > 0) trace(s.x, 0, tA);\n          rider(tA, s.x(tA));\n          said.push('The arrow turns and shrinks. Its shadow on the real axis moves up and down, level with the mass and with the newest point of the trace.');\n        } else {\n          const tm = simT(0.9, 3.4);\n          ptBase('plane');\n          part(vis(0.4), 0, () => rootDots(R, 'dot', { labels: true }));\n          part(vis(0.6), 0, () => envelope(s, 0, TEND, 'env'));\n          if (tm > 0) trace(s.x, 0, tm);\n          rider(tm, s.x(tm));\n          said.push(caseSay(C2, R));\n        }\n      } },\n    { kind: 'pick', name: 'Read the pair', scene: 'pt', key: ['trace', 'env', 'rest'], work: 2, lead: LEAD_S, tag: () => cTag(C2),\n      task: 'What do the roots −1 ± j1.732 say?',\n      opts: O9, want: O9[0],\n      why: 'The real part, −1, sets the envelope `e^(−t)`. Each second it keeps `e^(−1)` = 0.368 of itself. The j part, 1.732, is how fast it rings, in radians a second. It would ring for ever only if the real part were 0.',\n      hint: 'Not quite. Read the real part and the j part in turn.',\n      hints: { [O9[1]]: 'Not quite. The ringing comes from the j part, not the real part.', [O9[2]]: 'Not quite. The real part, −1, makes it die away.' },\n      draw(st) {\n        const r = RW(st), s = sol(C2), R = s.R;\n        ptBase('plane');\n        rootDots(R, 'dot', { labels: true });\n        envelope(s, 0, TEND, 'env');\n        trace(s.x, 0, TEND);\n        const xa = PX(R.a), x0 = PX(0);\n        if (r.ok) {\n          REC.answer = true;\n          part(vis(0.2), 0, () => { hBracket(xa, x0, Y0 + 9, 'brk'); label((xa + x0) / 2, Y0 + 26, 'dies', 'lab main', 'middle'); });\n          part(vis(0.6), 0, () => { vBracket(xa - 10, PY(R.b), Y0, 'brk'); label(xa - 15, (PY(R.b) + Y0) / 2 + 5, 'rings', 'lab main', 'end'); });\n          part(vis(1.0), 0, () => {\n            [0, 1].forEach((t) => add(K.svg('circle', { class: 'dot', cx: r2(G.x(t)), cy: r2(G.y(s.env(t))), r: 4 })));\n            label(G.x(1) + 7, G.y(s.env(1)) - 6, '× ' + f3(Math.exp(R.a)) + ' each second', 'lab main', 'start', [[G.x(1) + 7, G.y(s.env(1)) - 20, 'start']]);\n          });\n          REC.kept = s.env(1) / s.env(0);\n          workLines([{ s: '`e^(' + f2(R.a) + ')` = ' + f3(Math.exp(R.a)) + ' kept each second', a: vis(0.4) }, { s: 'it rings at ' + f3(R.b) + ' rad/s', a: vis(1.0) }]);\n        } else if (r.w === O9[1]) {\n          REC.bad++;\n          part(vis(0.1), 0, () => { hBracket(xa, x0, Y0 + 9, 'brk bad'); label((xa + x0) / 2, Y0 + 26, 'dies', 'lab bad', 'middle'); });\n          workLines([{ s: 'the real part sets the dying, not the ringing', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const g = prog(0.1, 0.8);\n          part(1, 0, () => { [1, -1].forEach((sg) => { const y = G.y(sg * s.amp); line('env bad', PL, y, PL + (PR - PL) * g, y); }); });\n          workLines([{ s: 'the real part, ' + f2(R.a) + ', makes the envelope shrink', bad: true, a: vis(0.4) }]);\n        }\n        said.push(caseSay(C2, R));\n      } },\n    { kind: 'pick', name: 'Two sketches', scene: 'sketch', key: (st) => (st.res === 'right' ? ['sk', 'frac', 'rest'] : ['sk', 'rest']), work: 2, lead: LEAD_K,\n      task: 'Two sketches start from 0.5 m. In A, the peaks halve each swing. In B, they drop 0.1 m each swing. Which could come from `m x″ + c x′ + k x = 0`?',\n      opts: ['A', 'B', 'Both'], want: 'A',\n      why: 'In this equation the drag grows in step with the speed. So each swing keeps the same fraction of the last, as `e^(αt)` does. In A that fraction is always 0.5. In B it is 0.8, then 0.75. A ship\\'s roll at small angles dies away like A, and its damping grows with forward speed. A drag of fixed size, such as dry friction, is not in this equation.',\n      hint: 'Not quite. Work out what fraction of each peak the next one keeps.',\n      hints: { B: 'Not quite. Work out 0.4 ÷ 0.5 and 0.3 ÷ 0.4.', Both: 'Not quite. Only one keeps the same fraction each swing.' },\n      draw(st) {\n        const r = RW(st), gA = sk(88), gB = sk(228);\n        const fA = (t) => X0 * Math.pow(0.5, t / TS) * Math.cos(2 * Math.PI * t / TS);\n        const fB = (t) => (X0 - 0.1 * t / TS) * Math.cos(2 * Math.PI * t / TS);\n        fixed(44, 18, 'height `x` (m) against time', 'ttl', 'start');\n        const pA = sketchPlot(gA, fA, 'A'), pB = sketchPlot(gB, fB, 'B');\n        fixed(gB.PR, gB.y(-0.6) + 18, 'time', 'tk', 'end');\n        REC.peaks = { A: pA.map((p) => p.v), B: pB.map((p) => p.v) };\n        const q = (a, b) => f2(b) + ' ÷ ' + f2(a) + ' = ' + f2(b / a);\n        const lineB = 'B: ' + q(pB[0].v, pB[1].v) + ', but ' + q(pB[1].v, pB[2].v);\n        if (r.ok) {\n          REC.answer = true;\n          const g = prog(0.2, 1.0);\n          trace((t) => X0 * Math.pow(0.5, t / TS), 0, 6 * g, 'env main', gA);\n          workLines([{ s: 'A: ' + q(pA[0].v, pA[1].v) + ', and ' + f3(pA[2].v) + ' ÷ ' + f2(pA[1].v) + ' = ' + f2(pA[2].v / pA[1].v), a: vis(0.4) }, { s: lineB, a: vis(1.0) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ringAt(gB.x(2 * TS), gB.y(pB[2].v), 11, 'ring'));\n          workLines([{ s: r.w === 'B' ? lineB : 'B does not keep the same fraction each swing', bad: true, a: vis(0.4) }]);\n        }\n        said.push('Sketch A has peaks ' + pA.map((p) => f3(p.v)).join(', ') + ' metres. Sketch B has peaks ' + pB.map((p) => f3(p.v)).join(', ') + ' metres.');\n      } },\n    { kind: 'pick', name: 'The loop', scene: 'loop', key: (st) => (st.res === 'right' ? ['q', 'envq', 'rest'] : ['rest']), work: 2, lead: LEAD_C,\n      task: 'A 100 mH coil, a 10 µF capacitor and 40 Ω sit in one loop. What does it do?',\n      opts: O11, want: O11[0],\n      why: 'In base units, `L` = 0.1 H and `1 ÷ C` = 100000. Then `R²` = 1600 is smaller than `4L ÷ C` = 40000, so it rings. The roots are (−40 ± √(1600 − 40000)) ÷ 0.2. That is −200 ± j980, near enough. So it rings at about 980 rad/s, which is 156 Hz, inside an envelope `e^(−200t)`. That is just below the 1000 rad/s, or 159 Hz, this pair resonates at.',\n      hint: 'Not quite. Compare `R²` with `4L ÷ C` first.',\n      hints: { [O11[1]]: 'Not quite. `R²` is smaller than `4L ÷ C`, so the roots are a mirror pair.', [O11[2]]: 'Not quite. The real part, −200, makes it die away.' },\n      draw(st) {\n        const r = RW(st), s = loopSol(R40), R = s.R, near = Math.round(R.b / 10) * 10;\n        loopFrame({ R: '`R` = ' + f2(R40) + ' Ω' });\n        if (r.ok) {\n          REC.answer = true;\n          const g = prog(0.2, 1.2);\n          envelope(s, 0, TL, 'env');\n          trace(s.x, 0, TL * g);\n          part(vis(1.2), 0, () => { const x1 = G.x(-1 / R.a); hBracket(G.x(0), x1, G.PB + 9, 'brk'); label((G.x(0) + x1) / 2, G.PB + 26, fmtD(-1000 / R.a, 1) + ' ms', 'lab main', 'middle'); });\n          workLines([{ s: '`R²` = ' + f2(R40 * R40) + ' is smaller than `4L ÷ C` = ' + f2(4 * LH * INVC), a: vis(0.3) }, { s: 'roots near ' + f2(R.a) + ' ± j' + near + ', so it rings', a: vis(1.0) }]);\n        } else if (r.w === O11[1]) {\n          REC.bad++;\n          const g = prog(0.1, 1.0), A = 980 / (980 - 200), B = 1 - A;\n          trace((t) => A * Math.exp(-200 * t) + B * Math.exp(-980 * t), 0, TL * g, 'trace bad');\n          part(vis(0.6), 0, () => label(G.x(0.006), G.y(0.55), 'not this', 'lab bad', 'start'));\n          workLines([{ s: f2(R40 * R40) + ' − ' + f2(4 * LH * INVC) + ' is negative: no real roots', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const g = prog(0.1, 1.0);\n          trace((t) => Math.cos(R.b * t), 0, TL * g, 'trace bad');\n          part(vis(0.6), 0, () => label(G.x(0.004), G.y(1.12), 'not this', 'lab bad', 'start'));\n          workLines([{ s: 'the real part, ' + f2(R.a) + ', makes it die away', bad: true, a: vis(0.4) }]);\n        } else part(1, 0, () => text(G.x(TL / 2), G.y(0) - 12, '?', 'big mut', 'middle'));\n        said.push('A loop with a coil, a resistor and a capacitor.');\n      } },\n    { kind: 'pick', name: 'Make it critical', scene: 'loop', key: (st) => (st.res === 'right' ? ['q40c', 'q200', 'rest'] : st.res === 'wrong' ? ['q40c', 'rest'] : ['q40', 'rest']), work: 2, lead: LEAD_C,\n      task: 'Which resistor makes that loop critical?',\n      opts: ['200 Ω', '40000 Ω', '1000 Ω'], want: '200 Ω',\n      why: 'Critical means `R² = 4L ÷ C`. Here `4L ÷ C` = 40000. So `R` = √40000 = 200 Ω. That is `2√(L ÷ C)` = 2√(0.1 ÷ 0.00001) = 2 × 100.',\n      hint: 'Not quite. Critical means `R² = 4L ÷ C`.',\n      hints: { '40000 Ω': 'Not quite. 40000 is `R²`. Take its square root.', '1000 Ω': 'Not quite. 1000 is how fast it would ring with no resistance, in rad/s.' },\n      draw(st) {\n        const r = RW(st), s40 = loopSol(R40), sc = loopSol(RC);\n        const rw = r.w ? (r.w === '40000 Ω' ? 4 * LH * INVC : 1 / Math.sqrt(LH * CF)) : null;\n        loopFrame({ R: r.ok ? '`R` = ' + f2(RC) + ' Ω' : r.w ? '`R` = ' + f2(rw) + ' Ω' : '`R` = ?', main: r.ok, bad: !!r.w });\n        trace(s40.x, 0, TL, r.ok || r.w ? 'trace cmp' : 'trace');\n        if (r.ok) {\n          REC.answer = true;\n          const g = prog(0.2, 1.2);\n          trace(sc.x, 0, TL * g);\n          REC.crit = sc.R.kind;\n          workLines([{ s: '`R² = 4L ÷ C` = ' + f2(4 * LH * INVC), a: vis(0.3) }, { s: 'so `R` = √' + f2(4 * LH * INVC) + ' = ' + f2(RC) + ' Ω', a: vis(1.0) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const sw = loopSol(rw), g = prog(0.2, 1.2);\n          trace(sw.x, 0, TL * g, 'trace bad');\n          part(vis(1.0), 0, () => label(G.x(TL * 0.62), G.y(sw.x(TL * 0.62)) - 10, 'creeps', 'lab bad', 'start', [[G.x(TL * 0.62), G.y(sw.x(TL * 0.62)) + 22, 'start']]));\n          workLines([{ s: r.w === '40000 Ω' ? '40000 is `R²`, so this creeps far too slowly' : '1000 is the ringing rate in rad/s, not ohms', bad: true, a: vis(0.4) }]);\n        }\n        said.push('The loop\\'s charge against time.');\n      } },\n  ];\n  const FINISH = 'The roots of `m r² + c r + k = 0` set the motion. Two real roots creep back. One repeated root returns quickest without ringing. A mirror pair `α ± jβ` rings at `β` inside a dying envelope `e^(αt)`.';\n  function caseSay(c, R) {\n    if (R.kind === 'over') return 'At damping ' + say(f2(c)) + ' the roots are ' + say(rootsText(R)) + '. Both are real, so the mass creeps back to rest.';\n    if (R.kind === 'crit') return 'At damping ' + say(f2(c)) + ' the two roots meet at ' + say(f2(R.r1)) + '. The mass returns as fast as it can without ringing.';\n    if (Math.abs(R.a) < 1e-12) return 'With no damping the roots sit on the j axis at ' + say(rootsText(R)) + '. In this ideal model the ringing never dies.';\n    return 'At damping ' + say(f2(c)) + ' the roots are a mirror pair, ' + say(rootsText(R)) + '. The trace rings while its swings die.';\n  }\n\n  // ---------- the layout ----------\n  // The 'pt' scene: the plane of the roots on the left (21 units per 1/s, equal on both axes), the\n  // position against time on the right (120 units a metre), sharing one zero line.\n  const PT = 56, PB = 224, Y0 = 140, YL = 0.7, KY = (PB - PT) / (2 * YL);\n  const PL = 190, PR = 296, KX = (PR - PL) / TEND;\n  const PS = 21, PO = 132;\n  const PX = (r) => PO + PS * r, PY = (j) => Y0 - PS * j;\n  const PXL = PX(-6), PXR = PX(1), PYT = PY(2.5), PYB = PY(-2.5);\n  // The turning arrow's panel, at the trace's own scale: its real axis runs up, its j axis across.\n  const XA = 100;\n  // The mass between the panels: the ceiling, a spring and a damper, the mass.\n  const CEIL = 30, SX = 166, DX = 180, MX0 = 158, MX1 = 186, MH = 18;\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  function geoOf(d, st, rows) {\n    const g = { sc: d.scene };\n    if (d.scene === 'pt') Object.assign(g, { PL, PR, PT, PB, y0: Y0, kx: KX, ky: KY, t1: TEND, lim: YL, keyY: PB + 44 });\n    else if (d.scene === 'loop') Object.assign(g, { PL: 24, PR: 314, PT: 194, PB: 294, y0: 244, kx: 290 / TL, ky: 100 / 2.4, t1: TL, lim: 1.2, keyY: 294 + 44 });\n    else Object.assign(g, { keyY: 312 });\n    if (g.kx) { g.x = (t) => g.PL + t * g.kx; g.y = (v) => g.y0 - v * g.ky; }\n    let y = rows ? g.keyY + 20 * (rows - 1) + 8 : g.keyY - 14;\n    g.ruleY = y + 22; y += d.rule ? 24 : 0;\n    const working = st.res === 'right' || st.res === 'wrong';\n    g.workY = y + 22; y += (working ? d.work || 0 : 0) * 26;\n    g.H = y + 12;\n    return g;\n  }\n  function sk(y0) { const g = { PL: 44, PR: 320, t1: 6, kx: 276 / 6, y0, ky: 80, lim: 0.6 }; g.x = (t) => g.PL + t * g.kx; g.y = (v) => g.y0 - v * g.ky; return g; }\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open.\n  function blank() { return { pick: null, res: null, why: false }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, lastKey = null, lastArrow = false, TM = Infinity;\n  let motionEnd = 0;\n  let REC = null, G = null, said = [], placed = [], obst = [], queue = [];\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top');\n  let into = null, curA = 1;\n  const add = (node) => (into || art).appendChild(node);\n  // The timetable: how far a part due at t0 has arrived, noting it for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? SOFT : d; note(t0, d); return K.arrive(TM, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t, SOFT));\n  function prog(t0, dur) { note(t0, dur); return K.clamp((TM - t0) / dur, 0, 1); }\n  const simT = (t0, dur) => TEND * prog(t0, dur);\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into, keepA = curA;\n    into = g; curA = a * keepA;\n    draw();\n    into = keep; curA = keepA;\n  }\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function addObst(x1, y1, x2, y2) {\n    const n = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3));\n    for (let k = 0; k <= n; k++) obst.push([x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n]);\n  }\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });\n    svgWords(t, s);\n    REC.texts.push(plain(s));\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    svgWords(t, s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return plain(s).length * 7.4;\n  }\n  // A label, painted above the drawing once everything else is down. It takes the first of its\n  // places that is clear of other words and of the lines and curves; failing that, it moves up or\n  // down a line from the first.\n  function label(x, y, s, cls, anchor, alts) { queue.push({ x, y, s, cls, anchor, alts: alts || [], a: curA }); }\n  function placeLabel(q) {\n    const w = tw(q.s, q.cls);\n    const leftOf = (xx, an) => K.clamp(an === 'end' ? xx - w : an === 'middle' ? xx - w / 2 : xx, 4, 336 - w);\n    const box = (lx, yv) => ({ x: lx - 2, y: yv - 12, w: w + 4, h: 15 });\n    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h) ||\n      obst.some((o) => o[0] > b.x && o[0] < b.x + b.w && o[1] > b.y && o[1] < b.y + b.h);\n    const cands = [[q.x, q.y, q.anchor]].concat(q.alts);\n    let pos = null;\n    for (const c of cands) { const lx = leftOf(c[0], c[2] || q.anchor); if (!hits(box(lx, c[1]))) { pos = [lx, c[1]]; break; } }\n    if (!pos) {\n      const lx = leftOf(q.x, q.anchor);\n      pos = [lx, q.y];\n      for (const dy of [-15, 15, -30, 30]) { if (!hits(box(lx, q.y + dy))) { pos = [lx, q.y + dy]; break; } }\n    }\n    placed.push(box(pos[0], pos[1]));\n    const g = topG.appendChild(K.svg('g'));\n    K.fade(g, q.a);\n    const t = K.svg('text', { class: q.cls, x: r2(pos[0]), y: r2(pos[1]), 'text-anchor': 'start' });\n    svgWords(t, q.s);\n    g.appendChild(t);\n    REC.texts.push(plain(q.s));\n    said.push(say(q.s) + '.');\n  }\n  // A word that sits in a fixed place (a title, a tick), kept clear of the labels.\n  function fixed(x, y, s, cls, anchor) {\n    const w = tw(s, cls), left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;\n    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });\n    return text(x, y, s, cls, anchor);\n  }\n  // An arrow in any direction, with its head at the far end.\n  function arrow(x0, y0, x1, y1, cls, hd) {\n    const L = Math.hypot(x1 - x0, y1 - y0);\n    if (L < 2) return;\n    hd = Math.min(hd || 8, L * 0.6);\n    const ux = (x1 - x0) / L, uy = (y1 - y0) / L, bx = x1 - ux * hd, by = y1 - uy * hd, px = -uy * hd * 0.6, py = ux * hd * 0.6;\n    add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y0) + ' L' + r2(x1) + ' ' + r2(y1) + ' M' + r2(bx + px) + ' ' + r2(by + py) + ' L' + r2(x1) + ' ' + r2(y1) + ' L' + r2(bx - px) + ' ' + r2(by - py) }));\n    addObst(x0, y0, x1, y1);\n  }\n  function ringAt(x, y, r, cls) {\n    add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n    for (let k = 0; k < 16; k++) obst.push([x + r * Math.cos(k * Math.PI / 8), y + r * Math.sin(k * Math.PI / 8)]);\n  }\n  function hBracket(x0, x1, y, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y - 5) + ' V' + r2(y) + ' H' + r2(x1) + ' V' + r2(y - 5) })); addObst(x0, y, x1, y); }\n  function vBracket(x, y0, y1, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x + 5) + ' ' + r2(y0) + ' H' + r2(x) + ' V' + r2(y1) + ' H' + r2(x + 5) })); addObst(x, y0, x, y1); }\n\n  // The trace: v = f(t) from t0 to t1, against time, on the step's plot (or the sketch given).\n  function trace(f, t0, t1, cls, gg) {\n    gg = gg || G;\n    if (t1 <= t0 + 1e-12) return null;\n    const n = Math.max(2, Math.ceil((t1 - t0) / gg.t1 * 240));\n    let d = '';\n    for (let j = 0; j <= n; j++) {\n      const t = t0 + (t1 - t0) * j / n, X = gg.x(t), Y = gg.y(K.clamp(f(t), -gg.lim, gg.lim));\n      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);\n      if (j % 2 === 0) obst.push([X, Y]);\n    }\n    add(K.svg('path', { class: cls || 'trace', d }));\n    REC.traces.push({ f, t0, t1, cls: cls || 'trace' });\n    return [t1, f(t1)];\n  }\n  function envelope(s, t0, t1, cls) {\n    [1, -1].forEach((sg) => {\n      let d = '';\n      for (let j = 0; j <= 120; j++) {\n        const t = t0 + (t1 - t0) * j / 120, X = G.x(t), Y = G.y(K.clamp(sg * s.env(t), -G.lim, G.lim));\n        d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);\n        if (j % 3 === 0) obst.push([X, Y]);\n      }\n      add(K.svg('path', { class: cls, d }));\n    });\n    REC.env = true;\n  }\n  function rider(t, v) {\n    add(K.svg('circle', { class: 'rider', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5.5 }));\n    REC.heads.push({ t, v, y: G.y(v) });\n  }\n  function restLine(gg) {\n    gg = gg || G;\n    const y = gg.y(0);\n    line('rest', gg.PL, y, gg.PR, y); addObst(gg.PL, y, gg.PR, y);\n  }\n  // The first time a trace crosses rest.\n  function crossing(f) {\n    let a = 0, b = null;\n    for (let t = 0.01; t <= TEND; t += 0.01) { if (f(t) < 0) { b = t; break; } a = t; }\n    if (b == null) return null;\n    for (let k = 0; k < 40; k++) { const m = (a + b) / 2; if (f(m) < 0) b = m; else a = m; }\n    return (a + b) / 2;\n  }\n\n  // The plane of the roots: its frame, grid, axes and ticks, all in per second.\n  function planeAxes() {\n    add(K.svg('rect', { class: 'frame', x: PXL, y: r2(PYT), width: PXR - PXL, height: r2(PYB - PYT) }));\n    [-5, -4, -3, -2, -1].forEach((r) => line('gl', PX(r), PYT, PX(r), PYB));\n    [-2, -1, 1, 2].forEach((j) => line('gl', PXL, PY(j), PXR, PY(j)));\n    line('ax', PXL, Y0, PXR, Y0); line('ax', PO, PYT, PO, PYB);\n    addObst(PXL, Y0, PXR, Y0); addObst(PO, PYT, PO, PYB);\n    addObst(PXL, PYT, PXR, PYT); addObst(PXL, PYB, PXR, PYB); addObst(PXL, PYT, PXL, PYB); addObst(PXR, PYT, PXR, PYB);\n    fixed(2, PYB + 17, '−6', 'tk', 'start');\n    [-4, -2, 0].forEach((r) => fixed(PX(r), PYB + 17, fmtD(r, 0), 'tk', 'middle'));\n    fixed(PXR + 3, PY(2) + 4.5, 'j2', 'tk', 'start');\n    fixed(PXR + 3, PY(-2) + 4.5, '−j2', 'tk', 'start');\n    fixed(PXR + 4, Y0 + 4.5, 'real', 'tk', 'start');\n    fixed(4, 44, 'roots, per second', 'ttl', 'start');\n  }\n  // The turning arrow's panel, in metres at the trace's scale: real axis up, j axis across.\n  function arrowAxes() {\n    line('ax', XA, PT, XA, PB); line('ax', 40, Y0, 150, Y0);\n    addObst(XA, PT, XA, PB); addObst(40, Y0, 150, Y0);\n    [0.5, -0.5].forEach((v) => { line('ax', XA - 4, G.y(v), XA + 4, G.y(v)); fixed(XA - 7, G.y(v) + 4.5, fmtD(v, 1), 'tk', 'end'); });\n    fixed(XA + 6, PT + 10, 'real', 'tk', 'start');\n    fixed(40, Y0 - 7, 'j', 'tk', 'start');\n    fixed(4, 44, 'turning arrow (m)', 'ttl', 'start');\n  }\n  function traceAxes() {\n    [-0.5, 0.5].forEach((v) => line('gl', PL, G.y(v), PR, G.y(v)));\n    [0.5, 0, -0.5].forEach((v) => fixed(PR + 10, G.y(v) + 4.5, fmtD(v, 1), 'tk', 'start'));\n    [0, 2, 4, 6].forEach((t) => { line('xt', G.x(t), PB, G.x(t), PB + 4); fixed(G.x(t), PB + 18, t === TEND ? TEND + ' s' : String(t), 'tk', 'middle'); });\n    line('ax', PL, PB, PR, PB); line('ax', PL, PT, PL, PB);\n    addObst(PL, PT, PL, PB);\n    fixed(PL, 44, 'position `x` (m)', 'ttl', 'start');\n  }\n  function ptBase(mode) { if (mode === 'arrow') arrowAxes(); else planeAxes(); traceAxes(); restLine(); }\n\n  // A root on the plane; one off its left edge is drawn at the edge.\n  function dotAt(r, j, cls) {\n    cls = cls || 'dot';\n    const off = r < -6 - 1e-9, x = PX(Math.max(r, -6)), y = PY(j), rad = cls === 'cring' ? 8 : 5.5;\n    add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r: rad }));\n    placed.push({ x: x - rad - 1, y: y - rad - 1, w: 2 * rad + 2, h: 2 * rad + 2 });\n    REC.dots.push({ r, j, x, y, cls, off });\n    if (off) REC.off = true;\n  }\n  function rootDots(R, cls, o) {\n    o = o || {};\n    const bad = cls.indexOf('bad') >= 0;\n    if (R.kind === 'over') {\n      dotAt(R.r1, 0, cls); dotAt(R.r2, 0, cls);\n      if (o.labels) [R.r1, R.r2].forEach((r) => { const x = PX(Math.max(r, -6)); label(x, Y0 - 11, f2(r), 'lab', 'middle', [[x, Y0 + 22, 'middle']]); });\n    } else if (R.kind === 'crit') {\n      dotAt(R.r1, 0, cls);\n      if (cls !== 'cring') { add(K.svg('circle', { class: 'dring' + (bad ? ' bad' : ''), cx: r2(PX(R.r1)), cy: Y0, r: 9.5 })); placed.push({ x: PX(R.r1) - 11, y: Y0 - 11, w: 22, h: 22 }); }\n      if (o.labels) label(PX(R.r1), Y0 - 15, f2(R.r1) + ', twice', 'lab', 'middle', [[PX(R.r1), Y0 + 26, 'middle']]);\n    } else {\n      dotAt(R.a, R.b, cls); dotAt(R.a, -R.b, cls);\n      if (o.labels) {\n        const xa = PX(R.a);\n        label(xa - 9, PY(R.b) - 3, f2(R.a) + ' + j' + f3(R.b), 'lab', 'end', [[xa + 9, PY(R.b) - 9, 'start'], [xa, PY(R.b) - 12, 'middle']]);\n        label(xa - 9, PY(-R.b) + 9, f2(R.a) + ' − j' + f3(R.b), 'lab', 'end', [[xa + 9, PY(-R.b) + 15, 'start'], [xa, PY(-R.b) + 21, 'middle']]);\n      }\n    }\n  }\n  // The roots' path as the damping falls from 6 to 0: along the real axis to −2, then round a\n  // circle of radius √(k ÷ m) = 2 to ±j2.\n  function locus(a) {\n    if (a <= 0) return;\n    part(a, 0, () => {\n      const R6 = roots(CMAX), xa = PX(R6.r2), xb = PX(R6.r1), rr = PS * Math.sqrt(KS / M), xm = PO - rr;\n      add(K.svg('path', { class: 'locus', d: 'M' + r2(xa) + ' ' + Y0 + ' H' + r2(xb) }));\n      add(K.svg('path', { class: 'locus', d: 'M' + r2(xm) + ' ' + Y0 + ' A' + r2(rr) + ' ' + r2(rr) + ' 0 0 1 ' + PO + ' ' + r2(Y0 - rr) }));\n      add(K.svg('path', { class: 'locus', d: 'M' + r2(xm) + ' ' + Y0 + ' A' + r2(rr) + ' ' + r2(rr) + ' 0 0 0 ' + PO + ' ' + r2(Y0 + rr) }));\n      for (let k = 0; k <= 32; k++) { const th = Math.PI / 2 + Math.PI * k / 32; obst.push([PO + rr * Math.cos(th), Y0 - rr * Math.sin(th)]); }\n      label(xa, Y0 + 21, '`c` = ' + f2(CMAX), 'lab', 'middle', [[xa + 2, Y0 - 12, 'start']]);\n      label(xb, Y0 - 12, '`c` = ' + f2(CMAX), 'lab', 'middle', [[xb, Y0 + 21, 'middle'], [xb + 4, Y0 - 12, 'start']]);\n      label(xm, Y0 + 21, '`c` = ' + f2(CC), 'lab', 'middle', [[xm, Y0 - 12, 'middle']]);\n      label(PO - 7, Y0 - rr - 6, '`c` = 0', 'lab', 'end', [[PO - 7, Y0 - rr - 20, 'end']]);\n    });\n    REC.locus = true;\n  }\n\n  // The mass between the panels, its centre at height cy: it moves only up and down.\n  function springCol(cy) {\n    const top = cy - MH / 2;\n    add(K.svg('rect', { class: 'ceil', x: MX0 - 6, y: CEIL - 7, width: MX1 - MX0 + 12, height: 7 }));\n    line('wall', MX0 - 6, CEIL, MX1 + 6, CEIL);\n    placed.push({ x: MX0 - 6, y: CEIL - 8, w: MX1 - MX0 + 12, h: 9 });\n    const lead = 4, n = 8, y0 = CEIL + lead, y1 = top - lead, amp = 4;\n    let d = 'M' + SX + ' ' + CEIL + ' V' + r2(y0);\n    for (let j = 1; j < n; j++) d += ' L' + (SX + (j % 2 ? amp : -amp)) + ' ' + r2(y0 + (y1 - y0) * j / n);\n    d += ' L' + SX + ' ' + r2(y1) + ' V' + r2(top);\n    add(K.svg('path', { class: 'spr', d }));\n    add(K.svg('rect', { class: 'dmp', x: DX - 4, y: CEIL, width: 8, height: 20, rx: 1.5 }));\n    const py = CEIL + 4 + 12 * K.clamp((top - 60) / 90, 0, 1);\n    line('rod', DX, py, DX, top); line('pis', DX - 2.5, py, DX + 2.5, py);\n    addObst(SX - amp, CEIL, SX - amp, top); addObst(SX + amp, CEIL, SX + amp, top); addObst(DX, CEIL, DX, top);\n    add(K.svg('rect', { class: 'mass', x: MX0, y: r2(top), width: MX1 - MX0, height: MH, rx: 3 }));\n    const mt = add(K.svg('text', { class: 'mtxt', x: (MX0 + MX1) / 2, y: r2(cy + 4.5), 'text-anchor': 'middle' }));\n    svgWords(mt, '`m`');\n    placed.push({ x: MX0, y: top, w: MX1 - MX0, h: MH });\n    REC.mass = { x0: MX0, x1: MX1, cy };\n    return cy;\n  }\n  // The turning arrow at time t: (A − jB) e^((a + jb)t), drawn with its real part up. Its tip's\n  // path so far, its shadow on the real axis, and the mass and trace level with that shadow.\n  function turning(s, t) {\n    const n = Math.max(2, Math.ceil(t / TNOW * 120));\n    let d = '';\n    for (let j = 0; j <= n; j++) {\n      const z = s.z(t * j / n), X = XA - z[1] * KY, Y = Y0 - z[0] * KY;\n      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);\n      if (j % 2 === 0) obst.push([X, Y]);\n    }\n    if (t > 0) add(K.svg('path', { class: 'tip', d }));\n    const z = s.z(t), tx = XA - z[1] * KY, ty = Y0 - z[0] * KY;\n    line('shadow', tx, ty, XA, ty); addObst(tx, ty, XA, ty);\n    arrow(XA, Y0, tx, ty, 'tarrow', 8);\n    add(K.svg('circle', { class: 'sdot', cx: XA, cy: r2(ty), r: 4.5 }));\n    springCol(ty);\n    const a0 = Math.max(XA, tx) + 7;\n    if (MX0 - 3 > a0) { line('lvl', a0, ty, MX0 - 3, ty); addObst(a0, ty, MX0 - 3, ty); }\n    if (G.x(t) - 8 > MX1 + 3) { line('lvl', MX1 + 3, ty, G.x(t) - 8, ty); addObst(MX1 + 3, ty, G.x(t) - 8, ty); }\n    REC.tip = { x: tx, y: ty, re: z[0], im: z[1], len: Math.hypot(z[0], z[1]), t };\n    REC.level = ty;\n  }\n\n  // The lines of working: the algebra of the guess.\n  function algebra() {\n    const X = 20;\n    fixed(4, 26, 'the rule: `m x″ + c x′ + k x = 0`', 'te', 'start');\n    const rows = [\n      { s: '`x = e^(rt)`', y: 64, a: vis(0.4) },\n      { s: '`x′ = r e^(rt)`', y: 96, a: vis(0.9) },\n      { s: '`x″ = r² e^(rt)`', y: 128, a: vis(1.4) },\n      { s: 'each derivative brings out one `r`', y: 152, nt: true, a: vis(1.9) },\n      { s: '`m r² e^(rt) + c r e^(rt) + k e^(rt) = 0`', y: 188, a: vis(2.4) },\n      { s: '`(m r² + c r + k) e^(rt) = 0`', y: 220, a: vis(2.9) },\n      { s: '`e^(rt)` is never zero, so it drops out', y: 244, nt: true, a: vis(3.3) },\n      { s: '`m r² + c r + k = 0`', y: 282, a: vis(3.7), cell: true },\n    ];\n    rows.forEach((w) => part(w.a, 6, () => {\n      if (w.cell) {\n        const wd = tw(w.s, 'te eq') + 18;\n        add(K.svg('rect', { class: 'cell', x: X - 9, y: w.y - 20, width: r2(wd), height: 28, rx: 5 }));\n        fixed(X + wd, w.y, 'characteristic equation', 'lab main', 'start');\n      }\n      text(X, w.y, w.s, w.nt ? 'nt' : 'te eq', 'start');\n    }));\n    REC.lines = rows.map((w) => plain(w.s));\n    rows.forEach((w) => { if (w.a >= 0.5) said.push(say(w.s) + '.'); });\n  }\n  // A sketched trace with its first three peaks marked.\n  function sketchPlot(g, f, name) {\n    line('ax', g.PL, g.y(0.6), g.PL, g.y(-0.6)); addObst(g.PL, g.y(0.6), g.PL, g.y(-0.6));\n    restLine(g);\n    fixed(18, g.y0 + 6, name, 'big', 'middle');\n    trace(f, 0, 6, 'trace', g);\n    const pk = [0, 1, 2].map((n) => ({ t: n * TS, v: f(n * TS) }));\n    pk.forEach((p, n) => {\n      const x = g.x(p.t), y = g.y(p.v);\n      add(K.svg('circle', { class: 'dot', cx: r2(x), cy: r2(y), r: 4.5 }));\n      placed.push({ x: x - 5, y: y - 5, w: 10, h: 10 });\n      label(n ? x : x + 7, y - 9, fmtD(p.v, 3) + ' m', 'lab', n ? 'middle' : 'start', [[x + 8, y + 4, 'start']]);\n    });\n    return pk;\n  }\n  // The loop: the coil and the resistor along the top, the capacitor on the bottom; its charge below.\n  function loopFrame(o) {\n    const x0 = 64, x1 = 300, top = 58, bot = 124, W = x1 - x0, xc = x0 + W / 2, ph = 14;\n    const c0 = x0 + 0.12 * W, c1 = x0 + 0.40 * W, rr0 = x0 + 0.58 * W, rr1 = x0 + 0.82 * W;\n    const wire = (d) => add(K.svg('path', { class: 'wire', d }));\n    wire('M' + r2(xc - 5) + ' ' + bot + ' H' + x0 + ' V' + top + ' H' + r2(c0));\n    wire('M' + r2(c1) + ' ' + top + ' H' + r2(rr0));\n    wire('M' + r2(rr1) + ' ' + top + ' H' + x1 + ' V' + bot + ' H' + r2(xc + 5));\n    const n = 4, hw = (c1 - c0) / n;\n    let d = 'M' + r2(c0) + ' ' + top;\n    for (let j = 0; j < n; j++) d += ' a' + r2(hw / 2) + ' ' + r2(hw / 2) + ' 0 0 1 ' + r2(hw) + ' 0';\n    wire(d);\n    add(K.svg('rect', { class: 'res', x: r2(rr0), y: top - 7, width: r2(rr1 - rr0), height: 14 }));\n    line('plate', xc - 5, bot - ph, xc - 5, bot + ph); line('plate', xc + 5, bot - ph, xc + 5, bot + ph);\n    addObst(x0, top, x1, top); addObst(x0, top, x0, bot); addObst(x1, top, x1, bot); addObst(x0, bot, x1, bot);\n    fixed((c0 + c1) / 2, top - 18, '`L` = ' + fmtD(LH * 1000, 0) + ' mH', 'lab', 'middle');\n    fixed((rr0 + rr1) / 2, top - 18, o.R, 'lab' + (o.bad ? ' bad' : o.main ? ' main' : ''), 'middle');\n    fixed(xc, bot + ph + 18, '`C` = ' + fmtD(CF * 1e6, 0) + ' µF', 'lab', 'middle');\n    line('ax', G.PL, G.PT, G.PL, G.PB); line('ax', G.PL, G.PB, G.PR, G.PB);\n    addObst(G.PL, G.PT, G.PL, G.PB);\n    restLine();\n    fixed(G.PL, G.PT - 12, 'charge `q`, from a charged start', 'ttl', 'start');\n    fixed(G.PR, G.PB + 17, 'time', 'tk', 'end');\n    REC.loopR = o.R;\n  }\n\n  // Lines of working under the picture; the step's rule under the key.\n  function workLines(lines) {\n    lines.forEach((w, k) => {\n      const a = w.a == null ? 1 : w.a;\n      part(a, 6, () => text(4, G.workY + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));\n      if (a >= 0.5) said.push(say(w.s) + '.');\n      REC.work.push({ s: plain(w.s), bad: !!w.bad });\n    });\n  }\n  function ruleLines(d, st) {\n    if (!d.rule) return;\n    const s = d.rule(st);\n    text(4, G.ruleY, s, 'te eq', 'start');\n    said.push(say(s) + '.');\n  }\n  function tagLine(s) { fixed(336, 16, s, 'tag2', 'end'); said.push(say(s) + '.'); }\n  // The key, inside the drawing, under the time axis; it wraps to more rows if it must.\n  const sw = (cls) => (x, y) => line(cls, x, y, x + 18, y);\n  const KEYS = {\n    root: [() => 'a root', (x, y) => add(K.svg('circle', { class: 'dot', cx: x + 9, cy: y, r: 5 }))],\n    locus: [() => 'path of the roots', (x, y) => line('locus', x + 3, y, x + 15, y)],\n    trace: [(d) => d.traceName || 'position `x`', sw('trace')],\n    rest: [() => 'rest', sw('rest')],\n    env: [() => 'envelope `e^(αt)`', sw('env')],\n    slow: [() => { const s = sol(C5); return 'slow part `' + f3(s.A) + 'e^(' + ex(s.R.r1) + ')`'; }, sw('trace p1')],\n    fast: [() => { const s = sol(C5); return 'fast part `' + f3(s.B) + 'e^(' + ex(s.R.r2) + ')`'; }, sw('trace p2')],\n    c4: [() => '`c` = ' + f2(CC), sw('trace')], c5: [() => '`c` = ' + f2(C5), sw('trace cmp')], c3: [() => '`c` = ' + f2(C3), sw('trace teal')],\n    c6: [() => '`c` = ' + f2(C6), sw('trace')],\n    r5: [() => 'roots at ' + f2(C5), (x, y) => add(K.svg('circle', { class: 'cring', cx: x + 9, cy: y, r: 6 }))],\n    r6: [() => 'roots at ' + f2(C6), (x, y) => add(K.svg('circle', { class: 'dot', cx: x + 9, cy: y, r: 5 }))],\n    cand: [() => '`' + f2(X0) + 'e^(' + ex(roots(CC).r1) + ')` alone', sw('trace cand')],\n    tip: [() => 'its tip so far', sw('tip')],\n    shadow: [() => 'its shadow', (x, y) => add(K.svg('circle', { class: 'sdot', cx: x + 9, cy: y, r: 4.5 }))],\n    level: [() => 'level', sw('lvl')],\n    sk: [() => 'sketched height', sw('trace')],\n    frac: [() => 'the same fraction each swing', sw('env main')],\n    q: [() => 'charge `q`', sw('trace')],\n    envq: [() => 'envelope `e^(' + ex(loopSol(R40).R.a) + ')`', sw('env')],\n    q40: [() => f2(R40) + ' Ω', sw('trace')], q40c: [() => f2(R40) + ' Ω', sw('trace cmp')], q200: [() => f2(RC) + ' Ω', sw('trace')],\n  };\n  function keyLayout(items, d) {\n    const out = [];\n    let x = 4, row = 0;\n    items.forEach((k) => {\n      const s = KEYS[k][0](d), w = 24 + tw(s, 'key');\n      if (x + w > 336 && x > 4) { row++; x = 4; }\n      out.push({ k, s, x, row });\n      x += w + 14;\n    });\n    return { out, rows: Math.max(1, row + 1) };\n  }\n  function keyRow(lay) {\n    const y = G.keyY;\n    lay.out.forEach((o) => { const yy = y + 20 * o.row; KEYS[o.k][1](o.x, yy - 5); text(o.x + 24, yy, o.s, 'key', 'start'); placed.push({ x: o.x - 2, y: yy - 13, w: 26 + tw(o.s, 'key'), h: 17 }); });\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; topG.textContent = '';\n    into = null; curA = 1; placed = []; obst = []; queue = []; said = [];\n    REC = { traces: [], heads: [], texts: [], dots: [], work: [], bad: 0, answer: false, mass: null, tip: null, level: null, cNow: null, off: false, env: false, locus: false };\n    const keys = typeof d.key === 'function' ? d.key(st) : d.key || [];\n    const lay = keyLayout(keys, d);\n    G = geoOf(d, st, keys.length ? lay.rows : 0);\n    if (d.tag) tagLine(d.tag(st));\n    d.draw(st, d);\n    if (keys.length) keyRow(lay);\n    ruleLines(d, st);\n    queue.forEach(placeLabel);\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.round(G.H));\n    svg.setAttribute('aria-label', said.join(' '));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  // The main screen's damping slider; the ringing screen's switch for the turning arrow.\n  K.control({ id: 'c', label: 'Damping c', min: 0, max: CMAX, step: 0.5, value: CMAX, snap: [CC], fmt: (v) => nb(f2(v) + ' N·s/m'), into: '#cbox' });\n  K.toggle({ id: 'arrow', label: 'Show the turning arrow', value: false, into: '#abox' });\n\n  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong\n  // answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); TM = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(FB);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    TM += dt;\n    paint();\n    return TM < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; TM = 0; anim.play();\n  }\n  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  write(el('dlab'), '`c² − 4mk`');\n  write(el('rlab'), 'The two roots');\n  el('rsub').textContent = 'per second';\n  function setRich(node, s) { if (node.__s === s) return; node.__s = s; write(node, s); }\n  K.update((p) => {\n    P = { c: p.c, arrow: !!p.arrow };\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    // The slider moved on its screen: the finished picture for the new setting at once. The switch\n    // turned on: the arrow turns and shrinks while the trace draws.\n    const key = p.c + '|' + P.arrow;\n    if (key !== lastKey) {\n      if (lastKey !== null && i === lastStep) {\n        if (d.slider) settle();\n        if (d.arrowSwitch) { if (P.arrow && !lastArrow) play(d.dur); else settle(); }\n      }\n      lastKey = key; lastArrow = P.arrow;\n    }\n    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('lead').textContent = nb(d.lead || '');\n    el('lead').hidden = !d.lead;\n    paint(i);\n\n    el('cbox').hidden = !d.slider;\n    el('reads').hidden = !d.slider;\n    el('abox').hidden = !d.arrowSwitch;\n    const R = roots(p.c);\n    el('dval').textContent = nb(f2(R.d) + ' kg²/s²');\n    el('dsub').textContent = R.kind === 'over' ? 'positive: two real roots' : R.kind === 'crit' ? 'zero: one root, twice' : 'negative: a mirror pair';\n    el('rval').textContent = nb(rootsText(R));\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => plain(o).length > 9));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      setRich(b.el, opts[k]);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));\n  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished, or t seconds into its motion, with the controls at p).\n  function drawn(i, st, t, p) {\n    const keepS = S[i], keepT = TM, keepP = P;\n    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;\n    if (p) P = Object.assign({}, P, p);\n    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; P = keepP; paint(); }\n  }\n  const SLIDER = K.linspace(0, CMAX, 13).map((v) => Math.round(v * 2) / 2);\n  const below = (s) => K.linspace(0, TEND, 601).some((t) => s.x(t) < -1e-9);\n\n  K.check('There are three cases depending on the sign of the expression under the square root: at every slider setting, c² − 4mk above 0 gives two negative real roots and a creep that never crosses rest, 0 gives one root twice, and below 0 a mirror pair whose trace crosses rest', () =>\n    SLIDER.every((c) => {\n      const R = roots(c), s = sol(c), d = c * c - 4 * M * KS;\n      if (d > 0) return R.kind === 'over' && R.r1 < 0 && R.r2 < 0 && !below(s);\n      if (d === 0) return R.kind === 'crit' && !below(s);\n      return R.kind === 'under' && below(s) && close(R.a, -c / (2 * M));\n    }), { source: SRC });\n  K.check('For a fixed m and k, choosing the critical damping value gives the fastest return: c = 2√(mk) = 4 N·s/m is nearer rest than every heavier setting from 0.1 to 6 s, and every lighter setting swings past rest', () => {\n    const s4 = sol(CC);\n    const heavier = SLIDER.filter((c) => c > CC).every((c) => { const s = sol(c); return K.linspace(0.1, TEND, 60).every((t) => Math.abs(s4.x(t)) < Math.abs(s.x(t))); });\n    const lighter = SLIDER.filter((c) => c < CC).every((c) => below(sol(c)));\n    return close(CC, 4) && heavier && lighter;\n  }, { source: SRC });\n  K.check('Every number is right: roots −1 and −4 at damping 5, with parts 0.667 and −0.167; c = 4 meets at −2 (not 16 or 2); at 6, c² − 4mk = 20 and roots −0.76 and −5.24; at 2 s, 0.13, 0.09 and 0.05 m; at 2, −1 ± j1.732 keeping 0.368 a second; ±j2 with none; the roots always multiply to 4; the sketches 0.5, 0.25, 0.125 and 0.5, 0.4, 0.3; the loop 1600 against 40000, −200 ± j980, 156 Hz, 1000 rad/s or 159 Hz undamped, 5 ms and 200 Ω', () => {\n    const s5 = sol(C5), s6 = sol(C6), s4 = sol(CC), R2 = roots(C2), R0 = roots(0), R5 = s5.R, R6 = s6.R;\n    const spring = f2(R5.r1) === '−1' && f2(R5.r2) === '−4' && f3(s5.A) === '0.667' && f3(s5.B) === '−0.167' &&\n      close(CC, 4) && close(4 * M * KS, 16) && close(Math.sqrt(M * KS), 2) && roots(CC).kind === 'crit' && f2(roots(CC).r1) === '−2' &&\n      close(C6 * C6 - 4 * M * KS, 20) && f2(R6.r1) === '−0.76' && f2(R6.r2) === '−5.24' &&\n      f2(s6.x(2)) === '0.13' && f2(s5.x(2)) === '0.09' && f2(s4.x(2)) === '0.05' &&\n      f2(R2.a) === '−1' && f3(R2.b) === '1.732' && f3(Math.exp(R2.a)) === '0.368' && close(R0.a, 0) && close(R0.b, 2) &&\n      SLIDER.every((c) => { const R = roots(c); return R.kind === 'under' ? close(R.a * R.a + R.b * R.b, KS / M) : close(R.r1 * R.r2, KS / M); }) &&\n      f2(1 + C5 + KS) === '10';\n    const fA = (n) => X0 * Math.pow(0.5, n), fB = (n) => X0 - 0.1 * n;\n    const sketches = [0, 1, 2].map(fA).map(f3).join() === '0.5,0.25,0.125' && [0, 1, 2].map(fB).map(f2).join() === '0.5,0.4,0.3' &&\n      f2(fB(1) / fB(0)) === '0.8' && f2(fB(2) / fB(1)) === '0.75';\n    const RL = roots(R40, LH, INVC), Rc = roots(RC, LH, INVC);\n    const loop = close(LH, 0.1) && close(CF, 0.00001) && INVC === 100000 && close(R40 * R40, 1600) && close(4 * LH * INVC, 40000, 1e-6) &&\n      RL.kind === 'under' && close(RL.a, -200, 1e-9) && Math.round(RL.b / 10) * 10 === 980 && Math.round(RL.b / (2 * Math.PI)) === 156 &&\n      close(1 / Math.sqrt(LH * CF), 1000, 1e-6) && Math.round(1000 / (2 * Math.PI)) === 159 && close(-1000 / RL.a, 5, 1e-9) &&\n      close(RC, 200, 1e-9) && Rc.kind === 'crit' && roots(4 * LH * INVC, LH, INVC).kind === 'over' && roots(1000, LH, INVC).kind === 'over';\n    return spring && sketches && loop;\n  });\n  K.check('Every trace obeys its rule: with speed and acceleration read off each curve by small differences, m x″ + c x′ + k x stays within 0.0001 of 0 at every slider setting, and L q″ + R q′ + q ÷ C within a millionth of 1 ÷ C for 40, 200, 1000 and 40000 Ω; the turning arrow\\'s shadow is the trace, its length the envelope, and it turns at 1.732 rad/s', () => {\n    const h = 1e-3;\n    const springs = SLIDER.every((c) => { const s = sol(c); return K.linspace(0.1, TEND - 0.1, 30).every((t) => {\n      const x = s.x(t), v = (s.x(t + h) - s.x(t - h)) / (2 * h), a = (s.x(t + h) - 2 * x + s.x(t - h)) / (h * h);\n      return Math.abs(M * a + c * v + KS * x) < 1e-4 && close(v, s.v(t), 1e-5); }); });\n    const hl = 1e-6;\n    const loops = [R40, RC, 1000, 40000].every((R) => { const s = loopSol(R); return K.linspace(0.001, TL - 0.001, 25).every((t) => {\n      const q = s.x(t), v = (s.x(t + hl) - s.x(t - hl)) / (2 * hl), a = (s.x(t + hl) - 2 * q + s.x(t - hl)) / (hl * hl);\n      return Math.abs(LH * a + R * v + INVC * q) < 1e-6 * INVC + 1e-3; }); });\n    const s = sol(C2), R = s.R, ang = (z) => Math.atan2(z[1], z[0]);\n    const arrowOk = K.linspace(0, TEND, 61).every((t) => {\n      const z = s.z(t), turn = ang(z) - ang(s.z(0)) - R.b * t, wrap = turn - 2 * Math.PI * Math.round(turn / (2 * Math.PI));\n      return close(z[0], s.x(t), 1e-12) && close(Math.hypot(z[0], z[1]), s.env(t), 1e-12) && Math.abs(wrap) < 1e-9;\n    });\n    return springs && loops && arrowOk && f3(R.b) === '1.732';\n  });\n  K.check('The picture follows the rule: on the main screen the dots sit at the roots for every damping, on the drawn path; on the ringing screen the mass moves only up and down, level with the arrow\\'s shadow and the trace\\'s newest point, and the arrow stays long enough to see when it stops', () => {\n    const i2 = idx('The roots and the motion'), i8 = idx('Ringing'), R6 = roots(CMAX), rad = Math.sqrt(KS / M);\n    const dots = SLIDER.every((c) => {\n      const rr = drawn(i2, {}, null, { c }), R = roots(c);\n      const want = R.kind === 'under' ? [[R.a, R.b], [R.a, -R.b]] : R.kind === 'crit' ? [[R.r1, 0]] : [[R.r1, 0], [R.r2, 0]];\n      const onPath = rr.dots.every((p) => (Math.abs(p.j) < 1e-12 && p.r >= R6.r2 - 1e-9 && p.r <= R6.r1 + 1e-9) || close(Math.hypot(p.r, p.j), rad, 1e-9));\n      const h = rr.heads[rr.heads.length - 1];\n      return rr.locus && rr.dots.length === want.length && want.every((w, k) => close(rr.dots[k].r, w[0]) && close(rr.dots[k].j, w[1])) && onPath && h && close(h.v, sol(c).x(TEND), 1e-12);\n    });\n    const s = sol(C2);\n    const lv = [0, 0.5, 1.2, 2, 3, 4, null].every((t) => {\n      const rr = drawn(i8, {}, t, { arrow: true }), h = rr.heads[rr.heads.length - 1];\n      return rr.tip && rr.mass && h && rr.mass.x0 === MX0 && close(rr.mass.cy, rr.tip.y, 1e-9) && close(h.y, rr.tip.y, 1e-9) && close(rr.level, h.y, 1e-9) &&\n        close(rr.tip.re, s.x(h.t), 1e-12) && close(rr.tip.len, s.env(h.t), 1e-12);\n    });\n    const end = drawn(i8, {}, null, { arrow: true });\n    return dots && lv && end.tip.len * KY >= 12 && close(end.tip.t, TNOW);\n  });\n  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&\n        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check('Before Check, no puzzle\\'s picture shows its answer or a mistake, and no working is drawn', () =>\n    DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0 && r.work.length === 0; }));\n  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, the turning arrow\\'s too; every answer\\'s motion, right or wrong, finishes within 2 s', () => {\n    const keepT = TM;\n    const timed = (i, st, limit, p) => {\n      const keepS = S[i], keepP = P;\n      TM = Infinity; latest = 0; earliest = Infinity;\n      S[i] = Object.assign(blank(), st);\n      if (p) P = Object.assign({}, P, p);\n      try { paint(i); } finally { S[i] = keepS; P = keepP; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) return d.dur <= 5 && d.dur >= 3 && timed(i, {}, d.dur) && earliest >= FADE && (!d.arrowSwitch || (timed(i, {}, d.dur, { arrow: true }) && earliest >= FADE));\n      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));\n    });\n    TM = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The roots and the motion",
+  "brief": "The one thing you should see is the two roots sliding together along the real axis, meeting, then splitting into a mirror pair, as the trace turns from a creep to ringing, when you drag the damping down.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "There are three cases depending on the sign of the expression under the square root: at every slider setting, c² − 4mk above 0 gives two negative real roots and a creep that never crosses rest, 0 gives one root twice, and below 0 a mirror pair whose trace crosses rest",
+     "ok": true,
+     "source": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf"
+    },
+    {
+     "label": "For a fixed m and k, choosing the critical damping value gives the fastest return: c = 2√(mk) = 4 N·s/m is nearer rest than every heavier setting from 0.1 to 6 s, and every lighter setting swings past rest",
+     "ok": true,
+     "source": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf"
+    },
+    {
+     "label": "Every number is right: roots −1 and −4 at damping 5, with parts 0.667 and −0.167; c = 4 meets at −2 (not 16 or 2); at 6, c² − 4mk = 20 and roots −0.76 and −5.24; at 2 s, 0.13, 0.09 and 0.05 m; at 2, −1 ± j1.732 keeping 0.368 a second; ±j2 with none; the roots always multiply to 4; the sketches 0.5, 0.25, 0.125 and 0.5, 0.4, 0.3; the loop 1600 against 40000, −200 ± j980, 156 Hz, 1000 rad/s or 159 Hz undamped, 5 ms and 200 Ω",
+     "ok": true
+    },
+    {
+     "label": "Every trace obeys its rule: with speed and acceleration read off each curve by small differences, m x″ + c x′ + k x stays within 0.0001 of 0 at every slider setting, and L q″ + R q′ + q ÷ C within a millionth of 1 ÷ C for 40, 200, 1000 and 40000 Ω; the turning arrow's shadow is the trace, its length the envelope, and it turns at 1.732 rad/s",
+     "ok": true
+    },
+    {
+     "label": "The picture follows the rule: on the main screen the dots sit at the roots for every damping, on the drawn path; on the ringing screen the mass moves only up and down, level with the arrow's shadow and the trace's newest point, and the arrow stays long enough to see when it stops",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle's picture shows its answer or a mistake, and no working is drawn",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, the turning arrow's too; every answer's motion, right or wrong, finishes within 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "c",
+    "arrow"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The guess",
+      "Find the roots",
+      "The roots and the motion",
+      "Where they meet",
+      "Two decays",
+      "Heavier damping",
+      "Critical",
+      "One root, twice",
+      "Ringing",
+      "Read the pair",
+      "Two sketches",
+      "The loop",
+      "Make it critical"
+     ],
+     "value": 0
+    },
+    {
+     "id": "c",
+     "kind": "control",
+     "label": "Damping c",
+     "min": 0,
+     "max": 6,
+     "step": 0.5,
+     "log": false,
+     "value": 6,
+     "shown": false,
+     "snap": [
+      4
+     ]
+    },
+    {
+     "id": "arrow",
+     "kind": "toggle",
+     "label": "Show the turning arrow",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T10:54:27.882Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Settings that never swing past rest\" is not a property of a damping value: an overdamped or critical mass given a push towards rest can cross it once; and \"gets back\"/\"without overshoot\" overstate what decays never quite reach. Narrowed to \"do not ring\" and \"settles\"."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 7 says the equal roots at −2 are \"the furthest from zero two real roots can be\", which is false: at damping 6 the fast root is −5.24. Only the slow root is as far from zero as it can get."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

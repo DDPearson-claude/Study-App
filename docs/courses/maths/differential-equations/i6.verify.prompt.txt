@@ -1,0 +1,465 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Differential equations, from cooling to resonance
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i6 "Overdamped, critical and ringing" — The roots of mr² + cr + k = 0 decide whether it creeps back, returns quickest without ringing, or rings inside a dying envelope. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i7 Pushing it: resonance, and reading a model — Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics — https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit
+    "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+[R2] 18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare — https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf
+    "There are three cases depending on the sign of the expression under the square root"
+[R3] En455 Course Notes Chapter 4 Reviseday21 — US Naval Academy — https://www.usna.edu/NAOE/_files/documents/Courses/EN455/EN455_Course_Notes_Chapter_4_revisedAY21.pdf
+    "If the system is over-damped the response will look like an exponential decay back to equilibrium."
+[R4] En455 Course Notes Chapter 4 Reviseday21 — US Naval Academy — https://www.usna.edu/NAOE/_files/documents/Courses/EN455/EN455_Course_Notes_Chapter_4_revisedAY21.pdf
+    "If the system is under-damped the position will be a decaying oscillation where the amplitudes of oscillation get smaller and smaller until equilibrium is finally reached."
+[R5] En455 Course Notes Chapter 4 Reviseday21 — US Naval Academy — https://www.usna.edu/NAOE/_files/documents/Courses/EN455/EN455_Course_Notes_Chapter_4_revisedAY21.pdf
+    "And if the system is critically damped the position returns to equilibrium in the shortest amount of time with one or no oscillations."
+[R6] 18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare — https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf
+    "It is worth noting that for a fixed _m_ and _k_ , choosing _b_ to be the critical damping value gives the fastest return of the system to its equilibrium position."
+[R7] 19.2 — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/images/First_order_odes.pdf
+    "It is so-called because we rearrange the equation to be solved such that all terms involving the dependent variable appear on one side of the equation, and all terms involving the independent variable appear on the other."
+[R8] Decay constant | Definition, Formula, & Facts | Britannica — Encyclopaedia Britannica — https://www.britannica.com/science/decay-constant
+    "This shows that the population decays exponentially at a rate that depends on the decay constant."
+[R9] RC Circuits — Michigan State University — https://web.pa.msu.edu/courses/2000fall/phy232/lectures/rccircuits/rc.html
+    "This produces a characteristic time dependence that turns out to be exponential. The crucial parameter that describes the time dependence is the "time constant"
+[R10] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "In each successive time , the current falls to 0.368 of the preceding value"
+[R11] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+[R12] DOE-HDBK-1019/2-93; DOE Fundamentals Handbook Nuclear Physics and Reactor Theory Volume 2 of 2 — US Department of Energy — http://large.stanford.edu/courses/2013/ph241/waisberg1/docs/h1019v2.pdf
+    "The reactor period is defined as the time required for reactor power to change by a factor of "e," where "e" is the base of the natural logarithm and is equal to about 2.718."
+[R13] P301 E5 — University of Illinois — https://courses.physics.illinois.edu/phys401/fa2018/Files/RLC/E5_TransientsInRLC_20120125_v2.pdf
+    "the mass behaves the same as an inductor, and the spring the same as an inverse capacitance."
+[R14] 15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit
+    "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+[R15] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+Notes (claims, and the sources that support them):
+- An RLC circuit's free oscillations have three cases, all analogous to the cases of a damped spring-mass system. [R1]
+- A damped spring has three cases, told apart by the sign of the expression under the square root in the roots of its characteristic equation. [R2]
+- Over-damped, the response looks like an exponential decay back to equilibrium. [R3]
+- Under-damped, the position is a decaying oscillation whose amplitude shrinks until equilibrium is reached. [R4]
+- Critically damped, the position returns to equilibrium in the shortest time, with one or no oscillations. [R5]
+- For fixed m and k, choosing the damping to be the critical value gives the fastest return of the system to equilibrium. [R6]
+- Separation of variables rearranges the equation so every term in the unknown is on one side and every term in the independent variable is on the other. [R7]  (from an idea this one builds on)
+- Radioactive atoms decay exponentially, at a rate that depends on the decay constant. [R8]  (from an idea this one builds on)
+- In an RC circuit the charge and discharge are exponential in time, and the time constant RC sets the pace. [R9]  (from an idea this one builds on)
+- When a coil's supply is switched off, its current falls to 0.368 of the preceding value in each successive time constant. [R10]  (from an idea this one builds on)
+- An exponential never exactly reaches its final value, but covers 0.632 of what remains in every time constant. [R11]  (from an idea this one builds on)
+- Reactor period is the time for reactor power to change by a factor of e, so a reactor's power grows exponentially (added for i2: the plus-sign example). [R12]  (from an idea this one builds on)
+- In an RLC circuit and a damped spring, the mass behaves the same as an inductor and the spring the same as an inverse capacitance. [R13]  (from an idea this one builds on)
+- An RLC circuit's free oscillations have three cases, all analogous to the cases of a damped spring-mass system. [R1]  (from an idea this one builds on)
+- A driven RLC series circuit is the electrical analog of the driven damped harmonic oscillator. [R14]  (from an idea this one builds on)
+- A driven RLC series circuit is the electrical analog of a driven damped harmonic oscillator, so one family of ideas covers springs and circuits. [R14]  (whole topic)
+- The time constant of an RL circuit is L divided by R, and the current covers 0.632 of the remainder to its final value in every time constant. [R15][R11]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i6",
+ "title": "Overdamped, critical and ringing",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the two roots sliding together along the real axis, meeting, then splitting into a mirror pair, as the trace beside them turns from a creep to ringing, when you drag the damping down.",
+  "title": "The roots and the motion",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "This is a short lesson in thirteen small screens. It uses the last lesson's spring: a 1 kg mass on a 4 N/m spring, lifted 0.5 m and let go at rest. Only the damping changes. Screen 1 puts the guess x = e^(rt) into m x″ + c x′ + k x = 0, line by line. Each derivative brings out one r. Every term then carries e^(rt), which is never zero, so it leaves m r² + c r + k = 0. Screen 2 asks for the roots of r² + 5r + 4 = 0. The choices are −1 and −4, 1 and 4, or −2 twice. Screen 3 is the main picture. On the left is the complex plane, with the real axis across from −6 to 1 and the j axis up from −2.5 to 2.5, both in per second. Two dots mark the roots. On the right is the mass's position against time, from −0.5 to 0.5 m, over 6 s. A damping slider runs from 6 down to 0 N·s/m in steps of 0.5, opening at 6. Readouts give c² − 4mk and the two roots. From 6 to 4 the dots slide together along the real axis and the trace creeps back. At 4 they meet at −2. Below 4 they split into a pair, one above the real axis and one below, and the trace rings. At 0 they sit on the j axis at ±j2, and in this ideal model the ringing does not die. Screen 4 asks which damping makes the roots meet. The choices are 4, 16 or 2 N·s/m. Screen 5 shows damping 5, with roots −1 and −4, and x = 0.667e^(−t) − 0.167e^(−4t), each part drawn faintly. The fast part has almost gone by 1 s, so the slow one sets the creep. Screen 6 sets the damping to 6, with roots −0.76 and −5.24, and asks whether the mass gets back faster or slower. At 2 s it is 0.13 m from rest, against 0.09 m with damping 5. The choices are slower, because the slow root is nearer zero; faster, because more damping stops it sooner; or the same, because the start is the same. Screen 7 shows damping 4, one root −2 twice, and x = (0.5 + t)e^(−2t), beside damping 5 and damping 3. At 2 s it is 0.05 m from rest. Damping 3 crosses rest sooner and swings past it. With the roots' product fixed at 4, the two equal roots at −2 are the furthest from zero two real roots can be. Screen 8 asks why A e^(−2t) alone cannot be the answer at damping 4. The choices are: it has one constant, and the start needs two values; e^(−2t) never reaches zero; or a repeated root has no answer. Screen 9 shows damping 2, with roots −1 ± j1.732. A ghost envelope wraps the trace. A switch shows an arrow turning at 1.732 radians a second as it shrinks. Its shadow on the real axis is the trace, and the mass sits level with it, moving only up and down. Screen 10 asks what the roots −1 ± j1.732 say. The choices are: the envelope falls to 0.368 of itself each second and it rings at 1.732 rad/s; the envelope falls to 0.368 each second and it rings at 1 rad/s; or it rings at 1.732 rad/s and never dies. Screens 11 to 13 mix it all. Screen 11 shows two sketched traces from 0.5 m. One's peaks halve each swing, 0.5, 0.25 and 0.125 m. The other's drop 0.1 m each swing, 0.5, 0.4 and 0.3 m. It asks which could come from m x″ + c x′ + k x = 0. Screen 12 gives a 100 mH coil, a 10 µF capacitor and 40 Ω, and asks what it does. The choices are: rings near 980 rad/s inside an e^(−200t) envelope; creeps back, with roots −200 and −980; or rings at 980 rad/s for ever. Screen 13 asks which resistor makes that loop critical. The choices are 200 Ω, 40000 Ω or 1000 Ω. Each puzzle offers three answers.",
+  "ignores": "Time runs slowly here, as in the last lesson. The spring, damper and circuit parts are ideal. The pull grows in step with the distance from rest, and the drag in step with the speed. A drag of fixed size, such as dry friction, is not in this equation. The dots on the plane are rates, not places. The mass only moves up and down. The turning arrow is a picture of a complex number, and only its shadow is the real answer. With no damping the ringing never dies here, but every real spring or circuit loses a little.",
+  "numbers": [
+   {
+    "label": "Mass, in kg",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stiffness, in N/m",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Lift at release, in m",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Damping slider highest and opening, in N·s/m",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Damping slider lowest, in N·s/m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Damping slider step, in N·s/m",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Plane's real axis left end, per second",
+    "value": -6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plane's real axis right end, per second",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plane's j axis top, per second",
+    "value": 2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plane's j axis bottom, per second",
+    "value": -2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace's top position, in m",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace's lowest position, in m",
+    "value": -0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace's last time, in s",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example damping, screens 2 and 5, in N·s/m",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slow root at damping 5, per second",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Fast root at damping 5, per second",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, signs lost, per second",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slow part's size at damping 5, in m",
+    "value": 0.667,
+    "kind": "computed"
+   },
+   {
+    "label": "Fast part's size at damping 5, in m",
+    "value": -0.167,
+    "kind": "computed"
+   },
+   {
+    "label": "Critical damping, 2√(1 × 4), in N·s/m",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, 4mk without the root, in N·s/m",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, √(mk), in N·s/m",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Repeated root at damping 4, per second",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "c² − 4mk at damping 6, in kg²/s²",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Slow root at damping 6, per second",
+    "value": -0.76,
+    "kind": "computed"
+   },
+   {
+    "label": "Fast root at damping 6, per second",
+    "value": -5.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Position at 2 s, damping 6, in m",
+    "value": 0.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Position at 2 s, damping 5, in m",
+    "value": 0.09,
+    "kind": "computed"
+   },
+   {
+    "label": "Position at 2 s, damping 4, in m",
+    "value": 0.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Comparison damping, screen 7, in N·s/m",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Ringing example damping, in N·s/m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Real part at damping 2, per second",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "j part at damping 2, √12 ÷ 2, in rad/s",
+    "value": 1.732,
+    "kind": "computed"
+   },
+   {
+    "label": "Envelope kept each second at damping 2",
+    "value": 0.368,
+    "kind": "computed"
+   },
+   {
+    "label": "Roots with no damping, j part, in rad/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Sketch peaks, equal fractions, in m",
+    "value": 0.25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch third peak, equal fractions, in m",
+    "value": 0.125,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch peaks, equal steps, second, in m",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch peaks, equal steps, third, in m",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch equal step, in m",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example coil, in mH",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example coil, in H",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Example capacitor, in µF",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example capacitor, in F",
+    "value": 0.00001,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 1 ÷ C, per farad",
+    "value": 100000,
+    "kind": "computed"
+   },
+   {
+    "label": "Example resistor, in Ω",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "R² for the example, in Ω²",
+    "value": 1600,
+    "kind": "computed"
+   },
+   {
+    "label": "4L ÷ C for the example, in Ω²",
+    "value": 40000,
+    "kind": "computed"
+   },
+   {
+    "label": "Example real part, −40 ÷ 0.2, per second",
+    "value": -200,
+    "kind": "computed"
+   },
+   {
+    "label": "Example j part, near, in rad/s",
+    "value": 980,
+    "kind": "computed"
+   },
+   {
+    "label": "Example ringing, 980 ÷ 2π, near, in Hz",
+    "value": 156,
+    "kind": "computed"
+   },
+   {
+    "label": "Example undamped ringing, 1 ÷ √(LC), in rad/s",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Example undamped ringing, in Hz",
+    "value": 159,
+    "kind": "computed"
+   },
+   {
+    "label": "Example envelope's time constant, in ms",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example critical resistor, 2√(L ÷ C), in Ω",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, 4L ÷ C without the root, in Ω",
+    "value": 40000,
+    "kind": "computed"
+   },
+   {
+    "label": "Roots' product, k ÷ m, per second squared",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, the undamped rate read as Ω",
+    "value": 1000,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Let a damped spring or an RLC loop go and it does one of three things. It creeps back, it returns as fast as it can without ringing, or it rings while its swings die. Two numbers decide which: the roots of m r² + c r + k = 0.\n\nIn decay, e^(rt) solved a first-order rule, because its rate is r times itself. Try the same guess here. Then x′ = r e^(rt) and x″ = r² e^(rt). Put them in and every term carries e^(rt): (m r² + c r + k) e^(rt) = 0. An exponential is never zero, so m r² + c r + k = 0. This quadratic is the [[characteristic equation]]. Each root is a rate, per second. The quadratic formula gives r = (−c ± √(c² − 4mk)) ÷ 2m. The sign of c² − 4mk sorts the three cases.[^1]\n\nWhen c² is bigger than 4mk there are two real roots, both negative. The answer is two decays added together. Take the 1 kg mass and 4 N/m spring with damping 5. The roots are −1 and −4. Let go from 0.5 m at rest, x = 0.667e^(−t) − 0.167e^(−4t). The fast part has almost gone by 1 s, so the slow root sets the creep. This is [[overdamped]]. The two roots always multiply to k ÷ m, which is 4 here. So past critical, more damping pushes the fast root away from zero and pulls the slow one in. Heavier damping creeps back slower. At damping 6 the roots are −0.76 and −5.24, and the mass is still 0.13 m out at 2 s, against 0.09 m at damping 5.\n\nWhen c² equals 4mk, here at damping 4, there is one root, −2, twice. But e^(−2t) alone has one constant, and the start needs two values, position and speed. The second answer is t e^(−2t), as you can check by putting it back in. From 0.5 m at rest, x = (0.5 + t)e^(−2t). With the product fixed at 4, two equal roots put the slower one as far from zero as a real root can go. So of all the settings that never swing past rest, critical damping gets back fastest.[^2] A little less damping crosses rest sooner, but it overshoots.\n\nWhen c² is smaller than 4mk, the square root is of a negative number. The roots are a mirror pair, α ± jβ, with α = −c ÷ 2m and β = √(4mk − c²) ÷ 2m. At damping 2 they are −1 ± j1.732. Now e^((α + jβ)t) is e^(αt) × e^(jβt). The second factor is an arrow of length 1 turning at β radians a second. The first shrinks it. The mirror root's arrow turns the other way, so the two add to a real answer: the arrow's shadow, a swing inside a dying envelope e^(αt). This is [[underdamped]]. The real part sets how fast it dies, and the j part how fast it rings. At damping 2 the envelope keeps 0.368 of itself each second. With no damping the roots sit at ±j2, and in this ideal model it rings for ever.\n\nThe RLC loop has the same three cases, with L, R and 1 ÷ C in place of m, c and k.[^3] This is a simplified model with ideal parts. Its drag is in step with the speed, which is why each swing keeps the same fraction of the last. A drag of fixed size, such as dry friction, is not in this equation, and its swings do not shrink that way.\n\n**The roots of m r² + c r + k = 0 set the motion: two real roots creep back, one repeated root returns quickest without overshoot, and a complex pair α ± jβ rings at β inside a dying envelope e^(αt).**"
+ },
+ "analogy": {
+  "text": "Think of the needle on an analogue meter. The moving coil and needle carry on moving, the hairspring pulls them back, and eddy currents in the coil's former drag in step with the speed. Too little drag and the needle overshoots and wobbles round the reading. Too much and it creeps up to it. Damped near critical, it swings to the reading and stops.",
+  "breaks": "The needle is a real case of the equation only as far as its parts are ideal. Pivot friction is a drag of fixed size, which this equation leaves out, and it can leave the needle resting a little short of the true reading."
+ },
+ "practice": {
+  "text": "- Write the rule as m x″ + c x′ + k x = 0, or L q″ + R q′ + q ÷ C = 0, in base units.\n- Write its characteristic equation, m r² + c r + k = 0.\n- Compare c² with 4mk, or R² with 4L ÷ C. Bigger is overdamped, equal is critical, smaller is underdamped.\n- Find the roots with the quadratic formula.\n- Read them. A real root r is a decay with time constant 1 ÷ |r|. A pair α ± jβ rings at β radians a second, which is β ÷ 2π hertz, inside an envelope e^(αt) with time constant 1 ÷ |α|.\n- Use the two starting values to fix the two constants.\n\n**Rules of thumb:** critical damping is c = 2√(mk), or R = 2√(L ÷ C). Past it, more damping is slower, not faster. With light damping it rings just below √(k ÷ m), or 1 ÷ √(LC).\n\n**Worked example:** a 100 mH coil, a 10 µF capacitor and a 40 Ω resistor sit in one loop. In base units L = 0.1 H and C = 0.00001 F, so 1 ÷ C = 100000. The characteristic equation is 0.1 r² + 40 r + 100000 = 0. R² = 1600 and 4L ÷ C = 40000, so R² is smaller and it rings. The roots are (−40 ± √(1600 − 40000)) ÷ 0.2, which is −200 ± j980 near enough. So it rings at about 980 rad/s, about 156 Hz. With no resistance it would ring at 1000 rad/s, 159 Hz. Its envelope is e^(−200t), with a time constant of 5 ms. To make it critical, R = 2√(0.1 ÷ 0.00001) = 200 Ω.\n\n**Common mistakes**\n- Thinking more damping always settles faster.\n- Using one exponential for a repeated root. It needs (A + Bt)e^(rt).\n- Reading β as hertz. It is radians a second.\n- Leaving out the square root. Critical is c = 2√(mk), not 4mk.\n- Reading the trace or the turning arrow as the mass's path. The mass only moves up and down.\n- Expecting dry friction to die away as e^(αt) does. A drag of fixed size is not in this equation."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf",
+   "quote": "There are three cases depending on the sign of the expression under the square root"
+  },
+  {
+   "n": 2,
+   "title": "18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf",
+   "quote": "It is worth noting that for a fixed _m_ and _k_ , choosing _b_ to be the critical damping value gives the fastest return of the system to its equilibrium position."
+  },
+  {
+   "n": 3,
+   "title": "6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics",
+   "url": "https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit",
+   "quote": "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

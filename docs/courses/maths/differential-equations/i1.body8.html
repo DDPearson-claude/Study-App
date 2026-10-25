@@ -1,0 +1,1030 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* The grid: faint lines, axes, and their numbers. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* The rule's slope as arrows; one the picture is talking about is drawn bolder. */
+  .scene .fa { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .fa.hot { stroke: var(--k-accent2); stroke-width: 2.6; }
+  .scene .pa { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .room { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 6 4; }
+  .scene .sol { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .cand { fill: none; stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  /* A mistake is drawn in the warning colour. */
+  .scene .pa.bad, .scene .sol.bad, .scene .cand.bad { stroke: var(--k-warn); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  .scene .probe { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  /* Labels on the grid carry their own halo of the page colour, so arrows and curves stay visible around them. */
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+  .scene .lab.main { fill: var(--k-accent2); }
+  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .rl { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  /* The room slider: a track, a tick every 5 °C, and a knob. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .stk { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; }
+  .scene .grip.probe { cursor: crosshair; touch-action: none; }
+  .scene .grip.tap { cursor: pointer; }
+  .scene .grip.slide { cursor: grab; touch-action: none; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .switch { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; }
+  .switch .k-btn { min-height: 44px; white-space: nowrap; }
+  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"], .switch .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A grid of temperature against time for a hot part cooling in a room, with its rule drawn as arrows. Every value is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 320" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="switch" id="switch"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each arrow's slope comes from the rule written above the grid.</p>
+
+<script>
+  // ---------- the rules ----------
+  // Cooling: dT/dt = −0.1 × (T − room), T in °C and t in minutes. Its solutions are
+  // T = room + (T0 − room) e^(−0.1 (t − t0)). The second rule: dy/dt = 2t, solved by y = t² + c.
+  const ROOM = 20, KR = 0.1;
+  const rate = (T, room) => -KR * (T - room);
+  const coolFrom = (t0, T0, room) => (t) => room + (T0 - room) * Math.exp(-KR * (t - t0));
+  const lineFrom80 = (t) => 80 - 6 * t;          // the straight candidate: 80 °C, falling 6 °C a minute
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // grid: 'cool' (0-40 min, 0-100 °C) or 'two' (t from −3 to 3); grip: what a touch on the grid
+  // does ('probe' drags the probe, 'tap' drops a start); slider: the room slider; work: lines of
+  // working under the grid; key: the key's items; draw(st): the picture in that step's state.
+  // A SHOW step's timetable is in its draw, in seconds from when the screen opens.
+  const PICK = 'Tap one of the answers.';
+  const FB = 2.0;   // how long the motion after an answer plays
+  const STEPS = [
+    { show: true, name: 'A rule gives a slope', grid: 'cool', grip: 'probe', work: 2, dur: 3.6,
+      text: 'A hot part sits in a room at 20 °C. Its rate of cooling is a tenth of its gap, in °C a minute. The rule is `dT/dt = −0.1 × (T − 20)`. `dT/dt` is the slope: how fast the temperature `T` changes with time `t`. Like `dv/dt` in `i = C dv/dt`, it is a rate. A rule that ties a rate to the thing itself, or to time, is a *differential equation*. At 80 °C the gap is 60 °C, so the part falls at 6 °C a minute. Drag the probe to leave arrows.',
+      read: 'A hot part sits in a room at 20 °C. Its rate of cooling is a tenth of its gap, in °C a minute. The rule is `dT/dt = −0.1 × (T − 20)`. `dT/dt` is the slope: how fast the temperature `T` changes with time `t`. Like `dv/dt` in `i = C dv/dt`, it is a rate. A rule that ties a rate to the thing itself, or to time, is a *differential equation*. At 80 °C the gap is 60 °C, so the part falls at 6 °C a minute. The probe\'s arrow shows that slope, steep and pointing down.',
+      draw(st) {
+        trail();
+        roomLine(ROOM, vis(0.5), 'right');
+        gapMark(PROBE.t, ROOM, PROBE.T, vis(1.2));
+        probeAt(PROBE.t, PROBE.T, 1, arr(1.0));
+        workLines([{ s: gapText(PROBE.T, ROOM), a: vis(1.6) }, { s: slopeText(PROBE.T, ROOM), a: vis(2.2) }]);
+      } },
+    { kind: 'pick', name: 'What −6 means', grid: 'cool', work: 2, workNow: true,
+      task: 'At 80 °C the rule gives −6 °C a minute. What does that number tell you?',
+      opts: ['How fast it is falling now', 'How far it falls in all', 'What it falls every minute'], want: 'How fast it is falling now',
+      why: '`dT/dt` is a rate at one moment, like a speed. At 80 °C the part is falling at 6 °C a minute. As it cools, the gap shrinks, so the rate shrinks too. In all it falls nearly 60 °C, towards the room.',
+      hint: 'Not quite. Think of a speed at one moment.',
+      hints: { 'How far it falls in all': 'Not quite. −6 is a rate, not a total. In all it falls nearly 60 °C.',
+        'What it falls every minute': 'Not quite. The rate shrinks as the gap shrinks. −6 holds only at 80 °C.' },
+      draw(st) {
+        const r = RW(st), real = coolFrom(0, 80, ROOM);
+        roomLine(ROOM, null, 'right');
+        arrowFrom(0, 80, rate(80, ROOM), 'pa', 1);
+        dot(0, 80);
+        workLines([{ s: gapText(80, ROOM) }, { s: slopeText(80, ROOM) }]);
+        if (r.ok) {
+          REC.answer = true;
+          curve(real, 0, 40, 'sol', arr(0.1, 1.4), 'ans', ROOM);
+          part(vis(1.0), 4, () => label(G.x(12), G.y(real(12)) - 12, 'the rate shrinks as it cools', 'lab main', 'start', true));
+        } else if (r.w === 'How far it falls in all') {
+          curve(real, 0, 40, 'sol', arr(0.1, 1.0), 'real', ROOM);
+          curve((t) => (t < 1 ? 80 - 6 * t : 74), 0, 40, 'sol bad', arr(0.4, 0.9), 'bad', null); REC.bad++;
+          part(vis(1.0), 4, () => label(PR, G.y(74) - 9, 'if −6 were the total drop', 'lab bad', 'end', true));
+        } else if (r.w) {
+          curve(real, 0, 40, 'sol', arr(0.1, 1.0), 'real', ROOM);
+          curve(lineFrom80, 0, 40 / 3, 'sol bad', arr(0.4, 0.9), 'bad', null); REC.bad++;
+          part(vis(1.0), 4, () => label(G.x(40 / 3) + 10, G.y(4), 'if it fell 6 °C every minute', 'lab bad', 'start', true));
+        }
+      } },
+    { show: true, name: 'Arrows everywhere', grid: 'cool', showAll: true, dur: 3.2,
+      text: 'The rule gives a slope at every time and temperature. Draw each one as a short arrow and you get a *slope field*. Here the slope depends only on the gap, so all the arrows at one height match. At 50 °C the gap is 30 °C, so the slope is −3 °C a minute. At 20 °C it is 0. At 10 °C, below the room, it is +1, so the arrows point up. Its only rate is `dT/dt`, so it is *first order*. Show all fills in the rest.',
+      read: 'The rule gives a slope at every time and temperature. Draw each one as a short arrow and you get a *slope field*. Here the slope depends only on the gap, so all the arrows at one height match. At 50 °C the gap is 30 °C, so the slope is −3 °C a minute. At 20 °C it is 0. At 10 °C, below the room, it is +1, so the arrows point up. Its only rate is `dT/dt`, so it is *first order*. Filled in, the arrows tip steeply down when the part is hot and flatten towards the room.',
+      still() { const st = S[STEPS.indexOf(this)]; st.all = true; settle(); K.refresh(); },
+      draw(st) {
+        trail();
+        const demo = [50, 20, 10];
+        text(338, G.PT - 9, 'slope', 'ttl', 'end');
+        demo.forEach((v, k) => part(st.all ? 1 : vis(0.6 + 0.9 * k), 0, () => { rowArrows(v, ROOM); rowLabel(v, ROOM); }));
+        if (st.all) rowsCool(ROOM).reverse().filter((v) => demo.indexOf(v) < 0)
+          .forEach((v, k) => part(arr(0.1 + 0.22 * k), 0, () => { rowArrows(v, ROOM); rowLabel(v, ROOM); }));
+        roomLine(ROOM, null, 'right');
+        said.push(st.all ? 'Every row of arrows is filled in.' : 'Three rows are drawn, at 50, 20 and 10 °C.');
+      } },
+    { kind: 'pick', name: 'The arrow at 35 °C', grid: 'cool', work: 2,
+      task: 'The probe sits at 35 °C, in the 20 °C room. What slope does the rule give there, in °C a minute?',
+      opts: ['−1.5', '−3.5', '+1.5'], want: '−1.5',
+      why: 'The gap is 35 − 20 = 15 °C. The rule takes a tenth of it with a minus sign: `−0.1 × 15 = −1.5`. So the part falls at 1.5 °C a minute, and the arrow tips gently down.',
+      hint: 'Not quite. Find the gap to the room first.',
+      hints: { '−3.5': 'Not quite. Use the gap to the room, 35 − 20, not 35 itself.',
+        '+1.5': 'Not quite. The part is warmer than the room, so it cools. Keep the minus sign.' },
+      draw(st) {
+        const r = RW(st);
+        fieldAll(ROOM);
+        roomLine(ROOM, null, 'right');
+        if (r.ok) {
+          REC.answer = true;
+          arrowFrom(20, 35, rate(35, ROOM), 'pa', arr(0.1));
+          gapMark(20, ROOM, 35, vis(0.4));
+          workLines([{ s: gapText(35, ROOM), a: vis(0.7) }, { s: slopeText(35, ROOM), a: vis(1.0) }]);
+        } else if (r.w) {
+          const slip = r.w === '−3.5' ? -KR * 35 : KR * (35 - ROOM);
+          arrowFrom(20, 35, slip, 'pa bad', arr(0.1)); REC.bad++;
+          workLines([{ s: r.w === '−3.5' ? 'slope: −0.1 × 35 = ' + fmtR(slip) + ' °C a minute' : 'slope: +0.1 × 15 = ' + fmtR(slip) + ' °C a minute', bad: true, a: vis(0.4) }]);
+        }
+        probeRing(20, 35);
+      } },
+    { show: true, name: 'Follow the arrows', grid: 'cool', grip: 'tap', key: ['slope', 'sol'], dur: 3.6,
+      text: 'A curve that follows the arrows everywhere is a *solution*. From 80 °C it falls steeply, then levels off towards the room. It is the cooling curve you met with exponentials. It levels off because the gap shrinks, and the rate shrinks with it. Starts at 50 °C and 10 °C give other curves under the same arrows. So the rule fixes the slopes, and a start picks one curve. Tap the grid to drop a start of your own.',
+      read: 'A curve that follows the arrows everywhere is a *solution*. From 80 °C it falls steeply, then levels off towards the room. It is the cooling curve you met with exponentials. It levels off because the gap shrinks, and the rate shrinks with it. Starts at 50 °C and 10 °C give other curves under the same arrows. So the rule fixes the slopes, and a start picks one curve. Every curve heads for the room line.',
+      draw(st) {
+        const A = (t0, d) => (st.settled ? 1 : arr(t0, d));
+        fieldAll(ROOM);
+        roomLine(ROOM, null, 'left');
+        [80, 50, 10].forEach((T0, k) => {
+          const a0 = 0.5 + 0.8 * k;
+          curve(coolFrom(0, T0, ROOM), 0, 40, 'sol', A(a0 + 0.1, 1.2), 's' + T0, ROOM);
+          part(A(a0), 0, () => dot(0, T0));
+        });
+        st.starts.forEach((p) => {
+          curve(coolFrom(p.t, p.T, ROOM), p.t, 40, 'sol', p.born === -Infinity ? 1 : arr(p.born, 0.9), 'u', ROOM);
+          dot(p.t, p.T);
+        });
+        said.push('Curves start at 80, 50 and 10 °C' + (st.starts.length ? ', with ' + st.starts.length + ' more of your own' : '') + '. Each follows the arrows and levels off towards 20 °C.');
+      } },
+    { kind: 'pick', name: 'Number or curve', grid: 'cool',
+      task: 'The part starts at 80 °C. What is the solution of its rule?',
+      opts: ['The number 20 °C', 'The number −6', 'The whole curve'], want: 'The whole curve',
+      why: 'A solution gives the temperature at every moment, so it is a whole curve. 20 °C is only where it heads. −6 °C a minute is only its slope at the start.',
+      hint: 'Not quite. A solution follows the arrows.',
+      hints: { 'The number 20 °C': 'Not quite. 20 °C is only where it heads. A solution gives every moment.',
+        'The number −6': 'Not quite. −6 °C a minute is the slope at the start, a rate.' },
+      draw(st) {
+        const r = RW(st), real = coolFrom(0, 80, ROOM);
+        fieldAll(ROOM);
+        roomLine(ROOM, null, 'left');
+        if (r.ok) {
+          REC.answer = true;
+          curve(real, 0, 40, 'sol', arr(0.1, 1.4), 'ans', ROOM);
+          part(vis(1.2), 4, () => label(G.x(10), G.y(real(10)) - 12, 'its temperature at every moment', 'lab main', 'start', true));
+        } else if (r.w === 'The number 20 °C') {
+          part(vis(0.1), 0, () => dot(40, ROOM, 'bad')); REC.bad++;
+          part(vis(0.4), 4, () => label(G.x(40) - 10, G.y(ROOM) - 9, 'only where it heads', 'lab bad', 'end', true));
+        } else if (r.w) {
+          arrowFrom(0, 80, rate(80, ROOM), 'pa bad', arr(0.1)); REC.bad++;
+          part(vis(0.4), 4, () => label(G.x(0) + 14, G.y(80) - 10, 'only the slope at the start', 'lab bad', 'start', true));
+        }
+        dot(0, 80);
+      } },
+    { show: true, name: 'The steady state', grid: 'cool', slider: true, key: ['slope', 'sol'], dur: 3.6,
+      text: 'At 20 °C the gap is zero, so the rate is zero. The flat line `T = 20` has a slope of zero all along it, just as the rule asks. So it is a solution too, called a *steady state*. A part that starts at room temperature stays there. This rule is Newton\'s law of cooling. It is a simple model that holds best for a modest gap. Slide the room\'s temperature and the flat line moves with it. Every curve heads for the new line.',
+      read: 'At 20 °C the gap is zero, so the rate is zero. The flat line `T = 20` has a slope of zero all along it, just as the rule asks. So it is a solution too, called a *steady state*. A part that starts at room temperature stays there. This rule is Newton\'s law of cooling. It is a simple model that holds best for a modest gap. Whatever the room\'s temperature, its flat line is a steady state, and every curve heads for it.',
+      draw(st) {
+        const R = roomOf(this, st);
+        slider(R);
+        fieldAll(R);
+        curve(() => R, 0, 40, 'sol', arr(0.5, 0.8), 'steady', R);
+        part(vis(1.1), 4, () => label(PR - 4, R >= 10 ? G.y(R) + 17 : G.y(R) - 8, 'steady state T = ' + R + ' °C', 'lab main', 'end', true));
+        [80, 50, 10].forEach((T0, k) => { curve(coolFrom(0, T0, R), 0, 40, 'sol', arr(1.7 + 0.3 * k, 1.2), 's' + T0, R); dot(0, T0); });
+        said.push('The room is at ' + R + ' °C. Curves from 80, 50 and 10 °C all head for its flat line.');
+      } },
+    { kind: 'pick', name: 'A 30 °C room', grid: 'cool', room: 30, work: 1,
+      task: 'Now the room is at 30 °C. Which is the steady state?',
+      opts: ['The flat line at 20 °C', 'The flat line at 30 °C', 'Just the number 30'], want: 'The flat line at 30 °C',
+      why: 'In a 30 °C room the gap is zero at 30 °C, so the rule asks for no change there. The flat line at 30 °C has a slope of zero everywhere. So it is a solution, a whole curve that never changes.',
+      hint: 'Not quite. Find where the gap is zero.',
+      hints: { 'The flat line at 20 °C': 'Not quite. At 20 °C this room is warmer, so the part warms. Find where the gap is zero.',
+        'Just the number 30': 'Not quite. A steady state is a whole flat curve, the same at every moment.' },
+      draw(st) {
+        const r = RW(st), R = 30;
+        fieldAll(R);
+        if (r.ok) {
+          REC.answer = true;
+          curve(() => R, 0, 40, 'sol', arr(0.1, 0.9), 'ans', R);
+          part(vis(0.8), 4, () => label(PR - 4, G.y(R) + 17, 'steady state T = 30 °C', 'lab main', 'end', true));
+        } else if (r.w === 'The flat line at 20 °C') {
+          curve(() => 20, 0, 40, 'sol bad', arr(0.1, 0.9), 'bad', null); REC.bad++;
+          part(vis(0.7), 0, () => [10, 22, 34].forEach((t) => { hotArrow(t, 20, rate(20, R)); ring(t, 20); }));
+          workLines([{ s: 'at 20 °C the rule wants ' + fmtR(rate(20, R)) + ', not 0', bad: true, a: vis(1.0) }]);
+        } else if (r.w) {
+          part(vis(0.1), 0, () => dot(0, R, 'bad')); REC.bad++;
+          part(vis(0.4), 4, () => label(G.x(0) + 12, G.y(R) - 10, 'one moment only', 'lab bad', 'start', true));
+        }
+      } },
+    { show: true, name: 'Try a curve', grid: 'cool', grip: 'tap', lay: true, replay: 'Try a curve', dur: 4.0,
+      text: 'To check a candidate curve, compare its slope with the rule\'s at every point. Try a straight line from 80 °C, falling 6 °C a minute. It matches at the start. At 50 °C it still falls 6, but the rule wants 3. At 20 °C it still falls 6, but the rule wants 0. Wherever the two disagree, the line is marked as a mistake. Tap the grid to lay a straight line of your own from 80 °C.',
+      read: 'To check a candidate curve, compare its slope with the rule\'s at every point. Try a straight line from 80 °C, falling 6 °C a minute. It matches at the start. At 50 °C it still falls 6, but the rule wants 3. At 20 °C it still falls 6, but the rule wants 0. Wherever the two disagree, the line is marked as a mistake. No straight line from 80 °C can follow the arrows, because the rule\'s slope changes with the gap.',
+      draw(st) {
+        fieldAll(ROOM);
+        roomLine(ROOM, null, 'right');
+        if (st.cand) { layLine(st.cand); return; }
+        curve(lineFrom80, 0, 10, 'cand', arr(0.6, 1.2), 'line', null);
+        part(vis(2.0), 0, () => { curve(lineFrom80, 0, 10, 'cand bad', 1, 'linebad', null); REC.bad++; });
+        part(vis(0.5), 0, () => dot(0, 80));
+        part(vis(1.0), 4, () => label(G.x(0) + 12, G.y(80) - 12, 'matches at 80 °C', 'lab main', 'start', true));
+        mark50(vis(2.0), vis(2.5));
+        mark20(vis(2.9), vis(3.4));
+      } },
+    { kind: 'pick', name: 'Is it a solution?', grid: 'cool',
+      task: 'The straight line starts at 80 °C and falls 6 °C a minute. Is it a solution of the cooling rule?',
+      opts: ['Yes, its start is right', 'No, the slopes differ', 'Yes, it reaches 20 °C'], want: 'No, the slopes differ',
+      why: 'A solution must match the rule\'s slope everywhere. The line matches only at 80 °C. At 50 °C it falls 6 °C a minute while the rule wants 3. So it is not a solution.',
+      hint: 'Not quite. Compare the slopes all along the line.',
+      hints: { 'Yes, its start is right': 'Not quite. Matching at one point is not enough. Look at 50 °C.',
+        'Yes, it reaches 20 °C': 'Not quite. At 20 °C it still falls 6 °C a minute, but the rule wants 0.' },
+      draw(st) {
+        const r = RW(st);
+        fieldAll(ROOM);
+        roomLine(ROOM, null, 'right');
+        curve(lineFrom80, 0, 10, 'cand', 1, 'line', null);
+        if (r.ok) {
+          REC.answer = true;
+          part(vis(0.1), 0, () => { curve(lineFrom80, 0, 10, 'cand bad', 1, 'linebad', null); REC.bad++; });
+          mark50(vis(0.3), vis(0.5));
+          mark20(vis(0.6), vis(0.8));
+          curve(coolFrom(0, 80, ROOM), 0, 40, 'sol', arr(1.0, 1.0), 'real', ROOM);
+        } else if (r.w === 'Yes, its start is right') mark50(vis(0.1), vis(0.4));
+        else if (r.w) mark20(vis(0.1), vis(0.4));
+        dot(0, 80);
+      } },
+    { show: true, name: 'A rule in time', switch: true, key: ['slope', 'sol'], dur: 4.2,
+      text: 'A rule can depend on time instead. In `dy/dt = 2t`, the slope of `y` is twice the time `t`. So every arrow in one column matches. The arrows are flat all down `t = 0`, yet no flat line solves it. At `t = 2` the rule wants a slope of 4. The parabolas `y = t² + c` follow every arrow, because the slope of `t² + c` is `2t`. A start picks `c`, as when you integrated. Switch rules to compare the two fields.',
+      read: 'A rule can depend on time instead. In `dy/dt = 2t`, the slope of `y` is twice the time `t`. So every arrow in one column matches. The arrows are flat all down `t = 0`, yet no flat line solves it. At `t = 2` the rule wants a slope of 4. The parabolas `y = t² + c` follow every arrow, because the slope of `t² + c` is `2t`. A start picks `c`, as when you integrated.',
+      draw(st) {
+        if (G.kind === 'two') {
+          part(vis(0.5), 0, () => fieldAll(null));
+          part(vis(1.1), 0, () => { G.g.rows.forEach((v) => hotArrow(0, v, 0)); label(G.x(0), G.y(12) - 9, 'flat at t = 0', 'lab main', 'middle', true); });
+          part(vis(1.7), 0, () => { hotArrow(2, 8, 2 * 2); label(G.x(2) - 14, G.y(8) + 5, 'slope 4 at t = 2', 'lab main', 'end', true); });
+          [-4, 0, 4].forEach((c, k) => curve((t) => t * t + c, -3, 3, 'sol', arr(2.2 + 0.3 * k, 1.0), 'p' + c, null));
+          part(vis(3.6), 4, () => label(G.x(-2.6) + 10, G.y(10.76) + 5, 'y = t² + c', 'lab main', 'start', true));
+          said.push('Parabolas y = t² + c follow the arrows.');
+        } else {
+          fieldAll(ROOM, vis(0.5));
+          roomLine(ROOM, vis(1.1), 'left');
+          [80, 50, 10].forEach((T0, k) => { curve(coolFrom(0, T0, ROOM), 0, 40, 'sol', arr(1.7 + 0.3 * k, 1.2), 's' + T0, ROOM); part(vis(1.1), 0, () => dot(0, T0)); });
+          said.push('The cooling rule again: every arrow in one row matches.');
+        }
+      } },
+    { kind: 'pick', name: 'Which curve solves it?', grid: 'two', work: 1,
+      task: 'Which curve solves `dy/dt = 2t`?',
+      opts: ['y = 2t', 'y = t² + 4', 'y = 3'], want: 'y = t² + 4',
+      why: 'The slope of `t² + 4` is `2t` at every `t`, so it follows every arrow. `y = 2t` has a slope of 2 everywhere, and the flat `y = 3` has a slope of 0. Each matches the rule at one time only.',
+      hint: 'Not quite. Find the curve whose slope is `2t` at every `t`.',
+      hints: { 'y = 2t': 'Not quite. `y = 2t` has a slope of 2 everywhere, but the rule wants `2t`, which changes.',
+        'y = 3': 'Not quite. Flat arrows are only at `t = 0`. At `t = 2` the rule wants 4.' },
+      draw(st) {
+        const r = RW(st);
+        fieldAll(null);
+        if (r.ok) {
+          REC.answer = true;
+          curve((t) => t * t + 4, -3, 3, 'sol', arr(0.1, 1.2), 'ans', null);
+          part(vis(1.0), 4, () => label(G.x(-2.6) + 10, G.y(10.76) + 5, 'y = t² + 4', 'lab main', 'start', true));
+        } else if (r.w) {
+          const two = r.w === 'y = 2t', f = two ? (t) => 2 * t : () => 3;
+          curve(f, -3, 3, 'sol bad', arr(0.1, 0.9), 'bad', null); REC.bad++;
+          part(vis(0.8), 0, () => { hotArrow(2, f(2), 2 * 2); ring(2, f(2)); });
+          workLines([{ s: 'at t = 2: slope ' + (two ? 2 : 0) + ', but the rule wants ' + 2 * 2, bad: true, a: vis(1.0) }]);
+        }
+      } },
+    { kind: 'pick', name: 'A cold part', grid: 'cool', work: 2,
+      task: 'A part at 15 °C sits in the 20 °C room. Which way does its temperature go?',
+      opts: ['It warms towards 20 °C', 'It cools further', 'It stays at 15 °C'], want: 'It warms towards 20 °C',
+      why: 'The gap is 15 − 20 = −5 °C. The rule gives `−0.1 × (−5) = +0.5`, so the part warms at 0.5 °C a minute. Its curve rises and levels off towards the room line.',
+      hint: 'Not quite. Find the gap to the room first.',
+      hints: { 'It cools further': 'Not quite. Use the gap, 15 − 20 = −5. A minus times a minus is a plus.',
+        'It stays at 15 °C': 'Not quite. Only the room line is flat. At 15 °C the gap is −5 °C.' },
+      draw(st) {
+        const r = RW(st);
+        fieldAll(ROOM);
+        roomLine(ROOM, null, 'left');
+        if (r.ok) {
+          REC.answer = true;
+          arrowFrom(0, 15, rate(15, ROOM), 'pa', arr(0.1));
+          curve(coolFrom(0, 15, ROOM), 0, 40, 'sol', arr(0.5, 1.2), 'ans', ROOM);
+          workLines([{ s: gapText(15, ROOM), a: vis(0.9) }, { s: slopeText(15, ROOM), a: vis(1.2) }]);
+        } else if (r.w === 'It cools further') {
+          arrowFrom(0, 15, -KR * 15, 'pa bad', arr(0.1)); REC.bad++;
+          workLines([{ s: 'slope: −0.1 × 15 = ' + fmtR(-KR * 15) + ' °C a minute', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          curve(() => 15, 0, 40, 'sol bad', arr(0.1, 0.9), 'bad', null); REC.bad++;
+          workLines([{ s: gapText(15, ROOM), a: vis(0.6) }]);
+        }
+        dot(0, 15);
+      } },
+  ];
+  const FINISH = 'A *differential equation* gives the slope at every point. Its solution is a whole curve that matches that slope everywhere, and a starting value picks which curve. The rule gives the slope. The start picks the curve.';
+  // Sources the checks restate (the lesson's own).
+  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf';
+  const MIT = 'https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf';
+
+  // ---------- the grids ----------
+  // The plot runs from PL to PR across and PH tall; the room slider's track from SX0 to SX1.
+  const PL = 44, PR = 304, PH = 210, SX0 = 124, SX1 = 320;
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const range = (a, b, s) => { const out = []; for (let k = 0; a + k * s <= b + 1e-9; k++) out.push(Math.round((a + k * s) * 1000) / 1000); return out; };
+  const GRIDS = {
+    cool: { t0: 0, t1: 40, v0: 0, v1: 100, xt: range(0, 40, 10), yt: range(0, 100, 20), cols: range(2, 38, 4), half: 9.5,
+      ytitle: 'T (°C)', xtitle: 'time t (min)' },
+    two: { t0: -3, t1: 3, v0: -6, v1: 14, xt: range(-3, 3, 1), yt: range(-4, 12, 4), cols: range(-2.5, 2.5, 0.5), rows: range(-4, 12, 2), half: 8.5,
+      ytitle: 'y', xtitle: 'time t' },
+  };
+  // Cooling arrows sit in rows 10 °C apart that always include the room's own row.
+  const rowsCool = (room) => range(room - 100, 100, 10).filter((v) => v >= 5 && v <= 95);
+  const gridOf = (d, st) => (d.switch ? st.rule || 'two' : d.grid);
+  const roomOf = (d, st) => (d.slider ? (st.room == null ? ROOM : st.room) : d.room || ROOM);
+  function geoOf(d, st) {
+    const kind = gridOf(d, st), g = GRIDS[kind];
+    const PT = 50 + (d.slider ? 40 : 0), PB = PT + PH;
+    const kx = (PR - PL) / (g.t1 - g.t0), ky = PH / (g.v1 - g.v0);
+    const working = d.show || d.workNow || st.res === 'right' || st.res === 'wrong';
+    return { kind, g, PT, PB, kx, ky, H: PB + 46 + (working ? d.work || 0 : 0) * 26,
+      x: (t) => PL + (t - g.t0) * kx, y: (v) => PB - (v - g.v0) * ky,
+      t: (x) => g.t0 + (x - PL) / kx, v: (y) => g.v0 + (PB - y) / ky };
+  }
+
+  // ---------- numbers, written the lesson's way ----------
+  function fmtN(v) {
+    const r = Math.round(v * 10) / 10;
+    if (r === 0) return '0';
+    const a = Math.abs(r);
+    return (r < 0 ? '−' : '') + (Number.isInteger(a) ? String(a) : a.toFixed(1));
+  }
+  const fmtR = (v) => (Math.round(v * 10) / 10 > 0 ? '+' : '') + fmtN(v);
+  const gapText = (T, room) => 'gap to the room: ' + fmtN(T) + ' − ' + fmtN(room) + ' = ' + fmtN(T - room) + ' °C';
+  const slopeText = (T, room) => 'slope: −0.1 × ' + (fmtN(T - room)[0] === '−' ? '(' + fmtN(T - room) + ')' : fmtN(T - room)) + ' = ' + fmtR(rate(T, room)) + ' °C a minute';
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/dT\/dt/g, 'd T by d t').replace(/dy\/dt/g, 'd y by d t').replace(/t²/g, 't squared')
+    .replace(/°C/g, ' degrees').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // all: Show all pressed; starts: starts Dan dropped; settled: the demonstration cut short by a
+  // tap; room: the room slider; rule: the switch.
+  function blank() { return { pick: null, res: null, why: false, all: false, starts: [], settled: false, room: null, rule: null, cand: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });
+  let S = STEPS.map(() => blank());
+  let PROBE = { t: 4, T: 80 }, TRAIL = [];                               // the probe and the arrows it left
+  let finished = false, lastStep = -1, lastDone = false, TM = Infinity;   // TM: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null, G = null, said = [], placed = [];
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /(dT\/dt|dy\/dt|(?<![A-Za-z])[Ttyc](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    const it = (x) => (inSvg ? K.svg('tspan', { class: 'v' }, x) : K.el('span', { class: 'v' }, x));
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2 === 0) { parent.appendChild(document.createTextNode(p)); return; }
+      if (p.length > 1) { parent.appendChild(document.createTextNode('d')); parent.appendChild(it(p[1])); parent.appendChild(document.createTextNode('/d')); parent.appendChild(it(p[4])); }
+      else parent.appendChild(it(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); TM = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one draws the answer on the grid, a wrong one draws the slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const showAllBtn = K.button({ label: 'Show all', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.showAll || finished || st.all) return;
+    st.all = true;
+    play(FB);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    if (d.grip === 'probe') PROBE = { t: 4, T: 80 };
+    if (d.showAll) st.all = false;
+    if (d.slider) st.room = null;
+    st.cand = null;
+    st.settled = false;
+    st.starts.forEach((q) => { q.born = -Infinity; });
+    play(d.dur);
+  } });
+  // The switch on the second rule's screen: which rule's field is drawn.
+  const swBtns = [['two', 'dy/dt = 2t'], ['cool', 'Cooling']].map((o) => ({ v: o[0], text: o[1], b: K.button({ label: o[1], secondary: true, into: '#switch', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.switch || finished || (st.rule || 'two') === o[0]) return;
+    st.rule = o[0];
+    play(d.dur);
+  } }) }));
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); PROBE = { t: 4, T: 80 }; TRAIL = []; finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    TM += dt;
+    paint();
+    return TM < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; TM = 0; anim.play();
+  }
+  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(TM, t0, d);
+  }
+  // A timetable entry: null, there from the start; a time, arriving then.
+  const vis = (t) => (t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });
+    italics(t, s, true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    italics(t, s, true);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.4;
+  }
+  // A label on the grid, moved up or down a line if it would sit on another label.
+  function label(x, y, s, cls, anchor, pill) {
+    const w = tw(s, cls);
+    let left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;
+    left = K.clamp(left, 4, 336 - w);
+    const box = (yv) => ({ x: left - 3, y: yv - 12, w: w + 6, h: 16 });
+    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h);
+    let yy = y;
+    for (const dy of [0, -17, 17, -34, 34]) { if (!hits(box(y + dy))) { yy = y + dy; break; } }
+    const b = box(yy);
+    placed.push(b);
+    text(left, yy, s, cls, 'start');
+    REC.texts.push(s);
+    said.push(say(s) + '.');
+  }
+
+  // An arrow along slope s (in the grid's units) as a path: a shaft from h0 to h1 along it, and an
+  // open head at the far end.
+  function dirOf(s) { const dx = G.kx, dy = -s * G.ky, n = Math.hypot(dx, dy); return [dx / n, dy / n]; }
+  function arrowD(cx, cy, u, h0, h1, head) {
+    const sx = cx + u[0] * h0, sy = cy + u[1] * h0, ex = cx + u[0] * h1, ey = cy + u[1] * h1;
+    let d = 'M' + r2(sx) + ' ' + r2(sy) + ' L' + r2(ex) + ' ' + r2(ey);
+    if (head > 0) {
+      const bx = -u[0] * head, by = -u[1] * head, c = Math.cos(0.45), s = Math.sin(0.45);
+      d += ' M' + r2(ex + bx * c - by * s) + ' ' + r2(ey + bx * s + by * c) + ' L' + r2(ex) + ' ' + r2(ey) + ' L' + r2(ex + bx * c + by * s) + ' ' + r2(ey - bx * s + by * c);
+    }
+    return d;
+  }
+  // One arrow of the field, centred on its point.
+  function fieldArrow(t, v, s, cls) {
+    const h = G.g.half;
+    add(K.svg('path', { class: cls, d: arrowD(G.x(t), G.y(v), dirOf(s), -h, h, 4.5) }));
+    REC.arrows.push({ t, v, s, cls });
+  }
+  const hotArrow = (t, v, s) => fieldArrow(t, v, s, 'fa hot');
+  function rowArrows(v, room) { G.g.cols.forEach((t) => fieldArrow(t, v, rate(v, room), 'fa')); }
+  const rowLabel = (v, room) => text(PR + 7, G.y(v) + 4.5, fmtR(rate(v, room)), 'rl', 'start');
+  // The whole field: for cooling, rows of matching arrows; for 2t, columns of matching arrows.
+  function fieldAll(room, a) {
+    part(a == null ? 1 : a, 0, () => {
+      if (G.kind === 'cool') rowsCool(room).forEach((v) => rowArrows(v, room));
+      else G.g.rows.forEach((v) => G.g.cols.forEach((t) => fieldArrow(t, v, 2 * t, 'fa')));
+    });
+    said.push(G.kind === 'cool' ? 'Arrows show the rule\'s slope at each point: steep down when the part is hot, flat at the room, pointing up below it.'
+      : 'Arrows show the slope 2t: flat at t = 0, tipping up for later times and down for earlier ones.');
+  }
+  // The probe's trail: an arrow wherever it was dragged.
+  function trail() {
+    TRAIL.forEach((p) => fieldArrow(p.t, p.T, rate(p.T, ROOM), 'fa'));
+    if (TRAIL.length) said.push(TRAIL.length + ' arrows left by the probe.');
+  }
+  // An arrow starting at a point (the probe's, or an answer's), grown to a fraction of its length.
+  function arrowFrom(t, v, s, cls, grow, len) {
+    if (grow <= 0) return;
+    const L = (len || 30) * Math.min(1, grow);
+    add(K.svg('path', { class: cls, d: arrowD(G.x(t), G.y(v), dirOf(s), 0, L, grow > 0.4 ? 7 : 0) }));
+    REC.arrows.push({ t, v, s, cls });
+  }
+  function dot(t, v, cls) { add(K.svg('circle', { class: 'dot' + (cls ? ' ' + cls : ''), cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5 })); }
+  function ring(t, v) { add(K.svg('circle', { class: 'ring', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 10 })); REC.bad++; }
+  function probeRing(t, T) { add(K.svg('circle', { class: 'probe', cx: r2(G.x(t)), cy: r2(G.y(T)), r: 7 })); }
+  function probeAt(t, T, a, grow) {
+    arrowFrom(t, T, rate(T, ROOM), 'pa', grow);
+    part(a, 0, () => probeRing(t, T));
+    if (a >= 0.5) said.push('The probe at ' + T + ' degrees has an arrow with slope ' + say(fmtR(rate(T, ROOM))) + ' degrees a minute.');
+  }
+  // The gap: a bracket from the room up (or down) to the probe, named with its size.
+  function gapMark(t, room, T, a) {
+    const gap = T - room;
+    if (Math.abs(gap) < 0.5) return;
+    part(a, 0, () => {
+      const bx = G.x(t) - 10, y1 = G.y(T), y2 = G.y(room);
+      add(K.svg('path', { class: 'brk', d: 'M' + r2(bx + 4) + ' ' + r2(y1) + ' H' + r2(bx) + ' V' + r2(y2) + ' H' + r2(bx + 4) }));
+      if (Math.abs(y2 - y1) >= 30) {
+        const s = 'gap ' + fmtN(gap) + ' °C', w = tw(s, 'lab'), my = (y1 + y2) / 2 + 5;
+        if (bx - 6 - w >= PL + 2) label(bx - 6, my, s, 'lab', 'end', true);
+        else label(G.x(t) + 12, my, s, 'lab', 'start', true);
+      }
+    });
+  }
+  // The room's temperature as a dashed line, named beside it.
+  function roomLine(room, a, side) {
+    part(a == null ? 1 : a, 0, () => {
+      line('room', PL, G.y(room), PR, G.y(room));
+      if (side === 'left') label(PR + 4, G.y(room) + 4.5, 'room', 'lab', 'start', true);
+      else label(PR - 4, G.y(room) - 6, 'room ' + room + ' °C', 'lab', 'end', true);
+    });
+  }
+  // A curve v = f(t) from ta, grown to a fraction of the way to tb; kept in REC for the checks.
+  function curve(f, ta, tb, cls, grow, id, room) {
+    if (grow <= 0) return;
+    const te = ta + (tb - ta) * Math.min(1, grow), n = Math.max(2, Math.ceil((te - ta) / (G.g.t1 - G.g.t0) * 160));
+    let d = '', pen = false;
+    const pts = [];
+    for (let k = 0; k <= n; k++) {
+      const t = ta + (te - ta) * k / n, v = f(t);
+      if (!isFinite(v) || v < G.g.v0 - 1e-9 || v > G.g.v1 + 1e-9) { pen = false; continue; }
+      d += (pen ? ' L' : (d ? ' M' : 'M')) + r2(G.x(t)) + ' ' + r2(G.y(v));
+      pen = true;
+      pts.push([t, v]);
+    }
+    if (d) add(K.svg('path', { class: cls, d }));
+    REC.curves.push({ id, cls, f, pts, kind: G.kind, room });
+  }
+  // The straight line's two failures: the rule's own arrow beside it, ringed, with both slopes.
+  function mark50(a, la) {
+    part(a, 0, () => { hotArrow(5, 50, rate(50, ROOM)); ring(5, 50); });
+    part(la, 4, () => label(G.x(5) + 12, G.y(50) - 12, 'line −6, rule ' + fmtR(rate(50, ROOM)), 'lab bad', 'start', true));
+  }
+  function mark20(a, la) {
+    part(a, 0, () => { hotArrow(10, 20, rate(20, ROOM)); ring(10, 20); });
+    part(la, 4, () => label(G.x(10) + 16, G.y(20) + 18, 'line −6, rule ' + fmtR(rate(20, ROOM)), 'lab bad', 'start', true));
+  }
+  // Dan's own straight line from 80 °C: grown in ink, then red, with the rule's own arrow ringed
+  // at each of five evenly spaced points along it where the two slopes disagree.
+  function layLine(c) {
+    const A = (t0, d) => (c.born === -Infinity ? 1 : arr(t0, d));
+    const m = (c.T - 80) / c.t, f = (t) => 80 + m * t;
+    const tEnd = Math.min(40, m < 0 ? 80 / -m : m > 0 ? 20 / m : 40);
+    const miss = [1, 2, 3, 4, 5].map((k) => k * tEnd / 6).filter((t) => Math.abs(m - rate(f(t), ROOM)) > 0.4);
+    curve(f, 0, 40, 'cand', A(0, 0.7), 'mine', null);
+    dot(0, 80);
+    if (miss.length) part(A(0.8), 0, () => { curve(f, 0, 40, 'cand bad', 1, 'minebad', null); REC.bad++; });
+    miss.forEach((t, k) => part(A(0.8 + 0.12 * k), 0, () => { hotArrow(t, f(t), rate(f(t), ROOM)); ring(t, f(t)); }));
+    if (miss.length) part(A(1.2), 4, () => label(G.x(miss[0]) + 12, G.y(f(miss[0])) - 12, 'line ' + fmtR(m) + ', rule ' + fmtR(rate(f(miss[0]), ROOM)), 'lab bad', 'start', true));
+    said.push('Your straight line from 80 degrees ' + (m < 0 ? 'falls ' : m > 0 ? 'rises ' : 'stays flat, ') + (m ? say(fmtN(Math.abs(m))) + ' degrees a minute' : '') + '. It disagrees with the rule at ' + miss.length + ' marked points.');
+  }
+  // Lines of working under the grid.
+  function workLines(lines) {
+    lines.forEach((w, k) => {
+      const a = w.a == null ? 1 : w.a;
+      part(a, 6, () => text(12, G.PB + 64 + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));
+      if (a >= 0.5) { REC.texts.push(w.s); said.push(say(w.s) + '.'); }
+    });
+  }
+  // The room slider above the grid.
+  const sx = (R) => SX0 + R / 40 * (SX1 - SX0);
+  function slider(R) {
+    const y = 52;
+    text(12, 57, 'room ' + R + ' °C', 'xl', 'start');
+    line('track', SX0, y, SX1, y);
+    for (let v = 0; v <= 40; v += 5) line('stk', sx(v), y - 6, sx(v), y + 6);
+    add(K.svg('circle', { class: 'knob', cx: r2(sx(R)), cy: y, r: 10 }));
+  }
+  // The axes, their numbers, and the rule above them.
+  function axes(d, st) {
+    const g = G.g;
+    g.yt.forEach((v) => { line('gl', PL, G.y(v), PR, G.y(v)); text(PL - 6, G.y(v) + 4.5, fmtN(v), 'tk', 'end'); });
+    g.xt.forEach((t) => { line('gl', G.x(t), G.PT, G.x(t), G.PB); text(G.x(t), G.PB + 17, fmtN(t), 'tk', 'middle'); });
+    line('ax', PL, G.PB, PR, G.PB);
+    line('ax', PL, G.PT, PL, G.PB);
+    text(4, G.PT - 9, g.ytitle, 'ttl', 'start');
+    const tag = G.kind === 'cool' ? 'Rule: dT/dt = −0.1 × (T − ' + roomOf(d, st) + ')' : 'Rule: dy/dt = 2t';
+    text(4, 20, tag, 'tag', 'start');
+    said.push(say(tag) + '. ' + (G.kind === 'cool' ? 'Temperature T in degrees up the side, time t in minutes along the bottom.' : 'y up the side, time t along the bottom.'));
+  }
+  // The key, inside the drawing, beside the time axis's name.
+  function keyRow(items) {
+    const y = G.PB + 38;
+    let x = PL;
+    text(x, y, G.g.xtitle, 'ttl', 'start');
+    x += tw(G.g.xtitle, 'ttl') + 20;
+    items.forEach((k) => {
+      if (k === 'slope') {
+        add(K.svg('path', { class: 'fa', d: arrowD(x + 9, y - 5, [0.894, -0.447], -9, 9, 4.5) }));
+        x += 24; text(x, y, 'rule\'s slope', 'key', 'start'); x += tw('rule\'s slope', 'key') + 16;
+      } else if (k === 'sol') {
+        line('sol', x, y - 5, x + 18, y - 5);
+        x += 24; text(x, y, 'solution', 'key', 'start'); x += tw('solution', 'key') + 16;
+      }
+    });
+  }
+
+  // ---------- touching the grid ----------
+  // The probe follows a drag; a tap drops a start; the slider sets the room.
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1 }));
+  grip.style.display = 'none';
+  const gripMode = (d) => (finished ? null : d.grip || (d.slider ? 'slide' : null));
+  function placeGrip(d, st) {
+    const mode = gripMode(d);
+    grip.style.display = mode ? '' : 'none';
+    grip.setAttribute('tabindex', mode && mode !== 'tap' ? '0' : '-1');
+    if (!mode) return;
+    grip.setAttribute('class', 'grip ' + mode);
+    const R = roomOf(d, st);
+    const box = mode === 'slide' ? [SX0 - 22, 28, SX1 - SX0 + 40, 48] : [PL - 12, G.PT - 10, PR - PL + 24, PH + 20];
+    ['x', 'y', 'width', 'height'].forEach((a, k) => grip.setAttribute(a, box[k]));
+    grip.setAttribute('role', mode === 'tap' ? 'button' : 'slider');
+    grip.setAttribute('aria-label', mode === 'slide' ? 'Room temperature' : mode === 'probe' ? 'Probe' : d.lay ? 'The grid: a tap lays a straight line from 80 degrees' : 'The grid: a tap drops a start');
+    if (mode === 'slide') { grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', 40); grip.setAttribute('aria-valuenow', R); grip.setAttribute('aria-valuetext', R + ' degrees'); }
+    else if (mode === 'probe') { grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', 100); grip.setAttribute('aria-valuenow', PROBE.T); grip.setAttribute('aria-valuetext', PROBE.T + ' degrees at ' + PROBE.t + ' minutes'); }
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  function setProbe(t, T) {
+    const g = geoOf(STEPS[at()], S[at()]), was = anim.playing();
+    t = K.clamp(Math.round(t * 2) / 2, 3, 40); T = K.clamp(Math.round(T), 0, 100);
+    settle();
+    if (PROBE.t === t && PROBE.T === T) { if (was) paint(); return; }
+    PROBE = { t, T };
+    const last = TRAIL[TRAIL.length - 1];
+    if (!last || Math.hypot(g.x(t) - g.x(last.t), g.y(T) - g.y(last.T)) >= 16) { TRAIL.push({ t, T }); if (TRAIL.length > 80) TRAIL.shift(); }
+    K.refresh();
+  }
+  function probeTo(q) { const g = geoOf(STEPS[at()], S[at()]); setProbe(g.t(q.x), g.v(q.y)); }
+  function setRoom(R) {
+    const st = S[at()], was = anim.playing();
+    R = K.clamp(Math.round(R / 5) * 5, 0, 40);
+    settle();
+    if (st.room === R) { if (was) paint(); return; }
+    st.room = R;
+    K.refresh();
+  }
+  const roomAt = (x) => (x - SX0) / (SX1 - SX0) * 40;
+  function dropStart(q) {
+    const i = at(), st = S[i], g = geoOf(STEPS[i], st);
+    const t = K.clamp(Math.round(g.t(q.x) * 2) / 2, 0, 38), T = K.clamp(Math.round(g.v(q.y)), 1, 99);
+    st.starts.forEach((p) => { p.born = -Infinity; });
+    st.starts.push({ t, T, born: 0 });
+    if (st.starts.length > 5) st.starts.shift();
+    st.settled = true;
+    play(1.0);
+  }
+  // On the candidate's screen a tap lays a straight line from 80 °C through the point tapped.
+  function layAt(q) {
+    const i = at(), st = S[i], g = geoOf(STEPS[i], st);
+    st.cand = { t: K.clamp(Math.round(g.t(q.x) * 2) / 2, 2, 40), T: K.clamp(Math.round(g.v(q.y)), 0, 100), born: 0 };
+    st.settled = true;
+    play(FB);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    const mode = gripMode(STEPS[at()]);
+    if (mode !== 'probe' && mode !== 'slide') return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grid */ }
+    e.preventDefault();
+    const q = svgPoint(e);
+    if (q) { if (mode === 'probe') probeTo(q); else setRoom(roomAt(q.x)); }
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId) return;
+    const mode = gripMode(STEPS[at()]), q = svgPoint(e);
+    if (!q) return;
+    if (mode === 'probe') probeTo(q); else if (mode === 'slide') setRoom(roomAt(q.x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('click', (e) => {
+    if (gripMode(STEPS[at()]) !== 'tap') return;
+    const q = svgPoint(e);
+    if (q) { if (STEPS[at()].lay) layAt(q); else dropStart(q); }
+  });
+  grip.addEventListener('keydown', (e) => {
+    const d = STEPS[at()], mode = gripMode(d);
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null || (mode !== 'probe' && mode !== 'slide')) return;
+    e.preventDefault();
+    if (mode === 'slide') setRoom(roomOf(d, S[at()]) + 5 * by);
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') setProbe(PROBE.t, PROBE.T + by);
+    else setProbe(PROBE.t + 0.5 * by, PROBE.T);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    G = geoOf(d, st);
+    art.textContent = '';
+    into = null; placed = []; said = [];
+    REC = { arrows: [], curves: [], texts: [], bad: 0, answer: false };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    axes(d, st);
+    d.draw(st);
+    keyRow(d.key || ['slope']);
+    placeGrip(d, st);
+    svg.setAttribute('aria-label', said.join(' '));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  function labelButton(b, s) {
+    b.setLabel(s);
+    b.el.textContent = '';
+    italics(b.el.appendChild(K.el('span')), s, false);   // one span, so the button's gap does not split "y = t² + 4"
+    b.el.setAttribute('aria-label', say(s));
+  }
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.settled = false; st.starts.forEach((q) => { q.born = -Infinity; }); if (st.cand) st.cand.born = -Infinity; play(d.dur); } else { anim.pause(); TM = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    replayBtn.setLabel(d.replay || 'Play again');
+    showAllBtn.el.hidden = !d.showAll || st.all;
+    el('replay').hidden = replayBtn.el.hidden && showAllBtn.el.hidden;
+    el('switch').hidden = !d.switch;
+    swBtns.forEach((o) => { labelButton(o.b, o.text); o.b.el.setAttribute('aria-pressed', d.switch && (st.rule || 'two') === o.v ? 'true' : 'false'); });
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      labelButton(b, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = TM;
+    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; paint(); }
+  }
+  // Does a drawn solution follow its rule? Each stretch's slope against the rule at its middle.
+  function follows(c) {
+    if (c.pts.length < 3) return false;
+    for (let k = 1; k < c.pts.length; k++) {
+      const a = c.pts[k - 1], b = c.pts[k], tm = (a[0] + b[0]) / 2, chord = (b[1] - a[1]) / (b[0] - a[0]);
+      const want = c.kind === 'cool' ? rate(c.f(tm), c.room) : 2 * tm;
+      if (!close(chord, want, 2e-3 * Math.max(1, Math.abs(want)))) return false;
+    }
+    return true;
+  }
+
+  K.check('Newton\'s law of cooling: the rate of cooling is proportional to the difference between the part\'s temperature and the room\'s, so every arrow\'s slope is the same share of its gap, all the arrows at one height match, and they point down above the room and up below it', () => {
+    const prop = [0, 5, 10, 20, 25, 30, 40].every((R) => K.linspace(0, 100, 21).every((T) => (T === R ? close(rate(T, R), 0) : close(rate(T, R) / (T - R), -KR))));
+    const fa = drawn(idx('Arrows everywhere'), { all: true }).arrows.filter((a) => a.cls === 'fa');
+    return prop && fa.length >= 90 && fa.every((a) => close(a.s, rate(a.v, ROOM))) &&
+      fa.every((a) => (a.v > ROOM ? a.s < 0 : a.v < ROOM ? a.s > 0 : close(a.s, 0)));
+  }, { source: HELM });
+  K.check('The slope of the solution curve through a point is the rule\'s value there: every curve drawn, from any start and in any room, and every parabola for the second rule, follows the arrows all along it', () => {
+    const cs = [];
+    cs.push(...drawn(idx('Follow the arrows'), { starts: [{ t: 12, T: 95, born: -Infinity }, { t: 20, T: 3, born: -Infinity }] }).curves);
+    range(0, 40, 5).forEach((R) => cs.push(...drawn(idx('The steady state'), { room: R }).curves));
+    cs.push(...drawn(idx('A rule in time'), {}).curves);
+    cs.push(...drawn(idx('A cold part'), solvedSt(idx('A cold part'))).curves);
+    return cs.length === 5 + 9 * 4 + 3 + 1 && cs.every(follows);
+  }, { source: MIT });
+  K.check('Every worked number is right: −6 °C a minute at 80 °C, −3 at 50, 0 at 20, +1 at 10, −1.5 at 35 with the slips −3.5 and +1.5, +0.5 at 15 with the slip −1.5, a slope of 4 at t = 2, and the straight line reaches 50 °C at 5 minutes and 20 °C at 10', () => {
+    const nums = close(rate(80, ROOM), -6) && close(80 - ROOM, 60) && close(rate(50, ROOM), -3) && close(rate(20, ROOM), 0) && close(rate(10, ROOM), 1) &&
+      close(rate(35, ROOM), -1.5) && close(-KR * 35, -3.5) && close(KR * (35 - ROOM), 1.5) && close(rate(15, ROOM), 0.5) && close(-KR * 15, -1.5) &&
+      close(2 * 2, 4) && close(lineFrom80(5), 50) && close(lineFrom80(10), 20);
+    const t1 = drawn(idx('What −6 means'), {}).texts, t4 = drawn(idx('The arrow at 35 °C'), solvedSt(idx('The arrow at 35 °C'))).texts;
+    const t13 = drawn(idx('A cold part'), solvedSt(idx('A cold part'))).texts;
+    return nums && t1.indexOf('slope: −0.1 × 60 = −6 °C a minute') >= 0 && t4.indexOf('slope: −0.1 × 15 = −1.5 °C a minute') >= 0 &&
+      t4.indexOf('gap 15 °C') >= 0 && t13.indexOf('slope: −0.1 × (−5) = +0.5 °C a minute') >= 0;
+  });
+  K.check('The flat line at the room is a solution for every room from 0 to 40 °C, and every curve heads for it without crossing: after 40 minutes each is within a fiftieth of its starting gap', () =>
+    range(0, 40, 5).every((R) => close(rate(R, R), 0) && [0, 10, 50, 80, 100].every((T0) => {
+      const f = coolFrom(0, T0, R);
+      return Math.abs(f(40) - R) <= Math.abs(T0 - R) / 50 + 1e-12 && K.linspace(0, 40, 81).every((t) => (f(t) - R) * (T0 - R) >= 0);
+    })));
+  K.check('The straight line from 80 °C, falling 6 °C a minute, matches the rule only at its start: it is drawn as a mistake, with the rule\'s own arrows at 50 °C and 20 °C beside it, and so is any straight line Dan lays from 80 °C', () => {
+    const r = drawn(idx('Try a curve'), {}), ln = r.curves.find((c) => c.id === 'linebad'), hot = r.arrows.filter((a) => /hot/.test(a.cls));
+    // A line Dan lays, through 40 °C at 10 minutes, falls 4 °C a minute and is ringed wherever the rule disagrees.
+    const u = drawn(idx('Try a curve'), { cand: { t: 10, T: 40, born: -Infinity } }), mine = u.curves.find((c) => c.id === 'minebad');
+    const laid = !!mine && /bad/.test(mine.cls) && u.arrows.filter((a) => /hot/.test(a.cls)).length === 5 && u.bad >= 6;
+    return !!ln && /bad/.test(ln.cls) && close(rate(lineFrom80(0), ROOM), -6) && K.linspace(0.5, 10, 20).every((t) => Math.abs(rate(lineFrom80(t), ROOM) + 6) > 0.25) &&
+      hot.some((a) => a.t === 5 && a.v === 50 && close(a.s, -3)) && hot.some((a) => a.t === 10 && a.v === 20 && close(a.s, 0)) && r.bad >= 3 && laid;
+  });
+  K.check('For dy/dt = 2t, every parabola y = t² + c follows the arrows, while y = 2t matches them only at t = 1 and the flat y = 3 only at t = 0; every arrow in one column matches', () => {
+    const ts = K.linspace(-3, 3, 61), slope = (f, t) => (f(t + 1e-4) - f(t - 1e-4)) / 2e-4;
+    const par = [-4, 0, 4, 7].every((c) => ts.every((t) => close(slope((u) => u * u + c, t), 2 * t, 1e-6)));
+    const lin = ts.filter((t) => close(slope((u) => 2 * u, t), 2 * t, 1e-6)), flat = ts.filter((t) => close(slope(() => 3, t), 2 * t, 1e-6));
+    const fa = drawn(idx('Which curve solves it?'), {}).arrows;
+    return par && lin.length === 1 && close(lin[0], 1) && flat.length === 1 && close(flat[0], 0) && fa.length === 99 && fa.every((a) => close(a.s, 2 * a.t));
+  });
+  K.check('Each puzzle accepts only its answer, draws it on the grid when it is checked, and draws every wrong pick there as a mistake', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check('Before Check, no puzzle\'s picture shows its answer or a mistake', () => DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0; }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; Show all and every answer\'s motion, right or wrong, finish within 2 s', () => {
+    const keepT = TM;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      TM = Infinity; latest = 0; earliest = Infinity;
+      S[i] = Object.assign(blank(), st);
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const r = timed(i, {}, d.dur) && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE;
+        const sw = !d.switch || (timed(i, { rule: 'cool' }, d.dur) && earliest >= FADE);
+        const all = !d.showAll || timed(i, { all: true }, FB);
+        return r && sw && all;
+      }
+      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));
+    });
+    TM = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

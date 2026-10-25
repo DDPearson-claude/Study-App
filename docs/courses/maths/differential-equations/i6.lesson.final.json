@@ -1,0 +1,384 @@
+{
+ "iid": "i6",
+ "title": "Overdamped, critical and ringing",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the two roots sliding together along the real axis, meeting, then splitting into a mirror pair, as the trace turns from a creep to ringing, when you drag the damping down.",
+  "title": "The roots and the motion",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "This is a short lesson in thirteen small screens. It uses the last lesson's spring. A 1 kg mass hangs on a 4 N/m spring. It is lifted 0.5 m and let go at rest. Only the damping changes. Screen 1 puts the guess x = e^(rt) into m x″ + c x′ + k x = 0, one line at a time. Each derivative brings out one r. Then every term carries e^(rt). That factor is never zero, so it drops out. What is left is m r² + c r + k = 0. Screen 2 asks for the roots of r² + 5r + 4 = 0. The choices are −1 and −4, 1 and 4, or −2 twice. Screen 3 is the main picture. It gives the rule r = (−c ± √(c² − 4mk)) ÷ 2m, and says the sign of c² − 4mk sorts the three kinds. On the left is the complex plane. Its real axis runs across from −6 to 1. Its j axis runs up from −2.5 to 2.5. Both are in per second. Two dots mark the roots. On the right is the mass's position against time. It runs from −0.5 to 0.5 m, over 6 s. A damping slider runs from 6 down to 0 N·s/m in steps of 0.5. It opens at 6. Readouts give c² − 4mk and the two roots. From 6 to 4, the dots slide together along the real axis, and the trace creeps back. At 4 they meet at −2. Below 4 they split into a pair, one above the real axis and one below. Then the trace rings. At 0 they sit on the j axis at ±j2. In this ideal model, the ringing then never dies. Screen 4 asks which damping makes the roots meet. The choices are 4, 16 or 2 N·s/m. Screen 5 shows damping 5, with roots −1 and −4. Here x = A e^(−t) + B e^(−4t). Starting at 0.5 m gives A + B = 0.5, and starting at rest gives −A − 4B = 0. So A = 0.667 and B = −0.167. Each part is drawn faintly. The fast part has almost gone by 1 s. So the slow one sets the creep. Screen 6 sets the damping to 6, with roots −0.76 and −5.24. It asks whether the mass gets back faster or slower. At 2 s it is 0.13 m from rest. With damping 5 it was 0.09 m. One choice is slower, because the slow root is nearer zero. Another is faster, because more damping stops it sooner. The third is the same, because the start is the same. Screen 7 says critical damping is the quickest return that never swings past rest. It shows damping 4, with one root, −2, twice. Here x = (0.5 + t)e^(−2t). Then x′ = −2t e^(−2t) and x″ = (4t − 2)e^(−2t), and x″ + 4x′ + 4x = 0. Damping 5 and damping 3 sit beside it. At 2 s it is 0.05 m from rest. Damping 3 reaches rest sooner, at about 1.8 s, but swings past it. Screen 8 asks why A e^(−2t) alone cannot be the answer at damping 4. One choice says it has one constant, and the start needs two values. Another says e^(−2t) never reaches zero. The third says a repeated root has no answer. Screen 9 shows damping 2, with a mirror pair α ± jβ, here −1 ± j1.732. A ghost envelope wraps the trace. A switch shows an arrow that turns at 1.732 radians a second as it shrinks. Its shadow on the real axis is the trace. The mirror root's arrow turns the other way, so the two add to a real number. The mass moves only up and down. Screen 10 asks what the roots −1 ± j1.732 say. One choice says the envelope falls to 0.368 of itself each second, and it rings at 1.732 rad/s. Another says the envelope falls to 0.368 each second, and it rings at 1 rad/s. The third says it rings at 1.732 rad/s and never dies. Screens 11 to 13 mix it all. Screen 11 shows two sketched traces from 0.5 m. In one, the peaks halve each swing: 0.5, 0.25 and 0.125 m. In the other, they drop 0.1 m each swing: 0.5, 0.4 and 0.3 m. It asks which could come from m x″ + c x′ + k x = 0. A ship's roll at small angles dies away like the first. Screen 12 gives a 100 mH coil, a 10 µF capacitor and 40 Ω, and asks what the loop does. One choice says it rings near 980 rad/s, about 156 Hz, inside an e^(−200t) envelope. Another says it creeps back, with roots −200 and −980. The third says it rings at 980 rad/s for ever. Screen 13 asks which resistor makes that loop critical. The choices are 200 Ω, 40000 Ω or 1000 Ω. Each puzzle offers three answers.",
+  "ignores": "Time runs slowly here, as in the last lesson. The spring, damper and circuit parts are ideal. The pull grows in step with the distance from rest. The drag grows in step with the speed. A drag of fixed size, such as dry friction, is not in this equation. The dots on the plane are rates, not places. The mass only moves up and down. The turning arrow is a picture of a complex number. Only its shadow is the real answer. With no damping, the ringing never dies here. But every real spring or circuit loses a little.",
+  "numbers": [
+   {
+    "label": "Mass, in kg",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stiffness, in N/m",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Lift at release, in m",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Damping slider highest and opening, in N·s/m",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "Damping slider lowest, in N·s/m",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Damping slider step, in N·s/m",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Plane's real axis left end, per second",
+    "value": -6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plane's real axis right end, per second",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plane's j axis top, per second",
+    "value": 2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plane's j axis bottom, per second",
+    "value": -2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace's top position, in m",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace's lowest position, in m",
+    "value": -0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace's last time, in s",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example damping, screens 2 and 5, in N·s/m",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slow root at damping 5, per second",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Fast root at damping 5, per second",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, signs lost, per second",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slow part's size at damping 5, in m",
+    "value": 0.667,
+    "kind": "computed"
+   },
+   {
+    "label": "Fast part's size at damping 5, in m",
+    "value": -0.167,
+    "kind": "computed"
+   },
+   {
+    "label": "Critical damping, 2√(1 × 4), in N·s/m",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, 4mk without the root, in N·s/m",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, √(mk), in N·s/m",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Repeated root at damping 4, per second",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "c² − 4mk at damping 6, in kg²/s²",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Slow root at damping 6, per second",
+    "value": -0.76,
+    "kind": "computed"
+   },
+   {
+    "label": "Fast root at damping 6, per second",
+    "value": -5.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Position at 2 s, damping 6, in m",
+    "value": 0.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Position at 2 s, damping 5, in m",
+    "value": 0.09,
+    "kind": "computed"
+   },
+   {
+    "label": "Position at 2 s, damping 4, in m",
+    "value": 0.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Comparison damping, screen 7, in N·s/m",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Ringing example damping, in N·s/m",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Real part at damping 2, per second",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "j part at damping 2, √12 ÷ 2, in rad/s",
+    "value": 1.732,
+    "kind": "computed"
+   },
+   {
+    "label": "Envelope kept each second at damping 2",
+    "value": 0.368,
+    "kind": "computed"
+   },
+   {
+    "label": "Roots with no damping, j part, in rad/s",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Sketch peaks, equal fractions, in m",
+    "value": 0.25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch third peak, equal fractions, in m",
+    "value": 0.125,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch peaks, equal steps, second, in m",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch peaks, equal steps, third, in m",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sketch equal step, in m",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example coil, in mH",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example coil, in H",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Example capacitor, in µF",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example capacitor, in F",
+    "value": 1e-05,
+    "kind": "computed"
+   },
+   {
+    "label": "Example 1 ÷ C, per farad",
+    "value": 100000,
+    "kind": "computed"
+   },
+   {
+    "label": "Example resistor, in Ω",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "R² for the example, in Ω²",
+    "value": 1600,
+    "kind": "computed"
+   },
+   {
+    "label": "4L ÷ C for the example, in Ω²",
+    "value": 40000,
+    "kind": "computed"
+   },
+   {
+    "label": "Example real part, −40 ÷ 0.2, per second",
+    "value": -200,
+    "kind": "computed"
+   },
+   {
+    "label": "Example j part, near, in rad/s",
+    "value": 980,
+    "kind": "computed"
+   },
+   {
+    "label": "Example ringing, 980 ÷ 2π, near, in Hz",
+    "value": 156,
+    "kind": "computed"
+   },
+   {
+    "label": "Example undamped ringing, 1 ÷ √(LC), in rad/s",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Example undamped ringing, in Hz",
+    "value": 159,
+    "kind": "computed"
+   },
+   {
+    "label": "Example envelope's time constant, in ms",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example critical resistor, 2√(L ÷ C), in Ω",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, 4L ÷ C without the root, in Ω",
+    "value": 40000,
+    "kind": "computed"
+   },
+   {
+    "label": "Roots' product, k ÷ m, per second squared",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, the undamped rate read as Ω",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Roots' sum at damping 5, −c ÷ m, per second",
+    "value": -5,
+    "kind": "computed"
+   },
+   {
+    "label": "Roots' sum at damping 6, −c ÷ m, per second",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "Damping 3 first reaches rest, near, in s",
+    "value": 1.8,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Let a damped spring or an RLC loop go, and it does one of three things. It creeps back. It returns as fast as it can without ringing. Or it rings while its swings die. Two numbers decide which: the roots of m r² + c r + k = 0.\n\nThe guess that solved decay works here too. There, e^(rt) solved a first-order rule, because its rate is r times itself. Here, x′ = r e^(rt) and x″ = r² e^(rt). Put them in, and every term carries e^(rt): (m r² + c r + k) e^(rt) = 0. An exponential is never zero, so m r² + c r + k = 0. This quadratic is the [[characteristic equation]]. Each root is a rate, per second. The quadratic formula gives r = (−c ± √(c² − 4mk)) ÷ 2m. The sign of c² − 4mk sorts the three cases.[^1]\n\nWhen c² is bigger than 4mk, there are two real roots, both negative. The answer is two decays added together. Take the 1 kg mass and 4 N/m spring with damping 5. The roots are −1 and −4. Let it go from 0.5 m at rest, and x = 0.667e^(−t) − 0.167e^(−4t). The fast part has almost gone by 1 s, so the slow root sets the creep. This is [[overdamped]]. Past critical, heavier damping creeps back slower. The reason is that the two roots always multiply to k ÷ m and add to −c ÷ m. Here they multiply to 4. At damping 6 they add to −6, not −5. To keep the product at 4, the fast root moves away from zero and the slow one moves in. At damping 6 the roots are −0.76 and −5.24. At 2 s the mass is still 0.13 m out, against 0.09 m at damping 5.\n\nWhen c² equals 4mk, there is one root, twice. Here that happens at damping 4, and the root is −2. But e^(−2t) alone has one constant. The start needs two values, position and speed. The second answer is t e^(−2t). You can check it by putting it back in. From 0.5 m at rest, x = (0.5 + t)e^(−2t). Of all the settings that do not ring, critical damping settles fastest.[^2] Here is why. With the product fixed at 4, two equal roots put the slower one as far from zero as a real root can go. Damping 3 reaches rest sooner, at about 1.8 s, but swings past it.\n\nWhen c² is smaller than 4mk, the square root is of a negative number. The roots are then a mirror pair, α ± jβ. Here α = −c ÷ 2m and β = √(4mk − c²) ÷ 2m. At damping 2 they are −1 ± j1.732. Now e^((α + jβ)t) is e^(αt) × e^(jβt). The second factor is an arrow of length 1, turning at β radians a second. The first factor shrinks it. The mirror root's arrow turns the other way. So the two add to a real answer. It is the arrow's shadow: a swing inside a dying envelope e^(αt). This is [[underdamped]]. The real part sets how fast it dies. The j part sets how fast it rings. At damping 2, the envelope keeps 0.368 of itself each second. With no damping, the roots sit at ±j2. In this ideal model it then rings for ever.\n\nThe RLC loop has the same three cases, with L, R and 1 ÷ C in place of m, c and k.[^3] This is a simplified model with ideal parts. Its drag is in step with the speed. That is why each swing keeps the same fraction of the last. A drag of fixed size, such as dry friction, is not in this equation. Its swings do not shrink that way.\n\nA ship's roll is this kind of swing. At small angles this straight equation fits it. Bigger rolls need a fuller model, because the damping and the righting stop growing in step.[^4] Measured roll decay is an exponentially decaying cosine, the ringing case.[^5] The roll damping grows with forward speed.[^6]\n\n**The roots of m r² + c r + k = 0 set the motion. Two real roots creep back. One repeated root returns quickest without ringing. A complex pair α ± jβ rings at β inside a dying envelope e^(αt).**"
+ },
+ "analogy": {
+  "text": "Think of the needle on an analogue meter. The moving coil and needle carry on moving. The hairspring pulls them back. Eddy currents in the coil's former drag in step with the speed. With too little drag, the needle overshoots and wobbles round the reading. With too much, it creeps up to it. Damped near critical, it swings to the reading and stops.",
+  "breaks": "The needle is a real case of the equation only as far as its parts are ideal. Pivot friction is a drag of fixed size, which this equation leaves out. It can leave the needle resting a little short of the true reading."
+ },
+ "practice": {
+  "text": "- Write the rule as m x″ + c x′ + k x = 0, or L q″ + R q′ + q ÷ C = 0, in base units.\n- Write its characteristic equation, m r² + c r + k = 0.\n- Compare c² with 4mk, or R² with 4L ÷ C. Bigger is overdamped, equal is critical, smaller is underdamped.\n- Find the roots with the quadratic formula.\n- Read them. A real root r is a decay with time constant 1 ÷ |r|. A pair α ± jβ rings at β radians a second, which is β ÷ 2π hertz. It rings inside an envelope e^(αt), with time constant 1 ÷ |α|.\n- Use the two starting values to fix the two constants.\n\n**Rules of thumb:** critical damping is c = 2√(mk), or R = 2√(L ÷ C). Past it, more damping is slower, not faster. With light damping, it rings just below √(k ÷ m), or 1 ÷ √(LC).\n\n**Worked example:** a 100 mH coil, a 10 µF capacitor and a 40 Ω resistor sit in one loop. In base units, L = 0.1 H and C = 0.00001 F, so 1 ÷ C = 100000. The characteristic equation is 0.1 r² + 40 r + 100000 = 0. R² = 1600 and 4L ÷ C = 40000. R² is smaller, so it rings. The roots are (−40 ± √(1600 − 40000)) ÷ 0.2. That is −200 ± j980, near enough. So it rings at about 980 rad/s, which is about 156 Hz. With no resistance it would ring at 1000 rad/s, or 159 Hz. Its envelope is e^(−200t), with a time constant of 5 ms. To make it critical, R = 2√(0.1 ÷ 0.00001) = 200 Ω.\n\n**Common mistakes**\n- Thinking more damping always settles faster.\n- Using one exponential for a repeated root. It needs (A + Bt)e^(rt).\n- Reading β as hertz. It is in radians a second.\n- Leaving out the square root. Critical is c = 2√(mk), not 4mk.\n- Reading the trace or the turning arrow as the mass's path. The mass only moves up and down.\n- Expecting dry friction to die away as e^(αt) does. A drag of fixed size is not in this equation."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf",
+   "quote": "There are three cases depending on the sign of the expression under the square root"
+  },
+  {
+   "n": 2,
+   "title": "18.03SCF11 text: Under, Over and Critical Damping — MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/7e212064ad281d00e1dac893b1f722a7_MIT18_03SCF11_s13_2text.pdf",
+   "quote": "It is worth noting that for a fixed _m_ and _k_ , choosing _b_ to be the critical damping value gives the fastest return of the system to its equilibrium position."
+  },
+  {
+   "n": 3,
+   "title": "6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics",
+   "url": "https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit",
+   "quote": "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+  },
+  {
+   "n": 4,
+   "title": "Estimation of Rolling Motion of Ship in Random Beam Seas by Efficient Analytical and Numerical Approaches — Journal of Marine Science and Application (Springer)",
+   "url": "https://link.springer.com/article/10.1007/s11804-020-00183-x",
+   "quote": "roll motion of ships with nonlinear damping and restoring moments for all times is modeled by a second-order nonlinear differential equation."
+  },
+  {
+   "n": 5,
+   "title": "100-Year Analysis of Roll Decay for Surface-Ship Models — ASME J. Verif. Valid. Uncert.",
+   "url": "https://asmedigitalcollection.asme.org/verification/article/10/1/011001/1212613/100-Year-Analysis-of-Roll-Decay-for-Surface-Ship",
+   "quote": "a curve fit of exponentially decaying cosine function"
+  },
+  {
+   "n": 6,
+   "title": "EN455 Course Notes Chapter 4 Reviseday21 — US Naval Academy",
+   "url": "https://www.usna.edu/NAOE/_files/documents/Courses/EN455/EN455_Course_Notes_Chapter_4_revisedAY21.pdf",
+   "quote": "The roll damping increases with forward speed."
+  }
+ ]
+}

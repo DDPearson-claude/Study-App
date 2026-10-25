@@ -1,0 +1,349 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Differential equations, from cooling to resonance
+Idea: Pushing it: resonance, and reading a model (Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the dots on the graph of swing against frequency climbing to a peak near 2 rad/s, where the spring and mass forces cancel, when you drag the drive frequency.
+Title (the app shows it above the frame, so do not repeat it): The driven swing
+The rule (the app shows it just above the frame, under "What you're looking at"): This is a short lesson in twelve small screens. It uses the same spring as before. A 1 kg mass sits on a 4 N/m spring, with a 0.5 N·s/m damper. Now a push of 1 N swings back and forth as F cos ωt. Here ω is how fast the push swings, in rad/s. Screen 1 shows the mass with the push arrow beside it, growing and shrinking. Under it is the rule m x″ + c x′ + k x = F cos ωt. Each term is labelled as a force in newtons. A trace shows position over 30 s, from −1.2 to 1.2 m. It starts from rest at 0, with the push at 1 rad/s. Play runs it. Its read sentence: the trace starts lumpy because the spring's own ringing mixes in, then settles to an even swing by about 20 s. A faint envelope shows the ringing dying, with a 4 s time constant. Screen 2 asks how often it swings once it has settled. One choice is 1 rad/s, the push's rate. Another is about 2 rad/s, its own ringing rate. The third is 1.5 rad/s, halfway. The answer is 1 rad/s. The ringing is the transient, and it dies. Screen 3 draws the three force arrows of the steady swing, end to end. The spring's pull kX points one way. The mass term mω²X points the opposite way. The damper's drag cωX is at right angles. Together they make the 1 N push. A drive slider runs from 0.25 to 4 rad/s in steps of 0.25. It opens at 1. At 1 rad/s the swing is 0.329 m. The arrows are then 1.32 N, 0.33 N and 0.16 N. Readouts give the drive frequency and the swing. Its read sentence: at 1 rad/s the spring's arrow is much longer than the mass's, and the swing is 0.329 m. Screen 4 asks for the swing at 2 rad/s. One choice is 1 m. Another is 0.25 m. The third is that it grows without limit. The answer is 1 m. The spring and mass arrows are both 4 N, so they cancel. That leaves the 1 N drag cωX alone to match the push, so X = 1 ÷ (0.5 × 2). Screen 5 is the main picture. The trace sits above a graph of steady swing against drive frequency. The graph runs 0 to 4 rad/s across and 0 to 1.2 m up. The same drive slider moves the push. Each setting runs the trace. Once the wobble dies, its steady swing drops a dot on the graph. A faint line at 2 rad/s is labelled natural frequency. Its read sentence: the dots trace a hill, from 0.25 m for the slowest push, up to about 1 m near 2 rad/s, and down to 0.08 m at 4 rad/s. Screen 6 asks for the swing at 4 rad/s. One choice is about 0.08 m. Another is about 2 m, since a faster push gives a bigger swing. The third is 1 m, the same as at 2 rad/s. The answer is about 0.08 m, because the mass term is 16X against the spring's 4X. Screen 7 adds a damping slider from 0.5 to 6 N·s/m, in steps of 0.5. It opens at 0.5. The whole hill is drawn for the damping you set, with a ghost of the 0.5 hill. A readout gives the top of the hill and where it sits, or says there is no peak. As the damping grows, the hill drops and its top slides lower. At damping 0.5 the top is 1.01 m near 1.97 rad/s. At 1 it is 0.52 m near 1.87 rad/s. At 2 it is 0.29 m near 1.41 rad/s. From 3 there is no hill. The swing only shrinks as the push speeds up. Its read sentence: at damping 2 the top of the hill is 0.29 m near 1.41 rad/s, and from damping 3 there is no hill. Screen 8 sets damping 6, which is overdamped. It asks where the swing is largest. One choice is at the slowest push, about 0.24 m. Another is at 2 rad/s, its natural frequency. The third is at 4 rad/s. The answer is the slowest push. Heavy drag grows with the push's speed faster than the gap between the spring and mass terms closes. Screen 9 has a switch, Spring or RLC loop. It relabels the picture as a series loop. The loop has a 1 H coil, a 0.5 Ω resistor, a 0.25 F capacitor and a 1 V AC supply. The mass becomes the coil, and the damper the resistor. The spring becomes the capacitor, and the push the supply. The swing is now the swing of the capacitor's charge, in coulombs. The hill is unchanged. A readout gives the current's swing, which is ω times the charge's swing. At 2 rad/s the charge swings 1 C and the current 2 A. That current is the supply's 1 V ÷ 0.5 Ω. Its read sentence: as a loop, the hill plots the capacitor's charge, and the current is largest at exactly 2 rad/s. Screens 10 to 12 mix it all. Screen 10 gives a 10 V supply at 1000 rad/s, 159 Hz. It feeds 100 mH, 10 µF and 40 Ω in series. It asks for the capacitor's voltage. One choice is 25 V. Another is 10 V, since nothing can exceed the supply. The third is 4 V. The answer is 25 V. ωL and 1 ÷ ωC are both 100 Ω, so they cancel. The current is 10 ÷ 40 = 0.25 A, and 0.25 A × 100 Ω is 25 V. Screen 11 offers v = 12e^(−RCt) as the answer to dv/dt = −v ÷ RC from 12 V. It asks which check catches the mistake. One choice is the units, because RC × t is in seconds squared and an exponent must have no units. Another is the start, because it does not give 12 V at t = 0. The third is none, because it passes. The answer is the units. It does give 12 V at the start. Screen 12 says a ship rolls in waves near its own roll frequency. Bilge keels add roll damping. It asks what happens to the roll there. One choice is a smaller peak, though resonance can still occur. Another is no resonance at all. The third is the same peak, with only the start-up wobble dying sooner. The answer is a smaller peak. This straight-line equation fits only small rolls. Each puzzle offers three answers.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): Time runs fast on the trace. Its 30 s plays in a few seconds. The trace always starts from rest at 0. Each dot is the settled swing worked out from the rule, not read off the trace. The spring, damper and circuit parts are ideal. The pull grows in step with the stretch, and the drag in step with the speed. Real springs can stiffen. A ship's roll is straight only at small angles. So big swings stray from this hill. The push is a pure cosine of fixed size. Real pushes, such as waves, mix many rates. The system has one way to swing. A real hull or frame has several, each with its own peak. The 1 H coil and 0.25 F capacitor are the spring's twin numbers. They are far bigger than most real parts.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Mass, in kg: 1 (assumed)
+- Stiffness, in N/m: 4 (assumed)
+- Push size F, in N: 1 (assumed)
+- Opening and lowest damping, in N·s/m: 0.5 (control)
+- Damping slider highest, in N·s/m: 6 (control)
+- Damping slider step, in N·s/m: 0.5 (control)
+- Opening drive frequency, in rad/s: 1 (control)
+- Drive slider lowest, in rad/s: 0.25 (control)
+- Drive slider highest, in rad/s: 4 (control)
+- Drive slider step, in rad/s: 0.25 (control)
+- Trace's last time, in s: 30 (assumed)
+- Trace's top position, in m: 1.2 (assumed)
+- Trace's lowest position, in m: -1.2 (assumed)
+- Graph's top swing, in m: 1.2 (assumed)
+- Envelope time constant 2m ÷ c, in s: 4 (computed)
+- Time to settle, five time constants, in s: 20 (computed)
+- Time constants waited, rule of thumb: 5 (assumed)
+- Transient left at 20 s, e^(−5), as a fraction: 0.0067 (computed)
+- Transient left at 20 s, under, in %: 1 (computed)
+- Wrong pick, its own ringing rate, in rad/s: 2 (computed)
+- Wrong pick, halfway rate, in rad/s: 1.5 (computed)
+- (k − mω²)² at 1 rad/s, in N²/m²: 9 (computed)
+- (cω)² at 1 rad/s, in N²/m²: 0.25 (computed)
+- Steady swing at 1 rad/s, in m: 0.329 (computed)
+- Spring arrow at 1 rad/s, in N: 1.32 (computed)
+- Mass arrow at 1 rad/s, in N: 0.33 (computed)
+- Damper arrow at 1 rad/s, in N: 0.16 (computed)
+- Natural frequency √(k ÷ m), in rad/s: 2 (computed)
+- Steady swing at 2 rad/s, F ÷ cω, in m: 1 (computed)
+- Spring and mass arrows at 2 rad/s, each, in N: 4 (computed)
+- Damper arrow at 2 rad/s, in N: 1 (computed)
+- Slow push swing F ÷ k, in m: 0.25 (computed)
+- mω² at 4 rad/s, in N/m: 16 (computed)
+- Steady swing at 4 rad/s, in m: 0.08 (computed)
+- Wrong pick, swing at 4 rad/s, in m: 2 (assumed)
+- Peak at damping 0.5, in m: 1.01 (computed)
+- Peak's frequency at damping 0.5, in rad/s: 1.97 (computed)
+- Peak at damping 1, in m: 0.52 (computed)
+- Peak's frequency at damping 1, in rad/s: 1.87 (computed)
+- Peak at damping 2, in m: 0.29 (computed)
+- Peak's frequency at damping 2, in rad/s: 1.41 (computed)
+- Damping where the hill goes, √(2mk), in N·s/m: 2.83 (computed)
+- First slider damping with no hill, in N·s/m: 3 (computed)
+- Critical damping 2√(mk), in N·s/m: 4 (computed)
+- Swing at slowest push, damping 6, in m: 0.24 (computed)
+- Loop coil, in H: 1 (assumed)
+- Loop resistor, in Ω: 0.5 (assumed)
+- Loop capacitor, 1 ÷ 4, in F: 0.25 (computed)
+- Loop supply, in V: 1 (assumed)
+- Loop charge swing at 2 rad/s, in C: 1 (computed)
+- Loop current swing at 2 rad/s, in A: 2 (computed)
+- Example supply, in V: 10 (assumed)
+- Example coil, in mH: 100 (assumed)
+- Example coil, in H: 0.1 (computed)
+- Example capacitor, in µF: 10 (assumed)
+- Example capacitor, in F: 0.00001 (computed)
+- Example resistor, in Ω: 40 (assumed)
+- Example natural frequency 1 ÷ √(LC), in rad/s: 1000 (computed)
+- Example natural frequency, in Hz: 159 (computed)
+- Example ωL and 1 ÷ ωC, each, in Ω: 100 (computed)
+- Example R², in Ω²: 1600 (computed)
+- Example 2L ÷ C, in Ω²: 20000 (computed)
+- Example current at resonance, in A: 0.25 (computed)
+- Example capacitor voltage, in V: 25 (computed)
+- Example capacitor voltage over supply: 2.5 (computed)
+- Wrong pick, 10 × 40 ÷ 100, in V: 4 (computed)
+- Doubled example resistor, in Ω: 80 (assumed)
+- Capacitor voltage with 80 Ω, in V: 12.5 (computed)
+- Unit-check start voltage, in V: 12 (assumed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: SVG text "every term is a force, in newtons" runs outside its drawing (bottom by 3px) (at the opening state, and 39 more settings) [at 340 px wide]
+- Text cut off: SVG text "every term is a force, in newtons" runs outside its drawing (bottom by 4px) (at the opening state, and 39 more settings) [at 720 and 1040 px wide]
+- Advice: SVG labels "offered: v = 12e" and "−RCt" are only 1 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 11, and 1 more setting)
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics (https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations): "The general solution is a sum of a transient solution that depends on initial conditions, and a steady state that is independent of initial conditions and depends only on the driving amplitude"
+[2] EN200 NAVAL ENGINEERING I — US Naval Academy (https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf): "You will recall that a SHM system will experience maximum amplitude oscillations when the frequency of the forcing function is equal to the natural frequency of the system."
+[3] EN200 NAVAL ENGINEERING I — US Naval Academy (https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf): "Resonance can still occur, however roll amplitude at resonance is reduced."
+[4] 15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics (https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations): "The resonance effect occurs only in the underdamped systems."
+[5] 15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax (https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit): "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/maths/differential-equations/i7.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

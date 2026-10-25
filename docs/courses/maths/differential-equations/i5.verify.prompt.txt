@@ -1,0 +1,420 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Differential equations, from cooling to resonance
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "The spring and the circuit: one equation" — A damped spring and series RLC circuit obey the same second-order equation, term for term: mass as inductance, damping as resistance, stiffness as 1 ÷ C. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Overdamped, critical and ringing — The roots of mr² + cr + k = 0 decide whether it creeps back, returns quickest without ringing, or rings inside a dying envelope.
+- i7 Pushing it: resonance, and reading a model — Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] P301 E5 — University of Illinois — https://courses.physics.illinois.edu/phys401/fa2018/Files/RLC/E5_TransientsInRLC_20120125_v2.pdf
+    "the mass behaves the same as an inductor, and the spring the same as an inverse capacitance."
+[R2] 6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics — https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit
+    "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+[R3] 15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit
+    "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+[R4] 19 19 — Loughborough University (HELM) — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf
+    "Newton’s law of cooling states that the rate of cooling of liquid is proportional to the difference between its temperature and the temperature of its environment (the ambient temperature)."
+[R5] ES.1803 S24: Reading: Topic 11: Numerical Methods for First-Order Differential Equations — MIT OpenCourseWare — https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf
+    "We know that the slope of the solution curve through (𝑥0, 𝑦0) is 𝑦 ′ = 𝑓(𝑥0, 𝑦0)."
+[R6] 19.2 — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/images/First_order_odes.pdf
+    "It is so-called because we rearrange the equation to be solved such that all terms involving the dependent variable appear on one side of the equation, and all terms involving the independent variable appear on the other."
+[R7] Decay constant | Definition, Formula, & Facts | Britannica — Encyclopaedia Britannica — https://www.britannica.com/science/decay-constant
+    "This shows that the population decays exponentially at a rate that depends on the decay constant."
+[R8] RC Circuits — Michigan State University — https://web.pa.msu.edu/courses/2000fall/phy232/lectures/rccircuits/rc.html
+    "This produces a characteristic time dependence that turns out to be exponential. The crucial parameter that describes the time dependence is the "time constant"
+[R9] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "In each successive time , the current falls to 0.368 of the preceding value"
+[R10] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+[R11] DOE-HDBK-1019/2-93; DOE Fundamentals Handbook Nuclear Physics and Reactor Theory Volume 2 of 2 — US Department of Energy — http://large.stanford.edu/courses/2013/ph241/waisberg1/docs/h1019v2.pdf
+    "The reactor period is defined as the time required for reactor power to change by a factor of "e," where "e" is the base of the natural logarithm and is equal to about 2.718."
+[R12] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+Notes (claims, and the sources that support them):
+- In an RLC circuit and a damped spring, the mass behaves the same as an inductor and the spring the same as an inverse capacitance. [R1]
+- An RLC circuit's free oscillations have three cases, all analogous to the cases of a damped spring-mass system. [R2]
+- A driven RLC series circuit is the electrical analog of the driven damped harmonic oscillator. [R3]
+- Newton's law of cooling gives the rate of cooling of a liquid as proportional to the difference between its temperature and its surroundings' temperature. [R4]  (from an idea this one builds on)
+- The slope of the solution curve through a point is set by the equation itself, as y′ = f(x, y) at that point. [R5]  (from an idea this one builds on)
+- Separation of variables rearranges the equation so every term in the unknown is on one side and every term in the independent variable is on the other. [R6]  (from an idea this one builds on)
+- Radioactive atoms decay exponentially, at a rate that depends on the decay constant. [R7]  (from an idea this one builds on)
+- In an RC circuit the charge and discharge are exponential in time, and the time constant RC sets the pace. [R8]  (from an idea this one builds on)
+- When a coil's supply is switched off, its current falls to 0.368 of the preceding value in each successive time constant. [R9]  (from an idea this one builds on)
+- An exponential never exactly reaches its final value, but covers 0.632 of what remains in every time constant. [R10]  (from an idea this one builds on)
+- Reactor period is the time for reactor power to change by a factor of e, so a reactor's power grows exponentially (added for i2: the plus-sign example). [R11]  (from an idea this one builds on)
+- A driven RLC series circuit is the electrical analog of a driven damped harmonic oscillator, so one family of ideas covers springs and circuits. [R3]  (whole topic)
+- The time constant of an RL circuit is L divided by R, and the current covers 0.632 of the remainder to its final value in every time constant. [R12][R10]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "The spring and the circuit: one equation",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the mass and the capacitor's charge tracing one curve, with their inertia, loss and store bars adding to zero, as you move the time marker along it.",
+  "title": "Spring and circuit, side by side",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "This is a short lesson in thirteen small screens. On the left, a 1 kg mass hangs on a spring, with a damper beside it. On the right, a 1 H coil, a 0.5 Ω resistor and a 0.25 F capacitor sit in one loop. Their values are picked so the numbers match. The damping is 0.5 N·s/m, and the stiffness is 4 N/m, which is 1 ÷ 0.25. Screen 1 shows the spring alone. The mass is lifted 0.5 m above its rest and let go. One arrow on it shows the spring's pull, and one the damper's drag. Beside it, a trace of its position against time draws itself. Position runs up the side, from −0.6 to 0.6 m, and time along the bottom, from 0 to 10 s. The mass moves only up and down, level with the trace's newest point. The rule m x″ + c x′ + k x = 0 sits under it. Screen 2 asks the mass's acceleration at the moment it is let go. The choices are 2 m/s² downward, none because it is still, or 2 m/s² upward. Screen 3 shows the circuit alone. The capacitor starts with 0.5 C on it, which is 2 V. The switch closes and current flows. The charge traces the same kind of curve. Its rule L q″ + R q′ + q ÷ C = 0 sits under it. Screen 4 asks which capacitor matches a stiffer spring. The choices are a smaller C, a bigger C, or the same C with more R. Screen 5 puts the two side by side over one trace. Three sliders each carry two names. Mass and L run from 0.5 to 2. Damping and R run from 0.25 to 1.25. Stiffness and 1 ÷ C run from 1 to 8. A readout gives C in farads. A Let go button releases both at once. The mass and the charge follow one curve, position in metres and charge in coulombs. On a phone the sliders stack. Screen 6 asks which way the mass moves while its trace runs across. The choices are only up and down, along the curve, or to the right. Screen 7 adds a time marker on the trace and three bars under it. They are inertia, m x″ or L q″; loss, c x′ or R q′; and store, k x or q ÷ C. They read in newtons or volts, from −2 to 2. Their sum shows 0 at every moment. At the release the bars read −2, 0 and 2. At 0.5 s they read −0.78, −0.37 and 1.15. Screen 8 shows the 0.5 s moment with the inertia bar hidden and asks what it reads. The choices are −0.78 N, 0.78 N or −1.52 N. Screen 9 lets the mass go twice from 0.5 m. Once it starts at rest, once with a push of 1 m/s downward. The two traces differ. Screen 10 starts the circuit with the capacitor empty and 0.8 A in the coil, and asks what happens. The choices are: the coil keeps the current flowing and charge builds on the capacitor; nothing, because the capacitor is empty; or the current stops at once. Screens 11 to 13 mix it all. Screen 11 gives a 2 H coil, a 3 Ω resistor and a 0.5 F capacitor and asks for the matching spring. The choices are 2 kg, 3 N·s/m and 2 N/m; 2 kg, 3 N·s/m and 0.5 N/m; or 0.5 kg, 3 N·s/m and 2 N/m. Screen 12 gives 2 x″ = −8 x − 0.6 x′ and asks which capacitor matches its spring. The choices are 0.125 F, 8 F or −0.125 F. Screen 13 shows the mass near 4.75 s, still for an instant at the bottom of a swing, with the store bar at −0.61 N. It asks what the other two bars read. The choices are loss 0 N and inertia 0.61 N; loss 0.61 N and inertia 0 N; or both −0.61 N. Each puzzle offers three answers.",
+  "ignores": "Time runs slowly here, and the parts are picked so the two sets of numbers match. A 1 H coil with a 0.25 F capacitor would be unusual. Circuits with everyday values swing far faster. The spring and damper are ideal. The pull grows in step with the distance from rest, and the drag in step with the speed. A spring stretched a long way, or a damper with dry friction, strays from that. The mass hangs, so gravity pulls on it too. Measuring from where it hangs at rest cancels gravity, so the rule is unchanged. The coil, resistor and capacitor are ideal too. A real coil's winding has resistance, which adds to R. Every setting here swings. Heavier damping can creep back without swinging, and the next lesson shows when.",
+  "numbers": [
+   {
+    "label": "Opening mass in kg, and coil in H",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Opening damping in N·s/m, and resistance in Ω",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Opening stiffness in N/m, and 1 ÷ C per farad",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Opening capacitance, 1 ÷ 4, in F",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Mass and L slider lowest, in kg or H",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Mass and L slider highest, in kg or H",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Damping and R slider lowest, in N·s/m or Ω",
+    "value": 0.25,
+    "kind": "control"
+   },
+   {
+    "label": "Damping and R slider highest, in N·s/m or Ω",
+    "value": 1.25,
+    "kind": "control"
+   },
+   {
+    "label": "Stiffness and 1 ÷ C slider lowest, in N/m or per F",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Stiffness and 1 ÷ C slider highest, in N/m or per F",
+    "value": 8,
+    "kind": "control"
+   },
+   {
+    "label": "Lift at release, in m",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor's starting charge, in C",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Capacitor's starting voltage, 0.5 ÷ 0.25, in V",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Plot's top position, in m",
+    "value": 0.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plot's lowest position, in m",
+    "value": -0.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plot's last time, in s",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Store term at release, 4 × 0.5, in N",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Loss term at release, in N",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Inertia term at release, in N",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Acceleration at release, −2 ÷ 1, in m/s²",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Bars' top reading, in N or V",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bars' lowest reading, in N or V",
+    "value": -2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Marked moment, in s",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Store term at 0.5 s, in N",
+    "value": 1.15,
+    "kind": "computed"
+   },
+   {
+    "label": "Loss term at 0.5 s, in N",
+    "value": -0.37,
+    "kind": "computed"
+   },
+   {
+    "label": "Inertia term at 0.5 s, in N",
+    "value": -0.78,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, sign lost, in N",
+    "value": 0.78,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, −(1.15 + 0.37), in N",
+    "value": -1.52,
+    "kind": "computed"
+   },
+   {
+    "label": "Downward push at the second release, in m/s",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coil's starting current, screen 10, in A",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 coil, in H",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 resistor, in Ω",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 capacitor, in F",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 stiffness, 1 ÷ 0.5, in N/m",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 mass, in kg",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 stiffness, in N/m",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 damping, in N·s/m",
+    "value": 0.6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 matching capacitor, 1 ÷ 8, in F",
+    "value": 0.125,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, sign kept, in F",
+    "value": -0.125,
+    "kind": "computed"
+   },
+   {
+    "label": "Bottom of a swing, near, in s",
+    "value": 4.75,
+    "kind": "computed"
+   },
+   {
+    "label": "Store term there, in N",
+    "value": -0.61,
+    "kind": "computed"
+   },
+   {
+    "label": "Inertia term there, in N",
+    "value": 0.61,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice coil, in mH",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice coil, in H",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice resistor, in Ω",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice capacitor, in µF",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice capacitor, in F",
+    "value": 0.0001,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice 1 ÷ C, per farad",
+    "value": 10000,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice starting voltage, in V",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice starting charge, 0.0001 × 12, in C",
+    "value": 0.0012,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice coil's term at the start, in V",
+    "value": -12,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice current's starting rate, −12 ÷ 0.01, in A/s",
+    "value": -1200,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A mass on a spring with a damper obeys the same rule as a coil, resistor and capacitor in one loop. Write out each equation and they match term for term. The mass plays the coil, the damper plays the resistor, and the spring plays 1 ÷ C.[^1] So in this model, any result for one gives the matching result for the other.\n\nStart with the spring. Here x is the distance from rest, x′ the speed and x″ the acceleration. Take an ideal spring. It pulls back towards rest in proportion to x, so its force is −k x. Take an ideal damper. It drags against the motion in proportion to the speed, so its force is −c x′. Newton's second law says mass × acceleration = the force on it. So m x″ = −k x − c x′. Move it all to one side and m x″ + c x′ + k x = 0. Its highest derivative is the second, x″. That makes it a [[second-order]] differential equation. Its c is the [[damping]] and its k the [[stiffness]].\n\nNow the circuit. Say the capacitor is charged and the loop then closed. With no supply, the volts round the loop add to zero. The coil drops L di/dt, the resistor R i and the capacitor q ÷ C. The current is the rate the charge moves, so i = q′ and di/dt = q″. That gives L q″ + R q′ + q ÷ C = 0. Charge plays position, and current plays speed. L sits where m sits, R where c sits, and 1 ÷ C where k sits. So a stiffer spring matches a smaller capacitor. A smaller C gives more volts for the same charge, so it pushes back harder.\n\nEach term has a job. The first is inertia: the mass, or the coil, resisting a change in motion. The second is loss: the damper, or the resistor, turning energy into heat. The third is the store: the spring, or the capacitor, holding energy and pushing back. Each is in newtons for the spring and volts for the circuit. They add to zero at every moment, because that sum is the equation itself, read at one instant. Say the mass is lifted 0.5 m, with a stiffness of 4 N/m, and let go. It is still, so the loss is 0. The store is 4 × 0.5 = 2 N, so the inertia term is −2 N. With 1 kg, the mass accelerates downward at 2 m/s², though its speed is zero.\n\nThe rule gives the acceleration, so a start needs two values. Stepping it as Euler's method does, the acceleration updates the speed and the speed updates the position. So you need where it starts and how fast it is going. In the circuit, that is the capacitor's charge and the coil's current. A coil carrying 0.8 A into an empty capacitor does not sit still. It keeps the current flowing, so charge builds on the capacitor. And the time graph is not the mass's path. The mass only moves up and down. The trace runs across because time does.\n\nBecause the equations match, a circuit's free swings come in the same three kinds as a spring's.[^2] The next lesson sorts them. This is a simplified model with ideal parts. A spring stretched a long way, or an iron-cored coil driven towards saturation, strays from it.\n\n**A damped spring and a series RLC circuit obey one second-order equation, term for term: mass as inductance, damping as resistance and stiffness as 1 ÷ C.[^1]**"
+ },
+ "analogy": {
+  "text": "A coil acts like a flywheel. It keeps its current going, as a flywheel keeps turning, and fights a change. A capacitor acts like a spring. The more charge you pack in, the harder it pushes back. A resistor acts like a brake that warms up. Couple a flywheel to a shaft that twists like a spring, add a brake, and it swings back and forth as the loop does.",
+  "breaks": "A capacitor matches the spring's give, not its stiffness. So a bigger capacitor is a softer spring. And each part follows its straight rule only within limits. A spring twisted too far, or an iron-cored coil driven into saturation, no longer does."
+ },
+ "practice": {
+  "text": "- Find the three parts. One carries the motion on: a mass or a coil. One loses energy: a damper or a resistor. One stores it and pushes back: a spring or a capacitor.\n- Put every value in base units first: kilograms, henries, ohms and farads.\n- Write each part's term. For a spring, m x″, c x′ and k x, in newtons. For a circuit, L q″, R q′ and q ÷ C, in volts.\n- Put all three on one side, equal to zero.\n- To swap between them, use m for L, c for R and k for 1 ÷ C. Position goes with charge, and speed with current.\n- Give two starting values: position and speed, or charge and current.\n- Check the start. If the speed is zero, the inertia term is minus the store term.\n\n**Rules of thumb:** a stiffer spring is a smaller capacitor. A heavier mass is a bigger coil. More damping is more resistance.\n\n**Worked example:** a 10 mH coil, a 2 Ω resistor and a 100 µF capacitor sit in one loop. The capacitor starts at 12 V with no current. In base units the coil is 0.01 H and the capacitor 0.0001 F, so 1 ÷ C = 10000. The equation is 0.01 q″ + 2 q′ + 10000 q = 0. The starting charge is CV = 0.0001 × 12 = 0.0012 C. At the start the current is zero, so the resistor's term is 0 V. The capacitor's term is 12 V. So the coil's term is −12 V. The current starts at 0 A and changes at −12 ÷ 0.01 = −1200 A a second. The minus means the charge is leaving the capacitor. The matching spring has a 0.01 kg mass, damping of 2 N·s/m and a stiffness of 10000 N/m.\n\n**Common mistakes**\n- Matching the spring to C. It matches 1 ÷ C.\n- Giving only one starting value. A second-order equation needs two.\n- Reading the time graph as the mass's path.\n- Losing a sign moving terms across. m x″ = −k x − c x′ becomes m x″ + c x′ + k x = 0.\n- Mixing mH or µF with H or F."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "P301 E5 — University of Illinois",
+   "url": "https://courses.physics.illinois.edu/phys401/fa2018/Files/RLC/E5_TransientsInRLC_20120125_v2.pdf",
+   "quote": "the mass behaves the same as an inductor, and the spring the same as an inverse capacitance."
+  },
+  {
+   "n": 2,
+   "title": "6.3: The RLC Circuit - Mathematics LibreTexts — LibreTexts Mathematics",
+   "url": "https://math.libretexts.org/Bookshelves/Differential_Equations/Elementary_Differential_Equations_with_Boundary_Value_Problems_(Trench)/06%3A_Applications_of_Linear_Second_Order_Equations/6.03%3A_The_RLC_Circuit",
+   "quote": "There are three cases to consider, all analogous to the cases considered in Section 6.2 for free vibrations of a damped spring-mass system."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

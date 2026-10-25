@@ -1,0 +1,230 @@
+{
+  "iid": "i1",
+  "title": "A rule for change",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a curve that follows the arrows down from 80 °C and levels off towards the flat room line. It appears when you drop a start on the slope field.",
+    "title": "The rule drawn as arrows",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on one grid. Temperature in °C runs up the side, from 0 to 100. Time in minutes runs along the bottom, from 0 to 40. A hot part sits in a room at 20 °C. Its rule is dT/dt = −0.1 × (T − 20). Its rate of cooling is a tenth of its gap, in °C a minute. So at 80 °C it is falling at 6 °C a minute. A probe shows a short arrow with the rule's slope at its point, and a readout in °C a minute. The arrow is steep down when the part is hot. It is flat at 20 °C and points up below it, because the slope follows the gap. Each arrow the probe leaves stays on the grid, and Show all fills in the rest. A start dropped on the grid draws its curve by following the arrows from there. A room slider moves the flat line at the room's temperature. Every curve heads for that line. Try a curve lays a straight line on the field, starting at 80 °C and falling 6 °C a minute. It is marked red wherever its slope and the rule's disagree. On that screen a tap lays a straight line of your own from 80 °C, marked the same way. A switch swaps in a second rule, dy/dt = 2t, on its own grid from t = −3 to 3. Its arrows depend on time only, and its curves are parabolas. Screen by screen: 1 shows the rule and the arrow at 80 °C. 2 asks what −6 °C a minute is. 3 fills in the field. 4 asks for the arrow at 35 °C. 5 drops starts at 80, 50 and 10 °C. 6 asks whether the solution is a number or a curve. 7 shows the flat steady line and the room slider. 8 asks for the steady state in a 30 °C room. 9 tries the straight line and lets you lay your own. 10 asks whether it is a solution. 11 swaps in dy/dt = 2t. 12 and 13 mix it all. 12 asks which curve solves dy/dt = 2t: y = t² + 4, y = 2t or the flat y = 3. 13 asks which way a part at 15 °C in the 20 °C room goes. Each puzzle offers three answers. A wrong pick is drawn on the grid so you can see where it fails.",
+    "ignores": "The curves are drawn at once, not in real time. Each curve closes in on the room line but never quite reaches it. On the grid it looks as if it touches. The part is treated as having one temperature. A real part is hotter inside than at its surface. The figure 0.1 per minute is an example. A real part's figure depends on its size, its metal and the air around it. The rule holds best for a modest gap to the room. A very hot part cools faster than it says. The second rule, dy/dt = 2t, is an example with no units.",
+    "numbers": [
+      {
+        "label": "Grid's top temperature, in °C",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid's last time, in minutes",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example room temperature, in °C, screens 1 to 6",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example part's start temperature, in °C",
+        "value": 80,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example cooling figure k, per minute",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Gap to the room at 80 °C, in °C",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Rate at 80 °C, −0.1 × 60, in °C a minute, screen 1",
+        "value": -6,
+        "kind": "computed"
+      },
+      {
+        "label": "Rate at 50 °C, −0.1 × 30, in °C a minute, screen 3",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Rate at 20 °C, in °C a minute, screen 3",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example temperature below the room, in °C, screen 3",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rate at 10 °C, −0.1 × (−10), in °C a minute, screen 3",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Probe at 35 °C, screen 4",
+        "value": 35,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rate at 35 °C, −0.1 × 15, in °C a minute, screen 4",
+        "value": -1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick −0.1 × 35, gap not used, screen 4",
+        "value": -3.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick with the sign lost, screen 4",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Room slider lowest, in °C",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Room slider highest, in °C",
+        "value": 40,
+        "kind": "control"
+      },
+      {
+        "label": "Room slider's step, in °C",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Example room temperature in screens 7 and 8, in °C",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Straight line from 80 °C reaches 50 °C at 5 minutes, screen 9",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Straight line reaches 20 °C at 10 minutes, screen 9",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Second rule's grid runs from t = −3 to 3, screen 11",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example time t = 2 for the second rule, screen 11",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rule's slope 2t at t = 2, screen 11",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example parabola y = t² + 4, screen 12",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example flat line y = 3, screen 12",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example part at 15 °C in the 20 °C room, screen 13",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its rate, −0.1 × (−5), in °C a minute, screen 13",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick −0.1 × 15, gap not used, screen 13",
+        "value": -1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example part at 70 °C, in °C",
+        "value": 70,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example room at 25 °C, in °C",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example cooling figure, per minute",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example start rate, −0.2 × 45, in °C a minute",
+        "value": -9,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example rate at 40 °C, −0.2 × 15, in °C a minute",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Straight line falling 9 °C a minute reaches 40 °C near 3.3 minutes",
+        "value": 3.3,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A [[differential equation]] is a rule that ties how fast something changes to the thing itself, and sometimes to time. So its answer is not a number. It is a whole curve: the value at every moment. You have used a rate already. i = C dv/dt ties a capacitor's current to how fast its voltage changes. Cooling is a rate too. Newton's law of cooling says a liquid cools at a rate proportional to the difference between its temperature and the room's.[^1] A small hot part in still air cools in about the same way. Write T for the part's temperature in °C. Write t for the time in minutes. The rule is dT/dt = −k(T − T_room). Here k says how quickly this part sheds heat, say 0.1 per minute. The minus sign makes the temperature fall when the part is above the room. dT/dt is a rate in °C a minute, not an amount of change. Take a part at 80 °C in a 20 °C room. The gap is 60 °C, so the part is falling at 0.1 × 60 = 6 °C a minute. This is called a first-order equation, because the highest rate in it is dT/dt itself.\n\nAt every time and temperature, the rule gives the slope a solution curve must have there.[^2] Draw that slope as a short arrow at each point. The result is a [[slope field]]. Here the slope depends only on the gap, so all the arrows at one height match. They point steeply down when the part is hot and flatten near the room. They are flat at 20 °C and point up below it. At 50 °C the gap is 30 °C, so the slope is −3 °C a minute. A solution is a curve that follows the arrows everywhere. Start at 80 °C and the curve falls steeply, then levels off towards the room. It levels off because the gap shrinks as the part cools. The rate shrinks with the gap. A start at 50 °C gives a different curve under the same arrows. So the rule fixes the slopes, and a starting value picks one curve. That is how a start fixed the + c when you integrated.\n\nAt 20 °C the gap is zero, so the rate is zero. The flat line T = 20 °C has a slope of zero, and the rule asks for zero all along it. So it is a solution, called a [[steady state]]. Under this rule, a part that starts at room temperature stays there. The steady state is a curve that never changes, not just a number. To check a candidate, compare its slope with the rule's at every point. Try a straight line from 80 °C falling 6 °C a minute. It matches at the start. At 50 °C it still falls 6, but the rule wants 3. So it is not a solution. A rule can depend on time instead. The rule dy/dt = 2t has flat arrows all down t = 0. Yet no flat line solves it, because at t = 2 the rule wants a slope of 4. The parabolas y = t² + c are solutions, because the slope of t² + c is 2t at every t. A coil's current settling and a circuit ringing are both curves set by rules like these. Reading the arrows is the first step to telling them apart. Newton's rule is a simplified model. A real part cools less evenly than it says, and faster still when very hot.\n\n**A first-order differential equation gives the slope at every point.[^2] So its solution is a whole curve that matches that slope everywhere, and a starting value picks which curve.**"
+  },
+  "analogy": {
+    "text": "Drop a float in a tideway and it drifts with the current. A tidal chart gives only an arrow at each spot. Yet the float's track follows those arrows all the way. Drop it somewhere else and it draws a different track under the same arrows. A slope field works the same way. The rule gives an arrow at each point, and a start picks the curve.",
+    "breaks": "A tide's arrows are a velocity across a map. They can point any way, and they change hour by hour. A slope field's arrows are only a slope on a grid of temperature against time. Time always moves on to the right. So a solution curve never doubles back the way a float can."
+  },
+  "practice": {
+    "text": "- Name the unknown and what it changes with. Here it is the temperature T against the time t.\n- Read the units of the rate. dT/dt is in °C a minute, the rate at that moment.\n- Find any steady state. When the rate depends only on the quantity, set it to zero and solve. Each answer is a flat line, and a solution.\n- Work out the slope at a few points and sketch the arrows. For cooling, they point down above the room and up below it.\n- To check a candidate, compare its slope with the rule's at several points, not just one.\n\n**Rule of thumb:** The rule gives the slope. The start picks the curve.\n\n**Worked example:** A part at 70 °C sits in a 25 °C room, with k = 0.2 per minute. Its starting rate is −0.2 × 45 = −9 °C a minute. At 40 °C the gap is 15 °C, so the rate is −0.2 × 15 = −3 °C a minute. The steady state is the flat line T = 25 °C. Now try a straight line falling 9 °C a minute. It reaches 40 °C near 3.3 minutes. There it still falls 9, while the rule wants 3. So it is not a solution.\n\n**Common mistakes**\n- Giving a number as the answer. The answer is the curve: the temperature at every moment.\n- Reading dT/dt as an amount. −6 °C a minute is how fast it is falling now, not the total drop.\n- Treating the steady state as just a number. It is a flat curve, a solution like any other.\n- Calling any place with flat arrows a steady state. For dy/dt = 2t the arrows are flat only at t = 0. No flat line solves it.\n- Checking a candidate at one point. It must match the rule everywhere.\n- Taking the rule for the answer. y = 2t has slope 2, not 2t. So it does not solve dy/dt = 2t."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "19 19 — Loughborough University (HELM)",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf",
+      "quote": "Newton’s law of cooling states that the rate of cooling of liquid is proportional to the difference between its temperature and the temperature of its environment (the ambient temperature)."
+    },
+    {
+      "n": 2,
+      "title": "ES.1803 S24: Reading: Topic 11: Numerical Methods for First-Order Differential Equations — MIT OpenCourseWare",
+      "url": "https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf",
+      "quote": "We know that the slope of the solution curve through (𝑥0, 𝑦0) is 𝑦 ′ = 𝑓(𝑥0, 𝑦0)."
+    }
+  ]
+}

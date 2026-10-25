@@ -1,0 +1,556 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T10:54:27.882Z",
+ "startedAt": "2026-10-25T10:54:27.882Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Decay: separate and integrate",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is end ÷ start holding at 0.607 while both end voltages fall, when you drag a 1 s window along the discharge curve.",
+   "title": "Equal times, equal fractions",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "This is a short lesson in thirteen small screens, all on one plot. A capacitor C, charged to 12 V, discharges through a resistor R. The circuit is drawn small beside the plot. Voltage runs up the side, from 0 to 12 V. Time runs along the bottom, from 0 to 10 s. The parts start at R = 20 kΩ and C = 100 µF. So RC = 2 s. The current leaving the capacitor is v ÷ R. That current drains it, so C dv/dt = −v ÷ R. The rule is dv/dt = −v ÷ RC. So the voltage falls at a rate in proportion to what is left. It falls 6 V a second at 12 V, and 3 V a second at 6 V. A shaded window of fixed width sits on the curve. Readouts show the voltage at its start, the voltage at its end, and end ÷ start. A rate arrow at each end of the window shows the rule's slope there, −v ÷ RC. So the end arrow is always shallower than the start arrow by the same ratio. Because the rate is always the same share of the voltage, every window of one width keeps the same share. A 1 s window reads e^(−1/2), which is 0.607. A switch flips the sign to dy/dt = +y ÷ 2. That curve starts from 1 and runs over 0 to 4 s on its own scale. Then a 1 s window multiplies by 1.649 wherever it sits. On a phone the three readouts wrap onto two lines. Here is each screen in turn. Screen 1 shows the circuit and the rule, with rate arrows on the curve at 12 V and 6 V. Screen 2 asks the rate at 3 V. The choices are −1.5 V a second, −6 V a second or +1.5 V a second. Screen 3 lets you drag the 1 s window. Wherever it sits, end ÷ start reads 0.607, from 12 V to 7.28 V or from 2.68 V to 1.62 V. The sign switch shows growth by 1.649 in every 1 s. That is e^(1/2), so every 2 s multiplies by e. Screen 4 puts the window at 6 s, a place screen 3 never shows, and asks what end ÷ start reads. It could be the same 0.607, smaller because it is nearer zero, or larger because the curve is flatter. Screen 5 separates the rule. Dividing by v gives (1 ÷ v) dv/dt = −1 ÷ RC, to be integrated over t. Then the v terms slide to the left side and the t terms to the right. That gives dv ÷ v = −dt ÷ RC, its short form. Screen 6 asks which line separates dN/dt = −λN. The choices are dN ÷ N = −λ dt, dN = −λN dt, or N dN = −λ dt. Screen 7 integrates both sides to ln v = −t ÷ RC + c. Then v = e^(−t/RC + c), which is e^c × e^(−t/RC), or A e^(−t/RC). A family of curves for different A fans out. The start at 12 V picks one, v = 12 e^(−t/2). Screen 8 asks which curve starts at 9 V with τ = 3 s. The choices are v = 9 e^(−t/3), v = e^(−t/3) or v = 9 e^(−3t). A wrong pick is drawn so you can see its start or its pace is wrong. Screen 9 puts the answer back into the rule. A rider slides along 12 e^(−t/2). It carries two readouts, the curve's slope and −v ÷ 2. They agree everywhere. At 2 s both read −2.21 V a second. Screen 10 asks which rule y = 5 e^(−2t) solves. The choices are dy/dt = −2y, dy/dt = −y ÷ 2 or dy/dt = −10. Screen 11 makes the window one RC wide. End ÷ start then reads 0.368. Putting t = RC into 12 e^(−t/RC) gives 12 e^(−1), and e^(−1) is 0.368. A straight tangent leaves the start at the starting rate, −6 V a second. It reaches zero at 2 s. The curve is still at 4.41 V there. Then R and C sliders appear. R runs from 10 to 40 kΩ, and C from 50 to 150 µF. They stretch the curve, the tangent and the window together. So the window still reads 0.368, and the tangent still lands at one RC. Screens 12 and 13 mix it all. Screen 12 takes a coil of 0.5 H carrying 2.4 A. Its current dies round a loop through 10 Ω. It asks the current after 0.05 s. The choices are 0.883 A, 0 A or 1.52 A. Screen 13 takes dy/dt = +y ÷ 5 from 100 and asks the value after 5 s. The choices are about 272, 200 or 36.8. A reactor's power grows this way. Each puzzle offers three answers.",
+   "ignores": "The parts are ideal. A real capacitor leaks a little through itself. A real resistor warms and changes slightly. The curve is drawn at once, not in real time. Near 10 s it looks as if it touches zero. By this rule it never quite does. The voltages, resistances and capacitances are example values. The growth switch has no units. No real quantity can grow this way for ever.",
+   "numbers": [
+    {
+     "label": "Example start voltage, in V",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Plot's last time, in seconds",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening resistance R, in kΩ",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Opening capacitance C, in µF",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "R slider lowest, in kΩ, screen 11",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "R slider highest, in kΩ, screen 11",
+     "value": 40,
+     "kind": "control"
+    },
+    {
+     "label": "R slider's step, in kΩ, screen 11",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "C slider lowest, in µF, screen 11",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "C slider highest, in µF, screen 11",
+     "value": 150,
+     "kind": "control"
+    },
+    {
+     "label": "C slider's step, in µF, screen 11",
+     "value": 25,
+     "kind": "control"
+    },
+    {
+     "label": "RC, 20 kΩ × 100 µF, in seconds",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Shortest RC, 10 kΩ × 50 µF, in seconds",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Longest RC, 40 kΩ × 150 µF, in seconds",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Rate at 12 V, −12 ÷ 2, in V a second",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Example voltage, in V, screen 1",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rate at 6 V, −6 ÷ 2, in V a second",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example voltage, in V, screen 2",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rate at 3 V, −3 ÷ 2, in V a second",
+     "value": -1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick −3 × 2, RC used upside down, screen 2",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick with the sign lost, screen 2",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Window width, in seconds, screens 3 and 4",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "End ÷ start over 1 s, e^(−1/2)",
+     "value": 0.607,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage at 1 s, 12 × 0.607, in V",
+     "value": 7.28,
+     "kind": "computed"
+    },
+    {
+     "label": "Window's start in screen 4, in seconds",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage at 3 s, 12 e^(−1.5), in V",
+     "value": 2.68,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage at 4 s, 12 e^(−2), in V",
+     "value": 1.62,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage at 6 s, 12 e^(−3), in V",
+     "value": 0.597,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage at 7 s, 12 e^(−3.5), in V",
+     "value": 0.362,
+     "kind": "computed"
+    },
+    {
+     "label": "Growth example's start value, no units, screen 3",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Growth example's last time, in seconds, screen 3",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Growth over 1 s, e^(1/2)",
+     "value": 1.649,
+     "kind": "computed"
+    },
+    {
+     "label": "Example start voltage, in V, screen 8",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example time constant, in seconds, screen 8",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Wrong pick e^(−t/3) starts at, in V, screen 8",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Rider's time, in seconds, screen 9",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage at 2 s, 12 e^(−1), in V",
+     "value": 4.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Slope at 2 s, −4.41 ÷ 2, in V a second",
+     "value": -2.21,
+     "kind": "computed"
+    },
+    {
+     "label": "Example start value 5, screen 10",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example k, per second, screen 10",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its starting slope, −2 × 5, screen 10",
+     "value": -10,
+     "kind": "computed"
+    },
+    {
+     "label": "Its time constant, 1 ÷ 2, in seconds, screen 10",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Fraction kept in each time constant, e^(−1)",
+     "value": 0.368,
+     "kind": "computed"
+    },
+    {
+     "label": "Fraction lost in each time constant, 1 − 0.368",
+     "value": 0.632,
+     "kind": "computed"
+    },
+    {
+     "label": "Tangent from 12 V at −6 V a second hits zero, s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example coil inductance L, in H, screen 12",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example loop resistance, in Ω, screen 12",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example coil current at the start, in A, screen 12",
+     "value": 2.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil's time constant, 0.5 ÷ 10, in seconds",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Current after one time constant, 2.4 × 0.368, in A",
+     "value": 0.883,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick 2.4 × 0.632, in A, screen 12",
+     "value": 1.52,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, time constant read as time to empty, A",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Growth example's start value, screen 13",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Growth example's time constant, in seconds, screen 13",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its starting rate, 100 ÷ 5, a second",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Value after 5 s, 100 × e, about",
+     "value": 272,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, starting rate kept for 5 s",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick with the sign not flipped, 100 × 0.368",
+     "value": 36.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example start voltage, in V",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example resistance, in kΩ",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example capacitance, in µF",
+     "value": 470,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example time constant, in seconds",
+     "value": 4.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example starting rate, −20 ÷ 4.7, in V a second",
+     "value": -4.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example voltage after 4.7 s, 20 × 0.368, in V",
+     "value": 7.36,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example two time constants, in seconds",
+     "value": 9.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example voltage after 9.4 s, 20 e^(−2), in V",
+     "value": 2.71,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "When a quantity falls at a rate in proportion to what is left, it loses the same fraction in every equal stretch of time. Its curve is y = A e^(−t/τ). The rule itself leads you there. Take a capacitor charged to v volts, discharging through a resistor R. By Ohm's law the current leaving it is v ÷ R. You already know i = C dv/dt. That current drains the capacitor, so C dv/dt = −v ÷ R. Divide both sides by C to get the rule, dv/dt = −v ÷ RC. Say R = 20 kΩ and C = 100 µF. Then RC = 2 s. At 12 V the voltage falls at 6 V a second. At 6 V it falls at 3 V a second. Half the voltage gives half the rate. A coil's current falls the same way. It dies through a resistor once its supply is taken away. Radioactive atoms decay exponentially too. Their rate depends on their decay constant.\n\nThat proportion is why equal times take equal fractions. The rate is always the same share of the voltage. So each second takes the same share, whatever the voltage is. Here each second keeps 0.607 of the voltage. It goes from 12 V down to 7.28 V, or from 2.68 V down to 1.62 V. The flat line v = 0 is this rule's steady state. Each second keeps a fraction of what is left. So the curve closes in on that line but never quite gets there.[^1] Flip the sign to dy/dt = +y ÷ τ, and the same reasoning gives growth. Each equal time then multiplies the amount by the same factor. In each τ that factor is e. A reactor's power grows this way. Its period is the time the power takes to change by a factor of e.[^2]\n\nTo find the curve, [[separate the variables]]. Gather every v on one side and every t on the other. Divide both sides of the rule by v. That gives (1 ÷ v) dv/dt = −1 ÷ RC. It is usually written dv ÷ v = −dt ÷ RC. That is shorthand for integrating both sides over time. It does not mean cancelling the d's. Not every rule splits like this, but this one does. For a positive v, the slope of ln v is 1 ÷ v. So integrating 1 ÷ v gives ln v. Integrating the constant −1 ÷ RC gives −t ÷ RC. Each side brings its own constant. The two join into one + c. So ln v = −t ÷ RC + c. Raising e to a power undoes ln. So v = e^(−t/RC + c). A power of a sum splits into a product. So v = e^c × e^(−t/RC). Call e^c a single letter, A. At t = 0, e^0 = 1, so v = A. So A is the start voltage. Here v = 12 e^(−t/2). Write τ for RC, and the answer is y = A e^(−t/τ). Now put it back to check. The slope of e^(kt) is k times e^(kt). Here k is −1 ÷ τ. So the slope is −y ÷ τ at every t. That is the rule you started from.\n\nτ is the [[time constant]]. You can read it two ways. First, after each τ the amount is e^(−1) of what it was. That is 0.368. A coil's current falls to 0.368 of the preceding value in each time constant.[^3] Second, take the starting slope, −A ÷ τ. A straight line at that slope would reach zero at exactly one τ. By then the curve is only down to 0.368 of its start. For a capacitor τ = RC, in seconds. For a coil τ = L ÷ R.[^4]\n\n**A rate in proportion to what is left separates and integrates to y = A e^(−t/τ). A is the start and τ is the time constant. In every τ it loses 0.632 of what remains.[^1]**"
+  },
+  "analogy": {
+   "text": "Send a signal down a long cable. Each kilometre keeps the same fraction of its power. That is why a cable's loss is quoted in decibels per kilometre. Equal lengths take equal fractions, just as equal times do here. Double the length and the fraction kept is squared. So the loss in decibels doubles.",
+   "breaks": "The cable's loss runs over distance, not time. Nothing in it is stored and let go. Its loss per kilometre also changes with frequency. So a sharp pulse spreads out as it travels. A discharge has one rate, so its curve keeps one shape."
+  },
+  "practice": {
+   "text": "**Safe way first:** by this rule, a capacitor's voltage never quite reaches zero. Prove it dead with an approved tester before you touch it.\n\n- Check the rate is in proportion to the amount. Write it as dy/dt = −y ÷ τ.\n- Separate. Put every y on the left and every t on the right. That gives dy ÷ y = −dt ÷ τ.\n- Integrate both sides, with one + c. That gives ln y = −t ÷ τ + c.\n- Undo the ln to get y = A e^(−t/τ).\n- Use the start value. A is the amount at t = 0.\n- Put it back to check. The slope of A e^(−t/τ) is −1 ÷ τ times itself. So both sides agree.\n- Check the units. τ must come out in seconds.\n\n**Rule of thumb:** each τ keeps 0.368 of what was there. A tangent at the starting rate reaches zero at one τ.\n\n**Worked example:** a 470 µF capacitor at 20 V discharges through 10 kΩ. τ = RC = 10 kΩ × 470 µF = 4.7 s. So v = 20 e^(−t/4.7). Its starting rate is −20 ÷ 4.7 = −4.26 V a second. After 4.7 s it is at 20 × 0.368 = 7.36 V. After 9.4 s it is at 20 e^(−2) = 2.71 V.\n\n**Common mistakes**\n- Separating wrongly. dN = −λN dt still has N on both sides. Divide by N first.\n- Leaving out the + c. Then A is 1. The curve starts at 1 instead of at its start value.\n- Turning τ upside down. y = 5 e^(−2t) has τ = 0.5 s, not 2 s.\n- Reading τ as the time to empty. After one τ, 0.368 of the start is still there.\n- Holding on to the starting rate. The rate shrinks with the amount. So the fall slows."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "23.10 RL Circuits - College Physics 2e | OpenStax",
+    "url": "https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits",
+    "quote": "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+   },
+   {
+    "n": 2,
+    "title": "DOE-HDBK-1019/2-93; DOE Fundamentals Handbook Nuclear Physics and Reactor Theory Volume 2 of 2 — US Department of Energy",
+    "url": "http://large.stanford.edu/courses/2013/ph241/waisberg1/docs/h1019v2.pdf",
+    "quote": "The reactor period is defined as the time required for reactor power to change by a factor of \"e,\" where \"e\" is the base of the natural logarithm and is equal to about 2.718."
+   },
+   {
+    "n": 3,
+    "title": "23.10 RL Circuits - College Physics 2e | OpenStax",
+    "url": "https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits",
+    "quote": "In each successive time , the current falls to 0.368 of the preceding value"
+   },
+   {
+    "n": 4,
+    "title": "RL Circuits | Physics — Lumen Learning",
+    "url": "https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits",
+    "quote": "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }\n  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */\n  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .eqn { font: 400 22px var(--k-font); fill: var(--k-ink); }\n  .scene .eqn.ev { fill: var(--k-accent2); font-weight: 700; }\n  .scene .eqn.et { fill: var(--k-accent); font-weight: 700; }\n  .scene .eqn.bad { fill: var(--k-warn); font-weight: 700; }\n  .scene .eq2 { font: 400 17px var(--k-font); fill: var(--k-ink); }\n  .scene .sup { font-size: 12.5px; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.main { fill: var(--k-accent2); }\n  .scene .lab.acc { fill: var(--k-accent); }\n  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }\n  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .nt { font: 400 14px var(--k-font); fill: var(--k-muted); }\n  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .v { font-style: italic; }\n  /* Curves: the one being talked about in navy, other starts muted, a mistake in the warning colour. */\n  .scene .sol { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .fam { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }\n  .scene .pa { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .tan { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .scene .sol.bad, .scene .pa.bad, .scene .tan.bad { stroke: var(--k-warn); }\n  /* The window: a band along the time axis, a bar up to the curve at each end. */\n  .scene .bar { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .band { fill: var(--k-accent2); fill-opacity: .22; stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .bar.ghost { stroke: var(--k-muted); }\n  .scene .band.ghost { fill: var(--k-muted); stroke: var(--k-muted); }\n  .scene .mk { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot.fam { fill: var(--k-muted); }\n  .scene .dot.bad { fill: var(--k-warn); }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }\n  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }\n  /* The circuit, drawn small in a corner of the plot. */\n  .scene .inset { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.2; }\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .plate { stroke: var(--k-ink); stroke-width: 3; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }\n  /* The R and C sliders: a track, a tick at each setting, and a knob. */\n  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }\n  .scene .stk { stroke: var(--k-strong); stroke-width: 2; }\n  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene #art *, .scene #top * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  /* Three readings that wrap to two lines on a phone. */\n  .reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }\n  .reads .rd { background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 12px; }\n  .reads .rd .k-label { display: block; white-space: nowrap; }\n  .reads .rd b { display: block; font-size: 1.3rem; white-space: nowrap; margin-top: 2px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  .switch { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; }\n  .switch .k-btn { min-height: 44px; white-space: nowrap; }\n  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"], .switch .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Rules whose rate is in proportion to the amount, and the curves they give. Every value is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"top\"></g><g id=\"ui\"></g></svg>\n    <div class=\"reads\" id=\"reads\" hidden>\n      <div class=\"rd\"><span class=\"k-label\">Window start</span><b id=\"rv0\"></b></div>\n      <div class=\"rd\"><span class=\"k-label\">Window end</span><b id=\"rv1\"></b></div>\n      <div class=\"rd\"><span class=\"k-label\">End ÷ start</span><b id=\"rv2\"></b></div>\n    </div>\n    <div class=\"switch\" id=\"switch\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every curve, slope and reading is worked out from the rule on its screen.</p>\n\n<script>\n  // ---------- the rules ----------\n  // A capacitor C discharging through R: C dv/dt = −v ÷ R, so dv/dt = −v ÷ RC, solved by\n  // v = A e^(−t/RC). R in kΩ times C in µF, over 1000, gives RC in seconds.\n  const V0 = 12, R0 = 20, C0 = 100;\n  const RS = [10, 20, 30, 40], CS = [50, 75, 100, 125, 150];\n  const tauOf = (R, C) => R * C / 1000;\n  const decay = (A, tau) => (t) => A * Math.exp(-t / tau);\n  const growth = (A, tau) => (t) => A * Math.exp(t / tau);\n  const ruleDecay = (tau) => (v) => -v / tau;\n  const ruleGrow = (tau) => (v) => v / tau;\n  const TAU = tauOf(R0, C0);                       // 2 s\n  const capV = decay(V0, TAU);                     // v = 12 e^(−t/2)\n  const tAtV = (v) => TAU * Math.log(V0 / v);      // when that curve reaches v\n  // The other examples: growth from 1 with τ = 2 s; 9 V with τ = 3 s; y = 5 e^(−2t);\n  // a 0.5 H coil with 2.4 A through 10 Ω; growth from 100 with τ = 5 s.\n  const GROW0 = 1, GROW_TAU = 2;\n  const A9 = 9, TAU9 = 3;\n  const Y5 = 5, K5 = -2;\n  const L_COIL = 0.5, R_COIL = 10, I_COIL = 2.4;\n  const Y13 = 100, TAU13 = 5;\n  const E1 = Math.exp(-1);                         // the share kept in each time constant\n  const W4 = 6;                                    // where the puzzle's window starts, a place screen 3 never shows\n  const RLEN = 50, ROFF = 5;                       // screen 1's rate arrows are long; every rate arrow on a window sits just off the curve\n\n  // Sources the checks restate (the lesson's own).\n  const OPENSTAX = 'https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits';\n  const LUMEN = 'https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits';\n\n  // ---------- numbers, written the lesson's way ----------\n  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\\.$/, '') : s);\n  function fmtD(v, dp) {\n    const m = Math.pow(10, dp), r = Math.round(v * m) / m;\n    if (r === 0) return '0';\n    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));\n  }\n  const fmtV = (v) => fmtD(v, 2);\n  const fmt3 = (v) => fmtD(v, 3);\n  const sgn = (v) => (Math.round(v * 100) > 0 ? '+' : '') + fmtV(v);\n  const rateText = (v, tau) => 'at ' + fmtV(v) + ' V: −' + fmtV(v) + ' ÷ ' + fmtV(tau) + ' = ' + fmtV(ruleDecay(tau)(v)) + ' V a second';\n  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\\^\\(([^)]*)\\)/g, '^($1)');\n  // As a screen reader says it.\n  const say = (s) => plain(s).replace(/d([A-Za-z])\\/d([A-Za-z])/g, 'd $1 by d $2').replace(/e\\^\\(([^)]*)\\)/g, 'e to the power $1')\n    .replace(/kΩ/g, ' kilohms').replace(/Ω/g, ' ohms').replace(/µF/g, ' microfarads').replace(/τ/g, ' tau ').replace(/λ/g, ' lambda ')\n    .replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/\\+/g, ' plus ').replace(/−/g, ' minus ')\n    .replace(/\\s+/g, ' ').trim();\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // grid: which plot ('cap' 0-10 s and 0-12 V, 'grow', 'five', 'coil', 'g13', or 'eq' for lines of\n  // working with no plot); grip: what a drag on the plot moves ('win' the window, 'rider' the rider);\n  // reads: the three readings under the drawing; work: lines of working under the plot; key: the\n  // key's items; draw(st): the picture in that step's state. A SHOW step's timetable is in its\n  // draw, in seconds from when the screen opens.\n  const PICK = 'Tap one of the answers.';\n  const FB = 2.0;   // how long the motion after an answer plays\n  const STEPS = [\n    { show: true, name: 'A rate in proportion', grid: 'cap', key: ['rate'], work: 2, dur: 3.2,\n      text: 'A capacitor `C`, charged to 12 V, discharges through a resistor `R`. The current leaving it is `v ÷ R`. You know `i = C dv/dt`. That current drains it, so `C dv/dt = −v ÷ R`. The rule is `dv/dt = −v ÷ RC`. Here `RC` is 20 kΩ × 100 µF, which is 2 s. At 12 V the voltage falls 6 V a second. At 6 V it falls 3 V a second. The rate is *in proportion to what is left*.',\n      draw(st) {\n        circuit('rc', 1);\n        curve(capV, 0, 10, 'sol', 1, 'main');\n        part(vis(0.6), 0, () => dot(0, V0));\n        arrowFrom(0, V0, ruleDecay(TAU)(V0), 'pa', arr(0.6), RLEN, ROFF);\n        part(vis(1.8), 0, () => dot(tAtV(6), 6));\n        arrowFrom(tAtV(6), 6, ruleDecay(TAU)(6), 'pa', arr(1.8), RLEN, ROFF);\n        workLines([{ s: rateText(V0, TAU), a: vis(1.2) }, { s: rateText(6, TAU), a: vis(2.4) }]);\n        said.push('Rate arrows at 12 volts and 6 volts. The arrow at 6 volts is half as steep in volts a second.');\n      } },\n    { kind: 'pick', name: 'The rate at 3 V', grid: 'cap', key: (st) => (st.res === 'right' || st.res === 'wrong' ? ['rate'] : []), work: 1,\n      task: 'The voltage has fallen to 3 V. What is its rate there, in V a second?',\n      opts: ['−6', '−1.5', '+1.5'], want: '−1.5',\n      why: 'The rule takes the voltage over `RC`, with a minus sign. So the rate is −3 ÷ 2 = −1.5 V a second. The voltage still falls, but more gently than at 12 V.',\n      hint: 'Not quite. Use the rule, `−v ÷ RC`.',\n      hints: { '−6': 'Not quite. Divide by `RC`, do not multiply.', '+1.5': 'Not quite. The capacitor is losing charge, so keep the minus sign.' },\n      draw(st) {\n        const r = RW(st), t3 = tAtV(3);\n        circuit('rc', 1);\n        curve(capV, 0, 10, 'sol', 1, 'main');\n        line('mk', PL, G.y(3), G.x(t3), G.y(3));\n        dot(t3, 3);\n        label(G.x(t3) + 10, G.y(3) - 10, '3 V', 'lab', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          arrowFrom(t3, 3, ruleDecay(TAU)(3), 'pa', arr(0.1));\n          workLines([{ s: rateText(3, TAU), a: vis(0.5) }]);\n        } else if (r.w === '−6') {\n          arrowFrom(t3, 3, -3 * TAU, 'pa bad', arr(0.1)); REC.bad++;\n          workLines([{ s: '−' + fmtV(3) + ' × ' + fmtV(TAU) + ' = ' + fmtV(-3 * TAU) + ', with `RC` turned upside down', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          arrowFrom(t3, 3, 3 / TAU, 'pa bad', arr(0.1)); REC.bad++;\n          workLines([{ s: sgn(3 / TAU) + ' would make the voltage rise', bad: true, a: vis(0.4) }]);\n        }\n      } },\n    { show: true, name: 'Equal times, equal fractions', switch: true, grip: 'win', reads: true, key: ['win', 'rate'], dur: 3.6,\n      winW: () => 1,\n      text: 'A window 1 s wide slides along the curve. Its start and end voltages both fall as it goes. Yet end ÷ start stays at 0.607. From 12 V it ends at 7.28 V. From 2.68 V it ends at 1.62 V. The rate is always the same share of the voltage. So each second keeps the same share. Switch to growth, `dy/dt = +y ÷ 2`, and each second multiplies by 1.649 instead. That is `e^(1/2)`, so every 2 s multiplies by e. Drag the window to try it.',\n      read: 'A window 1 s wide slides along the curve. Its start and end voltages both fall as it goes. Yet end ÷ start stays at 0.607. From 12 V it ends at 7.28 V. From 2.68 V it ends at 1.62 V. The rate is always the same share of the voltage. So each second keeps the same share. Under growth, `dy/dt = +y ÷ 2`, each second multiplies by 1.649 instead. That is `e^(1/2)`, so every 2 s multiplies by e.',\n      draw(st) {\n        const grow = st.mode === 'grow';\n        const f = grow ? growth(GROW0, GROW_TAU) : capV, rf = grow ? ruleGrow(GROW_TAU) : ruleDecay(TAU);\n        if (!grow) circuit('rc', 1);\n        curve(f, G.g.t0, G.g.t1, 'sol', 1, 'main');\n        const last = grow ? 2 : 3;\n        const t0 = st.win != null ? st.win : last * arr(1.2, 2.2);\n        windowAt(f, rf, t0, 1, vis(0.5), { arrows: true });\n      } },\n    { kind: 'pick', name: 'A window at 3 s', grid: 'cap', reads: true, hideReads: true, key: ['win', 'rate'],\n      task: 'The window now starts at 6 s, where the curve is lower and flatter. What does end ÷ start read?',\n      opts: ['Smaller, nearer zero', 'The same, 0.607', 'Larger, flatter'], want: 'The same, 0.607',\n      why: 'The rate is always the same share of the voltage. So any 1 s window keeps the same share, wherever it sits. From 0.597 V it ends at 0.362 V. That is 0.607 of its start, just as 7.28 V is of 12 V.',\n      hint: 'Not quite. Think about the share each second keeps.',\n      hints: { 'Smaller, nearer zero': 'Not quite. The drop is smaller here, but so is the start. Compare the share.',\n        'Larger, flatter': 'Not quite. The curve is flatter because the voltage is lower. The share kept is the same.' },\n      draw(st) {\n        const r = RW(st), rf = ruleDecay(TAU);\n        circuit('rc', 1);\n        curve(capV, 0, 10, 'sol', 1, 'main');\n        if (r.ok) {\n          REC.answer = true;\n          part(vis(0.1), 0, () => ghostWindow(capV, 0, 1));\n        }\n        const w = windowAt(capV, rf, W4, 1, 1, { arrows: true });\n        const lx = G.x(W4), ly = G.y(w.v0) - 30;\n        if (r.ok) part(vis(0.6), 4, () => label(lx, ly, 'the same share as the window at 0 s', 'lab main', 'start'));\n        else if (r.w) {\n          part(vis(0.1), 0, () => ring(W4 + 1, w.v1)); REC.bad++;\n          part(vis(0.4), 4, () => label(lx, ly, r.w === 'Larger, flatter' ? 'flatter, but from a lower start' : 'a smaller drop, but from a smaller start', 'lab bad', 'start'));\n        }\n      } },\n    { show: true, name: 'Separate the variables', grid: 'eq', H: 218, dur: 3.6,\n      tag: 'Rule: `dv/dt = −v ÷ RC`',\n      text: 'To find the curve, *separate the variables*. Divide both sides of the rule by `v`. That gives `(1 ÷ v) dv/dt = −1 ÷ RC`. Now integrate both sides over `t`. The short way to write this is `dv ÷ v = −dt ÷ RC`. Every `v` is on the left and every `t` on the right. It does not mean cancelling the d\\'s. Not every rule splits like this, but this one does.',\n      draw(st) {\n        part(vis(0.4), 4, () => text(170, 46, 'divide by `v`:  `(1 ÷ v) dv/dt = −1 ÷ RC`', 'eq2', 'middle'));\n        const F1 = sepLine(EQ_V, 108, arr(0.6, 1.8), 1);\n        sideLabels(F1, 108, 'v', vis(2.4));\n        part(vis(2.9), 4, () => {\n          text(170, 182, 'shorthand for integrating both sides over time', 'nt', 'middle');\n          text(170, 206, 'not a cancelling of the d\\'s', 'nt', 'middle');\n        });\n        said.push('Dividing by v gives one over v times d v by d t equals minus one over R C. Written short, the rule d v by d t equals minus v divided by R C becomes d v divided by v equals minus d t divided by R C.');\n      } },\n    { kind: 'pick', name: 'Separate a decay rule', grid: 'eq', H: 206, mathOpts: true,\n      tag: 'Rule: `dN/dt = −λN`',\n      task: 'Radioactive atoms follow `dN/dt = −λN`. Here `N` is the number left and `λ` is the decay constant. Which line separates it?',\n      opts: ['dN = −λN dt', 'N dN = −λ dt', 'dN ÷ N = −λ dt'], want: 'dN ÷ N = −λ dt',\n      why: 'Divide both sides by `N`. Every `N` is then on the left, with `dN`. Only `dt` is on the right, with the constant `−λ`. That gives `dN ÷ N = −λ dt`.',\n      hint: 'Not quite. Put every `N` on the left.',\n      hints: { 'dN = −λN dt': 'Not quite. `N` is still on the right. Divide by `N` first.', 'N dN = −λ dt': 'Not quite. That multiplies by `N`. Divide by it instead.' },\n      draw(st) {\n        const r = RW(st);\n        tokLine(EQ_N.S, 96, [], 1);\n        if (r.ok) {\n          REC.answer = true;\n          const F1 = sepLine(EQ_N, 150, arr(0.1, 1.2), 1);\n          sideLabels(F1, 150, 'N', vis(1.3));\n        } else if (r.w) {\n          const o = OPT_N[r.w];\n          tokLine(o.seq, 150, o.bad, vis(0.1)); REC.bad++;\n          part(vis(0.5), 4, () => label(170 - tw(o.say, 'lab') / 2, 190, o.say, 'lab bad', 'start'));\n        }\n      } },\n    { show: true, name: 'Integrate both sides', grid: 'cap', eqs: 2, noCircuit: true, key: ['fam', 'sol12'], dur: 3.6,\n      text: 'Now integrate both sides. For a positive `v`, the slope of `ln v` is `1 ÷ v`. So the left side gives `ln v`. The right side gives `−t ÷ RC`. Their two constants join into one `+ c`. Raise e to each side to undo the ln. That gives `v = e^(−t/RC + c)`, which splits into `e^(c) × e^(−t/RC)`. Call `e^(c)` by one letter, `A`. At `t = 0` the curve is at `A`, so `A` is the start. The start at 12 V picks `v = 12 e^(−t/2)`.',\n      draw(st) {\n        text(12, 50, '`ln v = −t ÷ RC + c`', 'eq2', 'start');\n        part(vis(0.6), 4, () => text(12, 80, 'so `v = A e^(−t/RC)`', 'eq2', 'start'));\n        [3, 6, 9].forEach((A, k) => {\n          const a0 = 1.2 + 0.3 * k;\n          dot(0, A, 'fam');\n          curve(decay(A, TAU), 0, 10, 'fam', arr(a0, 1.0), 'f' + A);\n        });\n        dot(0, V0);\n        curve(capV, 0, 10, 'sol', arr(2.1, 1.0), 'main');\n        part(vis(2.9), 4, () => label(G.x(1.5) + 8, G.y(capV(1.5)) - 10, '`v = 12 e^(−t/2)`', 'lab main', 'start'));\n        said.push('Curves for starts of 3, 6, 9 and 12 volts, all with the same time constant.');\n      } },\n    { kind: 'pick', name: 'Pick the curve', grid: 'cap', noCircuit: true, mathOpts: true,\n      tag: 'Rule: `dv/dt = −v ÷ τ`', tag2: () => '`τ` = ' + fmtV(TAU9) + ' s',\n      task: 'Call `RC` the time constant, `τ`. Which curve starts at 9 V with `τ = 3 s`?',\n      opts: ['v = e^(−t/3)', 'v = 9 e^(−t/3)', 'v = 9 e^(−3t)'], want: 'v = 9 e^(−t/3)',\n      why: 'At `t = 0` the curve must be at 9 V, so `A = 9`. The power is `−t ÷ τ`, which is `−t/3`. So `v = 9 e^(−t/3)`. After one `τ` it is down to 0.368 of its start.',\n      hint: 'Not quite. Check the start, then the power.',\n      hints: { 'v = e^(−t/3)': 'Not quite. At `t = 0` that curve is at 1 V. It must start at 9 V.', 'v = 9 e^(−3t)': 'Not quite. Divide `t` by `τ`. Do not multiply.' },\n      draw(st) {\n        const r = RW(st), f = decay(A9, TAU9);\n        band(0, TAU9, 'band');\n        label(G.x(TAU9) + 6, G.PB - 10, '`τ` = ' + fmtV(TAU9) + ' s', 'lab acc', 'start');\n        dot(0, A9);\n        label(G.x(0) + 10, G.y(A9) - 8, 'start ' + fmtV(A9) + ' V', 'lab', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          curve(f, 0, 10, 'sol', arr(0.1, 1.2), 'ans');\n          part(vis(1.0), 0, () => {\n            dot(TAU9, f(TAU9));\n            label(G.x(TAU9) + 10, G.y(f(TAU9)) - 8, fmt3(f(TAU9) / A9) + ' of the start', 'lab main', 'start');\n            label(G.x(5) + 6, G.y(f(5)) - 10, '`v = 9 e^(−t/3)`', 'lab main', 'start');\n          });\n        } else if (r.w === 'v = e^(−t/3)') {\n          const g = decay(1, TAU9);\n          curve(g, 0, 10, 'sol bad', arr(0.1, 1.0), 'bad'); REC.bad++;\n          part(vis(0.8), 4, () => label(G.x(0) + 10, G.y(g(0)) - 12, 'starts at ' + fmtV(g(0)) + ' V, not ' + fmtV(A9) + ' V', 'lab bad', 'start'));\n        } else if (r.w) {\n          const g = decay(A9, 1 / TAU9);\n          curve(g, 0, 10, 'sol bad', arr(0.1, 1.0), 'bad'); REC.bad++;\n          part(vis(0.8), 4, () => label(G.x(0.5) + 8, G.y(g(0.5)) - 6, '`τ` turned upside down', 'lab bad', 'start'));\n        }\n      } },\n    { show: true, name: 'Put it back', grid: 'cap', grip: 'rider', key: ['slope'], dur: 3.2,\n      text: 'Now put the answer back into the rule. A rider slides along `v = 12 e^(−t/2)`. It carries two numbers. One is the curve\\'s own slope there. The other is what the rule asks for, `−v ÷ 2`. They agree everywhere. At 2 s both read −2.21 V a second. The slope of `e^(kt)` is `k` times `e^(kt)`. Here `k` is `−1 ÷ 2`. So the slope is `−v ÷ 2` at every `t`, which is the rule. Drag the rider to test any time.',\n      read: 'Now put the answer back into the rule. A rider slides along `v = 12 e^(−t/2)`. It carries two numbers. One is the curve\\'s own slope there. The other is what the rule asks for, `−v ÷ 2`. They agree everywhere. At 2 s both read −2.21 V a second. The slope of `e^(kt)` is `k` times `e^(kt)`. Here `k` is `−1 ÷ 2`. So the slope is `−v ÷ 2` at every `t`, which is the rule. Wherever the rider sits, the two numbers match.',\n      draw(st) {\n        circuit('rc', 1);\n        curve(capV, 0, 10, 'sol', 1, 'main');\n        const t = st.rider != null ? st.rider : 2 * arr(0.6, 2.4);\n        rider(t);\n      } },\n    { kind: 'pick', name: 'Which rule?', grid: 'five', work: 1, mathOpts: true,\n      tag: 'Curve: `y = 5 e^(−2t)`',\n      task: 'Which rule does `y = 5 e^(−2t)` solve?',\n      opts: ['dy/dt = −2y', 'dy/dt = −y ÷ 2', 'dy/dt = −10'], want: 'dy/dt = −2y',\n      why: 'The slope of `5 e^(−2t)` is −2 times itself. So `dy/dt = −2y`. At the start that is −2 × 5 = −10. Its time constant is 1 ÷ 2 = 0.5 s.',\n      hint: 'Not quite. Find the slope of `e^(kt)`.',\n      hints: { 'dy/dt = −y ÷ 2': 'Not quite. That turns `τ` upside down. Here `τ` is 0.5 s, not 2 s.', 'dy/dt = −10': 'Not quite. −10 is only the starting slope. The slope shrinks as `y` falls.' },\n      draw(st) {\n        const r = RW(st), f = (t) => Y5 * Math.exp(K5 * t);\n        curve(f, 0, 2, 'sol', 1, 'main');\n        dot(0, Y5);\n        if (r.ok) {\n          REC.answer = true;\n          [0, 0.5, 1, 1.5].forEach((t, k) => arrowFrom(t, f(t), K5 * f(t), 'pa', arr(0.1 + 0.2 * k)));\n          part(vis(0.9), 4, () => label(G.x(0) + 20, G.y(Y5) + 10, 'slope ' + fmtV(K5 * Y5) + ' at the start', 'lab main', 'start'));\n          part(vis(1.2), 0, () => { band(0, -1 / K5, 'band'); label(G.x(-1 / K5) + 6, G.PB - 10, '`τ` = ' + fmtV(-1 / K5) + ' s', 'lab acc', 'start'); });\n          workLines([{ s: '`dy/dt = −2y`, so ' + fmtV(K5) + ' × ' + fmtV(Y5) + ' = ' + fmtV(K5 * Y5) + ' at the start', a: vis(1.0) }]);\n        } else if (r.w === 'dy/dt = −y ÷ 2') {\n          const g = (t) => Y5 * Math.exp(-t / 2);\n          curve(g, 0, 2, 'sol bad', arr(0.1, 1.0), 'bad'); REC.bad++;\n          part(vis(0.8), 4, () => label(PR - tw('`dy/dt = −y ÷ 2` falls slower', 'lab'), G.y(g(2)) + 18, '`dy/dt = −y ÷ 2` falls slower', 'lab bad', 'start'));\n        } else if (r.w) {\n          const g = (t) => Y5 + K5 * Y5 * t;\n          curve(g, 0, -1 / K5, 'sol bad', arr(0.1, 0.8), 'bad'); REC.bad++;\n          part(vis(0.8), 4, () => label(G.x(0.25) + 12, G.y(g(0.25)), 'only the starting slope', 'lab bad', 'start'));\n        }\n      } },\n    { show: true, name: 'The time constant', grid: 'cap', grip: 'win', sliders: true, reads: true, key: ['winRC', 'tan'], dur: 3.4,\n      winW: (st) => tauOf(Rof(st), Cof(st)),\n      text: 'The window is now one `RC` wide, 2 s here. End ÷ start reads 0.368. Put `t = RC` into `12 e^(−t/RC)` to get `12 e^(−1)`, and `e^(−1)` is 0.368. That is one way to read the *time constant*. The other is a straight line from the start at the starting rate, −6 V a second. It reaches zero at 2 s, while the curve is still at 4.41 V. Slide `R` or `C` and all three stretch together. The window still reads 0.368. The line still lands at one `RC`.',\n      read: 'The window is now one `RC` wide, 2 s here. End ÷ start reads 0.368. Put `t = RC` into `12 e^(−t/RC)` to get `12 e^(−1)`, and `e^(−1)` is 0.368. That is one way to read the *time constant*. The other is a straight line from the start at the starting rate, −6 V a second. It reaches zero at 2 s, while the curve is still at 4.41 V. Whatever `R` and `C` are, all three stretch together. The window still reads 0.368. The line still lands at one `RC`.',\n      draw(st) {\n        const R = Rof(st), C = Cof(st), tau = tauOf(R, C), f = decay(V0, tau);\n        circuit('rc', 1);\n        curve(f, 0, 10, 'sol', 1, 'main');\n        const w = windowAt(f, ruleDecay(tau), st.win != null ? st.win : 0, tau, vis(0.5), {});\n        tangent(w.t0, w.v0, tau, arr(1.1, 1.0));\n        part(vis(2.1), 4, () => {\n          const zx = G.x(w.t0 + tau);\n          add(K.svg('circle', { class: 'dot', cx: r2(zx), cy: r2(G.PB), r: 4.5 }));\n          if (zx < 236) label(zx + 5, G.PB - 3, 'zero at one `RC`', 'lab', 'start');\n          else label(zx - 8 - tw('zero at one `RC`', 'lab'), G.PB - 10, 'zero at one `RC`', 'lab', 'start');\n        });\n        sliders(R, C, vis(2.8));\n      } },\n    { kind: 'pick', name: 'A coil lets go', grid: 'coil', work: 2,\n      tag: 'Coil: `L` = 0.5 H, `R` = 10 Ω',\n      task: 'A coil of 0.5 H carries 2.4 A. Its supply is taken away. The current dies round a loop through 10 Ω. What is the current after 0.05 s?',\n      opts: ['0 A', '1.52 A', '0.883 A'], want: '0.883 A',\n      why: 'For a coil the time constant is `L ÷ R`, so 0.5 ÷ 10 = 0.05 s. That makes 0.05 s exactly one `τ`. One `τ` keeps 0.368 of the start. 2.4 × 0.368 = 0.883 A.',\n      hint: 'Not quite. Find the time constant first.',\n      hints: { '0 A': 'Not quite. The fall slows as the current shrinks, so some is still left at 0.05 s.', '1.52 A': 'Not quite. 1.52 A is the 0.632 share that has gone. What is left?' },\n      draw(st) {\n        const r = RW(st), tau = L_COIL / R_COIL, f = decay(I_COIL, tau);\n        circuit('rl', 1);\n        line('mk', G.x(tau), G.PB, G.x(tau), G.PT);\n        label(G.x(tau) + 6, G.y(1.95), 'after ' + fmtV(tau) + ' s', 'lab', 'start');\n        dot(0, I_COIL);\n        label(G.x(0) + 12, G.y(I_COIL) + 4, 'start ' + fmtV(I_COIL) + ' A', 'lab', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          curve(f, 0, 0.2, 'sol', arr(0.1, 1.0), 'ans');\n          part(vis(0.9), 0, () => { dot(tau, f(tau)); label(G.x(tau) + 10, G.y(f(tau)) - 8, fmt3(f(tau)) + ' A', 'lab main', 'start'); });\n          workLines([{ s: '`τ = L ÷ R` = ' + fmtV(L_COIL) + ' ÷ ' + fmtV(R_COIL) + ' = ' + fmtV(tau) + ' s', a: vis(0.5) },\n            { s: 'one `τ` keeps ' + fmt3(E1) + ': ' + fmtV(I_COIL) + ' × ' + fmt3(E1) + ' = ' + fmt3(I_COIL * E1) + ' A', a: vis(1.0) }]);\n        } else if (r.w === '0 A') {\n          part(vis(0.1), 0, () => { line('tan bad', G.x(0), G.y(I_COIL), G.x(tau), G.y(0)); ring(tau, 0); }); REC.bad++;\n          part(vis(0.5), 4, () => label(G.x(tau / 2) + 12, G.y(I_COIL / 2), 'the starting rate\\'s line', 'lab bad', 'start'));\n        } else if (r.w) {\n          const lost = I_COIL * (1 - E1);\n          part(vis(0.1), 0, () => { dot(tau, lost, 'bad'); ring(tau, lost); }); REC.bad++;\n          part(vis(0.5), 4, () => label(G.x(tau) + 16, G.y(lost) + 4, fmt3(1 - E1) + ' is the share lost', 'lab bad', 'start'));\n        }\n      } },\n    { kind: 'pick', name: 'Growth over one τ', grid: 'g13', key: ['rate'], work: 1,\n      tag: 'Rule: `dy/dt = +y ÷ 5`',\n      task: 'A growth rule, `dy/dt = +y ÷ 5`, starts from 100. What is `y` after 5 s?',\n      opts: ['200', 'About 272', '36.8'], want: 'About 272',\n      why: 'Here `τ` is 5 s and the sign is plus. So 5 s is one `τ`, and each `τ` multiplies by e. After 5 s, `y` is 100 × e, about 272. The rate grows as `y` grows. A reactor\\'s power grows this way. Its period is the time the power takes to change by a factor of e.',\n      hint: 'Not quite. Growth multiplies by the same factor in each `τ`.',\n      hints: { '200': 'Not quite. 200 keeps the starting rate, 20 a second. The rate grows as `y` grows.', '36.8': 'Not quite. That is decay. Here the sign is plus.' },\n      draw(st) {\n        const r = RW(st), f = growth(Y13, TAU13), r0 = ruleGrow(TAU13)(Y13);\n        line('mk', G.x(TAU13), G.PB, G.x(TAU13), G.PT);\n        label(G.x(TAU13) + 6, G.PB - 10, 'after ' + fmtV(TAU13) + ' s', 'lab', 'start');\n        arrowFrom(0, Y13, r0, 'pa', 1, 40);\n        dot(0, Y13);\n        label(G.x(0) + 12, G.y(Y13) - 16, 'rate ' + sgn(r0) + ' a second', 'lab main', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          curve(f, 0, 6, 'sol', arr(0.1, 1.2), 'ans');\n          part(vis(1.1), 0, () => { dot(TAU13, f(TAU13)); label(G.x(TAU13) - 10 - tw('about ' + fmtD(f(TAU13), 0), 'lab'), G.y(f(TAU13)) + 5, 'about ' + fmtD(f(TAU13), 0), 'lab main', 'start'); });\n          workLines([{ s: 'one `τ` multiplies by e: ' + fmtD(Y13, 0) + ' × e, about ' + fmtD(f(TAU13), 0), a: vis(0.6) }]);\n        } else if (r.w === '200') {\n          const g = (t) => Y13 + r0 * t;\n          curve(g, 0, TAU13, 'sol bad', arr(0.1, 1.0), 'bad'); REC.bad++;\n          part(vis(0.8), 4, () => label(G.x(1) + 6, G.y(g(1)) - 14, 'if the starting rate held', 'lab bad', 'start'));\n        } else if (r.w) {\n          const g = decay(Y13, TAU13);\n          curve(g, 0, 6, 'sol bad', arr(0.1, 1.0), 'bad'); REC.bad++;\n          part(vis(0.8), 4, () => label(G.x(2) + 8, G.y(g(2)) - 10, 'decay, not growth', 'lab bad', 'start'));\n        }\n      } },\n  ];\n  const FINISH = 'A rate in proportion to what is left separates and integrates to `y = A e^(−t/τ)`. `A` is the start and `τ` is the *time constant*. In every `τ` it loses 0.632 of what remains.';\n\n  // The two separations, as tokens [id, text, space before]: S is the rule, F the separated line.\n  const GAP = 8;\n  const EQ_V = {\n    S: [['dv', 'dv', 0], ['sl', '/', 0], ['dt', 'dt', 0], ['eq', '=', GAP], ['mi', '−', GAP], ['v', 'v', 1], ['d1', '÷', GAP], ['rc', 'RC', GAP]],\n    F: [['dv', 'dv', 0], ['d2', '÷', GAP], ['v', 'v', GAP], ['eq', '=', GAP], ['mi', '−', GAP], ['dt', 'dt', 1], ['d1', '÷', GAP], ['rc', 'RC', GAP]],\n    cls: { dv: 'ev', v: 'ev', d2: 'ev', dt: 'et', sl: 'et' }, gone: 'sl', born: 'd2', under: 'v', over: 'dt', lift: 34 };\n  const EQ_N = {\n    S: [['dn', 'dN', 0], ['sl', '/', 0], ['dt', 'dt', 0], ['eq', '=', GAP], ['mi', '−', GAP], ['lam', 'λ', 1], ['n', 'N', 1]],\n    F: [['dn', 'dN', 0], ['d2', '÷', GAP], ['n', 'N', GAP], ['eq', '=', GAP], ['mi', '−', GAP], ['lam', 'λ', 1], ['dt', 'dt', 6]],\n    cls: { dn: 'ev', n: 'ev', d2: 'ev', dt: 'et', sl: 'et' }, gone: 'sl', born: 'd2', under: 'n', over: 'dt' };\n  // The decay rule's three answers: the line drawn, the token that is wrong, what each says dN/dt is.\n  const OPT_N = {\n    'dN ÷ N = −λ dt': { seq: EQ_N.F, bad: [], left: ['dN', '÷', 'N'], right: ['−', 'λ', 'dt'], rate: (N, lam) => -lam * N },\n    'dN = −λN dt': { seq: [['dn', 'dN', 0], ['eq', '=', GAP], ['mi', '−', GAP], ['lam', 'λ', 1], ['n', 'N', 1], ['dt', 'dt', 6]], bad: ['n'],\n      left: ['dN'], right: ['−', 'λ', 'N', 'dt'], rate: (N, lam) => -lam * N, say: '`N` is still on the right' },\n    'N dN = −λ dt': { seq: [['n', 'N', 0], ['dn', 'dN', 6], ['eq', '=', GAP], ['mi', '−', GAP], ['lam', 'λ', 1], ['dt', 'dt', 6]], bad: ['n'],\n      left: ['N', 'dN'], right: ['−', 'λ', 'dt'], rate: (N, lam) => -lam / N, say: 'that multiplies by `N`' },\n  };\n\n  // ---------- the plots ----------\n  // Each plot runs from PL to PR across and PH tall; the sliders' tracks from SX0 to SX1.\n  const PL = 40, PR = 322, PH = 180, SX0 = 124, SX1 = 318, ROW_R = 56, ROW_C = 98;\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const GRIDS = {\n    cap: { t0: 0, t1: 10, v0: 0, v1: 12, xt: [0, 2, 4, 6, 8, 10], yt: [0, 3, 6, 9, 12], ytitle: '`v` (V)', xtitle: 'time `t` (s)',\n      tag: 'Rule: `dv/dt = −v ÷ RC`', circuit: 'rc' },\n    grow: { t0: 0, t1: 4, v0: 0, v1: 8, xt: [0, 1, 2, 3, 4], yt: [0, 2, 4, 6, 8], ytitle: '`y`', xtitle: 'time `t` (s)',\n      tag: 'Rule: `dy/dt = +y ÷ ' + fmtV(GROW_TAU) + '`' },\n    five: { t0: 0, t1: 2, v0: 0, v1: 5, xt: [0, 0.5, 1, 1.5, 2], yt: [0, 1, 2, 3, 4, 5], ytitle: '`y`', xtitle: 'time `t` (s)' },\n    coil: { t0: 0, t1: 0.2, v0: 0, v1: 2.5, xt: [0, 0.05, 0.1, 0.15, 0.2], yt: [0, 0.5, 1, 1.5, 2, 2.5], ytitle: '`i` (A)', xtitle: 'time `t` (s)' },\n    g13: { t0: 0, t1: 6, v0: 0, v1: 300, xt: [0, 1, 2, 3, 4, 5, 6], yt: [0, 100, 200, 300], ytitle: '`y`', xtitle: 'time `t` (s)' },\n  };\n  const gridOf = (d, st) => (d.switch ? (st.mode === 'grow' ? 'grow' : 'cap') : d.grid);\n  const Rof = (st) => (st.R == null ? R0 : st.R);\n  const Cof = (st) => (st.C == null ? C0 : st.C);\n  function geoOf(d, st) {\n    const kind = gridOf(d, st);\n    if (kind === 'eq') return { kind, g: null, H: d.H || 206, PT: 0, PB: 0 };\n    const g = GRIDS[kind];\n    const PT = 50 + (d.eqs || 0) * 30 + (d.sliders ? 84 : 0), PB = PT + PH;\n    const kx = (PR - PL) / (g.t1 - g.t0), ky = PH / (g.v1 - g.v0);\n    const working = d.show || st.res === 'right' || st.res === 'wrong';\n    return { kind, g, PT, PB, kx, ky, H: PB + 46 + (working ? d.work || 0 : 0) * 26,\n      x: (t) => PL + (t - g.t0) * kx, y: (v) => PB - (v - g.v0) * ky,\n      t: (x) => g.t0 + (x - PL) / kx, v: (y) => g.v0 + (PB - y) / ky };\n  }\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // win: where Dan put the window; mode: the decay or growth switch; R, C: the sliders; rider: the\n  // rider's time.\n  function blank() { return { pick: null, res: null, why: false, win: null, mode: null, R: null, C: null, rider: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, TM = Infinity;   // TM: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null, G = null, said = [], placed = [];\n\n  // ---------- words with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  const ITAL = /(RC|kt|d[vtyNi](?![A-Za-z])|(?<![A-Za-z])[vtyNAcRCLik](?![A-Za-z]))/;\n  function put(parent, s, svg) {\n    if (!s) return;\n    if (svg && parent.__lift) { const b = K.svg('tspan', { dy: 6 }); b.textContent = s; parent.appendChild(b); parent.__lift = false; return; }\n    parent.appendChild(document.createTextNode(s));\n  }\n  function itNode(parent, s, svg) {\n    const sp = svg ? K.svg('tspan', { class: 'v' }) : K.el('span', { class: 'v' });\n    if (svg && parent.__lift) { sp.setAttribute('dy', 6); parent.__lift = false; }\n    sp.textContent = s;\n    parent.appendChild(sp);\n  }\n  function ital(parent, s, svg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2 === 0) { put(parent, p, svg); return; }\n      if (p.length === 2 && p[0] === 'd' && p !== 'RC') { put(parent, 'd', svg); itNode(parent, p[1], svg); }\n      else itNode(parent, p, svg);\n    });\n  }\n  // Maths: italic letters, and e^(…) written as a raised power.\n  function maths(parent, s, svg) {\n    String(s).split(/\\^\\(([^)]*)\\)/).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2 === 0) { ital(parent, p, svg); return; }\n      const sp = svg ? K.svg('tspan', { class: 'sup', dy: -6 }) : K.el('sup');\n      if (svg && parent.__lift) parent.__lift = false;\n      ital(sp, p, svg);\n      parent.appendChild(sp);\n      if (svg) parent.__lift = true;\n    });\n  }\n  // `maths` stays on one line; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  function svgWords(t, s) {\n    t.__lift = false;\n    String(s).split('`').forEach((seg, k) => { if (seg) { if (k % 2) maths(t, seg, true); else put(t, seg, true); } });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong\n  // answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); TM = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(FB);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.show || finished) return;\n    st.win = null; st.rider = null; st.R = null; st.C = null;\n    play(d.dur);\n  } });\n  // The switch on the window's screen: decay or growth.\n  const swBtns = [['decay', 'Decay'], ['grow', 'Growth']].map((o) => ({ v: o[0], b: K.button({ label: o[1], secondary: true, into: '#switch', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.switch || finished || (st.mode || 'decay') === o[0]) return;\n    st.mode = o[0]; st.win = null;\n    play(d.dur);\n  } }) }));\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    TM += dt;\n    paint();\n    return TM < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; TM = 0; anim.play();\n  }\n  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top'), ui = document.getElementById('ui');\n  let into = null, curA = 1;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(TM, t0, d);\n  }\n  // A timetable entry: null, there from the start; a time, arriving then.\n  const vis = (t) => (t == null ? 1 : arr(t));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into, keepA = curA;\n    into = g; curA = a * keepA;\n    draw();\n    into = keep; curA = keepA;\n  }\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });\n    svgWords(t, s);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    svgWords(t, s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return plain(s).length * 7.4;\n  }\n  // A label, painted above the drawing, moved up or down a line if it would sit on another label.\n  function label(x, y, s, cls, anchor) {\n    const w = tw(s, cls);\n    let left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;\n    left = K.clamp(left, 4, 336 - w);\n    const box = (yv) => ({ x: left - 3, y: yv - 12, w: w + 6, h: 16 });\n    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h);\n    let yy = y;\n    for (const dy of [0, -17, 17, -34, 34]) { if (!hits(box(y + dy))) { yy = y + dy; break; } }\n    placed.push(box(yy));\n    const g = topG.appendChild(K.svg('g'));\n    K.fade(g, curA);\n    const t = K.svg('text', { class: cls, x: r2(left), y: r2(yy), 'text-anchor': 'start' });\n    svgWords(t, s);\n    g.appendChild(t);\n    REC.texts.push(plain(s));\n    said.push(say(s) + '.');\n    return t;\n  }\n  // A word that sits in a fixed place (a title), kept clear of the labels.\n  function fixed(x, y, s, cls, anchor) {\n    const w = tw(s, cls), left = anchor === 'end' ? x - w : x;\n    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });\n    return text(x, y, s, cls, anchor);\n  }\n\n  // An arrow along slope s (in the plot's units) from a point, grown to a fraction of its length.\n  function dirOf(s) { const dx = G.kx, dy = -s * G.ky, n = Math.hypot(dx, dy); return [dx / n, dy / n]; }\n  function arrowD(cx, cy, u, h0, h1, head) {\n    const sx = cx + u[0] * h0, sy = cy + u[1] * h0, ex = cx + u[0] * h1, ey = cy + u[1] * h1;\n    let d = 'M' + r2(sx) + ' ' + r2(sy) + ' L' + r2(ex) + ' ' + r2(ey);\n    if (head > 0) {\n      const bx = -u[0] * head, by = -u[1] * head, c = Math.cos(0.45), s = Math.sin(0.45);\n      d += ' M' + r2(ex + bx * c - by * s) + ' ' + r2(ey + bx * s + by * c) + ' L' + r2(ex) + ' ' + r2(ey) + ' L' + r2(ex + bx * c + by * s) + ' ' + r2(ey - bx * s + by * c);\n    }\n    return d;\n  }\n  function arrowFrom(t, v, s, cls, grow, len, off) {\n    if (grow <= 0) return;\n    const L = (len || 30) * Math.min(1, grow), u = dirOf(s);\n    let cx = G.x(t), cy = G.y(v);\n    if (off && cx - u[1] * off >= PL + 2 && cy + u[0] * off <= G.PB - 8) { cx -= u[1] * off; cy += u[0] * off; }\n    add(K.svg('path', { class: cls, d: arrowD(cx, cy, u, 0, L, grow > 0.4 ? 7 : 0) }));\n    REC.arrows.push({ t, v, s, cls });\n  }\n  function dot(t, v, cls) { add(K.svg('circle', { class: 'dot' + (cls ? ' ' + cls : ''), cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5 })); }\n  function ring(t, v) { add(K.svg('circle', { class: 'ring', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 10 })); REC.bad++; }\n  // A curve v = f(t) from ta, grown to a fraction of the way to tb; kept in REC for the checks.\n  function curve(f, ta, tb, cls, grow, id) {\n    if (grow <= 0) return;\n    const te = ta + (tb - ta) * Math.min(1, grow), n = Math.max(2, Math.ceil((te - ta) / (G.g.t1 - G.g.t0) * 160));\n    let d = '', pen = false;\n    const pts = [];\n    for (let k = 0; k <= n; k++) {\n      const t = ta + (te - ta) * k / n, v = f(t);\n      if (!isFinite(v) || v < G.g.v0 - 1e-9 || v > G.g.v1 + 1e-9) { pen = false; continue; }\n      d += (pen ? ' L' : (d ? ' M' : 'M')) + r2(G.x(t)) + ' ' + r2(G.y(v));\n      pen = true;\n      pts.push([t, v]);\n    }\n    if (d) add(K.svg('path', { class: cls, d }));\n    REC.curves.push({ id, cls, f, pts });\n  }\n  // A stretch of time as a thin band along the time axis.\n  function band(t0, t1, cls) {\n    add(K.svg('rect', { class: cls, x: r2(G.x(t0)), y: r2(G.PB - 6), width: r2(G.x(t1) - G.x(t0)), height: 12, rx: 3 }));\n  }\n  // The window: its band along the time axis, a bar up to the curve at each end, the rule's rate\n  // arrow at each end, and the readings for the tiles under the drawing.\n  function windowAt(f, rf, t0, w, a, o) {\n    t0 = K.clamp(t0, G.g.t0, G.g.t1 - w);\n    const t1 = t0 + w, v0 = f(t0), v1 = f(t1), up = rf(1) > 0;\n    REC.win = { t0, w, v0, v1, ratio: v1 / v0, a };\n    part(a, 0, () => {\n      band(t0, t1, 'band');\n      line('bar', G.x(t0), G.PB, G.x(t0), G.y(v0));\n      line('bar', G.x(t1), G.PB, G.x(t1), G.y(v1));\n      if (o.arrows) { arrowFrom(t0, v0, rf(v0), 'pa', 1, 32, ROFF); arrowFrom(t1, v1, rf(v1), 'pa', 1, 32, ROFF); }\n      dot(t0, v0); dot(t1, v1);\n      const top = !up && G.y(v0) - 8 < G.PT + 6;   // at the top, beside the dot, off the axis title's line\n      const sx = G.x(t0) + (top ? 10 : 6);\n      label(sx, top ? G.y(v0) + 4 : G.y(v0) + (up ? 18 : -8), 'start', 'lab acc', 'start');\n      label(Math.max(G.x(t1) + 6, sx + tw('start', 'lab acc') + 8), G.y(v1) + (up ? 18 : -8), 'end', 'lab acc', 'start');\n    });\n    said.push('A window ' + say(fmtV(w)) + ' seconds wide, from ' + say(fmtV(t0)) + ' to ' + say(fmtV(t1)) + ' seconds, with a bar up to the curve at each end.');\n    return REC.win;\n  }\n  // The same window drawn muted where it began, for comparison.\n  function ghostWindow(f, t0, w) {\n    band(t0, t0 + w, 'band ghost');\n    line('bar ghost', G.x(t0), G.PB, G.x(t0), G.y(f(t0)));\n    line('bar ghost', G.x(t0 + w), G.PB, G.x(t0 + w), G.y(f(t0 + w)));\n    dot(t0, f(t0), 'fam'); dot(t0 + w, f(t0 + w), 'fam');\n  }\n  // The straight line at the starting rate: from the window's start towards zero one τ later.\n  function tangent(t0, v0, tau, grow) {\n    REC.tan = { t0, v0, slope: -v0 / tau, zero: t0 + tau };\n    if (grow <= 0) return;\n    const g = Math.min(1, grow);\n    line('tan', G.x(t0), G.y(v0), G.x(t0 + tau * g), G.y(v0 * (1 - g)));\n  }\n  // The rider: a ring on the curve with its slope line and two numbers that travel with it.\n  function rider(t) {\n    const h = 1e-5, v = capV(t), slope = (capV(t + h) - capV(t - h)) / (2 * h), rule = ruleDecay(TAU)(v);\n    let ua = Math.max(0, t - 0.9), ub = Math.min(10, t + 0.9);\n    if (slope < 0) ua = Math.max(ua, t - (V0 - v) / -slope);\n    line('tan', G.x(ua), G.y(v + slope * (ua - t)), G.x(ub), G.y(Math.max(0, v + slope * (ub - t))));\n    add(K.svg('circle', { class: 'rider', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 7 }));\n    const a = fmtV(slope), b = fmtV(rule);\n    REC.rider = { t, v, slope, rule, a, b };\n    const s1 = 'curve\\'s slope ' + a, s2 = '`−v ÷ 2` = ' + b;\n    if (t <= 6) { label(G.x(t) + 12, G.y(v) - 24, s1, 'lab', 'start'); label(G.x(t) + 12, G.y(v) - 8, s2, 'lab main', 'start'); }\n    else { label(G.x(t) - 12 - tw(s1, 'lab'), G.y(v) - 24, s1, 'lab', 'start'); label(G.x(t) - 12 - tw(s2, 'lab main'), G.y(v) - 8, s2, 'lab main', 'start'); }\n  }\n  // The circuit, small in the top corner of the plot: the capacitor (or a coil) and the resistor.\n  function circuit(kind, a) {\n    part(a, 0, () => {\n      const x0 = 224, y0 = G.PT + 2, yT = y0 + 28, yB = y0 + 60, xl = 248, xr = 300, mid = (yT + yB) / 2;\n      add(K.svg('rect', { class: 'inset', x: x0, y: y0, width: 96, height: 70, rx: 6 }));\n      add(K.svg('path', { class: 'wire', d: 'M' + xl + ' ' + yT + ' H' + xr + ' M' + xl + ' ' + yB + ' H' + xr }));\n      if (kind === 'rc') {\n        add(K.svg('path', { class: 'wire', d: 'M' + xl + ' ' + yT + ' V' + (mid - 3) + ' M' + xl + ' ' + (mid + 3) + ' V' + yB }));\n        line('plate', xl - 10, mid - 3, xl + 10, mid - 3);\n        line('plate', xl - 10, mid + 3, xl + 10, mid + 3);\n        label(xl - 14 - tw('`C`', 'lab'), mid + 5, '`C`', 'lab', 'start');\n        label(xl + 14, mid + 5, '`v`', 'lab', 'start');\n      } else {\n        let d = 'M' + xl + ' ' + yT + ' V' + (mid - 10);\n        for (let k = 0; k < 4; k++) d += ' a5 2.5 0 1 1 0 5';\n        d += ' V' + yB;\n        add(K.svg('path', { class: 'wire', d }));\n        label(xl - 12 - tw('`L`', 'lab'), mid + 5, '`L`', 'lab', 'start');\n      }\n      add(K.svg('path', { class: 'wire', d: 'M' + xr + ' ' + yT + ' V' + (mid - 10) + ' M' + xr + ' ' + (mid + 10) + ' V' + yB }));\n      add(K.svg('rect', { class: 'res', x: xr - 6, y: mid - 10, width: 12, height: 20 }));\n      label(xr - 10 - tw('`R`', 'lab'), mid + 5, '`R`', 'lab', 'start');\n      // The current leaves the top and flows round through the resistor.\n      const ax = 280;\n      add(K.svg('path', { class: 'wire', d: 'M' + (ax - 6) + ' ' + (yT - 5) + ' L' + ax + ' ' + yT + ' L' + (ax - 6) + ' ' + (yT + 5) }));\n      const cur = kind === 'rc' ? '`i = v ÷ R`' : '`i`';\n      label(272 - tw(cur, 'lab') / 2, yT - 9, cur, 'lab', 'start');\n    });\n    said.push(kind === 'rc' ? 'A small circuit: a capacitor C with voltage v, and a resistor R, with the current i equals v divided by R flowing round.'\n      : 'A small circuit: a coil L and a resistor R, with the current i flowing round.');\n  }\n  // The R and C sliders above the plot.\n  const sxOf = (k, n) => SX0 + k / (n - 1) * (SX1 - SX0);\n  function sliders(R, C, a) {\n    part(a, 0, () => {\n      [[ROW_R, '`R` ' + R + ' kΩ', RS, RS.indexOf(R)], [ROW_C, '`C` ' + C + ' µF', CS, CS.indexOf(C)]].forEach(([y, s, list, k]) => {\n        text(12, y + 5, s, 'xl', 'start');\n        line('track', SX0, y, SX1, y);\n        list.forEach((v, j) => line('stk', sxOf(j, list.length), y - 6, sxOf(j, list.length), y + 6));\n        add(K.svg('circle', { class: 'knob', cx: r2(sxOf(k, list.length)), cy: y, r: 10 }));\n      });\n    });\n    said.push('Sliders: R is ' + R + ' kilohms and C is ' + C + ' microfarads.');\n  }\n  // A line of maths tokens, centred: where each token's left edge sits.\n  function layout(seq) {\n    let x = 0;\n    const pos = {};\n    seq.forEach(([id, s, gap]) => { x += gap; pos[id] = x; x += tw('`' + s + '`', 'eqn'); });\n    const shift = 170 - x / 2;\n    Object.keys(pos).forEach((k) => { pos[k] += shift; });\n    return pos;\n  }\n  function tokLine(seq, y, bad, a) {\n    const pos = layout(seq);\n    part(a, 0, () => seq.forEach(([id, s]) => {\n      const isBad = bad.indexOf(id) >= 0;\n      text(pos[id], y, '`' + s + '`', 'eqn' + (isBad ? ' bad' : ''), 'start');\n      if (isBad) { const w = tw('`' + s + '`', 'eqn'); add(K.svg('ellipse', { class: 'ring', cx: r2(pos[id] + w / 2), cy: y - 7, rx: r2(w / 2 + 8), ry: 17 })); }\n    }));\n    return pos;\n  }\n  // The rule turning into its separated line: the dependent letter slides under to the left, the\n  // dt slides over to the right; the \"/\" fades out and a \"÷\" fades in.\n  function sepLine(spec, y, p, a) {\n    const P0 = layout(spec.S), P1 = layout(spec.F), texts = {};\n    spec.S.concat(spec.F).forEach(([id, s]) => { texts[id] = s; });\n    part(a, 0, () => Object.keys(texts).forEach((id) => {\n      const xs = id in P0 ? P0[id] : P1[id], xf = id in P1 ? P1[id] : P0[id];\n      const op = id === spec.gone ? Math.max(0, 1 - 2 * p) : id === spec.born ? Math.max(0, 2 * p - 1) : 1;\n      if (op <= 0.01) return;\n      const L = spec.lift || 26, lift = id === spec.under ? L : id === spec.over ? -L : 0;\n      const t = text(K.lerp(xs, xf, p), y + lift * Math.sin(Math.PI * p), '`' + texts[id] + '`', 'eqn' + (spec.cls[id] ? ' ' + spec.cls[id] : ''), 'start');\n      if (op < 1) t.style.opacity = op;\n    }));\n    if (p >= 1) {\n      const side = (right) => spec.F.filter(([id]) => (right ? P1[id] > P1.eq : P1[id] < P1.eq)).map(([id]) => texts[id]);\n      REC.sep = { left: side(false), right: side(true) };\n    }\n    return P1;\n  }\n  function sideLabels(P1, y, letter, a) {\n    part(a, 4, () => {\n      const l = 'every `' + letter + '` on the left', r = 'every `t` on the right';\n      label(P1.eq - 10 - tw(l, 'lab main'), y + 40, l, 'lab main', 'start');\n      label(P1.eq + tw('`=`', 'eqn') + 10, y + 40, r, 'lab acc', 'start');\n    });\n  }\n  // Lines of working under the plot.\n  function workLines(lines) {\n    lines.forEach((w, k) => {\n      const a = w.a == null ? 1 : w.a;\n      part(a, 6, () => text(12, G.PB + 64 + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));\n      if (a >= 0.5) { REC.texts.push(plain(w.s)); said.push(say(w.s) + '.'); }\n    });\n  }\n  // The axes, their numbers, and the rule above them.\n  function axes(d, st) {\n    const g = G.g;\n    g.yt.forEach((v) => { line('gl', PL, G.y(v), PR, G.y(v)); text(PL - 6, G.y(v) + 4.5, strip(v.toFixed(2)), 'tk', 'end'); });\n    g.xt.forEach((t) => { line('gl', G.x(t), G.PT, G.x(t), G.PB); text(G.x(t), G.PB + 17, strip(t.toFixed(2)), 'tk', 'middle'); });\n    line('ax', PL, G.PB, PR, G.PB);\n    line('ax', PL, G.PT, PL, G.PB);\n    fixed(4, G.PT - 9, g.ytitle, 'ttl', 'start');\n  }\n  function tags(d, st) {\n    const tag = d.tag || (G.g && G.g.tag) || '';\n    if (tag) { fixed(4, 20, tag, 'tag', 'start'); said.push(say(tag) + '.'); }\n    let t2 = d.tag2 ? d.tag2(st) : null;\n    if (!t2 && G.kind === 'cap' && !d.tag) t2 = '`RC` = ' + fmtV(tauOf(Rof(st), Cof(st))) + ' s';\n    if (t2) { fixed(336, 20, t2, 'tag2', 'end'); said.push(say(t2) + '.'); }\n  }\n  // The key, inside the drawing, beside the time axis's name.\n  function keyRow(items) {\n    const y = G.PB + 38;\n    let x = PL;\n    text(x, y, G.g.xtitle, 'ttl', 'start');\n    x += tw(G.g.xtitle, 'ttl') + 18;\n    const rising = G.kind === 'grow' || G.kind === 'g13';\n    const item = (s, icon) => { icon(x, y - 5); x += 24; text(x, y, s, 'key', 'start'); x += tw(s, 'key') + 14; };\n    items.forEach((k) => {\n      if (k === 'rate') item('rule\\'s rate', (cx, cy) => add(K.svg('path', { class: 'pa', d: rising ? arrowD(cx + 2, cy + 5, [0.6, -0.8], 0, 14, 5) : arrowD(cx + 2, cy - 5, [0.6, 0.8], 0, 14, 5) })));\n      else if (k === 'win') item('window, 1 s', (cx, cy) => add(K.svg('rect', { class: 'band', x: cx, y: cy - 5, width: 18, height: 10, rx: 2 })));\n      else if (k === 'winRC') item('window, one `RC`', (cx, cy) => add(K.svg('rect', { class: 'band', x: cx, y: cy - 5, width: 18, height: 10, rx: 2 })));\n      else if (k === 'tan') item('start rate', (cx, cy) => line('tan', cx, cy - 6, cx + 18, cy + 4));\n      else if (k === 'slope') item('slope line', (cx, cy) => line('tan', cx, cy - 6, cx + 18, cy + 4));\n      else if (k === 'fam') item('other starts', (cx, cy) => line('fam', cx, cy, cx + 18, cy));\n      else if (k === 'sol12') item('the 12 V start', (cx, cy) => line('sol', cx, cy, cx + 18, cy));\n    });\n  }\n\n  // ---------- touching the plot ----------\n  // A drag on the plot moves the window or the rider; a drag on a slider sets R or C.\n  const mkGrip = () => { const g = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1 })); g.style.display = 'none'; return g; };\n  const GR = { plot: mkGrip(), R: mkGrip(), C: mkGrip() };\n  function setGrip(g, mode, box, aria) {\n    g.style.display = mode ? '' : 'none';\n    g.setAttribute('tabindex', mode ? '0' : '-1');\n    if (!mode) { delete g.dataset.mode; return; }\n    g.dataset.mode = mode;\n    ['x', 'y', 'width', 'height'].forEach((a, k) => g.setAttribute(a, r2(box[k])));\n    g.setAttribute('role', 'slider');\n    Object.keys(aria).forEach((k) => g.setAttribute(k, aria[k]));\n  }\n  function placeGrips(d, st) {\n    const live = !finished;\n    const pm = live && d.grip ? d.grip : null;\n    let aria = {};\n    if (pm === 'win') { const w = d.winW(st), t0 = REC.win ? REC.win.t0 : 0; aria = { 'aria-label': 'The window', 'aria-valuemin': 0, 'aria-valuemax': r2(G.g.t1 - w), 'aria-valuenow': r2(t0), 'aria-valuetext': 'starts at ' + fmtV(t0) + ' seconds' }; }\n    if (pm === 'rider') { const t = REC.rider ? REC.rider.t : 0; aria = { 'aria-label': 'The rider', 'aria-valuemin': 0, 'aria-valuemax': 9.5, 'aria-valuenow': r2(t), 'aria-valuetext': 'at ' + fmtV(t) + ' seconds' }; }\n    setGrip(GR.plot, pm, [PL - 12, G.PT - 10, PR - PL + 24, PH + 20], aria);\n    const sl = live && d.sliders;\n    setGrip(GR.R, sl ? 'R' : null, [SX0 - 22, ROW_R - 21, SX1 - SX0 + 40, 42],\n      { 'aria-label': 'Resistance R', 'aria-valuemin': 10, 'aria-valuemax': 40, 'aria-valuenow': Rof(st), 'aria-valuetext': Rof(st) + ' kilohms' });\n    setGrip(GR.C, sl ? 'C' : null, [SX0 - 22, ROW_C - 21, SX1 - SX0 + 40, 42],\n      { 'aria-label': 'Capacitance C', 'aria-valuemin': 50, 'aria-valuemax': 150, 'aria-valuenow': Cof(st), 'aria-valuetext': Cof(st) + ' microfarads' });\n  }\n  function svgPoint(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n  }\n  function setState(fn) {\n    const st = S[at()], was = anim.playing();\n    const before = JSON.stringify([st.win, st.rider, st.R, st.C]);\n    fn(st);\n    settle();\n    if (JSON.stringify([st.win, st.rider, st.R, st.C]) === before) { if (was) paint(); return; }\n    K.refresh();\n  }\n  const tenth = (v) => Math.round(v * 10) / 10;\n  function gripTo(mode, q) {\n    const i = at(), d = STEPS[i], geo = geoOf(d, S[i]);\n    const frac = K.clamp((q.x - SX0) / (SX1 - SX0), 0, 1);\n    setState((st) => {\n      if (mode === 'win') { const w = d.winW(st); st.win = K.clamp(tenth(geo.t(q.x) - w / 2), 0, tenth(geo.g.t1 - w)); }\n      else if (mode === 'rider') st.rider = K.clamp(tenth(geo.t(q.x)), 0, 9.5);\n      else if (mode === 'R') st.R = RS[Math.round(frac * (RS.length - 1))];\n      else if (mode === 'C') st.C = CS[Math.round(frac * (CS.length - 1))];\n    });\n  }\n  function gripKey(mode, by) {\n    const i = at(), d = STEPS[i], geo = geoOf(d, S[i]);\n    setState((st) => {\n      if (mode === 'win') { const w = d.winW(st), now = st.win == null ? (REC.win ? REC.win.t0 : 0) : st.win; st.win = K.clamp(tenth(now + 0.5 * by), 0, tenth(geo.g.t1 - w)); }\n      else if (mode === 'rider') { const now = st.rider == null ? (REC.rider ? REC.rider.t : 0) : st.rider; st.rider = K.clamp(tenth(now + 0.5 * by), 0, 9.5); }\n      else if (mode === 'R') st.R = RS[K.clamp(RS.indexOf(Rof(st)) + by, 0, RS.length - 1)];\n      else if (mode === 'C') st.C = CS[K.clamp(CS.indexOf(Cof(st)) + by, 0, CS.length - 1)];\n    });\n  }\n  let held = null;\n  Object.keys(GR).forEach((key) => {\n    const g = GR[key];\n    g.addEventListener('pointerdown', (e) => {\n      if (!g.dataset.mode) return;\n      held = { id: e.pointerId, g };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }\n      e.preventDefault();\n      const q = svgPoint(e);\n      if (q) gripTo(g.dataset.mode, q);\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.g !== g || !g.dataset.mode) return;\n      const q = svgPoint(e);\n      if (q) gripTo(g.dataset.mode, q);\n    });\n    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', () => { held = null; });\n    g.addEventListener('keydown', (e) => {\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (by == null || !g.dataset.mode) return;\n      e.preventDefault();\n      gripKey(g.dataset.mode, by);\n    });\n  });\n\n  // ---------- the readings under the drawing ----------\n  const RV = [0, 1, 2].map((k) => document.getElementById('rv' + k));\n  function setReads(d, st) {\n    const box = document.getElementById('reads');\n    if (!d.reads || !REC.win) { box.hidden = true; return; }\n    box.hidden = false;\n    const hide = d.hideReads && st.res !== 'right', u = G.kind === 'grow' ? '' : ' V', w = REC.win;\n    const fr = (v) => (Math.abs(v) < 1 ? fmt3(v) : fmtV(v));\n    RV[0].textContent = hide ? '?' : fr(w.v0) + u;\n    RV[1].textContent = hide ? '?' : fr(w.v1) + u;\n    RV[2].textContent = hide ? '?' : fmt3(w.ratio);\n    K.fade(box, w.a);\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    G = geoOf(d, st);\n    art.textContent = ''; topG.textContent = '';\n    into = null; curA = 1; placed = []; said = [];\n    REC = { arrows: [], curves: [], texts: [], bad: 0, answer: false, win: null, tan: null, rider: null, sep: null };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    tags(d, st);\n    if (G.g) axes(d, st);\n    d.draw(st);\n    if (G.g) keyRow((typeof d.key === 'function' ? d.key(st) : d.key) || []);\n    placeGrips(d, st);\n    setReads(d, st);\n    svg.setAttribute('aria-label', said.join(' '));\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  function labelButton(b, s, asMaths) {\n    b.setLabel(s);\n    b.el.textContent = '';\n    const sp = b.el.appendChild(K.el('span'));   // one span, so the button's gap does not split \"v = 9 e^(−t/3)\"\n    if (asMaths) maths(sp, s, false); else sp.textContent = s;\n    b.el.setAttribute('aria-label', say(s));\n  }\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    el('switch').hidden = !d.switch;\n    swBtns.forEach((o) => o.b.el.setAttribute('aria-pressed', d.switch && (st.mode || 'decay') === o.v ? 'true' : 'false'));\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      labelButton(b, opts[k], !!d.mathOpts);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));\n  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = TM;\n    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; paint(); }\n  }\n\n  K.check('In each successive time constant the value falls to 0.368 of the preceding value, so 0.632 of the remainder goes: a window one RC wide reads 0.368 for every R and C on the sliders, wherever it sits, and the line at its starting rate reaches zero exactly at its end', () => {\n    const i = idx('The time constant');\n    let n = 0;\n    for (const R of RS) for (const C of CS) {\n      const tau = tauOf(R, C);\n      for (const s of [0, 0.5, 10 - tau]) {\n        const r = drawn(i, { R, C, win: s });\n        if (!r.win || !close(r.win.w, tau) || !close(r.win.ratio, E1) || fmt3(r.win.ratio) !== '0.368' || !close(1 - r.win.ratio, 0.632, 5e-4)) return false;\n        if (!r.tan || !close(r.tan.zero, r.win.t0 + r.win.w) || !close(r.tan.slope, ruleDecay(tau)(r.win.v0))) return false;\n        n++;\n      }\n    }\n    return n === 60;\n  }, { source: OPENSTAX });\n  K.check('Separating puts every term in the dependent variable on one side and every term in the independent variable on the other: the rule becomes dv ÷ v = −dt ÷ RC, and of the three lines for the decay rule only dN ÷ N = −λ dt both separates and keeps the rule', () => {\n    const r = drawn(idx('Separate the variables'), {});\n    const okV = !!r.sep && r.sep.left.join(' ') === 'dv ÷ v' && r.sep.right.join(' ') === '− dt ÷ RC';\n    const separated = (o) => o.left.every((s) => /N|÷/.test(s)) && o.right.every((s) => !/N/.test(s)) && o.right.indexOf('dt') >= 0;\n    const keeps = (o) => [1, 50, 1000].every((N) => [0.1, 2].every((lam) => close(o.rate(N, lam), -lam * N)));\n    const i = idx('Separate a decay rule'), d = STEPS[i];\n    const only = d.opts.every((o) => (separated(OPT_N[o]) && keeps(OPT_N[o])) === (o === d.want));\n    const rn = drawn(i, solvedSt(i));\n    return okV && only && !!rn.sep && rn.sep.left.join(' ') === 'dN ÷ N' && rn.sep.right.join(' ') === '− λ dt';\n  });\n  K.check('The time constant for an RL circuit is L ÷ R: the coil\\'s curve is drawn with τ = L ÷ R, and its worked lines give that time and the current one τ later', () => {\n    const i = idx('A coil lets go'), r = drawn(i, solvedSt(i)), c = r.curves.find((x) => x.id === 'ans'), tau = L_COIL / R_COIL;\n    return close(tau, 0.05) && !!c && close(c.f(0), I_COIL) && close(c.f(tau), I_COIL * E1) &&\n      r.texts.indexOf('τ = L ÷ R = 0.5 ÷ 10 = 0.05 s') >= 0 && r.texts.indexOf('one τ keeps 0.368: 2.4 × 0.368 = 0.883 A') >= 0;\n  }, { source: LUMEN });\n  K.check('Equal times, equal fractions: a 1 s window reads 0.607 wherever it sits on the decay curve while both its voltages fall, its end arrow is shallower than its start arrow by that same share, and on the growth curve it reads 1.649 wherever it sits', () => {\n    const i = idx('Equal times, equal fractions');\n    let prev = null;\n    for (let s = 0; s <= 9 + 1e-9; s += 0.5) {\n      const r = drawn(i, { win: s }), w = r.win, ar = r.arrows.filter((a) => a.cls === 'pa');\n      if (!w || !close(w.ratio, Math.exp(-0.5)) || fmt3(w.ratio) !== '0.607') return false;\n      if (ar.length !== 2 || !close(ar[1].s / ar[0].s, w.ratio)) return false;\n      if (prev && !(w.v0 < prev.v0 && w.v1 < prev.v1)) return false;\n      prev = w;\n    }\n    for (let s = 0; s <= 3 + 1e-9; s += 0.5) {\n      const w = drawn(i, { mode: 'grow', win: s }).win;\n      if (!w || !close(w.ratio, Math.exp(0.5)) || fmt3(w.ratio) !== '1.649') return false;\n    }\n    const w0 = drawn(i, { win: 0 }).win, w3 = drawn(i, {}).win;\n    return fmtV(w0.v0) === '12' && fmtV(w0.v1) === '7.28' && close(w3.t0, 3) && fmtV(w3.v0) === '2.68' && fmtV(w3.v1) === '1.62';\n  });\n  K.check('Put back into the rule, v = 12 e^(−t/2) passes: the rider\\'s two numbers, the curve\\'s own slope and −v ÷ 2, agree at every time from 0 to 9.5 s, and both read −2.21 at 2 s', () => {\n    const i = idx('Put it back');\n    for (let t = 0; t <= 9.5 + 1e-9; t += 0.5) {\n      const r = drawn(i, { rider: t }).rider;\n      if (!r || r.a !== r.b || !close(r.slope, r.rule, 1e-6)) return false;\n    }\n    const r2s = drawn(i, {}).rider;\n    return !!r2s && close(r2s.t, 2) && r2s.a === '−2.21' && r2s.b === '−2.21';\n  });\n  K.check('By this rule the voltage never quite reaches zero: for every RC from 0.5 s to 6 s the curve stays above 0 V all the way to 10 s, falling at every step', () =>\n    RS.every((R) => CS.every((C) => {\n      const f = decay(V0, tauOf(R, C)), ts = K.linspace(0, 10, 201);\n      return ts.every((t, k) => f(t) > 0 && (k === 0 || f(t) < f(ts[k - 1])));\n    })));\n  K.check('Every worked number is right: RC is 2 s, and 0.5 to 6 s on the sliders; the rates are −6 at 12 V, −3 at 6 V and −1.5 at 3 V, with the slips −6 and +1.5; the curve is at 4.41 V at 2 s, where the tangent from 12 V reaches zero; y = 5 e^(−2t) starts at a slope of −10 with τ = 0.5 s; the coil keeps 0.883 A, the slip 1.52 A; growth from 100 reaches about 272, the slips 200 and 36.8', () => {\n    const rcs = [];\n    RS.forEach((R) => CS.forEach((C) => rcs.push(tauOf(R, C))));\n    const nums = close(TAU, 2) && close(Math.min(...rcs), 0.5) && close(Math.max(...rcs), 6) &&\n      fmtV(ruleDecay(TAU)(12)) === '−6' && fmtV(ruleDecay(TAU)(6)) === '−3' && fmtV(ruleDecay(TAU)(3)) === '−1.5' &&\n      fmtV(-3 * TAU) === '−6' && sgn(3 / TAU) === '+1.5' && fmtV(capV(2)) === '4.41' &&\n      fmtV(K5 * Y5) === '−10' && fmtV(-1 / K5) === '0.5' &&\n      fmt3(I_COIL * E1) === '0.883' && fmtV(I_COIL * (1 - E1)) === '1.52' &&\n      fmtD(growth(Y13, TAU13)(5), 0) === '272' && fmtD(Y13 + ruleGrow(TAU13)(Y13) * 5, 0) === '200' && fmtD(Y13 * E1, 1) === '36.8';\n    const t0 = drawn(idx('A rate in proportion'), {}).texts, i1 = idx('The rate at 3 V'), t1 = drawn(i1, solvedSt(i1)).texts;\n    const tc = drawn(idx('The time constant'), {});\n    return nums && t0.indexOf('at 12 V: −12 ÷ 2 = −6 V a second') >= 0 && t0.indexOf('at 6 V: −6 ÷ 2 = −3 V a second') >= 0 &&\n      t1.indexOf('at 3 V: −3 ÷ 2 = −1.5 V a second') >= 0 && !!tc.tan && close(tc.tan.zero, 2) && close(tc.tan.slope, -6) && fmtV(tc.win.v1) === '4.41';\n  });\n  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&\n        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check('Before Check, no puzzle\\'s picture shows its answer or a mistake, and the window\\'s readings at 6 s stay hidden', () => {\n    const ok = DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0; });\n    drawn(idx('A window at 3 s'), {});\n    const hidden = RV.every((x) => x.textContent === '?');\n    paint();\n    return ok && hidden;\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, finishes within 2 s', () => {\n    const keepT = TM;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      TM = Infinity; latest = 0; earliest = Infinity;\n      S[i] = Object.assign(blank(), st);\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) {\n        const r = timed(i, {}, d.dur) && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE;\n        const sw = !d.switch || (timed(i, { mode: 'grow' }, d.dur) && earliest >= FADE);\n        return r && sw;\n      }\n      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));\n    });\n    TM = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Equal times, equal fractions",
+  "brief": "The one thing you should see is end ÷ start holding at 0.607 while both end voltages fall, when you drag a 1 s window along the discharge curve.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "In each successive time constant the value falls to 0.368 of the preceding value, so 0.632 of the remainder goes: a window one RC wide reads 0.368 for every R and C on the sliders, wherever it sits, and the line at its starting rate reaches zero exactly at its end",
+     "ok": true,
+     "source": "https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits"
+    },
+    {
+     "label": "Separating puts every term in the dependent variable on one side and every term in the independent variable on the other: the rule becomes dv ÷ v = −dt ÷ RC, and of the three lines for the decay rule only dN ÷ N = −λ dt both separates and keeps the rule",
+     "ok": true
+    },
+    {
+     "label": "The time constant for an RL circuit is L ÷ R: the coil's curve is drawn with τ = L ÷ R, and its worked lines give that time and the current one τ later",
+     "ok": true,
+     "source": "https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits"
+    },
+    {
+     "label": "Equal times, equal fractions: a 1 s window reads 0.607 wherever it sits on the decay curve while both its voltages fall, its end arrow is shallower than its start arrow by that same share, and on the growth curve it reads 1.649 wherever it sits",
+     "ok": true
+    },
+    {
+     "label": "Put back into the rule, v = 12 e^(−t/2) passes: the rider's two numbers, the curve's own slope and −v ÷ 2, agree at every time from 0 to 9.5 s, and both read −2.21 at 2 s",
+     "ok": true
+    },
+    {
+     "label": "By this rule the voltage never quite reaches zero: for every RC from 0.5 s to 6 s the curve stays above 0 V all the way to 10 s, falling at every step",
+     "ok": true
+    },
+    {
+     "label": "Every worked number is right: RC is 2 s, and 0.5 to 6 s on the sliders; the rates are −6 at 12 V, −3 at 6 V and −1.5 at 3 V, with the slips −6 and +1.5; the curve is at 4.41 V at 2 s, where the tangent from 12 V reaches zero; y = 5 e^(−2t) starts at a slope of −10 with τ = 0.5 s; the coil keeps 0.883 A, the slip 1.52 A; growth from 100 reaches about 272, the slips 200 and 36.8",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle's picture shows its answer or a mistake, and the window's readings at 6 s stay hidden",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, finishes within 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "A rate in proportion",
+      "The rate at 3 V",
+      "Equal times, equal fractions",
+      "A window at 3 s",
+      "Separate the variables",
+      "Separate a decay rule",
+      "Integrate both sides",
+      "Pick the curve",
+      "Put it back",
+      "Which rule?",
+      "The time constant",
+      "A coil lets go",
+      "Growth over one τ"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Decay",
+    "Growth",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"dt\" and \"−\" are only 1 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 5, and 1 more setting)",
+    "SVG labels \"dN\" and \"/\" are only 0 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 6, and 1 more setting) [at 340 px wide]",
+    "SVG labels \"/\" and \"dt\" are only 0 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 6, and 1 more setting) [at 340 px wide]",
+    "SVG labels \"dN\" and \"/\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 6, and 1 more setting) [at 720 and 1040 px wide]",
+    "SVG labels \"/\" and \"dt\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 6, and 1 more setting) [at 720 and 1040 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T10:54:27.882Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Sign slip: with the current leaving the capacitor taken as +v ÷ R, i = C dv/dt would give dv/dt = +v ÷ RC; the minus comes from the current draining the capacitor, as explain.text already says."
+   },
+   {
+    "path": "explain.text",
+    "problem": "The Britannica quote says the decay rate depends on the decay constant; \"set by\" overstates it, since the rate also depends on how many atoms are left."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

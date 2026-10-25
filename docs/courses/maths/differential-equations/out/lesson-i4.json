@@ -1,0 +1,592 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T10:54:27.882Z",
+ "startedAt": "2026-10-25T10:54:27.882Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "One small step at a time: Euler's method",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the hatched drift between the straight steps and the faint exact curve shrink when you pick smaller step sizes for the capacitor's discharge.",
+   "title": "The stepper",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "This is a short lesson in thirteen small screens. A 100 µF capacitor charged to 12 V discharges through a 10 kΩ resistor. So τ = RC = 1 s. Its rule is dV/dt = −V ÷ 1, in volts and seconds. Voltage runs up the side, from 0 to 12 V. Time runs along the bottom, from 0 to 3 s. A faint slope field fills the plot. A faint exact curve, V = 12 e^(−t), runs through it. Euler's method walks on top. At each point it reads the arrow there. It walks straight along that arrow for one step, of size h. Then it reads again. So new value = old value + h × slope at the old value. The gap between the walk and the curve is the drift. It is hatched. Screen 1 starts a dot at 12 V. The arrow there slopes −12 V a second. The dot walks 0.5 s along it, down to 6 V. Screen 2 asks where the next 0.5 s step lands. The choices are 3 V, 0 V or 4.41 V. Screen 3 draws both steps and the curve. At 1 s the walk reads 3 V. The curve reads 4.41 V. The 1.41 V drift between them is hatched. Short tangent ticks sit along the first step. They show the curve easing off. The step keeps its starting slope. Screen 4 asks where 0.25 s steps have reached by 0.5 s. The choices are 6.75 V, 7.28 V or 6 V. Screen 5 offers a named choice of step size. The sizes are 0.05, 0.1, 0.25, 0.5 or 1 s. It opens on 0.5 s. Each step's starting arrow is drawn where the step begins. So you can see every step use the slope at its start. A table logs the value at 1 s for each step size chosen. The curve's 4.41 V sits beside it. The rows read 4.30, 4.18, 3.80, 3.00 and 0 V. Their drifts are 0.11, 0.23, 0.62, 1.41 and 4.41 V. As the steps shrink, the value at 1 s climbs towards 4.41 V. On a phone the table's columns wrap. Screen 6 gives the drift with 0.1 s steps, 0.23 V. It asks the drift with 0.05 s steps. The choices are about 0.11 V, about 0.23 V or about 0.06 V. The 0.05 s row stays hidden until he checks. Screen 7 widens the plot. Voltage now runs from −12 to 12 V, and time from 0 to 6 s. A named choice offers 1, 1.5 or 2 s steps. It opens on 1.5 s. A dashed line marks the steady state at 0 V. Each step adds h × (−V ÷ τ). So each step multiplies the value by 1 − h ÷ τ. With 1 s steps the walk drops to 0 V at 1 s and stays there. With 1.5 s steps it goes 12, −6, 3, −1.5 and 0.75 V. It swings either side of 0 V and dies away. With 2 s steps it goes 12, −12, 12 and −12 V, for ever. The curve itself never crosses 0 V. Screen 8 asks where the first 1.5 s step from 12 V lands. The choices are −6 V, 0 V or 2.68 V. Screen 9 swaps in a tank. Its level y obeys dy/dt = 0.3 − 0.2 √y, in metres and minutes. It fills from empty. Level runs up the side, from 0 to 2.5 m. Time runs along the bottom, from 0 to 20 min. A dashed line marks the steady level, 2.25 m. There is no faint curve this time. This rule has no tidy formula for y against time. A named choice offers steps of 2, 1, 0.5 or 0.25 min. Each walk is drawn on top of the others. Readouts log the level at 4 min: 0.89, 0.79, 0.75 and 0.73 m. Each halving moves the answer less. Screen 10 asks where one 1 min step from 1 m lands. The choices are 1.1 m, 1.3 m or 0.1 m. Screens 11 to 13 mix everything together. Screen 11 steps the coil from the last lesson. Its rule is di/dt = (24 − 10 i) ÷ 0.5. It starts from 0 A and takes two steps of 0.01 s. The choices are 0.864 A, 0.96 A or 0.791 A. Screen 12 steps the same coil with 0.075 s steps. Its current reads 0, 3.6, 1.8 and 2.7 A. It asks why the current swings. One answer is that the step is longer than τ, so it overshoots. Another is that the current really rings. The third is that the steady value is 3.6 A. Screen 13 shows the tank at 4 min. It reads 0.79 m with 1 min steps and 0.75 m with 0.5 min steps. It asks what to do next. The choices are to halve the step again and compare, to take 0.79 m, or to average them to 0.77 m. Each puzzle offers three answers.",
+   "ignores": "The steps are drawn slowly. They are also much larger than a computer would take. A computer also rounds each number a little. That rounding is left out here. The capacitor and resistor are ideal. The tank's rule is an example. Its outflow grows as the square root of the level. A real tank's outflow depends on its outlet. Euler's method is the simplest stepper. Better steppers read the slope more than once in each step.",
+   "numbers": [
+    {
+     "label": "Example capacitance, in µF",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example start voltage, in V",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example resistance, in kΩ",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Time constant RC, in seconds",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Plot's last time, in seconds, screens 1 to 6",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Starting slope, −12 ÷ 1, in V a second",
+     "value": -12,
+     "kind": "computed"
+    },
+    {
+     "label": "First step size, in seconds, screens 1 to 3",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "After one 0.5 s step, 12 − 0.5 × 12, in V",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "After two 0.5 s steps, 6 − 0.5 × 6, in V",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, starting slope reused, in V",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Exact value at 1 s, 12 e^(−1), in V",
+     "value": 4.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Drift at 1 s with 0.5 s steps, in V",
+     "value": 1.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Smaller step, in seconds, screen 4",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "After one 0.25 s step, in V",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "After two 0.25 s steps, in V",
+     "value": 6.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Exact value at 0.5 s, 12 e^(−0.5), in V",
+     "value": 7.28,
+     "kind": "computed"
+    },
+    {
+     "label": "Step size choice, smallest, in seconds",
+     "value": 0.05,
+     "kind": "control"
+    },
+    {
+     "label": "Step size choice, in seconds",
+     "value": 0.1,
+     "kind": "control"
+    },
+    {
+     "label": "Step size choice, largest on screen 5, in seconds",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Value at 1 s, 0.05 s steps, in V",
+     "value": 4.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Value at 1 s, 0.1 s steps, in V",
+     "value": 4.18,
+     "kind": "computed"
+    },
+    {
+     "label": "Value at 1 s, 0.25 s steps, in V",
+     "value": 3.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Drift at 1 s, 0.05 s steps, in V",
+     "value": 0.11,
+     "kind": "computed"
+    },
+    {
+     "label": "Drift at 1 s, 0.1 s steps, in V",
+     "value": 0.23,
+     "kind": "computed"
+    },
+    {
+     "label": "Drift at 1 s, 0.25 s steps, in V",
+     "value": 0.62,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, drift quartered, in V",
+     "value": 0.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Wide plot's lowest voltage, in V, screen 7",
+     "value": -12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Wide plot's last time, in seconds, screen 7",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Big step choice, in seconds",
+     "value": 1.5,
+     "kind": "control"
+    },
+    {
+     "label": "Big step choice, largest, in seconds",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Factor per 1.5 s step, 1 − 1.5 ÷ 1",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "After one 1.5 s step, in V",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "After three 1.5 s steps, in V",
+     "value": -1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "After four 1.5 s steps, in V",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Factor per 2 s step, 1 − 2 ÷ 1",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Exact value at 1.5 s, 12 e^(−1.5), in V",
+     "value": 2.68,
+     "kind": "computed"
+    },
+    {
+     "label": "Fall in one 1.5 s step, 1.5 × 12, in V",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank's inflow, in m a minute",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tank's outflow figure, per root metre a minute",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tank's top level on the plot, in m",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tank plot's last time, in minutes",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tank's steady level, (0.3 ÷ 0.2)², in m",
+     "value": 2.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank step choices, in minutes",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Tank step choice, smallest, in minutes",
+     "value": 0.25,
+     "kind": "control"
+    },
+    {
+     "label": "Tank time logged, in minutes",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Level at 4 min, 2 min steps, in m",
+     "value": 0.89,
+     "kind": "computed"
+    },
+    {
+     "label": "Level at 4 min, 1 min steps, in m",
+     "value": 0.79,
+     "kind": "computed"
+    },
+    {
+     "label": "Level at 4 min, 0.5 min steps, in m",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Level at 4 min, 0.25 min steps, in m",
+     "value": 0.73,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank start level, screen 10, in m",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tank slope at 1 m, 0.3 − 0.2, in m a minute",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Level after one 1 min step, in m",
+     "value": 1.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, outflow left out, 1 + 0.3, in m",
+     "value": 1.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil supply, in V",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil resistance, in Ω",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil inductance, in H",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil step size, in seconds, screen 11",
+     "value": 0.01,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil starting slope, 24 ÷ 0.5, in A a second",
+     "value": 48,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil after one 0.01 s step, in A",
+     "value": 0.48,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil slope at 0.48 A, in A a second",
+     "value": 38.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil after two 0.01 s steps, in A",
+     "value": 0.864,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, starting slope reused, in A",
+     "value": 0.96,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil exact at 0.02 s, 2.4 (1 − e^(−0.4)), in A",
+     "value": 0.791,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil exact time, two steps, in seconds",
+     "value": 0.02,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil time constant, 0.5 ÷ 10, in seconds",
+     "value": 0.05,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil steady current, 24 ÷ 10, in A",
+     "value": 2.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil big step, in seconds, screen 12",
+     "value": 0.075,
+     "kind": "assumed"
+    },
+    {
+     "label": "Coil after one 0.075 s step, in A",
+     "value": 3.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil after two 0.075 s steps, in A",
+     "value": 1.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil after three 0.075 s steps, in A",
+     "value": 2.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, average of 0.79 and 0.75, in m",
+     "value": 0.77,
+     "kind": "computed"
+    },
+    {
+     "label": "Value at 1 s with 0.1 s steps below exact, in %",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil rise in the second step, 0.01 × 38.4, in A",
+     "value": 0.384,
+     "kind": "computed"
+    },
+    {
+     "label": "Resistor's volts at 0.48 A, 10 × 0.48, in V",
+     "value": 4.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slope at 6 V, in V a second",
+     "value": -6,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Euler's method solves a rule by walking it. Stand at the start. Read the slope the rule gives there. Walk a short straight step along it. Then read the slope again where you land, and repeat.[^1] It needs no formula, only the rule. So it works even on rules that have no formula.\n\nTake the 100 µF capacitor from before, now discharging through 10 kΩ. So τ = RC = 1 s. Its rule is dV/dt = −V ÷ 1. At 12 V the slope is −12 V a second. Walk 0.5 s along it and you fall 6 V. That lands you at 6 V. At 6 V the slope is −6 V a second. So the next 0.5 s takes you to 3 V. Each step is new value = old value + h × slope. Here h is the [[step size]]. That is [[Euler's method]].\n\nThe walk drifts from the true answer. At 1 s the exact curve reads 4.41 V. The walk reads only 3 V. The cause is in each step. A step keeps the slope it read at its start. Along the step the voltage falls. So the true slope eases off. The straight line does not. So the step falls too far. The walk drifts below the curve. Shorter steps re-read the slope more often. So a smaller step gives a better answer, and a larger step a worse one.[^2] At 1 s, 0.1 s steps give 4.18 V. Steps of 0.05 s give 4.30 V. For small steps the drift is about in proportion to the step. So halving the step roughly halved it.\n\nToo big a step does worse than drift. Each step adds h × (−V ÷ τ) to V. So each step multiplies the voltage by 1 − h ÷ τ. With 1.5 s steps that factor is −0.5. The first step reads −12 V a second. It walks that slope for 1.5 s. It falls 18 V, straight past 0 V to −6 V. Then it swings back. The real voltage never goes below 0 V. So the swing comes only from the steps. With 2 s steps it swings for ever. In rules like these, the rate depends only on the value. Then the true curve can never cross its steady line. A walk that swings across that line is taking steps that are too big.\n\nThe same walk works where no tidy formula exists. Take a tank filled at a steady rate. It drains through its base. Its outflow grows with the square root of the depth. Say its level y obeys dy/dt = 0.3 − 0.2 √y, in metres and minutes. Its steady level is where inflow and outflow balance, at 2.25 m. You cannot rearrange this rule into a tidy formula for y against time. So step it. Then halve the step and step again. From empty, the level at 4 min reads 0.89 m with 2 min steps. As the steps halve, it reads 0.79 m, then 0.75 m, then 0.73 m. Each halving moves the answer less. When it barely moves, you can trust it.\n\n**Euler's method walks short straight steps along the rule's slope, re-reading it after each one. Smaller steps drift less from the true curve. For a decay, steps longer than the time constant overshoot.**"
+  },
+  "analogy": {
+   "text": "Euler's method is dead reckoning. You know the boat's position, course and speed. Hold that course for a set time. Then mark the new position. Take the new course and speed, and run again. Long runs between updates drift further from the true track.",
+   "breaks": "A navigator's course is set by the helm, not by where the boat is. Euler's slope changes with the value itself. A navigator also gets fixes that reset the error. Euler's method never gets a fix. Only short steps keep its drift small."
+  },
+  "practice": {
+   "text": "- Write the rule as slope = f(value, time).\n- Choose a step size h. For a decay, start well under the time constant.\n- Find the slope at the start.\n- New value = old value + h × slope. New time = old time + h.\n- Find the slope at the new value, and repeat.\n- Halve h and run it again. If the answer barely moves, trust it.\n\n**Rules of thumb:** here, steps of a tenth of τ left the value at one τ about 5% low. For a decay, steps longer than τ overshoot the steady state. A spreadsheet does this well. Give each step one row. Halving h doubles the rows, so smaller steps cost more work. A close cousin of this method works out how fast a submarine dives as its ballast tanks flood.[^3]\n\n**Worked example:** take the coil from before. Its rule is di/dt = (24 − 10 i) ÷ 0.5, and it starts at 0 A. Use steps of 0.01 s. The starting slope is 24 ÷ 0.5 = 48 A a second. So after 0.01 s, i = 0 + 0.01 × 48 = 0.48 A. The slope there is (24 − 4.8) ÷ 0.5 = 38.4 A a second. So after 0.02 s, i = 0.48 + 0.384 = 0.864 A. The exact formula gives 0.791 A. The walk runs high. This curve flattens as it rises, but each step keeps its steeper starting slope.\n\n**Common mistakes**\n- Reusing the starting slope for every step. Re-read it at each new value.\n- Expecting the steps to land on the exact curve. They drift from it. The drift builds up.\n- Adding the slope instead of h × slope.\n- Trusting a walk that swings across its steady line. When the rate depends only on the value, the true curve never crosses it. Shrink the step.\n- Trusting one run. Halve the step and compare."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "7.3: Euler's Method - Mathematics LibreTexts — LibreTexts Mathematics",
+    "url": "https://math.libretexts.org/Under_Construction/Purgatory/Book%3A_Active_Calculus_(Boelkins_et_al.)/07%3A_Differential_Equations/7.03%3A_Euler's_Method",
+    "quote": "Euler’s method is an algorithm for approximating the solution to an initial value problem by following the tangent lines while we take horizontal steps across the"
+   },
+   {
+    "n": 2,
+    "title": "Euler's Method (First Order Runge-Kutta)",
+    "url": "https://lpsa.swarthmore.edu/NumInt/NumIntFirst.html",
+    "quote": "Obviously a smaller h would result in a better approximation, and a larger _h_ in a worse approximation."
+   },
+   {
+    "n": 3,
+    "title": "How Quickly Can a Submarine Dive? (C. Mungan, US Naval Academy)",
+    "url": "https://www.usna.edu/Users/physics/mungan/_files/documents/Publications/TPE2.pdf",
+    "quote": "the resulting second-order equation is solved using the Euler–Cromer algorithm."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }\n  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */\n  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax, .scene .xt { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .sup { font-size: 12.5px; }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.main { fill: var(--k-accent2); }\n  .scene .lab.acc { fill: var(--k-accent); }\n  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }\n  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  /* The rule's slope field, faint; the exact curve, faint; Euler's walk in navy on top. */\n  .scene .sf { fill: none; stroke: var(--k-muted); stroke-opacity: .45; stroke-width: 1.4; stroke-linecap: round; }\n  .scene .ex { fill: none; stroke: var(--k-muted); stroke-opacity: .8; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .ex.strong { stroke: var(--k-ink); stroke-opacity: 1; stroke-width: 3; }\n  .scene .walk { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .old { fill: none; stroke: var(--k-ink); stroke-opacity: .55; stroke-width: 2.4; stroke-dasharray: 0.1 5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .badl { fill: none; stroke: var(--k-warn); stroke-width: 2.4; stroke-linecap: round; }\n  .scene .rd { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .tick { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }\n  /* The drift: hatched in ink between the walk and the curve, with a bracket at 1 s. */\n  .scene .hl { stroke: var(--k-ink); stroke-opacity: .5; stroke-width: 1.4; }\n  .scene .hatch { fill: url(#hatch); stroke: none; }\n  .scene .hatch.sw { stroke: var(--k-ink); stroke-opacity: .6; stroke-width: 1; }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }\n  .scene .ss { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 7 5; }\n  .scene .mk { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }\n  .scene .tau { stroke: var(--k-accent); stroke-width: 4; stroke-linecap: round; }\n  .scene .knot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .knot.old { fill: var(--k-ink); fill-opacity: .55; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot.cv { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 2.4; }\n  .scene .dot.bad { fill: var(--k-warn); }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }\n  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }\n  /* The tank, drawn small. */\n  .scene .inset { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.2; }\n  .scene .water { fill: var(--k-fill1); }\n  .scene .tankbox { fill: none; stroke: var(--k-ink); stroke-width: 1.8; }\n  .scene #art *, .scene #top *, .scene #field * { pointer-events: none; }\n  /* The log of values: tiles that wrap to fewer columns on a phone. */\n  .reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; }\n  .reads .rd { background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 10px; }\n  .reads .rd .k-label { display: block; text-transform: none; letter-spacing: 0; }\n  .reads .rd b { display: block; font-size: 1.15rem; white-space: nowrap; margin-top: 2px; }\n  .reads .rd small { display: block; color: var(--k-muted); font-size: .85rem; margin-top: 2px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  .switch { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); gap: 8px; }\n  .switch .k-btn { min-height: 44px; white-space: nowrap; padding-inline: 6px; }\n  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"], .switch .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\" id=\"lead\">A 100&nbsp;µF capacitor charged to 12&nbsp;V discharges through a 10&nbsp;kΩ resistor. Every value is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><pattern id=\"hatch\" patternUnits=\"userSpaceOnUse\" width=\"6\" height=\"6\" patternTransform=\"rotate(45)\"><line class=\"hl\" x1=\"3\" y1=\"0\" x2=\"3\" y2=\"6\"></line></pattern></defs><g id=\"field\"></g><g id=\"art\"></g><g id=\"top\"></g></svg>\n    <div class=\"switch\" id=\"switch\"></div>\n    <div class=\"reads\" id=\"reads\" hidden></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every step, drift and reading is worked out from the rule on its screen.</p>\n\n<script>\n  // ---------- the rules ----------\n  // A 100 µF capacitor discharging through 10 kΩ: τ = RC = 1 s, and dV/dt = −V ÷ τ. Exact: V = 12 e^(−t).\n  const C_F = 100e-6, R_OHM = 10e3, TAU = Math.round(C_F * R_OHM * 1e6) / 1e6, V0 = 12;\n  const capRate = (t, v) => -v / TAU;\n  const capExact = (t) => V0 * Math.exp(-t / TAU);\n  // A tank filled at 0.3 m a minute that drains as 0.2 √y: dy/dt = 0.3 − 0.2 √y. It has no tidy formula.\n  const QIN = 0.3, QK = 0.2, H_SS = Math.pow(QIN / QK, 2);   // 2.25 m, where inflow and outflow balance\n  const tankRate = (t, h) => QIN - QK * Math.sqrt(Math.max(0, h));\n  // The coil from before: 24 V, 10 Ω, 0.5 H, so di/dt = (24 − 10 i) ÷ 0.5, τ = 0.05 s, steady 2.4 A.\n  const CE = 24, CR = 10, CL = 0.5, CTAU = CL / CR, CSS = CE / CR;\n  const coilRate = (t, i) => (CE - CR * i) / CL;\n  const coilExact = (t) => CSS * (1 - Math.exp(-t / CTAU));\n  // Euler's method: new value = old value + h × slope at the old value; new time = old time + h.\n  function euler(rate, y0, h, tEnd) {\n    const n = Math.round(tEnd / h), pts = [[0, y0]];\n    let y = y0;\n    for (let k = 0; k < n; k++) { y = y + h * rate(k * h, y); pts.push([(k + 1) * h, y]); }\n    return pts;\n  }\n  const valAt = (pts, t) => pts[Math.round(t / (pts[1][0] - pts[0][0]))][1];\n  const CAP_HS = [1, 0.5, 0.25, 0.1, 0.05], BIG_HS = [1, 1.5, 2], TANK_HS = [2, 1, 0.5, 0.25];\n  const capWalk = (h, tEnd) => euler(capRate, V0, h, tEnd == null ? 3 : tEnd);\n  const capAt1 = (h) => valAt(capWalk(h, 1), 1);\n  const driftAt1 = (h) => capExact(1) - capAt1(h);\n  const tankWalk = (h, tEnd) => euler(tankRate, 0, h, tEnd == null ? 20 : tEnd);\n  const tankAt4 = (h) => valAt(tankWalk(h, 4), 4);\n  const coilWalk = (h, tEnd) => euler(coilRate, 0, h, tEnd);\n\n  // The source the checks restate (the lesson's own).\n  const SWAR = 'https://lpsa.swarthmore.edu/NumInt/NumIntFirst.html';\n\n  // ---------- numbers, written the lesson's way ----------\n  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\\.$/, '') : s);\n  function fmtD(v, dp) {\n    const m = Math.pow(10, dp), r = Math.round(v * m) / m;\n    if (r === 0) return '0';\n    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));\n  }\n  const f2 = (v) => fmtD(v, 2), f3 = (v) => fmtD(v, 3);\n  // The log's way: two places kept (\"3.00 V\"), and a plain 0.\n  function f2z(v) { const r = Math.round(v * 100) / 100; return r === 0 ? '0' : (r < 0 ? '−' : '') + Math.abs(r).toFixed(2); }\n  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\\*/g, '');\n  // As a screen reader says it.\n  const say = (s) => plain(s).replace(/d([A-Za-z])\\/d([A-Za-z])/g, 'd $1 by d $2').replace(/e\\^\\(([^)]*)\\)/g, 'e to the power $1')\n    .replace(/µF/g, ' microfarads').replace(/kΩ/g, ' kilohms').replace(/Ω/g, ' ohms').replace(/τ/g, ' tau ').replace(/√/g, ' root ')\n    .replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/\\+/g, ' plus ').replace(/−/g, ' minus ')\n    .replace(/%/g, ' per cent').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // grid: which plot (GRIDS below); info: the step size, above the plot on the right; switch: the\n  // named step sizes under the drawing; reads: the log of values under it; work: lines of working\n  // under the plot; key: the key's items; draw(st, d): the picture in that step's state. A SHOW\n  // step's timetable is in its draw, in seconds from when the screen opens.\n  const PICK = 'Tap one of the answers.';\n  const FB = 2.0;   // how long the motion after an answer plays\n  const SOFT = 0.6;\n  const H1 = 0.5;   // the first step size\n  const STEPS = [\n    { show: true, name: 'One step', grid: 'cap', work: 1, key: ['walk', 'read', 'exact', 'field'], dur: 3.6, info: '`h` = 0.5 s',\n      text: '*Euler\\'s method* solves a rule by walking it, so it works even where no formula exists. It reads the slope, walks a short straight step along it, then reads again. Each step lasts the same time, the *step size* `h`. Here the rule is `dV/dt = −V ÷ 1`, since `τ = RC` = 1 s. The faint marks are its *slope field*. The faint curve is the exact answer. At 12 V the slope is −12 V a second. Half a second along it takes you down 6 V, to 6 V.',\n      draw() {\n        const w = capWalk(H1, H1);\n        exactCurve(capExact, 0, 3);\n        dot(0, V0);\n        arrowFrom(0, V0, capRate(0, V0), 'rd', arr(0.5, 0.8), 40, 5);\n        part(vis(0.9), 4, () => label(G.x(0) + 14, G.y(V0) + 4, 'slope −12 V a second', 'lab acc', 'start', [[G.x(0) + 18, G.y(V0) + 22, 'start']]));\n        const tip = drawWalk(w, 'walk', arr(1.6, 1.4), { rate: capRate, dots: false });\n        if (tip && TM < 3.0) rider(tip);\n        part(vis(3.0), 4, () => { dot(H1, w[1][1]); label(G.x(H1) + 10, G.y(w[1][1]) + 5, f2(w[1][1]) + ' V', 'lab main', 'start'); });\n        workLines([{ s: '12 + 0.5 × (−12) = 6 V', a: vis(3.0) }]);\n        said.push('A dot at 12 volts reads the slope arrow there and walks half a second straight along it, down to 6 volts.');\n      } },\n    { kind: 'pick', name: 'The next step', grid: 'cap', work: 1, key: ['walk', 'exact', 'field'], info: '`h` = 0.5 s',\n      task: 'Now you stand at 6 V, at 0.5 s. Where does the next 0.5 s step land?',\n      opts: ['3 V', '0 V', '4.41 V'], want: '3 V',\n      why: 'At 6 V the rule gives a slope of −6 V a second. Walk 0.5 s along it and you fall 0.5 × 6 = 3 V. So you land on 6 − 3 = 3 V. Each step is new value = old value + `h` × slope.',\n      hint: 'Not quite. Read the slope again at 6 V first.',\n      hints: { '0 V': 'Not quite. That keeps the old slope of −12 V a second. At 6 V the slope is −6 V a second.', '4.41 V': 'Not quite. 4.41 V is the exact curve at 1 s. The walk only follows its arrows.' },\n      draw(st) {\n        const r = RW(st), w = capWalk(H1, 1);\n        exactCurve(capExact, 0, 3);\n        marker(1, 'after 1 s');\n        drawWalk(w.slice(0, 2), 'walk', 1, { rate: capRate });\n        dot(H1, w[1][1]);\n        label(G.x(H1) + 10, G.y(w[1][1]) - 8, '6 V', 'lab main', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          arrowFrom(H1, w[1][1], capRate(H1, w[1][1]), 'rd', arr(0.1, 0.5), 30, 5);\n          const tip = drawWalk(w.slice(1), 'walk', arr(0.5, 0.9), { rate: capRate, dots: false });\n          if (tip && TM < 1.4) rider(tip);\n          part(vis(1.3), 0, () => { dot(1, w[2][1]); label(G.x(1) + 10, G.y(w[2][1]) + 16, f2(w[2][1]) + ' V', 'lab main', 'start'); });\n          workLines([{ s: '6 + 0.5 × (−6) = 3 V', a: vis(0.6) }]);\n        } else if (r.w === '0 V') {\n          REC.bad++;\n          badLine(H1, w[1][1], 1, w[1][1] + H1 * capRate(0, V0), arr(0.1, 0.8));\n          part(vis(0.8), 0, () => ring(1, 0));\n          part(vis(0.8), 4, () => label(G.x(1) + 14, G.y(1.2), 'the old slope, −12 V a second', 'lab bad', 'start'));\n          workLines([{ s: 'the slope at 6 V is −6 V a second', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(1, capExact(1)));\n          part(vis(0.5), 4, () => label(G.x(1) + 14, G.y(capExact(1)) - 10, '4.41 V is the exact curve', 'lab bad', 'start'));\n          workLines([{ s: 'the walk follows its arrows, not the curve', bad: true, a: vis(0.5) }]);\n        }\n      } },\n    { show: true, name: 'The drift', grid: 'cap', work: 0, key: ['walk', 'drift', 'exact', 'field'], dur: 3.6, info: '`h` = 0.5 s',\n      text: 'Here are both 0.5 s steps beside the exact curve. At 1 s the walk reads 3 V. The curve reads 4.41 V. The hatched gap between them is the *drift*, 1.41 V. The short ticks along the first step show the true slope as the voltage falls. It eases off. The step keeps the slope it read at its start. So it falls too far, and the walk drifts below the curve.',\n      draw() {\n        const w = capWalk(H1, 1), v1 = capAt1(H1), e1 = capExact(1);\n        exactCurve(capExact, 0, 3);\n        driftFill(w, capExact, 0, 1, vis(0.5));\n        drawWalk(w, 'walk', 1, { rate: capRate });\n        part(vis(0.5), 4, () => {\n          label(G.x(1) + 8, G.y(e1) - 8, 'curve ' + f2(e1) + ' V', 'lab', 'start');\n          label(G.x(1) + 8, G.y(v1) + 18, 'walk ' + f2(v1) + ' V', 'lab main', 'start');\n        });\n        part(vis(1.1), 0, () => bracket(1, v1, e1, 'drift ' + f2(e1 - v1) + ' V', [G.x(1) - 8, G.y(v1) + 20, 'end', [[G.x(1) - 8, G.y(v1) + 38, 'end']]]));\n        [0.1, 0.2, 0.3, 0.4].forEach((t, k) => part(vis(1.8 + 0.35 * k), 0, () => tick(t, w[0][1] + t * capRate(0, w[0][1]), capRate)));\n        part(vis(3.0), 4, () => label(G.x(0) + 22, G.PT + 14, 'ticks: the true slope eases off', 'lab', 'start'));\n        said.push('Two half-second steps reach 3 volts at 1 second, below the curve\\'s 4.41 volts. The 1.41 volt drift between them is hatched. Ticks along the first step show the true slope flattening while the step stays straight.');\n      } },\n    { kind: 'pick', name: 'Smaller steps', grid: 'cap', work: 2, key: ['walk', 'exact', 'field'], info: '`h` = 0.25 s',\n      task: 'Start again at 12 V, with 0.25 s steps. Where is the walk at 0.5 s?',\n      opts: ['6.75 V', '7.28 V', '6 V'], want: '6.75 V',\n      why: 'The first step falls 0.25 × 12 = 3 V, to 9 V. At 9 V the slope is −9 V a second. So the second step falls 0.25 × 9 = 2.25 V, to 6.75 V. The exact curve reads 7.28 V there. One 0.5 s step reached only 6 V. So the smaller steps sit closer to the curve.',\n      hint: 'Not quite. Take two steps of 0.25 s, re-reading the slope after the first.',\n      hints: { '7.28 V': 'Not quite. 7.28 V is the exact curve at 0.5 s. The walk drifts below it.', '6 V': 'Not quite. 6 V is where one 0.5 s step lands. Take two steps of 0.25 s.' },\n      draw(st) {\n        const r = RW(st), w = capWalk(0.25, H1);\n        exactCurve(capExact, 0, 3);\n        marker(H1, 'after 0.5 s');\n        dot(0, V0);\n        if (r.ok) {\n          REC.answer = true;\n          arrowFrom(0, V0, capRate(0, V0), 'rd', arr(0.1, 0.4), 30, 5);\n          arrowFrom(0.25, w[1][1], capRate(0.25, w[1][1]), 'rd', arr(0.8, 0.4), 30, 5);\n          const tip = drawWalk(w, 'walk', (arr(0.2, 0.6) + arr(0.9, 0.6)) / 2, { rate: capRate });\n          if (tip && TM < 1.5) rider(tip);\n          part(vis(0.8), 4, () => label(G.x(0.25) + 10, G.y(w[1][1]) + 4, f2(w[1][1]) + ' V', 'lab main', 'start'));\n          part(vis(1.4), 4, () => {\n            dot(H1, w[2][1]);\n            label(G.x(H1) - 8, G.y(w[2][1]) + 16, f2(w[2][1]) + ' V', 'lab main', 'end');\n            dot(H1, capExact(H1), 'cv');\n            label(G.x(H1) + 8, G.y(capExact(H1)) - 6, 'curve ' + f2(capExact(H1)) + ' V', 'lab', 'start');\n          });\n          workLines([{ s: '12 + 0.25 × (−12) = 9 V', a: vis(0.4) }, { s: '9 + 0.25 × (−9) = 6.75 V', a: vis(1.0) }]);\n        } else if (r.w === '7.28 V') {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(H1, capExact(H1)));\n          part(vis(0.5), 4, () => label(G.x(H1) + 14, G.y(capExact(H1)) - 8, '7.28 V is the exact curve', 'lab bad', 'start'));\n          workLines([{ s: 'the walk drifts below the curve', bad: true, a: vis(0.5) }]);\n        } else if (r.w) {\n          REC.bad++;\n          badLine(0, V0, H1, V0 + H1 * capRate(0, V0), arr(0.1, 0.8));\n          part(vis(0.8), 0, () => ring(H1, 6));\n          part(vis(0.8), 4, () => label(G.x(H1) + 14, G.y(6) + 18, '6 V is one 0.5 s step', 'lab bad', 'start'));\n          workLines([{ s: 'two steps re-read the slope at 9 V', bad: true, a: vis(0.5) }]);\n        }\n      } },\n    { show: true, name: 'Step size', grid: 'cap', work: 0, key: ['walk', 'read', 'drift', 'exact', 'field'], dur: 3.6,\n      switch: CAP_HS.map((h) => [String(h), h + ' s']), mode0: '0.5', reads: readsCap,\n      info: (st, d) => '`h` = ' + modeOf(d, st) + ' s',\n      text: 'Each step reads the arrow at its start and walks straight along it. Choose a step size, `h`, and the walk is drawn again. The log keeps the value at 1 s for each size you try. Shorter steps re-read the slope more often, so the drift shrinks. For small steps the drift is about in proportion to `h`. The price is work. Halve `h` and you take twice as many steps.',\n      read: 'Each step reads the arrow at its start and walks straight along it. The log keeps the value at 1 s for each step size, from 1 s down to 0.05 s. Shorter steps re-read the slope more often, so the drift shrinks. For small steps the drift is about in proportion to `h`. The price is work. Halve `h` and you take twice as many steps.',\n      still() { stillLog('Step size', '0.05'); },\n      draw(st, d) {\n        const h = Number(modeOf(d, st)), w = capWalk(h), te = 3 * arr(0.5, 2.6);\n        exactCurve(capExact, 0, 3);\n        driftFill(w, capExact, 0, te, 1);\n        const tip = drawWalk(w, 'walk', te / 3, { rate: capRate, arrows: true });\n        if (tip && te < 3) rider(tip);\n        const a = K.clamp((te - 1) / 0.3, 0, 1);\n        if (a > 0) part(a, 0, () => bracket(1, capAt1(h), capExact(1), 'drift ' + f2z(driftAt1(h)) + ' V'));\n        said.push('Steps of ' + h + ' seconds. At 1 second the walk reads ' + f2z(capAt1(h)) + ' volts, ' + f2z(driftAt1(h)) + ' volts below the curve.');\n      } },\n    { kind: 'pick', name: 'Halve the step', grid: 'cap', work: 1, key: (st) => (st.res === 'right' ? ['walk', 'older', 'drift', 'exact'] : ['walk', 'drift', 'exact', 'field']), reads: readsHalve,\n      info: (st) => (st.res === 'right' ? '`h` = 0.05 s' : '`h` = 0.1 s'),\n      task: 'With 0.1 s steps the drift at 1 s is 0.23 V. What is it with 0.05 s steps?',\n      opts: ['about 0.11 V', 'about 0.23 V', 'about 0.06 V'], want: 'about 0.11 V',\n      why: 'For small steps the drift is about in proportion to the step. So halving the step about halves the drift, and 0.23 V becomes about 0.11 V. The walk reads 4.30 V at 1 s, against the curve\\'s 4.41 V. With 0.1 s steps the value at 1 s was about 5% low.',\n      hint: 'Not quite. Compare the 0.25 s and 0.1 s rows. The step and the drift both shrink about 2.5 times.',\n      hints: { 'about 0.23 V': 'Not quite. Shorter steps re-read the slope more often, so the drift shrinks.', 'about 0.06 V': 'Not quite. That quarters it. Here the drift shrinks in step with the step size.' },\n      draw(st) {\n        const r = RW(st), w1 = capWalk(0.1), w05 = capWalk(0.05), e1 = capExact(1);\n        exactCurve(capExact, 0, 3);\n        if (r.ok) {\n          REC.answer = true;\n          drawWalk(w1, 'old', 1, { rate: capRate });\n          const g = arr(0.1, 1.2);\n          driftFill(w05, capExact, 0, 3 * g, 1);\n          const tip = drawWalk(w05, 'walk', g, { rate: capRate });\n          if (tip && TM < 1.3) rider(tip);\n          part(vis(1.1), 0, () => bracket(1, capAt1(0.05), e1, 'drift ' + f2z(driftAt1(0.05)) + ' V'));\n          workLines([{ s: '0.05 s steps: 4.30 V at 1 s, drift 0.11 V', a: vis(0.8) }]);\n        } else {\n          driftFill(w1, capExact, 0, 3, 1);\n          drawWalk(w1, 'walk', 1, { rate: capRate });\n          bracket(1, capAt1(0.1), e1, 'drift ' + f2z(driftAt1(0.1)) + ' V');\n          if (r.w === 'about 0.23 V') {\n            REC.bad++;\n            part(vis(0.1), 0, () => ring(1, capAt1(0.1)));\n            part(vis(0.5), 4, () => label(G.x(1) + 8, G.y(e1) - 26, 'no smaller than with 0.1 s steps', 'lab bad', 'start'));\n            workLines([{ s: 'a shorter step must shrink the drift', bad: true, a: vis(0.5) }]);\n          } else if (r.w) {\n            REC.bad++;\n            part(vis(0.1), 0, () => ring(1, e1 - driftAt1(0.1) / 4));\n            part(vis(0.5), 4, () => label(G.x(1) + 8, G.y(e1) - 26, 'a quarter of 0.23 V is too small', 'lab bad', 'start'));\n            workLines([{ s: 'here the drift halves when the step halves', bad: true, a: vis(0.5) }]);\n          }\n        }\n      } },\n    { show: true, name: 'Too big a step', grid: 'wide', work: 2, key: ['walk', 'exact', 'field'], dur: 3.8,\n      switch: BIG_HS.map((h) => [String(h), h + ' s']), mode0: '1.5',\n      info: (st, d) => '`h` = ' + modeOf(d, st) + ' s',\n      text: 'Now the plot runs to 6 s, and below 0 V. The dashed line is the *steady state*, 0 V. Each step adds `h × (−V ÷ τ)`. So each step multiplies the voltage by `1 − h ÷ τ`. With 1.5 s steps that factor is −0.5. So the walk swings either side of 0 V and dies away. The exact curve never crosses 0 V. Bigger steps swing harder.',\n      still() { stillMode('Too big a step', '1.5'); },\n      draw(st, d) {\n        const h = Number(modeOf(d, st)), w = capWalk(h, 6), te = 6 * arr(0.5, 2.8), k = 1 - h / TAU;\n        steadyLine(0);\n        label(PR, G.y(0) - 8, 'steady state 0 V', 'lab', 'end', [[PR, G.y(0) + 18, 'end'], [PL + 6, G.y(0) + 18, 'start'], [PL + 6, G.y(0) - 8, 'start']]);\n        exactCurve(capExact, 0, 6);\n        const tip = drawWalk(w, 'walk', te / 6, { rate: capRate });\n        if (tip && te < 6) rider(tip);\n        w.slice(1).forEach(([t, v], j) => {\n          if (h === 1 && j > 0) return;\n          const a = K.clamp((te - t) / 0.25 + 1, 0, 1);\n          if (a <= 0) return;\n          const dy = v > 0 ? (v > 10 ? 16 : -6) : (v < -10 ? -6 : 16);\n          part(a, 0, () => label(G.x(t) + 8, G.y(v) + dy, h === 1 ? '0 V, and it stays' : f2(v) + ' V', 'lab main', 'start', [[G.x(t) - 8, G.y(v) + dy, 'end']]));\n        });\n        workLines([{ s: 'each step: `V` × (1 − ' + h + ' ÷ 1) = `V` × ' + f2(k), a: vis(0.5) },\n          { s: k === 0 ? 'so the walk drops to 0 V and stays' : k > -1 ? 'so the swing dies away' : 'so the swing never dies', a: vis(0.9) }]);\n        said.push('Steps of ' + h + ' seconds. Each step multiplies the voltage by ' + say(f2(k)) + (k === 0 ? ', so the walk drops to 0 volts and stays.' : k > -1 ? ', so the walk swings either side of 0 volts and dies away.' : ', so the walk swings between 12 and minus 12 volts for ever.'));\n      } },\n    { kind: 'pick', name: 'One big step', grid: 'wide', work: 1, key: ['walk', 'exact', 'field'], info: '`h` = 1.5 s',\n      task: 'Take 1.5 s steps from 12 V. Where does the first step land?',\n      opts: ['−6 V', '0 V', '2.68 V'], want: '−6 V',\n      why: 'At 12 V the slope is −12 V a second. Walking it for 1.5 s falls 1.5 × 12 = 18 V. That goes straight past 0 V, to −6 V. The real voltage never goes below 0 V. So the swing comes only from the step.',\n      hint: 'Not quite. Walk the starting slope for the whole 1.5 s.',\n      hints: { '0 V': 'Not quite. The step does not stop at 0 V. It falls the full 1.5 × 12 V.', '2.68 V': 'Not quite. 2.68 V is the exact curve at 1.5 s. The step walks a straight line.' },\n      draw(st) {\n        const r = RW(st), w = capWalk(1.5, 1.5);\n        steadyLine(0);\n        label(PR, G.y(0) - 8, 'steady state 0 V', 'lab', 'end', [[PR, G.y(0) + 18, 'end']]);\n        exactCurve(capExact, 0, 6);\n        marker(1.5, 'after 1.5 s');\n        dot(0, V0);\n        if (r.ok) {\n          REC.answer = true;\n          arrowFrom(0, V0, capRate(0, V0), 'rd', arr(0.1, 0.4), 30, 5);\n          const tip = drawWalk(w, 'walk', arr(0.3, 1.0), { rate: capRate });\n          if (tip && TM < 1.3) rider(tip);\n          part(vis(1.2), 4, () => label(G.x(1.5) + 8, G.y(w[1][1]) + 16, f2(w[1][1]) + ' V', 'lab main', 'start'));\n          workLines([{ s: '12 + 1.5 × (−12) = −6 V', a: vis(0.8) }]);\n        } else if (r.w === '0 V') {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(1.5, 0));\n          part(vis(0.5), 4, () => label(G.x(1.5) + 14, G.y(0) + 30, 'the step does not stop at 0 V', 'lab bad', 'start'));\n          workLines([{ s: 'the fall is 1.5 × 12 = 18 V', bad: true, a: vis(0.5) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(1.5, capExact(1.5)));\n          part(vis(0.5), 4, () => label(G.x(1.5) + 14, G.y(capExact(1.5)) - 12, '2.68 V is the exact curve', 'lab bad', 'start'));\n          workLines([{ s: 'the step walks a straight line', bad: true, a: vis(0.5) }]);\n        }\n      } },\n    { show: true, name: 'A tank', grid: 'tank', work: 0, key: ['walk', 'older', 'field'], dur: 3.6,\n      switch: TANK_HS.map((h) => [String(h), h + ' min']), mode0: '2', reads: readsTank,\n      info: (st, d) => 'steps of ' + modeOf(d, st) + ' min',\n      text: 'A tank fills at a steady rate and drains through its base. The outflow grows with the square root of the depth. Its level `y` obeys `dy/dt = 0.3 − 0.2 √y`, in metres and minutes. It starts empty. It settles where `0.2 √y` = 0.3, so `√y` = 1.5 and `y` = 2.25 m, the dashed line. No tidy formula gives `y` against time, so there is no exact curve. Step it, then halve the step and step again. At 4 min each halving moves the answer less.',\n      still() { stillLog('A tank', '0.25'); },\n      draw(st, d) {\n        const h = Number(modeOf(d, st)), te = 20 * arr(0.5, 2.6);\n        steadyLine(H_SS);\n        label(PR, G.y(H_SS) + 18, 'steady ' + f2(H_SS) + ' m', 'lab', 'end', [[PR, G.y(H_SS) - 8, 'end']]);\n        marker(4, '4 min');\n        logged(st, d).filter((x) => Number(x) !== h).forEach((x) => drawWalk(tankWalk(Number(x)), 'old', 1, { rate: tankRate }));\n        const w = tankWalk(h), tip = drawWalk(w, 'walk', te / 20, { rate: tankRate });\n        if (tip && te < 20) rider(tip);\n        if (te >= 4) dot(4, tankAt4(h));\n        tankIcon(tip ? tip[1] : 0);\n        said.push('Steps of ' + h + ' minutes from empty. At 4 minutes the level reads ' + f2(tankAt4(h)) + ' metres.');\n      } },\n    { kind: 'pick', name: 'One tank step', grid: 'tstep', work: 2, key: ['walk', 'field'], info: 'one step of 1 min',\n      task: 'The tank\\'s level is 1 m. Where does one 1 min step take it?',\n      opts: ['1.1 m', '1.3 m', '0.1 m'], want: '1.1 m',\n      why: 'At 1 m, √y is 1. So the slope is 0.3 − 0.2 × 1 = 0.1 m a minute. One minute along it adds 0.1 m. So the level reaches 1 + 0.1 = 1.1 m.',\n      hint: 'Not quite. Find the slope at 1 m first.',\n      hints: { '1.3 m': 'Not quite. That adds the inflow alone. Take off the outflow, 0.2 √y, too.', '0.1 m': 'Not quite. 0.1 m a minute is the slope. Add one minute of it to the 1 m you start at.' },\n      draw(st) {\n        const r = RW(st), w = euler(tankRate, 1, 1, 1);\n        marker(1, 'after 1 min');\n        dot(0, 1);\n        label(G.x(0) + 10, G.y(1) + 18, '1 m', 'lab main', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          arrowFrom(0, 1, tankRate(0, 1), 'rd', arr(0.1, 0.4), 34, 5);\n          const tip = drawWalk(w, 'walk', arr(0.4, 0.9), { rate: tankRate });\n          if (tip && TM < 1.3) rider(tip);\n          part(vis(1.2), 4, () => label(G.x(1) + 8, G.y(w[1][1]) - 8, f2(w[1][1]) + ' m', 'lab main', 'start'));\n          workLines([{ s: 'slope: 0.3 − 0.2 × √1 = 0.1 m a minute', a: vis(0.4) }, { s: '1 + 1 × 0.1 = 1.1 m', a: vis(1.0) }]);\n        } else if (r.w === '1.3 m') {\n          REC.bad++;\n          badLine(0, 1, 1, 1 + QIN, arr(0.1, 0.8));\n          part(vis(0.8), 0, () => ring(1, 1 + QIN));\n          part(vis(0.8), 4, () => label(G.x(1) + 14, G.y(1 + QIN) - 8, 'inflow alone, no outflow', 'lab bad', 'start'));\n          workLines([{ s: 'the slope is 0.3 − 0.2 √`y`, not 0.3', bad: true, a: vis(0.5) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(1, tankRate(0, 1)));\n          part(vis(0.5), 4, () => label(PR, G.y(tankRate(0, 1)) - 14, 'that is the slope, not the level', 'lab bad', 'end'));\n          workLines([{ s: 'add the 0.1 m to the 1 m you start at', bad: true, a: vis(0.5) }]);\n        }\n      } },\n    { kind: 'pick', name: 'The coil, stepped', grid: 'coil', work: 3, key: ['walk', 'exact', 'field'], info: 'steps of 0.01 s',\n      task: 'The coil\\'s rule is `di/dt = (24 − 10 i) ÷ 0.5`. From 0 A, take two steps of 0.01 s. What current do you reach?',\n      opts: ['0.864 A', '0.96 A', '0.791 A'], want: '0.864 A',\n      why: 'The starting slope is 24 ÷ 0.5 = 48 A a second. So after 0.01 s, `i` = 0 + 0.01 × 48 = 0.48 A. There the resistor takes 10 × 0.48 = 4.8 V. So the slope is (24 − 4.8) ÷ 0.5 = 38.4 A a second. After 0.02 s, `i` = 0.48 + 0.384 = 0.864 A. The exact formula gives 0.791 A. The walk runs high. This curve flattens as it rises, but each step keeps its steeper starting slope.',\n      hint: 'Not quite. Re-read the slope at the end of the first step.',\n      hints: { '0.96 A': 'Not quite. That keeps the starting 48 A a second. Re-read the slope at 0.48 A.', '0.791 A': 'Not quite. 0.791 A is the exact curve at 0.02 s. The walk drifts from it.' },\n      draw(st) {\n        const r = RW(st), w = coilWalk(0.01, 0.02);\n        exactCurve(coilExact, 0, 0.04);\n        marker(0.02, 'after 0.02 s');\n        dot(0, 0);\n        if (r.ok) {\n          REC.answer = true;\n          arrowFrom(0, 0, coilRate(0, 0), 'rd', arr(0.1, 0.4), 30, 5);\n          arrowFrom(0.01, w[1][1], coilRate(0.01, w[1][1]), 'rd', arr(0.7, 0.4), 30, 5);\n          const tip = drawWalk(w, 'walk', (arr(0.2, 0.5) + arr(0.8, 0.5)) / 2, { rate: coilRate });\n          if (tip && TM < 1.3) rider(tip);\n          part(vis(0.6), 4, () => label(G.x(0.01) + 8, G.y(w[1][1]) + 16, f3(w[1][1]) + ' A', 'lab main', 'start'));\n          part(vis(1.2), 4, () => {\n            label(G.x(0.02) - 8, G.y(w[2][1]) - 8, f3(w[2][1]) + ' A', 'lab main', 'end');\n            dot(0.02, coilExact(0.02), 'cv');\n            label(G.x(0.02) + 8, G.y(coilExact(0.02)) + 16, 'curve ' + f3(coilExact(0.02)) + ' A', 'lab', 'start');\n          });\n          workLines([{ s: '0 + 0.01 × 48 = 0.48 A', a: vis(0.4) }, { s: '0.48 + 0.01 × 38.4 = 0.864 A', a: vis(1.0) }, { s: 'the walk runs high of the curve', a: vis(1.4) }]);\n        } else if (r.w === '0.96 A') {\n          REC.bad++;\n          badLine(0, 0, 0.02, 0.02 * coilRate(0, 0), arr(0.1, 0.8));\n          part(vis(0.8), 0, () => ring(0.02, 0.02 * coilRate(0, 0)));\n          part(vis(0.8), 4, () => label(PR, G.y(0.02 * coilRate(0, 0)) - 18, 'kept the starting 48 A a second', 'lab bad', 'end'));\n          workLines([{ s: 're-read the slope at 0.48 A', bad: true, a: vis(0.5) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(0.02, coilExact(0.02)));\n          part(vis(0.5), 4, () => label(G.x(0.02) + 14, G.y(coilExact(0.02)) + 20, '0.791 A is the exact curve', 'lab bad', 'start'));\n          workLines([{ s: 'the walk drifts from the curve', bad: true, a: vis(0.5) }]);\n        }\n      } },\n    { kind: 'pick', name: 'Why it swings', grid: 'coilw', work: 2, key: ['walk', 'exact', 'field'], info: 'steps of 0.075 s',\n      task: 'With 0.075 s steps, the coil\\'s walk reads 0, 3.6, 1.8 and 2.7 A. Why does it swing?',\n      opts: ['The step is longer than τ, so it overshoots', 'The current really rings', 'The steady value is 3.6 A'], want: 'The step is longer than τ, so it overshoots',\n      why: 'The coil\\'s `τ` is 0.5 ÷ 10 = 0.05 s. A 0.075 s step is longer than that. Each step multiplies the gap to 2.4 A by 1 − 0.075 ÷ 0.05 = −0.5. So the walk jumps past 2.4 A and back, a little less each time. The real current climbs to 2.4 A without crossing it.',\n      hint: 'Not quite. Compare the step with the coil\\'s `τ`.',\n      hints: { 'The current really rings': 'Not quite. The exact curve climbs to 2.4 A and never crosses it. The swing comes from the steps.', 'The steady value is 3.6 A': 'Not quite. The steady value is 24 ÷ 10 = 2.4 A. 3.6 A is the first overshoot.' },\n      draw(st) {\n        const r = RW(st), w = coilWalk(0.075, 0.225);\n        steadyLine(CSS);\n        label(PR, G.y(CSS) + 18, 'steady ' + f2(CSS) + ' A', 'lab', 'end', [[PR, G.y(CSS) - 8, 'end']]);\n        exactCurve(coilExact, 0, 0.3, r.w === 'The current really rings' ? 'ex strong' : 'ex');\n        drawWalk(w, 'walk', 1, { rate: coilRate });\n        dot(0, 0);\n        label(G.x(0.075) + 8, G.y(w[1][1]) + 4, f2(w[1][1]) + ' A', 'lab main', 'start');\n        label(G.x(0.15) + 8, G.y(w[2][1]) + 16, f2(w[2][1]) + ' A', 'lab main', 'start');\n        label(G.x(0.225) + 8, G.y(w[3][1]) - 6, f2(w[3][1]) + ' A', 'lab main', 'start');\n        if (r.ok) {\n          REC.answer = true;\n          part(vis(0.1), 0, () => { line('tau', G.x(0), G.PB - 5, G.x(CTAU), G.PB - 5); REC.tau = CTAU; });\n          part(vis(0.5), 4, () => label(G.x(CTAU) + 6, G.PB - 9, '`τ` = 0.05 s', 'lab acc', 'start'));\n          workLines([{ s: 'gap × (1 − 0.075 ÷ 0.05) = gap × −0.5', a: vis(0.5) }, { s: 'a step longer than `τ` overshoots', a: vis(1.0) }]);\n        } else if (r.w === 'The current really rings') {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(0.075, w[1][1]));\n          part(vis(0.5), 4, () => label(PR, G.PB - 40, 'the exact current never crosses 2.4 A', 'lab bad', 'end'));\n          workLines([{ s: 'only the walk swings, not the current', bad: true, a: vis(0.5) }]);\n        } else if (r.w) {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(0.075, w[1][1]));\n          part(vis(0.5), 4, () => label(G.x(0.075) + 16, G.y(w[1][1]) + 24, '3.6 A is the first overshoot', 'lab bad', 'start'));\n          workLines([{ s: 'the steady value is 24 ÷ 10 = 2.4 A', bad: true, a: vis(0.5) }]);\n        }\n      } },\n    { kind: 'pick', name: 'What next', grid: 'tzoom', work: 2, key: ['field'], info: 'level at 4 min',\n      task: 'At 4 min the tank reads 0.79 m with 1 min steps and 0.75 m with 0.5 min steps. What should you do next?',\n      opts: ['Halve the step again and compare', 'Take 0.79 m', 'Average them to 0.77 m'], want: 'Halve the step again and compare',\n      why: 'One run cannot tell you its own drift. So halve the step and run it again. Steps of 0.25 min give 0.73 m. Each halving moves the answer less. When it barely moves, you can trust it.',\n      hint: 'Not quite. Which answer comes from the smaller step?',\n      hints: { 'Take 0.79 m': 'Not quite. 0.79 m came from the bigger steps, which drift most.', 'Average them to 0.77 m': 'Not quite. The smaller step gives the better answer. An average moves back towards the worse one.' },\n      draw(st) {\n        const r = RW(st), w1 = tankWalk(1, 5), w05 = tankWalk(0.5, 5), w025 = tankWalk(0.25, 5);\n        marker(4, '4 min');\n        drawWalk(w1, 'old', 1, { rate: tankRate });\n        drawWalk(w05, r.ok ? 'old' : 'walk', 1, { rate: tankRate });\n        dot(4, tankAt4(1));\n        dot(4, tankAt4(0.5));\n        label(G.x(4) - 8, G.y(tankAt4(1)) - 10, '1 min: ' + f2(tankAt4(1)) + ' m', 'lab acc', 'end');\n        label(G.x(4) - 8, G.y(tankAt4(0.5)) + 20, '0.5 min: ' + f2(tankAt4(0.5)) + ' m', r.ok ? 'lab acc' : 'lab main', 'end');\n        if (r.ok) {\n          REC.answer = true;\n          const tip = drawWalk(w025, 'walk', arr(0.1, 1.2), { rate: tankRate });\n          if (tip && TM < 1.3) rider(tip);\n          part(vis(1.2), 4, () => { dot(4, tankAt4(0.25)); label(G.x(4) - 8, G.y(tankAt4(0.25)) + 38, '0.25 min: ' + f2(tankAt4(0.25)) + ' m', 'lab main', 'end'); });\n          workLines([{ s: '0.79, then 0.75, then 0.73 m', a: vis(0.8) }, { s: 'each halving moves the answer less', a: vis(1.2) }]);\n        } else if (r.w === 'Take 0.79 m') {\n          REC.bad++;\n          part(vis(0.1), 0, () => ring(4, tankAt4(1)));\n          part(vis(0.5), 4, () => label(G.x(4) - 8, G.y(tankAt4(1)) - 30, 'the bigger steps drift most', 'lab bad', 'end'));\n          workLines([{ s: 'one run cannot show its own drift', bad: true, a: vis(0.5) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const avg = (Number(f2(tankAt4(1))) + Number(f2(tankAt4(0.5)))) / 2;\n          part(vis(0.1), 0, () => ring(4, avg));\n          part(vis(0.5), 4, () => label(G.x(4) - 8, G.y(tankAt4(1)) - 30, 'the average moves back towards 0.79 m', 'lab bad', 'end'));\n          workLines([{ s: 'the smaller step gives the better answer', bad: true, a: vis(0.5) }]);\n        }\n      } },\n  ];\n  const LEAD_CAP = 'A 100 µF capacitor charged to 12 V discharges through a 10 kΩ resistor. Every value is an example.';\n  const LEAD_TANK = 'A tank fills at a steady rate and drains through its base. Every value is an example.';\n  const LEAD_COIL = 'The coil from before: a 24 V supply, a 0.5 H coil and 10 Ω. Every value is an example.';\n  const FINISH = 'Euler\\'s method walks short straight steps along the rule\\'s slope, re-reading it after each one. Smaller steps drift less from the true curve. For a decay, steps longer than the time constant overshoot.';\n\n  // ---------- the plots ----------\n  const PL = 40, PR = 322, PH = 180;\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const CAP_TAG = 'Rule: `dV/dt = −V ÷ 1`', TANK_TAG = 'Rule: `dy/dt = 0.3 − 0.2 √y`', COIL_TAG = 'Rule: `di/dt = (24 − 10 i) ÷ 0.5`';\n  const GRIDS = {\n    cap: { t0: 0, t1: 3, v0: 0, v1: 12, xt: [0, 0.5, 1, 1.5, 2, 2.5, 3], yt: [0, 3, 6, 9, 12], ytitle: '`V` (V)', xtitle: 'time `t` (s)', rate: capRate, nf: [12, 8], tag: CAP_TAG, tag2: '`τ = RC` = 1 s', lead: LEAD_CAP },\n    wide: { t0: 0, t1: 6, v0: -12, v1: 12, xt: [0, 1, 2, 3, 4, 5, 6], yt: [-12, -6, 0, 6, 12], ytitle: '`V` (V)', xtitle: 'time `t` (s)', rate: capRate, nf: [12, 8], tag: CAP_TAG, tag2: '`τ = RC` = 1 s', lead: LEAD_CAP },\n    tank: { t0: 0, t1: 20, v0: 0, v1: 2.5, xt: [0, 4, 8, 12, 16, 20], yt: [0, 0.5, 1, 1.5, 2, 2.5], ytitle: 'level `y` (m)', xtitle: 'time `t` (min)', rate: tankRate, nf: [12, 8], tag: TANK_TAG, lead: LEAD_TANK },\n    tstep: { t0: 0, t1: 2, v0: 0, v1: 1.5, xt: [0, 0.5, 1, 1.5, 2], yt: [0, 0.5, 1, 1.5], ytitle: 'level `y` (m)', xtitle: 'time `t` (min)', rate: tankRate, nf: [10, 6], tag: TANK_TAG, lead: LEAD_TANK },\n    tzoom: { t0: 0, t1: 5, v0: 0, v1: 1.2, xt: [0, 1, 2, 3, 4, 5], yt: [0, 0.3, 0.6, 0.9, 1.2], ytitle: 'level `y` (m)', xtitle: 'time `t` (min)', rate: tankRate, nf: [10, 6], tag: TANK_TAG, lead: LEAD_TANK },\n    coil: { t0: 0, t1: 0.04, v0: 0, v1: 1.5, xt: [0, 0.01, 0.02, 0.03, 0.04], yt: [0, 0.5, 1, 1.5], ytitle: '`i` (A)', xtitle: 'time `t` (s)', rate: coilRate, nf: [10, 6], tag: COIL_TAG, lead: LEAD_COIL },\n    coilw: { t0: 0, t1: 0.3, v0: 0, v1: 4, xt: [0, 0.075, 0.15, 0.225, 0.3], yt: [0, 1, 2, 3, 4], ytitle: '`i` (A)', xtitle: 'time `t` (s)', rate: coilRate, nf: [12, 8], tag: COIL_TAG, lead: LEAD_COIL },\n  };\n  function geoOf(d, st) {\n    const g = GRIDS[d.grid];\n    const PT = 50, PB = PT + PH;\n    const kx = (PR - PL) / (g.t1 - g.t0), ky = PH / (g.v1 - g.v0);\n    const working = d.show || st.res === 'right' || st.res === 'wrong';\n    return { g, name: d.grid, PT, PB, kx, ky, H: PB + 46 + (working ? d.work || 0 : 0) * 26, workY: PB + 64,\n      x: (t) => PL + (t - g.t0) * kx, y: (v) => PB - (v - g.v0) * ky };\n  }\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // mode: the step size chosen; log: the step sizes tried, for the log under the drawing.\n  function blank() { return { pick: null, res: null, why: false, mode: null, log: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });\n  const modeOf = (d, st) => st.mode || d.mode0;\n  // The step sizes in the log: the opening one, every one tried, and the one shown, in the buttons' order.\n  function logged(st, d) {\n    const set = new Set([d.mode0].concat(st.log || []));\n    set.add(modeOf(d, st));\n    return d.switch.map((o) => o[0]).filter((v) => set.has(v));\n  }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, TM = Infinity;   // TM: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null, G = null, said = [], placed = [], obst = [], queue = [];\n\n  // ---------- words with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  const ITAL = /(d[Vthiy](?![A-Za-z])|(?<![A-Za-z])(?:RC|[VthiRCy])(?![A-Za-z]))/;\n  function put(parent, s, svg) {\n    if (!s) return;\n    if (svg && parent.__lift) { const b = K.svg('tspan', { dy: 6 }); b.textContent = s; parent.appendChild(b); parent.__lift = false; return; }\n    parent.appendChild(document.createTextNode(s));\n  }\n  function itNode(parent, s, svg) {\n    const sp = svg ? K.svg('tspan', { class: 'v' }) : K.el('span', { class: 'v' });\n    if (svg && parent.__lift) { sp.setAttribute('dy', 6); parent.__lift = false; }\n    sp.textContent = s;\n    parent.appendChild(sp);\n  }\n  function ital(parent, s, svg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2 === 0) { put(parent, p, svg); return; }\n      if (p.length === 2 && p[0] === 'd') { put(parent, 'd', svg); itNode(parent, p[1], svg); }\n      else itNode(parent, p, svg);\n    });\n  }\n  // Maths: italic letters, and e^(…) written as a raised power.\n  function maths(parent, s, svg) {\n    String(s).split(/\\^\\(([^)]*)\\)/).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2 === 0) { ital(parent, p, svg); return; }\n      const sp = svg ? K.svg('tspan', { class: 'sup', dy: -6 }) : K.el('sup');\n      if (svg && parent.__lift) parent.__lift = false;\n      ital(sp, p, svg);\n      parent.appendChild(sp);\n      if (svg) parent.__lift = true;\n    });\n  }\n  // `maths` stays on one line; *a key term* is highlighted.\n  // No line break inside a quantity: a number keeps its unit, and ÷ or × keeps both its sides.\n  const nb = (s) => String(s == null ? '' : s).replace(/(\\d) (?=(A|V|H|Ω|kΩ|µF|s|m|min|%)(?![A-Za-z]))/g, '$1 ').replace(/(\\S) ([÷×]) (?=\\S)/g, '$1 $2 ');\n  function write(el, s) {\n    el.textContent = '';\n    s = nb(s);\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  function svgWords(t, s) {\n    t.__lift = false;\n    String(s).split('`').forEach((seg, k) => { if (seg) { if (k % 2) maths(t, seg, true); else put(t, seg, true); } });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong\n  // answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); TM = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(FB);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    play(d.dur);\n  } });\n  // The named step sizes under the drawing; each one tried joins the log.\n  const swBtns = [0, 1, 2, 3, 4].map((k) => K.button({ label: 'Option ' + (k + 1), secondary: true, into: '#switch', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.switch || k >= d.switch.length || finished) return;\n    const v = d.switch[k][0];\n    if (modeOf(d, st) === v) return;\n    st.mode = v;\n    st.log = (st.log || []).concat([v]);\n    play(d.dur);\n  } }));\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    TM += dt;\n    paint();\n    return TM < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; TM = 0; anim.play();\n  }\n  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n  // The finished pictures the read-through shows: every step size tried, or one chosen.\n  function stillLog(name, mode) {\n    const i = STEPS.findIndex((d) => d.name === name), d = STEPS[i], st = S[i];\n    settle();\n    st.log = d.switch.map((o) => o[0]);\n    st.mode = mode;\n    K.refresh();\n  }\n  function stillMode(name, mode) {\n    const i = STEPS.findIndex((d) => d.name === name);\n    settle();\n    S[i].mode = mode;\n    K.refresh();\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top'), fieldG = document.getElementById('field');\n  let into = null, curA = 1;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(TM, t0, d);\n  }\n  // A timetable entry: null, there from the start; a time, arriving then.\n  const vis = (t) => (t == null ? 1 : arr(t, SOFT));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into, keepA = curA;\n    into = g; curA = a * keepA;\n    draw();\n    into = keep; curA = keepA;\n  }\n  const r2 = (v) => Math.round(v * 100) / 100;\n  // Lines and curves the labels keep clear of, as points every 3 units.\n  function addObst(x1, y1, x2, y2) {\n    const n = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3));\n    for (let k = 0; k <= n; k++) obst.push([x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n]);\n  }\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });\n    svgWords(t, s);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    svgWords(t, s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return plain(s).length * 7.4;\n  }\n  // A label, painted above the drawing once everything else is down. It takes the first of its\n  // places that is clear of other words and of the lines and curves; failing that, it moves up or\n  // down a line from the first.\n  function label(x, y, s, cls, anchor, alts) { queue.push({ x, y, s, cls, anchor, alts: alts || [], a: curA }); }\n  function placeLabel(q) {\n    const w = tw(q.s, q.cls);\n    const leftOf = (xx, an) => K.clamp(an === 'end' ? xx - w : an === 'middle' ? xx - w / 2 : xx, 4, 336 - w);\n    const box = (lx, yv) => ({ x: lx - 2, y: yv - 12, w: w + 4, h: 15 });\n    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h) ||\n      obst.some((o) => o[0] > b.x && o[0] < b.x + b.w && o[1] > b.y && o[1] < b.y + b.h);\n    const cands = [[q.x, q.y, q.anchor]].concat(q.alts);\n    let pos = null;\n    for (const c of cands) { const lx = leftOf(c[0], c[2] || q.anchor); if (!hits(box(lx, c[1]))) { pos = [lx, c[1]]; break; } }\n    if (!pos) {\n      const lx = leftOf(q.x, q.anchor);\n      pos = [lx, q.y];\n      for (const dy of [-17, 17, -34, 34]) { if (!hits(box(lx, q.y + dy))) { pos = [lx, q.y + dy]; break; } }\n    }\n    placed.push(box(pos[0], pos[1]));\n    const g = topG.appendChild(K.svg('g'));\n    K.fade(g, q.a);\n    const t = K.svg('text', { class: q.cls, x: r2(pos[0]), y: r2(pos[1]), 'text-anchor': 'start' });\n    svgWords(t, q.s);\n    g.appendChild(t);\n    REC.texts.push(plain(q.s));\n    said.push(say(q.s) + '.');\n  }\n  // A word that sits in a fixed place (a title), kept clear of the labels.\n  function fixed(x, y, s, cls, anchor) {\n    const w = tw(s, cls), left = anchor === 'end' ? x - w : x;\n    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });\n    return text(x, y, s, cls, anchor);\n  }\n\n  // An arrow along slope s (in the plot's units) from a point, grown to a fraction of its length;\n  // off shifts it a few units to the upper side of the line it reads, so the walk stays visible.\n  function dirOf(s) { const dx = G.kx, dy = -s * G.ky, n = Math.hypot(dx, dy); return [dx / n, dy / n]; }\n  function arrowD(cx, cy, u, h0, h1, head) {\n    const sx = cx + u[0] * h0, sy = cy + u[1] * h0, ex = cx + u[0] * h1, ey = cy + u[1] * h1;\n    let d = 'M' + r2(sx) + ' ' + r2(sy) + ' L' + r2(ex) + ' ' + r2(ey);\n    if (head > 0) {\n      const bx = -u[0] * head, by = -u[1] * head, c = Math.cos(0.45), s = Math.sin(0.45);\n      d += ' M' + r2(ex + bx * c - by * s) + ' ' + r2(ey + bx * s + by * c) + ' L' + r2(ex) + ' ' + r2(ey) + ' L' + r2(ex + bx * c + by * s) + ' ' + r2(ey - bx * s + by * c);\n    }\n    return d;\n  }\n  function arrowFrom(t, v, s, cls, grow, len, off) {\n    REC.arrows.push({ t, v, s, cls });\n    if (grow <= 0) return;\n    const u = dirOf(s);\n    let cx = G.x(t), cy = G.y(v);\n    if (off) { cx += u[1] * off; cy -= u[0] * off; }\n    const room = u[0] > 0.05 ? (336 - cx) / u[0] : 999;\n    const L = Math.min((len || 30), room) * Math.min(1, grow);\n    add(K.svg('path', { class: cls, d: arrowD(cx, cy, u, 0, L, grow > 0.4 && L > 12 ? 7 : 0) }));\n    addObst(cx, cy, cx + u[0] * L, cy + u[1] * L);\n  }\n  function dot(t, v, cls) { add(K.svg('circle', { class: 'dot' + (cls ? ' ' + cls : ''), cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5 })); }\n  function ring(t, v) { add(K.svg('circle', { class: 'ring', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 10 })); REC.bad++; }\n  function rider(p) { add(K.svg('circle', { class: 'rider', cx: r2(G.x(p[0])), cy: r2(G.y(p[1])), r: 6 })); }\n  // A curve v = f(t) from ta to tb, kept in REC for the checks.\n  function exactCurve(f, ta, tb, cls) {\n    cls = cls || 'ex';\n    const n = 160;\n    let d = '', pen = false;\n    for (let k = 0; k <= n; k++) {\n      const t = ta + (tb - ta) * k / n, v = f(t);\n      if (!isFinite(v) || v < G.g.v0 - 1e-9 || v > G.g.v1 + 1e-9) { pen = false; continue; }\n      const x = G.x(t), y = G.y(v);\n      d += (pen ? ' L' : (d ? ' M' : 'M')) + r2(x) + ' ' + r2(y);\n      pen = true;\n      obst.push([x, y]);\n    }\n    if (d) add(K.svg('path', { class: cls, d }));\n    REC.curves.push({ f, cls });\n  }\n  // The knots of a walk up to time te, with the point partway along the step te falls in.\n  function upTo(pts, te) {\n    const out = [];\n    for (let k = 0; k < pts.length; k++) {\n      if (pts[k][0] <= te + 1e-12) { out.push(pts[k]); continue; }\n      const a = pts[k - 1], b = pts[k], f = (te - a[0]) / (b[0] - a[0]);\n      out.push([te, a[1] + (b[1] - a[1]) * f]);\n      break;\n    }\n    return out;\n  }\n  function walkAt(pts, t) {\n    for (let k = 1; k < pts.length; k++) if (t <= pts[k][0] + 1e-12) { const a = pts[k - 1], b = pts[k]; return a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]); }\n    return pts[pts.length - 1][1];\n  }\n  // Euler's walk: straight steps between its knots, grown to a fraction of its time span. With\n  // arrows, each step that has begun shows the slope it read at its start (when there is room).\n  function drawWalk(pts, cls, grow, o) {\n    o = o || {};\n    if (grow <= 0) return null;\n    const ta = pts[0][0], tb = pts[pts.length - 1][0], te = ta + (tb - ta) * Math.min(1, grow);\n    const sh = upTo(pts, te);\n    let d = '';\n    sh.forEach((p, k) => { d += (k ? ' L' : 'M') + r2(G.x(p[0])) + ' ' + r2(G.y(p[1])); });\n    for (let k = 1; k < sh.length; k++) addObst(G.x(sh[k - 1][0]), G.y(sh[k - 1][1]), G.x(sh[k][0]), G.y(sh[k][1]));\n    const h = pts[1][0] - pts[0][0], px = G.kx * h;\n    if (o.arrows && px >= 20) {\n      for (let k = 0; k < pts.length - 1; k++) {\n        if (pts[k][0] >= te - 1e-12) break;\n        const [t, v] = pts[k], seg = Math.hypot(px, (pts[k + 1][1] - v) * G.ky);\n        arrowFrom(t, v, o.rate(t, v), 'rd', K.clamp((te - t) / h, 0, 1), Math.min(30, 0.8 * seg), 5);\n      }\n    }\n    if (sh.length > 1) add(K.svg('path', { class: cls, d }));\n    if (o.dots !== false && px >= 8) {\n      sh.forEach((p, k) => { if (k < pts.length && p[0] === pts[k][0]) add(K.svg('circle', { class: 'knot' + (cls === 'old' ? ' old' : ''), cx: r2(G.x(p[0])), cy: r2(G.y(p[1])), r: px >= 20 ? 3.5 : 2.5 })); });\n    }\n    REC.walks.push({ pts, cls, h, rate: o.rate });\n    return sh[sh.length - 1];\n  }\n  // A mistake drawn as a straight red line, grown to a fraction.\n  function badLine(t1, v1, t2, v2, grow) {\n    if (grow <= 0) return;\n    const g = Math.min(1, grow), x1 = G.x(t1), y1 = G.y(v1), x2 = x1 + (G.x(t2) - x1) * g, y2 = y1 + (G.y(v2) - y1) * g;\n    line('badl', x1, y1, x2, y2); addObst(x1, y1, x2, y2);\n    REC.bad++;\n  }\n  // The drift: hatched between the walk and the curve from ta to tb.\n  function driftFill(pts, f, ta, tb, a) {\n    if (a <= 0 || tb <= ta + 1e-9) return;\n    let d = '';\n    upTo(pts, tb).forEach((p, k) => { d += (k ? ' L' : 'M') + r2(G.x(p[0])) + ' ' + r2(G.y(p[1])); });\n    const n = 100;\n    for (let k = n; k >= 0; k--) { const t = ta + (tb - ta) * k / n; d += ' L' + r2(G.x(t)) + ' ' + r2(G.y(K.clamp(f(t), G.g.v0, G.g.v1))); }\n    const p = add(K.svg('path', { class: 'hatch', d: d + ' Z' }));\n    if (a < 1) p.style.opacity = r2(a);\n    REC.drift.push({ ta, tb });\n  }\n  // An ink bracket across the drift at time t, with its label (above it on the right, unless placed).\n  function bracket(t, a, b, s, place) {\n    const x = G.x(t), y1 = G.y(a), y2 = G.y(b);\n    REC.bars.push({ t, size: Math.abs(a - b), text: s });\n    add(K.svg('path', { class: 'brk', d: 'M' + r2(x - 4) + ' ' + r2(y1) + ' H' + r2(x + 4) + ' M' + r2(x) + ' ' + r2(y1) + ' V' + r2(y2) + ' M' + r2(x - 4) + ' ' + r2(y2) + ' H' + r2(x + 4) }));\n    addObst(x, y1, x, y2);\n    const top = Math.min(y1, y2);\n    if (place) label(place[0], place[1], s, 'lab', place[2], place[3]);\n    else label(x + 8, top - 8, s, 'lab', 'start', [[x + 8, top - 25, 'start']]);\n  }\n  // A short tick along the rule's true slope at a point on a step.\n  function tick(t, v, rate) {\n    const s = rate(t, v), u = dirOf(s), cx = G.x(t), cy = G.y(v), L = 11;\n    line('tick', cx - u[0] * L, cy - u[1] * L, cx + u[0] * L, cy + u[1] * L);\n    addObst(cx - u[0] * L, cy - u[1] * L, cx + u[0] * L, cy + u[1] * L);\n    REC.ticks.push({ t, v, s });\n  }\n  function steadyLine(v) {\n    const y = G.y(v);\n    line('ss', PL, y, PR, y); addObst(PL, y, PR, y);\n    REC.ss.push(v);\n  }\n  function marker(t, s) {\n    const x = G.x(t);\n    line('mk', x, G.PB, x, G.PT); addObst(x, G.PB, x, G.PT);\n    label(x + 6, G.PT + 14, s, 'lab', 'start', [[x - 6, G.PT + 14, 'end']]);\n  }\n  // The tank, small in the bottom corner: its water at the level the walk has reached.\n  function tankIcon(level) {\n    const x0 = 262, y0 = G.PB - 88, w = 50, h = 72, top = y0 + 6, full = y0 + h;\n    const lv = (v) => full - K.clamp(v / G.g.v1, 0, 1) * (full - top);\n    add(K.svg('rect', { class: 'inset', x: x0 - 40, y: y0 - 4, width: w + 46, height: h + 8, rx: 6 }));\n    placed.push({ x: x0 - 40, y: y0 - 4, w: w + 46, h: h + 8 });\n    add(K.svg('rect', { class: 'water', x: x0, y: r2(lv(level)), width: w, height: r2(full - lv(level)) }));\n    add(K.svg('rect', { class: 'tankbox', x: x0, y: y0, width: w, height: h }));\n    line('ss', x0, lv(H_SS), x0 + w, lv(H_SS));\n    text(x0 - 6, full - 6, 'tank', 'lab', 'end');\n    REC.tank = level;\n  }\n  // Lines of working under the plot.\n  function workLines(lines) {\n    lines.forEach((w, k) => {\n      const a = w.a == null ? 1 : w.a;\n      part(a, 6, () => text(12, G.workY + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));\n      if (a >= 0.5) { REC.texts.push(plain(w.s)); said.push(say(w.s) + '.'); }\n    });\n  }\n  // The rule's slope field: a short faint mark at each point of a grid, drawn once per plot.\n  let fieldKey = '';\n  function drawField() {\n    if (fieldKey === G.name) return;\n    fieldKey = G.name;\n    fieldG.textContent = '';\n    const g = G.g, nx = g.nf[0], ny = g.nf[1], dt = (g.t1 - g.t0) / nx, dv = (g.v1 - g.v0) / ny;\n    let d = '';\n    for (let a = 0; a < nx; a++) for (let b = 0; b < ny; b++) {\n      const t = g.t0 + (a + 0.5) * dt, v = g.v0 + (b + 0.5) * dv, u = dirOf(g.rate(t, v)), cx = G.x(t), cy = G.y(v);\n      d += 'M' + r2(cx - u[0] * 6) + ' ' + r2(cy - u[1] * 6) + ' L' + r2(cx + u[0] * 6) + ' ' + r2(cy + u[1] * 6) + ' ';\n    }\n    fieldG.appendChild(K.svg('path', { class: 'sf', d: d.trim() }));\n  }\n  // The axes, their numbers, and the words above them.\n  function axes() {\n    const g = G.g;\n    g.yt.forEach((v) => { line('gl', PL, G.y(v), PR, G.y(v)); text(PL - 6, G.y(v) + 4.5, fmtD(v, 3), 'tk', 'end'); });\n    g.xt.forEach((t) => { line('xt', G.x(t), G.PB, G.x(t), G.PB + 4); text(G.x(t), G.PB + 17, fmtD(t, 3), 'tk', 'middle'); });\n    line('ax', PL, G.PB, PR, G.PB);\n    line('ax', PL, G.PT, PL, G.PB);\n    fixed(4, G.PT - 9, g.ytitle, 'ttl', 'start');\n    placed.push({ x: 0, y: G.PT - 6, w: PL - 3, h: PH + 12 }, { x: PL - 24, y: G.PB + 3, w: PR - PL + 40, h: 18 });\n  }\n  function tags(d, st) {\n    const g = G.g;\n    if (g.tag) { fixed(4, 20, g.tag, 'tag', 'start'); said.push(say(g.tag) + '.'); }\n    if (g.tag2) { fixed(336, 20, g.tag2, 'tag2', 'end'); said.push(say(g.tag2) + '.'); }\n    const info = typeof d.info === 'function' ? d.info(st, d) : d.info;\n    if (info) { fixed(336, G.PT - 9, info, 'ttl', 'end'); said.push(say(info) + '.'); }\n  }\n  // The key, inside the drawing, beside the time axis's name; it wraps to a second row if it must.\n  const KEYS = {\n    walk: ['Euler walk', (x, y) => { line('walk', x, y, x + 18, y); add(K.svg('circle', { class: 'knot', cx: x + 18, cy: y, r: 3 })); }],\n    older: ['earlier walks', (x, y) => line('old', x, y, x + 18, y)],\n    exact: ['exact curve', (x, y) => line('ex', x, y, x + 18, y)],\n    drift: ['drift', (x, y) => add(K.svg('rect', { class: 'hatch sw', x, y: y - 6, width: 18, height: 12, rx: 2 }))],\n    field: ['slope field', (x, y) => line('sf', x + 3, y + 5, x + 15, y - 5)],\n    read: ['slope read', (x, y) => add(K.svg('path', { class: 'rd', d: arrowD(x + 2, y + 5, [0.6, -0.8], 0, 15, 6) }))],\n  };\n  function keyLayout(items) {\n    const out = [];\n    let x = PL + tw(G.g.xtitle, 'ttl') + 18, row = 0;\n    items.forEach((k) => {\n      const w = 24 + tw(KEYS[k][0], 'key');\n      if (x + w > 336) { row++; x = PL; }\n      out.push({ k, x, row });\n      x += w + 14;\n    });\n    return { out, rows: row + 1 };\n  }\n  function keyRow(lay) {\n    const y = G.PB + 38;\n    text(PL, y, G.g.xtitle, 'ttl', 'start');\n    lay.out.forEach((o) => { const yy = y + 20 * o.row; KEYS[o.k][1](o.x, yy - 5); text(o.x + 24, yy, KEYS[o.k][0], 'key', 'start'); });\n  }\n\n  // ---------- the log under the drawing ----------\n  function readsCap(st, d) {\n    return [['Exact curve', f2(capExact(1)) + ' V', 'at 1 s']].concat(logged(st, d).map((x) => {\n      const h = Number(x);\n      return [x + ' s steps', f2z(capAt1(h)) + ' V', 'drift ' + f2z(driftAt1(h)) + ' V'];\n    }));\n  }\n  function readsHalve(st) {\n    const list = st.res === 'right' ? CAP_HS : CAP_HS.filter((h) => h !== 0.05);\n    return [['Exact curve', f2(capExact(1)) + ' V', 'at 1 s']].concat(list.map((h) => [h + ' s steps', f2z(capAt1(h)) + ' V', 'drift ' + f2z(driftAt1(h)) + ' V']));\n  }\n  function readsTank(st, d) {\n    return logged(st, d).map((x) => [x + ' min steps', f2(tankAt4(Number(x))) + ' m', 'at 4 min']);\n  }\n  function setReads(d, st) {\n    const box = document.getElementById('reads');\n    const rows = d.reads ? d.reads(st, d) : null;\n    REC.log = rows;\n    if (!rows) { box.hidden = true; box.textContent = ''; box.dataset.key = ''; return; }\n    box.hidden = false;\n    const key = rows.map((r) => r[0]).join('|');\n    if (box.dataset.key !== key) {\n      box.textContent = '';\n      rows.forEach(([lab]) => {\n        const t = box.appendChild(K.el('div', { class: 'rd' }));\n        write(t.appendChild(K.el('span', { class: 'k-label' })), lab);\n        t.appendChild(K.el('b'));\n        t.appendChild(K.el('small'));\n      });\n      box.dataset.key = key;\n    }\n    rows.forEach(([, v, sub], k) => { box.children[k].querySelector('b').textContent = nb(v); box.children[k].querySelector('small').textContent = nb(sub || ''); });\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    G = geoOf(d, st);\n    art.textContent = ''; topG.textContent = '';\n    into = null; curA = 1; placed = []; obst = []; queue = []; said = [];\n    REC = { walks: [], arrows: [], curves: [], texts: [], ss: [], bars: [], drift: [], ticks: [], bad: 0, answer: false, log: null, tank: null, tau: null };\n    const lay = keyLayout((typeof d.key === 'function' ? d.key(st) : d.key) || []);\n    G.workY += (lay.rows - 1) * 20; G.H += (lay.rows - 1) * 20;\n    drawField();\n    tags(d, st);\n    axes();\n    d.draw(st, d);\n    keyRow(lay);\n    queue.forEach(placeLabel);\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    setReads(d, st);\n    svg.setAttribute('aria-label', said.join(' '));\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('lead').textContent = nb(GRIDS[d.grid].lead);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const sw = d.switch || [];\n    el('switch').hidden = !sw.length;\n    swBtns.forEach((b, k) => {\n      b.el.hidden = k >= sw.length;\n      if (k >= sw.length) return;\n      b.setLabel(nb(sw[k][1]));\n      b.el.setAttribute('aria-pressed', modeOf(d, st) === sw[k][0] ? 'true' : 'false');\n    });\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));\n  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = TM;\n    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; paint(); }\n  }\n  const SWITCHED = [['Step size', CAP_HS], ['Too big a step', BIG_HS], ['A tank', TANK_HS]];\n\n  K.check('Every step of every walk drawn heads along the rule\\'s slope at its start, each step of a walk is the same length in time, and every slope arrow matches the rule where it is drawn', () => {\n    let n = 0;\n    for (const [name, list] of SWITCHED) {\n      const i = idx(name);\n      for (const h of list) {\n        const r = drawn(i, { mode: String(h) }), w = r.walks.find((x) => x.cls === 'walk');\n        if (!w || !close(w.h, h, 1e-12)) return false;\n        for (let k = 1; k < w.pts.length; k++) {\n          const a = w.pts[k - 1], b = w.pts[k];\n          if (!close(b[0] - a[0], h, 1e-9) || !close((b[1] - a[1]) / (b[0] - a[0]), w.rate(a[0], a[1]), 1e-9)) return false;\n          n++;\n        }\n        const rate = GRIDS[STEPS[i].grid].rate;\n        if (!r.arrows.every((x) => close(x.s, rate(x.t, x.v), 1e-9))) return false;\n      }\n    }\n    const t3 = drawn(idx('The drift'), {}).ticks;\n    return n > 150 && t3.length === 4 && t3.every((x, k) => close(x.s, capRate(0, x.v)) && (k === 0 || Math.abs(x.s) < Math.abs(t3[k - 1].s)));\n  });\n  K.check('A smaller h would result in a better approximation, and a larger h in a worse one: the drift at one second shrinks with every smaller step size, and each halving of the tank\\'s step moves its level at four minutes less than the halving before', () => {\n    const d = CAP_HS.map(driftAt1);\n    const capOk = d.every((x, k) => x > 0 && (k === 0 || x < d[k - 1]));\n    const t = TANK_HS.map(tankAt4), moves = t.slice(1).map((x, k) => Math.abs(x - t[k]));\n    const tankOk = moves.every((m, k) => k === 0 || m < moves[k - 1]);\n    const i5 = idx('Step size');\n    const br = CAP_HS.map((h) => drawn(i5, { mode: String(h) }).bars[0]);\n    return capOk && tankOk && br.every((b, k) => !!b && close(b.size, d[k], 1e-12));\n  }, { source: SWAR });\n  K.check('Every worked number is right: 6 and 3 V after 0.5 s steps, 4.41 V exact and 1.41 V of drift at 1 s; 9 and 6.75 V after 0.25 s steps against 7.28 V; the log 0, 3.00, 3.80, 4.18 and 4.30 V with drifts 4.41, 1.41, 0.62, 0.23 and 0.11 V, 0.06 V for the quartered slip and 5% low at 0.1 s; 12, −6, 3, −1.5 and 0.75 V with 1.5 s steps, 12, −12, 12 and −12 V with 2 s steps, 0 V after one 1 s step, 2.68 V exact at 1.5 s and an 18 V fall; the tank steady at 2.25 m, 0.89, 0.79, 0.75 and 0.73 m at 4 min, 1.1 m after one step from 1 m, 1.3 m for the slip and 0.77 m for the average; the coil 48 and 38.4 A a second, 0.48 and 0.864 A, 0.96 A for the slip, 0.791 A exact, τ 0.05 s, steady 2.4 A, and 3.6, 1.8 and 2.7 A with 0.075 s steps', () => {\n    const w05 = capWalk(0.5, 1), w025 = capWalk(0.25, 0.5);\n    const cap = close(TAU, 1) && close(capRate(0, V0), -12) && close(w05[1][1], 6) && close(w05[2][1], 3) && close(capRate(0, 6), -6) && close(w05[1][1] + H1 * capRate(0, V0), 0) &&\n      f2(capExact(1)) === '4.41' && f2(driftAt1(0.5)) === '1.41' && close(w025[1][1], 9) && close(w025[2][1], 6.75) && f2(capExact(0.5)) === '7.28';\n    const rows = CAP_HS.map((h) => f2z(capAt1(h))).join(' ') === '0 3.00 3.80 4.18 4.30' && CAP_HS.map((h) => f2z(driftAt1(h))).join(' ') === '4.41 1.41 0.62 0.23 0.11' &&\n      f2(driftAt1(0.1) / 4) === '0.06' && Math.round(100 * driftAt1(0.1) / capExact(1)) === 5;\n    const big = capWalk(1.5, 6).map((p) => f2(p[1])).join(' ') === '12 −6 3 −1.5 0.75' && capWalk(2, 6).map((p) => f2(p[1])).join(' ') === '12 −12 12 −12' &&\n      capWalk(1, 6).slice(1).every((p) => p[1] === 0) && close(1 - 1.5 / TAU, -0.5) && close(1 - 2 / TAU, -1) && f2(capExact(1.5)) === '2.68' && close(-1.5 * capRate(0, V0), 18);\n    const tank = close(H_SS, 2.25) && TANK_HS.map((h) => f2(tankAt4(h))).join(' ') === '0.89 0.79 0.75 0.73' && close(euler(tankRate, 1, 1, 1)[1][1], 1.1) &&\n      close(tankRate(0, 1), 0.1) && close(1 + QIN, 1.3) && f2((Number(f2(tankAt4(1))) + Number(f2(tankAt4(0.5)))) / 2) === '0.77';\n    const cw = coilWalk(0.01, 0.02), cb = coilWalk(0.075, 0.225);\n    const coil = close(CTAU, 0.05) && close(CSS, 2.4) && close(coilRate(0, 0), 48) && close(cw[1][1], 0.48) && close(coilRate(0, 0.48), 38.4) && close(CR * 0.48, 4.8) &&\n      close(0.01 * 38.4, 0.384) && close(cw[2][1], 0.864) && close(0.02 * coilRate(0, 0), 0.96) && f3(coilExact(0.02)) === '0.791' && cb.map((p) => f2(p[1])).join(' ') === '0 3.6 1.8 2.7' &&\n      close(1 - 0.075 / CTAU, -0.5);\n    const t2 = drawn(idx('The next step'), solvedSt(idx('The next step'))).texts, t11 = drawn(idx('The coil, stepped'), solvedSt(idx('The coil, stepped'))).texts;\n    return cap && rows && big && tank && coil && t2.indexOf('6 + 0.5 × (−6) = 3 V') >= 0 && t11.indexOf('0.48 + 0.01 × 38.4 = 0.864 A') >= 0;\n  });\n  K.check('The capacitor\\'s walks never rise above the exact curve, the coil\\'s two small steps run above its curve, the exact curves never cross their steady lines, and only the 1.5 s and 2 s walks swing below 0 V', () => {\n    const below = CAP_HS.every((h) => capWalk(h).every(([t, v]) => v <= capExact(t) + 1e-12 && v >= 0));\n    const above = coilWalk(0.01, 0.02).slice(1).every(([t, i]) => i > coilExact(t));\n    const never = K.linspace(0, 6, 61).every((t) => capExact(t) > 0) && K.linspace(0, 0.3, 61).every((t) => coilExact(t) < CSS);\n    const swings = (h) => capWalk(h, 6).some((p) => p[1] < 0);\n    return below && above && never && swings(1.5) && swings(2) && !swings(1);\n  });\n  K.check('The log lists the value at 1 s and its drift for each step size tried, beside the exact 4.41 V; the halving puzzle shows the 0.05 s row only once it is answered; the tank\\'s log lists its level at 4 min for each step tried', () => {\n    const i5 = idx('Step size'), i6 = idx('Halve the step'), i9 = idx('A tank');\n    const r0 = drawn(i5, {}).log, rAll = drawn(i5, { log: ['1', '0.5', '0.25', '0.1', '0.05'], mode: '0.05' }).log;\n    const a = drawn(i6, {}).log, b = drawn(i6, solvedSt(i6)).log;\n    const tk = drawn(i9, { log: ['2', '1', '0.5', '0.25'], mode: '0.25' }).log;\n    return r0.length === 2 && r0[1][1] === '3.00 V' && r0[1][2] === 'drift 1.41 V' && rAll.length === 6 && rAll.map((x) => x[1]).join('|') === '4.41 V|0 V|3.00 V|3.80 V|4.18 V|4.30 V' &&\n      a.length === 5 && !a.some((x) => x[0].indexOf('0.05') === 0) && b.length === 6 && b[5][2] === 'drift 0.11 V' &&\n      tk.map((x) => x[1]).join('|') === '0.89 m|0.79 m|0.75 m|0.73 m';\n  });\n  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&\n        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check('Before Check, no puzzle\\'s picture shows its answer or a mistake', () => DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0; }));\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, finishes within 2 s', () => {\n    const keepT = TM;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      TM = Infinity; latest = 0; earliest = Infinity;\n      S[i] = Object.assign(blank(), st);\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) {\n        const modes = d.switch ? d.switch.map((o) => o[0]) : [null];\n        return d.dur <= 4.5 && d.dur >= 3 && modes.every((m) => timed(i, { mode: m }, d.dur) && earliest >= FADE);\n      }\n      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));\n    });\n    TM = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The stepper",
+  "brief": "The one thing you should see is the hatched drift between the straight steps and the faint exact curve shrink when you pick smaller step sizes for the capacitor's discharge.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Every step of every walk drawn heads along the rule's slope at its start, each step of a walk is the same length in time, and every slope arrow matches the rule where it is drawn",
+     "ok": true
+    },
+    {
+     "label": "A smaller h would result in a better approximation, and a larger h in a worse one: the drift at one second shrinks with every smaller step size, and each halving of the tank's step moves its level at four minutes less than the halving before",
+     "ok": true,
+     "source": "https://lpsa.swarthmore.edu/NumInt/NumIntFirst.html"
+    },
+    {
+     "label": "Every worked number is right: 6 and 3 V after 0.5 s steps, 4.41 V exact and 1.41 V of drift at 1 s; 9 and 6.75 V after 0.25 s steps against 7.28 V; the log 0, 3.00, 3.80, 4.18 and 4.30 V with drifts 4.41, 1.41, 0.62, 0.23 and 0.11 V, 0.06 V for the quartered slip and 5% low at 0.1 s; 12, −6, 3, −1.5 and 0.75 V with 1.5 s steps, 12, −12, 12 and −12 V with 2 s steps, 0 V after one 1 s step, 2.68 V exact at 1.5 s and an 18 V fall; the tank steady at 2.25 m, 0.89, 0.79, 0.75 and 0.73 m at 4 min, 1.1 m after one step from 1 m, 1.3 m for the slip and 0.77 m for the average; the coil 48 and 38.4 A a second, 0.48 and 0.864 A, 0.96 A for the slip, 0.791 A exact, τ 0.05 s, steady 2.4 A, and 3.6, 1.8 and 2.7 A with 0.075 s steps",
+     "ok": true
+    },
+    {
+     "label": "The capacitor's walks never rise above the exact curve, the coil's two small steps run above its curve, the exact curves never cross their steady lines, and only the 1.5 s and 2 s walks swing below 0 V",
+     "ok": true
+    },
+    {
+     "label": "The log lists the value at 1 s and its drift for each step size tried, beside the exact 4.41 V; the halving puzzle shows the 0.05 s row only once it is answered; the tank's log lists its level at 4 min for each step tried",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle's picture shows its answer or a mistake",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, finishes within 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "One step",
+      "The next step",
+      "The drift",
+      "Smaller steps",
+      "Step size",
+      "Halve the step",
+      "Too big a step",
+      "One big step",
+      "A tank",
+      "One tank step",
+      "The coil, stepped",
+      "Why it swings",
+      "What next"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Option 1",
+    "Option 2",
+    "Option 3",
+    "Option 4",
+    "Option 5",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T10:54:27.882Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The mistake \"trusting a walk that swings either side of its steady line\" is read alone for months; after i6 a lightly damped spring or circuit truly rings either side of its steady line, so the swing is only a warning sign when the rate depends only on the value."
+   },
+   {
+    "path": "explain.text",
+    "problem": "\"Where no formula exists\" overstates the tank: dh/dt = 0.3 − 0.2 √h separates, giving time as a formula in the level; only the level against time has no tidy formula, as the next sentences rightly say."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "\"This rule has no tidy formula\" is too broad: separating it gives time against level in closed form; what it lacks is a tidy formula for h against time, which is why no exact curve is drawn."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

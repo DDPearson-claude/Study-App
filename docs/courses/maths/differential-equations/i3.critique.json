@@ -1,0 +1,40 @@
+{
+  "draft": "i3.lesson.draft1.txt",
+  "keep": [
+    "The idea is named in one line up front: the current is the steady value E ÷ R plus a gap that dies as a discharge does.",
+    "The steady state is found from the rule, by setting the rate to zero, so it is plain why L drops out of it and why the input alone sets it.",
+    "One worked example runs through every screen, computed from the shown rule: 24 V, 0.5 H and 10 Ω give 2.4 A, τ = 0.05 s, 48 A a second at switch-on, and gaps of −2.4, −0.883, −0.325 and −0.119 A at the τ marks.",
+    "The cause is drawn, not just the effect: rate arrows on screen 3 halve as the gap halves, which is why the gap obeys the decay rule of the discharge.",
+    "Each misconception in the brief has a puzzle and a drawn wrong pick: τ read as the time to full (screen 6), the start value not used (screen 8, 1.2(1 − e^(−t/0.05)) starts at 0), the steady line ignored (screens 8 and 13), L thought to set the final current (screen 10), and the fractions kept and closed swapped (screens 6 and 13).",
+    "Split shows the curve as the steady line plus the dying gap, so the general form i = E ÷ R + (i₀ − E ÷ R) e^(−t/τ) is seen before it is written.",
+    "The analogy, a cable warming to its running temperature under a steady load, reproduces the main result from his own work, and its break is true: several layers with different paces, and resistance that rises with temperature.",
+    "Practice has the safe way first, the steps, a rule of thumb, a worked example with fresh numbers, the integrating factor as a second route that lands on the same answer, and the mistakes."
+  ],
+  "fix": [
+    "False absolute, in explain and whatAmILookingAt: 'the steady value never moves' is untrue once the supply is dropped mid-run on screens 8 and 9. Say it holds while the supply holds.",
+    "Causal step skipped in explain: 'Rearrange the rule as di/dt = (E ÷ R − i) ÷ (L ÷ R)' jumps two moves. Divide by L first, then take R out of the top.",
+    "Qualifier lost: the LibreTexts quote is about a driven damped system. Say a damped spring, not just a spring.",
+    "Brief names two causes: 'wherever the current starts' needs the start slider, which screen 5 lacks. Keep the one action, dragging the time marker.",
+    "Interactive shows the effect more than the cause on screen 5: add a rate arrow riding with the time marker, its slope the gap ÷ τ, so the shrinking gap is seen to slow its own closing.",
+    "Number rule: 'about 1300 rpm' and 'about 200 rpm' are not in numbers. Write the choices as the computed 1297 rpm and 203 rpm."
+  ],
+  "faults": {
+    "skipped causal step": "yes, fix 2",
+    "false absolutes": "yes, fix 1",
+    "interactive shows only the effect": "partly, fixes 4 and 5",
+    "checks test recall": "no; every DO screen computes from the rule or reads the picture",
+    "thin or decorative research": "no; four sources, each on the words it supports, footnotes on figures he would look up",
+    "unreadable labels": "no; four readouts on screen 5 wrap onto two lines at 360 px",
+    "talks about the idea instead of teaching it": "no"
+  },
+  "shape": {
+    "idea named up front": "yes",
+    "rule stated in words": "yes, the rate is in proportion to the gap",
+    "worked example with real numbers": "yes, 24 V, 0.5 H, 10 Ω; and 110 V, 2.2 H, 55 Ω in practice",
+    "misconception shown failing": "yes, wrong picks drawn on screens 8 and 10",
+    "trade analogy with where it breaks": "yes, a cable warming under load",
+    "put it into practice": "yes",
+    "recap he could say back": "yes, the bold takeaway"
+  },
+  "verdict": "rewrite as draft 2 with the six fixes"
+}

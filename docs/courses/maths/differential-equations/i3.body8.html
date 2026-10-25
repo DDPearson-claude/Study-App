@@ -1,0 +1,1354 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */
+  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax, .scene .z0 { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .sup { font-size: 12.5px; }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.main { fill: var(--k-accent2); }
+  .scene .lab.acc { fill: var(--k-accent); }
+  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .v { font-style: italic; }
+  /* Curves: the current in navy, the gap piece in teal, an older curve muted, a mistake in the warning colour. */
+  .scene .sol { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .gp { fill: none; stroke: var(--k-accent); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .fam { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .pa { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .tan { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .sol.bad, .scene .pa.bad, .scene .tan.bad { stroke: var(--k-warn); }
+  /* The steady line, dashed; the gap to it, shaded amber, with an amber bar at each τ mark. */
+  .scene .ss { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 7 5; }
+  .scene .ss.old { stroke: var(--k-muted); }
+  .scene .ss.bad { stroke: var(--k-warn); }
+  .scene .gapfill { fill: var(--k-fill2); fill-opacity: .5; stroke: none; }
+  .scene .gapbar { stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linecap: round; }
+  .scene .gapbar.now { stroke-width: 4; }
+  .scene .notch { stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .mk { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot.fam { fill: var(--k-muted); }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  /* The loop, drawn small: supply, two-way switch, coil and resistor. */
+  .scene .inset { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .plate2 { stroke: var(--k-ink); stroke-width: 4; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .lever { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .scene .contact { fill: var(--k-ink); }
+  /* The supply's 24 V shared between the resistor and the coil. */
+  .scene .vb.r { fill: var(--k-fill1); }
+  .scene .vb.c { fill: var(--k-fill3); }
+  .scene .vb.box { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  /* The motor and the tank. */
+  .scene .rotor { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .spoke { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .hub { fill: var(--k-ink); }
+  .scene .water { fill: var(--k-fill1); }
+  .scene .tankbox { fill: none; stroke: var(--k-ink); stroke-width: 1.8; }
+  /* The sliders: a track, a tick at each setting, and a knob. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .stk { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene #art *, .scene #top * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  /* Readings that wrap to two lines on a phone. */
+  .reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 8px; }
+  .reads .rd { background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 12px; }
+  .reads .rd .k-label { display: block; }
+  .reads .rd b { display: block; font-size: 1.2rem; white-space: nowrap; margin-top: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .switch { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .switch .k-btn { min-height: 44px; white-space: nowrap; }
+  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"], .switch .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead" id="lead">A 24&nbsp;V supply switches onto a 0.5&nbsp;H coil and 10&nbsp;Ω, and the current climbs to a steady line. Every value is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g><g id="top"></g><g id="ui"></g></svg>
+    <div class="reads" id="reads" hidden></div>
+    <div class="switch" id="switch"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every curve, gap and reading is worked out from the rule on its screen.</p>
+
+<script>
+  // ---------- the rules ----------
+  // A coil L and a resistor R switched onto a supply E: E = L di/dt + R i, so di/dt = (E − R i) ÷ L.
+  // Taking R out of the top, di/dt = (E ÷ R − i) ÷ (L ÷ R): the rate is the gap to the steady
+  // current E ÷ R, over τ = L ÷ R. So the gap decays, and i = E ÷ R + (i₀ − E ÷ R) e^(−t/τ).
+  const E0 = 24, L0 = 0.5, R0 = 10;
+  const ES = [6, 12, 18, 24, 30], RS = [10, 15, 20], IS = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
+  const steadyOf = (E, R) => E / R;
+  const tauOf = (L, R) => L / R;
+  const rateOf = (E, R, L) => (i) => (E - R * i) / L;
+  const runOf = (iss, i0, tau) => (t) => iss + (i0 - iss) * Math.exp(-t / tau);
+  const ISS = steadyOf(E0, R0), TAU = tauOf(L0, R0), RULE = rateOf(E0, R0, L0), RATE0 = RULE(0);   // 2.4 A, 0.05 s, 48 A a second
+  const coilI = runOf(ISS, 0, TAU);                  // i = 2.4 − 2.4 e^(−t/0.05)
+  const gapOf = (t) => coilI(t) - ISS;               // the gap, −2.4 e^(−t/0.05)
+  const E1 = Math.exp(-1);                           // the share of the gap kept in each τ
+  const I_HALF = ISS / 2, T_HALF = TAU * Math.log(2);   // where the current reaches 1.2 A
+  const TF = 0.15;                                   // the two-way switch flips halfway through the 0.3 s run
+  // A run on the sliders' screen: the supply on throughout, or dropping out at TF, when the loop
+  // closes through R and the current dies towards a steady line of 0.
+  function runWith(E, R, i0, flip) {
+    const tau = tauOf(L0, R), iss = steadyOf(E, R), a = runOf(iss, i0, tau);
+    if (!flip) return { tau, iss, i0, f: a, lv: () => iss, tf: null };
+    const at = a(TF), b = runOf(0, at, tau);
+    return { tau, iss, i0, f: (t) => (t < TF ? a(t) : b(t - TF)), lv: (t) => (t < TF ? iss : 0), tf: TF };
+  }
+  const E_LOW = 12, ISS_LOW = steadyOf(E_LOW, R0);   // the supply drops to 12 V: a new line at 1.2 A
+  const dropI = runOf(ISS_LOW, ISS, TAU);            // i = 1.2 + 1.2 e^(−t/0.05)
+  const L_BIG = 1, TAU_BIG = tauOf(L_BIG, R0);       // a 1 H coil: τ = 0.1 s
+  const share = (k) => 100 * (1 - Math.exp(-k));     // the share of the way, in %, after k τ
+  const N_SS = 1500, N_TAU = 0.2, N_T = 0.4, motorN = runOf(N_SS, 0, N_TAU);   // dn/dt = (1500 − n) ÷ 0.2
+  const H_SS = 2, H_TAU = 50, H0 = 3, H_T = 50, tankH = runOf(H_SS, H0, H_TAU);  // dh/dt = (2 − h) ÷ 50
+  const SKINS = {
+    coil: { name: 'Coil', tau: TAU, ss: ISS, start: 0, unit: 'A' },
+    motor: { name: 'Motor', tau: N_TAU, ss: N_SS, start: 0, unit: 'rpm' },
+    tank: { name: 'Tank', tau: H_TAU, ss: H_SS, start: 0, unit: 'm' },   // the skin fills from empty
+  };
+  const ROFF = 5;
+
+  // Sources the checks restate (the lesson's own).
+  const LUMEN = 'https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits';
+  const OPENSTAX = 'https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits';
+
+  // ---------- numbers, written the lesson's way ----------
+  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s);
+  function fmtD(v, dp) {
+    const m = Math.pow(10, dp), r = Math.round(v * m) / m;
+    if (r === 0) return '0';
+    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));
+  }
+  const fmtV = (v) => fmtD(v, 2);
+  const fmt3 = (v) => fmtD(v, 3);
+  const fmtG = (v) => (Math.abs(v) < 1 ? fmt3(v) : fmtV(v));
+  const pc = (v) => v.toFixed(1) + '%';
+  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\*/g, '');
+  // As a screen reader says it.
+  const say = (s) => plain(s).replace(/d([A-Za-z])\/d([A-Za-z])/g, 'd $1 by d $2').replace(/e\^\(([^)]*)\)/g, 'e to the power $1')
+    .replace(/Ω/g, ' ohms').replace(/τ/g, ' tau ').replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/=/g, ' equals ')
+    .replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/%/g, ' per cent').replace(/\s+/g, ' ').trim();
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // grid: which plot ('coil' 0-0.3 s and 0-4 A, 'split' down to −2.5 A, 'skin', 'motor', 'tank');
+  // grip: what a drag on the plot moves ('mk' the time marker); sliders: E, R and the start above
+  // the plot; switch: the named buttons under the drawing; reads: the readings under it; work: lines
+  // of working under the plot; key: the key's items; draw(st): the picture in that step's state. A
+  // SHOW step's timetable is in its draw, in seconds from when the screen opens.
+  const PICK = 'Tap one of the answers.';
+  const FB = 2.0;   // how long the motion after an answer plays
+  const SOFT = 0.6;
+  const STEPS = [
+    { show: true, name: 'Switch on', grid: 'coil', work: 3, key: ['rate'], dur: 3.6,
+      text: 'A 24 V supply, a 0.5 H coil and 10 Ω sit in one loop. The switch closes. Round the loop the voltages add up, so `24 = L di/dt + R i`. At first the current is 0, so the coil takes all 24 V. The current climbs at 24 ÷ 0.5 = 48 A a second. As it grows, the resistor takes `10 i` volts. That leaves the coil less, so the climb slows. The curve bends over.',
+      draw(st) {
+        inset(K.lerp(OPEN, ON, arr(0.4, 0.4)));
+        const t = 0.2 * arr(0.9, 2.4), i = coilI(t);
+        curve(coilI, 0, 0.3, 'sol', Math.max(t / 0.3, arr(3.3, 0.3)), 'main');
+        dot(0, 0);
+        rideRate(t, i, RULE(i));
+        workLines([{ s: 'at 0 A: (24 − 10 × 0) ÷ 0.5 = 48 A a second', a: vis(0.5) }]);
+        shareBar(i, vis(0.5));
+        said.push('A rider climbs the curve from 0 amps. Its rate arrow starts steep and flattens.');
+      } },
+    { kind: 'pick', name: 'Where the climb stops', grid: 'coil', work: 1,
+      task: 'The climb stops where the rate is zero. What current is that?',
+      opts: ['2.4 A', '240 A', '48 A'], want: '2.4 A',
+      why: 'The rate is zero when the coil\'s share of the 24 V is zero. Then the resistor takes all of it. So `10 i = 24`, and the current is 24 ÷ 10 = 2.4 A. That is the *steady current*, `E ÷ R`. `L` is not in it.',
+      hint: 'Not quite. Give the resistor all 24 V, so `10 i = 24`.',
+      hints: { '240 A': 'Not quite. Divide 24 by 10. Do not multiply.', '48 A': 'Not quite. 48 A a second is how fast it climbs at the start. Find where the climb stops.' },
+      draw(st) {
+        const r = RW(st);
+        inset(ON);
+        curve(coilI, 0, 0.3, 'sol', 1, 'main');
+        dot(0, 0);
+        if (r.ok) {
+          REC.answer = true;
+          part(vis(0.1), 0, () => { steadyLine(ISS); label(120, G.y(ISS) - 8, 'rate zero at 2.4 A', 'lab', 'start'); });
+          workLines([{ s: 'rate zero: 24 = 10 `i`, so `i` = 24 ÷ 10 = 2.4 A', a: vis(0.5) }]);
+        } else if (r.w === '240 A') {
+          REC.bad++;
+          part(vis(0.1), 0, () => { arrowUp(G.x(0.03), G.PT + 58, G.PT + 6, 'pa bad'); label(G.x(0.03) + 10, G.PT + 20, '240 A is far above', 'lab bad', 'start'); });
+          workLines([{ s: '`10 i = 24` means divide 24 by 10, not multiply', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          part(vis(0.1), 0, () => { arrowFrom(0, 0, RATE0, 'pa bad', 1, 34, ROFF); label(PL + 14, G.PB - 8, '48 A a second is the rate at the start', 'lab bad', 'start'); });
+          workLines([{ s: '48 is a rate, in A a second, not a current', bad: true, a: vis(0.4) }]);
+        }
+      } },
+    { show: true, name: 'The steady line and the gap', grid: 'coil', work: 3, key: ['gap', 'rate'], dur: 3.6,
+      text: 'A dashed line marks the *steady state*, `E ÷ R` = 2.4 A. There the rate is zero, so the current stops changing. The shaded strip is the *gap*, the current minus 2.4 A. Below the line it is negative. Take 10 out of the top of the rule, and it reads `di/dt = (2.4 − i) ÷ 0.05`. The 0.05 s is 0.5 ÷ 10, which is `L ÷ R`. So the rate is in proportion to the gap: its size ÷ 0.05 s. At 1.2 A the gap has halved, and so has the rate.',
+      draw(st) {
+        inset(ON);
+        steadyLine(ISS);
+        curve(coilI, 0, 0.3, 'sol', 1, 'main');
+        label(120, G.y(ISS) - 8, 'steady `E ÷ R` = 2.4 A', 'lab', 'start');
+        gapFill(coilI, () => ISS, 0, 0.3, vis(0.6));
+        part(vis(0.6), 0, () => { gapBar(0, 0, ISS); gapBar(T_HALF, I_HALF, ISS); });
+        workLines([{ s: '`di/dt = (24 − 10 i) ÷ 0.5 = (2.4 − i) ÷ 0.05`', a: vis(1.2) }, { s: '0.05 s = 0.5 ÷ 10, which is `L ÷ R`', a: vis(1.5) }, { s: 'at 0 A: (2.4 − 0) ÷ 0.05 = 48 A a second', a: vis(1.8) }]);
+        arrowFrom(0, 0, RULE(0), 'pa', arr(1.8, SOFT), 34, ROFF);
+        part(vis(1.8), 4, () => label(PL + 14, G.PB - 8, 'gap −2.4 A, the full rate', 'lab', 'start'));
+        part(vis(2.4), 0, () => dot(T_HALF, I_HALF));
+        arrowFrom(T_HALF, I_HALF, RULE(I_HALF), 'pa', arr(2.4, SOFT), 34, ROFF);
+        part(vis(2.4), 4, () => label(G.x(T_HALF) + 10, G.y(I_HALF) + 18, 'gap −1.2 A, half the rate', 'lab', 'start'));
+        said.push('Rate arrows at 0 amps and at 1.2 amps. Where the gap has halved, the arrow is half as steep in amps a second.');
+      } },
+    { kind: 'pick', name: 'The rate at 1.2 A', grid: 'coil', work: 1, key: (st) => (st.res === 'right' || st.res === 'wrong' ? ['gap', 'rate'] : ['gap']),
+      task: 'The current has reached 1.2 A. How fast is it climbing there?',
+      opts: ['24 A a second', '48 A a second', '1.2 A a second'], want: '24 A a second',
+      why: 'The rate is the gap\'s size ÷ 0.05 s. At 1.2 A the gap\'s size is 1.2 A. So the rate is 1.2 ÷ 0.05 = 24 A a second. That is half the starting 48, because the gap has halved.',
+      hint: 'Not quite. Divide the gap\'s size by 0.05 s.',
+      hints: { '48 A a second': 'Not quite. 48 A a second was the rate at 0 A, with the full gap. The gap is smaller now.', '1.2 A a second': 'Not quite. 1.2 A is the gap itself. Divide it by 0.05 s.' },
+      draw(st) {
+        const r = RW(st);
+        inset(ON);
+        steadyLine(ISS);
+        curve(coilI, 0, 0.3, 'sol', 1, 'main');
+        label(120, G.y(ISS) - 8, 'steady 2.4 A', 'lab', 'start');
+        gapFill(coilI, () => ISS, 0, 0.3, 1);
+        gapBar(T_HALF, I_HALF, ISS);
+        dot(T_HALF, I_HALF);
+        if (r.ok) {
+          REC.answer = true;
+          arrowFrom(T_HALF, I_HALF, RULE(I_HALF), 'pa', arr(0.1, 0.8), 34, ROFF);
+          workLines([{ s: '(2.4 − 1.2) ÷ 0.05 = 24 A a second', a: vis(0.5) }]);
+        } else if (r.w === '48 A a second') {
+          REC.bad++;
+          arrowFrom(T_HALF, I_HALF, RATE0, 'pa bad', arr(0.1, 0.8), 34, ROFF);
+          workLines([{ s: '48 A a second goes with the full gap of 2.4 A', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          arrowFrom(T_HALF, I_HALF, 1.2, 'pa bad', arr(0.1, 0.8), 34, ROFF);
+          workLines([{ s: '1.2 A is the gap, not yet divided by 0.05 s', bad: true, a: vis(0.4) }]);
+        }
+        label(G.x(T_HALF) + 10, G.y(I_HALF) + 18, 'at 1.2 A, the gap is −1.2 A', 'lab', 'start');
+      } },
+    { show: true, name: 'The gap at each τ', grid: 'coil', grip: 'mk', reads: readsMk, key: ['gap', 'tan', 'tau'], dur: 3.6,
+      text: 'The marks along the bottom sit one `τ = L ÷ R` = 0.05 s apart. The steady line holds still, so the gap changes just as fast as the current. So the gap follows the discharge\'s rule: its rate is −gap ÷ `τ`. So each `τ` keeps the same share of it, 0.368. At the marks it reads −2.4, −0.883, −0.325 and −0.119 A. It never quite closes. A straight line at the starting rate meets the dashed line at one `τ`. Drag the marker to try any time.',
+      read: 'The marks along the bottom sit one `τ = L ÷ R` = 0.05 s apart. The steady line holds still, so the gap changes just as fast as the current. So the gap follows the discharge\'s rule: its rate is −gap ÷ `τ`. So each `τ` keeps the same share of it, 0.368. At the marks it reads −2.4, −0.883, −0.325 and −0.119 A. It never quite closes. A straight line at the starting rate meets the dashed line at one `τ`. Anywhere, the gap is 0.368 of its size one `τ` before.',
+      draw(st) {
+        inset(ON);
+        steadyLine(ISS);
+        curve(coilI, 0, 0.3, 'sol', 1, 'main');
+        label(120, G.y(ISS) - 8, 'steady 2.4 A', 'lab', 'start');
+        gapFill(coilI, () => ISS, 0, 0.3, 1);
+        const marks = [0, 1, 2, 3, 4, 5, 6].map((k) => k * TAU);
+        notches(marks.slice(1));
+        marks.forEach((t) => gapBar(t, coilI(t), ISS));
+        const t = st.mk != null ? st.mk : 3 * TAU * arr(0.5, 2.4);
+        const i = coilI(t), g = i - ISS;
+        gapBar(t, i, ISS, 'now');
+        rideRate(t, i, RULE(i));
+        REC.mk = { t, i, g, ratio: t >= TAU - 1e-9 ? g / gapOf(t - TAU) : null, slope: RULE(i) };
+        const gy = (G.y(i) + G.y(ISS)) / 2 + 4;
+        label(G.x(t) - 8, gy, 'gap', 'lab', 'end', [[G.x(t) + 8, gy, 'start'], [G.x(t), G.y(i) + 20, 'middle'], [G.x(t), G.y(ISS) - 10, 'middle']]);
+        tangent(st.mk != null ? 1 : arr(3.0, 0.5));
+        said.push('Amber bars show the gap at each tau mark, each 0.368 of the one before. The marker sits at ' + say(fmtD(t, 3)) + ' seconds.');
+      } },
+    { kind: 'pick', name: 'After one τ', grid: 'coil', work: 2,
+      task: 'What is the current after one `τ`, at 0.05 s?',
+      opts: ['1.52 A', '2.4 A', '0.883 A'], want: '1.52 A',
+      why: 'One `τ` keeps 0.368 of the gap. So the gap goes from −2.4 A to −2.4 × 0.368 = −0.883 A. The current is 2.4 − 0.883 = 1.52 A. It has closed 0.632 of the gap.',
+      hint: 'Not quite. Find the gap left, then add it to 2.4 A.',
+      hints: { '2.4 A': 'Not quite. The straight starting line reaches 2.4 A at one `τ`. The curve bends below it.', '0.883 A': 'Not quite. 0.883 A is the size of the gap left. Take it off 2.4 A.' },
+      draw(st) {
+        const r = RW(st), i1 = coilI(TAU);
+        inset(ON);
+        steadyLine(ISS);
+        line('mk', G.x(TAU), G.PB, G.x(TAU), G.PT); addObst(G.x(TAU), G.PB, G.x(TAU), G.PT);
+        curve(coilI, 0, 0.3, 'sol', 1, 'main');
+        gapBar(0, 0, ISS);
+        dot(0, 0);
+        if (r.ok) {
+          REC.answer = true;
+          part(vis(0.1), 0, () => { gapBar(TAU, i1, ISS); dot(TAU, i1); });
+          part(vis(0.8), 4, () => label(G.x(TAU) + 10, G.y(i1) + 18, '1.52 A', 'lab main', 'start'));
+          workLines([{ s: 'gap: −2.4 × 0.368 = −0.883 A', a: vis(0.4) }, { s: '`i` = 2.4 − 0.883 = 1.52 A', a: vis(0.9) }]);
+        } else if (r.w === '2.4 A') {
+          REC.bad++;
+          part(vis(0.1), 0, () => { line('tan bad', G.x(0), G.y(0), G.x(TAU), G.y(ISS)); addObst(G.x(0), G.y(0), G.x(TAU), G.y(ISS)); ring(TAU, ISS); });
+          part(vis(0.5), 4, () => label(G.x(TAU) + 14, G.y(ISS) - 8, 'the straight starting line', 'lab bad', 'start'));
+          workLines([{ s: '2.4 A is where the straight starting line lands', bad: true, a: vis(0.5) }]);
+        } else if (r.w) {
+          REC.bad++;
+          part(vis(0.1), 0, () => { dot(TAU, ISS * E1, 'bad'); ring(TAU, ISS * E1); });
+          part(vis(0.5), 4, () => label(G.x(TAU) + 16, G.y(ISS * E1) + 5, '0.883 A is the gap\'s size', 'lab bad', 'start'));
+          workLines([{ s: 'that is the gap\'s size, not the current', bad: true, a: vis(0.5) }]);
+        }
+        label(120, G.y(ISS) - 8, 'steady 2.4 A', 'lab', 'start', [[180, G.y(ISS) - 8, 'start']]);
+        label(G.x(TAU) + 6, G.PT + 14, 'after 0.05 s', 'lab', 'start');
+        label(PL + 14, G.PB - 8, 'gap −2.4 A at the start', 'lab', 'start');
+      } },
+    { show: true, name: 'Split', grid: 'split', switch: [['join', 'Together'], ['split', 'Split']], mode0: 'split', key: ['cur', 'gp'], dur: 3.6,
+      text: 'Here the curve comes apart. One piece is the flat steady line at 2.4 A. The other is the dying gap, `−2.4 e^(−t/0.05)`, drawn below the axis. Add the two, height by height, and you get the current back. The supply and `R` set the steady line. The start sets the gap, the *transient*, and it dies away. With a sine supply the steady part is a sine. For a resistor and capacitor it is what the impedance method gives.',
+      draw(st) {
+        const split = (st.mode || 'split') === 'split';
+        const p = split ? arr(0.6, 1.6) : 1 - arr(0.6, 1.2);
+        const off = ISS * (1 - p), gp = (t) => off + gapOf(t);
+        steadyLine(ISS);
+        curve(coilI, 0, 0.3, 'sol', 1, 'main');
+        gapFill(gp, () => off, 0, 0.3, 1);
+        if (p > 0.02) curve(gp, 0, 0.3, 'gp', 1, 'gap');
+        REC.split = { p, off, gp };
+        label(120, G.y(ISS) - 8, 'steady line 2.4 A', 'lab', 'start');
+        if (split) {
+          part(vis(2.4), 0, () => [TAU, 2 * TAU].forEach((t) => { gapBar(t, coilI(t), ISS); gapBar(t, gapOf(t), 0); }));
+          part(vis(2.8), 4, () => {
+            label(150, G.y(1.2), '`i = 2.4 − 2.4 e^(−t/0.05)`', 'lab main', 'start');
+            label(150, G.y(-1.2), 'gap `−2.4 e^(−t/0.05)`', 'lab acc', 'start');
+          });
+          said.push('The current splits into the steady line at 2.4 amps and the gap, drawn below the axis. Amber bars of equal length hang from the steady line and from zero.');
+        } else said.push('The current and its shaded gap to the steady line, together.');
+      } },
+    { show: true, name: 'Another route', grid: 'coil', work: 3, dur: 3.6,
+      text: 'A second route is the *integrating factor*. Write the rule with `di/dt` on its own: `di/dt + i ÷ 0.05 = 48`. Multiply both sides by `e^(t/0.05)`, whose slope is itself ÷ 0.05. A product\'s slope is each part\'s slope times the other part, added. So the left side is now the slope of `i e^(t/0.05)`. Integrate both sides: `e^(t/0.05)` integrates to 0.05 `e^(t/0.05)`, and 48 × 0.05 = 2.4. Divide by `e^(t/0.05)` to get `i = 2.4 + c e^(−t/0.05)`. Starting from 0 A makes `c` = −2.4. It is the same curve.',
+      draw(st) {
+        inset(ON);
+        steadyLine(ISS);
+        label(120, G.y(ISS) - 8, 'steady 2.4 A', 'lab', 'start');
+        workLines([{ s: 'standard form: `di/dt + i ÷ 0.05 = 48`', a: vis(0.5) }, { s: 'slope of `i e^(t/0.05)` = `48 e^(t/0.05)`', a: vis(1.1) }, { s: '`i e^(t/0.05) = 2.4 e^(t/0.05) + c`', a: vis(1.7) }]);
+        dot(0, 0);
+        curve(coilI, 0, 0.3, 'sol', arr(2.3, 1.0), 'main');
+        part(vis(3.0), 4, () => label(150, G.y(1.2), '`i = 2.4 − 2.4 e^(−t/0.05)`', 'lab main', 'start', [[150, G.y(0.6), 'start']]));
+        said.push('Three lines of working, then the same curve as before: i equals 2.4 minus 2.4 e to the power minus t over 0.05.');
+      } },
+    { kind: 'pick', name: 'The supply drops', grid: 'coil', work: 1, mathOpts: true, vals: '`E` = 12 V, `L` = 0.5 H, `R` = 10 Ω',
+      task: 'The current sits steady at 2.4 A. Then the supply drops to 12 V, so the new steady line is 1.2 A. Which formula does the current now follow?',
+      opts: ['i = 1.2 + 1.2 e^(−t/0.05)', 'i = 1.2 (1 − e^(−t/0.05))', 'i = 2.4 e^(−t/0.05)'], want: 'i = 1.2 + 1.2 e^(−t/0.05)',
+      why: 'The new steady value is 12 ÷ 10 = 1.2 A. The current starts at 2.4 A, so the gap starts at 2.4 − 1.2 = +1.2 A. It dies with the same `τ`, 0.05 s. So `i = 1.2 + 1.2 e^(−t/0.05)`. It starts at 2.4 A and settles on 1.2 A.',
+      hint: 'Not quite. Check where each one starts and where it settles.',
+      hints: { 'i = 1.2 (1 − e^(−t/0.05))': 'Not quite. That one starts at 0 A. This current starts at 2.4 A.', 'i = 2.4 e^(−t/0.05)': 'Not quite. That one dies away to 0 A. The supply still holds it at 1.2 A.' },
+      draw(st) {
+        const r = RW(st);
+        inset(ON);
+        steadyLine(ISS, 'ss old');
+        steadyLine(ISS_LOW);
+        gapBar(0, ISS, ISS_LOW);
+        dot(0, ISS);
+        if (r.ok) {
+          REC.answer = true;
+          gapFill(dropI, () => ISS_LOW, 0, 0.3, vis(0.6));
+          curve(dropI, 0, 0.3, 'sol', arr(0.1, 1.2), 'ans');
+          part(vis(1.0), 4, () => label(150, G.y(1.8), '`i = 1.2 + 1.2 e^(−t/0.05)`', 'lab main', 'start'));
+          workLines([{ s: 'starts at 1.2 + 1.2 = 2.4 A, settles on 1.2 A', a: vis(0.8) }]);
+        } else if (r.w === 'i = 1.2 (1 − e^(−t/0.05))') {
+          REC.bad++;
+          curve(runOf(ISS_LOW, 0, TAU), 0, 0.3, 'sol bad', arr(0.1, 1.2), 'bad');
+          part(vis(0.1), 0, () => ring(0, 0));
+          part(vis(0.8), 4, () => label(G.x(0.06), G.y(0.5), 'starts at 0 A, not 2.4 A', 'lab bad', 'start'));
+          workLines([{ s: 'at `t` = 0 this gives 1.2 × (1 − 1) = 0 A', bad: true, a: vis(0.6) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const g = runOf(0, ISS, TAU);
+          curve(g, 0, 0.3, 'sol bad', arr(0.1, 1.2), 'bad');
+          part(vis(1.0), 0, () => ring(0.3, g(0.3)));
+          part(vis(0.8), 4, () => label(G.x(0.12), G.y(0.5), 'settles at 0 A, not 1.2 A', 'lab bad', 'start'));
+          workLines([{ s: 'this one dies away to 0 A', bad: true, a: vis(0.6) }]);
+        }
+        label(120, G.y(ISS) - 8, 'old line 2.4 A', 'lab', 'start');
+        label(196, G.y(ISS_LOW) - 8, 'new line 1.2 A', 'lab', 'start', [[196, G.y(ISS_LOW) + 18, 'start']]);
+        label(PL + 12, G.y(1.5) + 5, '+1.2 A', 'lab', 'start', [[PL + 12, G.y(ISS) - 8, 'start'], [PL + 12, G.y(1.3) + 5, 'start']]);
+      } },
+    { show: true, name: 'Your own run', grid: 'coil', sliders: true, switch: [['on', 'Supply on'], ['flip', 'Flip halfway']], mode0: 'on', reads: readsRun, key: ['gap', 'tau'], dur: 3.8,
+      tag2: '`L` = 0.5 H', vals: null,
+      text: 'Set `E`, `R` and the start with the sliders. `E` and `R` move the steady line. `R` also sets `τ`. The start moves only the gap, above or below the line. Choose Flip halfway and the switch flips mid-run. The supply drops out and the loop closes through `R`, so the line drops to 0. Whatever the settings, the gap keeps 0.368 of itself from one `τ` mark to the next. The one exception is across the flip, where the line jumps.',
+      read: '`E` and `R` move the steady line. `R` also sets `τ`. The start moves only the gap, above or below the line. When the switch flips mid-run, the supply drops out. The loop closes through `R`, so the line drops to 0. Whatever the settings, the gap keeps 0.368 of itself from one `τ` mark to the next. The one exception is across the flip, where the line jumps.',
+      draw(st) {
+        const E = Eof(st), R = Rof(st), i0 = Iof(st), flip = (st.mode || 'on') === 'flip';
+        const run = runWith(E, R, i0, flip), tEnd = flip ? TF : 0.3;
+        const tr = 0.3 * arr(0.5, 3.0);
+        sliders(E, R, i0);
+        inset(flip ? K.lerp(ON, BYP, K.clamp((tr - TF) / 0.012, 0, 1)) : ON, [224, 36, 110, 102]);
+        steadyLine(run.iss, 'ss', PL, G.x(tEnd));
+        if (flip) { line('mk', G.x(TF), G.PB, G.x(TF), G.PT); addObst(G.x(TF), G.PB, G.x(TF), G.PT); }
+        curve(run.f, 0, 0.3, 'sol', 1, 'main');
+        gapFill(run.f, () => run.iss, 0, tEnd, 1);
+        if (flip) gapFill(run.f, () => 0, TF, 0.3, 1);
+        // The τ marks, timed from the start and, after a flip, from the flip.
+        const marks = [];
+        for (let k = 0; k * run.tau <= tEnd + 1e-9; k++) { const t = k * run.tau; if (flip && t >= TF - 1e-9) break; marks.push({ t, seg: 0, lv: run.iss }); }
+        if (flip) for (let k = 0; TF + k * run.tau <= 0.3 + 1e-9; k++) marks.push({ t: TF + k * run.tau, seg: 1, lv: 0 });
+        REC.marks = marks.map((m) => ({ t: m.t, seg: m.seg, gap: run.f(m.t) - m.lv }));
+        REC.run = run;
+        notches(marks.filter((m) => m.t > 1e-9).map((m) => m.t));
+        marks.forEach((m) => { const a = K.clamp((tr - m.t) / 0.012 + 1, 0, 1); if (a > 0) part(a, 0, () => gapBar(m.t, run.f(m.t), m.lv)); });
+        dot(0, i0);
+        add(K.svg('circle', { class: 'rider', cx: r2(G.x(tr)), cy: r2(G.y(run.f(tr))), r: 7 }));
+        const y = G.y(run.iss);
+        label(PL + 70, y - 8, 'steady line', 'lab', 'start', [[PL + 150, y - 8, 'start'], [PL + 70, y + 18, 'start'], [PL + 150, y + 18, 'start']]);
+        if (flip) label(G.x(TF) + 6, G.PT + 14, 'switch flips', 'lab', 'start');
+        said.push('E is ' + E + ' volts, R is ' + R + ' ohms and the start is ' + say(fmtV(i0)) + ' amps. ' + (flip ? 'The switch flips halfway, and the line drops to zero.' : 'The supply stays on.'));
+      } },
+    { kind: 'pick', name: 'A bigger coil', grid: 'coil', work: 2, vals: '`E` = 24 V, `L` = 1 H, `R` = 10 Ω',
+      task: 'Swap the 0.5 H coil for a 1 H coil. The supply and resistor stay the same. What happens to the current?',
+      opts: ['The same 2.4 A, reached more slowly', 'A steady 1.2 A', 'A steady 4.8 A'], want: 'The same 2.4 A, reached more slowly',
+      why: 'The steady current is `E ÷ R` = 24 ÷ 10 = 2.4 A. `L` is not in it. `L` sets only `τ = L ÷ R`, now 1 ÷ 10 = 0.1 s. So each share of the gap takes twice as long to close.',
+      hint: 'Not quite. Which of `E`, `L` and `R` set the steady current?',
+      hints: { 'A steady 1.2 A': 'Not quite. `L` does not set the steady current. Only `E` and `R` do.', 'A steady 4.8 A': 'Not quite. `L` does not set the steady current. Only `E` and `R` do.' },
+      draw(st) {
+        const r = RW(st);
+        inset(ON);
+        steadyLine(ISS);
+        curve(coilI, 0, 0.3, 'fam', 1, 'old');
+        if (r.ok) {
+          REC.answer = true;
+          const f = runOf(ISS, 0, TAU_BIG);
+          curve(f, 0, 0.3, 'sol', arr(0.1, 1.2), 'ans');
+          part(vis(0.6), 0, () => notches([0.1, 0.2, 0.3]));
+          part(vis(1.0), 4, () => label(G.x(TAU_BIG) + 6, G.y(f(TAU_BIG)) + 18, '1 H', 'lab main', 'start'));
+          workLines([{ s: '`τ = L ÷ R` = 1 ÷ 10 = 0.1 s, twice as long', a: vis(0.5) }, { s: 'steady current still 24 ÷ 10 = 2.4 A', a: vis(0.9) }]);
+        } else if (r.w === 'A steady 1.2 A') {
+          REC.bad++;
+          part(vis(0.1), 0, () => steadyLine(1.2, 'ss bad'));
+          curve(runOf(1.2, 0, TAU_BIG), 0, 0.3, 'sol bad', arr(0.1, 1.2), 'bad');
+          part(vis(0.8), 4, () => label(G.x(0.15), G.y(1.2) + 18, '`L` does not move the line', 'lab bad', 'start'));
+          workLines([{ s: 'a steady 1.2 A would need double the resistance', bad: true, a: vis(0.5) }]);
+        } else if (r.w) {
+          REC.bad++;
+          curve(runOf(4.8, 0, TAU_BIG), 0, 0.3, 'sol bad', arr(0.1, 1.2), 'bad');
+          part(vis(0.8), 4, () => label(PL + 8, G.PT + 14, '`L` does not set it', 'lab bad', 'start'));
+          workLines([{ s: 'a steady 4.8 A would need double the supply', bad: true, a: vis(0.5) }]);
+        }
+        label(PL + 8, G.y(2.0), '0.5 H', 'lab', 'start', [[PL + 8, G.y(1.85), 'start']]);
+        label(140, G.y(ISS) - 8, 'steady 2.4 A', 'lab', 'start', [[170, G.y(ISS) - 8, 'start']]);
+      } },
+    { show: true, name: 'One curve for all three', grid: 'skin', switch: [['coil', 'Coil'], ['motor', 'Motor'], ['tank', 'Tank']], mode0: 'coil', dur: 3.6,
+      lead: 'One rule fits a coil, a motor and a tank: each climbs to its steady value. Every value is an example.',
+      tagFn: (st) => { const s = SKINS[st.mode || 'coil']; return s.name + ': `τ` = ' + fmtV(s.tau) + ' s'; },
+      tag2Fn: (st) => { const s = SKINS[st.mode || 'coil']; return 'steady ' + fmtV(s.ss) + ' ' + s.unit; },
+      text: 'The same shape fits a motor running up to speed. It fits a tank filling too, if its outflow keeps in step with its level. A ship answering its rudder is often modelled this way. Each has a steady value and a `τ`. Draw time in `τ`, and the value as its share of the way there. Then they all draw one curve: 63.2% at one `τ`, 86.5% at two, 95.0% at three and 99.3% at five. Switch between three of them to see it.',
+      read: 'The same shape fits a motor running up to speed. It fits a tank filling too, if its outflow keeps in step with its level. A ship answering its rudder is often modelled this way. Each has a steady value and a `τ`. Draw time in `τ`, and the value as its share of the way there. Then they all draw one curve: 63.2% at one `τ`, 86.5% at two, 95.0% at three and 99.3% at five. Coil, motor or tank, it is the same curve.',
+      draw(st) {
+        const mode = st.mode || 'coil', sk = SKINS[mode];
+        steadyLine(100);
+        curve(share, 0, 6, 'sol', 1, 'main');
+        fixed(PR, G.PT - 9, 'steady value', 'ttl', 'end');
+        const k = 5 * arr(0.5, 2.6);
+        // Each skin's own curve, measured as its share of the way, at the τ marks.
+        const own = runOf(sk.ss, sk.start, sk.tau);
+        REC.skin = { mode, k, pts: [1, 2, 3, 5].map((m) => 100 * (own(m * sk.tau) - sk.start) / (sk.ss - sk.start)) };
+        [1, 2, 3, 5].forEach((m) => {
+          const a = K.clamp((k - m) / 0.25 + 1, 0, 1);
+          if (a > 0) part(a, 0, () => { dot(m, share(m)); label(G.x(m) + 5, G.y(share(m)) + 16, pc(share(m)), 'lab main', 'start'); });
+        });
+        add(K.svg('circle', { class: 'rider', cx: r2(G.x(k)), cy: r2(G.y(share(k))), r: 7 }));
+        skinIcon(mode, share(k) / 100, k);
+        said.push(sk.name + ': the share of the way climbs the same curve, 63.2 per cent at one tau.');
+      } },
+    { kind: 'pick', name: 'A motor runs up', grid: 'motor', work: 2,
+      lead: 'A motor runs up to its steady speed by the same rule. Every value is an example.',
+      task: 'A motor\'s speed `n` follows `dn/dt = (1500 − n) ÷ 0.2`, in rpm and seconds. It starts from rest. What is its speed after 0.4 s?',
+      opts: ['1297 rpm', '1500 rpm', '203 rpm'], want: '1297 rpm',
+      why: 'The steady speed is 1500 rpm and `τ` is 0.2 s. So 0.4 s is two `τ`. The gap starts at −1500 rpm. Two `τ` keep 0.368 × 0.368 of it, which is −203 rpm. So the speed is 1500 − 203 = 1297 rpm.',
+      hint: 'Not quite. Count how many `τ` there are in 0.4 s.',
+      hints: { '1500 rpm': 'Not quite. Two `τ` close most of the gap, not all of it.', '203 rpm': 'Not quite. 203 rpm is the gap left. Take it off 1500.' },
+      draw(st) {
+        const r = RW(st), nT = motorN(N_T);
+        steadyLine(N_SS);
+        line('mk', G.x(N_T), G.PB, G.x(N_T), G.PT); addObst(G.x(N_T), G.PB, G.x(N_T), G.PT);
+        notches([0.2, 0.4, 0.6, 0.8, 1]);
+        dot(0, 0);
+        if (r.ok) {
+          REC.answer = true;
+          gapFill(motorN, () => N_SS, 0, 1, vis(0.6));
+          curve(motorN, 0, 1, 'sol', arr(0.1, 1.2), 'ans');
+          part(vis(1.0), 0, () => { gapBar(N_T, nT, N_SS); dot(N_T, nT); label(G.x(N_T) + 10, G.y(nT) + 18, '1297 rpm', 'lab main', 'start'); });
+          workLines([{ s: 'two `τ`: −1500 × 0.368 × 0.368 = −203 rpm', a: vis(0.5) }, { s: '`n` = 1500 − 203 = 1297 rpm', a: vis(1.0) }]);
+        } else if (r.w === '1500 rpm') {
+          REC.bad++;
+          part(vis(0.1), 0, () => ring(N_T, N_SS));
+          part(vis(0.5), 4, () => label(G.x(N_T) + 14, G.y(N_SS) + 18, 'not there yet at two `τ`', 'lab bad', 'start'));
+          workLines([{ s: 'it only nears 1500 rpm and never quite reaches it', bad: true, a: vis(0.5) }]);
+        } else if (r.w) {
+          REC.bad++;
+          part(vis(0.1), 0, () => { dot(N_T, N_SS * E1 * E1, 'bad'); ring(N_T, N_SS * E1 * E1); });
+          part(vis(0.5), 4, () => label(G.x(N_T) + 14, G.y(N_SS * E1 * E1) + 5, '203 rpm is the gap left', 'lab bad', 'start'));
+          workLines([{ s: 'that is the gap left, not the speed', bad: true, a: vis(0.5) }]);
+        }
+        label(G.x(N_T) + 12, G.y(N_SS) - 8, 'steady 1500 rpm', 'lab', 'start');
+        label(G.x(N_T) + 6, G.PT + 14, 'after 0.4 s', 'lab', 'start');
+      } },
+    { kind: 'pick', name: 'A tank settles', grid: 'tank', work: 2,
+      lead: 'A tank\'s level settles on its steady line by the same rule. Every value is an example.',
+      task: 'A tank\'s level `h` follows `dh/dt = (2 − h) ÷ 50`, in metres and seconds. The level starts at 3 m. What is it after 50 s?',
+      opts: ['2.37 m', '1.10 m', '2.63 m'], want: '2.37 m',
+      why: 'The steady level is 2 m and `τ` is 50 s. The gap starts at 3 − 2 = +1 m. After one `τ` it keeps 0.368 of that. So the level is 2 + 0.368 = 2.37 m. It falls towards 2 m, not to zero.',
+      hint: 'Not quite. Find the gap to the steady level first.',
+      hints: { '1.10 m': 'Not quite. That lets the whole 3 m die away. The level settles on 2 m.', '2.63 m': 'Not quite. One `τ` keeps 0.368 of the gap. 0.632 is the share that goes.' },
+      draw(st) {
+        const r = RW(st), hT = tankH(H_T);
+        steadyLine(H_SS);
+        line('mk', G.x(H_T), G.PB, G.x(H_T), G.PT); addObst(G.x(H_T), G.PB, G.x(H_T), G.PT);
+        notches([50, 100, 150, 200, 250, 300]);
+        gapBar(0, H0, H_SS);
+        dot(0, H0);
+        if (r.ok) {
+          REC.answer = true;
+          gapFill(tankH, () => H_SS, 0, 300, vis(0.6));
+          curve(tankH, 0, 300, 'sol', arr(0.1, 1.2), 'ans');
+          part(vis(1.0), 0, () => { gapBar(H_T, hT, H_SS); dot(H_T, hT); label(G.x(H_T) + 10, G.y(hT) - 10, '2.37 m', 'lab main', 'start'); });
+          workLines([{ s: 'one `τ`: the gap keeps 1 × 0.368 = 0.368 m', a: vis(0.5) }, { s: '`h` = 2 + 0.368 = 2.37 m', a: vis(1.0) }]);
+        } else if (r.w === '1.10 m') {
+          REC.bad++;
+          const g = (t) => H0 * Math.exp(-t / H_TAU);
+          curve(g, 0, 300, 'sol bad', arr(0.1, 1.2), 'bad');
+          part(vis(1.0), 0, () => { dot(H_T, g(H_T), 'bad'); ring(H_T, g(H_T)); });
+          part(vis(1.0), 4, () => label(G.x(H_T) + 14, G.y(g(H_T)) + 5, 'falls right past the steady line', 'lab bad', 'start'));
+          workLines([{ s: '3 × 0.368 lets the whole 3 m die away', bad: true, a: vis(0.5) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const w = H_SS + (1 - E1);
+          part(vis(0.1), 0, () => { dot(H_T, w, 'bad'); ring(H_T, w); });
+          part(vis(0.5), 4, () => label(G.x(H_T) + 14, G.y(w) - 8, 'keeps 0.632 of the gap', 'lab bad', 'start'));
+          workLines([{ s: '0.632 is the share of the gap that goes', bad: true, a: vis(0.5) }]);
+        }
+        label(230, G.y(H_SS) - 8, 'steady 2 m', 'lab', 'start', [[230, G.y(H_SS) + 18, 'start']]);
+        label(G.x(H_T) + 6, G.PT + 14, 'after 50 s', 'lab', 'start');
+        label(PL + 12, G.y(2.25) + 5, '+1 m', 'lab', 'start', [[PL + 12, G.y(H0) - 10, 'start'], [PL + 12, G.y(2.6) + 5, 'start']]);
+      } },
+  ];
+  const LEAD = 'A 24 V supply switches onto a 0.5 H coil and 10 Ω, and the current climbs to a steady line. Every value is an example.';
+  const FINISH = 'Switched onto a supply, a coil\'s current is the steady value `E ÷ R` plus a gap that dies as `e^(−t/τ)`, with `τ = L ÷ R`. The supply and `R` set the steady value. The start sets the gap.';
+
+  // ---------- the plots ----------
+  const PL = 40, PR = 322, PH = 180;
+  const SX0 = 104, SX1 = 212, ROWS = { E: 52, R: 94, I: 136 }, SLIDE_H = 118;
+  const FADE = 0.35;
+  const ON = Math.PI, BYP = Math.atan2(0.8, -0.6), OPEN = Math.PI + 0.55;   // the switch's lever: to the supply, to the bypass, open
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const COIL_TAG = 'Rule: `L di/dt = E − R i`', COIL_VALS = '`E` = 24 V, `L` = 0.5 H, `R` = 10 Ω';
+  const TT = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3];
+  const GRIDS = {
+    coil: { t0: 0, t1: 0.3, v0: 0, v1: 4, xt: TT, yt: [0, 1, 2, 3, 4], ytitle: '`i` (A)', xtitle: 'time `t` (s)', tag: COIL_TAG, vals: COIL_VALS },
+    split: { t0: 0, t1: 0.3, v0: -2.5, v1: 4, xt: TT, yt: [-2, -1, 0, 1, 2, 3, 4], ytitle: '`i` (A)', xtitle: 'time `t` (s)', tag: COIL_TAG, vals: COIL_VALS, zero: true },
+    skin: { t0: 0, t1: 6, v0: 0, v1: 100, xt: [0, 1, 2, 3, 4, 5, 6], yt: [0, 25, 50, 75, 100], ytitle: 'share of the way (%)', xtitle: 'time, in `τ`' },
+    motor: { t0: 0, t1: 1, v0: 0, v1: 2000, xt: [0, 0.2, 0.4, 0.6, 0.8, 1], yt: [0, 500, 1000, 1500, 2000], ytitle: '`n` (rpm)', xtitle: 'time `t` (s)',
+      tag: 'Rule: `dn/dt = (1500 − n) ÷ 0.2`' },
+    tank: { t0: 0, t1: 300, v0: 0, v1: 4, xt: [0, 50, 100, 150, 200, 250, 300], yt: [0, 1, 2, 3, 4], ytitle: '`h` (m)', xtitle: 'time `t` (s)',
+      tag: 'Rule: `dh/dt = (2 − h) ÷ 50`' },
+  };
+  const Eof = (st) => (st.E == null ? E0 : st.E);
+  const Rof = (st) => (st.R == null ? R0 : st.R);
+  const Iof = (st) => (st.I == null ? 0 : st.I);
+  function geoOf(d, st) {
+    const g = GRIDS[d.grid];
+    const PT = 50 + (d.sliders ? SLIDE_H : 0), PB = PT + PH;
+    const kx = (PR - PL) / (g.t1 - g.t0), ky = PH / (g.v1 - g.v0);
+    const working = d.show || st.res === 'right' || st.res === 'wrong';
+    return { g, PT, PB, kx, ky, H: PB + 46 + (working ? d.work || 0 : 0) * 26, workY: PB + 64,
+      x: (t) => PL + (t - g.t0) * kx, y: (v) => PB - (v - g.v0) * ky,
+      t: (x) => g.t0 + (x - PL) / kx, v: (y) => g.v0 + (PB - y) / ky };
+  }
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // mode: the named switch; mk: where Dan put the time marker; E, R, I: the sliders.
+  function blank() { return { pick: null, res: null, why: false, mode: null, mk: null, E: null, R: null, I: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, TM = Infinity;   // TM: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null, G = null, said = [], placed = [], obst = [], queue = [];
+
+  // ---------- words with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------
+  const ITAL = /(d[ithng](?![A-Za-z])|(?<![A-Za-z])[EtLRinhgc](?![A-Za-z]))/;
+  function put(parent, s, svg) {
+    if (!s) return;
+    if (svg && parent.__lift) { const b = K.svg('tspan', { dy: 6 }); b.textContent = s; parent.appendChild(b); parent.__lift = false; return; }
+    parent.appendChild(document.createTextNode(s));
+  }
+  function itNode(parent, s, svg) {
+    const sp = svg ? K.svg('tspan', { class: 'v' }) : K.el('span', { class: 'v' });
+    if (svg && parent.__lift) { sp.setAttribute('dy', 6); parent.__lift = false; }
+    sp.textContent = s;
+    parent.appendChild(sp);
+  }
+  function ital(parent, s, svg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2 === 0) { put(parent, p, svg); return; }
+      if (p.length === 2 && p[0] === 'd') { put(parent, 'd', svg); itNode(parent, p[1], svg); }
+      else itNode(parent, p, svg);
+    });
+  }
+  // Maths: italic letters, and e^(…) written as a raised power.
+  function maths(parent, s, svg) {
+    String(s).split(/\^\(([^)]*)\)/).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2 === 0) { ital(parent, p, svg); return; }
+      const sp = svg ? K.svg('tspan', { class: 'sup', dy: -6 }) : K.el('sup');
+      if (svg && parent.__lift) parent.__lift = false;
+      ital(sp, p, svg);
+      parent.appendChild(sp);
+      if (svg) parent.__lift = true;
+    });
+  }
+  // `maths` stays on one line; *a key term* is highlighted.
+  // No line break inside a quantity: a number keeps its unit, and ÷ or × keeps both its sides.
+  const nb = (s) => String(s == null ? '' : s).replace(/(\d) (?=(A|V|H|Ω|s|m|rpm|%)(?![A-Za-z]))/g, '$1\u00a0').replace(/(\S) ([÷×]) (?=\S)/g, '$1\u00a0$2\u00a0');
+  function write(el, s) {
+    el.textContent = '';
+    s = nb(s);
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  function svgWords(t, s) {
+    t.__lift = false;
+    String(s).split('`').forEach((seg, k) => { if (seg) { if (k % 2) maths(t, seg, true); else put(t, seg, true); } });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); TM = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    st.mk = null;
+    play(d.dur);
+  } });
+  // The named switch under the drawing: Together or Split; Supply on or Flip halfway; Coil, Motor or Tank.
+  const modeOf = (d, st) => st.mode || d.mode0;
+  const swBtns = [0, 1, 2].map((k) => K.button({ label: 'Option ' + (k + 1), secondary: true, into: '#switch', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.switch || k >= d.switch.length || finished) return;
+    const v = d.switch[k][0];
+    if (modeOf(d, st) === v) return;
+    st.mode = v;
+    play(d.dur);
+  } }));
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    TM += dt;
+    paint();
+    return TM < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; TM = 0; anim.play();
+  }
+  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top'), ui = document.getElementById('ui');
+  let into = null, curA = 1;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(TM, t0, d);
+  }
+  // A timetable entry: null, there from the start; a time, arriving then.
+  const vis = (t) => (t == null ? 1 : arr(t, SOFT));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into, keepA = curA;
+    into = g; curA = a * keepA;
+    draw();
+    into = keep; curA = keepA;
+  }
+  const r2 = (v) => Math.round(v * 100) / 100;
+  // Lines and curves the labels keep clear of, as points every 3 units.
+  function addObst(x1, y1, x2, y2) {
+    const n = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3));
+    for (let k = 0; k <= n; k++) obst.push([x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n]);
+  }
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });
+    svgWords(t, s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    svgWords(t, s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return plain(s).length * 7.4;
+  }
+  // A label, painted above the drawing once everything else is down. It takes the first of its
+  // places that is clear of other words and of the lines and curves; failing that, it moves up or
+  // down a line from the first.
+  function label(x, y, s, cls, anchor, alts) { queue.push({ x, y, s, cls, anchor, alts: alts || [], a: curA }); }
+  function placeLabel(q) {
+    const w = tw(q.s, q.cls);
+    const leftOf = (xx, an) => K.clamp(an === 'end' ? xx - w : an === 'middle' ? xx - w / 2 : xx, 4, 336 - w);
+    const box = (lx, yv) => ({ x: lx - 2, y: yv - 12, w: w + 4, h: 15 });
+    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h) ||
+      obst.some((o) => o[0] > b.x && o[0] < b.x + b.w && o[1] > b.y && o[1] < b.y + b.h);
+    const cands = [[q.x, q.y, q.anchor]].concat(q.alts);
+    let pos = null;
+    for (const c of cands) { const lx = leftOf(c[0], c[2] || q.anchor); if (!hits(box(lx, c[1]))) { pos = [lx, c[1]]; break; } }
+    if (!pos) {
+      const lx = leftOf(q.x, q.anchor);
+      pos = [lx, q.y];
+      for (const dy of [-17, 17, -34, 34]) { if (!hits(box(lx, q.y + dy))) { pos = [lx, q.y + dy]; break; } }
+    }
+    placed.push(box(pos[0], pos[1]));
+    const g = topG.appendChild(K.svg('g'));
+    K.fade(g, q.a);
+    const t = K.svg('text', { class: q.cls, x: r2(pos[0]), y: r2(pos[1]), 'text-anchor': 'start' });
+    svgWords(t, q.s);
+    g.appendChild(t);
+    REC.texts.push(plain(q.s));
+    said.push(say(q.s) + '.');
+  }
+  // A word that sits in a fixed place (a title), kept clear of the labels.
+  function fixed(x, y, s, cls, anchor) {
+    const w = tw(s, cls), left = anchor === 'end' ? x - w : x;
+    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });
+    return text(x, y, s, cls, anchor);
+  }
+
+  // An arrow along slope s (in the plot's units) from a point, grown to a fraction of its length.
+  function dirOf(s) { const dx = G.kx, dy = -s * G.ky, n = Math.hypot(dx, dy); return [dx / n, dy / n]; }
+  function arrowD(cx, cy, u, h0, h1, head) {
+    const sx = cx + u[0] * h0, sy = cy + u[1] * h0, ex = cx + u[0] * h1, ey = cy + u[1] * h1;
+    let d = 'M' + r2(sx) + ' ' + r2(sy) + ' L' + r2(ex) + ' ' + r2(ey);
+    if (head > 0) {
+      const bx = -u[0] * head, by = -u[1] * head, c = Math.cos(0.45), s = Math.sin(0.45);
+      d += ' M' + r2(ex + bx * c - by * s) + ' ' + r2(ey + bx * s + by * c) + ' L' + r2(ex) + ' ' + r2(ey) + ' L' + r2(ex + bx * c + by * s) + ' ' + r2(ey - bx * s + by * c);
+    }
+    return d;
+  }
+  function arrowFrom(t, v, s, cls, grow, len, off) {
+    if (grow <= 0) return;
+    const u = dirOf(s);
+    let cx = G.x(t), cy = G.y(v);
+    if (off && cx - u[1] * off >= PL + 2 && cy + u[0] * off <= G.PB - 8) { cx -= u[1] * off; cy += u[0] * off; }
+    // Kept inside the drawing near its right edge.
+    const room = u[0] > 0.05 ? (336 - cx) / u[0] : 999;
+    const L = Math.min((len || 30), room) * Math.min(1, grow);
+    add(K.svg('path', { class: cls, d: arrowD(cx, cy, u, 0, L, grow > 0.4 && L > 12 ? 7 : 0) }));
+    addObst(cx, cy, cx + u[0] * L, cy + u[1] * L);
+    REC.arrows.push({ t, v, s, cls });
+  }
+  function arrowUp(x, y0, y1, cls) {
+    add(K.svg('path', { class: cls, d: 'M' + r2(x) + ' ' + r2(y0) + ' L' + r2(x) + ' ' + r2(y1) + ' M' + r2(x - 5) + ' ' + r2(y1 + 8) + ' L' + r2(x) + ' ' + r2(y1) + ' L' + r2(x + 5) + ' ' + r2(y1 + 8) }));
+    addObst(x, y0, x, y1);
+  }
+  function dot(t, v, cls) { add(K.svg('circle', { class: 'dot' + (cls ? ' ' + cls : ''), cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5 })); }
+  function ring(t, v) { add(K.svg('circle', { class: 'ring', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 10 })); REC.bad++; }
+  // A curve v = f(t) from ta, grown to a fraction of the way to tb; kept in REC for the checks.
+  function curve(f, ta, tb, cls, grow, id) {
+    if (grow <= 0) return;
+    const te = ta + (tb - ta) * Math.min(1, grow), n = Math.max(2, Math.ceil((te - ta) / (G.g.t1 - G.g.t0) * 160));
+    let d = '', pen = false;
+    const pts = [];
+    for (let k = 0; k <= n; k++) {
+      const t = ta + (te - ta) * k / n, v = f(t);
+      if (!isFinite(v) || v < G.g.v0 - 1e-9 || v > G.g.v1 + 1e-9) { pen = false; continue; }
+      const x = G.x(t), y = G.y(v);
+      d += (pen ? ' L' : (d ? ' M' : 'M')) + r2(x) + ' ' + r2(y);
+      pen = true;
+      pts.push([t, v]);
+      obst.push([x, y]);
+    }
+    if (d) add(K.svg('path', { class: cls, d }));
+    REC.curves.push({ id, cls, f, pts });
+  }
+  // The steady line: dashed, across the plot (or part of it).
+  function steadyLine(v, cls, xa, xb) {
+    cls = cls || 'ss';
+    const a = xa == null ? PL : xa, b = xb == null ? PR : xb, y = G.y(v);
+    line(cls, a, y, b, y); addObst(a, y, b, y);
+    REC.ss.push({ v, cls });
+  }
+  // The gap at time t: an amber bar from the curve to the line.
+  function gapBar(t, v, lv, cls) {
+    const x = Math.max(G.x(t), PL + 3), y1 = G.y(v), y2 = G.y(lv);
+    REC.bars.push({ t, gap: v - lv });
+    if (Math.abs(y1 - y2) < 0.8) return;
+    line('gapbar' + (cls ? ' ' + cls : ''), x, y1, x, y2); addObst(x, y1, x, y2);
+  }
+  // The shaded strip between a curve and the line it is heading for.
+  function gapFill(f, lv, ta, tb, a) {
+    if (a <= 0) return;
+    const n = 90, cy = (v) => K.clamp(G.y(v), G.PT, G.PB);
+    let d = '';
+    for (let k = 0; k <= n; k++) { const t = ta + (tb - ta) * k / n; d += (k ? ' L' : 'M') + r2(G.x(t)) + ' ' + r2(cy(f(t))); }
+    for (let k = n; k >= 0; k--) { const t = ta + (tb - ta) * k / n; d += ' L' + r2(G.x(t)) + ' ' + r2(cy(lv(t))); }
+    const p = add(K.svg('path', { class: 'gapfill', d: d + ' Z' }));
+    if (a < 1) p.style.opacity = r2(a);
+  }
+  // Small teal marks along the time axis, one τ apart.
+  function notches(ts) { ts.forEach((t) => { if (t <= G.g.t1 + 1e-9) line('notch', G.x(t), G.PB, G.x(t), G.PB - 7); }); }
+  // A rider on the curve with the rule's rate arrow.
+  function rideRate(t, v, s) {
+    arrowFrom(t, v, s, 'pa', 1, 34, ROFF);
+    add(K.svg('circle', { class: 'rider', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 7 }));
+    REC.ride = { t, v, s };
+  }
+  // The straight line at the starting rate: from 0 A it meets the steady line one τ later.
+  function tangent(grow) {
+    REC.tan = { slope: RATE0, meet: ISS / RATE0 };
+    if (grow <= 0) return;
+    const g = Math.min(1, grow), tm = ISS / RATE0;
+    line('tan', G.x(0), G.y(0), G.x(tm * g), G.y(ISS * g));
+    addObst(G.x(0), G.y(0), G.x(tm * g), G.y(ISS * g));
+    if (g >= 1) dot(tm, ISS);
+  }
+  // The supply's 24 V, shared: the resistor's 10 i and the coil's rest.
+  function shareBar(i, a) {
+    const r = K.clamp(R0 * i / E0, 0, 1);
+    REC.bar = { r };
+    part(a, 0, () => {
+      const y = G.workY + 14, w = PR - PL, rw = w * r;
+      add(K.svg('rect', { class: 'vb r', x: PL, y, width: r2(rw), height: 14 }));
+      add(K.svg('rect', { class: 'vb c', x: r2(PL + rw), y, width: r2(w - rw), height: 14 }));
+      add(K.svg('rect', { class: 'vb box', x: PL, y, width: w, height: 14 }));
+      text(PL, y + 32, 'resistor `10 i`', 'lab main', 'start');
+      text(PL + w / 2, y + 32, 'of 24 V', 'lab', 'middle');
+      text(PR, y + 32, 'coil, the rest', 'lab acc', 'end');
+    });
+    said.push('A bar shares the 24 volts: the resistor takes ' + Math.round(100 * r) + ' per cent, the coil the rest.');
+  }
+  // The loop, drawn small: the supply E, a two-way switch, the coil L and the resistor R. The
+  // switch's lever goes to the supply, or to a wire that closes the loop through R without it.
+  function inset(lever, box, extra) {
+    const [x0, y0, w, h] = box || [212, G.PT + 2, 110, 64];
+    placed.push({ x: x0, y: y0, w, h });
+    const xl = x0 + 24, xr = x0 + w - 22, yT = y0 + 14, yB = y0 + h - 12, mid = (yT + yB) / 2;
+    const xP = xl + 30, LV = 18, A = [xP - LV, yT], B = [xP + LV * Math.cos(BYP), yT + LV * Math.sin(BYP)];
+    add(K.svg('rect', { class: 'inset', x: x0, y: y0, width: w, height: h, rx: 6 }));
+    add(K.svg('path', { class: 'wire', d: 'M' + xl + ' ' + yB + ' V' + (mid + 4) + ' M' + xl + ' ' + (mid - 4) + ' V' + yT + ' H' + A[0] }));
+    line('plate', xl - 9, mid - 4, xl + 9, mid - 4);
+    line('plate2', xl - 5, mid + 4, xl + 5, mid + 4);
+    add(K.svg('path', { class: 'wire', d: 'M' + r2(B[0]) + ' ' + r2(B[1]) + ' V' + yB }));
+    let d = 'M' + xP + ' ' + yT + ' H' + xr + ' V' + (mid - 10);
+    for (let k = 0; k < 4; k++) d += ' a5 2.5 0 1 1 0 5';
+    d += ' V' + yB + ' H' + xl;
+    add(K.svg('path', { class: 'wire', d }));
+    const xR = (B[0] + xr) / 2 + 2;
+    add(K.svg('rect', { class: 'res', x: r2(xR - 10), y: yB - 5, width: 20, height: 10 }));
+    [A, B, [xP, yT]].forEach((c) => add(K.svg('circle', { class: 'contact', cx: r2(c[0]), cy: r2(c[1]), r: 2.2 })));
+    line('lever', xP, yT, xP + LV * Math.cos(lever), yT + LV * Math.sin(lever));
+    text(x0 + 5, mid + 5, '`E`', 'lab', 'start');
+    text(xr + 9, mid + 5, '`L`', 'lab', 'start');
+    text(xR, yB - 9, '`R`', 'lab', 'middle');
+    if (extra) extra({ xP, yT, xr, yB });
+    REC.lever = lever;
+    said.push('A loop: supply E, a two-way switch ' + (Math.abs(lever - ON) < 0.05 ? 'closed onto the supply' : Math.abs(lever - BYP) < 0.05 ? 'flipped to the wire round the supply' : 'open') + ', coil L and resistor R.');
+  }
+  // The E, R and start sliders above the plot.
+  const sxOf = (k, n) => SX0 + k / (n - 1) * (SX1 - SX0);
+  function sliders(E, R, i0) {
+    [['E', '`E` ' + E + ' V', ES, ES.indexOf(E)], ['R', '`R` ' + R + ' Ω', RS, RS.indexOf(R)], ['I', 'start ' + fmtV(i0) + ' A', IS, IS.indexOf(i0)]].forEach(([id, s, list, k]) => {
+      const y = ROWS[id];
+      text(8, y + 5, s, 'xl', 'start');
+      line('track', SX0, y, SX1, y);
+      list.forEach((v, j) => line('stk', sxOf(j, list.length), y - 6, sxOf(j, list.length), y + 6));
+      add(K.svg('circle', { class: 'knob', cx: r2(sxOf(k, list.length)), cy: y, r: 10 }));
+    });
+    placed.push({ x: 0, y: 30, w: 224, h: ROWS.I + 14 - 30 });
+  }
+  // The skins' own pictures, small in the bottom corner: the coil's loop, a motor, a tank.
+  function skinIcon(mode, s, k) {
+    if (mode === 'coil') {
+      inset(ON, [212, G.PB - 76, 110, 64], (c) => add(K.svg('path', { class: 'pa', d: arrowD(c.xP + 6, c.yT - 6, [1, 0], 0, 6 + 22 * s, 5) })));
+    } else if (mode === 'motor') {
+      const cx = 280, cy = G.PB - 42, R = 28;
+      placed.push({ x: cx - R - 50, y: cy - R - 4, w: 2 * R + 54, h: 2 * R + 8 });
+      add(K.svg('circle', { class: 'rotor', cx, cy, r: R }));
+      const th = 6 * (k - (1 - Math.exp(-k)));   // how far it has turned: its speed, added up
+      for (let j = 0; j < 3; j++) { const a = th + j * 2 * Math.PI / 3; line('spoke', cx, cy, cx + (R - 6) * Math.cos(a), cy + (R - 6) * Math.sin(a)); }
+      add(K.svg('circle', { class: 'hub', cx, cy, r: 4.5 }));
+      text(cx - R - 8, cy + 5, 'motor', 'lab', 'end');
+    } else {
+      const x0 = 252, y0 = G.PB - 82, w = 56, h = 70, top = y0 + 12, full = y0 + h, lvl = full - s * (full - top);
+      placed.push({ x: x0 - 44, y: y0 - 4, w: w + 84, h: h + 8 });
+      add(K.svg('rect', { class: 'water', x: x0, y: r2(lvl), width: w, height: r2(full - lvl) }));
+      add(K.svg('rect', { class: 'tankbox', x: x0, y: y0, width: w, height: h }));
+      line('ss', x0, top, x0 + w, top);
+      text(x0 + w + 6, top + 5, '2 m', 'lab', 'start');
+      text(x0 - 8, full - 6, 'tank', 'lab', 'end');
+    }
+  }
+  // Lines of working under the plot.
+  function workLines(lines) {
+    lines.forEach((w, k) => {
+      const a = w.a == null ? 1 : w.a;
+      part(a, 6, () => text(12, G.workY + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));
+      if (a >= 0.5) { REC.texts.push(plain(w.s)); said.push(say(w.s) + '.'); }
+    });
+  }
+  // The axes, their numbers, and the words above them.
+  function axes() {
+    const g = G.g;
+    g.yt.forEach((v) => { line('gl', PL, G.y(v), PR, G.y(v)); text(PL - 6, G.y(v) + 4.5, fmtD(v, 2), 'tk', 'end'); });
+    g.xt.forEach((t) => { line('gl', G.x(t), G.PT, G.x(t), G.PB); text(G.x(t), G.PB + 17, fmtD(t, 2), 'tk', 'middle'); });
+    line('ax', PL, G.PB, PR, G.PB);
+    line('ax', PL, G.PT, PL, G.PB);
+    if (g.zero) line('z0', PL, G.y(0), PR, G.y(0));
+    fixed(4, G.PT - 9, g.ytitle, 'ttl', 'start');
+    placed.push({ x: 0, y: G.PT - 6, w: PL - 3, h: PH + 12 }, { x: PL - 24, y: G.PB + 3, w: PR - PL + 40, h: 18 });
+  }
+  function tags(d, st) {
+    const tag = d.tagFn ? d.tagFn(st) : d.tag || G.g.tag || '';
+    if (tag) { fixed(4, 20, tag, 'tag', 'start'); said.push(say(tag) + '.'); }
+    const t2 = d.tag2Fn ? d.tag2Fn(st) : d.tag2;
+    if (t2) { fixed(336, 20, t2, 'tag2', 'end'); said.push(say(t2) + '.'); }
+    const vals = d.vals === undefined ? G.g.vals : d.vals;
+    if (vals) { fixed(336, G.PT - 9, vals, 'ttl', 'end'); said.push(say(vals) + '.'); }
+  }
+  // The key, inside the drawing, beside the time axis's name; it wraps to a second row if it must.
+  const KEYS = {
+    rate: ['rule\'s rate', (x, y) => add(K.svg('path', { class: 'pa', d: arrowD(x + 2, y + 5, [0.6, -0.8], 0, 14, 5) }))],
+    gap: ['gap', (x, y) => { add(K.svg('rect', { class: 'gapfill', x, y: y - 5, width: 18, height: 10, rx: 2 })); line('gapbar', x + 9, y - 6, x + 9, y + 6); }],
+    tan: ['start rate', (x, y) => line('tan', x, y + 5, x + 18, y - 6)],
+    tau: ['`τ` marks', (x, y) => { line('ax', x, y + 5, x + 18, y + 5); line('notch', x + 9, y + 5, x + 9, y - 3); }],
+    cur: ['current', (x, y) => line('sol', x, y, x + 18, y)],
+    gp: ['gap', (x, y) => line('gp', x, y, x + 18, y)],
+  };
+  function keyLayout(items) {
+    const out = [];
+    let x = PL + tw(G.g.xtitle, 'ttl') + 18, row = 0;
+    items.forEach((k) => {
+      const w = 24 + tw(KEYS[k][0], 'key');
+      if (x + w > 336) { row++; x = PL; }
+      out.push({ k, x, row });
+      x += w + 14;
+    });
+    return { out, rows: row + 1 };
+  }
+  function keyRow(lay) {
+    const y = G.PB + 38;
+    text(PL, y, G.g.xtitle, 'ttl', 'start');
+    lay.out.forEach((o) => { const yy = y + 20 * o.row; KEYS[o.k][1](o.x, yy - 5); text(o.x + 24, yy, KEYS[o.k][0], 'key', 'start'); });
+  }
+
+  // ---------- touching the plot ----------
+  // A drag on the plot moves the time marker; a drag on a slider sets E, R or the start.
+  const mkGrip = () => { const g = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1 })); g.style.display = 'none'; return g; };
+  const GR = { plot: mkGrip(), E: mkGrip(), R: mkGrip(), I: mkGrip() };
+  const LISTS = { E: ES, R: RS, I: IS };
+  function setGrip(g, mode, box, aria) {
+    g.style.display = mode ? '' : 'none';
+    g.setAttribute('tabindex', mode ? '0' : '-1');
+    if (!mode) { delete g.dataset.mode; return; }
+    g.dataset.mode = mode;
+    ['x', 'y', 'width', 'height'].forEach((a, k) => g.setAttribute(a, r2(box[k])));
+    g.setAttribute('role', 'slider');
+    Object.keys(aria).forEach((k) => g.setAttribute(k, aria[k]));
+  }
+  function placeGrips(d, st) {
+    const live = !finished;
+    const t = REC.mk ? REC.mk.t : 0;
+    setGrip(GR.plot, live && d.grip === 'mk' ? 'mk' : null, [PL - 12, G.PT - 10, PR - PL + 24, PH + 20],
+      { 'aria-label': 'The time marker', 'aria-valuemin': 0, 'aria-valuemax': 0.3, 'aria-valuenow': r2(t), 'aria-valuetext': 'at ' + fmtD(t, 3) + ' seconds' });
+    const sl = live && d.sliders;
+    [['E', Eof(st), ' volts', 'Supply E'], ['R', Rof(st), ' ohms', 'Resistance R'], ['I', Iof(st), ' amps at the start', 'Starting current']].forEach(([id, v, u, name]) => {
+      const list = LISTS[id];
+      setGrip(GR[id], sl ? id : null, [SX0 - 22, ROWS[id] - 21, SX1 - SX0 + 34, 42],
+        { 'aria-label': name, 'aria-valuemin': list[0], 'aria-valuemax': list[list.length - 1], 'aria-valuenow': v, 'aria-valuetext': fmtV(v) + u });
+    });
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  function setState(fn) {
+    const st = S[at()], was = anim.playing();
+    const before = JSON.stringify([st.mk, st.E, st.R, st.I]);
+    fn(st);
+    settle();
+    if (JSON.stringify([st.mk, st.E, st.R, st.I]) === before) { if (was) paint(); return; }
+    K.refresh();
+  }
+  const snapT = (t) => K.clamp(Math.round(t / 0.005) * 0.005, 0, 0.3);
+  function gripTo(mode, q) {
+    const i = at(), d = STEPS[i], geo = geoOf(d, S[i]);
+    const frac = K.clamp((q.x - SX0) / (SX1 - SX0), 0, 1);
+    setState((st) => {
+      if (mode === 'mk') st.mk = snapT(geo.t(q.x));
+      else { const list = LISTS[mode]; st[mode] = list[Math.round(frac * (list.length - 1))]; }
+    });
+  }
+  function gripKey(mode, by) {
+    setState((st) => {
+      if (mode === 'mk') { const now = st.mk == null ? (REC.mk ? REC.mk.t : 0) : st.mk; st.mk = snapT(now + 0.01 * by); }
+      else { const list = LISTS[mode], now = mode === 'E' ? Eof(st) : mode === 'R' ? Rof(st) : Iof(st); st[mode] = list[K.clamp(list.indexOf(now) + by, 0, list.length - 1)]; }
+    });
+  }
+  let held = null;
+  Object.keys(GR).forEach((key) => {
+    const g = GR[key];
+    g.addEventListener('pointerdown', (e) => {
+      if (!g.dataset.mode) return;
+      held = { id: e.pointerId, g };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+      e.preventDefault();
+      const q = svgPoint(e);
+      if (q) gripTo(g.dataset.mode, q);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.g !== g || !g.dataset.mode) return;
+      const q = svgPoint(e);
+      if (q) gripTo(g.dataset.mode, q);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (by == null || !g.dataset.mode) return;
+      e.preventDefault();
+      gripKey(g.dataset.mode, by);
+    });
+  });
+
+  // ---------- the readings under the drawing ----------
+  function readsMk() {
+    const r = REC.mk;
+    if (!r) return null;
+    return [['Time', fmtD(r.t, 3) + ' s'], ['Current', fmtV(r.i) + ' A'], ['Gap', fmtG(r.g) + ' A'], ['Gap ÷ gap one `τ` before', r.ratio == null ? '—' : fmt3(r.ratio)]];
+  }
+  function ratiosOf(m) {
+    const rs = [];
+    for (let k = 1; k < m.length; k++) if (m[k].seg === m[k - 1].seg && Math.abs(m[k - 1].gap) > 1e-12) rs.push(m[k].gap / m[k - 1].gap);
+    return rs;
+  }
+  function readsRun(st) {
+    const run = REC.run;
+    if (!run) return null;
+    const rs = ratiosOf(REC.marks), flip = (st.mode || 'on') === 'flip';
+    return [[flip ? 'Line before the flip' : 'Steady line', fmtV(run.iss) + ' A'], ['`τ = L ÷ R`', fmt3(run.tau) + ' s'], ['Gap kept each `τ`', rs.length ? fmt3(rs[0]) : 'no gap']];
+  }
+  function setReads(d, st) {
+    const box = document.getElementById('reads');
+    const rows = d.reads ? d.reads(st) : null;
+    if (!rows) { box.hidden = true; box.textContent = ''; box.dataset.key = ''; return; }
+    box.hidden = false;
+    const key = rows.map((r) => r[0]).join('|');
+    if (box.dataset.key !== key) {
+      box.textContent = '';
+      rows.forEach(([lab]) => { const t = box.appendChild(K.el('div', { class: 'rd' })); write(t.appendChild(K.el('span', { class: 'k-label' })), lab); t.appendChild(K.el('b')); });
+      box.dataset.key = key;
+    }
+    rows.forEach(([, v], k) => { box.children[k].querySelector('b').textContent = v; });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    G = geoOf(d, st);
+    art.textContent = ''; topG.textContent = '';
+    into = null; curA = 1; placed = []; obst = []; queue = []; said = [];
+    REC = { arrows: [], curves: [], texts: [], ss: [], bars: [], bad: 0, answer: false, mk: null, tan: null, ride: null, split: null, marks: null, run: null, skin: null, bar: null, lever: null };
+    const lay = keyLayout((typeof d.key === 'function' ? d.key(st) : d.key) || []);
+    G.workY += (lay.rows - 1) * 20; G.H += (lay.rows - 1) * 20;
+    tags(d, st);
+    axes();
+    d.draw(st);
+    keyRow(lay);
+    queue.forEach(placeLabel);
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    placeGrips(d, st);
+    setReads(d, st);
+    svg.setAttribute('aria-label', said.join(' '));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  function labelButton(b, s, asMaths) {
+    b.setLabel(s);
+    b.el.textContent = '';
+    const sp = b.el.appendChild(K.el('span'));   // one span, so the button's gap does not split "i = 2.4 e^(−t/0.05)"
+    if (asMaths) maths(sp, s, false); else sp.textContent = s;
+    b.el.setAttribute('aria-label', say(s));
+  }
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('lead').textContent = nb(d.lead || LEAD);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const sw = d.switch || [];
+    el('switch').hidden = !sw.length;
+    swBtns.forEach((b, k) => {
+      b.el.hidden = k >= sw.length;
+      if (k >= sw.length) return;
+      b.setLabel(sw[k][1]);
+      b.el.setAttribute('aria-pressed', modeOf(d, st) === sw[k][0] ? 'true' : 'false');
+    });
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      labelButton(b, opts[k], !!d.mathOpts);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = TM;
+    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; paint(); }
+  }
+  const RUN = idx('Your own run');
+
+  K.check('The initial current is zero and approaches V ÷ R with a characteristic time constant: from a start of 0 A the curve climbs towards a steady line drawn at E ÷ R, always below it and rising, for every E and R on the sliders', () =>
+    ES.every((E) => RS.every((R) => {
+      const r = drawn(RUN, { E, R, I: 0 }), f = r.run.f, iss = E / R, ts = K.linspace(0, 0.3, 61);
+      return close(f(0), 0) && close(r.run.iss, iss) && r.ss.some((l) => close(l.v, iss)) && ts.every((t, k) => f(t) < iss && (k === 0 || f(t) > f(ts[k - 1])));
+    })), { source: LUMEN });
+  K.check('The time constant for an RL circuit is τ = L ÷ R: the τ marks sit L ÷ R apart for every R on the slider, 0.05 s for 0.5 H and 10 Ω, and the 1 H coil keeps 0.368 of its gap at 1 ÷ 10 = 0.1 s', () => {
+    const ok = RS.every((R) => {
+      const m = drawn(RUN, { R }).marks, tau = L0 / R;
+      return m.length > 2 && m.every((x, k) => k === 0 || close(x.t - m[k - 1].t, tau, 1e-9));
+    });
+    const i9 = idx('A bigger coil'), c = drawn(i9, solvedSt(i9)).curves.find((x) => x.id === 'ans');
+    return ok && close(TAU, 0.05) && close(TAU_BIG, 0.1) && !!c && close((c.f(0.1) - ISS) / (c.f(0) - ISS), E1);
+  }, { source: LUMEN });
+  K.check('0.632 of the remainder is achieved in every characteristic time, and the final value is never exactly reached: from one τ mark to the next the gap keeps 0.368 of itself for every E, R and start on the sliders, with the supply on or flipped, and no gap reaches zero', () => {
+    let n = 0;
+    for (const E of ES) for (const R of RS) for (const I of [0, 1.5, 2.5, 4]) for (const mode of ['on', 'flip']) {
+      const r = drawn(RUN, { E, R, I, mode }), m = r.marks;
+      for (let k = 1; k < m.length; k++) {
+        if (m[k].seg !== m[k - 1].seg) continue;
+        if (Math.abs(m[k - 1].gap) < 1e-12) { if (Math.abs(m[k].gap) > 1e-12) return false; continue; }
+        const q = m[k].gap / m[k - 1].gap;
+        if (!close(q, E1, 1e-9) || !close(1 - q, 0.632, 5e-4) || m[k].gap === 0) return false;
+        n++;
+      }
+      if (mode === 'flip' && !(m.some((x) => x.seg === 1) && r.run.lv(0.2) === 0 && close(r.run.f(0.3), r.run.f(TF) * Math.exp(-(0.3 - TF) / r.run.tau)))) return false;
+    }
+    return n > 200;
+  }, { source: OPENSTAX });
+  K.check('The general solution is a transient that depends on the start plus a steady state independent of it: split, the steady line plus the dying gap gives the current at every time, and on the sliders the start changes only the gap, never the steady line', () => {
+    const sp = drawn(idx('Split'), {}).split;
+    if (!sp || !close(sp.p, 1) || !close(sp.off, 0)) return false;
+    const sum = K.linspace(0, 0.3, 31).every((t) => close(ISS + sp.gp(t), coilI(t), 1e-12));
+    const starts = ES.every((E) => RS.every((R) => {
+      const runs = [0, 2, 4].map((I) => drawn(RUN, { E, R, I }).run);
+      return runs.every((x) => close(x.iss, E / R)) && new Set(runs.map((x) => fmt3(x.f(0) - x.iss))).size === 3;
+    }));
+    return sum && starts;
+  });
+  K.check('Along the marker: at the τ marks the gap reads −2.4, −0.883, −0.325 and −0.119 A and the current 0, 1.52, 2.08 and 2.28 A, then 2.38 A at 0.25 s; from 0.05 s on, the gap ÷ the gap one τ before reads 0.368 wherever the marker sits; the rate arrow\'s slope is the gap\'s size ÷ τ; the starting rate\'s line meets the steady line at one τ', () => {
+    const i4 = idx('The gap at each τ'), want = [['−2.4', '0'], ['−0.883', '1.52'], ['−0.325', '2.08'], ['−0.119', '2.28']];
+    for (let k = 0; k < 4; k++) { const r = drawn(i4, { mk: k * TAU }).mk; if (fmtG(r.g) !== want[k][0] || fmtV(r.i) !== want[k][1]) return false; }
+    if (fmtV(drawn(i4, { mk: 5 * TAU }).mk.i) !== '2.38') return false;
+    for (let s = 10; s <= 60; s++) { const r = drawn(i4, { mk: s * 0.005 }).mk; if (fmt3(r.ratio) !== '0.368' || !close(r.slope, -r.g / TAU, 1e-9)) return false; }
+    const r0 = drawn(i4, {});
+    return !!r0.tan && close(r0.tan.meet, TAU) && close(r0.tan.slope, RATE0) && close(r0.mk.t, 3 * TAU) && fmtV(r0.mk.i) === '2.28';
+  });
+  K.check('Every worked number is right: 2.4 A steady, τ = 0.05 s, 48 A a second at the start and 240 for the slip, 24 A a second at 1.2 A, 0.368 kept and 0.632 closed, 1.52 A and 0.883 A after one τ, 1.2 A steady at 12 V with a +1.2 A start gap, 3 A and 0.025 s at the slider ends, 0.1 s for 1 H with the slips 1.2 and 4.8 A, 63.2, 86.5, 95.0 and 99.3% for every skin, 1297 and 203 rpm, 2.37, 1.10 and 2.63 m, and 0.7% left after five τ', () => {
+    const skins = ['coil', 'motor', 'tank'].map((m) => drawn(idx('One curve for all three'), { mode: m }).skin.pts.map(pc).join(' '));
+    const nums = close(ISS, 2.4) && close(TAU, 0.05) && close(RATE0, 48) && E0 * R0 === 240 && close(RULE(I_HALF), 24) && close(coilI(T_HALF), 1.2) &&
+      fmt3(E1) === '0.368' && fmt3(1 - E1) === '0.632' && fmtV(coilI(TAU)) === '1.52' && fmt3(ISS * E1) === '0.883' &&
+      close(ISS_LOW, 1.2) && close(dropI(0), 2.4) && close(dropI(0) - ISS_LOW, 1.2) && close(dropI(10), ISS_LOW, 1e-9) &&
+      close(Math.max(...ES) / Math.min(...RS), 3) && close(L0 / Math.max(...RS), 0.025) && close(TAU_BIG, 0.1) && close(E0 / (2 * R0), 1.2) && close(2 * E0 / R0, 4.8) &&
+      skins.every((s) => s === '63.2% 86.5% 95.0% 99.3%') &&
+      fmtD(motorN(N_T), 0) === '1297' && fmtD(N_SS * E1 * E1, 0) === '203' && close(N_T / N_TAU, 2) &&
+      fmtV(tankH(H_T)) === '2.37' && fmtV(H0 * E1) === '1.1' && fmtV(H_SS + (1 - E1)) === '2.63' && fmtD(100 * Math.exp(-5), 1) === '0.7';
+    const t2 = drawn(idx('The steady line and the gap'), {}).texts, i5 = idx('After one τ'), t5 = drawn(i5, solvedSt(i5)).texts;
+    return nums && t2.indexOf('at 0 A: (2.4 − 0) ÷ 0.05 = 48 A a second') >= 0 && t5.indexOf('gap: −2.4 × 0.368 = −0.883 A') >= 0 && t5.indexOf('i = 2.4 − 0.883 = 1.52 A') >= 0;
+  });
+  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check('Before Check, no puzzle\'s picture shows its answer or a mistake', () => DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0; }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, finishes within 2 s', () => {
+    const keepT = TM;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      TM = Infinity; latest = 0; earliest = Infinity;
+      S[i] = Object.assign(blank(), st);
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const modes = d.switch ? d.switch.map((o) => o[0]) : [null];
+        return d.dur <= 4.5 && d.dur >= 3 && modes.every((m) => timed(i, { mode: m }, d.dur) && earliest >= FADE);
+      }
+      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));
+    });
+    TM = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

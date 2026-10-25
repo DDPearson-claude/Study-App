@@ -1,0 +1,37 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "keep": [
+    "One system throughout, the 1 kg mass, 4 N/m spring and 0.5 N·s/m damper from the spring lessons, with a 1 N push, so every swing is computed from one shown rule: 0.329 m at 1 rad/s, 1 m at 2 rad/s, 0.08 m at 4 rad/s, 0.25 m for a slow push.",
+    "The steady swing comes from the three force phasors, which Dan already reads from series RLC, rather than from a solving method the brief keeps out.",
+    "The misconceptions each have a DO screen: the start-up wobble read as the answer (screen 2), the faster push read as the bigger swing (screen 6), a peak expected when overdamped (screen 8), nothing in a series loop above the supply (screen 10), and damping thought to remove resonance (screen 12).",
+    "The mixed puzzles gather reading a model: a unit check on a wrong exponent, a capacitor voltage from reactances he knows, and a ship's roll with added damping.",
+    "The worked example is the 100 mH and 10 µF pair from AC circuits, whose 1000 rad/s he already knows, with 40 Ω giving 25 V on the capacitor from a 10 V supply."
+  ],
+  "fix": [
+    "False absolute: 'The swing is always largest at the natural frequency.' The model's peak slides below it (1.97, 1.87 and 1.41 rad/s at damping 0.5, 1 and 2). Say a lightly damped system swings hardest when the push is near its natural frequency.",
+    "False absolute: 'an overdamped system never resonates.' A series loop's current peaks at 1 ÷ √(LC) at any resistance. Narrow it to the swing of the mass, or the capacitor's charge, and say why the current differs: it is the charge's swing times ω.",
+    "False absolute: 'by 20 s only the steady swing is left.' After five envelope time constants e^(−5), about 0.0067, is left. Say less than 1% is left.",
+    "Interactive mismatch: the brief's switch relabels the swing as RLC current. The plotted swing is the twin of the capacitor's charge, and current peaks exactly at 2 rad/s, not below it. Relabel it as the capacitor's charge and give current as a readout, ω times the charge swing.",
+    "Skipped causal step: 'every term can match the push' skips the guess. Try X cos(ωt − φ): each derivative is a cosine at the same rate, scaled by ω, so all four terms keep the push's time.",
+    "Skipped causal step: the peak's slide lower and the hill vanishing are stated, not explained. Say the damper's share cω is smaller at lower ω, and that from c² = 2mk, near 2.83 N·s/m, the damper's share grows faster than the spring and mass gap closes, so the swing only shrinks.",
+    "Brief shows the effect only. Name the cause in it: near 2 rad/s the spring and mass forces cancel. Screen 4's why gives the sizes: 4 N each against a 1 N push, leaving the 1 N drag.",
+    "Missing worked misconception: show the slow push (F ÷ k) and the fast push (16X against 4X) failing the 'faster is bigger' belief in explain, not only in a puzzle.",
+    "Talks about the idea: 'This is how a circuit that rings can be driven to a big swing' is vague. Say the capacitor's voltage can rise far above the supply's, and give the 25 V from 10 V in practice.",
+    "Analogy breaks too thin. Say the out-of-balance push grows with the square of the speed, so fast running settles to a small fixed shake, and that real mounts have more than one way to swing, each with its own peak.",
+    "Practice lacks the safe way first, the damping check (c² against 2mk for a peak and 4mk for critical), rad/s against hertz and the transient wait. Add them.",
+    "Overloaded third paragraph, with three facts per sentence. Split into the guess, the sizes, the sweep and the damping, one idea a sentence.",
+    "Talks about the course: 'lesson 5's mass'. Say the same mass, spring and damper as before.",
+    "Numbers missing or unreadable: damping slider lowest, the arrows at 1 and 2 rad/s, 2.83 N·s/m, 159 Hz, 0.25 A, 100 Ω, 80 Ω, 12.5 V, 1600 and 20000 Ω², 0.24 m at damping 6, the 2 A twin-loop current and 'Damping with no hill, from'. Add or relabel them.",
+    "whatAmILookingAt needs each screen's read sentence and the reason behind each answer, so the read-through stands with no controls."
+  ],
+  "shape": {
+    "idea named up front": "yes, first paragraph",
+    "rule in words": "draft 2: the four forces at the push's rate add as phasors to the push",
+    "worked example with real numbers": "draft 2: 0.329 m at 1 rad/s and 1 m at 2 rad/s from the rule; practice's 25 V",
+    "misconception shown failing": "draft 2: slow push 0.25 m and fast push 0.08 m against 'faster is bigger'; overdamped hill gone",
+    "trade analogy with its break": "pump on rubber mounts; draft 2 widens the break",
+    "put it into practice": "draft 2: safety first, steps, rules of thumb, worked example, mistakes",
+    "recap": "bold takeaway"
+  },
+  "verdict": "rewrite"
+}

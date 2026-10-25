@@ -1,0 +1,161 @@
+{
+  "title": "Differential equations, from cooling to resonance",
+  "hook": "The current in a coil and resistor switched onto DC settles smoothly, but add a series capacitor and the capacitor's voltage can overshoot the supply and ring. What decides whether it settles or rings?",
+  "oneBreath": "A differential equation is a rule that ties how fast something changes to the thing itself, and sometimes to time, so its answer is a whole curve, not a number. One store of energy, such as a capacitor discharging or a coil switched onto a supply, settles smoothly at a pace set by one time constant, and a rule with no formula can be stepped along a little at a time. Two stores, such as a spring with a mass or a coil with a capacitor, share one equation whose roots decide whether it creeps back, returns quickest or rings, and pushing it in time with its ringing gives resonance.",
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "A rule for change",
+      "oneLine": "A differential equation gives a rate from the quantity itself, as cooling does, so its answer is a curve that follows the rule's slope everywhere.",
+      "deps": [],
+      "kind": "concept"
+    },
+    {
+      "id": "i2",
+      "title": "Decay: separate and integrate",
+      "oneLine": "A rate in proportion to what is left, as in a discharging capacitor, separates and integrates to y = Ae^(−t/τ), with time constant τ.",
+      "deps": [
+        "i1"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i3",
+      "title": "Steady state plus a dying transient",
+      "oneLine": "Switch a coil onto a supply and its current is the steady value E ÷ R plus a gap that dies away as decay does.",
+      "deps": [
+        "i1",
+        "i2"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i4",
+      "title": "One small step at a time: Euler's method",
+      "oneLine": "Euler's method walks short straight steps along the rule's slope, solving equations that have no formula, and smaller steps drift less from the true curve.",
+      "deps": [
+        "i1",
+        "i2",
+        "i3"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i5",
+      "title": "The spring and the circuit: one equation",
+      "oneLine": "A damped spring and series RLC circuit obey the same second-order equation, term for term: mass as inductance, damping as resistance, stiffness as 1 ÷ C.",
+      "deps": [
+        "i1",
+        "i2"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i6",
+      "title": "Overdamped, critical and ringing",
+      "oneLine": "The roots of mr² + cr + k = 0 decide whether it creeps back, returns quickest without ringing, or rings inside a dying envelope.",
+      "deps": [
+        "i2",
+        "i5"
+      ],
+      "kind": "quantity"
+    },
+    {
+      "id": "i7",
+      "title": "Pushing it: resonance, and reading a model",
+      "oneLine": "Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.",
+      "deps": [
+        "i3",
+        "i5",
+        "i6"
+      ],
+      "kind": "quantity"
+    }
+  ],
+  "calibration": [
+    {
+      "id": "c1",
+      "iid": "i1",
+      "q": "A hot part, cooling faster the hotter it is above the room, is losing 3 °C a minute right now. How much will it cool over the next minute?",
+      "options": [
+        "Exactly 3 °C, since that is its rate",
+        "More than 3 °C, as cooling gathers pace",
+        "A little under 3 °C, as the rate eases"
+      ],
+      "answer": 2,
+      "why": "3 °C a minute is its rate at this instant, not the amount it will lose. As it cools, its gap to the room shrinks, so the rate falls below 3 °C a minute and it cools a little less. Cooling eases off; it never gathers pace."
+    },
+    {
+      "id": "c2",
+      "iid": "i3",
+      "q": "A coil's current, just switched on, has closed 63% of the gap to its final value after 50 ms. How far along is it after 100 ms?",
+      "options": [
+        "All the way: twice the time does the rest",
+        "About 86% of the way",
+        "About 95% of the way"
+      ],
+      "answer": 1,
+      "why": "Each 50 ms closes 63% of whatever gap is left. After the first, 37% remains, and closing 63% of that leaves about 14%, so it is about 86% along. Twice the time does not double the rise, and 95% takes about three such steps."
+    }
+  ],
+  "query": "Differential equations",
+  "level": "some",
+  "mode": "read",
+  "intake": {
+    "questions": [
+      {
+        "id": "q1",
+        "q": "What do you want from this course?",
+        "options": [
+          "To understand differential equations and how to work with them",
+          "A quick refresher of the methods",
+          "Exam practice"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q2",
+        "q": "Where will you use it?",
+        "options": [
+          "On the job and in everyday life",
+          "For further study",
+          "Just curiosity"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q3",
+        "q": "How do you like to learn?",
+        "options": [
+          "Hands-on, with the why explained in full",
+          "Rules and worked examples only",
+          "Lots of practice questions"
+        ],
+        "multi": false,
+        "other": false
+      }
+    ],
+    "answers": {
+      "q1": {
+        "picked": [
+          "To understand differential equations and how to work with them"
+        ],
+        "other": null
+      },
+      "q2": {
+        "picked": [
+          "On the job and in everyday life"
+        ],
+        "other": null
+      },
+      "q3": {
+        "picked": [
+          "Hands-on, with the why explained in full"
+        ],
+        "other": null
+      }
+    }
+  }
+}

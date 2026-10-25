@@ -1,0 +1,530 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Differential equations, from cooling to resonance
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "Steady state plus a dying transient" — Switch a coil onto a supply and its current is the steady value E ÷ R plus a gap that dies away as decay does. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 One small step at a time: Euler's method — Euler's method walks short straight steps along the rule's slope, solving equations that have no formula, and smaller steps drift less from the true curve.
+- i5 The spring and the circuit: one equation — A damped spring and series RLC circuit obey the same second-order equation, term for term: mass as inductance, damping as resistance, stiffness as 1 ÷ C.
+- i6 Overdamped, critical and ringing — The roots of mr² + cr + k = 0 decide whether it creeps back, returns quickest without ringing, or rings inside a dying envelope.
+- i7 Pushing it: resonance, and reading a model — Pushed back and forth, a lightly damped spring or circuit settles to a steady swing, largest when the push nears the frequency it rings at.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The initial current is zero and approaches _I_ ₀ = _V/R_ with a _characteristic time constant_ _τ_ for an _RL_ circuit"
+[R2] RL Circuits | Physics — Lumen Learning — https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits
+    "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+[R3] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+[R4] 15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics — https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations
+    "The general solution is a sum of a transient solution that depends on initial conditions, and a steady state that is independent of initial conditions and depends only on the driving amplitude"
+[R5] 19 19 — Loughborough University (HELM) — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2019%20Differential%20Equations.pdf
+    "Newton’s law of cooling states that the rate of cooling of liquid is proportional to the difference between its temperature and the temperature of its environment (the ambient temperature)."
+[R6] ES.1803 S24: Reading: Topic 11: Numerical Methods for First-Order Differential Equations — MIT OpenCourseWare — https://ocw.mit.edu/courses/es-1803-differential-equations-spring-2024/mites_1803_s24_topic11.pdf
+    "We know that the slope of the solution curve through (𝑥0, 𝑦0) is 𝑦 ′ = 𝑓(𝑥0, 𝑦0)."
+[R7] 19.2 — Newcastle University — https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/images/First_order_odes.pdf
+    "It is so-called because we rearrange the equation to be solved such that all terms involving the dependent variable appear on one side of the equation, and all terms involving the independent variable appear on the other."
+[R8] Decay constant | Definition, Formula, & Facts | Britannica — Encyclopaedia Britannica — https://www.britannica.com/science/decay-constant
+    "This shows that the population decays exponentially at a rate that depends on the decay constant."
+[R9] RC Circuits — Michigan State University — https://web.pa.msu.edu/courses/2000fall/phy232/lectures/rccircuits/rc.html
+    "This produces a characteristic time dependence that turns out to be exponential. The crucial parameter that describes the time dependence is the "time constant"
+[R10] 23.10 RL Circuits - College Physics 2e | OpenStax — https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits
+    "In each successive time , the current falls to 0.368 of the preceding value"
+[R11] DOE-HDBK-1019/2-93; DOE Fundamentals Handbook Nuclear Physics and Reactor Theory Volume 2 of 2 — US Department of Energy — http://large.stanford.edu/courses/2013/ph241/waisberg1/docs/h1019v2.pdf
+    "The reactor period is defined as the time required for reactor power to change by a factor of "e," where "e" is the base of the natural logarithm and is equal to about 2.718."
+[R12] 15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax — https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit
+    "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+Notes (claims, and the sources that support them):
+- When a coil is switched onto a supply, the current starts at zero and approaches V divided by R, with a characteristic time constant for an RL circuit. [R1]
+- The time constant for an RL circuit is defined as L divided by R. [R2]
+- The current covers 0.632 of the remainder to its final value in every time constant. [R3]
+- A driven damped system's general solution is a transient that depends on the starting conditions plus a steady state that depends only on the drive. [R4]
+- Newton's law of cooling gives the rate of cooling of a liquid as proportional to the difference between its temperature and its surroundings' temperature. [R5]  (from an idea this one builds on)
+- The slope of the solution curve through a point is set by the equation itself, as y′ = f(x, y) at that point. [R6]  (from an idea this one builds on)
+- Separation of variables rearranges the equation so every term in the unknown is on one side and every term in the independent variable is on the other. [R7]  (from an idea this one builds on)
+- Radioactive atoms decay exponentially, at a rate that depends on the decay constant. [R8]  (from an idea this one builds on)
+- In an RC circuit the charge and discharge are exponential in time, and the time constant RC sets the pace. [R9]  (from an idea this one builds on)
+- When a coil's supply is switched off, its current falls to 0.368 of the preceding value in each successive time constant. [R10]  (from an idea this one builds on)
+- An exponential never exactly reaches its final value, but covers 0.632 of what remains in every time constant. [R3]  (from an idea this one builds on)
+- Reactor period is the time for reactor power to change by a factor of e, so a reactor's power grows exponentially (added for i2: the plus-sign example). [R11]  (from an idea this one builds on)
+- A driven RLC series circuit is the electrical analog of a driven damped harmonic oscillator, so one family of ideas covers springs and circuits. [R12]  (whole topic)
+- The time constant of an RL circuit is L divided by R, and the current covers 0.632 of the remainder to its final value in every time constant. [R2][R3]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "Steady state plus a dying transient",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the shaded gap to the steady line shrinking to 0.368 of itself at every τ mark when you drag the time marker along a coil's switched-on current.",
+  "title": "The steady line and the gap",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "This is a short lesson in thirteen small screens, all on one plot. A 24 V DC supply, a switch, a 0.5 H coil and a 10 Ω resistor sit in one loop, drawn small beside the plot. Current runs up the side, from 0 to 4 A. Time runs along the bottom, from 0 to 0.3 s. The voltages round the loop add up, so 24 = L di/dt + R i. The resistor takes 10 i volts and the coil takes the rest. So di/dt = (24 − 10 i) ÷ 0.5. The current climbs fast at first, then slower as the resistor takes more of the supply. A dashed line marks the steady current, E ÷ R = 2.4 A. There the coil's share, and so the rate, is zero. The gap between the line and the current is shaded. Call it g = i − 2.4, negative below the line. While the supply holds, the steady value does not move. So the gap changes as fast as the current does. The rule then reads dg/dt = −g ÷ 0.05, the decay rule of the discharge. So the gap keeps 0.368 of itself in every τ = L ÷ R = 0.05 s. A mark sits at each τ along the bottom. Here is each screen in turn. Screen 1 closes the switch. The current rises from 0, starting at 48 A a second, and bends over towards the dashed line. Screen 2 asks what current makes the rate zero. The choices are 2.4 A, 240 A or 48 A. Screen 3 draws the dashed line at 2.4 A and shades the gap. It rewrites the rule as di/dt = (2.4 − i) ÷ 0.05. Rate arrows at 0 A and at 1.2 A show the rate halving as the gap halves. Screen 4 asks the rate when the current is 1.2 A. The choices are 24 A a second, 48 A a second or 1.2 A a second. Screen 5 lets you drag a time marker along the curve. Readouts show the time, the current, the gap, and the gap ÷ the gap one τ earlier. At the τ marks the gap reads −2.4, −0.883, −0.325 and −0.119 A, so the ratio holds at 0.368. The current reads 0, 1.52, 2.08 and 2.28 A. At five τ, 0.25 s, it reads 2.38 A. A rate arrow rides with the marker. Its slope is the gap ÷ τ, so it flattens as the gap shrinks. A straight tangent at the starting rate meets the dashed line at one τ. On a phone the four readouts wrap onto two lines. Screen 6 asks the current after one τ, 0.05 s. The choices are 1.52 A, 2.4 A or 0.883 A. Screen 7 presses Split. The curve comes apart into the flat steady line at 2.4 A and the dying gap, −2.4 e^(−t/0.05), drawn below the axis. On that screen the current axis runs from −2.5 to 4 A. Adding the two, height by height, gives the current again. So i = 2.4 − 2.4 e^(−t/0.05). Screen 8 runs the current at a steady 2.4 A, then drops the supply to 12 V. The new dashed line sits at 1.2 A, and the gap starts at +1.2 A above it. It asks which formula the current now follows. The choices are i = 1.2 + 1.2 e^(−t/0.05), i = 1.2 (1 − e^(−t/0.05)) or i = 2.4 e^(−t/0.05). A wrong pick is drawn, so you can see where it starts or where it ends. Screen 9 opens three sliders and a switch. E runs from 6 to 30 V, R from 10 to 20 Ω and the starting current from 0 to 4 A. E and R move the dashed line. R also changes τ. The start moves only the gap, above or below the line. Flipping the two-way switch mid-run takes the supply out and closes the loop through R. The dashed line drops to 0, and the coil's current dies as a discharge does. Whatever the settings, the gap keeps 0.368 of itself at every τ mark. Screen 10 asks what changes with a 1 H coil in place of the 0.5 H one. The choices are the same 2.4 A reached more slowly, a steady 1.2 A, or a steady 4.8 A. Screen 11 swaps the skin. A named choice offers Coil, Motor and Tank. Each skin draws time in τ and the value as a percentage of its steady value. So all three are one curve: 63.2% at one τ, 86.5% at two, 95.0% at three and 99.3% at five. Screens 12 and 13 mix it all. Screen 12 takes a motor whose speed n obeys dn/dt = (1500 − n) ÷ 0.2, in rpm and seconds. It starts from rest and asks its speed after 0.4 s. The choices are 1297 rpm, 1500 rpm or 203 rpm. Screen 13 takes a tank whose level h obeys dh/dt = (2 − h) ÷ 50, in metres and seconds. It starts at 3 m and asks the level after 50 s. The choices are 2.37 m, 1.10 m or 2.63 m. Each puzzle offers three answers.",
+  "ignores": "The coil is ideal. Its L stays fixed, and it has no capacitance of its own. The 10 Ω includes the coil's own winding. The switch acts at once, with no arc. The run is slowed down, so 0.3 s plays over a few seconds. Near 0.3 s the current looks as if it touches 2.4 A. By this rule it never quite does. The motor and tank rules are example rules. A real motor's run-up depends on its load. A tank draining freely through a hole follows a different rule, so its curve is not this exact shape.",
+  "numbers": [
+   {
+    "label": "Example supply E, in V",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example coil inductance L, in H",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example loop resistance R, in Ω",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plot's top current, in A",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Plot's last time, in seconds",
+    "value": 0.3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Split screen's lowest current, in A",
+    "value": -2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Steady current, 24 ÷ 10, in A",
+    "value": 2.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Time constant, 0.5 ÷ 10, in seconds",
+    "value": 0.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Starting rate, 24 ÷ 0.5, in A a second",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 24 × 10, in A, screen 2",
+    "value": 240,
+    "kind": "computed"
+   },
+   {
+    "label": "Example current, in A, screens 3 and 4",
+    "value": 1.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rate at 1.2 A, 1.2 ÷ 0.05, in A a second",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, gap read as the rate, screen 4",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Fraction of the gap kept each τ, e^(−1)",
+    "value": 0.368,
+    "kind": "computed"
+   },
+   {
+    "label": "Fraction of the gap closed each τ, 1 − 0.368",
+    "value": 0.632,
+    "kind": "computed"
+   },
+   {
+    "label": "Gap at the start, 0 − 2.4, in A",
+    "value": -2.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Gap after one τ, −2.4 × 0.368, in A",
+    "value": -0.883,
+    "kind": "computed"
+   },
+   {
+    "label": "Gap after two τ, −2.4 e^(−2), in A",
+    "value": -0.325,
+    "kind": "computed"
+   },
+   {
+    "label": "Gap after three τ, −2.4 e^(−3), in A",
+    "value": -0.119,
+    "kind": "computed"
+   },
+   {
+    "label": "Current after one τ, in A",
+    "value": 1.52,
+    "kind": "computed"
+   },
+   {
+    "label": "Current after two τ, in A",
+    "value": 2.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Current after three τ, in A",
+    "value": 2.28,
+    "kind": "computed"
+   },
+   {
+    "label": "Five τ, in seconds",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Current after five τ, in A",
+    "value": 2.38,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, the gap's size read as current, A",
+    "value": 0.883,
+    "kind": "computed"
+   },
+   {
+    "label": "Lower supply, in V, screen 8",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "New steady current, 12 ÷ 10, in A",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Gap at the start, screen 8, 2.4 − 1.2, in A",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "E slider lowest, in V, screen 9",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "E slider highest, in V, screen 9",
+    "value": 30,
+    "kind": "control"
+   },
+   {
+    "label": "E slider's step, in V, screen 9",
+    "value": 6,
+    "kind": "control"
+   },
+   {
+    "label": "R slider lowest, in Ω, screen 9",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "R slider highest, in Ω, screen 9",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "R slider's step, in Ω, screen 9",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Start slider lowest, in A, screen 9",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Start slider highest, in A, screen 9",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Start slider's step, in A, screen 9",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Highest steady current, 30 ÷ 10, in A",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Shortest τ, 0.5 ÷ 20, in seconds",
+    "value": 0.025,
+    "kind": "computed"
+   },
+   {
+    "label": "Bigger coil, in H, screen 10",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Its time constant, 1 ÷ 10, in seconds",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, steady current halved, in A",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, steady current doubled, in A",
+    "value": 4.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Share of the way after one τ, in %",
+    "value": 63.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Share of the way after two τ, in %",
+    "value": 86.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Share of the way after three τ, in %",
+    "value": 95,
+    "kind": "computed"
+   },
+   {
+    "label": "Share of the way after five τ, in %",
+    "value": 99.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Motor's steady speed, in rpm, screen 12",
+    "value": 1500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's time constant, in seconds, screen 12",
+    "value": 0.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Motor's time asked, in seconds, screen 12",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Speed after 0.4 s, 1500 (1 − e^(−2)), in rpm",
+    "value": 1297,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, the gap left, in rpm",
+    "value": 203,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank's steady level, in m, screen 13",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank's time constant, in seconds, screen 13",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tank's start level, in m, screen 13",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Level after 50 s, 2 + 1 × 0.368, in m",
+    "value": 2.37,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 3 × 0.368, steady line ignored, m",
+    "value": 1.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 2 + 0.632, fractions swapped, m",
+    "value": 2.63,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example supply, in V",
+    "value": 110,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example resistance, in Ω",
+    "value": 55,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example inductance, in H",
+    "value": 2.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example steady current, 110 ÷ 55, in A",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example τ, 2.2 ÷ 55, in seconds",
+    "value": 0.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example starting gap, in A",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example starting rate, A a second",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example current after 0.04 s, in A",
+    "value": 1.26,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example two τ, in seconds",
+    "value": 0.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example current after 0.08 s, in A",
+    "value": 1.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example five τ, in seconds",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example current after 0.2 s, in A",
+    "value": 1.99,
+    "kind": "computed"
+   },
+   {
+    "label": "Gap left after five τ, e^(−5), in %",
+    "value": 0.7,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Switch a coil onto a supply and its current climbs to a steady value, E ÷ R. On the way it is that steady value plus a gap. The gap dies away just as a discharge does.\n\nTake a 24 V supply, a 0.5 H coil and 10 Ω in series. Round the loop the voltages add up: E = L di/dt + R i. The resistor takes R i, and the coil takes the rest. At switch-on the current is 0, so all 24 V sits across the coil. Then di/dt = 24 ÷ 0.5 = 48 A a second. As the current grows, the resistor takes more and leaves the coil less. So the rise slows. It stops when the coil's share reaches zero. Set di/dt = 0 and 24 = 10 i, so i = 2.4 A. That is the steady state, E ÷ R.[^1] It comes from the supply and the resistance alone. L does not appear in it.\n\nNow the key step. Divide the rule by L, and di/dt = (E − R i) ÷ L. Take R out of the top, and di/dt = (E ÷ R − i) ÷ (L ÷ R). The top is how far the current is from its steady value. So the rate is in proportion to that gap. Call the gap g = i − E ÷ R. Below the line g is negative. While the supply holds, E ÷ R does not move. So the gap changes exactly as fast as the current. So dg/dt = −g ÷ τ, with τ = L ÷ R.[^2] That is the decay rule you separated and integrated. So g = g₀ e^(−t/τ), where g₀ is the gap at the start. Here τ = 0.5 ÷ 10 = 0.05 s and g₀ = −2.4 A. Each τ keeps 0.368 of the gap: −2.4 A, then −0.883 A, then −0.325 A. So the current reads 1.52 A after one τ and 2.08 A after two. Each τ closes 0.632 of what is left. By this rule the gap never quite reaches zero.[^3] After five τ, 0.25 s, the current reads 2.38 A, 99.3% of the way.\n\nPut together, i = E ÷ R + (i₀ − E ÷ R) e^(−t/τ). The first part is the steady state, set by the input. The second is the [[transient]], set by where the current starts, and it dies away. A bigger coil changes only τ. Start the current above the line, or drop the supply mid-run, and the same rule holds with a new gap. A damped spring pushed by a force splits the same way: a transient that depends on the start, plus a steady state set only by the push.[^4] All of this is an ideal coil whose L stays fixed. An iron-cored coil's L falls as its core saturates, so its curve is not quite this shape.\n\n**Switched onto a supply, a coil's current is the steady value E ÷ R plus a gap that dies as e^(−t/τ), with τ = L ÷ R.[^1] The input sets the steady value, and the start sets the gap.**"
+ },
+ "analogy": {
+  "text": "Put a steady load on a cable and it warms towards a running temperature set by that load. The further below that temperature it is, the faster it climbs. So in a simple picture it closes the same fraction of the gap in each equal time. A cable that starts warm just starts with a smaller gap.",
+  "breaks": "A real cable has a conductor, insulation and surroundings that warm at different paces. So its curve is a blend of several time constants, not one. Its resistance also rises as it warms, so a steady load's heat creeps up too."
+ },
+ "practice": {
+  "text": "**Safe way first:** a coil's voltage is L di/dt. Break its current suddenly and di/dt is huge, so the voltage across it spikes. Give the coil a path to die through, such as a freewheel diode, before you switch it off.\n\n- Write the rule as rate = (steady value − value) ÷ τ.\n- Find the steady value by setting the rate to zero. For a coil it is E ÷ R.\n- Find τ. For a coil it is L ÷ R, in seconds.\n- Find the starting gap: the start value minus the steady value.\n- Write value = steady value + starting gap × e^(−t/τ).\n- Check the start. At t = 0 it gives the start value.\n- Check the end. As t grows it settles on the steady value.\n- Put it back into the rule to check the slope.\n\n**Rule of thumb:** each τ keeps 0.368 of the gap and closes 0.632 of it. After five τ about 0.7% of the starting gap is left.\n\n**Worked example:** say a coil of 2.2 H and 55 Ω goes onto 110 V DC. The steady current is 110 ÷ 55 = 2 A. τ = 2.2 ÷ 55 = 0.04 s. It starts from 0, so the starting gap is −2 A. So i = 2 − 2 e^(−t/0.04). Its starting rate is 110 ÷ 2.2 = 50 A a second. After 0.04 s it reads 2 − 2 × 0.368 = 1.26 A. After 0.08 s it reads 1.73 A. After 0.2 s it reads 1.99 A.\n\n**Another route, the integrating factor:** put the rule in standard form, with di/dt on its own: di/dt + i ÷ τ = E ÷ L. Multiply both sides by e^(t/τ). The product rule says the slope of u × w is u′w + uw′. So the slope of i e^(t/τ) is e^(t/τ) × (di/dt + i ÷ τ). That is the whole left side. So the slope of i e^(t/τ) is (E ÷ L) e^(t/τ). Integrate both sides: i e^(t/τ) = (E ÷ L) τ e^(t/τ) + c. Here (E ÷ L) × τ is E ÷ R. Divide by e^(t/τ) to get i = E ÷ R + c e^(−t/τ). The start sets c = i₀ − E ÷ R. It is the same answer.\n\n**Common mistakes**\n- Reading τ as the time to reach the steady value. After one τ, 0.368 of the gap is still there.\n- Using i = E ÷ R × (1 − e^(−t/τ)) when the current does not start at 0. Use the start to find the gap.\n- Mixing up the fraction kept and the fraction closed. Each τ keeps 0.368 of the gap and closes 0.632.\n- Expecting a bigger coil to change the final current. L sets only τ.\n- Sending a falling current to zero. It settles on the new steady value."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "RL Circuits | Physics — Lumen Learning",
+   "url": "https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits",
+   "quote": "The initial current is zero and approaches _I_ ₀ = _V/R_ with a _characteristic time constant_ _τ_ for an _RL_ circuit"
+  },
+  {
+   "n": 2,
+   "title": "RL Circuits | Physics — Lumen Learning",
+   "url": "https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits",
+   "quote": "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+  },
+  {
+   "n": 3,
+   "title": "23.10 RL Circuits - College Physics 2e | OpenStax",
+   "url": "https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits",
+   "quote": "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+  },
+  {
+   "n": 4,
+   "title": "15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics",
+   "url": "https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations",
+   "quote": "The general solution is a sum of a transient solution that depends on initial conditions, and a steady state that is independent of initial conditions and depends only on the driving amplitude"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

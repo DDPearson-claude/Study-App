@@ -1,0 +1,80 @@
+{
+  "iid": "i7",
+  "title": "Pushing it: resonance, and reading a model",
+  "predict": null,
+  "format": "steps",
+  "interactive": {
+    "brief": "The one thing you should see is the dots on the swing-against-frequency graph climbing to a peak near 2 rad/s, once each start-up wobble dies, when you drag the drive frequency.",
+    "title": "The driven swing",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "This is a short lesson in twelve small screens. It uses lesson 5's spring: a 1 kg mass on a 4 N/m spring with damping 0.5 N·s/m. Now a push of 1 N swings back and forth as F cos ωt. Screen 1 shows the mass with the push beside it and the rule m x″ + c x′ + k x = F cos ωt, each term labelled. A trace shows position from −1.2 to 1.2 m over 30 s, starting from rest at 0, with the push at 1 rad/s. Play runs it. It starts lumpy and settles to an even swing by about 20 s. Screen 2 asks how often it swings once it settles. The choices are 1 rad/s, about 2 rad/s, or 1.5 rad/s. Screen 3 draws the three force arrows of the steady swing: the spring's pull kX, the mass term mω²X pointing the opposite way, and the damper's drag cωX at right angles. They add to the 1 N push. A drive slider runs from 0.25 to 4 rad/s. At 1 rad/s the swing is 0.329 m. Screen 4 asks for the swing at 2 rad/s. The choices are 1 m, 0.25 m, or that it grows without limit. Screen 5 is the main picture. The trace sits above a graph of steady swing against drive frequency, 0 to 4 rad/s across and 0 to 1.2 m up. Each drive setting drops a dot. A faint line marks 2 rad/s. The dots trace a hill: 0.25 m for a slow push, about 1 m near 2 rad/s, 0.08 m at 4 rad/s. Screen 6 asks for the swing at 4 rad/s. The choices are about 0.08 m, about 2 m, or 1 m. Screen 7 adds a damping slider from 0.5 to 6 N·s/m in steps of 0.5. The hill drops and its top slides lower: 1.01 m near 1.97 rad/s at 0.5, 0.52 m near 1.87 at 1, and 0.29 m near 1.41 at 2. From 3 there is no hill. Screen 8 sets damping 6 and asks where the swing is largest. The choices are the slowest push, 2 rad/s, or 4 rad/s. Screen 9 has a switch that relabels everything as an RLC loop: a 1 H coil, 0.5 Ω, a 0.25 F capacitor and a 1 V supply. The swing becomes the capacitor's charge. A readout gives the current swing, ω times the charge swing. Screens 10 to 12 mix it all. Screen 10: 10 V at 1000 rad/s into 100 mH, 10 µF and 40 Ω. What is the capacitor's voltage? The choices are 25 V, 10 V or 4 V. Screen 11: which check catches v = 12e^(−RCt) as an answer to dv/dt = −v ÷ RC? Screen 12: a ship rolls in waves near its roll frequency, and bilge keels add damping. What happens to the roll?",
+    "ignores": "Time runs fast on the trace. The spring, damper and circuit parts are ideal, and the push is a pure cosine. Each dot is worked out from the rule, not measured off the trace. Real springs and ship roll are straight only for small swings. The 1 H coil and 0.25 F capacitor are far bigger than real parts.",
+    "numbers": [
+      { "label": "Mass, in kg", "value": 1, "kind": "assumed" },
+      { "label": "Stiffness, in N/m", "value": 4, "kind": "assumed" },
+      { "label": "Push size F, in N", "value": 1, "kind": "assumed" },
+      { "label": "Opening damping, in N·s/m", "value": 0.5, "kind": "control" },
+      { "label": "Opening drive frequency, in rad/s", "value": 1, "kind": "control" },
+      { "label": "Drive slider lowest, in rad/s", "value": 0.25, "kind": "control" },
+      { "label": "Drive slider highest, in rad/s", "value": 4, "kind": "control" },
+      { "label": "Drive slider step, in rad/s", "value": 0.25, "kind": "control" },
+      { "label": "Damping slider highest, in N·s/m", "value": 6, "kind": "control" },
+      { "label": "Damping slider step, in N·s/m", "value": 0.5, "kind": "control" },
+      { "label": "Trace's last time, in s", "value": 30, "kind": "assumed" },
+      { "label": "Trace's top position, in m", "value": 1.2, "kind": "assumed" },
+      { "label": "Trace's lowest position, in m", "value": -1.2, "kind": "assumed" },
+      { "label": "Graph's top swing, in m", "value": 1.2, "kind": "assumed" },
+      { "label": "Natural frequency √(k ÷ m), in rad/s", "value": 2, "kind": "computed" },
+      { "label": "Steady swing at 1 rad/s, in m", "value": 0.329, "kind": "computed" },
+      { "label": "Steady swing at 2 rad/s, in m", "value": 1, "kind": "computed" },
+      { "label": "Slow push swing F ÷ k, in m", "value": 0.25, "kind": "computed" },
+      { "label": "Steady swing at 4 rad/s, in m", "value": 0.08, "kind": "computed" },
+      { "label": "Wrong pick, swing at 4 rad/s, in m", "value": 2, "kind": "assumed" },
+      { "label": "Peak at damping 0.5, in m", "value": 1.01, "kind": "computed" },
+      { "label": "Peak's frequency at damping 0.5, in rad/s", "value": 1.97, "kind": "computed" },
+      { "label": "Peak at damping 1, in m", "value": 0.52, "kind": "computed" },
+      { "label": "Peak's frequency at damping 1, in rad/s", "value": 1.87, "kind": "computed" },
+      { "label": "Peak at damping 2, in m", "value": 0.29, "kind": "computed" },
+      { "label": "Peak's frequency at damping 2, in rad/s", "value": 1.41, "kind": "computed" },
+      { "label": "Damping with no hill, from, in N·s/m", "value": 3, "kind": "computed" },
+      { "label": "Envelope time constant 2m ÷ c, in s", "value": 4, "kind": "computed" },
+      { "label": "Settling time, about five time constants, in s", "value": 20, "kind": "computed" },
+      { "label": "Loop coil, in H", "value": 1, "kind": "assumed" },
+      { "label": "Loop resistance, in Ω", "value": 0.5, "kind": "assumed" },
+      { "label": "Loop capacitor, in F", "value": 0.25, "kind": "assumed" },
+      { "label": "Loop supply, in V", "value": 1, "kind": "assumed" },
+      { "label": "Puzzle supply, in V", "value": 10, "kind": "assumed" },
+      { "label": "Puzzle frequency, in rad/s", "value": 1000, "kind": "computed" },
+      { "label": "Puzzle coil, in mH", "value": 100, "kind": "assumed" },
+      { "label": "Puzzle capacitor, in µF", "value": 10, "kind": "assumed" },
+      { "label": "Puzzle resistor, in Ω", "value": 40, "kind": "assumed" },
+      { "label": "Puzzle capacitor voltage, in V", "value": 25, "kind": "computed" },
+      { "label": "Wrong pick, 10 × 40 ÷ 100, in V", "value": 4, "kind": "computed" },
+      { "label": "Puzzle start voltage, in V", "value": 12, "kind": "assumed" }
+    ]
+  },
+  "explain": {
+    "text": "Push a lightly damped spring or circuit back and forth and it settles into a steady swing at the push's own rate. That swing is biggest when the push comes near the rate the system would ring at by itself.\n\nGive lesson 5's mass a push F cos ωt, where ω is how fast the push swings in radians a second. The rule becomes m x″ + c x′ + k x = F cos ωt, and every term is a force in newtons. The answer is a steady part set by the push plus a transient set by the start, which dies away.[^2] The transient is the last lesson's free ringing. With 1 kg, 0.5 N·s/m and 4 N/m its envelope has a time constant of 2m ÷ c = 4 s, so by 20 s only the steady swing is left.\n\nWhy at the push's rate? Each derivative of a cosine at ω is another cosine at ω, so every term can match the push at every instant. The spring's pull is kX, the mass term mω²X points the opposite way, and the damper's drag cωX sits at right angles, like the three phasors of a series RLC loop. They add to F, so X = F ÷ √((k − mω²)² + (cω)²). At 1 rad/s with a 1 N push, X = 0.329 m. The spring and mass terms cancel at ω = √(k ÷ m) = 2 rad/s, the [[natural frequency]], so only the damper is left and X = F ÷ cω = 1 m. The swing is always largest at the natural frequency.[^1] That peak is [[resonance]]. More damping gives a smaller peak.[^4] Damp it enough and the hill goes, so an overdamped system never resonates.[^3] The RLC loop with an AC supply obeys the same equation.[^5]\n\nThis is how a circuit that rings can be driven to a big swing. It is a simplified model with ideal parts.\n\n**Pushed back and forth, a lightly damped spring or circuit settles to a steady swing at the push's frequency, largest near its natural frequency.**[^1]"
+  },
+  "analogy": {
+    "text": "A pump on rubber mounts is a mass on a spring, and its rotor's out-of-balance gives a push once a turn. Run it up slowly and the frame shakes hardest at one speed, then calms as it runs faster.",
+    "breaks": "The out-of-balance push grows with speed, so it is not a push of fixed size."
+  },
+  "practice": {
+    "text": "- Name each term.\n- Check every term has the same unit.\n- Find the natural frequency, √(k ÷ m) or 1 ÷ √(LC).\n- Find the steady swing from X = F ÷ √((k − mω²)² + (cω)²).\n- Put the answer back in and check its start and end.\n\n**Rule of thumb:** at the natural frequency the swing is F ÷ cω.\n\n**Worked example:** 100 mH, 10 µF and 40 Ω on a 10 V supply at 1000 rad/s. ωL and 1 ÷ ωC are both 100 Ω and cancel, so I = 10 ÷ 40 = 0.25 A. The capacitor sees 0.25 × 100 = 25 V.\n\n**Common mistakes**\n- Expecting a peak in an overdamped system.\n- Thinking a faster push gives a bigger swing.\n- Thinking damping removes resonance."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "EN200 NAVAL ENGINEERING I — US Naval Academy", "url": "https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf", "quote": "You will recall that a SHM system will experience maximum amplitude oscillations when the frequency of the forcing function is equal to the natural frequency of the system." },
+    { "n": 2, "title": "15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics", "url": "https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations", "quote": "The general solution is a sum of a transient solution that depends on initial conditions, and a steady state that is independent of initial conditions and depends only on the driving amplitude" },
+    { "n": 3, "title": "15.4: Damped and Driven Oscillations - Physics LibreTexts — LibreTexts Physics", "url": "https://phys.libretexts.org/Bookshelves/University_Physics/Physics_(Boundless)/15%3A_Waves_and_Vibrations/15.4%3A_Damped_and_Driven_Oscillations", "quote": "The resonance effect occurs only in the underdamped systems." },
+    { "n": 4, "title": "EN200 NAVAL ENGINEERING I — US Naval Academy", "url": "https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf", "quote": "Resonance can still occur, however roll amplitude at resonance is reduced." },
+    { "n": 5, "title": "15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax", "url": "https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit", "quote": "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator." }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

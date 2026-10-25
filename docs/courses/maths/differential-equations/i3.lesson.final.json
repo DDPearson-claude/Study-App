@@ -1,0 +1,429 @@
+{
+  "iid": "i3",
+  "title": "Steady state plus a dying transient",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the shaded gap to the steady line shrinking to 0.368 of itself at every τ mark when you drag the time marker along a coil's switched-on current.",
+    "title": "The steady line and the gap",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "This is a short lesson in fourteen small screens, all on one plot. A 24 V DC supply, a switch, a 0.5 H coil and a 10 Ω resistor sit in one loop. The loop is drawn small beside the plot. Current runs up the side, from 0 to 4 A. Time runs along the bottom, from 0 to 0.3 s. The voltages round the loop add up, so 24 = L di/dt + R i. The resistor takes 10 i volts. The coil takes the rest. So di/dt = (24 − 10 i) ÷ 0.5. The current climbs fast at first. It slows as the resistor takes more of the supply. A dashed line marks the steady current, E ÷ R = 2.4 A. At that current the coil's share is zero, so the rate is zero too. The gap between the line and the current is shaded. Call it g = i − 2.4. It is negative below the line. While the supply holds, the steady value does not move. So the gap changes as fast as the current does. The rule then reads dg/dt = −g ÷ 0.05. That is the decay rule of the discharge. So the gap keeps 0.368 of itself in every τ = L ÷ R = 0.05 s. A mark sits at each τ along the bottom. Here is each screen in turn. Screen 1 closes the switch first. Then the curve grows behind a rider. The current rises from 0 at 48 A a second. It bends over towards the dashed line. Screen 2 asks what current makes the rate zero. The choices are 2.4 A, 240 A or 48 A. Screen 3 draws the dashed line at 2.4 A, the steady state, and shades the gap. It rewrites the rule as di/dt = (2.4 − i) ÷ 0.05. The 0.05 s is 0.5 ÷ 10, which is L ÷ R. So the rate is in proportion to the gap. Rate arrows sit at 0 A and at 1.2 A. They show the rate halving as the gap halves. Screen 4 asks the rate when the current is 1.2 A. The choices are 24 A a second, 48 A a second or 1.2 A a second. Screen 5 gives the reason the gap decays. The steady line holds still, so the gap obeys the discharge's rule. So each τ keeps the same share of it. The screen lets you drag a time marker along the curve. As it moves, readouts show the time, the current and the gap. A fourth readout shows the gap ÷ the gap one τ earlier. At the τ marks the gap reads −2.4, −0.883, −0.325 and −0.119 A. So the ratio holds at 0.368. The current reads 0, 1.52, 2.08 and 2.28 A. At five τ, which is 0.25 s, it reads 2.38 A. A rate arrow rides with the marker. Its slope is the gap ÷ τ. So it flattens as the gap shrinks. A straight tangent at the starting rate meets the dashed line at one τ. On a phone the four readouts wrap onto two lines. Screen 6 asks the current after one τ, which is 0.05 s. The choices are 1.52 A, 2.4 A or 0.883 A. Screen 7 presses Split. The curve comes apart into two pieces. One is the flat steady line at 2.4 A. The other is the dying gap, −2.4 e^(−t/0.05), drawn below the axis. On that screen the current axis runs from −2.5 to 4 A. Add the two, height by height, and you get the current back. So i = 2.4 − 2.4 e^(−t/0.05). The screen adds that with a sine supply the steady part is a sine. For a resistor and capacitor it is what the impedance method gives. Screen 8 shows a second route, the integrating factor. Three lines of working appear: di/dt + i ÷ 0.05 = 48, then the slope of i e^(t/0.05) is 48 e^(t/0.05), then i e^(t/0.05) = 2.4 e^(t/0.05) + c. The start of 0 A gives c = −2.4. Then the same curve draws in. Screen 9 starts with the current steady at 2.4 A. Then it drops the supply to 12 V. The new dashed line sits at 1.2 A. The gap starts at +1.2 A above it. It asks which formula the current now follows. The choices are i = 1.2 + 1.2 e^(−t/0.05), i = 1.2 (1 − e^(−t/0.05)) or i = 2.4 e^(−t/0.05). A wrong pick is drawn too. That shows where it starts or ends in the wrong place. Screen 10 opens three sliders and a switch. E runs from 6 to 30 V. R runs from 10 to 20 Ω. The starting current runs from 0 to 4 A. E and R move the dashed line. R also changes τ. The start moves only the gap. It can sit above or below the line. Flip the two-way switch mid-run and the supply drops out. The loop then closes through R. The dashed line drops to 0. The coil's current dies as a discharge does. Whatever the settings, the gap keeps 0.368 of itself from one τ mark to the next. The one exception is across a switch flip, because the line jumps there. Screen 11 asks what changes with a 1 H coil in place of the 0.5 H one. The choices are the same 2.4 A reached more slowly, a steady 1.2 A, or a steady 4.8 A. Screen 12 swaps the skin. A named choice offers Coil, Motor and Tank. Each skin draws time in τ. It draws the value as its share of the way from its start to its steady value. So all three draw one curve. The tank fills from empty, with its outflow in step with its level. A ship answering its rudder is named as one more case. It is 63.2% of the way at one τ, 86.5% at two, 95.0% at three and 99.3% at five. Screens 13 and 14 mix it all. Screen 13 takes a motor whose speed n obeys dn/dt = (1500 − n) ÷ 0.2, in rpm and seconds. The motor starts from rest. The screen asks its speed after 0.4 s. The choices are 1297 rpm, 1500 rpm or 203 rpm. Screen 14 takes a tank whose level h obeys dh/dt = (2 − h) ÷ 50, in metres and seconds. The level starts at 3 m. The screen asks the level after 50 s. The choices are 2.37 m, 1.10 m or 2.63 m. Each puzzle offers three answers.",
+    "ignores": "The coil is ideal. Its L stays fixed. It has no capacitance of its own. The 10 Ω includes the coil's own winding. The switch acts at once, with no arc. The run is slowed down, so 0.3 s plays over a few seconds. Near 0.3 s the current looks as if it touches 2.4 A. By this rule it never quite does. The motor and tank rules are example rules. A real motor's run-up depends on its load. A tank draining freely through a hole follows a different rule. So its curve is not this exact shape.",
+    "numbers": [
+      {
+        "label": "Example supply E, in V",
+        "value": 24,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example coil inductance L, in H",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example loop resistance R, in Ω",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Plot's top current, in A",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Plot's last time, in seconds",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Split screen's lowest current, in A",
+        "value": -2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Steady current, 24 ÷ 10, in A",
+        "value": 2.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constant, 0.5 ÷ 10, in seconds",
+        "value": 0.05,
+        "kind": "computed"
+      },
+      {
+        "label": "Starting rate, 24 ÷ 0.5, in A a second",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick 24 × 10, in A, screen 2",
+        "value": 240,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current, in A, screens 3 and 4",
+        "value": 1.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rate at 1.2 A, 1.2 ÷ 0.05, in A a second",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, gap read as the rate, screen 4",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Fraction of the gap kept each τ, e^(−1)",
+        "value": 0.368,
+        "kind": "computed"
+      },
+      {
+        "label": "Fraction of the gap closed each τ, 1 − 0.368",
+        "value": 0.632,
+        "kind": "computed",
+        "source": 3
+      },
+      {
+        "label": "Gap at the start, 0 − 2.4, in A",
+        "value": -2.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap after one τ, −2.4 × 0.368, in A",
+        "value": -0.883,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap after two τ, −2.4 e^(−2), in A",
+        "value": -0.325,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap after three τ, −2.4 e^(−3), in A",
+        "value": -0.119,
+        "kind": "computed"
+      },
+      {
+        "label": "Current after one τ, in A",
+        "value": 1.52,
+        "kind": "computed"
+      },
+      {
+        "label": "Current after two τ, in A",
+        "value": 2.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Current after three τ, in A",
+        "value": 2.28,
+        "kind": "computed"
+      },
+      {
+        "label": "Five τ, in seconds",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Current after five τ, in A",
+        "value": 2.38,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, the gap's size read as current, A",
+        "value": 0.883,
+        "kind": "computed"
+      },
+      {
+        "label": "Lower supply, in V, screen 9",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "New steady current, 12 ÷ 10, in A",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap at the start, screen 9, 2.4 − 1.2, in A",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "E slider lowest, in V, screen 10",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "E slider highest, in V, screen 10",
+        "value": 30,
+        "kind": "control"
+      },
+      {
+        "label": "E slider's step, in V, screen 10",
+        "value": 6,
+        "kind": "control"
+      },
+      {
+        "label": "R slider lowest, in Ω, screen 10",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "R slider highest, in Ω, screen 10",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "R slider's step, in Ω, screen 10",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Start slider lowest, in A, screen 10",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Start slider highest, in A, screen 10",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Start slider's step, in A, screen 10",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Highest steady current, 30 ÷ 10, in A",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Shortest τ, 0.5 ÷ 20, in seconds",
+        "value": 0.025,
+        "kind": "computed"
+      },
+      {
+        "label": "Bigger coil, in H, screen 11",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its time constant, 1 ÷ 10, in seconds",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, steady current halved, in A",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, steady current doubled, in A",
+        "value": 4.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the way after one τ, in %",
+        "value": 63.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the way after two τ, in %",
+        "value": 86.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the way after three τ, in %",
+        "value": 95,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the way after five τ, in %",
+        "value": 99.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Motor's steady speed, in rpm, screen 13",
+        "value": 1500,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor's time constant, in seconds, screen 13",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor's time asked, in seconds, screen 13",
+        "value": 0.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Speed after 0.4 s, 1500 (1 − e^(−2)), in rpm",
+        "value": 1297,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, the gap left, in rpm",
+        "value": 203,
+        "kind": "computed"
+      },
+      {
+        "label": "Tank's steady level, in m, screen 14",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tank's time constant, in seconds, screen 14",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tank's start level, in m, screen 14",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Level after 50 s, 2 + 1 × 0.368, in m",
+        "value": 2.37,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick 3 × 0.368, steady line ignored, m",
+        "value": 1.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick 2 + 0.632, fractions swapped, m",
+        "value": 2.63,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example supply, in V",
+        "value": 110,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example resistance, in Ω",
+        "value": 55,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example inductance, in H",
+        "value": 2.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example steady current, 110 ÷ 55, in A",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example τ, 2.2 ÷ 55, in seconds",
+        "value": 0.04,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example starting gap, in A",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example starting rate, A a second",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example current after 0.04 s, in A",
+        "value": 1.26,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example two τ, in seconds",
+        "value": 0.08,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example current after 0.08 s, in A",
+        "value": 1.73,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example five τ, in seconds",
+        "value": 0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example current after 0.2 s, in A",
+        "value": 1.99,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left after five τ, e^(−5), in %",
+        "value": 0.7,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Switch a coil onto a supply and its current climbs to a steady value, E ÷ R. On the way, the current is that steady value plus a gap. The gap dies away just as a discharge does.\n\nTake a 24 V supply, a 0.5 H coil and 10 Ω in series. Round the loop the voltages add up: E = L di/dt + R i. The resistor takes R i. The coil takes the rest. At switch-on the current is 0, so all 24 V sits across the coil. That gives di/dt = 24 ÷ 0.5 = 48 A a second. As the current grows, the resistor takes more. That leaves the coil less, so the rise slows. It stops when the coil's share reaches zero. Set di/dt = 0 and you get 24 = 10 i, so i = 2.4 A. That is the steady state, E ÷ R.[^1] Only the supply and the resistance set it. L does not appear in it.\n\nNow the key step. Divide the rule by L, and di/dt = (E − R i) ÷ L. Take R out of the top, and di/dt = (E ÷ R − i) ÷ (L ÷ R). The top is how far the current is from its steady value. So the rate is in proportion to that gap. Call the gap g = i − E ÷ R. Below the line g is negative. While the supply holds, E ÷ R does not move. So the gap changes exactly as fast as the current. That gives dg/dt = −g ÷ τ, with τ = L ÷ R.[^2] This is the decay rule you separated and integrated. So g = g₀ e^(−t/τ), where g₀ is the gap at the start. Here τ = 0.5 ÷ 10 = 0.05 s and g₀ = −2.4 A. Each τ keeps 0.368 of the gap. It goes −2.4 A, then −0.883 A, then −0.325 A. So the current reads 1.52 A after one τ and 2.08 A after two. Put the other way, each τ closes 0.632 of what is left. By this rule the gap never quite reaches zero. After five τ, which is 0.25 s, the current reads 2.38 A. That is 99.3% of the way.\n\nPut together, i = E ÷ R + (i₀ − E ÷ R) e^(−t/τ). The first part is the steady state. The supply and R set it. The second part is the [[transient]]. Where the current starts sets it, and it dies away. More L with the same R changes only τ. The same rule holds if the current starts above the line. It also holds if the supply drops mid-run. Each time there is a new gap, timed from that moment. A damped spring pushed by a force splits the same way. It has a transient that depends on the start, plus a steady state set by the push, not by the start. A ship answering its rudder is often modelled the same way, with a gain K and a time constant T.[^4] With a sine supply the steady part is a sine wave. For a resistor and capacitor it is exactly what the impedance method gives.[^5] All of this assumes an ideal coil whose L stays fixed.\n\n**Switched onto a supply, a coil's current is the steady value E ÷ R plus a gap that dies as e^(−t/τ), with τ = L ÷ R. The supply and R set the steady value. The start sets the gap.**"
+  },
+  "analogy": {
+    "text": "Put a steady load on a cable and it warms towards a running temperature. That load sets the temperature. The further below it the cable is, the faster it climbs. So in a simple picture it closes the same fraction of the gap in each equal time. A cable that starts warm just starts with a smaller gap.",
+    "breaks": "A real cable's resistance rises as it warms. So a steady load's heat creeps up as it goes. Its curve is only roughly this shape."
+  },
+  "practice": {
+    "text": "**Safe way first:** a coil's voltage is L di/dt. Break its current suddenly and di/dt is huge. So the voltage across the coil spikes. So plan for that spike whenever a coil's current is cut.\n\n- Write the rule as rate = (steady value − value) ÷ τ.\n- Find the steady value by setting the rate to zero. For a coil it is E ÷ R.\n- Find τ. For a coil it is L ÷ R, in seconds.\n- Find the starting gap. It is the start value minus the steady value.\n- Write value = steady value + starting gap × e^(−t/τ).\n- Check the start. At t = 0 it gives the start value.\n- Check the end. As t grows it settles on the steady value.\n- Put it back into the rule to check the slope.\n\n**Rule of thumb:** each τ keeps 0.368 of the gap and closes 0.632 of it. After five τ about 0.7% of the starting gap is left.\n\n**Worked example:** say a coil of 2.2 H and 55 Ω goes onto 110 V DC. The steady current is 110 ÷ 55 = 2 A. The time constant is τ = 2.2 ÷ 55 = 0.04 s. The current starts from 0, so the starting gap is −2 A. So i = 2 − 2 e^(−t/0.04). Its starting rate is 110 ÷ 2.2 = 50 A a second. After 0.04 s it reads 2 − 2 × 0.368 = 1.26 A. After 0.08 s it reads 1.73 A. After 0.2 s it reads 1.99 A.\n\n**Another route, the integrating factor:** first put the rule in standard form, with di/dt on its own. That gives di/dt + i ÷ τ = E ÷ L. Now multiply both sides by e^(t/τ). The aim is a left side that is the slope of one thing. Two facts make that work. First, e^(t/τ) grows in proportion to itself. So its slope is e^(t/τ) ÷ τ. That is the decay rule with a plus sign. Second, the slope of a product. Picture i × e^(t/τ) as the area of a rectangle. In a short time each side grows a little. The area gains a strip along each side, plus a tiny corner that shrinks away. So the slope of i e^(t/τ) is di/dt × e^(t/τ) + i × e^(t/τ) ÷ τ. That is the left side times e^(t/τ). So the slope of i e^(t/τ) is (E ÷ L) e^(t/τ). Now go back from slopes to the things themselves. The thing whose slope is e^(t/τ) is τ e^(t/τ). So i e^(t/τ) = (E ÷ L) τ e^(t/τ) + c. Here (E ÷ L) × τ is E ÷ R. Divide by e^(t/τ) to get i = E ÷ R + c e^(−t/τ). The start sets c = i₀ − E ÷ R. It is the same answer.\n\n**Common mistakes**\n- Reading τ as the time to reach the steady value. After one τ, 0.368 of the gap is still there.\n- Using i = E ÷ R × (1 − e^(−t/τ)) when the current does not start at 0. Use the start to find the gap.\n- Mixing up the fraction kept and the fraction closed. Each τ keeps 0.368 of the gap and closes 0.632.\n- Expecting more L alone to change the final current. With R the same, L sets only τ.\n- Expecting a falling current to go to zero. It settles on the new steady value."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "RL Circuits | Physics — Lumen Learning",
+      "url": "https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits",
+      "quote": "The initial current is zero and approaches _I_ ₀ = _V/R_ with a _characteristic time constant_ _τ_ for an _RL_ circuit"
+    },
+    {
+      "n": 2,
+      "title": "RL Circuits | Physics — Lumen Learning",
+      "url": "https://courses.lumenlearning.com/suny-physics/chapter/23-10-rl-circuits",
+      "quote": "The time constant for an _RL_ circuit is defined by _τ_ = _L_ / _R_ ."
+    },
+    {
+      "n": 3,
+      "title": "23.10 RL Circuits - College Physics 2e | OpenStax",
+      "url": "https://openstax.org/books/college-physics-2e/pages/23-10-rl-circuits",
+      "quote": "A well-known property of the exponential is that the final value is never exactly reached, but 0.632 of the remainder to that value is achieved in every characteristic time"
+    },
+    {
+      "n": 4,
+      "title": "An advanced model autopilot control system (National Research Council Canada)",
+      "url": "https://nrc-publications.canada.ca/fra/voir/td?id=b9d45f26-f67e-42fc-b367-ef85776e9836",
+      "quote": "The first-order Nomoto steering model relates the rudder angle to the heading angle, characterizing the steering of a vessel with two parameters, K and T, that vary as a function of forward speed."
+    },
+    {
+      "n": 5,
+      "title": "19.2 — Newcastle University",
+      "url": "https://www.mas.ncl.ac.uk/ask/numeracy-maths-statistics/images/First_order_odes.pdf",
+      "quote": "We have shown that for an RC circuit finding the steady state solution of the differential equation with a single frequency input voltage yields the same result for"
+    }
+  ]
+}

@@ -1,0 +1,1208 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }
+  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */
+  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax, .scene .xt { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.main { fill: var(--k-accent2); }
+  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }
+  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.muted { fill: var(--k-muted); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  /* The trace of height (or charge) against time; the rest line; the level guide from the mass. */
+  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .trace.trace2 { stroke: var(--k-accent); }
+  .scene .rest { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 5; }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 1.5 4; stroke-linecap: round; }
+  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .rider.r2 { stroke: var(--k-accent); }
+  .scene .mkr { stroke: var(--k-accent2); stroke-width: 2; }
+  /* The spring, the damper and the mass. */
+  .scene .hl { stroke: var(--k-ink); stroke-opacity: .5; stroke-width: 1.4; }
+  .scene .ceil { fill: url(#hatch); }
+  .scene .wall { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .spr { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .dmp { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .rod { stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .pis { stroke: var(--k-ink); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .mass { fill: var(--k-accent2); }
+  .scene text.mtxt { font: italic 700 15px var(--k-font); fill: var(--k-on-accent2); stroke: none; }
+  .scene .frc { fill: none; stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .accl { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .badl { fill: none; stroke: var(--k-warn); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  /* The loop: wires, coil, resistor, capacitor, switch, charge marks and current dots. */
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }
+  .scene .sign { stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .node { fill: var(--k-ink); }
+  .scene .cur { fill: var(--k-accent); }
+  /* The three terms as bars from zero, and added tip to tail. */
+  .scene .track { fill: var(--k-sunk); }
+  .scene .b1 { fill: var(--k-cat1); }
+  .scene .b2 { fill: var(--k-cat2); }
+  .scene .b3 { fill: var(--k-cat3); }
+  .scene .badbar { fill: var(--k-warn); }
+  .scene .s1, .scene .s2, .scene .s3, .scene .sbad { stroke-width: 4; stroke-linecap: round; }
+  .scene .s1 { stroke: var(--k-cat1); }
+  .scene .s2 { stroke: var(--k-cat2); }
+  .scene .s3 { stroke: var(--k-cat3); }
+  .scene .sbad { stroke: var(--k-warn); }
+  .scene .join { stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .zero { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .end { fill: var(--k-ink); }
+  .scene .end.bad { fill: var(--k-warn); }
+  /* The matching table. */
+  .scene .sep { stroke: var(--k-line); stroke-width: 1; }
+  .scene .cell { fill: var(--k-fill2); }
+  .scene .cring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  .scene #art *, .scene #top * { pointer-events: none; }
+  /* The capacitor's value: one tile. */
+  .reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; max-width: 14rem; }
+  .reads .rd { background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 10px; }
+  .reads .rd .k-label { display: block; text-transform: none; letter-spacing: 0; }
+  .reads .rd b { display: block; font-size: 1.15rem; white-space: nowrap; margin-top: 2px; }
+  .reads .rd small { display: block; color: var(--k-muted); font-size: .85rem; margin-top: 2px; white-space: nowrap; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */
+  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }
+  .picks.long { grid-template-columns: 1fr; }
+  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead" id="lead">A 1&nbsp;kg mass hangs on a 4&nbsp;N/m spring beside a 0.5&nbsp;N·s/m damper. Every value is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><line class="hl" x1="3" y1="0" x2="3" y2="6"></line></pattern></defs><g id="art"></g><g id="top"></g></svg>
+    <div class="k-controls" id="sliders"></div>
+    <div class="reads" id="ctile"><div class="rd"><span class="k-label" id="clab"></span><b id="cval"></b><small id="csub"></small></div></div>
+    <div class="k-controls" id="tbox"></div>
+    <div class="replay" id="replay"></div>
+    <div class="picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every trace, arrow and bar is worked out from the rule on its screen.</p>
+
+<script>
+  // ---------- the rule ----------
+  // A mass on a spring with a damper: m x″ + c x′ + k x = 0. A coil, resistor and capacitor in one
+  // loop: L q″ + R q′ + q ÷ C = 0. Same equation, with L for m, R for c and 1 ÷ C for k.
+  const M0 = 1, C0 = 0.5, K0 = 4, X0 = 0.5, PUSH = -1, I0 = 0.8, TEND = 10;
+  const CAP0 = Math.round(1e6 / K0) / 1e6;   // 0.25 F, so 1 ÷ C = 4
+  const Q0 = 0.5, VC0 = Q0 / CAP0;           // 0.5 C on 0.25 F is 2 V
+  const YMIN = -0.6, YMAX = 0.6;
+  const T5 = 0.5, TLOW = 4.75, TQ = 1.4;     // the marked moment, the bottom of a swing, the 'which way' moment
+  const S10 = { L: 2, R: 3, C: 0.5 };        // screen 11's loop
+  const S11 = { m: 2, k: 8, c: 0.6 };        // screen 12's spring, from 2 x″ = −8 x − 0.6 x′
+  const ILL = 'https://courses.physics.illinois.edu/phys401/fa2018/Files/RLC/E5_TransientsInRLC_20120125_v2.pdf';
+
+  // The exact solution of m x″ + c x′ + k x = 0 from x(0) = x0, x′(0) = v0: its height, speed and acceleration.
+  function solve(m, c, k, x0, v0) {
+    const al = c / (2 * m), dd = k / m - al * al;
+    if (dd > 1e-12) {
+      const w = Math.sqrt(dd), A = x0, B = (v0 + al * A) / w, P = B * w - al * A, Q = -A * w - al * B;
+      const E = (t) => Math.exp(-al * t);
+      return { w, swings: true,
+        x: (t) => E(t) * (A * Math.cos(w * t) + B * Math.sin(w * t)),
+        v: (t) => E(t) * (P * Math.cos(w * t) + Q * Math.sin(w * t)),
+        a: (t) => E(t) * ((Q * w - al * P) * Math.cos(w * t) + (-P * w - al * Q) * Math.sin(w * t)) };
+    }
+    // No setting here reaches these: heavy damping creeps back without a swing.
+    const r = Math.sqrt(Math.max(0, -dd));
+    if (r < 1e-9) {
+      const B = v0 + al * x0, E = (t) => Math.exp(-al * t);
+      return { w: 0, swings: false, x: (t) => (x0 + B * t) * E(t), v: (t) => (B - al * (x0 + B * t)) * E(t), a: (t) => (-2 * al * B + al * al * (x0 + B * t)) * E(t) };
+    }
+    const r1 = -al + r, r2 = -al - r, A = (v0 - r2 * x0) / (r1 - r2), B = x0 - A;
+    return { w: 0, swings: false, x: (t) => A * Math.exp(r1 * t) + B * Math.exp(r2 * t), v: (t) => r1 * A * Math.exp(r1 * t) + r2 * B * Math.exp(r2 * t),
+      a: (t) => r1 * r1 * A * Math.exp(r1 * t) + r2 * r2 * B * Math.exp(r2 * t) };
+  }
+  const memo = {};
+  function sol(m, c, k, x0, v0) { const key = [m, c, k, x0, v0].join('|'); return memo[key] || (memo[key] = solve(m, c, k, x0, v0)); }
+  const SYS = { m: M0, c: C0, k: K0, x0: X0, v0: 0 };      // lifted 0.5 m and let go from rest (or 0.5 C on the capacitor)
+  const SYSP = { m: M0, c: C0, k: K0, x0: X0, v0: PUSH };  // the same, with a 1 m/s push downward
+  const SYSE = { m: M0, c: C0, k: K0, x0: 0, v0: I0 };     // the loop with an empty capacitor and 0.8 A in the coil
+  const solOf = (y) => sol(y.m, y.c, y.k, y.x0, y.v0);
+  // The three terms at time t: inertia m x″, loss c x′, store k x (newtons, or volts for the loop).
+  const termsAt = (y, t) => { const s = solOf(y); return { I: y.m * s.a(t), Lo: y.c * s.v(t), S: y.k * s.x(t) }; };
+  let P = { m: M0, c: C0, k: K0, t: T5 };
+  const sysNow = () => ({ m: P.m, c: P.c, k: P.k, x0: X0, v0: 0 });
+
+  // ---------- numbers, written the lesson's way ----------
+  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s);
+  function fmtD(v, dp) {
+    const m = Math.pow(10, dp), r = Math.round(v * m) / m;
+    if (r === 0) return '0';
+    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));
+  }
+  const f2 = (v) => fmtD(v, 2), f3 = (v) => fmtD(v, 3);
+  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\*/g, '');
+  // As a screen reader says it.
+  const say = (s) => plain(s).replace(/″/g, ' double prime').replace(/′/g, ' prime').replace(/N·s\/m/g, ' newton seconds per metre')
+    .replace(/N\/m/g, ' newtons per metre').replace(/m\/s²/g, ' metres per second squared').replace(/Ω/g, ' ohms').replace(/÷/g, ' divided by ')
+    .replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/·/g, ', ').replace(/\s+/g, ' ').trim();
+  const vals = (m, c, k) => '`m` = ' + f2(m) + ' kg · `c` = ' + f2(c) + ' N·s/m · `k` = ' + f2(k) + ' N/m';
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // scene: 'spring' (the mass beside its trace), 'circ' (the loop under its trace), 'both' (the mass
+  // beside the trace, the loop under it), 'bars' (the mass, its trace and the three terms), 'pair' (the
+  // two side by side over a table matching their terms). rules: the equations under the picture;
+  // key: the key's items; work: lines of working under it; draw(st, d): the picture in that state.
+  // A SHOW step's timetable is in its draw, in seconds from when the screen opens.
+  const PICK = 'Tap one of the answers.';
+  const FB = 2.0;   // how long the motion after an answer plays
+  const SOFT = 0.6;
+  const LEAD_S = 'A 1 kg mass hangs on a 4 N/m spring beside a 0.5 N·s/m damper. Every value is an example.';
+  const LEAD_C = 'A 1 H coil, a 0.5 Ω resistor and a 0.25 F capacitor sit in one loop. Every value is an example.';
+  const LEAD_B = 'A mass, spring and damper beside a coil, resistor and capacitor in one loop. Every value is an example.';
+  const STEPS = [
+    { show: true, name: 'The spring', scene: 'spring', rules: ['spring'], key: ['trace', 'rest', 'level'], dur: 4.6, lead: LEAD_S, tag: () => vals(M0, C0, K0),
+      text: 'A 1 kg mass hangs on a spring, beside a damper. It is lifted 0.5 m above rest and let go. The spring pulls it back towards rest, in proportion to its height `x`. The damper drags against its motion, in proportion to its speed. Its height draws a trace against time. Newton\'s second law gives `m x″ = −k x − c x′`. Here `x′` is the speed and `x″` the acceleration. Moved to one side, that is `m x″ + c x′ + k x = 0`.',
+      draw() {
+        const s = solOf(SYS), tm = simT(0.9, 3.6), x = s.x(tm);
+        restLine();
+        if (tm > 0) trace(s.x, 0, tm);
+        rider(tm, x);
+        springCol(x);
+        forces({ pull: -K0 * x, drag: -C0 * s.v(tm), a: vis(0.4) });
+        level(tm, x);
+        said.push('The mass rises and falls on its spring, level with the newest point of its trace. Each swing is smaller than the last.');
+      } },
+    { kind: 'pick', name: 'Let go', scene: 'spring', rules: ['spring'], key: ['trace', 'rest'], work: 3, lead: LEAD_S, tag: () => vals(M0, C0, K0),
+      task: 'At the moment it is let go, the mass is still. What is its acceleration?',
+      opts: ['2 m/s² down', 'none, it is still', '2 m/s² up'], want: '2 m/s² down',
+      why: 'It is still, so the damper\'s drag is 0. The spring pulls with 4 × 0.5 = 2 N, back towards rest. So `m x″` = −2 N. With 1 kg, that makes `x″` = −2 m/s², downward. It speeds up even though its speed is zero.',
+      hint: 'Not quite. Work out the spring\'s pull at 0.5 m first.',
+      hints: { 'none, it is still': 'Not quite. It has no speed yet, but the spring already pulls on it.', '2 m/s² up': 'Not quite. The spring pulls it back towards rest, which is downward.' },
+      draw(st) {
+        const r = RW(st), x = X0, pull = -K0 * x, acc = pull / M0;
+        restLine();
+        rider(0, x);
+        const cy = springCol(x);
+        forces({ pull, drag: 0, a: 1 });
+        if (r.ok) {
+          REC.answer = true; REC.acc = acc;
+          const g = arr(0.1, 0.5), y0 = cy + MH / 2, y1 = y0 - acc * NPX * g;
+          part(g, 0, () => { varrow(48, y0, y1, 'accl'); label(48, y0 - acc * NPX + 16, '`x″`', 'lab main', 'middle'); });
+          workLines([{ s: 'pull: ' + f2(K0) + ' × ' + f2(x) + ' = ' + f2(-pull) + ' N, towards rest', a: vis(0.3) },
+            { s: 'drag: 0, since it is still', a: vis(0.7) },
+            { s: f2(M0) + ' × `x″` = ' + f2(pull) + ' N, so `x″` = ' + f2(acc) + ' m/s²', a: vis(1.1) }]);
+        } else if (r.w === 'none, it is still') {
+          REC.bad++;
+          part(vis(0.1), 0, () => add(K.svg('rect', { class: 'ring', x: MX0 - 6, y: r2(cy - MH / 2 - 6), width: MX1 - MX0 + 12, height: MH + 12, rx: 8 })));
+          workLines([{ s: 'no speed yet, but the spring still pulls', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const y0 = cy - MH / 2, g = arr(0.1, 0.5);
+          part(g, 0, () => { varrow(48, y0, y0 - 2 * NPX * g, 'badl'); });
+          workLines([{ s: 'the pull points back towards rest', bad: true, a: vis(0.5) }]);
+        }
+      } },
+    { show: true, name: 'The circuit', scene: 'circ', rules: ['circ'], key: ['trace', 'current'], dur: 4.6, lead: LEAD_C,
+      text: 'Now a loop holds a 1 H coil, a 0.5 Ω resistor and a 0.25 F capacitor. The capacitor starts with 0.5 C on it, which is 2 V. The switch closes and current flows. With no supply, the volts round the loop add to zero. The coil drops `L q″`, the resistor `R q′` and the capacitor `q ÷ C`. Here `q′` is the current. So `L q″ + R q′ + q ÷ C = 0`, and the charge traces the same kind of curve.',
+      draw() {
+        const s = solOf(SYS), sw = arr(0.5, 0.4), tm = simT(0.9, 3.6), q = s.x(tm);
+        if (tm > 0) trace(s.x, 0, tm);
+        rider(tm, q);
+        circuitBand({ q, closed: sw, dots: true, L: M0, R: C0, C: CAP0 });
+        said.push('The switch closes. Current flows round the loop, back and forth, and the charge on the capacitor traces a swing that dies away.');
+      } },
+    { kind: 'pick', name: 'A stiffer spring', scene: 'pair', work: 2, lead: LEAD_B,
+      task: 'Which capacitor matches a stiffer spring?',
+      opts: ['a smaller C', 'a bigger C', 'the same C, more R'], want: 'a smaller C',
+      why: 'In the two rules, `k` sits where `1 ÷ C` sits. A stiffer spring has a bigger `k`, so it needs a bigger `1 ÷ C`. That means a smaller `C`. A smaller capacitor gives more volts for the same charge, so it pushes back harder.',
+      hint: 'Not quite. Find the term that sits where `k x` sits.',
+      hints: { 'a bigger C': 'Not quite. `k` goes with `1 ÷ C`, not with `C`.', 'the same C, more R': 'Not quite. `R` plays the damper, not the spring.' },
+      draw(st) {
+        const r = RW(st), K2 = 8, g = r.ok ? arr(0.1, 0.8) : 0;
+        if (r.ok) REC.answer = true;
+        if (r.w) REC.bad++;
+        pairScene({ sw: 2 + 1.4 * g, ph: 20 - 6 * g,
+          sv: [{ s: f2(M0) + ' kg' }, { s: f2(C0) + ' N·s/m' }, { s: f2(K0) + ' N/m', s2: f2(K2) + ' N/m', g, hl: g > 0 }],
+          cv: [{ s: f2(M0) + ' H' }, { s: f2(C0) + ' Ω', ring: r.w === 'the same C, more R' },
+            { s: '`C` = ' + f3(1 / K0) + ' F', s2: '`C` = ' + f3(1 / K2) + ' F', g, hl: g > 0, ring: r.w === 'a bigger C' }] });
+        REC.table = { k: K2, C: 1 / K2 };
+        if (r.ok) workLines([{ s: '`k` = ' + f2(K2) + ' N/m goes with 1 ÷ `C` = ' + f2(K2), a: vis(0.6) }, { s: 'so `C` = 1 ÷ ' + f2(K2) + ' = ' + f3(1 / K2) + ' F', a: vis(1.0) }]);
+        else if (r.w === 'a bigger C') workLines([{ s: '`k` sits where 1 ÷ `C` sits, not `C`', bad: true, a: vis(0.4) }]);
+        else if (r.w) workLines([{ s: '`R` plays the damper, not the spring', bad: true, a: vis(0.4) }]);
+      } },
+    { show: true, name: 'Side by side', scene: 'both', rules: ['eqs'], key: ['trace', 'rest', 'level', 'current'], dur: 4.6, sliders: true, lead: LEAD_B, tag: () => vals(P.m, P.c, P.k),
+      text: 'Here they are side by side, with one trace for both. Each slider carries two names. The mass goes with the coil\'s `L`. The *damping* `c` goes with `R`. The *stiffness* `k` goes with `1 ÷ C`. Set them, then press Let go to release both at once. The mass\'s height in metres and the charge in coulombs follow one curve, whatever the settings.',
+      read: 'Here they are side by side, with one trace for both. Each slider carries two names. The mass goes with the coil\'s `L`. The *damping* `c` goes with `R`. The *stiffness* `k` goes with `1 ÷ C`. Both are released at once. The mass\'s height in metres and the charge in coulombs follow one curve, whatever the settings.',
+      draw() {
+        const y = sysNow(), s = solOf(y), sw = arr(0.5, 0.4), tm = simT(0.9, 3.6), x = s.x(tm);
+        restLine();
+        if (tm > 0) trace(s.x, 0, tm);
+        rider(tm, x);
+        springCol(x);
+        level(tm, x);
+        circuitBand({ q: x, closed: sw, dots: true, L: P.m, R: P.c, C: null });
+        said.push('The mass and the capacitor are released together. The mass\'s height and the capacitor\'s charge draw one trace.');
+      } },
+    { kind: 'pick', name: 'Which way?', scene: 'spring', key: ['trace', 'rest', 'level'], work: 1, lead: LEAD_S, tag: () => vals(M0, C0, K0),
+      task: 'While its trace runs across, which way does the mass move?',
+      opts: ['only up and down', 'along the curve', 'to the right'], want: 'only up and down',
+      why: 'The mass only moves up and down on its spring. The trace runs across because time does. Each point records the mass\'s height at one moment. So the curve is a record of height against time, not a path.',
+      hint: 'Not quite. Watch the mass itself, beside the graph.',
+      hints: { 'along the curve': 'Not quite. The curve plots height against time. The mass never follows it.', 'to the right': 'Not quite. Time runs to the right, not the mass.' },
+      draw(st) {
+        const r = RW(st), s = solOf(SYS);
+        restLine();
+        let tm = TQ;
+        if (r.ok) { REC.answer = true; tm = TQ + 3 * prog(0.2, 1.6); }
+        const x = s.x(tm);
+        trace(s.x, 0, tm);
+        rider(tm, x);
+        const cy = springCol(x);
+        level(tm, x);
+        if (r.ok) {
+          part(vis(0.2), 0, () => { dblArrow(8, G.y(X0), G.y(-X0)); label(4, G.PB + 22, 'up and down', 'lab main', 'start'); });
+          workLines([{ s: 'the trace runs across because time does', a: vis(0.6) }]);
+        } else if (r.w === 'along the curve') {
+          REC.bad++;
+          part(vis(0.1), 0, () => { add(K.svg('circle', { class: 'ring', cx: r2(G.x(tm)), cy: r2(G.y(x)), r: 11 })); label(G.x(tm) + 14, G.y(x) + 22, 'not a path', 'lab bad', 'start', [[G.x(tm) + 14, G.y(x) - 14, 'start']]); });
+          workLines([{ s: 'the mass never leaves its spring', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const g = arr(0.1, 0.5);
+          part(g, 0, () => harrow(cy - 8, MX1 + 2, MX1 + 2 + 26 * g, 'badl'));
+          workLines([{ s: 'the mass stays beside the graph', bad: true, a: vis(0.5) }]);
+        }
+      } },
+    { show: true, name: 'Three terms', scene: 'both', bars: true, key: ['trace', 'rest', 'level', 'current'], dur: 3.0, time: true, lead: LEAD_B, tag: () => vals(M0, C0, K0),
+      text: 'Each term has a job. *Inertia* resists a change in motion. *Loss* turns energy into heat. *Store* holds energy and pushes back. Each bar shows one term at the time marker, in newtons for the spring and volts for the circuit. Slide the marker along the trace. The three always add to zero. That sum is the equation itself, read at one instant.',
+      read: 'Each term has a job. *Inertia* resists a change in motion. *Loss* turns energy into heat. *Store* holds energy and pushes back. Each bar shows one term at the time marker, in newtons for the spring and volts for the circuit. At the release they read −2, 0 and 2. At 0.5 s they read −0.78, −0.37 and 1.15. The three always add to zero. That sum is the equation itself, read at one instant.',
+      still: { t: T5 },
+      draw() {
+        const s = solOf(SYS), tm = P.t * K.ease(prog(0.6, 2.0)), x = s.x(tm);
+        restLine();
+        trace(s.x, 0, TEND);
+        marker(tm);
+        rider(tm, x);
+        springCol(x);
+        level(tm, x);
+        circuitBand({ q: x, closed: 1, dots: true, L: M0, R: C0, C: CAP0 });
+        const b = termsAt(SYS, tm);
+        bars(b, {});
+        said.push('At ' + say(f2(tm)) + ' seconds the bars read ' + say(f2(b.I)) + ', ' + say(f2(b.Lo)) + ' and ' + say(f2(b.S)) + '. Added tip to tail, they come back to 0.');
+      } },
+    { kind: 'pick', name: 'The hidden bar', scene: 'bars', key: ['trace', 'rest', 'level'], work: 1, lead: LEAD_B, tag: () => vals(M0, C0, K0),
+      task: 'At 0.5 s the loss bar reads −0.37 N and the store bar 1.15 N. What does the inertia bar read?',
+      opts: ['−0.78 N', '0.78 N', '−1.52 N'], want: '−0.78 N',
+      why: 'The three terms add to zero at every moment. Store plus loss is 1.15 − 0.37 = 0.78 N. So inertia must be −0.78 N. It is negative because the spring\'s pull downward is bigger than the damper\'s drag upward.',
+      hint: 'Not quite. The three bars must add to zero.',
+      hints: { '0.78 N': 'Not quite. Check the sign. The three must add to zero.', '−1.52 N': 'Not quite. The loss is −0.37 N. Keep its minus sign.' },
+      draw(st) {
+        const r = RW(st), s = solOf(SYS), b = termsAt(SYS, T5), x = s.x(T5);
+        restLine(); trace(s.x, 0, TEND); marker(T5); rider(T5, x); springCol(x); level(T5, x);
+        if (r.ok) {
+          REC.answer = true;
+          bars(b, { grow: { I: arr(0.1, 0.5) }, sum: arr(0.6, 0.8) });
+          workLines([{ s: f2(b.S) + ' − ' + f2(-b.Lo) + ' − ' + f2(-b.I) + ' = 0', a: vis(1.0) }]);
+        } else if (r.w === '0.78 N') {
+          REC.bad++;
+          bars({ I: -b.I, Lo: b.Lo, S: b.S }, { bad: { I: 1 }, grow: { I: arr(0.1, 0.5) }, sum: arr(0.6, 0.8), sumBad: true });
+          workLines([{ s: f2(b.S) + ' − ' + f2(-b.Lo) + ' + ' + f2(-b.I) + ' is not 0', bad: true, a: vis(1.0) }]);
+        } else if (r.w) {
+          REC.bad++;
+          bars({ I: -(b.S - b.Lo), Lo: b.Lo, S: b.S }, { bad: { I: 1 }, grow: { I: arr(0.1, 0.5) }, sum: arr(0.6, 0.8), sumBad: true });
+          workLines([{ s: 'the loss is ' + f2(b.Lo) + ' N, so keep its sign', bad: true, a: vis(1.0) }]);
+        } else bars(b, { hide: { I: 1 }, sum: 0 });
+      } },
+    { show: true, name: 'Two starts', scene: 'spring', key: ['atrest', 'pushed', 'rest', 'level'], dur: 4.6, lead: LEAD_S, tag: () => vals(M0, C0, K0),
+      text: 'The mass is let go twice from 0.5 m. Once it starts at rest. Once it starts with a push of 1 m/s downward. The two traces part at once. The rule gives the acceleration from the height and the speed. So a *second-order* equation needs two starting values, the height and the speed. In the circuit, those are the capacitor\'s charge and the coil\'s current.',
+      draw() {
+        const a = solOf(SYS), b = solOf(SYSP), tm = simT(0.9, 3.6), xb = b.x(tm);
+        restLine();
+        if (tm > 0) { trace(a.x, 0, tm, 'trace trace2'); trace(b.x, 0, tm, 'trace'); }
+        rider(tm, a.x(tm), 'r2');
+        rider(tm, xb);
+        const cy = springCol(xb);
+        level(tm, xb);
+        // The push: the mass's starting speed, an arrow on it until it is let go.
+        note(0.9, 0.4);
+        const pa = vis(0.4) * (1 - K.clamp((TM - 0.9) / 0.4, 0, 1)), y0 = cy + MH / 2, L = -PUSH * 40;
+        if (pa > 0) part(pa, 0, () => { varrow(48, y0, y0 + L, 'accl'); label(48, y0 + L + 16, f2(-PUSH) + ' m/s', 'lab main', 'middle'); });
+        REC.push = -PUSH;
+        said.push('Two traces start from the same height. The one let go at rest starts flat. The one pushed down starts falling, and the two never match again.');
+      } },
+    { kind: 'pick', name: 'An empty capacitor', scene: 'circ', key: ['trace', 'current'], work: 2, lead: LEAD_C,
+      task: 'Now the capacitor starts empty, with 0.8 A flowing in the coil. What happens next?',
+      opts: ['The coil keeps the current flowing, so charge builds', 'Nothing happens, because the capacitor is empty', 'The current stops at once'],
+      want: 'The coil keeps the current flowing, so charge builds',
+      why: 'A coil fights any change in its current, as a mass fights a change in its speed. So the 0.8 A keeps flowing at first, and charge builds on the capacitor. That charge pushes back and slows the current. Then the loop swings, like a mass pushed from its rest point.',
+      hint: 'Not quite. Think of the coil as the mass.',
+      hints: { 'Nothing happens, because the capacitor is empty': 'Not quite. The current is already flowing, like a mass already moving.', 'The current stops at once': 'Not quite. A coil fights any change in its current.' },
+      draw(st) {
+        const r = RW(st), s = solOf(SYSE);
+        let tm = 0;
+        if (r.ok) { REC.answer = true; tm = TEND * prog(0.2, 1.6); }
+        if (tm > 0) trace(s.x, 0, tm);
+        rider(tm, s.x(tm));
+        circuitBand({ q: s.x(tm), closed: 1, dots: true, L: M0, R: C0, C: CAP0, amps: f2(I0) + ' A' });
+        if (r.ok) {
+          workLines([{ s: 'the coil keeps the ' + f2(I0) + ' A flowing at first', a: vis(0.4) }, { s: 'charge builds, then pushes back', a: vis(1.0) }]);
+        } else if (r.w) {
+          REC.bad++;
+          const g = arr(0.1, 0.8);
+          part(1, 0, () => { line('badl', G.x(0), G.y(0), G.x(TEND * g), G.y(0)); addObst(G.x(0), G.y(0), G.x(TEND * g), G.y(0)); });
+          if (r.w === 'Nothing happens, because the capacitor is empty') workLines([{ s: f2(I0) + ' A is already flowing', bad: true, a: vis(0.6) }]);
+          else workLines([{ s: 'a coil fights a sudden change in current', bad: true, a: vis(0.6) }]);
+        }
+      } },
+    { kind: 'pick', name: 'Match the spring', scene: 'pair', work: 1, lead: LEAD_B,
+      task: 'A loop holds a 2 H coil, a 3 Ω resistor and a 0.5 F capacitor. Which spring matches it?',
+      opts: ['2 kg, 3 N·s/m, 2 N/m', '2 kg, 3 N·s/m, 0.5 N/m', '0.5 kg, 3 N·s/m, 2 N/m'], want: '2 kg, 3 N·s/m, 2 N/m',
+      why: 'Match each part in turn. The mass goes with `L`, so 2 kg. The damping goes with `R`, so 3 N·s/m. The stiffness goes with `1 ÷ C`, which is 1 ÷ 0.5 = 2 N/m.',
+      hint: 'Not quite. Match each part in turn.',
+      hints: { '2 kg, 3 N·s/m, 0.5 N/m': 'Not quite. The stiffness goes with `1 ÷ C`, not with `C`.', '0.5 kg, 3 N·s/m, 2 N/m': 'Not quite. The mass goes with `L` itself, which is 2 H.' },
+      draw(st) {
+        const r = RW(st), k = 1 / S10.C, q = '?';
+        const cv = [{ s: f2(S10.L) + ' H' }, { s: f2(S10.R) + ' Ω' }, { s: '`C` = ' + f2(S10.C) + ' F' }];
+        let sv = [{ s: q, muted: true }, { s: q, muted: true }, { s: q, muted: true }];
+        if (r.ok) {
+          REC.answer = true;
+          sv = [{ s: f2(S10.L) + ' kg', a: vis(0.2), hl: true }, { s: f2(S10.R) + ' N·s/m', a: vis(0.5), hl: true }, { s: f2(k) + ' N/m', a: vis(0.8), hl: true }];
+        } else if (r.w === '2 kg, 3 N·s/m, 0.5 N/m') {
+          REC.bad++;
+          sv = [{ s: f2(S10.L) + ' kg' }, { s: f2(S10.R) + ' N·s/m' }, { s: f2(S10.C) + ' N/m', bad: true, ring: true }];
+        } else if (r.w) {
+          REC.bad++;
+          sv = [{ s: f2(1 / S10.L) + ' kg', bad: true, ring: true }, { s: f2(S10.R) + ' N·s/m' }, { s: f2(k) + ' N/m' }];
+        }
+        pairScene({ sv, cv });
+        REC.table = { m: S10.L, c: S10.R, k };
+        if (r.ok) workLines([{ s: '`k` = 1 ÷ ' + f2(S10.C) + ' = ' + f2(k) + ' N/m', a: vis(1.0) }]);
+        else if (r.w === '2 kg, 3 N·s/m, 0.5 N/m') workLines([{ s: '`k` goes with 1 ÷ `C`, not `C`', bad: true, a: vis(0.4) }]);
+        else if (r.w) workLines([{ s: '`m` goes with `L` itself, ' + f2(S10.L) + ' H', bad: true, a: vis(0.4) }]);
+      } },
+    { kind: 'pick', name: 'From the equation', scene: 'pair', work: 2, lead: LEAD_B, tag: () => 'Rule: `2 x″ = −8 x − 0.6 x′`',
+      task: 'A spring obeys `2 x″ = −8 x − 0.6 x′`. Which capacitor matches it?',
+      opts: ['0.125 F', '8 F', '−0.125 F'], want: '0.125 F',
+      why: 'Move every term to one side first. That gives `2 x″ + 0.6 x′ + 8 x = 0`, so `k` = 8 N/m. The stiffness goes with `1 ÷ C`. So `C` = 1 ÷ 8 = 0.125 F.',
+      hint: 'Not quite. Put every term on one side, then find `k`.',
+      hints: { '8 F': 'Not quite. 8 N/m is `k`. The capacitor goes with `1 ÷ k`.', '−0.125 F': 'Not quite. Moved across, −8 `x` becomes +8 `x`.' },
+      draw(st) {
+        const r = RW(st), C = 1 / S11.k, q = '?';
+        let sv = [{ s: q, muted: true }, { s: q, muted: true }, { s: q, muted: true }];
+        let cv = [{ s: q, muted: true }, { s: q, muted: true }, { s: '`C` = ?', muted: true }];
+        if (r.ok) {
+          REC.answer = true;
+          sv = [{ s: f2(S11.m) + ' kg', a: vis(0.2), hl: true }, { s: f2(S11.c) + ' N·s/m', a: vis(0.4), hl: true }, { s: f2(S11.k) + ' N/m', a: vis(0.6), hl: true }];
+          cv = [{ s: f2(S11.m) + ' H', a: vis(0.8), hl: true }, { s: f2(S11.c) + ' Ω', a: vis(1.0), hl: true }, { s: '`C` = ' + f3(C) + ' F', a: vis(1.2), hl: true }];
+          workLines([{ s: '`' + f2(S11.m) + ' x″ + ' + f2(S11.c) + ' x′ + ' + f2(S11.k) + ' x = 0`', a: vis(0.3) }, { s: '`C` = 1 ÷ ' + f2(S11.k) + ' = ' + f3(C) + ' F', a: vis(1.0) }]);
+        } else if (r.w === '8 F') {
+          REC.bad++;
+          cv[2] = { s: '`C` = ' + f2(S11.k) + ' F', bad: true, ring: true };
+          workLines([{ s: f2(S11.k) + ' N/m is `k`, and `C` is 1 ÷ `k`', bad: true, a: vis(0.4) }]);
+        } else if (r.w) {
+          REC.bad++;
+          cv[2] = { s: '`C` = ' + f3(-C) + ' F', bad: true, ring: true };
+          workLines([{ s: 'moved across, −' + f2(S11.k) + ' `x` becomes +' + f2(S11.k) + ' `x`', bad: true, a: vis(0.4) }]);
+        }
+        pairScene({ sv, cv });
+        REC.table = { k: S11.k, C };
+      } },
+    { kind: 'pick', name: 'The bottom of a swing', scene: 'bars', key: ['trace', 'rest', 'level'], work: 2, lead: LEAD_B, tag: () => vals(M0, C0, K0),
+      task: 'Near 4.75 s the mass is still for an instant, at the bottom of a swing. The store bar reads −0.61 N. What do the other two read?',
+      opts: ['loss 0 N, inertia 0.61 N', 'loss 0.61 N, inertia 0 N', 'both −0.61 N'], want: 'loss 0 N, inertia 0.61 N',
+      why: 'Still means no speed, so the loss term is 0 N. The three terms still add to zero. So inertia is 0.61 N, upward. The spring pulls the mass back up towards rest.',
+      hint: 'Not quite. Still means no speed. Then use the zero sum.',
+      hints: { 'loss 0.61 N, inertia 0 N': 'Not quite. The loss follows the speed, and the mass is still.', 'both −0.61 N': 'Not quite. Then the three would not add to zero.' },
+      draw(st) {
+        const r = RW(st), s = solOf(SYS), b = termsAt(SYS, TLOW), x = s.x(TLOW);
+        restLine(); trace(s.x, 0, TEND); marker(TLOW); rider(TLOW, x); springCol(x); level(TLOW, x);
+        if (r.ok) {
+          REC.answer = true;
+          bars(b, { grow: { I: arr(0.1, 0.5) }, sum: arr(0.6, 0.8) });
+          workLines([{ s: 'still, so no speed and no loss', a: vis(0.3) }, { s: f2(b.I) + ' + 0 − ' + f2(-b.S) + ' = 0', a: vis(1.0) }]);
+        } else if (r.w === 'loss 0.61 N, inertia 0 N') {
+          REC.bad++;
+          bars({ I: 0, Lo: -b.S, S: b.S }, { bad: { Lo: 1 }, grow: { Lo: arr(0.1, 0.5) }, sum: 0 });
+          workLines([{ s: 'still, so no speed and no loss', bad: true, a: vis(0.5) }]);
+        } else if (r.w) {
+          REC.bad++;
+          bars({ I: b.S, Lo: b.S, S: b.S }, { bad: { I: 1, Lo: 1 }, grow: { I: arr(0.1, 0.5), Lo: arr(0.1, 0.5) }, sum: arr(0.6, 0.8), sumBad: true });
+          workLines([{ s: f2(b.S) + ' − ' + f2(-b.S) + ' − ' + f2(-b.S) + ' is not 0', bad: true, a: vis(1.0) }]);
+        } else bars(b, { hide: { I: 1, Lo: 1 }, sum: 0 });
+      } },
+  ];
+  const FINISH = 'A damped spring and a series RLC circuit obey one second-order equation, term for term. The mass plays the coil, the damping plays the resistance and the stiffness plays 1 ÷ C.';
+
+  // ---------- the layout ----------
+  const PH = 150, FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  // The column: the ceiling, the spring, the damper and the mass, with the pull and drag arrows beside it.
+  const CEIL = 28, SX = 36, DX = 62, MX0 = 24, MX1 = 72, MH = 28, AXP = 14, AXD = 86, NPX = 22;
+  // The bars: a track from −2 to 2 with its zero at BZ, 40 units a newton (or volt).
+  const BZ = 196, BK = 40, BX0 = 116, BX1 = 276;
+  const BROWS = [['I', 'Inertia', '`m x″` or `L q″`', 'b1'], ['Lo', 'Loss', '`c x′` or `R q′`', 'b2'], ['S', 'Store', '`k x` or `q ÷ C`', 'b3']];
+  // The table: three columns of terms, with + between them and = 0 at the end.
+  const TX = [118, 204, 290];
+  const DOTK = 120, SP = 20;   // the current dots move 120 units for each coulomb that flows; 20 apart
+  const RULES = {
+    spring: [['`m x″ + c x′ + k x = 0`', 'te'], ['`x` height, `x′` speed, `x″` acceleration', 'key']],
+    circ: [['`L q″ + R q′ + q ÷ C = 0`', 'te'], ['`q` charge, `q′` current, `q″` its rate of change', 'key']],
+    eqs: [['spring: `m x″ + c x′ + k x = 0`', 'te'], ['loop: `L q″ + R q′ + q ÷ C = 0`', 'te']],
+  };
+  function geoOf(d, st, rows) {
+    const sc = d.scene, g = { sc, plot: sc !== 'pair', col: sc !== 'circ', circ: sc === 'circ' || sc === 'both', bars: sc === 'bars' || !!d.bars };
+    g.PL = sc === 'circ' ? 20 : 104; g.PR = 300; g.PT = 62; g.PB = g.PT + PH;
+    g.kx = (g.PR - g.PL) / TEND; g.ky = PH / (YMAX - YMIN);
+    g.x = (t) => g.PL + t * g.kx;
+    g.y = sc === 'pair' ? (v) => 118 - v * g.ky : (v) => g.PB - (v - YMIN) * g.ky;
+    g.ytitle = sc === 'circ' ? 'charge `q` (C)' : sc === 'both' ? '`x` (m), and `q` (C)' : 'height `x` (m)';
+    let y;
+    if (g.plot) { g.keyY = g.PB + 40; y = g.keyY + 20 * (rows - 1) + 8; }
+    else { g.tabY = 200; y = g.tabY + 104; }
+    if (g.circ) { g.CT = y + 26; g.CB = g.CT + 50; y = g.CB + 46; }
+    if (g.bars) { g.BT = y + 12; y = g.BT + 158; }
+    const nr = (d.rules || []).reduce((n, k) => n + RULES[k].length, 0);
+    g.ruleY = y + 18; y += nr * 22 + (nr ? 6 : 0);
+    const working = d.show || st.res === 'right' || st.res === 'wrong';
+    g.workY = y + 20; y += (working ? d.work || 0 : 0) * 26;
+    g.H = y + 10;
+    return g;
+  }
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open.
+  function blank() { return { pick: null, res: null, why: false }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, lastKey = null, TM = Infinity;   // TM: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null, G = null, said = [], placed = [], obst = [], queue = [];
+
+  // ---------- words with amber key terms and italic letters (K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xqmckLRCti](?![A-Za-z]))/;
+  function ital(parent, s, svg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2 === 0) { parent.appendChild(document.createTextNode(p)); return; }
+      const sp = svg ? K.svg('tspan', { class: 'v', 'font-style': 'italic' }) : K.el('span', { class: 'v' });
+      sp.textContent = p;
+      parent.appendChild(sp);
+    });
+  }
+  // No line break inside a quantity: a number keeps its unit, and ÷ or × keeps both its sides.
+  const nb = (s) => String(s == null ? '' : s).replace(/(\d) (?=(?:kg|N·s\/m|N\/m|m\/s²|N|m|s|H|Ω|F|C|V|A)(?![A-Za-z]))/g, '$1 ').replace(/(\S) ([÷×]) (?=\S)/g, '$1 $2 ');
+  function write(el, s) {
+    el.textContent = '';
+    s = nb(s);
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { ital(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  function svgWords(t, s) {
+    String(s).split('`').forEach((seg, k) => { if (seg) { if (k % 2) ital(t, seg, true); else t.appendChild(document.createTextNode(seg)); } });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  // The side-by-side screen's three sliders, each with two names; the time marker's slider.
+  K.control({ id: 'm', label: 'Mass m, and coil L', min: 0.5, max: 2, step: 0.1, value: M0, fmt: (v) => nb(f2(v) + ' kg, ' + f2(v) + ' H'), into: '#sliders' });
+  K.control({ id: 'c', label: 'Damping c, and resistor R', min: 0.25, max: 1.25, step: 0.05, value: C0, fmt: (v) => nb(f2(v) + ' N·s/m, ' + f2(v) + ' Ω'), into: '#sliders' });
+  K.control({ id: 'k', label: 'Stiffness k, and 1 ÷ C', min: 1, max: 8, step: 0.5, value: K0, fmt: (v) => nb(f2(v) + ' N/m, ' + f2(v) + ' per F'), into: '#sliders' });
+  K.control({ id: 't', label: 'Time marker', min: 0, max: TEND, step: 0.05, value: T5, snap: [T5, TLOW], fmt: (v) => nb(f2(v) + ' s'), into: '#tbox' });
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); TM = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Play again on a demonstration; on the side-by-side screen it is Let go, which releases both.
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    TM += dt;
+    paint();
+    return TM < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; TM = 0; anim.play();
+  }
+  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top');
+  let into = null, curA = 1;
+  const add = (node) => (into || art).appendChild(node);
+  // The timetable: how far a part due at t0 has arrived, noting it for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? SOFT : d; note(t0, d); return K.arrive(TM, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t, SOFT));
+  // An even pace from t0 for dur seconds, 0 to 1; and the model's time for a motion that runs then.
+  function prog(t0, dur) { note(t0, dur); return K.clamp((TM - t0) / dur, 0, 1); }
+  const simT = (t0, dur) => TEND * prog(t0, dur);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into, keepA = curA;
+    into = g; curA = a * keepA;
+    draw();
+    into = keep; curA = keepA;
+  }
+  const r2 = (v) => Math.round(v * 100) / 100;
+  // Lines and curves the labels keep clear of, as points every 3 units.
+  function addObst(x1, y1, x2, y2) {
+    const n = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3));
+    for (let k = 0; k <= n; k++) obst.push([x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n]);
+  }
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });
+    svgWords(t, s);
+    REC.texts.push(plain(s));
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));
+    svgWords(t, s);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return plain(s).length * 7.4;
+  }
+  // A label, painted above the drawing once everything else is down. It takes the first of its
+  // places that is clear of other words and of the lines and curves; failing that, it moves up or
+  // down a line from the first.
+  function label(x, y, s, cls, anchor, alts) { queue.push({ x, y, s, cls, anchor, alts: alts || [], a: curA }); }
+  function placeLabel(q) {
+    const w = tw(q.s, q.cls);
+    const leftOf = (xx, an) => K.clamp(an === 'end' ? xx - w : an === 'middle' ? xx - w / 2 : xx, 4, 336 - w);
+    const box = (lx, yv) => ({ x: lx - 2, y: yv - 12, w: w + 4, h: 15 });
+    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h) ||
+      obst.some((o) => o[0] > b.x && o[0] < b.x + b.w && o[1] > b.y && o[1] < b.y + b.h);
+    const cands = [[q.x, q.y, q.anchor]].concat(q.alts);
+    let pos = null;
+    for (const c of cands) { const lx = leftOf(c[0], c[2] || q.anchor); if (!hits(box(lx, c[1]))) { pos = [lx, c[1]]; break; } }
+    if (!pos) {
+      const lx = leftOf(q.x, q.anchor);
+      pos = [lx, q.y];
+      for (const dy of [-17, 17, -34, 34]) { if (!hits(box(lx, q.y + dy))) { pos = [lx, q.y + dy]; break; } }
+    }
+    placed.push(box(pos[0], pos[1]));
+    const g = topG.appendChild(K.svg('g'));
+    K.fade(g, q.a);
+    const t = K.svg('text', { class: q.cls, x: r2(pos[0]), y: r2(pos[1]), 'text-anchor': 'start' });
+    svgWords(t, q.s);
+    g.appendChild(t);
+    REC.texts.push(plain(q.s));
+    said.push(say(q.s) + '.');
+  }
+  // A word that sits in a fixed place (a title, a part's name), kept clear of the labels.
+  function fixed(x, y, s, cls, anchor) {
+    const w = tw(s, cls), left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;
+    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });
+    return text(x, y, s, cls, anchor);
+  }
+  // Arrows: vertical and horizontal, with a head at the far end.
+  function varrow(x, y0, y1, cls) {
+    const L = y1 - y0;
+    if (Math.abs(L) < 3) return;
+    const hd = Math.min(7, Math.abs(L) * 0.6), s = Math.sign(L);
+    add(K.svg('path', { class: cls, d: 'M' + r2(x) + ' ' + r2(y0) + ' V' + r2(y1) + ' M' + r2(x - hd * 0.7) + ' ' + r2(y1 - s * hd) + ' L' + r2(x) + ' ' + r2(y1) + ' L' + r2(x + hd * 0.7) + ' ' + r2(y1 - s * hd) }));
+    addObst(x, y0, x, y1);
+  }
+  function harrow(y, x0, x1, cls) {
+    const L = x1 - x0;
+    if (Math.abs(L) < 3) return;
+    const hd = Math.min(7, Math.abs(L) * 0.6), s = Math.sign(L);
+    add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y) + ' H' + r2(x1) + ' M' + r2(x1 - s * hd) + ' ' + r2(y - hd * 0.7) + ' L' + r2(x1) + ' ' + r2(y) + ' L' + r2(x1 - s * hd) + ' ' + r2(y + hd * 0.7) }));
+    addObst(x0, y, x1, y);
+  }
+  function dblArrow(x, y0, y1) {
+    const hd = 6;
+    add(K.svg('path', { class: 'accl', d: 'M' + x + ' ' + r2(y0) + ' V' + r2(y1) + ' M' + (x - 4) + ' ' + r2(y0 + hd) + ' L' + x + ' ' + r2(y0) + ' L' + (x + 4) + ' ' + r2(y0 + hd) +
+      ' M' + (x - 4) + ' ' + r2(y1 - hd) + ' L' + x + ' ' + r2(y1) + ' L' + (x + 4) + ' ' + r2(y1 - hd) }));
+    addObst(x, y0, x, y1);
+    REC.updown = true;
+  }
+
+  // The trace: v = f(t) from t0 to t1, as height (or charge) against time.
+  function trace(f, t0, t1, cls) {
+    if (t1 <= t0 + 1e-9) return null;
+    const n = Math.max(2, Math.ceil((t1 - t0) / TEND * 240));
+    let d = '';
+    for (let j = 0; j <= n; j++) {
+      const t = t0 + (t1 - t0) * j / n, X = G.x(t), Y = G.y(K.clamp(f(t), YMIN, YMAX));
+      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);
+      if (j % 2 === 0) obst.push([X, Y]);
+    }
+    add(K.svg('path', { class: cls || 'trace', d }));
+    REC.traces.push({ f, t0, t1, cls: cls || 'trace' });
+    return [t1, f(t1)];
+  }
+  // The newest point of a trace.
+  function rider(t, v, cls) {
+    add(K.svg('circle', { class: 'rider' + (cls ? ' ' + cls : ''), cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5.5 }));
+    REC.heads.push({ t, v, y: G.y(v), cls: cls || '' });
+  }
+  function restLine() {
+    const y = G.y(0);
+    if (G.col) {
+      line('rest', 4, y, MX0 - 3, y); line('rest', MX1 + 3, y, G.PR, y);
+      addObst(4, y, MX0 - 3, y); addObst(MX1 + 3, y, G.PR, y);
+    } else { line('rest', G.PL, y, G.PR, y); addObst(G.PL, y, G.PR, y); }
+  }
+  // A dotted guide from the mass to the trace's newest point: the two are always level.
+  function level(t, v) {
+    const y = G.y(v);
+    line('lvl', MX1 + 3, y, G.x(t) - 8, y);
+    addObst(MX1 + 3, y, G.x(t) - 8, y);
+    REC.level = y;
+  }
+  function marker(t) {
+    const x = G.x(t);
+    line('mkr', x, G.PT, x, G.PB); addObst(x, G.PT, x, G.PB);
+    label(x + 6, G.PT + 14, '`t` = ' + f2(t) + ' s', 'lab main', 'start', [[x - 6, G.PT + 14, 'end']]);
+    REC.marker = t;
+  }
+
+  // The column: the ceiling, the spring and the damper hung from it, and the mass at height xm.
+  // The mass moves only up and down; its centre is level with xm on the trace beside it.
+  function springCol(xm, o) {
+    o = o || {};
+    const cy = G.y(xm), top = cy - MH / 2;
+    add(K.svg('rect', { class: 'ceil', x: 6, y: CEIL - 7, width: 78, height: 7 }));
+    line('wall', 6, CEIL, 84, CEIL);
+    placed.push({ x: 6, y: CEIL - 8, w: 78, h: 9 });
+    // The spring: a zigzag that stretches with the height.
+    const lead = 5, n = 10, y0 = CEIL + lead, y1 = top - lead, amp = 7;
+    let d = 'M' + SX + ' ' + CEIL + ' V' + r2(y0);
+    for (let j = 1; j < n; j++) d += ' L' + (SX + (j % 2 ? amp : -amp)) + ' ' + r2(y0 + (y1 - y0) * j / n);
+    d += ' L' + SX + ' ' + r2(y1) + ' V' + r2(top);
+    const attrs = { class: 'spr', d };
+    if (o.sw) attrs.style = 'stroke-width:' + r2(o.sw) + 'px';
+    add(K.svg('path', attrs));
+    addObst(SX - amp, CEIL, SX - amp, top); addObst(SX + amp, CEIL, SX + amp, top);
+    // The damper: a cylinder hung from the ceiling, its piston on a rod from the mass.
+    add(K.svg('rect', { class: 'dmp', x: DX - 7, y: CEIL, width: 14, height: 24, rx: 2 }));
+    const py = CEIL + 5 + 15 * K.clamp((top - 46) / 152, 0, 1);
+    line('rod', DX, py, DX, top);
+    line('pis', DX - 4.5, py, DX + 4.5, py);
+    addObst(DX - 7, CEIL, DX - 7, CEIL + 24); addObst(DX + 7, CEIL, DX + 7, CEIL + 24); addObst(DX, py, DX, top);
+    // The mass.
+    add(K.svg('rect', { class: 'mass', x: MX0, y: r2(top), width: MX1 - MX0, height: MH, rx: 4 }));
+    const mt = add(K.svg('text', { class: 'mtxt', x: (MX0 + MX1) / 2, y: r2(cy + 5), 'text-anchor': 'middle' }));
+    svgWords(mt, '`m`');
+    placed.push({ x: MX0, y: top, w: MX1 - MX0, h: MH });
+    label(SX - 11, (CEIL + top) / 2 + 5, '`k`', 'lab', 'end', [[SX + 11, (CEIL + top) / 2 + 5, 'start']]);
+    label(DX + 11, CEIL + 17, '`c`', 'lab', 'start');
+    REC.mass = { x0: MX0, x1: MX1, cy, xm };
+    return cy;
+  }
+  // The spring's pull and the damper's drag, in newtons (upward positive), as arrows from the mass.
+  function forces(F) {
+    const cy = REC.mass.cy;
+    [[AXP, F.pull, 'pull'], [AXD, F.drag, 'drag']].forEach(([x, f, name]) => {
+      const L = -f * NPX;
+      REC.arrows.push({ name, f, len: Math.abs(L) });
+      if (Math.abs(L) < 3 || F.a <= 0) return;
+      part(F.a, 0, () => {
+        varrow(x, cy, cy + L, 'frc');
+        const la = K.clamp((Math.abs(L) - 4) / 6, 0, 1);
+        part(la, 0, () => label(x, L > 0 ? cy + L + 15 : cy + L - 6, name, 'lab', 'middle', [[x, L > 0 ? cy - 8 : cy + 20, 'middle']]));
+      });
+    });
+  }
+
+  // The loop: the switch on the left side, the coil and the resistor along the top, the capacitor
+  // on the bottom. q is the charge on its left plate; the dots move as the charge flows.
+  function sign(x, y, plus) {
+    line('sign', x - 3, y, x + 3, y);
+    if (plus) line('sign', x, y - 3, x, y + 3);
+  }
+  function circuit(o) {
+    const x0 = o.x0, x1 = o.x1, top = o.top, bot = o.bot, W = x1 - x0, h = bot - top, xc = x0 + W / 2;
+    const c0 = x0 + 0.13 * W, c1 = x0 + 0.40 * W, rr0 = x0 + 0.58 * W, rr1 = x0 + 0.80 * W;
+    const s0 = top + 0.3 * h, s1 = top + 0.78 * h, ph = o.ph || 20;
+    const wire = (d) => add(K.svg('path', { class: 'wire', d }));
+    wire('M' + r2(xc - 5) + ' ' + bot + ' H' + x0 + ' V' + r2(s1));
+    wire('M' + x0 + ' ' + r2(s0) + ' V' + top + ' H' + r2(c0));
+    wire('M' + r2(c1) + ' ' + top + ' H' + r2(rr0));
+    wire('M' + r2(rr1) + ' ' + top + ' H' + x1 + ' V' + bot + ' H' + r2(xc + 5));
+    addObst(xc - 5, bot, x0, bot); addObst(x0, bot, x0, s1); addObst(x0, s0, x0, top); addObst(x0, top, x1, top); addObst(x1, top, x1, bot); addObst(x1, bot, xc + 5, bot);
+    // The coil: four turns above the wire.
+    const n = 4, hw = (c1 - c0) / n;
+    let d = 'M' + r2(c0) + ' ' + top;
+    for (let j = 0; j < n; j++) d += ' a' + r2(hw / 2) + ' ' + r2(hw / 2) + ' 0 0 1 ' + r2(hw) + ' 0';
+    wire(d);
+    addObst(c0, top - hw / 2, c1, top - hw / 2);
+    // The resistor, and the capacitor's two plates.
+    add(K.svg('rect', { class: 'res', x: r2(rr0), y: top - 7, width: r2(rr1 - rr0), height: 14 }));
+    addObst(rr0, top - 7, rr1, top - 7); addObst(rr0, top + 7, rr1, top + 7);
+    line('plate', xc - 5, bot - ph, xc - 5, bot + ph); line('plate', xc + 5, bot - ph, xc + 5, bot + ph);
+    addObst(xc - 5, bot - ph, xc - 5, bot + ph); addObst(xc + 5, bot - ph, xc + 5, bot + ph);
+    // The switch: a lever from its pivot, swinging shut.
+    const ang = (1 - K.clamp(o.closed, 0, 1)) * 0.6, len = s1 - s0;
+    line('wire', x0, s1, x0 - Math.sin(ang) * len, s1 - Math.cos(ang) * len);
+    add(K.svg('circle', { class: 'node', cx: x0, cy: r2(s0), r: 2.6 }));
+    add(K.svg('circle', { class: 'node', cx: x0, cy: r2(s1), r: 2.6 }));
+    // The charge: + marks on one plate and − marks on the other, one pair for each 0.125 C.
+    const nq = Math.min(4, Math.round(Math.abs(o.q) / 0.125)), offs = [-7, 7, -14, 14];
+    for (let j = 0; j < nq; j++) { sign(xc - 12, bot + offs[j], o.q > 0); sign(xc + 12, bot + offs[j], o.q < 0); }
+    // The current: dots along the wires, moved on by the charge that has flowed.
+    if (o.dots) {
+      const Pp = [[xc - 5, bot], [x0, bot], [x0, top], [x1, top], [x1, bot], [xc + 5, bot]], seg = [];
+      let tot = 0;
+      for (let j = 1; j < Pp.length; j++) { const L = Math.hypot(Pp[j][0] - Pp[j - 1][0], Pp[j][1] - Pp[j - 1][1]); seg.push([Pp[j - 1], Pp[j], tot, L]); tot += L; }
+      const off = ((-o.q * DOTK) % SP + SP) % SP;
+      for (let s = off + 6; s < tot - 6; s += SP) {
+        const sg = seg.find((g) => s >= g[2] && s <= g[2] + g[3]);
+        if (!sg) continue;
+        const f = (s - sg[2]) / sg[3], x = sg[0][0] + (sg[1][0] - sg[0][0]) * f, y = sg[0][1] + (sg[1][1] - sg[0][1]) * f;
+        if (Math.abs(y - top) < 0.5 && ((x > c0 - 5 && x < c1 + 5) || (x > rr0 - 5 && x < rr1 + 5))) continue;
+        if (Math.abs(x - x0) < 0.5 && y > s0 - 5 && y < s1 + 5) continue;
+        if (Math.abs(y - bot) < 0.5 && Math.abs(x - xc) < 18) continue;
+        add(K.svg('circle', { class: 'cur', cx: r2(x), cy: r2(y), r: 2.8 }));
+      }
+      REC.dotOff = off;
+    }
+    // A starting current: an arrow beside the coil, pointing the way it flows.
+    if (o.amps) {
+      harrow(top + 13, c1 - 4, c0 + 4, 'frc');
+      fixed((c0 + c1) / 2, top + 31, o.amps, 'lab', 'middle');
+    }
+    const lb = o.labels || {};
+    if (lb.L) fixed((c0 + c1) / 2, top - 15, lb.L, 'lab', 'middle');
+    if (lb.R) fixed((rr0 + rr1) / 2, top - 15, lb.R, 'lab', 'middle');
+    if (lb.C) fixed(xc, bot + ph + 17, lb.C, 'lab', 'middle');
+    if (lb.sw) fixed(x0 - 18, (s0 + s1) / 2 + 5, 'switch', 'lab', 'end');
+    if (lb.q) label(xc - 13, bot - ph - 4, '`q`', 'lab', 'end', [[xc + 13, bot - ph - 4, 'start']]);
+    REC.cap = { q: o.q, closed: o.closed };
+  }
+  // The loop drawn full width under the trace, each part with its value.
+  function circuitBand(o) {
+    circuit({ x0: 64, x1: 320, top: G.CT, bot: G.CB, q: o.q, closed: o.closed, dots: o.dots, amps: o.amps,
+      labels: { L: '`L` = ' + f2(o.L) + ' H', R: '`R` = ' + f2(o.R) + ' Ω', C: o.C == null ? '`C`' : '`C` = ' + f3(o.C) + ' F', sw: true, q: true } });
+  }
+
+  // The three terms: each a bar from zero, then all three added tip to tail.
+  function barRect(v, y, cls) {
+    const w = Math.abs(v) * BK;
+    if (w < 0.5) return;
+    add(K.svg('rect', { class: cls, x: r2(v < 0 ? BZ - w : BZ), y: r2(y), width: r2(w), height: 14, rx: 2 }));
+  }
+  function bars(v, o) {
+    o = o || {};
+    const y0 = G.BT, R = { I: v.I, Lo: v.Lo, S: v.S, shown: {} };
+    text(BX0, y0 + 4, '−2', 'tk', 'middle'); text(BZ, y0 + 4, '0', 'tk', 'middle'); text(BX1, y0 + 4, '2', 'tk', 'middle');
+    text(336, y0 + 4, 'N or V', 'tk', 'end');
+    line('zero', BZ, y0 + 12, BZ, y0 + 150);
+    BROWS.forEach(([key, name, terms, cls], j) => {
+      const y = y0 + 30 + 34 * j, hid = !!(o.hide && o.hide[key]), bad = !!(o.bad && o.bad[key]);
+      text(4, y + 4, name, 'lab', 'start'); text(4, y + 20, terms, 'key', 'start');
+      add(K.svg('rect', { class: 'track', x: BX0, y: y - 4, width: BX1 - BX0, height: 14, rx: 3 }));
+      const g = o.grow && o.grow[key] != null ? o.grow[key] : 1;
+      if (!hid && g > 0) barRect(v[key] * g, y - 4, bad ? 'badbar' : cls);
+      const s = hid ? '?' : f2(v[key]);
+      if (hid) text(284, y + 8, s, 'te muted', 'start');
+      else part(g, 0, () => text(284, y + 8, s, 'te' + (bad ? ' bad' : ''), 'start'));
+      R.shown[key] = hid ? null : s;
+    });
+    const ya = y0 + 132, sa = o.sum == null ? 1 : o.sum;
+    text(4, ya + 4, 'Added', 'lab', 'start'); text(4, ya + 20, 'tip to tail', 'key', 'start');
+    R.end = null; R.sumText = null;
+    if (sa > 0) {
+      part(sa, 0, () => {
+        let x = BZ;
+        BROWS.forEach(([key, , , cls], j) => {
+          const bad = !!(o.bad && o.bad[key]), x2 = x + v[key] * BK, yy = ya - 6 + 6 * j;
+          if (j) line('join', x, yy - 6, x, yy);
+          if (Math.abs(x2 - x) > 0.5) line(bad ? 'sbad' : cls.replace('b', 's'), x, yy, x2, yy);
+          x = x2;
+        });
+        add(K.svg('circle', { class: o.sumBad ? 'end bad' : 'end', cx: r2(x), cy: ya + 6, r: 4 }));
+        if (o.sumBad) add(K.svg('circle', { class: 'ring', cx: r2(x), cy: ya + 6, r: 10 }));
+        R.sumText = o.sumBad ? 'not 0' : f2(v.I + v.Lo + v.S);
+        text(284, ya + 8, R.sumText, 'te' + (o.sumBad ? ' bad' : ''), 'start');
+        R.end = x;
+      });
+    } else text(284, ya + 8, '?', 'te muted', 'start');
+    REC.bars = R;
+  }
+
+  // The pair: the spring at rest beside the loop, and the table that matches their terms.
+  function pairScene(o) {
+    springCol(0, { sw: o.sw });
+    circuit({ x0: 136, x1: 326, top: 52, bot: 140, q: 0, closed: 1, dots: false, ph: o.ph || 20, labels: { L: '`L`', R: '`R`', C: '`C`', sw: true } });
+    table(o.sv, o.cv);
+  }
+  function cell(x, y, c) {
+    const draw = () => {
+      const w = tw(c.s, 'lab') + 14;
+      if (c.hl) add(K.svg('rect', { class: 'cell', x: r2(x - w / 2), y: y - 14, width: r2(w), height: 19, rx: 4 }));
+      if (c.ring) add(K.svg('rect', { class: 'cring', x: r2(x - w / 2 - 3), y: y - 17, width: r2(w + 6), height: 25, rx: 6 }));
+      if (c.s2 != null && c.g > 0) {
+        if (c.g < 1) part(1 - c.g, 0, () => text(x, y, c.s, 'lab', 'middle'));
+        part(c.g, 0, () => text(x, y, c.s2, 'lab main', 'middle'));
+      } else text(x, y, c.s, 'lab' + (c.bad ? ' bad' : c.muted ? ' muted' : c.hl ? ' main' : ''), 'middle');
+    };
+    if (c.a != null) part(c.a, 0, draw); else draw();
+    REC.cells.push({ s: c.s2 != null && c.g >= 1 ? c.s2 : c.s, bad: !!c.bad, ring: !!c.ring });
+  }
+  function table(sv, cv) {
+    const y = G.tabY;
+    ['Inertia', 'Loss', 'Store'].forEach((n, j) => text(TX[j], y, n, 'ttl', 'middle'));
+    text(4, y + 26, 'Spring', 'lab', 'start'); text(4, y + 76, 'Loop', 'lab', 'start');
+    ['`m x″`', '`c x′`', '`k x`'].forEach((s, j) => text(TX[j], y + 26, s, 'te', 'middle'));
+    ['`L q″`', '`R q′`', '`q ÷ C`'].forEach((s, j) => text(TX[j], y + 76, s, 'te', 'middle'));
+    [161, 247].forEach((x) => { text(x, y + 26, '+', 'te', 'middle'); text(x, y + 76, '+', 'te', 'middle'); });
+    text(336, y + 26, '= 0', 'te', 'end'); text(336, y + 76, '= 0', 'te', 'end');
+    line('sep', 4, y + 58, 336, y + 58);
+    sv.forEach((c, j) => cell(TX[j], y + 46, c));
+    cv.forEach((c, j) => cell(TX[j], y + 96, c));
+  }
+
+  // Lines of working under the picture; the rules under it.
+  function workLines(lines) {
+    lines.forEach((w, k) => {
+      const a = w.a == null ? 1 : w.a;
+      part(a, 6, () => text(4, G.workY + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));
+      if (a >= 0.5) said.push(say(w.s) + '.');
+    });
+  }
+  function rules(d) {
+    let k = 0;
+    (d.rules || []).forEach((name) => RULES[name].forEach(([s, cls]) => { text(4, G.ruleY + 22 * k, s, cls, 'start'); said.push(say(s) + '.'); k++; }));
+  }
+  // The axes: position (or charge) up the side, its numbers on the right; time along the bottom.
+  function axes() {
+    const yt = [-0.6, -0.3, 0, 0.3, 0.6], xt = [0, 2, 4, 6, 8, 10];
+    yt.forEach((v) => { line('gl', G.PL, G.y(v), G.PR, G.y(v)); text(G.PR + 6, G.y(v) + 4.5, fmtD(v, 1), 'tk', 'start'); });
+    placed.push({ x: G.PR + 2, y: G.PT - 10, w: 36, h: G.PB - G.PT + 18 });
+    xt.forEach((t) => { line('xt', G.x(t), G.PB, G.x(t), G.PB + 4); text(G.x(t), G.PB + 19, t === TEND ? '10 s' : String(t), 'tk', 'middle'); });
+    placed.push({ x: G.PL - 12, y: G.PB + 5, w: G.PR - G.PL + 30, h: 18 });
+    line('ax', G.PL, G.PB, G.PR, G.PB);
+    line('ax', G.PL, G.PT, G.PL, G.PB);
+    fixed(G.PL, G.PT - 10, G.ytitle, 'ttl', 'start');
+  }
+  function tags(d, st) {
+    const t = typeof d.tag === 'function' ? d.tag(st) : d.tag;
+    if (t) { fixed(336, 16, t, 'tag2', 'end'); said.push(say(t) + '.'); }
+  }
+  // The key, inside the drawing, under the time axis; it wraps to a second row if it must.
+  const KEYS = {
+    trace: [(d) => (d.scene === 'circ' ? 'charge `q`' : d.scene === 'both' ? '`x` and `q`' : 'height `x`'), (x, y) => line('trace', x, y, x + 18, y)],
+    rest: [() => 'rest', (x, y) => line('rest', x, y, x + 18, y)],
+    level: [() => 'level', (x, y) => line('lvl', x, y, x + 18, y)],
+    current: [() => 'current', (x, y) => [x + 3, x + 10, x + 17].forEach((cx) => add(K.svg('circle', { class: 'cur', cx, cy: y, r: 2.8 })))],
+    atrest: [() => 'let go at rest', (x, y) => line('trace trace2', x, y, x + 18, y)],
+    pushed: [() => 'pushed down at 1 m/s', (x, y) => line('trace', x, y, x + 18, y)],
+  };
+  function keyLayout(items, d) {
+    const out = [];
+    let x = 4, row = 0;
+    items.forEach((k) => {
+      const s = KEYS[k][0](d), w = 24 + tw(s, 'key');
+      if (x + w > 336 && x > 4) { row++; x = 4; }
+      out.push({ k, s, x, row });
+      x += w + 14;
+    });
+    return { out, rows: Math.max(1, row + 1) };
+  }
+  function keyRow(lay) {
+    const y = G.keyY;
+    lay.out.forEach((o) => { const yy = y + 20 * o.row; KEYS[o.k][1](o.x, yy - 5); text(o.x + 24, yy, o.s, 'key', 'start'); placed.push({ x: o.x - 2, y: yy - 13, w: 26 + tw(o.s, 'key'), h: 17 }); });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = ''; topG.textContent = '';
+    into = null; curA = 1; placed = []; obst = []; queue = []; said = [];
+    REC = { traces: [], heads: [], arrows: [], texts: [], cells: [], bad: 0, answer: false, mass: null, cap: null, bars: null, marker: null, level: null, acc: null, updown: false, table: null, push: null };
+    const lay = keyLayout(d.scene === 'pair' ? [] : d.key || [], d);
+    G = geoOf(d, st, lay.rows);
+    tags(d, st);
+    if (G.plot) axes();
+    d.draw(st, d);
+    if (G.plot) keyRow(lay);
+    rules(d);
+    queue.forEach(placeLabel);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.round(G.H));
+    svg.setAttribute('aria-label', said.join(' '));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  write(el('clab'), 'Capacitor `C`');
+  K.update((p) => {
+    P = { m: p.m, c: p.c, k: p.k, t: p.t };
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    // A slider moved on its own screen: show the finished picture for the new setting at once.
+    const key = [p.m, p.c, p.k, p.t].join('|');
+    if (key !== lastKey) { if (lastKey !== null && i === lastStep && (d.sliders || d.time)) settle(); lastKey = key; }
+    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('lead').textContent = nb(d.lead);
+    paint(i);
+
+    el('sliders').hidden = !d.sliders;
+    el('ctile').hidden = !d.sliders;
+    el('tbox').hidden = !d.time;
+    el('cval').textContent = nb(f3(1 / p.k) + ' F');
+    el('csub').textContent = nb('1 ÷ ' + f2(p.k));
+    replayBtn.setLabel(d.sliders ? 'Let go' : 'Play again');
+    replayBtn.el.hidden = !d.show || (REDUCE && !d.sliders);
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or at t seconds into its motion, with the sliders at p).
+  function drawn(i, st, t, p) {
+    const keepS = S[i], keepT = TM, keepP = P;
+    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;
+    if (p) P = Object.assign({}, P, p);
+    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; P = keepP; paint(); }
+  }
+  const CORNERS = [];
+  [0.5, 2].forEach((m) => [0.25, 1.25].forEach((c) => [1, 8].forEach((k) => CORNERS.push({ m, c, k }))));
+  const cornerSys = (y) => ({ m: y.m, c: y.c, k: y.k, x0: X0, v0: 0 });
+  // An independent step-by-step solution of the loop, in volts round it: L di/dt = −R i − q ÷ C, dq/dt = i.
+  function loopRK4(L, R, C, q0, i0, times, h) {
+    let q = q0, i = i0, t = 0;
+    const out = [], f = (qq, ii) => (-R * ii - qq / C) / L;
+    times.forEach((T) => {
+      const n = Math.round((T - t) / h);
+      for (let j = 0; j < n; j++) {
+        const k1q = i, k1i = f(q, i), k2q = i + h / 2 * k1i, k2i = f(q + h / 2 * k1q, i + h / 2 * k1i),
+          k3q = i + h / 2 * k2i, k3i = f(q + h / 2 * k2q, i + h / 2 * k2i), k4q = i + h * k3i, k4i = f(q + h * k3q, i + h * k3i);
+        q += h / 6 * (k1q + 2 * k2q + 2 * k3q + k4q); i += h / 6 * (k1i + 2 * k2i + 2 * k3i + k4i);
+      }
+      t = T; out.push(q);
+    });
+    return out;
+  }
+
+  K.check('The mass behaves the same as an inductor, and the spring the same as an inverse capacitance: a loop with L = m, R = c and C = 1 ÷ k, stepped on its own in volts, traces the mass\'s height at 2.5, 5 and 10 s, for the opening values, every corner of the sliders and the 0.8 A start', () => {
+    const ts = [2.5, 5, 10];
+    const ok = [{ m: M0, c: C0, k: K0 }].concat(CORNERS).every((y) => {
+      const s = sol(y.m, y.c, y.k, X0, 0), q = loopRK4(y.m, y.c, 1 / y.k, X0, 0, ts, 1e-3);
+      return ts.every((t, j) => close(q[j], s.x(t), 1e-6));
+    });
+    const e = solOf(SYSE), qe = loopRK4(M0, C0, CAP0, 0, I0, ts, 1e-3);
+    return ok && ts.every((t, j) => close(qe[j], e.x(t), 1e-6));
+  }, { source: ILL });
+  K.check('At every moment the three terms add to zero: with the speed and acceleration read off each curve by small differences, m x″ + c x′ + k x stays within 0.0001 of 0 from 0.1 to 9.9 s, for both releases, the 0.8 A start and every corner of the sliders', () => {
+    const h = 1e-3, list = [SYS, SYSP, SYSE].concat(CORNERS.map(cornerSys));
+    return list.every((y) => {
+      const s = solOf(y);
+      return K.linspace(0.1, 9.9, 50).every((t) => {
+        const x = s.x(t), v = (s.x(t + h) - s.x(t - h)) / (2 * h), a = (s.x(t + h) - 2 * x + s.x(t - h)) / (h * h);
+        return Math.abs(y.m * a + y.c * v + y.k * x) < 1e-4 && close(v, s.v(t), 1e-5) && close(a, s.a(t), 1e-3);
+      });
+    });
+  });
+  K.check('Every number is right: −2, 0 and 2 N at the release, so x″ = −2 m/s²; 1.15, −0.37 and −0.78 N at 0.5 s, with 0.78 and −1.52 N for the slips; 2 V on 0.5 C at 0.25 F; a still moment within 0.01 s of 4.75 s, with store −0.61, loss 0 and inertia 0.61 N; 1 ÷ 0.5 = 2 and 1 ÷ 8 = 0.125; every setting swings; every trace stays inside ±0.6 and every bar inside ±2', () => {
+    const b0 = termsAt(SYS, 0), b5 = termsAt(SYS, T5), bl = termsAt(SYS, TLOW), w = solOf(SYS).w;
+    const rel = f2(b0.I) === '−2' && f2(b0.Lo) === '0' && f2(b0.S) === '2' && close(b0.I / M0, -2, 1e-9);
+    const half = f2(b5.S) === '1.15' && f2(b5.Lo) === '−0.37' && f2(b5.I) === '−0.78' && f2(-b5.I) === '0.78' && f2(-(b5.S - b5.Lo)) === '−1.52' && f2(b5.S + b5.Lo) === '0.78';
+    const low = Math.abs(3 * Math.PI / w - TLOW) < 0.01 && f2(bl.S) === '−0.61' && f2(bl.I) === '0.61' && f2(bl.Lo) === '0';
+    const caps = close(CAP0, 0.25) && close(VC0, 2) && close(1 / S10.C, 2) && close(1 / S11.k, 0.125) && f3(1 / S11.k) === '0.125';
+    const swings = CORNERS.every((y) => y.c * y.c < 4 * y.m * y.k && sol(y.m, y.c, y.k, X0, 0).swings) && solOf(SYS).swings;
+    const inside = [SYS, SYSP, SYSE].concat(CORNERS.map(cornerSys)).every((y) => K.linspace(0, TEND, 1001).every((t) => Math.abs(solOf(y).x(t)) <= YMAX));
+    const barsIn = K.linspace(0, TEND, 1001).every((t) => { const b = termsAt(SYS, t); return Math.abs(b.I) <= 2 + 1e-9 && Math.abs(b.Lo) <= 2 && Math.abs(b.S) <= 2 + 1e-9; });
+    return rel && half && low && caps && swings && inside && barsIn;
+  });
+  K.check('The mass moves only up and down, level with its trace\'s newest point; on the side-by-side screen the capacitor\'s charge always equals the mass\'s height; and the bars added tip to tail end at 0 at every moment', () => {
+    const i0 = idx('The spring'), i4 = idx('Side by side'), i6 = idx('Three terms'), i8 = idx('Two starts');
+    const lv = [0.5, 1.5, 2.5, 3.5, 4.5, null].every((t) => [i0, i4, i8].every((i) => {
+      const r = drawn(i, {}, t), h = r.heads[r.heads.length - 1];
+      return r.mass && r.mass.x0 === MX0 && r.mass.x1 === MX1 && h && close(r.mass.cy, h.y, 1e-9) && close(r.level, h.y, 1e-9);
+    }));
+    const cap = CORNERS.every((p) => [1.5, 3, null].every((t) => { const r = drawn(i4, {}, t, p); return r.cap && r.mass && close(r.cap.q, r.mass.xm, 1e-12); }));
+    const sum = K.linspace(0, TEND, 41).every((t) => { const r = drawn(i6, {}, null, { t }); return r.bars && r.bars.sumText === '0' && Math.abs(r.bars.end - BZ) < 0.5 && r.marker === t; });
+    return lv && cap && sum;
+  });
+  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);
+    }));
+  K.check('Before Check, no puzzle\'s picture shows its answer or a mistake: the hidden bars read ?, and the matching springs are blank', () =>
+    DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0; }) &&
+    drawn(idx('The hidden bar'), {}).bars.shown.I === null && drawn(idx('The bottom of a swing'), {}).bars.shown.Lo === null &&
+    drawn(idx('Match the spring'), {}).cells.slice(0, 3).every((c) => c.s === '?'));
+  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, finishes within 2 s', () => {
+    const keepT = TM;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      TM = Infinity; latest = 0; earliest = Infinity;
+      S[i] = Object.assign(blank(), st);
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) return d.dur <= 5 && d.dur >= 3 && timed(i, {}, d.dur) && earliest >= FADE;
+      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));
+    });
+    TM = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

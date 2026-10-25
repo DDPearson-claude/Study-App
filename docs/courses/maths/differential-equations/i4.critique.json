@@ -1,0 +1,39 @@
+{
+  "draft": "i4.lesson.draft1.txt",
+  "keep": [
+    "The idea is named up front in plain words: read the slope, walk a short straight step, read again.",
+    "One worked example runs through every screen, computed from the shown rule: 12 V, 10 kΩ and 100 µF give τ = 1 s, and 0.5 s steps give 6 V then 3 V against the curve's 4.41 V.",
+    "The cause of the drift is drawn, not just the effect: tangent ticks along the first step show the curve easing off while the step keeps its starting slope.",
+    "Each misconception has a puzzle with a drawn wrong pick: steps landing on the curve (screen 4, 7.28 V), the starting slope reused (screens 2 and 11), big steps trusted (screens 8 and 12), one run trusted (screen 13).",
+    "Big steps are shown overshooting and swinging either side of 0 V, a thing the real discharge never does, so the swing is pinned on the steps.",
+    "The tank has no faint curve, so the halve-and-compare check is the only way to trust it, and the logged levels 0.89, 0.79, 0.75 and 0.73 m show it working.",
+    "The analogy, dead reckoning, is from his own service and reproduces the main result: long runs between updates drift further. Its break is true."
+  ],
+  "fix": [
+    "Skipped causal step in explain: 'each step multiplies the voltage by 1 − h ÷ τ' is asserted. Show it: new V = V + h × (−V ÷ τ) = V × (1 − h ÷ τ).",
+    "False absolute in the takeaway and practice: 'steps longer than the time constant overshoot' holds for a decay rule, not every rule. Say 'for a decay'.",
+    "False absolute risk: 'a rule whose rate depends only on the value never crosses its steady line'. True for one-variable rules like these; say 'a rule like these, whose rate depends only on the value'.",
+    "Teaching gap: the tank, the case with no formula, is missing from explain. Add it with its rule, steady level and the halving check, since the main claim is solving rules that have no formula.",
+    "Footnote [^2] points at no listed source and its quote would not state τ = RC. Drop it; τ = RC was taught in the earlier lesson.",
+    "Interactive cause on screen 5: draw each step's starting arrow along the walk, so every step is seen to use the slope at its start.",
+    "Numbers rule: 0.384, 4.8 and −6 appear in the text but not in numbers. Add them."
+  ],
+  "faults": {
+    "skipped causal step": "yes, fix 1",
+    "false absolutes": "yes, fixes 2 and 3",
+    "interactive shows only the effect": "partly, fix 6",
+    "checks test recall": "no; every DO screen computes a step or reads the picture",
+    "thin or decorative research": "partly; fix 5 removes a footnote on words its quote does not support",
+    "unreadable labels": "no; short labels, table columns wrap on a phone",
+    "talks about the idea instead of teaching it": "no; every paragraph works numbers through the rule"
+  },
+  "shape": {
+    "idea in one line up front": "yes",
+    "rule in words": "yes, new value = old value + h × slope",
+    "worked example with real numbers": "yes, the 12 V discharge, and the coil in practice",
+    "misconception shown failing": "yes, the walk does not land on the curve; big steps swing",
+    "analogy from his trade with where it breaks": "yes, dead reckoning",
+    "put it into practice": "yes, steps, rules of thumb, worked example, mistakes",
+    "recap he could say back": "yes"
+  }
+}

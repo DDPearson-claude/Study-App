@@ -1,0 +1,612 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T10:54:27.882Z",
+ "startedAt": "2026-10-25T10:54:27.882Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Pushing it: resonance, and reading a model",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the dots on the graph of swing against frequency climbing to a peak near 2 rad/s, where the spring and mass forces cancel, when you drag the drive frequency.",
+   "title": "The driven swing",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "This is a short lesson in twelve small screens. It uses the same spring as before. A 1 kg mass sits on a 4 N/m spring, with a 0.5 N·s/m damper. Now a push of 1 N swings back and forth as F cos ωt. Here ω is how fast the push swings, in rad/s. Screen 1 shows the mass with the push arrow beside it, growing and shrinking. Under it is the rule m x″ + c x′ + k x = F cos ωt. Each term is labelled as a force in newtons. A trace shows position over 30 s, from −1.2 to 1.2 m. It starts from rest at 0, with the push at 1 rad/s. Play runs it. Its read sentence: the trace starts lumpy because the spring's own ringing mixes in, then settles to an even swing by about 20 s. A faint envelope shows the ringing dying, with a 4 s time constant. Screen 2 asks how often it swings once it has settled. One choice is 1 rad/s, the push's rate. Another is about 2 rad/s, its own ringing rate. The third is 1.5 rad/s, halfway. The answer is 1 rad/s. The ringing is the transient, and it dies. Screen 3 draws the three force arrows of the steady swing, end to end. The spring's pull kX points one way. The mass term mω²X points the opposite way, because two derivatives of a cosine give −ω² times it. The damper's drag cωX is at right angles. Together they make the 1 N push. A drive slider runs from 0.25 to 4 rad/s in steps of 0.25. It opens at 1. At 1 rad/s the swing is 0.329 m. The arrows are then 1.32 N, 0.33 N and 0.16 N. Readouts give the drive frequency and the swing. Its read sentence: at 1 rad/s the spring's arrow is much longer than the mass's, and the swing is 0.329 m. Screen 4 asks for the swing at 2 rad/s. One choice is 1 m. Another is 0.25 m. The third is that it grows without limit. The answer is 1 m. The spring and mass arrows are both 4 N, so they cancel. That leaves the 1 N drag cωX alone to match the push, so X = 1 ÷ (0.5 × 2). Screen 5 is the main picture. The trace sits above a graph of steady swing against drive frequency. The graph runs 0 to 4 rad/s across and 0 to 1.2 m up. The same drive slider moves the push. Each setting runs the trace. Once the wobble dies, its steady swing drops a dot on the graph. A sweep drops a dot at every rate it passes. A faint line at 2 rad/s is labelled natural frequency. Its read sentence: the dots trace a hill. They climb from 0.25 m for the slowest push to about 1 m near 2 rad/s, then fall to 0.08 m at 4 rad/s. Screen 6 asks for the swing at 4 rad/s. One choice is about 0.08 m. Another is about 2 m, since a faster push gives a bigger swing. The third is 1 m, the same as at 2 rad/s. The answer is about 0.08 m, because the mass term is 16X against the spring's 4X. Screen 7 adds a damping slider from 0.5 to 6 N·s/m, in steps of 0.5. It opens at 0.5. The whole hill is drawn for the damping you set, with a ghost of the 0.5 hill. A readout gives the top of the hill and where it sits, or says there is no peak. As the damping grows, the hill drops and its top slides lower. At damping 0.5 the top is 1.01 m near 1.97 rad/s. At 1 it is 0.52 m near 1.87 rad/s. At 2 it is 0.29 m near 1.41 rad/s. From 3 there is no hill. The swing only shrinks as the push speeds up. Let go, the spring still rings at any damping below 4, critical damping. Its read sentence: at damping 2 the top of the hill is 0.29 m near 1.41 rad/s, and from damping 3 there is no hill, though the spring still rings below damping 4. Screen 8 sets damping 6 and asks where the swing is largest. One choice is at the slowest push. Another is at 2 rad/s, its natural frequency. The third is at 4 rad/s. The answer is the slowest push, about 0.24 m. Heavy drag grows with the push's speed faster than the gap between the spring and mass terms closes. Screen 9 has a switch, Spring or RLC loop. It relabels the picture as a series loop. The loop has a 1 H coil, a 0.5 Ω resistor, a 0.25 F capacitor and a 1 V AC supply. The mass becomes the coil, and the damper the resistor. The spring becomes the capacitor, and the push the supply. The capacitor's charge follows the spring's hill. As a loop, the graph plots the current's swing instead, in amps, from 0 to 2. The current is ω times the charge's swing. Its hill peaks at exactly 2 rad/s, where ωL equals 1 ÷ ωC. Readouts give the charge's swing and the current's. At 2 rad/s the charge swings 1 C and the current 2 A. That current is the supply's 1 V ÷ 0.5 Ω. Its read sentence: as a loop, the graph plots the current, which peaks at exactly 2 rad/s, where ωL equals 1 ÷ ωC. Screens 10 to 12 mix it all. Screen 10 gives a 10 V supply at 1000 rad/s, 159 Hz. It feeds 100 mH, 10 µF and 40 Ω in series. It asks for the capacitor's voltage. One choice is 25 V. Another is 10 V, since nothing can exceed the supply. The third is 4 V. The answer is 25 V. ωL and 1 ÷ ωC are both 100 Ω, so they cancel. The current is 10 ÷ 40 = 0.25 A, and 0.25 A × 100 Ω is 25 V. Screen 11 offers v = 12e^(−RCt) as the answer to dv/dt = −v ÷ RC from 12 V. It asks which check catches the mistake. One choice is the units, because RC × t is in seconds squared and an exponent must have no units. Another is the start, because it does not give 12 V at t = 0. The third is the end, because it does not fall to 0 V. The answer is the units. It does give 12 V at the start, and it does fall to 0 V. Putting it back into the rule also catches it. Screen 12 says waves near a ship's own roll rate make it roll hardest, and those rolls can capsize it. The ship rolls in waves near its own roll frequency. Bilge keels add roll damping. It asks what happens to the roll there. One choice is a smaller peak, though resonance can still occur. Another is no resonance at all. The third is the same peak, with only the start-up wobble dying sooner. The answer is a smaller peak. This straight-line equation fits only small rolls. Each puzzle offers three answers.",
+   "ignores": "Time runs fast on the trace. Its 30 s plays in a few seconds. The trace always starts from rest at 0. Each dot is the settled swing worked out from the rule, not read off the trace. The spring, damper and circuit parts are ideal. The pull grows in step with the stretch, and the drag in step with the speed. Real springs can stiffen. A ship's roll is straight only at small angles. So big swings stray from this hill. The push is a pure cosine of fixed size. Real pushes, such as waves, mix many rates. The system has one way to swing. A real hull or frame has several, each with its own peak. The 1 H coil and 0.25 F capacitor are the spring's twin numbers. They are far bigger than most real parts.",
+   "numbers": [
+    {
+     "label": "Mass, in kg",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stiffness, in N/m",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Push size F, in N",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening and lowest damping, in N·s/m",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Damping slider highest, in N·s/m",
+     "value": 6,
+     "kind": "control"
+    },
+    {
+     "label": "Damping slider step, in N·s/m",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Opening drive frequency, in rad/s",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Drive slider lowest, in rad/s",
+     "value": 0.25,
+     "kind": "control"
+    },
+    {
+     "label": "Drive slider highest, in rad/s",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Drive slider step, in rad/s",
+     "value": 0.25,
+     "kind": "control"
+    },
+    {
+     "label": "Trace's last time, in s",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trace's top position, in m",
+     "value": 1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trace's lowest position, in m",
+     "value": -1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Graph's top swing, in m",
+     "value": 1.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Envelope time constant 2m ÷ c, in s",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Time to settle, five time constants, in s",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constants waited, rule of thumb",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Transient left at 20 s, e^(−5), as a fraction",
+     "value": 0.0067,
+     "kind": "computed"
+    },
+    {
+     "label": "Transient left at 20 s, under, in %",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, its own ringing rate, in rad/s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, halfway rate, in rad/s",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "(k − mω²)² at 1 rad/s, in N²/m²",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "(cω)² at 1 rad/s, in N²/m²",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Steady swing at 1 rad/s, in m",
+     "value": 0.329,
+     "kind": "computed"
+    },
+    {
+     "label": "Spring arrow at 1 rad/s, in N",
+     "value": 1.32,
+     "kind": "computed"
+    },
+    {
+     "label": "Mass arrow at 1 rad/s, in N",
+     "value": 0.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Damper arrow at 1 rad/s, in N",
+     "value": 0.16,
+     "kind": "computed"
+    },
+    {
+     "label": "Natural frequency √(k ÷ m), in rad/s",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Steady swing at 2 rad/s, F ÷ cω, in m",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Spring and mass arrows at 2 rad/s, each, in N",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Damper arrow at 2 rad/s, in N",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slow push swing F ÷ k, in m",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "mω² at 4 rad/s, in N/m",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Steady swing at 4 rad/s, in m",
+     "value": 0.08,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, swing at 4 rad/s, in m",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Peak at damping 0.5, in m",
+     "value": 1.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak's frequency at damping 0.5, in rad/s",
+     "value": 1.97,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak at damping 1, in m",
+     "value": 0.52,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak's frequency at damping 1, in rad/s",
+     "value": 1.87,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak at damping 2, in m",
+     "value": 0.29,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak's frequency at damping 2, in rad/s",
+     "value": 1.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Damping where the hill goes, √(2mk), in N·s/m",
+     "value": 2.83,
+     "kind": "computed"
+    },
+    {
+     "label": "First slider damping with no hill, in N·s/m",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Critical damping 2√(mk), in N·s/m",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Swing at slowest push, damping 6, in m",
+     "value": 0.24,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop coil, in H",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Loop resistor, in Ω",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Loop capacitor, 1 ÷ 4, in F",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop supply, in V",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Loop charge swing at 2 rad/s, in C",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop current swing at 2 rad/s, in A",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example supply, in V",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example coil, in mH",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example coil, in H",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor, in µF",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example capacitor, in F",
+     "value": 0.00001,
+     "kind": "computed"
+    },
+    {
+     "label": "Example resistor, in Ω",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example natural frequency 1 ÷ √(LC), in rad/s",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example natural frequency, in Hz",
+     "value": 159,
+     "kind": "computed"
+    },
+    {
+     "label": "Example ωL and 1 ÷ ωC, each, in Ω",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Example R², in Ω²",
+     "value": 1600,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 2L ÷ C, in Ω²",
+     "value": 20000,
+     "kind": "computed"
+    },
+    {
+     "label": "Example current at resonance, in A",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor voltage, in V",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor voltage over supply",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick, 10 × 40 ÷ 100, in V",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Doubled example resistor, in Ω",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitor voltage with 80 Ω, in V",
+     "value": 12.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Unit-check start voltage, in V",
+     "value": 12,
+     "kind": "assumed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Push a lightly damped spring or circuit back and forth, and it settles into a steady swing. That swing keeps time with the push, not with the system's own ringing. It is biggest when the push comes near the rate the system rings at by itself.\n\nTake the same 1 kg mass, 4 N/m spring and 0.5 N·s/m damper as before. Add a 1 N push, F cos ωt. Here ω is how fast the push swings, in radians a second. The rule becomes m x″ + c x′ + k x = F cos ωt. Every term is a force, in newtons. The answer has the same shape as when the coil was switched on. It is a steady part set by the push, plus a transient set by the start. The transient is the free ringing of the unpushed spring. It dies inside an envelope whose time constant is 2m ÷ c, which is 4 s here. By 20 s, less than 1% of it is left.\n\nThe steady swing keeps the push's time, and here is why. Try a swing X cos(ωt − φ) in the rule. Here φ is how far the swing lags behind the push. Each derivative of a cosine at rate ω is a cosine at the same rate, scaled by ω. So every term swings at ω. Together they can match the push at every instant.\n\nNow the sizes. The spring's pull is kX. The mass term is mω²X. Two derivatives of a cosine give −ω² times it, so this term points the opposite way. The damper's drag is cωX, a quarter cycle round from both. These are the three phasors of a series RLC loop. Two are opposite, and one is at right angles. They must add to F, so X = F ÷ √((k − mω²)² + (cω)²). At 1 rad/s that is 1 ÷ √(9 + 0.25), which is 0.329 m.\n\nNow sweep the push. A slow push barely asks the mass to move. The spring takes it all, so X is near F ÷ k, 0.25 m. A fast push leaves the mass no time to follow. At 4 rad/s the mass term is 16X against the spring's 4X, and X falls to 0.08 m. In between, the spring and mass terms cancel when mω² = k. That happens at ω = √(k ÷ m) = 2 rad/s. This is the [[natural frequency]], the rate it would ring at with no damping. There, only the damper holds the push back, so X = F ÷ cω = 1 ÷ (0.5 × 2) = 1 m. A lightly damped system swings hardest when the push is near its natural frequency.[^1] That peak is [[resonance]].\n\nDamping sets the height of the peak. At 2 rad/s the swing is F ÷ cω, so doubling the damping halves it. More damping gives a smaller peak. The top also slides lower, because the damper's share cω is smaller at lower ω. At damping 2 the top is 0.29 m near 1.41 rad/s. Heavy damping removes the hill altogether. That starts at c² = 2mk, near 2.83 N·s/m here. Past it, the damper's share grows faster than the gap between the spring and mass terms closes. So the swing only shrinks as the push speeds up. This is still short of critical damping, which is 4. So a spring that still rings can have no peak, and an overdamped spring never has one.\n\nAn AC supply on a series RLC loop gives the same equation: L q″ + R q′ + q ÷ C = V cos ωt.[^2] The capacitor's charge swings as the mass does. Its voltage is the charge ÷ C. The current is the charge's swing times ω. That extra ω moves the current's peak to exactly 1 ÷ √(LC), where ωL equals 1 ÷ ωC. That is the series resonance you already know. The capacitor's charge, and so its voltage, peaks a touch below it.\n\nSo a loop that rings when switched on can also be driven into a big swing. The capacitor's voltage can then sit far above the supply's. A ship's bilge keels add roll damping, which lowers its roll peak.[^3] This is a simplified model with ideal parts. Their pull and drag grow in step with stretch and speed. Real springs, and a ship's roll, follow it only for small swings.\n\n**Pushed back and forth, a lightly damped spring or circuit settles to a steady swing at the push's frequency. The swing is largest when the push is near its natural frequency.**"
+  },
+  "analogy": {
+   "text": "A pump on rubber mounts is a mass on a spring. Its rotor is slightly out of balance, so it pushes the frame once a turn. Run it up slowly and the frame shakes hardest at one speed. Then it calms as it runs faster. That speed is near the natural frequency of the mounts. More damping in the mounts lowers the shaking there.",
+   "breaks": "An out-of-balance push grows with the square of the speed, so its size is not fixed. At high speed the shake settles to a small fixed size rather than dying away. Real mounts can also rock and twist. Each way of swinging has its own peak."
+  },
+  "practice": {
+   "text": "**Safety first:** near resonance, the capacitor and the coil in a series loop can each see several times the supply voltage. Rate parts and set meters for that voltage, not the supply's.\n\n- Name each term: what stores energy, what loses it, and what pushes.\n- Check every term has the same unit: newtons for a spring, volts for a loop.\n- Find the natural frequency in rad/s: √(k ÷ m) for a spring, or 1 ÷ √(LC) for a loop. Divide by 2π for hertz.\n- Check the damping. The swing peaks only if c² is below 2mk. The capacitor's voltage peaks only if R² is below 2L ÷ C. A loop's current peaks at 1 ÷ √(LC), whatever R is. Critical damping is at c² = 4mk, or R² = 4L ÷ C.\n- Find the steady swing at the push's frequency: X = F ÷ √((k − mω²)² + (cω)²). For a loop's current, I = V ÷ √(R² + (ωL − 1 ÷ ωC)²).\n- Put the answer back into the rule. Then check its start and end values.\n\n**Rules of thumb:** at the natural frequency the swing is F ÷ cω, so halving the damping doubles it. A very slow push gives the spring's own stretch, F ÷ k. Before you read a steady value, wait about five envelope time constants for the transient to die.\n\n**Worked example:** a 10 V supply runs at 1000 rad/s, which is 159 Hz. It feeds 100 mH, 10 µF and 40 Ω in series. The natural frequency is 1 ÷ √(0.1 × 0.00001) = 1000 rad/s, so this is resonance. R² is 1600 Ω² and 2L ÷ C is 20000 Ω², so the damping is light. ωL = 1000 × 0.1 = 100 Ω. Likewise 1 ÷ ωC = 1 ÷ (1000 × 0.00001) = 100 Ω. They cancel, so the current is 10 ÷ 40 = 0.25 A. The capacitor sees 0.25 × 100 = 25 V. That is two and a half times the supply. Double R to 80 Ω and it falls to 12.5 V.\n\n**Common mistakes**\n- Expecting an overdamped spring's swing to peak.\n- Thinking a faster push always gives a bigger swing.\n- Reading the start-up wobble as the steady answer.\n- Thinking damping removes resonance. It lowers the peak, and a peak can remain.\n- Assuming nothing in a series loop can exceed the supply voltage.\n- Mixing rad/s and hertz."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "EN200 NAVAL ENGINEERING I — US Naval Academy",
+    "url": "https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf",
+    "quote": "You will recall that a SHM system will experience maximum amplitude oscillations when the frequency of the forcing function is equal to the natural frequency of the system."
+   },
+   {
+    "n": 2,
+    "title": "15.5 Resonance in an AC Circuit - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit",
+    "quote": "clearly demonstrates that the driven _RLC_ series circuit is the electrical analog of the driven damped harmonic oscillator."
+   },
+   {
+    "title": "EN455 Course Notes Chapter 4 Reviseday21 — US Naval Academy",
+    "url": "https://www.usna.edu/NAOE/_files/documents/Courses/EN455/EN455_Course_Notes_Chapter_4_revisedAY21.pdf",
+    "quote": "There are many different ways roll motion can be reduced, but in this chapter we are going to discuss three types of roll mitigation devices: e Bilge Keels",
+    "n": 3
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  sup { font-size: .74em; line-height: 0; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  /* Every word in the drawing carries a halo of the page colour, so lines stay visible around it. */\n  .scene text { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3.5px; stroke-linejoin: round; }\n  .scene .sup { font-size: 13px; }\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax, .scene .xt { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag2 { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .big { font: 700 24px var(--k-font); fill: var(--k-muted); }\n  .scene .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.main { fill: var(--k-accent2); }\n  .scene .lab.teal { fill: var(--k-accent); }\n  .scene .lab.bad, .scene .te.bad { fill: var(--k-warn); }\n  .scene .te { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .te.eq { font: 500 16px var(--k-font); }\n  .scene .nt { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .key.ink { fill: var(--k-ink); }\n  /* Position against time, its envelope, the rest line, the level guide and the newest point. */\n  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .trace.bad { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .env { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 4; }\n  .scene .rest { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 6 5; }\n  .scene .lvl { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 1.5 4; stroke-linecap: round; }\n  .scene .mkr { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 2 4; }\n  .scene .rider { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .brk { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }\n  .scene .brk.bad { stroke: var(--k-warn); }\n  /* Swing against push rate: the hills, the dots, the natural frequency and the guides. */\n  .scene .hill { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .hill.ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 4; }\n  .scene .hill.teal { stroke: var(--k-accent); }\n  .scene .hill.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }\n  .scene .nat { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 3 4; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 2 3; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dot.bad { fill: var(--k-warn); }\n  .scene .cur { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }\n  /* The force arrows, end to end, and the push they add up to. */\n  .scene .fa { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .fa.f1 { stroke: var(--k-cat1); }\n  .scene .fa.f2 { stroke: var(--k-cat2); }\n  .scene .fa.f3 { stroke: var(--k-cat3); }\n  .scene .fa.push { stroke: var(--k-ink); stroke-width: 2.4; stroke-dasharray: 5 4; }\n  .scene .fa.bad { stroke: var(--k-warn); }\n  .scene .jn { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 1.5 3; }\n  .scene .org { fill: var(--k-ink); }\n  /* The spring, the damper, the mass and its push. */\n  .scene .hl { stroke: var(--k-ink); stroke-opacity: .5; stroke-width: 1.4; }\n  .scene .ceil { fill: url(#hatch); }\n  .scene .wall { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .spr { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .dmp { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .rod { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .pis { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .scene .mass { fill: var(--k-accent2); }\n  .scene text.mtxt { font: italic 700 13px var(--k-font); fill: var(--k-on-accent2); stroke: none; }\n  .scene .parr { fill: none; stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }\n  /* The loop, the bars, the ship. */\n  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .src { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .plate { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }\n  .scene .bar0 { fill: var(--k-fill1); }\n  .scene .bar1 { fill: var(--k-accent2); }\n  .scene .bar1.bad { fill: var(--k-warn); }\n  .scene .barq { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }\n  .scene .hull { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .scene .keel { stroke: var(--k-ink); stroke-width: 3.2; stroke-linecap: round; }\n  .scene .water { fill: none; stroke: var(--k-accent); stroke-width: 1.8; }\n  .scene #art *, .scene #top * { pointer-events: none; }\n  /* The readouts: they wrap one to a row when the text is large. */\n  .reads { display: flex; flex-wrap: wrap; gap: 8px; }\n  .reads .rd { flex: 1 1 auto; min-width: 8rem; background: var(--k-sunk); border-radius: var(--k-r); padding: 8px 10px; }\n  .reads .rd .k-label { display: block; text-transform: none; letter-spacing: 0; }\n  .reads .rd b { display: block; font-size: 1.15rem; white-space: nowrap; margin-top: 2px; }\n  .reads .rd small { display: block; color: var(--k-muted); font-size: .85rem; margin-top: 2px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers wrap to fewer columns when the text is large; longer ones stack one to a row. */\n  .picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }\n  .picks.long { grid-template-columns: 1fr; }\n  .picks.long .k-btn { min-height: 48px; font-size: 1.05rem; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\" id=\"lead\">A 1&nbsp;kg mass hangs on a 4&nbsp;N/m spring, with a 0.5&nbsp;N·s/m damper. A 1&nbsp;N push swings it. Every value is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><pattern id=\"hatch\" patternUnits=\"userSpaceOnUse\" width=\"6\" height=\"6\" patternTransform=\"rotate(45)\"><line class=\"hl\" x1=\"3\" y1=\"0\" x2=\"3\" y2=\"6\"></line></pattern></defs><g id=\"art\"></g><g id=\"top\"></g></svg>\n    <div class=\"k-controls\" id=\"wbox\"></div>\n    <div class=\"k-controls\" id=\"cbox\"></div>\n    <div class=\"k-controls\" id=\"vbox\"></div>\n    <div class=\"reads\" id=\"reads\">\n      <div class=\"rd\" id=\"rd1\"><span class=\"k-label\" id=\"l1\"></span><b id=\"v1\"></b><small id=\"s1\"></small></div>\n      <div class=\"rd\" id=\"rd2\"><span class=\"k-label\" id=\"l2\"></span><b id=\"v2\"></b><small id=\"s2\"></small></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every trace, dot, arrow and bar is worked out from the rule on its screen.</p>\n\n<script>\n  // ---------- the rule ----------\n  // A mass on a spring with a damper, pushed: m x″ + c x′ + k x = F cos ωt. From rest, the answer is\n  // the steady swing X cos(ωt − φ), with X = F ÷ √((k − mω²)² + (cω)²), plus the free ringing (the\n  // transient) that the start needs. The loop: L q″ + R q′ + q ÷ C = V cos ωt, the same rule.\n  const M = 1, KS = 4, F0 = 1, C0 = 0.5, CMAX = 6, W0 = 1, WMIN = 0.25, WMAX = 4, T1 = 30, YL = 1.2;\n  const WN = Math.sqrt(KS / M), TAU = 2 * M / C0, CC = 2 * Math.sqrt(M * KS), CH = Math.sqrt(2 * M * KS);\n  const C6 = 6, W2 = 2, W4 = 4;\n  const LH = 1, RL = 0.5, CL = 1 / KS, VS = 1;                       // the loop: coil, resistor, capacitor, supply\n  const EV = 10, EW = 1000, EL = 100 / 1000, EC = 10 / 1e6, ER = 40;   // the worked example's loop\n  const KEEL = 1;                                                     // the ship sketch: damping with keels, twice the bare 0.5\n  const PUSHPX = 30;                                                  // the push arrow on the mass: 30 units a newton\n  const ALLW = K.linspace(WMIN, WMAX, 16).map((v) => Math.round(v * 4) / 4);\n  const SLIDEC = K.linspace(C0, CMAX, 12).map((v) => Math.round(v * 2) / 2);\n  const SRC_USNA = 'https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf';\n  const SRC_OS = 'https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit';\n\n  const amp = (w, c) => F0 / Math.hypot(KS - M * w * w, (c == null ? C0 : c) * w);\n  const lag = (w, c) => Math.atan2((c == null ? C0 : c) * w, KS - M * w * w);\n  // The top of the hill: it exists only while c² is below 2mk.\n  function peak(c) {\n    const d = KS / M - c * c / (2 * M * M);\n    if (d <= 1e-12) return null;\n    const w = Math.sqrt(d);\n    return { w, X: amp(w, c) };\n  }\n  // The free motion from x0, v0 (no push): two real roots, one twice, or a ringing pair.\n  function free(c, x0, v0) {\n    const d = c * c - 4 * M * KS, E = Math.exp;\n    if (d < -1e-12) {\n      const a = -c / (2 * M), b = Math.sqrt(-d) / (2 * M), A = x0, B = (v0 - a * x0) / b, R = Math.hypot(A, B);\n      return { a, b, x: (t) => E(a * t) * (A * Math.cos(b * t) + B * Math.sin(b * t)),\n        v: (t) => E(a * t) * ((a * A + b * B) * Math.cos(b * t) + (a * B - b * A) * Math.sin(b * t)), env: (t) => R * E(a * t) };\n    }\n    if (d <= 1e-12) {\n      const r = -c / (2 * M), B = v0 - r * x0;\n      return { a: r, b: 0, x: (t) => (x0 + B * t) * E(r * t), v: (t) => (B + r * (x0 + B * t)) * E(r * t), env: (t) => (Math.abs(x0) + Math.abs(B) * t) * E(r * t) };\n    }\n    const s = Math.sqrt(d), r1 = (-c + s) / (2 * M), r2 = (-c - s) / (2 * M), A = (v0 - r2 * x0) / (r1 - r2), B = x0 - A;\n    return { a: r1, b: 0, x: (t) => A * E(r1 * t) + B * E(r2 * t), v: (t) => r1 * A * E(r1 * t) + r2 * B * E(r2 * t), env: (t) => Math.abs(A) * E(r1 * t) + Math.abs(B) * E(r2 * t) };\n  }\n  // Pushed at ω from x0, v0: the steady swing plus the transient. Its envelope is X plus the transient's.\n  const SOL = {};\n  function forced(w, c, x0, v0) {\n    c = c == null ? C0 : c; x0 = x0 || 0; v0 = v0 || 0;\n    const key = w + '|' + c + '|' + x0 + '|' + v0;\n    if (SOL[key]) return SOL[key];\n    const X = amp(w, c), ph = lag(w, c);\n    const xp = (t) => X * Math.cos(w * t - ph), vp = (t) => -X * w * Math.sin(w * t - ph);\n    const h = free(c, x0 - xp(0), v0 - vp(0));\n    return (SOL[key] = { w, c, X, ph, xp, h, x: (t) => xp(t) + h.x(t), v: (t) => vp(t) + h.v(t), env: (t) => X + h.env(t) });\n  }\n  const pushAt = (w, t) => F0 * Math.cos(w * t);\n  // The last peak of the steady swing inside the trace's 30 s.\n  function lastPeak(s) { const n = Math.floor((s.w * T1 - s.ph) / (2 * Math.PI)); return (s.ph + 2 * Math.PI * n) / s.w; }\n  const peakT = (s, n) => (s.ph + 2 * Math.PI * n) / s.w;\n  // The worked example's loop: current and capacitor voltage at its supply's rate.\n  const exXL = EW * EL, exXC = 1 / (EW * EC), exI = (R) => EV / Math.hypot(R, exXL - exXC), exVC = (R) => exI(R) * exXC;\n\n  let P = { w: W0, c: C0, view: 'spring' };\n\n  // ---------- numbers, written the lesson's way ----------\n  const strip = (s) => (s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\\.$/, '') : s);\n  function fmtD(v, dp) {\n    const m = Math.pow(10, dp), r = Math.round(v * m) / m;\n    if (r === 0) return '0';\n    return (r < 0 ? '−' : '') + strip(Math.abs(r).toFixed(dp));\n  }\n  const f1 = (v) => fmtD(v, 1), f2 = (v) => fmtD(v, 2), f3 = (v) => fmtD(v, 3), f4 = (v) => fmtD(v, 4);\n  const plain = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/\\*/g, '');\n  // As a screen reader says it.\n  const say = (s) => plain(s).replace(/e\\^\\(([^)]*)\\)/g, 'e to the power $1').replace(/N·s\\/m/g, ' newton seconds per metre').replace(/N\\/m/g, ' newtons per metre')\n    .replace(/rad\\/s/g, ' radians a second').replace(/µF/g, ' microfarads').replace(/mH/g, ' millihenries').replace(/Ω/g, ' ohms').replace(/ω/g, ' omega ')\n    .replace(/″/g, ' double prime').replace(/′/g, ' prime').replace(/²/g, ' squared').replace(/√/g, ' root ').replace(/÷/g, ' divided by ').replace(/×/g, ' times ')\n    .replace(/=/g, ' equals ').replace(/\\+/g, ' plus ').replace(/−/g, ' minus ').replace(/·/g, ', ').replace(/\\s+/g, ' ').trim();\n\n  // ---------- words with amber key terms, italic letters and raised powers (K.el, never innerHTML) ----------\n  function put(parent, s, svg) {\n    if (!s) return;\n    if (svg && parent.__lift) { const b = K.svg('tspan', { dy: 6 }); b.textContent = s; parent.appendChild(b); parent.__lift = false; return; }\n    parent.appendChild(document.createTextNode(s));\n  }\n  function itNode(parent, s, svg) {\n    const sp = svg ? K.svg('tspan', { class: 'v', 'font-style': 'italic' }) : K.el('span', { class: 'v' });\n    if (svg && parent.__lift) { sp.setAttribute('dy', 6); parent.__lift = false; }\n    sp.textContent = s;\n    parent.appendChild(sp);\n  }\n  // Inside maths every letter is italic, except the words cos and sin and the letters e and d.\n  function ital(parent, s, svg) {\n    const re = /cos|sin|[A-Za-zωφ]/g;\n    let at = 0, m;\n    s = String(s);\n    while ((m = re.exec(s))) {\n      if (m[0].length > 1 || m[0] === 'e' || m[0] === 'd') continue;\n      put(parent, s.slice(at, m.index), svg);\n      itNode(parent, m[0], svg);\n      at = m.index + 1;\n    }\n    put(parent, s.slice(at), svg);\n  }\n  // Maths: italic letters, and e^(…) written as a raised power.\n  function maths(parent, s, svg) {\n    String(s).split(/\\^\\(([^)]*)\\)/).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2 === 0) { ital(parent, p, svg); return; }\n      const sp = svg ? K.svg('tspan', { class: 'sup', dy: parent.__lift ? 0 : -6 }) : K.el('sup');\n      if (svg) parent.__lift = false;\n      ital(sp, p, svg);\n      parent.appendChild(sp);\n      if (svg) parent.__lift = true;\n    });\n  }\n  // No line break inside a quantity: a number keeps its unit, and ÷, × or ± keeps both its sides.\n  const UNITS = new RegExp('(\\\\d) (?=(?:N·s/m|N/m|rad/s|kg|Hz|mH|µF|ms|Ω|H|F|V|A|C|N|m|s)(?![A-Za-z]))', 'g');\n  const nb = (s) => String(s == null ? '' : s).replace(UNITS, '$1\\u00a0').replace(/(\\S) ([÷×±]) (?=\\S)/g, '$1\\u00a0$2\\u00a0');\n  function write(el, s) {\n    el.textContent = '';\n    s = nb(s);\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  function svgWords(t, s) {\n    t.__lift = false;\n    String(nb(s)).split('`').forEach((seg, k) => { if (seg) { if (k % 2) maths(t, seg, true); else put(t, seg, true); } });\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // scene: 'tr' (the mass beside its trace), 'trg' (the trace above the swing-against-rate graph),\n  // 'ph' (the forces as arrows end to end), 'hill' (the whole hill), 'loop9' (spring or loop over\n  // the hill), 'rlc' (a loop and its voltages), 'alg' (lines of working), 'ship' (a rolling ship's\n  // hills). draw(st) paints the step in that state; a SHOW step's timetable is in its draw, in\n  // seconds from when the screen opens.\n  const PICK = 'Tap one of the answers.';\n  const FB = 2.0;      // how long the motion after an answer plays\n  const SOFT = 0.6;\n  const RUN = 2.6;     // a push-rate move on the main screen: the trace runs, then its dot drops\n  const EDROP = 3.8, QDROP = 2.0;\n  const LEAD_0 = 'A 1 kg mass hangs on a 4 N/m spring, with a 0.5 N·s/m damper. A 1 N push swings it. Every value is an example.';\n  const LEAD_6 = 'The same 1 kg mass and 4 N/m spring, now with a 6 N·s/m damper.';\n  const LEAD_C = 'A 10 V supply at 1000 rad/s feeds a 100 mH coil, a 10 µF capacitor and a 40 Ω resistor in series. Every value is an example.';\n  const LEAD_U = 'A capacitor discharges through a resistor from 12 V.';\n  const LEAD_R = 'Waves that come near a ship\\'s own roll rate make it roll hardest. Those rolls can be big enough to capsize it. The sketch uses the same rule, not a real ship\\'s numbers.';\n  const O1 = ['About 2 rad/s', '1 rad/s', '1.5 rad/s'];\n  const O3 = ['0.25 m', '1 m', 'It grows without limit'];\n  const O5 = ['About 2 m', '1 m', 'About 0.08 m'];\n  const O7 = ['At 2 rad/s, its natural frequency', 'At the slowest push', 'At 4 rad/s'];\n  const O9 = ['10 V', '4 V', '25 V'];\n  const O10 = ['The start: it does not give 12 V at `t` = 0', 'The units: `RC × t` is in s², but an exponent has no units', 'The end: it does not fall to 0 V'];\n  const O11 = ['No resonance at all', 'A smaller peak, though resonance can still occur', 'The same peak, with only the start-up wobble dying sooner'];\n  const swingTile = () => [{ l: 'Steady swing `X`', v: f3(amp(P.w)) + ' m' }];\n  const STEPS = [\n    { show: true, name: 'The push', scene: 'tr', dur: 4.6, rule: true, lead: LEAD_0, key: ['trace', 'env', 'push', 'rest'], letters: true,\n      tag: () => 'push rate `ω` = ' + f2(W0) + ' rad/s',\n      text: 'Now a 1 N push swings back and forth, `F cos ωt`. Here `ω` is how fast the push swings, in rad/s. The rule becomes `m x″ + c x′ + k x = F cos ωt`. Every term is a force in newtons. The mass starts at rest, pushed at 1 rad/s. The trace starts lumpy, because the spring\\'s own ringing mixes in. That ringing is the *transient*. It dies inside the envelope, with a 4 s time constant. By about 20 s an even swing is left.',\n      draw() {\n        const s = forced(W0), tm = T1 * prog(0.6, 3.4);\n        trBase();\n        part(vis(0.4), 0, () => envelope(s, 0, T1));\n        if (tm > 0) trace(s.x, 0, tm);\n        rider(tm, s.x(tm));\n        const m = massCol(G.y(s.x(tm)), pushAt(W0, tm), { letters: true });\n        levelGuide(m, tm);\n        part(vis(3.6), 0, () => settleMarks());\n        ruleRow(vis(0.4), vis(1.0));\n        said.push('The trace starts lumpy while the ringing dies inside the envelope, then settles to an even swing by about 20 seconds.');\n      } },\n    { kind: 'pick', name: 'How often', scene: 'tr', work: 2, lead: LEAD_0,\n      key: (st) => (st.res === 'wrong' && st.pick === O1[2] ? ['trace', 'r15', 'rest'] : ['trace', 'rest']),\n      tag: () => 'push rate `ω` = ' + f2(W0) + ' rad/s',\n      task: 'Once it has settled, how often does the mass swing?',\n      opts: O1, want: O1[1],\n      why: 'The ringing is the transient, and it dies. What is left is driven by the push, so it keeps the push\\'s time. Each derivative of a cosine at rate `ω` is a cosine at the same rate. So every term can swing at 1 rad/s and match the push at every instant. One settled swing takes 6.28 s, which is 2π ÷ 1.',\n      hint: 'Not quite. Compare the settled swing with the push.',\n      hints: { [O1[0]]: 'Not quite. That is its own ringing, and the ringing dies away.', [O1[2]]: 'Not quite. Nothing here swings at a rate halfway between.' },\n      draw(st) {\n        const r = RW(st), s = forced(W0);\n        trBase();\n        trace(s.x, 0, T1);\n        rider(T1, s.x(T1));\n        const m = massCol(G.y(s.x(T1)), pushAt(W0, T1));\n        levelGuide(m, T1);\n        if (r.ok) {\n          REC.answer = true;\n          const ta = peakT(s, 3), tb = peakT(s, 4), y = G.y(s.X) - 12;\n          part(vis(0.2), 0, () => { hBracketDown(G.x(ta), G.x(tb), y, 'brk'); label((G.x(ta) + G.x(tb)) / 2, y - 7, f2(tb - ta) + ' s', 'lab main', 'middle'); });\n          REC.period = tb - ta;\n          workLines([{ s: 'one settled swing takes ' + f2(tb - ta) + ' s', a: vis(0.4) }, { s: '2π ÷ ' + f2(tb - ta) + ' s = ' + f2(2 * Math.PI / (tb - ta)) + ' rad/s, the push\\'s rate', a: vis(1.0) }]);\n        } else if (r.w === O1[0]) {\n          REC.bad++;\n          const tr = 2 * Math.PI / s.h.b, y = G.PT + 10;\n          part(vis(0.1), 0, () => { hBracketDown(G.x(0), G.x(tr), y, 'brk bad'); label(G.x(tr) + 6, y + 5, 'one ring: ' + f2(tr) + ' s', 'lab bad', 'start'); });\n          workLines([{ s: 'about 2 rad/s is the ringing, and it dies by 20 s', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const g = prog(0.1, 1.0), f15 = (t) => s.X * Math.cos(1.5 * t - s.ph);\n          trace(f15, 20, 20 + 10 * g, 'trace bad');\n          workLines([{ s: 'a 1.5 rad/s swing drifts out of step', bad: true, a: vis(0.4) }]);\n        }\n        said.push('The trace from rest at 1 radian a second, over 30 seconds.');\n      } },\n    { show: true, name: 'Three forces', scene: 'ph', oy: 80, dur: 3.2, w: true, lead: '', reads: swingTile,\n      text: 'Once settled, the mass swings by a fixed size `X` at the push\\'s rate. Every term keeps that rate. They add like AC phasors. The spring\\'s pull `kX` points one way. Two derivatives of a cosine give `−ω²` times it. So the mass term `mω²X` points the opposite way. The damper\\'s drag `cωX` is at right angles. End to end, they make the 1 N push. Drag the push rate to change them. At 1 rad/s the spring\\'s arrow is much longer than the mass\\'s, and the swing is 0.329 m.',\n      read: 'Once settled, the mass swings by a fixed size `X` at the push\\'s rate. Every term keeps that rate. They add like AC phasors. The spring\\'s pull `kX` points one way. Two derivatives of a cosine give `−ω²` times it. So the mass term `mω²X` points the opposite way. The damper\\'s drag `cωX` is at right angles. End to end, they make the 1 N push. As the push rate changes, so do the arrows. At 1 rad/s the spring\\'s arrow is much longer than the mass\\'s, and the swing is 0.329 m.',\n      still: { w: 1 },\n      draw() {\n        const w = P.w, X = amp(w);\n        phBase(w);\n        forceArrows(w, X, [eg(0.4), eg(1.0), eg(1.6), vis(2.2)]);\n        forceKey(forceVals(w, X));\n        said.push('At ' + say(f2(w)) + ' radians a second the spring\\'s arrow is ' + (KS > M * w * w ? 'longer' : KS < M * w * w ? 'shorter' : 'as long as') + ' the mass\\'s.');\n      } },\n    { kind: 'pick', name: 'At 2 rad/s', scene: 'ph', work: 2, lead: LEAD_0,\n      tag: () => 'push rate `ω` = ' + f2(W2) + ' rad/s',\n      task: 'The push now swings at 2 rad/s. How big is the steady swing?',\n      opts: O3, want: O3[1],\n      why: 'At 2 rad/s, `mω²` = 1 × 4 = 4, the same as `k`. So the spring and mass arrows are both 4 N, and they cancel. That leaves the damper\\'s drag `cωX` alone to match the 1 N push. So `X` = 1 ÷ (0.5 × 2) = 1 m.',\n      hint: 'Not quite. Work out `k` and `mω²` at 2 rad/s.',\n      hints: { [O3[0]]: 'Not quite. 0.25 m is the swing for a very slow push. At 2 rad/s the mass term matters too.', [O3[2]]: 'Not quite. The damper\\'s drag grows with the swing, and it holds it.' },\n      draw(st) {\n        const r = RW(st), X = amp(W2);\n        phBase(W2);\n        if (r.ok) {\n          REC.answer = true;\n          forceArrows(W2, X, [eg(0.1, 0.5), eg(0.6, 0.5), eg(1.1, 0.5), vis(1.4)]);\n          forceKey(forceVals(W2, X));\n          workLines([{ s: '`k` = ' + f2(KS) + ' and `mω²` = ' + f2(M * W2 * W2) + ', so the spring and mass arrows cancel', a: vis(0.4) }, { s: 'so `cωX` = 1 N, and `X` = 1 ÷ (' + f2(C0) + ' × ' + f2(W2) + ') = ' + f2(X) + ' m', a: vis(1.0) }]);\n        } else if (r.w === O3[0]) {\n          REC.bad++;\n          const Xw = F0 / KS;\n          pushArrow(W2, X, vis(0.1));\n          forceArrows(W2, Xw, [eg(0.1, 0.5), eg(0.6, 0.5), eg(1.1, 0.5), 0], { bad: true });\n          forceKey([null, null, null, F0]);\n          workLines([{ s: 'at ' + f2(Xw) + ' m they add to only ' + f2(C0 * W2 * Xw) + ' N, not the 1 N push', bad: true, a: vis(0.6) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const Xw = 2, g = eg(0.1, 0.8);\n          pushArrow(W2, X, vis(0.1));\n          if (g > 0) arrow(OX + 7, OY, OX + 7, OY - C0 * W2 * Xw * SN * g, 'fa bad', 8);\n          part(vis(0.9), 0, () => label(OX + 14, OY - C0 * W2 * Xw * SN + 12, 'drag at ' + f2(Xw) + ' m: ' + f2(C0 * W2 * Xw) + ' N', 'lab bad', 'start'));\n          forceKey([null, null, null, F0]);\n          workLines([{ s: 'the drag `cωX` grows with the swing: at ' + f2(Xw) + ' m it is ' + f2(C0 * W2 * Xw) + ' N, twice the push', bad: true, a: vis(0.6) }]);\n        } else {\n          forceKey([null, null, null, F0]);\n          part(1, 0, () => text(OX + 120, OY - 40, '?', 'big', 'middle'));\n        }\n        said.push('The forces as arrows at 2 radians a second.');\n      } },\n    { show: true, name: 'The hill', scene: 'trg', dur: 4.4, w: true, run: true, lead: '', reads: swingTile, key: ['trace', 'push', 'dot'],\n      text: 'The trace now sits above a graph of steady swing against push rate. Each setting runs the trace from rest. Once the wobble dies, its steady swing drops a dot on the graph. Sweep the push rate from 0.25 up to 4 rad/s, and the dots trace a hill. The slowest push gives about 0.25 m, the spring\\'s own stretch under 1 N. Near 2 rad/s the spring and mass terms cancel, and the swing is about 1 m. That rate is the *natural frequency*. The peak there is *resonance*.',\n      read: 'The trace now sits above a graph of steady swing against push rate. Each setting runs the trace from rest. Once the wobble dies, its steady swing drops a dot on the graph. The dots trace a hill. They climb from 0.25 m for the slowest push to about 1 m near 2 rad/s. Then they fall to 0.08 m at 4 rad/s. The slowest push gives the spring\\'s own stretch under 1 N. Near 2 rad/s the spring and mass terms cancel. That rate is the *natural frequency*. The peak there is *resonance*.',\n      still: () => { ALLW.forEach((v) => VISITED.add(v)); wCtl.set(2); settle(); K.refresh(); },\n      draw() {\n        const w = P.w, s = forced(w), q = RUNMODE === 'quick';\n        const tr0 = q ? 0 : 0.6, trd = q ? 1.9 : 3.0, td = q ? QDROP : EDROP;\n        const tm = T1 * prog(tr0, trd);\n        trBase();\n        qBase('steady swing `X` (m)', 'push rate `ω` (rad/s)');\n        if (tm > 0) trace(s.x, 0, tm);\n        rider(tm, s.x(tm));\n        const m = massCol(G.y(s.x(tm)), pushAt(w, tm));\n        levelGuide(m, tm);\n        VISITED.forEach((v) => { if (v !== w) graphDot(v, amp(v), 'dot'); });\n        const g = VISITED.has(w) ? 1 : K.ease(prog(td, SOFT));\n        if (g >= 1) graphDot(w, s.X, 'dot', true);\n        else if (g > 0) {\n          const tp = lastPeak(s), x = K.lerp(G.x(tp), G.qx(w), g), y = K.lerp(G.y(s.X), G.qy(s.X), g);\n          add(K.svg('circle', { class: 'dot', cx: r2(x), cy: r2(y), r: 4.5 }));\n          REC.drop = { x, y, g };\n        }\n        said.push('Pushed at ' + say(f2(w)) + ' radians a second, the mass settles to a steady swing, and that swing is a dot on the graph.');\n      } },\n    { kind: 'pick', name: 'A fast push', scene: 'ph', oy: 80, work: 2, lead: LEAD_0,\n      tag: () => 'push rate `ω` = ' + f2(W4) + ' rad/s',\n      task: 'The push now swings at 4 rad/s. How big is the steady swing?',\n      opts: O5, want: O5[2],\n      why: 'At 4 rad/s, `mω²` = 16 while `k` = 4. So the mass term is 16X against the spring\\'s 4X, and they leave 12X. The damper adds `cω` = 2 at right angles. So `X` = 1 ÷ √(12² + 2²) = 1 ÷ 12.17, about 0.08 m. The push is too quick for the mass to follow.',\n      hint: 'Not quite. Compare `mω²` with `k` at 4 rad/s.',\n      hints: { [O5[0]]: 'Not quite. A faster push does not always give a bigger swing.', [O5[1]]: 'Not quite. The spring and mass terms cancel only at 2 rad/s.' },\n      draw(st) {\n        const r = RW(st), X = amp(W4);\n        phBase(W4);\n        if (r.ok) {\n          REC.answer = true;\n          forceArrows(W4, X, [eg(0.1, 0.5), eg(0.6, 0.5), eg(1.1, 0.5), vis(1.4)]);\n          forceKey(forceVals(W4, X));\n          workLines([{ s: '`mω²` = ' + f2(M * W4 * W4) + ' against `k` = ' + f2(KS) + ': they leave ' + f2(M * W4 * W4 - KS) + '`X`', a: vis(0.4) }, { s: '`X` = 1 ÷ √(' + f2(M * W4 * W4 - KS) + '² + ' + f2(C0 * W4) + '²) = ' + f2(X) + ' m', a: vis(1.0) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const Xw = r.w === O5[0] ? 2 : 1, mN = M * W4 * W4 * Xw, g = eg(0.1, 0.8);\n          if (g > 0) arrow(OX, OY + 9, OX - (OX - 12) * g, OY + 9, 'fa bad', 8);\n          part(vis(0.9), 0, () => label(14, OY + 30, '`mω²X` = ' + f2(mN) + ' N, off the page', 'lab bad', 'start'));\n          forceKey([null, null, null, F0]);\n          workLines([{ s: 'at ' + f2(Xw) + ' m the mass term alone is ' + f2(mN) + ' N, far more than the 1 N push', bad: true, a: vis(0.6) }]);\n        } else {\n          forceKey([null, null, null, F0]);\n          part(1, 0, () => text(OX + 120, OY - 40, '?', 'big', 'middle'));\n        }\n        said.push('The forces as arrows at 4 radians a second.');\n      } },\n    { show: true, name: 'Damping', scene: 'hill', dur: 3.0, c: true, lead: '',\n      key: () => (P.c === C0 ? ['hillc'] : ['hillc', 'ghost']),\n      reads: () => { const pk = peak(P.c); return [pk ? { l: 'Top of the hill', v: f2(pk.X) + ' m', s: 'near ' + f2(pk.w) + ' rad/s' } : { l: 'Top of the hill', v: 'No hill', s: 'The swing only shrinks as the push speeds up.' }]; },\n      text: 'Now set the damping. The whole hill is drawn for the damping you set, with a ghost of the 0.5 hill. As the damping grows, the hill drops and its top slides lower. At 2 the top is 0.29 m near 1.41 rad/s. More damping gives a smaller peak. The hill disappears near damping 2.83. From damping 3 the swing only shrinks as the push speeds up. Let go, the spring still rings at any damping below 4, critical damping. So ringing does not promise a hill.',\n      read: 'The whole hill is drawn for the damping set, with a ghost of the 0.5 hill. As the damping grows, the hill drops and its top slides lower. At damping 2 the top of the hill is 0.29 m near 1.41 rad/s. More damping gives a smaller peak. The hill disappears near damping 2.83. From damping 3 the swing only shrinks as the push speeds up. Let go, the spring still rings at any damping below 4, critical damping. So ringing does not promise a hill.',\n      still: { c: 2 },\n      draw() {\n        const c = P.c, gr = K.ease(prog(0.4, 1.6)), pk = peak(c);\n        qBase('steady swing `X` (m)', 'push rate `ω` (rad/s)');\n        if (c !== C0) part(vis(0.4), 0, () => curve((w) => amp(w, C0), 'hill ghost'));\n        curve((w) => amp(w, c), 'hill', WMAX * gr);\n        if (pk) part(vis(2.2), 0, () => topMark(pk));\n        REC.top = pk; REC.c = c;\n        said.push(pk ? 'At damping ' + say(f1(c)) + ' the hill has a top.' : 'At damping ' + say(f1(c)) + ' there is no hill: the swing only falls as the push speeds up.');\n      } },\n    { kind: 'pick', name: 'Heavy damping', scene: 'hill', work: 2, lead: LEAD_6,\n      key: (st) => (st.res === 'right' ? ['hill6', 'ghost'] : ['ghost']),\n      tag: () => 'damping `c` = ' + f1(C6) + ' N·s/m',\n      task: 'At damping 6, where is the steady swing largest?',\n      opts: O7, want: O7[1],\n      why: 'At damping 6, `c²` = 36 is well past `2mk` = 8. The drag `cω` grows with the push\\'s speed faster than the gap between `k` and `mω²` closes. So the swing only shrinks as the push speeds up. It is largest at the slowest push, 1 ÷ √(3.94² + 1.5²), about 0.24 m. The hill disappears once `c²` passes `2mk`, at damping 2.83. That is before critical damping at 4, so a spring that still rings can have no hill.',\n      hint: 'Not quite. Heavy damping changes the shape of the hill.',\n      hints: { [O7[0]]: 'Not quite. Heavy drag removes the hill, so nothing peaks there.', [O7[2]]: 'Not quite. The drag grows with the push\\'s speed, so a fast push swings least.' },\n      draw(st) {\n        const r = RW(st);\n        qBase('steady swing `X` (m)', 'push rate `ω` (rad/s)');\n        curve((w) => amp(w, C0), 'hill ghost');\n        if (r.ok) {\n          REC.answer = true;\n          curve((w) => amp(w, C6), 'hill', WMAX * K.ease(prog(0.1, 1.0)));\n          part(vis(1.1), 0, () => { const X = amp(WMIN, C6); graphDot(WMIN, X, 'dot'); label(G.qx(WMIN) + 8, G.qy(X) - 10, f2(X) + ' m', 'lab main', 'start', [[G.qx(WMIN) + 8, G.qy(X) + 20, 'start']]); });\n          workLines([{ s: '`c²` = ' + f2(C6 * C6) + ' is past `2mk` = ' + f2(2 * M * KS) + ': no hill', a: vis(0.4) }, { s: 'largest at the slowest push: ' + f2(amp(WMIN, C6)) + ' m', a: vis(1.0) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const wv = r.w === O7[0] ? W2 : W4, X = amp(wv, C6);\n          part(vis(0.1), 0, () => { graphDot(wv, X, 'dot bad'); ringAt(G.qx(wv), G.qy(X), 9, 'ring'); label(G.qx(wv) + (wv === W4 ? -12 : 12), G.qy(X) - 14, f2(X) + ' m', 'lab bad', wv === W4 ? 'end' : 'start'); });\n          workLines([{ s: 'at ' + f2(wv) + ' rad/s it swings only ' + f2(X) + ' m', bad: true, a: vis(0.4) }]);\n        } else part(1, 0, () => text(G.qx(2.8), G.qy(0.62), '?', 'big', 'middle'));\n        said.push('The swing against the push rate, with the light damping\\'s hill as a ghost.');\n      } },\n    { show: true, name: 'The loop', scene: 'loop9', dur: 3.2, w: true, view: true, lead: '',\n      reads: () => { const X = amp(P.w), lp = P.view === 'loop'; return lp ? [{ l: 'Charge swing', v: f3(X) + ' C' }, { l: 'Current swing', v: f3(P.w * X) + ' A' }] : [{ l: 'Steady swing `X`', v: f3(X) + ' m' }]; },\n      text: 'An AC supply on a series loop obeys the same equation. Switch to the loop. The 1 H coil is the mass. The 0.5 Ω resistor is the damper. The 0.25 F capacitor is the spring, because `1 ÷ C` is 4. The 1 V supply is the push. The charge follows the spring\\'s hill. The graph now plots the current, which swings `ω` times as much. It peaks at exactly 2 rad/s, where `ωL` = `1 ÷ ωC`. That is series resonance.',\n      read: 'An AC supply on a series loop obeys the same equation. The 1 H coil is the mass. The 0.5 Ω resistor is the damper. The 0.25 F capacitor is the spring, because `1 ÷ C` is 4. The 1 V supply is the push. The charge follows the spring\\'s hill. The graph plots the current, which swings `ω` times as much. It peaks at exactly 2 rad/s, where `ωL` = `1 ÷ ωC`. That is series resonance. There the current is 1 V ÷ 0.5 Ω = 2 A.',\n      still: { view: 'loop', w: 2 },\n      draw() {\n        const lp = P.view === 'loop', w = P.w, X = amp(w);\n        part(vis(0.4), 0, () => { if (lp) loopSmall(); else springSmall(); names(lp); });\n        // As a loop the graph plots the current, ω times the charge, on a scale of 0 to 2 A.\n        const sc = lp ? 2 : 1, f = (v) => (lp ? v * amp(v) / sc : amp(v));\n        qBase(lp ? 'current swing (A)' : 'steady swing `X` (m)', lp ? 'supply rate `ω` (rad/s)' : 'push rate `ω` (rad/s)', sc);\n        curve(f, 'hill', WMAX * K.ease(prog(0.8, 1.4)));\n        part(vis(2.4), 0, () => marker(w, f(w)));\n        REC.loop = lp;\n        said.push(lp ? 'The current\\'s swing against the supply rate, largest at exactly 2 radians a second.' : 'The hill of the spring\\'s steady swing.');\n      } },\n    { kind: 'pick', name: 'At resonance', scene: 'rlc', work: 3, lead: LEAD_C,\n      task: 'A 10 V supply at 1000 rad/s, which is 159 Hz, feeds 100 mH, 10 µF and 40 Ω in series. What voltage does the capacitor see?',\n      opts: O9, want: O9[2],\n      why: '`ωL` = 1000 × 0.1 = 100 Ω. `1 ÷ ωC` = 1 ÷ (1000 × 0.00001) = 100 Ω. They cancel, so only the 40 Ω holds the current back. The current is 10 ÷ 40 = 0.25 A. The capacitor sees 0.25 A × 100 Ω = 25 V. That is two and a half times the supply, so rate parts and meters for it.',\n      hint: 'Not quite. Find the current first, then the capacitor\\'s share.',\n      hints: { [O9[0]]: 'Not quite. Near resonance a part can see more than the supply.', [O9[1]]: 'Not quite. Find the current, then times it by the capacitor\\'s 100 Ω.' },\n      draw(st) {\n        const r = RW(st);\n        loopBig();\n        barsBase();\n        if (r.ok) {\n          REC.answer = true;\n          const v = exVC(ER), g = K.ease(prog(0.2, 1.0));\n          capBar(v * g, 'bar1', vis(1.2) > 0 ? v : null, 'lab main');\n          REC.vc = v;\n          workLines([{ s: '`ωL` = ' + f2(exXL) + ' Ω and `1 ÷ ωC` = ' + f2(exXC) + ' Ω: they cancel', a: vis(0.3) }, { s: 'current = ' + f2(EV) + ' ÷ ' + f2(ER) + ' = ' + f2(exI(ER)) + ' A', a: vis(0.8) }, { s: 'capacitor: ' + f2(exI(ER)) + ' A × ' + f2(exXC) + ' Ω = ' + f2(v) + ' V', a: vis(1.3) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const v = r.w === O9[0] ? EV : EV * ER / exXC, g = K.ease(prog(0.2, 1.0));\n          capBar(v * g, 'bar1 bad', vis(1.2) > 0 ? v : null, 'lab bad');\n          workLines([{ s: r.w === O9[0] ? 'near resonance a part can see more than the supply' : f2(EV) + ' × ' + f2(ER) + ' ÷ ' + f2(exXC) + ' = ' + f2(v) + ' mixes up the parts', bad: true, a: vis(0.4) }]);\n        } else capBar(0, null, null);\n        said.push('A series loop with a 10 volt supply, and the voltage swings of the supply and the capacitor.');\n      } },\n    { kind: 'pick', name: 'Check the units', scene: 'alg', work: 3, lead: LEAD_U,\n      task: 'Someone offers `v = 12e^(−RCt)` as the answer to `dv/dt = −v ÷ RC` from 12 V. Which check catches the mistake?',\n      opts: O10, want: O10[1],\n      why: '`RC` is a time, in seconds. So `RC × t` is in seconds squared. The number in a power must be plain, with no units. The right answer is `v = 12e^(−t ÷ RC)`, where `t ÷ RC` has no units. Both forms give 12 V at the start and fall to 0 V at the end, so those checks miss the slip. Putting it back into the rule catches it too: its slope is `−RC × v`, not `−v ÷ RC`.',\n      hint: 'Not quite. Try both checks in turn.',\n      hints: { [O10[0]]: 'Not quite. Put in `t` = 0. Then `e^(0)` = 1, so it does give 12 V.', [O10[2]]: 'Not quite. As `t` grows, `e^(−RCt)` still falls to 0, so the end passes.' },\n      draw(st) {\n        const r = RW(st);\n        const ex = offered();\n        if (r.ok) {\n          REC.answer = true;\n          part(vis(0.2), 0, () => ringBox(ex, 'ring'));\n          workLines([{ s: '`RC × t` is in s × s = s², but an exponent has no units', a: vis(0.3) }, { s: 'the start passes: `12e^(0)` = 12 V', a: vis(0.8) }, { s: 'the right answer is `v = 12e^(−t ÷ RC)`', a: vis(1.3) }]);\n        } else if (r.w === O10[0]) {\n          REC.bad++;\n          workLines([{ s: 'put in `t` = 0: `12e^(0)` = 12 V, so the start passes', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          workLines([{ s: 'as `t` grows, `e^(−RCt)` falls to 0, so the end passes', bad: true, a: vis(0.4) }]);\n        }\n        said.push('The rule and the offered answer.');\n      } },\n    { kind: 'pick', name: 'Bilge keels', scene: 'ship', work: 2, lead: LEAD_R,\n      key: (st) => (st.res === 'right' ? ['bare', 'keels'] : st.res === 'wrong' && st.pick === O11[0] ? ['bare', 'heavy'] : ['bare']),\n      task: 'A ship rolls in waves that come near its own roll frequency. Bilge keels add roll damping. What happens to the roll there?',\n      opts: O11, want: O11[1],\n      why: 'At the roll frequency the swing is `F ÷ cω`. More damping gives a smaller peak. Bilge keels add some damping, not enough to remove the hill. So resonance can still occur, with a smaller roll. This straight-line rule fits only small rolls.',\n      hint: 'Not quite. Think of what damping does to the hill.',\n      hints: { [O11[0]]: 'Not quite. Only heavy damping removes the peak.', [O11[2]]: 'Not quite. At the natural frequency the swing is `F ÷ cω`, so more damping lowers it.' },\n      draw(st) {\n        const r = RW(st);\n        shipBase();\n        curve((w) => amp(w, C0), 'hill');\n        if (r.ok) {\n          REC.answer = true;\n          curve((w) => amp(w, KEEL), 'hill teal', WMAX * K.ease(prog(0.2, 1.0)));\n          part(vis(1.2), 0, () => {\n            const p0 = peak(C0), p1 = peak(KEEL), x = G.qx(WN) + 12;\n            vBracket(x, G.qy(p0.X), G.qy(p1.X), 'brk');\n            label(x + 9, (G.qy(p0.X) + G.qy(p1.X)) / 2 + 5, 'smaller peak', 'lab main', 'start');\n          });\n          workLines([{ s: 'more damping lowers the peak', a: vis(0.4) }, { s: 'but a peak remains: resonance can still occur', a: vis(1.0) }]);\n        } else if (r.w === O11[0]) {\n          REC.bad++;\n          curve((w) => amp(w, 3), 'hill bad', WMAX * K.ease(prog(0.1, 1.0)));\n          workLines([{ s: 'only heavy damping removes the peak', bad: true, a: vis(0.4) }]);\n        } else if (r.w) {\n          REC.bad++;\n          const p0 = peak(C0);\n          part(vis(0.1), 0, () => ringAt(G.qx(p0.w), G.qy(p0.X), 10, 'ring'));\n          workLines([{ s: 'the peak is `F ÷ cω`: more `c`, a smaller peak', bad: true, a: vis(0.4) }]);\n        }\n        said.push('A rolling ship with bilge keels, and its roll against the wave rate.');\n      } },\n  ];\n  const FINISH = 'Pushed back and forth, a lightly damped spring or circuit settles to a steady swing at the push\\'s rate. It swings hardest near its natural frequency. More damping gives a smaller peak. Heavy damping leaves a spring\\'s swing, or a capacitor\\'s charge, with no peak at all.';\n\n  // ---------- the layout ----------\n  const SC = {\n    tr: { PL: 70, PR: 300, y0: 136, ky: 56, t1: T1, lim: YL, ceil: 30, tickY: 18, keyY: 249 },\n    trg: { PL: 70, PR: 300, y0: 98, ky: 40, t1: T1, lim: YL, ceil: 22, tickY: 16, QL: 44, QR: 304, QT: 206, QB: 316, keyY: 376 },\n    ph: {},\n    hill: { QL: 44, QR: 304, QT: 60, QB: 256, keyY: 314 },\n    loop9: { QL: 44, QR: 304, QT: 178, QB: 300, keyY: 352 },\n    rlc: { fixedH: 262 },\n    alg: { fixedH: 112 },\n    ship: { QL: 30, QR: 304, QT: 136, QB: 262, keyY: 306 },\n  };\n  const SN = 60;                      // the force arrows: 60 units a newton\n  let OX = 72, OY = 140;              // their start: set per screen and push rate (phBase, geoOf)\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  function geoOf(d, st, rows) {\n    const g = Object.assign({ sc: d.scene }, SC[d.scene]);\n    if (d.scene === 'ph') { OY = d.oy || 140; g.fixedH = OY + 160; }\n    if (g.ky) {\n      g.PT = g.y0 - g.lim * g.ky; g.PB = g.y0 + g.lim * g.ky; g.kx = (g.PR - g.PL) / g.t1;\n      g.x = (t) => g.PL + t * g.kx; g.y = (v) => g.y0 - v * g.ky;\n    }\n    if (g.QL != null) { g.qx = (w) => g.QL + w / WMAX * (g.QR - g.QL); g.qy = (X) => g.QB - X / YL * (g.QB - g.QT); }\n    let y = g.fixedH != null ? g.fixedH : rows ? g.keyY + 20 * (rows - 1) + 8 : g.keyY - 14;\n    g.ruleY = y + 30; y += d.rule ? 74 : 0;\n    const working = st.res === 'right' || st.res === 'wrong';\n    g.workY = y + 22; y += (working ? d.work || 0 : 0) * 26;\n    g.H = y + 12;\n    return g;\n  }\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open.\n  function blank() { return { pick: null, res: null, why: false }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const RW = (st) => ({ ok: st.res === 'right', w: st.res === 'wrong' ? st.pick : null });\n  let S = STEPS.map(() => blank());\n  let VISITED = new Set();           // the push rates whose dots have dropped on the main screen\n  let RUNMODE = 'entry';             // 'entry' when a screen opens, 'quick' after a push-rate move\n  let finished = false, lastStep = -1, lastDone = false, lastKey = null, lastW = null, TM = Infinity;\n  let motionEnd = 0;\n  let REC = null, G = null, said = [], placed = [], obst = [], queue = [];\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), topG = document.getElementById('top');\n  let into = null, curA = 1;\n  const add = (node) => (into || art).appendChild(node);\n  // The timetable: how far a part due at t0 has arrived, noting it for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? SOFT : d; note(t0, d); return K.arrive(TM, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t, SOFT));\n  function prog(t0, dur) { note(t0, dur); return K.clamp((TM - t0) / dur, 0, 1); }\n  const eg = (t0, d) => K.ease(prog(t0, d == null ? SOFT : d));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into, keepA = curA;\n    into = g; curA = a * keepA;\n    draw();\n    into = keep; curA = keepA;\n  }\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function addObst(x1, y1, x2, y2) {\n    const n = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3));\n    for (let k = 0; k <= n; k++) obst.push([x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n]);\n  }\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' });\n    svgWords(t, s);\n    REC.texts.push(plain(s));\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }));\n    svgWords(t, s);\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return plain(s).length * 7.4;\n  }\n  // A label, painted above the drawing once everything else is down. It takes the first of its\n  // places that is clear of other words and of the lines and curves; failing that, it moves up or\n  // down a line from the first.\n  function label(x, y, s, cls, anchor, alts) { queue.push({ x, y, s, cls, anchor, alts: alts || [], a: curA }); }\n  function placeLabel(q) {\n    const w = tw(q.s, q.cls);\n    const leftOf = (xx, an) => K.clamp(an === 'end' ? xx - w : an === 'middle' ? xx - w / 2 : xx, 4, 336 - w);\n    const box = (lx, yv) => ({ x: lx - 2, y: yv - 12, w: w + 4, h: 15 });\n    const hits = (b) => placed.some((p) => b.x < p.x + p.w && p.x < b.x + b.w && b.y < p.y + p.h && p.y < b.y + b.h) ||\n      obst.some((o) => o[0] > b.x && o[0] < b.x + b.w && o[1] > b.y && o[1] < b.y + b.h);\n    const cands = [[q.x, q.y, q.anchor]].concat(q.alts);\n    let pos = null;\n    for (const c of cands) { const lx = leftOf(c[0], c[2] || q.anchor); if (!hits(box(lx, c[1]))) { pos = [lx, c[1]]; break; } }\n    if (!pos) {\n      const lx = leftOf(q.x, q.anchor);\n      pos = [lx, q.y];\n      for (const dy of [-15, 15, -30, 30]) { if (!hits(box(lx, q.y + dy))) { pos = [lx, q.y + dy]; break; } }\n    }\n    placed.push(box(pos[0], pos[1]));\n    const g = topG.appendChild(K.svg('g'));\n    K.fade(g, q.a);\n    const t = K.svg('text', { class: q.cls, x: r2(pos[0]), y: r2(pos[1]), 'text-anchor': 'start' });\n    svgWords(t, q.s);\n    g.appendChild(t);\n    REC.texts.push(plain(q.s));\n    said.push(say(q.s) + '.');\n  }\n  // A word that sits in a fixed place (a title, a tick), kept clear of the labels.\n  function fixed(x, y, s, cls, anchor) {\n    const w = tw(s, cls), left = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x;\n    placed.push({ x: left - 3, y: y - 13, w: w + 6, h: 17 });\n    return text(x, y, s, cls, anchor);\n  }\n  // An arrow in any direction, with its head at the far end.\n  function arrow(x0, y0, x1, y1, cls, hd) {\n    const L = Math.hypot(x1 - x0, y1 - y0);\n    if (L < 2) return;\n    hd = Math.min(hd || 8, L * 0.6);\n    const ux = (x1 - x0) / L, uy = (y1 - y0) / L, bx = x1 - ux * hd, by = y1 - uy * hd, px = -uy * hd * 0.6, py = ux * hd * 0.6;\n    add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y0) + ' L' + r2(x1) + ' ' + r2(y1) + ' M' + r2(bx + px) + ' ' + r2(by + py) + ' L' + r2(x1) + ' ' + r2(y1) + ' L' + r2(bx - px) + ' ' + r2(by - py) }));\n    addObst(x0, y0, x1, y1);\n  }\n  function ringAt(x, y, r, cls) {\n    add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n    for (let k = 0; k < 16; k++) obst.push([x + r * Math.cos(k * Math.PI / 8), y + r * Math.sin(k * Math.PI / 8)]);\n  }\n  function hBracketDown(x0, x1, y, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y + 5) + ' V' + r2(y) + ' H' + r2(x1) + ' V' + r2(y + 5) })); addObst(x0, y, x1, y); }\n  function hBracketUp(x0, x1, y, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x0) + ' ' + r2(y - 5) + ' V' + r2(y) + ' H' + r2(x1) + ' V' + r2(y - 5) })); addObst(x0, y, x1, y); }\n  function vBracket(x, y0, y1, cls) { add(K.svg('path', { class: cls, d: 'M' + r2(x - 5) + ' ' + r2(y0) + ' H' + r2(x) + ' V' + r2(y1) + ' H' + r2(x - 5) })); addObst(x, y0, x, y1); }\n\n  // The trace: v = f(t) from t0 to t1, against time.\n  function trace(f, t0, t1, cls) {\n    if (t1 <= t0 + 1e-12) return null;\n    const n = Math.max(2, Math.ceil((t1 - t0) / G.t1 * 600));\n    let d = '';\n    for (let j = 0; j <= n; j++) {\n      const t = t0 + (t1 - t0) * j / n, X = G.x(t), Y = G.y(K.clamp(f(t), -G.lim, G.lim));\n      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);\n      if (j % 2 === 0) obst.push([X, Y]);\n    }\n    add(K.svg('path', { class: cls || 'trace', d }));\n    REC.traces.push({ f, t0, t1, cls: cls || 'trace' });\n    return [t1, f(t1)];\n  }\n  // The envelope: the steady swing's size plus the transient's dying envelope, either side of rest.\n  function envelope(s, t0, t1) {\n    [1, -1].forEach((sg) => {\n      let d = '';\n      for (let j = 0; j <= 150; j++) {\n        const t = t0 + (t1 - t0) * j / 150, X = G.x(t), Y = G.y(K.clamp(sg * s.env(t), -G.lim, G.lim));\n        d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);\n        if (j % 2 === 0) obst.push([X, Y]);\n      }\n      add(K.svg('path', { class: 'env', d }));\n    });\n    REC.env = true;\n  }\n  function rider(t, v) {\n    add(K.svg('circle', { class: 'rider', cx: r2(G.x(t)), cy: r2(G.y(v)), r: 5 }));\n    REC.heads.push({ t, v, y: G.y(v) });\n  }\n  function restLine() {\n    const y = G.y(0);\n    line('rest', G.PL, y, G.PR, y); addObst(G.PL, y, G.PR, y);\n  }\n  // The trace's axes: ±1 m gridlines, ticks on the right, time below.\n  function trBase() {\n    [-1, 1].forEach((v) => line('gl', G.PL, G.y(v), G.PR, G.y(v)));\n    [1, 0, -1].forEach((v) => fixed(G.PR + 8, G.y(v) + 4.5, fmtD(v, 0), 'tk', 'start'));\n    const ty = G.PB + G.tickY;\n    [0, 10, 20, 30].forEach((t) => { line('xt', G.x(t), G.PB, G.x(t), G.PB + 4); fixed(G.x(t), ty, String(t), 'tk', 'middle'); });\n    fixed(G.PL - 10, ty, '`t` (s)', 'tk', 'end');\n    line('ax', G.PL, G.PB, G.PR, G.PB); line('ax', G.PL, G.PT, G.PL, G.PB);\n    addObst(G.PL, G.PT, G.PL, G.PB);\n    fixed(G.PL, G.PT - 10, 'position `x` (m)', 'ttl', 'start');\n    restLine();\n  }\n  // The 4 s time constant along the time axis, and the line where it has settled.\n  function settleMarks() {\n    const y = G.PB - 10, x1 = G.x(TAU);\n    hBracketUp(G.x(0), x1, y, 'brk');\n    label(x1 + 6, y + 4, 'time constant ' + f2(TAU) + ' s', 'lab main', 'start');\n    const x20 = G.x(5 * TAU);\n    line('mkr', x20, G.PT, x20, G.PB); addObst(x20, G.PT, x20, G.PB);\n    label(x20 + 5, G.PT + 12, 'settled', 'lab', 'start', [[x20 - 5, G.PT + 12, 'end']]);\n    REC.marks = { tau: TAU, settle: 5 * TAU };\n  }\n  // The rule under the key, each term named.\n  function ruleRow(a, a2) {\n    const y = G.ruleY;\n    const cols = [[52, '`m x″`', 'mass term'], [124, '`c x′`', 'damper'], [192, '`k x`', 'spring'], [274, '`F cos ωt`', 'push']];\n    part(a, 6, () => {\n      cols.forEach((c) => { fixed(c[0], y, c[1], 'te eq', 'middle'); fixed(c[0], y + 20, c[2], 'nt', 'middle'); });\n      [[88, '+'], [158, '+'], [228, '=']].forEach((o) => fixed(o[0], y, o[1], 'te eq', 'middle'));\n    });\n    part(a2, 0, () => fixed(170, y + 40, 'every term is a force, in newtons', 'nt', 'middle'));\n    if (a >= 0.5) said.push('The rule: m x double prime, plus c x prime, plus k x, equals F cos omega t. Every term is a force in newtons.');\n  }\n\n  // The mass on its spring and damper, its centre at height cy, with the push arrow beside it.\n  function massCol(cy, push, o) {\n    o = o || {};\n    const x0 = o.x0 != null ? o.x0 : 12, x1 = x0 + 28, sx = x0 + 8, dx = x0 + 21, ceil = o.ceil != null ? o.ceil : G.ceil, px = x1 + 10, top = cy - 9;\n    add(K.svg('rect', { class: 'ceil', x: x0 - 6, y: ceil - 7, width: 40, height: 7 }));\n    line('wall', x0 - 6, ceil, x1 + 6, ceil);\n    placed.push({ x: x0 - 6, y: ceil - 8, w: 40, h: 9 });\n    const lead = 4, n = 8, y0 = ceil + lead, y1 = top - lead, ampz = 4;\n    let d = 'M' + sx + ' ' + ceil + ' V' + r2(y0);\n    for (let j = 1; j < n; j++) d += ' L' + (sx + (j % 2 ? ampz : -ampz)) + ' ' + r2(y0 + (y1 - y0) * j / n);\n    d += ' L' + sx + ' ' + r2(y1) + ' V' + r2(top);\n    add(K.svg('path', { class: 'spr', d }));\n    add(K.svg('rect', { class: 'dmp', x: dx - 4, y: ceil, width: 8, height: 18, rx: 1.5 }));\n    const py = ceil + 4 + 12 * K.clamp((top - ceil - 30) / 90, 0, 1);\n    line('rod', dx, py, dx, top); line('pis', dx - 2.5, py, dx + 2.5, py);\n    addObst(sx - ampz, ceil, sx - ampz, top); addObst(sx + ampz, ceil, sx + ampz, top); addObst(dx, ceil, dx, top);\n    add(K.svg('rect', { class: 'mass', x: x0, y: r2(top), width: 28, height: 18, rx: 3 }));\n    const mt = add(K.svg('text', { class: 'mtxt', x: x0 + 14, y: r2(cy + 4.5), 'text-anchor': 'middle' }));\n    svgWords(mt, '`m`');\n    placed.push({ x: x0, y: top, w: 28, h: 18 });\n    if (o.letters) {\n      const my = (ceil + top) / 2 + 5;\n      fixed(sx - 8, my, '`k`', 'lab', 'end');\n      fixed(dx, ceil + 32 < top - 4 ? ceil + 32 : ceil - 12, '`c`', 'lab', 'middle');\n    }\n    if (push != null && Math.abs(push) * PUSHPX >= 2) arrow(px, cy, px, cy - push * PUSHPX, 'parr', 6);\n    if (o.pushLabel) fixed(px + 6, cy - push * PUSHPX * 0.55, '`F`', 'lab', 'start');\n    REC.mass = { x0, cy, push };\n    return { px, cy };\n  }\n  // The dotted level guide from the mass to the trace's newest point.\n  function levelGuide(m, t) {\n    const a0 = m.px + 7, a1 = G.x(t) - 8;\n    if (a1 > a0) { line('lvl', a0, m.cy, a1, m.cy); addObst(a0, m.cy, a1, m.cy); }\n    REC.level = m.cy;\n  }\n\n  // The graph of swing against push rate: its axes, ticks and the natural frequency.\n  function qBase(ytitle, xtitle, sc) {\n    [0.5, 1].forEach((v) => line('gl', G.QL, G.qy(v), G.QR, G.qy(v)));\n    [0, 0.5, 1].forEach((v) => fixed(G.QL - 6, G.qy(v) + 4.5, f1(v * (sc || 1)), 'tk', 'end'));\n    [0, 1, 2, 3, 4].forEach((w) => { line('xt', G.qx(w), G.QB, G.qx(w), G.QB + 4); fixed(G.qx(w), G.QB + 17, String(w), 'tk', 'middle'); });\n    line('ax', G.QL, G.QB, G.QR, G.QB); line('ax', G.QL, G.QT, G.QL, G.QB);\n    addObst(G.QL, G.QT, G.QL, G.QB); addObst(G.QL, G.QB, G.QR, G.QB);\n    fixed(4, G.QT - 10, ytitle, 'ttl', 'start');\n    fixed(G.QR, G.QB + 34, xtitle, 'tk', 'end');\n    natLine('natural frequency');\n  }\n  function natLine(name) {\n    const x = G.qx(WN);\n    line('nat', x, G.QT, x, G.QB); addObst(x, G.QT, x, G.QB);\n    fixed(x + 5, G.QT + 4, name, 'lab', 'start');\n  }\n  // A hill: f(ω) from 0 up to w1.\n  function curve(f, cls, w1) {\n    w1 = w1 == null ? WMAX : w1;\n    if (w1 <= 1e-9) return;\n    const n = Math.max(2, Math.ceil(w1 / WMAX * 240));\n    let d = '';\n    for (let j = 0; j <= n; j++) {\n      const w = w1 * j / n, X = G.qx(w), Y = G.qy(Math.min(f(w), YL));\n      d += (j ? ' L' : 'M') + r2(X) + ' ' + r2(Y);\n      if (j % 2 === 0) obst.push([X, Y]);\n    }\n    add(K.svg('path', { class: cls, d }));\n    REC.curves.push({ cls, w1 });\n  }\n  function graphDot(w, X, cls, cur) {\n    const x = G.qx(w), y = G.qy(Math.min(X, YL));\n    add(K.svg('circle', { class: cls || 'dot', cx: r2(x), cy: r2(y), r: 4.5 }));\n    placed.push({ x: x - 5, y: y - 5, w: 10, h: 10 });\n    if (cur) ringAt(x, y, 8.5, 'cur');\n    REC.dots.push({ w, X, x, y, cls });\n  }\n  // The top of the hill, with guides to both axes.\n  function topMark(pk) {\n    const x = G.qx(pk.w), y = G.qy(pk.X);\n    line('guide', x, y + 7, x, G.QB); line('guide', G.QL, y, x - 7, y);\n    addObst(x, y + 7, x, G.QB); addObst(G.QL, y, x - 7, y);\n    graphDot(pk.w, pk.X, 'dot');\n    label(x + 9, y - 8, 'top of the hill', 'lab main', 'start', [[x + 9, y + 18, 'start'], [x - 9, y - 8, 'end']]);\n    REC.topMark = { w: pk.w, X: pk.X };\n  }\n  // The push rate's own point on the hill, with guides.\n  function marker(w, X) {\n    const x = G.qx(w), y = G.qy(X);\n    line('guide', x, y + 9, x, G.QB); addObst(x, y + 9, x, G.QB);\n    graphDot(w, X, 'dot', true);\n  }\n\n  // The forces of the steady swing as arrows, end to end: the spring's pull along the line, the\n  // mass term back the other way (drawn just under it), the damper's drag at right angles, and the\n  // push from the start to where they end.\n  function forceVals(w, X) { return [KS * X, M * w * w * X, C0 * w * X, F0]; }\n  // The origin sits so the arrows at push rate w are centred: the spring's runs right, and the\n  // mass term's can run back past the start.\n  function phBase(w) {\n    const X = amp(w), kx = KS * X, lo = Math.min(0, (KS - M * w * w) * X);\n    OX = K.clamp(170 - (kx + lo) / 2 * SN, 16 - lo * SN, 324 - kx * SN);\n    line('gl', 8, OY, 332, OY); addObst(8, OY, 332, OY);\n    add(K.svg('circle', { class: 'org', cx: OX, cy: OY, r: 3 }));\n    fixed(4, OY + 66, 'each force\\'s swing, as an arrow (N)', 'ttl', 'start');\n    const sy = OY + 36, x0 = 262;\n    line('ax', x0, sy, x0 + SN, sy); line('ax', x0, sy - 4, x0, sy + 4); line('ax', x0 + SN, sy - 4, x0 + SN, sy + 4);\n    addObst(x0, sy, x0 + SN, sy);\n    fixed(x0 + SN / 2, sy - 8, '1 N', 'tk', 'middle');\n  }\n  function forceArrows(w, X, g, o) {\n    o = o || {};\n    const bad = o.bad ? ' bad' : '', kx = KS * X, mx = M * w * w * X, cx = C0 * w * X;\n    const xs = OX + kx * SN, xn = OX + (kx - mx) * SN, yt = OY - cx * SN, low = OY + 9;\n    const A = { kx, mx, cx, springEnd: [xs, OY], massEnd: [xn, low], damperEnd: [xn, yt], pushEnd: null };\n    if (g[0] > 0) arrow(OX, OY, OX + kx * SN * g[0], OY, 'fa f1' + bad, 8);\n    if (g[1] > 0) {\n      line('jn', xs, OY, xs, low); addObst(xs, OY, xs, low);\n      arrow(xs, low, xs - mx * SN * g[1], low, 'fa f2' + bad, 8);\n    }\n    if (g[2] > 0) {\n      line('jn', xn, low, xn, OY); addObst(xn, low, xn, OY);\n      arrow(xn, OY, xn, OY - cx * SN * g[2], 'fa f3' + bad, 8);\n    }\n    if (g[3] > 0) { part(g[3], 0, () => arrow(OX, OY, xn, yt, 'fa push', 8)); A.pushEnd = [xn, yt]; }\n    REC.arrows = A;\n  }\n  // The push alone, where the true steady swing's forces end.\n  function pushArrow(w, X, a) {\n    const kx = KS * X, mx = M * w * w * X, cx = C0 * w * X;\n    part(a, 0, () => arrow(OX, OY, OX + (kx - mx) * SN, OY - cx * SN, 'fa push', 8));\n  }\n  function forceKey(vals) {\n    const rows = [['f1', 'spring\\'s pull `kX`'], ['f2', 'mass term `mω²X`'], ['f3', 'damper\\'s drag `cωX`'], ['push', 'push `F`']];\n    rows.forEach((r, k) => {\n      const y = OY + 88 + 20 * k;\n      arrow(6, y - 5, 26, y - 5, 'fa ' + r[0], 6);\n      fixed(34, y, r[1] + ' = ' + (vals[k] == null ? '?' : f2(vals[k]) + ' N'), 'key ink', 'start');\n    });\n  }\n\n  // The spring and the loop, small, above the hill, with their names.\n  function springSmall() { massCol(92, F0, { x0: 46, ceil: 34, letters: true, pushLabel: true }); }\n  function loopSmall() {\n    const x0 = 22, x1 = 128, top = 42, bot = 126, ym = 84, c0 = 46, c1 = 98;\n    const wire = (d) => add(K.svg('path', { class: 'wire', d }));\n    wire('M' + x0 + ' ' + (ym - 12) + ' V' + top + ' H' + c0);\n    let d = 'M' + c0 + ' ' + top;\n    for (let j = 0; j < 4; j++) d += ' a6.5 6.5 0 0 1 13 0';\n    wire(d);\n    wire('M' + c1 + ' ' + top + ' H' + x1 + ' V' + (ym - 18));\n    add(K.svg('rect', { class: 'res', x: x1 - 6, y: ym - 18, width: 12, height: 36 }));\n    wire('M' + x1 + ' ' + (ym + 18) + ' V' + bot + ' H80');\n    line('plate', 80, bot - 12, 80, bot + 12); line('plate', 70, bot - 12, 70, bot + 12);\n    wire('M70 ' + bot + ' H' + x0 + ' V' + (ym + 12));\n    add(K.svg('circle', { class: 'src', cx: x0, cy: ym, r: 12 }));\n    add(K.svg('path', { class: 'wire', d: 'M' + (x0 - 7) + ' ' + ym + ' q3.5 -7 7 0 t7 0' }));\n    addObst(x0, top, x1, top); addObst(x1, top, x1, bot); addObst(x0, bot, x1, bot); addObst(x0, top, x0, bot);\n    placed.push({ x: x0 - 13, y: ym - 13, w: 26, h: 26 });\n    fixed((c0 + c1) / 2, top - 10, '`L`', 'lab', 'middle');\n    fixed(x1 + 11, ym + 5, '`R`', 'lab', 'start');\n    fixed(75, bot + 28, '`C`', 'lab', 'middle');\n    fixed(x0 + 18, ym + 5, '`V`', 'lab', 'start');\n  }\n  function names(lp) {\n    const rows = lp ? ['coil `L` = ' + f2(LH) + ' H', 'resistor `R` = ' + f2(RL) + ' Ω', 'capacitor `C` = ' + f2(CL) + ' F', 'supply `V` = ' + f2(VS) + ' V']\n      : ['mass `m` = ' + f2(M) + ' kg', 'damper `c` = ' + f2(C0) + ' N·s/m', 'spring `k` = ' + f2(KS) + ' N/m', 'push `F` = ' + f2(F0) + ' N'];\n    rows.forEach((s, k) => fixed(160, 52 + 26 * k, s, 'lab', 'start'));\n    REC.names = rows.map(plain);\n  }\n\n  // The worked example's loop, larger, with its voltages as bars below.\n  function loopBig() {\n    const x0 = 34, x1 = 306, top = 48, bot = 128, ym = 88, c0 = 70, c1 = 150, rr0 = 196, rr1 = 256, cp = 170;\n    const wire = (d) => add(K.svg('path', { class: 'wire', d }));\n    wire('M' + x0 + ' ' + (ym - 13) + ' V' + top + ' H' + c0);\n    let d = 'M' + c0 + ' ' + top;\n    for (let j = 0; j < 5; j++) d += ' a8 8 0 0 1 16 0';\n    wire(d);\n    wire('M' + c1 + ' ' + top + ' H' + rr0);\n    add(K.svg('rect', { class: 'res', x: rr0, y: top - 7, width: rr1 - rr0, height: 14 }));\n    wire('M' + rr1 + ' ' + top + ' H' + x1 + ' V' + bot + ' H' + (cp + 5));\n    line('plate', cp + 5, bot - 13, cp + 5, bot + 13); line('plate', cp - 5, bot - 13, cp - 5, bot + 13);\n    wire('M' + (cp - 5) + ' ' + bot + ' H' + x0 + ' V' + (ym + 13));\n    add(K.svg('circle', { class: 'src', cx: x0, cy: ym, r: 13 }));\n    add(K.svg('path', { class: 'wire', d: 'M' + (x0 - 8) + ' ' + ym + ' q4 -8 8 0 t8 0' }));\n    addObst(x0, top, x1, top); addObst(x1, top, x1, bot); addObst(x0, bot, x1, bot); addObst(x0, top, x0, bot);\n    placed.push({ x: x0 - 14, y: ym - 14, w: 28, h: 28 });\n    fixed((c0 + c1) / 2, top - 16, f2(EL * 1000) + ' mH', 'lab', 'middle');\n    fixed((rr0 + rr1) / 2, top - 16, f2(ER) + ' Ω', 'lab', 'middle');\n    fixed(cp, bot + 30, f2(EC * 1e6) + ' µF', 'lab', 'middle');\n    fixed(x0 + 22, ym - 2, f2(EV) + ' V', 'lab', 'start');\n    fixed(x0 + 22, ym + 16, f2(EW) + ' rad/s', 'lab', 'start');\n  }\n  const BX = 104, BS = 6.6, BY1 = 192, BY2 = 222;\n  function barsBase() {\n    fixed(4, 174, 'voltage swing (V)', 'ttl', 'start');\n    fixed(BX - 8, BY1 + 5, 'supply', 'lab', 'end');\n    fixed(BX - 8, BY2 + 5, 'capacitor', 'lab', 'end');\n    [0, 10, 20, 30].forEach((v) => { const x = BX + v * BS; line('xt', x, 236, x, 240); fixed(x, 254, String(v), 'tk', 'middle'); });\n    line('ax', BX, 236, BX + 30 * BS, 236); line('ax', BX, 182, BX, 236);\n    add(K.svg('rect', { class: 'bar0', x: BX, y: BY1 - 8, width: r2(EV * BS), height: 16 }));\n    fixed(BX + EV * BS + 6, BY1 + 5, f2(EV) + ' V', 'lab', 'start');\n  }\n  function capBar(v, cls, shown, lcls) {\n    if (!cls) { add(K.svg('rect', { class: 'barq', x: BX, y: BY2 - 8, width: r2(10 * BS), height: 16 })); fixed(BX + 10 * BS + 8, BY2 + 6, '?', 'lab', 'start'); return; }\n    if (v > 0.05) add(K.svg('rect', { class: cls, x: BX, y: BY2 - 8, width: r2(v * BS), height: 16 }));\n    if (shown != null) label(BX + shown * BS + 6, BY2 + 5, f2(shown) + ' V', lcls, 'start');\n    REC.bar = v;\n  }\n\n  // The offered answer, with its power drawn raised so a ring can mark it.\n  function offered() {\n    fixed(4, 26, 'the rule: `dv/dt = −v ÷ RC`, from 12 V', 'te', 'start');\n    fixed(4, 50, '`v` in volts, `t` and `RC` in seconds', 'nt', 'start');\n    const base = 'offered: `v = 12e`', all = 'offered: `v = 12e^(−RCt)`', wB = tw(base, 'te eq'), wA = tw(all, 'te eq');\n    fixed(20, 92, all, 'te eq', 'start');\n    return { x: 20 + wB - 1, y: 69, w: Math.max(24, wA - wB) + 5, h: 22 };\n  }\n  function ringBox(b, cls) {\n    add(K.svg('rect', { class: cls, x: r2(b.x), y: r2(b.y), width: r2(b.w), height: r2(b.h), rx: 6 }));\n    addObst(b.x, b.y, b.x + b.w, b.y); addObst(b.x, b.y + b.h, b.x + b.w, b.y + b.h);\n    REC.ring = true;\n  }\n\n  // The ship: a hull with bilge keels, rolling in waves, over its roll against the wave rate.\n  function shipBase() {\n    const g = add(K.svg('g', { transform: 'rotate(-9 62 60)' }));\n    g.appendChild(K.svg('path', { class: 'hull', d: 'M18 40 L106 40 L104 64 Q100 90 62 92 Q24 90 20 64 Z' }));\n    g.appendChild(K.svg('line', { class: 'keel', x1: 28, y1: 84, x2: 19, y2: 92 }));\n    g.appendChild(K.svg('line', { class: 'keel', x1: 96, y1: 84, x2: 105, y2: 92 }));\n    let d = 'M4 62';\n    for (let j = 0; j < 8; j++) d += ' q8 -5 16 0';\n    add(K.svg('path', { class: 'water', d }));\n    addObst(4, 62, 132, 62);\n    placed.push({ x: 8, y: 26, w: 116, h: 76 });\n    fixed(118, 97, 'bilge keel', 'lab', 'start');\n    line('ax', G.QL, G.QB, G.QR, G.QB); line('ax', G.QL, G.QT, G.QL, G.QB);\n    addObst(G.QL, G.QT, G.QL, G.QB); addObst(G.QL, G.QB, G.QR, G.QB);\n    fixed(4, G.QT - 10, 'roll swing', 'ttl', 'start');\n    fixed(G.QR, G.QB + 18, 'wave rate', 'tk', 'end');\n    natLine('roll natural frequency');\n  }\n\n  // Lines of working under the picture.\n  function workLines(lines) {\n    lines.forEach((w, k) => {\n      const a = w.a == null ? 1 : w.a;\n      part(a, 6, () => text(4, G.workY + 26 * k, w.s, 'te' + (w.bad ? ' bad' : ''), 'start'));\n      if (a >= 0.5) said.push(say(w.s) + '.');\n      REC.work.push({ s: plain(w.s), bad: !!w.bad });\n    });\n  }\n  function tagLine(s) { fixed(336, 16, s, 'tag2', 'end'); said.push(say(s) + '.'); }\n  // The key, inside the drawing; it wraps to more rows if it must.\n  const sw = (cls) => (x, y) => line(cls, x, y, x + 18, y);\n  const KEYS = {\n    trace: [() => 'position `x`', sw('trace')],\n    env: [() => 'envelope', sw('env')],\n    rest: [() => 'rest', sw('rest')],\n    push: [() => 'push `F cos ωt`', (x, y) => arrow(x + 9, y + 7, x + 9, y - 7, 'parr', 5)],\n    dot: [() => 'settled swing', (x, y) => add(K.svg('circle', { class: 'dot', cx: x + 9, cy: y, r: 4.5 }))],\n    r15: [() => 'a 1.5 rad/s swing', sw('trace bad')],\n    hillc: [() => 'damping `c` = ' + f1(P.c), sw('hill')],\n    ghost: [() => 'damping 0.5', sw('hill ghost')],\n    hill6: [() => 'damping 6', sw('hill')],\n    bare: [() => 'without bilge keels', sw('hill')],\n    keels: [() => 'with bilge keels', sw('hill teal')],\n    heavy: [() => 'heavy damping', sw('hill bad')],\n  };\n  function keyLayout(items, d) {\n    const out = [];\n    let x = 4, row = 0;\n    items.forEach((k) => {\n      const s = KEYS[k][0](d), w = 24 + tw(s, 'key');\n      if (x + w > 336 && x > 4) { row++; x = 4; }\n      out.push({ k, s, x, row });\n      x += w + 14;\n    });\n    return { out, rows: Math.max(1, row + 1) };\n  }\n  function keyRow(lay) {\n    const y = G.keyY;\n    lay.out.forEach((o) => { const yy = y + 20 * o.row; KEYS[o.k][1](o.x, yy - 5); text(o.x + 24, yy, o.s, 'key', 'start'); placed.push({ x: o.x - 2, y: yy - 13, w: 26 + tw(o.s, 'key'), h: 17 }); });\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = ''; topG.textContent = '';\n    into = null; curA = 1; placed = []; obst = []; queue = []; said = [];\n    REC = { traces: [], heads: [], texts: [], dots: [], curves: [], work: [], bad: 0, answer: false, mass: null, level: null, arrows: null, topMark: null, drop: null, env: false };\n    const keys = typeof d.key === 'function' ? d.key(st) : d.key || [];\n    const lay = keyLayout(keys, d);\n    G = geoOf(d, st, keys.length ? lay.rows : 0);\n    REC.G = G;\n    if (d.tag) tagLine(d.tag(st));\n    d.draw(st, d);\n    if (keys.length) keyRow(lay);\n    queue.forEach(placeLabel);\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.round(G.H));\n    svg.setAttribute('aria-label', said.join(' '));\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const wCtl = K.control({ id: 'w', label: 'Push rate ω', min: WMIN, max: WMAX, step: 0.25, value: W0, snap: [1, 2, 4], fmt: (v) => nb(f2(v) + ' rad/s'), into: '#wbox' });\n  K.control({ id: 'c', label: 'Damping c', min: C0, max: CMAX, step: 0.5, value: C0, snap: [2, 3], fmt: (v) => nb(f1(v) + ' N·s/m'), into: '#cbox' });\n  K.choice({ id: 'view', label: 'Draw it as', options: [{ value: 'spring', label: 'Spring' }, { value: 'loop', label: 'RLC loop' }], value: 'spring', into: '#vbox' });\n\n  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong\n  // answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); TM = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one draws the answer, a wrong one draws the slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(FB);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    RUNMODE = 'entry';\n    if (d.run) VISITED.delete(P.w);\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); VISITED = new Set(); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    TM += dt;\n    paint();\n    commit(at());\n    return TM < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && TM !== Infinity) { TM = Infinity; paint(); commit(at()); } });\n  function play(dur) {\n    if (REDUCE || testing()) { TM = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; TM = 0; anim.play();\n  }\n  function settle() { if (anim.playing()) anim.pause(); TM = Infinity; }\n  // On the main screen, a push rate's dot stays once it has dropped.\n  function commit(i) {\n    const d = STEPS[i];\n    if (!d || !d.run) return;\n    const td = RUNMODE === 'quick' ? QDROP : EDROP;\n    if (TM >= td + SOFT) VISITED.add(P.w);\n  }\n  // A sweep on the main screen drops a dot at once for every rate it passes on the way.\n  function passed(a, b) {\n    if (a == null) return;\n    const lo = Math.min(a, b), hi = Math.max(a, b);\n    ALLW.forEach((v) => { if (v >= lo && v <= hi && v !== b) VISITED.add(v); });\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  function setRich(node, s) { if (node.__s === s) return; node.__s = s; write(node, s); }\n  K.update((p) => {\n    P = { w: K.clamp(Math.round(p.w * 4) / 4, WMIN, WMAX), c: K.clamp(Math.round(p.c * 2) / 2, C0, CMAX), view: p.view === 'loop' ? 'loop' : 'spring' };\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    // A control moved on its screen: the main screen runs the trace again and drops its dot; any\n    // other screen shows the finished picture for the new setting at once.\n    const key = P.w + '|' + P.c + '|' + P.view;\n    if (key !== lastKey) {\n      if (lastKey !== null && i === lastStep) {\n        if (d.run && P.w !== lastW) { passed(lastW, P.w); RUNMODE = 'quick'; play(RUN); }\n        else settle();\n      }\n      lastKey = key; lastW = P.w;\n    }\n    if (!anim.playing()) TM = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox'); RUNMODE = 'entry';\n      if (d.show) play(d.dur); else { anim.pause(); TM = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('lead').textContent = nb(d.lead || '');\n    el('lead').hidden = !d.lead;\n    paint(i);\n    commit(i);\n\n    el('wbox').hidden = !d.w;\n    el('cbox').hidden = !d.c;\n    el('vbox').hidden = !d.view;\n    const tiles = d.reads ? d.reads() : [];\n    el('reads').hidden = !tiles.length;\n    [1, 2].forEach((k) => {\n      const t = tiles[k - 1];\n      el('rd' + k).hidden = !t;\n      if (!t) return;\n      setRich(el('l' + k), t.l);\n      el('v' + k).textContent = nb(t.v);\n      el('s' + k).textContent = t.s ? nb(t.s) : '';\n      el('s' + k).hidden = !t.s;\n    });\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => plain(o).length > 9));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      setRich(b.el, opts[k]);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));\n  const solvedSt = (i) => ({ pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => ({ pick: o, res: 'wrong' });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished, or t seconds into its motion, with the controls at p).\n  function drawn(i, st, t, p, seen, mode) {\n    const keepS = S[i], keepT = TM, keepP = P, keepV = VISITED, keepM = RUNMODE;\n    S[i] = Object.assign(blank(), st); TM = t == null ? Infinity : t;\n    if (p) P = Object.assign({}, P, p);\n    if (seen) VISITED = seen;\n    if (mode) RUNMODE = mode;\n    try { paint(i); return REC; } finally { S[i] = keepS; TM = keepT; P = keepP; VISITED = keepV; RUNMODE = keepM; paint(); }\n  }\n\n  K.check('The motion is a steady swing set by the push plus a transient set by the start: from rest, from 0.3 m and from a 1 m/s kick at 1 rad/s the traces differ at first and agree within 0.01 m after 20 s; every trace obeys m x″ + c x′ + k x = F cos ωt; and once settled each swings at the push\\'s rate', () => {\n    const a = forced(1, C0, 0, 0), b = forced(1, C0, 0.3, 0), c2 = forced(1, C0, 0, 1);\n    const differ = Math.abs(a.x(1) - b.x(1)) > 0.05 && Math.abs(a.x(1) - c2.x(1)) > 0.05;\n    const agree = K.linspace(20, 30, 101).every((t) => Math.abs(a.x(t) - b.x(t)) < 0.01 && Math.abs(a.x(t) - c2.x(t)) < 0.01);\n    const h = 1e-3;\n    const obeys = ALLW.every((w) => [C0, 2, CC, C6].every((c) => {\n      const s = forced(w, c);\n      if (Math.abs(s.x(0)) > 1e-12 || Math.abs(s.v(0)) > 1e-12) return false;\n      return K.linspace(0.1, 29.9, 25).every((t) => {\n        const x = s.x(t), v = (s.x(t + h) - s.x(t - h)) / (2 * h), acc = (s.x(t + h) - 2 * x + s.x(t - h)) / (h * h);\n        return Math.abs(M * acc + c * v + KS * x - F0 * Math.cos(w * t)) < 1e-4 && close(v, s.v(t), 1e-5);\n      });\n    }));\n    const rate = [1, 2, 3, 4].every((w) => {\n      const s = forced(w), ups = [];\n      for (let t = 20; t < 50 && ups.length < 3; t += 0.002) if (s.x(t) < 0 && s.x(t + 0.002) >= 0) ups.push(t);\n      return ups.length === 3 && Math.abs((ups[2] - ups[0]) / 2 - 2 * Math.PI / w) < 0.01 * 2 * Math.PI / w;\n    });\n    return differ && agree && obeys && rate;\n  });\n  K.check('A system swings with its largest amplitude when the push\\'s frequency equals its natural frequency: with light damping the largest steady swing on the drive slider sits at the natural frequency, the square root of k ÷ m, and the true top of the hill lies within two percent of it', () => {\n    const best = ALLW.reduce((a, w) => (amp(w) > amp(a) ? w : a), ALLW[0]), pk = peak(C0);\n    return close(best, WN) && close(WN, 2) && Math.abs(pk.w - WN) / WN < 0.02;\n  }, { source: SRC_USNA });\n  K.check('Resonance can still occur with more damping, but the amplitude at resonance is reduced: each step up in damping, from the lightest to just below where the hill goes, lowers the swing at the natural frequency and the top of the hill, and every one of them still has a top', () => {\n    const cs = SLIDEC.filter((c) => c * c < 2 * M * KS);\n    return cs.length >= 5 && cs.every((c, k) => peak(c) && (k === 0 || (amp(WN, c) < amp(WN, cs[k - 1]) && peak(c).X < peak(cs[k - 1]).X)));\n  }, { source: SRC_USNA });\n  K.check('The driven series RLC circuit is the electrical analog of the driven damped spring: the loop, worked out in volts step by step through time from no charge, settles to the same charge swing as the spring\\'s steady swing at four push rates', () => {\n    const run = (w) => {\n      let q = 0, i = 0, t = 0, big = 0;\n      const dt = 0.002, T = 60, from = T - 2 * (2 * Math.PI / w);\n      const f = (tt, qq, ii) => (VS * Math.cos(w * tt) - RL * ii - qq / CL) / LH;\n      while (t < T) {\n        const k1q = i, k1i = f(t, q, i);\n        const k2q = i + dt / 2 * k1i, k2i = f(t + dt / 2, q + dt / 2 * k1q, i + dt / 2 * k1i);\n        const k3q = i + dt / 2 * k2i, k3i = f(t + dt / 2, q + dt / 2 * k2q, i + dt / 2 * k2i);\n        const k4q = i + dt * k3i, k4i = f(t + dt, q + dt * k3q, i + dt * k3i);\n        q += dt / 6 * (k1q + 2 * k2q + 2 * k3q + k4q); i += dt / 6 * (k1i + 2 * k2i + 2 * k3i + k4i); t += dt;\n        if (t >= from) big = Math.max(big, Math.abs(q));\n      }\n      return big;\n    };\n    return [0.5, 1, 2, 3].every((w) => Math.abs(run(w) - amp(w)) < 1e-3 * amp(w));\n  }, { source: SRC_OS });\n  K.check('Every number is right: 0.329 m at 1 rad/s from 9 and 0.25, with arrows 1.32, 0.33 and 0.16 N; 2 rad/s natural, 1 m there with 4, 4 and 1 N; 0.25 m slow, 16 and 0.08 m at 4 rad/s, 12.17; tops 1.01 at 1.97, 0.52 at 1.87, 0.29 at 1.41, the hill gone past 2.83, none at 3, critical 4, 0.24 m at damping 6 from 3.94 and 1.5; a 4 s time constant, 20 s, 0.0067 left; one swing 6.28 s, ringing 1.98; the loop 0.25 F, 1 C, 2 A; the example 1000 rad/s, 159 Hz, 100 Ω each, 1600 and 20000, 0.25 A, 25 V, 2.5, 4 V and 12.5 V', () => {\n    const X1 = amp(1), X2 = amp(2), X4 = amp(4);\n    const spring = f3(X1) === '0.329' && close(Math.pow(KS - M, 2), 9) && close(Math.pow(C0 * 1, 2), 0.25) &&\n      f2(KS * X1) === '1.32' && f2(M * X1) === '0.33' && f2(C0 * X1) === '0.16' &&\n      close(WN, 2) && close(X2, 1) && close(KS * X2, 4) && close(M * 4 * X2, 4) && close(C0 * 2 * X2, 1) && close(F0 / (C0 * WN), 1) &&\n      f2(amp(WMIN)) === '0.25' && close(F0 / KS, 0.25) && close(M * 16, 16) && f2(X4) === '0.08' && f2(Math.hypot(12, 2)) === '12.17' &&\n      f2(peak(0.5).X) === '1.01' && f2(peak(0.5).w) === '1.97' && f2(peak(1).X) === '0.52' && f2(peak(1).w) === '1.87' &&\n      f2(peak(2).X) === '0.29' && f2(peak(2).w) === '1.41' && f2(CH) === '2.83' && peak(2.5) && !peak(3) && close(CC, 4) &&\n      f2(amp(WMIN, C6)) === '0.24' && f2(KS - M * WMIN * WMIN) === '3.94' && close(C6 * WMIN, 1.5) && close(C6 * C6, 36) && close(2 * M * KS, 8) &&\n      close(TAU, 4) && close(5 * TAU, 20) && f4(Math.exp(-5)) === '0.0067' && Math.exp(-5) < 0.01 &&\n      f2(2 * Math.PI) === '6.28' && f2(free(C0, 0, 0).b) === '1.98' && close(peakT(forced(1), 4) - peakT(forced(1), 3), 2 * Math.PI);\n    const loop = close(CL, 0.25) && close(amp(2), 1) && close(2 * amp(2), 2) && close(VS / RL, 2) &&\n      K.linspace(0.01, WMAX, 3991).every((w) => w * amp(w) <= 2 + 1e-12);\n    const ex = close(1 / Math.sqrt(EL * EC), 1000, 1e-6) && Math.round(1000 / (2 * Math.PI)) === 159 && close(exXL, 100, 1e-9) && close(exXC, 100, 1e-9) &&\n      close(ER * ER, 1600) && close(2 * EL / EC, 20000, 1e-6) && close(exI(ER), 0.25, 1e-9) && close(exVC(ER), 25, 1e-9) && close(exVC(ER) / EV, 2.5, 1e-9) &&\n      close(EV * ER / exXC, 4, 1e-9) && close(exVC(80), 12.5, 1e-9);\n    return !!(spring && loop && ex);\n  });\n  K.check('The picture follows the rule: every dot on the main screen sits at the steady swing for its push rate; the mass stays level with the trace\\'s newest point; the three force arrows, end to end, always reach the tip of the 1 N push; the hill\\'s top mark sits at its largest swing, and from damping 3 up there is no top and the swing only falls', () => {\n    const iH = idx('The hill'), iF = idx('Three forces'), iD = idx('Damping');\n    const r4 = drawn(iH, {}, null, { w: 2 }, new Set(ALLW));\n    const dots = r4.dots.length === ALLW.length && r4.dots.every((p) => close(p.X, amp(p.w)) && close(p.y, r4.G.qy(p.X), 1e-9) && close(p.x, r4.G.qx(p.w), 1e-9));\n    const level = [WMIN, 1, 2, 4].every((w) => [0, 0.8, 1.5, 2.5, 3.5, null].every((t) => {\n      const rr = drawn(iH, {}, t, { w }, new Set(), 'entry'), hd = rr.heads[rr.heads.length - 1];\n      return hd && rr.mass && close(rr.mass.cy, hd.y, 1e-9) && close(rr.level, hd.y, 1e-9) && close(hd.v, forced(w).x(hd.t), 1e-12);\n    }));\n    const arrowsOk = ALLW.every((w) => {\n      const A = drawn(iF, {}, null, { w }).arrows, X = amp(w);\n      return A && A.pushEnd && close(Math.hypot(A.kx - A.mx, A.cx), F0, 1e-9) && close(A.pushEnd[0], A.damperEnd[0], 1e-9) && close(A.pushEnd[1], A.damperEnd[1], 1e-9) &&\n        close(A.kx, KS * X) && close(A.mx, M * w * w * X) && close(A.cx, C0 * w * X);\n    });\n    const grid = K.linspace(0, WMAX, 4001);\n    const tops = SLIDEC.every((c) => {\n      const rr = drawn(iD, {}, null, { c }), mx = Math.max.apply(null, grid.map((w) => amp(w, c)));\n      if (c * c < 2 * M * KS) return rr.topMark && rr.topMark.X >= mx - 1e-9 && close(rr.topMark.X, amp(rr.topMark.w, c));\n      return !rr.topMark && grid.every((w, k) => k === 0 || amp(w, c) < amp(grid[k - 1], c));\n    });\n    return dots && level && arrowsOk && tops;\n  });\n  K.check('Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&\n        drawn(i, solvedSt(i)).answer && d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0);\n    }));\n  K.check('Before Check, no puzzle\\'s picture shows its answer or a mistake, and no working is drawn', () =>\n    DO.every((i) => { const r = drawn(i, {}); return !r.answer && r.bad === 0 && r.work.length === 0; }));\n  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; a push-rate move on the main screen drops its dot within 3 s; every answer\\'s motion, right or wrong, finishes within 2 s', () => {\n    const keepT = TM;\n    const timed = (i, st, limit, mode) => {\n      const keepS = S[i], keepM = RUNMODE, keepV = VISITED;\n      TM = Infinity; latest = 0; earliest = Infinity;\n      S[i] = Object.assign(blank(), st); RUNMODE = mode || 'entry'; VISITED = new Set();\n      try { paint(i); } finally { S[i] = keepS; RUNMODE = keepM; VISITED = keepV; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) return d.dur <= 5 && d.dur >= 3 && timed(i, {}, d.dur) && earliest >= FADE && (!d.run || timed(i, {}, 3, 'quick'));\n      return timed(i, solvedSt(i), FB) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB));\n    });\n    TM = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The driven swing",
+  "brief": "The one thing you should see is the dots on the graph of swing against frequency climbing to a peak near 2 rad/s, where the spring and mass forces cancel, when you drag the drive frequency.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The motion is a steady swing set by the push plus a transient set by the start: from rest, from 0.3 m and from a 1 m/s kick at 1 rad/s the traces differ at first and agree within 0.01 m after 20 s; every trace obeys m x″ + c x′ + k x = F cos ωt; and once settled each swings at the push's rate",
+     "ok": true
+    },
+    {
+     "label": "A system swings with its largest amplitude when the push's frequency equals its natural frequency: with light damping the largest steady swing on the drive slider sits at the natural frequency, the square root of k ÷ m, and the true top of the hill lies within two percent of it",
+     "ok": true,
+     "source": "https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf"
+    },
+    {
+     "label": "Resonance can still occur with more damping, but the amplitude at resonance is reduced: each step up in damping, from the lightest to just below where the hill goes, lowers the swing at the natural frequency and the top of the hill, and every one of them still has a top",
+     "ok": true,
+     "source": "https://usna.edu/NAOE/_files/documents/Courses/EN400/02.08%20Chapter%208.pdf"
+    },
+    {
+     "label": "The driven series RLC circuit is the electrical analog of the driven damped spring: the loop, worked out in volts step by step through time from no charge, settles to the same charge swing as the spring's steady swing at four push rates",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit"
+    },
+    {
+     "label": "Every number is right: 0.329 m at 1 rad/s from 9 and 0.25, with arrows 1.32, 0.33 and 0.16 N; 2 rad/s natural, 1 m there with 4, 4 and 1 N; 0.25 m slow, 16 and 0.08 m at 4 rad/s, 12.17; tops 1.01 at 1.97, 0.52 at 1.87, 0.29 at 1.41, the hill gone past 2.83, none at 3, critical 4, 0.24 m at damping 6 from 3.94 and 1.5; a 4 s time constant, 20 s, 0.0067 left; one swing 6.28 s, ringing 1.98; the loop 0.25 F, 1 C, 2 A; the example 1000 rad/s, 159 Hz, 100 Ω each, 1600 and 20000, 0.25 A, 25 V, 2.5, 4 V and 12.5 V",
+     "ok": true
+    },
+    {
+     "label": "The picture follows the rule: every dot on the main screen sits at the steady swing for its push rate; the mass stays level with the trace's newest point; the three force arrows, end to end, always reach the tip of the 1 N push; the hill's top mark sits at its largest swing, and from damping 3 up there is no top and the swing only falls",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its answer, draws it when it is checked, and draws every wrong pick as a mistake",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle's picture shows its answer or a mistake, and no working is drawn",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; a push-rate move on the main screen drops its dot within 3 s; every answer's motion, right or wrong, finishes within 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "w",
+    "c",
+    "view"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The push",
+      "How often",
+      "Three forces",
+      "At 2 rad/s",
+      "The hill",
+      "A fast push",
+      "Damping",
+      "Heavy damping",
+      "The loop",
+      "At resonance",
+      "Check the units",
+      "Bilge keels"
+     ],
+     "value": 0
+    },
+    {
+     "id": "w",
+     "kind": "control",
+     "label": "Push rate ω",
+     "min": 0.25,
+     "max": 4,
+     "step": 0.25,
+     "log": false,
+     "value": 1,
+     "shown": false,
+     "snap": [
+      1,
+      2,
+      4
+     ]
+    },
+    {
+     "id": "c",
+     "kind": "control",
+     "label": "Damping c",
+     "min": 0.5,
+     "max": 6,
+     "step": 0.5,
+     "log": false,
+     "value": 0.5,
+     "shown": false,
+     "snap": [
+      2,
+      3
+     ]
+    },
+    {
+     "id": "view",
+     "kind": "choice",
+     "label": "Draw it as",
+     "options": [
+      "spring",
+      "loop"
+     ],
+     "labels": [
+      "Spring",
+      "RLC loop"
+     ],
+     "value": "spring",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T10:54:27.882Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The damping step says a peak needs R² below 2L ÷ C, and a mistake calls any overdamped peak wrong, but a series loop's current peaks at 1 ÷ √(LC) for any R, as the explanation says; only the charge and capacitor voltage lose their peak."
+   },
+   {
+    "path": "explain.text",
+    "problem": "\"Slides a little lower\" understates the shift: the lesson's own figure at damping 2 puts the top near 1.41 rad/s, about 30% below the 2 rad/s natural frequency."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "Two absolutes are false: not all real springs stiffen (some soften, and a ship's righting moment falls off at big angles), and 1 H coils are ordinary real chokes, so the parts are not bigger than every real part."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
