@@ -1,5 +1,8 @@
 # Maths: the build queue (Dan, 24 Oct 2026: "Let's work through the maths section first")
 
+**Stop after Advanced maths (Dan, 25 Oct: "Once you finish advanced maths, stop").** Items 7 to 10 below
+are not to be started without his say.
+
 Built: all of Foundational maths, all of Algebra, Calculus fundamentals. Removed as overlaps (24 Oct): Limits,
 Derivatives, Calculus in a nutshell, Introduction to linear algebra.
 
