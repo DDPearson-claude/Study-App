@@ -30,6 +30,11 @@
 //       Dan's written answer (K.written); the reply goes back to it as {type:'marked', id, …}. Without
 //       onWritten the page is told {error:'unavailable'} at once (it shows the self-tick list).
 //       onTicked({id, met}): Dan ticked the points himself (no Claude).
+//       field() -> Promise<{id, unit, focused, y, h} | null>: the typed answer (K.answer) Dan's calculator
+//       would fill: the one with focus, else the one showing on the current step; y and h place it in
+//       the frame. insert(text) -> Promise<{id, unit, y, h}>: plain digits into that field, as if typed,
+//       focused and not checked (rejects {code:'kit_error'} when there is none).
+//   U.sandbox.mounted() -> [mount api]   the frames mounted on the page now (never the hidden test frames)
 //   U.sandbox.test(html, {widths:[340, 720, 1040], timeout:8000, kase, lesson}) -> Promise<Report>   hidden, merged
 //   U.sandbox.reach(mounted | html, {control, output, target, tolerance, decimals?}) ->
 //       Promise<{reachable, exact, best:{value, output} | null, tried, error?}>
@@ -237,6 +242,9 @@ U.sandbox = (function () {
       set: function (id, value) { return ch.request('set', { id: id, value: value }).then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
       press: function (label) { return ch.request('press', { label: label || '' }).then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
       inputs: function () { return ch.request('inputs').then(function (d) { return { inputs: d.inputs || [], actions: d.actions || [] }; }); },
+      // Dan's calculator (46-calc-sheet.js): the typed answer showing, and a result put into it.
+      field: function () { return ch.request('field', null, 1500).then(function (d) { return d.field && typeof d.field === 'object' ? d.field : null; }); },
+      insert: function (text) { return ch.request('insert', { text: String(text == null ? '' : text) }, 2000).then(function (d) { return { id: d.id, unit: d.unit, y: d.y, h: d.h }; }); },
       reach: function (spec) {
         spec = spec || {};
         var dp = Number(spec.decimals);
@@ -268,6 +276,9 @@ U.sandbox = (function () {
   // gets FIRST_MS (the time K.ready() is waited for) and is removed, never shown. The clock runs
   // only while the app is visible (visibleTimeout).
   var PING_MS = 2000, MISSES = 2, FIRST_MS = 12000, MARKS_PER_ID = 4;
+  // Every frame mounted on the page and not yet destroyed (U.sandbox.mounted()).
+  var mountedApis = [];
+  function mounted() { return mountedApis.filter(function (m) { return m.el.isConnected; }); }
   function cleanId(v) { return typeof v === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(v) ? v : ''; }
   var SILENT = 'The interactive stopped answering, so it was closed.';
   function mount(container, o) {
@@ -439,8 +450,10 @@ U.sandbox = (function () {
         ch.close();
         settle(null);
         wrap.remove();
+        mountedApis = mountedApis.filter(function (m) { return m !== api; });
       },
     }, requests(ch));
+    if (shown) mountedApis.push(api);
     return api;
   }
 
@@ -595,5 +608,5 @@ U.sandbox = (function () {
     });
   }
 
-  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, isDark: isDark, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
+  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, isDark: isDark, srcdoc: srcdoc, mount: mount, mounted: mounted, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
 })();

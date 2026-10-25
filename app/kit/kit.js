@@ -4,7 +4,8 @@
  * readouts, plots, buttons and sound, declares a pure model, known-answer checks, and calls K.ready().
  * The kit talks to the host (app/src/js/32-sandbox.js) with postMessage, every message tagged
  * src:'kit': height, ready, error, change, complete, written, ticked, and replies to selftest / get / set /
- * press / inputs / reach / theme; the host also sends marked (a written answer marked by Claude).
+ * press / inputs / reach / theme / field / insert; the host also sends marked (a written answer marked by
+ * Claude). field and insert are Dan's calculator finding a typed answer and putting its result in it.
  * This file is inlined into a <script> element, so it never contains a closing script tag or an
  * HTML comment opener. */
 (function () {
@@ -2269,6 +2270,49 @@
   K.answer.grade = gradeTyped;
   K.answer.read = readTyped;
 
+  // ---- the app's calculator ----
+  // Dan's calculator (the app's, 46-calc-sheet.js) can put its result into a typed answer for him:
+  // the host asks 'field' (is there one?) and sends 'insert' with plain digits. The field is the
+  // K.answer that has focus, or had it last, else the one showing on the current step (not yet
+  // right, if there are several). The number goes in as if typed (its input event fires, so any
+  // old mark goes) and the field takes focus; Check is never pressed.
+  var lastAnswerInput = null;
+  document.addEventListener('focusin', function (ev) {
+    var t = ev.target;
+    if (t && t.classList && t.classList.contains('k-answer-input')) lastAnswerInput = t;
+  }, true);
+  function answerShown(a) {
+    var inp = a.input;
+    if (!inp.isConnected || inp.disabled || inp.readOnly || !inp.getClientRects().length) return false;
+    try { return getComputedStyle(inp).visibility !== 'hidden'; } catch (e) { return true; }
+  }
+  function answerTarget() {
+    var shown = answers.filter(answerShown);
+    function by(inp) { return inp ? shown.filter(function (a) { return a.input === inp; })[0] : null; }
+    var a = by(document.activeElement) || by(lastAnswerInput);
+    if (a) return { a: a, focused: true };
+    a = shown.filter(function (x) { return !x.shown && !x.right(); })[0] || shown[0];
+    return a ? { a: a, focused: false } : null;
+  }
+  function fieldInfo(t) {
+    var r = t.a.input.getBoundingClientRect();
+    return { id: t.a.id, unit: t.a.spec.unit, focused: t.focused, y: Math.round(r.top + (window.scrollY || 0)), h: Math.round(r.height) };
+  }
+  function calcField() { var t = answerTarget(); return t ? fieldInfo(t) : null; }
+  function calcInsert(text) {
+    var t = answerTarget();
+    text = String(text == null ? '' : text).replace(/−/g, '-').trim();
+    if (!t) return { error: 'There is no answer box showing.' };
+    if (text.length > 40 || !/^-?(\d+\.?\d*|\.\d+)$/.test(text)) return { error: 'Only a plain number can go in an answer box.' };
+    var inp = t.a.input;
+    t.a.set(text);
+    try { inp.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) { markMoved(); }
+    try { inp.focus({ preventScroll: true }); } catch (e) { /* fine */ }
+    lastAnswerInput = inp;
+    t.focused = true;
+    return fieldInfo(t);
+  }
+
   // ---- the case file on the page ----
   // K.scenario({into, open?, title?, text?}) -> {el}: the running case's scenario (case.scenario
   // {title, text, source}) as a panel that folds. A lesson may give its own title and text for the
@@ -3556,6 +3600,13 @@
     } else if (d.type === 'marked') {
       // The host's answer to a written answer Dan sent (K.written).
       markedMessage(d);
+    } else if (d.type === 'field') {
+      // Dan's calculator: is a typed answer showing? (see "the app's calculator" above)
+      post({ type: 'field', rid: rid, field: calcField() });
+    } else if (d.type === 'insert') {
+      var put = calcInsert(d.text);
+      if (put.error) post({ type: 'error', rid: rid, message: put.error });
+      else post({ type: 'inserted', rid: rid, id: put.id, unit: put.unit, y: put.y, h: put.h });
     }
   }, true);
 })();

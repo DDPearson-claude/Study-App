@@ -226,10 +226,12 @@
     var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' });
     var askBtn = U.h('button', { class: 'lsn-ask', type: 'button', 'aria-label': 'Ask Claude', on: { click: openTutor } },
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
-    var bar = U.h('div', { class: 'lsn-bar' },
+    // The calculator (46-calc-sheet.js): the lesson hides the top bar, so its icon sits here too.
+    var calcBtn = U.calcSheet ? U.calcSheet.button('lsn-calc') : null;
+    var bar = U.h('div', { class: 'lsn-bar' + (calcBtn ? ' has-calc' : '') },
       backLink(tid),
       U.h('nav', { class: 'lsn-steps', 'aria-label': 'Lesson progress' }, stepsRow, stepLabel),
-      askBtn);
+      calcBtn, askBtn);
     var eb = U.h('p', { class: 'eyebrow lsn-eb' }, U.h('span', { class: 'skeleton lsn-sk-eb' }));
     var h1 = U.h('h1', { class: 'lsn-title' }, U.h('span', { class: 'skeleton lsn-sk-h1' }));
     var one = U.h('p', { class: 'lsn-one' });

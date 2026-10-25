@@ -56,7 +56,8 @@ and `"@@BUILD@@"` (date + short git sha) are required; `"@@KIT_MD@@"` and `"@@KI
 - Browser storage is per device and always inside try: localStorage `mu-prefs` (prefs mirror),
   `mu-layout`, `mu.device` (device id), `mu.minutes` (today's study minutes on this device, shared
   by its tabs), `mu.outbox.<uid>.<page>` (held writes to private docs), `mu.puzzleBox` ('1' shows the
-  puzzle box: `U.flags.puzzleBox`, below); sessionStorage `mu.tab` (tab id)
+  puzzle box: `U.flags.puzzleBox`, below), `mu.calc` (the calculator's DEG/RAD, ENG and last 10 sums,
+  section 9); sessionStorage `mu.tab` (tab id)
   and `mu.tab.open` (the page of this tab that is open now).
 
 ### Core API (`00-core.js`)
@@ -1006,6 +1007,12 @@ host -> kit  ping                    -> {type:'pong'}         the heartbeat
                  (the kit's or the host's: too large, did not load, the page left) has exact: false
              theme {theme}           (no reply)
              marked {id, met, nailed, followUp, wrong?} | {id, error}   (no reply) the written answer, marked
+             field                   -> {type:'field', field:{id, unit, focused, y, h} | null}   Dan's calculator
+                 (section 9): the typed answer (K.answer) it would fill: the one with focus (or focused
+                 last), else the one showing on the current step (not yet right, if several); y and h
+                 place it in the frame's page
+             insert {text}           -> {type:'inserted', id, unit, y, h} | error   plain digits ('-13.33') into
+                 that field as if typed (its input event fires, an old mark goes), focused; never checked
 Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label, ok, source?, error?}],
            sweep:{ ok, problems:[] }, controls:[ids], readouts:[ids], outputs:[model keys],
            inputs:[…], actions:[labels], answers:[{id, answer, accept, ok}], written:[ids],
@@ -1513,6 +1520,9 @@ U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg)
    destroyed. quiz / reveal: quiz mode (section 6). theme: a function giving the K_THEME to use instead of
    the app's (none today: the dossier's plates take the app's, like a lesson), asked again on every theme
    or text-size change.
+   field() -> Promise<{id, unit, focused, y, h} | null> and insert(text) -> Promise<{id, unit, y, h}>: the kit's
+   field / insert (section 6), for Dan's calculator (field gives up after 1.5 s: null)
+U.sandbox.mounted() -> [mount api]   the frames mounted on the page now (never the hidden test frames)
 U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme, kase, lesson}) -> Promise<Report>   hidden frames, one width
    at a time, merged: a message seen at only some widths ends " [at 340 and 720 px wide]", a check
    passes only at every width whose page ran, ids / inputs / actions come from the first width that
@@ -1521,6 +1531,51 @@ U.sandbox.reach(mounted | html, {control, output, target, tolerance, decimals?})
 U.sandbox.theme({light?}) -> {dark, size, c:{bg, panel, sunk, ink, muted, line, strong, accent, accent2, onAccent2, warn, good, amber}}   light: Dan's light palette
 U.sandbox.visibleTimeout(fn, ms) -> {cancel()}   time with the page hidden does not count
 ```
+Calculator (`45-calc.js` the engine, `46-calc-sheet.js` the sheet; Dan, 25 Oct: "Some quizzes require
+quite complicated maths… add a scientific calculator icon I can tap to open in the app")
+```
+U.calc.evaluate(text, {angle: 'deg'|'rad', ans, close}) -> {ok: true, value} | {ok: false, error}   pure (no DOM)
+   its own tokenizer and recursive-descent parser: never eval or Function, names looked up in its own list.
+   Reads numbers (4.7, .5), E for ×10ⁿ bound to its number (2E3, 1.5E-7; 1÷2E3 is 0.0005; only E or ᴇ:
+   a lowercase e is always the constant, so the e key's 2e−3 is 2e − 3 and 2e3 asks for a sign), an SI prefix straight after a number (p n u µ m k M G T: 4.7k, 220u; m milli, M mega), π pi e
+   Ans, + − × ÷ (* /), ^ (right to left; a minus after it is the power's), ² ³ ⁻¹ and other superscript
+   powers, % (÷100), brackets, sin cos tan, sin⁻¹ (asin, arcsin, sin^-1) and the others, √ sqrt ∛ cbrt
+   ln log exp abs, 10^( and e^(. Multiplication without a sign (2π, 3(4+1), 2sin(30)) binds before × and
+   ÷ (1÷2π is 1÷(2π)), never before a bare number (2 3 is an error). angle: degrees by default; the
+   angles with exact answers give them (sin 180° is 0, tan 90° an error). Each step in full double
+   precision; a sum or difference kept to 15 significant figures of its larger part (0.1+0.2−0.3 is 0);
+   the answer kept to 15 (Ans). close: brackets open at the end are closed (the sheet's =).
+   Errors, in plain words (U.calc.ERR): Missing a closing bracket, A closing bracket has no opening one,
+   Missing a number, Missing a + − × or ÷ between two numbers, Can't divide by zero, Not a real number,
+   tan has no value at this angle, Too big to work out, Missing the power of ten after E, A number can
+   only have one point, Use a point for decimals, not a comma, Put a prefix straight after a number,
+   like 4.7k, Too many brackets inside each other, This sum is too long (300 characters), Can't read
+   "…", Can't use "…" in a sum. Never NaN or Infinity.
+U.calc.format(value, {eng}) -> 10 significant figures, a true minus, ×10ⁿ under 0.0001 and from 10¹⁰
+   ('1.5×10⁻⁷'); eng: powers of ten in threes as their prefix ('4.7k', '220µ', beyond T '1×10¹⁸')
+U.calc.plain(value) -> the value at 10 significant figures as digits, a point and a minus ('0.00000015')
+U.calc.closeBrackets(text)   U.calc.tokenize(text)   U.calc.MAX_LEN (300)
+U.calcSheet.open(opener?) / close() / toggle(opener?) / isOpen() / button(cls?) / refresh() / state
+   button: the icon (aria-expanded follows the sheet), in the top bar beside Aa (#calc-btn), the
+   lesson bar (before Ask), the read-through's bar and the review's. Not modal: html.calc-open, and
+   #view takes the sheet's height (--calc-h) as bottom padding, so the page above scrolls clear of it;
+   a modal sheet (Settings, a source) opens over it. Closed by its icon, Close or Escape; it stays open
+   across routes and keeps its state for the visit (the sum, Ans); localStorage `mu.calc` keeps
+   {v: 1, angle, eng, hist: [{e, v}] (newest first, 10)}. The top row: 2nd, DEG/RAD, ENG, History,
+   Close; the display: the sum (an input with inputmode none: the keys type at its caret, a laptop
+   types into it, Enter is =, an operator after a result carries on from Ans, anything else starts a
+   new sum; * / - show as × ÷ −) over the answer (muted while typed, ink once worked out, red for an
+   error; = closes open brackets and shows them), with Insert at its left while an answer box shows.
+   Keys (7 × 5, 44 px or more): x² xʸ √ ( ) log ln / sin M 7 8 9 DEL AC / cos k 4 5 6 × ÷ /
+   tan m 1 2 3 + − / π µ 0 . ×10ⁿ Ans =; 2nd (one key, then off) gives x³ x⁻¹ ∛ abs( 10ˣ eˣ sin⁻¹ G
+   cos⁻¹ tan⁻¹ n p e %, relabelling those keys. History lies over the keys: tap a sum to bring it back.
+   Results are said once in a polite status line ("equals 0.5"; an error's words).
+   Insert: a puzzle card's own box (.qc-typed-input), else the frames on the page asked `field` every
+   1.5 s while open (the focused field first); with none the button is hidden. A tap works the sum out
+   if it was not, sends U.calc.plain of the answer with `insert` (or fills the card's box and fires its
+   input event), scrolls the field clear of the bar and the sheet, and never presses Check.
+```
+
 `33-interactive.js`
 ```
 U.KIT_MD, U.KIT_EXAMPLES ([{name, kind, body}])
@@ -1797,7 +1852,9 @@ topics started here are not source-checked); "Not connected." with the steps to 
   the self-ticks on the try they belong to.
 - Tabs Library / Today / Book (`#tabs`: `data-tab` library, today, book; since 18 Oct, when the
   Library became the home, Today carries no badge and the Map has no tab) sit at the bottom in
-  the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.
+  the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`;
+  the calculator icon beside it (`#calc-btn`, and in the lesson, read-through and review bars, which
+  hide the top bar) opens and closes Dan's calculator (section 9, Calculator).
 
 ## 11. Layout
 
@@ -1908,6 +1965,14 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   stop"), This week; Today and a review call cards "puzzles" and never say "due". (Hidden for now,
   since 25 Oct: section 4, Puzzles. Today then says "Pick up where you left off" over the left-open
   row, or "Nothing left open" with Browse your library, and This week; no puzzle rows anywhere.)
+- **The calculator** (25 Oct; `46-calc.css`, section 9): a bottom sheet in the sheets' frame (white,
+  2 px `--edge`, radius 20 px at the top; the framed phone's column) over the lower part of the screen,
+  about 390 px tall at 360 px, so the question keeps the top; on a laptop it docks at the bottom right
+  (up to 400 px wide, outlined all round). Digits on white with a `--line-strong` edge, function and
+  prefix keys and DEL / AC on `--sunk` in `--cond`, = in ink; the toggles (2nd, DEG/RAD, ENG, History)
+  outlined in `--edge`, ink when on; a key 2nd has changed is underlined. The display is a `--sunk`
+  well: the sum in `--mono`, the answer large in ink (muted while typed), an error in red. The open
+  icon is ink. Key labels keep to their key at every Text size (capped at 16-24 px).
 - **The dossier** (design 3, "the field guide", chosen on 10 Oct; `docs/design/dossier-field-guide/`)
   took the same look in place of its field journal (cloth covers, tape, stamps, ring stains,
   hand-lettered fonts, Literata, its own ink palette for the plates): tiles in the token names

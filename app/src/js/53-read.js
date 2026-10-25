@@ -125,7 +125,8 @@
     var root = U.h('div', { class: 'lsn rd' });
     ctx.view.appendChild(root);
     var back = U.lesson && U.lesson.backLink ? U.lesson.backLink(tid) : U.h('a', { class: 'icon-btn lsn-close lsn-back', href: topicHref, 'aria-label': 'Back to the course' }, U.icon('back'));
-    root.appendChild(U.h('div', { class: 'lsn-bar rd-bar' }, back, U.h('span', { class: 'rd-bar-label' }, 'Read-through'), U.h('span')));
+    root.appendChild(U.h('div', { class: 'lsn-bar rd-bar' }, back, U.h('span', { class: 'rd-bar-label' }, 'Read-through'),
+      U.calcSheet ? U.calcSheet.button('rd-calc') : U.h('span')));
     var body = U.h('div', { class: 'rd-body' }, U.h('p', { class: 'muted rd-wait', role: 'status' }, 'Opening the read-through…'));
     root.appendChild(body);
     var st = { topic: null, idea: null, index: -1, doc: null, guide: null, progress: null };

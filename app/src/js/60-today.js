@@ -1097,7 +1097,7 @@
       var close = h('button', { class: 'icon-btn rv-close', type: 'button', 'aria-label': 'Close review', on: { click: function () { U.go(from); } } }, U.icon('close'));
       var where = h('p', { class: 'rv-where' });
       var stage = h('div', { class: 'rv-stage' }, h('div', { class: 'skeleton', style: { height: '220px' } }));
-      root.append(h('div', { class: 'rv-top' }, close, bar, count), where, stage);
+      root.append(h('div', { class: 'rv-top' }, close, bar, count, U.calcSheet ? U.calcSheet.button('rv-calc') : null), where, stage);
       ctx.view.appendChild(root);
 
       var S = { plan: null, queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };

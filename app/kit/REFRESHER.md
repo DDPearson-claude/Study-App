@@ -25,6 +25,9 @@ and its hint (`r.hint`). A unit typed after the number ("13.33 A") is fine. Give
 case-file id as the answer's id ('1b'), so `K.carried` knows when he missed it: a part got wrong
 and never right, or shown with `a.reveal()`, is carried forward at the course's figure and says so.
 After two wrong tries, show the working and `reveal()`; Continue once `right()`.
+Dan's calculator (the app's) can type its result into the field for him: the field with focus, else
+the one showing on the current step. It fires the field's input event like his typing and never
+presses Check, so grade only from your Check button (or Enter), never as he types.
 The self-test grades every answer: its figure and each accepted one right (with the unit too), a
 near miss and each slip refused, and the figure typed into the field and checked on its step.
 
