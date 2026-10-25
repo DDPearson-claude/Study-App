@@ -5,8 +5,8 @@ Derivatives, Calculus in a nutshell, Introduction to linear algebra.
 
 Order (one course at a time, each published when it passes; about 6 to 8M tokens a course):
 
-1. Vectors (building, started 24 Oct)
-2. Differential equations (the most useful foundation after Vectors: anything that changes over time)
+1. Vectors (live 25 Oct, about 8.2M tokens)
+2. Differential equations (building, started 25 Oct; the most useful foundation after Vectors: anything that changes over time)
 3. Matrices
 4. Linear algebra
 5. Vector calculus
