@@ -17,6 +17,9 @@ Order (one course at a time, each published when it passes; about 6 to 8M tokens
 4. Linear algebra (building, started 25 Oct)
 4a. Statistics for engineers: measurements, trends and reliability (next, after Linear algebra; 5 lessons; maths shelf,
     first in the data folder; instead of the 7-course data folder, which stays unbuilt)
+    Its data pictures come from a design contest first (Dan, 25 Oct: "Make sure on the data section an agent comes up
+    with a really cool, pretty and satisfying way of visualising data"): three prototype styles, three judges, one
+    merged language in dataviz.md that every lesson's brief, build and review must follow.
 4b. Electronics and power electronics (after Statistics for engineers; Electrical shelf)
 5. Vector calculus (paused, 25 Oct)
 6. ~~Group theory~~ (dropped, 25 Oct)
