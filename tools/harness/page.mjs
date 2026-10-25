@@ -8,6 +8,7 @@
 // info = { tier, toolNames }. Return a string or an object (objects are JSON-encoded).
 // Every prompt begins with "TASK: <name>", so route on that: taskOf(input).
 // tools: { 'Server Name': { toolName: (input) => payload } } run in Node too.
+// puzzleBox: true shows the puzzle box (hidden by default since 25 Oct: U.flags.puzzleBox).
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -30,7 +31,7 @@ export const BOOT_MS = 90000;
 export async function openApp(opts = {}) {
   const {
     width = 360, height = 760, dark = false, config = {}, sample = null, tools = {},
-    file = join(root, 'dist', 'my-university.html'), deny = [], headless = true,
+    file = join(root, 'dist', 'my-university.html'), deny = [], headless = true, puzzleBox = false,
   } = opts;
   const browser = await chromium.launch({ headless });   // Playwright's own launch limit (180 s) stands
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: dark ? 'dark' : 'light', deviceScaleFactor: 2, hasTouch: width < 700 });
@@ -52,6 +53,9 @@ export async function openApp(opts = {}) {
     if (!h) throw new Error('no tool ' + server + '/' + tool);
     return JSON.stringify(await h(input));
   });
+  // The puzzle box (U.flags.puzzleBox, 00-core.js) is hidden unless the page finds localStorage
+  // 'mu.puzzleBox' = '1' as it loads: the specs that test the box open their pages with puzzleBox: true.
+  if (puzzleBox) await page.addInitScript(() => { try { localStorage.setItem('mu.puzzleBox', '1'); } catch (e) { /* a sandboxed frame: no storage */ } });
   await page.addInitScript((cfg) => { window.__CLAUDE_STUB_CONFIG__ = cfg; }, { ...config, deny });
   await page.addInitScript({ path: STUB });
   await page.addInitScript((toolList) => {

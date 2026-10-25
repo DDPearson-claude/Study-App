@@ -24,7 +24,7 @@ function merge(a, b) {
 }
 
 // The app's review modules over an in-memory store: cards, progress, profile, topics, guides, lessons.
-function load(seed = {}) {
+function load(seed = {}, { box = true } = {}) {
   const docs = { cards: {}, profile: { prefs: { cap: 15, light: false }, days: {} }, progress: {}, topics: {}, guides: {}, lessons: {}, ...clone(seed) };
   const reads = { guide: 0, lesson: 0 };
   const ctx = vm.createContext({ console: { log() {}, warn() {}, error: console.error }, document: { getElementById: () => null } });
@@ -42,6 +42,9 @@ function load(seed = {}) {
     })();`, ctx);
   vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '60-today.js'].map(src).join('\n'), ctx);
   const U = ctx.U;
+  // The puzzle box is off by default (U.flags.puzzleBox, 00-core.js): these tests test it, so it is
+  // on unless a test turns it off (box: false).
+  U.flags.puzzleBox = box;
   U.store = {
     cards: {
       all: async () => clone(docs.cards),
@@ -262,4 +265,94 @@ test('puzzles of a lesson only read through are never counted; quizzed ones are,
   assert.equal((await U.review.slipping()).length, 0, 'two Agains on a puzzle never offer Learn it again');
   const o = await U.review.outlook();
   assert.equal(o.minutes, 1, '40 s a puzzle');
+});
+
+// ---------- the switch (U.flags.puzzleBox, 00-core.js; Dan, 25 Oct: hide the box for now) ----------
+
+test('the puzzle box switch is off by default, and on only when this device says "1" or something set it first', () => {
+  const core = src('00-core.js');
+  function flagWith(storage, preset) {
+    const ctx = vm.createContext({ console });
+    if (storage !== undefined) ctx.localStorage = storage;
+    vm.runInContext('var window = globalThis;' + (preset !== undefined ? ' window.U = { flags: { puzzleBox: ' + preset + ' } };' : ''), ctx);
+    vm.runInContext('"use strict";\n' + core, ctx);
+    return ctx.U.flags.puzzleBox;
+  }
+  const store = (v) => ({ getItem: (k) => (k === 'mu.puzzleBox' ? v : null) });
+  assert.equal(flagWith(undefined), false, 'no browser storage (node): off');
+  assert.equal(flagWith(store(null)), false, 'nothing saved on the device: off');
+  assert.equal(flagWith(store('0')), false);
+  assert.equal(flagWith(store('true')), false, 'only "1" turns it on');
+  assert.equal(flagWith(store('1')), true, '"1": on (the tests that test the box)');
+  assert.equal(flagWith({ getItem() { throw new Error('blocked'); } }), false, 'storage that throws: off');
+  assert.equal(flagWith(store(null), true), true, 'set before the app ran: kept');
+});
+
+// A ready-made course mid-way: a puzzle and a written card already in the box (one answered), a
+// lesson quizzed through whose puzzles were never made (the backfill's work), and one whose puzzles
+// came from an older guide version (made again from the newer one).
+function hiddenSeed() {
+  const ago = (d) => iso(new Date(2026, 9, 6 - d, 10, 0));
+  const guideOf = (iid) => ({ v: 2, iid, pages: [1, 2, 3].map((k) => ({ kind: 'example', task: iid + ' task ' + k + '?', answer: String(k * 10) + ' V', why: 'w', input: 'typed' })) });
+  return {
+    topics: { tA: { readyMade: { shelf: 'electrical', course: 'a' }, guideV: 2 } },
+    guides: { tA: { i1: GUIDE, i2: guideOf('i2'), i3: guideOf('i3') } },
+    lessons: { tA: { i1: { status: 'ready', lesson: LESSON } } },
+    progress: { tA: { updatedAt: ago(1), lastIdea: 'i3', ideas: {
+      i1: { round: 0, stage: 'done', doneAt: ago(9), readRound: 0, cardsRound: 0, quizRound: 0, puzzleRound: 0, puzzleV: 2 },
+      i2: { round: 0, stage: 'done', doneAt: ago(5), readRound: 0, cardsRound: 0, quizRound: 0 },
+      i3: { round: 0, stage: 'done', doneAt: ago(2), readRound: 0, cardsRound: 0, quizRound: 0, puzzleRound: 0, puzzleV: 1 },
+    } } },
+    cards: { tA: { cards: {
+      i1_x1: { id: 'i1_x1', tid: 'tA', iid: 'i1', type: 'puzzle', spec: { q: GUIDE.pages[1].task, answer: '24 m²', why: '6 × 4 = 24.', input: 'typed', page: 1, name: 'Typed' },
+        createdAt: ago(9), learnedAt: ago(9), s: { due: '2026-10-06', stability: 3, difficulty: 5, reps: 1, lapses: 0, last: '2026-10-03' }, hist: [{ at: ago(3), grade: 3, ok: true }] },
+      i1_w_b1: { id: 'i1_w_b1', tid: 'tA', iid: 'i1', type: 'written', spec: { qid: 'b1', q: LESSON.written.b1.q, points: LESSON.written.b1.points, model: LESSON.written.b1.model, need: 2 },
+        createdAt: ago(9), learnedAt: ago(9), s: { due: '2026-10-08', stability: 2, difficulty: 5, reps: 0, lapses: 0, last: null }, hist: [] },
+    } } },
+  };
+}
+
+test('with the box hidden: finishing a lesson makes no puzzles, the backfill makes none, the badge reads nothing, and nothing saved changes', async () => {
+  const { U, docs, reads, at } = load(hiddenSeed(), { box: false });
+  at(new Date(2026, 9, 6, 12, 0));
+  const before = clone(docs);
+  let cardReads = 0;
+  const all = U.store.cards.all;
+  U.store.cards.all = () => { cardReads++; return all(); };
+  // Finishing i2 by quizzing through it (the lesson screen's call): none made, nothing recorded.
+  assert.equal(await U.review.puzzlesFor('tA', 'i2', { guide: hiddenSeed().guides.tA.i2, lesson: null, idea: {}, round: 0 }), 0);
+  // The backfill, asked directly and as part of mendCards (boot and Today): nothing.
+  assert.deepEqual(plain(await U.review.mendPuzzles(true)), []);
+  assert.deepEqual(plain(await U.review.mendCards(true)), []);
+  assert.equal(reads.guide, 0, 'no guide is read');
+  assert.equal(reads.lesson, 0, 'no lesson is read for its written questions');
+  // The badge counts nothing and reads no cards.
+  cardReads = 0;
+  assert.equal(await U.review.refreshBadge(), 0);
+  assert.equal(cardReads, 0, 'refreshBadge reads no cards while the box is hidden');
+  // Every saved card (its schedule and history), and every progress field, exactly as it was.
+  assert.deepEqual(docs.cards, before.cards);
+  assert.deepEqual(docs.progress, before.progress);
+  assert.equal(docs.progress.tA.ideas.i2.puzzleRound, undefined, 'i2 still waits for its puzzles');
+  assert.equal(docs.progress.tA.ideas.i3.puzzleV, 1, 'i3 still says its puzzles came from version 1');
+});
+
+test('switched back on, the box is as it was and the backfill makes what was held back', async () => {
+  const { U, docs, reads, at } = load(hiddenSeed(), { box: false });
+  at(new Date(2026, 9, 6, 12, 0));
+  const before = clone(docs);
+  assert.deepEqual(plain(await U.review.mendCards(true)), []);
+  U.flags.puzzleBox = true;
+  // What was in the box is in it again: the answered puzzle due today, the written card later.
+  assert.deepEqual(plain(await U.review.box()), { size: 1, courses: [{ tid: 'tA', n: 1, ideas: ['i1'] }] });
+  const made = plain(await U.review.mendCards(true)).map((x) => x.tid + '/' + x.iid).sort();
+  assert.deepEqual(made, ['tA/i2', 'tA/i3'], 'the lesson whose puzzles were held back, and the one from an older guide');
+  assert.equal(reads.guide, 2);
+  assert.deepEqual([docs.progress.tA.ideas.i2.puzzleRound, docs.progress.tA.ideas.i2.puzzleV], [0, 2]);
+  assert.deepEqual([docs.progress.tA.ideas.i3.puzzleRound, docs.progress.tA.ideas.i3.puzzleV], [0, 2]);
+  // The cards saved before are untouched by it: same schedule, same history.
+  assert.deepEqual(docs.cards.tA.cards.i1_x1, before.cards.tA.cards.i1_x1);
+  assert.deepEqual(docs.cards.tA.cards.i1_w_b1, before.cards.tA.cards.i1_w_b1);
+  assert.deepEqual(docs.progress.tA.ideas.i1, before.progress.tA.ideas.i1);
+  assert.equal(Object.keys(docs.cards.tA.cards).filter((id) => /^i[23]_x/.test(id)).length, 6, 'three puzzles each for i2 and i3');
 });

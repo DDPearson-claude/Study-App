@@ -1119,6 +1119,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-done .lsn-h { font-size: calc(1.6 * var(--lsn-hrem)); }
 .lsn-done-text { color: var(--muted); max-width: 30em; font-size: 1rem; line-height: 1.6; }
 .lsn-done-text > span { display: block; text-wrap: balance; }
+/* With the puzzle box hidden, a study lesson with no checks and no words of his says nothing here. */
+.lsn-done-text:empty { display: none; }
 .lsn-done-score { color: var(--ink); font-weight: 700; }
 .lsn-next { align-self: stretch; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 20px; text-align: left; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); }
 .lsn-next h3 { font-size: 1.15rem; }
@@ -2804,7 +2806,21 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-21-4970949";
+U.BUILD = "2026-10-25-bc5826b";
+// ---------- switches ----------
+// U.flags.puzzleBox: the puzzle box (60-today.js): Today's box, review sessions (#/review), the
+// Library's and a course page's puzzle rows, the finish screen's puzzle line, the daily review
+// settings, and making puzzles from guides (puzzlesFor, the backfill). Off since 25 Oct (Dan: "The
+// puzzles in the box section has errors but tbh just delete that for now"; he chose to hide it and
+// keep his cards and progress): nothing shows it and no new puzzles are made, but every saved card,
+// schedule and progress field stays as it is, so turning it on brings the box back as it was. On
+// when this device's localStorage 'mu.puzzleBox' is '1' (the tests that test the box), or when
+// something set U.flags.puzzleBox before this file ran. Read where it is used, never cached.
+U.flags = U.flags || {};
+if (typeof U.flags.puzzleBox !== 'boolean') {
+  U.flags.puzzleBox = false;
+  try { U.flags.puzzleBox = localStorage.getItem('mu.puzzleBox') === '1'; } catch (e) { /* storage blocked, or no DOM (node evals): off */ }
+}
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -6113,10 +6129,11 @@ U.logStudy = (function () {
   }
   function sentences(t) { return plain(t).split(/[.!?]+(?:\s|$)/).filter(function (x) { return x.trim().length > 2; }).length; }
 
-  // opts.maxIdeas: a ready-made course built from an approved brief may plan more ideas than the
-  // in-page planner's 8 (Negative numbers has 9); the page's own plans keep 5-8.
+  // opts.maxIdeas / opts.minIdeas: a ready-made course built from an approved brief may plan more
+  // ideas than the in-page planner's 8 (Negative numbers has 9), or fewer than 5 (a short course
+  // Dan asked for, such as a four-lesson test); the page's own plans keep 5-8.
   function vPlan(o, opts) {
-    var v = V(), most = opts && opts.maxIdeas > 8 ? opts.maxIdeas : 8;
+    var v = V(), most = opts && opts.maxIdeas > 8 ? opts.maxIdeas : 8, least = opts && opts.minIdeas >= 2 && opts.minIdeas < 5 ? opts.minIdeas : 5;
     if (!isObj(o)) return ['The reply must be one JSON object with title, hook, oneBreath, ideas and calibration.'];
     v.str(o.title, 'title', 90);
     if (v.str(o.hook, 'hook', 320)) {
@@ -6127,7 +6144,7 @@ U.logStudy = (function () {
     var ids = [];
     if (!Array.isArray(o.ideas)) v.add('ideas must be a list of 5-8 ideas.');
     else {
-      if (o.ideas.length < 5 || o.ideas.length > most) v.add('ideas has ' + o.ideas.length + ' entries; give 5-' + most + '.');
+      if (o.ideas.length < least || o.ideas.length > most) v.add('ideas has ' + o.ideas.length + ' entries; give ' + least + '-' + most + '.');
       o.ideas.forEach(function (i, k) {
         var p = 'ideas[' + k + ']';
         if (!isObj(i)) { v.add(p + ' must be an object.'); return; }
@@ -12593,7 +12610,8 @@ U.interactive = (function () {
         })));
         return;
       }
-      box.appendChild(U.h('p', { class: 'lsn-lede' }, (WORDS[all.length] || all.length) + ' quick question' + (all.length > 1 ? 's' : '') + '. What you answer here comes back later as review cards.'));
+      // Review cards are promised only while the puzzle box shows them (U.flags.puzzleBox).
+      box.appendChild(U.h('p', { class: 'lsn-lede' }, (WORDS[all.length] || all.length) + ' quick question' + (all.length > 1 ? 's' : '') + '.' + (U.flags.puzzleBox ? ' What you answer here comes back later as review cards.' : '')));
       var list = U.h('div', { class: 'lsn-checks' });
       box.appendChild(list);
       if (!U.cards || typeof U.cards.render !== 'function') {
@@ -12694,7 +12712,10 @@ U.interactive = (function () {
     // the box, once for the round (puzzleRound), or again when the guide is a newer version. A
     // read-through makes none (53-read.js). Saved in the background; a failure is made good by the
     // next mendPuzzles, at the next open.
+    // While the box is hidden (U.flags.puzzleBox off, 00-core.js) none are made and nothing is
+    // recorded, so the done section says nothing of them and the backfill makes them later.
     function makePuzzles() {
+      if (!U.flags.puzzleBox) return;
       if (!st.topic || !st.topic.readyMade || st.gone || !U.review || typeof U.review.puzzlesFor !== 'function') return;
       var gv = Number(st.topic.guideV) || 1, r0 = round();
       if (st.ip.puzzleRound != null && Number(st.ip.puzzleRound) >= r0 && (Number(st.ip.puzzleV) || 1) >= gv) return;
@@ -12753,6 +12774,8 @@ U.interactive = (function () {
       var party = first || (live && !!st.fromFrame);
       st.fromFrame = false;
       var again = function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); };
+      // Review is named only while the puzzle box shows it (U.flags.puzzleBox, 00-core.js).
+      var boxShown = !!U.flags.puzzleBox;
       var sec = read
         // A read lesson: "Lesson complete", then on to the next lesson or start this one again.
         ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
@@ -12761,7 +12784,7 @@ U.interactive = (function () {
           // A steps lesson was done, not read: no "just for reading" line under its heading; once
           // its puzzles are saved, a line says where they went.
           stepsLesson() ? (st.puzzleNote = U.h('p', { class: 'lsn-done-text lsn-puzzles', role: 'status', hidden: !st.puzzleText }, st.puzzleText || ''))
-            : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
+            : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, boxShown ? 'This one was just for reading, so nothing comes back in review.' : 'This one was just for reading.')),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
@@ -12778,8 +12801,9 @@ U.interactive = (function () {
           // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
           U.h('p', { class: 'lsn-done-text' },
             all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
-            U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
-              : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
+            live && st.replay ? U.h('span', null, 'Your first answers stay as they were; this run is noted separately.')
+              : says.length ? U.h('span', null, boxShown ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your words are in your Library, under In your own words.')
+              : boxShown ? U.h('span', null, 'Your answers will come back in review.') : null),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
               nx.oneLine ? U.line(U.h('p', { class: 'muted' }), String(nx.oneLine)) : null,
@@ -12787,7 +12811,7 @@ U.interactive = (function () {
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
                 U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
             : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-              U.h('p', { class: 'muted' }, 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
+              U.h('p', { class: 'muted' }, boxShown ? 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.' : 'Every idea here is learned.'),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
           U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', again)));
       flow.appendChild(sec);
@@ -13803,6 +13827,13 @@ U.interactive = (function () {
 // review with ?topic=<tid> takes that course's puzzles only, and closes back to where it was opened.
 // Today is the puzzle box (Dan, 18 Oct: the Library home design): it counts the puzzles in the box
 // and never says "due"; the cards are "puzzles" in every word Today and a review say.
+//
+// The box is hidden while U.flags.puzzleBox is off (00-core.js; Dan, 25 Oct): Today is then the way
+// to today's study (the lesson he left open, else the Library) and reads no cards; #/review and its
+// addresses go home quietly; refreshBadge reads nothing; puzzlesFor and mendPuzzles make and record
+// nothing (so the backfill makes them once the switch is on again). Nothing saved is changed: the
+// cards, their schedules and progress stay as they are. Lessons the app writes itself still save
+// their check cards (addFromLesson, mendCards' own part); they are simply not shown.
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
 // Card fields beyond the contract: learnedAt (last time the lesson was completed; lapses before it
 // no longer count towards "Learn it again") and retired (a card that cannot be used: its interactive
@@ -13821,6 +13852,8 @@ U.interactive = (function () {
   // Cards made from a ready-made lesson's guide and its written questions, never from its checks.
   var GUIDED = { puzzle: 1, written: 1 };
   function guided(c) { return !!c && GUIDED[c.type] === 1; }
+  // The puzzle box is shown (U.flags.puzzleBox, 00-core.js), read each time it matters.
+  function boxOn() { return !!(U.flags && U.flags.puzzleBox); }
 
   // ---------- data ----------
   function flatten(all) {
@@ -14262,7 +14295,10 @@ U.interactive = (function () {
   }
   // The lesson screen, when Dan finishes a steps lesson by quizzing through it: its puzzles, first
   // in the box the next study day. -> Promise<number of cards>
+  // With the box hidden: none, and nothing recorded (no puzzleRound), so the backfill makes them
+  // once it is on again.
   function puzzlesFor(tid, iid, o) {
+    if (!boxOn()) return Promise.resolve(0);
     o = o || {};
     var v = o.guide && Number(o.guide.v) || 1, made = puzzlesFrom(tid, iid, o.guide, o.lesson, o.idea);
     if (v < 2 && !Object.keys(made).length) return Promise.resolve(0);
@@ -14315,8 +14351,10 @@ U.interactive = (function () {
     return due;
   }
   // -> Promise<[{tid, iid}]> the lessons given puzzles now. Never rejects; at most once a minute
-  // after a clean run (force: run anyway), never twice at once.
+  // after a clean run (force: run anyway), never twice at once. With the box hidden: nothing read,
+  // made or recorded (a run then would stamp puzzleRound with puzzles nobody sees).
   function mendPuzzles(force) {
+    if (!boxOn()) return Promise.resolve([]);
     if (puzzling) return puzzling;
     if (!force && Date.now() - puzzledAt < MEND_EVERY) return Promise.resolve([]);
     if (!U.store.guide || typeof U.store.guide.get !== 'function') return Promise.resolve([]);
@@ -14504,7 +14542,9 @@ U.interactive = (function () {
     outlook: function () {
       return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, minutes: p.size ? minutesFor(p.queue) : 0, head: w.head, lead: w.lead, next: w.next }; });
     },
+    // With the box hidden there is nothing to count: no cards are read.
     refreshBadge: function () {
+      if (!boxOn()) return Promise.resolve(setBadge(0));
       changed();
       return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
     },
@@ -14654,14 +14694,45 @@ U.interactive = (function () {
       h('ol', { class: 'td-days' }, cells));
   }
 
+  // ---------- #/today with the puzzle box hidden ----------
+  // Today's study, one tap away: the lesson he left open (the Library's own row, 77-library.js),
+  // else the way to the Library; then This week from his study minutes. No card is read or counted.
+  // A read that fails leaves its part out (no left-open row, an empty week): never an error here.
+  function studyToday(root, ctx) {
+    var L = U.library, S = U.store;
+    var shelves = L && S.shelves && typeof S.shelves.list === 'function' ? S.shelves.list() : Promise.resolve([]);
+    Promise.all([
+      S.topics.list().catch(function () { return []; }),
+      S.progress.all().catch(function () { return {}; }),
+      shelves.catch(function () { return []; }),
+      S.profile.get().catch(function () { return null; }),
+    ]).then(function (r) {
+      if (!ctx.alive()) return;
+      var day = U.studyDay(), best = L && typeof L.leftOpen === 'function' ? L.leftOpen(r[0] || [], r[1] || {}, r[2] || []) : null;
+      U.clear(root);
+      root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(day)));
+      if (best) {
+        root.appendChild(h('h1', { class: 'td-title' }, 'Pick up where you left off'));
+        root.appendChild(h('section', { class: 'td-plan td-study', 'aria-label': 'Today\'s study' }, L.openRow(best)));
+      } else {
+        root.appendChild(h('h1', { class: 'td-title' }, 'Nothing left open'));
+        root.appendChild(h('p', { class: 'td-lead' }, 'Start a course from your library whenever you feel like it.'));
+        root.appendChild(h('section', { class: 'td-plan td-study', 'aria-label': 'Today\'s study' }, h('a', { class: 'btn wide', href: '#/' }, 'Browse your library')));
+      }
+      root.appendChild(weekStrip((r[3] && r[3].days) || {}, day, []));
+    });
+  }
+
   // ---------- #/today ----------
   function todayView(params, ctx) {
     var root = h('div', { class: 'td' });
     ctx.view.appendChild(root);
     root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
     // Cards an idea finished earlier never got (the app closed before they were saved). Made ones
-    // first come due tomorrow, so today's list need not wait for this.
+    // first come due tomorrow, so today's list need not wait for this. (With the box hidden, only
+    // the check cards of lessons the app wrote: mendPuzzles makes nothing.)
     mendCards();
+    if (!boxOn()) { studyToday(root, ctx); return; }
 
     // Claude's notes come after the session (Dan, 10 Oct: before it they would be hints for the very
     // cards he is about to recall). They are read with the rest (the progress of every topic with a
@@ -14791,6 +14862,8 @@ U.interactive = (function () {
   // ---------- #/review ----------
   function reviewView(extra) {
     return function (params, ctx) {
+      // The box hidden: its addresses (an old link, a bookmark) go home quietly, in place.
+      if (!boxOn()) { U._home(); return; }
       var root = h('div', { class: 'rv' });
       var fill = h('i', { style: { width: '0%' } });
       var bar = h('div', { class: 'bar rv-bar', role: 'progressbar', 'aria-label': 'Review progress', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' }, fill);
@@ -15787,7 +15860,8 @@ U.interactive = (function () {
       U.clear(listBox).appendChild(V.loadError('Your topics', e, V.reconnecting(e, info)));
     });
 
-    if (U.review && (U.review.outlook || U.review.dueCount)) {
+    // Only while the puzzle box is shown (U.flags.puzzleBox, 00-core.js): hidden, no row.
+    if (U.flags.puzzleBox && U.review && (U.review.outlook || U.review.dueCount)) {
       Promise.resolve().then(function () {
         return U.review.outlook ? U.review.outlook() : Promise.resolve(U.review.dueCount()).then(function (n) { return { size: n }; });
       }).then(function (o) {
@@ -16481,8 +16555,9 @@ U.interactive = (function () {
       if (!s.current || s.allDone) return false;
       return k < s.index || (s.current.id === iid && next === 'ready');
     }
+    // Only while the box is shown (U.flags.puzzleBox, 00-core.js): hidden, no row and no read.
     function wantBox() {
-      if (ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
+      if (!U.flags.puzzleBox || ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
       ui.boxAsked = true;
       Promise.resolve().then(function () { return U.review.box(); }).then(function (b) { if (ctx.alive() && b) { ui.box = b; schedule(); } }, function () { /* no row */ });
     }
@@ -16594,7 +16669,10 @@ U.interactive = (function () {
       return U.h('section', { class: 'tp-mode', 'aria-labelledby': 'mode-h' },
         U.h('div', { class: 'section-head' }, U.h('h2', { id: 'mode-h' }, 'How you are learning this')),
         U.radios(U.h('div', { class: 'seg tp-modes', role: 'radiogroup', 'aria-labelledby': 'mode-h', 'aria-describedby': 'mode-applies' }, opts)),
-        U.h('p', { class: 'muted small tp-mode-note' }, cur === 'read' ? 'The reading and the interactive for each idea: no questions and no review cards.' : 'A guess first, a say-it-back and quick checks for each idea, then review cards so it sticks.'),
+        // Review cards are named only while the puzzle box shows them (U.flags.puzzleBox).
+        U.h('p', { class: 'muted small tp-mode-note' }, !U.flags.puzzleBox
+          ? (cur === 'read' ? 'The reading and the interactive for each idea: no questions.' : 'A guess first, a say-it-back and quick checks for each idea.')
+          : cur === 'read' ? 'The reading and the interactive for each idea: no questions and no review cards.' : 'A guess first, a say-it-back and quick checks for each idea, then review cards so it sticks.'),
         U.h('p', { class: 'muted small tp-mode-applies', id: 'mode-applies' }, 'Applies to the ideas you have not started yet.'),
         told());
     }
@@ -16847,6 +16925,9 @@ U.interactive = (function () {
 // Map (#/map): every topic as a small constellation of idea dots, coloured by how well each idea
 // is holding (new = outline, fragile = amber, growing = teal, strong = navy). Bands come from
 // U.review.ideaBands() when the review module is present, else from progress (done = growing).
+// While the puzzle box is hidden (U.flags.puzzleBox off, 00-core.js; Dan, 25 Oct) the saved cards
+// are not read and nothing names review: bands come from progress only (done = growing), the key
+// shows New and Growing, and no idea fades to Fragile asking for a review he cannot do.
 // An idea Dan chose only to read ("Just teach me") is finished but never reviewed: its own dot,
 // "Read", and the key shows it only when a topic has one.
 // The SVG is laid out in real pixels for the card's width so labels stay readable on a phone;
@@ -16861,7 +16942,10 @@ U.interactive = (function () {
     ['growing', 'Growing', 'settling in'],
     ['strong', 'Strong', 'yours for now'],
   ];
+  // With the box hidden only these two can show (progress alone: done = growing).
+  var BANDS_NO_BOX = BANDS.filter(function (b) { return b[0] === 'new' || b[0] === 'growing'; });
   var READ = ['read', 'Read', 'just for reading'];
+  function boxOn() { return !!(U.flags && U.flags.puzzleBox); }
   var WORDS = { new: 'new', fragile: 'fragile', growing: 'growing', strong: 'strong', read: 'read' };
 
   var measureCtx = null;
@@ -16951,7 +17035,7 @@ U.interactive = (function () {
   }
 
   function legend(withRead) {
-    return U.h('div', { class: 'map-legend' + (withRead ? ' has-read' : ''), role: 'list', 'aria-label': 'What the colours mean' }, BANDS.concat(withRead ? [READ] : []).map(function (b) {
+    return U.h('div', { class: 'map-legend' + (withRead ? ' has-read' : ''), role: 'list', 'aria-label': 'What the colours mean' }, (boxOn() ? BANDS : BANDS_NO_BOX).concat(withRead ? [READ] : []).map(function (b) {
       var s = V.s('svg', { class: 'map-key', viewBox: '-10 -10 20 20', width: 20, height: 20, 'aria-hidden': 'true' }, dot(b[0], 7));
       return U.h('div', { class: 'map-legend-item', role: 'listitem' }, s, U.h('span', { class: 'map-legend-text' }, U.h('strong', null, b[1]), U.h('span', { class: 'muted' }, b[2])));
     }));
@@ -16966,13 +17050,14 @@ U.interactive = (function () {
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Map'),
         U.h('h1', null, 'Everything you are learning'),
-        U.h('p', { class: 'muted' }, 'Each dot is one idea. The colour shows how well it is holding, and it shifts as you learn and review.')),
+        U.h('p', { class: 'muted' }, boxOn() ? 'Each dot is one idea. The colour shows how well it is holding, and it shifts as you learn and review.'
+          : 'Each dot is one idea. The colour shows how far you have got, and it fills in as you learn.')),
       body));
 
     var stop = U.store.topics.watch(function (list) {
       topics = (list || []).filter(function (t) { return t.status === 'ready' && Array.isArray(t.ideas) && t.ideas.length; });
       var my = ++seq;
-      var bandsP = U.review && U.review.ideaBands ? Promise.resolve().then(function () { return U.review.ideaBands(); }).catch(function (e) { console.error(e); return {}; }) : Promise.resolve({});
+      var bandsP = boxOn() && U.review && U.review.ideaBands ? Promise.resolve().then(function () { return U.review.ideaBands(); }).catch(function (e) { console.error(e); return {}; }) : Promise.resolve({});
       Promise.all([U.store.progress.all().catch(function () { return {}; }), bandsP]).then(function (r) {
         if (my !== seq || !ctx.alive()) return;
         progress = r[0] || {}; bandsAll = r[1] || {};
@@ -17012,7 +17097,7 @@ U.interactive = (function () {
         body.appendChild(V.empty({
           art: U.h('div', { class: 'v-empty-art map-empty-art' }, emptyArt()),
           title: 'Your map is empty for now',
-          text: 'Each topic you start appears here as a cluster of ideas. The dots fill in with colour as you learn and review them.',
+          text: 'Each topic you start appears here as a cluster of ideas. The dots fill in with colour as you ' + (boxOn() ? 'learn and review them.' : 'learn them.'),
           action: { href: '#/', label: 'Your library' },
         }));
         return;
@@ -17265,7 +17350,7 @@ U.interactive = (function () {
 
 // ---- src/js/74-settings.js ----
 // Settings: U.settings.open() shows a sheet with appearance, text size, easier reading,
-// daily reviews, research status, course pictures, a full backup and the build id. Every change applies at once,
+// daily reviews (while the puzzle box is shown), research status, course pictures, a full backup and the build id. Every change applies at once,
 // is mirrored to localStorage 'mu-prefs' (read before first paint by head.html) and saved to the
 // profile in the db (docs/ARCHITECTURE.md section 4: profile.prefs).
 (function () {
@@ -17523,10 +17608,12 @@ U.interactive = (function () {
           toggle('Easier reading', 'A very clear typeface with a little more space between letters.', p.easy, function (v) { S.set('easy', v); }, 'easy'),
         ]),
         layoutGroup,
-        group('Daily reviews', [
+        // The puzzle box's own limits, only while it is shown (U.flags.puzzleBox, 00-core.js); the
+        // saved values stay as they are meanwhile.
+        U.flags.puzzleBox ? group('Daily reviews', [
           seg('Most reviews in a day', CAPS.map(function (c) { return { value: c, label: String(c) }; }), p.cap, function (v) { S.set('cap', v); }),
           toggle('Light days', 'Just 5 reviews a day until you turn this off. For busy or tired weeks.', p.light, function (v) { S.set('light', v); }, 'light'),
-        ], 'The most reviews Today will offer in one day.'),
+        ], 'The most reviews Today will offer in one day.') : null,
         group('Research', research),
         pictures,
         group('Backup', backupBtn, 'Save a copy of everything: topics, lessons, sources, your answers, review cards and settings.'),
@@ -19193,7 +19280,7 @@ U.interactive = (function () {
 // ---- src/js/77-library.js ----
 // The Library, the home (#/): ready-made courses only (Dan, 18 Oct: "material and content I can
 // dive into when I feel like learning something new or brushing up"). Top to bottom: the look-up
-// field (typing replaces the page below it with the lessons and courses that match), one row for the course he left open, one row for the puzzles in the box, then the shelves
+// field (typing replaces the page below it with the lessons and courses that match), one row for the course he left open, one row for the puzzles in the box (while the box is shown: U.flags.puzzleBox), then the shelves
 // as 76-shelves.js draws them, the shelves with nothing built yet folded under one line. Nothing on
 // it is due or counts down, and a row with nothing to say is not drawn. It also queues the course
 // pictures (35-art.js) and, once he has a course, asks once whether he wants them (below the
@@ -19245,7 +19332,14 @@ U.interactive = (function () {
         U.h('span', { class: 'lib-open-n' }, 'lesson ' + (s.index + 1) + ' of ' + s.total)),
       U.icon('arrow', 'today-go'));
   }
+  // Today shows the same row while the puzzle box is hidden (60-today.js): its way to today's study.
+  //   U.library.leftOpen(topics, progress, shelves) -> best | null;  U.library.openRow(best) -> Element
+  U.library = {
+    leftOpen: function (topics, progress, shelves) { return leftOpen(topics || [], progress || {}, builtCourses(shelves || [])); },
+    openRow: openRow,
+  };
   // The puzzle box: how many there are and from which courses, opening Today. Never "due".
+  // Drawn only while the box is shown (U.flags.puzzleBox, 00-core.js).
   function boxRow(box, titleOf) {
     var from = box.courses.map(function (c) { return titleOf(c.tid); }).filter(Boolean);
     return U.h('a', { class: 'today-row lib-box', href: '#/today' },
@@ -19389,7 +19483,7 @@ U.interactive = (function () {
       U.store.progress.all().then(function (r) { if (ctx.alive()) { progress = r || {}; paintRows(); } }, function (e) { console.warn('progress', e); });
     }
     loadProgress();
-    if (U.review && typeof U.review.box === 'function') {
+    if (U.flags.puzzleBox && U.review && typeof U.review.box === 'function') {
       Promise.resolve().then(function () { return U.review.box(); }).then(function (b) { if (ctx.alive()) { box = b; paintRows(); } }, function (e) { console.warn('box', e); });
     }
 

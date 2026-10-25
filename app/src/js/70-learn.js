@@ -786,7 +786,8 @@
       U.clear(listBox).appendChild(V.loadError('Your topics', e, V.reconnecting(e, info)));
     });
 
-    if (U.review && (U.review.outlook || U.review.dueCount)) {
+    // Only while the puzzle box is shown (U.flags.puzzleBox, 00-core.js): hidden, no row.
+    if (U.flags.puzzleBox && U.review && (U.review.outlook || U.review.dueCount)) {
       Promise.resolve().then(function () {
         return U.review.outlook ? U.review.outlook() : Promise.resolve(U.review.dueCount()).then(function (n) { return { size: n }; });
       }).then(function (o) {

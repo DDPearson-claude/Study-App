@@ -11,7 +11,10 @@
 // Run: node tests/e2e/review.spec.mjs   (exits non-zero on any failure or page error)
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { openApp, ROOT } from '../../tools/harness/page.mjs';
+import { openApp as openPage, ROOT } from '../../tools/harness/page.mjs';
+// The puzzle box is hidden by default (U.flags.puzzleBox, 00-core.js, since 25 Oct). This spec tests
+// it, so every page it opens shows it.
+const openApp = (o) => openPage({ puzzleBox: true, ...o });
 
 const OUT = join(ROOT, 'tests', 'out', 'review.html');
 execFileSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '40,41,53,60,70-views', '--out', OUT], { stdio: 'inherit' });

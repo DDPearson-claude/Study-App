@@ -10,7 +10,10 @@
 // Usage: node tests/e2e/shell.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { openApp, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
+import { openApp as openPage, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
+// The puzzle box is hidden by default (U.flags.puzzleBox, 00-core.js, since 25 Oct). Its daily review
+// limits are part of the Settings this spec tests, so every page it opens shows the box.
+const openApp = (o) => openPage({ puzzleBox: true, ...o });
 
 const FILE = join(ROOT, 'tests', 'out', 'shell.html');
 const UID = 'u_stubuser0000000000000000';

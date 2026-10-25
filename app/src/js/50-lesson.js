@@ -1522,7 +1522,8 @@
         })));
         return;
       }
-      box.appendChild(U.h('p', { class: 'lsn-lede' }, (WORDS[all.length] || all.length) + ' quick question' + (all.length > 1 ? 's' : '') + '. What you answer here comes back later as review cards.'));
+      // Review cards are promised only while the puzzle box shows them (U.flags.puzzleBox).
+      box.appendChild(U.h('p', { class: 'lsn-lede' }, (WORDS[all.length] || all.length) + ' quick question' + (all.length > 1 ? 's' : '') + '.' + (U.flags.puzzleBox ? ' What you answer here comes back later as review cards.' : '')));
       var list = U.h('div', { class: 'lsn-checks' });
       box.appendChild(list);
       if (!U.cards || typeof U.cards.render !== 'function') {
@@ -1623,7 +1624,10 @@
     // the box, once for the round (puzzleRound), or again when the guide is a newer version. A
     // read-through makes none (53-read.js). Saved in the background; a failure is made good by the
     // next mendPuzzles, at the next open.
+    // While the box is hidden (U.flags.puzzleBox off, 00-core.js) none are made and nothing is
+    // recorded, so the done section says nothing of them and the backfill makes them later.
     function makePuzzles() {
+      if (!U.flags.puzzleBox) return;
       if (!st.topic || !st.topic.readyMade || st.gone || !U.review || typeof U.review.puzzlesFor !== 'function') return;
       var gv = Number(st.topic.guideV) || 1, r0 = round();
       if (st.ip.puzzleRound != null && Number(st.ip.puzzleRound) >= r0 && (Number(st.ip.puzzleV) || 1) >= gv) return;
@@ -1682,6 +1686,8 @@
       var party = first || (live && !!st.fromFrame);
       st.fromFrame = false;
       var again = function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); };
+      // Review is named only while the puzzle box shows it (U.flags.puzzleBox, 00-core.js).
+      var boxShown = !!U.flags.puzzleBox;
       var sec = read
         // A read lesson: "Lesson complete", then on to the next lesson or start this one again.
         ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
@@ -1690,7 +1696,7 @@
           // A steps lesson was done, not read: no "just for reading" line under its heading; once
           // its puzzles are saved, a line says where they went.
           stepsLesson() ? (st.puzzleNote = U.h('p', { class: 'lsn-done-text lsn-puzzles', role: 'status', hidden: !st.puzzleText }, st.puzzleText || ''))
-            : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
+            : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, boxShown ? 'This one was just for reading, so nothing comes back in review.' : 'This one was just for reading.')),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
@@ -1707,8 +1713,9 @@
           // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
           U.h('p', { class: 'lsn-done-text' },
             all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
-            U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
-              : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
+            live && st.replay ? U.h('span', null, 'Your first answers stay as they were; this run is noted separately.')
+              : says.length ? U.h('span', null, boxShown ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your words are in your Library, under In your own words.')
+              : boxShown ? U.h('span', null, 'Your answers will come back in review.') : null),
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
               nx.oneLine ? U.line(U.h('p', { class: 'muted' }), String(nx.oneLine)) : null,
@@ -1716,7 +1723,7 @@
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
                 U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
             : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-              U.h('p', { class: 'muted' }, 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
+              U.h('p', { class: 'muted' }, boxShown ? 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.' : 'Every idea here is learned.'),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
           U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', again)));
       flow.appendChild(sec);

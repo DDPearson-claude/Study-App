@@ -1,6 +1,9 @@
 // Map (#/map): every topic as a small constellation of idea dots, coloured by how well each idea
 // is holding (new = outline, fragile = amber, growing = teal, strong = navy). Bands come from
 // U.review.ideaBands() when the review module is present, else from progress (done = growing).
+// While the puzzle box is hidden (U.flags.puzzleBox off, 00-core.js; Dan, 25 Oct) the saved cards
+// are not read and nothing names review: bands come from progress only (done = growing), the key
+// shows New and Growing, and no idea fades to Fragile asking for a review he cannot do.
 // An idea Dan chose only to read ("Just teach me") is finished but never reviewed: its own dot,
 // "Read", and the key shows it only when a topic has one.
 // The SVG is laid out in real pixels for the card's width so labels stay readable on a phone;
@@ -15,7 +18,10 @@
     ['growing', 'Growing', 'settling in'],
     ['strong', 'Strong', 'yours for now'],
   ];
+  // With the box hidden only these two can show (progress alone: done = growing).
+  var BANDS_NO_BOX = BANDS.filter(function (b) { return b[0] === 'new' || b[0] === 'growing'; });
   var READ = ['read', 'Read', 'just for reading'];
+  function boxOn() { return !!(U.flags && U.flags.puzzleBox); }
   var WORDS = { new: 'new', fragile: 'fragile', growing: 'growing', strong: 'strong', read: 'read' };
 
   var measureCtx = null;
@@ -105,7 +111,7 @@
   }
 
   function legend(withRead) {
-    return U.h('div', { class: 'map-legend' + (withRead ? ' has-read' : ''), role: 'list', 'aria-label': 'What the colours mean' }, BANDS.concat(withRead ? [READ] : []).map(function (b) {
+    return U.h('div', { class: 'map-legend' + (withRead ? ' has-read' : ''), role: 'list', 'aria-label': 'What the colours mean' }, (boxOn() ? BANDS : BANDS_NO_BOX).concat(withRead ? [READ] : []).map(function (b) {
       var s = V.s('svg', { class: 'map-key', viewBox: '-10 -10 20 20', width: 20, height: 20, 'aria-hidden': 'true' }, dot(b[0], 7));
       return U.h('div', { class: 'map-legend-item', role: 'listitem' }, s, U.h('span', { class: 'map-legend-text' }, U.h('strong', null, b[1]), U.h('span', { class: 'muted' }, b[2])));
     }));
@@ -120,13 +126,14 @@
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Map'),
         U.h('h1', null, 'Everything you are learning'),
-        U.h('p', { class: 'muted' }, 'Each dot is one idea. The colour shows how well it is holding, and it shifts as you learn and review.')),
+        U.h('p', { class: 'muted' }, boxOn() ? 'Each dot is one idea. The colour shows how well it is holding, and it shifts as you learn and review.'
+          : 'Each dot is one idea. The colour shows how far you have got, and it fills in as you learn.')),
       body));
 
     var stop = U.store.topics.watch(function (list) {
       topics = (list || []).filter(function (t) { return t.status === 'ready' && Array.isArray(t.ideas) && t.ideas.length; });
       var my = ++seq;
-      var bandsP = U.review && U.review.ideaBands ? Promise.resolve().then(function () { return U.review.ideaBands(); }).catch(function (e) { console.error(e); return {}; }) : Promise.resolve({});
+      var bandsP = boxOn() && U.review && U.review.ideaBands ? Promise.resolve().then(function () { return U.review.ideaBands(); }).catch(function (e) { console.error(e); return {}; }) : Promise.resolve({});
       Promise.all([U.store.progress.all().catch(function () { return {}; }), bandsP]).then(function (r) {
         if (my !== seq || !ctx.alive()) return;
         progress = r[0] || {}; bandsAll = r[1] || {};
@@ -166,7 +173,7 @@
         body.appendChild(V.empty({
           art: U.h('div', { class: 'v-empty-art map-empty-art' }, emptyArt()),
           title: 'Your map is empty for now',
-          text: 'Each topic you start appears here as a cluster of ideas. The dots fill in with colour as you learn and review them.',
+          text: 'Each topic you start appears here as a cluster of ideas. The dots fill in with colour as you ' + (boxOn() ? 'learn and review them.' : 'learn them.'),
           action: { href: '#/', label: 'Your library' },
         }));
         return;

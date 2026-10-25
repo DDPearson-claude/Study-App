@@ -1,6 +1,20 @@
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
 U.BUILD = "@@BUILD@@";
+// ---------- switches ----------
+// U.flags.puzzleBox: the puzzle box (60-today.js): Today's box, review sessions (#/review), the
+// Library's and a course page's puzzle rows, the finish screen's puzzle line, the daily review
+// settings, and making puzzles from guides (puzzlesFor, the backfill). Off since 25 Oct (Dan: "The
+// puzzles in the box section has errors but tbh just delete that for now"; he chose to hide it and
+// keep his cards and progress): nothing shows it and no new puzzles are made, but every saved card,
+// schedule and progress field stays as it is, so turning it on brings the box back as it was. On
+// when this device's localStorage 'mu.puzzleBox' is '1' (the tests that test the box), or when
+// something set U.flags.puzzleBox before this file ran. Read where it is used, never cached.
+U.flags = U.flags || {};
+if (typeof U.flags.puzzleBox !== 'boolean') {
+  U.flags.puzzleBox = false;
+  try { U.flags.puzzleBox = localStorage.getItem('mu.puzzleBox') === '1'; } catch (e) { /* storage blocked, or no DOM (node evals): off */ }
+}
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 

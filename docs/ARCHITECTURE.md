@@ -55,7 +55,8 @@ and `"@@BUILD@@"` (date + short git sha) are required; `"@@KIT_MD@@"` and `"@@KI
   first line is `TASK: <name>`.
 - Browser storage is per device and always inside try: localStorage `mu-prefs` (prefs mirror),
   `mu-layout`, `mu.device` (device id), `mu.minutes` (today's study minutes on this device, shared
-  by its tabs), `mu.outbox.<uid>.<page>` (held writes to private docs); sessionStorage `mu.tab` (tab id)
+  by its tabs), `mu.outbox.<uid>.<page>` (held writes to private docs), `mu.puzzleBox` ('1' shows the
+  puzzle box: `U.flags.puzzleBox`, below); sessionStorage `mu.tab` (tab id)
   and `mu.tab.open` (the page of this tab that is open now).
 
 ### Core API (`00-core.js`)
@@ -79,6 +80,9 @@ U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
 U.material(url) -> {slug, page} | null   a course-material locator "material:<slug>#p<page>" (section 5);  U.MATERIAL_LABEL
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
 U.studyDay(d? Date|ISO) 'YYYY-MM-DD'   like U.today, but the day turns over at 4 am: every day in review (section 8)
+U.flags.puzzleBox   the puzzle box is shown (section 4, Puzzles: hidden for now). false by default; true when
+    localStorage 'mu.puzzleBox' is '1' as the page loads (the tests that test the box), or when it was set
+    before 00-core.js ran. Read where it is used, never cached, so a test may set it at any time
 U.today(d?) 'YYYY-MM-DD' local   U.addDays   U.daysBetween   U.now() ISO   U.when(iso)   U.clone   U.sleep   U.shuffle
 U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, ask-soft, interactive-test, layout, prefs, booted, rt-late, art
 U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown. While a phone's
@@ -510,6 +514,23 @@ below) and, for a refresher lesson, its written questions:
   pick the grade (as many as `need`, Good; some, Hard; none, Again), which he can change.
 - **Size**: a course's puzzles come to about 110 KB of cards doc; new cards that would take the doc past
   230 KB are left out (said in the console).
+- **Hidden for now** (Dan, 25 Oct: "The puzzles in the box section has errors but tbh just delete that
+  for now"; he chose to hide the box and keep his cards and progress). Behind one switch,
+  `U.flags.puzzleBox` (00-core.js, off by default); on, everything is as described here. Off: nothing
+  shows the box, review cards or their counts: Today is the way to today's study (the lesson he left
+  open, `U.library.openRow`, else "Browse your library"; then This week from his study minutes) and
+  reads no cards; the Library and a course page draw no puzzle row; `#/review` and `#/review/more`
+  (with or without `?topic=`) go to `#/` in place (`U._home`); Settings has no Daily reviews group;
+  `refreshBadge` reads nothing; the lesson's done section has no puzzle line and the words of a lesson
+  the app wrote promise no review ("Your answers will come back in review." and the like are left out;
+  the course page's mode note names no review cards). `puzzlesFor` and `mendPuzzles` make, read and
+  record nothing (no `puzzleRound`/`puzzleV`), so the backfill makes them once the switch is on again.
+  Nothing saved is changed: cards docs, schedules, `hist`, progress (`puzzleRound`, `puzzleV`,
+  `cardsRound`) and the cap and light prefs stay as they are. A lesson the app writes itself still
+  saves its check cards (`addFromLesson`, `mendCards`' own part); they are simply not shown. The Map
+  reads no cards and names no review: its bands come from progress only (finished = growing,
+  otherwise new), its key shows New and Growing (and Read when there is one), and its lead and empty
+  text say the dots fill in "as you learn". Learn it again still reads the saved cards.
 
 **Dossiers** (75-dossier.js). A course "keeps a dossier" unless Dan turns it off on its topic page:
 `progress.dossier === false` (absent or true: on; private, so turning it on or off never moves the
@@ -1610,9 +1631,9 @@ U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[car
 U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run (then mendPuzzles)
 U.review.puzzlesFrom(tid, iid, guide, lesson, idea) -> {[cardId]: card}   pure (section 4, Puzzles)
 U.review.addPuzzles(tid, iid, made, {round?, guideV?, at?, due?, only?}) -> Promise<[cardId]>   records puzzleRound/puzzleV with round
-U.review.puzzlesFor(tid, iid, {guide, lesson, idea, round}) -> Promise<n>   the lesson screen, quizzed through
-U.review.mendPuzzles(force?) -> Promise<[{tid, iid}]>   the backfill, never rejects
-U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
+U.review.puzzlesFor(tid, iid, {guide, lesson, idea, round}) -> Promise<n>   the lesson screen, quizzed through (0, nothing written, while the box is hidden)
+U.review.mendPuzzles(force?) -> Promise<[{tid, iid}]>   the backfill, never rejects ([] and nothing read while the box is hidden)
+U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge() (reads nothing, 0, while the box is hidden);  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
 U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   size = dueCount (same read); minutes = the
     time for that session (per card type; 0 when nothing waits); head, lead, next = Today's words
@@ -1658,6 +1679,8 @@ U.lesson.sourceSheet(source)    U.tutor.open(context, {ask?, chip?}?) / thread(t
    take more than one row. With a mouse, all of them. Only while the keyboard is up (is-cramped):
    one sideways row of them that fades at the edge it runs on past
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
+U.library.leftOpen(topics, progress, shelves) -> best | null;  U.library.openRow(best)   (77-library.js) the Library's
+   left-open row, which Today shows while the puzzle box is hidden
 U.dossier (75-dossier.js)   the course dossier (section 4, Dossiers; routes and pages: section 10)
    pure: chapterFrom(topic, iid, lessonDoc, doneAt, prevEntry) -> chapter | null;  researchFrom({key: researchDoc});
      practiceParts(text) -> [{kind: 'steps'|'rules'|'example'|'mistakes'|'prose', label, paras, items, ordered}];
@@ -1696,8 +1719,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/t/:tid/:iid/again    lesson   focus        Learn it again (while the idea is slipping); the address becomes #/t/:tid/:iid
 #/t/:tid/:iid/read     lesson   focus        53-read.js   a ready-made steps lesson read through (its guide); without a
                                              guide (or a whole lesson) it opens #/t/:tid/:iid in its place
-#/today                today    tab today    60-today.js
-#/review               review   focus        60-today.js
+#/today                today    tab today    60-today.js   the puzzle box; while it is hidden, today's study (section 4, Puzzles)
+#/review               review   focus        60-today.js   while the box is hidden it (and /more, ?topic=) opens #/ in its place
 #/review/more          review   focus        one batch beyond the daily cap
 #/shelf/:sid           shelf    tab library  76-shelves.js   a shelf's folders (and #/shelf/:sid/:fid, a folder's courses)
 #/book                 book     tab book     73-book.js   the Book: the dossiers as tiles (75-dossier.js), "In your own words", the Map
@@ -1882,7 +1905,9 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   in), back goes to the course's folder by name, and "n puzzles from lessons a to b" follows the
   path once the course has puzzles in the box. Today is the puzzle box: "n puzzles in the box",
   where they come from, Flip through, By course with Just these, Light day ("Just 5 puzzles, then
-  stop"), This week; Today and a review call cards "puzzles" and never say "due".
+  stop"), This week; Today and a review call cards "puzzles" and never say "due". (Hidden for now,
+  since 25 Oct: section 4, Puzzles. Today then says "Pick up where you left off" over the left-open
+  row, or "Nothing left open" with Browse your library, and This week; no puzzle rows anywhere.)
 - **The dossier** (design 3, "the field guide", chosen on 10 Oct; `docs/design/dossier-field-guide/`)
   took the same look in place of its field journal (cloth covers, tape, stamps, ring stains,
   hand-lettered fonts, Literata, its own ink palette for the plates): tiles in the token names

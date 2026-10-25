@@ -17,7 +17,10 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { openApp, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
+import { openApp as openPage, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
+// The puzzle box is hidden by default (U.flags.puzzleBox, 00-core.js, since 25 Oct). This spec tests
+// it, so every page it opens shows it.
+const openApp = (o) => openPage({ puzzleBox: true, ...o });
 import { readPng } from '../../tools/harness/png.mjs';
 
 const FILE = join(ROOT, 'tests', 'out', 'layout.html');

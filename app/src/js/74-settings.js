@@ -1,5 +1,5 @@
 // Settings: U.settings.open() shows a sheet with appearance, text size, easier reading,
-// daily reviews, research status, course pictures, a full backup and the build id. Every change applies at once,
+// daily reviews (while the puzzle box is shown), research status, course pictures, a full backup and the build id. Every change applies at once,
 // is mirrored to localStorage 'mu-prefs' (read before first paint by head.html) and saved to the
 // profile in the db (docs/ARCHITECTURE.md section 4: profile.prefs).
 (function () {
@@ -257,10 +257,12 @@
           toggle('Easier reading', 'A very clear typeface with a little more space between letters.', p.easy, function (v) { S.set('easy', v); }, 'easy'),
         ]),
         layoutGroup,
-        group('Daily reviews', [
+        // The puzzle box's own limits, only while it is shown (U.flags.puzzleBox, 00-core.js); the
+        // saved values stay as they are meanwhile.
+        U.flags.puzzleBox ? group('Daily reviews', [
           seg('Most reviews in a day', CAPS.map(function (c) { return { value: c, label: String(c) }; }), p.cap, function (v) { S.set('cap', v); }),
           toggle('Light days', 'Just 5 reviews a day until you turn this off. For busy or tired weeks.', p.light, function (v) { S.set('light', v); }, 'light'),
-        ], 'The most reviews Today will offer in one day.'),
+        ], 'The most reviews Today will offer in one day.') : null,
         group('Research', research),
         pictures,
         group('Backup', backupBtn, 'Save a copy of everything: topics, lessons, sources, your answers, review cards and settings.'),

@@ -465,8 +465,9 @@
       if (!s.current || s.allDone) return false;
       return k < s.index || (s.current.id === iid && next === 'ready');
     }
+    // Only while the box is shown (U.flags.puzzleBox, 00-core.js): hidden, no row and no read.
     function wantBox() {
-      if (ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
+      if (!U.flags.puzzleBox || ui.box || ui.boxAsked || !U.review || typeof U.review.box !== 'function') return;
       ui.boxAsked = true;
       Promise.resolve().then(function () { return U.review.box(); }).then(function (b) { if (ctx.alive() && b) { ui.box = b; schedule(); } }, function () { /* no row */ });
     }
@@ -578,7 +579,10 @@
       return U.h('section', { class: 'tp-mode', 'aria-labelledby': 'mode-h' },
         U.h('div', { class: 'section-head' }, U.h('h2', { id: 'mode-h' }, 'How you are learning this')),
         U.radios(U.h('div', { class: 'seg tp-modes', role: 'radiogroup', 'aria-labelledby': 'mode-h', 'aria-describedby': 'mode-applies' }, opts)),
-        U.h('p', { class: 'muted small tp-mode-note' }, cur === 'read' ? 'The reading and the interactive for each idea: no questions and no review cards.' : 'A guess first, a say-it-back and quick checks for each idea, then review cards so it sticks.'),
+        // Review cards are named only while the puzzle box shows them (U.flags.puzzleBox).
+        U.h('p', { class: 'muted small tp-mode-note' }, !U.flags.puzzleBox
+          ? (cur === 'read' ? 'The reading and the interactive for each idea: no questions.' : 'A guess first, a say-it-back and quick checks for each idea.')
+          : cur === 'read' ? 'The reading and the interactive for each idea: no questions and no review cards.' : 'A guess first, a say-it-back and quick checks for each idea, then review cards so it sticks.'),
         U.h('p', { class: 'muted small tp-mode-applies', id: 'mode-applies' }, 'Applies to the ideas you have not started yet.'),
         told());
     }

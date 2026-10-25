@@ -1,6 +1,6 @@
 // The Library, the home (#/): ready-made courses only (Dan, 18 Oct: "material and content I can
 // dive into when I feel like learning something new or brushing up"). Top to bottom: the look-up
-// field (typing replaces the page below it with the lessons and courses that match), one row for the course he left open, one row for the puzzles in the box, then the shelves
+// field (typing replaces the page below it with the lessons and courses that match), one row for the course he left open, one row for the puzzles in the box (while the box is shown: U.flags.puzzleBox), then the shelves
 // as 76-shelves.js draws them, the shelves with nothing built yet folded under one line. Nothing on
 // it is due or counts down, and a row with nothing to say is not drawn. It also queues the course
 // pictures (35-art.js) and, once he has a course, asks once whether he wants them (below the
@@ -52,7 +52,14 @@
         U.h('span', { class: 'lib-open-n' }, 'lesson ' + (s.index + 1) + ' of ' + s.total)),
       U.icon('arrow', 'today-go'));
   }
+  // Today shows the same row while the puzzle box is hidden (60-today.js): its way to today's study.
+  //   U.library.leftOpen(topics, progress, shelves) -> best | null;  U.library.openRow(best) -> Element
+  U.library = {
+    leftOpen: function (topics, progress, shelves) { return leftOpen(topics || [], progress || {}, builtCourses(shelves || [])); },
+    openRow: openRow,
+  };
   // The puzzle box: how many there are and from which courses, opening Today. Never "due".
+  // Drawn only while the box is shown (U.flags.puzzleBox, 00-core.js).
   function boxRow(box, titleOf) {
     var from = box.courses.map(function (c) { return titleOf(c.tid); }).filter(Boolean);
     return U.h('a', { class: 'today-row lib-box', href: '#/today' },
@@ -196,7 +203,7 @@
       U.store.progress.all().then(function (r) { if (ctx.alive()) { progress = r || {}; paintRows(); } }, function (e) { console.warn('progress', e); });
     }
     loadProgress();
-    if (U.review && typeof U.review.box === 'function') {
+    if (U.flags.puzzleBox && U.review && typeof U.review.box === 'function') {
       Promise.resolve().then(function () { return U.review.box(); }).then(function (b) { if (ctx.alive()) { box = b; paintRows(); } }, function (e) { console.warn('box', e); });
     }
 

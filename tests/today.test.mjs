@@ -43,6 +43,8 @@ function load(seed = {}) {
     })();`, ctx);
   vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '60-today.js'].map(src).join('\n'), ctx);
   const U = ctx.U;
+  // The puzzle box is off by default (U.flags.puzzleBox, 00-core.js): these tests test it, so it is on.
+  U.flags.puzzleBox = true;
   U.store = {
     cards: {
       all: async () => clone(docs.cards),

@@ -12,7 +12,10 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { openApp, ROOT } from '../../tools/harness/page.mjs';
+import { openApp as openPage, ROOT } from '../../tools/harness/page.mjs';
+// The puzzle box is hidden by default (U.flags.puzzleBox, 00-core.js, since 25 Oct). This spec tests it,
+// so its pages show it unless a test says box: false.
+const openApp = (o) => openPage({ puzzleBox: true, ...o });
 
 const FILE = join(ROOT, 'tests', 'out', 'read.html');
 const SHOTS = join(ROOT, 'tests', 'out', 'read');
@@ -80,8 +83,8 @@ function db(progress, extra) {
   if (progress) out[PROGRESS] = progress;
   return Object.assign(out, extra || {});
 }
-async function open({ width = 360, dark = false, size = 'm', hash = '#/t/pendulums', progress = null, extra = null } = {}) {
-  const app = await openApp({ width, height: width < 700 ? 780 : 900, dark, file: FILE, config: { db: db(progress, extra) }, sample: () => new Promise(() => {}) });
+async function open({ width = 360, dark = false, size = 'm', hash = '#/t/pendulums', progress = null, extra = null, box = true } = {}) {
+  const app = await openApp({ width, height: width < 700 ? 780 : 900, dark, file: FILE, config: { db: db(progress, extra) }, sample: () => new Promise(() => {}), puzzleBox: box });
   current.apps.push(app);
   await app.page.addInitScript((v) => { try { if (!sessionStorage.getItem('__p')) { localStorage.setItem('mu-prefs', JSON.stringify(v)); sessionStorage.setItem('__p', '1'); } } catch (e) {} }, { theme: dark ? 'dark' : 'light', size });
   await app.page.goto(app.url(hash));
@@ -218,6 +221,30 @@ await test('quizzing through a steps lesson puts its puzzles in the box, from to
   const p = (await doc(app, PROGRESS)).ideas.i2;
   eq([p.stage, p.quizRound, p.puzzleRound, p.puzzleV, p.readThrough], ['done', 0, 0, 2, undefined], 'quizzed, its puzzles recorded');
   await shot(app, 'quizzed-puzzles-360');
+});
+
+// The puzzle box hidden (U.flags.puzzleBox off, Dan 25 Oct): quizzing through still finishes the
+// lesson, but makes no puzzles, records none (the backfill makes them once the box is back) and the
+// done section says nothing of a box.
+await test('with the puzzle box hidden, quizzing through makes no puzzles and the done section says nothing of them', async () => {
+  const G = { v: 2, iid: 'i2', pages: [
+    { kind: 'example', name: 'Which', task: 'Which is faster, a short or a long string?', answer: 'The short one', why: 'A shorter arc.', input: 'pick', options: ['The short one', 'The long one', 'The same'] },
+    { kind: 'example', name: 'Time', task: 'A 1 m pendulum: how long is one swing there and back?', answer: '2.01 s', why: 'T = 2π√(L/g).', input: 'typed', unit: 's', svg: SVG, alt: 'Solved.' },
+  ] };
+  const app = await open({ hash: '#/t/pendulums/i2', extra: { 'topics/pendulums/guide/i2': G }, box: false });
+  eq(await app.page.evaluate(() => U.flags.puzzleBox), false, 'the box is hidden');
+  await app.page.locator('.lsn-steps-play iframe').waitFor({ timeout: 20000 });
+  await app.page.frameLocator('.lsn-steps-play iframe').locator('button', { hasText: 'Finish' }).click();
+  await app.page.locator('.lsn-done').waitFor({ timeout: 15000 });
+  eq(await app.page.locator('.lsn-done .lsn-h').textContent(), 'Lesson complete', 'the lesson is finished as before');
+  await app.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.ideas.i2 && d.ideas.i2.stage === 'done'; }, PROGRESS, { timeout: 10000 });
+  await app.page.waitForTimeout(1500);
+  eq(await app.page.locator('.lsn-puzzles:not([hidden])').count(), 0, 'no puzzle line');
+  assert(!/puzzle|in the box|flip through/i.test(await app.page.locator('.lsn-done').innerText()), 'the done section names no puzzles or box: ' + (await app.page.locator('.lsn-done').innerText()).replace(/\n/g, ' | '));
+  eq(await doc(app, `data/users/${UID}/profile/cards/pendulums`), null, 'no cards made');
+  const p = (await doc(app, PROGRESS)).ideas.i2;
+  eq([p.stage, p.quizRound, p.puzzleRound, p.puzzleV], ['done', 0, undefined, undefined], 'quizzed, and no puzzles recorded (the backfill makes them later)');
+  await shot(app, 'quizzed-box-hidden-360');
 });
 
 // A step drawn in HTML (a panel, worked lines, a recall's options) is kept as still HTML by

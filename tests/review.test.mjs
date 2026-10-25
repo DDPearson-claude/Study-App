@@ -14,6 +14,8 @@ const U = (() => {
   const ctx = vm.createContext({ console });
   vm.runInContext('var window = globalThis;', ctx);
   vm.runInContext('"use strict";\n' + ['00-core.js', '40-fsrs.js', '41-cards.js', '60-today.js'].map(src).join('\n'), ctx);
+  // The puzzle box is off by default (U.flags.puzzleBox, 00-core.js): these tests test it, so it is on.
+  ctx.U.flags.puzzleBox = true;
   return ctx.U;
 })();
 

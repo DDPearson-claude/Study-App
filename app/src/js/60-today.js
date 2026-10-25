@@ -48,6 +48,13 @@
 // review with ?topic=<tid> takes that course's puzzles only, and closes back to where it was opened.
 // Today is the puzzle box (Dan, 18 Oct: the Library home design): it counts the puzzles in the box
 // and never says "due"; the cards are "puzzles" in every word Today and a review say.
+//
+// The box is hidden while U.flags.puzzleBox is off (00-core.js; Dan, 25 Oct): Today is then the way
+// to today's study (the lesson he left open, else the Library) and reads no cards; #/review and its
+// addresses go home quietly; refreshBadge reads nothing; puzzlesFor and mendPuzzles make and record
+// nothing (so the backfill makes them once the switch is on again). Nothing saved is changed: the
+// cards, their schedules and progress stay as they are. Lessons the app writes itself still save
+// their check cards (addFromLesson, mendCards' own part); they are simply not shown.
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
 // Card fields beyond the contract: learnedAt (last time the lesson was completed; lapses before it
 // no longer count towards "Learn it again") and retired (a card that cannot be used: its interactive
@@ -66,6 +73,8 @@
   // Cards made from a ready-made lesson's guide and its written questions, never from its checks.
   var GUIDED = { puzzle: 1, written: 1 };
   function guided(c) { return !!c && GUIDED[c.type] === 1; }
+  // The puzzle box is shown (U.flags.puzzleBox, 00-core.js), read each time it matters.
+  function boxOn() { return !!(U.flags && U.flags.puzzleBox); }
 
   // ---------- data ----------
   function flatten(all) {
@@ -507,7 +516,10 @@
   }
   // The lesson screen, when Dan finishes a steps lesson by quizzing through it: its puzzles, first
   // in the box the next study day. -> Promise<number of cards>
+  // With the box hidden: none, and nothing recorded (no puzzleRound), so the backfill makes them
+  // once it is on again.
   function puzzlesFor(tid, iid, o) {
+    if (!boxOn()) return Promise.resolve(0);
     o = o || {};
     var v = o.guide && Number(o.guide.v) || 1, made = puzzlesFrom(tid, iid, o.guide, o.lesson, o.idea);
     if (v < 2 && !Object.keys(made).length) return Promise.resolve(0);
@@ -560,8 +572,10 @@
     return due;
   }
   // -> Promise<[{tid, iid}]> the lessons given puzzles now. Never rejects; at most once a minute
-  // after a clean run (force: run anyway), never twice at once.
+  // after a clean run (force: run anyway), never twice at once. With the box hidden: nothing read,
+  // made or recorded (a run then would stamp puzzleRound with puzzles nobody sees).
   function mendPuzzles(force) {
+    if (!boxOn()) return Promise.resolve([]);
     if (puzzling) return puzzling;
     if (!force && Date.now() - puzzledAt < MEND_EVERY) return Promise.resolve([]);
     if (!U.store.guide || typeof U.store.guide.get !== 'function') return Promise.resolve([]);
@@ -749,7 +763,9 @@
     outlook: function () {
       return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, minutes: p.size ? minutesFor(p.queue) : 0, head: w.head, lead: w.lead, next: w.next }; });
     },
+    // With the box hidden there is nothing to count: no cards are read.
     refreshBadge: function () {
+      if (!boxOn()) return Promise.resolve(setBadge(0));
       changed();
       return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
     },
@@ -899,14 +915,45 @@
       h('ol', { class: 'td-days' }, cells));
   }
 
+  // ---------- #/today with the puzzle box hidden ----------
+  // Today's study, one tap away: the lesson he left open (the Library's own row, 77-library.js),
+  // else the way to the Library; then This week from his study minutes. No card is read or counted.
+  // A read that fails leaves its part out (no left-open row, an empty week): never an error here.
+  function studyToday(root, ctx) {
+    var L = U.library, S = U.store;
+    var shelves = L && S.shelves && typeof S.shelves.list === 'function' ? S.shelves.list() : Promise.resolve([]);
+    Promise.all([
+      S.topics.list().catch(function () { return []; }),
+      S.progress.all().catch(function () { return {}; }),
+      shelves.catch(function () { return []; }),
+      S.profile.get().catch(function () { return null; }),
+    ]).then(function (r) {
+      if (!ctx.alive()) return;
+      var day = U.studyDay(), best = L && typeof L.leftOpen === 'function' ? L.leftOpen(r[0] || [], r[1] || {}, r[2] || []) : null;
+      U.clear(root);
+      root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(day)));
+      if (best) {
+        root.appendChild(h('h1', { class: 'td-title' }, 'Pick up where you left off'));
+        root.appendChild(h('section', { class: 'td-plan td-study', 'aria-label': 'Today\'s study' }, L.openRow(best)));
+      } else {
+        root.appendChild(h('h1', { class: 'td-title' }, 'Nothing left open'));
+        root.appendChild(h('p', { class: 'td-lead' }, 'Start a course from your library whenever you feel like it.'));
+        root.appendChild(h('section', { class: 'td-plan td-study', 'aria-label': 'Today\'s study' }, h('a', { class: 'btn wide', href: '#/' }, 'Browse your library')));
+      }
+      root.appendChild(weekStrip((r[3] && r[3].days) || {}, day, []));
+    });
+  }
+
   // ---------- #/today ----------
   function todayView(params, ctx) {
     var root = h('div', { class: 'td' });
     ctx.view.appendChild(root);
     root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
     // Cards an idea finished earlier never got (the app closed before they were saved). Made ones
-    // first come due tomorrow, so today's list need not wait for this.
+    // first come due tomorrow, so today's list need not wait for this. (With the box hidden, only
+    // the check cards of lessons the app wrote: mendPuzzles makes nothing.)
     mendCards();
+    if (!boxOn()) { studyToday(root, ctx); return; }
 
     // Claude's notes come after the session (Dan, 10 Oct: before it they would be hints for the very
     // cards he is about to recall). They are read with the rest (the progress of every topic with a
@@ -1036,6 +1083,8 @@
   // ---------- #/review ----------
   function reviewView(extra) {
     return function (params, ctx) {
+      // The box hidden: its addresses (an old link, a bookmark) go home quietly, in place.
+      if (!boxOn()) { U._home(); return; }
       var root = h('div', { class: 'rv' });
       var fill = h('i', { style: { width: '0%' } });
       var bar = h('div', { class: 'bar rv-bar', role: 'progressbar', 'aria-label': 'Review progress', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' }, fill);
