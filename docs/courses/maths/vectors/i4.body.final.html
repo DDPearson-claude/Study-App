@@ -1,0 +1,1276 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .vn { font-weight: 700; font-style: italic; }
+  .vu { font-weight: 700; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .org { fill: var(--k-ink); }
+  .scene .sh { stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .scene .va .sh, .scene .hdg .sh, .scene .you .sh { stroke: var(--k-cat1); }
+  .scene .va .hd, .scene .hdg .hd, .scene .you .hd { fill: var(--k-cat1); }
+  .scene .vb .sh, .scene .oth .sh { stroke: var(--k-cat2); }
+  .scene .vb .hd, .scene .oth .hd { fill: var(--k-cat2); }
+  .scene .vbr .sh { stroke: var(--k-cat2); stroke-width: 2.6; stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .vbr .hd { fill: var(--k-cat2); }
+  .scene .rev .sh { stroke: var(--k-cat1); stroke-width: 2.6; stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .rev .hd { fill: var(--k-cat1); }
+  .scene .cp .sh { stroke: var(--k-cat1); stroke-width: 2.2; stroke-dasharray: 5 4; stroke-linecap: butt; }
+  .scene .cp .hd { fill: var(--k-cat1); }
+  .scene .res .sh, .scene .gnd .sh, .scene .rel .sh { stroke: var(--k-accent2); }
+  .scene .res .hd, .scene .gnd .hd, .scene .rel .hd { fill: var(--k-accent2); }
+  .scene .str .sh { stroke: var(--k-accent); }
+  .scene .str .hd { fill: var(--k-accent); }
+  .scene .bad .sh { stroke: var(--k-warn); }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .trk { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+  .scene .trkbad { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+  .scene .lnx { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 4; }
+  .scene .water { fill: var(--k-fill3); }
+  .scene .land { fill: var(--k-sunk); }
+  .scene .rip { fill: none; stroke: var(--k-bg); stroke-width: 1.5; opacity: .6; }
+  .scene .hull { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }
+  .scene .ghost { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; stroke-dasharray: 3 3; stroke-linejoin: round; }
+  .scene .post { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .pole { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .flag { fill: var(--k-accent2); }
+  .scene .pt { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2.4; }
+  .scene .ptok { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.6; }
+  .scene .ptbad { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2.6; }
+  .scene .badc { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .wedge { fill: var(--k-fill1); stroke: none; }
+  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .ra { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .pill { fill: var(--k-hl); stroke: none; }
+  .scene .sw { stroke-width: 3.5; stroke-linecap: round; }
+  .scene .sw.h, .scene .sw.y { stroke: var(--k-cat1); }
+  .scene .sw.v { stroke: var(--k-cat2); }
+  .scene .sw.s { stroke: var(--k-accent); }
+  .scene .sw.g { stroke: var(--k-accent2); }
+  .scene .sw.l { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 4; stroke-linecap: butt; }
+  /* Every label carries a thin halo of what lies behind it, so a line behind it never cuts its letters. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene text.w { stroke: var(--k-fill3); }
+  .scene text.l { stroke: var(--k-sunk); }
+  .scene text.nohalo { stroke: none; }
+  .scene .nm { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.ok { fill: var(--k-accent2); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sm.mu { fill: var(--k-muted); }
+  .scene .sm.ok { fill: var(--k-accent2); }
+  .scene .sm.bad { fill: var(--k-warn); }
+  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .rv { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .rv2 { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene tspan.vn { font-style: italic; font-weight: 700; }
+  .scene tspan.vu { font-weight: 800; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  #obox, #sbox, #vbox { max-width: 22rem; margin-inline: auto; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A chart grid with arrows from the origin. Then a stretch of water seen from above, with a boat, a stream and a second vessel. The values are made-up examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 240" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div id="obox"></div>
+    <div id="sbox"></div>
+    <div id="vbox"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">To take an arrow away, turn it round and add it nose to tail.</p>
+
+<script>
+  const RAD = Math.PI / 180;
+  const Cs = (deg) => Math.cos(deg * RAD), Sn = (deg) => Math.sin(deg * RAD);
+  // Up to two decimals, as the lesson writes them: 5, 2.65, −2, 0.
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }
+  // Parts written with i and j, every number shown: 4i − 1j, 1i + 5j, −6i.
+  function expr(v) {
+    const us = ['i', 'j'];
+    let s = '';
+    v.forEach((c, n) => {
+      const r = Math.round(c * 100) / 100;
+      if (Math.abs(r) < 1e-9) return;
+      const mag = num(Math.abs(r));
+      s += s ? (r < 0 ? ' − ' : ' + ') + mag + us[n] : (r < 0 ? '−' : '') + mag + us[n];
+    });
+    return s || '0';
+  }
+  // One part taken away, as the readout writes it: 5 − 1 = 4, 4 − (−1) = 5.
+  const diffText = (a, b) => num(a) + ' − ' + (b < 0 ? '(' + num(b) + ')' : num(b)) + ' = ' + num(a - b);
+  const sumText = (a, b) => num(a) + (b < 0 ? ' − ' + num(-b) : ' + ' + num(b)) + ' = ' + num(a + b);
+  const kText = (k) => num(k) + ' × AB';
+  const add = (p, q) => [p[0] + q[0], p[1] + q[1]];
+  const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];
+  const neg = (p) => [-p[0], -p[1]];
+  const scale = (p, s) => [p[0] * s, p[1] * s];
+  const hyp = (v) => Math.hypot(v[0], v[1]);
+  const same = (p, q) => !!p && !!q && p.length === q.length && p.every((x, n) => K.near(x, q[n], 1e-9));
+  const mid = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
+  const lerp2 = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
+
+  // ---------- each screen's layout ----------
+  // A grid: u px a unit, the origin at (ox, oy), whole units x0..x1 and y0..y1, the readout band at hd.
+  const GS = (o) => Object.assign({ kind: 'grid', ly0: 22 }, o, { ly1: o.hd - 8, H: o.hd + 62 });
+  const G_SUB = GS({ u: 28, ox: 100, oy: 168, x0: -1, x1: 6, y0: -2, y1: 5, hd: 236 });
+  const G_SUBQ = GS({ u: 18, ox: 116, oy: 116, x0: -1, x1: 7, y0: -6, y1: 5, hd: 242 });
+  const G_BUOY = GS({ u: 26, ox: 56, oy: 186, x0: -1, x1: 7, y0: -1, y1: 6, hd: 222 });
+  const G_PQ = GS({ u: 20, ox: 86, oy: 90, x0: -2, x1: 10, y0: -5, y1: 3, hd: 204 });
+  const G_LINE = GS({ u: 26, ox: 56, oy: 160, x0: -1, x1: 9, y0: -1, y1: 5, hd: 198 });
+  const G_LINEQ = GS({ u: 24, ox: 54, oy: 174, x0: -1, x1: 10, y0: -1, y1: 6, hd: 210 });
+  // The water: the far bank's edge at top, the near bank's at bot, the boat at (x0, sy), u px for 1 m/s.
+  const R7 = { kind: 'river', wet: true, top: 26, bot: 186, x0: 130, sy: 174, u: 24, ly0: 40, ly1: 196, H: 232 };
+  const R8 = Object.assign({}, R7, { x0: 180, u: 22 });
+  const R12 = Object.assign({}, R7, { x0: 80, u: 18, hd: 236, H: 298 });
+  // The open water: sea down to `sea`, a bank below it to `shore`.
+  const S9 = { kind: 'sea', wet: true, sea: 196, shore: 224, ly0: 20, ly1: 188, hd: 232, H: 294 };
+  const S10 = { kind: 'sea', wet: true, sea: 190, ly0: 20, ly1: 182, hd: 198, H: 260 };
+  const S11 = { kind: 'sea', wet: true, sea: 112, ly0: 20, ly1: 106, key: 126, hd: 140, H: 202 };
+  const PHI_AIM = -Math.asin(3 / 4) / RAD;   // 48.59° upstream: 4 m/s against a 3 m/s stream
+  const PHI8 = -Math.asin(3 / 5) / RAD;      // 36.87° upstream: 5 m/s against a 3 m/s stream
+  const MPX = 136 / 40;                       // step 12: px a metre across the 40 m channel
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. read: its words for the
+  // read-through, where its own words ask him to act. A puzzle: task, opts (three answers), want,
+  // hints (one per wrong answer), why, pv (what a wrong answer is drawn as), reveal (a label only a
+  // right answer draws), fb (seconds of motion after a right and a wrong answer).
+  const STEPS = [
+    { show: true, name: 'Taking away', pic: 'sub', geo: G_SUB, dur: 4.0,
+      text: 'To take `b` away from `a`, turn `b` round and add it nose to tail. With `a` = `5i + 2j` and `b` = `1i + 3j`, that gives `a − b` = `4i − 1j`. Drawn from one tail, the same arrow runs from the nose of `b` to the nose of `a`. Go out along `b`, then along `a − b`, and you land on `a`. Switch to adding to compare.',
+      read: 'To take `b` away from `a`, turn `b` round and add it nose to tail. With `a` = `5i + 2j` and `b` = `1i + 3j`, that gives `a − b` = `4i − 1j`. Drawn from one tail, the same arrow runs from the nose of `b` to the nose of `a`. Go out along `b`, then along `a − b`, and you land on `a`.' },
+    { kind: 'pick', name: 'Take 2i − 1j from 3i + 4j', pic: 'subq', geo: G_SUBQ, fb: [1.8, 1.8],
+      task: 'Here `a` is `3i + 4j` and `b` is `2i − 1j`. What is `a − b`?',
+      opts: ['−1i − 5j', '1i + 5j', '5i + 3j'], want: '1i + 5j', reveal: '1i + 5j', pv: { '−1i − 5j': [-1, -5], '5i + 3j': [5, 3] },
+      hints: { '−1i − 5j': 'Not quite. That is `b − a`. It is the same size, but points the opposite way.',
+        '5i + 3j': 'Not quite. That adds `b`. Turn `b` round first, then add.' },
+      why: 'Turned round, `b` is `−2i + 1j`. Across, 3 − 2 = 1. Up, 4 + 1 = 5. So `a − b` is `1i + 5j`. Add `b` back on, and you land on `a`.' },
+    { show: true, name: 'Buoy to buoy', pic: 'buoys', geo: G_BUOY, dur: 3.6,
+      text: 'A move from one point to another is a *displacement*. It is where you end minus where you started. Buoy A sits at `1i + 2j` km. Its arrow from the origin, `a`, is its *position vector*. Buoy B sits at `6i + 5j` km, with position vector `b`. So the move AB is `b − a`, which is `5i + 3j` km. Drag buoy B, and the move follows.',
+      read: 'A move from one point to another is a *displacement*. It is where you end minus where you started. Buoy A sits at `1i + 2j` km. Its arrow from the origin, `a`, is its *position vector*. Buoy B sits at `6i + 5j` km, with position vector `b`. So the move AB is `b − a`, which is `5i + 3j` km. Go out along `a`, then along AB, and you land on B.' },
+    { kind: 'pick', name: 'From P to Q', pic: 'pq', geo: G_PQ, fb: [1.8, 1.8],
+      task: 'P sits at `4i − 1j` and Q at `−2i + 3j`. What is the move PQ?',
+      opts: ['6i − 4j', '2i + 2j', '−6i + 4j'], want: '−6i + 4j', reveal: '−6i + 4j', pv: { '6i − 4j': [6, -4], '2i + 2j': [2, 2] },
+      hints: { '6i − 4j': 'Not quite. That is the move from Q back to P. End minus start is `q − p`.',
+        '2i + 2j': 'Not quite. That adds the two positions. Take P\'s position away from Q\'s.' },
+      why: 'End minus start is `q − p`. Across, −2 − 4 = −6. Up, 3 − (−1) = 4. So PQ is `−6i + 4j`.' },
+    { show: true, name: 'In line', pic: 'line', geo: G_LINE, dur: 3.8,
+      text: 'A, B and C sit at `1i + 1j`, `3i + 2j` and `7i + 4j`. AB is `2i + 1j`. BC is `4i + 2j`, which is 2 × AB. So the two steps point the same way. Parallel steps alone could sit on two separate lines. These two share B, so the three points lie on one line. They are *collinear*. Drag C, and see when it stays in line.',
+      read: 'A, B and C sit at `1i + 1j`, `3i + 2j` and `7i + 4j`. AB is `2i + 1j`. BC is `4i + 2j`, which is 2 × AB. So the two steps point the same way. Parallel steps alone could sit on two separate lines. These two share B, so the three points lie on one line. They are *collinear*. Two copies of AB fit exactly along BC.' },
+    { kind: 'pick', name: 'Which point is in line?', pic: 'lineq', geo: G_LINEQ, fb: [1.8, 1.8],
+      task: 'A sits at `1i + 1j` and B at `3i + 2j`. Which point lies on the line through A and B?',
+      opts: ['9i + 5j', '9i + 4j', '7i + 5j'], want: '9i + 5j', reveal: '9i + 5j', pv: { '9i + 4j': [9, 4], '7i + 5j': [7, 5] },
+      hints: { '9i + 4j': 'Not quite. From B that step is `6i + 2j`. Its across part is 3 × 2, but its up part is not 3 × 1.',
+        '7i + 5j': 'Not quite. From B that step is `4i + 3j`. It is not a multiple of AB.' },
+      why: 'AB is `2i + 1j`. From B to `9i + 5j` is `6i + 3j`, which is 3 × AB. The two steps share B, so the point is on the line.' },
+    { show: true, name: 'The boat and the stream', pic: 'river', geo: R7, dur: 4.8,
+      text: 'A boat heads straight across at 4 m/s in a 3 m/s stream. Over the ground it moves along the sum of the two arrows, at 5 m/s, and lands downstream. To land opposite, it aims upstream until its upstream part cancels the stream. Drag the boat\'s arrow, or change the stream.',
+      read: 'A boat heads straight across at 4 m/s in a 3 m/s stream. Over the ground it moves along the sum of the two arrows, at 5 m/s, and lands downstream. To land opposite, it aims upstream until its upstream part cancels the stream. Aimed 48.59° upstream, it crosses at 2.65 m/s and lands on the target.' },
+    { kind: 'pick', name: 'Straight across', pic: 'cross', geo: R8, fb: [1.8, 1.8],
+      task: 'A boat makes 5 m/s through the water in a 3 m/s stream. It aims upstream to cross straight over. What is its speed across?',
+      opts: ['5.83 m/s', '4 m/s', '2 m/s'], want: '4 m/s', reveal: '4 m/s', pv: { '5.83 m/s': Math.hypot(5, 3), '2 m/s': 5 - 3 },
+      hints: { '5.83 m/s': 'Not quite. That adds the squares. Here the heading is the long side, so the across part is shorter than 5.',
+        '2 m/s': 'Not quite. That takes the sizes away. The stream and the track across meet at a right angle, so use Pythagoras.' },
+      why: 'Its upstream part cancels the 3 m/s stream. The heading, 5 m/s, is the long side of a right-angled triangle. So the across part is `√(5² − 3²) = 4` m/s.' },
+    { show: true, name: 'Seen from the boat', pic: 'rel', geo: S9, dur: 4.4,
+      text: 'You make `6i` knots due east. A second vessel makes `8j` knots due north. From your boat, add your own arrow turned round to everything. Your boat then sits still. The bank slides west. The vessel moves at `8j − 6i`. That is its *relative velocity*, 10 knots. Switch the view to compare.',
+      read: 'You make `6i` knots due east. A second vessel makes `8j` knots due north. From your boat, add your own arrow turned round to everything. Your boat then sits still. The bank slides west. The vessel moves at `8j − 6i`. That is its *relative velocity*, 10 knots. Your own arrow and its reverse cancel, so your boat stays put.' },
+    { kind: 'pick', name: 'Theirs minus yours', pic: 'relq', geo: S10, fb: [2.0, 1.8],
+      task: 'You make `4i + 3j` knots and another vessel makes `−2i + 3j` knots. What is its velocity relative to you?',
+      opts: ['2i + 6j', '6i', '−6i'], want: '−6i', reveal: '−6i', pv: { '6i': [6, 0], '2i + 6j': [2, 6] },
+      hints: { '6i': 'Not quite. That is yours minus theirs. Take your velocity away from theirs.',
+        '2i + 6j': 'Not quite. That adds the two velocities. Turn your own arrow round first.' },
+      why: 'Theirs minus yours, part by part. Across, −2 − 4 = −6. Up, 3 − 3 = 0. So from your boat it moves at `−6i`, 6 knots due west.' },
+    { kind: 'pick', name: 'Head-on', pic: 'headon', geo: S11, fb: [2.0, 1.8],
+      task: 'Two vessels meet head-on at 12 knots each. How fast do they close on each other?',
+      opts: ['24 knots', '0 knots', '12 knots'], want: '24 knots', reveal: '24 knots', pv: { '0 knots': 0, '12 knots': 12 },
+      hints: { '0 knots': 'Not quite. That adds the two velocities, and they cancel. Take yours away from theirs.',
+        '12 knots': 'Not quite. That is one vessel alone. Seen from you, it also carries your arrow turned round.' },
+      why: 'Say you make `12i` and the other makes `−12i`. Theirs minus yours is `−12i − 12i = −24i`. So it closes on you at 24 knots.' },
+    { kind: 'pick', name: 'Pointing at the target', pic: 'drift', geo: R12, fb: [2.4, 1.8],
+      task: 'A boat points straight at a target 40 m across. It makes 4 m/s, and the stream runs at 3 m/s. Where does it land?',
+      opts: ['On the target', '30 m downstream', '50 m downstream'], want: '30 m downstream', reveal: '30 m', pv: { 'On the target': 0, '50 m downstream': 50 },
+      hints: { 'On the target': 'Not quite. The stream carries the boat downstream the whole way across.',
+        '50 m downstream': 'Not quite. 50 m is the length of the whole track. The drift is only the stream\'s part.' },
+      why: 'Its across part is 4 m/s, so it crosses in 40 ÷ 4 = 10 s. All that time the stream carries it 3 m each second. So it lands 3 × 10 = 30 m downstream. Its track is 50 m long.' },
+  ];
+  const FINISH = 'Taking a vector away means adding its reverse. A displacement is end minus start. A relative velocity is the other\'s velocity minus yours.';
+  // The lesson's sources, each cited only by a check that restates its quote.
+  const SRC_SUB = 'https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2';
+  const SRC_DISP = 'https://openstax.org/books/university-physics-volume-1/pages/3-1-position-displacement-and-average-velocity';
+  const SRC_REL = 'https://physicsfundamentals.org/blog/relative-velocity';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const atPic = (pic) => STEPS.findIndex((d) => d.pic === pic);
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, its result and the Why? note. op: a − b or a + b, once he has
+  // switched (flip). B, C: where he has dragged buoy B or point C. hd: the boat's heading {s, phi}
+  // as he has dragged it; c: the stream he has set. view: seen from the boat or not, once switched.
+  function blank() { return { pick: null, res: null, why: false, op: null, flip: false, B: null, C: null, hd: null, c: null, view: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };
+  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0, ripple = 0;
+  let REC = null;   // what the last paint drew, for the checks
+  let G = null;     // the layout of the step being drawn
+
+  // ---------- text with amber key terms and bold vector letters (built with K.el, never innerHTML) ----------
+  const VEC = /((?<![A-Za-z])[abijpq](?![A-Za-z]))/;
+  function vecs(parent, s, inSvg) {
+    String(s).split(VEC).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2) { const cls = /[ij]/.test(p) ? 'vu' : 'vn'; parent.appendChild(inSvg ? K.svg('tspan', { class: cls }, p) : K.el('span', { class: cls }, p)); return; }
+      parent.appendChild(document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    // A number keeps its unit on the same line.
+    String(s).replace(/([\d`]) (?=(?:m\/s|knots|km|m|s)(?![\w\/]))/g, '$1\u00a0').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { vecs(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const cur = () => stepper.get();
+  // a − b or a + b, on the first screen only.
+  const opCtl = K.choice({ id: 'op', label: 'Draw', options: [{ value: 'sub', label: 'a − b' }, { value: 'add', label: 'a + b' }], value: 'sub', into: '#obox' });
+  // The stream's speed, on the river screen only.
+  const streamCtl = K.control({ id: 'stream', label: 'Stream', min: 0, max: 4, step: 0.5, value: 3, unit: 'm/s', snap: [3], into: '#sbox' });
+  // Seen from the boat, or over the ground, on the relative-velocity screen only.
+  const viewCtl = K.toggle({ id: 'view', label: 'Seen from the boat', value: false, into: '#vbox' });
+  let opShown = opCtl.get(), streamShown = streamCtl.get(), viewShown = viewCtl.get();
+  // While a demonstration plays, the view follows it: over the ground first, then from the boat.
+  const viewNow = (st) => (st.flip ? !!st.view : (T === Infinity || T >= 2.2));
+  function syncCtl(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.pic === 'sub') { const v = st.flip ? st.op : 'sub'; if (opCtl.get() !== v) opCtl.set(v, true); opShown = opCtl.get(); }
+    if (d.pic === 'river') { const v = st.c == null ? 3 : st.c; if (streamCtl.get() !== v) streamCtl.set(v, true); streamShown = streamCtl.get(); }
+    if (d.pic === 'rel') { const v = viewNow(st); if (viewCtl.get() !== v) viewCtl.set(v, true); viewShown = viewCtl.get(); }
+  }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[cur()].show || finished) return;
+    const st = S[cur()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { op: null, flip: false, B: null, C: null, hd: null, c: null, view: null });
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished. It always ends on the finished picture.
+  const WET = { river: 1, cross: 1, drift: 1 };
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    const d = STEPS[cur()], st = S[cur()];
+    if (WET[d.pic]) ripple += (d.pic === 'river' && st.c != null ? st.c : 3) * 7 * dt;
+    if (T >= motionEnd) { T = Infinity; paint(); syncCtl(cur()); return false; }
+    paint();
+    syncCtl(cur());
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncCtl(cur()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); syncCtl(cur()); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const put = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = put(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const pt2 = (p) => r3(p[0]) + ' ' + r3(p[1]);
+  const line = (cls, x1, y1, x2, y2) => put(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  function text(x, y, s, cls, anchor, vec) {
+    let c = cls;
+    if (G && G.wet && !/\b(l|pg)\b/.test(c)) c += ' w';
+    const t = K.svg('text', { class: c, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (vec) vecs(t, s, true); else t.textContent = s;
+    REC.texts.push(s);
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 9;
+  }
+  // An arrow in drawing units, shifted `shift` px to one side; returns its ends as drawn.
+  function pxArrow(a, b, cls, shift) {
+    let x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (shift && L >= 1) { const sx = dy / L * shift, sy = -dx / L * shift; x1 += sx; x2 += sx; y1 += sy; y2 += sy; }
+    if (L < 1) return [[x1, y1], [x2, y2]];
+    const g = put(K.svg('g', { class: 'arr ' + (cls || '') }));
+    const ux = dx / L, uy = dy / L, hl = Math.min(13, L * 0.45), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return [[x1, y1], [x2, y2]];
+  }
+  // A name beside the line a→b at fraction f: away from `ref`, or on `side` ('up', 'down', 'left', 'right') when the line runs through it.
+  function nameAt(a, b, s, cls, ref, side, f, vec, extra) {
+    f = f == null ? 0.5 : f;
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, mx = a[0] + dx * f, my = a[1] + dy * f;
+    let nx = dy / L, ny = -dx / L;
+    const dot = ref ? (mx - ref[0]) * nx + (my - ref[1]) * ny : 0;
+    if (Math.abs(dot) >= 2) { if (dot < 0) { nx = -nx; ny = -ny; } }
+    else {
+      const want = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[side || 'up'];
+      if (nx * want[0] + ny * want[1] < 0) { nx = -nx; ny = -ny; }
+    }
+    const w = tw(s, cls), D = 8 + (extra || 0) + Math.abs(nx) * w / 2 + Math.abs(ny) * 7;
+    const cx = K.clamp(mx + nx * D, 4 + w / 2, 336 - w / 2), cy = K.clamp(my + ny * D, G.ly0, G.ly1);
+    text(cx, cy + 5, s, cls, 'middle', vec);
+  }
+  // A label just beyond the nose of a→b.
+  function noseLabel(a, b, s, cls, vec) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, w = tw(s, cls);
+    const D = 9 + Math.abs(ux) * w / 2 + Math.abs(uy) * 7, lo = 4 + w / 2, hi = 336 - w / 2;
+    let x = b[0] + ux * D, y = b[1] + uy * D;
+    // No room beyond the nose: sit beside it, or above or below it, never on the arrowhead.
+    if (y < G.ly0 || y > G.ly1) { x = b[0] + (ux >= 0 ? 1 : -1) * (12 + w / 2); y = b[1]; }
+    if (x < lo - 2 || x > hi + 2) { x = b[0]; y = b[1] + (uy > 0 ? 18 : -17); }
+    text(K.clamp(x, lo, hi), K.clamp(y, G.ly0, G.ly1) + 5, s, cls, 'middle', vec);
+  }
+  // The readout under the drawing: the main quantity on amber, and up to two working lines.
+  // main: {l, s, a, la, vec}; items: [{l, v, a}].
+  function band(main, items) {
+    const y = G.hd;
+    items = items || [];
+    REC.band = { label: main.l, main: main.s, items: items.filter((it) => it.a == null || it.a > 0).map((it) => it.v) };
+    line('gl', 8, y + 2, 332, y + 2);
+    part(main.la != null ? main.la : main.a != null ? main.a : 1, 0, () => text(12, y + 22, main.l, 'rk pg', 'start', main.vec));
+    if (main.s != null) part(main.a == null ? 1 : main.a, 0, () => {
+      const w = tw(main.s, 'rv') + 16;
+      put(K.svg('rect', { class: 'pill', x: 8, y: y + 30, width: r3(w), height: 26, rx: 7 }));
+      text(16, y + 49, main.s, 'rv nohalo pg', 'start', true);
+    });
+    const lw = items.reduce((m, it) => Math.max(m, tw(it.l, 'rk')), 0);
+    items.forEach((it, k) => part(it.a == null ? 1 : it.a, 0, () => {
+      const yy = y + 24 + k * 26;
+      text(142, yy, it.l, 'rk pg', 'start');
+      text(152 + lw, yy, it.v, 'rv2 pg', 'start', true);
+    }));
+  }
+  // A key row: short swatches with their names.
+  function keyRow(y, items, a) {
+    part(a, 0, () => {
+      let x = 12;
+      items.forEach((it) => {
+        line('sw ' + it.sw, x, y, x + 20, y);
+        text(x + 26, y + 5, it.s, 'sm mu pg', 'start');
+        x += 26 + tw(it.s, 'sm mu pg') + 18;
+      });
+    });
+  }
+  // A boat's hull at p, pointing along dir (px).
+  function hull(p, dir, cls) {
+    const ang = Math.atan2(dir[1], dir[0]) / RAD;
+    return put(K.svg('path', { class: cls, d: 'M13 0 L4 -5.5 L-12 -5.5 L-12 5.5 L4 5.5 Z', transform: 'translate(' + pt2(p) + ') rotate(' + r3(ang) + ')' }));
+  }
+
+  // ---------- the grid ----------
+  const P = (v) => [G.ox + v[0] * G.u, G.oy - v[1] * G.u];
+  function grid(a) {
+    part(a, 0, () => {
+      for (let x = G.x0; x <= G.x1; x++) { const p = P([x, G.y0]), q = P([x, G.y1]); line(x === 0 ? 'ax' : 'gl', p[0], p[1], q[0], q[1]); }
+      for (let y = G.y0; y <= G.y1; y++) { const p = P([G.x0, y]), q = P([G.x1, y]); line(y === 0 ? 'ax' : 'gl', p[0], p[1], q[0], q[1]); }
+      const o = P([0, 0]);
+      put(K.svg('circle', { class: 'org', cx: r3(o[0]), cy: r3(o[1]), r: 3.5 }));
+      text(o[0] - 10, o[1] + 17, 'O', 'sm mu', 'middle');
+    });
+  }
+  // An arrow on the grid from point p along v (units), grown to e; o: {e, id, la, ref, side, f, cls, shift}.
+  function gArrow(p, v, cls, name, o) {
+    o = o || {};
+    const e = o.e == null ? 1 : o.e, a = P(p), b = P(add(p, scale(v, e))), end = P(add(p, v));
+    if (e > 0) pxArrow(a, b, cls, o.shift);
+    if (o.id && e >= 1) REC.arrows[o.id] = { p: p.slice(), v: v.slice() };
+    if (name && e >= 1 && hyp(v) * G.u >= 18) part(o.la == null ? 1 : o.la, 0, () => nameAt(a, end, name, o.cls || 'lb', o.ref, o.side, o.f, o.vec !== false));
+  }
+  // A point with its name, offset (dx, dy) and anchored as given, or away from `ref`.
+  function point(v, name, cls, place, ref) {
+    const p = P(v);
+    put(K.svg('circle', { class: cls || 'pt', cx: r3(p[0]), cy: r3(p[1]), r: 5.5 }));
+    if (!name) return p;
+    if (place) { text(p[0] + place[0], p[1] + place[1], name, place[3] || 'nm', place[2] || 'middle', !!place[4]); return p; }
+    let dx = p[0] - ref[0], dy = p[1] - ref[1];
+    const L = Math.hypot(dx, dy);
+    if (L < 1) { dx = 0; dy = 1; } else { dx /= L; dy /= L; }
+    text(K.clamp(p[0] + dx * 15, 10, 330), K.clamp(p[1] + dy * 15, G.ly0, G.ly1) + 6, name, 'nm', 'middle');
+    return p;
+  }
+  // A short key in the drawing's corner for a styled line.
+  function keyAt(x, y, sw, s) { line('sw ' + sw, x, y, x + 22, y); text(x + 28, y + 5, s, 'sm mu', 'start'); }
+
+  // ---------- the water ----------
+  const vp = (p, v) => [p[0] + v[0] * G.u, p[1] - v[1] * G.u];
+  const pxDir = (v) => [v[0], -v[1]];
+  // The boat's velocities: heading s m/s at phi degrees off straight across (+ downstream), stream c m/s.
+  function riverV(s, phi, c) { const h = [s * Sn(phi), s * Cs(phi)], w = [c, 0]; return { h, w, g: add(h, w) }; }
+  function riverBase(a) {
+    part(a, 0, () => {
+      put(K.svg('rect', { class: 'land', x: 0, y: 0, width: 340, height: G.top }));
+      put(K.svg('rect', { class: 'water', x: 0, y: G.top, width: 340, height: G.bot - G.top }));
+      put(K.svg('rect', { class: 'land', x: 0, y: G.bot, width: 340, height: 18 }));
+      for (let row = 0; row < 3; row++) {
+        const y = G.top + 30 + row * 52;
+        for (let k = 0; k < 6; k++) {
+          const x = (((k * 70 + row * 35 + ripple) % 420) + 420) % 420 - 40;
+          put(K.svg('path', { class: 'rip', d: 'M' + r3(x) + ' ' + y + ' q 7 -5 14 0 q 7 5 14 0' }));
+        }
+      }
+    });
+  }
+  function flagAt(a) {
+    part(a, 0, () => {
+      const x = G.x0;
+      line('pole', x, G.top, x, 5);
+      put(K.svg('path', { class: 'flag', d: 'M' + x + ' 5 L' + (x + 12) + ' 9 L' + x + ' 13 Z' }));
+    });
+  }
+  function riverKey(a, withGround) {
+    keyRow(G.bot + 30, [{ sw: 'h', s: 'heading' }, { sw: 's', s: 'stream' }].concat(withGround === false ? [] : [{ sw: 'g', s: 'over the ground' }]), a);
+  }
+  // The heading, the stream from its nose, and their sum over the ground; o: {eH, eW, eG, laH, laW, laG, gText}.
+  function velTri(m, o) {
+    const S0 = [G.x0, G.sy], Hn = vp(S0, m.h), Gn = vp(Hn, m.w), c = mid([S0, Hn, Gn]);
+    REC.h = m.h.slice(); REC.w = m.w.slice(); REC.g = m.g.slice(); REC.gText = o.gText || null; REC.Hn = Hn;
+    const eH = o.eH == null ? 1 : o.eH, eW = o.eW == null ? 1 : o.eW, eG = o.eG == null ? 1 : o.eG;
+    if (eH > 0) pxArrow(S0, lerp2(S0, Hn, eH), 'hdg');
+    if (eW > 0 && m.w[0] * G.u >= 1) pxArrow(Hn, lerp2(Hn, Gn, eW), 'str');
+    if (eG > 0) pxArrow(S0, lerp2(S0, Gn, eG), 'gnd');
+    if (eH >= 1) part(o.laH == null ? 1 : o.laH, 0, () => nameAt(S0, Hn, num(hyp(m.h)) + ' m/s', 'lb', c, 'left'));
+    if (eW >= 1 && m.w[0] * G.u >= 20) part(o.laW == null ? 1 : o.laW, 0, () => nameAt(Hn, Gn, num(hyp(m.w)) + ' m/s', 'lb', c, 'up'));
+    if (eG >= 1 && o.gText) part(o.laG == null ? 1 : o.laG, 0, () => nameAt(S0, Gn, o.gText, 'lb ok', c, 'right'));
+    return { S0, Hn, Gn, c };
+  }
+  function inTri(q, t) {
+    const s = (a, b) => (b[0] - a[0]) * (q[1] - a[1]) - (b[1] - a[1]) * (q[0] - a[0]);
+    const d1 = s(t[0], t[1]), d2 = s(t[1], t[2]), d3 = s(t[2], t[0]);
+    return (d1 >= 0 && d2 >= 0 && d3 >= 0) || (d1 <= 0 && d2 <= 0 && d3 <= 0);
+  }
+  // The angle between the heading and the track over the ground, shaded at the boat, with its label
+  // inside the triangle beyond the arc, and left out when there is no room.
+  function angleAt(t, a) {
+    const hv = sub(t.Hn, t.S0), gv = sub(t.Gn, t.S0), L1 = hyp(hv), L2 = hyp(gv);
+    if (L1 < 1 || L2 < 1) return;
+    const ang = Math.acos(K.clamp((hv[0] * gv[0] + hv[1] * gv[1]) / (L1 * L2), -1, 1)) / RAD;
+    REC.angle = num(ang) + '°';
+    if (ang < 4 || L1 < 30 || L2 < 30 || a <= 0) return;
+    const u1 = scale(hv, 1 / L1), u2 = scale(gv, 1 / L2), sb = add(u1, u2), bis = scale(sb, 1 / hyp(sb));
+    const r = 18, p1 = add(t.S0, scale(u1, r)), p2 = add(t.S0, scale(u2, r)), sweep = (u1[0] * u2[1] - u1[1] * u2[0]) > 0 ? 1 : 0;
+    const arcD = ' A' + r + ' ' + r + ' 0 0 ' + sweep + ' ' + pt2(p2);
+    part(a, 0, () => {
+      put(K.svg('path', { class: 'wedge', d: 'M' + pt2(t.S0) + ' L' + pt2(p1) + arcD + ' Z' }));
+      put(K.svg('path', { class: 'arc', d: 'M' + pt2(p1) + arcD }));
+      const s = REC.angle, w = tw(s, 'sm ok'), tri = [t.S0, t.Hn, t.Gn];
+      for (let D = 28; D <= 170; D += 2) {
+        const cx = t.S0[0] + bis[0] * D, cy = t.S0[1] + bis[1] * D;
+        const box = [[cx - w / 2 - 2, cy - 8], [cx + w / 2 + 2, cy - 8], [cx + w / 2 + 2, cy + 8], [cx - w / 2 - 2, cy + 8]];
+        if (box.every((q) => inTri(q, tri))) { text(cx, cy + 5, s, 'sm ok', 'middle'); REC.angleShown = true; return; }
+      }
+    });
+  }
+  // Where the track over the ground meets the far bank, or leaves the picture at a side.
+  function landing(g) {
+    const S0 = [G.x0, G.sy], yL = G.top + 12, gx = g[0] * G.u, gy = g[1] * G.u;
+    if (gy <= 1e-9) return { x: S0[0], y: S0[1], off: 0, on: false };
+    let x = S0[0] + gx * (S0[1] - yL) / gy, y = yL, off = 0;
+    if (x < 14) { off = -1; y = S0[1] - gy * (14 - S0[0]) / gx; x = 14; }
+    else if (x > 326) { off = 1; y = S0[1] - gy * (326 - S0[0]) / gx; x = 326; }
+    return { x, y, off, on: !off && Math.abs(x - S0[0]) < 0.5 };
+  }
+  function ghost(S0, L, e, a, h) { if (a > 0) part(a, 0, () => hull(lerp2(S0, [L.x, L.y], e), pxDir(h), 'ghost')); }
+  // The names on the far bank: the target, and where the boat lands.
+  function landLabels(L, aLand, aTarget) {
+    const x0 = G.x0;
+    if (L.on) {
+      part(aTarget, 0, () => text(x0 - 6, 19, 'target', 'sm mu l', 'end'));
+      part(aLand, 0, () => text(x0 + 16, 19, 'lands on target', 'sm ok l', 'start'));
+      return;
+    }
+    const up = L.off < 0 || (!L.off && L.x < x0);
+    part(aTarget, 0, () => text(up ? x0 + 16 : x0 - 6, 19, 'target', 'sm mu l', up ? 'start' : 'end'));
+    if (L.off) { part(aLand, 0, () => text(L.off < 0 ? 8 : 332, 19, L.off < 0 ? 'lands upstream' : 'lands downstream', 'sm ok l', L.off < 0 ? 'start' : 'end')); return; }
+    const w = tw('lands here', 'sm ok l');
+    let x = up ? L.x - 16 : L.x + 16, anc = up ? 'end' : 'start';
+    if (!up && x + w > 334) { x = L.x - 16; anc = 'end'; }
+    if (up && x - w < 6) { x = L.x + 16; anc = 'start'; }
+    part(aLand, 0, () => text(x, 19, 'lands here', 'sm ok l', anc));
+  }
+  function seaBase(a, post) {
+    part(a, 0, () => {
+      put(K.svg('rect', { class: 'water', x: 0, y: 0, width: 340, height: G.sea }));
+      if (!G.shore) return;
+      put(K.svg('rect', { class: 'land', x: 0, y: G.sea, width: 340, height: G.shore - G.sea }));
+      const off = (((18 + (post || 0)) % 36) + 36) % 36;
+      for (let x = off; x < 340; x += 36) line('post', x, G.sea + 3, x, G.sea + 11);
+      text(8, G.sea + 23, 'bank', 'sm mu l', 'start');
+    });
+  }
+  function raMark(J, u1, u2) {
+    const s = 8;
+    put(K.svg('path', { class: 'ra', d: 'M' + r3(J[0] + u1[0] * s) + ' ' + r3(J[1] + u1[1] * s) + ' L' + r3(J[0] + (u1[0] + u2[0]) * s) + ' ' + r3(J[1] + (u1[1] + u2[1]) * s) + ' L' + r3(J[0] + u2[0] * s) + ' ' + r3(J[1] + u2[1] * s) }));
+  }
+
+  // ---------- each picture ----------
+  const DRAW = {};
+  // a − b by turning b round, and the same arrow from b's nose to a's; or a + b, once switched.
+  DRAW.sub = (d, st) => {
+    const A = [5, 2], B = [1, 3], intro = !st.flip, ia = (t) => (intro ? arr(t) : 1), tt = (x, y) => (intro ? x : y);
+    const adding = !!st.flip && st.op === 'add';
+    grid(ia(0.4));
+    gArrow([0, 0], A, 'va', 'a', { e: intro ? go(0.6, 0.6) : 1, id: 'a', la: ia(1.0), ref: P([3.2, 0.4]) });
+    gArrow([0, 0], B, 'vb', 'b', { e: intro ? go(0.9, 0.6) : 1, id: 'b', la: ia(1.3), ref: P([2, 2]) });
+    if (adding) {
+      const Sm = add(A, B);
+      gArrow(A, B, 'vbr', 'b', { e: go(0.1, 0.6), id: 'slid', la: arr(0.7), ref: P([3.5, 4]) });
+      gArrow([0, 0], Sm, 'res', 'a + b', { e: go(0.5, 0.6), id: 'sum', la: arr(1.0), ref: P([4.5, 1]) });
+      band({ l: 'a + b', s: expr(Sm), a: arr(0.9), vec: true }, [{ l: 'across', v: sumText(A[0], B[0]), a: arr(1.0) }, { l: 'up', v: sumText(A[1], B[1]), a: arr(1.1) }]);
+      return 'A chart grid. Arrow a, 5i + 2j, and arrow b, 1i + 3j, run from the origin. Here b is added nose to tail instead, without turning round. The sum, a + b = 6i + 5j, points up and away, somewhere else.';
+    }
+    const nb = neg(B), R = add(A, nb);
+    gArrow(A, nb, 'vbr', 'b turned round', { e: go(tt(1.5, 0.1), 0.7), id: 'neg', la: tt(arr(2.0), arr(0.7)), ref: P([2, 1]) });
+    gArrow([0, 0], R, 'res', 'a − b', { e: go(tt(2.2, 0.5), 0.6), id: 'res', la: tt(arr(2.6), arr(1.0)), ref: P([2, 1]) });
+    gArrow(B, R, 'res', 'a − b', { e: go(tt(2.9, 0.8), 0.6), id: 'copy', la: tt(arr(3.3), arr(1.2)), ref: P([3, 0.5]) });
+    band({ l: 'a − b', s: expr(R), a: tt(arr(2.6), arr(1.0)), vec: true }, [{ l: 'across', v: diffText(A[0], B[0]), a: tt(arr(3.0), arr(1.1)) }, { l: 'up', v: diffText(A[1], B[1]), a: tt(arr(3.2), arr(1.2)) }]);
+    return 'A chart grid. Arrow a, 5i + 2j, and arrow b, 1i + 3j, run from the origin. From the nose of a, b is drawn turned round, −1i − 3j, dashed. The answer, a − b = 4i − 1j, runs from the origin to its nose. The same arrow also runs from the nose of b to the nose of a.';
+  };
+  // The puzzle: 3i + 4j take away 2i − 1j. Each answer is laid from the nose of b: the right one lands on a.
+  DRAW.subq = (d, st) => {
+    const A = [3, 4], B = [2, -1], ok = st.res === 'right', pick = st.res ? st.pick : null, R = sub(A, B);
+    grid(1);
+    const c = P([5 / 3, 1]);
+    gArrow([0, 0], A, 'va', 'a', { id: 'a', ref: P([3, 1]) });
+    gArrow([0, 0], B, 'vb', 'b', { id: 'b', ref: P([2, 2]) });
+    let said = 'A chart grid. Arrow a, 3i + 4j, and arrow b, 2i − 1j, run from the origin.';
+    if (ok) {
+      gArrow(B, R, 'res', expr(R), { e: go(0.2, 0.8), id: 'ans', la: arr(0.9), ref: P([0, 1]) });
+      said += ' The answer, 1i + 5j, runs from the nose of b and lands on the nose of a.';
+    } else if (pick) {
+      const v = d.pv[pick];
+      gArrow(B, v, 'bad', null, { e: go(0.1, 0.9), id: 'pick' });
+      part(arr(0.9), 3, () => nameAt(P(B), P(add(B, v)), pick, 'lb bad', c, 'right', 0.6, true));
+      REC.bad++;
+      said += ' The pick, ' + pick + ', is drawn in red from the nose of b. It misses the nose of a.';
+    }
+    band({ l: 'a − b', s: ok ? expr(R) : '?', a: ok ? arr(0.6) : 1, vec: true }, ok ? [{ l: 'across', v: diffText(A[0], B[0]), a: arr(0.9) }, { l: 'up', v: diffText(A[1], B[1]), a: arr(1.0) }] : []);
+    return said;
+  };
+  // Buoys A and B, their arrows from the origin, and the move AB between them; Dan drags B.
+  DRAW.buoys = (d, st) => {
+    const A = [1, 2], Bv = st.B || [6, 5], intro = !st.B, ia = (t) => (intro ? arr(t) : 1), AB = sub(Bv, A);
+    grid(ia(0.4));
+    const c = mid([P([0, 0]), P(A), P(Bv)]);
+    gArrow([0, 0], A, 'va', 'a', { e: intro ? go(0.8, 0.5) : 1, id: 'a', la: ia(1.2), ref: c, side: 'left' });
+    gArrow([0, 0], Bv, 'vb', 'b', { e: intro ? go(1.1, 0.5) : 1, id: 'b', la: ia(1.5), ref: c, side: 'down' });
+    gArrow(A, AB, 'res', 'AB', { e: intro ? go(1.9, 0.6) : 1, id: 'AB', la: ia(2.4), ref: c, side: 'up', vec: false });
+    part(ia(0.5), 0, () => point(A, 'A', 'pt', null, c));
+    part(ia(0.7), 0, () => { REC.Bpx = point(Bv, 'B', 'pt', null, c); });
+    if (!REC.Bpx) REC.Bpx = P(Bv);
+    band({ l: 'AB', s: expr(AB) + ' km', a: ia(2.5) }, [{ l: 'across', v: diffText(Bv[0], A[0]), a: ia(2.8) }, { l: 'up', v: diffText(Bv[1], A[1]), a: ia(2.9) }]);
+    return 'A chart grid in km. Buoy A sits at 1i + 2j and buoy B at ' + expr(Bv) + ', each with its arrow from the origin. The move AB, from A to B, is b − a = ' + expr(AB) + ' km.';
+  };
+  // The puzzle: the move from P to Q.
+  DRAW.pq = (d, st) => {
+    const Pp = [4, -1], Qp = [-2, 3], ok = st.res === 'right', pick = st.res ? st.pick : null, R = sub(Qp, Pp);
+    grid(1);
+    const c = mid([P([0, 0]), P(Pp), P(Qp)]);
+    gArrow([0, 0], Pp, 'va', 'p', { id: 'p', ref: c, side: 'down' });
+    gArrow([0, 0], Qp, 'vb', 'q', { id: 'q', ref: c, side: 'left' });
+    point(Pp, 'P', 'pt', [12, 16, 'start']);
+    point(Qp, 'Q', 'pt', [-6, -9, 'end']);
+    let said = 'A chart grid. P sits at 4i − 1j and Q at −2i + 3j, each with its arrow from the origin.';
+    if (ok) {
+      gArrow(Pp, R, 'res', expr(R), { e: go(0.2, 0.8), id: 'ans', la: arr(0.9), ref: c, side: 'up' });
+      said += ' The move PQ, −6i + 4j, runs from P to Q.';
+    } else if (pick) {
+      const v = d.pv[pick];
+      gArrow(Pp, v, 'bad', null, { e: go(0.1, 0.9), id: 'pick' });
+      part(arr(0.9), 3, () => nameAt(P(Pp), P(add(Pp, v)), pick, 'lb bad', c, 'right', 0.6, true));
+      REC.bad++;
+      said += ' The pick, ' + pick + ', is drawn in red from P. It misses Q.';
+    }
+    band({ l: 'PQ', s: ok ? expr(R) : '?', a: ok ? arr(0.6) : 1 }, ok ? [{ l: 'across', v: diffText(Qp[0], Pp[0]), a: arr(0.9) }, { l: 'up', v: diffText(Qp[1], Pp[1]), a: arr(1.0) }] : []);
+    return said;
+  };
+  // A, B and C: BC as a multiple of AB, the copies of AB along it, the line through A and B; Dan drags C.
+  DRAW.line = (d, st) => {
+    const A = [1, 1], B = [3, 2], Cv = st.C || [7, 4], intro = !st.C, ia = (t) => (intro ? arr(t) : 1);
+    const AB = sub(B, A), BC = sub(Cv, B), k = K.near(BC[0], 2 * BC[1], 1e-9) ? BC[1] : null;
+    REC.k = k; REC.copies = 0;
+    grid(ia(0.4));
+    // The line through A and B, across the grid, with its key in the corner.
+    part(ia(3.1), 0, () => {
+      const p = P([-1, 0]), q = P([9, 5]);
+      line('lnx', p[0], p[1], q[0], q[1]);
+      keyAt(36, 34, 'l', 'line through A and B');
+    });
+    gArrow(A, AB, 'va', 'AB', { e: intro ? go(1.1, 0.5) : 1, id: 'AB', la: ia(1.5), ref: P([3, 0]), side: 'up', vec: false });
+    gArrow(B, BC, 'vb', 'BC', { e: intro ? go(1.6, 0.5) : 1, id: 'BC', la: ia(2.0), ref: P([3, 5]), side: 'down', vec: false });
+    if (k) {
+      const n = Math.abs(k), sgn = k > 0 ? 1 : -1, step = scale(AB, sgn);
+      for (let m = 0; m < n; m++) {
+        const e = intro ? go(2.2 + 0.4 * Math.min(m, 1), 0.4) : 1;
+        gArrow(add(B, scale(step, m)), step, 'cp', null, { e, shift: -7 });
+      }
+      REC.copies = n;
+      const p0 = P(B), p1 = P(Cv);
+      part(ia(3.0), 0, () => nameAt(p0, p1, kText(k), 'sm', P([3, 5]), 'up', 0.5, false, 9));
+    }
+    part(ia(0.5), 0, () => point(A, 'A', 'pt', [12, 18, 'start']));
+    part(ia(0.7), 0, () => point(B, 'B', 'pt', [12, 18, 'start']));
+    part(ia(0.9), 0, () => point(Cv, 'C', 'pt', [12, 18, 'start']));
+    REC.Cpx = P(Cv);
+    band({ l: 'BC', s: expr(BC), a: ia(2.2) }, [{ l: 'AB', v: expr(AB), a: ia(3.0) }, { l: 'BC is', v: k ? kText(k) : 'not k × AB', a: ia(3.2) }]);
+    return 'A chart grid. A sits at 1i + 1j, B at 3i + 2j and C at ' + expr(Cv) + '. AB is 2i + 1j and BC is ' + expr(BC) + '. ' +
+      (k ? 'BC is ' + kText(k) + ', drawn as copies of AB laid along it, so A, B and C lie on one line.' : 'BC is not a multiple of AB, so C sits off the line through A and B.');
+  };
+  // The puzzle: which point is in line with A and B?
+  DRAW.lineq = (d, st) => {
+    const A = [1, 1], B = [3, 2], AB = sub(B, A), ok = st.res === 'right', pick = st.res ? st.pick : null;
+    grid(1);
+    gArrow(A, AB, 'va', 'AB', { id: 'AB', ref: P([3, 0]), side: 'up', vec: false });
+    point(A, 'A', 'pt', [12, 18, 'start']);
+    point(B, 'B', 'pt', [12, 18, 'start']);
+    let said = 'A chart grid. A sits at 1i + 1j and B at 3i + 2j, with the step AB, 2i + 1j, between them.';
+    let BD = null, k = null;
+    if (pick) {
+      const Dv = ok ? [9, 5] : d.pv[pick];
+      BD = sub(Dv, B); k = K.near(BD[0], 2 * BD[1], 1e-9) ? BD[1] : null;
+      REC.D = Dv; REC.k = k;
+      part(arr(0.2), 0, () => {
+        const p = P([-1, 0]), q = P([10, 5.5]);
+        line('lnx', p[0], p[1], q[0], q[1]);
+        keyAt(36, 34, 'l', 'line through A and B');
+      });
+      gArrow(B, BD, ok ? 'res' : 'bad', null, { e: go(0.2, 0.8), id: 'BD' });
+      const pd = P(Dv), w = tw(pick, 'lb'), right = pd[0] + 12 + w < 334;
+      part(arr(0.8), 0, () => point(Dv, null, ok ? 'ptok' : 'ptbad'));
+      part(arr(0.9), 3, () => text(right ? pd[0] + 12 : pd[0] - 12, pd[1] - 4, pick, ok ? 'lb ok' : 'lb bad', right ? 'start' : 'end', true));
+      if (!ok) { REC.bad++; said += ' The pick, ' + pick + ', is drawn in red. The step from B to it, ' + expr(BD) + ', is not a multiple of AB, so it sits off the dashed line.'; }
+      else said += ' The point 9i + 5j sits on the dashed line through A and B. The step from B to it, 6i + 3j, is 3 × AB.';
+    }
+    band({ l: 'from B', s: BD ? expr(BD) : '?', a: pick ? arr(0.9) : 1 }, pick ? [{ l: 'AB', v: expr(AB), a: arr(1.0) }, { l: 'that is', v: k ? kText(k) : 'not k × AB', a: arr(1.0) }] : []);
+    return said;
+  };
+  // The boat and the stream: heading across, then aiming off; Dan drags the heading and sets the stream.
+  DRAW.river = (d, st) => {
+    const intro = st.hd == null && st.c == null, ia = (t) => (intro ? arr(t) : 1);
+    const s = st.hd ? st.hd.s : 4, c = st.c == null ? 3 : st.c;
+    const phi = st.hd ? st.hd.phi : intro ? PHI_AIM * go(3.2, 0.7) : PHI_AIM;
+    const m = riverV(s, phi, c);
+    riverBase(ia(0.4));
+    flagAt(ia(0.4));
+    riverKey(ia(0.4));
+    const S0 = [G.x0, G.sy];
+    part(ia(0.5), 0, () => hull(S0, pxDir(m.h), 'hull'));
+    // While the heading swings, the labels that would change step aside, and come back after.
+    const phase = (t0) => (intro ? (T < 3.2 ? arr(t0) * (1 - arr(2.95, 0.25)) : arr(3.9)) : 1);
+    const t = velTri(m, { eH: intro ? go(0.8, 0.6) : 1, eW: intro ? go(1.3, 0.6) : 1, eG: intro ? go(1.9, 0.5) : 1,
+      laH: ia(1.2), laW: ia(1.7), laG: phase(2.3), gText: num(hyp(m.g)) + ' m/s' });
+    angleAt(t, phase(2.4));
+    const L = landing(m.g);
+    REC.land = L;
+    part(intro ? (T < 3.2 ? arr(2.1) * (1 - arr(2.95, 0.25)) : arr(3.85)) : 1, 0, () => line('trk', t.Gn[0], t.Gn[1], L.x, L.y));
+    if (intro) {
+      if (T < 3.2) ghost(S0, L, go(2.2, 0.75), arr(2.2, 0.2) * (1 - arr(2.95, 0.25)), m.h);
+      else ghost(S0, L, go(3.9, 0.6), arr(3.9, 0.2), m.h);
+    } else ghost(S0, L, 1, 1, m.h);
+    landLabels(L, intro ? arr(4.4, 0.3) : 1, L.on ? (intro ? 1 - arr(4.4, 0.3) : 0) : ia(0.4));
+    const where = L.on ? 'lands right on the target' : L.off < 0 || L.x < G.x0 ? 'lands upstream of the target' : 'lands downstream of the target';
+    return 'A river seen from above, the stream running left to right at ' + num(c) + ' m/s. The boat heads ' + num(s) + ' m/s through the water, ' +
+      (Math.abs(phi) < 0.5 ? 'straight across' : num(Math.abs(phi)) + ' degrees ' + (phi < 0 ? 'upstream' : 'downstream') + ' of straight across') +
+      '. Nose to tail, the two arrows make its velocity over the ground, ' + num(hyp(m.g)) + ' m/s, ' + (REC.angle ? REC.angle.replace('°', ' degrees') + ' off its heading' : 'along its heading') +
+      '. A ghost boat follows that track and ' + where + '.';
+  };
+  // The puzzle: 5 m/s through the water, aimed off to cross a 3 m/s stream straight over.
+  DRAW.cross = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, m = riverV(5, PHI8, 3);
+    riverBase(1);
+    flagAt(1);
+    riverKey(1);
+    const S0 = [G.x0, G.sy];
+    hull(S0, pxDir(m.h), 'hull');
+    const t = velTri(m, { gText: ok ? num(hyp(m.g)) + ' m/s' : '?', laG: ok ? arr(0.6) : 1 });
+    raMark(t.Gn, [-1, 0], [0, 1]);
+    const L = landing(m.g);
+    REC.land = L;
+    let said = 'A river seen from above, the stream running left to right at 3 m/s. The boat heads 5 m/s through the water, aimed upstream so that, nose to tail with the stream, its velocity over the ground points straight across.';
+    if (ok) {
+      part(arr(0.2), 0, () => line('trk', t.Gn[0], t.Gn[1], L.x, L.y));
+      ghost(S0, L, go(0.3, 1.0), arr(0.2, 0.2), m.h);
+      landLabels(L, arr(1.2), 1 - arr(1.2));
+      said += ' It crosses at 4 m/s, and a ghost boat lands on the target.';
+    } else {
+      landLabels(L, 0, 1);
+      if (pick) {
+        const len = d.pv[pick], x = S0[0] + 30, N = [x, S0[1] - len * G.u];
+        pxArrow([x, S0[1]], lerp2([x, S0[1]], N, go(0.1, 0.8)), 'bad');
+        part(arr(0.8), 3, () => text(x + 10, N[1] + 5, pick, 'lb bad', 'start'));
+        REC.bad++;
+        said += ' The pick, ' + pick + ', is drawn in red beside the ground arrow. It is ' + (len > 4 ? 'longer' : 'shorter') + ' than the arrows allow.';
+      }
+    }
+    return said;
+  };
+  // Seen from the boat: your arrow turned round and added to everything; Dan switches the view.
+  DRAW.rel = (d, st) => {
+    const vY = [6, 0], vV = [0, 8], rel = sub(vV, vY), intro = !st.flip, ia = (t) => (intro ? arr(t) : 1);
+    const boat = viewNow(st), Y = [66, 118], V = [262, 172], u = 11, mv = 6;
+    REC.view = boat; REC.vY = vY; REC.vV = vV;
+    let post = 0, gY = null, gV = null;
+    if (intro) {
+      const ge = go(1.2, 0.8), ga = arr(1.2, 0.2) * (1 - arr(1.75, 0.3));
+      post = -36 * go(3.6, 0.8);
+      gY = { e: ge, a: ga };
+      gV = boat ? { e: go(3.6, 0.8), a: arr(3.6, 0.2) * (1 - arr(4.1, 0.3)), v: rel } : { e: ge, a: ga, v: vV };
+    } else if (boat) {
+      post = -36 * go(1.3, 0.8);
+      gV = { e: go(1.3, 0.8), a: arr(1.3, 0.2) * (1 - arr(1.8, 0.3)), v: rel };
+    } else {
+      const ge = go(0.2, 0.8), ga = arr(0.2, 0.2) * (1 - arr(0.75, 0.3));
+      gY = { e: ge, a: ga }; gV = { e: ge, a: ga, v: vV };
+    }
+    seaBase(ia(0.4), post);
+    const Yn = [Y[0] + vY[0] * u, Y[1] - vY[1] * u], Vn = [V[0] + vV[0] * u, V[1] - vV[1] * u], Rn = [V[0] + rel[0] * u, V[1] - rel[1] * u];
+    part(ia(0.5), 0, () => {
+      hull(Y, [1, 0], 'hull'); text(Y[0] - 18, Y[1] + 5, 'you', 'sm mu', 'end');
+      hull(V, [0, -1], 'hull'); text(V[0] + 12, V[1] + 12, 'vessel', 'sm mu', 'start');
+    });
+    pxArrow(Y, lerp2(Y, Yn, intro ? go(0.7, 0.5) : 1), 'you');
+    part(ia(1.0), 0, () => nameAt(Y, Yn, expr(vY), 'lb', null, 'up', 0.5, true));
+    pxArrow(V, lerp2(V, Vn, intro ? go(0.9, 0.5) : 1), 'oth');
+    part(ia(1.2), 0, () => nameAt(V, Vn, expr(vV), 'lb', null, 'right', 0.5, true));
+    if (gY && gY.a > 0) part(gY.a, 0, () => hull([Y[0] + vY[0] * mv * gY.e, Y[1]], [1, 0], 'ghost'));
+    if (gV && gV.a > 0) part(gV.a, 0, () => hull([V[0] + gV.v[0] * mv * gV.e, V[1] - gV.v[1] * mv * gV.e], pxDir(gV.v), 'ghost'));
+    if (boat) {
+      const e1 = intro ? go(2.3, 0.5) : go(0.1, 0.5), e2 = intro ? go(2.5, 0.5) : go(0.3, 0.5), la = intro ? arr(2.7) : arr(0.6);
+      const eR = intro ? go(3.0, 0.5) : go(0.7, 0.5), laR = intro ? arr(3.4) : arr(1.1);
+      const nY = neg(vY);
+      const ends = pxArrow(Yn, lerp2(Yn, Y, e1), 'rev', 9);
+      if (e1 >= 1) { REC.revY = nY; part(la, 0, () => nameAt(ends[0], ends[1], expr(nY), 'lb', null, 'down', 0.5, true)); }
+      const b1 = [200, G.sea + 16], b2 = [b1[0] + nY[0] * u, b1[1]];
+      pxArrow(b1, lerp2(b1, b2, e1), 'rev');
+      if (e1 >= 1) { REC.revBank = nY; part(la, 0, () => text((b1[0] + b2[0]) / 2, G.sea - 6, expr(nY), 'lb', 'middle', true)); }
+      const v2 = [Vn[0] + nY[0] * u, Vn[1]];
+      pxArrow(Vn, lerp2(Vn, v2, e2), 'rev');
+      if (e2 >= 1) { REC.revV = nY; part(la, 0, () => nameAt(Vn, v2, expr(nY), 'lb', null, 'up', 0.5, true)); }
+      pxArrow(V, lerp2(V, Rn, eR), 'rel');
+      if (eR >= 1) { REC.rel = rel; part(laR, 0, () => nameAt(V, Rn, expr(rel), 'lb ok', mid([V, Vn, Rn]), 'left', 0.5, true)); }
+      band({ l: 'relative velocity', s: num(hyp(rel)) + ' knots', a: intro ? arr(3.3) : arr(1.0) },
+        [{ l: 'across', v: diffText(vV[0], vY[0]), a: intro ? arr(3.5) : arr(1.1) }, { l: 'up', v: diffText(vV[1], vY[1]), a: intro ? arr(3.6) : arr(1.2) }]);
+      return 'Open water above a bank. Seen from your boat: your own arrow, 6i, is turned round and added to everything. On your boat it cancels, so your boat sits still. On the bank it makes −6i, so the bank slides west. On the vessel, 8j plus −6i makes its relative velocity, −6i + 8j, 10 knots.';
+    }
+    const ga = intro ? arr(0.6) : arr(0.2);
+    band({ l: 'over the ground', s: null, la: ga }, [{ l: 'you', v: expr(vY) + ' knots', a: ga }, { l: 'vessel', v: expr(vV) + ' knots', a: ga }]);
+    return 'Open water above a bank, seen from the bank. Your boat makes 6i knots, due east. A second vessel makes 8j knots, due north.';
+  };
+  // The puzzle: 4i + 3j and −2i + 3j; the relative velocity from the vessel.
+  DRAW.relq = (d, st) => {
+    const vY = [4, 3], vV = [-2, 3], rel = sub(vV, vY), ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const Y = [70, 160], V = [250, 160], u = 12;
+    seaBase(1);
+    const Yn = [Y[0] + vY[0] * u, Y[1] - vY[1] * u], Vn = [V[0] + vV[0] * u, V[1] - vV[1] * u], Rn = [V[0] + rel[0] * u, V[1] - rel[1] * u];
+    hull(Y, pxDir(vY), 'hull'); text(Y[0] - 18, Y[1] + 5, 'you', 'sm mu', 'end');
+    hull(V, pxDir(vV), 'hull'); text(V[0] + 12, V[1] + 16, 'vessel', 'sm mu', 'start');
+    pxArrow(Y, Yn, 'you'); nameAt(Y, Yn, expr(vY), 'lb', null, 'up', 0.5, true);
+    pxArrow(V, Vn, 'oth'); nameAt(V, Vn, expr(vV), 'lb', null, 'right', 0.5, true);
+    let said = 'Open water. Your boat makes 4i + 3j knots. Another vessel makes −2i + 3j knots.';
+    if (ok) {
+      const nY = neg(vY), e1 = go(0.1, 0.6), e2 = go(0.6, 0.6);
+      pxArrow(Vn, lerp2(Vn, Rn, e1), 'rev');
+      if (e1 >= 1) part(arr(0.6), 0, () => nameAt(Vn, Rn, expr(nY), 'lb', null, 'up', 0.5, true));
+      pxArrow(V, lerp2(V, Rn, e2), 'rel');
+      if (e2 >= 1) { REC.rel = rel; part(arr(1.1), 0, () => nameAt(V, Rn, expr(rel), 'lb ok', null, 'down', 0.5, true)); }
+      said += ' Your arrow turned round, −4i − 3j, is added at the vessel\'s nose. Its relative velocity, −6i, runs due west at 6 knots.';
+    } else if (pick) {
+      const v = d.pv[pick], N = [V[0] + v[0] * u, V[1] - v[1] * u];
+      pxArrow(V, lerp2(V, N, go(0.1, 0.9)), 'bad');
+      part(arr(0.9), 3, () => noseLabel(V, N, pick, 'lb bad', true));
+      REC.bad++;
+      said += ' The pick, ' + pick + ', is drawn in red from the vessel.';
+    }
+    band({ l: 'relative velocity', s: ok ? num(hyp(rel)) + ' knots' : '?', a: ok ? arr(1.0) : 1 }, ok ? [{ l: 'across', v: diffText(vV[0], vY[0]), a: arr(1.2) }, { l: 'up', v: diffText(vV[1], vY[1]), a: arr(1.2) }] : []);
+    return said;
+  };
+  // The puzzle: two vessels head-on at 12 knots each.
+  DRAW.headon = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, vY = [12, 0], vV = [-12, 0], rel = sub(vV, vY);
+    const Y = [44, 70], V = [296, 70], u = 6;
+    seaBase(1);
+    keyRow(G.key, [{ sw: 'y', s: 'you' }, { sw: 'v', s: 'the other vessel' }], 1);
+    const Yn = [Y[0] + vY[0] * u, Y[1]], Vn = [V[0] + vV[0] * u, V[1]], Rn = [V[0] + rel[0] * u, V[1]];
+    hull(Y, [1, 0], 'hull'); hull(V, [-1, 0], 'hull');
+    pxArrow(Y, Yn, 'you'); text((Y[0] + Yn[0]) / 2, 62, '12 knots', 'lb', 'middle');
+    pxArrow(V, Vn, 'oth'); text((V[0] + Vn[0]) / 2, 62, '12 knots', 'lb', 'middle');
+    let said = 'Open water. Your boat and another vessel head straight at each other, each at 12 knots.';
+    if (ok) {
+      const e1 = go(0.1, 0.6), e2 = go(0.6, 0.6), v2 = [Vn[0] - vY[0] * u, Vn[1]];
+      pxArrow(Vn, lerp2(Vn, v2, e1), 'rev');
+      if (e1 >= 1) part(arr(0.6), 0, () => text((Vn[0] + v2[0]) / 2, 62, expr(neg(vY)), 'lb', 'middle', true));
+      pxArrow(V, lerp2(V, Rn, e2), 'rel', 14);
+      if (e2 >= 1) { REC.rel = rel; part(arr(1.1), 0, () => text((V[0] + Rn[0]) / 2 + 20, 104, num(hyp(rel)) + ' knots', 'lb ok', 'middle')); }
+      said += ' Your arrow turned round, −12i, is added at the other vessel\'s nose. Seen from you, it closes at 24 knots.';
+    } else if (pick === '0 knots') {
+      part(arr(0.1), 0, () => put(K.svg('circle', { class: 'badc', cx: V[0], cy: V[1], r: 19 })));
+      part(arr(0.5), 3, () => text(188, 104, 'added, they cancel', 'sm bad', 'middle'));
+      REC.bad++;
+      said += ' A red ring marks the other vessel: adding the two velocities makes nothing.';
+    } else if (pick) {
+      pxArrow(V, lerp2(V, Vn, go(0.1, 0.8)), 'bad', 14);
+      part(arr(0.8), 3, () => text((V[0] + Vn[0]) / 2, 104, pick, 'lb bad', 'middle'));
+      REC.bad++;
+      said += ' The pick, 12 knots, is drawn in red. It is the other vessel alone.';
+    }
+    band({ l: 'closing speed', s: ok ? num(hyp(rel)) + ' knots' : '?', a: ok ? arr(1.0) : 1 }, ok ? [{ l: 'across', v: diffText(vV[0], vY[0]), a: arr(1.2) }] : []);
+    return said;
+  };
+  // The puzzle: pointing straight at a target 40 m across a 3 m/s stream.
+  DRAW.drift = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, m = riverV(4, 0, 3);
+    const W = 40, tCross = W / m.h[1], drift = m.w[0] * tCross, track = Math.hypot(W, drift);
+    riverBase(1);
+    flagAt(1);
+    riverKey(1);
+    const S0 = [G.x0, G.sy];
+    hull(S0, pxDir(m.h), 'hull');
+    const t = velTri(m, { eG: ok ? go(0.1, 0.5) : 0 });
+    // The channel's width, bank to bank.
+    line('brk', 322, G.top + 12, 322, G.sy); line('brk', 316, G.top + 12, 328, G.top + 12); line('brk', 316, G.sy, 328, G.sy);
+    text(314, (G.top + 12 + G.sy) / 2 + 5, num(W) + ' m', 'lb', 'end');
+    const L = landing(m.g);
+    REC.land = L; REC.drift = (L.x - G.x0) / MPX;
+    let said = 'A river 40 m across, seen from above, the stream running left to right at 3 m/s. The boat points straight at the target, 4 m/s through the water.';
+    if (ok) {
+      part(arr(0.5), 0, () => line('trk', t.Gn[0], t.Gn[1], L.x, L.y));
+      ghost(S0, L, go(0.6, 1.1), arr(0.5, 0.2), m.h);
+      part(arr(1.5), 0, () => {
+        line('brk', G.x0, 20, L.x, 20); line('brk', L.x, 16, L.x, 24);
+        text((G.x0 + L.x) / 2, 14, num(drift) + ' m', 'lb l', 'middle');
+      });
+      landLabels(L, arr(1.6), 1);
+      said += ' Over the ground it moves along the sum of the two arrows. A ghost boat follows the track and lands 30 m downstream of the target.';
+    } else {
+      landLabels({ x: G.x0 + 60, y: 0, off: 0, on: false }, 0, 1);
+      if (pick === 'On the target') {
+        const top = [G.x0, G.top + 12];
+        part(arr(0.1), 0, () => line('trkbad', S0[0], S0[1], S0[0], lerp2(S0, top, go(0.1, 0.8))[1]));
+        part(arr(0.7), 0, () => put(K.svg('circle', { class: 'badc', cx: top[0], cy: top[1], r: 12 })));
+        part(arr(0.9), 3, () => text(G.x0 + 16, 64, 'ignores the stream', 'sm bad', 'start'));
+        REC.bad++;
+        said += ' The pick is drawn in red: a straight line to the target, as if there were no stream.';
+      } else if (pick) {
+        const x = G.x0 + d.pv[pick] * MPX;
+        part(arr(0.1), 0, () => put(K.svg('circle', { class: 'badc', cx: r3(x), cy: G.top + 12, r: 12 })));
+        part(arr(0.5), 3, () => text(x, 64, pick, 'sm bad', 'middle'));
+        REC.bad++;
+        said += ' The pick is marked in red, 50 m along the far bank.';
+      }
+    }
+    band({ l: 'drift downstream', s: ok ? num(drift) + ' m' : '?', a: ok ? arr(1.5) : 1 },
+      ok ? [{ l: 'time', v: num(W) + ' ÷ ' + num(m.h[1]) + ' = ' + num(tCross) + ' s', a: arr(1.6) }, { l: 'track', v: num(track) + ' m', a: arr(1.7) }] : []);
+    return said;
+  };
+
+  // ---------- the drags: buoy B, point C, and the boat's heading ----------
+  const mkGrip = (label) => ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'button', 'aria-label': label }));
+  const grips = {
+    B: mkGrip('Buoy B: drag, or use the arrow keys, to move it'),
+    C: mkGrip('Point C: drag, or use the arrow keys, to move it'),
+    H: mkGrip('The nose of the boat\'s arrow: drag it, or use the arrow keys, to change its heading and speed'),
+  };
+  const GRIP_PIC = { B: 'buoys', C: 'line', H: 'river' };
+  function placeGrips(d) {
+    Object.keys(grips).forEach((k) => {
+      const g = grips[k], on = !finished && d.pic === GRIP_PIC[k] && !!d.show;
+      const p = k === 'B' ? REC.Bpx : k === 'C' ? REC.Cpx : REC.Hn;
+      g.style.display = on && p ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (on && p) { g.setAttribute('cx', r3(p[0])); g.setAttribute('cy', r3(p[1])); }
+    });
+  }
+  function changed() {
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  function setB(v) {
+    const w = [K.clamp(Math.round(v[0]), -1, 7), K.clamp(Math.round(v[1]), -1, 6)];
+    if (w[0] === 1 && w[1] === 2) return;
+    S[cur()].B = w; changed();
+  }
+  function setC(v) {
+    const w = [K.clamp(Math.round(v[0]), -1, 9), K.clamp(Math.round(v[1]), -1, 5)];
+    if (w[0] === 3 && w[1] === 2) return;
+    S[cur()].C = w; changed();
+  }
+  const aimFor = (s, c) => (c <= s ? -Math.asin(c / s) / RAD : null);
+  // A heading of 2 to 5 m/s in halves, 55° upstream to 30° downstream; a drag lands exactly on
+  // the aim that cancels the stream, or on straight across, when it comes near.
+  function setH(s, phi, snapIt) {
+    const st = S[cur()], c = st.c == null ? 3 : st.c;
+    s = K.clamp(Math.round(s * 2) / 2, 2, 5);
+    let p = K.clamp(phi, -55, 30);
+    const aim = aimFor(s, c);
+    if (snapIt) {
+      if (aim != null && aim >= -55 && Math.abs(p - aim) <= 3) p = aim;
+      else if (Math.abs(p) <= 2) p = 0;
+      else p = Math.round(p);
+    }
+    st.hd = { s, phi: p }; changed();
+  }
+  function svgAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [q.x, q.y];
+  }
+  let held = null;
+  const onPic = (k) => !finished && STEPS[cur()].pic === GRIP_PIC[k] && !!STEPS[cur()].show;
+  function moveTo(k, q) {
+    if (k === 'B' || k === 'C') { const v = [(q[0] - G.ox) / G.u, (G.oy - q[1]) / G.u]; if (k === 'B') setB(v); else setC(v); return; }
+    const dv = [(q[0] - G.x0) / G.u, (G.sy - q[1]) / G.u];
+    setH(hyp(dv), Math.atan2(dv[0], dv[1]) / RAD, true);
+  }
+  Object.keys(grips).forEach((k) => {
+    const g = grips[k];
+    g.addEventListener('pointerdown', (e) => {
+      if (!onPic(k)) return;
+      const q = svgAt(e);
+      if (!q) return;
+      held = { id: e.pointerId, k };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      moveTo(k, q);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.k !== k || !onPic(k)) return;
+      const q = svgAt(e);
+      if (q) moveTo(k, q);
+    });
+    g.addEventListener('pointerup', (e) => { if (held && held.id === e.pointerId) held = null; });
+    g.addEventListener('pointercancel', (e) => { if (held && held.id === e.pointerId) held = null; });
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!onPic(k)) return;
+      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const st = S[cur()];
+      if (k === 'B') { const b = st.B || [6, 5]; setB(add(b, by)); return; }
+      if (k === 'C') { const c = st.C || [7, 4]; setC(add(c, by)); return; }
+      const h = st.hd || { s: 4, phi: PHI_AIM }, aim = aimFor(h.s, st.c == null ? 3 : st.c);
+      if (by[1]) { setH(h.s + 0.5 * by[1], h.phi, false); return; }
+      let p = by[0] < 0 ? (Number.isInteger(h.phi) ? h.phi - 1 : Math.floor(h.phi)) : (Number.isInteger(h.phi) ? h.phi + 1 : Math.ceil(h.phi));
+      if (aim != null && ((h.phi < aim && aim < p) || (p < aim && aim < h.phi))) p = aim;
+      setH(h.s, p, false);
+    });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], st = S[i];
+    G = d.geo;
+    art.textContent = '';
+    into = null;
+    REC = { texts: [], bad: 0, arrows: {}, band: null, k: null, copies: 0, D: null, h: null, w: null, g: null, gText: null, angle: null, angleShown: false, land: null, drift: null,
+      view: null, vY: null, vV: null, revY: null, revBank: null, revV: null, rel: null, Bpx: null, Cpx: null, Hn: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    // Dan's own settings, told apart from the ones the demonstrations give the controls.
+    const here = i === lastStep && !finished;
+    if (p.op !== opShown) { opShown = p.op; if (here && d.pic === 'sub') { st.op = p.op; st.flip = true; play(1.9); } }
+    if (p.stream !== streamShown) { streamShown = p.stream; if (here && d.pic === 'river') { st.c = p.stream; anim.pause(); T = Infinity; } }
+    if (p.view !== viewShown) { viewShown = p.view; if (here && d.pic === 'rel') { st.view = !!p.view; st.flip = true; play(p.view ? 2.2 : 1.2); } }
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) {
+        Object.assign(st, { op: null, flip: false, B: null, C: null, hd: null, c: null, view: null });
+        play(d.dur);
+      } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    syncCtl(i);
+
+    el('obox').hidden = finished || d.pic !== 'sub';
+    el('sbox').hidden = finished || d.pic !== 'river';
+    el('vbox').hidden = finished || d.pic !== 'rel';
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      vecs(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('Subtracting a vector is the same as adding a negative version of it, the same arrow with its direction reversed: on the grid the answer is the first arrow plus the second turned round, every part of the turned-round arrow has its sign flipped, and adding the second arrow back onto the answer lands on the first arrow\'s nose', () => {
+    const i = atPic('sub'), A = drawn(i, blank()).arrows;
+    if (!A.a || !A.b || !A.neg || !A.res || !A.copy) return false;
+    if (!same(A.neg.v, neg(A.b.v)) || !same(A.neg.p, A.a.v) || !same(A.res.v, add(A.a.v, A.neg.v)) || !same(A.res.p, [0, 0])) return false;
+    if (!same(A.copy.p, A.b.v) || !same(add(A.copy.p, A.copy.v), A.a.v)) return false;
+    const ra = drawn(i, Object.assign(blank(), { flip: true, op: 'add' })).arrows;
+    if (ra.neg || !ra.sum || !same(ra.sum.v, add(ra.a.v, ra.b.v))) return false;
+    const j = atPic('subq'), rj = drawn(j, solved(j)).arrows;
+    return !!rj.ans && same(rj.ans.p, rj.b.v) && same(add(rj.b.v, rj.ans.v), rj.a.v);
+  }, { source: SRC_SUB });
+  K.check('Displacement is found by subtracting the initial position from the final position: the move from buoy A to buoy B is B\'s position minus A\'s wherever B is dragged, its readout takes A\'s parts from B\'s, and the move from P to Q is q − p', () => {
+    const i = atPic('buoys');
+    for (let x = -1; x <= 7; x++) for (let y = -1; y <= 6; y++) {
+      if (x === 1 && y === 2) continue;
+      const r = drawn(i, Object.assign(blank(), { B: [x, y] })), ab = r.arrows.AB, want = [x - 1, y - 2];
+      if (!ab || !same(ab.p, [1, 2]) || !same(ab.v, want)) return false;
+      if (r.band.main !== expr(want) + ' km' || r.band.items[0] !== diffText(x, 1) || r.band.items[1] !== diffText(y, 2)) return false;
+    }
+    const j = atPic('pq'), rj = drawn(j, solved(j)).arrows;
+    return !!rj.ans && same(rj.ans.v, sub(rj.q.v, rj.p.v)) && same(rj.ans.p, rj.p.v);
+  }, { source: SRC_DISP });
+  K.check('The velocity of one vessel relative to another is the vector difference of their velocities, both measured over the ground: seen from the boat, everything gets your velocity turned round added, so your boat stays still, the bank moves at minus your velocity and the other vessel at its velocity minus yours', () => {
+    const i = atPic('rel'), b = drawn(i, blank()), g = drawn(i, Object.assign(blank(), { flip: true, view: false }));
+    if (!b.view || !same(b.rel, sub(b.vV, b.vY)) || !same(b.revY, neg(b.vY)) || !same(b.revBank, neg(b.vY)) || !same(b.revV, neg(b.vY)) || !same(add(b.vY, b.revY), [0, 0])) return false;
+    if (g.view || g.rel || g.revY || g.revBank || g.revV) return false;
+    const j = atPic('relq'), k = atPic('headon');
+    return same(drawn(j, solved(j)).rel, [-6, 0]) && same(drawn(k, solved(k)).rel, [-24, 0]) && !drawn(j, blank()).rel && !drawn(k, blank()).rel;
+  }, { source: SRC_REL });
+  K.check('Over the ground the boat moves along its heading plus the stream: at every heading, speed and stream it can be set to, the ground arrow is their sum, and the track lands opposite the start only when the upstream part cancels the stream', () => {
+    const i = atPic('river');
+    for (const s of [2, 3, 4, 5]) for (const phi of [-55, -40, -30, 0, 15, 30]) for (const c of [0, 1.5, 3, 4]) {
+      const r = drawn(i, Object.assign(blank(), { hd: { s, phi }, c }));
+      if (!same(r.g, add(r.h, r.w)) || !K.near(hyp(r.h), s, 1e-9) || !same(r.w, [c, 0])) return false;
+      if (r.land.on !== K.near(s * Sn(phi) + c, 0, 1e-9)) return false;
+    }
+    const aim = drawn(i, blank()), across = drawn(i, Object.assign(blank(), { hd: { s: 4, phi: 0 }, c: 3 }));
+    return aim.land.on && !across.land.on && across.land.x > R7.x0 && drawn(i, blank(), 2.6).land.x > R7.x0;
+  });
+  K.check('Every number follows from the rule: 5 − 1 = 4 and 2 − 3 = −1, or 6i + 5j added; 3 − 2 = 1 and 4 − (−1) = 5; 6 − 1 = 5 and 5 − 2 = 3; −2 − 4 = −6 and 3 − (−1) = 4; BC = 2 × AB and BD = 3 × AB; √(4² + 3²) = 5 m/s at 36.87° off the heading; aimed off, √(4² − 3²) = 2.65 m/s at 48.59°; √(5² − 3²) = 4 and √(5² + 3²) = 5.83; √(6² + 8²) = 10 knots; 12 − (−12) = 24 knots; 40 ÷ 4 = 10 s, 3 × 10 = 30 m and √(40² + 30²) = 50 m', () => {
+    const b0 = drawn(atPic('sub'), blank()).band, ba = drawn(atPic('sub'), Object.assign(blank(), { flip: true, op: 'add' })).band;
+    if (b0.main !== '4i − 1j' || b0.items[0] !== '5 − 1 = 4' || b0.items[1] !== '2 − 3 = −1' || ba.main !== '6i + 5j') return false;
+    const j = atPic('subq'), b1 = drawn(j, solved(j)).band;
+    if (b1.main !== '1i + 5j' || b1.items[0] !== '3 − 2 = 1' || b1.items[1] !== '4 − (−1) = 5') return false;
+    const b2 = drawn(atPic('buoys'), blank()).band;
+    if (b2.main !== '5i + 3j km' || b2.items[0] !== '6 − 1 = 5' || b2.items[1] !== '5 − 2 = 3') return false;
+    const q = atPic('pq'), b3 = drawn(q, solved(q)).band;
+    if (b3.main !== '−6i + 4j' || b3.items[0] !== '−2 − 4 = −6' || b3.items[1] !== '3 − (−1) = 4') return false;
+    const r4 = drawn(atPic('line'), blank()), l = atPic('lineq'), r5 = drawn(l, solved(l));
+    if (r4.k !== 2 || r4.band.items[1] !== '2 × AB' || r4.band.main !== '4i + 2j' || r5.k !== 3 || r5.band.items[1] !== '3 × AB' || r5.band.main !== '6i + 3j') return false;
+    const v = atPic('river'), early = drawn(v, blank(), 2.6), fin = drawn(v, blank());
+    if (early.gText !== '5 m/s' || early.angle !== '36.87°' || fin.gText !== '2.65 m/s' || fin.angle !== '48.59°' || !fin.angleShown) return false;
+    const c = atPic('cross'), r7 = drawn(c, solved(c));
+    if (r7.gText !== '4 m/s' || num(Math.hypot(5, 3)) + ' m/s' !== '5.83 m/s' || STEPS[c].opts.indexOf(num(5 - 3) + ' m/s') < 0) return false;
+    if (drawn(atPic('rel'), blank()).band.main !== '10 knots') return false;
+    const h = atPic('headon'), z = atPic('drift'), r10 = drawn(h, solved(h)), r11 = drawn(z, solved(z));
+    if (r10.band.main !== '24 knots' || r10.band.items[0] !== '−12 − 12 = −24') return false;
+    return r11.band.main !== '30 m' ? false : r11.band.items[0] === '40 ÷ 4 = 10 s' && r11.band.items[1] === '50 m' && K.near(r11.drift, 30, 1e-6) && r11.texts.indexOf('30 m') >= 0;
+  });
+  K.check('C lies on the line through A and B exactly when BC is a whole multiple of AB: for every point C can be dragged to, copies of AB fill BC and the readout names the multiple only then', () => {
+    const i = atPic('line');
+    for (let x = -1; x <= 9; x++) for (let y = -1; y <= 5; y++) {
+      if (x === 3 && y === 2) continue;
+      const r = drawn(i, Object.assign(blank(), { C: [x, y] })), inLine = x - 3 === 2 * (y - 2);
+      if (r.k !== (inLine ? y - 2 : null) || r.copies !== (inLine ? Math.abs(y - 2) : 0)) return false;
+      if (r.band.items[1] !== (inLine ? kText(y - 2) : 'not k × AB')) return false;
+    }
+    return true;
+  });
+  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>
+    DO.every((i) => {
+      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&
+        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;
+    }));
+  K.check('Before Check no puzzle\'s picture shows its answer, and a right answer shows it', () =>
+    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s', () => {
+    const timed = (i, st, limit) => {
+      const keepS = S[i], keepT = T;
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; T = keepT; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&
+        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

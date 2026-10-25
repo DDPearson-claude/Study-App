@@ -1,0 +1,18 @@
+{
+  "title": "Vectors, from forces to phasors",
+  "hook": "A three-phase board carries 10 A, 10 A and 4 A on its three lines. How much current comes back on the neutral, and why not all 24 A?",
+  "oneBreath": "A vector is a size with a direction: a pull, a movement, a velocity. Two of them do not combine by adding their sizes. You add them nose to tail, or part by part along the axes, and you take one away by adding its reverse. Then come two ways to multiply them: the dot product says how much of one lies along the other, which gives work, and the cross product says how hard one turns about the other, which gives a moment and the force on a motor's wire. Last, the phasors you already draw add the same way, though their angle is a time, not a direction in space.",
+  "ideas": [
+    { "id": "i1", "title": "What a vector is", "oneLine": "A vector is a size plus a direction, so its arrow slides anywhere unchanged, and a number in front stretches it or turns it round.", "deps": [], "kind": "concept" },
+    { "id": "i2", "title": "Components: i, j and k", "oneLine": "Split a vector into parts along the axes, written 3i + 4j, with cos on the side next to the given angle, and k for height.", "deps": ["i1"], "kind": "skill" },
+    { "id": "i3", "title": "Adding: the resultant and the equilibrant", "oneLine": "Vectors add nose to tail or part by part, giving the resultant, and the equilibrant is the equal and opposite force that balances it.", "deps": ["i1", "i2"], "kind": "quantity" },
+    { "id": "i4", "title": "Taking away: displacement and relative velocity", "oneLine": "Taking a vector away means adding its reverse, so a displacement is end minus start, and another vessel's relative velocity is its velocity minus yours.", "deps": ["i1", "i3"], "kind": "skill" },
+    { "id": "i5", "title": "The dot product: how much lies along", "oneLine": "The dot product, |a||b| cos θ or a₁b₁ + a₂b₂ + a₃b₃, is a plain number saying how much of one vector lies along another, as in work.", "deps": ["i1", "i2"], "kind": "quantity" },
+    { "id": "i6", "title": "The cross product: turning and the motor force", "oneLine": "The cross product has size |r||F| sin θ and points square to both arrows by the right-hand rule, giving a spanner's moment and a motor's force.", "deps": ["i2", "i3", "i5"], "kind": "mechanism" },
+    { "id": "i7", "title": "Vectors and phasors", "oneLine": "A phasor adds and takes away like a vector, but its angle is a shift in time, not a direction in space, and it can be divided.", "deps": ["i3", "i4", "i5"], "kind": "concept" }
+  ],
+  "calibration": [
+    { "id": "c1", "iid": "i1", "q": "A van drives once round a roundabout at a steady 20 mph. During that lap, what changes?", "options": ["Nothing, since the speedometer never moves", "Its speed, since it is turning", "Its velocity, since its heading keeps changing"], "answer": 2, "why": "Speed is a size only, and it stays 20 mph. Velocity is that speed with its direction, and the direction swings all the way round, so the velocity changes the whole lap. Turning does not slow it, so its speed is unchanged." },
+    { "id": "c2", "iid": "i3", "q": "Two people tow a car with ropes, each pulling 300 N, and the ropes are at right angles. How hard is the car pulled?", "options": ["600 N", "About 424 N", "300 N", "Nothing, the pulls cancel"], "answer": 1, "why": "At right angles the two pulls make a right triangle, so the total is √(300² + 300²), about 424 N. 600 N would need both ropes in one line, and the pulls only cancel when they point opposite ways." }
+  ]
+}

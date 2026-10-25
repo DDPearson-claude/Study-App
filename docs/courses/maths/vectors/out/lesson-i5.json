@@ -1,0 +1,599 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T02:37:49.662Z",
+ "startedAt": "2026-10-25T02:37:49.662Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "The dot product: how much lies along",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is a's shadow on b's line shrinking to a dot at 90°, then falling behind the start as the dot product turns negative, when you swing a round.",
+   "title": "The shadow on the line",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Two arrows, a and b, start from one point on a grid. You can drag either tip. A light shines onto b's line, square to it. So a casts a shadow along that line. The shadow's length is the part of a that lies along b. It is |a| cos θ, where θ is the angle between the arrows. Multiply the shadow by b's length and you get the dot product, a·b. Two readouts work it out in two ways, and they always agree. One is |a||b| cos θ. The other adds up the parts, a₁b₁ + a₂b₂, with + a₃b₃ in 3-D. At 90° the shadow shrinks to a dot. Past 90° it falls behind the start and counts as minus. The screens run like this. First come a = 3i + 4j and b = 4i. The shadow is 3 and the dot product is 12. A puzzle asks for a·b with b = 6i. Next, a swings round from 0°. It rests at 90°, then goes on to 135°. A puzzle gives sizes 5 and 4 at 120°. Then the parts pair up, because i·i = 1 and i·j = 0. A puzzle asks which arrow is square to 2i + 1j. Then comes the angle between two arrows in 3-D. You can drag that picture sideways to turn it. A puzzle finds the angle between 2i + 2j + 1k and 2i − 1j + 2k. Then the arrows become a rope and a rail. Only the pull along the rail does work. A puzzle has a rope pulling 150i + 200j N. Two mixed puzzles come last. In one, the arrows are a voltage and a current. In the other, a rope pulls back against a sliding crate. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn too, so you can see where it goes wrong.",
+   "ignores": "The light shines square onto b's line. A real sun's shadow slants. Its length also changes with the time of day. The rope's pull is held steady. The trolley runs on a straight rail with no friction. A pull that changes along a curved path needs the dot product added up bit by bit. That waits for Vector calculus. The voltage and current are drawn as arrows. But their angle is a shift in time, not a direction in space. The puzzles use example values, rounded to two decimal places.",
+   "numbers": [
+    {
+     "label": "Step control's first screen",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Step control's last screen",
+     "value": 11,
+     "kind": "control"
+    },
+    {
+     "label": "Step 1 arrow a, 3i + 4j, across part",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 1 arrow a, 3i + 4j, up part",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 1 size of a, √(3² + 4²)",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 1 arrow b, 4i, size",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 1 shadow of a on b's line",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 1 cos θ, 3 ÷ 5",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 1 angle between a and b, degrees",
+     "value": 53.13,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 1 a·b, 3 × 4",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 2 arrow b, 6i, size",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 2 a·b, 3 × 6",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 2 wrong pick, sizes multiplied, 5 × 6",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 swing's first angle, degrees",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 swing's resting angle, degrees",
+     "value": 90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 swing's last angle, degrees",
+     "value": 135,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 a·b at 0°, 5 × 4",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 a·b at 90°",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 a·b at 135°, 20 × cos 135°",
+     "value": -14.14,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 a·b at 180°",
+     "value": -20,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 angle between the arrows, degrees",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 a·b, 5 × 4 × cos 120°",
+     "value": -10,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 wrong pick with sin, 5 × 4 × sin 120°",
+     "value": 17.32,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 wrong pick with the sign lost",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 5 i·i, 1 × 1 × cos 0°",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 5 i·j, 1 × 1 × cos 90°",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 5 (3i + 4j)·(4i + 3j), 12 + 12",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 5 angle between them, degrees",
+     "value": 16.26,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 5 sizes multiplied, 5 × 5",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 (2i + 1j)·(1i − 2j), 2 − 2",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 wrong pick (2i + 1j)·(1i + 2j), 2 + 2",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 wrong pick (2i + 1j)·(−2i − 1j)",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 a = 2i + 3j + 6k, size",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 b = 1i + 2j + 2k, size",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 a·b, 2 + 6 + 12",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 cos θ, 20 ÷ 21",
+     "value": 0.95,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 angle between, degrees",
+     "value": 17.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 each arrow's size",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 dot product, 4 − 2 + 2",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 angle, cos⁻¹(4 ÷ 9), degrees",
+     "value": 63.61,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 wrong pick, sin⁻¹(4 ÷ 9), degrees",
+     "value": 26.39,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 wrong pick, cos⁻¹(4 ÷ 6), degrees",
+     "value": 48.19,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 9 rope's example pull, N",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 9 rope's angle to the rail, degrees",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 9 trolley's move along the rail, m",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 9 pull along the rail, 200 × cos 30°, N",
+     "value": 173.21,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 9 work done, J",
+     "value": 866.03,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 pull's i part, N",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 10 pull's j part, N",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 10 move along the rail, m",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 10 work, 150 × 4, J",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 wrong pick, 250 N × 4 m, J",
+     "value": 1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 wrong pick, 200 × 4, J",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 example voltage, V",
+     "value": 230,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 example current, A",
+     "value": 23,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 angle between them, degrees",
+     "value": 36.87,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 cos 36.87°",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 true power, 230 × 23 × 0.8, W",
+     "value": 4232,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 wrong pick, the apparent power, 230 × 23, VA",
+     "value": 5290,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 wrong pick with sin, 230 × 23 × 0.6",
+     "value": 3174,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 crate's move along the deck, m",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 rope's i part, N",
+     "value": -40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 rope's j part, N",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 work done by the rope, J",
+     "value": -120,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice pull's i part, N",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice pull's j part, N",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice move's i part, m",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice move's j part, m",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice work, 360 + 200, J",
+     "value": 560,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice pull's size, √(120² + 50²), N",
+     "value": 130,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice cos θ, 560 ÷ 650",
+     "value": 0.86,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice angle between pull and move, degrees",
+     "value": 30.51,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "The dot product of two vectors is a plain number. It says how much of one lies along the other, times the other's length.\n\nDraw a and b from one point. Shine a light onto b's line, square to it. The shadow of a falls along that line. Its length is |a| cos θ, where θ is the angle between them. Cos picks out the side next to the angle, just as it does when you resolve. Multiply the shadow by b's length and you have the [[dot product]], a·b = |a||b| cos θ.[^1] It is also called the scalar product. Take a = 3i + 4j and b = 4i. The shadow is 3 long. So a·b = 3 × 4 = 12. Multiplying the sizes gives 5 × 4 = 20. That counts the whole of a, but only the part along b should count. Sin gives the part square to b. That part casts no shadow on b's line. A shadow is a length, not an arrow. So the dot product is a scalar, a plain number.[^2]\n\nAs a swings round, the shadow follows cos θ. At 90° it shrinks to a dot. So a·b = 0. Past 90° the shadow falls behind the start and counts as minus.[^3] Two arrows square to each other always give 0. A positive dot product means they lean the same way. A negative one means they lean apart.\n\nYou can also work it out from the parts. The rule reads the same either way round. So b's shadow on a's line works just as well. Split b into its parts, laid nose to tail. Their shadows on a's line sit end to end. So a·b is the sum of what each part gives. Now, a·i is a's shadow on the x-axis, times 1. That is a's across part, a₁. Stretch i by b₁ and its dot product with a stretches by b₁ too. So the part b₁i gives a₁b₁. The same holds up the page and along k. That leaves a·b = a₁b₁ + a₂b₂ + a₃b₃. The axes show the same thing. The arrow i lies along itself and is 1 long. So i·i = 1 × 1 × cos 0° = 1. The arrows i and j are square to each other. So i·j = 0. For 3i + 4j and 4i + 3j, the dot product is 12 + 12 = 24. Put the two ways together and you get the angle between two arrows: cos θ = a·b ÷ (|a||b|).\n\nWork is a dot product. A steady force F that moves something through a straight move d does work F·d.[^4] Only the part of the pull along the move counts. Take a 200 N pull at 30° to a rail, over 5 m. It does 200 × 5 × cos 30° = 866.03 J of work. True power, V I cos φ, has the same shape. It is two sizes times the cosine of the angle between them. V I on its own is the apparent power, in VA.[^5]\n\n**The dot product is a plain number: how much of one vector lies along the other, times the other's length. Work it out as |a||b| cos θ or as a₁b₁ + a₂b₂ + a₃b₃.**"
+  },
+  "analogy": {
+   "text": "Think of a sloping cable run on a plan drawing. Seen from straight above, the run looks shorter than it is. Its length on the plan is its true length times cos of the slope. A flat run shows its full length. A vertical drop is just a dot. The plan length is the run's shadow. It is the part that lies along the floor.",
+   "breaks": "A plan gives only the shadow's length. The dot product also multiplies it by the other arrow's length. A length on a drawing is never below zero. A dot product goes negative once the angle passes 90°."
+  },
+  "practice": {
+   "text": "- Write both vectors as i, j and k parts.\n- Multiply the across parts together, then the up parts, then the k parts. Add the three results.\n- Know the sizes and the angle instead? Use |a||b| cos θ. Take the angle between the two arrows drawn from one point.\n- To find the angle, divide the dot product by the two sizes multiplied together. Then take cos⁻¹.\n- Read the sign. Positive means the two lean the same way. Zero means they are square. Negative means they lean apart.\n\n**Rule of thumb:** A zero dot product is the quickest test that two arrows are square. For work, only the part of the force along the move counts.\n\n**Worked example:** A pull F = 120i + 50j N drags a load through d = 3i + 4j m. The work is 120 × 3 + 50 × 4 = 360 + 200 = 560 J. The pull's size is √(120² + 50²) = 130 N. The move's size is 5 m. So cos θ = 560 ÷ 650, about 0.86. The pull runs 30.51° off the move.\n\n**Common mistakes**\n- Giving the answer as an arrow. The dot product is a plain number. It has no i or j.\n- Using sin in place of cos. The shadow is the side next to the angle.\n- Losing the minus past 90°. A rope pulling back against a move does negative work.\n- Multiplying the sizes and forgetting the angle. That gives the dot product only when the arrows point the same way.\n- Adding the sizes when you find the angle. Divide by the sizes multiplied, not added."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Ch. 2 Summary - University Physics Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/2-summary",
+    "quote": "The scalar product of two vectors is obtained by multiplying their magnitudes with the cosine of the angle between them."
+   },
+   {
+    "n": 2,
+    "title": "2.4 Products of Vectors - University Physics Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors",
+    "quote": "The dot product is a scalar; the cross product is a vector."
+   },
+   {
+    "n": 3,
+    "title": "Ch. 2 Summary - University Physics Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/2-summary",
+    "quote": "The scalar product of orthogonal vectors vanishes; the scalar product of antiparallel vectors is negative."
+   },
+   {
+    "n": 4,
+    "title": "2.4 Products of Vectors - University Physics Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors",
+    "quote": "For example, the work that a force (a vector) performs on an object while causing its displacement (a vector) is defined as a scalar product of the force vector with the displacement vector."
+   },
+   {
+    "n": 5,
+    "title": "Difference Between Active Power, Reactive Power and Apparent Power – Schneider Electric",
+    "url": "https://eshop.se.com/in/blog/post/difference-between-active-power-reactive-power-and-apparent-power.html",
+    "quote": "The apparent power of a sinusoidal AC circuit can be calculated simply as the product of its RMS values for voltage and current. It is measured in volt-amperes (VA) or kilovolt-amps (kVA)."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  #stepbox > .act { margin-top: 6px; }\n  .act { color: var(--k-muted); font-size: .95rem; text-align: center; }\n  .nw { white-space: nowrap; }\n  .vn { font-weight: 700; font-style: italic; }\n  .vu { font-weight: 700; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .org { fill: var(--k-ink); }\n  .scene .sh { stroke-width: 3.5; stroke-linecap: round; fill: none; }\n  .scene .va .sh { stroke: var(--k-cat1); }\n  .scene .va .hd { fill: var(--k-cat1); }\n  .scene .vb .sh { stroke: var(--k-cat2); }\n  .scene .vb .hd { fill: var(--k-cat2); }\n  .scene .vi .sh { stroke: var(--k-ink); stroke-width: 2.6; }\n  .scene .vi .hd { fill: var(--k-ink); }\n  .scene .tri .sh { stroke: var(--k-muted); stroke-width: 1.6; }\n  .scene .tri .hd { fill: var(--k-muted); }\n  .scene .bad .sh { stroke: var(--k-warn); }\n  .scene .bad .hd { fill: var(--k-warn); }\n  .scene .bl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }\n  .scene .ray { stroke: var(--k-amber-line); stroke-width: 1.8; }\n  .scene .shd { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 9; stroke-linecap: butt; fill: none; }\n  .scene .shd.bad { stroke: var(--k-warn); stroke-opacity: .55; }\n  .scene .shdot { fill: var(--k-ink); fill-opacity: .55; }\n  .scene .shdot.bad { fill: var(--k-warn); }\n  .scene .badln { stroke: var(--k-warn); stroke-width: 4; stroke-linecap: round; }\n  .scene .badarc { fill: none; stroke: var(--k-warn); stroke-width: 1.8; stroke-dasharray: 4 4; }\n  .scene .ram { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }\n  .scene .wedge { fill: var(--k-fill1); stroke: none; }\n  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .pa { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }\n  .scene .rail { stroke: var(--k-strong); stroke-width: 3; }\n  .scene .ground { fill: var(--k-sunk); }\n  .scene .body { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }\n  .scene .wheel { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }\n  .scene .tie { stroke: var(--k-ink); stroke-width: 1.8; }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }\n  .scene .rope { stroke: var(--k-muted); stroke-width: 2.2; stroke-linecap: round; }\n  .scene .pill { fill: var(--k-hl); stroke: none; }\n  .scene .sw { stroke-width: 3; stroke-linecap: butt; }\n  .scene .sw.ray { stroke: var(--k-amber-line); stroke-width: 1.8; }\n  .scene .sw.shd { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 9; }\n  .scene .sw.bl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }\n  .scene .sw.pa { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }\n  .scene .sw.rope { stroke: var(--k-muted); stroke-width: 2.2; }\n  /* Every label carries a thin halo of what lies behind it, so a line behind it never cuts its letters. */\n  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene text.l { stroke: var(--k-sunk); }\n  .scene text.nohalo { stroke: none; }\n  .scene .nm { font: 700 17px var(--k-font); fill: var(--k-ink); }\n  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .sm.mu { fill: var(--k-muted); }\n  .scene .lb.ok, .scene .sm.ok { fill: var(--k-accent2); }\n  .scene .lb.bad, .scene .sm.bad { fill: var(--k-warn); }\n  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .rv { font: 700 18px var(--k-font); fill: var(--k-ink); }\n  .scene .rv2 { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .scene .rv3 { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene tspan.vn { font-style: italic; font-weight: 700; }\n  .scene tspan.vu { font-weight: 800; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }\n  .scene .turn:focus { outline: none; }\n  .scene .turn:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must. */\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Two arrows from one point on a grid, with a light that casts one arrow's shadow onto the other's line. Later the arrows become a rope and a rail, then a voltage and a current. The values are made-up examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 290\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <p class=\"act\" id=\"act\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The dot product is the shadow's length times the other arrow's length.</p>\n\n<script>\n  const RAD = Math.PI / 180;\n  // Exact values where the lesson's angles meet them, so 90° gives exactly nothing.\n  const EXC = { 0: 1, 60: 0.5, 90: 0, 120: -0.5, 180: -1 }, EXS = { 0: 0, 30: 0.5, 90: 1, 150: 0.5, 180: 0 };\n  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);\n  const cosd = (deg) => (has(EXC, deg) ? EXC[deg] : Math.cos(deg * RAD));\n  const sind = (deg) => (has(EXS, deg) ? EXS[deg] : Math.sin(deg * RAD));\n  // Up to two decimals, as the lesson writes them: 12, 173.21, −2.5, 0.\n  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }\n  // Parts written with i, j and k: 3i + 4j, 1i − 2j.\n  function expr(v) {\n    const us = ['i', 'j', 'k'];\n    let s = '';\n    v.forEach((c, n) => {\n      const r = Math.round(c * 100) / 100;\n      if (Math.abs(r) < 1e-9) return;\n      const mag = num(Math.abs(r));\n      s += s ? (r < 0 ? ' − ' : ' + ') + mag + us[n] : (r < 0 ? '−' : '') + mag + us[n];\n    });\n    return s || '0';\n  }\n  const add = (p, q) => p.map((x, k) => x + q[k]);\n  const sub = (p, q) => p.map((x, k) => x - q[k]);\n  const scale = (p, s) => p.map((x) => x * s);\n  const hyp = (v) => Math.hypot.apply(null, v);\n  const unit = (v) => { const L = hyp(v) || 1; return scale(v, 1 / L); };\n  const lerp2 = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];\n  const dotv = (p, q) => p.reduce((s, x, k) => s + x * q[k], 0);\n  const cross2 = (p, q) => p[0] * q[1] - p[1] * q[0];\n  const angleOf = (p, q) => Math.acos(K.clamp(dotv(p, q) / (hyp(p) * hyp(q)), -1, 1)) / RAD;\n  // The two workings, as the readout writes them: 5 × 4 × cos 53.13°, and 3 × 4 + 4 × 0.\n  const fac = (v, br) => (v < 0 && br ? '(' + num(v) + ')' : num(v));\n  const partsText = (p, q) => p.map((x, k) => fac(x, k > 0) + ' × ' + fac(q[k], true)).join(' + ');\n  const sizesText = (p, q, th) => num(hyp(p)) + ' × ' + num(hyp(q)) + ' × cos ' + num(th == null ? angleOf(p, q) : th) + '°';\n\n  // ---------- each screen's layout ----------\n  // A grid: u px a unit, the origin at (ox, oy), whole units x0..x1 and y0..y1. Labels stay between\n  // ly0 and ly1; the readout band starts at hd and has `rows` lines.\n  const GA = { kind: 'grid', u: 24, ox: 146, oy: 160, x0: -4, x1: 6, y0: -1, y1: 5, ly0: 32, ly1: 190, hd: 196, rows: 3 };\n  const GS = { kind: 'grid', u: 21, ox: 170, oy: 166, x0: -6, x1: 6, y0: -1, y1: 6, ly0: 32, ly1: 192, hd: 198, rows: 3 };\n  const GP = { kind: 'grid', u: 24, ox: 38, oy: 160, x0: -1, x1: 5, y0: -1, y1: 5, ly0: 32, ly1: 190, hd: 196, rows: 3 };\n  const GQ = { kind: 'grid', u: 26, ox: 170, oy: 118, x0: -3, x1: 3, y0: -3, y1: 3, ly0: 32, ly1: 200, hd: 206, rows: 3 };\n  // 3-D: the origin at O, u px a unit, seen from azimuth al and elevation be (a true view, never mirrored).\n  // amin, amax: how far he can turn it while every part stays in the picture.\n  const T7 = { kind: 'three', u: 23, O: [262, 186], al: 160, amin: 130, amax: 170, be: 30, tri: [60, 172], ly0: 32, ly1: 204, hd: 210, rows: 4 };\n  const T8 = { kind: 'three', u: 40, O: [170, 178], al: 200, amin: 200, amax: 255, be: 30, tri: [60, 172], ly0: 32, ly1: 200, hd: 206, rows: 4 };\n  // A rope on a trolley or a crate: the rope's ring at P, fS px a newton, dS px a metre. The\n  // trolley's ring sits on a post, so the shadow's label has room under d's line.\n  const R9 = { kind: 'rope', P: [150, 140], fS: 0.5, dS: 22, ly0: 32, ly1: 226, hd: 230, rows: 2 };\n  const R10 = { kind: 'rope', P: [150, 140], fS: 0.44, dS: 25, ly0: 32, ly1: 226, hd: 230, rows: 3 };\n  const R12 = { kind: 'rope', P: [162, 134], fS: 2.2, dS: 40, ly0: 32, ly1: 200, hd: 206, rows: 3 };\n  // A voltage and a current from one point: vS px a volt, iS px an amp.\n  const PW = { kind: 'power', O: [36, 92], vS: 0.95, iS: 6, ly0: 32, ly1: 192, hd: 198, rows: 2 };\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. act: what he can do with it,\n  // shown under the picture. A puzzle: task, opts (three answers), want, hints (one per wrong\n  // answer), why, pv (what a wrong answer is drawn as), reveal (a label only a right answer draws),\n  // fb (seconds of motion after a right and a wrong answer).\n  const STEPS = [\n    { show: true, name: 'The shadow', pic: 'shadow', geo: GA, dur: 4.2,\n      text: 'Here `a` is `3i + 4j` and `b` is `4i`. A light shines square onto `b`\\'s line, so `a` casts a *shadow* along it. The shadow is `|a|` cos θ, the side next to θ, just as when you resolve. Here it is 3, and `b` is 4 long. Multiply them and you get the *dot product*, `a·b` = `|a||b|` cos θ = 3 × 4 = 12.',\n      act: 'Drag the tip of `a` or `b`. The two workings always agree.' },\n    { kind: 'pick', name: 'A longer b', pic: 'shadowq', geo: GA, fb: [1.6, 1.8],\n      task: 'Now `b` is `6i`, and `a` is still `3i + 4j`. What is `a·b`?',\n      opts: ['30', '18', '18i'], want: '18', reveal: '18',\n      hints: { '30': 'Not quite. That is 5 × 6, the whole of `a`. Only its shadow along `b` counts.',\n        '18i': 'Not quite. A shadow is a length, not an arrow. So `a·b` is a plain number, with no `i`.' },\n      why: 'The shadow of `a` on `b`\\'s line is still 3 long, and `b` is 6 long. So `a·b` = 3 × 6 = 18. It is a plain number, because a shadow is a length.' },\n    { show: true, name: 'Swing it round', pic: 'swing', geo: GS, dur: 4.8,\n      text: 'As `a` swings round, its shadow shrinks to a dot at 90°. So two arrows square to each other give `a·b` = 0. Past 90° the shadow falls behind the start and counts as minus.',\n      act: 'Drag the tip of `a` round.' },\n    { kind: 'pick', name: 'At 120°', pic: 'swingq', geo: GS, fb: [1.8, 1.8],\n      task: '`a` is 5 long and `b` is 4 long, with 120° between them. What is `a·b`?',\n      opts: ['17.32', '10', '−10'], want: '−10', reveal: '−10',\n      hints: { '17.32': 'Not quite. That uses sin, the part square to `b`. The shadow is the side next to the angle, so use cos.',\n        '10': 'Not quite. Past 90° the shadow falls behind the start. Keep the minus.' },\n      why: 'cos 120° is −0.5. So the shadow is 5 × (−0.5) = −2.5, behind the start. Then `a·b` = −2.5 × 4 = −10. The arrows lean apart, so the answer is negative.' },\n    { show: true, name: 'Part by part', pic: 'parts', geo: GP, dur: 4.2,\n      text: '`i` is 1 long and lies along its own line, so `i·i` = 1. `j` is square to `i` and casts no shadow on it, so `i·j` = 0. Now multiply every part of `3i + 4j` by every part of `4i + 3j`. That gives `3i·4i`, `3i·3j`, `4j·4i` and `4j·3j`. The two crossed pairs give 0. The matching pairs give 12 and 12, so the dot product is 24.',\n      act: 'Drag either tip, and both workings still agree.' },\n    { kind: 'pick', name: 'Square to it', pic: 'square', geo: GQ, fb: [1.8, 1.8],\n      task: 'Which arrow is square to `2i + 1j`?',\n      opts: ['1i − 2j', '1i + 2j', '−2i − 1j'], want: '1i − 2j', reveal: '0', pv: { '1i − 2j': [1, -2], '1i + 2j': [1, 2], '−2i − 1j': [-2, -1] },\n      hints: { '1i + 2j': 'Not quite. Pair the parts. 2 × 1 + 1 × 2 = 4, not 0, so they lean the same way.',\n        '−2i − 1j': 'Not quite. That points straight back along it. Its dot product is −4 − 1 = −5.' },\n      why: 'Pair the parts. 2 × 1 + 1 × (−2) = 2 − 2 = 0. A dot product of 0 means the two arrows are square to each other.' },\n    { show: true, name: 'The angle in 3-D', pic: 'three', geo: T7, dur: 4.2,\n      text: 'In 3-D a third pair joins in, along `k`. Take `a` = `2i + 3j + 6k` and `b` = `1i + 2j + 2k`. Then `a·b` = 2 + 6 + 12 = 20. Since `a·b` = `|a||b|` cos θ, the angle comes from cos θ = `a·b` ÷ `|a||b|`. The sizes are 7 and 3, so cos θ = 20 ÷ 21 and θ = 17.75°.',\n      act: 'Drag across the picture to turn it.' },\n    { kind: 'pick', name: 'Angle between', pic: 'threeq', geo: T8, fb: [1.6, 1.8],\n      task: 'What is the angle between `2i + 2j + 1k` and `2i − 1j + 2k`?',\n      opts: ['26.39°', '63.61°', '48.19°'], want: '63.61°', reveal: '63.61°', pv: { '26.39°': Math.asin(4 / 9) / RAD, '48.19°': Math.acos(4 / 6) / RAD },\n      hints: { '26.39°': 'Not quite. That uses sin⁻¹. The dot product goes with cos, so take cos⁻¹.',\n        '48.19°': 'Not quite. That divides by 3 + 3. Divide by the sizes multiplied, 3 × 3 = 9.' },\n      why: 'Pair the parts. 4 − 2 + 2 = 4. Each arrow is 3 long, so cos θ = 4 ÷ 9. So θ = cos⁻¹(4 ÷ 9) = 63.61°.' },\n    { show: true, name: 'Rope and rail', pic: 'rail', geo: R9, dur: 4.0,\n      text: 'A rope pulls a trolley with 200 N, at 30° to its rail. Only the pull along the rail does *work*. That part is the rope\\'s shadow, 173.21 N. So work is the dot product of the pull and the move, `W = F·d`. Over 5 m it is 200 × 5 × cos 30° = 866.03 J.',\n      act: 'Drag the tip of the rope\\'s arrow round.' },\n    { kind: 'pick', name: 'Pull by parts', pic: 'railq', geo: R10, fb: [1.6, 1.8],\n      task: 'A rope pulls a trolley with `150i + 200j` N. The trolley runs 4 m along its rail, in the `i` direction. How much work does the rope do?',\n      opts: ['1000 J', '800 J', '600 J'], want: '600 J', reveal: '600 J', pv: { '1000 J': 'whole', '800 J': 'up' },\n      hints: { '1000 J': 'Not quite. That is the rope\\'s whole 250 N times 4 m. Only the part along the rail counts.',\n        '800 J': 'Not quite. That uses the up part, 200 N. It is square to the rail, so it does no work.' },\n      why: 'The move is `4i` m. Pair the parts. 150 × 4 + 200 × 0 = 600 J. The up part is square to the move, so it does no work.' },\n    { kind: 'pick', name: 'Volts and amps', pic: 'power', geo: PW, fb: [1.6, 1.8],\n      task: 'A load draws 23 A from a 230 V supply, with 36.87° between the voltage and the current. What is the true power?',\n      opts: ['4232 W', '5290 W', '3174 W'], want: '4232 W', reveal: '4232 W', pv: { '5290 W': 'whole', '3174 W': 'sin' },\n      hints: { '5290 W': 'Not quite. 230 × 23 is the apparent power, 5290 VA. Only the part of the current in step with the voltage carries true power.',\n        '3174 W': 'Not quite. That uses sin, the part square to the voltage. True power takes cos.' },\n      why: 'cos 36.87° is 0.8. So the true power is 230 × 23 × 0.8 = 4232 W. It has the dot product\\'s shape. It is two sizes times the cosine of the angle between them.' },\n    { kind: 'pick', name: 'Pulling back', pic: 'crate', geo: R12, fb: [1.8, 1.8],\n      task: 'A crate slides 3 m along the deck, in the `i` direction. A rope pulls on it with `−40i + 30j` N. How much work does the rope do?',\n      opts: ['120 J', '−120 J', '150 J'], want: '−120 J', reveal: '−120 J', pv: { '120 J': 'flip', '150 J': 'whole' },\n      hints: { '120 J': 'Not quite. The rope pulls back against the move. Keep the minus.',\n        '150 J': 'Not quite. That is the rope\\'s whole 50 N times 3 m. Only the part along the deck counts.' },\n      why: 'The move is `3i` m. Pair the parts. −40 × 3 + 30 × 0 = −120 J. The rope pulls against the move, so its work is negative.' },\n  ];\n  const FINISH = 'The dot product is a plain number. It is one arrow\\'s shadow on the other\\'s line, times the other\\'s length. Work it out as `|a||b|` cos θ, or part by part.';\n  // The lesson's sources, each cited only by a check that restates its quote.\n  const SRC_SUM = 'https://openstax.org/books/university-physics-volume-1/pages/2-summary';\n  const SRC_PROD = 'https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n  const atPic = (pic) => STEPS.findIndex((d) => d.pic === pic);\n\n  // ---------- each step's state ----------\n  // pick, res, why: a puzzle's answer, its result and the Why? note. A, B: where he has dragged the\n  // tips of a and b. th: the angle he has swung a to. rope: the angle he has swung the rope to.\n  // al: how far he has turned a 3-D picture.\n  function blank() { return { pick: null, res: null, why: false, A: null, B: null, th: null, rope: null, al: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };\n  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;   // what the last paint drew, for the checks\n  let G = null;     // the layout of the step being drawn\n  let BOX = [], SEG = [];   // what a label must keep clear of: other labels and solid shapes, and lines\n\n  // ---------- text with amber key terms and bold vector letters (built with K.el, never innerHTML) ----------\n  const VEC = /((?<![A-Za-z])[abijkFd](?![A-Za-z]))/;\n  function vecs(parent, s, inSvg) {\n    String(s).split(VEC).forEach((p, k) => {\n      if (!p) return;\n      if (k % 2) { const cls = /[ijk]/.test(p) ? 'vu' : 'vn'; parent.appendChild(inSvg ? K.svg('tspan', { class: cls }, p) : K.el('span', { class: cls }, p)); return; }\n      parent.appendChild(document.createTextNode(p));\n    });\n  }\n  function write(node, s) {\n    node.textContent = '';\n    // A number keeps its unit on the same line.\n    String(s).replace(/([\\d`]) (?=(?:N|J|W|V|A|m)(?![\\w\\/]))/g, '$1 ').split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { vecs(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const cur = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = cur(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = cur(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[cur()].show || finished) return;\n    const st = S[cur()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = cur(), d = STEPS[i];\n    if (!d.show || finished) return;\n    Object.assign(S[i], { A: null, B: null, th: null, rope: null });\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, cur() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = cur();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished. It always ends on the finished picture.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (T >= motionEnd) { T = Infinity; paint(); return false; }\n    paint();\n    return true;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null;\n  const put = (node) => (into || art).appendChild(node);\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = put(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const pt2 = (p) => r3(p[0]) + ' ' + r3(p[1]);\n  const ln = (cls, p, q) => put(K.svg('line', { class: cls, x1: r3(p[0]), y1: r3(p[1]), x2: r3(q[0]), y2: r3(q[1]) }));\n  const seg = (p, q) => SEG.push([p[0], p[1], q[0], q[1]]);\n  function text(x, y, s, cls, anchor, vec) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    if (vec) vecs(t, s, true); else t.textContent = s;\n    REC.texts.push(s);\n    return put(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 9;\n  }\n  const FH = (cls) => (/\\bnm\\b/.test(cls) ? 17 : /\\blb\\b/.test(cls) ? 15 : 13);\n  // An arrow in drawing units, shifted `shift` px to one side.\n  function pxArrow(a, b, cls, shift) {\n    let x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);\n    if (shift && L >= 1) { const sx = dy / L * shift, sy = -dx / L * shift; x1 += sx; x2 += sx; y1 += sy; y2 += sy; }\n    if (L < 1) return;\n    const g = put(K.svg('g', { class: 'arr ' + (cls || '') }));\n    const ux = dx / L, uy = dy / L, hl = Math.min(13, L * 0.45), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;\n    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));\n    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n  }\n  function raMark(J, u1, u2) {\n    const s = 8;\n    put(K.svg('path', { class: 'ram', d: 'M' + r3(J[0] + u1[0] * s) + ' ' + r3(J[1] + u1[1] * s) + ' L' + r3(J[0] + (u1[0] + u2[0]) * s) + ' ' + r3(J[1] + (u1[1] + u2[1]) * s) + ' L' + r3(J[0] + u2[0] * s) + ' ' + r3(J[1] + u2[1] * s) }));\n  }\n\n  // ---------- labels, placed clear of each other and of the lines ----------\n  const overlap = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];\n  function segHitsBox(s, b) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1];\n    const p = [-dx, dx, -dy, dy], q = [s[0] - b[0], b[0] + b[2] - s[0], s[1] - b[1], b[1] + b[3] - s[1]];\n    for (let k = 0; k < 4; k++) {\n      if (p[k] === 0) { if (q[k] < 0) return false; continue; }\n      const r = q[k] / p[k];\n      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  // Takes the first free spot among cands (centres), always, so a label never jumps as parts\n  // arrive; draws it at arrival a. strict: no free spot, no label.\n  function label(a, s, cls, cands, o) {\n    o = o || {};\n    const w = tw(s, cls), h = FH(cls);\n    const boxAt = (c) => [c[0] - w / 2 - 2, c[1] - h / 2 - 1, w + 4, h + 2];\n    let pick = null;\n    for (let k = 0; k < cands.length; k++) {\n      const b = boxAt(cands[k]);\n      if (b[0] < 2 || b[0] + b[2] > 338 || b[1] < G.ly0 - 6 || b[1] + b[3] > G.ly1 + 6) continue;\n      if (BOX.some((q) => overlap(b, q)) || SEG.some((q) => segHitsBox(q, b))) continue;\n      if (o.inside && !o.inside(b)) continue;\n      pick = cands[k]; break;\n    }\n    if (!pick) {\n      if (o.strict) return false;\n      const c = cands[0] || [170, 100];\n      pick = [K.clamp(c[0], 4 + w / 2, 336 - w / 2), K.clamp(c[1], G.ly0 + h / 2, G.ly1 - h / 2)];\n      REC.crowd++;\n    }\n    BOX.push(boxAt(pick));\n    part(a, 0, () => text(pick[0], pick[1] + h * 0.36, s, cls, 'middle', o.vec));\n    return true;\n  }\n  // Spots beside the line p→q: on the side away from ref first (which: 1 that side only, −1 the other).\n  function besideCands(p, q, w, h, ref, which) {\n    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L, -dx / L];\n    let sg = 1;\n    if (ref) { const m = lerp2(p, q, 0.5); if ((ref[0] - m[0]) * n[0] + (ref[1] - m[1]) * n[1] > 0) sg = -1; }\n    const D = 9 + Math.abs(n[0]) * w / 2 + Math.abs(n[1]) * h / 2, out = [];\n    const sides = which === 1 ? [sg] : which === -1 ? [-sg] : [sg, -sg];\n    sides.forEach((s) => [0.55, 0.75, 0.35, 0.9].forEach((f) => out.push([p[0] + dx * f + s * n[0] * D, p[1] + dy * f + s * n[1] * D])));\n    return out;\n  }\n  // Spots just beyond the nose of p→q.\n  function noseCands(p, q, w, h) {\n    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;\n    const D = 10 + Math.abs(ux) * w / 2 + Math.abs(uy) * h / 2;\n    return [[q[0] + ux * D, q[1] + uy * D], [q[0] + ux * D + uy * 12, q[1] + uy * D - ux * 12], [q[0] + ux * D - uy * 12, q[1] + uy * D + ux * 12]];\n  }\n  function nameAt(a, s, cls, O, N, ref) {\n    const w = tw(s, cls), h = FH(cls);\n    label(a, s, cls, besideCands(O, N, w, h, ref, 1).concat(noseCands(O, N, w, h), besideCands(O, N, w, h, ref, -1)), { vec: true });\n  }\n\n  // The readout under the drawing: the main quantity on amber, then the workings.\n  // rows: [{l, s, a}], the first on amber.\n  function band(rows) {\n    const y = G.hd;\n    REC.band = { label: rows[0].l, main: rows[0].s, items: rows.slice(1).filter((r) => r.s != null && (r.a == null || r.a > 0)).map((r) => r.s) };\n    ln('gl', [8, y + 2], [332, y + 2]);\n    const lw = Math.max.apply(null, rows.map((r) => tw(r.l, 'rk')));\n    const LX = 12 + lw, VX = LX + 12;\n    rows.forEach((r, k) => {\n      if (r.s == null) return;\n      const yy = y + 26 + k * 28;\n      part(r.a == null ? 1 : r.a, 0, () => {\n        text(LX, yy, r.l, 'rk', 'end', true);\n        if (k === 0) {\n          const w = tw(r.s, 'rv') + 16;\n          put(K.svg('rect', { class: 'pill', x: r3(VX - 6), y: yy - 19, width: r3(w), height: 26, rx: 7 }));\n          text(VX + 2, yy, r.s, 'rv nohalo', 'start', true);\n        } else {\n          text(VX, yy, r.s, VX + tw(r.s, 'rv2') <= 334 ? 'rv2' : 'rv3', 'start', true);\n        }\n      });\n    });\n  }\n  // A key row at the top of the drawing: short swatches with their names.\n  function keyRow(items, a) {\n    part(a, 0, () => {\n      let x = 12;\n      items.forEach((it) => {\n        ln('sw ' + it.sw, [x, 18], [x + 20, 18]);\n        text(x + 26, 23, it.s, 'sm mu', 'start', true);\n        x += 26 + tw(it.s, 'sm mu') + 14;\n      });\n    });\n  }\n  const keyLight = (a, nm, more) => keyRow([{ sw: 'ray', s: 'light' }, { sw: 'shd', s: 'shadow' }, { sw: 'bl', s: nm + '\\'s line' }].concat(more || []), a);\n\n  // ---------- the grid ----------\n  const P = (v) => [G.ox + v[0] * G.u, G.oy - v[1] * G.u];\n  function grid(a) {\n    part(a, 0, () => {\n      for (let x = G.x0; x <= G.x1; x++) { const p = P([x, G.y0]), q = P([x, G.y1]); ln(x === 0 ? 'ax' : 'gl', p, q); }\n      for (let y = G.y0; y <= G.y1; y++) { const p = P([G.x0, y]), q = P([G.x1, y]); ln(y === 0 ? 'ax' : 'gl', p, q); }\n      const o = P([0, 0]);\n      put(K.svg('circle', { class: 'org', cx: r3(o[0]), cy: r3(o[1]), r: 3.5 }));\n    });\n  }\n  // The line through O along dir, cut to the box [x0, y0, x1, y1].\n  function clipDir(O, dir, b) {\n    let t0 = -1e9, t1 = 1e9;\n    [[0, b[0], b[2]], [1, b[1], b[3]]].forEach((c) => {\n      const k = c[0];\n      if (Math.abs(dir[k]) < 1e-12) return;\n      const p = (c[1] - O[k]) / dir[k], q = (c[2] - O[k]) / dir[k];\n      t0 = Math.max(t0, Math.min(p, q)); t1 = Math.min(t1, Math.max(p, q));\n    });\n    return [add(O, scale(dir, t0)), add(O, scale(dir, t1))];\n  }\n  // A wedge between two directions at O, radius r.\n  function wedgeArc(O, u1, u2, r, bad) {\n    const p1 = add(O, scale(u1, r)), p2 = add(O, scale(u2, r)), sweep = cross2(u1, u2) > 0 ? 1 : 0;\n    const arcD = ' A' + r + ' ' + r + ' 0 0 ' + sweep + ' ' + pt2(p2);\n    if (!bad) put(K.svg('path', { class: 'wedge', d: 'M' + pt2(O) + ' L' + pt2(p1) + arcD + ' Z' }));\n    put(K.svg('path', { class: bad ? 'badarc' : 'arc', d: 'M' + pt2(p1) + arcD }));\n  }\n  // Whether a label's box sits wholly inside the wedge from u1 to u2 at O.\n  function wedgeTest(O, u1, u2) {\n    const s = Math.sign(cross2(u1, u2)) || 1, mid = add(u1, u2);\n    return (b) => [[b[0], b[1]], [b[0] + b[2], b[1]], [b[0], b[1] + b[3]], [b[0] + b[2], b[1] + b[3]]].every((q) => {\n      const v = sub(q, O);\n      return cross2(u1, v) * s >= 2 && cross2(v, u2) * s >= 2 && dotv(v, mid) > 0;\n    });\n  }\n\n  // ---------- the shadow: a's shadow on b's line, with the light square onto it ----------\n  // o: O, An (a's nose), Bn (b's nose), dir (b's direction), sPx (the shadow, px, signed), clip;\n  // eA, eB: how far each arrow has grown; line, rays, sh (the shadow's growth), shl, wedge: arrivals;\n  // shText, aName, bName, wTexts: the words. A part given as 0 is due later, so its room is kept.\n  function cast(o) {\n    const O = o.O, An = o.An, Bn = o.Bn, dir = o.dir, sPx = o.sPx;\n    const eA = o.eA == null ? 1 : o.eA, eB = o.eB == null ? 1 : o.eB;\n    const F = add(O, scale(dir, sPx)), tiny = Math.abs(sPx) < 0.75;\n    const nrm = [-dir[1], dir[0]], va = sub(An, O), La = hyp(va), Lb = hyp(sub(Bn, O));\n    const side = Math.sign(dotv(va, nrm)) || 1;\n    REC.F = F; REC.shadowDot = tiny; REC.Apx = An; REC.Bpx = Bn;\n    // Everything this picture will draw is kept clear of labels from the start.\n    seg(O, An); seg(O, Bn);\n    const ends = clipDir(O, dir, o.clip);\n    if (o.line != null) seg(ends[0], ends[1]);\n    const rays = [];\n    if (!tiny && La > 4) [1 / 3, 2 / 3, 1].forEach((f) => {\n      const p = lerp2(O, An, f), q = add(O, scale(dir, dotv(sub(p, O), dir)));\n      if (hyp(sub(p, q)) > 5) rays.push([p, q]);\n    });\n    if (o.rays != null) rays.forEach((r) => seg(r[0], r[1]));\n    if (o.line > 0) part(o.line, 0, () => ln('bl', ends[0], ends[1]));\n    const shE = o.sh || 0;\n    if (shE > 0) {\n      if (tiny) part(shE, 0, () => put(K.svg('circle', { class: 'shdot' + (o.shBad ? ' bad' : ''), cx: r3(O[0]), cy: r3(O[1]), r: 5.5 })));\n      else ln('shd' + (o.shBad ? ' bad' : ''), O, add(O, scale(dir, sPx * shE)));\n    }\n    if ((o.rays || 0) > 0 && La > 4) part(o.rays, 0, () => {\n      if (tiny) { raMark(O, dir, scale(va, 1 / La)); return; }\n      rays.forEach((r) => ln('ray', r[0], r[1]));\n      if (hyp(sub(An, F)) > 12 && Math.abs(sPx) > 10) raMark(F, scale(dir, -Math.sign(sPx)), unit(sub(An, F)));\n    });\n    // The angle between them, at O.\n    const ua = La > 0 ? scale(va, 1 / La) : [1, 0], ang = Math.acos(K.clamp(dotv(ua, dir), -1, 1));\n    const wedgeOn = o.wedge != null && La > 24 && Lb > 24 && ang > 0.15 && ang < Math.PI - 0.12 && !tiny;\n    if (wedgeOn && o.wedge > 0) part(o.wedge, 0, () => wedgeArc(O, dir, ua, 16));\n    if (eB > 0) pxArrow(O, lerp2(O, Bn, eB), o.bCls || 'vb');\n    if (eA > 0) pxArrow(O, lerp2(O, An, eA), o.aCls || 'va');\n    if (o.aName) nameAt(eA >= 1 ? (o.na == null ? 1 : o.na) : 0, o.aName, o.aNameCls || 'nm', O, An, F);\n    if (o.bName) {\n      const cls = o.bNameCls || 'nm', w = tw(o.bName, cls), h = FH(cls);\n      label(eB >= 1 ? (o.nb == null ? 1 : o.nb) : 0, o.bName, cls, noseCands(O, Bn, w, h).concat(besideCands(O, Bn, w, h, An)), { vec: true });\n    }\n    if (o.shText && o.shl != null) {\n      const cls = o.shCls || 'lb', w = tw(o.shText, cls), h = FH(cls), away = scale(nrm, -side);\n      const D = 11 + Math.abs(away[0]) * w / 2 + Math.abs(away[1]) * h / 2;\n      const mids = tiny ? [O] : [0.5, 0.7, 0.3, 0.9, 1.1].map((f) => lerp2(O, F, f));\n      const c = [];\n      mids.forEach((m) => c.push(add(m, scale(away, D))));\n      mids.forEach((m) => c.push(add(m, scale(away, D + 14))));\n      if (!tiny) c.push(add(F, scale(dir, Math.sign(sPx) * (12 + w / 2))));\n      mids.forEach((m) => c.push(add(m, scale(away, -D))));\n      if (tiny) [[1, 1], [-1, 1], [1, -1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach((u) => c.push(add(O, [u[0] * (12 + w / 2), u[1] * (12 + h / 2)])));\n      label(o.shl, o.shText, cls, c, {});\n    }\n    if (wedgeOn && o.wTexts) {\n      const bis = unit(add(ua, dir)), lim = Math.min(La, Lb) - 6, inside = wedgeTest(O, dir, ua);\n      for (let n = 0; n < o.wTexts.length; n++) {\n        const c = [];\n        for (let D = 22; D <= lim; D += 3) c.push(add(O, scale(bis, D)));\n        if (c.length && label(o.wedge, o.wTexts[n], 'sm ok', c, { strict: true, inside })) { REC.wedgeText = o.wTexts[n]; break; }\n      }\n    }\n    return { F, tiny };\n  }\n  // a and b on the grid, in units.\n  function gridCast(A, B, o) {\n    const bl = hyp(B), dir = [B[0] / bl, -B[1] / bl], dot = dotv(A, B);\n    REC.aV = A.slice(); REC.bV = B.slice(); REC.dot = dot; REC.sU = dot / bl;\n    return cast(Object.assign({ O: P([0, 0]), An: P(A), Bn: P(B), dir, sPx: dot / bl * G.u,\n      clip: [G.ox + G.x0 * G.u, G.oy - G.y1 * G.u, G.ox + G.x1 * G.u, G.oy - G.y0 * G.u], aName: 'a', bName: 'b' }, o));\n  }\n  // The band for two arrows on the grid: a·b, then |a||b| cos θ, then the parts.\n  function gridBand(A, B, al, hide, th) {\n    band([{ l: 'a·b', s: hide ? '?' : num(dotv(A, B)), a: al[0] },\n      { l: '|a||b| cos θ', s: hide ? null : sizesText(A, B, th), a: al[1] },\n      { l: 'a₁b₁ + a₂b₂', s: hide ? null : partsText(A, B), a: al[2] }]);\n  }\n  // The axis arrows in a corner: i on its own line, then i and j.\n  function inset(a1, a2) {\n    part(a1, 0, () => {\n      const y = 74, x0 = 196, L = 50;\n      ln('bl', [186, y], [330, y]);\n      ln('shd', [x0, y], [x0 + L, y]);\n      [206, 221, 236].forEach((x) => ln('ray', [x, y - 26], [x, y - 7]));\n      pxArrow([x0, y], [x0 + L, y], 'vi');\n      text(x0 + L / 2, y + 20, 'i', 'nm', 'middle', true);\n      text(258, y + 5, 'i·i = 1', 'lb', 'start', true);\n    });\n    part(a2, 0, () => {\n      const y = 166, x0 = 200, L = 46;\n      ln('bl', [186, y], [330, y]);\n      [192, 208].forEach((x) => ln('ray', [x, y - 66], [x, y - 7]));\n      put(K.svg('circle', { class: 'shdot', cx: x0, cy: y, r: 5.5 }));\n      pxArrow([x0, y], [x0 + L, y], 'vi');\n      pxArrow([x0, y], [x0, y - L], 'vi');\n      text(x0 + L / 2, y + 19, 'i', 'nm', 'middle', true);\n      text(180, y - L / 2 + 5, 'j', 'nm', 'middle', true);\n      text(258, y + 5, 'i·j = 0', 'lb', 'start', true);\n    });\n  }\n\n  // ---------- 3-D ----------\n  function PR(v) {\n    const sa = Math.sin(G.al * RAD), ca = Math.cos(G.al * RAD), sb = Math.sin(G.be * RAD), cb = Math.cos(G.be * RAD);\n    return [-sa * v[0] + ca * v[1], sb * ca * v[0] + sb * sa * v[1] - cb * v[2]];\n  }\n  const P3 = (v) => { const q = PR(v); return [G.O[0] + q[0] * G.u, G.O[1] + q[1] * G.u]; };\n  function triad(a) {\n    const c = G.tri;\n    BOX.push([c[0] - 46, c[1] - 46, 92, 72]);\n    part(a, 0, () => {\n      [['i', [1, 0, 0]], ['j', [0, 1, 0]], ['k', [0, 0, 1]]].forEach((t) => {\n        const q = PR(t[1]), e = [c[0] + q[0] * 30, c[1] + q[1] * 30], u = unit(sub(e, c));\n        pxArrow(c, e, 'tri');\n        text(e[0] + u[0] * 10, e[1] + u[1] * 10 + 5, t[0], 'sm', 'middle', true);\n      });\n    });\n  }\n  // The plane of A and B: A's direction and the direction square to it, towards B.\n  function plane(A, B) { const ua = unit(A); return { ua, e: unit(sub(B, scale(ua, dotv(B, ua)))) }; }\n  const inPlane = (pl, L, phi) => add(scale(pl.ua, L * Math.cos(phi * RAD)), scale(pl.e, L * Math.sin(phi * RAD)));\n  function arc3(pl, phi, r, cls) {\n    const pts = [];\n    for (let k = 0; k <= 16; k++) pts.push(P3(inPlane(pl, r, phi * k / 16)));\n    const d = pts.map((p, k) => (k ? ' L' : 'M') + pt2(p)).join('');\n    if (cls === 'arc') put(K.svg('path', { class: 'wedge', d: 'M' + pt2(G.O) + pts.map((p) => ' L' + pt2(p)).join('') + ' Z' }));\n    put(K.svg('path', { class: cls, d }));\n  }\n  function partsPath(V) {\n    const pts = [[0, 0, 0], [V[0], 0, 0], [V[0], V[1], 0], V].map(P3);\n    for (let k = 1; k < pts.length; k++) seg(pts[k - 1], pts[k]);\n    return () => put(K.svg('path', { class: 'pa', d: pts.map((p, k) => (k ? ' L' : 'M') + pt2(p)).join('') }));\n  }\n  function scene3(A, B, o) {\n    const O = G.O, An = P3(A), Bn = P3(B), pl = plane(A, B), th = angleOf(A, B);\n    REC.aV = A.slice(); REC.bV = B.slice(); REC.dot = dotv(A, B); REC.th = th; REC.Apx = An; REC.Bpx = Bn;\n    seg(O, An); seg(O, Bn);\n    triad(o.base);\n    keyRow([{ sw: 'pa', s: 'parts along i, j and k' }], o.base);\n    const pa = partsPath(A), pb = partsPath(B);\n    part(o.pa, 0, () => { pa(); pb(); });\n    part(o.wedge, 0, () => arc3(pl, th, 22 / G.u, 'arc'));\n    if (o.eB > 0) pxArrow(O, lerp2(O, Bn, o.eB), 'vb');\n    if (o.eA > 0) pxArrow(O, lerp2(O, An, o.eA), 'va');\n    const wn = tw('a', 'nm');\n    label(o.eA >= 1 ? o.na : 0, 'a', 'nm', noseCands(O, An, wn, 17).concat(besideCands(O, An, wn, 17, Bn)), { vec: true });\n    label(o.eB >= 1 ? o.nb : 0, 'b', 'nm', noseCands(O, Bn, wn, 17).concat(besideCands(O, Bn, wn, 17, An)), { vec: true });\n    // θ inside the wedge, along its middle; left out when there is no room.\n    const bis = unit(add(pl.ua, unit(B))), c = [];\n    for (let r = 30 / G.u; r <= Math.min(hyp(A), hyp(B)) * 0.92; r += 4 / G.u) c.push(P3(scale(bis, r)));\n    if (c.length && label(o.wedge, 'θ', 'sm ok', c, { strict: true })) REC.wedgeText = 'θ';\n    return { pl, th, An, Bn };\n  }\n  const band3 = (A, B, al) => {\n    const dot = dotv(A, B), sz = hyp(A) * hyp(B);\n    band([{ l: 'θ', s: num(angleOf(A, B)) + '°', a: al[0] }, { l: 'a·b', s: partsText(A, B) + ' = ' + num(dot), a: al[1] },\n      { l: '|a||b|', s: num(hyp(A)) + ' × ' + num(hyp(B)) + ' = ' + num(sz), a: al[2] }, { l: 'cos θ', s: num(dot) + ' ÷ ' + num(sz) + ' = ' + num(dot / sz), a: al[3] }]);\n  };\n\n  // ---------- the rope, the trolley and the crate ----------\n  function vehicle(kind, a) {\n    const Pp = G.P;\n    if (kind === 'trolley') {\n      const x = Pp[0] - 54, y = Pp[1] + 32;\n      BOX.push([x - 2, y - 2, 58, 44], [16, y + 40, 34, 16]);\n      seg([0, y + 36], [340, y + 36]); seg([Pp[0], y], Pp);\n      part(a, 0, () => {\n        ln('rail', [0, y + 36], [340, y + 36]);\n        put(K.svg('rect', { class: 'body', x, y, width: 54, height: 26, rx: 3 }));\n        [x + 12, x + 42].forEach((cx) => put(K.svg('circle', { class: 'wheel', cx, cy: y + 31, r: 5 })));\n        ln('tie', [Pp[0], y], Pp);\n        put(K.svg('circle', { class: 'ring', cx: Pp[0], cy: Pp[1], r: 3 }));\n        text(18, y + 52, 'rail', 'sm mu', 'start');\n      });\n      return;\n    }\n    const x = Pp[0], y = Pp[1] + 6;\n    BOX.push([x - 2, y - 2, 58, 40], [16, y + 38, 36, 16]);\n    seg([0, y + 36], [340, y + 36]);\n    part(a, 0, () => {\n      put(K.svg('rect', { class: 'ground', x: 0, y: y + 36, width: 340, height: 20 }));\n      ln('rail', [0, y + 36], [340, y + 36]);\n      put(K.svg('rect', { class: 'body', x, y, width: 54, height: 36, rx: 2 }));\n      ln('tie', [x, y], Pp);\n      put(K.svg('circle', { class: 'ring', cx: Pp[0], cy: Pp[1], r: 3 }));\n      text(18, y + 51, 'deck', 'sm mu l', 'start');\n    });\n  }\n  // Where a line from p along u leaves the picture.\n  function toEdge(p, u) {\n    let t = 1e9;\n    if (u[0] > 1e-9) t = Math.min(t, (334 - p[0]) / u[0]);\n    if (u[0] < -1e-9) t = Math.min(t, (6 - p[0]) / u[0]);\n    if (u[1] < -1e-9) t = Math.min(t, (G.ly0 - 4 - p[1]) / u[1]);\n    if (u[1] > 1e-9) t = Math.min(t, (G.ly1 - p[1]) / u[1]);\n    return add(p, scale(u, t));\n  }\n  // The rope's pull F (N) on the thing at P, which moves dM metres along i.\n  function ropeScene(o) {\n    const Pp = G.P, Fp = [o.F[0] * G.fS, -o.F[1] * G.fS], An = add(Pp, Fp), Bn = [Pp[0] + o.dM * G.dS, Pp[1]];\n    REC.Fv = o.F.slice(); REC.dv = [o.dM, 0]; REC.W = dotv(o.F, [o.dM, 0]); REC.sU = o.F[0];\n    vehicle(o.kind, o.base);\n    const LF = hyp(Fp);\n    if (LF > 1) { const end = toEdge(Pp, scale(Fp, 1 / LF)); seg(An, end); part(o.base, 0, () => ln('rope', Pp, end)); }\n    keyLight(o.base, 'd', [{ sw: 'rope', s: 'rope' }]);\n    return cast(Object.assign({ O: Pp, An, Bn, dir: [1, 0], sPx: Fp[0], clip: [8, G.ly0, 332, G.ly1] }, o));\n  }\n  // A wrong pick laid along the line from P, in red, with its label under it.\n  function badAlong(Pp, len, s) {\n    const E = [Pp[0] + len, Pp[1]], w = tw(s, 'sm bad');\n    seg(Pp, E);\n    ln('shd bad', Pp, lerp2(Pp, E, go(0.1, 0.8)));\n    const m = (Pp[0] + E[0]) / 2;\n    label(arr(0.9), s, 'sm bad', [[m, Pp[1] + 19], [Math.max(m, Pp[0] + w / 2 + 6), Pp[1] + 19], [m, Pp[1] + 34], [m, Pp[1] - 19]], {});\n    REC.bad++;\n  }\n  // A wrong pick drawn square to the line, from p up to q, in red.\n  function badUp(p, q, s) {\n    const w = tw(s, 'sm bad'), m = lerp2(p, q, 0.5);\n    seg(p, q);\n    ln('badln', p, lerp2(p, q, go(0.1, 0.8)));\n    label(arr(0.9), s, 'sm bad', [[m[0] - 12 - w / 2, m[1]], [m[0] + 12 + w / 2, m[1]], [m[0] - 12 - w / 2, m[1] + 20], [m[0] + 12 + w / 2, m[1] - 20]], {});\n    REC.bad++;\n  }\n\n  // ---------- each picture ----------\n  const DRAW = {};\n  // a = 3i + 4j and b = 4i: the shadow, 3, times b's length, 4. He drags either tip.\n  DRAW.shadow = (d, st) => {\n    const A = st.A || [3, 4], B = st.B || [4, 0], intro = !st.A && !st.B, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const sU = dotv(A, B) / hyp(B);\n    grid(1);\n    keyLight(1, 'b');\n    gridCast(A, B, { eB: 1, eA: 1, nb: 1, na: 1, line: ia(0.6), rays: ia(1.1), sh: ig(1.3, 0.7),\n      shText: 'shadow ' + num(sU), shl: ia(2.0), wedge: ia(0.9), wTexts: ['θ'] });\n    gridBand(A, B, [ia(2.2), ia(2.5), ia(2.8)]);\n    return 'A chart grid. Arrow a, ' + expr(A) + ', and arrow b, ' + expr(B) + ', start from one point. Light falls square onto b\\'s line. The shadow of a on that line is ' +\n      num(sU) + ' long, and b is ' + num(hyp(B)) + ' long, so a·b = ' + num(dotv(A, B)) + '.';\n  };\n  // The puzzle: b = 6i. A right answer labels the shadow; a wrong one is drawn in red.\n  DRAW.shadowq = (d, st) => {\n    const A = [3, 4], B = [6, 0], ok = st.res === 'right', pick = st.res ? st.pick : null;\n    grid(1);\n    keyLight(1, 'b');\n    gridCast(A, B, { line: 1, rays: 1, sh: 1, shText: 'shadow 3', shl: ok ? arr(0.2) : 0, wedge: 1, wTexts: ['θ'] });\n    let said = 'A chart grid. Arrow a, 3i + 4j, and arrow b, 6i, start from one point. Light falls square onto b\\'s line, and a casts its shadow along it.';\n    const O = P([0, 0]);\n    if (ok) said += ' The shadow is 3 long and b is 6 long, so a·b = 18, a plain number.';\n    else if (pick === '30') {\n      const E = P([5, 0]), An = P(A), r = 5 * G.u;\n      part(arr(0.1), 0, () => put(K.svg('path', { class: 'badarc', d: 'M' + pt2(An) + ' A' + r + ' ' + r + ' 0 0 1 ' + pt2(E) })));\n      seg(O, E);\n      ln('shd bad', O, lerp2(O, E, go(0.4, 0.6)));\n      label(arr(1.0), '5, the whole of a', 'sm bad', [[P([2.5, 0])[0], O[1] + 19], [P([3, 0])[0], O[1] + 19]], { vec: true });\n      REC.bad++;\n      said += ' The pick lays the whole of a, 5 long, along b\\'s line in red. That is more than its shadow.';\n    } else if (pick === '18i') {\n      const E = [334, O[1]];\n      seg([O[0], O[1] + 14], [E[0], E[1] + 14]);\n      pxArrow(O, lerp2(O, E, go(0.1, 0.9)), 'bad', -14);\n      label(arr(1.0), '18i', 'lb bad', [[300, O[1] + 30], [260, O[1] + 30]], { vec: true });\n      REC.bad++;\n      said += ' The pick, 18i, is drawn in red as an arrow. But a shadow is a length, so the answer is a number.';\n    }\n    gridBand(A, B, ok ? [arr(0.4), arr(0.7), arr(0.9)] : [1, 0, 0], !ok);\n    return said;\n  };\n  // a, 5 long, swings from 0° to 90° over b = 4i, rests there a second with no shadow, then goes on to 135°; he drags its tip round.\n  DRAW.swing = (d, st) => {\n    const intro = st.th == null, th = intro ? 90 * go(1.8, 1.2) + 45 * go(4.0, 0.8) : st.th, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const A = [5 * cosd(th), 5 * sind(th)], B = [4, 0];\n    REC.th = th;\n    grid(ia(0.4));\n    keyLight(ia(0.5), 'b');\n    gridCast(A, B, { eB: ig(0.6, 0.5), eA: ig(0.9, 0.5), nb: ia(1.1), na: ia(1.4), line: ia(1.0), rays: ia(1.4), sh: ia(1.4),\n      shText: 'shadow ' + num(5 * cosd(th)), shl: ia(1.6), wedge: ia(1.4), wTexts: ['θ'] });\n    gridBand(A, B, [ia(1.6), ia(1.8), ia(2.0)], false, th);\n    const dot = 20 * cosd(th);\n    return 'A chart grid. Arrow b, 4i, and arrow a, 5 long, start from one point, ' + num(th) + '° apart. ' +\n      (Math.abs(dot) < 1e-9 ? 'The two are square, so the shadow of a on b\\'s line is just a dot, and a·b = 0.'\n        : dot > 0 ? 'The shadow of a falls along b, ' + num(5 * cosd(th)) + ' long, so a·b = ' + num(dot) + '.'\n          : 'The shadow of a falls behind the start, ' + num(-5 * cosd(th)) + ' long, so it counts as minus and a·b = ' + num(dot) + '.');\n  };\n  // The puzzle: 5 and 4 at 120°.\n  DRAW.swingq = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, A = [5 * cosd(120), 5 * sind(120)], B = [4, 0];\n    grid(1);\n    keyLight(1, 'b');\n    gridCast(A, B, { line: pick ? arr(0.1) : 0, rays: ok ? arr(0.3) : 0, sh: ok ? go(0.5, 0.6) : 0, shText: 'shadow ' + num(A[0]), shl: ok ? arr(1.0) : 0,\n      wedge: 1, wTexts: ['θ = 120°', '120°'] });\n    let said = 'A chart grid. Arrow a, 5 long, and arrow b, 4 long, start from one point with 120° between them.';\n    if (ok) said += ' Light falls square onto b\\'s line. The shadow of a falls behind the start, 2.5 long, and counts as minus. So a·b = −2.5 × 4 = −10.';\n    else if (pick === '10') {\n      const O = P([0, 0]), E = P([-A[0], 0]);\n      seg(O, E);\n      ln('shd bad', O, lerp2(O, E, go(0.1, 0.7)));\n      label(arr(0.8), 'shadow 2.5, minus lost', 'sm bad', [[(O[0] + E[0]) / 2 + 20, O[1] + 18], [(O[0] + E[0]) / 2 + 40, O[1] + 18]], {});\n      REC.bad++;\n      said += ' The pick puts the shadow in front of the start, in red. It lost the minus.';\n    } else if (pick === '17.32') {\n      badUp(P([A[0], 0]), P(A), num(A[1]) + ', square to b');\n      said += ' The pick takes the part of a square to b, drawn in red. That part casts no shadow.';\n    }\n    gridBand(A, B, ok ? [arr(0.6), arr(0.8), arr(1.0)] : [1, 0, 0], !ok, 120);\n    return said;\n  };\n  // (3i + 4j)·(4i + 3j) = 24, beside the axis arrows i·i = 1 and i·j = 0. He drags either tip.\n  DRAW.parts = (d, st) => {\n    const A = st.A || [3, 4], B = st.B || [4, 3], intro = !st.A && !st.B, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    grid(ia(0.4));\n    keyLight(ia(0.5), 'b');\n    BOX.push([176, 34, 164, 158]);\n    inset(ia(2.3), ia(2.8));\n    gridCast(A, B, { eB: ig(0.6, 0.5), eA: ig(0.9, 0.5), nb: ia(1.1), na: ia(1.4), line: ia(1.2), rays: ia(1.6), sh: ig(1.8, 0.6),\n      shText: 'shadow ' + num(dotv(A, B) / hyp(B)), shl: ia(2.4), wedge: ia(1.5), wTexts: ['θ'] });\n    gridBand(A, B, [ia(3.0), ia(3.3), ia(3.6)]);\n    return 'A chart grid. Arrow a, ' + expr(A) + ', and arrow b, ' + expr(B) + ', start from one point. Matching parts multiply: ' + partsText(A, B) + ' = ' + num(dotv(A, B)) +\n      '. Beside it, the arrow i on its own line casts a shadow 1 long, so i·i = 1. The arrow j, square to i\\'s line, casts only a dot, so i·j = 0.';\n  };\n  // The puzzle: which arrow is square to 2i + 1j? The pick is drawn from the origin.\n  DRAW.square = (d, st) => {\n    const A = [2, 1], ok = st.res === 'right', pick = st.res ? st.pick : null, B = pick ? d.pv[pick] : null;\n    grid(1);\n    keyLight(1, 'b');\n    if (!B) {\n      const O = P([0, 0]), An = P(A);\n      seg(O, An);\n      pxArrow(O, An, 'va');\n      nameAt(1, 'a', 'nm', O, An, P([0, -1]));\n      REC.aV = A.slice();\n      band([{ l: 'a·b', s: '?' }]);\n      return 'A chart grid. Arrow a, 2i + 1j, starts from the origin. Which arrow from the same point is square to it?';\n    }\n    const sU = dotv(A, B) / hyp(B);\n    gridCast(A, B, { bCls: ok ? 'vb' : 'bad', bName: pick, bNameCls: ok ? 'lb' : 'lb bad', aName: 'a', line: arr(0.1), eB: go(0.1, 0.7), nb: arr(0.7),\n      rays: arr(0.8), sh: go(0.9, 0.5), shBad: !ok, shText: 'shadow ' + num(sU), shCls: ok ? 'lb' : 'lb bad', shl: arr(1.0), wedge: arr(0.8), wTexts: ['θ'] });\n    if (!ok) REC.bad++;\n    gridBand(A, B, ok ? [arr(0.9), arr(1.0), arr(1.1)] : [1, 0, 0], !ok);\n    return 'A chart grid. Arrow a, 2i + 1j, and the pick, ' + pick + ', start from one point. ' + (ok ? 'They are square, so the shadow of a on its line is only a dot, and a·b = 0.'\n      : 'They are not square: the shadow of a on its line is ' + num(Math.abs(sU)) + ' long, drawn in red, and a·b = ' + num(dotv(A, B)) + '.');\n  };\n  // 2i + 3j + 6k and 1i + 2j + 2k in 3-D, with their parts and the angle between them.\n  DRAW.three = (d, st) => {\n    const A = [2, 3, 6], B = [1, 2, 2];\n    if (st.al != null) G = Object.assign({}, G, { al: st.al });\n    scene3(A, B, { base: arr(0.4), pa: arr(0.6), eA: go(0.9, 0.6), eB: go(1.3, 0.6), na: arr(1.5), nb: arr(1.9), wedge: arr(2.2) });\n    band3(A, B, [arr(3.6), arr(2.7), arr(3.0), arr(3.3)]);\n    return 'Arrows a, 2i + 3j + 6k, and b, 1i + 2j + 2k, drawn in 3-D from one point, each with its parts along i, j and k. a·b = 2 + 6 + 12 = 20, the sizes are 7 and 3, so cos θ = 20 ÷ 21 and the angle between them is 17.75°.';\n  };\n  // The puzzle: the angle between 2i + 2j + 1k and 2i − 1j + 2k. A wrong angle is drawn from a, in red.\n  DRAW.threeq = (d, st) => {\n    const A = [2, 2, 1], B = [2, -1, 2], ok = st.res === 'right', pick = st.res ? st.pick : null;\n    if (st.al != null) G = Object.assign({}, G, { al: st.al });\n    const r = scene3(A, B, { base: 1, pa: 1, eA: 1, eB: 1, na: 1, nb: 1, wedge: 1 });\n    let said = 'Arrows a, 2i + 2j + 1k, and b, 2i − 1j + 2k, drawn in 3-D from one point, with the angle θ between them.';\n    if (ok) said += ' a·b = 4 − 2 + 2 = 4, and each is 3 long, so cos θ = 4 ÷ 9 and θ = 63.61°.';\n    else if (pick) {\n      const O = G.O, Wn = P3(inPlane(r.pl, hyp(A), d.pv[pick])), w = tw(pick, 'lb bad');\n      seg(O, Wn);\n      pxArrow(O, lerp2(O, Wn, go(0.1, 0.8)), 'bad');\n      part(arr(0.6), 0, () => arc3(r.pl, d.pv[pick], 36 / G.u, 'badarc'));\n      label(arr(0.9), pick, 'lb bad', noseCands(O, Wn, w, 15).concat(besideCands(O, Wn, w, 15, r.Bn)), {});\n      REC.bad++;\n      said += ' The pick, ' + pick + ', is drawn from a in red. It falls short of b.';\n    }\n    if (ok) band3(A, B, [arr(0.9), arr(0.2), arr(0.4), arr(0.6)]);\n    else band([{ l: 'θ', s: '?' }]);\n    return said;\n  };\n  // A 200 N rope on a trolley at 30° to its rail, over 5 m; he drags the rope round.\n  DRAW.rail = (d, st) => {\n    const intro = st.rope == null, th = intro ? 30 : st.rope, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const F = [200 * cosd(th), 200 * sind(th)];\n    REC.th = th;\n    ropeScene({ F, dM: 5, kind: 'trolley', base: ia(0.4), eA: ig(0.8, 0.6), eB: ig(1.1, 0.6), na: ia(1.4), nb: ia(1.7), line: ia(1.0), rays: ia(1.9), sh: ig(2.1, 0.6),\n      shText: 'shadow ' + num(F[0]) + ' N', shl: ia(2.7), wedge: ia(2.3), wTexts: ['θ = ' + num(th) + '°', 'θ'], aName: 'F = 200 N', aNameCls: 'lb', bName: 'd = 5 m', bNameCls: 'lb' });\n    band([{ l: 'work', s: num(REC.W) + ' J', a: ia(2.9) }, { l: '|F||d| cos θ', s: '200 × 5 × cos ' + num(th) + '°', a: ia(3.2) }]);\n    return 'A trolley on a rail. A rope pulls it with 200 N at ' + num(th) + '° to the rail, and it moves 5 m along it. Light falls square onto the rail\\'s line. ' +\n      (Math.abs(F[0]) < 1e-9 ? 'The rope is square to the move, so its shadow is a dot and it does no work.'\n        : 'The rope\\'s shadow on it is ' + num(F[0]) + ' N, so the work is ' + num(REC.W) + ' J.');\n  };\n  // The puzzle: 150i + 200j N over 4 m along i.\n  DRAW.railq = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, F = [150, 200], dv = [4, 0];\n    ropeScene({ F, dM: 4, kind: 'trolley', base: 1, line: 1, rays: 1, sh: 1, shText: 'shadow 150 N', shl: ok ? arr(0.2) : 0, wedge: 1, wTexts: ['θ'],\n      aName: 'F', bName: 'd = 4 m', bNameCls: 'lb' });\n    let said = 'A trolley on a rail. A rope pulls it with 150i + 200j N, and it moves 4 m along the rail. Light falls square onto the rail\\'s line.';\n    const Pp = G.P;\n    if (ok) said += ' The rope\\'s shadow on it is 150 N, so the work is 150 × 4 = 600 J.';\n    else if (pick === '1000 J') { badAlong(Pp, hyp(F) * G.fS, '250 N, all of it'); said += ' The pick lays the whole 250 N pull along the rail, in red.'; }\n    else if (pick === '800 J') { badUp([Pp[0] + F[0] * G.fS, Pp[1]], [Pp[0] + F[0] * G.fS, Pp[1] - F[1] * G.fS], '200 N up'); said += ' The pick uses the up part, drawn in red. It is square to the rail.'; }\n    band(ok ? [{ l: 'work', s: num(dotv(F, dv)) + ' J', a: arr(0.4) }, { l: '|F||d| cos θ', s: sizesText(F, dv), a: arr(0.6) }, { l: 'F₁d₁ + F₂d₂', s: partsText(F, dv), a: arr(0.8) }]\n      : [{ l: 'work', s: '?' }]);\n    return said;\n  };\n  // The puzzle: a load draws 23 A from 230 V, 36.87° apart. The current's shadow on the voltage's line is the part in step.\n  DRAW.power = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, cphi = 0.8, sphi = 0.6, O = G.O;\n    const Vn = [O[0] + 230 * G.vS, O[1]], In = [O[0] + 23 * cphi * G.iS, O[1] + 23 * sphi * G.iS];\n    REC.pw = 230 * 23 * cphi; REC.sU = 23 * cphi;\n    keyLight(1, 'V');\n    cast({ O, An: In, Bn: Vn, dir: [1, 0], sPx: In[0] - O[0], clip: [8, G.ly0, 332, G.ly1], aName: 'I = 23 A', aNameCls: 'lb', bName: 'V = 230 V', bNameCls: 'lb',\n      line: 1, rays: 1, sh: 1, shText: 'in step ' + num(23 * cphi) + ' A', shl: ok ? arr(0.2) : 0, wedge: 1, wTexts: ['φ = ' + num(Math.acos(cphi) / RAD) + '°', 'φ'] });\n    let said = 'A voltage arrow, 230 V, and a current arrow, 23 A, start from one point with 36.87° between them. Light falls square onto the voltage\\'s line.';\n    if (ok) said += ' The current\\'s shadow on it, 18.4 A, is the part in step, so the true power is 230 × 18.4 = 4232 W.';\n    else if (pick === '5290 W') { badAlong(O, 23 * G.iS, '23 A, all of it'); said += ' The pick lays the whole current along the voltage, in red.'; }\n    else if (pick === '3174 W') { badUp([In[0], O[1]], In, num(23 * sphi) + ' A, square to V'); said += ' The pick uses the part square to the voltage, drawn in red.'; }\n    band(ok ? [{ l: 'true power', s: num(REC.pw) + ' W', a: arr(0.4) }, { l: 'V I cos φ', s: '230 × 23 × ' + num(cphi), a: arr(0.6) }] : [{ l: 'true power', s: '?' }]);\n    return said;\n  };\n  // The puzzle: a rope pulls back, −40i + 30j N, on a crate sliding 3 m along i.\n  DRAW.crate = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, F = [-40, 30], dv = [3, 0];\n    ropeScene({ F, dM: 3, kind: 'crate', base: 1, line: 1, rays: ok ? arr(0.2) : 0, sh: ok ? go(0.3, 0.6) : 0, shText: 'shadow ' + num(F[0]) + ' N', shl: ok ? arr(0.9) : 0,\n      wedge: 1, wTexts: ['θ'], aName: 'F', bName: 'd = 3 m', bNameCls: 'lb' });\n    let said = 'A crate on a deck moves 3 m along it. A rope pulls back on it with −40i + 30j N.';\n    const Pp = G.P;\n    if (ok) said += ' Light falls square onto the deck\\'s line. The rope\\'s shadow falls behind the start, 40 N, and counts as minus, so the work is −40 × 3 = −120 J.';\n    else if (pick === '120 J') { badAlong(Pp, -F[0] * G.fS, '40 N, minus lost'); said += ' The pick puts the shadow in front of the crate, in red. It lost the minus.'; }\n    else if (pick === '150 J') { badAlong(Pp, hyp(F) * G.fS, '50 N, all of it'); said += ' The pick lays the whole 50 N pull along the move, in red.'; }\n    band(ok ? [{ l: 'work', s: num(dotv(F, dv)) + ' J', a: arr(0.6) }, { l: '|F||d| cos θ', s: sizesText(F, dv), a: arr(0.8) }, { l: 'F₁d₁ + F₂d₂', s: partsText(F, dv), a: arr(1.0) }]\n      : [{ l: 'work', s: '?' }]);\n    return said;\n  };\n\n  // ---------- the drags: the tips of a and b, and the rope ----------\n  const mkGrip = (lab) => ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'button', 'aria-label': lab }));\n  const grips = {\n    A: mkGrip('The tip of arrow a: drag it, or use the arrow keys, to move it'),\n    B: mkGrip('The tip of arrow b: drag it, or use the arrow keys, to move it'),\n    R: mkGrip('The tip of the rope\\'s arrow: drag it, or use the arrow keys, to swing it round'),\n  };\n  const GRIP_PIC = { A: { shadow: 1, swing: 1, parts: 1 }, B: { shadow: 1, parts: 1 }, R: { rail: 1 } };\n  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 1, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The 3-D picture: drag it sideways, or use the left and right arrow keys, to turn it' }));\n  function placeGrips(d) {\n    Object.keys(grips).forEach((k) => {\n      const g = grips[k], on = !finished && !!d.show && !!GRIP_PIC[k][d.pic];\n      const p = k === 'B' ? REC.Bpx : REC.Apx;\n      g.style.display = on && p ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (on && p) { g.setAttribute('cx', r3(p[0])); g.setAttribute('cy', r3(p[1])); }\n    });\n    const tOn = !finished && /^three/.test(d.pic);\n    turnGrip.style.display = tOn ? '' : 'none';\n    turnGrip.setAttribute('tabindex', tOn ? '0' : '-1');\n    if (tOn) { turnGrip.setAttribute('y', G.ly0); turnGrip.setAttribute('width', 340); turnGrip.setAttribute('height', G.ly1 - G.ly0); }\n  }\n  function changed() {\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    K.reveal(); K.refresh();\n  }\n  function setTip(k, v) {\n    const w = [K.clamp(Math.round(v[0]), G.x0, G.x1), K.clamp(Math.round(v[1]), G.y0, G.y1)];\n    if (!w[0] && !w[1]) return;\n    S[cur()][k] = w; changed();\n  }\n  const clampAng = (a) => (a < 0 ? (a < -90 ? 180 : 0) : K.clamp(a, 0, 180));\n  // A whole number of degrees; a drag lands exactly on 90° (and the rope on 30°) when it comes near.\n  function setTh(a, snap) { let t = Math.round(clampAng(a)); if (snap && Math.abs(t - 90) <= 3) t = 90; S[cur()].th = t; changed(); }\n  function setRope(a, snap) {\n    let t = Math.round(clampAng(a));\n    if (snap) { if (Math.abs(t - 30) <= 3) t = 30; else if (Math.abs(t - 90) <= 3) t = 90; }\n    S[cur()].rope = t; changed();\n  }\n  function svgAt(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    return [q.x, q.y];\n  }\n  let held = null;\n  const onPic = (k) => !finished && !!STEPS[cur()].show && !!GRIP_PIC[k][STEPS[cur()].pic];\n  function moveTo(k, q) {\n    const d = STEPS[cur()];\n    if (d.pic === 'swing') { setTh(Math.atan2(G.oy - q[1], q[0] - G.ox) / RAD, true); return; }\n    if (d.pic === 'rail') { setRope(Math.atan2(G.P[1] - q[1], q[0] - G.P[0]) / RAD, true); return; }\n    setTip(k, [(q[0] - G.ox) / G.u, (G.oy - q[1]) / G.u]);\n  }\n  Object.keys(grips).forEach((k) => {\n    const g = grips[k];\n    g.addEventListener('pointerdown', (e) => {\n      if (!onPic(k)) return;\n      const q = svgAt(e);\n      if (!q) return;\n      held = { id: e.pointerId, k };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n      e.preventDefault();\n      moveTo(k, q);\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.k !== k || !onPic(k)) return;\n      const q = svgAt(e);\n      if (q) moveTo(k, q);\n    });\n    g.addEventListener('pointerup', (e) => { if (held && held.id === e.pointerId) held = null; });\n    g.addEventListener('pointercancel', (e) => { if (held && held.id === e.pointerId) held = null; });\n    g.addEventListener('lostpointercapture', () => { held = null; });\n    g.addEventListener('keydown', (e) => {\n      if (!onPic(k)) return;\n      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];\n      if (!by) return;\n      e.preventDefault();\n      const d = STEPS[cur()], st = S[cur()], turn = 5 * (by[1] || -by[0]);\n      if (d.pic === 'swing') { setTh((st.th == null ? 135 : st.th) + turn, false); return; }\n      if (d.pic === 'rail') { setRope((st.rope == null ? 30 : st.rope) + turn, false); return; }\n      const base = st[k] || (k === 'A' ? [3, 4] : d.pic === 'parts' ? [4, 3] : [4, 0]);\n      setTip(k, add(base, by));\n    });\n  });\n\n  // The 3-D pictures turn when he drags across them, within a range that keeps every part in view.\n  let turnHeld = null;\n  const turnOn = () => !finished && /^three/.test(STEPS[cur()].pic);\n  const alNow = () => { const st = S[cur()]; return st.al != null ? st.al : STEPS[cur()].geo.al; };\n  function setAl(a) { const g = STEPS[cur()].geo; S[cur()].al = K.clamp(Math.round(a), g.amin, g.amax); changed(); }\n  turnGrip.addEventListener('pointerdown', (e) => {\n    if (!turnOn()) return;\n    turnHeld = { id: e.pointerId, x: e.clientX, al: alNow() };\n    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the picture */ }\n  });\n  turnGrip.addEventListener('pointermove', (e) => { if (turnHeld && turnHeld.id === e.pointerId && turnOn()) setAl(turnHeld.al - (e.clientX - turnHeld.x) * 0.4); });\n  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((t) => turnGrip.addEventListener(t, () => { turnHeld = null; }));\n  turnGrip.addEventListener('keydown', (e) => {\n    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];\n    if (!by || !turnOn()) return;\n    e.preventDefault();\n    setAl(alNow() + by);\n  });\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = cur();\n    const d = STEPS[i], st = S[i];\n    G = d.geo;\n    art.textContent = '';\n    into = null; BOX = []; SEG = [];\n    REC = { texts: [], bad: 0, band: null, dot: null, sU: null, shadowDot: false, F: null, Apx: null, Bpx: null, aV: null, bV: null, th: null, W: null, Fv: null, dv: null, pw: null, wedgeText: null, crowd: 0 };\n    svg.setAttribute('viewBox', '0 0 340 ' + (G.hd + 26 + (G.rows - 1) * 28 + 14));\n    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));\n    placeGrips(d);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { Object.assign(st, { A: null, B: null, th: null, rope: null, al: null }); play(d.dur); }\n      else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    const act = el('act');\n    write(act, d.act || '');\n    act.hidden = finished || !d.act;\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      vecs(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const atSt = (pic, o) => { const i = atPic(pic); return drawn(i, o === 'solved' ? solved(i) : Object.assign(blank(), o || {})); };\n\n  K.check('The scalar product of two vectors is obtained by multiplying their magnitudes with the cosine of the angle between them: wherever either tip is dragged, the dot product drawn is the two sizes times the cosine of the angle between the drawn arrows, its readout says so, and adding up the parts gives the same number', () => {\n    const i = atPic('shadow'), O = [GA.ox, GA.oy];\n    const test = (A, B) => {\n      const r = drawn(i, Object.assign(blank(), { A, B })), va = sub(r.Apx, O), vb = sub(r.Bpx, O);\n      const ang = Math.acos(K.clamp(dotv(va, vb) / (hyp(va) * hyp(vb)), -1, 1)), want = hyp(A) * hyp(B) * Math.cos(ang);\n      return K.near(r.dot, want, 1e-6) && K.near(r.dot, A[0] * B[0] + A[1] * B[1], 1e-9) && r.band.main === num(want) &&\n        r.band.items[0] === sizesText(A, B) && r.band.items[1] === partsText(A, B);\n    };\n    for (let x = GA.x0; x <= GA.x1; x++) for (let y = GA.y0; y <= GA.y1; y++) {\n      if (!x && !y) continue;\n      if (!test([x, y], [4, 0]) || !test([3, 4], [x, y])) return false;\n    }\n    return true;\n  }, { source: SRC_SUM });\n  K.check('The dot product is a scalar while the cross product is a vector: every dot product worked out on screen is a plain number with no i, j or k, and the answer written as an arrow is marked wrong and drawn in red', () => {\n    const plain = STEPS.every((d, i) => { const r = drawn(i, d.show ? blank() : solved(i)); return !!r.band && r.band.main !== '?' && !/[ijk]/.test(r.band.main); });\n    const j = atPic('shadowq'), dq = STEPS[j];\n    return plain && dq.want !== '18i' && dq.opts.indexOf('18i') >= 0 && drawn(j, wrongSt(j, '18i')).bad > 0;\n  }, { source: SRC_PROD });\n  K.check('The scalar product of orthogonal vectors vanishes and the scalar product of antiparallel vectors is negative: arrows square to each other cast only a dot of shadow and give nothing, and arrows pointing opposite ways give a negative number', () => {\n    const r90 = atSt('swing', { th: 90 }), r180 = atSt('swing', { th: 180 });\n    if (r90.dot !== 0 || !r90.shadowDot || r90.band.main !== '0' || !(r180.dot < 0) || !(r180.sU < 0)) return false;\n    const q = atPic('square'), rq = drawn(q, solved(q)), rb = drawn(q, wrongSt(q, '−2i − 1j'));\n    if (rq.dot !== 0 || !rq.shadowDot || !(rb.dot < 0)) return false;\n    const sq = atSt('shadow', { A: [2, 1], B: [-1, 2] }), op = atSt('shadow', { A: [4, 1], B: [-4, -1] });\n    return sq.dot === 0 && sq.shadowDot && op.dot < 0 && op.sU < 0 && !op.shadowDot;\n  }, { source: SRC_SUM });\n  K.check('The work that a force performs while causing a displacement is the scalar product of the force vector with the displacement vector: at every angle the rope can be swung to, the work drawn is the pull dotted with the move, and so it is for the other ropes', () => {\n    const i = atPic('rail');\n    for (let th = 0; th <= 180; th += 5) {\n      const r = drawn(i, Object.assign(blank(), { rope: th })), want = r.Fv[0] * r.dv[0] + r.Fv[1] * r.dv[1];\n      if (!K.near(r.W, want, 1e-9) || !K.near(hyp(r.Fv), 200, 1e-9) || r.band.main !== num(want) + ' J') return false;\n    }\n    const rq = atSt('railq', 'solved'), rc = atSt('crate', 'solved');\n    return K.near(rq.W, dotv([150, 200], [4, 0]), 1e-9) && K.near(rc.W, dotv([-40, 30], [3, 0]), 1e-9) && rq.band.main === num(rq.W) + ' J' && rc.band.main === num(rc.W) + ' J';\n  }, { source: SRC_PROD });\n  K.check('Every number follows from the rule: shadow 3 and 3 × 4 = 12; 3 × 6 = 18; 20 at 0°, 0 at 90°, −20 at 180°; 5 × 4 × cos 120° = −10; 12 + 12 = 24 at 16.26°; 2 − 2 = 0; 2 + 6 + 12 = 20 and 20 ÷ 21 gives 17.75°; cos⁻¹(4 ÷ 9) = 63.61°; 200 × 5 × cos 30° = 866.03 J with a 173.21 N shadow; 150 × 4 = 600 J; 230 × 23 × 0.8 = 4232 W; −40 × 3 = −120 J; and every wrong answer offered is a slip worked from the same values', () => {\n    const hasT = (r, s) => r.texts.indexOf(s) >= 0;\n    const B = (r, main, items) => !!r.band && r.band.main === main && items.every((s, k) => r.band.items[k] === s);\n    const r1 = atSt('shadow'); if (!B(r1, '12', ['5 × 4 × cos 53.13°', '3 × 4 + 4 × 0']) || !hasT(r1, 'shadow 3')) return false;\n    const r2 = atSt('shadowq', 'solved'); if (!B(r2, '18', ['5 × 6 × cos 53.13°', '3 × 6 + 4 × 0']) || !hasT(r2, 'shadow 3')) return false;\n    if (atSt('swing', { th: 0 }).band.main !== '20' || !hasT(atSt('swing', { th: 90 }), 'shadow 0')) return false;\n    const r3 = atSt('swing', { th: 180 }); if (!B(r3, '−20', ['5 × 4 × cos 180°', '−5 × 4 + 0 × 0'])) return false;\n    const r4 = atSt('swingq', 'solved'); if (!B(r4, '−10', ['5 × 4 × cos 120°', '−2.5 × 4 + 4.33 × 0']) || !hasT(r4, 'shadow −2.5')) return false;\n    const r5 = atSt('parts'); if (!B(r5, '24', ['5 × 5 × cos 16.26°', '3 × 4 + 4 × 3']) || !hasT(r5, 'i·i = 1') || !hasT(r5, 'i·j = 0') || !hasT(r5, 'shadow 4.8')) return false;\n    const r6 = atSt('square', 'solved'); if (!B(r6, '0', ['2.24 × 2.24 × cos 90°', '2 × 1 + 1 × (−2)']) || !hasT(r6, 'shadow 0')) return false;\n    const r7 = atSt('three'); if (!B(r7, '17.75°', ['2 × 1 + 3 × 2 + 6 × 2 = 20', '7 × 3 = 21', '20 ÷ 21 = 0.95'])) return false;\n    const r8 = atSt('threeq', 'solved'); if (!B(r8, '63.61°', ['2 × 2 + 2 × (−1) + 1 × 2 = 4', '3 × 3 = 9', '4 ÷ 9 = 0.44'])) return false;\n    const r9 = atSt('rail'); if (!B(r9, '866.03 J', ['200 × 5 × cos 30°']) || !hasT(r9, 'shadow 173.21 N')) return false;\n    const r10 = atSt('railq', 'solved'); if (!B(r10, '600 J', ['250 × 4 × cos 53.13°', '150 × 4 + 200 × 0']) || !hasT(r10, 'shadow 150 N')) return false;\n    const r11 = atSt('power', 'solved'); if (!B(r11, '4232 W', ['230 × 23 × 0.8']) || !hasT(r11, 'in step 18.4 A')) return false;\n    const r12 = atSt('crate', 'solved'); if (!B(r12, '−120 J', ['50 × 3 × cos 143.13°', '−40 × 3 + 30 × 0']) || !hasT(r12, 'shadow −40 N')) return false;\n    const o = (pic) => STEPS[atPic(pic)].opts;\n    return o('shadowq').indexOf(num(5 * 6)) >= 0 && o('swingq').indexOf(num(20 * sind(120))) >= 0 && o('swingq').indexOf(num(-20 * cosd(120))) >= 0 &&\n      o('threeq').indexOf(num(Math.asin(4 / 9) / RAD) + '°') >= 0 && o('threeq').indexOf(num(Math.acos(4 / 6) / RAD) + '°') >= 0 &&\n      o('railq').indexOf(num(250 * 4) + ' J') >= 0 && o('railq').indexOf(num(200 * 4) + ' J') >= 0 &&\n      o('power').indexOf(num(230 * 23) + ' W') >= 0 && o('power').indexOf(num(230 * 23 * 0.6) + ' W') >= 0 &&\n      o('crate').indexOf(num(40 * 3) + ' J') >= 0 && o('crate').indexOf(num(50 * 3) + ' J') >= 0;\n  });\n  K.check('As a swings from lying along b to pointing back the other way, its shadow on b\\'s line shrinks at every step, is only a dot when the two are square, and falls behind the start only once they lean apart', () => {\n    const i = atPic('swing');\n    let last = Infinity;\n    for (let th = 0; th <= 180; th += 2) {\n      const r = drawn(i, Object.assign(blank(), { th }));\n      if (!(r.sU < last) || r.shadowDot !== (th === 90) || (r.sU < -1e-12) !== (th > 90)) return false;\n      last = r.sU;\n    }\n    return true;\n  });\n  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>\n    DO.every((i) => {\n      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);\n      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&\n        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;\n    }));\n  K.check('Before Check no puzzle\\'s picture shows its answer, and a right answer shows it', () =>\n    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));\n  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion within 2.5 s', () => {\n    const timed = (i, st, limit) => {\n      const keepS = S[i], keepT = T;\n      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; T = keepT; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&\n        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));\n    });\n    paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The shadow on the line",
+  "brief": "The one thing you should see is a's shadow on b's line shrinking to a dot at 90°, then falling behind the start as the dot product turns negative, when you swing a round.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The scalar product of two vectors is obtained by multiplying their magnitudes with the cosine of the angle between them: wherever either tip is dragged, the dot product drawn is the two sizes times the cosine of the angle between the drawn arrows, its readout says so, and adding up the parts gives the same number",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-1/pages/2-summary"
+    },
+    {
+     "label": "The dot product is a scalar while the cross product is a vector: every dot product worked out on screen is a plain number with no i, j or k, and the answer written as an arrow is marked wrong and drawn in red",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors"
+    },
+    {
+     "label": "The scalar product of orthogonal vectors vanishes and the scalar product of antiparallel vectors is negative: arrows square to each other cast only a dot of shadow and give nothing, and arrows pointing opposite ways give a negative number",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-1/pages/2-summary"
+    },
+    {
+     "label": "The work that a force performs while causing a displacement is the scalar product of the force vector with the displacement vector: at every angle the rope can be swung to, the work drawn is the pull dotted with the move, and so it is for the other ropes",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors"
+    },
+    {
+     "label": "Every number follows from the rule: shadow 3 and 3 × 4 = 12; 3 × 6 = 18; 20 at 0°, 0 at 90°, −20 at 180°; 5 × 4 × cos 120° = −10; 12 + 12 = 24 at 16.26°; 2 − 2 = 0; 2 + 6 + 12 = 20 and 20 ÷ 21 gives 17.75°; cos⁻¹(4 ÷ 9) = 63.61°; 200 × 5 × cos 30° = 866.03 J with a 173.21 N shadow; 150 × 4 = 600 J; 230 × 23 × 0.8 = 4232 W; −40 × 3 = −120 J; and every wrong answer offered is a slip worked from the same values",
+     "ok": true
+    },
+    {
+     "label": "As a swings from lying along b to pointing back the other way, its shadow on b's line shrinks at every step, is only a dot when the two are square, and falls behind the start only once they lean apart",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without",
+     "ok": true
+    },
+    {
+     "label": "Before Check no puzzle's picture shows its answer, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The shadow",
+      "A longer b",
+      "Swing it round",
+      "At 120°",
+      "Part by part",
+      "Square to it",
+      "The angle in 3-D",
+      "Angle between",
+      "Rope and rail",
+      "Pull by parts",
+      "Volts and amps",
+      "Pulling back"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T02:37:49.662Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"Straight down onto b's line\" gives the wrong shadow once b or a tilts, as in b's shadow on a = 3i + 4j; the shadow must fall square to the line. And \"a straight distance d\" makes d a length, but F·d needs d as the move's arrow."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Either tip can be dragged, so b's line can tilt; a light \"straight down\" would then cast a slanted, wrong shadow. The shadow that gives |a| cos θ falls square to b's line."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "Same as above: the light must shine square onto b's line, not straight down, for the shadow to be |a| cos θ when b is tilted."
+   },
+   {
+    "path": "practice.text",
+    "problem": "cos⁻¹(0.86) is 30.68°, not 30.51°; 30.51° comes from the unrounded 560 ÷ 650 = 0.8615, so Dan recomputing from the shown 0.86 gets a different angle. Mark 0.86 as rounded."
+   }
+  ],
+  "notes": [
+   {
+    "path": "interactive.numbers",
+    "problem": "Step 7 shows cos θ as 0.95 beside an angle of 17.75°, but cos⁻¹(0.95) is 18.19°; 17.75° comes from the unrounded 20 ÷ 21 = 0.952. The build should show cos θ as about 0.95 (or 0.952) and work the angle from 20 ÷ 21."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

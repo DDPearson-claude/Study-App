@@ -1,0 +1,654 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T02:37:49.662Z",
+ "startedAt": "2026-10-25T02:37:49.662Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Vectors and phasors",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the chain of three phase currents fail to close, leaving a gap that is the neutral current, when you drag one current smaller than the other two.",
+   "title": "The fixed arrow and the turning arrow",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Two pictures sit side by side. On the left, a 3 kN pull on a ring stays put. Its angle is the way the rope runs. On the right, an arrow turns round its tail once every cycle. Its height at each instant is its shadow on an upright line. That shadow traces a sine wave beside it. A freeze button stops it. Frozen, it is the fixed arrow you write as r∠θ. Its angle then marks a moment in the cycle. It is not a direction. Frozen at 45°, it is 2.5 ms into the cycle. On a 50 Hz supply, one turn takes 20 ms. The screens run like this. First come the two arrows, one still and one turning. A puzzle puts a current 90° behind the voltage. It asks how much later the current peaks. Next, two 3 kN pulls at 0° and 90° add nose to tail to 4.24 kN. Two 3 A currents a quarter turn apart add the same way, to 4.24 A. At every instant, the sum's height is their two heights added. Both arrows turn together, so their sum turns with them. A puzzle adds 6 A in step with the voltage to 8 A a quarter turn behind. Then a 50 Hz arrow and a 150 Hz arrow start together. The faster one gains. So the angle between them keeps changing. A puzzle asks how far apart they are after 5 ms. Next, a phasor is shown as a number. Divide the voltage by the current to get the impedance. You divide the sizes and take away the angles. So 230∠0° V ÷ 10∠−30° A gives 23∠30° Ω. A puzzle divides 230∠0° V by 5∠−60° A. After that, three phase currents leave a star point at 0°, −120° and 120°. Each one's size can be dragged. Beside them, the same arrows are laid nose to tail. Three equal 10 A currents close into a triangle. The neutral readout shows 0 A. Shorten one, and the chain falls short of closing. The gap is the neutral current, worked out by its parts. A puzzle has 10, 10 and 4 A. Two mixed puzzles end it. One has 10, 8 and 6 A. The other takes 230∠−120° V away from 230∠0° V. That gives the voltage between two lines. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn too. You can see where it goes wrong.",
+   "ignores": "The waves are pure sines at one frequency. Real electronic loads also draw harmonics. Some of those add up in the neutral, even on a balanced board. Each load is taken at the same power factor, so the three currents stay 120° apart. Loads at different power factors shift the angles too. The turning arrow is drawn at the wave's peak. So its shadow is the value at each instant. The three-phase arrows are drawn at rms. Shrinking every arrow by the same factor changes no angle. It does not change the shape of any sum either. The supply is taken as 50 Hz. The puzzles use example values, rounded to two decimal places.",
+   "numbers": [
+    {
+     "label": "Step control's first screen",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Step control's last screen",
+     "value": 11,
+     "kind": "control"
+    },
+    {
+     "label": "Step 1 still pull on the ring, kN",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example supply frequency, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "One turn at 50 Hz, 1000 ÷ 50, ms",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 1 turning arrow's angle when frozen, degrees",
+     "value": 45,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 1 time into the cycle, 20 × 45 ÷ 360, ms",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 2 current's lag behind the voltage, degrees",
+     "value": 90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 2 delay, 20 × 90 ÷ 360, ms",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 2 wrong pick, degrees read as ms",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 each pull, kN",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 first pull's angle, degrees",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 second pull's angle, degrees",
+     "value": 90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 resultant pull, √(3² + 3²), kN",
+     "value": 4.24,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 resultant pull's angle, degrees",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 each current, A",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 second current's angle, degrees",
+     "value": -90,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 3 total current, √(3² + 3²), A",
+     "value": 4.24,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 3 total current's angle, degrees",
+     "value": -45,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 current in step with the voltage, A",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 current a quarter turn behind, A",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 total, √(6² + 8²), A",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 wrong pick, sizes added, A",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 wrong pick, 8 − 6, A",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 5 faster arrow's frequency, Hz",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 5 speed ratio, 150 ÷ 50",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 time after the start, ms",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 6 50 Hz arrow's turn, degrees",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 150 Hz arrow's turn, degrees",
+     "value": 270,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 angle between them, degrees",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 wrong pick, unchanged from the start, degrees",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 wrong pick, degrees",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 voltage, V",
+     "value": 230,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 7 voltage's angle, degrees",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 7 current, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 7 current's angle, degrees",
+     "value": -30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 7 impedance size, 230 ÷ 10, Ω",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 impedance angle, 0 − (−30), degrees",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 current, A",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 8 current's angle, degrees",
+     "value": -60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 8 impedance size, 230 ÷ 5, Ω",
+     "value": 46,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 impedance angle, degrees",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 wrong pick, 230 × 5, Ω",
+     "value": 1150,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 wrong pick's angle, degrees",
+     "value": -60,
+     "kind": "computed"
+    },
+    {
+     "label": "Spacing of three phases, degrees",
+     "value": 120,
+     "kind": "constant"
+    },
+    {
+     "label": "L2's angle, degrees",
+     "value": -120,
+     "kind": "constant"
+    },
+    {
+     "label": "Step 9 balanced current on each line, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 9 balanced neutral current, A",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 L3's current, A",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 10 L2's across part, 10 cos(−120°), A",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 L3's across part, 4 cos 120°, A",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 across total, 10 − 5 − 2, A",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 L2's up part, 10 sin(−120°), A",
+     "value": -8.66,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 L3's up part, 4 sin 120°, A",
+     "value": 3.46,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 up total, A",
+     "value": -5.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 neutral current, √(3² + 5.20²), A",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 10 wrong pick, sizes added, A",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 L2's current, A",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 L3's current, A",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 across total, 10 − 4 − 3, A",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 up total, −6.93 + 5.20, A",
+     "value": -1.73,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 neutral current, √(3² + 1.73²), A",
+     "value": 3.46,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 wrong pick, largest minus smallest, A",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 L1's voltage, V",
+     "value": 230,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 across part, 230 + 115, V",
+     "value": 345,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 up part, 0 + 199.19, V",
+     "value": 199.19,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 line voltage, √(345² + 199.19²), V",
+     "value": 398,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 line voltage's angle, degrees",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 √3 × 230, V",
+     "value": 398,
+     "kind": "computed"
+    },
+    {
+     "label": "Nominal three-phase line voltage, V",
+     "value": 400,
+     "kind": "constant"
+    },
+    {
+     "label": "Step 12 wrong pick, the sum's size, V",
+     "value": 230,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 wrong pick, the sum's angle, degrees",
+     "value": -60,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 wrong pick, sizes added, V",
+     "value": 460,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy hour hands' gap for one hour, 360 ÷ 12, degrees",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice L1 current, A",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice L2 current, A",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice L3 current, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice L2's across part, 15 cos(−120°), A",
+     "value": -7.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice L3's across part, 10 cos 120°, A",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice across total, A",
+     "value": 7.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice L2's up part, 15 sin(−120°), A",
+     "value": -12.99,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice L3's up part, 10 sin 120°, A",
+     "value": 8.66,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice up total, A",
+     "value": -4.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice neutral current, √(7.5² + 4.33²), A",
+     "value": 8.66,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice neutral current's angle, degrees",
+     "value": -30,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice sizes added, A",
+     "value": 45,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A phasor is drawn like a vector and adds like one. But its angle marks a moment in time, not a direction in space. It is also a complex number, so you can divide it.\n\nStart with a force arrow. A 3 kN pull on a ring points somewhere real. Its angle says which way the rope runs. Now take an arrow that turns round its tail once every cycle. Its height at each instant traces the sine wave of a voltage. Frozen at one instant, it is the fixed arrow you write as r∠θ. On a 50 Hz supply, one turn takes 20 ms. Say a current is 90° behind the voltage. It peaks a quarter turn later, 5 ms after the voltage. The angle measures that delay. Nothing in the cable points that way.\n\nTurn two arrows together and their nose-to-tail sum turns with them. At every instant, the sum's height is the two heights added. That is why phasors add nose to tail, exactly as forces do.[^1] Take 6 A in step with the voltage and 8 A a quarter turn behind. Together they give √(6² + 8²) = 10 A, not 14 A. This only works when every arrow turns at the same speed. A 150 Hz arrow turns three times as fast as a 50 Hz one. So the angle between them changes from one instant to the next. They cannot share a diagram.[^2] Being a number gives a phasor one thing a vector lacks. You can divide one phasor by another. Ordinary vector rules give no way to divide one vector by another. To divide, divide the sizes and take away the angles. So 230∠0° V ÷ 10∠−30° A gives an impedance of 23∠30° Ω. But the dot product of two phasors does not give another phasor.[^3]\n\nThree-phase is the ring of pulls again. Lay three equal currents 120° apart nose to tail, and they close into a triangle. What flows out on the lines must come back. So the neutral carries whatever the three lines do not cancel. On a closed chain, that is nothing. Now keep L1 and L2 at 10 A and shrink L3 to 4 A. The chain falls short of closing. The gap is the neutral current. The across parts give 10 − 5 − 2 = 3 A. The up parts give 0 − 8.66 + 3.46 = −5.20 A. So the neutral carries √(3² + 5.20²) = 6 A. A board with 10, 10 and 4 A sends 6 A back on the neutral, not 24 A. Its currents add as arrows. This is the ideal case of pure sine waves at one frequency. Real loads add harmonics, and some of those add up in the neutral.\n\n**A phasor adds like a vector. Its angle is a shift in time, and as a number it can be divided.**"
+  },
+  "analogy": {
+   "text": "Picture two clocks on a bulkhead. One is set an hour behind the other. Their hour hands point 30° apart. That angle means an hour, not a direction. Both run at the same speed, so the gap stays 30° all day. Now fit one with a faster movement, and the gap drifts every minute. Waves of different frequencies drift apart in just that way.",
+   "breaks": "A clock hand only tells the time. Its length means nothing. Two times never add to make a third. A phasor's length is the wave's size. And phasors add nose to tail."
+  },
+  "practice": {
+   "text": "Work it out on paper first. To check it on a live board, put a clamp meter round the neutral. Follow your safe system of work.\n\n- Check that every wave has the same frequency. Only then can they share one diagram.\n- Pick one phasor as the reference at 0°, such as L1's voltage. Measure every other phasor's angle from it.\n- To add, lay the arrows nose to tail. Or add their across parts and their up parts.\n- To take away, turn the second arrow round and add it.\n- Find the size with Pythagoras. Find the angle with tan⁻¹, and check which quarter it lands in.\n- To divide, divide the sizes and take away the angles.\n\n**Rule of thumb:** Take pure sine currents 120° apart. Equal currents cancel, so the neutral carries nothing. When two lines carry the same current, the neutral carries the difference between that current and the third. With only one line loaded, the neutral carries all of its current. Harmonics from electronic loads can still add up in the neutral.\n\n**Worked example:** Say L1 carries 20 A at 0°, L2 15 A at −120° and L3 10 A at 120°. Across: 20 − 7.5 − 5 = 7.5 A. Up: 0 − 12.99 + 8.66 = −4.33 A. The neutral carries √(7.5² + 4.33²) = 8.66 A. Its angle is tan⁻¹(−4.33 ÷ 7.5) = −30°. Adding the sizes would wrongly give 45 A.\n\n**Common mistakes**\n- Adding the sizes. 10, 10 and 4 A leave 6 A on the neutral, not 24 A.\n- Using the difference shortcut when all three differ. 10, 8 and 6 A leave 3.46 A, not 4 A.\n- Drawing waves of different frequencies on one diagram. The angles between them drift.\n- Reading a phasor's angle as a direction in the cable. It is a delay in the cycle.\n- Adding when you should take away. The voltage between two 230 V lines is their difference, 398 V. Their sum is only 230 V.\n- Multiplying V and I as complex numbers to get power. That adds their angles. True power uses the angle between them, in VI cos φ."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": {
+   "views": [
+    {
+     "label": "Drawn at the peak",
+     "text": "The arrow is as long as the wave's peak. Its height at each instant is then the wave's value at that instant. The turning arrow is drawn this way."
+    },
+    {
+     "label": "Drawn at rms",
+     "text": "The arrow is as long as the rms value a meter reads. The 230 V and three-phase arrows are drawn this way. Scaling every arrow alike changes no angle and no sum's shape."
+    }
+   ]
+  },
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "4 AC Circuits Phasors, Impedance and Transformers",
+    "url": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf",
+    "quote": "We can add phasor voltages and phasor currents graphically. We do this exactly the same as if we were adding vectors."
+   },
+   {
+    "n": 2,
+    "title": "Phasor Diagrams and Phasor Algebra used in AC Circuits",
+    "url": "https://www.electronics-tutorials.ws/accircuits/phasors.html",
+    "quote": "Sinusoids of different frequencies cannot be represented on the same phasor diagram due to the different speed of the vectors. At any instant in time the phase angle between them will be different."
+   },
+   {
+    "n": 3,
+    "title": "4 AC Circuits Phasors, Impedance and Transformers",
+    "url": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf",
+    "quote": "We cannot apply curl, divergence, and dot product to phasore and get other phasors."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  #stepbox > .act { margin-top: 6px; }\n  .act { color: var(--k-muted); font-size: .95rem; text-align: center; }\n  .nw { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .circ { fill: none; stroke: var(--k-line); stroke-width: 1.2; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .org { fill: var(--k-ink); }\n  .scene .sh { stroke-width: 3.5; stroke-linecap: round; fill: none; }\n  .scene .vi .sh { stroke: var(--k-ink); stroke-width: 3; }\n  .scene .vi .hd { fill: var(--k-ink); }\n  .scene .va .sh { stroke: var(--k-cat1); }\n  .scene .va .hd { fill: var(--k-cat1); }\n  .scene .vb .sh { stroke: var(--k-cat2); }\n  .scene .vb .hd { fill: var(--k-cat2); }\n  .scene .vc .sh { stroke: var(--k-cat3); }\n  .scene .vc .hd { fill: var(--k-cat3); }\n  .scene .vp .sh { stroke: var(--k-accent2); }\n  .scene .vp .hd { fill: var(--k-accent2); }\n  .scene .cp .sh { stroke: var(--k-cat2); stroke-dasharray: 6 4; stroke-linecap: butt; }\n  .scene .cp .hd { fill: var(--k-cat2); }\n  .scene .bad .sh { stroke: var(--k-warn); }\n  .scene .bad .hd { fill: var(--k-warn); }\n  .scene .wv1 { fill: none; stroke: var(--k-cat1); stroke-width: 2; }\n  .scene .wv2 { fill: none; stroke: var(--k-cat2); stroke-width: 2; }\n  .scene .wvp { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; }\n  .scene .shd { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 7; stroke-linecap: butt; }\n  .scene .shd1 { stroke: var(--k-cat1); stroke-opacity: .5; stroke-width: 6; stroke-linecap: butt; }\n  .scene .shd2 { stroke: var(--k-cat2); stroke-opacity: .5; stroke-width: 6; stroke-linecap: butt; }\n  .scene .bl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }\n  .scene .ray { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }\n  .scene .now { stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .scene .gd { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 3 3; }\n  .scene .gd.bad { stroke: var(--k-warn); }\n  .scene .brk { stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .brk.ok { stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .brk.bad { stroke: var(--k-warn); stroke-width: 2; }\n  .scene .badln { stroke: var(--k-warn); stroke-width: 4; stroke-linecap: round; }\n  .scene .badarc { fill: none; stroke: var(--k-warn); stroke-width: 1.8; stroke-dasharray: 4 4; }\n  .scene .ram { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }\n  .scene .wedge { fill: var(--k-fill1); stroke: none; }\n  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .arc2 { fill: none; stroke: var(--k-cat2); stroke-width: 1.5; }\n  .scene .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }\n  .scene .rope { stroke: var(--k-muted); stroke-width: 2.2; stroke-linecap: round; }\n  .scene .closed { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .dot1 { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dot2 { fill: var(--k-cat2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dotp { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dotbad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .pill { fill: var(--k-hl); stroke: none; }\n  .scene .sw { stroke-width: 3; stroke-linecap: butt; }\n  .scene .sw.k1 { stroke: var(--k-cat1); }\n  .scene .sw.k2 { stroke: var(--k-cat2); }\n  .scene .sw.k3 { stroke: var(--k-cat3); }\n  .scene .sw.kp { stroke: var(--k-accent2); }\n  .scene .sw.kcp { stroke: var(--k-cat2); stroke-dasharray: 5 3; }\n  .scene .sw.kshd { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 7; }\n  .scene .sw.kbl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }\n  .scene .sw.kray { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }\n  /* Every label carries a thin halo of what lies behind it, so a line behind it never cuts its letters. */\n  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene text.nohalo { stroke: none; }\n  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .sm.mu { fill: var(--k-muted); }\n  .scene .lb.ok, .scene .sm.ok { fill: var(--k-accent2); }\n  .scene .lb.bad, .scene .sm.bad { fill: var(--k-warn); }\n  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .rv { font: 700 18px var(--k-font); fill: var(--k-ink); }\n  .scene .rv2 { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .scene .rv3 { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must; no answer ever splits. */\n  .picks .k-btn { font-size: 1.1rem; min-height: 56px; flex: 1 1 6rem; white-space: nowrap; padding-inline: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A fixed force arrow beside an arrow that turns and traces its wave, then currents and voltages drawn as arrows. The values are made-up examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 290\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <p class=\"act\" id=\"act\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The turning arrows are drawn slowed down, since at 50 Hz each turn takes 20 ms.</p>\n\n<script>\n  const RAD = Math.PI / 180;\n  const Q3 = Math.sqrt(3) / 2, Q2 = Math.SQRT1_2;\n  // Exact values at the lesson's angles, so 10 cos 120° is exactly −5.\n  const EXC = { 0: 1, 30: Q3, 45: Q2, 60: 0.5, 90: 0, 120: -0.5, 135: -Q2, 150: -Q3, 180: -1, 210: -Q3, 225: -Q2, 240: -0.5, 270: 0, 300: 0.5, 315: Q2, 330: Q3 };\n  const EXS = { 0: 0, 30: 0.5, 45: Q2, 60: Q3, 90: 1, 120: Q3, 135: Q2, 150: 0.5, 180: 0, 210: -0.5, 225: -Q2, 240: -Q3, 270: -1, 300: -Q3, 315: -Q2, 330: -0.5 };\n  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);\n  const wrapD = (a) => ((a % 360) + 360) % 360;\n  const keyOf = (a) => Math.round(wrapD(a) * 1e6) / 1e6;\n  const cosd = (a) => (has(EXC, keyOf(a)) ? EXC[keyOf(a)] : Math.cos(a * RAD));\n  const sind = (a) => (has(EXS, keyOf(a)) ? EXS[keyOf(a)] : Math.sin(a * RAD));\n  // Up to two decimals: 12, 4.5, −60.\n  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }\n  // As the lesson writes a worked value: exact ones plainly (10, 2.5), rounded ones to two places (5.20, 3.46).\n  function fx(v) {\n    const r = Math.round(v * 100) / 100;\n    if (Math.abs(r) < 1e-9) return '0';\n    const s = Math.abs(v - r) < 1e-9 ? String(Math.abs(r)) : Math.abs(r).toFixed(2);\n    return (r < 0 ? '−' : '') + s;\n  }\n  const polar = (r, a, u) => fx(r) + '∠' + num(a) + '°' + (u ? ' ' + u : '');\n  const par = (s) => (s.charAt(0) === '−' ? '(' + s + ')' : s);\n  const add = (p, q) => [p[0] + q[0], p[1] + q[1]];\n  const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];\n  const scale = (p, s) => [p[0] * s, p[1] * s];\n  const hyp = (v) => Math.hypot(v[0], v[1]);\n  const lerp2 = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];\n  const dotv = (p, q) => p[0] * q[0] + p[1] * q[1];\n  const pol = (r, a) => [r * cosd(a), r * sind(a)];\n  // A point on screen from C, for an arrow v (y up) at s px a unit.\n  const P = (C, v, s) => [C[0] + v[0] * s, C[1] - v[1] * s];\n  // Nose to tail: the sum of the arrows, the same rule for pulls, currents and voltages.\n  const chainSum = (vs) => vs.reduce((a, b) => add(a, b), [0, 0]);\n  const ANG = [0, -120, 120], PH = ['va', 'vb', 'vc'];\n\n  // ---------- each screen's layout ----------\n  const GT = { R: [24, 142], C: [160, 118], r: 40, X0: 214, W: 118, ly0: 32, ly1: 208, h: 216 };\n  const GL = { C: [70, 112], rV: 44, rI: 30, X0: 128, W: 200, ly0: 30, ly1: 192, hd: 198, rows: 2 };\n  const GA = { F0: [16, 150], C: [160, 118], aS: 11, X0: 216, W: 118, ly0: 32, ly1: 200, hd: 206, rows: 2 };\n  const GS4 = { O: [96, 58], s: 12, ly0: 20, ly1: 172, hd: 178, rows: 2 };\n  const GF = { C: [66, 112], r1: 44, r3: 30, X0: 128, W: 204, ly0: 32, ly1: 200, hd: 206, rows: 2 };\n  const GD = { O: [50, 120], iS: 6, zS: 2, ly0: 30, ly1: 206, hd: 212, rows: 3 };\n  const GD8 = Object.assign({}, GD, { zS: 1.2 });\n  const GP = { S: [78, 112], s: 6, P0: [188, 84], ly0: 32, ly1: 190, hd: 196, rows: 3 };\n  const GV = { O: [70, 130], s: 0.3, ly0: 32, ly1: 206, hd: 212, rows: 3 };\n  [GL, GA, GS4, GF, GD, GD8, GP, GV].forEach((g) => { g.h = g.hd + 26 + (g.rows - 1) * 28 + 14; });\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. act: what he can do with it,\n  // shown under the picture. turn: the label of the button that sets the arrows turning; rate: how\n  // fast they turn, in ms of the cycle each second. A puzzle: task, opts (three answers), want,\n  // hints (one per wrong answer), why, reveal (a label only a right answer draws), fb (seconds of\n  // motion after a right and a wrong answer).\n  const STEPS = [\n    { show: true, name: 'Two arrows', pic: 'turn', geo: GT, dur: 4.8, turn: 'Turn it', rate: 8,\n      text: 'The pull\\'s angle is a direction. The turning arrow\\'s angle is a time. A 3 kN pull on a ring points the way its rope runs. Beside it, an arrow turns once a cycle, and its height traces a *sine wave*. Frozen at one instant, it is the *phasor*, the fixed arrow `r∠θ`. Frozen at 45°, it is 2.5 ms into the cycle.',\n      act: 'Press Turn it to set the arrow going, and Freeze to stop it.', actF: 'Press Freeze to stop the arrow where it is.' },\n    { kind: 'pick', name: 'How much later', pic: 'lag', geo: GL, fb: [1.8, 1.6],\n      task: 'A current is 90° behind the voltage. How much later does the current peak?',\n      opts: ['90 ms', '5 ms', '15 ms'], want: '5 ms', reveal: '5 ms',\n      hints: { '90 ms': 'Not quite. That reads degrees as milliseconds. 90° is a quarter turn, and a whole turn takes 20 ms.',\n        '15 ms': 'Not quite. That is three quarters of a turn. 90° behind is a quarter turn later.' },\n      why: 'A whole turn is 360° and takes 20 ms. 90° is a quarter of that. So the current peaks 20 × 90 ÷ 360 = 5 ms after the voltage. The angle measures a delay. Nothing in the cable points that way.' },\n    { show: true, name: 'Adding', pic: 'add', geo: GA, dur: 4.8, turn: 'Turn them', rate: 8,\n      text: 'Two 3 kN pulls, square to each other, add nose to tail to 4.24 kN. Two 3 A currents a quarter turn apart add the same way, to 4.24 A. At every instant the sum\\'s height is their two heights added. They turn together, so the sum turns with them.',\n      act: 'Press Turn them to set the currents going, and Freeze to stop them.', actF: 'Press Freeze to stop the currents where they are.' },\n    { kind: 'pick', name: 'Two currents', pic: 'sum', geo: GS4, fb: [1.6, 1.4],\n      task: '6 A flows in step with the voltage. Another 8 A is a quarter turn behind. What is the total current?',\n      opts: ['14 A', '2 A', '10 A'], want: '10 A', reveal: '10 A',\n      hints: { '14 A': 'Not quite. That adds the sizes, as if both peaked together. Lay them nose to tail.',\n        '2 A': 'Not quite. That is 8 − 6, as if they pulled opposite ways. They are a quarter turn apart.' },\n      why: 'Lay them nose to tail. The 8 A runs square to the 6 A. So the total is √(6² + 8²) = 10 A, not 14 A.' },\n    { show: true, name: 'Two speeds', pic: 'speeds', geo: GF, dur: 4.3, turn: 'Turn them', rate: 2.5,\n      text: 'A 50 Hz arrow and a 150 Hz arrow start together. The faster one turns three times as fast, so the angle between them keeps changing. That is why waves of different frequencies cannot share one phasor diagram.',\n      act: 'Press Turn them to run the arrows on, and Freeze to stop them.', actF: 'Press Freeze to stop the arrows where they are.' },\n    { kind: 'pick', name: 'After 5 ms', pic: 'speedsq', geo: GF, fb: [2.4, 2.0],\n      task: 'Both arrows start together at 0°. How far apart are they 5 ms later?',\n      opts: ['180°', '0°', '90°'], want: '180°', reveal: '180°',\n      hints: { '0°': 'Not quite. They start together, but the faster one gains on the slower one.',\n        '90°': 'Not quite. 90° is how far the 50 Hz arrow turns. The 150 Hz arrow turns three times as far.' },\n      why: 'In 5 ms the 50 Hz arrow makes a quarter turn, 90°. The 150 Hz arrow turns three times as far, 270°. So they are 270° − 90° = 180° apart.' },\n    { show: true, name: 'Dividing', pic: 'divide', geo: GD, dur: 4.2,\n      text: 'Written as a number, a phasor can be divided. A force arrow cannot be divided like this. Divide the sizes and take away the angles. So `230∠0° V` ÷ `10∠−30° A` gives an *impedance* of `23∠30° Ω`. From here the arrows are drawn at rms, the size a meter reads. The turning arrows were drawn at the peak, and drawings differ on which to use.',\n      act: 'Drag the tip of the current\\'s arrow to change the current.' },\n    { kind: 'pick', name: 'Divide it', pic: 'divideq', geo: GD8, fb: [1.9, 1.5],\n      task: 'Divide `230∠0° V` by `5∠−60° A`. What is the impedance?',\n      opts: ['1150∠−60° Ω', '46∠60° Ω', '46∠−60° Ω'], want: '46∠60° Ω', reveal: '46∠60° Ω',\n      hints: { '1150∠−60° Ω': 'Not quite. That multiplies. To divide, divide the sizes and take away the angles.',\n        '46∠−60° Ω': 'Not quite. The size is right. Now take the angles away: 0° − (−60°) = 60°.' },\n      why: 'Divide the sizes: 230 ÷ 5 = 46 Ω. Take away the angles: 0° − (−60°) = 60°. So the impedance is `46∠60° Ω`. Multiplying does the opposite. It multiplies the sizes and adds the angles. So V times I as numbers is not true power. True power uses the angle between them, in VI cos φ.' },\n    { show: true, name: 'Three phases', pic: 'star', geo: GP, dur: 4.9,\n      text: 'Three phase currents leave the star point 120° apart. Whatever the lines carry out must come back on the neutral. So the neutral carries their nose-to-tail sum. With pure 50 Hz sine waves, three equal 10 A currents close like the ring\\'s pulls, so the neutral carries 0 A. Shorten one and the chain falls short, leaving a gap that is the *neutral current*.',\n      act: 'Drag the tip of any current along its line.' },\n    { kind: 'pick', name: 'One line light', pic: 'starq', geo: GP, L: [10, 10, 4], fb: [1.8, 1.4], pv: { '24 A': 'line', '3 A': 'across' },\n      task: 'L1 and L2 carry 10 A each. L3 carries 4 A. What does the neutral carry?',\n      opts: ['24 A', '3 A', '6 A'], want: '6 A', reveal: '6 A',\n      hints: { '24 A': 'Not quite. That adds the sizes. The currents are 120° apart, so most of them cancel.',\n        '3 A': 'Not quite. That is only the across part. Add the up part too, then use Pythagoras.' },\n      why: 'Across: 10 − 5 − 2 = 3 A. Up: 0 − 8.66 + 3.46 = −5.20 A. So the neutral carries √(3² + 5.20²) = 6 A, not 24 A. When two lines match, the neutral carries the difference, 10 − 4 = 6 A.' },\n    { kind: 'pick', name: 'All three differ', pic: 'starq2', geo: GP, L: [10, 8, 6], fb: [1.8, 1.4], pv: { '4 A': 'diff', '24 A': 'line' },\n      task: 'Now L1 carries 10 A, L2 8 A and L3 6 A. What does the neutral carry?',\n      opts: ['3.46 A', '4 A', '24 A'], want: '3.46 A', reveal: '3.46 A',\n      hints: { '4 A': 'Not quite. The difference rule only works when two lines match. Here all three differ, so work it by parts.',\n        '24 A': 'Not quite. That adds the sizes. Lay the currents nose to tail instead.' },\n      why: 'Across: 10 − 4 − 3 = 3 A. Up: 0 − 6.93 + 5.20 = −1.73 A. So the neutral carries √(3² + 1.73²) = 3.46 A.' },\n    { kind: 'pick', name: 'Line to line', pic: 'line', geo: GV, fb: [2.0, 1.6],\n      task: 'Take `230∠−120° V` away from `230∠0° V`. What is the voltage between the two lines?',\n      opts: ['230∠−60° V', '398∠30° V', '460 V'], want: '398∠30° V', reveal: '398∠30° V',\n      hints: { '230∠−60° V': 'Not quite. That adds them. To take away, turn the second arrow round, then add.',\n        '460 V': 'Not quite. That adds the sizes, as if the arrows lay in line. Turn the second round and lay it nose to tail.' },\n      why: 'Turn `230∠−120° V` round to get `230∠60° V`, then add. Across: 230 + 115 = 345 V. Up: 0 + 199.19 = 199.19 V. So the line voltage is √(345² + 199.19²) = 398 V, at 30°. That is √3 × 230 V, the 400 V between lines you know from three-phase boards.' },\n  ];\n  const FINISH = 'A phasor adds like a vector. Its angle is a shift in time, and as a number it can be divided.';\n  // The lesson's sources, each cited only by a check that restates its quote.\n  const SRC1 = 'https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf';\n  const SRC2 = 'https://www.electronics-tutorials.ws/accircuits/phasors.html';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n  const atPic = (pic) => STEPS.findIndex((d) => d.pic === pic);\n\n  // ---------- each step's state ----------\n  // pick, res, why: a puzzle's answer, its result and the Why? note. ph: where he froze the turning\n  // arrows (ms into the cycle). I: the current he dragged to, [size, angle]. L: the three line\n  // currents he dragged to.\n  function blank() { return { pick: null, res: null, why: false, ph: null, I: null, L: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };\n  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0, spin = false;   // spin: the arrows are turning until he freezes them\n  let REC = null;   // what the last paint drew, for the checks\n  let G = null;     // the layout of the step being drawn\n  let BOX = [], SEG = [];   // what a label must keep clear of: other labels and solid shapes, and lines\n\n  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    // A number keeps its unit on the same line.\n    String(s).replace(/(\\d) (?=(?:ms|Hz|kN|A|V|Ω)(?![A-Za-z]))/g, '$1 ').split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const cur = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = cur(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = cur(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[cur()].show || finished) return;\n    const st = S[cur()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = cur(), d = STEPS[i];\n    if (!d.show || finished) return;\n    Object.assign(S[i], { ph: null, I: null, L: null });\n    spin = false;\n    play(d.dur);\n  } });\n  // Turn / Freeze: sets the arrows turning, or stops them where they are.\n  const turnBtn = K.button({ label: 'Turn it', secondary: true, into: '#replay', press: () => {\n    const i = cur(), d = STEPS[i], st = S[i];\n    if (!d.turn || finished) return;\n    if (spin) { spin = false; paint(); return; }\n    if (st.ph == null && T !== Infinity) { st.ph = demoPh(d.pic); T = Infinity; anim.pause(); paint(); return; }\n    if (st.ph == null) st.ph = demoPh(d.pic);\n    if (REDUCE || testing()) { st.ph += 2.5; paint(); return; }\n    spin = true; anim.play();\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, cur() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = cur();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; spin = false; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration, the turning, and the motion after an answer; with\n  // reduced motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) { spin = false; return false; }\n    let more = false;\n    if (T !== Infinity) { T += dt; if (T >= motionEnd) T = Infinity; else more = true; }\n    if (spin) {\n      const d = STEPS[cur()], st = S[cur()];\n      if (d.turn && st.ph != null) { st.ph += dt * d.rate; if (st.ph >= 40) st.ph -= 20; more = true; } else spin = false;\n    }\n    paint();\n    return more;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null;\n  const put = (node) => (into || art).appendChild(node);\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }\n  // Each turning screen's demonstration: how far it turns (ms of the cycle), when and for how long.\n  const DEMO = { turn: [22.5, 1.4, 2.8], add: [70 / 3, 1.9, 2.3], speeds: [2.5, 1.4, 2.8] };\n  function demoPh(pic) { const m = DEMO[pic]; return m[0] * go(m[1], m[2]); }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = put(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const pt2 = (p) => r3(p[0]) + ' ' + r3(p[1]);\n  const ln = (cls, p, q) => put(K.svg('line', { class: cls, x1: r3(p[0]), y1: r3(p[1]), x2: r3(q[0]), y2: r3(q[1]) }));\n  const seg = (p, q) => SEG.push([p[0], p[1], q[0], q[1]]);\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    t.textContent = s;\n    REC.texts.push(s);\n    return put(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8.5;\n  }\n  const FH = (cls) => (/\\blb\\b/.test(cls) ? 15 : 13);\n  function pxArrow(a, b, cls) {\n    const x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];\n    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);\n    if (L < 1) return;\n    const g = put(K.svg('g', { class: 'arr ' + (cls || '') }));\n    const ux = dx / L, uy = dy / L, hl = Math.min(12, L * 0.45), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;\n    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));\n    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n  }\n  // A line p→q moved s px to one side.\n  function shifted(p, q, s) {\n    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L * s, -dx / L * s];\n    return [add(p, n), add(q, n)];\n  }\n  function raMark(J, u1, u2) {\n    const s = 8;\n    put(K.svg('path', { class: 'ram', d: 'M' + r3(J[0] + u1[0] * s) + ' ' + r3(J[1] + u1[1] * s) + ' L' + r3(J[0] + (u1[0] + u2[0]) * s) + ' ' + r3(J[1] + (u1[1] + u2[1]) * s) + ' L' + r3(J[0] + u2[0] * s) + ' ' + r3(J[1] + u2[1] * s) }));\n  }\n  function dot(p, cls) { put(K.svg('circle', { class: cls, cx: r3(p[0]), cy: r3(p[1]), r: 4 })); }\n  const dotRoom = (p) => BOX.push([p[0] - 5, p[1] - 5, 10, 10]);\n  // A wave across the plot from x0, W px wide: amp px high, `cycles` turns, starting at ph0 degrees, drawn up to u1 of the width.\n  function wavePts(x0, W, cy, amp, cycles, ph0, u1) {\n    const n = Math.max(2, Math.ceil(90 * cycles * u1) + 1), pts = [];\n    for (let k = 0; k <= n; k++) { const u = u1 * k / n; pts.push([x0 + W * u, cy - amp * Math.sin((360 * cycles * u + ph0) * RAD)]); }\n    return pts;\n  }\n  function waveSeg(pts) { for (let k = 2; k < pts.length; k += 2) seg(pts[k - 2], pts[k]); if (pts.length > 1) seg(pts[pts.length - 2], pts[pts.length - 1]); }\n  function wave(pts, cls) {\n    if (pts.length < 2 || Math.abs(pts[pts.length - 1][0] - pts[0][0]) < 0.5) return;\n    put(K.svg('path', { class: cls, d: pts.map((p, k) => (k ? 'L' : 'M') + pt2(p)).join(' ') }));\n  }\n  function circleSeg(C, r) { for (let k = 0; k < 24; k++) seg(P(C, pol(r, k * 15), 1), P(C, pol(r, k * 15 + 15), 1)); }\n  // An arc at C from angle a0 to a1 (degrees; anticlockwise on screen when a1 > a0).\n  function arcPath(C, a0, a1, r) {\n    const p0 = P(C, pol(r, a0), 1), p1 = P(C, pol(r, a1), 1), big = Math.abs(a1 - a0) > 180 ? 1 : 0, sw = a1 > a0 ? 0 : 1;\n    return 'M' + pt2(p0) + ' A' + r3(r) + ' ' + r3(r) + ' 0 ' + big + ' ' + sw + ' ' + pt2(p1);\n  }\n  function wedge(C, a0, a1, r, arcCls, noFill) {\n    if (Math.abs(a1 - a0) < 0.5) return;\n    if (Math.abs(a1 - a0) > 359) a1 = a0 + 359 * Math.sign(a1 - a0);\n    const d = arcPath(C, a0, a1, r);\n    if (!noFill) put(K.svg('path', { class: 'wedge', d: 'M' + pt2(C) + ' L' + d.slice(1) + ' Z' }));\n    put(K.svg('path', { class: arcCls || 'arc', d }));\n  }\n  function wedgeSeg(C, a0, a1, r) { const n = 8; for (let k = 0; k < n; k++) seg(P(C, pol(r, a0 + (a1 - a0) * k / n), 1), P(C, pol(r, a0 + (a1 - a0) * (k + 1) / n), 1)); }\n  function bracket(x0, x1, y, cls, a) {\n    seg([x0, y], [x1, y]); seg([x0, y - 5], [x0, y + 5]); seg([x1, y - 5], [x1, y + 5]);\n    part(a, 0, () => { ln(cls, [x0, y], [x1, y]); ln(cls, [x0, y - 5], [x0, y + 5]); ln(cls, [x1, y - 5], [x1, y + 5]); });\n  }\n\n  // ---------- labels, placed clear of each other and of the lines ----------\n  const overlap = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];\n  function segHitsBox(s, b) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1];\n    const p = [-dx, dx, -dy, dy], q = [s[0] - b[0], b[0] + b[2] - s[0], s[1] - b[1], b[1] + b[3] - s[1]];\n    for (let k = 0; k < 4; k++) {\n      if (p[k] === 0) { if (q[k] < 0) return false; continue; }\n      const r = q[k] / p[k];\n      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  // Takes the first free spot among cands (centres), always, so a label never jumps as parts\n  // arrive; draws it at arrival a. strict: no free spot, no label.\n  function label(a, s, cls, cands, o) {\n    o = o || {};\n    const w = tw(s, cls), h = FH(cls);\n    const boxAt = (c) => [c[0] - w / 2 - 2, c[1] - h / 2 - 1, w + 4, h + 2];\n    let pick = null;\n    for (let k = 0; k < cands.length; k++) {\n      const b = boxAt(cands[k]);\n      if (b[0] < 2 || b[0] + b[2] > 338 || b[1] < G.ly0 - 6 || b[1] + b[3] > G.ly1 + 6) continue;\n      if (BOX.some((q) => overlap(b, q)) || SEG.some((q) => segHitsBox(q, b))) continue;\n      if (o.inside && !o.inside(b)) continue;\n      pick = cands[k]; break;\n    }\n    if (!pick) {\n      if (o.strict) return false;\n      const c = cands[0] || [170, 100];\n      pick = [K.clamp(c[0], 4 + w / 2, 336 - w / 2), K.clamp(c[1], G.ly0 + h / 2, G.ly1 - h / 2)];\n      REC.crowd++;\n    }\n    BOX.push(boxAt(pick));\n    part(a, 0, () => text(pick[0], pick[1] + h * 0.36, s, cls, 'middle'));\n    return true;\n  }\n  // Spots beside the line p→q: on the side away from ref first (which: 1 that side only, −1 the other).\n  function besideCands(p, q, w, h, ref, which) {\n    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L, -dx / L];\n    let sg = 1;\n    if (ref) { const m = lerp2(p, q, 0.5); if ((ref[0] - m[0]) * n[0] + (ref[1] - m[1]) * n[1] > 0) sg = -1; }\n    const D = 9 + Math.abs(n[0]) * w / 2 + Math.abs(n[1]) * h / 2, out = [];\n    const sides = which === 1 ? [sg] : which === -1 ? [-sg] : [sg, -sg];\n    sides.forEach((s) => [0.55, 0.75, 0.35, 0.9].forEach((f) => { out.push([p[0] + dx * f + s * n[0] * D, p[1] + dy * f + s * n[1] * D]); out.push([p[0] + dx * f + s * n[0] * (D + 12), p[1] + dy * f + s * n[1] * (D + 12)]); }));\n    return out;\n  }\n  // Spots just beyond the nose of p→q.\n  function noseCands(p, q, w, h) {\n    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;\n    const D = 10 + Math.abs(ux) * w / 2 + Math.abs(uy) * h / 2;\n    return [[q[0] + ux * D, q[1] + uy * D], [q[0] + ux * D + uy * 14, q[1] + uy * D - ux * 14], [q[0] + ux * D - uy * 14, q[1] + uy * D + ux * 14]];\n  }\n  function nameBeside(a, s, cls, p, q, ref, o) {\n    const w = tw(s, cls), h = FH(cls);\n    return label(a, s, cls, besideCands(p, q, w, h, ref, 1).concat(noseCands(p, q, w, h), besideCands(p, q, w, h, ref, -1)), o);\n  }\n  function nameNose(a, s, cls, p, q, ref, o) {\n    const w = tw(s, cls), h = FH(cls);\n    return label(a, s, cls, noseCands(p, q, w, h).concat(besideCands(p, q, w, h, ref)), o);\n  }\n  // An angle's label inside its wedge, beyond the arc; left out when there is no room.\n  function wedgeLabel(a, s, cls, C, a0, a1, rMin, rMax) {\n    const lo = Math.min(a0, a1), hi = Math.max(a0, a1), mid = (lo + hi) / 2, c = [];\n    for (let D = rMin; D <= rMax; D += 3) c.push(P(C, pol(D, mid), 1));\n    const inside = (b) => [[b[0], b[1]], [b[0] + b[2], b[1]], [b[0], b[1] + b[3]], [b[0] + b[2], b[1] + b[3]]].every((q) => {\n      let g = Math.atan2(C[1] - q[1], q[0] - C[0]) / RAD;\n      g = mid + (((g - mid) % 360) + 540) % 360 - 180;\n      return g >= lo + 3 && g <= hi - 3;\n    });\n    return label(a, s, cls, c, { strict: true, inside });\n  }\n\n  // The readout under the drawing: the main quantity on amber, then the workings. rows: [{l, s, a}].\n  function band(rows) {\n    const y = G.hd;\n    REC.band = { label: rows[0].l, main: rows[0].s, items: rows.slice(1).filter((r) => r.s != null && (r.a == null || r.a > 0)).map((r) => r.s) };\n    ln('gl', [8, y + 2], [332, y + 2]);\n    const lw = Math.max.apply(null, rows.map((r) => tw(r.l, 'rk')));\n    const LX = 12 + lw, VX = LX + 12;\n    rows.forEach((r, k) => {\n      if (r.s == null) return;\n      const yy = y + 26 + k * 28;\n      part(r.a == null ? 1 : r.a, 0, () => {\n        text(LX, yy, r.l, 'rk', 'end');\n        if (k === 0) {\n          const w = tw(r.s, 'rv') + 16;\n          put(K.svg('rect', { class: 'pill', x: r3(VX - 6), y: yy - 19, width: r3(w), height: 26, rx: 7 }));\n          text(VX + 2, yy, r.s, 'rv nohalo', 'start');\n        } else {\n          text(VX, yy, r.s, VX + tw(r.s, 'rv2') <= 334 ? 'rv2' : 'rv3', 'start');\n        }\n      });\n    });\n  }\n  // A key row at the top of the drawing: short swatches with their names.\n  function keyRow(items, a) {\n    part(a, 0, () => {\n      let x = 12;\n      items.forEach((it) => {\n        ln('sw ' + it.sw, [x, 18], [x + 20, 18]);\n        text(x + 26, 23, it.s, 'sm mu', 'start');\n        x += 26 + tw(it.s, 'sm mu') + 14;\n      });\n    });\n  }\n\n  // ---------- each picture ----------\n  const DRAW = {};\n  // The fixed pull on the ring, and the arrow that turns and traces its wave; frozen, it is r∠θ.\n  DRAW.turn = (d, st) => {\n    const intro = st.ph == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const ph = intro ? demoPh('turn') : st.ph, fa = intro ? arr(4.2) : spin ? 0 : 1;\n    const C = G.C, r = G.r, R = G.R, X1 = G.X0 + G.W;\n    const th = wrapD(18 * ph), tms = ph - 20 * Math.floor(ph / 20 + 1e-12), u = tms / 20, full = ph >= 20 - 1e-9;\n    const tip = P(C, pol(r, th), 1), shY = C[1] - r * sind(th), wx = G.X0 + G.W * u, wy = C[1] - r * Math.sin(2 * Math.PI * u);\n    REC.tipY = tip[1]; REC.shY = shY; REC.waveY = wy; REC.th = th; REC.tms = tms;\n    const N = add(R, [60 * cosd(35), -60 * sind(35)]), ropeEnd = add(R, [84 * cosd(35), -84 * sind(35)]);\n    const trace = wavePts(G.X0, G.W, C[1], r, 1, 0, full ? 1 : u);\n    // Everything drawn is kept clear of labels from the start.\n    seg(R, ropeEnd); seg(R, [R[0] + 56, R[1]]); wedgeSeg(R, 0, 35, 18);\n    circleSeg(C, r); seg([C[0] - 48, C[1]], [X1, C[1]]); seg([C[0], C[1] - 48], [C[0], C[1] + 48]);\n    seg(C, tip); seg(tip, [wx, wy]); waveSeg(trace); dotRoom([wx, wy]);\n    BOX.push([R[0] - 6, R[1] - 6, 12, 12]);\n    if (th > 0.5) wedgeSeg(C, 0, th, 14);\n    keyRow([{ sw: 'kshd', s: 'shadow' }, { sw: 'kbl', s: 'upright line' }, { sw: 'kray', s: 'same height' }], ia(0.4));\n    // The fixed arrow: a 3 kN pull along its rope.\n    label(ia(0.4), 'fixed arrow', 'sm mu', [[58, 54]]);\n    part(ia(0.4), 0, () => { ln('rope', R, ropeEnd); ln('ax', R, [R[0] + 56, R[1]]); });\n    part(ia(1.1), 0, () => wedge(R, 0, 35, 18));\n    pxArrow(R, lerp2(R, N, ig(0.6, 0.5)), 'vi');\n    part(ia(0.4), 0, () => put(K.svg('circle', { class: 'ring', cx: R[0], cy: R[1], r: 5 })));\n    wedgeLabel(ia(1.1), 'θ', 'sm ok', R, 0, 35, 26, 44);\n    nameBeside(ia(1.1), '3 kN', 'lb', R, N, [R[0] + 30, R[1] + 10]);\n    // The turning arrow, its shadow on the upright line, and the wave that height traces.\n    bracket(G.X0, X1, 188, 'brk', ia(1.2));\n    if (wx - G.X0 > 1) bracket(G.X0, wx, 168, 'brk ok', fa);\n    label(ia(0.6), 'turning arrow', 'sm mu', [[C[0] + 10, 54]]);\n    part(ia(0.6), 0, () => { put(K.svg('circle', { class: 'circ', cx: C[0], cy: C[1], r })); ln('ax', [C[0] - 48, C[1]], [X1, C[1]]); ln('bl', [C[0], C[1] - 48], [C[0], C[1] + 48]); });\n    if (th > 0.5) part(fa, 0, () => wedge(C, 0, th, 14));\n    part(ia(1.0), 0, () => wave(trace, 'wvp'));\n    part(ia(1.2), 0, () => { if (Math.abs(shY - C[1]) > 0.5) ln('shd', C, [C[0], shY]); ln('ray', tip, [wx, wy]); });\n    pxArrow(C, lerp2(C, tip, ig(0.9, 0.4)), 'vp');\n    part(ia(1.2), 0, () => dot([wx, wy], 'dotp'));\n    label(ia(1.2), 'one turn: 20 ms', 'sm mu', [[G.X0 + G.W / 2, 204]]);\n    const nm = 'r∠' + num(th) + '°', w = tw(nm, 'lb');\n    label(fa, nm, 'lb', noseCands(C, tip, w, 15).concat(besideCands(C, tip, w, 15, [C[0] - 20, C[1] + 20])), { strict: true });\n    const tl = num(tms) + ' ms', w2 = tw(tl, 'sm ok');\n    label(fa, tl, 'sm ok', [[wx + 8 + w2 / 2, 172], [wx - 8 - w2 / 2, 174], [G.X0 + (wx - G.X0) / 2, 178]], { strict: true });\n    const moving = spin || (intro && T < 4.2);\n    return 'On the left, a fixed arrow: a 3 kN pull on a ring, along its rope at the angle θ. On the right, an arrow ' +\n      (moving ? 'turning round its tail.' : 'frozen at ' + num(th) + '°, ' + num(tms) + ' ms into a 20 ms turn: the fixed arrow r∠' + num(th) + '°.') +\n      ' Its height is its shadow on an upright line, and the wave beside it traces that height through the turn.';\n  };\n  // The puzzle: a current 90° behind the voltage, and their waves over one turn.\n  DRAW.lag = (d, st) => {\n    const C = G.C, ok = st.res === 'right', pick = st.res ? st.pick : null, X1 = G.X0 + G.W;\n    const V = P(C, pol(G.rV, 0), 1), I = P(C, pol(G.rI, -90), 1);\n    const wv = wavePts(G.X0, G.W, C[1], G.rV, 1, 0, 1), wi = wavePts(G.X0, G.W, C[1], G.rI, 1, -90, 1);\n    const Vpk = [G.X0 + G.W * 0.25, C[1] - G.rV], Ipk = [G.X0 + G.W * 0.5, C[1] - G.rI], Tr = [X1, C[1] + G.rI];\n    seg([16, C[1]], [X1 + 4, C[1]]); seg(C, V); seg(C, I); waveSeg(wv); waveSeg(wi); wedgeSeg(C, -90, 0, 18);\n    if (pick) { seg(Vpk, [Vpk[0], 54]); dotRoom(Vpk); }\n    if (ok) { seg(Ipk, [Ipk[0], 54]); dotRoom(Ipk); }\n    if (pick === '90 ms' || pick === '15 ms') { seg([Vpk[0], 54], [334, 54]); seg([X1, 54], Tr); dotRoom(Tr); }\n    keyRow([{ sw: 'k1', s: 'voltage' }, { sw: 'k2', s: 'current' }], 1);\n    ln('ax', [16, C[1]], [X1 + 4, C[1]]);\n    wedge(C, -90, 0, 18);\n    wave(wv, 'wv1'); wave(wi, 'wv2');\n    pxArrow(C, V, 'va'); pxArrow(C, I, 'vb');\n    wedgeLabel(1, '90°', 'sm ok', C, -90, 0, 26, 44);\n    bracket(G.X0, X1, 170, 'brk', 1);\n    label(1, 'one turn: 20 ms', 'sm mu', [[G.X0 + G.W / 2, 186]]);\n    let said = 'A voltage arrow, and a current arrow 90° behind it, from one point. Beside them, the waves they trace over one 20 ms turn.';\n    if (pick) part(arr(0.2), 0, () => { ln('gd', Vpk, [Vpk[0], 54]); dot(Vpk, 'dot1'); });\n    if (ok) {\n      part(arr(0.4), 0, () => { ln('gd', Ipk, [Ipk[0], 54]); dot(Ipk, 'dot2'); });\n      bracket(Vpk[0], Ipk[0], 54, 'brk ok', arr(0.6));\n      label(arr(0.8), '5 ms', 'sm ok', [[(Vpk[0] + Ipk[0]) / 2, 40]]);\n      said += ' The voltage peaks first. The current peaks a quarter turn later, 5 ms after it.';\n    } else if (pick === '90 ms') {\n      const e = go(0.2, 0.8);\n      part(1, 0, () => { ln('brk bad', [Vpk[0], 49], [Vpk[0], 59]); pxArrow([Vpk[0], 54], [Vpk[0] + (334 - Vpk[0]) * e, 54], 'bad'); });\n      label(arr(1.0), '90 ms is 4½ turns', 'sm bad', [[256, 40]]);\n      REC.bad++;\n      said += ' The pick, 90 ms, is drawn in red from the voltage\\'s peak. It runs far past the end of one turn.';\n    } else if (pick === '15 ms') {\n      const e = go(0.2, 0.8), xe = Vpk[0] + (X1 - Vpk[0]) * e;\n      part(1, 0, () => { ln('brk bad', [Vpk[0], 49], [Vpk[0], 59]); ln('brk bad', [Vpk[0], 54], [xe, 54]); if (e >= 1) ln('brk bad', [X1, 49], [X1, 59]); });\n      part(arr(0.9), 0, () => { ln('gd bad', [X1, 54], Tr); dot(Tr, 'dotbad'); });\n      label(arr(1.0), '15 ms lands on a trough', 'sm bad', [[253, 40]]);\n      REC.bad++;\n      said += ' The pick, 15 ms, is drawn in red from the voltage\\'s peak. It lands where the current is at its lowest.';\n    }\n    band(ok ? [{ l: 'delay', s: num(20 * 90 / 360) + ' ms', a: arr(0.9) }, { l: 'a quarter turn', s: '20 × 90 ÷ 360', a: arr(1.1) }] : [{ l: 'delay', s: '?' }]);\n    return said;\n  };\n  // Two 3 kN pulls nose to tail beside two 3 A currents a quarter turn apart, turning together.\n  DRAW.add = (d, st) => {\n    const intro = st.ph == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const ph = intro ? demoPh('add') : st.ph;\n    const phi = wrapD(18 * ph), tms = ph - 20 * Math.floor(ph / 20 + 1e-12), u = tms / 20, full = ph >= 20 - 1e-9, uu = full ? 1 : u;\n    const C = G.C, s = G.aS, X1 = G.X0 + G.W, F0 = G.F0;\n    const f1 = pol(3, 0), f2 = pol(3, 90), fs = chainSum([f1, f2]), A = P(F0, f1, 15), B = P(F0, fs, 15);\n    const v1 = pol(3, phi), v2 = pol(3, phi - 90), vs = chainSum([v1, v2]), N1 = P(C, v1, s), N2 = P(C, vs, s);\n    const s0 = chainSum([pol(3, 0), pol(3, -90)]), ampS = hyp(s0), phS = Math.atan2(s0[1], s0[0]) / RAD;\n    const h1 = v1[1], h2 = v2[1], y1 = C[1] - h1 * s, y2 = y1 - h2 * s, xn = G.X0 + G.W * u;\n    const d1 = C[1] - 3 * s * Math.sin(2 * Math.PI * u), d2 = C[1] - 3 * s * Math.sin(2 * Math.PI * u - Math.PI / 2), dS = C[1] - ampS * s * Math.sin((360 * u + phS) * RAD);\n    REC.v1 = v1; REC.v2 = v2; REC.vs = vs; REC.fs = fs; REC.sumY = N2[1]; REC.stackY = y2; REC.sumWaveY = dS;\n    REC.nose = N2; REC.noseWant = P(C, add(v1, v2), s);\n    const w1 = wavePts(G.X0, G.W, C[1], 3 * s, 1, 0, uu), w2 = wavePts(G.X0, G.W, C[1], 3 * s, 1, -90, uu), wS = wavePts(G.X0, G.W, C[1], ampS * s, 1, phS, uu);\n    seg(F0, A); seg(A, B); seg(F0, B);\n    seg([C[0] - 50, C[1]], [X1, C[1]]); seg([C[0], 66], [C[0], 170]); seg(C, N1); seg(N1, N2); seg(C, N2);\n    seg([C[0] - 5, C[1]], [C[0] - 5, y1]); seg([C[0] + 5, y1], [C[0] + 5, y2]);\n    waveSeg(w1); waveSeg(w2); waveSeg(wS); [d1, d2, dS].forEach((y) => dotRoom([xn, y]));\n    keyRow([{ sw: 'k1', s: 'first' }, { sw: 'k2', s: 'second' }, { sw: 'kp', s: 'sum' }], ia(0.4));\n    label(ia(0.4), 'pulls', 'sm mu', [[44, 54]]);\n    pxArrow(F0, lerp2(F0, A, ig(0.4, 0.4)), 'va');\n    pxArrow(A, lerp2(A, B, ig(0.7, 0.4)), 'vb');\n    pxArrow(F0, lerp2(F0, B, ig(1.0, 0.4)), 'vp');\n    part(ia(1.0), 0, () => raMark(A, [-1, 0], [0, -1]));\n    nameBeside(ia(0.6), '3 kN', 'sm', F0, A, B);\n    nameBeside(ia(0.9), '3 kN', 'sm', A, B, F0);\n    nameBeside(ia(1.3), fx(hyp(fs)) + ' kN', 'sm', F0, B, A);\n    bracket(G.X0, X1, 176, 'brk', ia(1.8));\n    label(ia(0.9), 'currents', 'sm mu', [[C[0], 54]]);\n    part(ia(0.9), 0, () => { ln('ax', [C[0] - 50, C[1]], [X1, C[1]]); ln('bl', [C[0], 66], [C[0], 170]); });\n    part(ia(1.8), 0, () => {\n      if (Math.abs(h1) > 0.02) ln('shd1', [C[0] - 5, C[1]], [C[0] - 5, y1]);\n      if (Math.abs(h2) > 0.02) ln('shd2', [C[0] + 5, y1], [C[0] + 5, y2]);\n      wave(w1, 'wv1'); wave(w2, 'wv2'); wave(wS, 'wvp');\n    });\n    pxArrow(C, lerp2(C, N1, ig(1.0, 0.3)), 'va');\n    pxArrow(N1, lerp2(N1, N2, ig(1.3, 0.3)), 'vb');\n    pxArrow(C, lerp2(C, N2, ig(1.6, 0.3)), 'vp');\n    part(ia(1.8), 0, () => { dot([xn, d1], 'dot1'); dot([xn, d2], 'dot2'); dot([xn, dS], 'dotp'); });\n    label(ia(1.8), 'one turn', 'sm mu', [[G.X0 + G.W / 2, 192]]);\n    const r1 = Math.round(h1 * 100) / 100, r2 = Math.round(h2 * 100) / 100;\n    band([{ l: 'sum', s: '√(3² + 3²) = ' + fx(hyp(vs)) + ' A', a: ia(1.8) },\n      { l: 'heights now', s: num(r1) + ' + ' + par(num(r2)) + ' = ' + num(r1 + r2) + ' A', a: ia(1.8) }]);\n    return 'On the left, two 3 kN pulls square to each other, nose to tail, make ' + fx(hyp(fs)) + ' kN. On the right, two 3 A currents a quarter turn apart, nose to tail, make ' +\n      fx(hyp(vs)) + ' A, and all three arrows turn together. Their heights stack on the upright line: ' + num(r1) + ' and ' + num(r2) + ' make the sum\\'s ' + num(r1 + r2) + '. Beside them, the three waves.';\n  };\n  // The puzzle: 6 A in step and 8 A a quarter turn behind.\n  DRAW.sum = (d, st) => {\n    const O = G.O, s = G.s, ok = st.res === 'right', pick = st.res ? st.pick : null;\n    const a1 = pol(6, 0), a2 = pol(8, -90), tot = chainSum([a1, a2]), A = P(O, a1, s), B = P(O, tot, s);\n    REC.res = tot;\n    seg(O, A); seg(A, B); seg(O, B);\n    const y = O[1] + 12, R14 = [[O[0], y], [O[0] + 14 * s, y]], R2 = [[A[0], y], [A[0] - 8 * s, y]];\n    if (pick === '14 A') seg(R14[0], R14[1]);\n    if (pick === '2 A') seg(R2[0], R2[1]);\n    pxArrow(O, A, 'va'); pxArrow(A, B, 'vb');\n    raMark(A, [-1, 0], [0, 1]);\n    label(1, '6 A, in step', 'sm', [[O[0] + 36, O[1] - 14], [O[0] + 36, O[1] - 26]]);\n    label(1, '8 A, behind', 'sm', [[A[0] + 10 + tw('8 A, behind', 'sm') / 2, (A[1] + B[1]) / 2]]);\n    let said = 'A current of 6 A in step with the voltage, and 8 A a quarter turn behind it, laid nose to tail at a right angle.';\n    if (ok) {\n      part(1, 0, () => pxArrow(O, lerp2(O, B, go(0.1, 0.7)), 'vp'));\n      label(arr(0.7), fx(hyp(tot)) + ' A', 'lb ok', besideCands(O, B, tw('10 A', 'lb ok'), 15, A, 1));\n      said += ' The total runs from the first tail to the last nose, ' + fx(hyp(tot)) + ' A.';\n    } else if (pick === '14 A') {\n      part(1, 0, () => ln('badln', R14[0], lerp2(R14[0], R14[1], go(0.1, 0.8))));\n      label(arr(0.8), '14 A, sizes in a line', 'sm bad', [[A[0] + 12 + tw('14 A, sizes in a line', 'sm bad') / 2, y + 16], [A[0] + 12 + tw('14 A, sizes in a line', 'sm bad') / 2, y + 30]]);\n      REC.bad++;\n      said += ' The pick lays both sizes in one line, 14 A, in red. It runs past where the chain ends.';\n    } else if (pick === '2 A') {\n      part(1, 0, () => pxArrow(R2[0], lerp2(R2[0], R2[1], go(0.1, 0.8)), 'bad'));\n      label(arr(0.8), '8 A, as if opposite', 'sm bad', [[4 + tw('8 A, as if opposite', 'sm bad') / 2, y + 16], [4 + tw('8 A, as if opposite', 'sm bad') / 2, y + 30]]);\n      REC.bad++;\n      said += ' The pick lays the 8 A back against the 6 A, in red, as if they pulled opposite ways.';\n    }\n    band(ok ? [{ l: 'total', s: fx(hyp(tot)) + ' A', a: arr(0.8) }, { l: 'Pythagoras', s: '√(6² + 8²)', a: arr(1.0) }] : [{ l: 'total', s: '?' }]);\n    return said;\n  };\n  // A 50 Hz arrow and a 150 Hz arrow, t ms after starting together, with their waves.\n  function speedScene(t, o) {\n    const C = G.C, X1 = G.X0 + G.W, th1 = 18 * t, th3 = 54 * t, gap = wrapD(th3 - th1), u = t / 20, xn = G.X0 + G.W * u;\n    const T1 = P(C, pol(G.r1, th1), 1), T3 = P(C, pol(G.r3, th3), 1);\n    const y1 = C[1] - G.r1 * Math.sin(2 * Math.PI * u), y3 = C[1] - G.r3 * Math.sin(6 * Math.PI * u);\n    REC.gap = gap; REC.th1 = th1; REC.th3 = th3;\n    const w1 = wavePts(G.X0, G.W, C[1], G.r1, 1, 0, 1), w3 = wavePts(G.X0, G.W, C[1], G.r3, 3, 0, 1);\n    const wedgeOn = o.wedge != null && gap > 6 && gap < 354;\n    seg([16, C[1]], [X1 + 2, C[1]]); waveSeg(w1); waveSeg(w3); seg(C, T1); if (o.a3 > 0) seg(C, T3);\n    if (o.now != null) { seg([xn, 62], [xn, 164]); dotRoom([xn, y1]); if (o.a3 > 0) dotRoom([xn, y3]); }\n    if (wedgeOn) wedgeSeg(C, th1, th1 + gap, 16);\n    keyRow([{ sw: 'k1', s: '50 Hz' }, { sw: 'k2', s: '150 Hz' }], o.base);\n    part(o.base, 0, () => ln('ax', [16, C[1]], [X1 + 2, C[1]]));\n    bracket(G.X0, X1, 176, 'brk', o.base);\n    label(o.base, '0', 'sm mu', [[G.X0, 192]]);\n    label(o.base, '20 ms', 'sm mu', [[X1 - tw('20 ms', 'sm mu') / 2, 192]]);\n    part(o.waves, 0, () => { wave(w1, 'wv1'); wave(w3, 'wv2'); });\n    if (wedgeOn && o.wedge > 0) part(o.wedge, 0, () => wedge(C, th1, th1 + gap, 16));\n    if (o.a1 > 0) pxArrow(C, lerp2(C, T1, o.a1), 'va');\n    if (o.a3 > 0) pxArrow(C, lerp2(C, T3, o.a3), 'vb');\n    if (o.now > 0) part(o.now, 0, () => { ln('now', [xn, 62], [xn, 164]); dot([xn, y1], 'dot1'); if (o.a3 > 0) dot([xn, y3], 'dot2'); });\n    if (o.nowLabel) { const s = num(t) + ' ms', w = tw(s, 'sm'); label(o.now, s, 'sm', [[xn, 50], [xn + 6 + w / 2, 50], [xn - 6 - w / 2, 50]], { strict: true }); }\n    return { th1, th3, gap, T1, T3 };\n  }\n  // The two speeds: 2.5 ms after starting together, 45° and 135°. He sets them turning or freezes them.\n  DRAW.speeds = (d, st) => {\n    const intro = st.ph == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const ph = intro ? demoPh('speeds') : st.ph, t = ph - 20 * Math.floor(ph / 20 + 1e-12);\n    const r = speedScene(t, { base: ia(0.4), waves: ia(0.5), a1: ig(0.6, 0.4), a3: ig(0.9, 0.4), wedge: ia(1.2), now: ia(1.2), nowLabel: true });\n    band([{ l: '150 Hz ahead by', s: num(r.gap) + '°', a: ia(1.2) }, { l: 'turned so far', s: num(r.th1) + '° and ' + num(r.th3) + '°', a: ia(1.2) }]);\n    return 'A 50 Hz arrow and a 150 Hz arrow turn from one point, ' + num(t) + ' ms after starting together. The 50 Hz one has turned ' + num(r.th1) +\n      '° and the 150 Hz one ' + num(r.th3) + '°, so the faster one is ' + num(r.gap) + '° ahead. Beside them, the waves they trace over 20 ms.';\n  };\n  // The puzzle: how far apart after 5 ms. A wrong pick draws the faster arrow in red where it would be.\n  DRAW.speedsq = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, wrong = !!pick && !ok;\n    const t = ok ? 5 * go(0.1, 1.4) : wrong ? 5 * go(0.1, 1.2) : 0, x5 = G.X0 + G.W / 4, C = G.C;\n    const g = pick === '90°' ? 90 : 0, Rn = P(C, pol(G.r3, 90 + g), 1);\n    if (wrong) { seg(C, Rn); if (g) wedgeSeg(C, 90, 90 + g, 22); }\n    bracket(G.X0, x5, 52, 'brk', 1);\n    label(1, '5 ms', 'sm', [[x5 + 8 + tw('5 ms', 'sm') / 2, 56]]);\n    const r = speedScene(t, { base: 1, waves: 1, a1: 1, a3: wrong ? 0 : 1, wedge: ok ? arr(1.5) : null, now: pick ? 1 : null });\n    let said = 'A 50 Hz arrow and a 150 Hz arrow from one point, both starting at 0°, with the waves they trace over 20 ms. The first 5 ms is marked.';\n    if (ok) said += ' After 5 ms the 50 Hz arrow has turned 90° and the 150 Hz arrow 270°, so they point opposite ways, 180° apart.';\n    else if (wrong) {\n      if (g) part(arr(1.3), 0, () => wedge(C, 90, 90 + g, 22, 'badarc', true));\n      part(arr(1.3), 0, () => pxArrow(C, Rn, 'bad'));\n      const s = pick + ' apart', w = tw(s, 'sm bad');\n      label(arr(1.4), s, 'sm bad', noseCands(C, Rn, w, 13).concat(besideCands(C, Rn, w, 13, r.T1)));\n      REC.bad++;\n      said += ' After 5 ms the 50 Hz arrow points straight up. The pick puts the 150 Hz arrow ' + pick + ' from it, in red.';\n    }\n    band(ok ? [{ l: '150 Hz ahead by', s: num(r.gap) + '°', a: arr(1.6) }, { l: 'turned so far', s: num(r.th1) + '° and ' + num(r.th3) + '°', a: arr(1.8) }] : [{ l: 'apart after 5 ms', s: '?' }]);\n    return said;\n  };\n  // The voltage, the current and their quotient, the impedance, each drawn to its own scale.\n  function divScene(I, o) {\n    const O = G.O, Vn = [O[0] + 80, O[1]], In = P(O, pol(I[0], I[1]), G.iS);\n    const zs = 230 / I[0], za = -I[1], Zn = P(O, pol(zs, za), G.zS);\n    REC.Z = [zs, za]; REC.In = In; REC.Zn = Zn;\n    seg(O, Vn); seg(O, In); if (o.z) seg(O, Zn);\n    if (Math.abs(I[1]) > 0.5) wedgeSeg(O, Math.min(0, I[1]), Math.max(0, I[1]), 20);\n    if (o.z && Math.abs(za) > 0.5) wedgeSeg(O, Math.min(0, za), Math.max(0, za), 28);\n    BOX.push([O[0] - 5, O[1] - 5, 10, 10]);\n    label(o.base, 'each arrow to its own scale', 'sm mu', [[250, G.ly1 - 4]]);\n    if (Math.abs(I[1]) > 0.5) part(o.wI, 0, () => wedge(O, 0, I[1], 20, 'arc2'));\n    if (o.z && o.wZ > 0) part(1, 0, () => wedge(O, 0, za * o.wZ, 28, 'arc'));\n    if (o.eV > 0) pxArrow(O, lerp2(O, Vn, o.eV), 'va');\n    if (o.eI > 0) pxArrow(O, lerp2(O, In, o.eI), 'vb');\n    if (o.z && o.eZ > 0) pxArrow(O, lerp2(O, Zn, o.eZ), 'vp');\n    nameNose(o.nV, 'V = 230∠0° V', 'sm', O, Vn, [O[0] + 40, O[1] + 30]);\n    nameNose(o.nI, 'I = ' + polar(I[0], I[1], 'A'), 'sm', O, In, Vn);\n    if (o.z) nameNose(o.nZ, 'Z', 'lb ok', O, Zn, Vn);\n    return { zs, za };\n  }\n  const divBand = (I, zs, za, al) => band([{ l: 'Z = V ÷ I', s: polar(zs, za, 'Ω'), a: al[0] }, { l: 'sizes', s: '230 ÷ ' + fx(I[0]) + ' = ' + fx(zs), a: al[1] },\n    { l: 'angles', s: '0° − ' + par(num(I[1]) + '°') + ' = ' + num(za) + '°', a: al[2] }]);\n  // 230∠0° V ÷ 10∠−30° A = 23∠30° Ω. He drags the current's tip.\n  DRAW.divide = (d, st) => {\n    const intro = !st.I, I = st.I || [10, -30], ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const r = divScene(I, { z: true, base: ia(0.4), eV: ig(0.5, 0.5), nV: ia(1.0), eI: ig(1.0, 0.5), nI: ia(1.5), wI: ia(1.5), wZ: ig(2.0, 0.8), eZ: ig(2.6, 0.6), nZ: ia(3.2) });\n    REC.grip.I = REC.In;\n    divBand(I, r.zs, r.za, [ia(3.0), ia(3.3), ia(3.6)]);\n    return 'A voltage arrow, 230∠0° V, and a current arrow, ' + polar(I[0], I[1], 'A') + ', from one point, each to its own scale. Their quotient, the impedance Z, is ' +\n      polar(r.zs, r.za, 'Ω') + ': the sizes divided, 230 ÷ ' + fx(I[0]) + ', and the angles taken away, so its angle mirrors the current\\'s.';\n  };\n  // The puzzle: 230∠0° V ÷ 5∠−60° A.\n  DRAW.divideq = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, I = [5, -60], O = G.O;\n    const dir = [cosd(-60), -sind(-60)], far = add(O, scale(dir, (G.ly1 - 4 - O[1]) / dir[1])), mid = P(O, pol(46, -60), G.zS);\n    const rf = shifted(O, far, 9), rm = shifted(O, mid, 9);\n    if (pick === '1150∠−60° Ω') seg(rf[0], rf[1]);\n    if (pick === '46∠−60° Ω') seg(rm[0], rm[1]);\n    const r = divScene(I, { z: ok, base: 1, eV: 1, nV: 1, eI: 1, nI: 1, wI: 1, wZ: ok ? go(0.1, 0.6) : 0, eZ: ok ? go(0.6, 0.6) : 0, nZ: ok ? arr(1.1) : 0 });\n    let said = 'A voltage arrow, 230∠0° V, and a current arrow, 5∠−60° A, from one point, each to its own scale.';\n    if (ok) said += ' Their quotient, the impedance Z, is 46∠60° Ω: 230 ÷ 5 = 46, and 0° − (−60°) = 60°.';\n    else if (pick === '1150∠−60° Ω') {\n      part(1, 0, () => pxArrow(rf[0], lerp2(rf[0], rf[1], go(0.1, 0.8)), 'bad'));\n      label(arr(0.9), '1150 Ω, far off the page', 'sm bad', [[200, 160], [210, 140], [190, 176]]);\n      REC.bad++;\n      said += ' The pick multiplies instead. Its red arrow, 1150 Ω, runs right off the picture.';\n    } else if (pick === '46∠−60° Ω') {\n      part(1, 0, () => pxArrow(rm[0], lerp2(rm[0], rm[1], go(0.1, 0.8)), 'bad'));\n      nameBeside(arr(0.9), '46∠−60° Ω', 'sm bad', rm[0], rm[1], O);\n      REC.bad++;\n      said += ' The pick, drawn in red, has the right size but points down along the current, not mirrored above.';\n    }\n    if (ok) divBand(I, r.zs, r.za, [arr(1.1), arr(1.2), arr(1.3)]);\n    else band([{ l: 'Z = V ÷ I', s: '?' }]);\n    return said;\n  };\n  // The three line currents from the star point, and the same arrows nose to tail; the gap is the neutral current.\n  function threePhase(L, o) {\n    const S0 = G.S, s = G.s, P0 = G.P0;\n    const vs = L.map((n, k) => pol(n, ANG[k])), tips = vs.map((v) => P(S0, v, s));\n    const pts = [P0]; vs.forEach((v) => pts.push(P(pts[pts.length - 1], v, s)));\n    const N = chainSum(vs), end = pts[3], gp = hyp(N) * s;\n    REC.N = N; REC.chainEnd = end; REC.closed = gp < 0.5; REC.L = L.slice();\n    tips.forEach((t) => seg(S0, t)); for (let k = 0; k < 3; k++) seg(pts[k], pts[k + 1]); if (gp >= 0.5) seg(P0, end);\n    BOX.push([S0[0] - 5, S0[1] - 5, 10, 10]);\n    if (o.pre) o.pre(P0, end, N);\n    keyRow([{ sw: 'k1', s: 'L1' }, { sw: 'k2', s: 'L2' }, { sw: 'k3', s: 'L3' }, { sw: 'kp', s: 'neutral' }], o.base);\n    for (let k = 0; k < 3; k++) if (o.eS[k] > 0) pxArrow(S0, lerp2(S0, tips[k], o.eS[k]), PH[k]);\n    part(o.base, 0, () => put(K.svg('circle', { class: 'org', cx: S0[0], cy: S0[1], r: 4 })));\n    for (let k = 0; k < 3; k++) if (o.eC[k] > 0) part(o.eC[k], 0, () => pxArrow(pts[k], pts[k + 1], PH[k]));\n    if (o.gap === 'arrow') {\n      const ca = o.ga * K.clamp(1 - gp / 6, 0, 1), na = o.na != null ? o.na : o.ga * K.clamp((gp - 4) / 10, 0, 1);\n      if (ca > 0) part(ca, 0, () => put(K.svg('circle', { class: 'closed', cx: P0[0], cy: P0[1], r: 6 })));\n      if (gp >= 1 && o.eN > 0) part(o.ga, 0, () => pxArrow(P0, lerp2(P0, end, o.eN), 'vp'));\n      label(ca, 'closes', 'sm ok', [[P0[0] - 32, P0[1] - 2], [P0[0] - 4, P0[1] - 18], [P0[0] - 32, P0[1] - 18]]);\n      if (gp >= 1) nameBeside(na, 'neutral', 'sm ok', P0, end, [P0[0] + 30, P0[1] + 16]);\n    } else if (o.gap === 'dashed' && gp >= 1) {\n      ln('gd', end, P0);\n      nameBeside(1, 'neutral ?', 'sm', P0, end, [P0[0] + 30, P0[1] + 16]);\n    }\n    label(o.base, 'star point', 'sm mu', [[S0[0] + 38, S0[1] + 16], [S0[0] + 38, S0[1] - 16], [S0[0] - 4, S0[1] + 70]]);\n    for (let k = 0; k < 3; k++) {\n      const nm = 'L' + (k + 1) + ' ' + fx(L[k]) + ' A', w = tw(nm, 'sm'), t = L[k] > 1.5 ? tips[k] : P(S0, pol(1.5, ANG[k]), s);\n      const nose = noseCands(S0, t, w, 13), side = besideCands(S0, t, w, 13, k === 0 ? [S0[0] + 30, S0[1] + 30] : S0[1] > t[1] ? [S0[0] + 30, S0[1] - 30] : [S0[0] + 30, S0[1] + 30]);\n      label(o.nS[k], nm, 'sm', k === 0 ? side.concat(nose) : nose.concat(side));\n    }\n    return { N, end, gp, pts };\n  }\n  function phaseBand(L, al, hide) {\n    if (hide) { band([{ l: 'neutral', s: '?' }]); return; }\n    const ax = L.map((n, k) => n * cosd(ANG[k])), up = L.map((n, k) => n * sind(ANG[k]));\n    const X = ax[0] + ax[1] + ax[2], Y = up[0] + up[1] + up[2];\n    const sumText = (ps, tot) => ps.map((p, k) => (k === 0 ? fx(p) : (p < -1e-9 ? ' − ' : ' + ') + fx(Math.abs(p)))).join('') + ' = ' + fx(tot);\n    band([{ l: 'neutral', s: fx(Math.hypot(X, Y)) + ' A', a: al[0] }, { l: 'across', s: sumText(ax, X), a: al[1] }, { l: 'up', s: sumText(up, Y), a: al[2] }]);\n  }\n  const phaseSaid = (L, N) => 'Three line currents, L1 ' + fx(L[0]) + ' A, L2 ' + fx(L[1]) + ' A and L3 ' + fx(L[2]) + ' A, leave the star point 120° apart. Beside them the same arrows are laid nose to tail. ';\n  // Balanced, the chain closes; then L2 shrinks to 5 A and the gap opens. He drags any tip along its line.\n  DRAW.star = (d, st) => {\n    const intro = !st.L, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);\n    const L = st.L || [10, 10 - 5 * go(3.7, 1.2), 10];\n    const r = threePhase(L, { base: ia(0.4), eS: [ig(0.5, 0.4), ig(0.8, 0.4), ig(1.1, 0.4)], nS: [ia(0.9), ia(1.2), ia(1.5)], eC: [ia(1.6), ia(2.0), ia(2.4)], gap: 'arrow', ga: ia(2.7), eN: 1 });\n    [0, 1, 2].forEach((k) => { REC.grip['L' + (k + 1)] = P(G.S, pol(Math.max(L[k], 3), ANG[k]), G.s); });\n    phaseBand(L, [ia(2.7), ia(2.9), ia(3.1)]);\n    const Nn = hyp(r.N);\n    return phaseSaid(L, r.N) + (Nn < 0.005 ? 'They close into a triangle, so the neutral carries 0 A.' : 'The chain falls short of closing. The gap from its first tail to its last nose is the neutral current, ' + fx(Nn) + ' A.');\n  };\n  // The puzzles: the three currents given; a wrong pick is drawn in red.\n  DRAW.starq = (d, st) => {\n    const ok = st.res === 'right', pick = st.res ? st.pick : null, L = d.L, one = [1, 1, 1], kind = pick && !ok ? d.pv[pick] : null;\n    const P0 = G.P0, s = G.s;\n    let red = null;\n    const r = threePhase(L, { base: 1, eS: one, nS: one, eC: one, gap: ok ? 'arrow' : 'dashed', ga: 1, eN: ok ? go(0.1, 0.6) : 0, na: ok ? arr(0.7) : 0,\n      pre: (Q, end, N) => {\n        if (kind === 'line') red = [[Q[0], Q[1] - 14], [Q[0] + (L[0] + L[1] + L[2]) * s, Q[1] - 14]];\n        if (kind === 'across') red = [[Q[0], Q[1] - 12], [Q[0] + (N[0]) * s, Q[1] - 12]];\n        if (kind === 'diff') { const u = [N[0] / hyp(N), -N[1] / hyp(N)]; red = shifted(Q, add(Q, scale(u, (L[0] - L[2]) * s)), 7); }\n        if (red) seg(red[0], red[1]);\n      } });\n    let said = phaseSaid(L, r.N) + 'The chain falls short, and the gap is the neutral current.';\n    if (ok) said += ' It carries ' + fx(hyp(r.N)) + ' A.';\n    else if (kind === 'line') {\n      part(1, 0, () => ln('badln', red[0], lerp2(red[0], red[1], go(0.1, 0.8))));\n      label(arr(0.8), num(L[0] + L[1] + L[2]) + ' A, sizes in a line', 'sm bad', [[(red[0][0] + red[1][0]) / 2, red[0][1] - 14]]);\n      REC.bad++;\n      said += ' The pick lays the three sizes in one line, in red, far longer than the gap.';\n    } else if (kind === 'across') {\n      part(1, 0, () => pxArrow(red[0], lerp2(red[0], red[1], go(0.1, 0.8)), 'bad'));\n      label(arr(0.8), fx(r.N[0]) + ' A, across part only', 'sm bad', [[red[0][0] + 60, red[0][1] - 16], [red[0][0] + 70, red[0][1] - 30]]);\n      REC.bad++;\n      said += ' The pick takes only the across part of the gap, in red.';\n    } else if (kind === 'diff') {\n      part(1, 0, () => pxArrow(red[0], lerp2(red[0], red[1], go(0.1, 0.8)), 'bad'));\n      label(arr(0.8), num(L[0] - L[2]) + ' A overshoots', 'sm bad', [[P0[0] + 34, P0[1] - 26], [P0[0] + 60, P0[1] - 40]]);\n      REC.bad++;\n      said += ' The pick, drawn in red along the gap, runs past the last nose.';\n    }\n    phaseBand(L, ok ? [arr(0.8), arr(1.0), arr(1.2)] : null, !ok);\n    return said;\n  };\n  DRAW.starq2 = DRAW.starq;\n  // The puzzle: L1 − L2, by turning L2 round and adding it.\n  DRAW.line = (d, st) => {\n    const O = G.O, s = G.s, ok = st.res === 'right', pick = st.res ? st.pick : null;\n    const v1 = pol(230, 0), v2 = pol(230, -120), vt = pol(230, 60), res = chainSum([v1, vt]), sumV = chainSum([v1, v2]);\n    const A = P(O, v1, s), B = P(O, v2, s), Bt = P(A, vt, s), Bs = P(A, v2, s), E = P(O, res, s);\n    REC.res = res;\n    const R460 = [[O[0], O[1] + 12], [O[0] + 460 * s, O[1] + 12]];\n    seg(O, A); seg(O, B);\n    if (ok) { seg(A, Bt); seg(O, E); }\n    if (pick === '230∠−60° V') { seg(A, Bs); seg(O, Bs); }\n    if (pick === '460 V') seg(R460[0], R460[1]);\n    BOX.push([O[0] - 5, O[1] - 5, 10, 10]);\n    keyRow([{ sw: 'k1', s: 'L1' }, { sw: 'k2', s: 'L2' }, { sw: 'kcp', s: 'turned round' }, { sw: 'kp', s: 'L1 − L2' }], 1);\n    pxArrow(O, A, 'va'); pxArrow(O, B, 'vb');\n    nameNose(1, polar(230, 0, 'V'), 'sm', O, A, B);\n    nameBeside(1, polar(230, -120, 'V'), 'sm', O, B, A);\n    let said = 'Two line voltages from one point: L1, 230∠0° V, and L2, 230∠−120° V.';\n    if (ok) {\n      part(1, 0, () => pxArrow(A, lerp2(A, Bt, go(0.1, 0.6)), 'cp'));\n      part(1, 0, () => pxArrow(O, lerp2(O, E, go(0.7, 0.6)), 'vp'));\n      nameBeside(arr(1.2), 'L1 − L2', 'sm ok', O, E, A);\n      said += ' L2 turned round, 230∠60° V, is laid at the nose of L1. The arrow from the first tail to that nose is L1 − L2, 398∠30° V.';\n    } else if (pick === '230∠−60° V') {\n      part(1, 0, () => pxArrow(A, lerp2(A, Bs, go(0.1, 0.6)), 'vb'));\n      part(1, 0, () => pxArrow(O, lerp2(O, Bs, go(0.7, 0.6)), 'bad'));\n      label(arr(1.0), polar(hyp(sumV), Math.atan2(sumV[1], sumV[0]) / RAD, 'V') + ' is the sum', 'sm bad', [[220, 160], [220, 196], [210, 100]]);\n      REC.bad++;\n      said += ' The pick lays L2 at the nose of L1 without turning it round. Its red arrow is the sum, not the difference.';\n    } else if (pick === '460 V') {\n      part(1, 0, () => ln('badln', R460[0], lerp2(R460[0], R460[1], go(0.1, 0.8))));\n      label(arr(0.9), '460 V, sizes in a line', 'sm bad', [[(R460[0][0] + R460[1][0]) / 2, R460[0][1] + 16]]);\n      REC.bad++;\n      said += ' The pick lays both sizes in one line, 460 V, in red.';\n    }\n    const across = v1[0] + vt[0], up = v1[1] + vt[1];\n    band(ok ? [{ l: 'L1 − L2', s: Math.round(hyp(res)) + '∠' + num(Math.atan2(res[1], res[0]) / RAD) + '° V', a: arr(1.2) },\n      { l: 'across', s: fx(v1[0]) + ' + ' + fx(vt[0]) + ' = ' + fx(across), a: arr(1.3) }, { l: 'up', s: fx(v1[1]) + ' + ' + fx(vt[1]) + ' = ' + fx(up), a: arr(1.4) }]\n      : [{ l: 'L1 − L2', s: '?' }]);\n    return said;\n  };\n\n  // ---------- the drags: the current's tip, and the three line currents' tips ----------\n  const mkGrip = (lab) => ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'button', 'aria-label': lab }));\n  const grips = {\n    I: mkGrip('The tip of the current\\'s arrow: drag it, or use the arrow keys, to change the current'),\n    L1: mkGrip('The tip of L1\\'s current: drag it along its line, or use the arrow keys, to change its size'),\n    L2: mkGrip('The tip of L2\\'s current: drag it along its line, or use the arrow keys, to change its size'),\n    L3: mkGrip('The tip of L3\\'s current: drag it along its line, or use the arrow keys, to change its size'),\n  };\n  const GRIP_PIC = { I: { divide: 1 }, L1: { star: 1 }, L2: { star: 1 }, L3: { star: 1 } };\n  function placeGrips(d) {\n    Object.keys(grips).forEach((k) => {\n      const g = grips[k], p = REC.grip[k], on = !finished && !!d.show && !!GRIP_PIC[k][d.pic] && !!p;\n      g.style.display = on ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (on) { g.setAttribute('cx', r3(p[0])); g.setAttribute('cy', r3(p[1])); }\n    });\n  }\n  function changed() {\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    K.reveal(); K.refresh();\n  }\n  // The current: 6 to 12 A, −75° to 75°; a drag lands exactly on −30° and −60° when it comes near.\n  function setI(n, a, snap) {\n    n = K.clamp(Math.round(n), 6, 12);\n    a = Math.round(K.clamp(a, -75, 75));\n    if (snap) { if (Math.abs(a + 30) <= 3) a = -30; else if (Math.abs(a + 60) <= 3) a = -60; }\n    S[cur()].I = [n, a]; changed();\n  }\n  // The three line currents now shown, in whole amps.\n  function nowL() {\n    const st = S[cur()];\n    if (st.L) return st.L.slice();\n    return [10, Math.round(10 - 5 * (T === Infinity ? 1 : K.ease(K.clamp((T - 3.7) / 1.2, 0, 1)))), 10];\n  }\n  function setL(k, n) { const L = nowL(); L[k] = K.clamp(Math.round(n), 0, 12); S[cur()].L = L; changed(); }\n  function svgAt(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    return [q.x, q.y];\n  }\n  let held = null;\n  const onPic = (k) => !finished && !!STEPS[cur()].show && !!GRIP_PIC[k][STEPS[cur()].pic];\n  function moveTo(k, q) {\n    if (k === 'I') {\n      const v = sub(q, GD.O);\n      let a = Math.atan2(-v[1], v[0]) / RAD;\n      if (Math.abs(a) > 90) a = a > 0 ? 75 : -75;\n      setI(hyp(v) / GD.iS, a, true);\n      return;\n    }\n    const k3 = Number(k.charAt(1)) - 1, u = [cosd(ANG[k3]), -sind(ANG[k3])];\n    setL(k3, dotv(sub(q, GP.S), u) / GP.s);\n  }\n  Object.keys(grips).forEach((k) => {\n    const g = grips[k];\n    g.addEventListener('pointerdown', (e) => {\n      if (!onPic(k)) return;\n      const q = svgAt(e);\n      if (!q) return;\n      held = { id: e.pointerId, k };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n      e.preventDefault();\n      moveTo(k, q);\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.k !== k || !onPic(k)) return;\n      const q = svgAt(e);\n      if (q) moveTo(k, q);\n    });\n    g.addEventListener('pointerup', (e) => { if (held && held.id === e.pointerId) held = null; });\n    g.addEventListener('pointercancel', (e) => { if (held && held.id === e.pointerId) held = null; });\n    g.addEventListener('lostpointercapture', () => { held = null; });\n    g.addEventListener('keydown', (e) => {\n      if (!onPic(k)) return;\n      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];\n      if (!by) return;\n      e.preventDefault();\n      if (k === 'I') { const I = S[cur()].I || [10, -30]; setI(I[0] + by[0], I[1] + 5 * by[1], false); return; }\n      const k3 = Number(k.charAt(1)) - 1;\n      setL(k3, nowL()[k3] + (by[0] || by[1]));\n    });\n  });\n\n  // The Turn button reads Freeze while anything turns, and the line under the picture names the button shown.\n  function syncTurn(d, st) {\n    if (!d.turn) return;\n    const want = spin || (st.ph == null && T !== Infinity) ? 'Freeze' : d.turn;\n    if (turnBtn.el.textContent !== want) turnBtn.setLabel(want);\n    const line = want === 'Freeze' ? d.actF : d.act, a = el('act');\n    if (a.textContent !== line) write(a, line);\n  }\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = cur();\n    const d = STEPS[i], st = S[i];\n    G = d.geo;\n    art.textContent = '';\n    into = null; BOX = []; SEG = [];\n    REC = { texts: [], bad: 0, band: null, crowd: 0, grip: {} };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.h);\n    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));\n    placeGrips(d);\n    syncTurn(d, st);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; spin = false; enter('stepbox');\n      if (d.show) { Object.assign(st, { ph: null, I: null, L: null }); play(d.dur); }\n      else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    const act = el('act');\n    if (!d.turn) write(act, d.act || '');\n    act.hidden = finished || !d.act;\n    replayBtn.el.hidden = !d.show || REDUCE;\n    turnBtn.el.hidden = !d.turn;\n    el('replay').hidden = replayBtn.el.hidden && turnBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T, keepSpin = spin;\n    S[i] = st; T = t == null ? Infinity : t; spin = false;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; spin = keepSpin; paint(); }\n  }\n  const atSt = (pic, o) => { const i = atPic(pic); return drawn(i, o === 'solved' ? solved(i) : Object.assign(blank(), o || {})); };\n  const near2 = (p, q, tol) => K.near(p[0], q[0], tol) && K.near(p[1], q[1], tol);\n\n  K.check('We can add phasor voltages and phasor currents graphically, exactly the same as if we were adding vectors: every sum of currents or voltages drawn is the nose-to-tail sum of its arrows, found by the same rule as the sum of the pulls', () => {\n    const ai = atPic('add');\n    for (let ph = 0; ph <= 40; ph += 0.5) {\n      const r = drawn(ai, Object.assign(blank(), { ph }));\n      if (!near2(r.vs, add(r.v1, r.v2), 1e-9) || !K.near(hyp(r.vs), Math.hypot(3, 3), 1e-9) || !near2(r.nose, r.noseWant, 1e-6)) return false;\n    }\n    if (!K.near(hyp(atSt('add').fs), Math.hypot(3, 3), 1e-9)) return false;\n    const si = atPic('star');\n    for (const a of [0, 4, 10, 12]) for (const b of [0, 5, 10]) for (const c of [2, 8, 12]) {\n      const r = drawn(si, Object.assign(blank(), { L: [a, b, c] }));\n      const want = add(add(pol(a, 0), pol(b, -120)), pol(c, 120));\n      if (!near2(r.N, want, 1e-9) || !near2(r.chainEnd, P(GP.P0, want, GP.s), 1e-6)) return false;\n    }\n    return near2(atSt('sum', 'solved').res, [6, -8], 1e-9) && near2(atSt('line', 'solved').res, add(pol(230, 0), pol(230, 60)), 1e-9);\n  }, { source: SRC1 });\n  K.check('Sinusoids of different frequencies cannot be represented on the same phasor diagram, because at any instant in time the phase angle between them is different: on the two-speed screen the angle between the arrows changes from each moment to the next', () => {\n    const i = atPic('speeds');\n    let last = -1;\n    for (let t = 0; t < 10; t += 0.25) {\n      const r = drawn(i, Object.assign(blank(), { ph: t }));\n      if (!(r.gap > last) || !K.near(r.gap, wrapD(r.th3 - r.th1), 1e-9) || !K.near(r.th3, 3 * r.th1, 1e-9)) return false;\n      last = r.gap;\n    }\n    return true;\n  }, { source: SRC2 });\n  K.check('You can divide phasors: wherever the current\\'s tip is dragged on the dividing screen, the impedance drawn is the voltage divided by the current, with the sizes divided and the angles taken away', () => {\n    const i = atPic('divide');\n    for (let n = 6; n <= 12; n++) for (let a = -75; a <= 75; a += 15) {\n      const r = drawn(i, Object.assign(blank(), { I: [n, a] }));\n      if (!K.near(r.Z[0], 230 / n, 1e-9) || !K.near(r.Z[1], -a, 1e-9)) return false;\n      if (!near2(sub(r.Zn, GD.O), [230 / n * GD.zS * Math.cos(-a * RAD), -230 / n * GD.zS * Math.sin(-a * RAD)], 1e-6)) return false;\n      if (r.band.main !== fx(230 / n) + '∠' + num(-a) + '° Ω') return false;\n    }\n    return atSt('divideq', 'solved').band.main === '46∠60° Ω';\n  });\n  K.check('The turning arrow\\'s shadow on the upright line is its height, and the wave beside it has that same height at the same moment, all the way round; with two currents turning together, the sum\\'s height is always the two heights added', () => {\n    const i = atPic('turn'), j = atPic('add');\n    for (let ph = 0; ph < 40; ph += 0.37) {\n      const r = drawn(i, Object.assign(blank(), { ph }));\n      if (!K.near(r.tipY, r.shY, 1e-6) || !K.near(r.tipY, r.waveY, 1e-6)) return false;\n      const q = drawn(j, Object.assign(blank(), { ph }));\n      if (!K.near(q.sumY, q.stackY, 1e-6) || !K.near(q.sumY, q.sumWaveY, 1e-6)) return false;\n    }\n    return true;\n  });\n  K.check('Three equal currents 120° apart close their chain and leave nothing on the neutral at every size; with two at 10 A, shrinking the third opens a gap as big as the amount it shrank', () => {\n    const i = atPic('star');\n    for (let n = 0; n <= 12; n++) {\n      const r = drawn(i, Object.assign(blank(), { L: [n, n, n] }));\n      if (hyp(r.N) > 1e-9 || r.band.main !== '0 A' || !r.closed) return false;\n    }\n    for (let k = 0; k < 3; k++) for (let n = 0; n <= 10; n++) {\n      const L = [10, 10, 10]; L[k] = n;\n      if (!K.near(hyp(drawn(i, Object.assign(blank(), { L })).N), 10 - n, 1e-9)) return false;\n    }\n    return true;\n  });\n  K.check('Every number follows from the rule: 20 × 90 ÷ 360 = 5 ms; √(3² + 3²) = 4.24 kN and 4.24 A; √(6² + 8²) = 10 A; in 5 ms the arrows turn 90° and 270°, 180° apart; 230 ÷ 10 = 23 at 0° − (−30°) = 30°; 230 ÷ 5 = 46 at 60°; three 10 A currents leave 0 A; 10, 10 and 4 A leave 6 A; 10, 8 and 6 A leave 3.46 A; 230∠0° − 230∠−120° = 398∠30° V; and every wrong answer offered is a slip worked from the same values', () => {\n    const B = (r, main, items) => !!r.band && r.band.main === main && items.every((s, k) => r.band.items[k] === s);\n    if (!B(atSt('lag', 'solved'), '5 ms', ['20 × 90 ÷ 360'])) return false;\n    const ra = atSt('add');\n    if (ra.texts.indexOf('4.24 kN') < 0 || ra.band.main !== '√(3² + 3²) = 4.24 A') return false;\n    if (!B(atSt('sum', 'solved'), '10 A', ['√(6² + 8²)'])) return false;\n    if (!B(atSt('speeds'), '90°', ['45° and 135°'])) return false;\n    if (!B(atSt('speedsq', 'solved'), '180°', ['90° and 270°'])) return false;\n    if (!B(atSt('divide'), '23∠30° Ω', ['230 ÷ 10 = 23', '0° − (−30°) = 30°'])) return false;\n    if (!B(atSt('divideq', 'solved'), '46∠60° Ω', ['230 ÷ 5 = 46', '0° − (−60°) = 60°'])) return false;\n    if (!B(atSt('star', { L: [10, 10, 10] }), '0 A', ['10 − 5 − 5 = 0', '0 − 8.66 + 8.66 = 0'])) return false;\n    if (!B(atSt('star'), '5 A', ['10 − 2.5 − 5 = 2.5', '0 − 4.33 + 8.66 = 4.33'])) return false;\n    if (!B(atSt('starq', 'solved'), '6 A', ['10 − 5 − 2 = 3', '0 − 8.66 + 3.46 = −5.20'])) return false;\n    if (!B(atSt('starq2', 'solved'), '3.46 A', ['10 − 4 − 3 = 3', '0 − 6.93 + 5.20 = −1.73'])) return false;\n    if (!B(atSt('line', 'solved'), '398∠30° V', ['230 + 115 = 345', '0 + 199.19 = 199.19'])) return false;\n    const o = (pic) => STEPS[atPic(pic)].opts;\n    return o('lag').indexOf(num(90) + ' ms') >= 0 && o('lag').indexOf(num(20 * 270 / 360) + ' ms') >= 0 &&\n      o('sum').indexOf(num(6 + 8) + ' A') >= 0 && o('sum').indexOf(num(8 - 6) + ' A') >= 0 &&\n      o('speedsq').indexOf('0°') >= 0 && o('speedsq').indexOf(num(18 * 5) + '°') >= 0 &&\n      o('divideq').indexOf(num(230 * 5) + '∠' + num(0 + -60) + '° Ω') >= 0 && o('divideq').indexOf(num(230 / 5) + '∠' + num(-60) + '° Ω') >= 0 &&\n      o('starq').indexOf(num(10 + 10 + 4) + ' A') >= 0 && o('starq').indexOf(num(10 - 5 - 2) + ' A') >= 0 &&\n      o('starq2').indexOf(num(10 - 6) + ' A') >= 0 && o('starq2').indexOf(num(10 + 8 + 6) + ' A') >= 0 &&\n      o('line').indexOf(polar(hyp(add(pol(230, 0), pol(230, -120))), -60, 'V')) >= 0 && o('line').indexOf(num(230 + 230) + ' V') >= 0;\n  });\n  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>\n    DO.every((i) => {\n      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);\n      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&\n        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;\n    }));\n  K.check('Before Check no puzzle\\'s picture shows its answer, and a right answer shows it', () =>\n    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));\n  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion within 2.5 s', () => {\n    const timed = (i, st, limit) => {\n      const keepS = S[i], keepT = T, keepSpin = spin;\n      T = Infinity; latest = 0; earliest = Infinity; S[i] = st; spin = false;\n      try { paint(i); } finally { S[i] = keepS; T = keepT; spin = keepSpin; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&\n        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));\n    });\n    paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The fixed arrow and the turning arrow",
+  "brief": "The one thing you should see is the chain of three phase currents fail to close, leaving a gap that is the neutral current, when you drag one current smaller than the other two.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "We can add phasor voltages and phasor currents graphically, exactly the same as if we were adding vectors: every sum of currents or voltages drawn is the nose-to-tail sum of its arrows, found by the same rule as the sum of the pulls",
+     "ok": true,
+     "source": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf"
+    },
+    {
+     "label": "Sinusoids of different frequencies cannot be represented on the same phasor diagram, because at any instant in time the phase angle between them is different: on the two-speed screen the angle between the arrows changes from each moment to the next",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/accircuits/phasors.html"
+    },
+    {
+     "label": "You can divide phasors: wherever the current's tip is dragged on the dividing screen, the impedance drawn is the voltage divided by the current, with the sizes divided and the angles taken away",
+     "ok": true
+    },
+    {
+     "label": "The turning arrow's shadow on the upright line is its height, and the wave beside it has that same height at the same moment, all the way round; with two currents turning together, the sum's height is always the two heights added",
+     "ok": true
+    },
+    {
+     "label": "Three equal currents 120° apart close their chain and leave nothing on the neutral at every size; with two at 10 A, shrinking the third opens a gap as big as the amount it shrank",
+     "ok": true
+    },
+    {
+     "label": "Every number follows from the rule: 20 × 90 ÷ 360 = 5 ms; √(3² + 3²) = 4.24 kN and 4.24 A; √(6² + 8²) = 10 A; in 5 ms the arrows turn 90° and 270°, 180° apart; 230 ÷ 10 = 23 at 0° − (−30°) = 30°; 230 ÷ 5 = 46 at 60°; three 10 A currents leave 0 A; 10, 10 and 4 A leave 6 A; 10, 8 and 6 A leave 3.46 A; 230∠0° − 230∠−120° = 398∠30° V; and every wrong answer offered is a slip worked from the same values",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without",
+     "ok": true
+    },
+    {
+     "label": "Before Check no puzzle's picture shows its answer, and a right answer shows it",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "Two arrows",
+      "How much later",
+      "Adding",
+      "Two currents",
+      "Two speeds",
+      "After 5 ms",
+      "Dividing",
+      "Divide it",
+      "Three phases",
+      "One line light",
+      "All three differ",
+      "Line to line"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Turn it",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T02:37:49.662Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"You cannot divide one vector by another\" is absolute and rests on one community answer; ordinary vector algebra defines no division, but other systems do. Also \"the board in the question\" points at a question this lesson does not ask (predict is null)."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The rule of thumb says equal currents leave the neutral carrying nothing, unqualified; it holds only for pure sine currents 120° apart, and triplen harmonics from electronic loads add in the neutral even when balanced, as the explanation and ignores say."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

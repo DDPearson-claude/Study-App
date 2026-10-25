@@ -1,0 +1,358 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Vectors, from forces to phasors
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Components: i, j and k" — Split a vector into parts along the axes, written 3i + 4j, with cos on the side next to the given angle, and k for height. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 Adding: the resultant and the equilibrant — Vectors add nose to tail or part by part, giving the resultant, and the equilibrant is the equal and opposite force that balances it.
+- i4 Taking away: displacement and relative velocity — Taking a vector away means adding its reverse, so a displacement is end minus start, and another vessel's relative velocity is its velocity minus yours.
+- i5 The dot product: how much lies along — The dot product, |a||b| cos θ or a₁b₁ + a₂b₂ + a₃b₃, is a plain number saying how much of one vector lies along another, as in work.
+- i6 The cross product: turning and the motor force — The cross product has size |r||F| sin θ and points square to both arrows by the right-hand rule, giving a spanner's moment and a motor's force.
+- i7 Vectors and phasors — A phasor adds and takes away like a vector, but its angle is a shift in time, not a direction in space, and it can be divided.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2
+    "Vector components describe the separate x, y and z values of a vector. When working with vectors, components can be added or subtracted separately."
+[R2] Vectors: FAQ (article) | Vectors | Khan Academy — https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:vectors/x9e81a4f98389efdf:vec-models/a/vectors-faq
+    "A vector is a mathematical object that has both a magnitude (length) and a direction. Vectors can be used to represent physical quantities such as velocity, force, and acceleration."
+[R3] Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1
+    "If two vectors have the same magnitude and direction , then they are equal regardless of their position."
+[R4] Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1
+    "If we move 'backwards' along a vector, it becomes negative"
+[R5] Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2
+    "Subtracting a vector is the same as adding a negative version of the vector (remember that making a vector negative means reversing its direction)."
+[R6] 16.1: Vectors - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_et_al.)/16%3A_Appendix_1_-_Vector_and_Matrix_Math/16.1%3A_Vectors
+    "In contrast with scalar quantities, we cannot add, subtract, multiply or divide them by simply adding, subtracting, multiplying or dividing the magnitudes."
+Notes (claims, and the sources that support them):
+- Vector components are the separate x, y and z values of a vector, and they can be added or subtracted separately. [R1]
+- A vector is a quantity with a magnitude (length) and a direction, such as velocity, force or acceleration. [R2]  (from an idea this one builds on)
+- Two vectors with the same magnitude and direction are equal wherever they sit, so an arrow can be moved without changing the vector. [R3]  (from an idea this one builds on)
+- Moving backwards along a vector makes it negative, which means reversing its direction. [R4][R5]  (from an idea this one builds on)
+- A vector has both a magnitude and a direction, and velocity, force and acceleration are physical quantities it can represent. [R2]  (whole topic)
+- Vector quantities cannot be added, subtracted, multiplied or divided by simply adding, subtracting, multiplying or dividing their magnitudes. [R6]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Components: i, j and k",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the cos label jump to the other side of the triangle when you switch the angle from off the x-axis to a bearing, while the arrow and its parts stay put.",
+  "title": "The arrow and its shadows",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Twelve small screens share one grid and one solid arrow, from its tail at the origin to its tip. Its two parts are drawn dashed, nose to tail. The across part runs along the x-axis. The up part climbs from there to the tip. They meet at a right angle, so they close a right-angled triangle with the arrow as its long side. A readout shows the parts as a column and as i and j. Here i is the unit vector along the x-axis, and j the unit vector up the y-axis. Dragging the tip changes the arrow, and the dashed parts follow it. With a size and an angle, the triangle gives the parts. The side next to the angle is the size times the angle's cosine. The side opposite is the size times its sine. A label on each dashed side says which. North is up the page and east along the x-axis. A switch moves the angle marker from off the x-axis to a bearing, measured clockwise from north. The arrow and its parts stay put. The angle now sits next to the north side, so the cos label jumps to that side. Going back, the size is Pythagoras on the parts. A 3-D switch tips the grid back into a floor. A third axis, z, stands up at right angles to it, with k the unit vector along it. The arrow stands in a box whose edges are its i, j and k parts, and dragging turns the box. Its size is Pythagoras twice: across the floor, then up. The screens: arrow a, 3 across and 4 up. A puzzle on an arrow 4 across and 2 down. A 10 N pull at 30° off the x-axis, with an angle slider from 0° to 90°. A puzzle on a 20 N pull at 60°. The bearing switch on the 10 N pull. A puzzle on 12 knots on a bearing of 030. The arrow −3i + 4j and its angle. A puzzle on the size of 5i − 12j. The box for 2i + 3j + 6k. A puzzle on the size of 4i + 4j + 7k. Two mixed puzzles: a ring on one rope with its parts drawn, and a 50 N winch rope on a bearing of 120. Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers, and a wrong pick is drawn so you can see where it goes wrong.",
+  "ignores": "The grid's squares have no unit, so one arrow can stand for newtons, knots or metres. The parts here always lie along the x and y axes. A vector can be split along any two lines at right angles, such as along and across a slope. Turning the 3-D box changes only your view. The arrow and its parts stay the same. The puzzles use example values, and parts are rounded to two decimal places.",
+  "numbers": [
+   {
+    "label": "Arrow a's across part, in squares, step 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow a's up part, in squares, step 1",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 2 arrow, 4 across and 2 down, written 4i − 2j",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example pull in newtons, steps 3, 5 and 11",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example angle off the x-axis in degrees, steps 3 and 11",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Angle slider's lowest angle in degrees, step 3",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Angle slider's highest angle in degrees, step 3",
+    "value": 90,
+    "kind": "control"
+   },
+   {
+    "label": "Across part, 10 cos 30°, in newtons, step 3",
+    "value": 8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Up part, 10 sin 30°, in newtons, step 3",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Parts wrongly added, 8.66 + 5, in newtons",
+    "value": 13.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Example pull in newtons, step 4",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example angle off the x-axis in degrees, step 4",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Across part, 20 cos 60°, in newtons, step 4",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 20 sin 60°, in newtons, step 4",
+    "value": 17.32,
+    "kind": "computed"
+   },
+   {
+    "label": "Same pull as a bearing, 90° − 30°, step 5",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Example speed in knots, step 6",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example bearing in degrees, step 6",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "East part, 12 sin 30°, in knots, step 6",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 12 cos 30°, in knots, step 6",
+    "value": 10.39,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 7 arrow, −3i + 4j, its size",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Calculator's tan⁻¹(4 ÷ −3) in degrees, step 7",
+    "value": -53.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle off the x-axis, −53.13° + 180°, step 7",
+    "value": 126.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Size of 5i − 12j, √(25 + 144), step 8",
+    "value": 13,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 5 + 12, step 8",
+    "value": 17,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 5 + (−12), a size below zero, step 8",
+    "value": -7,
+    "kind": "computed"
+   },
+   {
+    "label": "Box arrow 2i + 3j + 6k, its floor diagonal √13, step 9",
+    "value": 3.61,
+    "kind": "computed"
+   },
+   {
+    "label": "Size of 2i + 3j + 6k, √49, step 9",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Size of 4i + 4j + 7k, √81, step 10",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 4 + 4 + 7, step 10",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick √(4² + 4²), k left out, step 10",
+    "value": 5.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Pulls on the ring in step 11",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Winch rope pull in newtons, step 12",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Winch rope bearing in degrees, step 12",
+    "value": 120,
+    "kind": "assumed"
+   },
+   {
+    "label": "East part, 50 sin 120°, in newtons, step 12",
+    "value": 43.3,
+    "kind": "computed"
+   },
+   {
+    "label": "North part, 50 cos 120°, in newtons, step 12",
+    "value": -25,
+    "kind": "computed"
+   },
+   {
+    "label": "Example load's apparent power in kVA, analogy",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example power factor, cos φ, analogy",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "sin φ, √(1 − 0.8²), analogy",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Active power, 10 × 0.8, in kW, analogy",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Reactive power, 10 × 0.6, in kvar, analogy",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Example submarine speed in knots, practice",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example submarine bearing in degrees, practice",
+    "value": 210,
+    "kind": "assumed"
+   },
+   {
+    "label": "East part, 8 sin 210°, in knots, practice",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "North part, 8 cos 210°, in knots, practice",
+    "value": -6.93,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Any vector can be split into two parts at right angles, one along each axis. Those parts are its [[component]]s, the separate x, y and z values of the vector.[^1] Take the arrow a again, 3 across and 4 up. Its across part runs along the x-axis. Its up part climbs from there to the tip. Drawn nose to tail, the two parts end exactly at the arrow's tip. So together they are the arrow, described along the axes, not extra pulls. The parts and the arrow close a right-angled triangle, with the arrow as the long side. You write the parts as a column, 3 above 4, or as 3i + 4j. Here i is the unit vector along the x-axis and j is the unit vector up the y-axis. So 3i + 4j means 3 lots of i, then 4 lots of j.\n\nOften you know the size and an angle instead. Then the triangle gives the parts. Take a 10 N pull at 30° above the x-axis. The angle sits between the arrow and the across side. In a right-angled triangle, the side next to an angle is the long side times the angle's cosine. So the across part is 10 cos 30° = 8.66 N. The side opposite the angle is the long side times its sine, so the up part is 10 sin 30° = 5 N. Finding the parts this way is called [[resolving]] the pull. Each part is shorter than the arrow, unless the arrow lies along an axis. Then one part is the whole arrow and the other is zero. A bearing shows why it matters which side is next to the angle. Put north up the page and east along the x-axis. A bearing is measured clockwise from north. The pull sits 30° above east, so it is 60° round from north, a bearing of 060. Now the angle sits next to the north side, so north takes the cosine: 10 cos 60° = 5 N. East takes the sine: 10 sin 60° = 8.66 N. The parts have not changed. Only the angle moved, and the cos went with it.\n\nGoing back, the size is Pythagoras on the parts, not the parts added. The pull's parts give √(8.66² + 5²) = 10 N, not 13.66 N. The angle comes from the tangent, but check the signs. For −3i + 4j a calculator's tan⁻¹(4 ÷ −3) gives −53.13°, which points right and down. The signs say left and up, so add 180° to get 126.87°. A third axis, z, stands at right angles to both, and k is the unit vector along it. 2i + 3j + 6k runs 2 across, 3 along and 6 up. Across the floor, Pythagoras gives √(2² + 3²) = √13. The 6 up stands at right angles to that floor line, so Pythagoras again gives √(13 + 6²) = √49 = 7. Parts along one axis add and take away as plain numbers.[^1] That is what makes adding vectors easy.\n\n**A vector's components are its parts along the axes, written ai + bj + ck. The part next to the given angle is the size times its cosine, the other is the size times its sine, and the size comes back by Pythagoras.**"
+ },
+ "analogy": {
+  "text": "Your power triangle is the same split. Say a load draws 10 kVA at a power factor of 0.8. The active power is the side next to the angle φ: 10 × 0.8 = 8 kW. The reactive power is the side opposite: 10 × 0.6 = 6 kvar, since sin φ is 0.6 when cos φ is 0.8. Pythagoras takes you back to 10 kVA, and 8 + 6 = 14 means nothing.",
+  "breaks": "The angle φ is a shift in time between current and voltage, not a direction in space. So the power triangle has no third axis and nothing like k."
+ },
+ "practice": {
+  "text": "- Draw the arrow and its two parts nose to tail, so they close a right-angled triangle.\n- Mark the given angle. The side next to it is the size times cos. The other side is the size times sin.\n- With an angle off the x-axis, across is size × cos θ and up is size × sin θ. With a bearing, east is size × sin θ and north is size × cos θ.\n- Give each part its sign. Left and down are minus, and so are west and south.\n- Check that Pythagoras on the parts gives back the size.\n- Going back to an angle, use the tangent, then check the quarter from the signs.\n\n**Rule of thumb:** Cos goes on the side next to the angle.\n\n**Worked example:** A submarine makes 8 knots on a bearing of 210. East is 8 sin 210° = −4 knots. North is 8 cos 210° = −6.93 knots. So its velocity is −4i − 6.93j. Both parts are minus, so it heads south and west, as 210 should. Check: √(4² + 6.93²) = √64 = 8 knots.\n\n**Common mistakes**\n- Putting sin next to the angle. With a bearing, the angle sits next to north, so north takes cos.\n- Giving a part the arrow's whole size. That only happens when the arrow lies along that axis.\n- Adding the parts for the size. 5i − 12j has size 13, not 17.\n- Writing the parts the wrong way round. 4i − 2j is 4 across and 2 down, not −2i + 4j.\n- Trusting tan⁻¹ without the signs. −3i + 4j points at 126.87°, not −53.13°.\n- Leaving k out of the size. 4i + 4j + 7k has size 9.\n- Counting the parts as extra pulls. A ring on one rope feels one pull."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2",
+   "quote": "Vector components describe the separate x, y and z values of a vector. When working with vectors, components can be added or subtracted separately."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

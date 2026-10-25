@@ -1,0 +1,603 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Vectors, from forces to phasors
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i7 "Vectors and phasors" — A phasor adds and takes away like a vector, but its angle is a shift in time, not a direction in space, and it can be divided. [concept]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 4 AC Circuits Phasors, Impedance and Transformers — https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf
+    "We can add phasor voltages and phasor currents graphically. We do this exactly the same as if we were adding vectors."
+[R2] 4 AC Circuits Phasors, Impedance and Transformers — https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf
+    "A phasor is a complex number that represents the magnitude and phase of a voltage or a current."
+[R3] 4 AC Circuits Phasors, Impedance and Transformers — https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf
+    "We cannot apply curl, divergence, and dot product to phasore and get other phasors."
+[R4] pwm - Phasor vs Vector vs Space Vector - Electrical Engineering Stack Exchange — https://electronics.stackexchange.com/questions/420569/phasor-vs-vector-vs-space-vector
+    "you can divide phasors but can't divide vectors, for example."
+[R5] Phasor Diagrams and Phasor Algebra used in AC Circuits — https://www.electronics-tutorials.ws/accircuits/phasors.html
+    "Sinusoids of different frequencies cannot be represented on the same phasor diagram due to the different speed of the vectors. At any instant in time the phase angle between them will be different."
+[R6] Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1
+    "A resultant vector is a vector that 'results' from adding two or more vectors together."
+[R7] 16.1: Vectors - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_et_al.)/16%3A_Appendix_1_-_Vector_and_Matrix_Math/16.1%3A_Vectors
+    "In contrast with scalar quantities, we cannot add, subtract, multiply or divide them by simply adding, subtracting, multiplying or dividing the magnitudes."
+[R8] Phys 103 - Forces in Equilibrium - Fall — https://myslu.stlawu.edu/~jmil/physics/labs/103_lab/vectors.pdf
+    "Therefore, the equilibrant has the same magnitude, but opposite direction as the resultant."
+[R9] Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2
+    "Vector components describe the separate x, y and z values of a vector. When working with vectors, components can be added or subtracted separately."
+[R10] Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2
+    "Subtracting a vector is the same as adding a negative version of the vector (remember that making a vector negative means reversing its direction)."
+[R11] 3.1 Position, Displacement, and Average Velocity - University Physics Volume 1 | OpenStax — https://openstax.org/books/university-physics-volume-1/pages/3-1-position-displacement-and-average-velocity
+    "We always solve for displacement by subtracting initial position from final position"
+[R12] How to Calculate Relative Velocity in 1D and 2D — https://physicsfundamentals.org/blog/relative-velocity
+    "The velocity of object A relative to object B is the vector difference between their velocities, both measured in the same reference frame:"
+[R13] Applied Heat Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/applied-heat-written-examination-syllabus
+    "Draws the vector diagrams for inlet and outlet steam velocities over a turbine blade for shockless flow."
+[R14] Understanding tidal streams and heights - Practical Boat Owner — https://www.pbo.co.uk/seamanship/understanding-tidal-streams-and-heights-95506
+    "Revise the course to steer: a surprising number of candidates ‘join the dots’ – connecting the end of the tidal vector to the destination."
+[R15] Ch. 2 Summary - University Physics Volume 1 | OpenStax — https://openstax.org/books/university-physics-volume-1/pages/2-summary
+    "The scalar product of two vectors is obtained by multiplying their magnitudes with the cosine of the angle between them."
+[R16] 2.4 Products of Vectors - University Physics Volume 1 | OpenStax — https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors
+    "For example, the work that a force (a vector) performs on an object while causing its displacement (a vector) is defined as a scalar product of the force vector with the displacement vector."
+[R17] Ch. 2 Summary - University Physics Volume 1 | OpenStax — https://openstax.org/books/university-physics-volume-1/pages/2-summary
+    "The scalar product of orthogonal vectors vanishes; the scalar product of antiparallel vectors is negative."
+[R18] 2.4 Products of Vectors - University Physics Volume 1 | OpenStax — https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors
+    "The dot product is a scalar; the cross product is a vector."
+[R19] Difference Between Active Power, Reactive Power and Apparent Power – Schneider Electric — https://eshop.se.com/in/blog/post/difference-between-active-power-reactive-power-and-apparent-power.html
+    "The apparent power of a sinusoidal AC circuit can be calculated simply as the product of its RMS values for voltage and current. It is measured in volt-amperes (VA) or kilovolt-amps (kVA)."
+[R20] Vectors: FAQ (article) | Vectors | Khan Academy — https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:vectors/x9e81a4f98389efdf:vec-models/a/vectors-faq
+    "A vector is a mathematical object that has both a magnitude (length) and a direction. Vectors can be used to represent physical quantities such as velocity, force, and acceleration."
+Notes (claims, and the sources that support them):
+- Phasor voltages and currents can be added graphically exactly as vectors are. [R1]
+- A phasor is a complex number that represents the magnitude and phase of a voltage or current, and the dot product of phasors does not give another phasor. [R2][R3]
+- Phasors can be divided but vectors cannot, according to one community answer (a secondary source). [R4]
+- Sinusoids of different frequencies cannot be drawn on the same phasor diagram because the phase angle between them changes with time. [R5]
+- A resultant vector is the vector that results from adding two or more vectors together. [R6]  (from an idea this one builds on)
+- Vectors cannot be added by adding their magnitudes, so combining two forces needs their directions as well. [R7]  (from an idea this one builds on)
+- The equilibrant has the same magnitude as the resultant but the opposite direction, so it balances the forces. [R8]  (from an idea this one builds on)
+- Components can be added separately, which gives the resultant part by part. [R9]  (from an idea this one builds on)
+- Subtracting a vector is the same as adding its negative version, and making a vector negative means reversing its direction. [R10]  (from an idea this one builds on)
+- Displacement is found by subtracting the initial position from the final position. [R11]  (from an idea this one builds on)
+- The velocity of object A relative to object B is the vector difference of their velocities, v_A minus v_B, in the same reference frame. [R12]  (from an idea this one builds on)
+- Marine engineers draw the vector diagrams for the inlet and outlet steam velocities over a moving turbine blade. [R13]  (from an idea this one builds on)
+- A common course-to-steer mistake is to 'join the dots', connecting the end of the tidal vector to the destination. [R14]  (from an idea this one builds on)
+- The scalar product of two vectors multiplies their magnitudes by the cosine of the angle between them and gives a number. [R15]  (from an idea this one builds on)
+- Work is defined as the scalar product of the force vector with the displacement vector. [R16]  (from an idea this one builds on)
+- The scalar product of orthogonal vectors is zero, and that of antiparallel vectors is negative. [R17]  (from an idea this one builds on)
+- The dot product is a scalar, whereas the cross product is a vector. [R18]  (from an idea this one builds on)
+- The apparent power of an AC circuit is the product of its RMS voltage and current, measured in volt-amperes (VA). [R19]  (from an idea this one builds on)
+- A vector has both a magnitude and a direction, and velocity, force and acceleration are physical quantities it can represent. [R20]  (whole topic)
+- Vector quantities cannot be added, subtracted, multiplied or divided by simply adding, subtracting, multiplying or dividing their magnitudes. [R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i7",
+ "title": "Vectors and phasors",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the three phase currents' nose-to-tail chain fail to close, leaving a gap that is the neutral current, when you drag one current smaller than the other two.",
+  "title": "The fixed arrow and the turning arrow",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "Two pictures sit side by side. On the left, a 3 kN pull on a ring stays put. Its angle is the way the rope runs. On the right, an arrow turns round its tail once every cycle. Its height at each instant is its shadow on an upright line, so the shadow traces a sine wave beside it. A freeze button stops it. Frozen, it is the fixed arrow you write as r∠θ. Its angle then marks when in the cycle the wave peaks, not a direction. On a 50 Hz supply one turn takes 20 ms. The screens run like this. First the two arrows, one still and one turning. A puzzle has a current 90° behind the voltage and asks how much later it peaks. Next, two 3 kN pulls at 0° and 90° add nose to tail to 4.24 kN. Two 3 A currents a quarter turn apart add the same way, to 4.24 A. They add because both arrows turn together, so their sum turns with them. A puzzle adds 6 A in step with the voltage to 8 A a quarter turn behind. Then a 50 Hz arrow and a 150 Hz arrow start together. The faster one gains, so the angle between them keeps changing. A puzzle asks how far apart they are after 5 ms. Then a phasor is shown as a number. Dividing the voltage by the current gives the impedance. Divide the sizes and take away the angles, so 230∠0° V ÷ 10∠−30° A gives 23∠30° Ω. A puzzle divides 230∠0° V by 5∠−60° A. Then three phase currents leave a star point at 0°, −120° and 120°. You can drag each one's size. Beside them the same arrows are laid nose to tail. Three equal 10 A currents close into a triangle, and the neutral readout shows 0 A. Shorten one and the chain falls short of closing. The gap is the neutral current, worked out by parts. A puzzle has 10, 10 and 4 A. Two mixed puzzles end it. One has 10, 8 and 6 A. The other takes 230∠−120° V away from 230∠0° V for the voltage between two lines. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn too, so you can see where it goes wrong.",
+  "ignores": "The waves are pure sines at one frequency. Real electronic loads also draw harmonics, and some of those add up in the neutral even on a balanced board. Each load is taken at the same power factor, so the three currents stay 120° apart. Loads at different power factors shift the angles too. The turning arrow is drawn at the wave's peak, so its shadow is the value at each instant. The three-phase arrows are drawn at rms. Shrinking every arrow by the same factor changes no angle and no sum's shape. The supply is taken as 50 Hz. The puzzles use example values, rounded to two decimal places.",
+  "numbers": [
+   {
+    "label": "Step control's first screen",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Step control's last screen",
+    "value": 11,
+    "kind": "control"
+   },
+   {
+    "label": "Step 1 still pull on the ring, kN",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example supply frequency, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "One turn at 50 Hz, 1000 ÷ 50, ms",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 2 current's lag behind the voltage, degrees",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 2 delay, 20 × 90 ÷ 360, ms",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 2 wrong pick, degrees read as ms",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 3 each pull, kN",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 3 first pull's angle, degrees",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 3 second pull's angle, degrees",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 3 resultant pull, √(3² + 3²), kN",
+    "value": 4.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 3 resultant pull's angle, degrees",
+    "value": 45,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 3 each current, A",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 3 second current's angle, degrees",
+    "value": -90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 3 total current, √(3² + 3²), A",
+    "value": 4.24,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 3 total current's angle, degrees",
+    "value": -45,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 current in step with the voltage, A",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 4 current a quarter turn behind, A",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 4 total, √(6² + 8²), A",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 wrong pick, sizes added, A",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 wrong pick, 8 − 6, A",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 5 faster arrow's frequency, Hz",
+    "value": 150,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 5 speed ratio, 150 ÷ 50",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 time after the start, ms",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 6 50 Hz arrow's turn, degrees",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 150 Hz arrow's turn, degrees",
+    "value": 270,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 angle between them, degrees",
+    "value": 180,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 wrong pick, unchanged from the start, degrees",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 wrong pick, degrees",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 7 voltage, V",
+    "value": 230,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 7 voltage's angle, degrees",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 7 current, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 7 current's angle, degrees",
+    "value": -30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 7 impedance size, 230 ÷ 10, Ω",
+    "value": 23,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 7 impedance angle, 0 − (−30), degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 8 current, A",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 8 current's angle, degrees",
+    "value": -60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 8 impedance size, 230 ÷ 5, Ω",
+    "value": 46,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 8 impedance angle, degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 8 wrong pick, 230 × 5, Ω",
+    "value": 1150,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 8 wrong pick's angle, degrees",
+    "value": -60,
+    "kind": "computed"
+   },
+   {
+    "label": "Spacing of three phases, degrees",
+    "value": 120,
+    "kind": "constant"
+   },
+   {
+    "label": "L2's angle, degrees",
+    "value": -120,
+    "kind": "constant"
+   },
+   {
+    "label": "Step 9 balanced current on each line, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 9 balanced neutral current, A",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 L3's current, A",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 10 L2's across part, 10 cos(−120°), A",
+    "value": -5,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 L3's across part, 4 cos 120°, A",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 across total, 10 − 5 − 2, A",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 L2's up part, 10 sin(−120°), A",
+    "value": -8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 L3's up part, 4 sin 120°, A",
+    "value": 3.46,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 up total, A",
+    "value": -5.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 neutral current, √(3² + 5.20²), A",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 10 wrong pick, sizes added, A",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 L2's current, A",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 11 L3's current, A",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 11 across total, 10 − 4 − 3, A",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 up total, −6.93 + 5.20, A",
+    "value": -1.73,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 neutral current, √(3² + 1.73²), A",
+    "value": 3.46,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 wrong pick, largest minus smallest, A",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 L1's voltage, V",
+    "value": 230,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 across part, 230 + 115, V",
+    "value": 345,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 up part, 0 + 199.19, V",
+    "value": 199.19,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 line voltage, √(345² + 199.19²), V",
+    "value": 398,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 line voltage's angle, degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 wrong pick, the sum's size, V",
+    "value": 230,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 wrong pick, the sum's angle, degrees",
+    "value": -60,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 wrong pick, sizes added, V",
+    "value": 460,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy hour hands' gap for one hour, 360 ÷ 12, degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice L1 current, A",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice L2 current, A",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice L3 current, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice L2's across part, 15 cos(−120°), A",
+    "value": -7.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice L3's across part, 10 cos 120°, A",
+    "value": -5,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice across total, A",
+    "value": 7.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice L2's up part, 15 sin(−120°), A",
+    "value": -12.99,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice L3's up part, 10 sin 120°, A",
+    "value": 8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice up total, A",
+    "value": -4.33,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice neutral current, √(7.5² + 4.33²), A",
+    "value": 8.66,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice neutral current's angle, degrees",
+    "value": -30,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice sizes added, A",
+    "value": 45,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A phasor is drawn like a vector and adds like one. But its angle marks a moment in time, not a direction in space. And because it is a complex number, it can be divided.\n\nStart with the force arrow. A 3 kN pull on a ring points somewhere real. Its angle says which way the rope runs. Now take an arrow that turns round its tail once every cycle. Its height at each instant traces the sine wave of a voltage. Freeze it and you have the fixed arrow you write as r∠θ. On a 50 Hz supply one turn takes 20 ms. So a current 90° behind the voltage peaks a quarter turn later, 5 ms after it. The angle measures that delay. Nothing in the cable points that way.\n\nTurn two arrows together and their nose-to-tail sum turns with them. So the sum's height is the two heights added, at every instant. That is why phasors add nose to tail, exactly as forces do.[^1] 6 A in step with the voltage and 8 A a quarter turn behind give √(6² + 8²) = 10 A, not 14 A. This needs every arrow to turn at the same speed. A 150 Hz arrow turns three times as fast as a 50 Hz one. So the angle between them changes from one instant to the next, and they cannot share a diagram.[^2] Being a number gives a phasor one thing a vector lacks. You can divide phasors, but you cannot divide one vector by another.[^3] Divide the sizes and take away the angles. So 230∠0° V ÷ 10∠−30° A gives an impedance of 23∠30° Ω. Nor does the dot product of two phasors give another phasor.[^4]\n\nThree-phase is the ring of pulls again. Three equal currents 120° apart, laid nose to tail, close into a triangle. What flows out on the lines must come back. So the neutral carries whatever the three lines do not cancel. On a closed chain that is nothing. Now shrink L3 to 4 A, with L1 and L2 at 10 A. The chain falls short of closing, and the gap is the neutral current. Across, the parts give 10 − 5 − 2 = 3 A. Up, they give 0 − 8.66 + 3.46 = −5.20 A. So the neutral carries √(3² + 5.20²) = 6 A. This is the ideal case of pure sine waves at one frequency. Real loads add harmonics, and some of those add up in the neutral. So the board in the question sends 6 A back on the neutral, not 24 A, because its currents add as arrows.\n\n**A phasor adds like a vector, but its angle is a shift in time, and being a number it can be divided.**[^1]"
+ },
+ "analogy": {
+  "text": "Picture two clocks on a bulkhead, one set an hour behind the other. Their hour hands point 30° apart. That angle means an hour, not a direction. Both run at the same speed, so the gap stays 30° all day. Fit one with a faster movement and the gap drifts every minute. Waves of different frequencies drift apart in just that way.",
+  "breaks": "A clock hand only tells the time. Its length means nothing, and two times never add to make a third. A phasor's length is the wave's size, and phasors add nose to tail."
+ },
+ "practice": {
+  "text": "Work it out on paper first. If you check it on a live board, use a clamp meter round the neutral and follow your safe system of work.\n\n- Check every wave has the same frequency. Only then can they share one diagram.\n- Pick one phasor as the reference at 0°, such as L1's voltage. Give every other phasor its angle from it.\n- To add, lay the arrows nose to tail, or add their across parts and their up parts.\n- To take away, turn the second arrow round and add it.\n- Find the size with Pythagoras and the angle with tan⁻¹, checking the quarter it lands in.\n- To divide, divide the sizes and take away the angles.\n\n**Rule of thumb:** Equal currents 120° apart cancel, so the neutral carries nothing. When two lines carry the same current, the neutral carries the difference between them and the third. With only one line loaded, the neutral carries all of its current.\n\n**Worked example:** Say L1 carries 20 A, L2 15 A and L3 10 A, at 0°, −120° and 120°. Across: 20 − 7.5 − 5 = 7.5 A. Up: 0 − 12.99 + 8.66 = −4.33 A. The neutral carries √(7.5² + 4.33²) = 8.66 A, at tan⁻¹(−4.33 ÷ 7.5) = −30°. The sizes added would be 45 A.\n\n**Common mistakes**\n- Adding the sizes. 10, 10 and 4 A leave 6 A on the neutral, not 24 A.\n- Using the difference shortcut when all three differ. 10, 8 and 6 A leave 3.46 A, not 4 A.\n- Drawing waves of different frequencies on one diagram. The angles between them drift.\n- Reading a phasor's angle as a direction in the cable. It is a delay in the cycle.\n- Adding when you should take away. The voltage between two 230 V lines is their difference, 398 V. Their sum is only 230 V.\n- Multiplying V and I as complex numbers to get power. That adds their angles. True power uses the angle between them, in VI cos φ."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "4 AC Circuits Phasors, Impedance and Transformers",
+   "url": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf",
+   "quote": "We can add phasor voltages and phasor currents graphically. We do this exactly the same as if we were adding vectors."
+  },
+  {
+   "n": 2,
+   "title": "Phasor Diagrams and Phasor Algebra used in AC Circuits",
+   "url": "https://www.electronics-tutorials.ws/accircuits/phasors.html",
+   "quote": "Sinusoids of different frequencies cannot be represented on the same phasor diagram due to the different speed of the vectors. At any instant in time the phase angle between them will be different."
+  },
+  {
+   "n": 3,
+   "title": "pwm - Phasor vs Vector vs Space Vector - Electrical Engineering Stack Exchange",
+   "url": "https://electronics.stackexchange.com/questions/420569/phasor-vs-vector-vs-space-vector",
+   "quote": "you can divide phasors but can't divide vectors, for example."
+  },
+  {
+   "n": 4,
+   "title": "4 AC Circuits Phasors, Impedance and Transformers",
+   "url": "https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf",
+   "quote": "We cannot apply curl, divergence, and dot product to phasore and get other phasors."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

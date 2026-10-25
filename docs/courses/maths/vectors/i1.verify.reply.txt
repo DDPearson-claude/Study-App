@@ -1,0 +1,26 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "problem": "Bold in print and underlining by hand are the usual conventions, not the only ones (the research says \"usually\"; arrows over letters are common too); and a line current's angle is a phase angle in time, not a direction in space, as idea i7 teaches.",
+   "severity": "fix",
+   "now": "A [[vector]] is a size with a direction.[^1] A force, a velocity and an acceleration are all vectors. You draw one as an arrow. Its length is the size and the way it points is the direction. A quantity with a size and no direction, such as mass, energy or temperature, is a [[scalar]]. A pump's 500 kg mass is a scalar. Its weight is a vector, because weight is a force that pulls it down.\n\nOn a grid, the arrow called a runs 3 squares across and 4 up from its tail to its tip. The two moves are at right angles, so the arrow is the long side of a right-angled triangle. Pythagoras gives its size: √(3² + 4²) = √25 = 5, written |a| = 5. Size and direction are all the arrow holds, so where it is drawn is not part of it. Two arrows with the same size and direction are the same vector, wherever they sit.[^2] Slide a anywhere on the grid and it still runs 3 across and 4 up, so it is still a. The arrow from point A to point B is the vector AB. Going from B back to A covers the same ground the other way. Moving backwards along a vector makes it negative,[^3] so BA = −AB. In print a vector's letter is usually bold, and by hand it is usually underlined.\n\nA number in front scales a vector. 2a is a done twice, 3 across and 4 up and then the same again. So it runs 6 across and 8 up, the same way and twice as long, size 10. Each move is multiplied, so the triangle grows in proportion and the direction holds. A negative number also turns the arrow round, because making a vector negative reverses its direction.[^4] So −2a runs 6 left and 8 down. Its size is still 10, because a length cannot be below zero. The arrows a, 2a and −2a lie along one line, so they are parallel. Dividing a by its own size, 5, shrinks it to length 1 the same way. That is its [[unit vector]], 0.6 across and 0.8 up, and it holds the direction alone. Because direction is part of every vector, two of them cannot be added just by adding their sizes.[^5] Each line current has its own phase angle too, which is why 10 A, 10 A and 4 A on a three-phase board need not put 24 A on the neutral.\n\n**A vector is only its size and its direction, so its arrow can be drawn anywhere,[^2] and a number in front stretches or shrinks it and, if negative, turns it round.**"
+  },
+  {
+   "path": "analogy.breaks",
+   "problem": "Calling the step \"a distance\" contradicts the lesson: distance is a scalar, while a step 300 mm across and 400 mm up has a direction, so it is a displacement, which is exactly why it is a vector.",
+   "severity": "fix",
+   "now": "A step on a wall is a move through space, measured in millimetres, but a vector can just as well be a force or a velocity, where the arrow's length stands for newtons or knots. And a real force pushes at one place on a body, which matters when it turns it, though the vector itself is still only its size and direction."
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "The analogy's 300, 400, 500, 900 and 1,200 mm and the worked example's 3, 4, 5, 1.5, 2 and 2.5 m/s are not listed in numbers; all are worded as chosen and their arithmetic is right, but numbers should list them as assumed or computed.",
+   "severity": "note"
+  },
+  {
+   "path": "interactive.brief",
+   "problem": "With the scale slider at 0, or the tip dragged onto the tail, the arrow has size 0 and the Unit button would divide by zero; the build should disable Unit, or say there is no direction to keep, whenever the size is 0.",
+   "severity": "note"
+  }
+ ]
+}

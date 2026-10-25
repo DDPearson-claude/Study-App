@@ -1,0 +1,320 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Vectors, from forces to phasors
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "What a vector is" — A vector is a size plus a direction, so its arrow slides anywhere unchanged, and a number in front stretches it or turns it round. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Components: i, j and k — Split a vector into parts along the axes, written 3i + 4j, with cos on the side next to the given angle, and k for height.
+- i3 Adding: the resultant and the equilibrant — Vectors add nose to tail or part by part, giving the resultant, and the equilibrant is the equal and opposite force that balances it.
+- i4 Taking away: displacement and relative velocity — Taking a vector away means adding its reverse, so a displacement is end minus start, and another vessel's relative velocity is its velocity minus yours.
+- i5 The dot product: how much lies along — The dot product, |a||b| cos θ or a₁b₁ + a₂b₂ + a₃b₃, is a plain number saying how much of one vector lies along another, as in work.
+- i6 The cross product: turning and the motor force — The cross product has size |r||F| sin θ and points square to both arrows by the right-hand rule, giving a spanner's moment and a motor's force.
+- i7 Vectors and phasors — A phasor adds and takes away like a vector, but its angle is a shift in time, not a direction in space, and it can be divided.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Vectors: FAQ (article) | Vectors | Khan Academy — https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:vectors/x9e81a4f98389efdf:vec-models/a/vectors-faq
+    "A vector is a mathematical object that has both a magnitude (length) and a direction. Vectors can be used to represent physical quantities such as velocity, force, and acceleration."
+[R2] Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1
+    "If two vectors have the same magnitude and direction , then they are equal regardless of their position."
+[R3] Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1
+    "If we move 'backwards' along a vector, it becomes negative"
+[R4] Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2
+    "Subtracting a vector is the same as adding a negative version of the vector (remember that making a vector negative means reversing its direction)."
+[R5] 16.1: Vectors - Engineering LibreTexts — https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_et_al.)/16%3A_Appendix_1_-_Vector_and_Matrix_Math/16.1%3A_Vectors
+    "In contrast with scalar quantities, we cannot add, subtract, multiply or divide them by simply adding, subtracting, multiplying or dividing the magnitudes."
+Notes (claims, and the sources that support them):
+- A vector is a quantity with a magnitude (length) and a direction, such as velocity, force or acceleration. [R1]
+- Two vectors with the same magnitude and direction are equal wherever they sit, so an arrow can be moved without changing the vector. [R2]
+- Moving backwards along a vector makes it negative, which means reversing its direction. [R3][R4]
+- A vector has both a magnitude and a direction, and velocity, force and acceleration are physical quantities it can represent. [R1]  (whole topic)
+- Vector quantities cannot be added, subtracted, multiplied or divided by simply adding, subtracting, multiplying or dividing their magnitudes. [R5]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "What a vector is",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the readout staying at 3 across, 4 up and size 5 while the arrow lands somewhere new, when you drag its middle across the grid.",
+  "title": "The arrow that slides",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one grid with one arrow, a, drawn from its tail to its tip. A readout beside it gives its two moves, how many squares across and how many up from tail to tip, with left and down as minus, and its size, the arrow's length. The size comes from Pythagoras, because the across and up moves are at right angles: √(3² + 4²) = 5 for the opening arrow. Dragging the tip sets the moves, so the size and direction change. Dragging the arrow's middle slides the whole arrow, while a faint copy stays at the origin. The readout does not change, because the moves are the same, and the copy matches. A scale slider from −3 to 3 multiplies both moves by its number. The arrow stretches, shrinks to a dot at 0 and comes out the other way below 0. Its size is the number, without its sign, times the starting size. A Unit button divides both moves by the size, leaving an arrow of length 1 along the same line. One screen shows a pump with its mass as a plain number and its weight as an arrow pointing down. One shows four arrows in different places. One marks two points, A and B, with the arrows AB and BA between them. One shows a boat going round a circle at a steady speed, its velocity arrow turning as it goes. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is drawn on the grid so you can see where it goes wrong.",
+  "ignores": "The grid's squares have no unit, so the same arrow can stand for metres, newtons or knots. Sliding an arrow keeps the vector the same, but a real force also acts at a point on a body, and where it acts matters when it turns the body. That comes with turning, later on. The puzzles' numbers are example values chosen to give whole numbers or short decimals. Directions here lie flat on the page, and a vector can just as well point up out of it.",
+  "numbers": [
+   {
+    "label": "Arrow a's move across, in squares, steps 1 and 3",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow a's move up, in squares, steps 1 and 3",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Size of a, √(3² + 4²) = √25, step 1",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Example pump's mass in kg, step 2",
+    "value": 500,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example pump's temperature in °C, step 2",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow C moves 4 across, 3 up, size 5, step 4",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow D moves 3 left, 4 down, size 5, step 4",
+    "value": -3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Point A at (1, 1), step 5",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Point B at (4, 5), step 5",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "BA moves 3 left, 4 down, step 6",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Scale slider lowest number, steps 7 to 10",
+    "value": -3,
+    "kind": "control"
+   },
+   {
+    "label": "Scale slider highest number, steps 7 to 10",
+    "value": 3,
+    "kind": "control"
+   },
+   {
+    "label": "Scale slider's step",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Scale slider opening number",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "2a moves 6 across, 8 up, step 7",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Size of 2a, 2 × 5, step 7",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "½a moves 1.5 across, 2 up, step 7",
+    "value": 1.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Size of ½a, step 7",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "−2a moves 6 left, 8 down, size 10, step 8",
+    "value": -6,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 1 across, 2 up: 2 taken off each move, step 8",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Unit vector of a moves 0.6 across, step 9",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Unit vector of a moves 0.8 up, step 9",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Unit vector's size, √(0.6² + 0.8²), steps 9 and 10",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick 1 across, 1 up has size √2, step 10",
+    "value": 1.41,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick divides by 6 + 8, step 10",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "6 ÷ 14, in that wrong pick, step 10",
+    "value": 0.43,
+    "kind": "computed"
+   },
+   {
+    "label": "8 ÷ 14, in that wrong pick, step 10",
+    "value": 0.57,
+    "kind": "computed"
+   },
+   {
+    "label": "That wrong pick's size, 10 ÷ 14, step 10",
+    "value": 0.71,
+    "kind": "computed"
+   },
+   {
+    "label": "Example boat's steady speed in knots, step 11",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Line currents on the example board, in amps",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Third line current on the example board, in amps",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sizes simply added, 10 + 10 + 4, in amps",
+    "value": 24,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A [[vector]] is a size with a direction.[^1] A force, a velocity and an acceleration are all vectors. You draw one as an arrow. Its length is the size and the way it points is the direction. A quantity with a size and no direction, such as mass, energy or temperature, is a [[scalar]]. A pump's 500 kg mass is a scalar. Its weight is a vector, because weight is a force that pulls it down.\n\nOn a grid, the arrow called a runs 3 squares across and 4 up from its tail to its tip. The two moves are at right angles, so the arrow is the long side of a right-angled triangle. Pythagoras gives its size: √(3² + 4²) = √25 = 5, written |a| = 5. Size and direction are all the arrow holds, so where it is drawn is not part of it. Two arrows with the same size and direction are the same vector, wherever they sit.[^2] Slide a anywhere on the grid and it still runs 3 across and 4 up, so it is still a. The arrow from point A to point B is the vector AB. Going from B back to A covers the same ground the other way. Moving backwards along a vector makes it negative,[^3] so BA = −AB. In print a vector's letter is bold, and by hand it is underlined.\n\nA number in front scales a vector. 2a is a done twice, 3 across and 4 up and then the same again. So it runs 6 across and 8 up, the same way and twice as long, size 10. Each move is multiplied, so the triangle grows in proportion and the direction holds. A negative number also turns the arrow round, because making a vector negative reverses its direction.[^4] So −2a runs 6 left and 8 down. Its size is still 10, because a length cannot be below zero. The arrows a, 2a and −2a lie along one line, so they are parallel. Dividing a by its own size, 5, shrinks it to length 1 the same way. That is its [[unit vector]], 0.6 across and 0.8 up, and it holds the direction alone. Because direction is part of every vector, two of them cannot be added just by adding their sizes.[^5] Each line current has an angle too, which is why 10 A, 10 A and 4 A on a three-phase board need not put 24 A on the neutral.\n\n**A vector is only its size and its direction, so its arrow can be drawn anywhere,[^2] and a number in front stretches or shrinks it and, if negative, turns it round.**"
+ },
+ "analogy": {
+  "text": "Running conduit up a stair wall, you might set each saddle 300 mm across and 400 mm up from the last. That step is the same move wherever you start it, so it is one vector, and its length is 500 mm. Three saddles on is three times the step, 900 mm across and 1,200 mm up. Coming back down is the step reversed.",
+  "breaks": "A step on a wall is a distance, but a vector can just as well be a force or a velocity, where the arrow's length stands for newtons or knots. And a real force pushes at one place on a body, which matters when it turns it, though the vector itself is still only its size and direction."
+ },
+ "practice": {
+  "text": "- Read the moves from tail to tip: across first, then up. Left and down are minus.\n- Find the size by Pythagoras on the two moves.\n- To compare two vectors, compare their moves, never where they sit.\n- To reverse a vector, change the sign of both moves. To scale it, multiply both moves by the number.\n- For the unit vector, divide both moves by the size, then check its size comes out as 1.\n\n**Rule of thumb:** Same moves, same vector. A minus in front turns it round.\n\n**Worked example:** A boat's velocity v is 3 m/s east and 4 m/s north. Its speed is the size, √(3² + 4²) = 5 m/s. At half speed on the same heading, ½v is 1.5 m/s east and 2 m/s north, a speed of 2.5 m/s. Turned right round at the same speed, −v is 3 m/s west and 4 m/s south, and its speed is still 5 m/s. The unit vector, v ÷ 5, is 0.6 east and 0.8 north: the heading with the speed taken out.\n\n**Common mistakes**\n- Treating a moved arrow as a new vector. If the moves match, it is the same vector.\n- Writing BA = AB. They are the same size but point opposite ways, so BA = −AB.\n- Forgetting that a minus number turns the arrow round. −2a points the other way from a.\n- Giving a negative size. −2a has size 10, not −10.\n- Making a unit vector by dividing by the moves added together. For 6 across and 8 up, dividing by 14 gives a size near 0.71, not 1. Divide by the size, 10.\n- Calling a speed a velocity. 12 knots is a speed. 12 knots due east is a velocity."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Vectors: FAQ (article) | Vectors | Khan Academy",
+   "url": "https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:vectors/x9e81a4f98389efdf:vec-models/a/vectors-faq",
+   "quote": "A vector is a mathematical object that has both a magnitude (length) and a direction. Vectors can be used to represent physical quantities such as velocity, force, and acceleration."
+  },
+  {
+   "n": 2,
+   "title": "Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1",
+   "quote": "If two vectors have the same magnitude and direction , then they are equal regardless of their position."
+  },
+  {
+   "n": 3,
+   "title": "Geometric vectors - Geometric vectors - Higher Maths Revision - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1",
+   "quote": "If we move 'backwards' along a vector, it becomes negative"
+  },
+  {
+   "n": 4,
+   "title": "Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2",
+   "quote": "Subtracting a vector is the same as adding a negative version of the vector (remember that making a vector negative means reversing its direction)."
+  },
+  {
+   "n": 5,
+   "title": "16.1: Vectors - Engineering LibreTexts",
+   "url": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_et_al.)/16%3A_Appendix_1_-_Vector_and_Matrix_Math/16.1%3A_Vectors",
+   "quote": "In contrast with scalar quantities, we cannot add, subtract, multiply or divide them by simply adding, subtracting, multiplying or dividing the magnitudes."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

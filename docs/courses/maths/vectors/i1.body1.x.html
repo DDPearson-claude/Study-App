@@ -1,0 +1,959 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A vector's letter is bold, as in print; AB and BA too. */
+  .vn { font-weight: 700; font-style: italic; }
+  .vp { font-weight: 700; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sh { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .scene .hd { fill: var(--k-accent2); }
+  .scene .copy .sh { stroke: var(--k-muted); stroke-width: 2.5; }
+  .scene .copy .hd { fill: var(--k-muted); }
+  .scene .bad .sh { stroke: var(--k-warn); }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .leg { stroke: var(--k-accent); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  .scene .ra { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .pt { fill: var(--k-ink); }
+  .scene .path { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .trail { fill: var(--k-muted); }
+  .scene .boat { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .kit { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .fin { stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .tagbox { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1; }
+  .scene .tagbad { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .lead-l { stroke: var(--k-muted); stroke-width: 1; }
+  /* Every label carries a thin halo of the page colour, so a grid line behind it never cuts its letters. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .nm { font: 700 17px var(--k-font); fill: var(--k-accent2); }
+  .scene .nm.mu { fill: var(--k-muted); }
+  .scene .nm.bad { fill: var(--k-warn); }
+  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.ok { fill: var(--k-accent2); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .pl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sm.mu { fill: var(--k-muted); }
+  .scene .sm.bad { fill: var(--k-warn); }
+  .scene .rt { font: 700 18px var(--k-font); fill: var(--k-accent2); }
+  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .rv { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene tspan.vn { font-style: italic; font-weight: 700; }
+  .scene tspan.vp { font-weight: 700; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  #kbox { max-width: 22rem; margin-inline: auto; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 4.5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">An arrow on a grid of squares, with its moves across and up and its size beside it. The pump, the points and the boats are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 240" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div id="kbox"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Same moves, same vector, wherever it is drawn. A number in front multiplies both moves.</p>
+
+<script>
+  // ---------- the grids: each screen's window onto the squares (x0..x1 across, y0..y1 up, u px a square) ----------
+  const DRAGG = { x0: -2, x1: 7, y0: -2, y1: 6, u: 25, axes: true };
+  const FOURG = { x0: -0.5, x1: 14.5, y0: -0.5, y1: 9.5, u: 20 };
+  const ABG = { x0: -1, x1: 8, y0: -1, y1: 9, u: 22, axes: true };
+  const SCALEG = { x0: -10, x1: 10, y0: -13, y1: 13, u: 11, axes: true };
+  const UNITG = { x0: -1, x1: 5, y0: -1, y1: 5, u: 36, axes: true };
+  const UNIT2G = { x0: -1.5, x1: 6.5, y0: -1.5, y1: 8.5, u: 24, axes: true };
+  const REVG = { x0: -4.5, x1: 4.5, y0: -5.5, y1: 5.5, u: 20, axes: true };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. read: its words for the
+  // read-through, where its own words ask him to act. A puzzle: task, opts (three answers), want,
+  // hints (one per wrong answer), why, pv (each answer's moves, where it is drawn as an arrow),
+  // reveal (a label only a right answer draws), fb (seconds of motion after a right and a wrong answer).
+  const STEPS = [
+    { show: true, name: 'An arrow called a', pic: 'drag', legs: true, ro: true, grid: DRAGG, dur: 4.0,
+      text: 'A *vector* is a size with a direction, drawn as an arrow. Arrow `a` runs 3 squares across and 4 up, at right angles, so Pythagoras gives its size: `√(3² + 4²) = 5`. Drag its tip, and the moves and size change with it.',
+      read: 'A *vector* is a size with a direction, drawn as an arrow. Arrow `a` runs 3 squares across and 4 up, at right angles, so Pythagoras gives its size: `√(3² + 4²) = 5`. Its moves and size change whenever its tip moves.' },
+    { kind: 'pick', name: 'Mass or weight', pic: 'pump', fb: [0.8, 0.8],
+      task: 'A *scalar* has a size but no direction. This pump has a mass, a temperature and a weight. Which of the three is a vector?',
+      opts: ['Its mass', 'Its temperature', 'Its weight'], want: 'Its weight', reveal: 'has a direction',
+      hints: { 'Its mass': 'Not quite. 500 kg is a size with no direction, so mass is a scalar.',
+        'Its temperature': 'Not quite. 40 °C has no direction either, so it is a scalar.' },
+      why: 'Weight is a force pulling the pump down. It has a size and a direction, so it is a vector. The 500 kg mass and the 40 °C temperature are sizes alone, so they are scalars.' },
+    { show: true, name: 'Slide it anywhere', pic: 'drag', slide: true, legs: true, ro: true, grid: DRAGG, dur: 3.8,
+      text: 'Drag the middle of `a` and it slides across the grid. It still runs 3 across and 4 up, with size 5. Where an arrow sits is not part of it, so it is still `a`.',
+      read: 'Arrow `a` has slid to a new place on the grid, and a faint copy stays where it began. It still runs 3 across and 4 up, with size 5. Where an arrow sits is not part of it, so it is still `a`.' },
+    { kind: 'pick', name: 'Which one is a?', pic: 'four', grid: FOURG, fb: [2.0, 2.0],
+      task: 'Which arrow is the same vector as `a`?',
+      opts: ['b', 'c', 'd'], want: 'b', reveal: 'b = a',
+      hints: { c: 'Not quite. `c` runs 4 across and 3 up. It has the same size, but it points another way.',
+        d: 'Not quite. `d` runs 3 left and 4 down, so it points the opposite way.' },
+      why: '`b` runs 3 across and 4 up, just like `a`. The same size and the same direction make the same vector, wherever it sits. `c` and `d` have size 5 too, but they point other ways.' },
+    { show: true, name: 'From A to B', pic: 'ab', ro: true, grid: ABG, dur: 3.4,
+      text: 'The arrow from point A to point B is the vector `AB`. It runs 3 across and 4 up, the same moves as `a`, so `AB = a`. Going from B back to A covers the same ground the other way.' },
+    { kind: 'pick', name: 'Back from B to A', pic: 'ab', ro: true, grid: ABG, fb: [1.8, 1.4],
+      task: 'Left and down count as minus. What are the moves of `BA`, from B back to A?',
+      opts: ['3 across, 4 up', '4 left, 3 down', '3 left, 4 down'], want: '3 left, 4 down', reveal: 'BA',
+      pv: { '3 across, 4 up': [3, 4], '4 left, 3 down': [-4, -3], '3 left, 4 down': [-3, -4] },
+      hints: { '3 across, 4 up': 'Not quite. Those are the moves of `AB`. From B they carry on away from A.',
+        '4 left, 3 down': 'Not quite. That swaps the two moves, so it misses A.' },
+      why: 'From B, 3 left and 4 down lands on A. Those are the moves of `AB` with both signs changed. Moving backwards along a vector makes it negative, so `BA = −AB`.' },
+    { show: true, name: 'A number in front', pic: 'scale', ro: true, grid: SCALEG, dur: 3.0,
+      text: 'A number in front scales a vector. `2a` is `a` done twice: 6 across and 8 up, size 10. Slide the number down and the arrow shrinks to a dot at 0, then comes out the other way.',
+      read: 'A number in front scales a vector. `2a` is `a` done twice: 6 across and 8 up, size 10. At 0 the arrow shrinks to a dot, and below 0 it points the other way.' },
+    { kind: 'pick', name: 'Minus two', pic: 'scale', ro: true, grid: SCALEG, fb: [2.0, 1.7],
+      task: 'What are the moves of `−2a`?',
+      opts: ['6 left, 8 down', '6 across, 8 up', '1 across, 2 up'], want: '6 left, 8 down', reveal: '−2a',
+      pv: { '6 left, 8 down': [-6, -8], '6 across, 8 up': [6, 8], '1 across, 2 up': [1, 2] },
+      hints: { '6 across, 8 up': 'Not quite. That is `2a`. The minus turns the arrow round.',
+        '1 across, 2 up': 'Not quite. That takes 2 off each move. The 2 multiplies them.' },
+      why: '`−2a` multiplies both moves by −2, giving 6 left and 8 down. The minus turns it round. Its size is still 10, never −10, because a length cannot be below zero.' },
+    { show: true, name: 'Size 1', pic: 'unit', ro: true, grid: UNITG, dur: 3.2,
+      text: 'Divide both moves by the size, 5, and `a` shrinks to length 1 along the same line. That is its *unit vector*: 0.6 across and 0.8 up. It holds the direction alone.' },
+    { kind: 'pick', name: 'Unit vector of 2a', pic: 'unit2', ro: true, grid: UNIT2G, fb: [1.7, 1.7],
+      task: '`2a` runs 6 across and 8 up, with size 10. What is its unit vector?',
+      opts: ['0.43 across, 0.57 up', '1 across, 1 up', '0.6 across, 0.8 up'], want: '0.6 across, 0.8 up', reveal: '2a ÷ 10',
+      pv: { '0.43 across, 0.57 up': [6 / 14, 8 / 14], '1 across, 1 up': [1, 1], '0.6 across, 0.8 up': [0.6, 0.8] },
+      hints: { '0.43 across, 0.57 up': 'Not quite. Dividing by 6 + 8 = 14 leaves a size of 0.71. Divide by the size, 10.',
+        '1 across, 1 up': 'Not quite. Its size is √2, about 1.41, and it points another way.' },
+      why: 'Divide both moves by the size, 10, to get 0.6 across and 0.8 up. Its size is `√(0.6² + 0.8²) = 1`. It matches the unit vector of `a`, because `2a` points the same way.' },
+    { kind: 'pick', name: 'Round in a circle', pic: 'boat', lap: 4.0, fb: [2.0, 2.0],
+      task: 'A boat goes round a circle at a steady 12 knots. What stays the same all the way round?',
+      opts: ['Its velocity', 'Its speed', 'Both'], want: 'Its speed', reveal: 'one size: 12 knots',
+      hints: { 'Its velocity': 'Not quite. Its arrow turns as it goes, so its velocity keeps changing.',
+        Both: 'Not quite. The speed holds, but the direction keeps turning.' },
+      why: 'Speed is a size alone, and it stays 12 knots. Velocity is the speed with its direction. The direction turns all the way round, so the velocity keeps changing.' },
+    { kind: 'pick', name: 'Turn it round', pic: 'rev', ro: true, grid: REVG, fb: [1.7, 1.7],
+      task: 'A boat\'s velocity `v` is 3 m/s east and 4 m/s north. It turns right round at the same speed. What is `−v`?',
+      opts: ['−5 m/s', '3 m/s west, 4 m/s south', '3 m/s east, 4 m/s north'], want: '3 m/s west, 4 m/s south', reveal: '−v',
+      hints: { '−5 m/s': 'Not quite. That has no direction, and a speed is never below zero.',
+        '3 m/s east, 4 m/s north': 'Not quite. That is `v` itself. The minus turns it round.' },
+      why: '`−v` changes the sign of both parts: 3 m/s west and 4 m/s south. Its speed is still `√(3² + 4²) = 5` m/s. Only the direction has turned round.' },
+  ];
+  const FINISH = 'A vector is only its size and its direction, so its arrow can be drawn anywhere. A number in front stretches or shrinks it, and a negative number turns it round.';
+  // Sources the checks restate (the lesson's own).
+  const KHAN = 'https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:vectors/x9e81a4f98389efdf:vec-models/a/vectors-faq';
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1';
+  const BITESIZE_SUB = 'https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2';
+  const A = [3, 4];                       // arrow a: 3 across, 4 up
+  const PA = [1, 1], PB = [4, 5];         // the points A and B
+  // The four arrows of the puzzle: tail, moves, and which side of it the name sits.
+  const FOUR = { a: [[0, 0], [3, 4], 1], b: [[1, 5], [3, 4], 1], c: [[10, 0], [4, 3], -1], d: [[8, 5], [-3, -4], 1] };
+  const CB = [170, 128], RB = 86, LB = 56; // the boat's circle: centre, radius, and its arrows' length (px)
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const hyp = (x, y) => Math.hypot(x, y);
+  // Up to two decimals, as the lesson writes them: 5, 2.5, 0.71, −1.5.
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }
+  // A number in front of a, as a name: a, 2a, −a, ½a, −1.5a, 0a.
+  function kName(k) { if (k === 1) return 'a'; if (k === -1) return '−a'; if (k === 0.5) return '½a'; if (k === -0.5) return '−½a'; return num(k) + 'a'; }
+  const same = (p, q) => K.near(p[0], q[0], 1e-9) && K.near(p[1], q[1], 1e-9);
+  // Moves in words: '3 across and 4 up', '2 left and 1 down'.
+  function desc(v) {
+    const h = v[0] ? num(Math.abs(v[0])) + (v[0] > 0 ? ' across' : ' left') : '', u = v[1] ? num(Math.abs(v[1])) + (v[1] > 0 ? ' up' : ' down') : '';
+    return [h, u].filter(Boolean).join(' and ') || 'nowhere';
+  }
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, its result and the Why? note. p, v: on a drag screen, the tail
+  // and moves Dan has set (null until he drags). k: the number in front he has set. unit, tog: the
+  // Size 1 screen's state after a press of its button.
+  function blank() { return { pick: null, res: null, why: false, p: null, v: null, k: null, unit: null, tog: false }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };
+  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let G = null;                                                          // the geometry of the step being drawn
+
+  // ---------- text with amber key terms and bold vector letters (built with K.el, never innerHTML) ----------
+  const VEC = /((?<![A-Za-z])[abcdv](?![A-Za-z])|AB|BA)/;
+  function vecs(parent, s, inSvg) {
+    String(s).split(VEC).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2) { const cls = p.length === 2 ? 'vp' : 'vn'; parent.appendChild(inSvg ? K.svg('tspan', { class: cls }, p) : K.el('span', { class: cls }, p)); return; }
+      parent.appendChild(document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its vector letters bold; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { vecs(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  // The number in front of a, on the scale screen only (its box is hidden elsewhere).
+  const kCtl = K.control({ id: 'k', label: 'Number in front of a', min: -3, max: 3, step: 0.5, value: 1, fmt: (v) => num(v), into: '#kbox' });
+  let kShown = 1;
+  function setK(v) { kCtl.set(v, true); kShown = kCtl.get(); }
+  // While the demonstration stretches the arrow, the slider follows it.
+  function syncK(i) { const d = STEPS[i]; if (d.pic === 'scale' && d.show && S[i].k == null && REC && REC.kNow != null) setK(Math.round(REC.kNow * 2) / 2); }
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { p: null, v: null, k: null, unit: null, tog: false });
+    if (d.pic === 'scale') setK(1);
+    play(d.dur);
+  } });
+  // The Size 1 screen's button: shrink a to its unit vector, or bring a back.
+  const unitShown = (st) => (st.unit == null ? true : st.unit);
+  const unitBtn = K.button({ label: 'Back to a', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.pic !== 'unit' || finished) return;
+    st.unit = !unitShown(st); st.tog = true;
+    unitBtn.setLabel(st.unit ? 'Back to a' : 'Make it size 1');
+    play(1.8);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    syncK(at());
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncK(at()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); syncK(at()); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // Travel or growth from t0 over d seconds, eased; lin is steady (the boat's even speed).
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  // Numbers fade out while their arrow moves (t0 to t1) and back in when it lands, so no number
+  // between two settings is ever read.
+  function env(t0, t1) { return Math.max(1 - arr(t0 - 0.3, 0.3), arr(t1, 0.4)); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  function text(x, y, s, cls, anchor, vec) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (vec) vecs(t, s, true); else t.textContent = s;
+    REC.texts.push(s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 9;
+  }
+  // Grid squares to drawing units.
+  const X = (x) => G.left + (x - G.x0) * G.u;
+  const Y = (y) => G.top + (G.y1 - y) * G.u;
+  function grid() {
+    for (let x = Math.ceil(G.x0); x <= Math.floor(G.x1); x++) if (!(G.axes && x === 0)) line('gl', X(x), Y(G.y0), X(x), Y(G.y1));
+    for (let y = Math.ceil(G.y0); y <= Math.floor(G.y1); y++) if (!(G.axes && y === 0)) line('gl', X(G.x0), Y(y), X(G.x1), Y(y));
+    if (G.axes) { line('ax', X(0), Y(G.y0), X(0), Y(G.y1)); line('ax', X(G.x0), Y(0), X(G.x1), Y(0)); }
+  }
+  // An arrow in drawing units: a shaft and a filled head; a dot when it has no length.
+  function pxArrow(x1, y1, x2, y2, cls) {
+    const g = add(K.svg('g', { class: 'arr ' + (cls || '') }));
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 1) { g.appendChild(K.svg('circle', { class: 'hd', cx: r3(x1), cy: r3(y1), r: 4.5 })); return g; }
+    const ux = dx / L, uy = dy / L, hl = Math.min(14, L * 0.5), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  // A name beside an arrow (drawing units): side 1 sits left of its direction of travel, -1 right.
+  function nameAt(x1, y1, x2, y2, s, cls, side, off) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    let nx = -0.7071, ny = -0.7071;
+    if (L >= 1) { nx = dy / L * side; ny = -dx / L * side; }
+    const w = tw(s, 'nm'), h = 13, D = (off == null ? 9 : off) + Math.abs(nx) * w / 2 + Math.abs(ny) * h / 2;
+    const cx = K.clamp((x1 + x2) / 2 + nx * D, 4 + w / 2, G.maxX - w / 2), cy = K.clamp((y1 + y2) / 2 + ny * D, 16, G.H - 10);
+    text(cx, cy + 6, s, 'nm' + (cls === 'copy' ? ' mu' : cls === 'bad' ? ' bad' : ''), 'middle', true);
+  }
+  // An arrow on the grid from tail p with moves v. o: {label, side, off, main, shift (px to its left)}.
+  function vec(p, v, cls, name, o) {
+    o = o || {};
+    let x1 = X(p[0]), y1 = Y(p[1]), x2 = X(p[0] + v[0]), y2 = Y(p[1] + v[1]);
+    if (o.shift) {
+      const L = Math.hypot(x2 - x1, y2 - y1) || 1, sx = (y2 - y1) / L * o.shift, sy = -(x2 - x1) / L * o.shift;
+      x1 += sx; x2 += sx; y1 += sy; y2 += sy;
+    }
+    pxArrow(x1, y1, x2, y2, cls);
+    const rec = { name: name || '', p: p.slice(), v: v.slice(), cls: cls || '' };
+    REC.arrows.push(rec);
+    if (o.main) { REC.main = rec; if (Math.hypot(v[0], v[1]) < 1e-9) REC.dot = true; }
+    if (name && o.label !== false) nameAt(x1, y1, x2, y2, name, cls, o.side || 1, o.off);
+  }
+  // A name for an arrow on the grid, drawn on its own (so it can arrive after the arrow).
+  function nameV(p, v, s, cls, side, off) { nameAt(X(p[0]), Y(p[1]), X(p[0] + v[0]), Y(p[1] + v[1]), s, cls, side, off); }
+  // An arrow in drawing units, recorded (the boat's).
+  function pxVec(t, v, cls) { pxArrow(t[0], t[1], t[0] + v[0], t[1] + v[1], cls); REC.arrows.push({ name: '', p: t.slice(), v: v.slice(), cls: cls || '' }); }
+  // The right angle where the two moves meet.
+  function corner(c, v) {
+    const sx = Math.sign(v[0]), sy = Math.sign(v[1]), x = X(c[0]), y = Y(c[1]), s = 8;
+    add(K.svg('path', { class: 'ra', d: 'M' + r3(x - sx * s) + ' ' + r3(y) + ' V' + r3(y - sy * s) + ' H' + r3(x) }));
+  }
+  // The readout beside the grid: the arrow's name, then its moves and size. rows: [label, value, legs key?].
+  function readout(title, rows, o) {
+    o = o || {};
+    const x = 254, y0 = G.top, a = o.alpha == null ? 1 : o.alpha;
+    REC.ro = { title, rows: rows.map((r) => [r[0], r[1]]) };
+    part(a, 0, () => text(x, y0 + 18, title, 'rt', 'start', true));
+    rows.forEach((r, k) => {
+      const y = y0 + 48 + k * 52;
+      if (r[2]) line('leg', x, y - 5, x + 16, y - 5);
+      text(x + (r[2] ? 22 : 0), y, r[0], 'rk', 'start');
+      part(a, 0, () => text(x, y + 24, r[1], 'rv', 'start'));
+    });
+  }
+  const rowsOf = (v, legs) => [['across', num(v[0]), legs], ['up', num(v[1]), legs], ['size', num(hyp(v[0], v[1]))]];
+  // A boat at p (drawing units), its bow along angle ang (radians, on screen).
+  function boatShape(p, ang) {
+    add(K.svg('path', { class: 'boat', d: 'M -11 -6 L 5 -6 L 13 0 L 5 6 L -11 6 Z', transform: 'translate(' + r3(p[0]) + ' ' + r3(p[1]) + ') rotate(' + r3(ang * 180 / Math.PI) + ')' }));
+  }
+  function point(P, name, right) {
+    add(K.svg('circle', { class: 'pt', cx: X(P[0]), cy: Y(P[1]), r: 4.5 }));
+    text(X(P[0]) + (right ? 9 : -9), Y(P[1]) + (right ? 5 : 16), name, 'pl', right ? 'start' : 'end');
+  }
+
+  // ---------- where the arrow is on the drag screens ----------
+  const movesNow = (st) => st.v || A;
+  // The slide demonstration takes a's tail to (−2, 2), then on to (4, −2).
+  function slidePos() {
+    const e1 = go(0.6, 1.2), e2 = go(2.2, 1.3);
+    return [K.lerp(K.lerp(0, -2, e1), 4, e2), K.lerp(K.lerp(0, 2, e1), -2, e2)];
+  }
+  function tailNow(d, st) { if (st.p) return st.p; return d.slide ? slidePos() : [0, 0]; }
+
+  // ---------- each picture ----------
+  const DRAW = {};
+  DRAW.drag = (d, st) => {
+    grid();
+    const v = movesNow(st), P = tailNow(d, st), moved = !!(st.p || st.v), fin = d.slide || moved;
+    const atO = Math.abs(P[0]) < 1e-9 && Math.abs(P[1]) < 1e-9;
+    // A faint copy stays at the origin, with the same moves.
+    if (!atO) part(moved ? 1 : arr(0.6), 0, () => vec([0, 0], v, 'copy', 'a', { side: -1 }));
+    if (d.legs) {
+      const ea = fin ? 1 : go(0.5, 0.9), eu = fin ? 1 : go(1.4, 0.9), c = [P[0] + v[0], P[1]];
+      if (v[0] && ea > 0) line('leg', X(P[0]), Y(P[1]), X(P[0] + v[0] * ea), Y(P[1]));
+      if (v[1] && eu > 0) line('leg', X(c[0]), Y(c[1]), X(c[0]), Y(c[1] + v[1] * eu));
+      const ca = fin ? 1 : arr(2.2);
+      if (v[0] && v[1]) part(ca, 0, () => corner(c, v));
+    }
+    const eg = fin ? 1 : go(2.3, 0.9);
+    if (eg > 0) vec(P, [v[0] * eg, v[1] * eg], '', 'a', { label: false, main: true });
+    part(fin ? 1 : arr(3.0), 4, () => nameV(P, v, 'a', '', 1));
+    readout('a', rowsOf(v, true), { alpha: fin ? 1 : arr(3.2) });
+    return 'Arrow a ' + (atO ? 'starts at the origin and' : 'sits away from the origin. It') + ' runs ' + desc(v) + ', size ' + num(hyp(v[0], v[1])) + '.' +
+      (atO ? '' : ' A faint copy with the same moves stays at the origin.');
+  };
+  DRAW.pump = (d, st) => {
+    const ok = st.res === 'right', bad = st.res === 'wrong' ? st.pick : null, a = st.res ? arr(0.1) : 0;
+    // The pump: motor, coupling, casing with its pipes, on a base plate.
+    add(K.svg('rect', { class: 'kit', x: 92, y: 150, width: 168, height: 10, rx: 2 }));
+    add(K.svg('rect', { class: 'kit', x: 100, y: 94, width: 86, height: 54, rx: 8 }));
+    [108, 121, 134].forEach((y) => line('fin', 110, y, 176, y));
+    add(K.svg('rect', { class: 'kit', x: 186, y: 114, width: 10, height: 14, rx: 2 }));
+    add(K.svg('rect', { class: 'kit', x: 214, y: 66, width: 16, height: 30 }));
+    add(K.svg('rect', { class: 'kit', x: 209, y: 60, width: 26, height: 7, rx: 2 }));
+    add(K.svg('rect', { class: 'kit', x: 246, y: 113, width: 22, height: 16 }));
+    add(K.svg('circle', { class: 'kit', cx: 222, cy: 121, r: 27 }));
+    // Its mass and temperature: plain sizes on tags.
+    const tag = (x, w, s, key, lx1, lx2, ly2, nx, na) => {
+      line('lead-l', lx1, 46, lx2, ly2);
+      add(K.svg('rect', { class: 'tagbox', x, y: 14, width: w, height: 32, rx: 8 }));
+      text(x + w / 2, 35, s, 'lb', 'middle');
+      if (bad === key) part(a, 0, () => { add(K.svg('rect', { class: 'tagbad', x: x - 3, y: 11, width: w + 6, height: 38, rx: 10 })); REC.bad++; });
+      if (st.res) part(a, 3, () => text(nx, 66, 'no direction', bad === key ? 'sm bad' : 'sm mu', na));
+    };
+    tag(12, 116, 'mass 500 kg', 'Its mass', 118, 132, 94, 12, 'start');
+    tag(184, 144, 'temperature 40 °C', 'Its temperature', 198, 214, 90, 328, 'end');
+    // Its weight: a force, drawn as an arrow down from the middle of the pump.
+    pxVec([174, 121], [0, 95], '');
+    REC.arrows[REC.arrows.length - 1].name = 'weight';
+    text(186, 200, 'weight', 'nm', 'start');
+    if (ok) part(a, 3, () => text(186, 224, 'has a direction', 'sm', 'start'));
+    return 'A pump on a base plate. A tag gives its mass, 500 kilograms, and another its temperature, 40 degrees. Its weight is an arrow pointing down from its middle.' +
+      (st.res ? (ok ? ' The weight has a direction; the mass and temperature have none.' : ' The ' + (bad === 'Its mass' ? 'mass' : 'temperature') + ' is ringed: it has no direction.') : '');
+  };
+  DRAW.four = (d, st) => {
+    grid();
+    const pick = st.res ? st.pick : null, ok = st.res === 'right';
+    ['a', 'b', 'c', 'd'].forEach((n) => {
+      const f = FOUR[n], wrong = pick === n && !ok;
+      vec(f[0], f[1], wrong ? 'bad' : '', n, { side: f[2] });
+      if (wrong) REC.bad++;
+    });
+    let said = 'Four arrows in different places: a runs 3 across and 4 up, b runs 3 across and 4 up, c runs 4 across and 3 up, and d runs 3 left and 4 down.';
+    if (pick) {
+      // A copy of a slides over to the chosen arrow's tail, to lay one on the other.
+      const to = FOUR[pick][0], e = go(0.1, 1.2);
+      vec([K.lerp(0, to[0], e), K.lerp(0, to[1], e)], A, 'copy', 'a', { label: false });
+      part(arr(1.3), 4, () => {
+        if (ok) text(X(4) + 12, Y(9) + 6, 'b = a', 'lb ok', 'start', true);
+        else if (pick === 'c') text(X(13) - 12, Y(4) + 2, 'c ≠ a', 'lb bad', 'end', true);
+        else text(X(11) + 12, Y(9) + 6, 'd ≠ a', 'lb bad', 'start', true);
+      });
+      said += ' A copy of a laid on ' + pick + (ok ? ' fits it exactly.' : ' does not fit it.');
+    }
+    return said;
+  };
+  DRAW.ab = (d, st) => {
+    grid();
+    const sh = !!d.show, ok = st.res === 'right', pick = st.res ? st.pick : null;
+    part(sh ? arr(0.4) : 1, 0, () => point(PA, 'A', false));
+    part(sh ? arr(0.8) : 1, 0, () => point(PB, 'B', true));
+    const eg = sh ? go(1.3, 1.0) : 1;
+    if (eg > 0) vec(PA, [3 * eg, 4 * eg], '', 'AB', { label: false });
+    part(sh ? arr(2.3) : 1, 4, () => nameV(PA, A, 'AB', '', 1));
+    let title = 'AB', v = A, ra = sh ? arr(2.6) : 1, said = 'Point A at (1, 1) and point B at (4, 5), with the arrow AB from A to B: 3 across and 4 up, size 5.';
+    if (pick) {
+      const pv = d.pv[pick], e = go(0.1, 1.0);
+      if (ok) {
+        // BA runs back beside AB, a little to one side, like the other lane of a road.
+        vec(PB, [pv[0] * e, pv[1] * e], '', 'BA', { label: false, shift: 6 });
+        part(arr(1.0), 4, () => nameV(PB, pv, 'BA', '', 1, 18));
+        ra = env(0.1, 1.1);
+        if (T >= 0.1) { title = 'BA'; v = pv; }
+        said += ' BA runs back from B to A: 3 left and 4 down, size 5.';
+      } else {
+        vec(PB, [pv[0] * e, pv[1] * e], 'bad', '', { label: false });
+        REC.bad++;
+        said += ' From B, ' + desc(pv) + ' ends at (' + (PB[0] + pv[0]) + ', ' + (PB[1] + pv[1]) + '), not at A.';
+      }
+    }
+    readout(title, rowsOf(v, false), { alpha: ra });
+    return said;
+  };
+  DRAW.scale = (d, st) => {
+    grid();
+    const pick = st.res ? st.pick : null, ok = st.res === 'right';
+    let k = 1, ra = 1, ca = 1;
+    if (d.show) {
+      if (st.k != null) k = st.k;
+      else { k = 1 + go(0.8, 1.4); ra = env(0.8, 2.2); ca = arr(0.9, 0.5); }
+    } else if (ok) { k = K.lerp(1, -2, go(0.1, 1.4)); ra = env(0.1, 1.5); ca = arr(0.2); }
+    REC.kNow = k;
+    const kr = Math.round(k * 2) / 2;   // the half step it lands on: its name and numbers
+    if (Math.abs(k - 1) > 1e-9 || ok) {
+      vec([0, 0], A, 'copy', 'a', { label: false });
+      part(ca, 3, () => nameV([0, 0], A, 'a', 'copy', -1));
+    }
+    // A tick at each whole copy of a along the arrow: 2a is a, then a again.
+    for (let j = 1; j < Math.abs(k) - 0.01; j++) {
+      const s = Math.sign(k) * j, x = X(3 * s), y = Y(4 * s), L = hyp(3, 4), nx = 4 / L * 6, ny = 3 / L * 6;
+      line('tick', x - nx, y - ny, x + nx, y + ny);
+    }
+    vec([0, 0], [3 * k, 4 * k], '', kName(kr), { label: false, main: true });
+    part(ra, 3, () => nameV([0, 0], [3 * kr, 4 * kr], kName(kr), '', 1));
+    let said = 'Arrow ' + kName(kr) + ' from the origin runs ' + desc([3 * kr, 4 * kr]) + ', size ' + num(5 * Math.abs(kr)) + '.' + (kr === 0 ? ' It has shrunk to a dot.' : kr < 0 ? ' It points the opposite way from a.' : '');
+    if (pick && !ok) {
+      const pv = d.pv[pick], e = go(0.1, 1.0), twoA = pick === '6 across, 8 up';
+      vec([0, 0], [pv[0] * e, pv[1] * e], 'bad', '', { label: false, shift: twoA ? -6 : 0 });
+      REC.bad++;
+      part(arr(1.0), 4, () => nameV([0, 0], pv, twoA ? '2a' : '2 off each', 'bad', -1, twoA ? 14 : 9));
+      said += ' The pick, ' + desc(pv) + ', is drawn in red.';
+    }
+    readout(kName(kr), [['across', num(3 * kr)], ['up', num(4 * kr)], ['size', num(5 * Math.abs(kr))]], { alpha: ra });
+    return said;
+  };
+  DRAW.unit = (d, st) => {
+    grid();
+    let k, ra = 1, ringA = 1, la = 1, ca = 1;
+    if (st.tog) { const from = st.unit ? 1 : 0.2, to = st.unit ? 0.2 : 1; k = K.lerp(from, to, go(0.1, 1.2)); ra = env(0.1, 1.3); }
+    else if (st.unit == null) { k = K.lerp(1, 0.2, go(1.2, 1.4)); ra = env(1.2, 2.6); ringA = arr(0.5); la = arr(0.8); ca = arr(1.2); }
+    else k = st.unit ? 0.2 : 1;
+    REC.kNow = k;
+    const unit = k < 0.6, kr = unit ? 0.2 : 1, nm = unit ? 'a ÷ 5' : 'a';
+    part(ringA, 0, () => add(K.svg('circle', { class: 'ring', cx: X(0), cy: Y(0), r: G.u })));
+    part(la, 3, () => text(X(0.95), Y(-0.72) + 5, 'size 1', 'sm', 'start'));
+    if (k < 0.999) part(ca, 0, () => { vec([0, 0], A, 'copy', 'a', { label: false }); nameV([0, 0], A, 'a', 'copy', -1); });
+    vec([0, 0], [3 * k, 4 * k], '', nm, { label: false, main: true });
+    part(ra, 3, () => { if (unit) text(X(-0.55), Y(1.25) + 6, nm, 'nm', 'middle', true); else nameV([0, 0], A, nm, '', 1); });
+    readout(nm, [['across', num(3 * kr)], ['up', num(4 * kr)], ['size', num(5 * kr)]], { alpha: ra });
+    return unit ? 'Arrow a divided by its size, 5: 0.6 across and 0.8 up, size 1, reaching the dashed circle of size 1 on the line of a, whose faint copy runs on to 3 across and 4 up.'
+      : 'Arrow a, 3 across and 4 up, size 5, with a dashed circle of size 1 around its tail.';
+  };
+  DRAW.unit2 = (d, st) => {
+    grid();
+    const pick = st.res ? st.pick : null, ok = st.res === 'right';
+    add(K.svg('circle', { class: 'ring', cx: X(0), cy: Y(0), r: G.u }));
+    text(X(-1.4), Y(1.4) + 5, 'size 1', 'sm', 'start');
+    vec([0, 0], [6, 8], pick ? 'copy' : '', '2a', { side: 1 });
+    let said = 'Arrow 2a runs 6 across and 8 up, size 10, with a dashed circle of size 1 around its tail.';
+    if (pick) {
+      const pv = d.pv[pick], e = go(0.1, 0.9);
+      vec([0, 0], [pv[0] * e, pv[1] * e], ok ? '' : 'bad', '', { label: false });
+      if (!ok) REC.bad++;
+      part(arr(1.0), 4, () => text(X(1.15), Y(0.2) + 5, ok ? '2a ÷ 10' : 'size ' + num(hyp(pv[0], pv[1])), ok ? 'lb ok' : 'lb bad', 'start', true));
+      said += ok ? ' The pick, 2a divided by 10, ends on the circle: size 1.' : ' The pick, ' + desc(pv) + ', has size ' + num(hyp(pv[0], pv[1])) + ', so it ends ' + (hyp(pv[0], pv[1]) < 1 ? 'inside' : 'outside') + ' the circle.';
+    }
+    readout('2a', [['across', '6'], ['up', '8'], ['size', '10']]);
+    return said;
+  };
+  const bpos = (t) => [CB[0] + RB * Math.cos(t), CB[1] - RB * Math.sin(t)];
+  const bdir = (t) => [-Math.sin(t), -Math.cos(t)];
+  DRAW.boat = (d, st) => {
+    const pick = st.res ? st.pick : null, ok = st.res === 'right';
+    add(K.svg('circle', { class: 'path', cx: CB[0], cy: CB[1], r: RB }));
+    // One lap at a steady speed, leaving its velocity arrow behind at each quarter.
+    const lap = st.res ? 1 : lin(0.4, 3.4), th = -Math.PI / 2 + 2 * Math.PI * lap;
+    const e = pick ? go(0.1, 1.2) : 0;
+    [1, 2, 3].forEach((q) => {
+      const t = -Math.PI / 2 + q * Math.PI / 2, a = st.res ? 1 : arr(0.4 + 3.4 * q / 4, 0.4);
+      part(a, 0, () => {
+        const p0 = bpos(t), v = bdir(t);
+        add(K.svg('circle', { class: 'trail', cx: r3(p0[0]), cy: r3(p0[1]), r: 3 }));
+        pxVec([K.lerp(p0[0], CB[0], e), K.lerp(p0[1], CB[1], e)], [v[0] * LB, v[1] * LB], '');
+      });
+    });
+    const bp = bpos(th), bv = bdir(th);
+    boatShape(bp, Math.atan2(bv[1], bv[0]));
+    pxVec([K.lerp(bp[0], CB[0], e), K.lerp(bp[1], CB[1], e)], [bv[0] * LB, bv[1] * LB], '');
+    if (!pick) {
+      const out = [Math.cos(th), -Math.sin(th)], w = tw('12 knots', 'lb'), mid = [bp[0] + bv[0] * LB / 2, bp[1] + bv[1] * LB / 2];
+      const D = 12 + Math.abs(out[0]) * w / 2 + Math.abs(out[1]) * 7;
+      text(K.clamp(mid[0] + out[0] * D, 6 + w / 2, 334 - w / 2), K.clamp(mid[1] + out[1] * D, 16, 246) + 5, '12 knots', 'lb', 'middle');
+    } else {
+      part(arr(1.3), 4, () => {
+        text(12, 24, 'one size: 12 knots', 'lb ok', 'start');
+        text(328, 24, 'four directions', ok ? 'lb ok' : 'lb bad', 'end');
+      });
+      if (!ok) REC.bad++;
+    }
+    return 'A boat goes round a circle at a steady 12 knots. Its velocity arrow, drawn at four places round the circle, has the same length each time but points a different way.' +
+      (pick ? ' The four arrows are laid tail to tail in the middle: one size, four directions.' : '');
+  };
+  DRAW.rev = (d, st) => {
+    grid();
+    text(X(-4.3), Y(5.05) + 5, '↑ north', 'sm', 'start');
+    text(X(4.3), Y(-5.15) + 5, 'east →', 'sm', 'end');
+    const pick = st.res ? st.pick : null, ok = st.res === 'right', e = ok ? go(0.1, 1.0) : 0;
+    boatShape([X(0), Y(0)], Math.atan2(-4, 3) + Math.PI * e);
+    vec([0, 0], A, ok ? 'copy' : '', 'v', { side: 1 });
+    let vv = A, nm = 'v', ra = 1, said = 'A boat at the middle of the grid, each square 1 metre a second. Its velocity v runs 3 east and 4 north: speed 5.';
+    if (ok) {
+      vec([0, 0], [-3 * e, -4 * e], '', '', { label: false, main: true });
+      part(arr(1.0), 4, () => nameV([0, 0], [-3, -4], '−v', '', 1));
+      ra = env(0.1, 1.1);
+      if (T >= 0.1) { vv = [-3, -4]; nm = '−v'; }
+      said += ' The boat has turned right round. Its velocity −v runs 3 west and 4 south: still speed 5.';
+    } else if (pick) {
+      REC.bad++;
+      if (pick === '−5 m/s') { part(arr(0.1), 4, () => text(X(0), Y(-1.6) + 5, '−5 m/s: no direction', 'lb bad', 'middle')); said += ' The pick, minus 5 metres a second, has no direction to draw.'; }
+      else {
+        const ee = go(0.1, 1.0);
+        vec([0, 0], [3 * ee, 4 * ee], 'bad', '', { label: false, shift: -6 });
+        part(arr(1.0), 4, () => text(X(3) + 12, Y(4) + 10, 'same as v', 'lb bad', 'start', true));
+        said += ' The pick runs the same way as v.';
+      }
+    }
+    readout(nm, [['east', num(vv[0]) + ' m/s'], ['north', num(vv[1]) + ' m/s'], ['speed', '5 m/s']], { alpha: ra });
+    text(254, G.top + 200, '1 square', 'sm mu', 'start');
+    text(254, G.top + 216, 'is 1 m/s', 'sm mu', 'start');
+    return said;
+  };
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    let g;
+    if (d.grid) {
+      const w = (d.grid.x1 - d.grid.x0) * d.grid.u, h = (d.grid.y1 - d.grid.y0) * d.grid.u;
+      g = Object.assign({}, d.grid, { left: d.ro ? 12 : Math.round((340 - w) / 2), top: 14 });
+      g.H = Math.ceil(g.top + Math.max(h, d.ro ? 206 : 0) + 14);
+    } else g = { x0: 0, x1: 0, y0: 0, y1: 0, u: 1, left: 0, top: 0, H: d.pic === 'pump' ? 236 : 252 };
+    g.maxX = d.ro ? 240 : 334;
+    GEO.set(d, g);
+    return g;
+  }
+
+  // ---------- the drags: Dan moves a's tip or its middle ----------
+  const bodyGrip = ui.appendChild(K.svg('path', { class: 'grip', d: 'M0 0', tabindex: -1, role: 'button', 'aria-label': 'Middle of arrow a: drag, or use the arrow keys, to slide it' }));
+  const tipGrip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 24, tabindex: -1, role: 'button', 'aria-label': 'Tip of arrow a: drag, or use the arrow keys, to move it' }));
+  function placeGrips(d, st) {
+    const on = d.pic === 'drag' && !finished;
+    [tipGrip, bodyGrip].forEach((g) => { g.style.display = on ? '' : 'none'; g.setAttribute('tabindex', on ? '0' : '-1'); });
+    if (!on) return;
+    const v = movesNow(st), P = tailNow(d, st), x1 = X(P[0]), y1 = Y(P[1]), x2 = X(P[0] + v[0]), y2 = Y(P[1] + v[1]);
+    tipGrip.setAttribute('cx', r3(x2)); tipGrip.setAttribute('cy', r3(y2));
+    const L = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / L * 18, ny = (x2 - x1) / L * 18;
+    const a = [x1 + (x2 - x1) * 0.12, y1 + (y2 - y1) * 0.12], b = [x1 + (x2 - x1) * 0.7, y1 + (y2 - y1) * 0.7];
+    bodyGrip.setAttribute('d', 'M' + r3(a[0] + nx) + ' ' + r3(a[1] + ny) + ' L' + r3(b[0] + nx) + ' ' + r3(b[1] + ny) + ' L' + r3(b[0] - nx) + ' ' + r3(b[1] - ny) + ' L' + r3(a[0] - nx) + ' ' + r3(a[1] - ny) + ' Z');
+  }
+  const dragging = () => !finished && STEPS[at()].pic === 'drag';
+  function changed(st, quiet) {
+    if (quiet) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  // The tip lands on a grid point inside the window; the tail stays where it is.
+  function setTip(i, tip, quiet) {
+    const d = STEPS[i], st = S[i], P = tailNow(d, st), g = d.grid;
+    const tx = K.clamp(Math.round(tip[0]), Math.ceil(g.x0), Math.floor(g.x1)), ty = K.clamp(Math.round(tip[1]), Math.ceil(g.y0), Math.floor(g.y1));
+    const Pr = [Math.round(P[0]), Math.round(P[1])], v = [tx - Pr[0], ty - Pr[1]];
+    if (!v[0] && !v[1]) return false;
+    st.p = Pr; st.v = v;
+    changed(st, quiet);
+    return true;
+  }
+  // The tail lands on a grid point that keeps the whole arrow inside the window; the moves stay.
+  function setTail(i, p, quiet) {
+    const d = STEPS[i], st = S[i], v = movesNow(st), g = d.grid;
+    const px = K.clamp(Math.round(p[0]), Math.ceil(g.x0) - Math.min(0, v[0]), Math.floor(g.x1) - Math.max(0, v[0]));
+    const py = K.clamp(Math.round(p[1]), Math.ceil(g.y0) - Math.min(0, v[1]), Math.floor(g.y1) - Math.max(0, v[1]));
+    st.p = [px, py]; st.v = v.slice();
+    changed(st, quiet);
+    return true;
+  }
+  function gridAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [G.x0 + (q.x - G.left) / G.u, G.y1 - (q.y - G.top) / G.u];
+  }
+  let held = null;
+  function grab(e, what) {
+    if (!dragging()) return;
+    const q = gridAt(e);
+    if (!q) return;
+    const i = at(), P = tailNow(STEPS[i], S[i]);
+    held = { id: e.pointerId, what, off: [q[0] - P[0], q[1] - P[1]] };
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+    e.preventDefault();
+    if (what === 'tip') setTip(i, q);
+  }
+  function follow(e) {
+    if (!held || held.id !== e.pointerId || !dragging()) return;
+    const q = gridAt(e);
+    if (!q) return;
+    if (held.what === 'tip') setTip(at(), q);
+    else setTail(at(), [q[0] - held.off[0], q[1] - held.off[1]]);
+  }
+  const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+  [[tipGrip, 'tip'], [bodyGrip, 'body']].forEach(([g, what]) => {
+    g.addEventListener('pointerdown', (e) => grab(e, what));
+    g.addEventListener('pointermove', follow);
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!dragging()) return;
+      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const i = at(), st = S[i], v = movesNow(st), P = tailNow(STEPS[i], st);
+      if (what === 'tip') setTip(i, [P[0] + v[0] + by[0], P[1] + v[1] + by[1]]);
+      else setTail(i, [P[0] + by[0], P[1] + by[1]]);
+    });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    G = geo(d);
+    art.textContent = '';
+    into = null;
+    REC = { arrows: [], texts: [], ro: null, main: null, dot: false, bad: 0, kNow: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));
+    placeGrips(d, st);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    // Dan's own number in front, told apart from the setting the demonstration gives the slider.
+    if (i === lastStep && d.pic === 'scale' && d.show && !finished && p.k !== kShown) { kShown = p.k; st.k = p.k; anim.pause(); T = Infinity; }
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) {
+        Object.assign(st, { p: null, v: null, k: null, unit: null, tog: false });
+        if (d.pic === 'scale') setK(1);
+        play(d.dur);
+      } else if (d.lap && st.res == null) play(d.lap);
+      else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    syncK(i);
+
+    el('kbox').hidden = finished || !(d.pic === 'scale' && d.show);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    unitBtn.el.hidden = d.pic !== 'unit';
+    unitBtn.setLabel(unitShown(st) ? 'Back to a' : 'Make it size 1');
+    el('replay').hidden = replayBtn.el.hidden && unitBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      vecs(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "3 left, 4 down"
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const vals = (r) => r.ro.rows.map((q) => q[1]).join();
+
+  K.check('A vector has both a magnitude and a direction, and force is one: the pump\'s weight, a force, is the one answer accepted and the one thing drawn as an arrow, while its mass and temperature are plain sizes', () => {
+    const i = idx('Mass or weight'), d = STEPS[i], r = drawn(i, solved(i));
+    return d.want === 'Its weight' && r.arrows.length === 1 && r.arrows[0].name === 'weight' && r.arrows[0].v[1] > 0 && r.arrows[0].v[0] === 0 &&
+      r.texts.indexOf('mass 500 kg') >= 0 && r.texts.indexOf('temperature 40 °C') >= 0;
+  }, { source: KHAN });
+  K.check('If two vectors have the same magnitude and direction, they are equal regardless of their position: wherever a slides on the grid its readout keeps its moves and size, the copy at the origin matches it, and the one arrow accepted as a has its moves', () => {
+    const i = idx('Slide it anywhere'), g = STEPS[i].grid;
+    let ok = true;
+    for (let x = Math.ceil(g.x0); x <= Math.floor(g.x1) - 3; x++) for (let y = Math.ceil(g.y0); y <= Math.floor(g.y1) - 4; y++) {
+      const r = drawn(i, Object.assign(blank(), { p: [x, y] }));
+      const copy = r.arrows.find((a) => a.cls === 'copy');
+      ok = ok && !!r.main && same(r.main.p, [x, y]) && same(r.main.v, A) && vals(r) === '3,4,5' &&
+        (x === 0 && y === 0 ? !copy : !!copy && same(copy.p, [0, 0]) && same(copy.v, A));
+    }
+    const f = STEPS[idx('Which one is a?')];
+    return ok && f.want === 'b' && same(FOUR.b[1], A) && ['c', 'd'].every((n) => !same(FOUR[n][1], A) && K.near(hyp(FOUR[n][1][0], FOUR[n][1][1]), 5));
+  }, { source: BITESIZE });
+  K.check('If we move backwards along a vector, it becomes negative: BA has the moves of AB with both signs changed, and only that answer, drawn from B, lands on A', () => {
+    const i = idx('Back from B to A'), d = STEPS[i];
+    const ab = drawn(i, blank()).arrows.find((a) => a.name === 'AB'), ba = drawn(i, solved(i)).arrows.find((a) => a.name === 'BA');
+    const lands = (o) => PB[0] + d.pv[o][0] === PA[0] && PB[1] + d.pv[o][1] === PA[1];
+    return !!ab && !!ba && same(ab.p, PA) && same(ab.v, A) && same(ba.p, PB) && same(ba.v, [-ab.v[0], -ab.v[1]]) && d.opts.every((o) => lands(o) === (o === d.want));
+  }, { source: BITESIZE });
+  K.check('Making a vector negative means reversing its direction: at every number below zero the arrow lies along the line of a but points the opposite way, and so does the puzzle\'s answer', () => {
+    const i = idx('A number in front');
+    const along = (v) => K.near(v[0] * A[1] - v[1] * A[0], 0, 1e-9) && v[0] * A[0] + v[1] * A[1] < 0;
+    const j = idx('Minus two'), m = drawn(j, solved(j)).main;
+    return [-3, -2.5, -2, -1.5, -1, -0.5].every((k) => along(drawn(i, Object.assign(blank(), { k })).main.v)) && along(m.v) && along(STEPS[j].pv[STEPS[j].want]);
+  }, { source: BITESIZE_SUB });
+  K.check('Pythagoras gives every size shown: 5 for a, 10 for 2a, 2.5 for half of a, 1 for a unit vector, 1.41 for 1 across and 1 up, and 0.71 for 6 ÷ 14 = 0.43 across and 8 ÷ 14 = 0.57 up', () =>
+    num(hyp(3, 4)) === '5' && num(hyp(6, 8)) === '10' && num(hyp(1.5, 2)) === '2.5' && num(hyp(0.6, 0.8)) === '1' && num(hyp(1, 1)) === '1.41' &&
+    num(6 / 14) === '0.43' && num(8 / 14) === '0.57' && num(hyp(6 / 14, 8 / 14)) === '0.71' && num(6 / 10) === '0.6' && num(8 / 10) === '0.8');
+  K.check('A number in front multiplies both moves: at all 13 settings from −3 to 3 the readout shows it times 3 and times 4, a size of the number without its sign times 5, and at 0 a dot', () => {
+    const i = idx('A number in front');
+    return K.linspace(-3, 3, 13).every((k) => {
+      const r = drawn(i, Object.assign(blank(), { k }));
+      return r.ro.title === kName(k) && vals(r) === [num(3 * k), num(4 * k), num(5 * Math.abs(k))].join() &&
+        K.near(r.main.v[0], 3 * k) && K.near(r.main.v[1], 4 * k) && (k !== 0 || r.dot === true);
+    });
+  });
+  K.check('Dragging the tip sets the moves: for every square the tip can reach, the readout shows the tip minus the tail and Pythagoras\'s size, and the tail stays put', () => {
+    const i = idx('An arrow called a'), g = STEPS[i].grid, keep = S[i];
+    let ok = true;
+    try {
+      for (let x = Math.ceil(g.x0); x <= Math.floor(g.x1); x++) for (let y = Math.ceil(g.y0); y <= Math.floor(g.y1); y++) {
+        S[i] = blank();
+        const moved = setTip(i, [x, y], true), st = S[i];
+        if (!x && !y) { ok = ok && !moved; continue; }
+        const r = drawn(i, st);
+        ok = ok && moved && same(r.main.p, [0, 0]) && same(r.main.v, [x, y]) && vals(r) === [num(x), num(y), num(hyp(x, y))].join();
+      }
+    } finally { S[i] = keep; paint(); }
+    return ok;
+  });
+  K.check('Dividing a by its size makes its unit vector: the Size 1 screen ends on 0.6 across and 0.8 up, size 1, along the line of a, and its button brings a back', () => {
+    const i = idx('Size 1'), r1 = drawn(i, blank()), r2 = drawn(i, Object.assign(blank(), { unit: false, tog: true }));
+    return vals(r1) === '0.6,0.8,1' && K.near(r1.main.v[0] * A[1] - r1.main.v[1] * A[0], 0, 1e-9) && r1.main.v[0] > 0 && K.near(hyp(r1.main.v[0], r1.main.v[1]), 1) && vals(r2) === '3,4,5';
+  });
+  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>
+    DO.every((i) => {
+      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&
+        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;
+    }));
+  K.check('Before Check no puzzle\'s picture shows its answer, and a right answer shows it', () =>
+    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));
+  K.check('Round the circle at a steady speed the boat\'s four velocity arrows have one length and four different directions, each along its path', () => {
+    const r = drawn(idx('Round in a circle'), blank()), vs = r.arrows.map((a) => a.v), L0 = hyp(vs[0][0], vs[0][1]);
+    return vs.length === 4 && vs.every((v) => K.near(hyp(v[0], v[1]), L0, 1e-6)) &&
+      vs.every((v, m) => vs.every((w, n) => m === n || hyp(v[0] - w[0], v[1] - w[1]) > 1)) &&
+      r.arrows.every((a) => K.near((a.p[0] - CB[0]) * a.v[0] + (a.p[1] - CB[1]) * a.v[1], 0, 1e-6) && K.near(hyp(a.p[0] - CB[0], a.p[1] - CB[1]), RB, 1e-6));
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s', () => {
+    const timed = (i, st, limit) => {
+      const keepS = S[i], keepT = T;
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; T = keepT; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      const lapOk = !d.lap || (timed(i, blank(), d.lap) && d.lap <= 4.5 && earliest >= FADE);
+      return lapOk && timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&
+        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

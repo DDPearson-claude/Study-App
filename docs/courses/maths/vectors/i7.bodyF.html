@@ -1,0 +1,1242 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  #stepbox > .act { margin-top: 6px; }
+  .act { color: var(--k-muted); font-size: .95rem; text-align: center; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .circ { fill: none; stroke: var(--k-line); stroke-width: 1.2; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .org { fill: var(--k-ink); }
+  .scene .sh { stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .scene .vi .sh { stroke: var(--k-ink); stroke-width: 3; }
+  .scene .vi .hd { fill: var(--k-ink); }
+  .scene .va .sh { stroke: var(--k-cat1); }
+  .scene .va .hd { fill: var(--k-cat1); }
+  .scene .vb .sh { stroke: var(--k-cat2); }
+  .scene .vb .hd { fill: var(--k-cat2); }
+  .scene .vc .sh { stroke: var(--k-cat3); }
+  .scene .vc .hd { fill: var(--k-cat3); }
+  .scene .vp .sh { stroke: var(--k-accent2); }
+  .scene .vp .hd { fill: var(--k-accent2); }
+  .scene .cp .sh { stroke: var(--k-cat2); stroke-dasharray: 6 4; stroke-linecap: butt; }
+  .scene .cp .hd { fill: var(--k-cat2); }
+  .scene .bad .sh { stroke: var(--k-warn); }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .wv1 { fill: none; stroke: var(--k-cat1); stroke-width: 2; }
+  .scene .wv2 { fill: none; stroke: var(--k-cat2); stroke-width: 2; }
+  .scene .wvp { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; }
+  .scene .shd { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 7; stroke-linecap: butt; }
+  .scene .shd1 { stroke: var(--k-cat1); stroke-opacity: .5; stroke-width: 6; stroke-linecap: butt; }
+  .scene .shd2 { stroke: var(--k-cat2); stroke-opacity: .5; stroke-width: 6; stroke-linecap: butt; }
+  .scene .bl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .scene .ray { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .scene .now { stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .scene .gd { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 3 3; }
+  .scene .gd.bad { stroke: var(--k-warn); }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .brk.ok { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .brk.bad { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .badln { stroke: var(--k-warn); stroke-width: 4; stroke-linecap: round; }
+  .scene .badarc { fill: none; stroke: var(--k-warn); stroke-width: 1.8; stroke-dasharray: 4 4; }
+  .scene .ram { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .wedge { fill: var(--k-fill1); stroke: none; }
+  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .arc2 { fill: none; stroke: var(--k-cat2); stroke-width: 1.5; }
+  .scene .ring { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.8; }
+  .scene .rope { stroke: var(--k-muted); stroke-width: 2.2; stroke-linecap: round; }
+  .scene .closed { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .dot1 { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dot2 { fill: var(--k-cat2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dotp { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dotbad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .pill { fill: var(--k-hl); stroke: none; }
+  .scene .sw { stroke-width: 3; stroke-linecap: butt; }
+  .scene .sw.k1 { stroke: var(--k-cat1); }
+  .scene .sw.k2 { stroke: var(--k-cat2); }
+  .scene .sw.k3 { stroke: var(--k-cat3); }
+  .scene .sw.kp { stroke: var(--k-accent2); }
+  .scene .sw.kcp { stroke: var(--k-cat2); stroke-dasharray: 5 3; }
+  .scene .sw.kshd { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 7; }
+  .scene .sw.kbl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .sw.kray { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  /* Every label carries a thin halo of what lies behind it, so a line behind it never cuts its letters. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene text.nohalo { stroke: none; }
+  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sm.mu { fill: var(--k-muted); }
+  .scene .lb.ok, .scene .sm.ok { fill: var(--k-accent2); }
+  .scene .lb.bad, .scene .sm.bad { fill: var(--k-warn); }
+  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .rv { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .rv2 { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .rv3 { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; no answer ever splits. */
+  .picks .k-btn { font-size: 1.1rem; min-height: 56px; flex: 1 1 6rem; white-space: nowrap; padding-inline: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A fixed force arrow beside an arrow that turns and traces its wave, then currents and voltages drawn as arrows. The values are made-up examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 290" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <p class="act" id="act"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The turning arrows are drawn slowed down, since at 50 Hz each turn takes 20 ms.</p>
+
+<script>
+  const RAD = Math.PI / 180;
+  const Q3 = Math.sqrt(3) / 2, Q2 = Math.SQRT1_2;
+  // Exact values at the lesson's angles, so 10 cos 120° is exactly −5.
+  const EXC = { 0: 1, 30: Q3, 45: Q2, 60: 0.5, 90: 0, 120: -0.5, 135: -Q2, 150: -Q3, 180: -1, 210: -Q3, 225: -Q2, 240: -0.5, 270: 0, 300: 0.5, 315: Q2, 330: Q3 };
+  const EXS = { 0: 0, 30: 0.5, 45: Q2, 60: Q3, 90: 1, 120: Q3, 135: Q2, 150: 0.5, 180: 0, 210: -0.5, 225: -Q2, 240: -Q3, 270: -1, 300: -Q3, 315: -Q2, 330: -0.5 };
+  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+  const wrapD = (a) => ((a % 360) + 360) % 360;
+  const keyOf = (a) => Math.round(wrapD(a) * 1e6) / 1e6;
+  const cosd = (a) => (has(EXC, keyOf(a)) ? EXC[keyOf(a)] : Math.cos(a * RAD));
+  const sind = (a) => (has(EXS, keyOf(a)) ? EXS[keyOf(a)] : Math.sin(a * RAD));
+  // Up to two decimals: 12, 4.5, −60.
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }
+  // As the lesson writes a worked value: exact ones plainly (10, 2.5), rounded ones to two places (5.20, 3.46).
+  function fx(v) {
+    const r = Math.round(v * 100) / 100;
+    if (Math.abs(r) < 1e-9) return '0';
+    const s = Math.abs(v - r) < 1e-9 ? String(Math.abs(r)) : Math.abs(r).toFixed(2);
+    return (r < 0 ? '−' : '') + s;
+  }
+  const polar = (r, a, u) => fx(r) + '∠' + num(a) + '°' + (u ? ' ' + u : '');
+  const par = (s) => (s.charAt(0) === '−' ? '(' + s + ')' : s);
+  const add = (p, q) => [p[0] + q[0], p[1] + q[1]];
+  const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];
+  const scale = (p, s) => [p[0] * s, p[1] * s];
+  const hyp = (v) => Math.hypot(v[0], v[1]);
+  const lerp2 = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
+  const dotv = (p, q) => p[0] * q[0] + p[1] * q[1];
+  const pol = (r, a) => [r * cosd(a), r * sind(a)];
+  // A point on screen from C, for an arrow v (y up) at s px a unit.
+  const P = (C, v, s) => [C[0] + v[0] * s, C[1] - v[1] * s];
+  // Nose to tail: the sum of the arrows, the same rule for pulls, currents and voltages.
+  const chainSum = (vs) => vs.reduce((a, b) => add(a, b), [0, 0]);
+  const ANG = [0, -120, 120], PH = ['va', 'vb', 'vc'];
+
+  // ---------- each screen's layout ----------
+  const GT = { R: [24, 142], C: [160, 118], r: 40, X0: 214, W: 118, ly0: 32, ly1: 208, h: 216 };
+  const GL = { C: [70, 112], rV: 44, rI: 30, X0: 128, W: 200, ly0: 30, ly1: 192, hd: 198, rows: 2 };
+  const GA = { F0: [16, 150], C: [160, 118], aS: 11, X0: 216, W: 118, ly0: 32, ly1: 200, hd: 206, rows: 2 };
+  const GS4 = { O: [96, 58], s: 12, ly0: 20, ly1: 172, hd: 178, rows: 2 };
+  const GF = { C: [66, 112], r1: 44, r3: 30, X0: 128, W: 204, ly0: 32, ly1: 200, hd: 206, rows: 2 };
+  const GD = { O: [50, 120], iS: 6, zS: 2, ly0: 30, ly1: 206, hd: 212, rows: 3 };
+  const GD8 = Object.assign({}, GD, { zS: 1.2 });
+  const GP = { S: [78, 112], s: 6, P0: [188, 84], ly0: 32, ly1: 190, hd: 196, rows: 3 };
+  const GV = { O: [70, 130], s: 0.3, ly0: 32, ly1: 206, hd: 212, rows: 3 };
+  [GL, GA, GS4, GF, GD, GD8, GP, GV].forEach((g) => { g.h = g.hd + 26 + (g.rows - 1) * 28 + 14; });
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. act: what he can do with it,
+  // shown under the picture. turn: the label of the button that sets the arrows turning; rate: how
+  // fast they turn, in ms of the cycle each second. A puzzle: task, opts (three answers), want,
+  // hints (one per wrong answer), why, reveal (a label only a right answer draws), fb (seconds of
+  // motion after a right and a wrong answer).
+  const STEPS = [
+    { show: true, name: 'Two arrows', pic: 'turn', geo: GT, dur: 4.8, turn: 'Turn it', rate: 8,
+      text: 'The pull\'s angle is a direction. The turning arrow\'s angle is a time. A 3 kN pull on a ring points the way its rope runs. Beside it, an arrow turns once a cycle, and its height traces a *sine wave*. Frozen at one instant, it is the *phasor*, the fixed arrow `r∠θ`. Frozen at 45°, it is 2.5 ms into the cycle.',
+      act: 'Press Turn it to set the arrow going, and Freeze to stop it.', actF: 'Press Freeze to stop the arrow where it is.' },
+    { kind: 'pick', name: 'How much later', pic: 'lag', geo: GL, fb: [1.8, 1.6],
+      task: 'A current is 90° behind the voltage. How much later does the current peak?',
+      opts: ['90 ms', '5 ms', '15 ms'], want: '5 ms', reveal: '5 ms',
+      hints: { '90 ms': 'Not quite. That reads degrees as milliseconds. 90° is a quarter turn, and a whole turn takes 20 ms.',
+        '15 ms': 'Not quite. That is three quarters of a turn. 90° behind is a quarter turn later.' },
+      why: 'A whole turn is 360° and takes 20 ms. 90° is a quarter of that. So the current peaks 20 × 90 ÷ 360 = 5 ms after the voltage. The angle measures a delay. Nothing in the cable points that way.' },
+    { show: true, name: 'Adding', pic: 'add', geo: GA, dur: 4.8, turn: 'Turn them', rate: 8,
+      text: 'Two 3 kN pulls, square to each other, add nose to tail to 4.24 kN. Two 3 A currents a quarter turn apart add the same way, to 4.24 A. At every instant the sum\'s height is their two heights added. They turn together, so the sum turns with them.',
+      act: 'Press Turn them to set the currents going, and Freeze to stop them.', actF: 'Press Freeze to stop the currents where they are.' },
+    { kind: 'pick', name: 'Two currents', pic: 'sum', geo: GS4, fb: [1.6, 1.4],
+      task: '6 A flows in step with the voltage. Another 8 A is a quarter turn behind. What is the total current?',
+      opts: ['14 A', '2 A', '10 A'], want: '10 A', reveal: '10 A',
+      hints: { '14 A': 'Not quite. That adds the sizes, as if both peaked together. Lay them nose to tail.',
+        '2 A': 'Not quite. That is 8 − 6, as if they pulled opposite ways. They are a quarter turn apart.' },
+      why: 'Lay them nose to tail. The 8 A runs square to the 6 A. So the total is √(6² + 8²) = 10 A, not 14 A.' },
+    { show: true, name: 'Two speeds', pic: 'speeds', geo: GF, dur: 4.3, turn: 'Turn them', rate: 2.5,
+      text: 'A 50 Hz arrow and a 150 Hz arrow start together. The faster one turns three times as fast, so the angle between them keeps changing. That is why waves of different frequencies cannot share one phasor diagram.',
+      act: 'Press Turn them to run the arrows on, and Freeze to stop them.', actF: 'Press Freeze to stop the arrows where they are.' },
+    { kind: 'pick', name: 'After 5 ms', pic: 'speedsq', geo: GF, fb: [2.4, 2.0],
+      task: 'Both arrows start together at 0°. How far apart are they 5 ms later?',
+      opts: ['180°', '0°', '90°'], want: '180°', reveal: '180°',
+      hints: { '0°': 'Not quite. They start together, but the faster one gains on the slower one.',
+        '90°': 'Not quite. 90° is how far the 50 Hz arrow turns. The 150 Hz arrow turns three times as far.' },
+      why: 'In 5 ms the 50 Hz arrow makes a quarter turn, 90°. The 150 Hz arrow turns three times as far, 270°. So they are 270° − 90° = 180° apart.' },
+    { show: true, name: 'Dividing', pic: 'divide', geo: GD, dur: 4.2,
+      text: 'Written as a number, a phasor can be divided. A force arrow cannot be divided like this. Divide the sizes and take away the angles. So `230∠0° V` ÷ `10∠−30° A` gives an *impedance* of `23∠30° Ω`. From here the arrows are drawn at rms, the size a meter reads. The turning arrows were drawn at the peak, and drawings differ on which to use.',
+      act: 'Drag the tip of the current\'s arrow to change the current.' },
+    { kind: 'pick', name: 'Divide it', pic: 'divideq', geo: GD8, fb: [1.9, 1.5],
+      task: 'Divide `230∠0° V` by `5∠−60° A`. What is the impedance?',
+      opts: ['1150∠−60° Ω', '46∠60° Ω', '46∠−60° Ω'], want: '46∠60° Ω', reveal: '46∠60° Ω',
+      hints: { '1150∠−60° Ω': 'Not quite. That multiplies. To divide, divide the sizes and take away the angles.',
+        '46∠−60° Ω': 'Not quite. The size is right. Now take the angles away: 0° − (−60°) = 60°.' },
+      why: 'Divide the sizes: 230 ÷ 5 = 46 Ω. Take away the angles: 0° − (−60°) = 60°. So the impedance is `46∠60° Ω`. Multiplying does the opposite. It multiplies the sizes and adds the angles. So V times I as numbers is not true power. True power uses the angle between them, in VI cos φ.' },
+    { show: true, name: 'Three phases', pic: 'star', geo: GP, dur: 4.9,
+      text: 'Three phase currents leave the star point 120° apart. Whatever the lines carry out must come back on the neutral. So the neutral carries their nose-to-tail sum. With pure 50 Hz sine waves, three equal 10 A currents close like the ring\'s pulls, so the neutral carries 0 A. Shorten one and the chain falls short, leaving a gap that is the *neutral current*.',
+      act: 'Drag the tip of any current along its line.' },
+    { kind: 'pick', name: 'One line light', pic: 'starq', geo: GP, L: [10, 10, 4], fb: [1.8, 1.4], pv: { '24 A': 'line', '3 A': 'across' },
+      task: 'L1 and L2 carry 10 A each. L3 carries 4 A. What does the neutral carry?',
+      opts: ['24 A', '3 A', '6 A'], want: '6 A', reveal: '6 A',
+      hints: { '24 A': 'Not quite. That adds the sizes. The currents are 120° apart, so most of them cancel.',
+        '3 A': 'Not quite. That is only the across part. Add the up part too, then use Pythagoras.' },
+      why: 'Across: 10 − 5 − 2 = 3 A. Up: 0 − 8.66 + 3.46 = −5.20 A. So the neutral carries √(3² + 5.20²) = 6 A, not 24 A. When two lines match, the neutral carries the difference, 10 − 4 = 6 A.' },
+    { kind: 'pick', name: 'All three differ', pic: 'starq2', geo: GP, L: [10, 8, 6], fb: [1.8, 1.4], pv: { '4 A': 'diff', '24 A': 'line' },
+      task: 'Now L1 carries 10 A, L2 8 A and L3 6 A. What does the neutral carry?',
+      opts: ['3.46 A', '4 A', '24 A'], want: '3.46 A', reveal: '3.46 A',
+      hints: { '4 A': 'Not quite. The difference rule only works when two lines match. Here all three differ, so work it by parts.',
+        '24 A': 'Not quite. That adds the sizes. Lay the currents nose to tail instead.' },
+      why: 'Across: 10 − 4 − 3 = 3 A. Up: 0 − 6.93 + 5.20 = −1.73 A. So the neutral carries √(3² + 1.73²) = 3.46 A.' },
+    { kind: 'pick', name: 'Line to line', pic: 'line', geo: GV, fb: [2.0, 1.6],
+      task: 'Take `230∠−120° V` away from `230∠0° V`. What is the voltage between the two lines?',
+      opts: ['230∠−60° V', '398∠30° V', '460 V'], want: '398∠30° V', reveal: '398∠30° V',
+      hints: { '230∠−60° V': 'Not quite. That adds them. To take away, turn the second arrow round, then add.',
+        '460 V': 'Not quite. That adds the sizes, as if the arrows lay in line. Turn the second round and lay it nose to tail.' },
+      why: 'Turn `230∠−120° V` round to get `230∠60° V`, then add. Across: 230 + 115 = 345 V. Up: 0 + 199.19 = 199.19 V. So the line voltage is √(345² + 199.19²) = 398 V, at 30°. That is √3 × 230 V, the 400 V between lines you know from three-phase boards.' },
+  ];
+  const FINISH = 'A phasor adds like a vector. Its angle is a shift in time, and as a number it can be divided.';
+  // The lesson's sources, each cited only by a check that restates its quote.
+  const SRC1 = 'https://web.eecs.utk.edu/~mjr/ECE202/Labs/Lab%204.pdf';
+  const SRC2 = 'https://www.electronics-tutorials.ws/accircuits/phasors.html';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const atPic = (pic) => STEPS.findIndex((d) => d.pic === pic);
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, its result and the Why? note. ph: where he froze the turning
+  // arrows (ms into the cycle). I: the current he dragged to, [size, angle]. L: the three line
+  // currents he dragged to.
+  function blank() { return { pick: null, res: null, why: false, ph: null, I: null, L: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };
+  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0, spin = false;   // spin: the arrows are turning until he freezes them
+  let REC = null;   // what the last paint drew, for the checks
+  let G = null;     // the layout of the step being drawn
+  let BOX = [], SEG = [];   // what a label must keep clear of: other labels and solid shapes, and lines
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    // A number keeps its unit on the same line.
+    String(s).replace(/(\d) (?=(?:ms|Hz|kN|A|V|Ω)(?![A-Za-z]))/g, '$1 ').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const cur = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[cur()].show || finished) return;
+    const st = S[cur()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { ph: null, I: null, L: null });
+    spin = false;
+    play(d.dur);
+  } });
+  // Turn / Freeze: sets the arrows turning, or stops them where they are.
+  const turnBtn = K.button({ label: 'Turn it', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (!d.turn || finished) return;
+    if (spin) { spin = false; paint(); return; }
+    if (st.ph == null && T !== Infinity) { st.ph = demoPh(d.pic); T = Infinity; anim.pause(); paint(); return; }
+    if (st.ph == null) st.ph = demoPh(d.pic);
+    if (REDUCE || testing()) { st.ph += 2.5; paint(); return; }
+    spin = true; anim.play();
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; spin = false; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the turning, and the motion after an answer; with
+  // reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) { spin = false; return false; }
+    let more = false;
+    if (T !== Infinity) { T += dt; if (T >= motionEnd) T = Infinity; else more = true; }
+    if (spin) {
+      const d = STEPS[cur()], st = S[cur()];
+      if (d.turn && st.ph != null) { st.ph += dt * d.rate; if (st.ph >= 40) st.ph -= 20; more = true; } else spin = false;
+    }
+    paint();
+    return more;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const put = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  // Each turning screen's demonstration: how far it turns (ms of the cycle), when and for how long.
+  const DEMO = { turn: [22.5, 1.4, 2.8], add: [70 / 3, 1.9, 2.3], speeds: [2.5, 1.4, 2.8] };
+  function demoPh(pic) { const m = DEMO[pic]; return m[0] * go(m[1], m[2]); }
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = put(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const pt2 = (p) => r3(p[0]) + ' ' + r3(p[1]);
+  const ln = (cls, p, q) => put(K.svg('line', { class: cls, x1: r3(p[0]), y1: r3(p[1]), x2: r3(q[0]), y2: r3(q[1]) }));
+  const seg = (p, q) => SEG.push([p[0], p[1], q[0], q[1]]);
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = s;
+    REC.texts.push(s);
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  const FH = (cls) => (/\blb\b/.test(cls) ? 15 : 13);
+  function pxArrow(a, b, cls) {
+    const x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 1) return;
+    const g = put(K.svg('g', { class: 'arr ' + (cls || '') }));
+    const ux = dx / L, uy = dy / L, hl = Math.min(12, L * 0.45), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+  }
+  // A line p→q moved s px to one side.
+  function shifted(p, q, s) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L * s, -dx / L * s];
+    return [add(p, n), add(q, n)];
+  }
+  function raMark(J, u1, u2) {
+    const s = 8;
+    put(K.svg('path', { class: 'ram', d: 'M' + r3(J[0] + u1[0] * s) + ' ' + r3(J[1] + u1[1] * s) + ' L' + r3(J[0] + (u1[0] + u2[0]) * s) + ' ' + r3(J[1] + (u1[1] + u2[1]) * s) + ' L' + r3(J[0] + u2[0] * s) + ' ' + r3(J[1] + u2[1] * s) }));
+  }
+  function dot(p, cls) { put(K.svg('circle', { class: cls, cx: r3(p[0]), cy: r3(p[1]), r: 4 })); }
+  const dotRoom = (p) => BOX.push([p[0] - 5, p[1] - 5, 10, 10]);
+  // A wave across the plot from x0, W px wide: amp px high, `cycles` turns, starting at ph0 degrees, drawn up to u1 of the width.
+  function wavePts(x0, W, cy, amp, cycles, ph0, u1) {
+    const n = Math.max(2, Math.ceil(90 * cycles * u1) + 1), pts = [];
+    for (let k = 0; k <= n; k++) { const u = u1 * k / n; pts.push([x0 + W * u, cy - amp * Math.sin((360 * cycles * u + ph0) * RAD)]); }
+    return pts;
+  }
+  function waveSeg(pts) { for (let k = 2; k < pts.length; k += 2) seg(pts[k - 2], pts[k]); if (pts.length > 1) seg(pts[pts.length - 2], pts[pts.length - 1]); }
+  function wave(pts, cls) {
+    if (pts.length < 2 || Math.abs(pts[pts.length - 1][0] - pts[0][0]) < 0.5) return;
+    put(K.svg('path', { class: cls, d: pts.map((p, k) => (k ? 'L' : 'M') + pt2(p)).join(' ') }));
+  }
+  function circleSeg(C, r) { for (let k = 0; k < 24; k++) seg(P(C, pol(r, k * 15), 1), P(C, pol(r, k * 15 + 15), 1)); }
+  // An arc at C from angle a0 to a1 (degrees; anticlockwise on screen when a1 > a0).
+  function arcPath(C, a0, a1, r) {
+    const p0 = P(C, pol(r, a0), 1), p1 = P(C, pol(r, a1), 1), big = Math.abs(a1 - a0) > 180 ? 1 : 0, sw = a1 > a0 ? 0 : 1;
+    return 'M' + pt2(p0) + ' A' + r3(r) + ' ' + r3(r) + ' 0 ' + big + ' ' + sw + ' ' + pt2(p1);
+  }
+  function wedge(C, a0, a1, r, arcCls, noFill) {
+    if (Math.abs(a1 - a0) < 0.5) return;
+    if (Math.abs(a1 - a0) > 359) a1 = a0 + 359 * Math.sign(a1 - a0);
+    const d = arcPath(C, a0, a1, r);
+    if (!noFill) put(K.svg('path', { class: 'wedge', d: 'M' + pt2(C) + ' L' + d.slice(1) + ' Z' }));
+    put(K.svg('path', { class: arcCls || 'arc', d }));
+  }
+  function wedgeSeg(C, a0, a1, r) { const n = 8; for (let k = 0; k < n; k++) seg(P(C, pol(r, a0 + (a1 - a0) * k / n), 1), P(C, pol(r, a0 + (a1 - a0) * (k + 1) / n), 1)); }
+  function bracket(x0, x1, y, cls, a) {
+    seg([x0, y], [x1, y]); seg([x0, y - 5], [x0, y + 5]); seg([x1, y - 5], [x1, y + 5]);
+    part(a, 0, () => { ln(cls, [x0, y], [x1, y]); ln(cls, [x0, y - 5], [x0, y + 5]); ln(cls, [x1, y - 5], [x1, y + 5]); });
+  }
+
+  // ---------- labels, placed clear of each other and of the lines ----------
+  const overlap = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+  function segHitsBox(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const p = [-dx, dx, -dy, dy], q = [s[0] - b[0], b[0] + b[2] - s[0], s[1] - b[1], b[1] + b[3] - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Takes the first free spot among cands (centres), always, so a label never jumps as parts
+  // arrive; draws it at arrival a. strict: no free spot, no label.
+  function label(a, s, cls, cands, o) {
+    o = o || {};
+    const w = tw(s, cls), h = FH(cls);
+    const boxAt = (c) => [c[0] - w / 2 - 2, c[1] - h / 2 - 1, w + 4, h + 2];
+    let pick = null;
+    for (let k = 0; k < cands.length; k++) {
+      const b = boxAt(cands[k]);
+      if (b[0] < 2 || b[0] + b[2] > 338 || b[1] < G.ly0 - 6 || b[1] + b[3] > G.ly1 + 6) continue;
+      if (BOX.some((q) => overlap(b, q)) || SEG.some((q) => segHitsBox(q, b))) continue;
+      if (o.inside && !o.inside(b)) continue;
+      pick = cands[k]; break;
+    }
+    if (!pick) {
+      if (o.strict) return false;
+      const c = cands[0] || [170, 100];
+      pick = [K.clamp(c[0], 4 + w / 2, 336 - w / 2), K.clamp(c[1], G.ly0 + h / 2, G.ly1 - h / 2)];
+      REC.crowd++;
+    }
+    BOX.push(boxAt(pick));
+    part(a, 0, () => text(pick[0], pick[1] + h * 0.36, s, cls, 'middle'));
+    return true;
+  }
+  // Spots beside the line p→q: on the side away from ref first (which: 1 that side only, −1 the other).
+  function besideCands(p, q, w, h, ref, which) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L, -dx / L];
+    let sg = 1;
+    if (ref) { const m = lerp2(p, q, 0.5); if ((ref[0] - m[0]) * n[0] + (ref[1] - m[1]) * n[1] > 0) sg = -1; }
+    const D = 9 + Math.abs(n[0]) * w / 2 + Math.abs(n[1]) * h / 2, out = [];
+    const sides = which === 1 ? [sg] : which === -1 ? [-sg] : [sg, -sg];
+    sides.forEach((s) => [0.55, 0.75, 0.35, 0.9].forEach((f) => { out.push([p[0] + dx * f + s * n[0] * D, p[1] + dy * f + s * n[1] * D]); out.push([p[0] + dx * f + s * n[0] * (D + 12), p[1] + dy * f + s * n[1] * (D + 12)]); }));
+    return out;
+  }
+  // Spots just beyond the nose of p→q.
+  function noseCands(p, q, w, h) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const D = 10 + Math.abs(ux) * w / 2 + Math.abs(uy) * h / 2;
+    return [[q[0] + ux * D, q[1] + uy * D], [q[0] + ux * D + uy * 14, q[1] + uy * D - ux * 14], [q[0] + ux * D - uy * 14, q[1] + uy * D + ux * 14]];
+  }
+  function nameBeside(a, s, cls, p, q, ref, o) {
+    const w = tw(s, cls), h = FH(cls);
+    return label(a, s, cls, besideCands(p, q, w, h, ref, 1).concat(noseCands(p, q, w, h), besideCands(p, q, w, h, ref, -1)), o);
+  }
+  function nameNose(a, s, cls, p, q, ref, o) {
+    const w = tw(s, cls), h = FH(cls);
+    return label(a, s, cls, noseCands(p, q, w, h).concat(besideCands(p, q, w, h, ref)), o);
+  }
+  // An angle's label inside its wedge, beyond the arc; left out when there is no room.
+  function wedgeLabel(a, s, cls, C, a0, a1, rMin, rMax) {
+    const lo = Math.min(a0, a1), hi = Math.max(a0, a1), mid = (lo + hi) / 2, c = [];
+    for (let D = rMin; D <= rMax; D += 3) c.push(P(C, pol(D, mid), 1));
+    const inside = (b) => [[b[0], b[1]], [b[0] + b[2], b[1]], [b[0], b[1] + b[3]], [b[0] + b[2], b[1] + b[3]]].every((q) => {
+      let g = Math.atan2(C[1] - q[1], q[0] - C[0]) / RAD;
+      g = mid + (((g - mid) % 360) + 540) % 360 - 180;
+      return g >= lo + 3 && g <= hi - 3;
+    });
+    return label(a, s, cls, c, { strict: true, inside });
+  }
+
+  // The readout under the drawing: the main quantity on amber, then the workings. rows: [{l, s, a}].
+  function band(rows) {
+    const y = G.hd;
+    REC.band = { label: rows[0].l, main: rows[0].s, items: rows.slice(1).filter((r) => r.s != null && (r.a == null || r.a > 0)).map((r) => r.s) };
+    ln('gl', [8, y + 2], [332, y + 2]);
+    const lw = Math.max.apply(null, rows.map((r) => tw(r.l, 'rk')));
+    const LX = 12 + lw, VX = LX + 12;
+    rows.forEach((r, k) => {
+      if (r.s == null) return;
+      const yy = y + 26 + k * 28;
+      part(r.a == null ? 1 : r.a, 0, () => {
+        text(LX, yy, r.l, 'rk', 'end');
+        if (k === 0) {
+          const w = tw(r.s, 'rv') + 16;
+          put(K.svg('rect', { class: 'pill', x: r3(VX - 6), y: yy - 19, width: r3(w), height: 26, rx: 7 }));
+          text(VX + 2, yy, r.s, 'rv nohalo', 'start');
+        } else {
+          text(VX, yy, r.s, VX + tw(r.s, 'rv2') <= 334 ? 'rv2' : 'rv3', 'start');
+        }
+      });
+    });
+  }
+  // A key row at the top of the drawing: short swatches with their names.
+  function keyRow(items, a) {
+    part(a, 0, () => {
+      let x = 12;
+      items.forEach((it) => {
+        ln('sw ' + it.sw, [x, 18], [x + 20, 18]);
+        text(x + 26, 23, it.s, 'sm mu', 'start');
+        x += 26 + tw(it.s, 'sm mu') + 14;
+      });
+    });
+  }
+
+  // ---------- each picture ----------
+  const DRAW = {};
+  // The fixed pull on the ring, and the arrow that turns and traces its wave; frozen, it is r∠θ.
+  DRAW.turn = (d, st) => {
+    const intro = st.ph == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const ph = intro ? demoPh('turn') : st.ph, fa = intro ? arr(4.2) : spin ? 0 : 1;
+    const C = G.C, r = G.r, R = G.R, X1 = G.X0 + G.W;
+    const th = wrapD(18 * ph), tms = ph - 20 * Math.floor(ph / 20 + 1e-12), u = tms / 20, full = ph >= 20 - 1e-9;
+    const tip = P(C, pol(r, th), 1), shY = C[1] - r * sind(th), wx = G.X0 + G.W * u, wy = C[1] - r * Math.sin(2 * Math.PI * u);
+    REC.tipY = tip[1]; REC.shY = shY; REC.waveY = wy; REC.th = th; REC.tms = tms;
+    const N = add(R, [60 * cosd(35), -60 * sind(35)]), ropeEnd = add(R, [84 * cosd(35), -84 * sind(35)]);
+    const trace = wavePts(G.X0, G.W, C[1], r, 1, 0, full ? 1 : u);
+    // Everything drawn is kept clear of labels from the start.
+    seg(R, ropeEnd); seg(R, [R[0] + 56, R[1]]); wedgeSeg(R, 0, 35, 18);
+    circleSeg(C, r); seg([C[0] - 48, C[1]], [X1, C[1]]); seg([C[0], C[1] - 48], [C[0], C[1] + 48]);
+    seg(C, tip); seg(tip, [wx, wy]); waveSeg(trace); dotRoom([wx, wy]);
+    BOX.push([R[0] - 6, R[1] - 6, 12, 12]);
+    if (th > 0.5) wedgeSeg(C, 0, th, 14);
+    keyRow([{ sw: 'kshd', s: 'shadow' }, { sw: 'kbl', s: 'upright line' }, { sw: 'kray', s: 'same height' }], ia(0.4));
+    // The fixed arrow: a 3 kN pull along its rope.
+    label(ia(0.4), 'fixed arrow', 'sm mu', [[58, 54]]);
+    part(ia(0.4), 0, () => { ln('rope', R, ropeEnd); ln('ax', R, [R[0] + 56, R[1]]); });
+    part(ia(1.1), 0, () => wedge(R, 0, 35, 18));
+    pxArrow(R, lerp2(R, N, ig(0.6, 0.5)), 'vi');
+    part(ia(0.4), 0, () => put(K.svg('circle', { class: 'ring', cx: R[0], cy: R[1], r: 5 })));
+    wedgeLabel(ia(1.1), 'θ', 'sm ok', R, 0, 35, 26, 44);
+    nameBeside(ia(1.1), '3 kN', 'lb', R, N, [R[0] + 30, R[1] + 10]);
+    // The turning arrow, its shadow on the upright line, and the wave that height traces.
+    bracket(G.X0, X1, 188, 'brk', ia(1.2));
+    if (wx - G.X0 > 1) bracket(G.X0, wx, 168, 'brk ok', fa);
+    label(ia(0.6), 'turning arrow', 'sm mu', [[C[0] + 10, 54]]);
+    part(ia(0.6), 0, () => { put(K.svg('circle', { class: 'circ', cx: C[0], cy: C[1], r })); ln('ax', [C[0] - 48, C[1]], [X1, C[1]]); ln('bl', [C[0], C[1] - 48], [C[0], C[1] + 48]); });
+    if (th > 0.5) part(fa, 0, () => wedge(C, 0, th, 14));
+    part(ia(1.0), 0, () => wave(trace, 'wvp'));
+    part(ia(1.2), 0, () => { if (Math.abs(shY - C[1]) > 0.5) ln('shd', C, [C[0], shY]); ln('ray', tip, [wx, wy]); });
+    pxArrow(C, lerp2(C, tip, ig(0.9, 0.4)), 'vp');
+    part(ia(1.2), 0, () => dot([wx, wy], 'dotp'));
+    label(ia(1.2), 'one turn: 20 ms', 'sm mu', [[G.X0 + G.W / 2, 204]]);
+    const nm = 'r∠' + num(th) + '°', w = tw(nm, 'lb');
+    label(fa, nm, 'lb', noseCands(C, tip, w, 15).concat(besideCands(C, tip, w, 15, [C[0] - 20, C[1] + 20])), { strict: true });
+    const tl = num(tms) + ' ms', w2 = tw(tl, 'sm ok');
+    label(fa, tl, 'sm ok', [[wx + 8 + w2 / 2, 172], [wx - 8 - w2 / 2, 174], [G.X0 + (wx - G.X0) / 2, 178]], { strict: true });
+    const moving = spin || (intro && T < 4.2);
+    return 'On the left, a fixed arrow: a 3 kN pull on a ring, along its rope at the angle θ. On the right, an arrow ' +
+      (moving ? 'turning round its tail.' : 'frozen at ' + num(th) + '°, ' + num(tms) + ' ms into a 20 ms turn: the fixed arrow r∠' + num(th) + '°.') +
+      ' Its height is its shadow on an upright line, and the wave beside it traces that height through the turn.';
+  };
+  // The puzzle: a current 90° behind the voltage, and their waves over one turn.
+  DRAW.lag = (d, st) => {
+    const C = G.C, ok = st.res === 'right', pick = st.res ? st.pick : null, X1 = G.X0 + G.W;
+    const V = P(C, pol(G.rV, 0), 1), I = P(C, pol(G.rI, -90), 1);
+    const wv = wavePts(G.X0, G.W, C[1], G.rV, 1, 0, 1), wi = wavePts(G.X0, G.W, C[1], G.rI, 1, -90, 1);
+    const Vpk = [G.X0 + G.W * 0.25, C[1] - G.rV], Ipk = [G.X0 + G.W * 0.5, C[1] - G.rI], Tr = [X1, C[1] + G.rI];
+    seg([16, C[1]], [X1 + 4, C[1]]); seg(C, V); seg(C, I); waveSeg(wv); waveSeg(wi); wedgeSeg(C, -90, 0, 18);
+    if (pick) { seg(Vpk, [Vpk[0], 54]); dotRoom(Vpk); }
+    if (ok) { seg(Ipk, [Ipk[0], 54]); dotRoom(Ipk); }
+    if (pick === '90 ms' || pick === '15 ms') { seg([Vpk[0], 54], [334, 54]); seg([X1, 54], Tr); dotRoom(Tr); }
+    keyRow([{ sw: 'k1', s: 'voltage' }, { sw: 'k2', s: 'current' }], 1);
+    ln('ax', [16, C[1]], [X1 + 4, C[1]]);
+    wedge(C, -90, 0, 18);
+    wave(wv, 'wv1'); wave(wi, 'wv2');
+    pxArrow(C, V, 'va'); pxArrow(C, I, 'vb');
+    wedgeLabel(1, '90°', 'sm ok', C, -90, 0, 26, 44);
+    bracket(G.X0, X1, 170, 'brk', 1);
+    label(1, 'one turn: 20 ms', 'sm mu', [[G.X0 + G.W / 2, 186]]);
+    let said = 'A voltage arrow, and a current arrow 90° behind it, from one point. Beside them, the waves they trace over one 20 ms turn.';
+    if (pick) part(arr(0.2), 0, () => { ln('gd', Vpk, [Vpk[0], 54]); dot(Vpk, 'dot1'); });
+    if (ok) {
+      part(arr(0.4), 0, () => { ln('gd', Ipk, [Ipk[0], 54]); dot(Ipk, 'dot2'); });
+      bracket(Vpk[0], Ipk[0], 54, 'brk ok', arr(0.6));
+      label(arr(0.8), '5 ms', 'sm ok', [[(Vpk[0] + Ipk[0]) / 2, 40]]);
+      said += ' The voltage peaks first. The current peaks a quarter turn later, 5 ms after it.';
+    } else if (pick === '90 ms') {
+      const e = go(0.2, 0.8);
+      part(1, 0, () => { ln('brk bad', [Vpk[0], 49], [Vpk[0], 59]); pxArrow([Vpk[0], 54], [Vpk[0] + (334 - Vpk[0]) * e, 54], 'bad'); });
+      label(arr(1.0), '90 ms is 4½ turns', 'sm bad', [[256, 40]]);
+      REC.bad++;
+      said += ' The pick, 90 ms, is drawn in red from the voltage\'s peak. It runs far past the end of one turn.';
+    } else if (pick === '15 ms') {
+      const e = go(0.2, 0.8), xe = Vpk[0] + (X1 - Vpk[0]) * e;
+      part(1, 0, () => { ln('brk bad', [Vpk[0], 49], [Vpk[0], 59]); ln('brk bad', [Vpk[0], 54], [xe, 54]); if (e >= 1) ln('brk bad', [X1, 49], [X1, 59]); });
+      part(arr(0.9), 0, () => { ln('gd bad', [X1, 54], Tr); dot(Tr, 'dotbad'); });
+      label(arr(1.0), '15 ms lands on a trough', 'sm bad', [[253, 40]]);
+      REC.bad++;
+      said += ' The pick, 15 ms, is drawn in red from the voltage\'s peak. It lands where the current is at its lowest.';
+    }
+    band(ok ? [{ l: 'delay', s: num(20 * 90 / 360) + ' ms', a: arr(0.9) }, { l: 'a quarter turn', s: '20 × 90 ÷ 360', a: arr(1.1) }] : [{ l: 'delay', s: '?' }]);
+    return said;
+  };
+  // Two 3 kN pulls nose to tail beside two 3 A currents a quarter turn apart, turning together.
+  DRAW.add = (d, st) => {
+    const intro = st.ph == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const ph = intro ? demoPh('add') : st.ph;
+    const phi = wrapD(18 * ph), tms = ph - 20 * Math.floor(ph / 20 + 1e-12), u = tms / 20, full = ph >= 20 - 1e-9, uu = full ? 1 : u;
+    const C = G.C, s = G.aS, X1 = G.X0 + G.W, F0 = G.F0;
+    const f1 = pol(3, 0), f2 = pol(3, 90), fs = chainSum([f1, f2]), A = P(F0, f1, 15), B = P(F0, fs, 15);
+    const v1 = pol(3, phi), v2 = pol(3, phi - 90), vs = chainSum([v1, v2]), N1 = P(C, v1, s), N2 = P(C, vs, s);
+    const s0 = chainSum([pol(3, 0), pol(3, -90)]), ampS = hyp(s0), phS = Math.atan2(s0[1], s0[0]) / RAD;
+    const h1 = v1[1], h2 = v2[1], y1 = C[1] - h1 * s, y2 = y1 - h2 * s, xn = G.X0 + G.W * u;
+    const d1 = C[1] - 3 * s * Math.sin(2 * Math.PI * u), d2 = C[1] - 3 * s * Math.sin(2 * Math.PI * u - Math.PI / 2), dS = C[1] - ampS * s * Math.sin((360 * u + phS) * RAD);
+    REC.v1 = v1; REC.v2 = v2; REC.vs = vs; REC.fs = fs; REC.sumY = N2[1]; REC.stackY = y2; REC.sumWaveY = dS;
+    REC.nose = N2; REC.noseWant = P(C, add(v1, v2), s);
+    const w1 = wavePts(G.X0, G.W, C[1], 3 * s, 1, 0, uu), w2 = wavePts(G.X0, G.W, C[1], 3 * s, 1, -90, uu), wS = wavePts(G.X0, G.W, C[1], ampS * s, 1, phS, uu);
+    seg(F0, A); seg(A, B); seg(F0, B);
+    seg([C[0] - 50, C[1]], [X1, C[1]]); seg([C[0], 66], [C[0], 170]); seg(C, N1); seg(N1, N2); seg(C, N2);
+    seg([C[0] - 5, C[1]], [C[0] - 5, y1]); seg([C[0] + 5, y1], [C[0] + 5, y2]);
+    waveSeg(w1); waveSeg(w2); waveSeg(wS); [d1, d2, dS].forEach((y) => dotRoom([xn, y]));
+    keyRow([{ sw: 'k1', s: 'first' }, { sw: 'k2', s: 'second' }, { sw: 'kp', s: 'sum' }], ia(0.4));
+    label(ia(0.4), 'pulls', 'sm mu', [[44, 54]]);
+    pxArrow(F0, lerp2(F0, A, ig(0.4, 0.4)), 'va');
+    pxArrow(A, lerp2(A, B, ig(0.7, 0.4)), 'vb');
+    pxArrow(F0, lerp2(F0, B, ig(1.0, 0.4)), 'vp');
+    part(ia(1.0), 0, () => raMark(A, [-1, 0], [0, -1]));
+    nameBeside(ia(0.6), '3 kN', 'sm', F0, A, B);
+    nameBeside(ia(0.9), '3 kN', 'sm', A, B, F0);
+    nameBeside(ia(1.3), fx(hyp(fs)) + ' kN', 'sm', F0, B, A);
+    bracket(G.X0, X1, 176, 'brk', ia(1.8));
+    label(ia(0.9), 'currents', 'sm mu', [[C[0], 54]]);
+    part(ia(0.9), 0, () => { ln('ax', [C[0] - 50, C[1]], [X1, C[1]]); ln('bl', [C[0], 66], [C[0], 170]); });
+    part(ia(1.8), 0, () => {
+      if (Math.abs(h1) > 0.02) ln('shd1', [C[0] - 5, C[1]], [C[0] - 5, y1]);
+      if (Math.abs(h2) > 0.02) ln('shd2', [C[0] + 5, y1], [C[0] + 5, y2]);
+      wave(w1, 'wv1'); wave(w2, 'wv2'); wave(wS, 'wvp');
+    });
+    pxArrow(C, lerp2(C, N1, ig(1.0, 0.3)), 'va');
+    pxArrow(N1, lerp2(N1, N2, ig(1.3, 0.3)), 'vb');
+    pxArrow(C, lerp2(C, N2, ig(1.6, 0.3)), 'vp');
+    part(ia(1.8), 0, () => { dot([xn, d1], 'dot1'); dot([xn, d2], 'dot2'); dot([xn, dS], 'dotp'); });
+    label(ia(1.8), 'one turn', 'sm mu', [[G.X0 + G.W / 2, 192]]);
+    const r1 = Math.round(h1 * 100) / 100, r2 = Math.round(h2 * 100) / 100;
+    band([{ l: 'sum', s: '√(3² + 3²) = ' + fx(hyp(vs)) + ' A', a: ia(1.8) },
+      { l: 'heights now', s: num(r1) + ' + ' + par(num(r2)) + ' = ' + num(r1 + r2) + ' A', a: ia(1.8) }]);
+    return 'On the left, two 3 kN pulls square to each other, nose to tail, make ' + fx(hyp(fs)) + ' kN. On the right, two 3 A currents a quarter turn apart, nose to tail, make ' +
+      fx(hyp(vs)) + ' A, and all three arrows turn together. Their heights stack on the upright line: ' + num(r1) + ' and ' + num(r2) + ' make the sum\'s ' + num(r1 + r2) + '. Beside them, the three waves.';
+  };
+  // The puzzle: 6 A in step and 8 A a quarter turn behind.
+  DRAW.sum = (d, st) => {
+    const O = G.O, s = G.s, ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const a1 = pol(6, 0), a2 = pol(8, -90), tot = chainSum([a1, a2]), A = P(O, a1, s), B = P(O, tot, s);
+    REC.res = tot;
+    seg(O, A); seg(A, B); seg(O, B);
+    const y = O[1] + 12, R14 = [[O[0], y], [O[0] + 14 * s, y]], R2 = [[A[0], y], [A[0] - 8 * s, y]];
+    if (pick === '14 A') seg(R14[0], R14[1]);
+    if (pick === '2 A') seg(R2[0], R2[1]);
+    pxArrow(O, A, 'va'); pxArrow(A, B, 'vb');
+    raMark(A, [-1, 0], [0, 1]);
+    label(1, '6 A, in step', 'sm', [[O[0] + 36, O[1] - 14], [O[0] + 36, O[1] - 26]]);
+    label(1, '8 A, behind', 'sm', [[A[0] + 10 + tw('8 A, behind', 'sm') / 2, (A[1] + B[1]) / 2]]);
+    let said = 'A current of 6 A in step with the voltage, and 8 A a quarter turn behind it, laid nose to tail at a right angle.';
+    if (ok) {
+      part(1, 0, () => pxArrow(O, lerp2(O, B, go(0.1, 0.7)), 'vp'));
+      label(arr(0.7), fx(hyp(tot)) + ' A', 'lb ok', besideCands(O, B, tw('10 A', 'lb ok'), 15, A, 1));
+      said += ' The total runs from the first tail to the last nose, ' + fx(hyp(tot)) + ' A.';
+    } else if (pick === '14 A') {
+      part(1, 0, () => ln('badln', R14[0], lerp2(R14[0], R14[1], go(0.1, 0.8))));
+      label(arr(0.8), '14 A, sizes in a line', 'sm bad', [[A[0] + 12 + tw('14 A, sizes in a line', 'sm bad') / 2, y + 16], [A[0] + 12 + tw('14 A, sizes in a line', 'sm bad') / 2, y + 30]]);
+      REC.bad++;
+      said += ' The pick lays both sizes in one line, 14 A, in red. It runs past where the chain ends.';
+    } else if (pick === '2 A') {
+      part(1, 0, () => pxArrow(R2[0], lerp2(R2[0], R2[1], go(0.1, 0.8)), 'bad'));
+      label(arr(0.8), '8 A, as if opposite', 'sm bad', [[4 + tw('8 A, as if opposite', 'sm bad') / 2, y + 16], [4 + tw('8 A, as if opposite', 'sm bad') / 2, y + 30]]);
+      REC.bad++;
+      said += ' The pick lays the 8 A back against the 6 A, in red, as if they pulled opposite ways.';
+    }
+    band(ok ? [{ l: 'total', s: fx(hyp(tot)) + ' A', a: arr(0.8) }, { l: 'Pythagoras', s: '√(6² + 8²)', a: arr(1.0) }] : [{ l: 'total', s: '?' }]);
+    return said;
+  };
+  // A 50 Hz arrow and a 150 Hz arrow, t ms after starting together, with their waves.
+  function speedScene(t, o) {
+    const C = G.C, X1 = G.X0 + G.W, th1 = 18 * t, th3 = 54 * t, gap = wrapD(th3 - th1), u = t / 20, xn = G.X0 + G.W * u;
+    const T1 = P(C, pol(G.r1, th1), 1), T3 = P(C, pol(G.r3, th3), 1);
+    const y1 = C[1] - G.r1 * Math.sin(2 * Math.PI * u), y3 = C[1] - G.r3 * Math.sin(6 * Math.PI * u);
+    REC.gap = gap; REC.th1 = th1; REC.th3 = th3;
+    const w1 = wavePts(G.X0, G.W, C[1], G.r1, 1, 0, 1), w3 = wavePts(G.X0, G.W, C[1], G.r3, 3, 0, 1);
+    const wedgeOn = o.wedge != null && gap > 6 && gap < 354;
+    seg([16, C[1]], [X1 + 2, C[1]]); waveSeg(w1); waveSeg(w3); seg(C, T1); if (o.a3 > 0) seg(C, T3);
+    if (o.now != null) { seg([xn, 62], [xn, 164]); dotRoom([xn, y1]); if (o.a3 > 0) dotRoom([xn, y3]); }
+    if (wedgeOn) wedgeSeg(C, th1, th1 + gap, 16);
+    keyRow([{ sw: 'k1', s: '50 Hz' }, { sw: 'k2', s: '150 Hz' }], o.base);
+    part(o.base, 0, () => ln('ax', [16, C[1]], [X1 + 2, C[1]]));
+    bracket(G.X0, X1, 176, 'brk', o.base);
+    label(o.base, '0', 'sm mu', [[G.X0, 192]]);
+    label(o.base, '20 ms', 'sm mu', [[X1 - tw('20 ms', 'sm mu') / 2, 192]]);
+    part(o.waves, 0, () => { wave(w1, 'wv1'); wave(w3, 'wv2'); });
+    if (wedgeOn && o.wedge > 0) part(o.wedge, 0, () => wedge(C, th1, th1 + gap, 16));
+    if (o.a1 > 0) pxArrow(C, lerp2(C, T1, o.a1), 'va');
+    if (o.a3 > 0) pxArrow(C, lerp2(C, T3, o.a3), 'vb');
+    if (o.now > 0) part(o.now, 0, () => { ln('now', [xn, 62], [xn, 164]); dot([xn, y1], 'dot1'); if (o.a3 > 0) dot([xn, y3], 'dot2'); });
+    if (o.nowLabel) { const s = num(t) + ' ms', w = tw(s, 'sm'); label(o.now, s, 'sm', [[xn, 50], [xn + 6 + w / 2, 50], [xn - 6 - w / 2, 50]], { strict: true }); }
+    return { th1, th3, gap, T1, T3 };
+  }
+  // The two speeds: 2.5 ms after starting together, 45° and 135°. He sets them turning or freezes them.
+  DRAW.speeds = (d, st) => {
+    const intro = st.ph == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const ph = intro ? demoPh('speeds') : st.ph, t = ph - 20 * Math.floor(ph / 20 + 1e-12);
+    const r = speedScene(t, { base: ia(0.4), waves: ia(0.5), a1: ig(0.6, 0.4), a3: ig(0.9, 0.4), wedge: ia(1.2), now: ia(1.2), nowLabel: true });
+    band([{ l: '150 Hz ahead by', s: num(r.gap) + '°', a: ia(1.2) }, { l: 'turned so far', s: num(r.th1) + '° and ' + num(r.th3) + '°', a: ia(1.2) }]);
+    return 'A 50 Hz arrow and a 150 Hz arrow turn from one point, ' + num(t) + ' ms after starting together. The 50 Hz one has turned ' + num(r.th1) +
+      '° and the 150 Hz one ' + num(r.th3) + '°, so the faster one is ' + num(r.gap) + '° ahead. Beside them, the waves they trace over 20 ms.';
+  };
+  // The puzzle: how far apart after 5 ms. A wrong pick draws the faster arrow in red where it would be.
+  DRAW.speedsq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, wrong = !!pick && !ok;
+    const t = ok ? 5 * go(0.1, 1.4) : wrong ? 5 * go(0.1, 1.2) : 0, x5 = G.X0 + G.W / 4, C = G.C;
+    const g = pick === '90°' ? 90 : 0, Rn = P(C, pol(G.r3, 90 + g), 1);
+    if (wrong) { seg(C, Rn); if (g) wedgeSeg(C, 90, 90 + g, 22); }
+    bracket(G.X0, x5, 52, 'brk', 1);
+    label(1, '5 ms', 'sm', [[x5 + 8 + tw('5 ms', 'sm') / 2, 56]]);
+    const r = speedScene(t, { base: 1, waves: 1, a1: 1, a3: wrong ? 0 : 1, wedge: ok ? arr(1.5) : null, now: pick ? 1 : null });
+    let said = 'A 50 Hz arrow and a 150 Hz arrow from one point, both starting at 0°, with the waves they trace over 20 ms. The first 5 ms is marked.';
+    if (ok) said += ' After 5 ms the 50 Hz arrow has turned 90° and the 150 Hz arrow 270°, so they point opposite ways, 180° apart.';
+    else if (wrong) {
+      if (g) part(arr(1.3), 0, () => wedge(C, 90, 90 + g, 22, 'badarc', true));
+      part(arr(1.3), 0, () => pxArrow(C, Rn, 'bad'));
+      const s = pick + ' apart', w = tw(s, 'sm bad');
+      label(arr(1.4), s, 'sm bad', noseCands(C, Rn, w, 13).concat(besideCands(C, Rn, w, 13, r.T1)));
+      REC.bad++;
+      said += ' After 5 ms the 50 Hz arrow points straight up. The pick puts the 150 Hz arrow ' + pick + ' from it, in red.';
+    }
+    band(ok ? [{ l: '150 Hz ahead by', s: num(r.gap) + '°', a: arr(1.6) }, { l: 'turned so far', s: num(r.th1) + '° and ' + num(r.th3) + '°', a: arr(1.8) }] : [{ l: 'apart after 5 ms', s: '?' }]);
+    return said;
+  };
+  // The voltage, the current and their quotient, the impedance, each drawn to its own scale.
+  function divScene(I, o) {
+    const O = G.O, Vn = [O[0] + 80, O[1]], In = P(O, pol(I[0], I[1]), G.iS);
+    const zs = 230 / I[0], za = -I[1], Zn = P(O, pol(zs, za), G.zS);
+    REC.Z = [zs, za]; REC.In = In; REC.Zn = Zn;
+    seg(O, Vn); seg(O, In); if (o.z) seg(O, Zn);
+    if (Math.abs(I[1]) > 0.5) wedgeSeg(O, Math.min(0, I[1]), Math.max(0, I[1]), 20);
+    if (o.z && Math.abs(za) > 0.5) wedgeSeg(O, Math.min(0, za), Math.max(0, za), 28);
+    BOX.push([O[0] - 5, O[1] - 5, 10, 10]);
+    label(o.base, 'each arrow to its own scale', 'sm mu', [[250, G.ly1 - 4]]);
+    if (Math.abs(I[1]) > 0.5) part(o.wI, 0, () => wedge(O, 0, I[1], 20, 'arc2'));
+    if (o.z && o.wZ > 0) part(1, 0, () => wedge(O, 0, za * o.wZ, 28, 'arc'));
+    if (o.eV > 0) pxArrow(O, lerp2(O, Vn, o.eV), 'va');
+    if (o.eI > 0) pxArrow(O, lerp2(O, In, o.eI), 'vb');
+    if (o.z && o.eZ > 0) pxArrow(O, lerp2(O, Zn, o.eZ), 'vp');
+    nameNose(o.nV, 'V = 230∠0° V', 'sm', O, Vn, [O[0] + 40, O[1] + 30]);
+    nameNose(o.nI, 'I = ' + polar(I[0], I[1], 'A'), 'sm', O, In, Vn);
+    if (o.z) nameNose(o.nZ, 'Z', 'lb ok', O, Zn, Vn);
+    return { zs, za };
+  }
+  const divBand = (I, zs, za, al) => band([{ l: 'Z = V ÷ I', s: polar(zs, za, 'Ω'), a: al[0] }, { l: 'sizes', s: '230 ÷ ' + fx(I[0]) + ' = ' + fx(zs), a: al[1] },
+    { l: 'angles', s: '0° − ' + par(num(I[1]) + '°') + ' = ' + num(za) + '°', a: al[2] }]);
+  // 230∠0° V ÷ 10∠−30° A = 23∠30° Ω. He drags the current's tip.
+  DRAW.divide = (d, st) => {
+    const intro = !st.I, I = st.I || [10, -30], ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const r = divScene(I, { z: true, base: ia(0.4), eV: ig(0.5, 0.5), nV: ia(1.0), eI: ig(1.0, 0.5), nI: ia(1.5), wI: ia(1.5), wZ: ig(2.0, 0.8), eZ: ig(2.6, 0.6), nZ: ia(3.2) });
+    REC.grip.I = REC.In;
+    divBand(I, r.zs, r.za, [ia(3.0), ia(3.3), ia(3.6)]);
+    return 'A voltage arrow, 230∠0° V, and a current arrow, ' + polar(I[0], I[1], 'A') + ', from one point, each to its own scale. Their quotient, the impedance Z, is ' +
+      polar(r.zs, r.za, 'Ω') + ': the sizes divided, 230 ÷ ' + fx(I[0]) + ', and the angles taken away, so its angle mirrors the current\'s.';
+  };
+  // The puzzle: 230∠0° V ÷ 5∠−60° A.
+  DRAW.divideq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, I = [5, -60], O = G.O;
+    const dir = [cosd(-60), -sind(-60)], far = add(O, scale(dir, (G.ly1 - 4 - O[1]) / dir[1])), mid = P(O, pol(46, -60), G.zS);
+    const rf = shifted(O, far, 9), rm = shifted(O, mid, 9);
+    if (pick === '1150∠−60° Ω') seg(rf[0], rf[1]);
+    if (pick === '46∠−60° Ω') seg(rm[0], rm[1]);
+    const r = divScene(I, { z: ok, base: 1, eV: 1, nV: 1, eI: 1, nI: 1, wI: 1, wZ: ok ? go(0.1, 0.6) : 0, eZ: ok ? go(0.6, 0.6) : 0, nZ: ok ? arr(1.1) : 0 });
+    let said = 'A voltage arrow, 230∠0° V, and a current arrow, 5∠−60° A, from one point, each to its own scale.';
+    if (ok) said += ' Their quotient, the impedance Z, is 46∠60° Ω: 230 ÷ 5 = 46, and 0° − (−60°) = 60°.';
+    else if (pick === '1150∠−60° Ω') {
+      part(1, 0, () => pxArrow(rf[0], lerp2(rf[0], rf[1], go(0.1, 0.8)), 'bad'));
+      label(arr(0.9), '1150 Ω, far off the page', 'sm bad', [[200, 160], [210, 140], [190, 176]]);
+      REC.bad++;
+      said += ' The pick multiplies instead. Its red arrow, 1150 Ω, runs right off the picture.';
+    } else if (pick === '46∠−60° Ω') {
+      part(1, 0, () => pxArrow(rm[0], lerp2(rm[0], rm[1], go(0.1, 0.8)), 'bad'));
+      nameBeside(arr(0.9), '46∠−60° Ω', 'sm bad', rm[0], rm[1], O);
+      REC.bad++;
+      said += ' The pick, drawn in red, has the right size but points down along the current, not mirrored above.';
+    }
+    if (ok) divBand(I, r.zs, r.za, [arr(1.1), arr(1.2), arr(1.3)]);
+    else band([{ l: 'Z = V ÷ I', s: '?' }]);
+    return said;
+  };
+  // The three line currents from the star point, and the same arrows nose to tail; the gap is the neutral current.
+  function threePhase(L, o) {
+    const S0 = G.S, s = G.s, P0 = G.P0;
+    const vs = L.map((n, k) => pol(n, ANG[k])), tips = vs.map((v) => P(S0, v, s));
+    const pts = [P0]; vs.forEach((v) => pts.push(P(pts[pts.length - 1], v, s)));
+    const N = chainSum(vs), end = pts[3], gp = hyp(N) * s;
+    REC.N = N; REC.chainEnd = end; REC.closed = gp < 0.5; REC.L = L.slice();
+    tips.forEach((t) => seg(S0, t)); for (let k = 0; k < 3; k++) seg(pts[k], pts[k + 1]); if (gp >= 0.5) seg(P0, end);
+    BOX.push([S0[0] - 5, S0[1] - 5, 10, 10]);
+    if (o.pre) o.pre(P0, end, N);
+    keyRow([{ sw: 'k1', s: 'L1' }, { sw: 'k2', s: 'L2' }, { sw: 'k3', s: 'L3' }, { sw: 'kp', s: 'neutral' }], o.base);
+    for (let k = 0; k < 3; k++) if (o.eS[k] > 0) pxArrow(S0, lerp2(S0, tips[k], o.eS[k]), PH[k]);
+    part(o.base, 0, () => put(K.svg('circle', { class: 'org', cx: S0[0], cy: S0[1], r: 4 })));
+    for (let k = 0; k < 3; k++) if (o.eC[k] > 0) part(o.eC[k], 0, () => pxArrow(pts[k], pts[k + 1], PH[k]));
+    if (o.gap === 'arrow') {
+      const ca = o.ga * K.clamp(1 - gp / 6, 0, 1), na = o.na != null ? o.na : o.ga * K.clamp((gp - 4) / 10, 0, 1);
+      if (ca > 0) part(ca, 0, () => put(K.svg('circle', { class: 'closed', cx: P0[0], cy: P0[1], r: 6 })));
+      if (gp >= 1 && o.eN > 0) part(o.ga, 0, () => pxArrow(P0, lerp2(P0, end, o.eN), 'vp'));
+      label(ca, 'closes', 'sm ok', [[P0[0] - 32, P0[1] - 2], [P0[0] - 4, P0[1] - 18], [P0[0] - 32, P0[1] - 18]]);
+      if (gp >= 1) nameBeside(na, 'neutral', 'sm ok', P0, end, [P0[0] + 30, P0[1] + 16]);
+    } else if (o.gap === 'dashed' && gp >= 1) {
+      ln('gd', end, P0);
+      nameBeside(1, 'neutral ?', 'sm', P0, end, [P0[0] + 30, P0[1] + 16]);
+    }
+    label(o.base, 'star point', 'sm mu', [[S0[0] + 38, S0[1] + 16], [S0[0] + 38, S0[1] - 16], [S0[0] - 4, S0[1] + 70]]);
+    for (let k = 0; k < 3; k++) {
+      const nm = 'L' + (k + 1) + ' ' + fx(L[k]) + ' A', w = tw(nm, 'sm'), t = L[k] > 1.5 ? tips[k] : P(S0, pol(1.5, ANG[k]), s);
+      const nose = noseCands(S0, t, w, 13), side = besideCands(S0, t, w, 13, k === 0 ? [S0[0] + 30, S0[1] + 30] : S0[1] > t[1] ? [S0[0] + 30, S0[1] - 30] : [S0[0] + 30, S0[1] + 30]);
+      label(o.nS[k], nm, 'sm', k === 0 ? side.concat(nose) : nose.concat(side));
+    }
+    return { N, end, gp, pts };
+  }
+  function phaseBand(L, al, hide) {
+    if (hide) { band([{ l: 'neutral', s: '?' }]); return; }
+    const ax = L.map((n, k) => n * cosd(ANG[k])), up = L.map((n, k) => n * sind(ANG[k]));
+    const X = ax[0] + ax[1] + ax[2], Y = up[0] + up[1] + up[2];
+    const sumText = (ps, tot) => ps.map((p, k) => (k === 0 ? fx(p) : (p < -1e-9 ? ' − ' : ' + ') + fx(Math.abs(p)))).join('') + ' = ' + fx(tot);
+    band([{ l: 'neutral', s: fx(Math.hypot(X, Y)) + ' A', a: al[0] }, { l: 'across', s: sumText(ax, X), a: al[1] }, { l: 'up', s: sumText(up, Y), a: al[2] }]);
+  }
+  const phaseSaid = (L, N) => 'Three line currents, L1 ' + fx(L[0]) + ' A, L2 ' + fx(L[1]) + ' A and L3 ' + fx(L[2]) + ' A, leave the star point 120° apart. Beside them the same arrows are laid nose to tail. ';
+  // Balanced, the chain closes; then L2 shrinks to 5 A and the gap opens. He drags any tip along its line.
+  DRAW.star = (d, st) => {
+    const intro = !st.L, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const L = st.L || [10, 10 - 5 * go(3.7, 1.2), 10];
+    const r = threePhase(L, { base: ia(0.4), eS: [ig(0.5, 0.4), ig(0.8, 0.4), ig(1.1, 0.4)], nS: [ia(0.9), ia(1.2), ia(1.5)], eC: [ia(1.6), ia(2.0), ia(2.4)], gap: 'arrow', ga: ia(2.7), eN: 1 });
+    [0, 1, 2].forEach((k) => { REC.grip['L' + (k + 1)] = P(G.S, pol(Math.max(L[k], 3), ANG[k]), G.s); });
+    phaseBand(L, [ia(2.7), ia(2.9), ia(3.1)]);
+    const Nn = hyp(r.N);
+    return phaseSaid(L, r.N) + (Nn < 0.005 ? 'They close into a triangle, so the neutral carries 0 A.' : 'The chain falls short of closing. The gap from its first tail to its last nose is the neutral current, ' + fx(Nn) + ' A.');
+  };
+  // The puzzles: the three currents given; a wrong pick is drawn in red.
+  DRAW.starq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, L = d.L, one = [1, 1, 1], kind = pick && !ok ? d.pv[pick] : null;
+    const P0 = G.P0, s = G.s;
+    let red = null;
+    const r = threePhase(L, { base: 1, eS: one, nS: one, eC: one, gap: ok ? 'arrow' : 'dashed', ga: 1, eN: ok ? go(0.1, 0.6) : 0, na: ok ? arr(0.7) : 0,
+      pre: (Q, end, N) => {
+        if (kind === 'line') red = [[Q[0], Q[1] - 14], [Q[0] + (L[0] + L[1] + L[2]) * s, Q[1] - 14]];
+        if (kind === 'across') red = [[Q[0], Q[1] - 12], [Q[0] + (N[0]) * s, Q[1] - 12]];
+        if (kind === 'diff') { const u = [N[0] / hyp(N), -N[1] / hyp(N)]; red = shifted(Q, add(Q, scale(u, (L[0] - L[2]) * s)), 7); }
+        if (red) seg(red[0], red[1]);
+      } });
+    let said = phaseSaid(L, r.N) + 'The chain falls short, and the gap is the neutral current.';
+    if (ok) said += ' It carries ' + fx(hyp(r.N)) + ' A.';
+    else if (kind === 'line') {
+      part(1, 0, () => ln('badln', red[0], lerp2(red[0], red[1], go(0.1, 0.8))));
+      label(arr(0.8), num(L[0] + L[1] + L[2]) + ' A, sizes in a line', 'sm bad', [[(red[0][0] + red[1][0]) / 2, red[0][1] - 14]]);
+      REC.bad++;
+      said += ' The pick lays the three sizes in one line, in red, far longer than the gap.';
+    } else if (kind === 'across') {
+      part(1, 0, () => pxArrow(red[0], lerp2(red[0], red[1], go(0.1, 0.8)), 'bad'));
+      label(arr(0.8), fx(r.N[0]) + ' A, across part only', 'sm bad', [[red[0][0] + 60, red[0][1] - 16], [red[0][0] + 70, red[0][1] - 30]]);
+      REC.bad++;
+      said += ' The pick takes only the across part of the gap, in red.';
+    } else if (kind === 'diff') {
+      part(1, 0, () => pxArrow(red[0], lerp2(red[0], red[1], go(0.1, 0.8)), 'bad'));
+      label(arr(0.8), num(L[0] - L[2]) + ' A overshoots', 'sm bad', [[P0[0] + 34, P0[1] - 26], [P0[0] + 60, P0[1] - 40]]);
+      REC.bad++;
+      said += ' The pick, drawn in red along the gap, runs past the last nose.';
+    }
+    phaseBand(L, ok ? [arr(0.8), arr(1.0), arr(1.2)] : null, !ok);
+    return said;
+  };
+  DRAW.starq2 = DRAW.starq;
+  // The puzzle: L1 − L2, by turning L2 round and adding it.
+  DRAW.line = (d, st) => {
+    const O = G.O, s = G.s, ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const v1 = pol(230, 0), v2 = pol(230, -120), vt = pol(230, 60), res = chainSum([v1, vt]), sumV = chainSum([v1, v2]);
+    const A = P(O, v1, s), B = P(O, v2, s), Bt = P(A, vt, s), Bs = P(A, v2, s), E = P(O, res, s);
+    REC.res = res;
+    const R460 = [[O[0], O[1] + 12], [O[0] + 460 * s, O[1] + 12]];
+    seg(O, A); seg(O, B);
+    if (ok) { seg(A, Bt); seg(O, E); }
+    if (pick === '230∠−60° V') { seg(A, Bs); seg(O, Bs); }
+    if (pick === '460 V') seg(R460[0], R460[1]);
+    BOX.push([O[0] - 5, O[1] - 5, 10, 10]);
+    keyRow([{ sw: 'k1', s: 'L1' }, { sw: 'k2', s: 'L2' }, { sw: 'kcp', s: 'turned round' }, { sw: 'kp', s: 'L1 − L2' }], 1);
+    pxArrow(O, A, 'va'); pxArrow(O, B, 'vb');
+    nameNose(1, polar(230, 0, 'V'), 'sm', O, A, B);
+    nameBeside(1, polar(230, -120, 'V'), 'sm', O, B, A);
+    let said = 'Two line voltages from one point: L1, 230∠0° V, and L2, 230∠−120° V.';
+    if (ok) {
+      part(1, 0, () => pxArrow(A, lerp2(A, Bt, go(0.1, 0.6)), 'cp'));
+      part(1, 0, () => pxArrow(O, lerp2(O, E, go(0.7, 0.6)), 'vp'));
+      nameBeside(arr(1.2), 'L1 − L2', 'sm ok', O, E, A);
+      said += ' L2 turned round, 230∠60° V, is laid at the nose of L1. The arrow from the first tail to that nose is L1 − L2, 398∠30° V.';
+    } else if (pick === '230∠−60° V') {
+      part(1, 0, () => pxArrow(A, lerp2(A, Bs, go(0.1, 0.6)), 'vb'));
+      part(1, 0, () => pxArrow(O, lerp2(O, Bs, go(0.7, 0.6)), 'bad'));
+      label(arr(1.0), polar(hyp(sumV), Math.atan2(sumV[1], sumV[0]) / RAD, 'V') + ' is the sum', 'sm bad', [[220, 160], [220, 196], [210, 100]]);
+      REC.bad++;
+      said += ' The pick lays L2 at the nose of L1 without turning it round. Its red arrow is the sum, not the difference.';
+    } else if (pick === '460 V') {
+      part(1, 0, () => ln('badln', R460[0], lerp2(R460[0], R460[1], go(0.1, 0.8))));
+      label(arr(0.9), '460 V, sizes in a line', 'sm bad', [[(R460[0][0] + R460[1][0]) / 2, R460[0][1] + 16]]);
+      REC.bad++;
+      said += ' The pick lays both sizes in one line, 460 V, in red.';
+    }
+    const across = v1[0] + vt[0], up = v1[1] + vt[1];
+    band(ok ? [{ l: 'L1 − L2', s: Math.round(hyp(res)) + '∠' + num(Math.atan2(res[1], res[0]) / RAD) + '° V', a: arr(1.2) },
+      { l: 'across', s: fx(v1[0]) + ' + ' + fx(vt[0]) + ' = ' + fx(across), a: arr(1.3) }, { l: 'up', s: fx(v1[1]) + ' + ' + fx(vt[1]) + ' = ' + fx(up), a: arr(1.4) }]
+      : [{ l: 'L1 − L2', s: '?' }]);
+    return said;
+  };
+
+  // ---------- the drags: the current's tip, and the three line currents' tips ----------
+  const mkGrip = (lab) => ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'button', 'aria-label': lab }));
+  const grips = {
+    I: mkGrip('The tip of the current\'s arrow: drag it, or use the arrow keys, to change the current'),
+    L1: mkGrip('The tip of L1\'s current: drag it along its line, or use the arrow keys, to change its size'),
+    L2: mkGrip('The tip of L2\'s current: drag it along its line, or use the arrow keys, to change its size'),
+    L3: mkGrip('The tip of L3\'s current: drag it along its line, or use the arrow keys, to change its size'),
+  };
+  const GRIP_PIC = { I: { divide: 1 }, L1: { star: 1 }, L2: { star: 1 }, L3: { star: 1 } };
+  function placeGrips(d) {
+    Object.keys(grips).forEach((k) => {
+      const g = grips[k], p = REC.grip[k], on = !finished && !!d.show && !!GRIP_PIC[k][d.pic] && !!p;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (on) { g.setAttribute('cx', r3(p[0])); g.setAttribute('cy', r3(p[1])); }
+    });
+  }
+  function changed() {
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  // The current: 6 to 12 A, −75° to 75°; a drag lands exactly on −30° and −60° when it comes near.
+  function setI(n, a, snap) {
+    n = K.clamp(Math.round(n), 6, 12);
+    a = Math.round(K.clamp(a, -75, 75));
+    if (snap) { if (Math.abs(a + 30) <= 3) a = -30; else if (Math.abs(a + 60) <= 3) a = -60; }
+    S[cur()].I = [n, a]; changed();
+  }
+  // The three line currents now shown, in whole amps.
+  function nowL() {
+    const st = S[cur()];
+    if (st.L) return st.L.slice();
+    return [10, Math.round(10 - 5 * (T === Infinity ? 1 : K.ease(K.clamp((T - 3.7) / 1.2, 0, 1)))), 10];
+  }
+  function setL(k, n) { const L = nowL(); L[k] = K.clamp(Math.round(n), 0, 12); S[cur()].L = L; changed(); }
+  function svgAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [q.x, q.y];
+  }
+  let held = null;
+  const onPic = (k) => !finished && !!STEPS[cur()].show && !!GRIP_PIC[k][STEPS[cur()].pic];
+  function moveTo(k, q) {
+    if (k === 'I') {
+      const v = sub(q, GD.O);
+      let a = Math.atan2(-v[1], v[0]) / RAD;
+      if (Math.abs(a) > 90) a = a > 0 ? 75 : -75;
+      setI(hyp(v) / GD.iS, a, true);
+      return;
+    }
+    const k3 = Number(k.charAt(1)) - 1, u = [cosd(ANG[k3]), -sind(ANG[k3])];
+    setL(k3, dotv(sub(q, GP.S), u) / GP.s);
+  }
+  Object.keys(grips).forEach((k) => {
+    const g = grips[k];
+    g.addEventListener('pointerdown', (e) => {
+      if (!onPic(k)) return;
+      const q = svgAt(e);
+      if (!q) return;
+      held = { id: e.pointerId, k };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      moveTo(k, q);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.k !== k || !onPic(k)) return;
+      const q = svgAt(e);
+      if (q) moveTo(k, q);
+    });
+    g.addEventListener('pointerup', (e) => { if (held && held.id === e.pointerId) held = null; });
+    g.addEventListener('pointercancel', (e) => { if (held && held.id === e.pointerId) held = null; });
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!onPic(k)) return;
+      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      if (k === 'I') { const I = S[cur()].I || [10, -30]; setI(I[0] + by[0], I[1] + 5 * by[1], false); return; }
+      const k3 = Number(k.charAt(1)) - 1;
+      setL(k3, nowL()[k3] + (by[0] || by[1]));
+    });
+  });
+
+  // The Turn button reads Freeze while anything turns, and the line under the picture names the button shown.
+  function syncTurn(d, st) {
+    if (!d.turn) return;
+    const want = spin || (st.ph == null && T !== Infinity) ? 'Freeze' : d.turn;
+    if (turnBtn.el.textContent !== want) turnBtn.setLabel(want);
+    const line = want === 'Freeze' ? d.actF : d.act, a = el('act');
+    if (a.textContent !== line) write(a, line);
+  }
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], st = S[i];
+    G = d.geo;
+    art.textContent = '';
+    into = null; BOX = []; SEG = [];
+    REC = { texts: [], bad: 0, band: null, crowd: 0, grip: {} };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.h);
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));
+    placeGrips(d);
+    syncTurn(d, st);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; spin = false; enter('stepbox');
+      if (d.show) { Object.assign(st, { ph: null, I: null, L: null }); play(d.dur); }
+      else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    const act = el('act');
+    if (!d.turn) write(act, d.act || '');
+    act.hidden = finished || !d.act;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    turnBtn.el.hidden = !d.turn;
+    el('replay').hidden = replayBtn.el.hidden && turnBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T, keepSpin = spin;
+    S[i] = st; T = t == null ? Infinity : t; spin = false;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; spin = keepSpin; paint(); }
+  }
+  const atSt = (pic, o) => { const i = atPic(pic); return drawn(i, o === 'solved' ? solved(i) : Object.assign(blank(), o || {})); };
+  const near2 = (p, q, tol) => K.near(p[0], q[0], tol) && K.near(p[1], q[1], tol);
+
+  K.check('We can add phasor voltages and phasor currents graphically, exactly the same as if we were adding vectors: every sum of currents or voltages drawn is the nose-to-tail sum of its arrows, found by the same rule as the sum of the pulls', () => {
+    const ai = atPic('add');
+    for (let ph = 0; ph <= 40; ph += 0.5) {
+      const r = drawn(ai, Object.assign(blank(), { ph }));
+      if (!near2(r.vs, add(r.v1, r.v2), 1e-9) || !K.near(hyp(r.vs), Math.hypot(3, 3), 1e-9) || !near2(r.nose, r.noseWant, 1e-6)) return false;
+    }
+    if (!K.near(hyp(atSt('add').fs), Math.hypot(3, 3), 1e-9)) return false;
+    const si = atPic('star');
+    for (const a of [0, 4, 10, 12]) for (const b of [0, 5, 10]) for (const c of [2, 8, 12]) {
+      const r = drawn(si, Object.assign(blank(), { L: [a, b, c] }));
+      const want = add(add(pol(a, 0), pol(b, -120)), pol(c, 120));
+      if (!near2(r.N, want, 1e-9) || !near2(r.chainEnd, P(GP.P0, want, GP.s), 1e-6)) return false;
+    }
+    return near2(atSt('sum', 'solved').res, [6, -8], 1e-9) && near2(atSt('line', 'solved').res, add(pol(230, 0), pol(230, 60)), 1e-9);
+  }, { source: SRC1 });
+  K.check('Sinusoids of different frequencies cannot be represented on the same phasor diagram, because at any instant in time the phase angle between them is different: on the two-speed screen the angle between the arrows changes from each moment to the next', () => {
+    const i = atPic('speeds');
+    let last = -1;
+    for (let t = 0; t < 10; t += 0.25) {
+      const r = drawn(i, Object.assign(blank(), { ph: t }));
+      if (!(r.gap > last) || !K.near(r.gap, wrapD(r.th3 - r.th1), 1e-9) || !K.near(r.th3, 3 * r.th1, 1e-9)) return false;
+      last = r.gap;
+    }
+    return true;
+  }, { source: SRC2 });
+  K.check('You can divide phasors: wherever the current\'s tip is dragged on the dividing screen, the impedance drawn is the voltage divided by the current, with the sizes divided and the angles taken away', () => {
+    const i = atPic('divide');
+    for (let n = 6; n <= 12; n++) for (let a = -75; a <= 75; a += 15) {
+      const r = drawn(i, Object.assign(blank(), { I: [n, a] }));
+      if (!K.near(r.Z[0], 230 / n, 1e-9) || !K.near(r.Z[1], -a, 1e-9)) return false;
+      if (!near2(sub(r.Zn, GD.O), [230 / n * GD.zS * Math.cos(-a * RAD), -230 / n * GD.zS * Math.sin(-a * RAD)], 1e-6)) return false;
+      if (r.band.main !== fx(230 / n) + '∠' + num(-a) + '° Ω') return false;
+    }
+    return atSt('divideq', 'solved').band.main === '46∠60° Ω';
+  });
+  K.check('The turning arrow\'s shadow on the upright line is its height, and the wave beside it has that same height at the same moment, all the way round; with two currents turning together, the sum\'s height is always the two heights added', () => {
+    const i = atPic('turn'), j = atPic('add');
+    for (let ph = 0; ph < 40; ph += 0.37) {
+      const r = drawn(i, Object.assign(blank(), { ph }));
+      if (!K.near(r.tipY, r.shY, 1e-6) || !K.near(r.tipY, r.waveY, 1e-6)) return false;
+      const q = drawn(j, Object.assign(blank(), { ph }));
+      if (!K.near(q.sumY, q.stackY, 1e-6) || !K.near(q.sumY, q.sumWaveY, 1e-6)) return false;
+    }
+    return true;
+  });
+  K.check('Three equal currents 120° apart close their chain and leave nothing on the neutral at every size; with two at 10 A, shrinking the third opens a gap as big as the amount it shrank', () => {
+    const i = atPic('star');
+    for (let n = 0; n <= 12; n++) {
+      const r = drawn(i, Object.assign(blank(), { L: [n, n, n] }));
+      if (hyp(r.N) > 1e-9 || r.band.main !== '0 A' || !r.closed) return false;
+    }
+    for (let k = 0; k < 3; k++) for (let n = 0; n <= 10; n++) {
+      const L = [10, 10, 10]; L[k] = n;
+      if (!K.near(hyp(drawn(i, Object.assign(blank(), { L })).N), 10 - n, 1e-9)) return false;
+    }
+    return true;
+  });
+  K.check('Every number follows from the rule: 20 × 90 ÷ 360 = 5 ms; √(3² + 3²) = 4.24 kN and 4.24 A; √(6² + 8²) = 10 A; in 5 ms the arrows turn 90° and 270°, 180° apart; 230 ÷ 10 = 23 at 0° − (−30°) = 30°; 230 ÷ 5 = 46 at 60°; three 10 A currents leave 0 A; 10, 10 and 4 A leave 6 A; 10, 8 and 6 A leave 3.46 A; 230∠0° − 230∠−120° = 398∠30° V; and every wrong answer offered is a slip worked from the same values', () => {
+    const B = (r, main, items) => !!r.band && r.band.main === main && items.every((s, k) => r.band.items[k] === s);
+    if (!B(atSt('lag', 'solved'), '5 ms', ['20 × 90 ÷ 360'])) return false;
+    const ra = atSt('add');
+    if (ra.texts.indexOf('4.24 kN') < 0 || ra.band.main !== '√(3² + 3²) = 4.24 A') return false;
+    if (!B(atSt('sum', 'solved'), '10 A', ['√(6² + 8²)'])) return false;
+    if (!B(atSt('speeds'), '90°', ['45° and 135°'])) return false;
+    if (!B(atSt('speedsq', 'solved'), '180°', ['90° and 270°'])) return false;
+    if (!B(atSt('divide'), '23∠30° Ω', ['230 ÷ 10 = 23', '0° − (−30°) = 30°'])) return false;
+    if (!B(atSt('divideq', 'solved'), '46∠60° Ω', ['230 ÷ 5 = 46', '0° − (−60°) = 60°'])) return false;
+    if (!B(atSt('star', { L: [10, 10, 10] }), '0 A', ['10 − 5 − 5 = 0', '0 − 8.66 + 8.66 = 0'])) return false;
+    if (!B(atSt('star'), '5 A', ['10 − 2.5 − 5 = 2.5', '0 − 4.33 + 8.66 = 4.33'])) return false;
+    if (!B(atSt('starq', 'solved'), '6 A', ['10 − 5 − 2 = 3', '0 − 8.66 + 3.46 = −5.20'])) return false;
+    if (!B(atSt('starq2', 'solved'), '3.46 A', ['10 − 4 − 3 = 3', '0 − 6.93 + 5.20 = −1.73'])) return false;
+    if (!B(atSt('line', 'solved'), '398∠30° V', ['230 + 115 = 345', '0 + 199.19 = 199.19'])) return false;
+    const o = (pic) => STEPS[atPic(pic)].opts;
+    return o('lag').indexOf(num(90) + ' ms') >= 0 && o('lag').indexOf(num(20 * 270 / 360) + ' ms') >= 0 &&
+      o('sum').indexOf(num(6 + 8) + ' A') >= 0 && o('sum').indexOf(num(8 - 6) + ' A') >= 0 &&
+      o('speedsq').indexOf('0°') >= 0 && o('speedsq').indexOf(num(18 * 5) + '°') >= 0 &&
+      o('divideq').indexOf(num(230 * 5) + '∠' + num(0 + -60) + '° Ω') >= 0 && o('divideq').indexOf(num(230 / 5) + '∠' + num(-60) + '° Ω') >= 0 &&
+      o('starq').indexOf(num(10 + 10 + 4) + ' A') >= 0 && o('starq').indexOf(num(10 - 5 - 2) + ' A') >= 0 &&
+      o('starq2').indexOf(num(10 - 6) + ' A') >= 0 && o('starq2').indexOf(num(10 + 8 + 6) + ' A') >= 0 &&
+      o('line').indexOf(polar(hyp(add(pol(230, 0), pol(230, -120))), -60, 'V')) >= 0 && o('line').indexOf(num(230 + 230) + ' V') >= 0;
+  });
+  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>
+    DO.every((i) => {
+      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&
+        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;
+    }));
+  K.check('Before Check no puzzle\'s picture shows its answer, and a right answer shows it', () =>
+    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s', () => {
+    const timed = (i, st, limit) => {
+      const keepS = S[i], keepT = T, keepSpin = spin;
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st; spin = false;
+      try { paint(i); } finally { S[i] = keepS; T = keepT; spin = keepSpin; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&
+        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

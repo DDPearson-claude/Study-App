@@ -1,0 +1,1172 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A vector's letter is bold italic, as in print; the unit vectors i, j and k are bold. */
+  .vn { font-weight: 700; font-style: italic; }
+  .vu { font-weight: 700; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sh { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .scene .hd { fill: var(--k-accent2); }
+  .scene .copy .sh { stroke: var(--k-muted); stroke-width: 2.5; }
+  .scene .copy .hd { fill: var(--k-muted); }
+  .scene .bad .sh { stroke: var(--k-warn); }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .calc .sh { stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: butt; }
+  .scene .leg { stroke: var(--k-accent); stroke-width: 2.2; stroke-dasharray: 6 4; fill: none; }
+  .scene .diag { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 3 4; fill: none; }
+  .scene .bx { stroke: var(--k-muted); stroke-width: 1; fill: none; }
+  .scene .badbar { stroke: var(--k-warn); stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .scene .ra { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .wedge { fill: var(--k-fill1); stroke: none; }
+  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .pill { fill: var(--k-hl); stroke: none; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .boat { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .kit { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .rope { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .ringc { fill: none; stroke: var(--k-ink); stroke-width: 3; }
+  .scene .eye { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  /* Every label carries a thin halo of the page colour, so a grid line behind it never cuts its letters. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene text.nohalo { stroke: none; }
+  .scene .nm { font: 700 17px var(--k-font); fill: var(--k-accent2); }
+  .scene .nm.bad { fill: var(--k-warn); }
+  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.ok { fill: var(--k-accent2); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sm.mu { fill: var(--k-muted); }
+  .scene .sm.bad { fill: var(--k-warn); }
+  .scene .rt { font: 700 18px var(--k-font); fill: var(--k-accent2); }
+  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .rv { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene tspan.vn { font-style: italic; font-weight: 700; }
+  .scene tspan.vu { font-weight: 800; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }
+  .scene .grip:focus, .scene .turn:focus { outline: none; }
+  .scene .grip:focus-visible, .scene .turn:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  #abox, #fbox { max-width: 22rem; margin-inline: auto; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Most screens show an arrow on a grid, its two parts dashed beside it and written out on the right. The pulls, the ship and the winch rope are made-up examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 240" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div id="abox"></div>
+    <div id="fbox"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The side next to the angle takes the cosine. Pythagoras on the parts gives back the size.</p>
+
+<script>
+  const RAD = Math.PI / 180;
+  const C = (deg) => Math.cos(deg * RAD), Sn = (deg) => Math.sin(deg * RAD);
+  // Up to two decimals, as the lesson writes them: 5, 8.66, −25, 0.
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }
+  const N = (v, unit) => num(v) + ' ' + unit;
+  // Parts written with i, j and k: 3i + 4j, 4i − 2j, 2i + 3j + 6k.
+  function expr(v) {
+    const us = ['i', 'j', 'k'];
+    let s = '';
+    v.forEach((c, n) => {
+      const r = Math.round(c * 100) / 100;
+      if (Math.abs(r) < 1e-9) return;
+      const mag = Math.abs(r) === 1 ? '' : num(Math.abs(r));
+      s += s ? (r < 0 ? ' − ' : ' + ') + mag + us[n] : (r < 0 ? '−' : '') + mag + us[n];
+    });
+    return s || '0';
+  }
+  // One part on its own: 3i, −2j, 6k.
+  const term = (c, u) => expr(u === 'i' ? [c, 0, 0] : u === 'j' ? [0, c, 0] : [0, 0, c]);
+  const polar = (L, deg) => [L * C(deg), L * Sn(deg)];
+
+  // ---------- the grids: each screen's window onto the squares (x0..x1 across, y0..y1 up, u px a square; px: where the readout starts) ----------
+  const G1 = { x0: -3, x1: 6, y0: -3, y1: 5, u: 24 };
+  const G2 = { x0: -3, x1: 6, y0: -3.5, y1: 5, u: 22 };
+  const G3 = { x0: -1, x1: 5.5, y0: -1.5, y1: 5.5, u: 26, px: 262 };
+  const G4 = { x0: -1, x1: 7, y0: -1, y1: 6.5, u: 24 };
+  const G6 = { x0: -1, x1: 5, y0: -1, y1: 5, u: 32 };
+  const G7 = { x0: -4, x1: 4.5, y0: -5.5, y1: 5, u: 20, px: 246 };
+  const G8 = { x0: -1, x1: 7.5, y0: -16.5, y1: 1.5, u: 11, left: 64, px: 256 };
+  const G11 = { x0: -1.5, x1: 6, y0: -1.5, y1: 4.5, u: 26 };
+  const G12 = { x0: -1, x1: 7.5, y0: -4.8, y1: 3, u: 24 };
+
+  // The winch puzzle's parts, from the rule: east is 50 sin 120°, north is 50 cos 120°.
+  const WE = 50 * Sn(120), WNo = 50 * C(120);
+  const W_OK = expr([WE, WNo]), W_SWAP = expr([-WNo, -WE]), W_SIGN = expr([WE, -WNo]);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. read: its words for the
+  // read-through, where its own words ask him to act. ph: the readout's height. A puzzle: task,
+  // opts (three answers), want, hints (one per wrong answer), why, pv (each answer's value, where it
+  // is drawn), reveal (a label only a right answer draws), fb (seconds of motion after a right and a wrong answer).
+  const STEPS = [
+    { show: true, name: 'Two parts make the arrow', pic: 'parts', grid: G1, ph: 165, dur: 3.8,
+      text: 'Arrow `a` splits into two *components*: 3 across, then 4 up. Nose to tail they end at its tip, so together they are `a`. `i` and `j` are the unit vectors along the axes. So `a = 3i + 4j`. Drag the tip and both parts follow.',
+      read: 'Arrow `a` splits into two *components*: 3 across, then 4 up. Nose to tail they end at its tip, so together they are `a`. `i` and `j` are the unit vectors along the axes. So `a = 3i + 4j`. Wherever the tip goes, the dashed parts and the readout follow it.' },
+    { kind: 'pick', name: 'Write it with i and j', pic: 'write', grid: G2, ph: 165, fb: [1.7, 1.2],
+      task: 'This arrow, `b`, runs 4 across and 2 down. How do you write it with `i` and `j`?',
+      opts: [expr([-2, 4]), expr([4, -2]), expr([4, 2])], want: expr([4, -2]), reveal: expr([4, -2]),
+      pv: { [expr([-2, 4])]: [-2, 4], [expr([4, -2])]: [4, -2], [expr([4, 2])]: [4, 2] },
+      hints: { [expr([-2, 4])]: 'Not quite. That swaps the parts round, so it runs 2 left and 4 up.',
+        [expr([4, 2])]: 'Not quite. That climbs 2 up. Down counts as minus.' },
+      why: 'The across part goes with `i` and the up part with `j`. Down counts as minus, so `b = 4i − 2j`. As a column it is 4 above −2.' },
+    { show: true, name: 'Size and angle give the parts', pic: 'resolve', grid: G3, ph: 200, dur: 3.6,
+      text: 'A 10 N pull acts at 30° above the x-axis. The side next to the angle is the size times its cosine: `10 cos 30° = 8.66` N across. The side opposite takes the sine: `10 sin 30° = 5` N up. Slide the angle, and each part stays shorter than the pull until the pull lies along an axis.',
+      read: 'A 10 N pull acts at 30° above the x-axis. The side next to the angle is the size times its cosine: `10 cos 30° = 8.66` N across. The side opposite takes the sine: `10 sin 30° = 5` N up. Each part is shorter than the pull, unless the pull lies along an axis.' },
+    { kind: 'pick', name: 'A 20 N pull at 60°', pic: 'pull20', grid: G4, ph: 180, fb: [1.8, 1.6],
+      task: 'Finding the parts like this is called *resolving*. Resolve a 20 N pull at 60° above the x-axis. What is its across part?',
+      opts: [N(20 * Sn(60), 'N'), '20 N', N(20 * C(60), 'N')], want: N(20 * C(60), 'N'), reveal: '20 cos 60° = ' + N(20 * C(60), 'N'),
+      pv: { [N(20 * Sn(60), 'N')]: 20 * Sn(60), '20 N': 20, [N(20 * C(60), 'N')]: 20 * C(60) },
+      hints: { [N(20 * Sn(60), 'N')]: 'Not quite. That is `20 sin 60°`, the side opposite the angle. The across side sits next to it.',
+        '20 N': 'Not quite. A part is only the whole pull when the pull lies along that axis.' },
+      why: 'The 60° sits between the pull and the x-axis, so the across side is next to it. Next to the angle takes the cosine: `20 cos 60° = 10` N. The up part is `20 sin 60° = 17.32` N.' },
+    { show: true, name: 'Measured from north', pic: 'bearing', grid: G3, ph: 200, dur: 4.0,
+      text: 'A *bearing* is measured clockwise from north, up the page. Bearings use three figures. This pull sits 30° above east. East is 090, so 30° back towards north is 060. The north part runs parallel to north, so it meets the arrow at the same 60°. North takes the cosine: `10 cos 60° = 5` N. For any bearing, east is size × sin and north is size × cos. The calculator gives the signs. Switch between the two: only the angle and its labels move.',
+      read: 'A *bearing* is measured clockwise from north, up the page. Bearings use three figures. This pull sits 30° above east. East is 090, so 30° back towards north is 060. The north part runs parallel to north, so it meets the arrow at the same 60°. North takes the cosine: `10 cos 60° = 5` N. For any bearing, east is size × sin and north is size × cos. The calculator gives the signs. Either way, only the angle and its labels move.' },
+    { kind: 'pick', name: '12 knots on 030', pic: 'ship', grid: G6, ph: 192, fb: [1.8, 1.6],
+      task: 'A ship makes 12 knots on a bearing of 030. What is its east part?',
+      opts: [N(12 * Sn(30), 'knots'), N(12 * C(30), 'knots'), '12 knots'], want: N(12 * Sn(30), 'knots'), reveal: '12 sin 30° = ' + N(12 * Sn(30), 'knots'),
+      pv: { [N(12 * Sn(30), 'knots')]: 12 * Sn(30), [N(12 * C(30), 'knots')]: 12 * C(30), '12 knots': 12 },
+      hints: { [N(12 * C(30), 'knots')]: 'Not quite. That is `12 cos 30°`, the north part. A bearing\'s angle sits next to north.',
+        '12 knots': 'Not quite. The ship heads partly north, so its east part is shorter than 12 knots.' },
+      why: 'The 30° is measured from north, so it sits next to the north side. North takes the cosine: `12 cos 30° = 10.39` knots. East takes the sine: `12 sin 30° = 6` knots.' },
+    { show: true, name: 'Back to size and angle', pic: 'back', grid: G7, ph: 190, dur: 4.4,
+      text: 'To go back, use Pythagoras: `−3i + 4j` has size `√(3² + 4²) = 5`. The angle comes from the tangent, but check the signs first. A calculator\'s `tan⁻¹(4 ÷ −3)` gives −53.13°, which points right and down. The arrow points left and up, so add 180° to get 126.87°.' },
+    { kind: 'pick', name: 'The size of 5i − 12j', pic: 'size', grid: G8, ph: 180, fb: [0.8, 1.8],
+      task: 'What is the size of `5i − 12j`?',
+      opts: [num(5 + 12), num(Math.sqrt(25 + 144)), num(5 + -12)], want: num(Math.sqrt(25 + 144)), reveal: num(Math.sqrt(25 + 144)),
+      hints: { [num(5 + 12)]: 'Not quite. Adding lays the parts in one straight line. They meet at a right angle, so use Pythagoras.',
+        [num(5 + -12)]: 'Not quite. A size is a length, so it is never below zero.' },
+      why: 'The parts meet at a right angle, so Pythagoras gives the size: `√(25 + 144) = 13`. Adding them gives 17, which is longer than the arrow.' },
+    { show: true, name: 'A third axis: k', pic: 'box', box: [2, 3, 6], s: 26, ox: 56, oy: 192, px: 214, ph: 215, dur: 4.2,
+      text: 'The flat grid tips back to become the floor. A third axis, z, stands straight up from it, and its unit vector is `k`. The arrow `2i + 3j + 6k` stands in a box whose edges are its parts. Its size is Pythagoras twice: `√(2² + 3²) = √13` across the floor, then `√(13 + 6²) = 7` up to the tip. Drag to turn the box.',
+      read: 'The flat grid tips back to become the floor. A third axis, z, stands straight up from it, and its unit vector is `k`. The arrow `2i + 3j + 6k` stands in a box whose edges are its parts. Its size is Pythagoras twice: `√(2² + 3²) = √13` across the floor, then `√(13 + 6²) = 7` up to the tip. Turning the box changes only the view.' },
+    { kind: 'pick', name: 'The size of 4i + 4j + 7k', pic: 'box', box: [4, 4, 7], s: 20, ox: 50, oy: 190, px: 214, ph: 215, fb: [1.0, 1.4],
+      task: 'What is the size of `4i + 4j + 7k`?',
+      opts: [num(4 + 4 + 7), num(Math.hypot(4, 4)), num(Math.sqrt(32 + 49))], want: num(Math.sqrt(32 + 49)), reveal: num(Math.sqrt(32 + 49)),
+      hints: { [num(4 + 4 + 7)]: 'Not quite. That walks along the box\'s edges. The arrow takes the straight line, so use Pythagoras.',
+        [num(Math.hypot(4, 4))]: 'Not quite. That is only the floor part, `√(4² + 4²)`. The 7 up is left out.' },
+      why: 'Across the floor, `4² + 4² = 32`. The 7 up stands at right angles to that floor line. So the size is `√(32 + 7²) = √81 = 9`.' },
+    { kind: 'pick', name: 'A ring on one rope', pic: 'ring', grid: G11, ph: 200, fb: [0.8, 1.2],
+      task: 'A rope pulls a ring with 10 N at 30°. The pull\'s two parts are drawn dashed. How many pulls does the ring feel?',
+      opts: ['3 pulls', '1 pull', '2 pulls'], want: '1 pull', reveal: '1 pull',
+      hints: { '2 pulls': 'Not quite. Only the rope touches the ring. The parts describe its one pull along the axes.',
+        '3 pulls': 'Not quite. That counts the rope\'s pull and its parts as well. The parts are not extra pulls.' },
+      why: 'Only the rope touches the ring, so it feels one pull. Its parts, 8.66 N across and 5 N up, end exactly at the pull\'s tip. Together they are the same pull, described along the axes.' },
+    { kind: 'pick', name: 'A winch rope on 120', pic: 'winch', grid: G12, ph: 188, fb: [1.8, 1.4],
+      task: 'A winch rope pulls a load with 50 N on a bearing of 120. With `i` east and `j` north, what is the pull?',
+      opts: [W_SWAP, W_OK, W_SIGN], want: W_OK, reveal: W_OK,
+      pv: { [W_SWAP]: [-WNo, -WE], [W_OK]: [WE, WNo], [W_SIGN]: [WE, -WNo] },
+      hints: { [W_SWAP]: 'Not quite. That puts cos on the east side. A bearing\'s angle sits next to north, so north takes cos.',
+        [W_SIGN]: 'Not quite. A bearing of 120 points south of east, so the north part is minus.' },
+      why: 'East is `50 sin 120° = 43.3` N. North is `50 cos 120° = −25` N, minus because the rope points south of east. So the pull is `43.3i − 25j`.' },
+  ];
+  const FINISH = 'A vector\'s components are its parts along the axes, written with `i`, `j` and `k`. The part next to the given angle takes the cosine, and the other takes the sine. Pythagoras on the parts gives back the size.';
+  // The source the first check restates (the lesson's own).
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2';
+  const A = [3, 4];                        // arrow a: 3 across, 4 up
+  const YAW0 = -30, YAWMIN = -55, YAWMAX = -10, TILT = 28;   // the box's turn and how far the floor is tipped back (degrees)
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const hyp = (x, y) => Math.hypot(x, y);
+  const same = (p, q) => p.length === q.length && p.every((x, n) => K.near(x, q[n], 1e-9));
+  // Moves in words: '3 across and 4 up', '2 left and 1 down'.
+  function desc(v) {
+    const h = v[0] ? num(Math.abs(v[0])) + (v[0] > 0 ? ' across' : ' left') : '', u = v[1] ? num(Math.abs(v[1])) + (v[1] > 0 ? ' up' : ' down') : '';
+    return [h, u].filter(Boolean).join(' and ') || 'nowhere';
+  }
+  function splitExpr(s) {
+    const m = Math.max(s.lastIndexOf(' + '), s.lastIndexOf(' − '));
+    return m > 0 ? [s.slice(0, m), s.slice(m + 1)] : [s];
+  }
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, its result and the Why? note. v: the moves Dan has set by
+  // dragging the tip. ang: the angle he has set. from, flip: the way he has chosen to measure the
+  // angle. yaw: how far he has turned the box.
+  function blank() { return { pick: null, res: null, why: false, v: null, ang: null, from: null, flip: false, yaw: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };
+  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let G = null;                                                          // the geometry of the step being drawn
+
+  // ---------- text with amber key terms and bold vector letters (built with K.el, never innerHTML) ----------
+  const VEC = /((?<![A-Za-z])[abijk](?![A-Za-z]))/;
+  function vecs(parent, s, inSvg) {
+    String(s).split(VEC).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2) { const cls = /[ijk]/.test(p) ? 'vu' : 'vn'; parent.appendChild(inSvg ? K.svg('tspan', { class: cls }, p) : K.el('span', { class: cls }, p)); return; }
+      parent.appendChild(document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its vector letters bold; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { vecs(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  // The pull's angle, on the resolving screen only (its box is hidden elsewhere).
+  const angCtl = K.control({ id: 'ang', label: 'Angle above the x-axis', min: 0, max: 90, step: 1, value: 30, snap: [30, 60], fmt: (v) => Math.round(v) + '°', into: '#abox' });
+  // How the angle is measured, on the bearing screen only.
+  const fromCtl = K.choice({ id: 'from', label: 'Measure the angle', options: [{ value: 'x', label: 'Off the x-axis' }, { value: 'n', label: 'As a bearing' }], value: 'x', into: '#fbox' });
+  let angShown = angCtl.get(), fromShown = fromCtl.get();
+  function setAng(v) { angCtl.set(v, true); angShown = angCtl.get(); }
+  function setFrom(v) { fromCtl.set(v, true); fromShown = fromCtl.get(); }
+  // While the demonstration switches the angle to a bearing, the switch follows it.
+  function syncCtl(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.pic === 'bearing' && !st.flip) { const want = T >= 2.0 ? 'n' : 'x'; if (fromCtl.get() !== want) setFrom(want); }
+  }
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { v: null, ang: null, from: null, flip: false, yaw: null });
+    if (d.pic === 'resolve') setAng(30);
+    if (d.pic === 'bearing') setFrom('x');
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    syncCtl(at());
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncCtl(at()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); syncCtl(at()); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // Travel or growth from t0 over d seconds, eased.
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  function text(x, y, s, cls, anchor, vec) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (vec) vecs(t, s, true); else t.textContent = s;
+    REC.texts.push(s);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 9;
+  }
+  // Grid squares to drawing units.
+  const X = (x) => G.left + (x - G.x0) * G.u;
+  const Y = (y) => G.top + (G.y1 - y) * G.u;
+  function grid() {
+    for (let x = Math.ceil(G.x0); x <= Math.floor(G.x1); x++) if (x !== 0) line('gl', X(x), Y(G.y0), X(x), Y(G.y1));
+    for (let y = Math.ceil(G.y0); y <= Math.floor(G.y1); y++) if (y !== 0) line('gl', X(G.x0), Y(y), X(G.x1), Y(y));
+    line('ax', X(0), Y(G.y0), X(0), Y(G.y1)); line('ax', X(G.x0), Y(0), X(G.x1), Y(0));
+  }
+  // North up the page, east along the x-axis.
+  function compass(eastAbove) {
+    text(X(0) + 7, Y(G.y1) + 15, 'north', 'sm', 'start');
+    text(X(G.x1) - 2, eastAbove ? Y(0) - 8 : Y(0) + 19, 'east', 'sm', 'end');
+  }
+  // An arrow in drawing units: a shaft and a filled head; a dot when it has no length.
+  function pxArrow(x1, y1, x2, y2, cls) {
+    const g = add(K.svg('g', { class: 'arr ' + (cls || '') }));
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 1) { g.appendChild(K.svg('circle', { class: 'hd', cx: r3(x1), cy: r3(y1), r: 4.5 })); return g; }
+    const ux = dx / L, uy = dy / L, hl = Math.min(14, L * 0.5), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  // An arrow on the grid from tail p with moves v. o: {main, shift (px to its left)}.
+  function vec(p, v, cls, o) {
+    o = o || {};
+    let x1 = X(p[0]), y1 = Y(p[1]), x2 = X(p[0] + v[0]), y2 = Y(p[1] + v[1]);
+    if (o.shift) {
+      const L = Math.hypot(x2 - x1, y2 - y1) || 1, sx = (y2 - y1) / L * o.shift, sy = -(x2 - x1) / L * o.shift;
+      x1 += sx; x2 += sx; y1 += sy; y2 += sy;
+    }
+    pxArrow(x1, y1, x2, y2, cls);
+    const rec = { p: p.slice(), v: v.slice(), cls: cls || '' };
+    REC.arrows.push(rec);
+    if (o.main) REC.main = rec;
+  }
+  // A name beside an arrow, at fraction f along it, on the side away from the corner of its triangle.
+  function nameAway(P, v, s, o) {
+    o = o || {};
+    const f = o.f == null ? 0.5 : o.f;
+    const x1 = X(P[0]), y1 = Y(P[1]), x2 = X(P[0] + v[0]), y2 = Y(P[1] + v[1]);
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), mx = x1 + dx * f, my = y1 + dy * f;
+    let nx = -0.7071, ny = -0.7071;
+    if (L >= 1) {
+      nx = dy / L; ny = -dx / L;
+      const dot = (x2 - mx) * nx + (y1 - my) * ny;
+      if (Math.abs(dot) > 0.5) { if (dot > 0) { nx = -nx; ny = -ny; } }
+      else if ((nx < 0 && mx < 60) || (nx > 0 && mx > G.maxX - 60)) { nx = -nx; ny = -ny; }
+    }
+    const w = tw(s, 'nm'), D = 9 + Math.abs(nx) * w / 2 + Math.abs(ny) * 6.5;
+    const cx = K.clamp(mx + nx * D, 4 + w / 2, G.maxX - w / 2), cy = K.clamp(my + ny * D, 16, G.H - 10);
+    text(cx, cy + 6, s, 'nm' + (o.bad ? ' bad' : ''), 'middle', true);
+  }
+  // The arrow's two parts, dashed, nose to tail: along x from the tail, then along y to the tip.
+  function legs(P, v, ea, eu) {
+    const c = [P[0] + v[0], P[1]];
+    if (Math.abs(v[0]) > 1e-9 && ea > 0) line('leg', X(P[0]), Y(P[1]), X(P[0] + v[0] * ea), Y(P[1]));
+    if (Math.abs(v[1]) > 1e-9 && eu > 0) line('leg', X(c[0]), Y(c[1]), X(c[0]), Y(c[1] + v[1] * eu));
+    if (Math.abs(v[0]) > 1e-9) REC.legs.push([[P[0], P[1], 0], [c[0], c[1], 0]]);
+    if (Math.abs(v[1]) > 1e-9) REC.legs.push([[c[0], c[1], 0], [c[0], c[1] + v[1], 0]]);
+  }
+  // The right angle where the two parts meet.
+  function corner(c, v) {
+    if (Math.abs(v[0]) < 1e-9 || Math.abs(v[1]) < 1e-9) return;
+    const sx = Math.sign(v[0]), sy = Math.sign(v[1]), x = X(c[0]), y = Y(c[1]), s = 8;
+    add(K.svg('path', { class: 'ra', d: 'M' + r3(x - sx * s) + ' ' + r3(y) + ' V' + r3(y - sy * s) + ' H' + r3(x) }));
+  }
+  // Where a part's label goes: beside the middle of its side, outside the triangle.
+  function sidePos(which, P, v, s, pill) {
+    const w = tw(s, 'lb') + (pill ? 12 : 0);
+    let x, y;
+    if (which === 'across') { x = X(P[0] + v[0] / 2); y = v[1] >= 0 ? Y(P[1]) + 21 : Y(P[1]) - 11; }
+    else { const cx = X(P[0] + v[0]); x = v[0] >= 0 ? cx + 10 + w / 2 : cx - 10 - w / 2; y = Y(P[1] + v[1] / 2) + 5; }
+    return [K.clamp(x, 4 + w / 2, G.maxX - w / 2), K.clamp(y, 18, G.H - 8)];
+  }
+  // A label; the cos label sits on an amber highlight, the brief's one quantity.
+  function tag(x, y, s, cls, pill, vec) {
+    if (pill) { const w = tw(s, 'lb') + 12; add(K.svg('rect', { class: 'pill', x: r3(x - w / 2), y: r3(y - 15), width: r3(w), height: 21, rx: 6 })); }
+    text(x, y, s, 'lb' + (pill ? ' nohalo' : '') + (cls ? ' ' + cls : ''), 'middle', vec);
+  }
+  function sideTag(which, P, v, s, o) {
+    o = o || {};
+    const p = sidePos(which, P, v, s, o.pill);
+    tag(p[0], p[1], s, o.cls, o.pill, o.vec);
+    if (o.pill) REC.cosSide = which;
+  }
+  // The angle at P from a0 to a1 (degrees, counter-clockwise from the x-axis): a shaded sector, its
+  // arc, and its label just beyond the arc inside the wedge (left out while the wedge is too narrow).
+  function wedge(P, a0, a1, r, s, o) {
+    o = o || {};
+    const cx = X(P[0]), cy = Y(P[1]), span = a1 - a0;
+    if (span < 0.5) return;
+    const p = (a) => [cx + r * C(a), cy - r * Sn(a)], q0 = p(a0), q1 = p(a1), big = span > 180 ? 1 : 0;
+    const arcD = ' A' + r + ' ' + r + ' 0 ' + big + ' 0 ' + r3(q1[0]) + ' ' + r3(q1[1]);
+    add(K.svg('path', { class: 'wedge', d: 'M' + r3(cx) + ' ' + r3(cy) + ' L' + r3(q0[0]) + ' ' + r3(q0[1]) + arcD + ' Z' }));
+    add(K.svg('path', { class: 'arc', d: 'M' + r3(q0[0]) + ' ' + r3(q0[1]) + arcD }));
+    REC.angle = s;
+    if (o.tip) REC.tipAngle = s;
+    if (span < (o.min || 20)) return;
+    const cls = o.cls || 'lb ok', m = o.at != null ? o.at : (a0 + a1) / 2, w = tw(s, cls);
+    const D = o.D || r + 8 + Math.abs(C(m)) * w / 2 + Math.abs(Sn(m)) * 7;
+    let lx = cx + D * C(m), ly = cy - D * Sn(m) + 5;
+    // A label that would sit on the upright dashed part at o.leg moves clear of it: low in the
+    // triangle when there is room beside the arrow, otherwise just outside the part.
+    if (o.leg != null && lx - w / 2 < o.leg + 4 && lx + w / 2 > o.leg - 4) {
+      if (o.leg - 5 - w >= cx + 17 / Math.tan(a1 * RAD) + 5) { lx = o.leg - 5 - w / 2; ly = cy - 5; }
+      else lx = o.leg + 5 + w / 2;
+    }
+    text(lx, ly, s, cls, 'middle');
+  }
+  // A wrong pick's part along the x-axis, drawn in red just above it, with its label below.
+  function badBar(P, len, s, e) {
+    const y = Y(P[1]) - 5;
+    if (e > 0) line('badbar', X(P[0]), y, X(P[0] + len * e), y);
+    const p = sidePos('across', P, [len, 1], s, false);
+    part(arr(1.0), 4, () => tag(p[0], p[1], s, 'bad'));
+    REC.bad++;
+  }
+  // The readout beside the grid, top to bottom. Each item: {t: title | label | value | expr | col, s or vals, a}.
+  function panel(items) {
+    const x = G.px, maxW = 334 - x;
+    let y = G.top, lab = null;
+    REC.ro = { title: null, col: null, expr: null, rows: [] };
+    items.forEach((it) => {
+      const a = it.a == null ? 1 : it.a;
+      if (it.t === 'title') { y += 18; const yy = y; part(a, 0, () => text(x, yy, it.s, 'rt', 'start', it.vec)); REC.ro.title = it.s; y += 6; }
+      else if (it.t === 'label') { y += 22; const yy = y; part(a, 0, () => text(x, yy, it.s, 'rk', 'start')); lab = it.s; }
+      else if (it.t === 'value') { y += 23; const yy = y; part(a, 0, () => text(x, yy, it.s, 'rv' + (it.cls ? ' ' + it.cls : ''), 'start', it.vec)); REC.ro.rows.push([lab, it.s]); }
+      else if (it.t === 'expr') {
+        const lines = tw(it.s, 'rv') <= maxW ? [it.s] : splitExpr(it.s);
+        lines.forEach((ln) => { y += 23; const yy = y; part(a, 0, () => text(x, yy, ln, 'rv', 'start', true)); });
+        REC.ro.expr = it.s;
+        if (lines.length > 1) REC.texts.push(it.s);
+      } else if (it.t === 'col') {
+        const vals = it.vals.map(num), w = Math.max(...vals.map((s) => tw(s, 'rv'))), top = y + 8;
+        const ys = vals.map(() => { y += 22; return y; });
+        const bot = y + 7;
+        part(a, 0, () => {
+          vals.forEach((s, n) => text(x + 13 + w, ys[n], s, 'rv', 'end'));
+          bracket(x + 4, top, bot, 1); bracket(x + 22 + w, top, bot, -1);
+        });
+        REC.ro.col = vals;
+      }
+    });
+  }
+  // A round bracket of a column: dir 1 opens, -1 closes.
+  function bracket(x, top, bot, dir) {
+    const m = (top + bot) / 2, b = 5 * dir;
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(x + b) + ' ' + r3(top) + ' Q' + r3(x - b) + ' ' + r3(m) + ' ' + r3(x + b) + ' ' + r3(bot) }));
+  }
+  // Small lines at the foot of the readout: the grid's scale, or what a wrong pick would mean.
+  function foot(lines, cls, a) {
+    const x = G.px, n = lines.length;
+    part(a == null ? 1 : a, 0, () => lines.forEach((s, k) => text(x, G.H - 10 - 18 * (n - 1 - k), s, 'sm ' + (cls || 'mu'), 'start')));
+  }
+  const rowIs = (r, l, v) => r.ro.rows.some((q) => q[0] === l && q[1] === v);
+  // A boat at p (drawing units), its bow along angle ang (radians, on screen).
+  function boatShape(p, ang) {
+    add(K.svg('path', { class: 'boat', d: 'M -11 -6 L 5 -6 L 13 0 L 5 6 L -11 6 Z', transform: 'translate(' + r3(p[0]) + ' ' + r3(p[1]) + ') rotate(' + r3(ang * 180 / Math.PI) + ')' }));
+  }
+
+  // ---------- the box: 3-D squares to the drawing ----------
+  const B = { ox: 0, oy: 0, s: 1, yaw: 0, tilt: 0, mid: [0, 0] };
+  function P3(q) {
+    const c = Math.cos(B.yaw), s = Math.sin(B.yaw), rx = q[0] * c - q[1] * s, ry = q[0] * s + q[1] * c;
+    return [B.ox + B.s * rx, B.oy - B.s * (ry * Math.sin(B.tilt) + q[2] * Math.cos(B.tilt))];
+  }
+  const lerp3 = (p, q, e) => [K.lerp(p[0], q[0], e), K.lerp(p[1], q[1], e), K.lerp(p[2], q[2], e)];
+  function line3(cls, p, q, e) { const a = P3(p), b = P3(e == null ? q : lerp3(p, q, e)); line(cls, a[0], a[1], b[0], b[1]); }
+  // A label beside the edge p→q at fraction f, on the side away from the point `from` (the box's middle).
+  function label3(p, q, s, cls, f, from, vec) {
+    const a = P3(p), b = P3(q), mx = K.lerp(a[0], b[0], f), my = K.lerp(a[1], b[1], f), dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+    let nx = dy / L, ny = -dx / L;
+    if ((mx - from[0]) * nx + (my - from[1]) * ny < 0) { nx = -nx; ny = -ny; }
+    const w = tw(s, cls), D = 8 + Math.abs(nx) * w / 2 + Math.abs(ny) * 7;
+    text(K.clamp(mx + nx * D, 4 + w / 2, G.maxX - w / 2), K.clamp(my + ny * D + 5, 16, G.H - 6), s, cls, 'middle', vec);
+  }
+
+  // ---------- each picture ----------
+  const DRAW = {};
+  // Arrow a from the origin; Dan drags its tip.
+  DRAW.parts = (d, st) => {
+    grid();
+    const v = st.v || A, moved = !!st.v, P = [0, 0];
+    const ea = moved ? 1 : go(0.5, 0.8), eu = moved ? 1 : go(1.3, 0.8), eg = moved ? 1 : go(2.1, 0.8);
+    // Until it is drawn in full, the arrow waits faintly where it will be, so there is something to drag from the start.
+    if (eg < 1) vec(P, v, 'copy');
+    legs(P, v, ea, eu);
+    part(moved ? 1 : arr(2.1), 0, () => corner([v[0], 0], v));
+    if (eg > 0) vec(P, [v[0] * eg, v[1] * eg], '', { main: true });
+    part(moved ? 1 : arr(2.9), 3, () => {
+      nameAway(P, v, 'a');
+      if (v[0]) sideTag('across', P, v, term(v[0], 'i'), { vec: true });
+      if (v[1]) sideTag('up', P, v, term(v[1], 'j'), { vec: true });
+    });
+    const ra = moved ? 1 : arr(3.2);
+    panel([{ t: 'title', s: 'a', vec: true, a: ra }, { t: 'label', s: 'column', a: ra }, { t: 'col', vals: v, a: ra }, { t: 'label', s: 'i and j', a: ra }, { t: 'expr', s: expr(v), a: ra }]);
+    REC.tip = v.slice();
+    return 'Arrow a from the origin runs ' + desc(v) + '. Its two parts are drawn dashed, nose to tail, and end at its tip. Written with i and j it is ' + expr(v) + '.';
+  };
+  // The puzzle arrow b, 4 across and 2 down.
+  DRAW.write = (d, st) => {
+    grid();
+    const P = [0, 0], V = [4, -2], pick = st.res ? st.pick : null, ok = st.res === 'right';
+    let said = 'Arrow b from the origin runs 4 across and 2 down.';
+    if (ok) {
+      legs(P, V, go(0.1, 0.6), go(0.5, 0.6));
+      part(arr(0.9), 0, () => corner([4, 0], V));
+      part(arr(1.0), 3, () => { sideTag('across', P, V, term(4, 'i'), { vec: true }); sideTag('up', P, V, term(-2, 'j'), { vec: true }); });
+      said += ' Its parts are drawn dashed: 4 across, written 4i, and 2 down, written minus 2j.';
+    } else if (pick) {
+      const pv = d.pv[pick], e = go(0.1, 0.9);
+      vec(P, [pv[0] * e, pv[1] * e], 'bad');
+      part(arr(0.6), 4, () => nameAway(P, pv, pick, { bad: true }));
+      REC.bad++;
+      said += ' The pick is drawn in red: it runs ' + desc(pv) + '.';
+    }
+    vec(P, V, '', { main: true });
+    nameAway(P, V, 'b');
+    const ra = ok ? arr(1.0) : 1;
+    panel([{ t: 'title', s: 'b', vec: true }].concat(ok ? [{ t: 'label', s: 'column', a: ra }, { t: 'col', vals: V, a: ra }, { t: 'label', s: 'i and j', a: ra }, { t: 'expr', s: expr(V), a: ra }] : []));
+    return said;
+  };
+  // The 10 N pull at an angle Dan sets; 2 N a square.
+  DRAW.resolve = (d, st) => {
+    grid();
+    const th = st.ang == null ? 30 : st.ang, moved = st.ang != null, P = [0, 0];
+    const ax = 10 * C(th), up = 10 * Sn(th), v = [ax / 2, up / 2];
+    const eg = moved ? 1 : go(0.4, 0.8);
+    if (eg < 1) vec(P, v, 'copy');
+    part(moved ? 1 : arr(1.2), 0, () => wedge(P, 0, th, 22, th + '°', { leg: v[0] > 0.01 ? X(v[0]) : null }));
+    const ea = moved ? 1 : go(1.6, 0.6), eu = moved ? 1 : go(2.2, 0.6);
+    legs(P, v, ea, eu);
+    part(moved ? 1 : arr(2.6), 0, () => corner([v[0], 0], v));
+    if (eg > 0) vec(P, [v[0] * eg, v[1] * eg], '', { main: true });
+    part(moved ? 1 : arr(1.0), 3, () => nameAway(P, v, '10 N', { f: 0.75 }));
+    part(moved ? 1 : arr(2.2), 3, () => sideTag('across', P, v, '10 cos ' + th + '°', { pill: true }));
+    part(moved ? 1 : arr(2.8), 3, () => sideTag('up', P, v, '10 sin ' + th + '°'));
+    REC.cosSide = 'across';
+    const ra = moved ? 1 : arr(3.0);
+    panel([{ t: 'title', s: '10 N', a: moved ? 1 : arr(0.6) }, { t: 'label', s: 'parts in N', a: ra }, { t: 'col', vals: [ax, up], a: ra }, { t: 'label', s: 'i and j', a: ra }, { t: 'expr', s: expr([ax, up]), a: ra }]);
+    foot(['1 square', 'is 2 N'], 'mu', moved ? 1 : arr(0.6));
+    return 'A 10 newton pull at ' + th + ' degrees above the x-axis. Its across part, next to the angle, is 10 cos ' + th + ' degrees, ' + num(ax) + ' N. Its up part, opposite the angle, is 10 sin ' + th + ' degrees, ' + num(up) + ' N.';
+  };
+  // The puzzle: a 20 N pull at 60°; 3 N a square, so the corner falls between grid lines.
+  DRAW.pull20 = (d, st) => {
+    grid();
+    const P = [0, 0], v = polar(20 / 3, 60), pick = st.res ? st.pick : null, ok = st.res === 'right';
+    wedge(P, 0, 60, 24, '60°');
+    legs(P, v, 1, 1); corner([v[0], 0], v);
+    let said = 'A 20 newton pull at 60 degrees above the x-axis, with its two parts dashed.';
+    if (ok) {
+      part(arr(0.2), 3, () => sideTag('across', P, v, d.reveal, { pill: true }));
+      part(arr(0.8), 3, () => sideTag('up', P, v, '20 sin 60°'));
+      said += ' The across part, next to the angle, is 20 cos 60 degrees: 10 N.';
+    } else if (pick) {
+      badBar(P, d.pv[pick] / 3, pick, go(0.1, 0.9));
+      said += ' The pick, ' + pick + ', is drawn in red along the x-axis. It ' + (d.pv[pick] / 3 > v[0] + 1e-9 ? 'runs past the corner of the triangle.' : 'stops short.');
+    }
+    vec(P, v, '', { main: true });
+    nameAway(P, v, '20 N');
+    const ra = ok ? arr(1.0) : 1;
+    panel([{ t: 'title', s: '20 N' }, { t: 'label', s: 'angle' }, { t: 'value', s: '60°' }].concat(ok ? [{ t: 'label', s: 'parts in N', a: ra }, { t: 'col', vals: [20 * C(60), 20 * Sn(60)], a: ra }] : []));
+    foot(['1 square', 'is 3 N']);
+    return said;
+  };
+  // The 10 N pull again, its angle measured off the x-axis or as a bearing from north.
+  DRAW.bearing = (d, st) => {
+    grid();
+    compass(false);
+    const P = [0, 0], ax = 10 * C(30), up = 10 * Sn(30), v = [ax / 2, up / 2];
+    // a0 to a1: from one way of measuring to the other (0 off the x-axis, 1 as a bearing), starting at t0.
+    let a0 = 0, a1 = 1, t0 = 2.0, intro = true;
+    if (st.flip) { a1 = st.from === 'n' ? 1 : 0; a0 = 1 - a1; t0 = 0.1; intro = false; }
+    const ia = (t) => (intro ? arr(t) : 1);
+    const m = K.lerp(a0, a1, go(t0 + 0.2, 1.0));                  // the cos label's journey
+    const wa = 1 - arr(t0, 0.4), wb = arr(t0 + 0.4, 0.4);          // the old angle fades, the new one arrives
+    const sa = Math.max(1 - arr(t0, 0.3), arr(t0 + 1.2, 0.4));     // the sin label steps aside while the cos label passes
+    const sNow = T >= t0 + 0.7 ? a1 : a0, mb = m >= 0.5 ? 1 : 0;
+    // As a bearing, the same 60° also shows at the tip, where the north part meets the arrow.
+    const ang = (b) => (b ? (wedge(P, 30, 90, 22, '60°'), wedge(v, 210, 270, 22, '60°', { tip: true })) : wedge(P, 0, 30, 22, '30°'));
+    part(ia(1.0) * wa, 0, () => ang(a0));
+    part(wb, 0, () => ang(a1));
+    part(ia(0.6), 0, () => { legs(P, v, 1, 1); corner([v[0], 0], v); });
+    part(ia(0.4), 0, () => vec(P, v, '', { main: true }));
+    part(ia(0.8), 3, () => nameAway(P, v, '10 N', { f: 0.75 }));
+    const cosS = (b) => '10 cos ' + (b ? 60 : 30) + '°', sinS = (b) => '10 sin ' + (b ? 60 : 30) + '°';
+    const p0 = sidePos('across', P, v, cosS(0), true), p1 = sidePos('up', P, v, cosS(1), true);
+    part(ia(1.2), 0, () => { tag(K.lerp(p0[0], p1[0], m), K.lerp(p0[1], p1[1], m), cosS(mb), '', true); });
+    REC.cosSide = mb ? 'up' : 'across';
+    part(ia(1.2) * sa, 0, () => sideTag(sNow ? 'across' : 'up', P, v, sinS(sNow)));
+    const ea = Math.max(1 - arr(t0, 0.3), arr(t0 + 0.6, 0.4)), rb = T >= t0 + 0.3 ? a1 : a0;
+    panel([{ t: 'title', s: '10 N', a: ia(0.4) }, { t: 'label', s: rb ? 'bearing' : 'angle', a: ia(1.0) * ea }, { t: 'value', s: rb ? '060' : '30°', a: ia(1.0) * ea },
+      { t: 'label', s: 'parts in N', a: ia(1.2) }, { t: 'col', vals: [ax, up], a: ia(1.2) }]);
+    foot(['1 square', 'is 2 N'], 'mu', ia(0.4));
+    return 'The same 10 newton pull, 30 degrees above east. ' + (mb ? 'Measured as a bearing, clockwise from north, its angle is 60 degrees. The north part meets the arrow at the same 60 degrees at the tip, so north takes the cosine: 10 cos 60 degrees.'
+      : 'Measured off the x-axis, its angle is 30 degrees and sits next to the east side, so east takes the cosine: 10 cos 30 degrees.') + ' Its parts stay 8.66 N east and 5 N north.';
+  };
+  // The puzzle: a ship at 12 knots on a bearing of 030; 2.5 knots a square, so the corner falls between grid lines.
+  DRAW.ship = (d, st) => {
+    grid();
+    compass(false);
+    const P = [0, 0], v = polar(4.8, 60), pick = st.res ? st.pick : null, ok = st.res === 'right';
+    wedge(P, 60, 90, 26, '30°', { cls: 'sm', at: 80, D: 60 });
+    wedge(v, 240, 270, 30, '30°', { tip: true, at: 255, D: 66 });
+    legs(P, v, 1, 1); corner([v[0], 0], v);
+    let said = 'A ship heading on a bearing of 030 at 12 knots, its velocity arrow drawn with two dashed parts, east and north. The same 30 degrees sits at the tip, between the north part and the arrow.';
+    if (ok) {
+      part(arr(0.2), 3, () => sideTag('across', P, v, d.reveal));
+      part(arr(0.8), 3, () => sideTag('up', P, v, '12 cos 30°', { pill: true }));
+      said += ' The east part, opposite the angle, is 12 sin 30 degrees: 6 knots.';
+    } else if (pick) {
+      badBar(P, d.pv[pick] / 2.5, pick, go(0.1, 0.9));
+      said += ' The pick, ' + pick + ', is drawn in red along the east axis. It runs past the corner of the triangle.';
+    }
+    boatShape([X(0), Y(0)], Math.atan2(-v[1], v[0]));
+    vec(P, v, '', { main: true });
+    const ra = ok ? arr(1.0) : 1;
+    panel([{ t: 'title', s: '12 knots' }, { t: 'label', s: 'bearing' }, { t: 'value', s: '030' }].concat(ok ? [{ t: 'label', s: 'in knots', a: ra }, { t: 'col', vals: [12 * Sn(30), 12 * C(30)], a: ra }] : []));
+    foot(['1 square is', '2.5 knots']);
+    return said;
+  };
+  // Back from the parts: −3i + 4j, and the calculator's tan⁻¹ turned through 180°.
+  DRAW.back = (d, st) => {
+    grid();
+    const P = [0, 0], V = [-3, 4], tc = Math.atan(4 / -3) / RAD, tr = tc + 180;
+    const ea = go(0.4, 0.6), eu = go(0.9, 0.6), eg = go(1.4, 0.7);
+    if (eg < 1) vec(P, V, 'copy');
+    legs(P, V, ea, eu);
+    part(arr(1.4), 0, () => corner([-3, 0], V));
+    part(arr(1.1), 3, () => { sideTag('across', P, V, term(-3, 'i'), { vec: true }); sideTag('up', P, V, term(4, 'j'), { vec: true }); });
+    // The calculator's answer: the same size, pointing right and down.
+    const cv = polar(5, tc);
+    part(arr(2.2), 0, () => vec(P, cv, 'calc bad'));
+    part(arr(2.4), 3, () => text(X(cv[0]), Y(cv[1]) + 22, num(tc) + '°', 'lb bad', 'middle'));
+    // Turned through 180° it lands on the arrow, then steps aside.
+    const er = go(2.6, 1.0), fr = 1 - arr(3.6, 0.4);
+    if (T !== Infinity && er > 0 && fr > 0) part(fr, 0, () => { pxArrow(X(0), Y(0), X(polar(5, tc + 180 * er)[0]), Y(polar(5, tc + 180 * er)[1]), 'calc bad'); });
+    if (eg > 0) vec(P, [V[0] * eg, V[1] * eg], '', { main: true });
+    part(arr(3.6), 0, () => wedge(P, 0, tr, 22, num(tr) + '°'));
+    panel([{ t: 'title', s: expr(V), vec: true, a: arr(0.4) }, { t: 'label', s: 'column', a: arr(1.6) }, { t: 'col', vals: V, a: arr(1.6) },
+      { t: 'label', s: 'size', a: arr(2.0) }, { t: 'value', s: num(hyp(3, 4)), a: arr(2.0) }, { t: 'label', s: 'angle', a: arr(3.8) }, { t: 'value', s: num(tr) + '°', a: arr(3.8) }]);
+    return 'The arrow minus 3i plus 4j runs 3 left and 4 up, size 5. A dashed red arrow shows the calculator\'s tan inverse, minus 53.13 degrees, pointing right and down. Turned through 180 degrees it lands on the arrow, at 126.87 degrees from the x-axis.';
+  };
+  // The puzzle: the size of 5i − 12j.
+  DRAW.size = (d, st) => {
+    grid();
+    const P = [0, 0], V = [5, -12], pick = st.res ? st.pick : null, ok = st.res === 'right';
+    legs(P, V, 1, 1); corner([5, 0], V);
+    sideTag('across', P, V, term(5, 'i'), { vec: true }); sideTag('up', P, V, term(-12, 'j'), { vec: true });
+    let said = 'The arrow 5i minus 12j runs 5 across and 12 down, with its two parts dashed.';
+    if (pick === num(5 + 12)) {
+      // The parts added: 17 laid in one line along the arrow, past its tip.
+      const e = go(0.1, 1.2), L = hyp(5, 12), u = [5 / L, -12 / L];
+      vec(P, [u[0] * 17 * e, u[1] * 17 * e], 'bad', { shift: 6 });
+      part(arr(1.2), 4, () => text(X(u[0] * 17) - 8, Y(u[1] * 17) + 6, '5 + 12 = ' + num(5 + 12), 'lb bad', 'end'));
+      REC.bad++;
+      said += ' Laid in one line, 5 plus 12 runs past the arrow\'s tip.';
+    }
+    vec(P, V, '', { main: true });
+    if (pick === num(5 - 12)) { REC.bad++; said += ' A size of minus 7 would be a length below zero.'; }
+    const ra = ok ? arr(0.2) : 1;
+    panel([{ t: 'title', s: expr(V), vec: true }, { t: 'label', s: 'column' }, { t: 'col', vals: V }].concat(ok ? [{ t: 'label', s: 'size', a: ra }, { t: 'value', s: num(hyp(5, 12)), a: ra }] : []));
+    if (pick === num(5 - 12)) foot(['−7 would be', 'a length', 'below zero'], 'bad', arr(0.1));
+    if (ok) said += ' Its size, by Pythagoras, is 13.';
+    return said;
+  };
+  // An arrow standing in a box whose edges are its i, j and k parts; Dan turns the box.
+  DRAW.box = (d, st) => {
+    const a = d.box[0], b = d.box[1], c = d.box[2], sh = !!d.show, pick = st.res ? st.pick : null, ok = st.res === 'right';
+    const intro = sh && st.yaw == null, e = intro ? go(0.5, 1.2) : 1;
+    B.s = d.s; B.ox = d.ox; B.oy = d.oy;
+    B.yaw = (st.yaw != null ? st.yaw : K.lerp(0, YAW0, e)) * RAD;
+    B.tilt = K.lerp(90, TILT, e) * RAD;
+    B.mid = P3([a / 2, b / 2, c / 2]);
+    const O = [0, 0, 0], Ax = [a, 0, 0], Ab = [a, b, 0], Tip = [a, b, c];
+    // The floor's squares and the three axes.
+    for (let x = 1; x <= a + 1; x++) line3('gl', [x, 0, 0], [x, b + 1, 0]);
+    for (let y = 1; y <= b + 1; y++) line3('gl', [0, y, 0], [a + 1, y, 0]);
+    line3('ax', O, [a + 1.6, 0, 0]); line3('ax', O, [0, b + 1.6, 0]);
+    const za = intro ? arr(1.7) : 1;
+    part(za, 0, () => line3('ax', O, [0, 0, c + 1.2]));
+    text(P3([a + 2.1, 0, 0])[0], P3([a + 2.1, 0, 0])[1] + 5, 'x', 'sm mu', 'middle');
+    text(P3([0, b + 2.1, 0])[0], P3([0, b + 2.1, 0])[1] + 5, 'y', 'sm mu', 'middle');
+    part(za, 0, () => text(P3([0, 0, c + 1.6])[0], P3([0, 0, c + 1.6])[1] + 5, 'z', 'sm mu', 'middle'));
+    // The box: its far floor edge, and the vertical edges and top as the k part rises.
+    const ek = intro ? go(1.9, 0.7) : 1, h = c * ek;
+    line3('bx', Ab, [0, b, 0]);
+    if (h > 0.01) {
+      [[0, 0], [a, 0], [0, b]].forEach((q) => line3('bx', [q[0], q[1], 0], [q[0], q[1], h]));
+      const V4 = [[0, 0], [a, 0], [a, b], [0, b]];
+      V4.forEach((q, n) => { const r = V4[(n + 1) % 4]; line3('bx', [q[0], q[1], h], [r[0], r[1], h]); });
+    }
+    // The floor line from the origin to the foot of the k part.
+    const diagA = sh ? arr(1.2) : ok ? arr(0.1) : 0;
+    if (pick === num(Math.hypot(a, b))) { line3('badbar', O, Ab, go(0.1, 0.8)); REC.bad++; }
+    else part(diagA, 0, () => line3('diag', O, Ab));
+    // The parts, dashed, nose to tail.
+    const ei = intro ? go(0.4, 0.5) : 1, ej = intro ? go(0.8, 0.5) : 1;
+    if (ei > 0) line3('leg', O, Ax, ei);
+    if (ej > 0) line3('leg', Ax, Ab, ej);
+    if (ek > 0) line3('leg', Ab, Tip, ek);
+    REC.legs = [[O, Ax], [Ax, Ab], [Ab, Tip]];
+    if (pick === num(a + b + c)) {
+      // Walking the edges: 4 + 4 + 7 along the box, not the straight line.
+      const ew = go(0.1, 1.0);
+      line3('badbar', O, Ax, K.clamp(ew * 3, 0, 1)); line3('badbar', Ax, Ab, K.clamp(ew * 3 - 1, 0, 1)); line3('badbar', Ab, Tip, K.clamp(ew * 3 - 2, 0, 1));
+      REC.bad++;
+    }
+    // The right angle between the floor line and the k part.
+    part(intro ? arr(2.6) : 1, 0, () => {
+      const L = Math.hypot(a, b), s = 0.45, u = [-a / L * s, -b / L * s];
+      const p1 = P3([a + u[0], b + u[1], 0]), p2 = P3([a + u[0], b + u[1], s]), p3 = P3([a, b, s]);
+      add(K.svg('path', { class: 'ra', d: 'M' + r3(p1[0]) + ' ' + r3(p1[1]) + ' L' + r3(p2[0]) + ' ' + r3(p2[1]) + ' L' + r3(p3[0]) + ' ' + r3(p3[1]) }));
+    });
+    // The arrow itself.
+    const eg = intro ? go(2.7, 0.7) : 1;
+    if (eg > 0) {
+      const o = P3(O), t = P3(lerp3(O, Tip, eg));
+      pxArrow(o[0], o[1], t[0], t[1], '');
+      REC.main = { p: [0, 0, 0], v: [a * eg, b * eg, c * eg], cls: '' };
+      REC.arrows.push(REC.main);
+    }
+    REC.tipPx = P3(Tip);
+    // The parts' names, and the floor line's length.
+    part(intro ? arr(0.6) : 1, 0, () => label3(O, Ax, term(a, 'i'), 'lb', 0.5, B.mid, true));
+    part(intro ? arr(1.0) : 1, 0, () => label3(Ax, Ab, term(b, 'j'), 'lb', 0.5, B.mid, true));
+    part(intro ? arr(2.6) : 1, 0, () => label3(Ab, Tip, term(c, 'k'), 'lb', 0.5, B.mid, true));
+    const fl = a * a + b * b;
+    if (sh || ok) part(sh ? arr(1.4) : arr(0.3), 0, () => label3(O, Ab, '√' + fl, 'sm', 0.5, P3(Ax)));
+    const rows = [{ t: 'title', s: expr([a, b, c]), vec: true, a: intro ? arr(0.4) : 1 }, { t: 'label', s: 'column', a: intro ? arr(1.0) : 1 }, { t: 'col', vals: [a, b, c], a: intro ? arr(1.0) : 1 }];
+    if (sh) rows.push({ t: 'label', s: 'floor', a: arr(1.6) }, { t: 'value', s: num(Math.sqrt(fl)), a: arr(1.6) });
+    if (sh || ok) { const sa = sh ? arr(3.4) : arr(0.3); rows.push({ t: 'label', s: 'size', a: sa }, { t: 'value', s: num(Math.sqrt(fl + c * c)), a: sa }); }
+    panel(rows);
+    if (pick === num(a + b + c)) foot([num(a + b + c) + ' walks', 'the edges'], 'bad', arr(0.6));
+    if (pick === num(Math.hypot(a, b))) foot([num(Math.hypot(a, b)) + ' is the', 'floor only'], 'bad', arr(0.6));
+    return 'The arrow ' + expr([a, b, c]) + ' stands in a box. Its edges are the parts: ' + a + ' along x, ' + b + ' along y and ' + c + ' up z, drawn dashed nose to tail to the tip.' +
+      (sh || ok ? ' The floor line is the square root of ' + fl + ', and the size is ' + num(Math.sqrt(fl + c * c)) + '.' : '') + (pick && !ok ? ' The pick is drawn in red.' : '');
+  };
+  // The puzzle: a ring on one rope, its pull and the pull's parts.
+  DRAW.ring = (d, st) => {
+    grid();
+    const P = [0, 0], ax = 10 * C(30), up = 10 * Sn(30), v = [ax / 2, up / 2], pick = st.res ? st.pick : null, ok = st.res === 'right';
+    // The rope runs from the ring along the pull to an eye on a post.
+    const ep = [v[0] * 1.3, v[1] * 1.3];
+    line('rope', X(0), Y(0), X(ep[0]) - 5 * C(30), Y(ep[1]) + 5 * Sn(30));
+    add(K.svg('rect', { class: 'kit', x: r3(X(ep[0]) + 6), y: r3(Y(ep[1]) - 20), width: 10, height: 40, rx: 2 }));
+    add(K.svg('circle', { class: 'eye', cx: r3(X(ep[0])), cy: r3(Y(ep[1])), r: 5 }));
+    legs(P, v, 1, 1); corner([v[0], 0], v);
+    let said = 'A ring pulled by one rope with 10 N at 30 degrees. The pull\'s two parts, 8.66 N across and 5 N up, are drawn dashed and end at its tip.';
+    if (pick && !ok) {
+      // The parts drawn as pulls of their own, from the ring.
+      const e = go(0.1, 0.9);
+      vec(P, [v[0] * e, 0], 'bad', { shift: 6 });
+      vec(P, [0, v[1] * e], 'bad', { shift: 6 });
+      REC.bad++;
+      said += ' The pick draws the parts in red as extra pulls from the ring.';
+    }
+    vec(P, v, '', { main: true });
+    add(K.svg('circle', { class: 'ringc', cx: r3(X(0)), cy: r3(Y(0)), r: 8 }));
+    nameAway(P, v, '10 N');
+    sideTag('across', P, v, N(ax, 'N')); sideTag('up', P, v, N(up, 'N'));
+    const ra = ok ? arr(0.2) : 1;
+    panel([{ t: 'title', s: '10 N' }, { t: 'label', s: 'parts in N' }, { t: 'col', vals: [ax, up] }].concat(ok ? [{ t: 'label', s: 'ring feels', a: ra }, { t: 'value', s: '1 pull', a: ra }] : []));
+    if (pick && !ok) foot(pick === '2 pulls' ? ['2 pulls would', 'need 2 ropes'] : ['that counts', 'the rope twice'], 'bad', arr(0.6));
+    else foot(['1 square', 'is 2 N']);
+    if (ok) said += ' Only the rope touches the ring: one pull.';
+    return said;
+  };
+  // The puzzle: a winch rope at 50 N on a bearing of 120; 10 N a square.
+  // The bearing an east and north pair points on, in three figures: 060, 150.
+  const brg = (q) => String(Math.round((Math.atan2(q[0], q[1]) / RAD + 360) % 360)).padStart(3, '0');
+  DRAW.winch = (d, st) => {
+    grid();
+    compass(true);
+    const P = [0, 0], v = [WE / 10, WNo / 10], pick = st.res ? st.pick : null, ok = st.res === 'right';
+    wedge(P, -30, 90, 24, '120°', { at: 70 });
+    // The same bearing at the tip: from the north part round to the rope's line, run on past the tip.
+    line('diag', X(v[0]), Y(v[1]), X(v[0]) + 30 * C(-30), Y(v[1]) - 30 * Sn(-30));
+    wedge(v, -30, 90, 16, '120°', { tip: true, at: -8, D: 48 });
+    legs(P, v, 1, 1); corner([v[0], 0], v);
+    add(K.svg('rect', { class: 'kit', x: r3(X(0) - 7), y: r3(Y(0) - 7), width: 14, height: 14, rx: 2 }));
+    let said = 'A winch rope pulls a load with 50 N on a bearing of 120, south of east, with its two parts dashed. At the tip the north part and the rope make the same 120 degrees.';
+    if (ok) {
+      part(arr(0.2), 3, () => sideTag('across', P, v, '50 sin 120°'));
+      part(arr(0.8), 3, () => sideTag('up', P, v, '50 cos 120°', { pill: true }));
+      said += ' East is 50 sin 120 degrees, 43.3 N. North is 50 cos 120 degrees, minus 25 N.';
+    } else if (pick) {
+      const pv = d.pv[pick], e = go(0.1, 1.0);
+      vec(P, [pv[0] / 10 * e, pv[1] / 10 * e], 'bad');
+      REC.bad++;
+      said += ' The pick is drawn in red: it points on a bearing of ' + brg(pv) + ', not 120.';
+    }
+    vec(P, v, '', { main: true });
+    const ra = ok ? arr(1.0) : 1;
+    panel([{ t: 'title', s: '50 N' }, { t: 'label', s: 'bearing' }, { t: 'value', s: '120' }].concat(ok ? [{ t: 'label', s: 'i and j', a: ra }, { t: 'expr', s: W_OK, a: ra }] : []));
+    if (pick && !ok) foot(['bearing ' + brg(d.pv[pick]) + ',', 'not 120'], 'bad', arr(0.6));
+    else foot(['1 square', 'is 10 N']);
+    return said;
+  };
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    let g;
+    if (d.grid) {
+      const h = (d.grid.y1 - d.grid.y0) * d.grid.u;
+      g = Object.assign({}, d.grid, { left: d.grid.left != null ? d.grid.left : 12, top: 14 });
+      g.H = Math.ceil(g.top + Math.max(h, d.ph || 0) + 14);
+    } else g = { x0: 0, x1: 0, y0: 0, y1: 0, u: 1, left: 0, top: 14, H: Math.ceil(14 + (d.ph || 215) + 14) };
+    g.px = (d.grid && d.grid.px) || d.px || 250;
+    g.maxX = g.px - 10;
+    GEO.set(d, g);
+    return g;
+  }
+
+  // ---------- the drags: Dan moves a's tip, or turns the box ----------
+  const tipGrip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 24, tabindex: -1, role: 'button', 'aria-label': 'Tip of arrow a: drag, or use the arrow keys, to move it' }));
+  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 1, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The box: drag sideways, or use the left and right arrow keys, to turn it' }));
+  function placeGrips(d, st) {
+    const tipOn = d.pic === 'parts' && !finished, turnOn = d.pic === 'box' && !finished;
+    tipGrip.style.display = tipOn ? '' : 'none'; tipGrip.setAttribute('tabindex', tipOn ? '0' : '-1');
+    turnGrip.style.display = turnOn ? '' : 'none'; turnGrip.setAttribute('tabindex', turnOn ? '0' : '-1');
+    if (tipOn) { const v = st.v || A; tipGrip.setAttribute('cx', r3(X(v[0]))); tipGrip.setAttribute('cy', r3(Y(v[1]))); }
+    if (turnOn) { turnGrip.setAttribute('width', G.px - 8); turnGrip.setAttribute('height', G.H); }
+  }
+  function changed(quiet) {
+    if (quiet) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  // The tip lands on a grid point inside the window; the tail stays at the origin.
+  function setTip(i, tip, quiet) {
+    const g = STEPS[i].grid, st = S[i];
+    const v = [K.clamp(Math.round(tip[0]), Math.ceil(g.x0), Math.floor(g.x1)), K.clamp(Math.round(tip[1]), Math.ceil(g.y0), Math.floor(g.y1))];
+    if (!v[0] && !v[1]) return false;
+    st.v = v;
+    changed(quiet);
+    return true;
+  }
+  function setYaw(i, y, quiet) { S[i].yaw = K.clamp(y, YAWMIN, YAWMAX); changed(quiet); }
+  function gridAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [G.x0 + (q.x - G.left) / G.u, G.y1 - (q.y - G.top) / G.u];
+  }
+  let held = null;
+  const onPic = (pic) => !finished && STEPS[at()].pic === pic;
+  tipGrip.addEventListener('pointerdown', (e) => {
+    if (!onPic('parts')) return;
+    const q = gridAt(e);
+    if (!q) return;
+    held = { id: e.pointerId, what: 'tip' };
+    try { tipGrip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+    e.preventDefault();
+    setTip(at(), q);
+  });
+  tipGrip.addEventListener('pointermove', (e) => {
+    if (!held || held.id !== e.pointerId || held.what !== 'tip' || !onPic('parts')) return;
+    const q = gridAt(e);
+    if (q) setTip(at(), q);
+  });
+  tipGrip.addEventListener('keydown', (e) => {
+    if (!onPic('parts')) return;
+    const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+    if (!by) return;
+    e.preventDefault();
+    const v = S[at()].v || A;
+    setTip(at(), [v[0] + by[0], v[1] + by[1]]);
+  });
+  turnGrip.addEventListener('pointerdown', (e) => {
+    if (!onPic('box')) return;
+    held = { id: e.pointerId, what: 'turn', x: e.clientX, yaw: B.yaw / RAD };
+    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the box */ }
+  });
+  turnGrip.addEventListener('pointermove', (e) => {
+    if (!held || held.id !== e.pointerId || held.what !== 'turn' || !onPic('box')) return;
+    setYaw(at(), held.yaw - (e.clientX - held.x) * 0.4);
+  });
+  turnGrip.addEventListener('keydown', (e) => {
+    if (!onPic('box')) return;
+    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];
+    if (!by) return;
+    e.preventDefault();
+    setYaw(at(), B.yaw / RAD + by);
+  });
+  const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+  [tipGrip, turnGrip].forEach((g) => {
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    G = geo(d);
+    art.textContent = '';
+    into = null;
+    REC = { arrows: [], texts: [], ro: null, main: null, bad: 0, legs: [], cosSide: null, angle: null, tipAngle: null, tip: null, tipPx: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));
+    placeGrips(d, st);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    // Dan's own angle and switch, told apart from the settings the demonstrations give them.
+    const here = i === lastStep && !finished;
+    if (p.ang !== angShown) { angShown = p.ang; if (here && d.pic === 'resolve') { st.ang = p.ang; anim.pause(); T = Infinity; } }
+    if (p.from !== fromShown) { fromShown = p.from; if (here && d.pic === 'bearing') { st.from = p.from; st.flip = true; play(1.8); } }
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) {
+        Object.assign(st, { v: null, ang: null, from: null, flip: false, yaw: null });
+        if (d.pic === 'resolve') setAng(30);
+        if (d.pic === 'bearing') setFrom('x');
+        play(d.dur);
+      } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    syncCtl(i);
+
+    el('abox').hidden = finished || !(d.pic === 'resolve' && d.show);
+    el('fbox').hidden = finished || !(d.pic === 'bearing' && d.show);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      vecs(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "43.3i − 25j"
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // The dashed parts run nose to tail from the tail to the tip.
+  function noseToTail(r, tip) {
+    const L = r.legs, t = tip.concat([0, 0, 0]).slice(0, 3);
+    if (!L.length) return false;
+    for (let n = 1; n < L.length; n++) if (!same(L[n][0], L[n - 1][1])) return false;
+    return same(L[0][0], [0, 0, 0]) && same(L[L.length - 1][1], t);
+  }
+
+  K.check('Vector components describe the separate x, y and z values of a vector: the readout\'s column lists arrow a\'s x and y values and the box arrow\'s x, y and z values, the same numbers as their i, j and k parts, and drawn nose to tail those parts end at the tip', () => {
+    const r1 = drawn(idx('Two parts make the arrow'), blank()), r9 = drawn(idx('A third axis: k'), blank());
+    return r1.ro.col.join() === '3,4' && r1.ro.expr === '3i + 4j' && noseToTail(r1, [3, 4]) &&
+      r9.ro.col.join() === '2,3,6' && r9.ro.title === '2i + 3j + 6k' && noseToTail(r9, [2, 3, 6]);
+  }, { source: BITESIZE });
+  K.check('Dragging the tip sets the parts: for every square the tip can reach, the column and the i and j readout give its across and up moves, and the dashed parts still end at the tip', () => {
+    const i = idx('Two parts make the arrow'), g = STEPS[i].grid, keep = S[i];
+    let ok = true;
+    try {
+      for (let x = Math.ceil(g.x0); x <= Math.floor(g.x1); x++) for (let y = Math.ceil(g.y0); y <= Math.floor(g.y1); y++) {
+        S[i] = blank();
+        const moved = setTip(i, [x, y], true), st = S[i];
+        if (!x && !y) { ok = ok && !moved; continue; }
+        const r = drawn(i, st);
+        ok = ok && moved && same(r.main.v, [x, y]) && r.ro.col.join() === [num(x), num(y)].join() && r.ro.expr === expr([x, y]) && noseToTail(r, [x, y]);
+      }
+    } finally { S[i] = keep; paint(); }
+    return ok;
+  });
+  K.check('At every whole angle from 0° to 90° the 10 N pull resolves into 10 cos θ across and 10 sin θ up: the readout shows both to two decimal places, the cos label sits on the across side next to the angle, each part is shorter than 10 N unless the pull lies along an axis, and Pythagoras on the parts gives back 10 N', () => {
+    const i = idx('Size and angle give the parts');
+    for (let t = 0; t <= 90; t++) {
+      const r = drawn(i, Object.assign(blank(), { ang: t })), c = 10 * C(t), s = 10 * Sn(t);
+      if (r.ro.col.join() !== [num(c), num(s)].join() || r.cosSide !== 'across' || r.ro.expr !== expr([c, s])) return false;
+      if (r.texts.indexOf('10 cos ' + t + '°') < 0 || r.texts.indexOf('10 sin ' + t + '°') < 0) return false;
+      const along = t === 0 || t === 90;
+      if (along ? !(K.near(Math.max(c, s), 10, 1e-9) && K.near(Math.min(c, s), 0, 1e-9)) : !(c < 10 && s < 10)) return false;
+      if (!K.near(hyp(c, s), 10, 1e-9)) return false;
+    }
+    return num(10 * C(30)) === '8.66' && num(10 * Sn(30)) === '5' && num(10 * C(30) + 10 * Sn(30)) === '13.66';
+  });
+  K.check('Switching the 10 N pull to a bearing moves only the angle and its labels: the arrow, its parts and its column stay the same, the angle reads 30° off the x-axis and then a bearing of 060, the same 60° shows at the tip where the north part meets the arrow, and the cos label moves from the across side to the north side', () => {
+    const i = idx('Measured from north');
+    const rx = drawn(i, Object.assign(blank(), { from: 'x', flip: true })), rn = drawn(i, Object.assign(blank(), { from: 'n', flip: true }));
+    return same(rx.main.v, rn.main.v) && rx.ro.col.join() === rn.ro.col.join() && rx.ro.col.join() === '8.66,5' && JSON.stringify(rx.legs) === JSON.stringify(rn.legs) &&
+      rx.cosSide === 'across' && rn.cosSide === 'up' && rx.texts.indexOf('10 cos 30°') >= 0 && rn.texts.indexOf('10 cos 60°') >= 0 &&
+      rowIs(rx, 'angle', '30°') && rowIs(rn, 'bearing', '060') && rx.angle === '30°' && rn.angle === '60°' && rx.tipAngle === null && rn.tipAngle === '60°' && 90 - 30 === 60;
+  });
+  K.check('With a bearing the angle sits next to north, so north takes the cosine: the ship\'s and the winch rope\'s pictures mark the bearing again at the tip, on the north part, and their right answers put cos on that side, giving 12 sin 30° = 6 knots east, and 43.3 N east with −25 N north; the winch\'s wrong picks point on bearings 150 and 060', () => {
+    const j = idx('12 knots on 030'), w = idx('A winch rope on 120'), rj = drawn(j, solved(j)), rw = drawn(w, solved(w));
+    return rj.cosSide === 'up' && rj.tipAngle === '30°' && rw.tipAngle === '120°' && brg(STEPS[w].pv[W_SWAP]) === '150' && brg(STEPS[w].pv[W_SIGN]) === '060' && brg([WE, WNo]) === '120' && rj.texts.indexOf('12 cos 30°') >= 0 && STEPS[j].want === '6 knots' && rw.cosSide === 'up' && rw.texts.indexOf('50 cos 120°') >= 0 &&
+      STEPS[w].want === '43.3i − 25j' && num(WE) === '43.3' && num(WNo) === '−25' && K.near(hyp(WE, WNo), 50, 1e-9);
+  });
+  K.check('Every number in the puzzles follows from the rule: 20 cos 60° = 10 and 20 sin 60° = 17.32; 12 cos 30° = 10.39; √(25 + 144) = 13 against 5 + 12 = 17 and 5 − 12 = −7; √13 = 3.61 and √49 = 7; √32 = 5.66, 4 + 4 + 7 = 15 and √81 = 9', () =>
+    num(20 * C(60)) === '10' && num(20 * Sn(60)) === '17.32' && num(12 * C(30)) === '10.39' && num(Math.sqrt(25 + 144)) === '13' && num(5 + 12) === '17' && num(5 - 12) === '−7' &&
+    num(Math.sqrt(13)) === '3.61' && num(Math.sqrt(13 + 36)) === '7' && num(Math.hypot(4, 4)) === '5.66' && num(4 + 4 + 7) === '15' && num(Math.sqrt(32 + 49)) === '9' &&
+    STEPS[idx('A 20 N pull at 60°')].want === '10 N' && STEPS[idx('The size of 5i − 12j')].want === '13' && STEPS[idx('The size of 4i + 4j + 7k')].want === '9');
+  K.check('A calculator\'s tan⁻¹(4 ÷ −3) gives −53.13°, pointing right and down, the opposite way to −3i + 4j; turned through 180° it lands on the arrow at 126.87°, and Pythagoras gives its size, 5', () => {
+    const r = drawn(idx('Back to size and angle'), blank()), calc = r.arrows.find((q) => /calc/.test(q.cls)), t = Math.atan(4 / -3) / RAD, back = polar(5, t + 180);
+    return num(t) === '−53.13' && num(t + 180) === '126.87' && !!calc && calc.v[0] > 0 && calc.v[1] < 0 && K.near(back[0], -3, 1e-9) && K.near(back[1], 4, 1e-9) &&
+      same(r.main.v, [-3, 4]) && rowIs(r, 'size', '5') && rowIs(r, 'angle', '126.87°');
+  });
+  K.check('Turning the box changes only the view: at every turn from −55° to −10° its parts still run 2 across, 3 along and 6 up, nose to tail to the tip, the floor line reads 3.61 and the size 7, while the tip moves on the page', () => {
+    const i = idx('A third axis: k'), seen = [];
+    for (let y = YAWMIN; y <= YAWMAX; y += 5) {
+      const r = drawn(i, Object.assign(blank(), { yaw: y }));
+      if (r.ro.col.join() !== '2,3,6' || !rowIs(r, 'floor', '3.61') || !rowIs(r, 'size', '7') || !noseToTail(r, [2, 3, 6]) || !same(r.main.v, [2, 3, 6])) return false;
+      seen.push(r.tipPx[0]);
+    }
+    return Math.abs(seen[0] - seen[seen.length - 1]) > 5;
+  });
+  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>
+    DO.every((i) => {
+      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&
+        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;
+    }));
+  K.check('Before Check no puzzle\'s picture shows its answer, and a right answer shows it', () =>
+    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s', () => {
+    const timed = (i, st, limit) => {
+      const keepS = S[i], keepT = T;
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; T = keepT; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&
+        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

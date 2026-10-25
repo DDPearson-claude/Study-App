@@ -1,0 +1,66 @@
+{
+  "iid": "i2",
+  "title": "Components: i, j and k",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the cos label jump to the other side of the triangle when you switch the angle from off the x-axis to a bearing, while the arrow and its parts stay put.",
+    "title": "The arrow and its shadows",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Twelve small screens share one grid and one solid arrow, drawn from its tail at the origin to its tip. Its two parts are drawn dashed, nose to tail: the across part along the x-axis, then the up part from there to the tip. The two parts meet at a right angle, so they close a right-angled triangle with the arrow as its long side. A readout shows the parts as a column and as i and j, where i is the unit vector along the x-axis and j the unit vector up the y-axis. Dragging the tip changes the arrow, and the dashed parts follow it. With a size and an angle, trigonometry gives the parts. The side next to the angle is the size times the cosine of the angle. The side opposite is the size times the sine. A label on each dashed side says which. A switch moves the angle marker from off the x-axis to a bearing, measured clockwise from north, with north up the page. The arrow and its parts stay put, but the angle now sits next to the north side, so the cos label jumps to that side. Going back from parts to size, the size is Pythagoras on the parts. A 3-D switch tips the grid back to become a floor, and a third axis, z, stands up at right angles to both, with k the unit vector along it. The arrow stands in a box whose three edges are its i, j and k parts. Dragging turns the box. Its size is Pythagoras twice, first across the floor, then up. Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers, and a wrong pick is drawn so you can see where it goes wrong.",
+    "ignores": "The grid's squares have no unit, so one arrow can stand for newtons, knots or metres. The parts here always lie along the x and y axes. A vector can be split along any two lines at right angles, such as along and across a slope. Turning the 3-D box changes only your view. The arrow and its parts do not change. The puzzles use example values, and parts are rounded to two decimal places.",
+    "numbers": [
+      { "label": "Arrow a's across part, in squares, step 1", "value": 3, "kind": "assumed" },
+      { "label": "Arrow a's up part, in squares, step 1", "value": 4, "kind": "assumed" },
+      { "label": "Step 2 arrow, 4 across and 2 down, written 4i − 2j", "value": 4, "kind": "assumed" },
+      { "label": "Example pull in newtons, steps 3 and 5", "value": 10, "kind": "assumed" },
+      { "label": "Example angle off the x-axis in degrees, step 3", "value": 30, "kind": "assumed" },
+      { "label": "Across part, 10 cos 30°, in newtons, step 3", "value": 8.66, "kind": "computed" },
+      { "label": "Up part, 10 sin 30°, in newtons, step 3", "value": 5, "kind": "computed" },
+      { "label": "Example pull in newtons, step 4", "value": 20, "kind": "assumed" },
+      { "label": "Example angle off the x-axis in degrees, step 4", "value": 60, "kind": "assumed" },
+      { "label": "Across part, 20 cos 60°, in newtons, step 4", "value": 10, "kind": "computed" },
+      { "label": "Wrong pick 20 sin 60°, in newtons, step 4", "value": 17.32, "kind": "computed" },
+      { "label": "Same arrow as a bearing, in degrees, step 5", "value": 60, "kind": "computed" },
+      { "label": "Example speed in knots, step 6", "value": 12, "kind": "assumed" },
+      { "label": "Example bearing in degrees, step 6", "value": 30, "kind": "assumed" },
+      { "label": "East part, 12 sin 30°, in knots, step 6", "value": 6, "kind": "computed" },
+      { "label": "Wrong pick 12 cos 30°, in knots, step 6", "value": 10.39, "kind": "computed" },
+      { "label": "Step 7 arrow, −3i + 4j, its size", "value": 5, "kind": "computed" },
+      { "label": "Calculator's tan⁻¹(4 ÷ −3) in degrees, step 7", "value": -53.13, "kind": "computed" },
+      { "label": "Angle off the x-axis, −53.13° + 180°, step 7", "value": 126.87, "kind": "computed" },
+      { "label": "Size of 5i − 12j, √(25 + 144), step 8", "value": 13, "kind": "computed" },
+      { "label": "Wrong pick 5 + 12, step 8", "value": 17, "kind": "computed" },
+      { "label": "Wrong pick 12 − 5, step 8", "value": 7, "kind": "computed" },
+      { "label": "Box arrow 2i + 3j + 6k, its floor diagonal √13, step 9", "value": 3.61, "kind": "computed" },
+      { "label": "Size of 2i + 3j + 6k, √49, step 9", "value": 7, "kind": "computed" },
+      { "label": "Size of 4i + 4j + 7k, √81, step 10", "value": 9, "kind": "computed" },
+      { "label": "Wrong pick 4 + 4 + 7, step 10", "value": 15, "kind": "computed" },
+      { "label": "Wrong pick √(4² + 4²), k left out, step 10", "value": 5.66, "kind": "computed" },
+      { "label": "Pulls on the ring in step 11", "value": 1, "kind": "computed" },
+      { "label": "Winch rope pull in newtons, step 12", "value": 50, "kind": "assumed" },
+      { "label": "Winch rope bearing in degrees, step 12", "value": 120, "kind": "assumed" },
+      { "label": "East part, 50 sin 120°, in newtons, step 12", "value": 43.3, "kind": "computed" },
+      { "label": "North part, 50 cos 120°, in newtons, step 12", "value": -25, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "Any vector can be split into two parts at right angles, one along each axis. Those parts are its [[component]]s, the separate x, y and z values of the vector.[^1] Take the arrow a again, 3 across and 4 up. Its across part runs along the x-axis. Its up part climbs from there to the tip. The two parts and the arrow close a right-angled triangle, with the arrow as the long side. You write the parts as a column, 3 above 4, or as 3i + 4j. Here i is the unit vector along the x-axis and j is the unit vector up the y-axis. So 3i + 4j means 3 lots of i, then 4 lots of j.\n\nOften you know the size and an angle instead. Then the triangle gives the parts. Take a 10 N pull at 30° above the x-axis. The angle sits between the arrow and the across side. In a right-angled triangle, the side next to an angle is the long side times the angle's cosine. So the across part is 10 cos 30° = 8.66 N. The side opposite the angle is the long side times its sine, so the up part is 10 sin 30° = 5 N. Finding the parts this way is called [[resolving]] the pull. A bearing shows why it matters which side is next to the angle. A bearing is measured clockwise from north. That same pull points on a bearing of 060. Now the angle sits next to the north side, so north takes the cosine: 10 cos 60° = 5 N. East takes the sine: 10 sin 60° = 8.66 N. The parts have not changed. Only the angle moved, and the cos went with it. Each part is shorter than the arrow, unless the arrow lies along an axis. Then one part is the whole arrow and the other is zero.\n\nGoing back, the size is Pythagoras on the parts, never the parts added. The pull's parts give √(8.66² + 5²) = 10 N, not 13.66 N. The angle comes from the tangent, but check the signs. For −3i + 4j a calculator's tan⁻¹(4 ÷ −3) gives −53.13°, which points right and down. The signs say left and up, so add 180° to get 126.87°. A third axis, z, stands at right angles to both, and k is the unit vector along it. 2i + 3j + 6k runs 2 across, 3 along and 6 up. Its size is Pythagoras twice: √(2² + 3² + 6²) = √49 = 7. Parts along one axis add and take away as plain numbers,[^1] which is how vectors get added next. The parts are one pull described twice, not extra pulls.\n\n**A vector's components are its parts along the axes, written ai + bj + ck. The part next to the given angle is the size times its cosine, the other is the size times its sine, and the size comes back by Pythagoras.**"
+  },
+  "analogy": {
+    "text": "Your power triangle is the same split. Say a load draws 10 kVA at a power factor of 0.8. The active power is the side next to the angle φ: 10 × 0.8 = 8 kW. The reactive power is the side opposite: 10 × 0.6 = 6 kvar, since sin φ is 0.6 when cos φ is 0.8. Pythagoras takes you back to 10 kVA, and 8 + 6 = 14 means nothing.",
+    "breaks": "The angle φ is a shift in time between current and voltage, not a direction in space. So the power triangle has no third axis and nothing like k."
+  },
+  "practice": {
+    "text": "- Draw the arrow and its two parts nose to tail, so they close a right-angled triangle.\n- Mark the given angle. The side next to it is the size times cos. The other side is the size times sin.\n- With an angle off the x-axis, across is size × cos θ and up is size × sin θ. With a bearing, east is size × sin θ and north is size × cos θ.\n- Give each part its sign: left and down are minus, and so are west and south.\n- Check: Pythagoras on the parts must give back the size.\n- Going back to an angle, use the tangent, then check the quarter from the signs.\n\n**Rule of thumb:** Cos goes on the side next to the angle.\n\n**Worked example:** A submarine makes 8 knots on a bearing of 210. East is 8 sin 210° = −4 knots. North is 8 cos 210° = −6.93 knots. So its velocity is −4i − 6.93j. Both are minus, so it heads south and west, as 210 should. Check: √(4² + 6.93²) = √64 = 8 knots.\n\n**Common mistakes**\n- Putting sin next to the angle. With a bearing, the angle sits next to north, so north takes cos.\n- Giving a part the arrow's whole size. That only happens when the arrow lies along that axis.\n- Adding the parts for the size. 5i − 12j has size 13, not 17.\n- Writing the parts the wrong way round. 4i − 2j is 4 across and 2 down, not −2i + 4j.\n- Trusting tan⁻¹ without the signs. −3i + 4j points at 126.87°, not −53.13°.\n- Leaving k out of the size. 4i + 4j + 7k has size 9.\n- Counting the parts as extra pulls. A ring on one rope feels one pull."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Subtracting vectors - Using vector components - National 5 Maths Revision - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2", "quote": "Vector components describe the separate x, y and z values of a vector. When working with vectors, components can be added or subtracted separately." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

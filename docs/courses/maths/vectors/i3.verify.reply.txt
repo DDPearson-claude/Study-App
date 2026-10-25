@@ -1,0 +1,21 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "problem": "The sizes of A and B are √17 + √10 = 4.1231 + 3.1623 = 7.2854 kN, which rounds to 7.29 kN, not 7.28 kN; 7.28 comes from adding the already rounded 4.12 and 3.16.",
+   "severity": "fix",
+   "now": "Vectors add nose to tail. Draw the second arrow starting where the first one ends. The arrow from the first tail to the last nose is the sum, called the [[resultant]].[^1] It is the gap the chain leaves, not the chain's length. That is why you cannot add vectors by adding their sizes.[^2] Take two 3 kN pulls on a ring. Pointing the same way, their chain is one straight line, so they make 6 kN. At 90° apart the chain bends, and the gap shrinks to √(3² + 3²) = 4.24 kN. At 120° apart the chain's corner is 60°, so its triangle has three equal sides and the gap is 3 kN. Pulling opposite ways, the second arrow comes straight back, so the gap is nothing. Sizes add only when the pulls point the same way.\n\nDrawing shows the answer, and parts give it exactly. Each arrow is its own parts laid nose to tail. So a chain of arrows is a chain of across parts and up parts. Their order does not change where the chain ends, so you can gather all the across parts together. Lying on one line, they add as plain numbers, and so do the up parts.[^3] Take pull A, 4i + 1j kN, and pull B, 1i + 3j kN. Across, 4 + 1 = 5. Up, 1 + 3 = 4. The resultant is 5i + 4j, and Pythagoras gives its size, √(5² + 4²) = 6.40 kN. The sizes alone would add to 7.29 kN. Draw B first and A second and you reach the same nose, because the parts add to the same sums in either order. The two chains make a parallelogram, and the resultant is its diagonal from the shared tail.\n\nAny gap left in the chain is a net pull, and a net pull sets the ring moving. To hold it still, the pulls must add to nothing. So it needs one more pull that cancels the resultant. That pull is the [[equilibrant]]. It has the same size as the resultant and points the opposite way.[^4] For A and B it is −5i − 4j, also 6.40 kN. Add it to the chain and the last nose lands back on the first tail. The gap is gone, so the net pull is zero. Three pulls in balance close into a triangle, the [[triangle of forces]]. More pulls close into a polygon. Opposite ropes cancel only along their own line. Pulls of 5 kN east, 5 kN west and 2 kN north leave 2 kN north.\n\n**Vectors add nose to tail or part by part to give the resultant, and the equilibrant is the equal and opposite pull that closes the chain.**[^4]"
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "The frozen number 'Sizes of A and B wrongly added' is 7.28 kN, but √17 + √10 = 7.2854 kN rounds to 7.29 kN; the interactive's readout should show 7.29 to match the corrected explanation.",
+   "severity": "note"
+  },
+  {
+   "path": "analogy.text",
+   "problem": "The straight line back to the board runs from the last nose to the first tail, which the lesson calls the equilibrant, not the gap; and 'much shorter' is not always true, since a run that has gone nearly straight is only a little shorter.",
+   "severity": "fix",
+   "now": "Think of a ring final circuit. The cable leaves the consumer unit, runs round the rooms and comes back to the same terminals. Lay its legs nose to tail and the chain closes, however long it is. The chain ends where it began, so its legs add to nothing, just as balanced pulls do. Stop the run halfway and the straight line from the board to where you stopped is the gap, shorter than the cable you used."
+  }
+ ]
+}

@@ -1,0 +1,171 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "Text cut off: SVG labels \"3 kN\" and \"3 kN\" are printed over each other (at ang = 180°, and 1 more setting)",
+    "Text cut off: SVG labels \"3 kN\" and \"resultant\" are printed over each other (at order = \"A then B\", and 13 more settings)"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG labels \"3 kN\" and \"3 kN\" are printed over each other (at ang = 180°, and 1 more setting)",
+      "SVG labels \"3 kN\" and \"resultant\" are printed over each other (at order = \"A then B\", and 13 more settings)"
+    ],
+    "checks": [
+      {
+        "label": "A resultant vector results from adding two or more vectors together: on every ring the needle stands for all its pulls added, every chain runs nose to tail through the same pulls, and the resultant runs from the first tail to where the chain ends",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/guides/zqvbb9q/revision/1"
+      },
+      {
+        "label": "Vectors cannot be added by simply adding their magnitudes: two equal pulls make a needle as long as their sizes added only when they point the same way, and a shorter one at every other angle",
+        "ok": true,
+        "source": "https://eng.libretexts.org/Bookshelves/Mechanical_Engineering/Mechanics_Map_(Moore_et_al.)/16%3A_Appendix_1_-_Vector_and_Matrix_Math/16.1%3A_Vectors"
+      },
+      {
+        "label": "Two 3 kN pulls read 6, 4.24, 3 and 0 kN at 0°, 90°, 120° and 180°; the 90° and 120° puzzles answer 4.24 kN and 3 kN, and by parts the 120° pulls make 3 − 1.5 = 1.5 across and 2.6 up",
+        "ok": true
+      },
+      {
+        "label": "Components can be added or subtracted separately: for pulls A and B the readout adds the across parts and the up parts on their own, the gathered parts end where the chain ends, and this holds wherever the nose of B is dragged",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/guides/zwncsrd/revision/2"
+      },
+      {
+        "label": "Either order reaches the same nose: B then A ends where A then B does, at 5i + 4j, and drawn together the two chains make a parallelogram whose diagonal from the shared tail is the resultant, 6.40 kN",
+        "ok": true
+      },
+      {
+        "label": "The equilibrant has the same magnitude as the resultant but the opposite direction: added, it closes the chain and the needle reads zero; taken away, the gap and the needle come back",
+        "ok": true,
+        "source": "https://myslu.stlawu.edu/~jmil/physics/labs/103_lab/vectors.pdf"
+      },
+      {
+        "label": "Every number in the puzzles follows from the rule: √(3² + 3²) = 4.24; √41 = 6.40, √17 = 4.12 and √10 = 3.16; 2 + 4 = 6, 3 − 1 = 2 and √40 = 6.32; 6 + 2 = 8, √8 = 2.83 and 6.32 + 2.83 = 9.15; 5 + 5 + 2 = 12",
+        "ok": true
+      },
+      {
+        "label": "Three 3 kN pulls 120° apart close their chain into a triangle, so the needle reads 0 kN while their sizes add to 9 kN; changing any one pull opens the chain by exactly the change, along that rope",
+        "ok": true
+      },
+      {
+        "label": "Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without",
+        "ok": true
+      },
+      {
+        "label": "Before Check no puzzle's picture shows its answer, and a right answer shows it",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "ang",
+      "order"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Two pulls, one gap",
+          "Two pulls at 90°",
+          "Add the parts",
+          "Add 2i + 3j and 4i − 1j",
+          "Either order",
+          "Which drawing is a + b?",
+          "The equilibrant",
+          "Balance 6i − 2j",
+          "Three pulls in balance",
+          "East, west and north",
+          "Two pulls at 120°",
+          "A third line"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ang",
+        "kind": "control",
+        "label": "Angle between the pulls",
+        "min": 0,
+        "max": 180,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          0,
+          90,
+          120,
+          180
+        ]
+      },
+      {
+        "id": "order",
+        "kind": "choice",
+        "label": "Draw the chain",
+        "options": [
+          "ab",
+          "ba",
+          "both"
+        ],
+        "labels": [
+          "A then B",
+          "B then A",
+          "Both"
+        ],
+        "value": "both",
+        "index": 2,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Add the equilibrant",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "iid": "i7",
+  "title": "Vectors and phasors",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the neutral readout jump up from 0 A when you drag one phase current smaller than the other two.",
+    "title": "The fixed arrow and the turning arrow",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Two pictures sit side by side. On the left, a 3 kN pull on a ring stays put. Its angle is the way the rope runs. On the right, an arrow turns round its tail once every cycle. Its height at each instant is its shadow on an upright line, so the shadow traces a sine wave beside it. A freeze button stops it. Frozen, it is the fixed arrow you write as r∠θ. Its angle then marks when in the cycle the wave peaks, not a direction. On a 50 Hz supply one turn takes 20 ms. The screens run like this. First the two arrows, one still and one turning. A puzzle has a current 90° behind the voltage and asks how much later it peaks. Next, two 3 kN pulls at 0° and 90° add nose to tail to 4.24 kN. Two 3 A currents a quarter turn apart add the same way, to 4.24 A. A puzzle adds 6 A in step with the voltage to 8 A a quarter turn behind. Then a 50 Hz arrow and a 150 Hz arrow start together and turn at different speeds. A puzzle asks how far apart they are after 5 ms. Then a phasor is shown as a number. Dividing the voltage by the current gives the impedance. Divide the sizes and take away the angles, so 230∠0° V ÷ 10∠−30° A gives 23∠30° Ω. A puzzle divides 230∠0° V by 5∠−60° A. Then three phase currents leave a star point at 0°, −120° and 120°. You can drag each one's size. The neutral readout shows their sum, worked out by parts. Three equal 10 A currents give 0 A. A puzzle has 10, 10 and 4 A. Two mixed puzzles end it. One has 10, 8 and 6 A. The other takes 230∠−120° V away from 230∠0° V for the voltage between two lines. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. A wrong pick is drawn too, so you can see where it goes wrong.",
+    "ignores": "The waves are pure sines at one frequency. Each load is taken at the same power factor, so the three currents stay 120° apart. The supply is taken as 50 Hz. The puzzles use example values, rounded to two decimal places.",
+    "numbers": []
+  },
+  "explain": {
+    "text": "A phasor is drawn like a vector and adds like one. But its angle marks a moment in time, not a direction in space. And because it is a complex number, it can be divided.\n\nStart with the force arrow. A 3 kN pull on a ring points somewhere real. Its angle says which way the rope runs. Now take an arrow that turns round its tail once every cycle. Its height at each instant traces the sine wave of a voltage. Freeze it and you have the fixed arrow you write as r∠θ. On a 50 Hz supply one turn takes 20 ms. So a current 90° behind the voltage peaks a quarter turn later, 5 ms after it. The angle measures that delay.\n\nPhasors add nose to tail, exactly as forces do.[^1] 6 A in step with the voltage and 8 A a quarter turn behind give √(6² + 8²) = 10 A, not 14 A. Phasors of different frequencies cannot share a diagram.[^5] You can divide phasors, but not vectors.[^4] 230∠0° V ÷ 10∠−30° A gives an impedance of 23∠30° Ω. Nor does the dot product of two phasors give another phasor.[^3]\n\nThree-phase is the ring of pulls again. Three equal currents, 120° apart, laid nose to tail, close into a triangle, so the neutral carries nothing. Shrink L3 to 4 A, with L1 and L2 at 10 A, and the neutral carries 6 A. So the board in the question sends 6 A back on the neutral, not 24 A.\n\n**A phasor adds like a vector, but its angle is a shift in time, and being a number it can be divided.**[^1]"
+  },
+  "analogy": {
+    "text": "Picture two clocks on a bulkhead, one set an hour behind the other. Their hour hands point 30° apart. That angle means an hour, not a direction.",
+    "breaks": "A clock hand only tells the time. Its length means nothing."
+  },
+  "practice": {
+    "text": "- Check every wave has the same frequency.\n- Draw each phasor at its size and angle.\n- Add the across parts and the up parts.\n- Find the size with Pythagoras.\n\n**Rule of thumb:** Equal currents 120° apart cancel. The neutral current is never the sizes added.\n\n**Worked example:** Say L1 carries 20 A, L2 15 A and L3 10 A, at 0°, −120° and 120°. Across: 20 − 7.5 − 5 = 7.5 A. Up: 0 − 12.99 + 8.66 = −4.33 A. The neutral carries √(7.5² + 4.33²) = 8.66 A.\n\n**Common mistakes**\n- Adding the sizes. 10, 10 and 4 A leave 6 A on the neutral, not 24 A.\n- Drawing waves of different frequencies on one diagram."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [],
+  "confidence": "simplified",
+  "contested": null,
+  "format": "steps"
+}

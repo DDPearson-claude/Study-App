@@ -1,0 +1,1212 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  #stepbox > .act { margin-top: 6px; }
+  .act { color: var(--k-muted); font-size: .95rem; text-align: center; }
+  .nw { white-space: nowrap; }
+  .vn { font-weight: 700; font-style: italic; }
+  .vu { font-weight: 700; }
+  .vq { font-style: italic; font-family: Georgia, 'Times New Roman', serif; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .sh { stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .scene .vr .sh { stroke: var(--k-cat1); }
+  .scene .vr .hd { fill: var(--k-cat1); }
+  .scene .vf .sh { stroke: var(--k-cat2); }
+  .scene .vf .hd { fill: var(--k-cat2); }
+  .scene .vc .sh { stroke: var(--k-cat1); stroke-width: 3; }
+  .scene .vc .hd { fill: var(--k-cat1); }
+  .scene .vm .sh { stroke: var(--k-accent2); stroke-width: 4.5; }
+  .scene .vm .hd { fill: var(--k-accent2); }
+  .scene .vo .sh { stroke: var(--k-muted); stroke-width: 4; }
+  .scene .vo .hd { fill: var(--k-muted); }
+  .scene .vi .sh { stroke: var(--k-ink); stroke-width: 2.6; }
+  .scene .vi .hd { fill: var(--k-ink); }
+  .scene .tri .sh { stroke: var(--k-muted); stroke-width: 1.6; }
+  .scene .tri .hd { fill: var(--k-muted); }
+  .scene .bad .sh { stroke: var(--k-warn); }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .plate { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; stroke-linejoin: round; }
+  .scene .nut { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.4; stroke-linejoin: round; }
+  .scene .nuttop { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 1.4; stroke-linejoin: round; }
+  .scene .bolt { fill: var(--k-strong); stroke: var(--k-ink); stroke-width: 1; }
+  .scene .ring { fill: none; stroke: var(--k-strong); stroke-width: 7; stroke-linejoin: round; }
+  .scene .handle { stroke: var(--k-strong); stroke-width: 12; stroke-linecap: round; }
+  .scene .para { fill: var(--k-fill1); stroke: none; }
+  .scene .bl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .scene .ht { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 3 3; fill: none; }
+  .scene .ram { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .curl { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .curlh { fill: var(--k-muted); }
+  .scene .zero { fill: var(--k-accent2); }
+  .scene .zero.bad { fill: var(--k-warn); }
+  .scene .badln { stroke: var(--k-warn); stroke-width: 4; stroke-linecap: round; }
+  .scene .knob { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .pole { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .fl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .scene .flh { fill: var(--k-muted); }
+  .scene .wire { stroke: var(--k-strong); stroke-width: 8; stroke-linecap: round; }
+  .scene .pill { fill: var(--k-hl); stroke: none; }
+  .scene .sw { stroke-width: 3; stroke-linecap: butt; }
+  .scene .sw.bl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .sw.fl { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .scene .swf { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: 1; }
+  /* Every label carries a thin halo of what lies behind it, so a line behind it never cuts its letters. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene text.pl { stroke: var(--k-sunk); }
+  .scene text.nohalo { stroke: none; }
+  .scene .nm { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .lb { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sm.mu { fill: var(--k-muted); }
+  .scene .lb.ok, .scene .sm.ok { fill: var(--k-accent2); }
+  .scene .lb.bad, .scene .sm.bad { fill: var(--k-warn); }
+  .scene .rk { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .rv { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .rv2 { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .rv3 { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene tspan.vn { font-style: italic; font-weight: 700; }
+  .scene tspan.vu { font-weight: 800; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }
+  .scene .turn:focus { outline: none; }
+  .scene .turn:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 6rem; white-space: nowrap; padding-inline: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A spanner on a bolt, drawn in 3-D, with a push on its handle. Later the same picture holds a wire carrying a current between two magnet poles. The pushes, currents and fields are example values.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 320" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <p class="act" id="act"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each answer is an arrow square to the two arrows that make it. The right-hand rule gives its direction.</p>
+
+<script>
+  const RAD = Math.PI / 180;
+  // Exact values where the lesson's angles meet them, so 30° gives exactly half and 0° exactly nothing.
+  const EXS = { 0: 0, 30: 0.5, 90: 1, 150: 0.5, 180: 0, '-30': -0.5, '-90': -1, '-150': -0.5, '-180': 0 };
+  const EXC = { 0: 1, 60: 0.5, 90: 0, 120: -0.5, 180: -1, '-60': 0.5, '-90': 0, '-120': -0.5, '-180': -1 };
+  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+  const sind = (deg) => (has(EXS, deg) ? EXS[deg] : Math.sin(deg * RAD));
+  const cosd = (deg) => (has(EXC, deg) ? EXC[deg] : Math.cos(deg * RAD));
+  // Up to two decimals, as the lesson writes them: 45, 22.5, 38.97, 0.
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? '−' : '') + String(Math.abs(r)); }
+  const add = (p, q) => p.map((x, k) => x + q[k]);
+  const sub = (p, q) => p.map((x, k) => x - q[k]);
+  const scale = (p, s) => p.map((x) => x * s);
+  const hyp = (v) => Math.hypot.apply(null, v);
+  const unit = (v) => { const L = hyp(v) || 1; return scale(v, 1 / L); };
+  const lerp2 = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
+  const dotv = (p, q) => p.reduce((s, x, k) => s + x * q[k], 0);
+  const cross3 = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+
+  // ---------- each screen's layout ----------
+  // The spanner: the top of the nut at O; ur px a metre for r, uf px a newton for F, um px a newton metre
+  // for the moment arrow. Seen from azimuth al (turned between amin and amax) and elevation be.
+  // Labels stay between ly0 and ly1; the readout band starts at hd and has `rows` lines.
+  const SP = { kind: 'spanner', O: [92, 132], al: 300, amin: 270, amax: 320, be: 38, ur: 420, uf: 0.55, um: 2.2, ly0: 32, ly1: 244, hd: 248, rows: 2 };
+  const SW = Object.assign({}, SP, { ly1: 236, hd: 240, rows: 3, tri: [292, 206] });
+  const SQ = Object.assign({}, SP, { tri: [292, 214] });
+  // The wire: its middle at O, Lw px long, the poles Pd px either side of it, fz px a newton of force.
+  const WI = { kind: 'wire', O: [170, 150], al: 335, amin: 320, amax: 350, be: 38, Lw: 120, Pd: 90, fz: 60, ly0: 32, ly1: 244, hd: 248, rows: 2 };
+  const MQ = { kind: 'wire', O: [170, 138], al: 300, amin: 285, amax: 320, be: 38, Lw: 110, Pd: 75, fz: 110, ly0: 32, ly1: 230, hd: 234, rows: 3, tri: [46, 200], triL: 42 };
+  // The axes alone, L px long, in a view turned so that k points down the screen.
+  const TQ = { kind: 'axes', O: [170, 126], al: 210, be: 38, roll: 180, L: 78, ly0: 32, ly1: 236, hd: 240, rows: 2 };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. dur: a SHOW step's demonstration in seconds. act: what he can do with it,
+  // shown under the picture. A puzzle: task, opts (three answers), want, hints (one per wrong
+  // answer), why, reveal (words only a right answer draws), fb (seconds of motion after a right and a wrong answer).
+  const STEPS = [
+    { show: true, name: 'Push square on', pic: 'push', geo: SP, dur: 4.6,
+      text: 'A push `F` of 150 N meets the handle square on, 0.3 m from the bolt. The arrow `r` runs from the bolt to the push. Together they span a shaded parallelogram, with area 0.3 × 150 = 45. That is the moment you already work out, the push times its distance. The *cross product* `r × F` is an arrow of that size, 45 N m. It stands along the bolt, because it is square to both `r` and `F`.',
+      act: 'Drag where the push meets the handle, or drag across the picture to turn it.' },
+    { kind: 'pick', name: 'Nearer the bolt', pic: 'pushq', geo: SP, fb: [2.0, 1.5],
+      task: 'The same 150 N push meets the handle square on, but only 0.2 m from the bolt. What is the moment\'s size?',
+      opts: ['45 N m', '30 N m', '750 N m'], want: '30 N m', reveal: '30 N m, out of the nut',
+      hints: { '45 N m': 'Not quite. That uses the whole handle. `r` runs only to where you push, 0.2 m out.',
+        '750 N m': 'Not quite. That divides. A moment is the push times its distance from the bolt.' },
+      why: '`r` runs from the bolt to the push, so it is 0.2 m long. Square on, sin 90° = 1. So the moment is 0.2 × 150 = 30 N m.' },
+    { show: true, name: 'Swing the push', pic: 'swing', geo: SP, dur: 4.8,
+      text: 'Now the push swings round toward the handle. θ is the angle between `r` and `F`. The part of `F` along the handle points straight through the bolt, so it turns nothing. Only the part square to the handle, `|F|` sin θ, turns it. So the moment\'s size is `|r||F|` sin θ. At 30° it halves to 22.5 N m. Along the handle it is nothing. Past the handle, the arrow flips.',
+      act: 'Drag the tip of `F` round, or drag across the picture to turn it.' },
+    { kind: 'pick', name: 'At a slant', pic: 'swingq', geo: SP, fb: [2.0, 1.5],
+      task: 'A 150 N push meets the handle at 30°, 0.2 m from the bolt. What is the moment\'s size?',
+      opts: ['15 N m', '25.98 N m', '30 N m'], want: '15 N m', reveal: '15 N m, out of the nut',
+      hints: { '25.98 N m': 'Not quite. That uses cos, the part along the handle. That part turns nothing.',
+        '30 N m': 'Not quite. That leaves out the angle. Only the part square to the handle turns the bolt.' },
+      why: 'sin 30° is 0.5. So the moment is 0.2 × 150 × 0.5 = 15 N m. Only the part of the push square to the handle turns the bolt.' },
+    { show: true, name: 'Which way it points', pic: 'way', geo: SP, dur: 4.4,
+      text: 'The *right-hand rule* sets the arrow\'s direction. Curl your right fingers from `r` toward `F`, and your thumb points along `r × F`. Turn anticlockwise, seen from above, and the arrow points out of the nut. That undoes it. Turn clockwise and the arrow points into the nut. That does it up.',
+      act: 'Drag the tip of `F` round, or drag across the picture to turn it.' },
+    { kind: 'pick', name: 'Undo or do up', pic: 'wayq', geo: SP, fb: [2.0, 1.5],
+      task: 'Read the turn this push gives the spanner. Which way does `r × F` point?',
+      opts: ['Out of the nut', 'Along the handle', 'Into the nut'], want: 'Into the nut', reveal: '45 N m, into the nut',
+      hints: { 'Out of the nut': 'Not quite. Curl your right fingers from `r` toward `F`, and see where your thumb points.',
+        'Along the handle': 'Not quite. The arrow is square to both `r` and `F`, so it runs along the bolt.' },
+      why: 'Point your fingers along `r` and curl them toward `F`, clockwise from above. Your thumb points down, into the nut. So this push does the nut up.' },
+    { show: true, name: 'Swap the order', pic: 'swap', geo: SW, dur: 4.4,
+      text: 'Swap the order and the arrow flips, so `F × r` = −(`r × F`). The axes follow the same rule. `i × j` = `k`, but `j × i` = −`k`. Round the cycle, `j × k` = `i` and `k × i` = `j`. An arrow crossed with itself gives 0, since sin 0° = 0.',
+      act: 'Drag across the picture to turn it.' },
+    { kind: 'pick', name: 'A turned view', pic: 'turnq', geo: TQ, fb: [2.4, 1.5],
+      task: 'The view has turned, so `k` points down the screen. Which way does `j × i` point?',
+      opts: ['Down the screen', 'Up the screen', 'It is 0'], want: 'Up the screen', reveal: 'j × i = −k',
+      hints: { 'Down the screen': 'Not quite. That is `i × j`, which is `k`. Swap the order and the arrow flips.',
+        'It is 0': 'Not quite. That is `i·j`, the dot product. Square arrows give the biggest cross product.' },
+      why: '`i × j` = `k`, so `j × i` = −`k`, the opposite way. Here `k` points down the screen, so −`k` points up it. Turning the view changes how it looks, not the answer.' },
+    { show: true, name: 'A wire between poles', pic: 'wire', geo: WI, dur: 4.2,
+      text: 'The same rule gives the force on a wire between magnet poles. Point your fingers along the current and curl them toward the field. Your thumb gives the force. A current `I` of 10 A runs along the wire. Its length in the field, `l`, is 0.2 m. The field `B` is 0.8 T, and θ is the wire\'s angle to it. Lined up, the wire feels no force. Square across, it feels `IlB` sin θ = 10 × 0.2 × 0.8 × sin 90° = 1.6 N.',
+      act: 'Drag the end of the wire round, or drag across the picture to turn it.' },
+    { kind: 'pick', name: 'Wire at a slant', pic: 'wireq', geo: WI, fb: [2.0, 1.5],
+      task: 'Now the wire lies at 30° to the field, with the same 10 A, 0.2 m and 0.8 T. What force does it feel?',
+      opts: ['1.39 N', '1.6 N', '0.8 N'], want: '0.8 N', reveal: '0.8 N, up',
+      hints: { '1.39 N': 'Not quite. That uses cos. The force goes with sin of the angle between the wire and the field.',
+        '1.6 N': 'Not quite. That is the force square on. At 30°, only half of it is left.' },
+      why: 'sin 30° is 0.5. So the force is 10 × 0.2 × 0.8 × 0.5 = 0.8 N. It still stands square to both the wire and the field.' },
+    { kind: 'pick', name: 'By parts', pic: 'partsq', geo: SQ, fb: [2.0, 1.5],
+      task: 'Take `r` = `0.3i` m and `F` = `150j` N. What is `r × F`?',
+      opts: ['45k N m', '0 N m', '−45k N m'], want: '45k N m', reveal: '45k N m',
+      hints: { '0 N m': 'Not quite. That is `r·F`, the dot product. These arrows are square, so the cross product is at its biggest.',
+        '−45k N m': 'Not quite. That is `F × r`. Keep the order, and `i × j` = `k`.' },
+      why: 'Multiply the sizes, 0.3 × 150 = 45. Then cross the directions, `i × j` = `k`. So `r × F` = `45k` N m, out of the nut.' },
+    { kind: 'pick', name: 'Current along i', pic: 'motorq', geo: MQ, fb: [2.0, 1.5],
+      task: 'A current of 4 A runs along `i`, through 0.25 m of wire. The field is 0.5 T along `k`. What force does the wire feel?',
+      opts: ['0.5j N', '−0.5j N', '0 N'], want: '−0.5j N', reveal: '−0.5j N',
+      hints: { '0.5j N': 'Not quite. Curl from the current, `i`, toward the field, `k`. Your thumb points along −`j`.',
+        '0 N': 'Not quite. That is dot-product thinking. The wire is square to the field, so the force is at its biggest.' },
+      why: 'The wire is square to the field, so the size is 4 × 0.25 × 0.5 = 0.5 N. For the direction, `k × i` = `j`, so `i × k` = −`j`. The force is `−0.5j` N.' },
+  ];
+  const FINISH = 'The cross product is an arrow square to both vectors. Its size is `|a||b|` sin θ, and the right-hand rule points it.';
+  // The lesson's sources, each cited only by a check that restates its quote.
+  const SRC_SUM = 'https://openstax.org/books/university-physics-volume-1/pages/2-summary';
+  const SRC_PROD = 'https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors';
+  const SRC_WIRE = 'https://courses.lumenlearning.com/suny-physics/chapter/22-7-magnetic-force-on-a-current-carrying-conductor';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const atPic = (pic) => STEPS.findIndex((d) => d.pic === pic);
+
+  // ---------- each step's state ----------
+  // pick, res, why: a puzzle's answer, its result and the Why? note. d: where along the handle he
+  // pushes (m). th: the push's angle to the handle (degrees, anticlockwise from above). w: the
+  // wire's angle to the field. al: how far he has turned the view.
+  function blank() { return { pick: null, res: null, why: false, d: null, th: null, w: null, al: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Look again at the picture.'; };
+  const solved = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+  let G = null;     // the layout of the step being drawn
+  let V = null;     // its view
+  let BOX = [], SEG = [];   // what a label must keep clear of: other labels and solid shapes, and lines
+
+  // ---------- text with amber key terms and bold vector letters (built with K.el, never innerHTML) ----------
+  const VEC = /(IlB|(?<![A-Za-z])[abrFijkBlI](?![A-Za-z]))/;
+  function vecs(parent, s, inSvg) {
+    String(s).split(VEC).forEach((p, k) => {
+      if (!p) return;
+      if (k % 2) { (p === 'IlB' ? ['I', 'l', 'B'] : [p]).forEach((c) => { const cls = /[ijk]/.test(c) ? 'vu' : /[Il]/.test(c) ? 'vq' : 'vn'; parent.appendChild(inSvg ? K.svg('tspan', { class: cls }, c) : K.el('span', { class: cls }, c)); }); return; }
+      parent.appendChild(document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    // A number keeps its unit on the same line.
+    String(s).replace(/(\d) N m\b/g, '$1\u00a0N\u00a0m').replace(/([\d`]) (?=(?:N|A|T|m)(?![\w\/]))/g, '$1\u00a0').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { vecs(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const cur = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = cur(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[cur()].show || finished) return;
+    const st = S[cur()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = cur(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { d: null, th: null, w: null, al: null });
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, cur() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = cur();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished. It always ends on the finished picture.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (T >= motionEnd) { T = Infinity; paint(); return false; }
+    paint();
+    return true;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const put = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = put(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const pt2 = (p) => r3(p[0]) + ' ' + r3(p[1]);
+  const poly = (pts) => 'M' + pts.map(pt2).join(' L') + ' Z';
+  const ln = (cls, p, q) => put(K.svg('line', { class: cls, x1: r3(p[0]), y1: r3(p[1]), x2: r3(q[0]), y2: r3(q[1]) }));
+  const seg = (p, q) => SEG.push([p[0], p[1], q[0], q[1]]);
+  // A thick stroke, kept clear of labels along both its edges.
+  function thick(p, q, w) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L * w, -dx / L * w];
+    seg(p, q); seg(add(p, n), add(q, n)); seg(sub(p, n), sub(q, n));
+  }
+  function text(x, y, s, cls, anchor, vec) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (vec) vecs(t, s, true); else t.textContent = s;
+    REC.texts.push(s);
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w * 1.04; return widths[key]; }
+    return String(s).length * 9;
+  }
+  const FH = (cls) => (/\bnm\b/.test(cls) ? 17 : /\blb\b/.test(cls) ? 15 : 13);
+  // An arrow in drawing units, shifted `shift` px to one side.
+  function pxArrow(a, b, cls, shift) {
+    let x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (shift && L >= 1) { const sx = dy / L * shift, sy = -dx / L * shift; x1 += sx; x2 += sx; y1 += sy; y2 += sy; }
+    if (L < 1) return;
+    const g = put(K.svg('g', { class: 'arr ' + (cls || '') }));
+    const ux = dx / L, uy = dy / L, hl = Math.min(13, L * 0.45), hw = hl * 0.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(x1), y1: r3(y1), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(x2) + ' ' + r3(y2) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+  }
+  // A small filled arrowhead with its tip at p, pointing along u.
+  function head(p, u, cls, s) {
+    const b = [p[0] - u[0] * s, p[1] - u[1] * s], hw = s * 0.55;
+    put(K.svg('path', { class: cls, d: 'M' + pt2(p) + ' L' + pt2([b[0] - u[1] * hw, b[1] + u[0] * hw]) + ' L' + pt2([b[0] + u[1] * hw, b[1] - u[0] * hw]) + ' Z' }));
+  }
+
+  // ---------- labels, placed clear of each other and of the lines ----------
+  const overlap = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+  function segHitsBox(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const p = [-dx, dx, -dy, dy], q = [s[0] - b[0], b[0] + b[2] - s[0], s[1] - b[1], b[1] + b[3] - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Takes the first free spot among cands (centres), always, so a label never jumps as parts
+  // arrive; draws it at arrival a. strict: no free spot, no label.
+  function label(a, s, cls, cands, o) {
+    o = o || {};
+    const w = tw(s, cls), h = FH(cls);
+    const boxAt = (c) => [c[0] - w / 2 - 2, c[1] - h / 2 - 1, w + 4, h + 2];
+    let pick = null;
+    for (let k = 0; k < cands.length; k++) {
+      const b = boxAt(cands[k]);
+      if (b[0] < 2 || b[0] + b[2] > 338 || b[1] < G.ly0 - 6 || b[1] + b[3] > G.ly1 + 6) continue;
+      if (BOX.some((q) => overlap(b, q)) || SEG.some((q) => segHitsBox(q, b))) continue;
+      pick = cands[k]; break;
+    }
+    if (!pick) {
+      if (o.strict) return false;
+      const c = cands[0] || [170, 100];
+      pick = [K.clamp(c[0], 4 + w / 2, 336 - w / 2), K.clamp(c[1], G.ly0 + h / 2, G.ly1 - h / 2)];
+      REC.crowd++;
+    }
+    BOX.push(boxAt(pick));
+    part(a, 0, () => text(pick[0], pick[1] + h * 0.36, s, cls, 'middle', o.vec));
+    return true;
+  }
+  // Spots beside the line p→q: on the side away from ref first (which: 1 that side only, −1 the other),
+  // at each extra distance in turn.
+  function besideCands(p, q, w, h, ref, which, extra) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L, -dx / L];
+    let sg = 1;
+    if (ref) { const m = lerp2(p, q, 0.5); if ((ref[0] - m[0]) * n[0] + (ref[1] - m[1]) * n[1] > 0) sg = -1; }
+    const D = 9 + Math.abs(n[0]) * w / 2 + Math.abs(n[1]) * h / 2, out = [];
+    const sides = which === 1 ? [sg] : which === -1 ? [-sg] : [sg, -sg];
+    sides.forEach((s) => (extra || [0]).forEach((ex) => [0.55, 0.75, 0.35, 0.9].forEach((f) => out.push([p[0] + dx * f + s * n[0] * (D + ex), p[1] + dy * f + s * n[1] * (D + ex)]))));
+    return out;
+  }
+  // Spots just beyond the nose of p→q.
+  function noseCands(p, q, w, h) {
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const D = 10 + Math.abs(ux) * w / 2 + Math.abs(uy) * h / 2;
+    return [[q[0] + ux * D, q[1] + uy * D], [q[0] + ux * D + uy * 14, q[1] + uy * D - ux * 14], [q[0] + ux * D - uy * 14, q[1] + uy * D + ux * 14]];
+  }
+  // Spots all round a point, r0 px clear of it.
+  const ringCands = (c, w, h, r0) => [[0, -1], [1, 0], [-1, 0], [0, 1], [1, -1], [-1, -1], [1, 1], [-1, 1]].map((u) => [c[0] + u[0] * (r0 + w / 2), c[1] + u[1] * (r0 + h / 2)]);
+
+  // The readout under the drawing: the main quantity on amber, then the workings.
+  // rows: [{l, s, a}], the first on amber.
+  function band(rows) {
+    const y = G.hd;
+    REC.band = { label: rows[0].l, main: rows[0].s, items: rows.slice(1).filter((r) => r.s != null && (r.a == null || r.a > 0)).map((r) => r.s) };
+    ln('gl', [8, y + 2], [332, y + 2]);
+    const lw = Math.max.apply(null, rows.map((r) => tw(r.l, 'rk')));
+    const LX = 12 + lw, VX = LX + 12;
+    rows.forEach((r, k) => {
+      if (r.s == null) return;
+      const yy = y + 26 + k * 28;
+      part(r.a == null ? 1 : r.a, 0, () => {
+        text(LX, yy, r.l, 'rk', 'end', true);
+        if (k === 0) {
+          const cls = ['rv', 'rv2', 'rv3'].find((c) => VX + tw(r.s, c) + 12 <= 334) || 'rv3';
+          const w = tw(r.s, cls) + 16;
+          put(K.svg('rect', { class: 'pill', x: r3(VX - 6), y: yy - 19, width: r3(w), height: 26, rx: 7 }));
+          text(VX + 2, yy, r.s, cls + ' nohalo', 'start', true);
+        } else {
+          text(VX, yy, r.s, VX + tw(r.s, 'rv2') <= 334 ? 'rv2' : 'rv3', 'start', true);
+        }
+      });
+    });
+  }
+  // A key row at the top of the drawing: short swatches with their names.
+  function keyRow(items, a) {
+    part(a, 0, () => {
+      let x = 12;
+      items.forEach((it) => {
+        if (it.sw === 'swf') put(K.svg('rect', { class: 'swf', x, y: 12, width: 20, height: 12, rx: 2 }));
+        else ln('sw ' + it.sw, [x, 18], [x + 20, 18]);
+        text(x + 26, 23, it.s, 'sm mu', 'start', true);
+        x += 26 + tw(it.s, 'sm mu') + 14;
+      });
+    });
+  }
+
+  // ---------- 3-D: a true view (never mirrored), turned by al, tipped by be and rolled by roll ----------
+  function view() {
+    const a = G.al * RAD, b = G.be * RAD, ro = (G.roll || 0) * RAD;
+    return { sa: Math.sin(a), ca: Math.cos(a), sb: Math.sin(b), cb: Math.cos(b), sr: Math.sin(ro), cr: Math.cos(ro) };
+  }
+  function PR(v) {
+    const q0 = -V.sa * v[0] + V.ca * v[1], q1 = V.sb * V.ca * v[0] + V.sb * V.sa * v[1] - V.cb * v[2];
+    return [q0 * V.cr - q1 * V.sr, q0 * V.sr + q1 * V.cr];
+  }
+  // World points are in drawing px, from O.
+  const P3 = (v) => { const q = PR(v); return [G.O[0] + q[0], G.O[1] + q[1]]; };
+  // A point on the screen back onto the flat plane at height z0.
+  function unP3(p, z0) {
+    const s0 = p[0] - G.O[0], s1 = p[1] - G.O[1];
+    const q0 = s0 * V.cr + s1 * V.sr, q1 = -s0 * V.sr + s1 * V.cr, Q1 = q1 + V.cb * z0, det = -V.sb;
+    return [(q0 * V.sb * V.sa - V.ca * Q1) / det, (-V.sa * Q1 - V.sb * V.ca * q0) / det];
+  }
+  function triad(a) {
+    const c = G.tri, L = G.triL || 30;
+    BOX.push([c[0] - L - 16, c[1] - L - 16, 2 * L + 32, L + 42]);
+    part(a, 0, () => {
+      [['i', [1, 0, 0]], ['j', [0, 1, 0]], ['k', [0, 0, 1]]].forEach((t) => {
+        const q = PR(t[1]), e = [c[0] + q[0] * L, c[1] + q[1] * L], u = unit(sub(e, c));
+        pxArrow(c, e, 'tri');
+        text(e[0] + u[0] * 10, e[1] + u[1] * 10 + 5, t[0], 'sm', 'middle', true);
+      });
+    });
+  }
+  const circ = (rad, z, n) => { const pts = []; for (let k = 0; k < n; k++) { const t = 2 * Math.PI * k / n; pts.push(P3([rad * Math.cos(t), rad * Math.sin(t), z])); } return pts; };
+  const hexPts = (rad, z) => { const pts = []; for (let k = 0; k < 6; k++) { const t = (30 + 60 * k) * RAD; pts.push(P3([rad * Math.cos(t), rad * Math.sin(t), z])); } return pts; };
+  function hull(pts) {
+    const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    p.forEach((q) => { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+    for (let k = p.length - 1; k >= 0; k--) { const q = p[k]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+    up.pop(); lo.pop();
+    return lo.concat(up);
+  }
+  function bbox(pts, pad) {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min.apply(null, xs), y0 = Math.min.apply(null, ys);
+    return [x0 - pad, y0 - pad, Math.max.apply(null, xs) - x0 + 2 * pad, Math.max.apply(null, ys) - y0 + 2 * pad];
+  }
+  function knob(p, a) {
+    BOX.push([p[0] - 12, p[1] - 12, 24, 24]);
+    part(a, 0, () => put(K.svg('circle', { class: 'knob', cx: r3(p[0]), cy: r3(p[1]), r: 10 })));
+  }
+
+  // ---------- the spanner on its bolt ----------
+  const mText = (Mk) => (Math.abs(Mk) < 0.005 ? '0 N m, no arrow' : num(Math.abs(Mk)) + ' N m, ' + (Mk > 0 ? 'out of the nut' : 'into the nut'));
+  const dirWords = (Mk) => (Math.abs(Mk) < 0.005 ? 'with no arrow at all' : Mk > 0 ? 'pointing out of the nut' : 'pointing into the nut');
+  // The plate, the nut and the spanner, and the key.
+  function base(a, keyItems) {
+    keyRow(keyItems, a);
+    const plate = [[-50, -50], [50, -50], [50, 50], [-50, 50]].map((q) => P3([q[0], q[1], -12]));
+    for (let k = 0; k < 4; k++) seg(plate[k], plate[(k + 1) % 4]);
+    const h0 = P3([20, 0, -5]), h1 = P3([0.335 * G.ur, 0, -5]);
+    thick(h0, h1, 7);
+    const ring = circ(18, -5, 28), top = hexPts(11, 0), hl = hull(top.concat(hexPts(11, -10)));
+    BOX.push(bbox(ring.concat(hl), 2));
+    part(a, 0, () => {
+      put(K.svg('path', { class: 'plate', d: poly(plate) }));
+      ln('handle', h0, h1);
+      put(K.svg('path', { class: 'ring', d: poly(ring) }));
+      put(K.svg('path', { class: 'nut', d: poly(hl) }));
+      put(K.svg('path', { class: 'nuttop', d: poly(top) }));
+      put(K.svg('path', { class: 'bolt', d: poly(circ(4.5, 2, 14)) }));
+    });
+  }
+  // The curl of the right hand's fingers round the bolt, from r toward F, on the side facing the view.
+  function curl(a, sense) {
+    REC.curl = 0;
+    if (!sense) return;
+    const c0 = G.al - 70, c1 = G.al + 40, from = sense > 0 ? c0 : c1, to = sense > 0 ? c1 : c0, R = 32, z = 20, pts = [];
+    for (let k = 0; k <= 20; k++) { const t = (from + (to - from) * k / 20) * RAD; pts.push(P3([R * Math.cos(t), R * Math.sin(t), z])); }
+    for (let k = 1; k < pts.length; k++) seg(pts[k - 1], pts[k]);
+    if (a > 0) REC.curl = sense;
+    part(a, 0, () => {
+      put(K.svg('path', { class: 'curl', d: 'M' + pts.slice(0, 19).map(pt2).join(' L') }));
+      head(pts[20], unit(sub(pts[20], pts[18])), 'curlh', 11);
+    });
+    const s = sense > 0 ? 'anticlockwise' : 'clockwise', w = tw(s, 'sm mu'), c = [];
+    [G.al - 15, G.al - 45, G.al + 15, G.al - 75].forEach((t) => [56, 70].forEach((rr) => {
+      const p = P3([rr * cosd(t), rr * sind(t), z]);
+      c.push([p[0], p[1] + 4]);
+    }));
+    const O = G.O;
+    [[-48, 30], [-46, 54], [44, 46], [-46, -12]].forEach((u) => c.push([O[0] + u[0], O[1] + u[1]]));
+    return label(a, s, 'sm mu', c, {});
+  }
+  // r from the bolt to the push, d metres out; the push F, 150 N at th degrees to the handle
+  // (anticlockwise from above). o: arrivals (base, eR, eF, para, line, ht, wedge, curl, eM, eM2 and
+  // the names nr, nf, nm, nm2); a part left out is never drawn, one given as 0 is due later.
+  function spanner(o) {
+    const O = G.O, d = o.d, th = o.th, Fn = 150;
+    const rW = [d * G.ur, 0, 0], FW = [Fn * G.uf * cosd(th), Fn * G.uf * sind(th), 0], FT = add(rW, FW);
+    const Mk = d * Fn * sind(th), size = Math.abs(Mk), ang = Math.abs(th), zero = size < 0.005;
+    const Mw = [0, 0, Mk * G.um], cr = cross3(rW, FW);
+    const Rp = P3(rW), FTp = P3(FT), FWp = P3(FW), Mp = P3(Mw);
+    Object.assign(REC, { rW, FW, Mw, Mk, size, ang, d, Fn, area: hyp(cr), zero, Ppx: Rp, Fpx: FTp });
+    const eR = o.eR == null ? 1 : o.eR, eF = o.eF == null ? 1 : o.eF;
+    seg(O, Rp); seg(Rp, FTp);
+    if (o.eM != null && !zero) seg(O, Mp);
+    const M2p = P3(scale(Mw, -1));
+    if (o.eM2 != null) { REC.M2 = scale(Mw, -1); if (!zero) seg(O, M2p); }
+    base(o.base, [{ sw: 'swf', s: 'area = size of r × F' }].concat(o.line != null ? [{ sw: 'bl', s: 'r\'s line' }] : []));
+    if ((o.para || 0) > 0) part(o.para, 0, () => put(K.svg('path', { class: 'para', d: poly([O, Rp, FTp, FWp]) })));
+    // r's line, carried on past the push, so the angle and the height have something to stand on.
+    if (o.line != null) {
+      const e1 = P3([Math.max(rW[0] + 74, FT[0] + 18), 0, 0]);
+      seg(Rp, e1);
+      if (o.line > 0) part(o.line, 0, () => ln('bl', Rp, e1));
+    }
+    // The height, |F| sin θ: from F's tip square down onto r's line (left out near square on, where it is F itself).
+    let htA = 0, fp = null;
+    if (o.ht != null && Math.abs(FW[1]) > 7) {
+      const foot = [FT[0], 0, 0];
+      fp = P3(foot);
+      htA = o.ht * K.clamp((Math.abs(cosd(th)) - 0.12) / 0.15, 0, 1);
+      seg(fp, FTp);
+      part(htA, 0, () => {
+        ln('ht', fp, FTp);
+        const u1 = [foot[0] > rW[0] - 1e-6 ? -8 : 8, 0, 0], u2 = [0, Math.sign(FW[1]) * 8, 0];
+        put(K.svg('path', { class: 'ram', d: 'M' + pt2(P3(add(foot, u1))) + ' L' + pt2(P3(add(add(foot, u1), u2))) + ' L' + pt2(P3(add(foot, u2))) }));
+      });
+    }
+    // The angle θ between r's line and F, at the push.
+    let wedgeC = null;
+    if (o.wedge != null && ang >= 8 && ang <= 172) {
+      const pts = [];
+      for (let k = 0; k <= 16; k++) { const t = th * k / 16 * RAD; pts.push(P3(add(rW, [22 * Math.cos(t), 22 * Math.sin(t), 0]))); }
+      for (let k = 1; k < pts.length; k++) seg(pts[k - 1], pts[k]);
+      if (o.wedge > 0) part(o.wedge, 0, () => put(K.svg('path', { class: 'arc', d: 'M' + pts.map(pt2).join(' L') })));
+      wedgeC = [];
+      for (let D = 34; D <= 112; D += 4) wedgeC.push(P3(add(rW, [D * cosd(th / 2), D * sind(th / 2), 0])));
+    }
+    if (o.curl != null) curl(o.curl * K.clamp(Math.abs(sind(th)) * 3, 0, 1), Math.sign(th) * (Math.abs(sind(th)) > 1e-9 ? 1 : 0));
+    if (eR > 0) pxArrow(O, lerp2(O, Rp, eR), 'vr');
+    if (eF > 0) pxArrow(Rp, lerp2(Rp, FTp, eF), 'vf');
+    if (o.eM != null && o.eM > 0) {
+      if (zero) part(o.eM, 0, () => put(K.svg('circle', { class: 'zero', cx: r3(O[0]), cy: r3(O[1]), r: 5 })));
+      else pxArrow(O, lerp2(O, Mp, o.eM), 'vm');
+    }
+    if (o.eM2 != null && o.eM2 > 0 && !zero) pxArrow(O, lerp2(O, M2p, o.eM2), 'vo');
+    if (o.knob === 'P') knob(Rp, o.knobA);
+    if (o.knob === 'F') knob(FTp, o.knobA);
+    // The names, the most important first.
+    if (o.eM != null) {
+      const nm = (o.eM >= 1 ? (o.nm == null ? 1 : o.nm) : 0);
+      if (zero) label(nm, 'r × F = 0', 'lb', ringCands(O, tw('r × F = 0', 'lb'), 15, 26), { vec: true });
+      else { const w = tw('r × F', 'nm'); label(nm * K.clamp(size / 6, 0, 1), 'r × F', 'nm', noseCands(O, Mp, w, 17).concat(besideCands(O, Mp, w, 17, null, 0, [0, 10])), { vec: true }); }
+    }
+    if (o.eM2 != null && !zero) { const w = tw('F × r', 'nm'); label(o.eM2 >= 1 ? (o.nm2 == null ? 1 : o.nm2) : 0, 'F × r', 'nm', noseCands(O, M2p, w, 17).concat(besideCands(O, M2p, w, 17, null, 0, [0, 10])), { vec: true }); }
+    const wf = tw(o.fText, 'lb'), wr = tw(o.rText, 'lb');
+    label(eF >= 1 ? (o.nf == null ? 1 : o.nf) : 0, o.fText, 'lb', noseCands(Rp, FTp, wf, 15).concat(besideCands(Rp, FTp, wf, 15, O, 0, [0, 12])), { vec: true });
+    label(eR >= 1 ? (o.nr == null ? 1 : o.nr) : 0, o.rText, 'lb', besideCands(O, Rp, wr, 15, FTp, 1, [6, 16]).concat(besideCands(O, Rp, wr, 15, FTp, -1, [0, 12])), { vec: true });
+    if (fp && htA > 0) { const w = tw('|F| sin θ', 'sm'); label(htA, '|F| sin θ', 'sm', besideCands(fp, FTp, w, 13, Rp, 1, [0, 10]).concat(besideCands(fp, FTp, w, 13, Rp, -1, [0])), { vec: true }); }
+    if (wedgeC) label(o.wedge, o.thText ? 'θ = ' + num(ang) + '°' : 'θ', 'sm ok', wedgeC, { strict: true });
+    return { O, Rp, FTp, Mp, rW, FW, FT, Mk, size, ang, d, Fn, zero };
+  }
+  function momentBand(r, al, hide) {
+    band([{ l: 'moment', s: hide ? '?' : mText(r.Mk), a: al[0] },
+      { l: '|r||F| sin θ', s: hide ? null : num(r.d) + ' × ' + num(r.Fn) + ' × sin ' + num(r.ang) + '°', a: al[1] }]);
+  }
+  // A wrong pick drawn as a red arrow from p to q (shifted to one side), with its words.
+  function badArrow(p, q, s, shift) {
+    const w = tw(s, 'sm bad'), dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, n = [dy / L * (shift || 0), -dx / L * (shift || 0)];
+    const p2 = add(p, n), q2 = add(q, n);
+    seg(p2, q2);
+    pxArrow(p, lerp2(p, q, go(0.1, 0.8)), 'bad', shift);
+    label(arr(0.8), s, 'sm bad', noseCands(p2, q2, w, 13).concat(besideCands(p2, q2, w, 13, null, 0, [0, 10, 20])), { vec: true });
+    REC.bad++;
+  }
+  function badLine(p, q, s) {
+    const w = tw(s, 'sm bad');
+    seg(p, q);
+    ln('badln', p, lerp2(p, q, go(0.1, 0.8)));
+    label(arr(0.8), s, 'sm bad', besideCands(p, q, w, 13, null, 0, [4, 14, 24]), { vec: true });
+    REC.bad++;
+  }
+  function badDot(p, s) {
+    const w = tw(s, 'sm bad');
+    part(arr(0.1), 0, () => put(K.svg('circle', { class: 'zero bad', cx: r3(p[0]), cy: r3(p[1]), r: 6 })));
+    label(arr(0.6), s, 'sm bad', ringCands(p, w, 13, 28).concat(ringCands(p, w, 13, 44)), { vec: true });
+    REC.bad++;
+  }
+
+  // ---------- the wire between two magnet poles ----------
+  // o: f (the field's direction), u, v (half sides of a pole face), tag and tagS (where N and S sit on their faces, clear of the field lines),
+  // lines (where the field lines run), lW and ang (the wire's direction and its angle to the field),
+  // I, Lm, Bt (A, m, T); arrivals base, fl, wire, eI, wedge, eF and the names nI, nB, nF.
+  function wireScene(o) {
+    const Cp = G.O, f = o.f, Pd = G.Pd, lW = o.lW, ang = o.ang;
+    const Fsize = o.I * o.Lm * o.Bt * sind(ang), Fdir = unit(cross3(lW, f)), zero = Fsize < 0.0005;
+    const Fp = P3(scale(Fdir, Fsize * G.fz));
+    Object.assign(REC, { lW: lW.slice(), BW: scale(f, o.Bt), Fw: scale(Fdir, Fsize), Fsize, zero, ang });
+    // The poles: the nearer face is drawn last.
+    const Nc = scale(f, -Pd), Sc = scale(f, Pd);
+    const face = (c) => [add(add(c, o.u), o.v), add(sub(c, o.u), o.v), sub(sub(c, o.u), o.v), sub(add(c, o.u), o.v)].map(P3);
+    const NF = face(Nc), SF = face(Sc);
+    [NF, SF].forEach((F) => { for (let k = 0; k < 4; k++) seg(F[k], F[(k + 1) % 4]); });
+    const cam = [V.ca * V.cb, V.sa * V.cb, V.sb];
+    const nearN = dotv(Nc, cam) > dotv(Sc, cam);
+    keyRow([{ sw: 'fl', s: 'field line, from N to S' }], o.base);
+    part(o.base, 0, () => (nearN ? [SF, NF] : [NF, SF]).forEach((F) => put(K.svg('path', { class: 'pole', d: poly(F) }))));
+    const nP = P3(add(Nc, o.tag)), sP = P3(add(Sc, o.tagS || o.tag));
+    BOX.push([nP[0] - 10, nP[1] - 11, 20, 22], [sP[0] - 10, sP[1] - 11, 20, 22]);
+    part(o.base, 0, () => { text(nP[0], nP[1] + 6, 'N', 'nm pl'); text(sP[0], sP[1] + 6, 'S', 'nm pl'); });
+    // The field, evenly spaced, running from N to S.
+    const fls = o.lines.map((off) => [P3(add(Nc, off)), P3(add(Sc, off))]);
+    fls.forEach((p) => seg(p[0], p[1]));
+    if ((o.fl || 0) > 0) part(o.fl, 0, () => fls.forEach((p) => { ln('fl', p[0], p[1]); head(lerp2(p[0], p[1], 0.82), unit(sub(p[1], p[0])), 'flh', 9); }));
+    // The wire, with the current along it.
+    const half = G.Lw / 2, A = P3(scale(lW, -half)), Bq = P3(scale(lW, half));
+    thick(A, Bq, 5);
+    REC.Wpx = Bq;
+    if ((o.wire || 0) > 0) part(o.wire, 0, () => ln('wire', A, Bq));
+    if ((o.eI || 0) > 0) pxArrow(A, lerp2(A, Bq, o.eI), 'vc');
+    // The angle between the wire and the field.
+    let wedgeC = null;
+    if (o.wedge != null && ang >= 8 && ang <= 172) {
+      const e = unit(sub(lW, scale(f, dotv(lW, f)))), pts = [];
+      for (let k = 0; k <= 16; k++) { const t = ang * k / 16 * RAD; pts.push(P3(add(scale(f, 24 * Math.cos(t)), scale(e, 24 * Math.sin(t))))); }
+      for (let k = 1; k < pts.length; k++) seg(pts[k - 1], pts[k]);
+      if (o.wedge > 0) part(o.wedge, 0, () => put(K.svg('path', { class: 'arc', d: 'M' + pts.map(pt2).join(' L') })));
+      const bis = unit(add(scale(f, Math.cos(ang / 2 * RAD)), scale(e, Math.sin(ang / 2 * RAD))));
+      wedgeC = [];
+      for (let D = 30; D <= 66; D += 3) wedgeC.push(P3(scale(bis, D)));
+    }
+    // The force, square to both.
+    if (o.eF != null) {
+      if (zero) { if (o.eF > 0) part(o.eF, 0, () => put(K.svg('circle', { class: 'zero', cx: r3(Cp[0]), cy: r3(Cp[1]), r: 5 }))); }
+      else { seg(Cp, Fp); if (o.eF > 0) pxArrow(Cp, lerp2(Cp, Fp, o.eFg == null ? 1 : o.eFg), 'vm'); }
+    }
+    if (o.knob != null) knob(Bq, o.knob);
+    if (o.eF != null) {
+      if (zero) label(o.nF, 'no force', 'lb', ringCands(Cp, tw('no force', 'lb'), 15, 22), {});
+      else { const w = tw(o.fText, 'nm'); label(o.nF * K.clamp(Fsize / 0.15, 0, 1), o.fText, 'nm', noseCands(Cp, Fp, w, 17).concat(besideCands(Cp, Fp, w, 17, null, 0, [0, 10])), { vec: true }); }
+    }
+    const wi = tw(o.iText, 'lb');
+    label((o.eI || 0) >= 1 ? o.nI : 0, o.iText, 'lb', noseCands(A, Bq, wi, 15).concat(besideCands(A, Bq, wi, 15, Fp, 0, [0, 12])), { vec: true });
+    const wb = tw(o.bText, 'lb'), last = fls[fls.length - 1], first = fls[0];
+    label(o.nB, o.bText, 'lb', besideCands(last[0], last[1], wb, 15, Cp, 1, [0, 12]).concat(besideCands(first[0], first[1], wb, 15, Cp, 1, [0, 12]), noseCands(last[0], last[1], wb, 15)), { vec: true });
+    if (wedgeC) label(o.wedge, o.thText ? 'θ = ' + num(ang) + '°' : 'θ', 'sm ok', wedgeC, { strict: true });
+    return { Cp, A, Bq, Fp, Fsize, zero, ang };
+  }
+  const fText = (r) => (r.zero ? '0 N, no force' : num(r.Fsize) + ' N, up');
+  function wireBand(r, al, hide) {
+    band([{ l: 'force', s: hide ? '?' : fText(r), a: al[0] },
+      { l: 'IlB sin θ', s: hide ? null : '10 × 0.2 × 0.8 × sin ' + num(r.ang) + '°', a: al[1] }]);
+  }
+  // The wire in a field along j, at w degrees to it.
+  const wireJ = (w) => ({ f: [0, 1, 0], u: [46, 0, 0], v: [0, 0, 34], tag: [0, 0, 19], lines: [[-38, 0, 0], [0, 0, 0], [38, 0, 0]], lW: [sind(w), cosd(w), 0], ang: w, I: 10, Lm: 0.2, Bt: 0.8,
+    iText: 'I = 10 A', bText: 'B = 0.8 T', fText: 'F' });
+
+  // ---------- each picture ----------
+  const DRAW = {};
+  // 150 N square on, 0.3 m out: 45 N m out of the nut. He drags where the push meets the handle.
+  DRAW.push = (d, st) => {
+    const intro = st.d == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const dm = st.d == null ? 0.3 : st.d;
+    const r = spanner({ d: dm, th: 90, base: ia(0.4), eR: ig(0.8, 0.6), nr: ia(1.4), eF: ig(1.5, 0.6), nf: ia(2.1), para: ia(2.4), eM: ig(2.7, 0.8), nm: ia(3.4),
+      knob: 'P', knobA: ia(1.4), rText: 'r = ' + num(dm) + ' m', fText: 'F = 150 N' });
+    momentBand(r, [ia(3.5), ia(3.8)]);
+    return 'A spanner on a bolt, drawn in 3-D. A push F of 150 N meets the handle square on, ' + num(dm) + ' m from the bolt. The arrow r runs from the bolt to the push, and r and F span a shaded parallelogram of area ' +
+      num(r.size) + '. The moment arrow r × F stands along the bolt, pointing out of the nut, with size ' + num(r.size) + ' N m.';
+  };
+  // The puzzle: the same push, 0.2 m out.
+  DRAW.pushq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const r = spanner({ d: 0.2, th: 90, base: 1, para: 1, eM: ok ? go(0.2, 0.8) : null, nm: ok ? arr(0.9) : 0, rText: 'r = 0.2 m', fText: 'F = 150 N' });
+    let said = 'A spanner on a bolt, drawn in 3-D. A push F of 150 N meets the handle square on, 0.2 m from the bolt, and r and F span a shaded parallelogram.';
+    if (ok) said += ' Its area is 0.2 × 150 = 30, so the moment arrow r × F stands out of the nut with size 30 N m.';
+    else if (pick === '45 N m') { badArrow(G.O, P3([0.3 * G.ur, 0, 0]), 'the whole handle, 0.3 m', -12); said += ' The pick runs r along the whole handle, drawn in red. But r ends where the push is.'; }
+    else if (pick === '750 N m') { badArrow(G.O, [G.O[0], G.ly0 + 4], '750 N m, off the top', 0); said += ' The pick, 750 N m, is drawn in red and runs off the top. Dividing makes it far too big.'; }
+    momentBand(r, ok ? [arr(1.0), arr(1.2)] : [1, 0], !ok);
+    return said;
+  };
+  // The push swings from square on to 30°, rests, rests again along the handle, then on past it to 30° the other side.
+  DRAW.swing = (d, st) => {
+    const intro = st.th == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const th = intro ? 90 - 60 * go(1.7, 0.8) - 30 * go(3.0, 0.6) - 30 * go(4.2, 0.6) : st.th;
+    REC.th = th;
+    const r = spanner({ d: 0.3, th, base: ia(0.4), eR: ig(0.6, 0.5), nr: ia(1.0), eF: ig(0.8, 0.5), nf: ia(1.2), para: ia(1.1), line: ia(1.2), ht: ia(1.4), wedge: ia(1.4), thText: true,
+      eM: ig(1.2, 0.5), nm: ia(1.6), knob: 'F', knobA: ia(1.6), rText: 'r = 0.3 m', fText: 'F = 150 N' });
+    momentBand(r, [ia(1.6), ia(1.7)]);
+    return 'A spanner on a bolt, drawn in 3-D. A push F of 150 N acts 0.3 m out, at ' + num(r.ang) + '° to the handle. ' +
+      (r.zero ? 'It lies along the handle, so the parallelogram is flat and the moment is nothing.'
+        : 'Its part square to the handle sets the parallelogram\'s height, so the moment is ' + num(r.size) + ' N m, ' + dirWords(r.Mk) + '.');
+  };
+  // The puzzle: 150 N at 30°, 0.2 m out.
+  DRAW.swingq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const r = spanner({ d: 0.2, th: 30, base: 1, para: 1, line: 1, wedge: 1, thText: true, ht: ok ? arr(0.2) : null, eM: ok ? go(0.3, 0.8) : null, nm: ok ? arr(1.0) : 0, rText: 'r = 0.2 m', fText: 'F = 150 N' });
+    let said = 'A spanner on a bolt, drawn in 3-D. A push F of 150 N acts 0.2 m out, at 30° to the handle.';
+    if (ok) said += ' Only its part square to the handle, half of it, sets the parallelogram\'s height. So the moment is 0.2 × 150 × 0.5 = 15 N m, pointing out of the nut.';
+    else if (pick === '25.98 N m') { badLine(r.Rp, P3([r.rW[0] + r.FW[0], 0, 0]), 'the part along the handle'); said += ' The pick uses the part of the push along the handle, drawn in red. That part turns nothing.'; }
+    else if (pick === '30 N m') { badArrow(r.Rp, P3(add(r.rW, [0, 150 * G.uf, 0])), 'as if square on', 0); said += ' The pick treats the push as if it were square on, drawn in red.'; }
+    momentBand(r, ok ? [arr(1.1), arr(1.3)] : [1, 0], !ok);
+    return said;
+  };
+  // The right-hand rule: anticlockwise points out of the nut, then the push swings over to clockwise.
+  DRAW.way = (d, st) => {
+    const intro = st.th == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const th = intro ? 90 - 180 * go(2.4, 1.6) : st.th;
+    REC.th = th;
+    const r = spanner({ d: 0.3, th, base: ia(0.4), eR: ig(0.6, 0.5), nr: ia(1.0), eF: ig(0.8, 0.5), nf: ia(1.2), para: ia(1.1), curl: ia(1.5), eM: ig(1.2, 0.5), nm: ia(1.6),
+      knob: 'F', knobA: ia(1.6), rText: 'r', fText: 'F' });
+    momentBand(r, [ia(1.7), ia(1.8)]);
+    return 'A spanner on a bolt, drawn in 3-D, seen from above. A push F acts at ' + num(r.ang) + '° to the handle. ' +
+      (r.zero ? 'It lies along the handle, so there is no turn and no arrow.'
+        : 'Curling the right hand\'s fingers from r toward F turns ' + (r.Mk > 0 ? 'anticlockwise, so the thumb and the moment arrow point out of the nut, which undoes it.' : 'clockwise, so the thumb and the moment arrow point into the nut, which does it up.'));
+  };
+  // The puzzle: a clockwise push.
+  DRAW.wayq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const r = spanner({ d: 0.3, th: -90, base: 1, para: 1, curl: 1, eM: ok ? go(0.2, 0.8) : null, nm: ok ? arr(0.9) : 0, rText: 'r', fText: 'F' });
+    let said = 'A spanner on a bolt, drawn in 3-D, seen from above. The push F turns the spanner clockwise.';
+    if (ok) said += ' Curling the right hand\'s fingers from r toward F, the thumb points down. So the moment arrow points into the nut, and this push does it up.';
+    else if (pick === 'Out of the nut') { badArrow(G.O, P3([0, 0, 45 * G.um]), 'out of the nut', 0); said += ' The pick points the arrow out of the nut, drawn in red. That is the anticlockwise way.'; }
+    else if (pick === 'Along the handle') { badArrow(G.O, P3([45 * G.um, 0, 0]), 'along the handle', 14); said += ' The pick lays the arrow along the handle, drawn in red. But it must be square to both r and F.'; }
+    momentBand(r, ok ? [arr(1.0), arr(1.2)] : [1, 0], !ok);
+    return said;
+  };
+  // r × F, then F × r the other way, and the axes.
+  DRAW.swap = (d, st) => {
+    const r = spanner({ d: 0.3, th: 90, base: arr(0.4), eR: go(0.6, 0.5), nr: arr(1.0), eF: go(0.8, 0.5), nf: arr(1.2), para: arr(1.1), eM: go(1.4, 0.6), nm: arr(2.0), eM2: go(2.4, 0.6), nm2: arr(3.0), rText: 'r', fText: 'F' });
+    triad(arr(3.2));
+    band([{ l: 'r × F', s: mText(r.Mk), a: arr(3.3) }, { l: 'F × r', s: mText(-r.Mk), a: arr(3.5) }, { l: 'axes', s: 'i × j = k, j × k = i, k × i = j', a: arr(3.7) }]);
+    return 'A spanner on a bolt, drawn in 3-D. With r along the handle and F square to it, r × F points out of the nut, 45 N m. F × r is the same size, pointing into the nut. Beside them, the axes i, j and k: i × j = k, j × k = i and k × i = j.';
+  };
+  // The puzzle: the axes in a view turned so k points down the screen. A right answer draws j × i,
+  // then the view turns back.
+  DRAW.turnq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null, e = ok ? go(1.0, 1.4) : 0;
+    G.al = 210 + 90 * e; G.roll = 180 * (1 - e); V = view();
+    const O = G.O, L = G.L, s = L * 0.62;
+    const ax = [['i', [L, 0, 0]], ['j', [0, L, 0]], ['k', [0, 0, L]]].map((t) => ({ n: t[0], p: P3(t[1]) }));
+    ax.forEach((a) => seg(O, a.p));
+    const mk = P3([0, 0, -L]);
+    REC.kDy = ax[2].p[1] - O[1];
+    if (ok) { seg(O, mk); REC.ans = [0, 0, -1]; REC.ansDy = mk[1] - O[1]; }
+    keyRow([{ sw: 'swf', s: 'the square of i and j' }], 1);
+    part(1, 0, () => put(K.svg('path', { class: 'para', d: poly([[0, 0, 0], [s, 0, 0], [s, s, 0], [0, s, 0]].map(P3)) })));
+    ax.forEach((a) => pxArrow(O, a.p, 'vi'));
+    let said = 'Three arrows, i, j and k, drawn in 3-D from one point, with the square of i and j shaded.';
+    if (ok) {
+      pxArrow(O, lerp2(O, mk, go(0.2, 0.6)), 'vm');
+      const w = tw('j × i = −k', 'lb');
+      label(arr(0.6), 'j × i = −k', 'lb', noseCands(O, mk, w, 15).concat(besideCands(O, mk, w, 15, null, 0, [0, 12])), { vec: true });
+      said += ' The answer, j × i = −k, is drawn opposite k. The view has turned back, so k points up the screen and j × i points down it.';
+    } else {
+      said += ' The view is turned, so k points down the screen.';
+      if (pick === 'Down the screen') { badArrow(O, ax[2].p, 'down the screen is i × j', 12); said += ' The pick, down the screen, is drawn in red. That is k, which is i × j.'; }
+      else if (pick === 'It is 0') { badDot(O, '0 is i·j, the dot product'); said += ' The pick, 0, is drawn as a red dot. That is the dot product of i and j.'; }
+    }
+    ax.forEach((a) => { const w = tw(a.n, 'nm'); label(1, a.n, 'nm', noseCands(O, a.p, w, 17).concat(besideCands(O, a.p, w, 17, null, 0, [0, 10])), { vec: true }); });
+    band(ok ? [{ l: 'j × i', s: '−k', a: arr(1.6) }, { l: 'i × j', s: 'k', a: arr(1.7) }] : [{ l: 'j × i', s: '?' }]);
+    return said;
+  };
+  // A wire between two poles: lined up with the field it feels nothing; turned square across, 1.6 N.
+  DRAW.wire = (d, st) => {
+    const intro = st.w == null, ia = (t) => (intro ? arr(t) : 1), ig = (t, du) => (intro ? go(t, du) : 1);
+    const w = intro ? 90 * go(2.0, 1.6) : st.w;
+    REC.w = w;
+    const r = wireScene(Object.assign(wireJ(w), { base: ia(0.4), fl: ia(0.8), nB: ia(1.0), wire: ia(1.1), eI: ig(1.1, 0.5), nI: ia(1.5), wedge: ia(1.6), thText: true, eF: ia(1.6), nF: ia(1.8), knob: ia(1.8) }));
+    wireBand(r, [ia(1.8), ia(2.0)]);
+    return 'A wire carrying 10 A runs through 0.2 m of field, 0.8 T, between a north and a south magnet pole, at ' + num(r.ang) + '° to the field. ' +
+      (r.zero ? 'It lies along the field, so it feels no force.' : 'The force on it stands square to both the wire and the field, pointing up, with size ' + num(r.Fsize) + ' N.');
+  };
+  // The puzzle: the wire at 30° to the field.
+  DRAW.wireq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const r = wireScene(Object.assign(wireJ(30), { base: 1, fl: 1, nB: 1, wire: 1, eI: 1, nI: 1, wedge: 1, thText: true, eF: ok ? 1 : null, eFg: ok ? go(0.2, 0.8) : 1, nF: ok ? arr(0.9) : 0 }));
+    let said = 'A wire carrying 10 A runs through 0.2 m of field, 0.8 T, between a north and a south magnet pole, at 30° to the field.';
+    const Cp = G.O;
+    if (ok) said += ' The force on it stands square to both, pointing up, with size 10 × 0.2 × 0.8 × 0.5 = 0.8 N.';
+    else if (pick === '1.39 N') { badArrow(Cp, P3([0, 0, 1.39 * G.fz]), '1.39 N uses cos', 14); said += ' The pick, 1.39 N, is drawn in red. It uses cos of the angle.'; }
+    else if (pick === '1.6 N') { badArrow(Cp, P3([0, 0, 1.6 * G.fz]), '1.6 N, as if square on', 14); said += ' The pick, 1.6 N, is drawn in red. It is the force square on.'; }
+    wireBand(r, ok ? [arr(1.0), arr(1.2)] : [1, 0], !ok);
+    return said;
+  };
+  // The puzzle: r = 0.3i m and F = 150j N.
+  DRAW.partsq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const r = spanner({ d: 0.3, th: 90, base: 1, para: 1, eM: ok ? go(0.2, 0.8) : null, nm: ok ? arr(0.9) : 0, rText: 'r = 0.3i m', fText: 'F = 150j N' });
+    triad(1);
+    let said = 'A spanner on a bolt, drawn in 3-D, with the axes i, j and k beside it. r = 0.3i m runs along the handle, and the push F = 150j N is square to it.';
+    if (ok) said += ' The moment arrow r × F = 45k N m stands along k, out of the nut.';
+    else if (pick === '0 N m') { badDot(G.O, '0 is r·F, the dot product'); said += ' The pick, 0, is drawn as a red dot. That is the dot product.'; }
+    else if (pick === '−45k N m') { badArrow(G.O, P3([0, 0, -45 * G.um]), '−45k is F × r', 0); said += ' The pick, −45k, is drawn in red, pointing into the nut. That is F × r.'; }
+    band(ok ? [{ l: 'r × F', s: '45k N m', a: arr(1.0) }, { l: 'by parts', s: '0.3 × 150 × (i × j) = 45k', a: arr(1.2) }] : [{ l: 'r × F', s: '?' }]);
+    return said;
+  };
+  // The puzzle: 4 A along i, through 0.25 m of a 0.5 T field along k.
+  DRAW.motorq = (d, st) => {
+    const ok = st.res === 'right', pick = st.res ? st.pick : null;
+    const r = wireScene({ f: [0, 0, 1], u: [30, 0, 0], v: [0, 30, 0], tag: [14, -14, 0], tagS: [-14, 14, 0], lines: [[-22, 0, 0], [0, 0, 0], [22, 0, 0]], lW: [1, 0, 0], ang: 90, I: 4, Lm: 0.25, Bt: 0.5,
+      iText: 'I = 4 A', bText: 'B = 0.5 T', fText: 'F', base: 1, fl: 1, nB: 1, wire: 1, eI: 1, nI: 1, eF: ok ? 1 : null, eFg: ok ? go(0.2, 0.8) : 1, nF: ok ? arr(0.9) : 0 });
+    triad(1);
+    let said = 'A wire carrying 4 A along i runs through 0.25 m of field, 0.5 T along k, between a north pole below and a south pole above. The axes i, j and k are drawn beside it.';
+    const Cp = G.O;
+    if (ok) said += ' The force on it is 0.5 N along −j, square to both the wire and the field.';
+    else if (pick === '0.5j N') { badArrow(Cp, P3([0, 0.5 * G.fz, 0]), '0.5j N, the wrong way', 0); said += ' The pick, 0.5j N, is drawn in red. It points the wrong way.'; }
+    else if (pick === '0 N') { badDot(Cp, '0, as for the dot product'); said += ' The pick, 0, is drawn as a red dot. That is dot-product thinking.'; }
+    band(ok ? [{ l: 'force', s: '−0.5j N', a: arr(1.0) }, { l: 'IlB sin θ', s: '4 × 0.25 × 0.5 × sin 90° = 0.5', a: arr(1.2) }, { l: 'direction', s: 'i × k = −j', a: arr(1.4) }] : [{ l: 'force', s: '?' }]);
+    return said;
+  };
+
+  // ---------- the drags: the push, F's tip, the wire's end, and turning the view ----------
+  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 1, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The 3-D picture: drag it sideways, or use the left and right arrow keys, to turn it' }));
+  const mkGrip = (lab) => ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'button', 'aria-label': lab }));
+  const grips = {
+    P: mkGrip('Where the push meets the handle: drag it, or use the arrow keys, to move it along'),
+    F: mkGrip('The tip of the push F: drag it, or use the arrow keys, to swing it round'),
+    W: mkGrip('The front end of the wire: drag it, or use the arrow keys, to turn the wire'),
+  };
+  const GRIP_PIC = { P: { push: 1 }, F: { swing: 1, way: 1 }, W: { wire: 1 } };
+  const GRIP_AT = { P: 'Ppx', F: 'Fpx', W: 'Wpx' };
+  const TURN = { push: 1, pushq: 1, swing: 1, swingq: 1, way: 1, wayq: 1, swap: 1, wire: 1, wireq: 1, partsq: 1, motorq: 1 };
+  function placeGrips(d) {
+    Object.keys(grips).forEach((k) => {
+      const g = grips[k], p = REC[GRIP_AT[k]], on = !finished && !!d.show && !!GRIP_PIC[k][d.pic] && !!p;
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (on) { g.setAttribute('cx', r3(p[0])); g.setAttribute('cy', r3(p[1])); }
+    });
+    const tOn = !finished && !!TURN[d.pic];
+    turnGrip.style.display = tOn ? '' : 'none';
+    turnGrip.setAttribute('tabindex', tOn ? '0' : '-1');
+    if (tOn) { turnGrip.setAttribute('y', G.ly0); turnGrip.setAttribute('width', 340); turnGrip.setAttribute('height', G.ly1 - G.ly0); }
+  }
+  function changed() {
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  // Where along the handle, in whole centimetres; a drag lands on 0.2 m and 0.3 m when it comes near.
+  function setD(v, snap) {
+    let x = Math.round(K.clamp(v, 0.05, 0.3) * 100) / 100;
+    if (snap) [0.2, 0.3].forEach((s) => { if (Math.abs(x - s) <= 0.015) x = s; });
+    S[cur()].d = x; changed();
+  }
+  // The push's angle in whole degrees, either way round; a drag lands on the lesson's angles when it comes near.
+  function setTh(a, snap) {
+    let t = Math.round(a);
+    if (t <= -180) t = 180;
+    if (t > 180) t -= 360;
+    if (snap) [90, 30, 0, -30, -90, 150, -150, 180].forEach((s) => { if (Math.abs(t - s) <= 3) t = s; });
+    S[cur()].th = t; changed();
+  }
+  const clampAng = (a) => (a < 0 ? (a < -90 ? 180 : 0) : K.clamp(a, 0, 180));
+  function setW(a, snap) {
+    let t = Math.round(clampAng(a));
+    if (snap) [0, 30, 90, 150, 180].forEach((s) => { if (Math.abs(t - s) <= 3) t = s; });
+    S[cur()].w = t; changed();
+  }
+  function svgAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [q.x, q.y];
+  }
+  let held = null;
+  const onPic = (k) => !finished && !!STEPS[cur()].show && !!GRIP_PIC[k][STEPS[cur()].pic];
+  function moveTo(k, q) {
+    const w = unP3(q, 0);
+    if (k === 'P') { setD(w[0] / G.ur, true); return; }
+    if (k === 'F') { setTh(Math.atan2(w[1], w[0] - 0.3 * G.ur) / RAD, true); return; }
+    if (k === 'W') setW(Math.atan2(w[0], w[1]) / RAD, true);
+  }
+  Object.keys(grips).forEach((k) => {
+    const g = grips[k];
+    g.addEventListener('pointerdown', (e) => {
+      if (!onPic(k)) return;
+      const q = svgAt(e);
+      if (!q) return;
+      held = { id: e.pointerId, k };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      e.stopPropagation();
+      moveTo(k, q);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.k !== k || !onPic(k)) return;
+      const q = svgAt(e);
+      if (q) moveTo(k, q);
+    });
+    g.addEventListener('pointerup', (e) => { if (held && held.id === e.pointerId) held = null; });
+    g.addEventListener('pointercancel', (e) => { if (held && held.id === e.pointerId) held = null; });
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!onPic(k)) return;
+      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const st = S[cur()];
+      if (k === 'P') setD((st.d == null ? 0.3 : st.d) + by * 0.01, false);
+      else if (k === 'F') setTh((st.th == null ? REC.th : st.th) + by * 5, false);
+      else setW((st.w == null ? 90 : st.w) + by * 5, false);
+    });
+  });
+
+  // The 3-D pictures turn when he drags across them, within a range that keeps every part in view.
+  let turnHeld = null;
+  const turnOn = () => !finished && !!TURN[STEPS[cur()].pic];
+  const alNow = () => { const st = S[cur()]; return st.al != null ? st.al : STEPS[cur()].geo.al; };
+  function setAl(a) { const g = STEPS[cur()].geo; S[cur()].al = K.clamp(Math.round(a), g.amin, g.amax); changed(); }
+  turnGrip.addEventListener('pointerdown', (e) => {
+    if (!turnOn()) return;
+    turnHeld = { id: e.pointerId, x: e.clientX, al: alNow() };
+    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the picture */ }
+  });
+  turnGrip.addEventListener('pointermove', (e) => { if (turnHeld && turnHeld.id === e.pointerId && turnOn()) setAl(turnHeld.al - (e.clientX - turnHeld.x) * 0.4); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((t) => turnGrip.addEventListener(t, () => { turnHeld = null; }));
+  turnGrip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];
+    if (!by || !turnOn()) return;
+    e.preventDefault();
+    setAl(alNow() + by);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = cur();
+    const d = STEPS[i], st = S[i];
+    G = Object.assign({}, d.geo);
+    if (st.al != null && TURN[d.pic]) G.al = st.al;
+    V = view();
+    art.textContent = '';
+    into = null; BOX = []; SEG = [];
+    REC = { texts: [], bad: 0, band: null, crowd: 0, curl: 0, zero: false, Ppx: null, Fpx: null, Wpx: null, th: null, w: null, M2: null, kDy: null, ans: null, ansDy: null };
+    svg.setAttribute('viewBox', '0 0 340 ' + (G.hd + 26 + (G.rows - 1) * 28 + 14));
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i));
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { Object.assign(st, { d: null, th: null, w: null, al: null }); play(d.dur); }
+      else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    const act = el('act');
+    write(act, d.act || '');
+    act.hidden = finished || !d.act;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      vecs(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Choose one of the answers first.' : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const atSt = (pic, o) => { const i = atPic(pic); return drawn(i, o === 'solved' ? solved(i) : Object.assign(blank(), o || {})); };
+  const angleOf = (p, q) => Math.acos(K.clamp(dotv(p, q) / (hyp(p) * hyp(q)), -1, 1));
+
+  K.check('Its magnitude is obtained by multiplying their magnitudes by the sine of the angle between them: wherever the push is dragged or swung, the moment drawn is |r| times |F| times the sine of the angle between the drawn arrows, the shaded parallelogram has that area, and the readout says so', () => {
+    const test = (r, dm) => {
+      const want = dm * 150 * Math.sin(angleOf(r.rW, r.FW)), sg = Math.sign(cross3(r.rW, r.FW)[2]);
+      return K.near(r.size, want, 1e-6) && K.near(r.area / (SP.ur * SP.uf), want, 1e-6) && K.near(Math.abs(r.Mw[2]) / SP.um, want, 1e-6) &&
+        K.near(r.d, dm, 1e-12) && r.band.main === mText(sg * want);
+    };
+    const i = atPic('swing'), j = atPic('push');
+    for (let th = -175; th <= 180; th += 5) if (!test(drawn(i, Object.assign(blank(), { th })), 0.3)) return false;
+    for (let k = 5; k <= 30; k++) { const dm = k / 100; if (!test(drawn(j, Object.assign(blank(), { d: dm })), dm)) return false; }
+    return true;
+  }, { source: SRC_SUM });
+  K.check('The direction of the vector product can be determined by the corkscrew right-hand rule: the moment arrow drawn always stands along the bolt, square to both r and F, on the side r × F gives it, in every view he can turn to', () => {
+    const i = atPic('swing');
+    for (let al = SP.amin; al <= SP.amax; al += 25) {
+      for (let th = -175; th <= 175; th += 5) {
+        if (th === 0) continue;
+        const r = drawn(i, Object.assign(blank(), { th, al })), c = cross3(r.rW, r.FW);
+        if (!K.near(dotv(r.Mw, r.rW), 0, 1e-9) || !K.near(dotv(r.Mw, r.FW), 0, 1e-9) || Math.sign(r.Mw[2]) !== Math.sign(c[2]) || r.Mw[0] !== 0 || r.Mw[1] !== 0) return false;
+      }
+    }
+    return true;
+  }, { source: SRC_SUM });
+  K.check('With the fingers pointing along r and curled toward F, the extended thumb points in the direction of the cross product: the curl drawn turns from r toward F, and the moment arrow points the thumb\'s way along the bolt', () => {
+    const i = atPic('way');
+    const ok = [150, 90, 45, -45, -90, -150].every((th) => { const r = drawn(i, Object.assign(blank(), { th })); return r.curl === Math.sign(th) && Math.sign(r.Mw[2]) === Math.sign(th) && r.band.main.indexOf(th > 0 ? 'out of the nut' : 'into the nut') >= 0; });
+    const q = atPic('wayq'), rq = drawn(q, solved(q));
+    return ok && rq.curl === -1 && rq.Mw[2] < 0 && STEPS[q].want === 'Into the nut';
+  }, { source: SRC_PROD });
+  K.check('The dot product is a scalar; the cross product is a vector: every cross product worked out on screen is given with its direction, and an answer that gives the dot product instead is marked wrong and drawn in red', () => {
+    const dirRe = /out of the nut|into the nut|no arrow|no force|, up$|[ijk]/;
+    const all = STEPS.every((d, i) => { const r = drawn(i, d.show ? blank() : solved(i)); return !!r.band && r.band.main !== '?' && dirRe.test(r.band.main); });
+    const zeroPick = [['partsq', '0 N m'], ['motorq', '0 N'], ['turnq', 'It is 0']].every((z) => { const i = atPic(z[0]); return STEPS[i].want !== z[1] && STEPS[i].opts.indexOf(z[1]) >= 0 && drawn(i, wrongSt(i, z[1])).bad > 0; });
+    return all && zeroPick;
+  }, { source: SRC_PROD });
+  K.check('The force on a current-carrying wire in a magnetic field is F = IlB sin θ, its direction given by a right-hand rule: at every angle the wire is turned to, the force drawn is 10 × 0.2 × 0.8 × sin θ and points along the current crossed with the field', () => {
+    const i = atPic('wire');
+    for (let w = 0; w <= 180; w += 5) {
+      const r = drawn(i, Object.assign(blank(), { w })), want = 10 * 0.2 * 0.8 * Math.sin(angleOf(r.lW, r.BW)), c = cross3(r.lW, r.BW);
+      if (!K.near(r.Fsize, want, 1e-9)) return false;
+      if (want > 1e-6 && !(dotv(unit(r.Fw), unit(c)) > 0.999999)) return false;
+      if (r.band.main !== (want < 0.005 ? '0 N, no force' : num(want) + ' N, up')) return false;
+    }
+    const m = atSt('motorq', 'solved');
+    return K.near(m.Fsize, 4 * 0.25 * 0.5, 1e-9) && dotv(unit(m.Fw), unit(cross3(m.lW, m.BW))) > 0.999999;
+  }, { source: SRC_WIRE });
+  K.check('The force is perpendicular to the direction of both the current and the magnetic field: on every wire picture the force drawn is square to the wire and to the field', () => {
+    const sq = (r) => K.near(dotv(r.Fw, r.lW), 0, 1e-9) && K.near(dotv(r.Fw, r.BW), 0, 1e-9);
+    const i = atPic('wire');
+    for (let w = 0; w <= 180; w += 10) if (!sq(drawn(i, Object.assign(blank(), { w })))) return false;
+    return sq(atSt('wireq', 'solved')) && sq(atSt('motorq', 'solved'));
+  });
+  K.check('Every number follows from the rule: 0.3 × 150 = 45 N m; 0.2 × 150 = 30 N m; 45 × sin 30° = 22.5 N m, 30 × sin 30° = 15 N m, nothing along the handle, and 22.5 N m into the nut past it; F × r is 45 N m the other way; 10 × 0.2 × 0.8 = 1.6 N, and 0.8 N at 30°; 0.3i × 150j = 45k N m; 4 × 0.25 × 0.5 = 0.5 N along −j; and each wrong answer offered is a slip worked from the same values', () => {
+    const B = (r, main, items) => !!r.band && r.band.main === main && (items || []).every((s, k) => r.band.items[k] === s);
+    if (!B(atSt('push'), '45 N m, out of the nut', ['0.3 × 150 × sin 90°'])) return false;
+    if (!B(atSt('pushq', 'solved'), '30 N m, out of the nut', ['0.2 × 150 × sin 90°'])) return false;
+    if (!B(atSt('swing', { th: 30 }), '22.5 N m, out of the nut', ['0.3 × 150 × sin 30°'])) return false;
+    if (!B(atSt('swing', { th: 0 }), '0 N m, no arrow', ['0.3 × 150 × sin 0°'])) return false;
+    if (!B(atSt('swing'), '22.5 N m, into the nut', ['0.3 × 150 × sin 30°'])) return false;
+    if (!B(atSt('swingq', 'solved'), '15 N m, out of the nut', ['0.2 × 150 × sin 30°'])) return false;
+    if (!B(atSt('way'), '45 N m, into the nut', ['0.3 × 150 × sin 90°'])) return false;
+    if (!B(atSt('wayq', 'solved'), '45 N m, into the nut', ['0.3 × 150 × sin 90°'])) return false;
+    if (!B(atSt('swap'), '45 N m, out of the nut', ['45 N m, into the nut', 'i × j = k, j × k = i, k × i = j'])) return false;
+    if (!B(atSt('turnq', 'solved'), '−k', ['k'])) return false;
+    if (!B(atSt('wire'), '1.6 N, up', ['10 × 0.2 × 0.8 × sin 90°'])) return false;
+    if (!B(atSt('wire', { w: 0 }), '0 N, no force', ['10 × 0.2 × 0.8 × sin 0°'])) return false;
+    if (!B(atSt('wireq', 'solved'), '0.8 N, up', ['10 × 0.2 × 0.8 × sin 30°'])) return false;
+    if (!B(atSt('partsq', 'solved'), '45k N m', ['0.3 × 150 × (i × j) = 45k'])) return false;
+    if (!B(atSt('motorq', 'solved'), '−0.5j N', ['4 × 0.25 × 0.5 × sin 90° = 0.5', 'i × k = −j'])) return false;
+    const o = (pic) => STEPS[atPic(pic)].opts;
+    return o('pushq').indexOf(num(0.3 * 150) + ' N m') >= 0 && o('pushq').indexOf(num(150 / 0.2) + ' N m') >= 0 &&
+      o('swingq').indexOf(num(30 * Math.cos(30 * RAD)) + ' N m') >= 0 && o('swingq').indexOf(num(0.2 * 150) + ' N m') >= 0 &&
+      o('wireq').indexOf(num(1.6 * Math.cos(30 * RAD)) + ' N') >= 0 && o('wireq').indexOf(num(10 * 0.2 * 0.8) + ' N') >= 0 &&
+      o('partsq').indexOf('−' + num(0.3 * 150) + 'k N m') >= 0 && o('motorq').indexOf(num(4 * 0.25 * 0.5) + 'j N') >= 0;
+  });
+  K.check('As the push swings from square on to along the handle, the moment shrinks at every step, halves at 30° and is nothing along the handle; past it the arrow points into the nut; swapping r and F flips the arrow; and i × j = k, j × k = i, k × i = j, j × i = −k and i × i = 0', () => {
+    const i = atPic('swing');
+    let last = Infinity;
+    for (let th = 90; th >= 0; th -= 2) {
+      const r = drawn(i, Object.assign(blank(), { th }));
+      if (!(r.size < last) || (th === 0) !== r.zero || (th > 0 && !(r.Mw[2] > 0))) return false;
+      last = r.size;
+    }
+    if (!K.near(atSt('swing', { th: 30 }).size * 2, atSt('swing', { th: 90 }).size, 1e-9) || !(atSt('swing', { th: -30 }).Mw[2] < 0)) return false;
+    const s = atSt('swap');
+    if (!s.M2 || !K.near(s.M2[2], -s.Mw[2], 1e-9) || !(s.Mw[2] > 0)) return false;
+    const I = [1, 0, 0], J = [0, 1, 0], Kz = [0, 0, 1], eq = (a, b) => a.every((x, k) => K.near(x, b[k], 1e-12));
+    const tq = atSt('turnq'), ts = atSt('turnq', 'solved');
+    return eq(cross3(I, J), Kz) && eq(cross3(J, Kz), I) && eq(cross3(Kz, I), J) && eq(cross3(J, I), [0, 0, -1]) && eq(cross3(I, I), [0, 0, 0]) &&
+      tq.kDy > 0 && ts.kDy < 0 && eq(ts.ans, cross3(J, I)) && ts.ansDy > 0;
+  });
+  K.check('Every puzzle offers three different answers with exactly one accepted, gives each wrong one its own hint, and draws a wrong pick in red but a right one without', () =>
+    DO.every((i) => {
+      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);
+      return d.opts.length === 3 && new Set(d.opts).size === 3 && wrong.length === 2 && wrong.every((o) => !!d.hints[o]) && d.hints[wrong[0]] !== d.hints[wrong[1]] &&
+        wrong.every((o) => drawn(i, wrongSt(i, o)).bad > 0) && drawn(i, solved(i)).bad === 0;
+    }));
+  K.check('Before Check no puzzle\'s picture shows its answer, and a right answer shows it', () =>
+    DO.every((i) => { const d = STEPS[i]; return drawn(i, blank()).texts.indexOf(d.reveal) < 0 && drawn(i, solved(i)).texts.indexOf(d.reveal) >= 0; }));
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s', () => {
+    const timed = (i, st, limit) => {
+      const keepS = S[i], keepT = T;
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; T = keepT; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solved(i), d.fb[0]) && d.fb[0] <= 2.5 && d.fb[1] <= 2.5 &&
+        d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]));
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
