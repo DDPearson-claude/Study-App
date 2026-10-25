@@ -1,0 +1,147 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Reading right to left, you first apply the transformation represented by the matrix on the right, then the one on the left: in every run drawn, the flag passes through the right-hand card first, its ghost sits where that card alone sends it, and it ends where the product sends it",
+        "ok": true,
+        "source": "https://www.3blue1brown.com/lessons/matrix-multiplication"
+      },
+      {
+        "label": "Matrix multiplication is not commutative in general: the shear and the quarter turn give one matrix in one order and a different one in the other, and side by side the two flags end in different places",
+        "ok": true,
+        "source": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication"
+      },
+      {
+        "label": "Each entry of a product is a row of the left times a column of the right, pair by pair, added; for every pair of moves and for P and Q this matches running the right-hand matrix and then the left-hand one on every whole point near the origin, and screen 7 works each entry that way",
+        "ok": true
+      },
+      {
+        "label": "Every worked number is right: AB = [1 −1; 1 0] and BA = [0 −1; 1 1]; B sends i to (0, 1) and j to (−1, 0); after both, i is on (1, 1); the shear sends j to (1, 1) and the turn sends (1, 1) to (−1, 1); MS = [−1 −1; 0 1] sends j to (−1, 1), SM = [−1 1; 0 1]; PQ = [4 8; 6 0], QP = [2 13; 4 2], matching entries give [2 4; 0 0]; P + Q = [3 5; 2 3], 2P = [4 2; 0 6], 2Q + P = [4 9; 4 3]; the top-left of AB is 1 × 0 + 1 × 1 = 1",
+        "ok": true
+      },
+      {
+        "label": "Sizes have to fit: a product exists only when each row of the left is as long as each column of the right; D (2 by 2) times C (2 by 3) gives a 2 by 3, C times D cannot be worked out, and a 2 by 3 times a 3 by 2 gives a 2 by 2",
+        "ok": true
+      },
+      {
+        "label": "Some pairs give the same either way: two turns, any card with Do nothing, and the mirror with the stretch; every move keeps the origin fixed, a mirror turns the flag over, and turns and shears keep its size",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle's answer comes from the rule (B then A for i, the shear first for BA, the first move on the right, rows times columns, doubling then adding, S then M for j, the sizes), and each slip offered is the one its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer (no landing spot, no product, no pairing); after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Two moves, one matrix",
+          "Where i ends",
+          "Where j ends",
+          "Swap the cards",
+          "Both orders",
+          "Which comes first?",
+          "Row times column",
+          "Work out PQ",
+          "Adding is different",
+          "Double, then add",
+          "Mixed: where j ends",
+          "Mixed: sizes"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "Turn",
+      "Turn",
+      "Shear",
+      "Shear",
+      "Mirror",
+      "Mirror",
+      "Stretch",
+      "Stretch",
+      "Do nothing",
+      "Do nothing",
+      "Swap the cards",
+      "Play",
+      "Next entry",
+      "Play again",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "pressed \"Turn\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/matrices/i3.a2-360-light.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-360-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-360-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-360-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-360-dark-end.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-1280-light.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-1280-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-1280-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i3.a2-1280-dark-end.png"
+  ]
+}

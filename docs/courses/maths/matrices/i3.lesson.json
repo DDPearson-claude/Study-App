@@ -1,0 +1,69 @@
+{
+  "iid": "i3",
+  "title": "One move after another",
+  "predict": null,
+  "format": "steps",
+  "interactive": {
+    "brief": "The one thing you should see is the flag end in a different place, and the product's columns change, when you swap the two cards and play the two moves again.",
+    "title": "Two moves in a row",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on one picture. The picture is the squared grid and F-shaped flag from Moving the whole plane, with the origin ringed. Above it sit two matrix cards. Card A, on the left, is the shear [1 1; 0 1]. Card B, on the right, is the quarter turn anticlockwise [0 −1; 1 0]. Under the cards, the product AB is written as a 2 by 2 matrix, large enough to read at 360 px. Arrow i is blue and arrow j is ink, each named in teal beside its tip.\n\nThe rule is the one from Moving the whole plane. A matrix sends i to its column 1 and j to its column 2. Play runs the flag through the right-hand card first. A faint ghost of the flag stays where that first move left it. Then the flag runs through the left-hand card. Each move keeps the grid lines straight, parallel and evenly spaced, with the origin fixed. So after both moves the grid is still a grid, and one matrix describes the whole run. Its columns are where i and j end up.\n\nThe screens.\n- 1, the run AB. B turns the flag a quarter, and its ghost stays. Then A leans it. The product reads [1 −1; 1 0]. It plays once as the screen opens, and Play runs it again. Its still is the finished run, read as: B turns the flag a quarter and leaves a ghost, then A leans it, and AB is [1 −1; 1 0].\n- 2, a puzzle. Where does i end up after B, then A? It offers (1, 1), (0, 1) and (1, 0). The hint: B acts first, and it turns i to (0, 1). After Check, i runs through both moves.\n- 3, j followed too. B turns j to (−1, 0), and A leaves it there, because the shear moves nothing on the across axis. The product's columns light up as i's end, (1, 1), and j's end, (−1, 0).\n- 4, a puzzle. The cards are swapped, so the shear acts first. Which matrix is BA? It offers [0 −1; 1 1], [1 −1; 1 0] and [0 −1; 1 0]. Picking [1 −1; 1 0] gets the hint: that is AB again, so shear i and j first, then turn them.\n- 5, both runs side by side, AB and BA. The flags end in different places. Each card can be set to Turn, Shear, Mirror, Stretch or Do nothing, and Swap and Play buttons sit below. On a narrow phone these buttons wrap onto more lines without splitting a word. Its still is the two runs side by side, read as: AB and BA, the same two moves in opposite orders, leave the flag in different places.\n- 6, a puzzle. First the shear S, then the mirror M = [−1 0; 0 1]. Which product is that? It offers MS, SM, and either, as the same move. Picking SM gets the hint: the first move sits on the right, next to the flag.\n- 7, row times column. Row 1 of A and column 1 of B light up, and 1 × 0 + 1 × 1 = 1 is written into the top-left of AB. A Next button lights the next pair. Its still has all four entries done, read as: each entry of AB is a row of A times a column of B, so the top-left is 1 × 0 + 1 × 1 = 1.\n- 8, a puzzle. P = [2 1; 0 3] and Q = [1 4; 2 0]. Which is PQ? It offers [4 8; 6 0], [2 4; 0 0] and [2 13; 4 2]. Picking [2 4; 0 0] gets the hint: that multiplies matching entries, so run row 1 of P down column 1 of Q and add. Picking [2 13; 4 2] gets the hint: that is QP, so P goes on the left.\n- 9, adding beside multiplying. P + Q = [3 5; 2 3] and 2P = [4 2; 0 6] sit next to PQ = [4 8; 6 0].\n- 10, a puzzle. Which is 2Q + P? It offers [4 9; 4 3], [3 5; 2 3] and [4 5; 2 3]. The hint: double every entry of Q before adding P.\n- 11, a mixed puzzle. Where does j end up under MS? It offers (−1, 1), (1, 1) and (−1, −1). Picking (1, 1) gets the hint: S acts first and sends j to (1, 1), then M flips it. Picking (−1, −1) gets the hint: that is row 1 of MS, and landing spots run down the columns.\n- 12, a mixed puzzle. C is 2 by 3 and D is 2 by 2. Which product can you work out? It offers DC only, CD only, and both. The hint: each row of the left must be as long as each column of the right.\n\nSome screens show an idea, and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "The flag is drawn sliding smoothly from start to finish so you can watch it. A matrix says only where each point ends up, not the path it takes. The grid shows only a small patch of the plane, though every point of the plane moves. The picture runs two moves, but three or more chain the same way, the right-most first.",
+    "numbers": [
+      { "label": "Matrix size, rows and columns", "value": 2, "kind": "assumed" },
+      { "label": "Card B quarter turn [0 −1; 1 0], row 1, column 2", "value": -1, "kind": "assumed" },
+      { "label": "Quarter turn, in degrees", "value": 90, "kind": "assumed" },
+      { "label": "Card A shear [1 1; 0 1], row 1, column 2", "value": 1, "kind": "assumed" },
+      { "label": "Arrow i after B lands on (0, 1), across", "value": 0, "kind": "computed" },
+      { "label": "Arrow i after both moves ends on (1, 1), across", "value": 1, "kind": "computed" },
+      { "label": "Arrow j after B lands on (−1, 0), across", "value": -1, "kind": "computed" },
+      { "label": "AB = [1 −1; 1 0], row 1, column 2", "value": -1, "kind": "computed" },
+      { "label": "BA = [0 −1; 1 1], row 2, column 2", "value": 1, "kind": "computed" },
+      { "label": "Shear sends j to (1, 1), up", "value": 1, "kind": "computed" },
+      { "label": "Turn sends (1, 1) to (−1, 1), across", "value": -1, "kind": "computed" },
+      { "label": "Identity matrix [1 0; 0 1], diagonal entries", "value": 1, "kind": "assumed" },
+      { "label": "Size example, 2 by 3 times 3 by 2", "value": 3, "kind": "assumed" },
+      { "label": "P = [2 1; 0 3], row 2, column 2", "value": 3, "kind": "assumed" },
+      { "label": "Q = [1 4; 2 0], row 1, column 2", "value": 4, "kind": "assumed" },
+      { "label": "PQ = [4 8; 6 0], row 1, column 2", "value": 8, "kind": "computed" },
+      { "label": "PQ, row 2, column 1", "value": 6, "kind": "computed" },
+      { "label": "Wrong pick, matching entries, [2 4; 0 0]", "value": 4, "kind": "computed" },
+      { "label": "Wrong pick, QP = [2 13; 4 2], row 1, column 2", "value": 13, "kind": "computed" },
+      { "label": "P + Q = [3 5; 2 3], row 1, column 2", "value": 5, "kind": "computed" },
+      { "label": "Multiplier in 2P and 2Q", "value": 2, "kind": "assumed" },
+      { "label": "2P = [4 2; 0 6], row 2, column 2", "value": 6, "kind": "computed" },
+      { "label": "2Q + P = [4 9; 4 3], row 1, column 2", "value": 9, "kind": "computed" },
+      { "label": "Wrong pick, only one entry doubled, [4 5; 2 3]", "value": 5, "kind": "computed" },
+      { "label": "Mirror M = [−1 0; 0 1], row 1, column 1", "value": -1, "kind": "assumed" },
+      { "label": "MS sends j to (−1, 1), across", "value": -1, "kind": "computed" },
+      { "label": "Wrong pick, SM sends j to (1, 1)", "value": 1, "kind": "computed" },
+      { "label": "Wrong pick, row 1 of MS, (−1, −1)", "value": -1, "kind": "computed" },
+      { "label": "C's size, 2 by 3, columns", "value": 3, "kind": "assumed" },
+      { "label": "Screens in the lesson", "value": 12, "kind": "assumed" },
+      { "label": "Phone width, in px", "value": 360, "kind": "assumed" },
+      { "label": "Steps, first", "value": 0, "kind": "control" },
+      { "label": "Steps, last", "value": 11, "kind": "control" }
+    ]
+  },
+  "explain": {
+    "text": "Do one move of the plane, then another. Together they make a single move, with a matrix of its own. That matrix is the [[matrix product]]. AB reads right to left: B acts first, then A.[^1] It works like f(g(x)), where the machine next to x goes first.\n\nEach move keeps grid lines straight, parallel and evenly spaced, with the origin fixed. So after both moves the grid is still a grid, and one matrix describes the whole run. Its columns are where i and j end up. Take B as the quarter turn [0 −1; 1 0] and A as the shear [1 1; 0 1]. B turns i to (0, 1). A then pushes that point one square across, to (1, 1). B turns j to (−1, 0). The shear moves nothing on the across axis, so j stays at (−1, 0). So AB = [1 −1; 1 0].\n\nNow swap them. In BA the shear acts first. It leaves i at (1, 0) and sends j to (1, 1). The turn then sends those to (0, 1) and (−1, 1). So BA = [0 −1; 1 1], a different move. Swapping the order usually changes the product.[^2] Some pairs give the same either way. Two turns do. So does any matrix paired with the [[identity matrix]] [1 0; 0 1], the do-nothing move.\n\nYou can find the product without drawing. B sends i to B's own column 1. A then moves that point. So column 1 of AB is A times column 1 of B. A times a column gives one number per row. Each is a row of A times the column, matching pairs multiplied and added. So the entry in row r, column c of AB is row r of A times column c of B. The top-left entry here is 1 × 0 + 1 × 1 = 1.\n\nA row meets a column pair by pair. So each row of the left must be as long as each column of the right. A 2 by 3 grid times a 3 by 2 grid works, and gives a 2 by 2 grid.\n\nAdding is different. Two matrices of the same size add entry by entry. A number times a matrix scales every entry. The product does not work entry by entry.\n\n**A product of two matrices is one move, the right-hand one first, so swapping the order usually gives a different move.**[^1]"
+  },
+  "analogy": {
+    "text": "Take a printed label for a socket front, flat on the bench. Turn it a quarter turn clockwise, then flip it over left to right. Start again with a fresh label. Flip it first, then turn it the same quarter clockwise. The two labels end up facing different ways. The same two moves in a different order give a different result, just as AB and BA do.",
+    "breaks": "A real label lifts off the bench as it flips, and you can slide it about. A 2 by 2 matrix keeps the origin where it is, so it cannot slide anything. And some pairs of moves, such as two turns, give the same result in either order."
+  },
+  "practice": {
+    "text": "- Write the moves right to left. The first move goes on the right.\n- For each entry, run along row r of the left and down column c of the right.\n- Multiply matching pairs and add. The total goes in row r, column c.\n- Check one column. It is where i or j ends up after both moves.\n\n**Rule of thumb:** The right-hand matrix acts first. Rows of the left meet columns of the right.\n\n**Worked example:** A quarter turn, then the shear [1 1; 0 1]. The turn acts first, so it goes on the right, as [1 1; 0 1][0 −1; 1 0]. Row 1 times column 1 is 1 × 0 + 1 × 1 = 1. Row 1 times column 2 is 1 × (−1) + 1 × 0 = −1. Row 2 times column 1 is 0 × 0 + 1 × 1 = 1. Row 2 times column 2 is 0 × (−1) + 1 × 0 = 0. So the product is [1 −1; 1 0]. Check by following i. The turn sends it to (0, 1), and the shear sends that to (1, 1). That is column 1.\n\n**Sizes:** each row of the left must be as long as each column of the right. The answer has as many rows as the left and as many columns as the right.\n\n**Common mistakes**\n- Writing the moves in the order you do them. First B, then A, is AB.\n- Assuming AB and BA are the same. Usually they are not.\n- Multiplying matching entries. That is not the product. Adding is the one that goes entry by entry.\n- Reading a row of the answer as a landing spot. Landing spots run down the columns."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Matrix multiplication as composition | 3Blue1Brown", "url": "https://www.3blue1brown.com/lessons/matrix-multiplication", "quote": "this has us reading right to left. You first apply the transformation represented by the matrix on the right, then you apply the transformation represented by the matrix on the left." },
+    { "n": 2, "title": "2.2: Matrix Multiplication - Mathematics LibreTexts", "url": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication", "quote": "Matrix multiplication is not commutative; in general," }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

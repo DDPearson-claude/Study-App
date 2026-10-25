@@ -1,0 +1,480 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Matrices, from moving shapes to circuit loops
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "How areas change: the determinant" — The determinant, ad − bc, is the number a 2 by 2 move scales every area by; negative means flipped, zero means squashed flat. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 Undoing a move: the inverse — The inverse matrix plays a move backwards, so it solves a two-loop circuit's equations, and it exists only when the determinant is not zero.
+- i6 Three by three: the determinant and the cross product — Expanding along the top row by cofactors, small 2 by 2 determinants with signs, gives a 3 by 3 determinant and the cross product's formula.
+- i7 Elimination: three unknowns, three loops — Gaussian elimination's row moves step three equations, such as a three-loop circuit's, into a staircase solved from the bottom up.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] The determinant | 3Blue1Brown — https://www.3blue1brown.com/lessons/determinant
+    "if you know how much the area of that one unit square changes, it tells you how the area of _any_ region in space changes."
+[R2] The determinant | 3Blue1Brown — https://www.3blue1brown.com/lessons/determinant
+    "Any transformations that do this are said to "invert the orientation of space". Whenever this happens, the determinant will be negative."
+[R3] The determinant | 3Blue1Brown — https://www.3blue1brown.com/lessons/determinant
+    "if it squishes all of space onto a line, or even onto a single point, since the area of every region would then become 0."
+[R4] Introduction to Linear Algebra, 5th Edition — https://math.mit.edu/~gs/linearalgebra/ila5/linearalgebra5_2-5.pdf
+    "This number ad−bc is the _determinant_ of A."
+[R5] 77 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf
+    "all the entries in the second row relate to the second equation"
+[R6] 2.2: Matrix Multiplication - Mathematics LibreTexts — https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication
+    "column vector and interpret the result as a linear combination of the columns of the matrix."
+[R7] 4.2 Matrices and Transformations on Vectors; the Meaning of 0 Determinant — https://ocw.mit.edu/ans7870/18/18.013a/textbook/HTML/chapter04/section02.html
+    "a matrix represents the transformation that takes the column basis vectors into the vectors that are the corresponding columns of the matrix."
+[R8] Linear transformations and matrices | 3Blue1Brown — https://www.3blue1brown.com/lessons/linear-transformations
+    "you take the coordinates of that vector, multiply them by the corresponding column of the matrix, then add together what you get."
+[R9] Mesh Current Analysis - DC Circuit Theory — https://www.electronics-tutorials.ws/dccircuits/dcp_5.html
+    "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+[R10] 88 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf
+    "By breaking down a complicated system into simple loops, Kirchhoff’s law can be applied. This leads to a set of linear equations in the unknown quantities (usually currents)"
+Notes (claims, and the sources that support them):
+- If you know how the area of one unit square changes, you know how any region's area changes; the determinant is that scale factor. [R1]
+- A negative determinant means the move flips the orientation of space, and its size still gives the area scaling. [R2]
+- A determinant of zero means the move squashes all of space onto a line or a point, so every area becomes zero. [R3]
+- For a 2 by 2 matrix the determinant is the number ad − bc. [R4]
+- In a matrix that holds a system of equations, each row of entries belongs to one equation. [R5]  (from an idea this one builds on)
+- A matrix times a column of amounts gives a mix of the matrix's own columns, a linear combination. [R6]  (from an idea this one builds on)
+- A matrix represents the move that takes the basis vectors to its own columns. [R7]  (from an idea this one builds on)
+- To find where a vector lands, scale each column by the matching coordinate and add the results. [R8]  (from an idea this one builds on)
+- Matrix methods turn the loop equations of a circuit into one equation, [V] = [R] x [I], that a solver can handle together. [R9][R10]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "How areas change: the determinant",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the unit square's parallelogram, and a shape inside it, change by the same factor, ad − bc, when you drag where i and j land.",
+  "title": "The stretched unit square",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one picture. The picture is the squared grid and F-shaped flag from Moving the whole plane, with the origin ringed. Arrow i is blue and arrow j is ink, each named in teal beside its tip. The unit square between i and j is shaded. The move carries it onto the parallelogram of the matrix's two columns. Its area reads out beside the matrix [a b; c d].\n\nThe rule. The move sends i to column 1 and j to column 2. So the square lands on the parallelogram those two arrows make. Grid lines stay straight, parallel and evenly spaced. So every square of the grid lands on a copy of the same parallelogram. Any shape's area is multiplied by that parallelogram's area. Its area is ad − bc.\n\nThe screens.\n- 1, the stretch [3 0; 0 2]. The square grows into a 3 by 2 box, and the readout shows 6. Every square of the grid becomes the same box. It plays once as the screen opens. Its still is the finished stretch, read as: the stretch [3 0; 0 2] turns each square into a 3 by 2 box, so every area grows 6 times.\n- 2, a puzzle. A shape covering 2 squares sits on the grid. Under [3 0; 0 2], what is its area now? It offers 12, 6 and 8. Picking 6 gets the hint: each square becomes 6, so two squares become two lots of 6. Picking 8 gets the hint: the areas multiply, they do not add. After Check, the shape stretches with the grid.\n- 3, the shear [1 1; 0 1]. The square leans into a parallelogram. A Cut and slide button cuts the triangle off one end and slides it to the other, making a 1 by 1 square. Its still is the finished cut, read as: cut the triangle off one end and slide it to the other, and the leaning square is a 1 by 1 square again, so its area is base times height.\n- 4, a puzzle with no numbers on the matrix. The picture shows i landing two squares across and j landing one across and three up. What is the parallelogram's area? It offers 6, about 6.3 and 3. Picking about 6.3 gets the hint: the height runs at right angles to the base, not along the slanted side. Picking 3 gets the hint: that is the triangle, half the parallelogram. After Check, the cut and slide plays.\n- 5, the formula. The parallelogram of [3 1; 1 2] sits in a 4 by 3 box of area 12. The two pairs of corner triangles, 3 and 2, and the two small rectangles, 2, fade out one by one. 5 is left, written as 3 × 2 − 1 × 1 = 5. Then a × d and b × c light up on the matrix's two diagonals. Its still is the finished cut, read as: box the parallelogram of [3 1; 1 2] in a 4 by 3 rectangle, take away the corners, and 5 is left, which is 3 × 2 − 1 × 1.\n- 6, a puzzle. What is the determinant of [2 −1; 1 1], the main matrix from Moving the whole plane? It offers 3, 1 and −3. Picking 1 gets the hint: b is −1, so bc is −1, and taking away −1 adds 1. Picking −3 gets the hint: start with a × d, then take away b × c.\n- 7, a shape inside. A shape of 2 squares rides with the grid under [2 −1; 1 1]. Two readouts show its area before, 2, and after, 6. Under them, 6 ÷ 2 = 3, the determinant. Its still is the shape after the move, read as: under [2 −1; 1 1] a shape of 2 squares covers 6, and 6 ÷ 2 = 3, the determinant.\n- 8, a puzzle. After a move with determinant 4, a shape's area is 24. What was it before? It offers 6, 96 and 20. Picking 96 gets the hint: 24 is the area after the move, so divide by 4 to go back. Picking 20 gets the hint: the area was multiplied by 4, not added to.\n- 9, flat and flipped. Arrow i stays on (2, 0). Arrow j's tip starts on (1, 1), and a slider pushes it down to (1, −1). The parallelogram thins, and the readout falls from 2 to 0 as j lies on i's line. Past it, the parallelogram opens again, hatched, with the flag mirrored and the readout −2. Its still is j on (1, −1), read as: with j pushed across i's line, the parallelogram opens again with the flag mirrored, and its determinant is −2.\n- 10, a puzzle. The determinant of [1 2; 2 1] is 1 × 1 − 2 × 2 = −3. What does that say about the move? It offers: it triples every area and flips the plane; it shrinks every area to −3; it triples every area and does not flip it. Picking the second gets the hint: no area is below 0, so the size 3 is the scale and the minus is the flip.\n- 11, a mixed puzzle. Which move squashes the plane flat? It offers [2 4; 1 2], [2 4; 1 3] and [1 0; 0 −1]. Picking [2 4; 1 3] gets the hint: ad − bc is 6 − 4 = 2, so it doubles areas. Picking [1 0; 0 −1] gets the hint: its determinant is −1, so it flips and keeps areas. After Check, [2 4; 1 2] squashes the grid onto one line.\n- 12, a mixed puzzle. What is the determinant of the quarter turn [0 −1; 1 0]? It offers 1, −1 and 0. Picking −1 gets the hint: bc is −1 × 1 = −1, and 0 − (−1) = 1, so a turn keeps the area and does not flip the flag. After Check, the flag turns and its area stays 1.\n\nSome screens show an idea, and the rest ask you to try it. Each puzzle offers three answers, and on a narrow phone they wrap onto more lines without splitting a word. A wrong pick is drawn, so you can see where it goes wrong.",
+  "ignores": "The parallelogram slides smoothly from the square so you can watch it. A matrix says only where each point ends up, not the path it takes. The grid shows a small patch of the plane, but every area in the whole plane scales by the same number. The hatching is only a mark for flipped. A flipped shape's area is still its size, never below zero.",
+  "numbers": [
+   {
+    "label": "Matrix size, rows and columns",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Unit square's area",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stretch [3 0; 0 2], row 1, column 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stretch [3 0; 0 2], row 2, column 2",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stretch [3 0; 0 2], off-diagonal entries",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stretch's area scale factor, 3 × 2",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Shape's area before, in squares",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Shape's area after the stretch",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, areas added, 2 + 6",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Shear [1 1; 0 1], row 1, column 2",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Shear's parallelogram area, base 1 times height 1",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4, i lands across",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4, j lands up",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4, area, base 2 times height 3",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, base times slanted side",
+    "value": 6.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, the triangle's area",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Triangle's area, base times height divided by",
+    "value": 2,
+    "kind": "constant"
+   },
+   {
+    "label": "Matrix [3 1; 1 2], row 1, column 1",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Matrix [3 1; 1 2], row 2, column 2",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Box round [3 1; 1 2], across",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Box round [3 1; 1 2], area",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Two triangles of ac ÷ 2",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Two triangles of bd ÷ 2",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Two small rectangles of bc",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Corners taken away in all",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of [3 1; 1 2]",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Matrix [2 −1; 1 1], row 1, column 2",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Determinant of [2 −1; 1 1]",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, minus sign dropped",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, bc − ad",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Shape of 2 squares after [2 −1; 1 1]",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8, determinant",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8, area after the move",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8, area before, 24 ÷ 4",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, 24 × 4",
+    "value": 96,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong pick, 24 − 4",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9, i lands on (2, 0)",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9, j's tip up part, start",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 9, j's tip up part, end",
+    "value": -1,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 9, determinant at the start",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9, determinant with j on i's line",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9, determinant at the end",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of [1 2; 2 1]",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of [2 4; 1 2]",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of [2 4; 1 3]",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of [1 0; 0 −1]",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Mirror [−1 0; 0 1], row 1, column 1",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Determinant of the mirror",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of the quarter turn [0 −1; 1 0]",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screens in the lesson",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Steps, first",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Steps, last",
+    "value": 11,
+    "kind": "control"
+   },
+   {
+    "label": "Phone width, in px",
+    "value": 360,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tile swapped for one with this many times the area",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Loop grid [6 −2; −2 6], diagonal entries",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Loop grid [6 −2; −2 6], shared entries",
+    "value": -2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Loop 1 voltage, in volts",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Loop 2 voltage, in volts",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Loop grid, a × d",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Loop grid, b × c",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of the loop grid",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example, area after [2 −1; 1 1]",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example, area before, 12 ÷ 3",
+    "value": 4,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A 2 by 2 matrix scales every area in the plane by one number. You work that number out from the four entries as ad − bc. A minus sign means the move flips the plane over. Zero means it squashes the plane flat.\n\nWatch one square to find the number. The square between i and j has area 1. The move sends i and j to the matrix's two columns. So the square lands on the parallelogram those two columns make. Grid lines stay straight, parallel and evenly spaced. So every square of the grid lands on a copy of that same parallelogram. Any shape can be filled with squares, cut as small as you like. So its area is multiplied by the parallelogram's area too.[^1]\n\nTake the stretch [3 0; 0 2]. The square becomes a 3 by 2 box, so every area grows 6 times. Now take the shear [1 1; 0 1]. The square leans over into a parallelogram. Cut the triangle off one end and slide it to the other. You get a 1 by 1 square again, so the shear keeps every area the same. The cut shows that a parallelogram's area is its base times its height. The height runs at right angles to the base, not along the slanted side.\n\nFor any matrix [a b; c d], box the parallelogram in a rectangle. Its sides are a + b across and c + d up. Take away two triangles of ac ÷ 2, two of bd ÷ 2 and two small rectangles of bc. What is left is ad − bc. This number is the [[determinant]] of the matrix.[^2] For [3 1; 1 2] the box is 4 by 3, so 12. The corners take away 3, 2 and 2. That leaves 5, and 3 × 2 − 1 × 1 = 5 too. Other unflipped layouts cut up differently, but leave the same ad − bc.\n\nNow push j across the line of i. The parallelogram gets thinner. Its area falls to 0 when j lies on i's line. The whole plane is then squashed onto that line, so every area is 0.[^3] Push further and it opens again, but the flag now reads backwards. The plane has been flipped over, and ad − bc comes out negative.[^4] The number without its minus sign is still the scale factor. The mirror [−1 0; 0 1] has determinant −1. It keeps every area and flips the flag.\n\n**The determinant, ad − bc, is the number a move multiplies every area by, negative when the move flips the plane and zero when it squashes it flat.**[^1]"
+ },
+ "analogy": {
+  "text": "Think of a floor laid in square tiles, with a cupboard's outline marked on it. Count the tiles inside the outline and you have its area. Now relay the floor in the same pattern, with every tile swapped for a slanted tile of 3 times the area. The outline is carried with the tiles, so it still covers the same count of them. Its area is 3 times bigger, whatever its shape. The determinant is the area of the new tile, measured in old tiles.",
+  "breaks": "Laying every tile face down is like a negative determinant, but the floor's area is not negative, only flipped. A real tile always has some area, while a move can squash every tile flat."
+ },
+ "practice": {
+  "text": "- Write the matrix as [a b; c d].\n- Multiply down the main diagonal, a × d.\n- Multiply the other diagonal, b × c, and take it away.\n- The size is the area scale factor. A minus sign means flipped. Zero means squashed flat.\n- To find an area after the move, multiply by the size. To find the area before, divide.\n\n**Rule of thumb:** If one column is a multiple of the other, both arrows lie on one line, and the determinant is 0. A turn neither stretches nor flips, so its determinant is 1.\n\n**Worked example:** Take [2 −1; 1 1]. Then a × d = 2 × 1 = 2, and b × c = −1 × 1 = −1. So the determinant is 2 − (−1) = 3. A shape of 2 squares becomes 6. A shape whose image has area 12 started at 12 ÷ 3 = 4.\n\n**Loop equations:** Say a two-loop circuit gives 6I₁ − 2I₂ = 12 and −2I₁ + 6I₂ = 4. The numbers in front of the currents make the grid [6 −2; −2 6]. Its determinant is 6 × 6 − (−2) × (−2) = 36 − 4 = 32. A zero determinant would squash the plane onto a line. Then either no pair of currents lands on (12, 4), or many pairs do. Here it is not zero, so the move does not squash the plane. It sends different pairs of currents to different points, so exactly one pair lands on (12, 4).\n\n**Common mistakes**\n- Multiplying when you should divide. If you know the area after the move, divide by the determinant to go back.\n- Working out bc − ad. That gives the right size with the wrong sign.\n- Reading −3 as an area of minus 3. The move triples every area and flips the plane.\n- Thinking a minus entry means a flip. The quarter turn [0 −1; 1 0] has determinant 1.\n- Measuring the height along the slanted side. Measure it at right angles to the base."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "The determinant | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/determinant",
+   "quote": "if you know how much the area of that one unit square changes, it tells you how the area of _any_ region in space changes."
+  },
+  {
+   "n": 2,
+   "title": "Introduction to Linear Algebra, 5th Edition",
+   "url": "https://math.mit.edu/~gs/linearalgebra/ila5/linearalgebra5_2-5.pdf",
+   "quote": "This number ad−bc is the _determinant_ of A."
+  },
+  {
+   "n": 3,
+   "title": "The determinant | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/determinant",
+   "quote": "if it squishes all of space onto a line, or even onto a single point, since the area of every region would then become 0."
+  },
+  {
+   "n": 4,
+   "title": "The determinant | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/determinant",
+   "quote": "Any transformations that do this are said to \"invert the orientation of space\". Whenever this happens, the determinant will be negative."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

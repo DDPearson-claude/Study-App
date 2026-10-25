@@ -1,0 +1,589 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T17:43:38.644Z",
+ "startedAt": "2026-10-25T17:43:38.644Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Three by three: the determinant and the cross product",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the unit cube's box keeping its volume, the determinant, as k's tip slides sideways, then going flat at 0 as k drops to the floor, when you drag where k lands.",
+   "title": "The unit cube and its box",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen small screens share one picture. Most show a 3-D view of the unit cube. The arrows i, j and k run along three of its edges, each named beside its tip. i points across, j points along and k points up. Every point is written (across, along, up). You can drag the background to turn the view. The matrix reads out beside the view. A readout shows the box's volume, which is the determinant.\n\nThe rule. A 3 by 3 matrix sends i, j and k to its three columns. The unit cube goes with them and leans into a slanted box. If i and j stay on the floor, the floor stays the unit square, with area 1. Then the box's volume is its height. That height is k's up part. In general, the determinant comes from the top row. Cover an entry's row and column. The 2 by 2 left over gives its minor, ad − bc. Give the three minors the signs +, −, +. Then multiply each top-row entry by its signed minor and add the three.\n\nThe screens.\n- 1, the box. k's tip slides from (0, 0, 1) to (1, 0.5, 2). The cube leans into a box. The matrix's third column changes to (1, 0.5, 2). This plays once as the screen opens. Its still shows the leaning box, read as: a 3 by 3 matrix moves every point of space. Its columns are where i, j and k land. Here i and j stay on the floor, and k lands on (1, 0.5, 2). The unit cube leans into a slanted box.\n- 2, a puzzle. The matrix [2 1 0; 0 3 1; 0 0 2] moves space. Where does j land? The answers are (1, 3, 0), (0, 3, 1) and (2, 0, 0). Picking (0, 3, 1) gets the hint: that is row 2. Where j lands is read down column 2. Picking (2, 0, 0) gets the hint: that is column 1, where i lands. After Check, i, j and k swing to the three columns. j lands on (1, 3, 0).\n- 3, the volume. k's tip is back on (1, 0.5, 2). The readout shows floor 1 × height 2 = volume 2. k's tip slides sideways to (−1, 1, 2). The box leans the other way, and the volume stays 2. This plays once as the screen opens. Then k's tip is yours to drag. Dragging moves it across and up. Its along part stays put, and the readouts follow. Its still shows the box leaning back, read as: the floor is still the unit square. So the box's volume is its height, k's up part, 2. That volume is the determinant. It is the factor the move scales every volume by. Sliding k's tip sideways leans the box but keeps its height. So the volume stays 2.\n- 4, a puzzle. i and j stay on the floor, and k lands on (2, −1, 3). What is the determinant? The answers are 3, 6 and 4. Picking 6 gets the hint: only the up part sets the height. The 2 across just leans the box. Picking 4 gets the hint: the volume is not k's parts added up. It is the floor's area times the height. After Check, k's tip moves to (2, −1, 3), and the volume reads 3.\n- 5, flat. k's tip drops straight down from (1, 0.5, 2) to (1, 0.5, 0). The box gets lower. The volume reads 2, then 1, then 0. On the floor the box is flat. This plays once as the screen opens. Then k's tip is yours to drag. Below the floor the box comes out mirrored, and the volume reads negative. Its still shows the flat box, read as: as k's tip drops, the box gets lower and its volume falls. On the floor the box is flat, and the determinant is 0. All of space lands on that one flat plane. So the move cannot be undone. Push k's tip below the floor and the box comes out mirrored, with a negative volume.\n- 6, a puzzle. i and j stay on the floor. Which landing spot for k squashes space flat? The answers are (3, 2, 0), (0, 0, 3) and (1, 1, 1). Picking (0, 0, 3) gets the hint: that stands straight up 3, so the box's volume is 3. Picking (1, 1, 1) gets the hint: its up part is 1, so the box has volume 1. After Check, the box flattens onto the floor, and the volume reads 0.\n- 7, the recipe. Now i lands on (2, 1, 0), j on (1, 3, 0) and k on (1, 0, 2). The matrix is [2 1 1; 1 3 0; 0 0 2]. The floor is a parallelogram, and the box rises from it. The working lights each top-row entry in turn. It greys out that entry's row and column. The first entry, 2, leaves [3 0; 0 2]. Its minor is 6. The second, 1, leaves [1 0; 0 2]. Its minor is 2, and it takes a minus. The third, 1, leaves [1 3; 0 0]. Its minor is 0. The total is 2 × 6 − 1 × 2 + 1 × 0 = 10. Beside it, floor 5 × height 2 = 10. The floor's area is 2 × 3 − 1 × 1 = 5. This plays once as the screen opens. Its still shows the finished working beside the box, read as: take each top-row entry in turn. Cover its row and column. The 2 by 2 left gives its minor, its ad − bc. With the signs + − +, the minors become cofactors. Multiply each entry by its cofactor and add them up. That gives 2 × 6 − 1 × 2 + 1 × 0 = 10. The box agrees. Its floor is the parallelogram of i and j, with area 2 × 3 − 1 × 1 = 5. Floor 5 times height 2 is 10.\n- 8, a puzzle. What is the determinant of [3 1 0; 1 2 1; 0 1 2]? The answers are 7, 11 and 12. Picking 11 gets the hint: the middle term takes a minus. The signs go + − +. Picking 12 gets the hint: that multiplies down the diagonal only. Each top-row entry needs its own minor. After Check, the working fills in: 3 × 3 − 1 × 2 + 0 × 1 = 7. The box of its three columns shows volume 7.\n- 9, the cross product. The floor of screen 7 comes back alone. It is the parallelogram of a = (2, 1, 0) and b = (1, 3, 0). The grid [i j k; 2 1 0; 1 3 0] reads out beside it. The working runs the same recipe: i(1 × 0 − 0 × 3) − j(2 × 0 − 0 × 1) + k(2 × 3 − 1 × 1) = 5k. Then an arrow a × b grows straight up from the floor to length 5. This plays once as the screen opens. Its still shows the arrow standing on the floor, read as: put i, j and k in the top row as if they were numbers. Put a in row 2 and b in row 3. The same recipe gives a × b. Here it is 5k. Its dot product with a and with b is 0, so it stands square to both. Its length, 5, is the floor's area.\n- 10, a puzzle. What does the recipe give for j × i? Row 2 is j = (0, 1, 0), and row 3 is i = (1, 0, 0). The answers are −k, k and 0. Picking k gets the hint: that is i × j. Here the rows are swapped, so the sign flips. Picking 0 gets the hint: i and j make a floor of area 1, so the arrow has length 1. After Check, the working shows the k part 0 × 0 − 1 × 1 = −1. The arrow points down from the floor.\n- 11, the circuit. Three loops sit in a row. Each end loop has 3 Ω of its own. The middle loop has 6 Ω of its own. Each pair of neighbours shares a 3 Ω resistor. The loop currents I₁, I₂ and I₃ are drawn clockwise. The resistance grid [6 −3 0; −3 12 −3; 0 −3 6] reads out. The recipe runs along its top row: 6 × 63 − (−3) × (−18) + 0 × 9 = 378 − 54 = 324. This plays once as the screen opens. Its still shows the circuit and the finished working, read as: a three-loop circuit's resistance grid is [6 −3 0; −3 12 −3; 0 −3 6]. Each diagonal entry is a loop's total resistance. Each shared 3 Ω becomes −3. The top-row recipe gives 6 × 63 − (−3) × (−18) + 0 × 9 = 324. It is not zero, so the grid does not squash space flat. That means exactly one set of loop currents fits, whatever the loop voltages.\n- 12, a mixed puzzle. A spanner lies along r = (0.3, 0, 0) m. You push with F = (80, 150, 0) N. What is the moment, r × F? The answers are 45 N m along k, 51 N m along k and 45 N m along −k. Picking 51 N m gets the hint: that uses the whole 170 N push. The 80 N along the handle turns nothing, and the recipe drops it. Picking 45 N m along −k gets the hint: that is F × r. Put r in row 2 and F in row 3. After Check, the working shows 0.3 × 150 − 0 × 80 = 45 for the k part. The moment arrow stands along the bolt.\n- 13, a mixed puzzle. What is the determinant of [1 2 3; 4 5 6; 7 8 9]? The answers are 0, −24 and 45. Picking −24 gets the hint: the middle term takes a minus, so −2 × (−6) is +12. Picking 45 gets the hint: that multiplies down the diagonal only. After Check, the working shows 1 × (−3) − 2 × (−6) + 3 × (−3) = 0. The box of its columns flattens. Column 2 sits halfway between columns 1 and 3, so all three lie in one flat plane.\n\nSome screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines, and no word splits. A wrong pick is drawn, so you can see where it goes wrong.",
+   "ignores": "The 3-D view is drawn on a flat screen, so some lengths look shorter than they are. The readouts give the true values. The picture shows three arrows and one box. The move acts on every point of space, though. The circuit is ideal, with fixed resistances and no wire resistance. Its values are example figures. The top-row recipe works for bigger grids too. It soon gets long, though.",
+   "numbers": [
+    {
+     "label": "Matrix size, rows and columns",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screens in the lesson",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Steps, first",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Steps, last",
+     "value": 12,
+     "kind": "control"
+    },
+    {
+     "label": "Unit cube's volume",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "k's tip, across part, screen 1",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "k's tip, along part, screen 1",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "k's tip, up part, screen 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Box's volume, 1 × 2",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "k's tip after sliding, across part",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "k's tip after sliding, along part",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 matrix, row 1, column 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 matrix, row 2, column 2",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 matrix, row 1, column 2",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 matrix, row 2, column 1",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4, k's tip across",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4, k's tip along",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4, k's tip up",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4, determinant",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4, wrong pick 2 × 3",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4, wrong pick 2 − 1 + 3",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5, volume on the way down",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5, volume on the floor",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6, flat landing spot across",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6, flat landing spot along",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6, upright landing spot height",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6, (1, 1, 1) box volume",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7, i lands on (2, 1, 0), across",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7, j lands on (1, 3, 0), along",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7, k lands on (1, 0, 2), up",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7, first minor, 3 × 2 − 0 × 0",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7, second minor, 1 × 2 − 0 × 0",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7, third minor, 1 × 0 − 3 × 0",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7, determinant",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7, floor's area, 2 × 3 − 1 × 1",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7, wrong pick without the minus",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8, row 1, column 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8, first minor, 2 × 2 − 1 × 1",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8, second minor, 1 × 2 − 1 × 0",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8, third minor, 1 × 1 − 2 × 0",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8, determinant",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8, wrong pick without the minus",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8, wrong pick 3 × 2 × 2",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9, a × b, k part",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10, j × i, k part",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit, each end loop's own resistance, in ohms",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Circuit, middle loop's own resistance, in ohms",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Circuit, each shared resistance, in ohms",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Circuit grid, end loop totals, in ohms",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, middle loop total, in ohms",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, shared entries",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, 12 × 6",
+     "value": 72,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, (−3) × (−3)",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, first minor",
+     "value": 63,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, second minor",
+     "value": -18,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, third minor",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, 6 × 63",
+     "value": 378,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, (−3) × (−18)",
+     "value": 54,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, determinant",
+     "value": 324,
+     "kind": "computed"
+    },
+    {
+     "label": "Circuit grid, wrong total without the minus",
+     "value": 432,
+     "kind": "computed"
+    },
+    {
+     "label": "Spanner, r along the handle, in metres",
+     "value": 0.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Push along the handle, in newtons",
+     "value": 80,
+     "kind": "assumed"
+    },
+    {
+     "label": "Push square to the handle, in newtons",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Whole push, in newtons",
+     "value": 170,
+     "kind": "computed"
+    },
+    {
+     "label": "Moment, in newton metres",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong pick 0.3 × 170, in newton metres",
+     "value": 51,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, first minor",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, second minor",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, determinant",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, wrong pick without the minus",
+     "value": -24,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, wrong pick 1 × 5 × 9",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, middle term, −2 × (−6)",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 matrix, last entry",
+     "value": 9,
+     "kind": "assumed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A 3 by 3 matrix moves all of space at once. Its three columns are where the arrows i, j and k land. Its determinant does for volumes what ad − bc did for areas. You find it from the top row. Multiply each entry by a signed 2 by 2 determinant, then add them all up. With i, j and k in the top row, the same recipe gives the cross product.\n\nStart from the unit cube, with edges i, j and k. Its volume is 1. Keep i and j where they are, and move only k. Then the floor stays the unit square. The cube leans into a slanted box. A box's volume is its floor's area times its height. The floor's area is 1, so the volume is the height. That height is k's up part. Slide k's tip sideways and the box leans, but its height stays the same. So the volume stays the same too. That is the shear you met in the plane, one size up. The same holds for every 3 by 3 matrix. Its determinant's size is the factor it scales every volume by. Drop k's tip to the floor and the box is flat. So the determinant is 0. All of space then lies on one plane, and no move can lift it back. Push the tip below the floor and the box comes out mirrored. A move that flips space like that has a negative determinant.[^1]\n\nHere is the recipe for any 3 by 3 grid. Take a top-row entry and cover its row and its column. A 2 by 2 grid is left. Its ad − bc is that entry's [[minor]]. Do the same for the other two entries. Give the three minors the signs +, −, +, and they become [[cofactor]]s. Multiply each top-row entry by its cofactor and add the three.[^2] Try it on a box whose floor is not square. Send i to (2, 1, 0), j to (1, 3, 0) and k to (1, 0, 2). The top row is 2, 1, 1, and the minors are 6, 2 and 0. So the determinant is 2 × 6 − 1 × 2 + 1 × 0 = 10. Now check it as a box. The floor is the parallelogram of i and j. Its area is 2 × 3 − 1 × 1 = 5. The height is 2. So the volume is 5 × 2 = 10, and the two agree. Forget the middle minus and you get 14, which fails the check.\n\nThe cross product comes from the same recipe. Put i, j and k in the top row as if they were numbers. Put a in row 2 and b in row 3.[^3] Here a and b sit in rows, not columns. That is fine. Turning a grid's rows into columns leaves its determinant the same, so either way works. The three cofactors are then a × b's i, j and k parts. Take a = (2, 1, 0) and b = (1, 3, 0), the floor above. The i and j parts come out 0. The k part is 2 × 3 − 1 × 1 = 5. So a × b = 5k. It stands square to the floor, and its length is the floor's area. That is also why the recipe works for any grid. The top row's three cofactors are the parts of row 2 × row 3. That arrow stands square to the floor those two rows make. Its length is that floor's area. So its dot product with row 1 is the floor's area times row 1's height above it. That is the volume of the box the three rows make. Swap rows 2 and 3 and every part changes sign, so b × a = −5k. To check the order, try i × j. It must give k.\n\nThree-phase work uses a 3 by 3 matrix too. Its symmetrical components split an unbalanced set of three phasors into three balanced sets.[^4] That matrix holds complex numbers, so it waits for later.\n\n**A 3 by 3 determinant is the volume scale factor. It is 0 when space is squashed flat. To find it, go along the top row: each entry times its cofactor, with signs + − +, added up. With i, j and k in the top row, the same recipe gives a × b.**"
+  },
+  "analogy": {
+   "text": "Think of a transformer core's stack of steel laminations, squared up on the bench. Push the top so the stack leans. Each sheet slides a little over the one below. The stack now leans, but its floor and its height are unchanged. So it holds the same steel. That is k's tip sliding sideways. With the floor fixed, the box's volume changes only when its height does.",
+   "breaks": "Laminations are separate sheets that slide in steps. A matrix leans all of space smoothly. Real steel barely changes its volume. A matrix can stretch volumes, flip them or squash them to 0."
+  },
+  "practice": {
+   "text": "- Write where i, j and k land as the grid's three columns. For a cross product, put i, j and k in the top row. Put a under them, and b under a.\n- Take the top-row entries one at a time. Cover that entry's row and column.\n- Work out ad − bc for the 2 by 2 left over. That is its minor.\n- Give the three minors the signs +, −, +.\n- Multiply each top-row entry by its signed minor, and add the three.\n- Check a cross product's order on i × j. It must give k.\n\n**Rules of thumb:** A zero in the top row saves work, because its term drops out. A determinant of 0 means space is squashed onto a plane, a line or a point. Then the move cannot be undone. Swap two rows and the sign flips.\n\n**Worked example:** Three loops sit in a row. Each end loop has 3 Ω of its own. The middle loop has 6 Ω of its own. Each pair of neighbours shares a 3 Ω resistor. These are example figures. With all three loop currents drawn clockwise, the resistance grid is [6 −3 0; −3 12 −3; 0 −3 6]. Cover row 1 and column 1. What is left gives 12 × 6 − (−3) × (−3) = 72 − 9 = 63. Cover row 1 and column 2. What is left gives (−3) × 6 − (−3) × 0 = −18. The third top-row entry is 0, so its term drops out. The determinant is 6 × 63 − (−3) × (−18) + 0 = 378 − 54 = 324. It is not zero, so exactly one set of loop currents fits.\n\n**Common mistakes**\n- Forgetting the minus on the middle term. In the worked example that gives 432.\n- Multiplying down the diagonal only.\n- Covering the wrong row or column. Cover the entry's own row and its own column.\n- Reading where an arrow lands along a row. It is read down a column.\n- Putting b above a in a cross product. That flips the answer's sign."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "The determinant | 3Blue1Brown",
+    "url": "https://www.3blue1brown.com/lessons/determinant",
+    "quote": "Any transformations that do this are said to \"invert the orientation of space\". Whenever this happens, the determinant will be negative."
+   },
+   {
+    "n": 2,
+    "title": "77",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf",
+    "quote": "obtained by multiplying each element of the first row by its corresponding cofactor and then adding the three together"
+   },
+   {
+    "n": 3,
+    "title": "Calculus II - Cross Product",
+    "url": "https://tutorial.math.lamar.edu/Classes/CalcII/CrossProduct.aspx",
+    "quote": "the cross product is really the determinant of a 3x3 matrix."
+   },
+   {
+    "n": 4,
+    "title": "Symmetrical-Components Transform - Implement abc to +-0 transform - Simulink",
+    "url": "https://www.mathworks.com/help/sps/ref/symmetricalcomponentstransform.html",
+    "quote": "The transform splits an unbalanced set of three phasors into three balanced sets of phasors."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  /* The 3-D view: the floor grid, the unit cube, the box, its floor, the height. */\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .gh { stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 3 3; fill: none; }\n  .scene .ed { stroke: var(--k-accent2); stroke-width: 1.8; stroke-linecap: round; }\n  .scene .eh { stroke: var(--k-accent2); stroke-opacity: .5; stroke-width: 1.3; stroke-dasharray: 5 4; }\n  .scene .fe { stroke: var(--k-accent2); stroke-width: 1.4; }\n  .scene .face { fill: var(--k-fill1); fill-opacity: .6; stroke: none; }\n  .scene .floor { fill: var(--k-fill2); fill-opacity: .75; stroke: none; }\n  .scene .sw { stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .kg { stroke-width: 3; }\n  .scene .hgt { stroke: var(--k-ink); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .scene .plane { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .handle { stroke: var(--k-muted); stroke-opacity: .45; stroke-width: 11; stroke-linecap: round; }\n  .scene .bolt { stroke: var(--k-ink); stroke-width: 6; }\n  .scene .ring0 { fill: none; stroke: var(--k-warn); stroke-width: 2.4; }\n  /* The circuit: wires, resistors as boxes, loop currents. */\n  .scene .wire { stroke: var(--k-ink); stroke-width: 2; fill: none; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .loop { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .loophd { fill: var(--k-accent2); }\n  /* The matrix: brackets and the lit entry. */\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .lit { fill: var(--k-hl); }\n  /* Arrows: i blue, j ink, k orange, a product navy, a wrong pick red. */\n  .scene .arr .sh { fill: none; stroke-width: 3.2; stroke-linecap: round; }\n  .scene .arr.base .sh { stroke-width: 4; }\n  .scene .p1 .sh { stroke: var(--k-cat1); }\n  .scene .p1 .hd { fill: var(--k-cat1); }\n  .scene .p2 .sh { stroke: var(--k-ink); }\n  .scene .p2 .hd { fill: var(--k-ink); }\n  .scene .p3 .sh { stroke: var(--k-cat2); }\n  .scene .p3 .hd { fill: var(--k-cat2); }\n  .scene .pa .sh { stroke: var(--k-accent2); }\n  .scene .pa .hd { fill: var(--k-accent2); }\n  .scene .arr.bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; }\n  .scene .arr.bad .hd { fill: var(--k-warn); }\n  /* Words and numbers. */\n  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }\n  .scene .en.s14 { font-size: 14px; }\n  .scene .en.ok { fill: var(--k-accent2); }\n  .scene .en.bad { fill: var(--k-warn); }\n  .scene .en.mu { fill: var(--k-muted); }\n  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }\n  .scene .big { font: 600 24px var(--k-font); fill: var(--k-ink); }\n  .scene .big.q { fill: var(--k-muted); }\n  .scene .big.ok { fill: var(--k-accent2); }\n  .scene .big.bad { fill: var(--k-warn); }\n  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .ln.sm2 { font-size: 13px; }\n  .scene .ln.sm3 { font-size: 12px; }\n  .scene .ln.ok { fill: var(--k-accent2); }\n  .scene .ln.bad { fill: var(--k-warn); }\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag.ok { fill: var(--k-accent2); font-weight: 600; }\n  .scene .tag.bad { fill: var(--k-warn); font-weight: 600; }\n  .scene .nm { font: italic 700 16px var(--k-font); fill: var(--k-accent); }\n  .scene .nm.bad { fill: var(--k-warn); }\n  /* Labels in the 3-D view carry a halo of their own, so lines pass behind them. */\n  .scene .hh { stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke fill; }\n  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lb.bad { fill: var(--k-warn); }\n  .scene .lb.mu { fill: var(--k-muted); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene tspan.v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }\n  .scene .turn:focus { outline: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: var(--k-cat2); stroke-opacity: .5; stroke-width: 1.5; stroke-dasharray: 4 3; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Most screens show a 3-D view of the unit cube, and the slanted box a 3 by 3 matrix makes of it.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 400\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <p class=\"act\" id=\"act\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The determinant is the box's volume. The top-row recipe finds it, and gives the cross product.</p>\n\n<script>\n  // ---------- numbers and words (pure, so the checks can test them) ----------\n  const MINUS = '−', NB = ' ';\n  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }\n  const paren = (v) => (v < 0 ? '(' + num(v) + ')' : num(v));\n  const pt = (v) => '(' + v.map(num).join(', ') + ')';\n  const toNum = (t) => +String(t).trim().replace(MINUS, '-');\n  const parsePt = (s) => String(s).replace(/[()]/g, '').split(',').map(toNum);\n  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/−/g, ' minus ').replace(/×/g, ' times ')\n    .replace(/=/g, ' equals ').replace(/Ω/g, ' ohms').replace(/₁/g, ' 1').replace(/₂/g, ' 2').replace(/₃/g, ' 3').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the rule ----------\n  // A 3 by 3 matrix sends i, j and k to its three columns, and the unit cube to the box they span.\n  // Its determinant is that box's signed volume. Going along the top row: each entry times its\n  // cofactor (the 2 by 2 left when its row and column are covered, with the signs + − +), added up.\n  const add = (p, q) => p.map((x, k) => x + q[k]);\n  const sub = (p, q) => p.map((x, k) => x - q[k]);\n  const scl = (p, s) => p.map((x) => x * s);\n  const dot = (p, q) => p[0] * q[0] + p[1] * q[1] + p[2] * q[2];\n  const crossP = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];\n  const triple = (a, b, c) => dot(a, crossP(b, c));\n  const det2 = (m) => m[0][0] * m[1][1] - m[0][1] * m[1][0];\n  const minorOf = (M, j) => [M[1].filter((x, c) => c !== j), M[2].filter((x, c) => c !== j)];\n  const SIGN = [1, -1, 1];\n  const cofs = (M) => [0, 1, 2].map((j) => SIGN[j] * det2(minorOf(M, j)));\n  const expand = (M) => { const c = cofs(M); return M[0][0] * c[0] + M[0][1] * c[1] + M[0][2] * c[2]; };\n  // The full six-term formula, to check the recipe against.\n  const sixTerm = (M) => M[0][0] * M[1][1] * M[2][2] + M[0][1] * M[1][2] * M[2][0] + M[0][2] * M[1][0] * M[2][1] -\n    M[0][2] * M[1][1] * M[2][0] - M[0][1] * M[1][0] * M[2][2] - M[0][0] * M[1][2] * M[2][1];\n  const colsOf = (M) => [0, 1, 2].map((j) => [M[0][j], M[1][j], M[2][j]]);\n  const fromCols = (c) => [0, 1, 2].map((r) => [c[0][r], c[1][r], c[2][r]]);\n  const mulV = (M, p) => M.map((r) => dot(r, p));\n  const lerpV = (p, q, e) => (e >= 1 ? q.slice() : e <= 0 ? p.slice() : p.map((x, k) => x + (q[k] - x) * e));\n  const lerpM = (P, Q, e) => (e >= 1 ? Q.map((r) => r.slice()) : e <= 0 ? P.map((r) => r.slice()) : P.map((r, i) => r.map((x, j) => x + (Q[i][j] - x) * e)));\n  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);\n  const samePt = (a, b) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k]));\n  const sameM = (P, Q) => !!P && !!Q && P.length === Q.length && P.every((r, i) => samePt(r, Q[i]));\n  const floorArea = (a, b) => a[0] * b[1] - a[1] * b[0];\n  // The working, as written: the total along the top row, and a cross product part by part.\n  const totalLine = (M) => num(M[0][0]) + ' × ' + paren(det2(minorOf(M, 0))) + ' − ' + paren(M[0][1]) + ' × ' + paren(det2(minorOf(M, 1))) +\n    ' + ' + paren(M[0][2]) + ' × ' + paren(det2(minorOf(M, 2))) + ' = ' + num(expand(M));\n  const headsOf = (M) => ['+ ' + paren(M[0][0]) + ' ×', '− ' + paren(M[0][1]) + ' ×', '+ ' + paren(M[0][2]) + ' ×'];\n  const XHEADS = ['+ i ×', '− j ×', '+ k ×'];\n  function vk(c) {\n    const parts = [];\n    ['i', 'j', 'k'].forEach((n, k) => {\n      const x = c[k];\n      if (Math.abs(x) < 1e-9) return;\n      const s = (near(Math.abs(x), 1) ? '' : num(Math.abs(x))) + n;\n      parts.push(parts.length ? (x < 0 ? ' − ' : ' + ') + s : (x < 0 ? MINUS : '') + s);\n    });\n    return parts.length ? parts.join('') : '0';\n  }\n  function crossLine(name, a, b) {\n    const G = [[0, 0, 0], a, b], m = [0, 1, 2].map((j) => det2(minorOf(G, j)));\n    return name + ' = ' + paren(m[0]) + 'i − ' + paren(m[1]) + 'j + ' + paren(m[2]) + 'k = ' + vk(cofs(G));\n  }\n\n  // ---------- the lesson's values ----------\n  const E1 = [1, 0, 0], E2 = [0, 1, 0], E3 = [0, 0, 1], O3 = [0, 0, 0];\n  const I3 = [E1.slice(), E2.slice(), E3.slice()];\n  const withK = (k) => fromCols([E1, E2, k]);\n  const K1 = [1, 0.5, 2], K2 = [-1, 1, 2], KQ = [2, -1, 3], KDOWN = [1, 0.5, 0];\n  const MJ = [[2, 1, 0], [0, 3, 1], [0, 0, 2]], MR = [[2, 1, 1], [1, 3, 0], [0, 0, 2]], M8 = [[3, 1, 0], [1, 2, 1], [0, 1, 2]], M13 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];\n  const VA = [2, 1, 0], VB = [1, 3, 0];\n  // The three-loop circuit (example figures): each loop's own resistance, and the one each pair of neighbours shares.\n  const OWN = [3, 6, 3], SH = 3;\n  const RG = [[OWN[0] + SH, -SH, 0], [-SH, OWN[1] + 2 * SH, -SH], [0, -SH, OWN[2] + SH]];\n  // The spanner: r along the handle in metres, the push F in newtons; drawn at UR, UF and UM units a metre, newton and newton metre.\n  const RR = [0.3, 0, 0], FF = [80, 150, 0], UR = 10, UF = 1 / 50, UM = 1 / 15;\n  // Where k's tip may be dragged, across and up.\n  const DX = [-1.5, 2], DZ = [-1, 2.5];\n  const boxPts = (cols) => { const a = cols[0], b = cols[1], c = cols[2]; return [[0, 0, 0], a, b, c, add(a, b), add(a, c), add(b, c), add(add(a, b), c)]; };\n  const CUBE = boxPts([E1, E2, E3]);\n  const dragBoxes = (y) => { let out = []; DX.forEach((x) => DZ.forEach((z) => { out = out.concat(boxPts([E1, E2, [x, y, z]])); })); return out; };\n\n  // ---------- the 3-D view: a true view (never mirrored), turned by al, tipped by BE ----------\n  const RAD = Math.PI / 180, BE = 24, AL = 290, SWING = 30, UMAX = 60, PH = 250, AW = 284, AH = PH - 60;\n  function viewOf(al) { const a = al * RAD, b = BE * RAD; return { sa: Math.sin(a), ca: Math.cos(a), sb: Math.sin(b), cb: Math.cos(b) }; }\n  const prj = (V, w) => [-V.sa * w[0] + V.ca * w[1], V.sb * V.ca * w[0] + V.sb * V.sa * w[1] - V.cb * w[2]];\n  const towards = (V) => [V.ca * V.cb, V.sa * V.cb, V.sb];\n  // The scale and centre that keep every point given in view, however far the view is turned.\n  function fitOf(pts, al0) {\n    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];\n    pts.forEach((p) => p.forEach((x, k) => { lo[k] = Math.min(lo[k], x); hi[k] = Math.max(hi[k], x); }));\n    const C = lo.map((x, k) => (x + hi[k]) / 2);\n    let u = UMAX;\n    [-SWING, -SWING / 2, 0, SWING / 2, SWING].forEach((da) => {\n      const V = viewOf(al0 + da);\n      let mx = 1e-6, my = 1e-6;\n      pts.forEach((p) => { const q = prj(V, sub(p, C)); mx = Math.max(mx, Math.abs(q[0])); my = Math.max(my, Math.abs(q[1])); });\n      u = Math.min(u, AW / 2 / mx, AH / 2 / my);\n    });\n    return { C, u };\n  }\n  function gridOf3(pts) {\n    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);\n    return { x0: Math.min(0, Math.floor(Math.min.apply(null, xs))), x1: Math.max(1, Math.ceil(Math.max.apply(null, xs))),\n      y0: Math.min(0, Math.floor(Math.min.apply(null, ys))), y1: Math.max(1, Math.ceil(Math.max.apply(null, ys))) };\n  }\n  function hull(pts) {\n    const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);\n    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);\n    const lo = [], up = [];\n    p.forEach((q) => { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });\n    for (let k = p.length - 1; k >= 0; k--) { const q = p[k]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }\n    up.pop(); lo.pop();\n    return lo.concat(up);\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // dur: a SHOW step's demonstration. act: what he can do with the picture, under it. rows: worked lines;\n  // minors: the three 2 by 2 blocks above them. pts: what the 3-D view must keep in view. A puzzle: task,\n  // opts, want, hints (one per wrong answer), slips (the red line drawn for each), why, fb (seconds of\n  // motion after a right and a wrong answer).\n  const PICK = 'Tap one of the answers.';\n  const TURN = 'Drag the picture sideways to turn it.';\n  const STEPS = [\n    { show: true, key: 'box', name: 'The box', dur: 3.2, keyRow: true, act: TURN, pts: CUBE.concat(boxPts([E1, E2, K1])),\n      text: 'A 3 by 3 matrix moves every point of space. Its columns are where i, j and k land. Here i and j stay on the floor, and k lands on `(1, 0.5, 2)`. The unit cube leans into a slanted box.' },\n    { kind: 'pick', key: 'whereJ', name: 'Where j lands', rows: 1, keyRow: true, zoom: true, fb: [1.7, 0.6], pts: CUBE.concat(boxPts(colsOf(MJ)), [[0, 3, 1], [2, 0, 0]]),\n      task: 'The matrix `[2 1 0; 0 3 1; 0 0 2]` moves space. Where does j land?',\n      opts: ['(0, 3, 1)', '(1, 3, 0)', '(2, 0, 0)'], want: '(1, 3, 0)',\n      hints: { '(0, 3, 1)': 'Not quite. That is row 2. Where j lands is read down column 2.', '(2, 0, 0)': 'Not quite. That is column 1, where i lands.' },\n      slips: { '(0, 3, 1)': '(0, 3, 1) is row 2, read across', '(2, 0, 0)': '(2, 0, 0) is column 1, where i lands' },\n      why: 'Each column is where one arrow lands. Column 1 is where i lands, column 2 is j and column 3 is k. So read down column 2 to get `(1, 3, 0)`.' },\n    { show: true, key: 'volume', name: 'The volume', dur: 3.4, rows: 1, keyRow: true, drag: true, dragY: 1, act: 'Drag k\\'s tip across or up. ' + TURN,\n      pts: CUBE.concat(boxPts([E1, E2, K1]), dragBoxes(1)),\n      text: 'The floor is still the unit square. So the box\\'s volume is its height, k\\'s up part, 2. That volume is the *determinant*. It is the factor the move scales every volume by. Sliding k\\'s tip sideways leans the box but keeps its height. So the volume stays 2.' },\n    { kind: 'pick', key: 'detK', name: 'Read the height', rows: 1, keyRow: true, fb: [1.7, 1.5], pts: CUBE.concat(boxPts([E1, E2, KQ])),\n      task: 'i and j stay on the floor, and k lands on `(2, −1, 3)`. What is the determinant?',\n      opts: ['6', '4', '3'], want: '3',\n      hints: { 6: 'Not quite. Only the up part sets the height. The 2 across just leans the box.', 4: 'Not quite. The volume is not k\\'s parts added up. It is the floor\\'s area times the height.' },\n      slips: { 6: '2 × 3 = 6 counts the 2 across, which only leans it', 4: '2 − 1 + 3 = 4 adds up k\\'s parts' },\n      why: 'The floor is still the unit square, with area 1. The height is k\\'s up part, 3. So the volume, which is the determinant, is 1 × 3 = 3.' },\n    { show: true, key: 'flat', name: 'Flat', dur: 3.6, rows: 1, keyRow: true, drag: true, dragY: 0.5, act: 'Drag k\\'s tip down through the floor. ' + TURN,\n      pts: CUBE.concat(boxPts([E1, E2, K1]), dragBoxes(0.5)),\n      text: 'As k\\'s tip drops, the box gets lower and its volume falls. On the floor the box is flat, and the determinant is 0. All of space lands on that one flat plane. So the move cannot be undone. Push k\\'s tip below the floor and the box comes out mirrored, with a negative volume.' },\n    { kind: 'pick', key: 'squash', name: 'Squash it flat', rows: 1, keyRow: true, fb: [1.6, 1.6],\n      pts: CUBE.concat(boxPts([E1, E2, [3, 2, 0]]), boxPts([E1, E2, [0, 0, 3]]), boxPts([E1, E2, [1, 1, 1]])),\n      task: 'i and j stay on the floor. Which landing spot for k squashes space flat?',\n      opts: ['(3, 2, 0)', '(0, 0, 3)', '(1, 1, 1)'], want: '(3, 2, 0)',\n      hints: { '(0, 0, 3)': 'Not quite. That stands straight up 3, so the box\\'s volume is 3.', '(1, 1, 1)': 'Not quite. Its up part is 1, so the box has volume 1.' },\n      slips: { '(0, 0, 3)': 'Straight up 3 gives volume 3, not flat', '(1, 1, 1)': 'An up part of 1 gives volume 1, not flat' },\n      why: 'The box\\'s height is k\\'s up part. For `(3, 2, 0)` that is 0. So the box lies flat on the floor, and its volume is 0.' },\n    { show: true, key: 'recipe', name: 'The recipe', dur: 4.5, rows: 2, minors: true, keyRow: true, act: TURN, pts: CUBE.concat(boxPts(colsOf(MR))),\n      text: 'Take each top-row entry in turn. Cover its row and column. The 2 by 2 left gives its *minor*, its ad − bc. With the signs + − +, the minors become *cofactors*. Multiply each entry by its cofactor and add them up. That gives 2 × 6 − 1 × 2 + 1 × 0 = 10. The box agrees. Its floor is the parallelogram of i and j, with area 2 × 3 − 1 × 1 = 5. Floor 5 times height 2 is 10.' },\n    { kind: 'pick', key: 'det7', name: 'Your turn', rows: 1, minors: true, keyRow: true, fb: [1.9, 0.5], pts: CUBE.concat(boxPts(colsOf(M8))),\n      task: 'What is the determinant of `[3 1 0; 1 2 1; 0 1 2]`?',\n      opts: ['11', '7', '12'], want: '7',\n      hints: { 11: 'Not quite. The middle term takes a minus. The signs go + − +.', 12: 'Not quite. That multiplies down the diagonal only. Each top-row entry needs its own minor.' },\n      slips: { 11: '3 × 3 + 1 × 2 + 0 × 1 = 11 drops the minus', 12: '3 × 2 × 2 = 12 is the diagonal only' },\n      why: 'The minors are 2 × 2 − 1 × 1 = 3, then 1 × 2 − 1 × 0 = 2, then 1 × 1 − 2 × 0 = 1. With the signs + − +, that gives 3 × 3 − 1 × 2 + 0 × 1 = 7.' },\n    { show: true, key: 'cross', name: 'The cross product', dur: 4.1, rows: 1, minors: true, act: TURN, pts: [O3, VA, VB, add(VA, VB), [0, 0, 5]],\n      text: 'Put i, j and k in the top row as if they were numbers. Put a in row 2 and b in row 3. The same recipe gives a × b. Here it is 5k. Its dot product with a and with b is 0, so it stands square to both. Its length, 5, is the floor\\'s area.' },\n    { kind: 'pick', key: 'ji', name: 'Swap the order', rows: 1, minors: true, fb: [1.8, 0.6], pts: [O3, E1, E2, [-1, -1, 0], [2, 2, 0], [0, 0, 1.2], [0, 0, -1.2]],\n      task: 'What does the recipe give for j × i? Row 2 is `j = (0, 1, 0)`, and row 3 is `i = (1, 0, 0)`.',\n      opts: ['k', '0', '−k'], want: '−k',\n      hints: { k: 'Not quite. That is i × j. Here the rows are swapped, so the sign flips.', 0: 'Not quite. i and j make a floor of area 1, so the arrow has length 1.' },\n      slips: { k: 'k is i × j, the other order', 0: '0 would need a flat floor, and this one has area 1' },\n      why: 'Only the k part is left. Its minor is 0 × 0 − 1 × 1 = −1. So j × i is −k. It points down from the floor.' },\n    { show: true, key: 'circuit', name: 'The circuit', dur: 3.6, rows: 2, minors: true, circuit: true,\n      text: 'A three-loop circuit\\'s resistance grid is `[6 −3 0; −3 12 −3; 0 −3 6]`. Each diagonal entry is a loop\\'s total resistance. Each shared 3 Ω becomes −3. The top-row recipe gives 6 × 63 − (−3) × (−18) + 0 × 9 = 324. It is not zero, so the grid does not squash space flat. That means exactly one set of loop currents fits, whatever the loop voltages.' },\n    { kind: 'pick', key: 'spanner', name: 'Mixed: the spanner', rows: 1, minors: true, fb: [1.8, 0.6],\n      pts: [O3, [-0.4, 0, 0], [3.4, 0, 0], scl(RR, UR), add(scl(RR, UR), scl(FF, UF)), scl(FF, UF), [0, 0, 51 * UM], [0, 0, -3], [0, 0, -1]], noGrid: true,\n      task: 'A spanner lies along `r = (0.3, 0, 0)` m. You push with `F = (80, 150, 0)` N. What is the moment, r × F?',\n      opts: ['51 N m along k', '45 N m along k', '45 N m along −k'], want: '45 N m along k',\n      hints: { '51 N m along k': 'Not quite. That uses the whole 170 N push. The 80 N along the handle turns nothing, and the recipe drops it.',\n        '45 N m along −k': 'Not quite. That is F × r. Put r in row 2 and F in row 3.' },\n      slips: { '51 N m along k': '0.3 × 170 = 51 uses the whole push', '45 N m along −k': 'Along −k is F × r, the rows swapped' },\n      why: 'Put i, j and k on top, r in row 2 and F in row 3. The i and j parts come out 0. The k part is 0.3 × 150 − 0 × 80 = 45. So the moment is 45 N m along k, along the bolt.' },\n    { kind: 'pick', key: 'det0', name: 'Mixed: a flat grid', rows: 2, minors: true, keyRow: true, zoom: true, noGrid: true, fb: [1.9, 0.5], pts: CUBE.concat(boxPts(colsOf(M13))),\n      task: 'What is the determinant of `[1 2 3; 4 5 6; 7 8 9]`?',\n      opts: ['0', '−24', '45'], want: '0',\n      hints: { '−24': 'Not quite. The middle term takes a minus, so −2 × (−6) is +12.', 45: 'Not quite. That multiplies down the diagonal only.' },\n      slips: { '−24': '1 × (−3) + 2 × (−6) + 3 × (−3) = −24 drops the minus', 45: '1 × 5 × 9 = 45 is the diagonal only' },\n      why: 'The minors are −3, −6 and −3. So the recipe gives 1 × (−3) − 2 × (−6) + 3 × (−3) = 0. Column 2 sits halfway between columns 1 and 3. So all three lie in one flat plane, and the box is flat.' },\n  ];\n  const FINISH = 'A 3 by 3 determinant is the volume scale factor, and 0 means space is squashed flat. Go along the top row: each entry times its cofactor, signs + − +. With i, j and k on top, the same recipe gives a × b.';\n  // Sources the checks restate (the lesson's own).\n  const TBB = 'https://www.3blue1brown.com/lessons/determinant';\n  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf';\n  const LAMAR = 'https://tutorial.math.lamar.edu/Classes/CalcII/CrossProduct.aspx';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // Each 3-D step's scale, centre and floor grid, worked out once from the points it must keep in view.\n  STEPS.forEach((d) => {\n    if (!d.pts) return;\n    if (d.noGrid) { d.fit = fitOf(d.pts, AL); return; }\n    const g = gridOf3(d.pts), corners = [[g.x0, g.y0, 0], [g.x1, g.y0, 0], [g.x0, g.y1, 0], [g.x1, g.y1, 0]];\n    d.fit = fitOf(d.pts.concat(corners), AL);\n    g.s = d.fit.u < 14 ? 4 : d.fit.u < 26 ? 2 : 1;\n    d.floorGrid = g;\n  });\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. k: where Dan has put k's tip\n  // (null while the demonstration sets it). al: how far he has turned the view.\n  function blank() { return { pick: null, res: null, why: false, k: null, al: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;\n  let REC = null, GEO = null, clipN = 0;\n  const el = (id) => document.getElementById(id);\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[ijk](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);\n        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) italics(node, seg.slice(at0), false);\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    S[i].k = null;\n    play(d.dur);\n  } });\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null, placed = [];\n  const put = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = put(K.svg('g'));\n    K.fade(g, Math.min(1, a), rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx0) => put(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx0 || 0) }));\n  const line = (cls, x1, y1, x2, y2) => put(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, x, y, r) => put(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));\n  const pathEl = (cls, d) => put(K.svg('path', { class: cls, d }));\n  const polyD = (ps) => 'M' + ps.map((p) => r3(p[0]) + ' ' + r3(p[1])).join(' L') + ' Z';\n  const nb = (s) => String(s).replace(/ /g, NB);\n  // Entries sit on highlight bands, so they carry no halo of the page colour.\n  function text(x, y, s, cls, anchor) {\n    const plain = /^(en|q)\\b/.test(cls);\n    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    italics(t, nb(s), true);\n    REC.texts.push(String(s));\n    return put(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8.5;\n  }\n  // A line of words across the drawing, smaller when it would not fit.\n  function fitText(x, y, s, cls) {\n    if (tw(s, cls) <= 322) return text(x, y, s, cls);\n    if (tw(s, cls + ' sm2') <= 322) return text(x, y, s, cls + ' sm2');\n    return text(x, y, s, cls + ' sm3');\n  }\n  // An arrow from a to b (drawing units).\n  function arrow(a, b, cls) {\n    const g = put(K.svg('g', { class: 'arr ' + cls }));\n    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);\n    if (L < 1) return g;\n    const ux = dx / L, uy = dy / L, hl = Math.min(12, L * 0.5), hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;\n    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));\n    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n    return g;\n  }\n  const swatch = (cx, cy, kind) => arrow([cx - 6, cy + 6], [cx + 6, cy - 6], kind);\n  // A matrix's geometry: rows' middles from y0, py apart; columns px wide inside brackets from x0.\n  function mgeo(x0, y0, n, m, px, py) {\n    return { x0, x1: x0 + 12 + px * m, top: y0 - py / 2 - 2, bot: y0 + py * (n - 1) + py / 2 + 2, px, py,\n      cx: (j) => x0 + 6 + px * j + px / 2, cy: (i) => y0 + py * i };\n  }\n  function brackets(G) {\n    put(K.svg('path', { class: 'brk', d: 'M' + r3(G.x0 + 6) + ' ' + r3(G.top) + ' H' + r3(G.x0) + ' V' + r3(G.bot) + ' H' + r3(G.x0 + 6) }));\n    put(K.svg('path', { class: 'brk', d: 'M' + r3(G.x1 - 6) + ' ' + r3(G.top) + ' H' + r3(G.x1) + ' V' + r3(G.bot) + ' H' + r3(G.x1 - 6) }));\n  }\n  const cellBand = (G, i, j, cls) => rect(cls || 'lit', G.cx(j) - G.px / 2 + 2, G.cy(i) - G.py / 2 + 1, G.px - 4, G.py - 2, 6);\n  function drawKey(y, items) {\n    const gap = 16, glyph = 22, ws = items.map((it) => tw(it[1], 'key'));\n    const total = ws.reduce((a, w) => a + glyph + w, 0) + gap * (items.length - 1);\n    let x = Math.max(6, (340 - total) / 2);\n    items.forEach((it, k) => {\n      if (it[0] === 'face') rect('face sw', x, y - 11, 16, 11, 2);\n      else line(it[0] + ' kg', x, y - 5, x + 16, y - 5);\n      text(x + glyph, y, it[1], 'key', 'start');\n      x += glyph + ws[k] + gap;\n    });\n  }\n\n  // ---------- labels in the view, clear of the lines, the edges and each other ----------\n  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;\n  function segHits(b, s) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];\n    for (let k = 0; k < 4; k++) {\n      if (p[k] === 0) { if (q[k] < 0) return false; continue; }\n      const r = q[k] / p[k];\n      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  const DIRS = [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]];\n  function placeLabel(lb, area, segs, pts) {\n    const s = lb.s, cls = lb.cls, w = tw(s, cls), px = lb.p[0], py = lb.p[1];\n    const cands = [];\n    if (lb.center) cands.push([px, py, 0]);\n    [1, 2].forEach((far) => DIRS.forEach((c) => cands.push([px + (c[0] ? c[0] * (8 + 6 * far + w / 2) : 0),\n      py + (c[1] ? c[1] * (c[0] ? 6 + 7 * far : 9 + 8 * far) : 0), far === 2 ? 5 : 0])));\n    let best = null, bestBad = Infinity;\n    cands.forEach((cd) => {\n      const b = { x: cd[0] - w / 2 - 3, y: cd[1] - 9, w: w + 6, h: 18 };\n      let bad = cd[2];\n      if (b.x < area.x0 || b.x + b.w > area.x1 || b.y < area.y0 || b.y + b.h > area.y1) bad += 100;\n      placed.forEach((q) => { if (boxesMeet(b, q)) bad += 60; });\n      segs.forEach((sg) => { if (segHits(b, sg)) bad += 14; });\n      // A label never counts its own point as something to keep clear of.\n      pts.forEach((p) => { if (Math.hypot(p[0] - px, p[1] - py) < 0.5) return; if (p[0] > b.x - 6 && p[0] < b.x + b.w + 6 && p[1] > b.y - 6 && p[1] < b.y + b.h + 6) bad += 10; });\n      if (bad < bestBad) { bestBad = bad; best = { cx: cd[0], cy: cd[1], b }; }\n    });\n    placed.push(best.b);\n    return text(best.cx, best.cy + 5, s, cls + ' hh');\n  }\n\n  // ---------- the layout: the band (matrix, readout), the minors, worked lines, the circuit, the key, the view ----------\n  const BXC = 80, RXC = 252, BY = 38, PY = 22, MB = 126, LSTEP = 20, CH = 126, BLX = [62, 170, 278];\n  function lay(d) {\n    const rows = d.rows || 0, y0 = d.minors ? MB + 92 : 136, ly = [];\n    for (let k = 0; k < rows; k++) ly.push(y0 + k * LSTEP);\n    let y = rows ? ly[rows - 1] + 8 : (d.minors ? MB + 80 : 120);\n    const cy = d.circuit ? y + 6 : null;\n    if (d.circuit) y += CH + 6;\n    const ky = d.keyRow ? y + 17 : null;\n    const ptop = d.keyRow ? ky + 8 : y + 4;\n    return { ly, cy, ky, ptop, h: d.circuit ? y + 6 : ptop + PH };\n  }\n  function matrix3(m) {\n    const px = m.px || 36, G3 = mgeo(m.xc - (12 + 3 * px) / 2, BY, 3, 3, px, PY);\n    text(m.xc, 15, m.label, 'sm');\n    const lit = m.lit && m.lit.a > 0 ? m.lit : null;\n    if (lit) part(lit.a, 0, () => cellBand(G3, 0, lit.j));\n    brackets(G3);\n    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {\n      if (m.fade && c === m.fade.j) {\n        const f = m.fade;\n        part(1 - f.a, 0, () => text(G3.cx(c), G3.cy(r) + 6, '?', 'q'));\n        part(f.a, 0, () => text(G3.cx(c), G3.cy(r) + 6, f.vals[r], 'en ' + f.cls));\n        continue;\n      }\n      const s = m.txt ? m.txt[r][c] : num(m.M[r][c]);\n      const cov = !!lit && lit.a >= 0.5 && (r === 0 || c === lit.j) && !(r === 0 && c === lit.j);\n      text(G3.cx(c), G3.cy(r) + 6, s, s === '?' ? 'q' : cov ? 'en mu' : 'en');\n    }\n    if (m.fade && m.fade.a >= 0.5 && /bad/.test(m.fade.cls)) REC.bad++;\n    if (m.names) [0, 1, 2].forEach((k) => { swatch(G3.cx(k) - 9, G3.bot + 13, 'p' + (k + 1)); text(G3.cx(k) + 8, G3.bot + 18, ['i', 'j', 'k'][k], 'nm'); });\n    if (m.rowNames) m.rowNames.forEach((s, k) => text(G3.x1 + 8, G3.cy(k + 1) + 6, s, 'nm', 'start'));\n  }\n  function drawRead(r) {\n    text(RXC, 15, r.label, 'sm');\n    r.vals.forEach((vv) => {\n      const a = vv.a == null ? 1 : vv.a;\n      part(a, 0, () => text(RXC, 54, vv.s, 'big' + (vv.cls ? ' ' + vv.cls : '')));\n      if (a >= 0.5) { REC.reads.push(r.label + ' ' + vv.s); if (vv.n != null) REC.vol = vv.n; if (/bad/.test(vv.cls || '')) REC.bad++; }\n    });\n    if (r.tag) {\n      const ta = r.tag.a == null ? 1 : r.tag.a, cls = 'tag' + (r.tag.cls ? ' ' + r.tag.cls : ''), w = tw(r.tag.s, cls);\n      part(ta, 0, () => text(Math.min(RXC, 336 - w / 2), 82, r.tag.s, cls));\n      if (ta >= 0.5) { REC.tag = r.tag.s; REC.reads.push(r.tag.s); if (/bad/.test(r.tag.cls || '')) REC.bad++; }\n    }\n  }\n  // The three minors: each top-row entry with its sign, the 2 by 2 left when its row and column are covered, and its value.\n  function drawBlocks(b) {\n    [0, 1, 2].forEach((k) => part(b.a[k], 3, () => {\n      const xc = BLX[k], mi = minorOf(b.M, k), G2 = mgeo(xc - 34, MB + 32, 2, 2, 28, 18);\n      text(xc, MB + 14, b.heads[k], 'ln');\n      brackets(G2);\n      for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) text(G2.cx(c), G2.cy(r) + 5, num(mi[r][c]), 'en s14');\n      text(xc, MB + 78, 'minor ' + num(det2(mi)), 'tag');\n      if (b.a[k] >= 0.5) REC.blocks.push({ k, minor: det2(mi) });\n    }));\n  }\n  function loopArrow(cx, cy, lab) {\n    const r = 14, a0 = -2.2, a1 = a0 + 5.0;\n    const P0 = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)], P1 = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];\n    pathEl('loop', 'M' + r3(P0[0]) + ' ' + r3(P0[1]) + ' A' + r + ' ' + r + ' 0 1 1 ' + r3(P1[0]) + ' ' + r3(P1[1]));\n    const tx = -Math.sin(a1), ty = Math.cos(a1), n = [-ty, tx];\n    const tip = [P1[0] + tx * 5, P1[1] + ty * 5], base = [P1[0] - tx * 3, P1[1] - ty * 3];\n    pathEl('loophd', polyD([tip, [base[0] + n[0] * 4.5, base[1] + n[1] * 4.5], [base[0] - n[0] * 4.5, base[1] - n[1] * 4.5]]));\n    text(cx, cy + 5, lab, 'lb');\n  }\n  // Three loops in a row: each has a resistor of its own on top, neighbours share one, loop currents clockwise.\n  function drawCircuit(y0) {\n    const xs = [34, 126, 218, 310], yT = y0 + 20, yB = y0 + 114, yM = (yT + yB) / 2;\n    line('wire', xs[0], yT, xs[3], yT); line('wire', xs[0], yB, xs[3], yB);\n    line('wire', xs[0], yT, xs[0], yB); line('wire', xs[3], yT, xs[3], yB);\n    [1, 2].forEach((k) => {\n      const x = xs[k];\n      line('wire', x, yT, x, yB);\n      rect('res', x - 7, yM - 22, 14, 34, 1);\n      text(x + 11, yM + 1, num(SH) + ' Ω', 'lb', 'start');\n    });\n    [0, 1, 2].forEach((k) => {\n      const cx = (xs[k] + xs[k + 1]) / 2;\n      rect('res', cx - 18, yT - 7, 36, 14, 1);\n      text(cx, yT - 12, num(OWN[k]) + ' Ω', 'lb');\n      loopArrow(cx, yM + 22, ['I₁', 'I₂', 'I₃'][k]);\n    });\n    REC.circuit = true;\n  }\n\n  // ---------- the box: hidden edges dashed, the floor, the faces that face the viewer, the edges in front ----------\n  const FACE_KEYS = [[['o', 'a', 'ab', 'b'], 0, -1], [['c', 'ac', 'abc', 'bc'], 0, 1], [['o', 'b', 'bc', 'c'], 1, -1],\n    [['a', 'ab', 'abc', 'ac'], 1, 1], [['o', 'c', 'ac', 'a'], 2, -1], [['b', 'bc', 'abc', 'ab'], 2, 1]];\n  const EDGE_KEYS = [['o', 'a'], ['o', 'b'], ['o', 'c'], ['a', 'ab'], ['a', 'ac'], ['b', 'ab'], ['b', 'bc'], ['c', 'ac'], ['c', 'bc'], ['ab', 'abc'], ['ac', 'abc'], ['bc', 'abc']];\n  function boxDraw(ctx, cols, floor) {\n    const a = cols[0], b = cols[1], c = cols[2], Dv = triple(a, b, c);\n    const W = { o: O3, a, b, c, ab: add(a, b), ac: add(a, c), bc: add(b, c), abc: add(add(a, b), c) };\n    const S2 = {};\n    Object.keys(W).forEach((k) => { S2[k] = ctx.P(W[k]); });\n    const size = Math.max(1e-9, Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]) * Math.hypot(c[0], c[1], c[2]));\n    const flat = Math.abs(Dv) < 1e-6 * size, view = towards(ctx.V), sg = Dv >= 0 ? 1 : -1;\n    const N = [crossP(a, b), crossP(b, c), crossP(c, a)];\n    const vis = FACE_KEYS.map((f) => !flat && dot(N[f[1]], view) * f[2] * sg > 1e-9);\n    const edgeVis = (e) => flat || FACE_KEYS.some((f, k) => vis[k] && f[0].indexOf(e[0]) >= 0 && f[0].indexOf(e[1]) >= 0);\n    EDGE_KEYS.forEach((e) => { if (!edgeVis(e)) ctx.sg(S2[e[0]], S2[e[1]], 'eh'); });\n    if (floor) pathEl('floor', polyD(FACE_KEYS[0][0].map((k) => S2[k])));\n    if (flat) pathEl('face', polyD(hull(Object.keys(S2).map((k) => S2[k]))));\n    else FACE_KEYS.forEach((f, k) => { if (vis[k]) pathEl('face', polyD(f[0].map((q) => S2[q]))); });\n    EDGE_KEYS.forEach((e) => { if (edgeVis(e)) ctx.sg(S2[e[0]], S2[e[1]], 'ed'); });\n    REC.flat = flat; REC.D = Dv;\n  }\n  // The view: the floor grid, the unit cube, the box or a floor shape, the height, the arrows, the labels.\n  function scene3(d, st, t, L) {\n    const al = st.al != null ? st.al : AL, V = viewOf(al);\n    const fit = d.zoom && t.zoomPts ? fitOf(t.zoomPts, AL) : d.fit;\n    const O = [170, L.ptop + PH / 2], u = fit.u, C = fit.C;\n    const P = (w) => { const q = prj(V, [w[0] - C[0], w[1] - C[1], w[2] - C[2]]); return [O[0] + u * q[0], O[1] + u * q[1]]; };\n    const ctx = { V, P, O, u, C, area: { x0: 4, x1: 336, y0: L.ptop + 2, y1: L.ptop + PH - 2 }, segs: [], pts: [] };\n    ctx.sg = (p, q, cls) => { line(cls, p[0], p[1], q[0], q[1]); ctx.segs.push([p[0], p[1], q[0], q[1]]); };\n    GEO = ctx;\n    const names = [], tags = [], others = [];\n    ctx.label = (p, s, cls, a, prio) => (prio === 0 ? names : prio === 1 ? tags : others).push({ p, s, cls: cls || 'lb', a: a == null ? 1 : a });\n    // The floor grid, cut to the picture.\n    if (d.floorGrid) {\n      const id = 'pc' + (clipN++), g = d.floorGrid;\n      put(K.svg('clipPath', { id }, K.svg('rect', { x: 0, y: r3(L.ptop), width: 340, height: PH })));\n      const cg = put(K.svg('g', { 'clip-path': 'url(#' + id + ')' }));\n      const keep = into; into = cg;\n      for (let x = g.x0; x <= g.x1 + 1e-9; x += g.s) { const p = P([x, g.y0, 0]), q = P([x, g.y1, 0]); line('gl', p[0], p[1], q[0], q[1]); }\n      for (let y = g.y0; y <= g.y1 + 1e-9; y += g.s) { const p = P([g.x0, y, 0]), q = P([g.x1, y, 0]); line('gl', p[0], p[1], q[0], q[1]); }\n      into = keep;\n    }\n    if (t.under) t.under(ctx);\n    if (t.ghost) { const W = boxPts([E1, E2, E3]), key = { o: 0, a: 1, b: 2, c: 3, ab: 4, ac: 5, bc: 6, abc: 7 }; EDGE_KEYS.forEach((e) => ctx.sg(P(W[key[e[0]]]), P(W[key[e[1]]]), 'gh')); }\n    if (t.cols) boxDraw(ctx, t.cols, !!t.floor);\n    if (t.floorPoly) {\n      const ps = t.floorPoly.map(P);\n      pathEl('floor', polyD(ps));\n      ps.forEach((p, k) => ctx.sg(p, ps[(k + 1) % ps.length], 'fe'));\n    }\n    // The height: a dashed line from k's tip straight down to the floor.\n    if (t.height && t.cols) {\n      const k = t.cols[2], onFloor = near(t.cols[0][2], 0) && near(t.cols[1][2], 0);\n      if (onFloor && Math.abs(k[2]) > 1e-6) {\n        const p = P(k), q = P([k[0], k[1], 0]);\n        ctx.sg(p, q, 'hgt');\n        if (k[2] > 0) ctx.label([(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], 'height ' + num(k[2]), 'lb', t.hA, 2);\n        REC.height = k[2];\n      }\n    }\n    if (t.extra) t.extra(ctx);\n    (t.arrows || []).forEach((ar) => {\n      const a = ar.a == null ? 1 : ar.a;\n      if (!(a > 0)) return;\n      const p = P(ar.from || O3), q = P(ar.to);\n      if (Math.hypot(q[0] - p[0], q[1] - p[1]) < 1) return;\n      part(a, 0, () => arrow(p, q, 'base ' + ar.cls));\n      ctx.segs.push([p[0], p[1], q[0], q[1]]); ctx.pts.push(q);\n      if (ar.name) ctx.label(q, ar.name, /bad/.test(ar.cls) ? 'nm bad' : 'nm', Math.min(a, ar.nameA == null ? 1 : ar.nameA), 0);\n    });\n    (t.tags || []).forEach((tg) => ctx.label(P(tg.w), tg.s, tg.cls, tg.a, 1));\n    if (t.floorLabel) {\n      const fp = t.floorPoly || (t.cols ? [O3, t.cols[0], add(t.cols[0], t.cols[1]), t.cols[1]] : null);\n      if (fp) { const c = scl(fp.reduce((s, p) => add(s, p), [0, 0, 0]), 1 / fp.length); others.push({ p: P(c), s: t.floorLabel, cls: 'lb', a: t.floorA == null ? 1 : t.floorA, center: true }); }\n    }\n    names.concat(tags, others).forEach((lb) => part(lb.a, 0, () => placeLabel(lb, ctx.area, ctx.segs, ctx.pts)));\n    REC.cols = t.cols ? t.cols.map((c) => c.slice()) : null;\n    if (d.drag && t.cols) REC.kPx = P(t.cols[2]);\n  }\n\n  // ---------- one screen ----------\n  function drawStep(d, st, L) {\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const v = { mats: [], read: null, lines: [], blocks: null, three: null };\n    const slip = (r) => v.lines.push({ r: r || 0, s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3) });\n    const reveal = (a) => { if (a > 0) REC.reveal++; };\n    const ijk = (cols, kcls) => [{ to: cols[0], cls: 'p1', name: 'i' }, { to: cols[1], cls: 'p2', name: 'j' }, { to: cols[2], cls: kcls || 'p3', name: 'k' }];\n    const volTag = (D, a) => (Math.abs(D) < 1e-9 ? { s: 'flat', a } : D < 0 ? { s: 'mirrored', a } : null);\n    const volRead = (cols, a) => { const D = triple(cols[0], cols[1], cols[2]); return { label: 'volume', vals: [{ s: num(D), n: D }], tag: volTag(D, a) }; };\n    const floorLine = (k) => 'floor 1 × height ' + num(k[2]) + ' = volume ' + num(k[2]);\n    const ask = (label) => ({ label, vals: [{ s: '?', cls: 'q' }] });\n    // The top-row entry lit now: three windows, each dur long, starting at t0s.\n    const lit3 = (t0s, dur) => {\n      let out = null;\n      t0s.forEach((t0, k) => { const a = Math.min(arr(t0, 0.25), 1 - arr(t0 + dur, 0.25)); if (a > 0 && !out) out = { j: k, a }; });\n      return out;\n    };\n    // A wrong pick drawn as a red arrow from the origin, labelled with the pick.\n    const badArrow = (w, s, a, from) => (ctx) => part(a, 0, () => {\n      const p = ctx.P(from || O3), q = ctx.P(w);\n      arrow(p, q, 'base bad');\n      ctx.segs.push([p[0], p[1], q[0], q[1]]); ctx.pts.push(q);\n      ctx.label(q, s, 'lb bad', a, 1);\n      REC.bad++;\n    });\n    const goodArrow = (w, s, a, la) => (ctx) => {\n      if (!(a > 0.02)) return;\n      const p = ctx.P(O3), q = ctx.P(scl(w, a));\n      arrow(p, q, 'base pa');\n      ctx.segs.push([p[0], p[1], q[0], q[1]]); ctx.pts.push(q);\n      ctx.label(q, s, 'lb', la, 1);\n      REC.arrow = scl(w, a);\n    };\n    switch (d.key) {\n      case 'box': {\n        const e = go(0.8, 1.8), la = arr(2.7, 0.4), k = lerpV(E3, K1, e), cols = [E1, E2, k];\n        v.mats.push({ M: fromCols(cols), xc: BXC, label: 'the move', names: true });\n        v.read = volRead(cols, 1);\n        v.three = { cols, ghost: true, floor: true, arrows: ijk(cols), tags: [{ w: k, s: pt(K1), a: la }] };\n        break;\n      }\n      case 'whereJ': {\n        const J = colsOf(MJ)[1], t = { ghost: true, tags: [], zoomPts: CUBE };\n        let cols = [E1, E2, E3];\n        v.mats.push({ M: MJ, xc: BXC, label: 'the move', names: true });\n        v.read = ask('j lands on');\n        if (right) {\n          const e = go(0.1, 1.1), pa = arr(1.2, 0.4);\n          cols = colsOf(lerpM(I3, MJ, e));\n          t.zoomPts = CUBE.concat(boxPts(cols));\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: pt(J), cls: 'ok', a: pa }];\n          v.read.tag = { s: 'column 2', cls: 'ok', a: pa };\n          t.tags.push({ w: J, s: pt(J), a: pa });\n          v.lines.push({ s: 'Column 2 is ' + pt(J) + ', where j lands', cls: 'ln ok', a: pa });\n          reveal(pa);\n        } else if (wrong) {\n          const wa = arr(0.1, 0.4);\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick, cls: 'bad', a: wa }];\n          t.extra = badArrow(parsePt(st.pick), st.pick, wa);\n          t.zoomPts = CUBE.concat([scl(parsePt(st.pick), wa)]);\n          slip();\n        }\n        t.cols = cols; t.arrows = ijk(cols);\n        v.three = t;\n        break;\n      }\n      case 'volume': {\n        const k = st.k || lerpV(K1, K2, go(0.8, 1.8)), la = st.k ? 1 : arr(2.8, 0.4), cols = [E1, E2, k];\n        v.mats.push({ M: fromCols(cols), xc: BXC, label: 'the move', names: true });\n        v.read = volRead(cols, 1);\n        v.lines.push({ s: floorLine(k), cls: 'ln' });\n        v.three = { cols, ghost: true, floor: true, height: true, floorLabel: 'floor 1', arrows: ijk(cols), tags: [{ w: k, s: pt(k), a: la }] };\n        break;\n      }\n      case 'detK': {\n        const MK = withK(KQ), t = { ghost: true, floor: true, floorLabel: 'floor 1', tags: [] };\n        let cols = [E1, E2, E3];\n        v.mats.push({ M: MK, xc: BXC, label: 'the move', names: true });\n        v.read = ask('volume');\n        if (right || wrong) {\n          const e = go(0.1, 1.0), pa = arr(1.1, 0.4);\n          cols = [E1, E2, lerpV(E3, KQ, e)];\n          t.height = true; t.hA = pa;\n          t.tags.push({ w: KQ, s: pt(KQ), a: pa });\n          if (right) {\n            v.read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: num(KQ[2]), cls: 'ok', a: pa, n: KQ[2] }];\n            v.lines.push({ s: floorLine(KQ), cls: 'ln ok', a: arr(1.3, 0.4) });\n            reveal(pa);\n          } else {\n            const wa = arr(0.1, 0.3);\n            v.read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick, cls: 'bad', a: wa }];\n            slip();\n          }\n        }\n        t.cols = cols; t.arrows = ijk(cols);\n        v.three = t;\n        break;\n      }\n      case 'flat': {\n        const kz = 2 - go(0.5, 0.8) - go(2.1, 0.8), fa = st.k ? 1 : arr(3.0, 0.4);\n        const k = st.k || [KDOWN[0], KDOWN[1], kz], cols = [E1, E2, k], D = triple(E1, E2, k);\n        v.mats.push({ M: fromCols(cols), xc: BXC, label: 'the move', names: true });\n        v.read = volRead(cols, Math.abs(D) < 1e-9 ? fa : 1);\n        v.lines.push({ s: floorLine(k), cls: 'ln' });\n        v.three = { cols, ghost: true, floor: true, height: true, floorLabel: 'floor 1', arrows: ijk(cols), tags: [{ w: k, s: pt(k), a: fa }] };\n        break;\n      }\n      case 'squash': {\n        const t = { ghost: true, floor: true, floorLabel: 'floor 1', tags: [] };\n        let k = E3, kc = 'p3';\n        v.mats.push({ txt: [['1', '0', '?'], ['0', '1', '?'], ['0', '0', '?']], xc: BXC, label: 'the move', names: true });\n        v.read = ask('volume');\n        if (right || wrong) {\n          const W = parsePt(st.pick), e = go(0.1, 1.0), pa = arr(1.1, 0.4), D = triple(E1, E2, W);\n          k = lerpV(E3, W, e);\n          v.mats[0].fade = { j: 2, vals: W.map(num), a: pa, cls: right ? 'ok' : 'bad' };\n          t.height = true; t.hA = pa;\n          t.tags.push({ w: W, s: st.pick, cls: right ? 'lb' : 'lb bad', a: pa });\n          if (right) {\n            v.read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: num(D), cls: 'ok', a: pa, n: D }];\n            v.read.tag = { s: 'flat', cls: 'ok', a: pa };\n            v.lines.push({ s: floorLine(W), cls: 'ln ok', a: pa });\n            reveal(pa);\n          } else {\n            kc = 'bad';\n            v.read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: num(D), cls: 'bad', a: pa }];\n            v.read.tag = { s: 'not flat', cls: 'bad', a: pa };\n            slip();\n          }\n        }\n        t.cols = [E1, E2, k]; t.arrows = ijk(t.cols, kc);\n        v.three = t;\n        break;\n      }\n      case 'recipe': {\n        const e = go(0.5, 1.2), cols = colsOf(lerpM(I3, MR, e)), W0 = [1.8, 2.4, 3.0];\n        const lit = lit3(W0, 0.6), ba = W0.map((t0) => arr(t0 + 0.1, 0.4)), ta = arr(3.6, 0.4), fl = arr(4.0, 0.4), ha = arr(1.7, 0.4);\n        const c = colsOf(MR), fA = floorArea(c[0], c[1]), h = c[2][2];\n        v.mats.push({ M: lerpM(I3, MR, e), xc: BXC, label: 'the move', names: true, lit });\n        v.blocks = { M: MR, heads: headsOf(MR), a: ba };\n        v.lines.push({ r: 0, s: totalLine(MR), cls: 'ln', a: ta });\n        v.lines.push({ r: 1, s: 'The box: floor ' + num(fA) + ' × height ' + num(h) + ' = ' + num(fA * h), cls: 'ln', a: fl });\n        v.read = volRead(cols, 1);\n        v.three = { cols, ghost: true, floor: true, height: true, hA: ha, floorLabel: 'floor ' + num(fA), floorA: fl, arrows: ijk(cols) };\n        break;\n      }\n      case 'det7': {\n        let cols = [E1, E2, E3], lit = null;\n        v.read = ask('volume');\n        if (right) {\n          const W0 = [0.1, 0.35, 0.6];\n          lit = lit3(W0, 0.25);\n          const ba = W0.map((t0) => arr(t0, 0.3)), ta = arr(0.9, 0.3), e = go(0.5, 1.0), pa = arr(1.5, 0.4), D = expand(M8);\n          cols = colsOf(lerpM(I3, M8, e));\n          v.blocks = { M: M8, heads: headsOf(M8), a: ba };\n          v.lines.push({ s: totalLine(M8), cls: 'ln ok', a: ta });\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: num(D), cls: 'ok', a: pa, n: D }];\n          reveal(ta);\n        } else if (wrong) {\n          const wa = arr(0.1, 0.3);\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick, cls: 'bad', a: wa }];\n          slip();\n        }\n        v.mats.push({ M: M8, xc: BXC, label: 'the move', names: true, lit });\n        v.three = { cols, ghost: true, arrows: ijk(cols) };\n        break;\n      }\n      case 'cross': {\n        const W0 = [0.5, 1.1, 1.7], lit = lit3(W0, 0.6), ba = W0.map((t0) => arr(t0 + 0.1, 0.4)), ta = arr(2.3, 0.4), grow = go(2.6, 1.0), la = arr(3.6, 0.4);\n        const AB = crossP(VA, VB);\n        v.mats.push({ txt: [['i', 'j', 'k'], VA.map(num), VB.map(num)], xc: BXC, label: 'the grid', rowNames: ['a', 'b'], lit });\n        v.blocks = { M: [[0, 0, 0], VA, VB], heads: XHEADS, a: ba };\n        v.lines.push({ s: crossLine('a × b', VA, VB), cls: 'ln', a: ta });\n        v.read = { label: 'a × b', vals: [{ s: vk(AB), a: ta }] };\n        v.three = { floorPoly: [O3, VA, add(VA, VB), VB], floorLabel: 'floor ' + num(floorArea(VA, VB)), floorA: ta,\n          arrows: [{ to: VA, cls: 'p1', name: 'a' }, { to: VB, cls: 'p2', name: 'b' }], extra: goodArrow(AB, 'a × b', grow, la) };\n        break;\n      }\n      case 'ji': {\n        const JI = crossP(E2, E1), t = { floorPoly: [O3, E2, add(E1, E2), E1], floorLabel: 'floor 1', arrows: [{ to: E2, cls: 'p2', name: 'j' }, { to: E1, cls: 'p1', name: 'i' }] };\n        let lit = null;\n        v.read = ask('j × i');\n        if (right) {\n          const W0 = [0.1, 0.35, 0.6];\n          lit = lit3(W0, 0.25);\n          const ba = W0.map((t0) => arr(t0, 0.3)), ta = arr(0.9, 0.3), grow = go(1.0, 0.6), la = arr(1.4, 0.4);\n          v.blocks = { M: [[0, 0, 0], E2, E1], heads: XHEADS, a: ba };\n          v.lines.push({ s: crossLine('j × i', E2, E1), cls: 'ln ok', a: ta });\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - ta }, { s: vk(JI), cls: 'ok', a: ta }];\n          t.extra = goodArrow(JI, 'j × i', grow, la);\n          reveal(ta);\n        } else if (wrong) {\n          const wa = arr(0.1, 0.4);\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick, cls: 'bad', a: wa }];\n          if (st.pick === 'k') t.extra = badArrow(E3, 'k', wa);\n          else t.extra = (ctx) => part(wa, 0, () => { const p = ctx.P(O3); circle('ring0', p[0], p[1], 8); ctx.pts.push(p); ctx.label(p, '0', 'lb bad', wa, 1); REC.bad++; });\n          slip();\n        }\n        v.mats.push({ txt: [['i', 'j', 'k'], E2.map(num), E1.map(num)], xc: BXC, label: 'the grid', rowNames: ['j', 'i'], lit });\n        v.three = t;\n        break;\n      }\n      case 'circuit': {\n        const W0 = [0.5, 1.1, 1.7], lit = lit3(W0, 0.6), ba = W0.map((t0) => arr(t0 + 0.1, 0.4)), t1 = arr(2.3, 0.4), t2 = arr(2.7, 0.4), tg = arr(3.1, 0.4);\n        const D = expand(RG), p0 = RG[0][0] * det2(minorOf(RG, 0)), p1 = RG[0][1] * det2(minorOf(RG, 1));\n        v.mats.push({ M: RG, xc: BXC, label: 'resistance grid, Ω', lit });\n        v.blocks = { M: RG, heads: headsOf(RG), a: ba };\n        v.lines.push({ r: 0, s: totalLine(RG), cls: 'ln', a: t1 });\n        v.lines.push({ r: 1, s: '= ' + num(p0) + ' − ' + num(p1) + ' = ' + num(D), cls: 'ln', a: t2 });\n        v.read = { label: 'determinant', vals: [{ s: num(D), a: t2, n: D }], tag: { s: 'not 0, so one set fits', a: tg } };\n        break;\n      }\n      case 'spanner': {\n        const rT = scl(RR, UR), fT = add(rT, scl(FF, UF)), M = crossP(RR, FF);\n        const t = { floorPoly: [O3, rT, fT, scl(FF, UF)], arrows: [{ to: rT, cls: 'p1', name: 'r' }, { from: rT, to: fT, cls: 'p2', name: 'F' }],\n          under: (ctx) => {\n            const h0 = ctx.P([-0.4, 0, 0]), h1 = ctx.P([3.4, 0, 0]), b0 = ctx.P([0, 0, -1]), b1 = ctx.P(O3);\n            line('handle', h0[0], h0[1], h1[0], h1[1]);\n            ctx.sg(b0, b1, 'bolt');\n            ctx.label(b0, 'bolt', 'lb mu', 1, 2);\n          } };\n        let lit = null;\n        v.read = ask('moment');\n        if (right) {\n          const W0 = [0.1, 0.35, 0.6];\n          lit = lit3(W0, 0.25);\n          const ba = W0.map((t0) => arr(t0, 0.3)), ta = arr(0.9, 0.3), grow = go(1.0, 0.6), la = arr(1.4, 0.4);\n          v.blocks = { M: [[0, 0, 0], RR, FF], heads: XHEADS, a: ba };\n          v.lines.push({ s: crossLine('r × F', RR, FF), cls: 'ln ok', a: ta });\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - ta }, { s: num(M[2]) + ' N m', cls: 'ok', a: ta }];\n          v.read.tag = { s: 'along k, the bolt', cls: 'ok', a: ta };\n          t.extra = goodArrow(scl(M, UM), num(M[2]) + ' N m', grow, la);\n          reveal(ta);\n        } else if (wrong) {\n          const wa = arr(0.1, 0.4), down = /−k/.test(st.pick), size = toNum(st.pick.split(' ')[0]);\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: num(size) + ' N m', cls: 'bad', a: wa }];\n          v.read.tag = { s: down ? 'along −k' : 'along k', cls: 'bad', a: wa };\n          t.extra = badArrow([0, 0, (down ? -1 : 1) * size * UM], num(size) + ' N m', wa);\n          slip();\n        }\n        v.mats.push({ txt: [['i', 'j', 'k'], RR.map(num), FF.map(num)], xc: BXC, px: 38, label: 'the grid', rowNames: ['r', 'F'], lit });\n        v.three = t;\n        break;\n      }\n      case 'det0': {\n        let cols = [E1, E2, E3], lit = null, nameA = 1;\n        const t = { ghost: true };\n        v.read = ask('volume');\n        if (right) {\n          const W0 = [0.1, 0.35, 0.6];\n          lit = lit3(W0, 0.25);\n          const ba = W0.map((t0) => arr(t0, 0.3)), ta = arr(0.9, 0.3), e = go(0.5, 1.0), pa = arr(1.5, 0.4), D = expand(M13);\n          nameA = 1 - arr(0.5, 0.3);\n          cols = colsOf(lerpM(I3, M13, e));\n          v.blocks = { M: M13, heads: headsOf(M13), a: ba };\n          v.lines.push({ r: 0, s: totalLine(M13), cls: 'ln ok', a: ta });\n          v.lines.push({ r: 1, s: 'Column 2 is halfway between columns 1 and 3', cls: 'ln ok', a: pa });\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: num(D), cls: 'ok', a: pa, n: D }];\n          v.read.tag = { s: 'flat', cls: 'ok', a: pa };\n          const c1 = cols[0], c3 = cols[2];\n          t.extra = (ctx) => part(pa, 0, () => { const p = ctx.P(c1), q = ctx.P(c3); ctx.sg(p, q, 'plane'); });\n          reveal(ta);\n        } else if (wrong) {\n          const wa = arr(0.1, 0.3);\n          v.read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick, cls: 'bad', a: wa }];\n          slip();\n        }\n        v.mats.push({ M: M13, xc: BXC, label: 'the move', names: true, lit });\n        t.cols = cols;\n        t.arrows = ijk(cols).map((ar) => Object.assign(ar, { nameA }));\n        t.zoomPts = CUBE.concat(boxPts(cols));\n        v.three = t;\n        break;\n      }\n      default: break;\n    }\n    // The band, the minors, the worked lines, the circuit, the key, the view.\n    const said = [];\n    v.mats.forEach((m) => matrix3(m));\n    if (v.read) drawRead(v.read);\n    if (v.blocks) drawBlocks(v.blocks);\n    else if (d.minors) [0, 1, 2].forEach((k) => { part(0.45, 0, () => brackets(mgeo(BLX[k] - 34, MB + 32, 2, 2, 28, 18))); text(BLX[k], MB + 78, 'minor ?', 'tag'); });\n    v.lines.forEach((ln) => {\n      const a = ln.a == null ? 1 : ln.a;\n      part(a, 0, () => fitText(170, L.ly[ln.r || 0], ln.s, ln.cls || 'ln'));\n      if (a >= 0.5) { REC.lines.push(ln.s); said.push(say(ln.s) + '.'); if (/bad/.test(ln.cls || '')) REC.bad++; }\n    });\n    if (d.circuit) drawCircuit(L.cy);\n    if (d.keyRow) drawKey(L.ky, [['gh', 'unit cube'], ['face', 'box']]);\n    if (v.three) scene3(d, st, v.three, L);\n    said.unshift(REC.reads.length ? say(REC.reads.join(', ')) + '.' : '');\n    if (v.three && REC.cols) said.unshift('A 3-D view of the unit cube and its box. i lands on ' + say(pt(REC.cols[0])) + ', j on ' + say(pt(REC.cols[1])) + ' and k on ' + say(pt(REC.cols[2])) + '.');\n    else if (v.three) said.unshift('A 3-D view of two arrows on the floor and the parallelogram they make.');\n    if (d.circuit) said.unshift('Three loops in a row. Each end loop has ' + num(OWN[0]) + ' ohms of its own, the middle loop ' + num(OWN[1]) + ' ohms, and each pair of neighbours shares ' + num(SH) + ' ohms. The loop currents run clockwise.');\n    return said.filter((s) => s).join(' ');\n  }\n\n  // ---------- the drags: k's tip on screens 3 and 5, and turning the view ----------\n  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 340, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The 3-D view: drag it sideways, or use the left and right arrow keys, to turn it' }));\n  const kGrip = ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'button', 'aria-label': 'The tip of k: drag it, or use the arrow keys, to move it across and up' }));\n  function placeGrips(d) {\n    const on3 = !finished && !d.circuit && !!GEO;\n    turnGrip.style.display = on3 ? '' : 'none';\n    turnGrip.setAttribute('tabindex', on3 ? '0' : '-1');\n    if (on3) { turnGrip.setAttribute('y', r3(GEO.area.y0)); turnGrip.setAttribute('height', r3(GEO.area.y1 - GEO.area.y0)); }\n    const kOn = !finished && !!d.drag && !!REC && !!REC.kPx;\n    kGrip.style.display = kOn ? '' : 'none';\n    kGrip.setAttribute('tabindex', kOn ? '0' : '-1');\n    if (kOn) { kGrip.setAttribute('cx', r3(REC.kPx[0])); kGrip.setAttribute('cy', r3(REC.kPx[1])); }\n  }\n  const snapH = (v) => Math.round(v * 2) / 2;\n  // k's tip in half steps, its along part held; a touch stops the demonstration.\n  function setK(x, z) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.drag || finished) return;\n    const k = [K.clamp(snapH(x), DX[0], DX[1]), d.dragY, K.clamp(snapH(z), DZ[0], DZ[1])];\n    if (st.k && samePt(st.k, k) && !anim.playing()) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    st.k = k;\n    K.reveal();\n    K.refresh();\n  }\n  function svgAt(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    return [q.x, q.y];\n  }\n  // A point on the screen back onto the upright plane through k's tip (its along part held).\n  function kFrom(q) {\n    if (!GEO) return null;\n    const V = GEO.V, C = GEO.C, u = GEO.u, y0 = STEPS[at()].dragY;\n    const s0 = (q[0] - GEO.O[0]) / u, s1 = (q[1] - GEO.O[1]) / u, yr = y0 - C[1];\n    const xr = (s0 - yr * V.ca) / (-V.sa);\n    const zr = (xr * V.sb * V.ca + yr * V.sb * V.sa - s1) / V.cb;\n    return [xr + C[0], zr + C[2]];\n  }\n  let held = null;\n  kGrip.addEventListener('pointerdown', (e) => {\n    if (!STEPS[at()].drag || finished) return;\n    const q = svgAt(e);\n    if (!q) return;\n    held = e.pointerId;\n    try { kGrip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n    e.preventDefault();\n    e.stopPropagation();\n    const w = kFrom(q);\n    if (w) setK(w[0], w[1]);\n  });\n  kGrip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId) return;\n    const q = svgAt(e), w = q ? kFrom(q) : null;\n    if (w) setK(w[0], w[1]);\n  });\n  const letGo = (e) => { if (held != null && (!e || held === e.pointerId)) held = null; };\n  kGrip.addEventListener('pointerup', letGo);\n  kGrip.addEventListener('pointercancel', letGo);\n  kGrip.addEventListener('lostpointercapture', () => letGo(null));\n  kGrip.addEventListener('keydown', (e) => {\n    const d = STEPS[at()];\n    if (!d.drag || finished) return;\n    const by = { ArrowRight: [0.5, 0], ArrowLeft: [-0.5, 0], ArrowUp: [0, 0.5], ArrowDown: [0, -0.5] }[e.key];\n    if (!by) return;\n    e.preventDefault();\n    const k = S[at()].k || (REC && REC.cols ? REC.cols[2] : K1);\n    setK(k[0] + by[0], k[2] + by[1]);\n  });\n  // The view turns when he drags across it, within a range that keeps every part in view.\n  let turnHeld = null;\n  const turnOn = () => !finished && !STEPS[at()].circuit;\n  const alNow = () => { const st = S[at()]; return st.al != null ? st.al : AL; };\n  function setAl(a) {\n    const st = S[at()], v = K.clamp(Math.round(a), AL - SWING, AL + SWING);\n    if (st.al === v) return;\n    st.al = v;\n    if (!anim.playing()) K.refresh();\n  }\n  turnGrip.addEventListener('pointerdown', (e) => {\n    if (!turnOn()) return;\n    turnHeld = { id: e.pointerId, x: e.clientX, al: alNow() };\n    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the picture */ }\n  });\n  turnGrip.addEventListener('pointermove', (e) => { if (turnHeld && turnHeld.id === e.pointerId && turnOn()) setAl(turnHeld.al - (e.clientX - turnHeld.x) * 0.4); });\n  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ty) => turnGrip.addEventListener(ty, () => { turnHeld = null; }));\n  turnGrip.addEventListener('keydown', (e) => {\n    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];\n    if (!by || !turnOn()) return;\n    e.preventDefault();\n    setAl(alNow() + by);\n  });\n\n  // ---------- the scene for a step (the animations call this every frame) ----------\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null; placed = []; clipN = 0; GEO = null;\n    REC = { texts: [], reads: [], lines: [], blocks: [], cols: null, vol: null, tag: null, flat: false, D: null, height: null,\n      arrow: null, kPx: null, circuit: false, bad: 0, reveal: 0 };\n    const L = lay(d);\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(L.h + 6));\n    svg.setAttribute('aria-label', drawStep(d, st, L) || '');\n    placeGrips(d);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.k = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    const act = el('act');\n    write(act, d.act || '');\n    act.hidden = finished || !d.act;\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    replayBtn.setLabel('Play again');\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (k) => STEPS.findIndex((d) => d.key === k);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const finishedSt = (i) => (STEPS[i].show ? blank() : solvedSt(i));\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n\n  K.check('A three by three determinant is obtained by multiplying each element of the first row by its corresponding cofactor and then adding the three together: on each screen that works one out, the minors and the total drawn are that sum, it agrees with the full six-term formula, and the box drawn has that volume', () =>\n    [['recipe', MR], ['det7', M8], ['circuit', RG], ['det0', M13]].every((p) => {\n      const i = idx(p[0]), r = drawn(i, finishedSt(i)), M = p[1], D = expand(M), c = cofs(M);\n      const sum = M[0][0] * c[0] + M[0][1] * c[1] + M[0][2] * c[2];\n      const box = p[0] === 'circuit' ? r.circuit : near(triple(colsOf(M)[0], colsOf(M)[1], colsOf(M)[2]), D) && sameM(fromCols(r.cols), M) && near(r.vol, D);\n      return near(sum, D) && near(sixTerm(M), D) && r.lines.indexOf(totalLine(M)) >= 0 && r.blocks.length === 3 &&\n        r.blocks.every((b) => near(b.minor, det2(minorOf(M, b.k)))) && box;\n    }), { source: HELM });\n  K.check('Any transformation that inverts the orientation of space has a negative determinant: with k\\'s tip pushed below the floor the box comes out mirrored and its volume reads negative, and lifted back above the floor it reads positive again', () => {\n    const i = idx('flat');\n    const below = [-1, -0.5].every((z) => { const r = drawn(i, Object.assign(blank(), { k: [1, 0.5, z] })); return r.vol < 0 && near(r.vol, z) && r.tag === 'mirrored' && r.D < 0; });\n    const above = drawn(i, Object.assign(blank(), { k: [1, 0.5, 1] }));\n    return below && near(above.vol, 1) && above.tag === null && above.D > 0;\n  }, { source: TBB });\n  K.check('The cross product is really the determinant of a grid with i, j and k in its top row: on each cross product screen the cofactors are the parts of the arrow drawn, they match the part by part formula, and the arrow stands square to both rows', () =>\n    [['cross', VA, VB, 1], ['ji', E2, E1, 1], ['spanner', RR, FF, UM]].every((p) => {\n      const i = idx(p[0]), r = drawn(i, finishedSt(i)), c = cofs([[0, 0, 0], p[1], p[2]]), x = crossP(p[1], p[2]);\n      return samePt(c, x) && near(dot(x, p[1]), 0) && near(dot(x, p[2]), 0) && samePt(r.arrow, scl(x, p[3])) && r.blocks.length === 3;\n    }), { source: LAMAR });\n  K.check('With i and j on the floor the volume is the height: wherever k\\'s tip is dragged, the volume shown is k\\'s up part, the third column is k\\'s tip, and sliding it sideways leaves the volume alone', () => {\n    const i = idx('volume');\n    let ok = true;\n    for (let x = DX[0]; x <= DX[1] + 1e-9; x += 1) for (let z = DZ[0]; z <= DZ[1] + 1e-9; z += 0.5) {\n      const r = drawn(i, Object.assign(blank(), { k: [x, 1, z] }));\n      ok = ok && near(r.vol, z) && samePt(r.cols[2], [x, 1, z]) && (Math.abs(z) < 1e-9 ? r.flat : !r.flat);\n    }\n    return ok;\n  });\n  K.check('Dropping k\\'s tip to the floor squashes the box flat: the volume reads 0, every point of space lands on the floor, and the puzzle\\'s flat pick lies on the floor too', () => {\n    const f = drawn(idx('flat'), blank()), sq = drawn(idx('squash'), solvedSt(idx('squash')));\n    const land = [[1, 2, 3], [-2, 0.5, 4], [0.3, -1, -2]].every((p) => near(mulV(withK(KDOWN), p)[2], 0));\n    return f.vol === 0 && f.flat && f.tag === 'flat' && samePt(f.cols[2], KDOWN) && land && sq.flat && sq.vol === 0;\n  });\n  K.check('Every worked number is right: minors 6, 2 and 0 give 10, and the box\\'s floor 5 times height 2 agrees (14 without the minus); minors 3, 2 and 1 give 7 (11 without the minus, 12 down the diagonal); a × b = 5k and j × i = −k; the circuit\\'s grid has 6, 12 and −3, minors 63, −18 and 9, and 378 − 54 = 324 (432 without the minus); r × F = 45k (51 from the whole 170 N); [1 2 3; 4 5 6; 7 8 9] has minors −3, −6 and −3 and gives 0 (−24 without the minus, 45 down the diagonal); k on (2, −1, 3) gives 3 (6 and 4 are slips)', () =>\n    det2(minorOf(MR, 0)) === 6 && det2(minorOf(MR, 1)) === 2 && det2(minorOf(MR, 2)) === 0 && expand(MR) === 10 && floorArea(VA, VB) === 5 && MR[2][2] === 2 &&\n    MR[0][0] * 6 + MR[0][1] * 2 + MR[0][2] * 0 === 14 && samePt(colsOf(MR)[0], VA) && samePt(colsOf(MR)[1], VB) &&\n    det2(minorOf(M8, 0)) === 3 && det2(minorOf(M8, 1)) === 2 && det2(minorOf(M8, 2)) === 1 && expand(M8) === 7 && 3 * 3 + 1 * 2 + 0 * 1 === 11 && M8[0][0] * M8[1][1] * M8[2][2] === 12 &&\n    samePt(crossP(VA, VB), [0, 0, 5]) && samePt(crossP(E2, E1), [0, 0, -1]) && samePt(crossP(E1, E2), [0, 0, 1]) &&\n    RG[0][0] === 6 && RG[1][1] === 12 && RG[2][2] === 6 && RG[0][1] === -3 && RG[1][2] === -3 && RG[0][2] === 0 &&\n    det2(minorOf(RG, 0)) === 63 && det2(minorOf(RG, 1)) === -18 && det2(minorOf(RG, 2)) === 9 && 6 * 63 === 378 && -3 * -18 === 54 && expand(RG) === 324 && 378 + 54 === 432 &&\n    near(crossP(RR, FF)[2], 45) && near(Math.hypot(FF[0], FF[1]), 170) && near(RR[0] * 170, 51) &&\n    det2(minorOf(M13, 0)) === -3 && det2(minorOf(M13, 1)) === -6 && det2(minorOf(M13, 2)) === -3 && expand(M13) === 0 && 1 * -3 + 2 * -6 + 3 * -3 === -24 && 1 * 5 * 9 === 45 &&\n    triple(E1, E2, KQ) === 3 && KQ[0] * KQ[2] === 6 && KQ[0] + KQ[1] + KQ[2] === 4 && triple(E1, E2, K1) === 2 && triple(E1, E2, K2) === 2 && samePt(colsOf(MJ)[1], [1, 3, 0]) &&\n    totalLine(MR) === '2 × 6 − 1 × 2 + 1 × 0 = 10' && totalLine(M8) === '3 × 3 − 1 × 2 + 0 × 1 = 7' && totalLine(RG) === '6 × 63 − (−3) × (−18) + 0 × 9 = 324' &&\n    totalLine(M13) === '1 × (−3) − 2 × (−6) + 3 × (−3) = 0' && crossLine('a × b', VA, VB) === 'a × b = 0i − 0j + 5k = 5k');\n  K.check('Each puzzle\\'s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {\n    const g = (k) => STEPS[idx(k)], has = (d, s) => d.opts.indexOf(s) >= 0;\n    const noMinus = (M) => M[0][0] * det2(minorOf(M, 0)) + M[0][1] * det2(minorOf(M, 1)) + M[0][2] * det2(minorOf(M, 2));\n    const sq = g('squash');\n    return g('whereJ').want === pt(colsOf(MJ)[1]) && has(g('whereJ'), pt(MJ[1])) && has(g('whereJ'), pt(colsOf(MJ)[0])) &&\n      toNum(g('detK').want) === triple(E1, E2, KQ) && has(g('detK'), num(KQ[0] * KQ[2])) && has(g('detK'), num(KQ[0] + KQ[1] + KQ[2])) &&\n      near(triple(E1, E2, parsePt(sq.want)), 0) && sq.opts.filter((o) => o !== sq.want).every((o) => !near(triple(E1, E2, parsePt(o)), 0)) &&\n      toNum(g('det7').want) === expand(M8) && has(g('det7'), num(noMinus(M8))) && has(g('det7'), num(M8[0][0] * M8[1][1] * M8[2][2])) &&\n      g('ji').want === vk(crossP(E2, E1)) && has(g('ji'), vk(crossP(E1, E2))) && has(g('ji'), '0') &&\n      g('spanner').want === num(crossP(RR, FF)[2]) + ' N m along k' && has(g('spanner'), num(RR[0] * Math.hypot(FF[0], FF[1])) + ' N m along k') &&\n      has(g('spanner'), num(-crossP(FF, RR)[2]) + ' N m along −k') &&\n      toNum(g('det0').want) === expand(M13) && has(g('det0'), num(noMinus(M13))) && has(g('det0'), num(M13[0][0] * M13[1][1] * M13[2][2]));\n  });\n  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;\n      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;\n      if (drawn(i, solvedSt(i)).bad !== 0) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);\n    }));\n  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () =>\n    DO.every((i) => {\n      const b = drawn(i, blank()), s = drawn(i, solvedSt(i));\n      return b.reveal === 0 && s.reveal > 0 && b.lines.length === 0 && b.blocks.length === 0 && b.vol === null;\n    }));\n  K.check('Each demonstration ends where the lesson says: k on (1, 0.5, 2) with volume 2, then slid to (−1, 1, 2) keeping volume 2 all the way, then dropped to the floor with volume 0; the recipe\\'s box on [2 1 1; 1 3 0; 0 0 2] with volume 10; a × b standing at 5k', () => {\n    const b = drawn(idx('box'), blank()), v2 = drawn(idx('volume'), blank()), mid = drawn(idx('volume'), blank(), 1.7);\n    const f = drawn(idx('flat'), blank()), f1 = drawn(idx('flat'), blank(), 1.7), rc = drawn(idx('recipe'), blank()), cr = drawn(idx('cross'), blank());\n    return samePt(b.cols[2], K1) && near(b.vol, 2) && samePt(v2.cols[2], K2) && near(v2.vol, 2) && near(mid.vol, 2) && !samePt(mid.cols[2], K2) &&\n      samePt(f.cols[2], KDOWN) && f.vol === 0 && near(f1.vol, 1) && sameM(fromCols(rc.cols), MR) && near(rc.vol, 10) && samePt(cr.arrow, crossP(VA, VB));\n  });\n  K.check('Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The unit cube and its box",
+  "brief": "The one thing you should see is the unit cube's box keeping its volume, the determinant, as k's tip slides sideways, then going flat at 0 as k drops to the floor, when you drag where k lands.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A three by three determinant is obtained by multiplying each element of the first row by its corresponding cofactor and then adding the three together: on each screen that works one out, the minors and the total drawn are that sum, it agrees with the full six-term formula, and the box drawn has that volume",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf"
+    },
+    {
+     "label": "Any transformation that inverts the orientation of space has a negative determinant: with k's tip pushed below the floor the box comes out mirrored and its volume reads negative, and lifted back above the floor it reads positive again",
+     "ok": true,
+     "source": "https://www.3blue1brown.com/lessons/determinant"
+    },
+    {
+     "label": "The cross product is really the determinant of a grid with i, j and k in its top row: on each cross product screen the cofactors are the parts of the arrow drawn, they match the part by part formula, and the arrow stands square to both rows",
+     "ok": true,
+     "source": "https://tutorial.math.lamar.edu/Classes/CalcII/CrossProduct.aspx"
+    },
+    {
+     "label": "With i and j on the floor the volume is the height: wherever k's tip is dragged, the volume shown is k's up part, the third column is k's tip, and sliding it sideways leaves the volume alone",
+     "ok": true
+    },
+    {
+     "label": "Dropping k's tip to the floor squashes the box flat: the volume reads 0, every point of space lands on the floor, and the puzzle's flat pick lies on the floor too",
+     "ok": true
+    },
+    {
+     "label": "Every worked number is right: minors 6, 2 and 0 give 10, and the box's floor 5 times height 2 agrees (14 without the minus); minors 3, 2 and 1 give 7 (11 without the minus, 12 down the diagonal); a × b = 5k and j × i = −k; the circuit's grid has 6, 12 and −3, minors 63, −18 and 9, and 378 − 54 = 324 (432 without the minus); r × F = 45k (51 from the whole 170 N); [1 2 3; 4 5 6; 7 8 9] has minors −3, −6 and −3 and gives 0 (−24 without the minus, 45 down the diagonal); k on (2, −1, 3) gives 3 (6 and 4 are slips)",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle's answer comes from the rule, and each wrong answer offered is the slip its hint names",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends where the lesson says: k on (1, 0.5, 2) with volume 2, then slid to (−1, 1, 2) keeping volume 2 all the way, then dropped to the floor with volume 0; the recipe's box on [2 1 1; 1 3 0; 0 0 2] with volume 10; a × b standing at 5k",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The box",
+      "Where j lands",
+      "The volume",
+      "Read the height",
+      "Flat",
+      "Squash it flat",
+      "The recipe",
+      "Your turn",
+      "The cross product",
+      "Swap the order",
+      "The circuit",
+      "Mixed: the spanner",
+      "Mixed: a flat grid"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Play again",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T17:43:38.644Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "A negative determinant cannot be the factor a volume is scaled by; its size is, and the sign says flipped. Also, no screen or earlier lesson showed Dan that a × b’s length is the floor’s area, so “as you found with the spanner” claims a finding he never made."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,445 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Matrices, from moving shapes to circuit loops
+Idea: What a matrix is (A matrix is a grid of numbers, read row then column; times a column of amounts, it mixes its own columns, each row one equation.)
+Kind: concept
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is x lots of column 1 and y lots of column 2, nose to tail, landing where the grid's two rows add up to, when you slide x and y.
+Title (the app shows it above the frame, so do not repeat it): Mix two arrows
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in twelve small screens, all on one grid of numbers. On one line, a grid is written row by row with a semicolon between rows. So [1 3; 2 1] has rows 1 3 and 2 1. Its two columns are drawn as two arrows from the corner of a squared grid. Column 1 is the arrow (1, 2), and column 2 is (3, 1). Two sliders set the amounts x and y. The mix is drawn nose to tail, the way you add arrows. First come x copies of column 1. Then y copies of column 2 start where they end. A dot marks where the chain ends. The view zooms out to keep the whole chain in sight. Beside the picture, the grid times the column (x, y) is written out with its answer. Tap a row and it lights as one equation, such as x + 3y = 5. The top number of each column is that arrow's across part. So row 1 adds the across parts of the chain, and row 2 adds the up parts. Tap a column and its arrow lights. Drag either arrow's tip to a whole point, and the grid's numbers change with it. The screens. 1: a 2 by 3 grid, [4 7 1; 2 5 3], with its rows and columns labelled and row 1, column 3 lit. 2: a puzzle. Which number is in row 2, column 1? It offers 2, 7 and 5. 3: x + 3y = 7 and 2x + y = 4, written as [1 3; 2 1] times (x, y) = (7, 4). 4: a puzzle. Which grid holds 3x + 2y = 13 and x − y = 1? It offers [3 2; 1 −1], [3 1; 2 −1] and [3 2; 1 1]. 5: the columns as arrows, mixed with x = 2 and y = 1 to land on (5, 5). 6: a puzzle. Where does [1 3; 2 1] times (2, 2) land? It offers (8, 6), (6, 8) and (4, 3). The chain is drawn only after Check. 7: rows and columns lit in turn, with the tips free to drag. 8: a puzzle on [2 4; 1 3]. Which pair is row 2 as an equation and column 2 as an arrow? It offers x + 3y and (4, 3), 4x + 3y and (1, 3), and x + 3y and (1, 3). 9: a target dot at (7, 4), hit by x = 1 and y = 2. 10: a puzzle. Which equations find the amounts that hit (9, 8)? It offers x + 3y = 9 and 2x + y = 8, x + 2y = 9 and 3x + y = 8, and x + 3y = 8 and 2x + y = 9. 11: a mixed puzzle. What size is the grid for x + y = 5, x − y = 1 and 2x + y = 8? It offers 3 by 2, 2 by 3 and 3 by 3. 12: a mixed puzzle on example loop equations. 6I₁ − 2I₂ = 12 and −2I₁ + 6I₂ = 4 are [6 −2; −2 6] times the loop currents. Which column of voltages do currents of 2.5 A and 1.5 A give? It offers (12, 4), (15, 9) and (18, 14). Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines. A wrong pick is drawn, so you can see where it goes wrong.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The amounts in the puzzles are small whole numbers, chosen so the chain can be drawn and counted. An amount can be any number. An amount between 0 and 1 shortens an arrow. A negative amount turns it round. The arrows come from 2 by 2 grids. So each arrow has two parts and fits on a flat page. A grid with three rows mixes arrows with three parts in the same way, but that needs a 3-D drawing. More parts than that cannot be drawn as one picture. Not every target can be hit. Two arrows along one line can only reach points on that line.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Example 2 by 3 grid's rows, steps 1 and 2: 2 (assumed)
+- Example 2 by 3 grid's columns, steps 1 and 2: 3 (assumed)
+- Grid [4 7 1; 2 5 3], row 1, column 1: 4 (assumed)
+- Grid [4 7 1; 2 5 3], row 1, column 2: 7 (assumed)
+- Grid [4 7 1; 2 5 3], row 1, column 3: 1 (assumed)
+- Grid [4 7 1; 2 5 3], row 2, column 1: 2 (assumed)
+- Grid [4 7 1; 2 5 3], row 2, column 2: 5 (assumed)
+- Grid [4 7 1; 2 5 3], row 2, column 3: 3 (assumed)
+- Main grid [1 3; 2 1], row 1, column 2: 3 (assumed)
+- Main grid [1 3; 2 1], row 2, column 1: 2 (assumed)
+- Main grid's other two entries: 1 (assumed)
+- Target's across part, x + 3y = 7, steps 3 and 9: 7 (assumed)
+- Target's up part, 2x + y = 4, steps 3 and 9: 4 (assumed)
+- Amount x that hits (7, 4): 1 (computed)
+- Amount y that hits (7, 4): 2 (computed)
+- Step 4 equation 3x + 2y = 13, its x number: 3 (assumed)
+- Step 4 equation 3x + 2y = 13, its y number: 2 (assumed)
+- Step 4 equation 3x + 2y = 13, its answer: 13 (assumed)
+- Step 4 equation x − y = 1, its y number: -1 (assumed)
+- Step 4 equation x − y = 1, its answer: 1 (assumed)
+- Slider x and y lowest amount: 0 (control)
+- Slider x and y highest amount: 3 (control)
+- Opening amount x, step 5: 2 (control)
+- Opening amount y, step 5: 1 (control)
+- Two lots of (1, 2), across part: 2 (computed)
+- Two lots of (1, 2), up part: 4 (computed)
+- Mix 2 × (1, 2) + 1 × (3, 1), each part: 5 (computed)
+- Rows mixed as arrows with x = 2, y = 1, across: 4 (computed)
+- Rows mixed as arrows with x = 2, y = 1, up: 7 (computed)
+- Step 6 amounts x and y: 2 (assumed)
+- Step 6 mix, across part: 8 (computed)
+- Step 6 mix, up part: 6 (computed)
+- Step 6 wrong pick, rows as arrows, (6, 8): 8 (computed)
+- Step 6 wrong pick, amounts ignored, (4, 3): 4 (computed)
+- Step 8 grid [2 4; 1 3], row 1 entries: 4 (assumed)
+- Step 8 grid [2 4; 1 3], row 2, column 2: 3 (assumed)
+- Step 10 target, across part: 9 (assumed)
+- Step 10 target, up part: 8 (assumed)
+- Amount x that hits (9, 8): 3 (computed)
+- Amount y that hits (9, 8): 2 (computed)
+- Step 11 equation x + y = 5, its answer: 5 (assumed)
+- Step 11 equation x − y = 1, its answer: 1 (assumed)
+- Step 11 equation 2x + y = 8, its answer: 8 (assumed)
+- Step 11 grid size, rows: 3 (computed)
+- Step 11 grid size, columns: 2 (computed)
+- Step 12 example loop resistance on the diagonal, in ohms: 6 (assumed)
+- Step 12 example shared resistance entry, in ohms: -2 (assumed)
+- Step 12 example loop 1 voltage, in volts: 12 (assumed)
+- Step 12 example loop 2 voltage, in volts: 4 (assumed)
+- Step 12 example current I₁, in amps: 2.5 (assumed)
+- Step 12 example current I₂, in amps: 1.5 (assumed)
+- Step 12 row 1, 6 × 2.5: 15 (computed)
+- Step 12 row 2, 6 × 1.5: 9 (computed)
+- Step 12 row 2, −2 × 2.5: -5 (computed)
+- Step 12 wrong pick, signs dropped, row 1: 18 (computed)
+- Step 12 wrong pick, signs dropped, row 2: 14 (computed)
+- Analogy example jobs of kind A: 3 (assumed)
+- Analogy total coils, 3 × 1 + 1 × 3: 6 (computed)
+- Analogy total boxes, 3 × 2 + 1 × 1: 7 (computed)
+- Practice amounts x and y: 3 (assumed)
+- Practice equation x + 4y = 15, its answer: 15 (assumed)
+- Practice arrow 3 × (−1, 4), across part: -3 (computed)
+- Practice arrow 3 × (−1, 4), up part: 12 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A matrix is a grid of numbers in rows and columns. You can read it two ways. When it holds a set of equations, each row holds the numbers of one equation. Down the grid, each column is an arrow. Multiplying the grid by a column of amounts mixes those arrows. It takes so many of the first plus so many of the second.
+
+A grid's size is its rows, then its columns. So 2 rows and 3 columns make a 2 by 3 grid. Each number in it is an entry, named by its row first, then its column. On one line, a grid is written row by row with a semicolon between rows. In [4 7 1; 2 5 3], row 2, column 1 is 2. Row 1, column 2 is 7. Now take the equations x + 3y = 7 and 2x + y = 4. Their numbers make the grid [1 3; 2 1], one row for each equation. The unknowns x and y stand in a column beside it. The 7 and 4 stand in a column after the equals sign. To read row 1 back, multiply across the row and down the unknowns together, then add. That gives 1 × x + 3 × y, so row 1 says x + 3y = 7.
+
+Read down its columns, and the same grid becomes two arrows. Column 1 is the arrow (1, 2), and column 2 is the arrow (3, 1). Every x in the equations multiplies a number from column 1. So all the x parts together make x lots of column 1. All the y parts make y lots of column 2. The grid times (x, y) is therefore x lots of column 1 plus y lots of column 2, laid nose to tail. That mix is a linear combination of the columns.…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 77 (https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf): "all the entries in the second row relate to the second equation"
+[2] 2.2: Matrix Multiplication - Mathematics LibreTexts (https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication): "column vector and interpret the result as a linear combination of the columns of the matrix."
+[3] Mesh Current Analysis - DC Circuit Theory (https://www.electronics-tutorials.ws/dccircuits/dcp_5.html): "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: concept). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: concept -->
+<style>
+  /* Columns in rem, so at a large text size the cards reflow to fewer, wider columns and no name splits. */
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 12px; }
+  .group { padding: 10px 12px 12px; border-radius: var(--k-r); background: var(--k-panel); }
+  .group-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; }
+  .group-head b { font-size: .95rem; }
+  .group-head span { font-size: .8rem; color: var(--k-muted); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 6px; margin-top: 8px; }
+  .card { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 7px; padding: 6px 8px; border-radius: 10px; background: var(--k-bg); }
+  .card i { font-style: normal; font-size: 13px; line-height: 1; }
+  .card b { font-size: 1rem; line-height: 1.1; }
+  .card span { grid-column: 1 / -1; font-size: .75rem; color: var(--k-muted); }
+</style>
+
+<p class="lead">Sort these ten elements three ways. Which way puts elements that behave alike in the same group?</p>
+
+<div class="k-controls" id="controls"></div>
+<div class="groups" id="groups" role="img" aria-label=""></div>
+<div class="key" id="key" aria-hidden="true"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say" id="say"></p>
+<p class="caption">Behaviour and states at room temperature are the source's; group-mates "behave alike" when they share a behaviour.</p>
+
+<script>
+  // Source [1] of the lesson: the halogens, alkali metals and noble gases.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Halogen';
+
+  // A fair set: the first members of three families in order (no hand-picking to make one sort
+  // look good), with hydrogen left out because it is not an alkali metal.
+  const ELEMENTS = [
+    { sym: 'Li', name: 'Lithium', column: 1, state: 'Solid', mass: 6.94, does: 'metal' },
+    { sym: 'Na', name: 'Sodium', column: 1, state: 'Solid', mass: 22.99, does: 'metal' },
+    { sym: 'K', name: 'Potassium', column: 1, state: 'Solid', mass: 39.10, does: 'metal' },
+    { sym: 'F', name: 'Fluorine', column: 17, state: 'Gas', mass: 19.00, does: 'salt' },
+    { sym: 'Cl', name: 'Chlorine', column: 17, state: 'Gas', mass: 35.45, does: 'salt' },
+    { sym: 'Br', name: 'Bromine', column: 17, state: 'Liquid', mass: 79.90, does: 'salt' },
+    { sym: 'I', name: 'Iodine', column: 17, state: 'Solid', mass: 126.90, does: 'salt' },
+    { sym: 'He', name: 'Helium', column: 18, state: 'Gas', mass: 4.00, does: 'inert' },
+    { sym: 'Ne', name: 'Neon', column: 18, state: 'Gas', mass: 20.18, does: 'inert' },
+    { sym: 'Ar', name: 'Argon', column: 18, state: 'Gas', mass: 39.95, does: 'inert' },
+  ];
+  // Three equal kinds of behaviour: categorical colours, each with its own shape too.
+  const DOES = {
+    metal: { text: 'Soft metal that fizzes in water', role: 'cat1', mark: '●' },
+    salt: { text: 'Joins with sodium to make a salt', role: 'cat2', mark: '▲' },
+    inert: { text: 'Hardly ever reacts', role: 'cat3', mark: '■' },
+  };
+  // Each way of sorting: the group an element goes in, and the groups in display order.
+  const SORTS = {
+    state: { groupOf: (e) => e.state, order: ['Solid', 'Liquid', 'Gas'] },
+    mass: { groupOf: (e) => e.mass < 30 ? 'Lighter atoms' : 'Heavier atoms', order: ['Lighter atoms', 'Heavier atoms'] },
+    column: { groupOf: (e) => 'Column ' + e.column, order: ['Column 1', 'Column 17', 'Column 18'] },
+  };
+  const groupsFor = (by) => SORTS[by].order.map((g) => ({ name: g, members: ELEMENTS.filter((e) => SORTS[by].groupOf(e) === g) }));
+  // Pairs of group-mates, and how many of them share a behaviour.
+  function pairs(by) {
+    let all = 0, alike = 0;
+    groupsFor(by).forEach((g) => g.members.forEach((a, i) => g.members.slice(i + 1).forEach((b) => { all++; if (a.does === b.does) alike++; })));
+    return { all, alike };
+  }
+
+  // The lesson's control: named options, opening on the first (index 0).
+  K.choice({ id: 'by', label: 'Sort them by', value: 0, into: '#controls', options: [
+    { value: 'state', label: 'Solid, liquid, gas' },
+    { value: 'mass', label: 'Weight' },
+    { value: 'column', label: 'Table column' },
+  ] });
+  K.readout({ id: 'alike', label: 'Group-mates alike', unit: '%', decimals: 0, into: '#outs' });
+  K.readout({ id: 'mixed', label: 'Mixed groups', into: '#outs' });
+
+  // The pure model: a way of sorting -> how well its groups predict behaviour.
+  K.model((p) => {
+    const n = pairs(p.by), groups = groupsFor(p.by);
+    return {
+      alike: n.all ? 100 * n.alike / n.all : 0,
+      mixed: groups.filter((g) => new Set(g.members.map((e) => e.does)).size > 1).length,
+      groups: groups.length,
+    };
+  });
+
+  const key = document.getElementById('key');
+  Object.keys(DOES).forEach((k) => key.appendChild(K.el('span', null, K.el('i', { style: { color: K.color(DOES[k].role), fontStyle: 'normal' } }, DOES[k].mark), DOES[k].text)));
+
+  K.update((p, o) => {
+    const box = document.getElementById('groups');
+    box.textContent = '';
+    groupsFor(p.by).forEach((g) => {
+      const kinds = new Set(g.members.map((e) => e.does)).size;
+      const verdict = g.members.length < 2 ? 'on its own' : kinds === 1 ? 'all behave alike' : 'mixed: ' + kinds + ' kinds';
+      box.appendChild(K.el('div', { class: 'group' },
+        K.el('div', { class: 'group-head' }, K.el('b', null, g.name + ' · ' + g.members.length), K.el('span', null, verdict)),
+        K.el('div', { class: 'cards' }, g.members.map((e) => K.el('div', { class: 'card' },
+          K.el('i', { style: { color: K.color(DOES[e.does].role) }, 'aria-hidden': 'true' }, DOES[e.does].mark), K.el('b', null, e.sym), K.el('span', null, e.name))))));
+    });
+    box.setAttribute('aria-label', groupsFor(p.by).map((g) => g.name + ': ' + g.members.map((e) => e.name + ' (' + DOES[e.does].text.toLowerCase() + ')').join(', ')).join('. '));
+    // The sentence uses the readout's own rounding (whole percent), so the two always agree.
+    const pct = K.fmt(o.alike, { decimals: 0 }) + '%';
+    document.getElementById('say').textContent = !K.moved ? 'Which way of sorting will keep elements that behave alike together? Make your guess, then try each one.' : {
+      state: 'Sorted by state, only ' + pct + ' of group-mates behave alike: bromine sits alone as the only liquid, and the gases mix elements that react eagerly with ones that hardly react at all.',
+      mass: 'Sorted by weight, just ' + pct + ' of group-mates behave alike: lithium shares a group with neon, potassium with bromine. Weight alone predicts almost nothing here.',
+      column: 'Sorted by column, ' + pct + ' of group-mates behave alike. Knowing the column tells you how an element reacts: a natural grouping, and the reason the periodic table is laid out this way.',
+    }[p.by];
+  });
+
+  // Known answers, counted by hand from the table above.
+  K.check('By column, all 12 pairs of group-mates behave alike (100%)', () => K.near(K.at({ by: 'column' }).alike, 100) && K.at({ by: 'column' }).mixed === 0);
+  K.check('By state, 7 of 16 pairs behave alike (43.75%)', () => K.near(K.at({ by: 'state' }).alike, 43.75));
+  K.check('By weight, 5 of 20 pairs behave alike (25%)', () => K.near(K.at({ by: 'mass' }).alike, 25) && K.at({ by: 'mass' }).mixed === 2);
+  K.check('At room temperature bromine is the only liquid; fluorine and chlorine are gases, iodine a solid', () =>
+    groupsFor('state')[1].members.map((e) => e.sym).join() === 'Br' &&
+    ['F', 'Cl'].every((s) => ELEMENTS.find((e) => e.sym === s).state === 'Gas') && ELEMENTS.find((e) => e.sym === 'I').state === 'Solid', { source: SOURCE });
+  K.check('A fair test: every sort places each of the ten exactly once', () =>
+    Object.keys(SORTS).every((by) => groupsFor(by).reduce((n, g) => n + g.members.length, 0) === 10 &&
+      ELEMENTS.every((e) => groupsFor(by).filter((g) => g.members.includes(e)).length === 1)));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

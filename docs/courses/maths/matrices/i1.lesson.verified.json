@@ -1,0 +1,411 @@
+{
+  "iid": "i1",
+  "title": "What a matrix is",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is x lots of column 1 and y lots of column 2, nose to tail, landing where the grid's two rows add up to, when you slide x and y.",
+    "title": "Mix two arrows",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens, all on one grid of numbers. On one line, a grid is written row by row with a semicolon between rows. So [1 3; 2 1] has rows 1 3 and 2 1. Its two columns are drawn as two arrows from the corner of a squared grid. Column 1 is the arrow (1, 2), and column 2 is (3, 1). Two sliders set the amounts x and y. The mix is drawn nose to tail, the way you add arrows. First come x copies of column 1. Then y copies of column 2 start where they end. A dot marks where the chain ends. The view zooms out to keep the whole chain in sight. Beside the picture, the grid times the column (x, y) is written out with its answer. Tap a row and it lights as one equation, such as x + 3y = 5. The top number of each column is that arrow's across part. So row 1 adds the across parts of the chain, and row 2 adds the up parts. Tap a column and its arrow lights. Drag either arrow's tip to a whole point, and the grid's numbers change with it. The screens. 1: a 2 by 3 grid, [4 7 1; 2 5 3], with its rows and columns labelled and row 1, column 3 lit. 2: a puzzle. Which number is in row 2, column 1? It offers 2, 7 and 5. 3: x + 3y = 7 and 2x + y = 4, written as [1 3; 2 1] times (x, y) = (7, 4). 4: a puzzle. Which grid holds 3x + 2y = 13 and x − y = 1? It offers [3 2; 1 −1], [3 1; 2 −1] and [3 2; 1 1]. 5: the columns as arrows, mixed with x = 2 and y = 1 to land on (5, 5). 6: a puzzle. Where does [1 3; 2 1] times (2, 2) land? It offers (8, 6), (6, 8) and (4, 3). The chain is drawn only after Check. 7: the mix of x = 3 and y = 1, landing on (6, 7), with rows and columns lit in turn and the tips free to drag. 8: a puzzle on [2 4; 1 3]. Which pair is row 2 as an equation and column 2 as an arrow? It offers x + 3y and (4, 3), 4x + 3y and (1, 3), and x + 3y and (1, 3). 9: a target dot at (7, 4). It opens on x = 1 and y = 1, which fall short on (4, 3). Sliding to x = 1 and y = 2 hits it. 10: a puzzle. Which equations find the amounts that hit (9, 8)? It offers x + 3y = 9 and 2x + y = 8, x + 2y = 9 and 3x + y = 8, and x + 3y = 8 and 2x + y = 9. 11: a mixed puzzle. What size is the grid for x + y = 5, x − y = 1 and 2x + y = 8? It offers 3 by 2, 2 by 3 and 3 by 3. 12: a mixed puzzle on an example circuit's loop equations. 6I₁ − 2I₂ = 12 and −2I₁ + 6I₂ = 4 are [6 −2; −2 6] times the loop currents. Which column of voltages do currents of 2.5 A and 1.5 A give? It offers (12, 4), (15, 9) and (18, 14). Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "The amounts in the puzzles are small whole numbers, chosen so the chain can be drawn and counted. An amount can be any number. An amount between 0 and 1 shortens an arrow. A negative amount turns it round. The arrows come from 2 by 2 grids. So each arrow has two parts and fits on a flat page. A grid with three rows mixes arrows with three parts in the same way, but that needs a 3-D drawing. More parts than that cannot be drawn as one picture. Not every target can be hit. Two arrows along one line can only reach points on that line.",
+    "numbers": [
+      {
+        "label": "Example 2 by 3 grid's rows, steps 1 and 2",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example 2 by 3 grid's columns, steps 1 and 2",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid [4 7 1; 2 5 3], row 1, column 1",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid [4 7 1; 2 5 3], row 1, column 2",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid [4 7 1; 2 5 3], row 1, column 3",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid [4 7 1; 2 5 3], row 2, column 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid [4 7 1; 2 5 3], row 2, column 2",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid [4 7 1; 2 5 3], row 2, column 3",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main grid [1 3; 2 1], row 1, column 2",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main grid [1 3; 2 1], row 2, column 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Main grid's other two entries",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Target's across part, x + 3y = 7, steps 3 and 9",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Target's up part, 2x + y = 4, steps 3 and 9",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Amount x that hits (7, 4)",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Amount y that hits (7, 4)",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 4 equation 3x + 2y = 13, its x number",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 4 equation 3x + 2y = 13, its y number",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 4 equation 3x + 2y = 13, its answer",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 4 equation x − y = 1, its y number",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 4 equation x − y = 1, its answer",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider x and y lowest amount",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Slider x and y highest amount",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Opening amount x, step 5",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Opening amount y, step 5",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Two lots of (1, 2), across part",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Two lots of (1, 2), up part",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Mix 2 × (1, 2) + 1 × (3, 1), each part",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Rows mixed as arrows with x = 2, y = 1, across",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Rows mixed as arrows with x = 2, y = 1, up",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 6 amounts x and y",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 6 mix, across part",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 6 mix, up part",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 6 wrong pick, rows as arrows, (6, 8)",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 6 wrong pick, amounts ignored, (4, 3)",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 8 grid [2 4; 1 3], row 1 entries",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 8 grid [2 4; 1 3], row 2, column 2",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 10 target, across part",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 10 target, up part",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Amount x that hits (9, 8)",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Amount y that hits (9, 8)",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 11 equation x + y = 5, its answer",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 11 equation x − y = 1, its answer",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 11 equation 2x + y = 8, its answer",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 11 grid size, rows",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 11 grid size, columns",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 12 example loop resistance on the diagonal, in ohms",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 12 example shared resistance entry, in ohms",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 12 example loop 1 voltage, in volts",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 12 example loop 2 voltage, in volts",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 12 example current I₁, in amps",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 12 example current I₂, in amps",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 12 row 1, 6 × 2.5",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 12 row 2, 6 × 1.5",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 12 row 2, −2 × 2.5",
+        "value": -5,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 12 wrong pick, signs dropped, row 1",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 12 wrong pick, signs dropped, row 2",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy example jobs of kind A",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy total coils, 3 × 1 + 1 × 3",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy total boxes, 3 × 2 + 1 × 1",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice amounts x and y",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice equation x + 4y = 15, its answer",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice arrow 3 × (−1, 4), across part",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice arrow 3 × (−1, 4), up part",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 7 amount x",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 7 amount y",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step 7 mix 3 × (1, 2) + 1 × (3, 1), across part",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 7 mix 3 × (1, 2) + 1 × (3, 1), up part",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Opening amounts x and y, step 9",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Step 9 opening mix, across part",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Step 9 opening mix, up part",
+        "value": 3,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A [[matrix]] is a grid of numbers in rows and columns. You can read it two ways. When it holds a set of equations, each row holds the numbers of one equation.[^1] Down the grid, each column is an arrow. Multiplying the grid by a column of amounts mixes those arrows. It takes so many of the first plus so many of the second.\n\nA grid's size is its rows, then its columns. So 2 rows and 3 columns make a 2 by 3 grid. Each number in it is an [[entry]], named by its row first, then its column. On one line, a grid is written row by row with a semicolon between rows. In [4 7 1; 2 5 3], row 2, column 1 is 2. Row 1, column 2 is 7. Now take the equations x + 3y = 7 and 2x + y = 4. Their numbers make the grid [1 3; 2 1], one row for each equation. The unknowns x and y stand in a column beside it. The 7 and 4 stand in a column after the equals sign. To read row 1 back, multiply across the row and down the unknowns together, then add. That gives 1 × x + 3 × y, so row 1 says x + 3y = 7.\n\nRead down its columns, and the same grid becomes two arrows. Column 1 is the arrow (1, 2), and column 2 is the arrow (3, 1). Every x in the equations multiplies a number from column 1. So all the x parts together make x lots of column 1. All the y parts make y lots of column 2. The grid times (x, y) is therefore x lots of column 1 plus y lots of column 2, laid nose to tail. That mix is a [[linear combination]] of the columns.[^2] Try x = 2 and y = 1. Two lots of (1, 2) reach (2, 4). One (3, 1) on the end lands on (5, 5). The rows give the same point. The top number of each column is that arrow's across part. So row 1 adds the across parts, 1 × 2 + 3 × 1 = 5. Row 2 adds the up parts, 2 × 2 + 1 × 1 = 5. A row is not one of those arrows, because it holds one part of each. Mix the rows as if they were arrows, and you land on (4, 7) instead.\n\nTurn it round, and you have simultaneous equations. To land on (7, 4), the across parts must make 7 and the up parts 4. That is x + 3y = 7 and 2x + y = 4. They give x = 1 and y = 2. A circuit's loop equations fit a grid the same way, with the loop currents as the column of unknowns.[^3] Finding the currents then means finding the amounts that make the grid hit its column of voltages.\n\n**A matrix times a column of amounts is that many of each of its columns, added nose to tail. Each row of the grid is one equation for one part of it.**[^2]"
+  },
+  "analogy": {
+    "text": "Think of a kit list for two kinds of job. Say job A takes 1 coil of cable and 2 boxes of clips. Job B takes 3 coils and 1 box. Each job's list is a column. For 3 of job A and 1 of job B, you order 3 lots of column A plus 1 lot of column B. Row 1 then totals the coils, 3 × 1 + 1 × 3 = 6. Row 2 totals the boxes, 3 × 2 + 1 × 1 = 7.",
+    "breaks": "Jobs come in whole numbers, counted up from none. A matrix's amounts can be fractions or negative, and a negative amount turns its arrow round. A kit list has no direction either, so nothing in it is laid nose to tail."
+  },
+  "practice": {
+    "text": "- Write each equation with its unknowns in the same order, x then y. Put a 0 where an unknown is missing.\n- Each equation becomes one row of the grid, in order.\n- Each unknown's numbers go down one column.\n- The unknowns make a column after the grid. The totals make a column after the equals sign.\n- Check by multiplying across each row and down the unknowns, then adding. You should get each equation back.\n- To read it as arrows, take x lots of column 1 plus y lots of column 2.\n\n**Rule of thumb:** Rows are equations and columns are arrows. Name an entry by its row first.\n\n**Worked example:** Take 2x − y = 3 and x + 4y = 15. Row 1 is 2 and −1. Row 2 is 1 and 4. So the grid is [2 −1; 1 4]. Try x = 3 and y = 3. Row 1 gives 2 × 3 − 1 × 3 = 3. Row 2 gives 1 × 3 + 4 × 3 = 15. Both match. As arrows, 3 lots of (2, 1) is (6, 3). And 3 lots of (−1, 4) is (−3, 12). Nose to tail, they end at (3, 15). Those are the same two totals.\n\nA grid with as many rows as columns is called square. Swap its rows for its columns and you get its transpose. So [1 3; 2 1] becomes [1 2; 3 1].\n\n**Common mistakes**\n- Swapping rows and columns. In [4 7 1; 2 5 3], row 2, column 1 is 2, not 7.\n- Writing an equation down a column. x − y = 1 goes across one row, as 1 and −1.\n- Mixing the rows as arrows. [1 3; 2 1] times (2, 1) is (5, 5). Its rows as arrows give (4, 7).\n- Dropping a minus sign or a missing unknown. x − y has −1 for y. An equation with no y has 0 there.\n- Taking each column once and forgetting the amounts."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "HELM Workbook 7: Matrices",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf",
+      "quote": "all the entries in the second row relate to the second equation"
+    },
+    {
+      "n": 2,
+      "title": "2.2: Matrix Multiplication - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication",
+      "quote": "column vector and interpret the result as a linear combination of the columns of the matrix."
+    },
+    {
+      "n": 3,
+      "title": "Mesh Current Analysis - DC Circuit Theory",
+      "url": "https://www.electronics-tutorials.ws/dccircuits/dcp_5.html",
+      "quote": "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+    }
+  ]
+}

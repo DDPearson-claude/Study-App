@@ -1,0 +1,158 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"1 × column 1 + 0 × column 2 = (2, 1)\" has a line through it (<line.mg>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 33 more settings)",
+      "SVG text \"−2\" has a line through it (<line.mg>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings)",
+      "SVG text \"1 × column 1 + 0 × column 2 = (2, 1)\" has a line through it (<line.ma>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 33 more settings)",
+      "SVG text \"start grid\" has a line through it (<line.ma>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings)",
+      "SVG text \"0\" has a line through it (<line.ma>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings)",
+      "SVG text \"j\" has a line through it (<line.mg>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings) [at 340 px wide]",
+      "SVG text \"moved grid\" has a line through it (<line.mg>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings)",
+      "SVG text \"2\" has a line through it (<line.mg>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings)",
+      "SVG text \"4\" has a line through it (<line.mg>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at the opening state, and 31 more settings)"
+    ],
+    "checks": [
+      {
+        "label": "A matrix represents the transformation that takes the column basis vectors into the vectors that are the corresponding columns of the matrix: for every matrix in the lesson and every pair of whole landing spots the tips can be dragged to, the matrix times the first basis vector is its first column and times the second is its second column, and the arrows i and j are drawn to end there",
+        "ok": true,
+        "source": "https://ocw.mit.edu/ans7870/18/18.013a/textbook/HTML/chapter04/section02.html"
+      },
+      {
+        "label": "To move a vector, take its coordinates, multiply them by the corresponding column of the matrix, then add together what you get: for every whole point near the origin and every matrix in the lesson, that mix of the columns equals the matrix times the point worked row by row, and every corner of the F and every tracked point is drawn where that rule sends it",
+        "ok": true,
+        "source": "https://www.3blue1brown.com/lessons/linear-transformations"
+      },
+      {
+        "label": "Every worked number is right: [2 −1; 1 1] sends i to (2, 1), j to (−1, 1), (1, 2) to (0, 3) and (2, 1) to (3, 3), with (5, −1) from the rows and (4, 2) with column 2 left out; turned 30°, i lands on (0.87, 0.5) and j on (−0.5, 0.87); [0 −1; 1 0] sends (2, 1) to (−1, 2), with (1, −2) from the rows and (−2, 1) from the columns swapped, and (3, 2) to (−2, 3); in [1 3; 2 6] column 2 is 3 lots of column 1; the mirror sends i to (−1, 0)",
+        "ok": true
+      },
+      {
+        "label": "The grid stays a grid: along every moved grid line each step adds the same column, so the lines stay straight, parallel and evenly spaced; the origin stays put under every matrix, so no matrix slides it to (3, 0); a mirror turns the F over, a turn or a shear keeps its size and way round, and a squash flattens it to a line",
+        "ok": true
+      },
+      {
+        "label": "The turn follows cos and sin: at every angle the slider gives, from 0° to 360°, i's tip sits on the unit circle at (cos θ, sin θ), j's a quarter turn ahead at (−sin θ, cos θ), and the matrix reads [cos θ −sin θ; sin θ cos θ] to two decimal places; 30° gives [0.87 −0.5; 0.5 0.87] and 90° gives [0 −1; 1 0]",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle's answer comes from its matrix by the rule (j on column 2, the mix of columns, the landing spots down the columns, the quarter turn's flag, the columns on one line, a slide moving the origin), and each slip offered is the one its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer (no landing spot, no chain, no filled matrix, no ringed drawing); after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "angle"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Where i lands",
+          "Where j lands",
+          "Every point follows",
+          "Where (2, 1) lands",
+          "Named moves",
+          "Picture to matrix",
+          "A turn",
+          "Matrix to picture",
+          "Squashed flat",
+          "Which one squashes?",
+          "Turn a point",
+          "What no matrix does"
+        ],
+        "value": 0
+      },
+      {
+        "id": "angle",
+        "kind": "control",
+        "label": "Turn, θ",
+        "min": 0,
+        "max": 360,
+        "step": 15,
+        "log": false,
+        "value": 30,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Stretch",
+      "Turn",
+      "Mirror",
+      "Shear",
+      "Squash",
+      "Do nothing",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 6 (the first step that shows a control)",
+    "angle = 270"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/matrices/i2.a1-360-light.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-360-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-360-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-360-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-360-dark-end.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-1280-light.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-1280-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-1280-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i2.a1-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,1292 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* The grid: header letters, brackets, the bar before the constants, a lit row, the staircase. */
+  .scene .brk, .scene .bar { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .lit { fill: var(--k-hl); }
+  .scene .stair { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .hd { font: italic 600 15px var(--k-font); fill: var(--k-accent); }
+  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }
+  .scene .en.ok { fill: var(--k-accent2); }
+  .scene .en.bad { fill: var(--k-warn); }
+  .scene .en.wk { fill: var(--k-accent); }
+  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }
+  .scene .q.bad { fill: var(--k-warn); }
+  /* Row and plane badges: a ring in the plane's colour round the row's number. */
+  .scene .bdg { fill: var(--k-bg); stroke-width: 2.4; }
+  .scene .bdg.p1 { stroke: var(--k-cat1); }
+  .scene .bdg.p2 { stroke: var(--k-cat2); }
+  .scene .bdg.p3 { stroke: var(--k-cat3); }
+  .scene .bdg.plain { stroke: var(--k-muted); }
+  .scene .bdg.bad { stroke: var(--k-warn); }
+  .scene .bn { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  /* The 3-D view: the planes, where they cross, the dot, the x, y and z arrows. */
+  .scene .pl { stroke-width: 1.8; fill-opacity: .2; stroke-linejoin: round; }
+  .scene .pl.p1 { fill: var(--k-cat1); stroke: var(--k-cat1); }
+  .scene .pl.p2 { fill: var(--k-cat2); stroke: var(--k-cat2); }
+  .scene .pl.p3 { fill: var(--k-cat3); stroke: var(--k-cat3); }
+  .scene .pl.bad { fill: var(--k-warn); fill-opacity: .1; stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .hinge, .scene .pair { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }
+  .scene .shared { stroke: var(--k-accent2); stroke-width: 3.6; stroke-linecap: round; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .pill { fill: var(--k-bg); }
+  .scene .ax .sh { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .ax .ah { fill: var(--k-muted); }
+  .scene .axl { font: italic 600 13px var(--k-font); fill: var(--k-muted); }
+  /* The circuit: wires, resistors, cells, loop currents. */
+  .scene .wire { stroke: var(--k-ink); stroke-width: 2; fill: none; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .plate { stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .plate.sp { stroke-width: 4.5; }
+  .scene .loop { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .loophd { fill: var(--k-accent2); }
+  .scene .arr .sh { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .arr .ah { fill: var(--k-accent2); }
+  /* Words and numbers. */
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tg { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .big { font: 600 20px var(--k-font); fill: var(--k-ink); }
+  .scene .big.s16 { font-size: 16px; }
+  .scene .big.s14 { font-size: 14px; }
+  .scene .big.q { fill: var(--k-muted); }
+  .scene .big.ok { fill: var(--k-accent2); }
+  .scene .big.bad { fill: var(--k-warn); }
+  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ln.sm2 { font-size: 13px; }
+  .scene .ln.sm3 { font-size: 12px; }
+  .scene .ln.ok { fill: var(--k-accent2); }
+  .scene .ln.bad { fill: var(--k-warn); }
+  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene tspan.v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }
+  .scene .turn:focus { outline: none; }
+  /* Row moves: two row pickers side by side when they fit, then the multiplier, then Add and Reset. */
+  .moves { display: grid; gap: 10px; }
+  .moves .pair2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 10px; }
+  .moves .pair2 > div { min-width: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">On top, a grid of three equations. Below it, the three flat planes they make in 3-D, and later a circuit with example values.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 420" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <p class="act" id="act"></p>
+    <div class="replay" id="replay"></div>
+    <div class="moves" id="moves">
+      <div class="pair2"><div id="tgtBox"></div><div id="srcBox"></div></div>
+      <div id="multBox"></div>
+      <div class="row" id="moveBtns"></div>
+    </div>
+    <div id="tbox"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A row move never changes the answer, and the finished grid says how many answers there are.</p>
+
+<script>
+  // ---------- numbers and words (pure, so the checks can test them) ----------
+  const MINUS = '−', NB = ' ';
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }
+  const paren = (v) => (v < 0 ? '(' + num(v) + ')' : num(v));
+  const pt = (v) => '(' + v.map(num).join(', ') + ')';
+  const toNum = (t) => +String(t).trim().replace(MINUS, '-');
+  const rowTxt = (r) => '[' + r.slice(0, 3).map(num).join(' ') + ' | ' + num(r[3]) + ']';
+  const parseRow = (s) => { const p = String(s).replace(/[[\]]/g, '').split('|'); return p[0].trim().split(/\s+/).map(toNum).concat([toNum(p[1])]); };
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/[[\]]/g, '').replace(/\|/g, ', ').replace(/−/g, ' minus ')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/Ω/g, ' ohms')
+    .replace(/₁/g, ' 1').replace(/₂/g, ' 2').replace(/₃/g, ' 3').replace(/\s+/g, ' ').trim();
+  const HEAD = ['x', 'y', 'z'], IHEAD = ['I₁', 'I₂', 'I₃'];
+  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);
+  // "2x + y − z", leaving out letters whose number is 0.
+  function termsTxt(c, nm) {
+    const parts = [];
+    c.forEach((a, k) => {
+      if (Math.abs(a) < 1e-9) return;
+      const s = (near(Math.abs(a), 1) ? '' : num(Math.abs(a))) + nm[k];
+      parts.push(parts.length ? (a < 0 ? ' − ' : ' + ') + s : (a < 0 ? MINUS : '') + s);
+    });
+    return parts.join('');
+  }
+  const eqTxt = (r, nm) => (termsTxt(r.slice(0, 3), nm || HEAD) || '0') + ' = ' + num(r[3]);
+  // Every letter written, a missing one with its 0: "x + 0y − 2z = 5".
+  const fullEq = (r) => r.slice(0, 3).map((a, k) => { const s = (near(Math.abs(a), 1) ? '' : num(Math.abs(a))) + HEAD[k]; return k === 0 ? (a < 0 ? MINUS : '') + s : (a < 0 ? ' − ' : ' + ') + s; }).join('') + ' = ' + num(r[3]);
+  const signed = (v) => (v < 0 ? ' − ' : ' + ') + num(Math.abs(v));
+  const moveLabel = (mv) => (mv.m === 1 ? '' : num(mv.m) + ' × ') + 'row ' + (mv.sr + 1);
+  // A point put into a row: "2 × 1 + 2 × 1 = 4".
+  function subLine(r, p) {
+    const parts = [];
+    [0, 1, 2].forEach((k) => {
+      const a = r[k];
+      if (Math.abs(a) < 1e-9) return;
+      const s = near(Math.abs(a), 1) ? paren(p[k]) : num(Math.abs(a)) + ' × ' + paren(p[k]);
+      parts.push(parts.length ? (a < 0 ? ' − ' : ' + ') + s : (a < 0 ? MINUS : '') + s);
+    });
+    return parts.join('') + ' = ' + num(r[0] * p[0] + r[1] * p[1] + r[2] * p[2]);
+  }
+
+  // ---------- the rule ----------
+  // A row [a b c | d] is the equation ax + by + cz = d, a flat plane. A row move adds m times row sr
+  // to row tg. A point that fits both rows fits the new one, and taking m times row sr away again
+  // brings the old row back, so the answers never change. Clearing column 1, then column 2, leaves a
+  // staircase, solved from the bottom row up.
+  const add = (p, q) => p.map((x, k) => x + q[k]);
+  const sub = (p, q) => p.map((x, k) => x - q[k]);
+  const scl = (p, s) => p.map((x) => x * s);
+  const dot = (p, q) => p[0] * q[0] + p[1] * q[1] + p[2] * q[2];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (p) => Math.sqrt(dot(p, p));
+  const unit = (p) => scl(p, 1 / (norm(p) || 1));
+  const samePt = (a, b, t) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k], t || 1e-9));
+  const sameM = (P, Q) => !!P && !!Q && P.length === Q.length && P.every((r, i) => samePt(r, Q[i]));
+  const det3 = (M) => M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+  // The one point that fits all three rows, or null when there is not exactly one.
+  function solve3(M) {
+    const A = M.map((r) => r.slice(0, 3)), D = det3(A);
+    if (Math.abs(D) < 1e-9) return null;
+    return [0, 1, 2].map((j) => det3(A.map((r, i) => r.map((x, k) => (k === j ? M[i][3] : x)))) / D);
+  }
+  const rowMove = (M, mv) => M.map((r, i) => (i === mv.tg ? r.map((x, k) => x + mv.m * M[mv.sr][k]) : r.slice()));
+  const scaleRow = (M, i, m) => M.map((r, k) => (k === i ? r.map((x) => x * m) : r.slice()));
+  const seqOf = (M, moves) => moves.reduce((out, mv) => out.concat([rowMove(out[out.length - 1], mv)]), [M]);
+  const fits = (r, p) => near(r[0] * p[0] + r[1] * p[1] + r[2] * p[2], r[3], 1e-7);
+  const lerpRow = (a, b, e) => (e >= 1 ? b.slice() : e <= 0 ? a.slice() : a.map((x, k) => x + (b[k] - x) * e));
+  // A staircase solved from the bottom row up.
+  function backSolve(M) { const s = [0, 0, 0]; for (let i = 2; i >= 0; i--) { let r = M[i][3]; for (let k = i + 1; k < 3; k++) r -= M[i][k] * s[k]; s[i] = r / M[i][i]; } return s; }
+  function backLines(M, nm, unitTxt) {
+    const s = backSolve(M), out = [];
+    for (let i = 2; i >= 0; i--) {
+      let lhs = termsTxt([0, 1, 2].map((k) => (k === i ? M[i][k] : 0)), nm);
+      for (let k = i + 1; k < 3; k++) if (Math.abs(M[i][k]) > 1e-9) lhs += signed(M[i][k] * s[k]);
+      out.push(lhs + ' = ' + num(M[i][3]) + ', so ' + nm[i] + ' = ' + num(s[i]) + (unitTxt || ''));
+    }
+    return out;
+  }
+  // A stepped grid whose bottom row is all zeros: y and x for any z (row 2 gives y, row 1 gives x).
+  function onLine(M, z) { const y = (M[1][3] - M[1][2] * z) / M[1][1]; return [(M[0][3] - M[0][1] * y - M[0][2] * z) / M[0][0], y, z]; }
+  // Where two planes cross: the point on that line nearest C, and its direction; null if they never cross.
+  function meet2(r1, r2, C) {
+    const n1 = r1.slice(0, 3), n2 = r2.slice(0, 3), dd = cross(n1, n2);
+    if (norm(dd) < 1e-9 * Math.max(1, norm(n1) * norm(n2))) return null;
+    const p = solve3([n1.concat([r1[3]]), n2.concat([r2[3]]), dd.concat([dot(dd, C)])]);
+    return p ? { p, d: unit(dd) } : null;
+  }
+
+  // ---------- the lesson's values ----------
+  const A1 = [[1, 1, 1, 6], [2, 1, -1, 1], [1, -1, 2, 5]];
+  const MV1 = { tg: 1, sr: 0, m: -2 }, MV2 = { tg: 2, sr: 0, m: -1 }, MV3 = { tg: 2, sr: 1, m: -2 };
+  const A2 = rowMove(A1, MV1), A3 = rowMove(A2, MV2), A4 = rowMove(A3, MV3);
+  const SOL1 = solve3(A1);
+  const ROW2 = [1, 0, -2, 5];
+  const S6 = [[2, 1, -1, 3], [0, 3, 1, 5], [0, 0, 2, 4]], SOL6 = backSolve(S6);
+  const N1 = [[1, 1, 1, 3], [1, -1, 1, 1], [2, 0, 2, 9]], N2 = [[1, 1, 1, 3], [1, -1, 1, 1], [2, 0, 2, 4]];
+  const NMOVES = [{ tg: 1, sr: 0, m: -1 }, { tg: 2, sr: 0, m: -2 }, { tg: 2, sr: 1, m: -1 }];
+  const N1S = seqOf(N1, NMOVES)[3], N2S = seqOf(N2, NMOVES)[3];
+  const M10 = [[1, 2, -1, 4], [2, 1, 1, 5], [3, 3, 0, 9]];
+  const M10MOVES = [{ tg: 1, sr: 0, m: -2 }, { tg: 2, sr: 0, m: -3 }, { tg: 2, sr: 1, m: -1 }];
+  const M10S = seqOf(M10, M10MOVES)[3];
+  const Q1 = [[1, 1, 1, 3], [1, 2, 3, 6], [2, 3, 4, 10]];
+  const QMOVES = [{ tg: 1, sr: 0, m: -1 }, { tg: 2, sr: 0, m: -2 }, { tg: 2, sr: 1, m: -1 }];
+  const QS = seqOf(Q1, QMOVES)[3];
+  // The three-loop circuit (example figures): each loop's own resistance, the one each pair of
+  // neighbours shares, and the supply in each loop. Going round a loop gives one row.
+  const OWN = [3, 6, 3], SH = 3, VS = [12, 0, 6];
+  const RG = [[OWN[0] + SH, -SH, 0, VS[0]], [-SH, OWN[1] + 2 * SH, -SH, VS[1]], [0, -SH, OWN[2] + SH, VS[2]]];
+  const RGD = scaleRow(RG, 1, 2), C1 = rowMove(RGD, { tg: 1, sr: 0, m: 1 });
+  const C1X7 = scaleRow(C1, 2, 7), C2 = rowMove(C1X7, { tg: 2, sr: 1, m: 1 });
+  const C1W2 = rowMove(C1, { tg: 2, sr: 1, m: 1 }), C1W1 = rowMove(scaleRow(C1, 2, 2), { tg: 2, sr: 0, m: 1 });
+  const AMPS = backSolve(C2), I23 = AMPS[1] - AMPS[2];
+  const MULTS = [-3, -2, -1, 1, 2, 3];
+  const FIRST = 'The planes of the first three equations';
+  const TAG9 = 'Plane 3 is still ' + eqTxt(N1[2]), TAG4 = 'Plane 3 is now ' + eqTxt(N2[2]);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: a SHOW step's demonstration. act: what he can do with the picture. work: a working line under
+  // the grid; rows: worked lines; view: the 3-D view (first: its planes are the first equations');
+  // legend: a key under the view. A puzzle: task, opts, want, hints (one per wrong answer), slips
+  // (the red line drawn for each), why, fb (seconds of motion after a right and a wrong answer).
+  const PICK = 'Tap one of the answers.';
+  const TURN = 'Drag the picture sideways to turn it.';
+  const STEPS = [
+    { show: true, key: 'grid', name: 'Planes and rows', dur: 3.0, view: true, act: TURN,
+      text: 'Each equation in x, y and z is a flat plane. Each one also makes one row of the grid. The last column holds the constant. The answer is the point where all three planes meet, here `(1, 2, 3)`.' },
+    { kind: 'pick', key: 'row', name: 'Write the row', work: true, rows: 1, fb: [1.3, 0.7],
+      task: 'Which row is `x − 2z = 5`?',
+      opts: ['[1 0 −2 | 5]', '[1 −2 0 | 5]', '[1 −2 | 5]'], want: '[1 0 −2 | 5]',
+      hints: { '[1 −2 0 | 5]': 'Not quite. Column 2 is for y. The −2 belongs to z, in column 3.', '[1 −2 | 5]': 'Not quite. Every row needs a place for x, y and z. A missing letter gets a 0.' },
+      slips: { '[1 −2 0 | 5]': 'That puts −2 under y, so it says x − 2y = 5', '[1 −2 | 5]': 'Two numbers cannot fill three columns' },
+      why: 'Write the number in front of x, then y, then z, then the constant. There is no y, so it gets a 0. That gives `[1 0 −2 | 5]`.' },
+    { show: true, key: 'move', name: 'A row move', dur: 3.2, work: true, view: true, legend: true,
+      act: 'Pick two rows and a multiplier, then press Add. ' + TURN,
+      still: () => { S[2] = blank(); T = Infinity; K.refresh(); },
+      text: 'A *row move* adds a multiple of one row to another. Here −2 × row 1 goes into row 2. Row 2 becomes 0, −1, −3 and −11. Plane 2 swings about the line it shares with plane 1. So it still passes through the dot at `(1, 2, 3)`.',
+      read: 'A row move adds a multiple of one row to another. Here −2 × row 1 goes into row 2. Row 2 becomes 0, −1, −3 and −11. Plane 2 swings about the line it shares with plane 1. So it still passes through the dot at `(1, 2, 3)`.' },
+    { kind: 'pick', key: 'clear1', name: 'Clear column 1', work: true, rows: 1, view: true, legend: true, fb: [1.9, 1.6],
+      task: 'Add −1 × row 1 to row 3. What does row 3 become?',
+      opts: ['[0 −2 1 | −1]', '[0 −2 1 | 5]', '[2 0 3 | 11]'], want: '[0 −2 1 | −1]',
+      hints: { '[0 −2 1 | 5]': 'Not quite. The constant column changes too.', '[2 0 3 | 11]': 'Not quite. That adds row 1. −1 lots of row 1 takes it away.' },
+      slips: { '[0 −2 1 | 5]': 'The constant stayed 5, so plane 3 misses the dot', '[2 0 3 | 11]': 'Adding row 1 leaves 2 in column 1' },
+      why: '−1 × row 1 is −1, −1, −1 and −6. Add it to row 3, entry by entry. 1 − 1 = 0, −1 − 1 = −2, 2 − 1 = 1 and 5 − 6 = −1.' },
+    { show: true, key: 'stair', name: 'The staircase', dur: 4.5, work: true, rows: 3, view: true, legend: true, act: TURN,
+      text: 'Add −2 × row 2 to row 3, and the grid becomes a *staircase*. It has zeros under its diagonal. Read it from the bottom up: 7z = 21, so z = 3. Then −y − 9 = −11 gives y = 2. Last, x + 2 + 3 = 6 gives x = 1.',
+      read: 'Add −2 × row 2 to row 3, and the grid becomes a staircase. It has zeros under its diagonal. Read it from the bottom up: 7z = 21, so z = 3. Then −y − 9 = −11 gives y = 2. Last, x + 2 + 3 = 6 gives x = 1.' },
+    { kind: 'pick', key: 'back', name: 'From the bottom up', rows: 3, view: true, fb: [1.6, 1.1],
+      task: 'The staircase `[2 1 −1 | 3; 0 3 1 | 5; 0 0 2 | 4]` is finished. What is x?',
+      opts: ['2', '0', '1'], want: '2',
+      hints: { 0: 'Not quite. Row 1\'s z entry is −1, so its z term is −2, not +2.', 1: 'Not quite. Row 1 has a z term too. Put in z as well as y.' },
+      slips: { 0: '2x + 1 + 2 = 3, so x = 0', 1: '2x + 1 = 3, so x = 1' },
+      why: 'Start at the bottom. 2z = 4, so z = 2. Then 3y + 2 = 5, so y = 1. Last, 2x + 1 − 2 = 3, so x = 2.' },
+    { show: true, key: 'none', name: 'No common point', dur: 4.6, work: true, view: true, first: true, legend: true, act: TURN,
+      text: 'Here the bottom row ends up 0 = 5. No point can fit that, so there is no answer. No two of these planes are parallel. Each pair crosses along a line, but the three lines run side by side and never meet.' },
+    { kind: 'pick', key: 'zero', name: 'Change one constant', work: true, rows: 1, view: true, first: true, legend: true, fb: [2.2, 0.5],
+      task: 'Row 3\'s constant changes from 9 to 4, so row 3 reads `2x + 2z = 4`. The same three moves run. What constant ends the bottom row?',
+      opts: ['0', '5', '4'], want: '0',
+      hints: { 5: 'Not quite. That was for 9. Run the moves on the new constant.', 4: 'Not quite. The moves change the constant too. Take 2 × 3 away, then take away −2.' },
+      slips: { 5: 'With 9, the moves ended 0 = 5', 4: 'The moves change the constant too' },
+      why: '−2 × row 1 takes 2 × 3 = 6 from the constant, leaving 4 − 6 = −2. Then −1 × row 2 takes away row 2\'s −2, leaving 0. So the bottom row says 0 = 0.' },
+    { show: true, key: 'line', name: 'A whole line', dur: 3.1, rows: 3, view: true, first: true, legend: true,
+      act: 'Slide t to run the dot along the line. ' + TURN, still: { t: 1 },
+      text: 'The bottom row now says 0 = 0, which every point fits. That is because row 3 is row 1 plus row 2. So all three planes share the line where planes 1 and 2 cross: `x = 2 − t`, `y = 1` and `z = t`, for any number t.',
+      read: 'The bottom row now says 0 = 0, which every point fits. That is because row 3 is row 1 plus row 2. So all three planes share the line where planes 1 and 2 cross: `x = 2 − t`, `y = 1` and `z = t`, for any number t. At t = 1 that is `(1, 1, 1)`.' },
+    { kind: 'pick', key: 'many', name: 'How many answers?', rows: 1, view: true, first: true, legend: true, fb: [2.3, 0.5],
+      task: 'The grid `[1 2 −1 | 4; 2 1 1 | 5; 3 3 0 | 9]` has a determinant of 0. It steps down to `[1 2 −1 | 4; 0 −3 3 | −3; 0 0 0 | 0]`. How many answers are there?',
+      opts: ['None', 'Exactly one', 'A whole line'], want: 'A whole line',
+      hints: { None: 'Not quite. A zero determinant rules out exactly one answer, not every answer. And 0 = 0 is true.', 'Exactly one': 'Not quite. No row is left to pin down z, so z is free.' },
+      slips: { None: '0 = 0 is true for every point', 'Exactly one': 'No row is left to pin down z' },
+      why: 'The bottom row says 0 = 0, which every point fits. Row 2 gives y = 1 + z. Row 1 then gives x = 2 − z. Each z gives one point, so the answers fill a whole line.' },
+    { show: true, key: 'circuit', name: 'The circuit', dur: 3.9, circuit: true, work: true,
+      text: 'Three loops sit in a row, with example figures. Going round each loop gives one row: `6I₁ − 3I₂ = 12`, `−3I₁ + 12I₂ − 3I₃ = 0` and `−3I₂ + 6I₃ = 6`. Double row 2 and add row 1. Row 2 becomes 0, 21, −6 and 12.',
+      read: 'Three loops sit in a row. These are example figures. Each end loop has 3 Ω of its own and the middle loop 6 Ω. Each pair of neighbours shares 3 Ω. 12 V drives loop 1 and 6 V drives loop 3. Going round each loop gives one row: `6I₁ − 3I₂ = 12`, `−3I₁ + 12I₂ − 3I₃ = 0` and `−3I₂ + 6I₃ = 6`. Double row 2 and add row 1. Row 2 becomes 0, 21, −6 and 12.' },
+    { kind: 'pick', key: 'clear2', name: 'Mixed: clear column 2', circuit: true, work: true, rows: 3, fb: [2.6, 1.0],
+      task: 'Row 2 is now `[0 21 −6 | 12]`, and row 3 is still `[0 −3 6 | 6]`. Which move clears the −3 in row 3, column 2?',
+      opts: ['7 × row 3, plus row 2', 'Row 3 plus row 2', '2 × row 3, plus row 1'], want: '7 × row 3, plus row 2',
+      hints: { 'Row 3 plus row 2': 'Not quite. That leaves 18 in column 2, not 0.', '2 × row 3, plus row 1': 'Not quite. Row 1 puts a 6 back in column 1. Use row 2, which has a 0 there.' },
+      slips: { 'Row 3 plus row 2': '18 is left in column 2, not 0', '2 × row 3, plus row 1': 'Row 1 puts a 6 back in column 1' },
+      why: '7 × row 3 is 0, −21, 42 and 42. Adding row 2 gives 0, 0, 36 and 54. So 36I₃ = 54 and I₃ = 1.5 A. Then I₂ = 1 A and I₁ = 2.5 A.' },
+    { kind: 'pick', key: 'nomeet', name: 'Mixed: the bottom row', work: true, rows: 1, view: true, first: true, legend: true, fb: [2.1, 0.5],
+      task: 'The grid `[1 1 1 | 3; 1 2 3 | 6; 2 3 4 | 10]` has a determinant of 0. Clear column 1, then column 2. What does the bottom row say?',
+      opts: ['0 = 1, so no answer', '0 = 0, so a whole line', 'z = 1, so exactly one'], want: '0 = 1, so no answer',
+      hints: { '0 = 0, so a whole line': 'Not quite. The x, y and z entries cancel, but the constants leave 4 − 3 = 1.', 'z = 1, so exactly one': 'Not quite. A zero determinant rules out exactly one answer.' },
+      slips: { '0 = 0, so a whole line': 'The constants leave 4 − 3 = 1, not 0', 'z = 1, so exactly one': 'A zero determinant rules out exactly one answer' },
+      why: '−1 × row 1 into row 2 gives 0, 1, 2 and 3. −2 × row 1 into row 3 gives 0, 1, 2 and 4. Then −1 × row 2 into row 3 gives 0, 0, 0 and 1. That says 0 = 1, which no point fits.' },
+  ];
+  const FINISH = 'Row moves step three equations down to a staircase with the same answer. Back-substitution then solves it from the bottom up. A row reading 0 = 5 means no answer. With no such row, a row of 0 = 0 means infinitely many.';
+  // Sources the checks restate (the lesson's own).
+  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf';
+  const OPENSTAX = 'https://openstax.org/books/college-algebra-corequisite-support/pages/7-6-solving-systems-with-gaussian-elimination';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const MOVE = STEPS.findIndex((d) => d.key === 'move'), LINE = STEPS.findIndex((d) => d.key === 'line');
+
+  // ---------- the 3-D view: a true view (never mirrored), turned by al, tipped by BE ----------
+  const RAD = Math.PI / 180, AL = 35, BE = 22, SWING = 35, PH = 236, AW = 330, RX = 280, CH = 132, GXC = 56;
+  function viewOf(al) { const a = al * RAD, b = BE * RAD; return { sa: Math.sin(a), ca: Math.cos(a), sb: Math.sin(b), cb: Math.cos(b) }; }
+  const prj = (V, w) => [-V.sa * w[0] + V.ca * w[1], V.sb * V.ca * w[0] + V.sb * V.sa * w[1] - V.cb * w[2]];
+  const towards = (V) => [V.ca * V.cb, V.sa * V.cb, V.sb];
+  // Each plane is drawn as a square patch round the point of it nearest the view's centre C.
+  const WG = unit([0.25, 0.35, 1]);
+  function patchOf(r, C, h, W) {
+    const n = r.slice(0, 3), L2 = dot(n, n);
+    if (L2 < 1e-12) return null;
+    const foot = sub(C, scl(n, (dot(n, C) - r[3]) / L2));
+    let u = cross(n, W || WG);
+    if (norm(u) < 1e-6 * Math.sqrt(L2)) u = cross(n, [1, 0, 0]);
+    u = unit(u);
+    return { c: foot, u, v: unit(cross(n, u)), h };
+  }
+  const cornersOf = (P) => [[1, 1], [-1, 1], [-1, -1], [1, -1]].map((s) => add(P.c, add(scl(P.u, s[0] * P.h), scl(P.v, s[1] * P.h))));
+  // The part of a line that lies inside every patch given.
+  function clipLine(m, pats) {
+    let lo = -Infinity, hi = Infinity;
+    pats.forEach((P) => [P.u, P.v].forEach((ax) => {
+      const a = dot(sub(m.p, P.c), ax), b = dot(m.d, ax);
+      if (Math.abs(b) < 1e-12) { if (Math.abs(a) > P.h) { lo = Infinity; hi = -Infinity; } return; }
+      let t1 = (-P.h - a) / b, t2 = (P.h - a) / b;
+      if (t1 > t2) { const s = t1; t1 = t2; t2 = s; }
+      lo = Math.max(lo, t1); hi = Math.min(hi, t2);
+    }));
+    return lo < hi ? [add(m.p, scl(m.d, lo)), add(m.p, scl(m.d, hi))] : null;
+  }
+  // The middle of three side-by-side lines, level with P0 along them.
+  const centreOf = (M, P0) => scl([[0, 1], [0, 2], [1, 2]].map((q) => meet2(M[q[0]], M[q[1]], P0).p).reduce(add), 1 / 3);
+  const lineDir = (M) => unit(cross(M[0].slice(0, 3), M[1].slice(0, 3)));
+  const CN = centreOf(N1, onLine(N2S, 0)), DN = lineDir(N1);
+  const C10 = onLine(M10S, 0), D10 = lineDir(M10);
+  const CQ = centreOf(Q1, meet2(Q1[0], Q1[1], [0, 0, 0]).p), DQ = lineDir(Q1);
+  // A turn of the view that looks about `deg` degrees off a line's direction: about 30 where three
+  // lines run side by side (the triangle they make shows), about 50 where all three planes share one
+  // line (the line stays long and the planes fan round it).
+  function alFor(dir, deg) {
+    let best = AL, bestE = Infinity;
+    for (let a = 0; a < 360; a++) {
+      const th = Math.acos(Math.min(1, Math.abs(dot(towards(viewOf(a)), dir)))) / RAD, e = Math.abs(th - deg);
+      if (e < bestE - 1e-9) { bestE = e; best = a; }
+    }
+    return best;
+  }
+  const VA = { C: SOL1, h: 2.2, W: WG };
+  const VIEWS = {
+    grid: Object.assign({ sets: [A1] }, VA),
+    move: Object.assign({ sets: [A1, A2] }, VA),
+    clear1: Object.assign({ sets: [A2, A3, [A2[0], A2[1], parseRow(STEPS[3].opts[1])], [A2[0], A2[1], parseRow(STEPS[3].opts[2])]] }, VA),
+    stair: Object.assign({ sets: [A3, A4] }, VA),
+    back: { C: SOL6, h: 2.2, W: WG, sets: [S6], pts: [[0, 1, 2], [1, 1, 2]] },
+    none: { C: CN, h: 3.2, W: DN, sets: [N1], al0: alFor(DN, 30) },
+    zero: { C: CN, h: 3.2, W: DN, sets: [N1, N2], al0: alFor(DN, 30) },
+    line: { C: CN, h: 3.2, W: DN, sets: [N2], pts: [onLine(N2S, -2), onLine(N2S, 2)], al0: alFor(DN, 50) },
+    many: { C: C10, h: 2.6, W: D10, sets: [M10], pts: [onLine(M10S, -1), onLine(M10S, 1)], al0: alFor(D10, 50) },
+    nomeet: { C: CQ, h: 2.4, W: DQ, sets: [Q1], al0: alFor(DQ, 30) },
+  };
+  // Each view's scale: every patch it can show stays inside the picture, however it is turned.
+  STEPS.forEach((d) => {
+    const vw = VIEWS[d.key];
+    if (!vw) return;
+    let R = 0;
+    vw.sets.forEach((M) => M.forEach((r) => {
+      const n = r.slice(0, 3), L2 = dot(n, n);
+      if (L2 < 1e-12) return;
+      const dist = Math.abs(dot(n, vw.C) - r[3]) / Math.sqrt(L2);
+      R = Math.max(R, Math.sqrt(dist * dist + 2 * vw.h * vw.h));
+    }));
+    (vw.pts || []).forEach((p) => { R = Math.max(R, norm(sub(p, vw.C)) + 0.4); });
+    Object.assign(d, { C: vw.C, h: vw.h, W: vw.W, R, u: (Math.min(AW, PH) / 2 - 8) / R, al0: vw.al0 != null ? vw.al0 : AL });
+  });
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. al: how far he has turned
+  // the view. M, prev, last, msg: the row-move screen's grid, the grid before his last move, that move
+  // and a note about it (M is null while the demonstration sets the grid).
+  function blank() { return { pick: null, res: null, why: false, al: null, M: null, prev: null, last: null, msg: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, tNow = 1, lastT = null;
+  let REC = null, GEO = null;
+  const el = (id) => document.getElementById(id);
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xyzt](?![A-Za-z₁₂₃]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) {
+        // A grid is kept whole row by row, and may break after a semicolon.
+        seg.split('; ').forEach((piece, j, all) => italics(node.appendChild(K.el('span', { class: 'nw' })), piece + (j < all.length - 1 ? ';' : ''), false) || (j < all.length - 1 && node.appendChild(document.createTextNode(' '))));
+        return;
+      }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);
+        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) italics(node, seg.slice(at0), false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const rowOpts = [1, 2, 3].map((v) => ({ value: v, label: String(v) }));
+  const tgtC = K.choice({ id: 'tgt', label: 'Row to change', options: rowOpts, value: 3, into: '#tgtBox' });
+  const srcC = K.choice({ id: 'src', label: 'Row to add', options: rowOpts, value: 2, into: '#srcBox' });
+  const multC = K.choice({ id: 'mult', label: 'Multiplier', options: MULTS.map((v) => ({ value: v, label: num(v) })), value: 1, into: '#multBox' });
+  const addBtn = K.button({ label: 'Add', into: '#moveBtns', press: () => {
+    const i = at(), st = S[i];
+    if (i !== MOVE || finished) return;
+    const tg = tgtC.get() - 1, sr = srcC.get() - 1, m = multC.get();
+    if (tg === sr) { st.msg = 'Pick two different rows: one to change and one to add.'; return; }
+    const from = st.M || A2, to = rowMove(from, { tg, sr, m });
+    if (to.some((r) => r.some((x) => Math.abs(x) > 99))) { st.msg = 'That move makes numbers too big to draw. Press Reset to start again.'; return; }
+    st.prev = from; st.M = to; st.last = { tg, sr, m }; st.msg = null;
+    play(1.5);
+  } });
+  K.button({ label: 'Reset', secondary: true, into: '#moveBtns', press: () => {
+    const i = at(), st = S[i];
+    if (i !== MOVE || finished) return;
+    anim.pause(); T = Infinity;
+    st.M = A1.map((r) => r.slice()); st.prev = null; st.last = null; st.msg = null;
+  } });
+  const tCtl = K.control({ id: 't', label: 'Along the line, t', min: -2, max: 2, step: 0.5, value: 1, fmt: (v) => num(v), into: '#tbox' });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    if (i === MOVE) S[i] = blank();
+    play(d.dur);
+  } });
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer or a move; with reduced
+  // motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const put = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? 0.4 : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = put(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx0) => put(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx0 || 0) }));
+  const line = (cls, x1, y1, x2, y2) => put(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => put(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  const pathEl = (cls, d) => put(K.svg('path', { class: cls, d }));
+  const polyD = (ps) => 'M' + ps.map((p) => r3(p[0]) + ' ' + r3(p[1])).join(' L') + ' Z';
+  const nb = (s) => String(s).replace(/ /g, NB);
+  // Entries sit on highlight bands and badges on their own rings, so they carry no halo.
+  function text(x, y, s, cls, anchor) {
+    const plain = /^(en|q|bn)\b/.test(cls);
+    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    REC.texts.push(String(s));
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  const fitCls = (s, list, room) => list.find((c) => tw(s, c) <= room) || list[list.length - 1];
+  const fitText = (x, y, s, cls) => text(x, y, s, cls + ({ 0: '', 1: ' sm2', 2: ' sm3' })[[cls, cls + ' sm2', cls + ' sm3'].findIndex((c, k) => k === 2 || tw(s, c) <= 322)]);
+  // An arrow from a to b (drawing units).
+  function arrow(a, b, cls) {
+    const g = put(K.svg('g', { class: cls }));
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    if (L < 1) return g;
+    const ux = dx / L, uy = dy / L, hl = Math.min(10, L * 0.5), hw = hl * 0.55, bx = b[0] - ux * hl, by = b[1] - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'ah', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  function badge(x, y, s, cls) { circle('bdg ' + cls, x, y, 10); text(x, y + 4.5, s, 'bn'); }
+
+  // ---------- the grid: rows of x, y and z with the constants after a bar ----------
+  const GX = { bx: 16, x0: 34, cx: [60, 100, 140], bar: 164, kx: 190, x1: 214 };
+  const RY = (L, i) => L.gy + 36 + 24 * i;
+  const cellsOf = (M, rowA) => M.map((r, i) => r.map((x) => [{ s: num(x), n: x, cls: 'en', a: rowA ? rowA[i] : 1 }]));
+  // Cells that change at the times given: each cell a stack of values that cross-fade, entry by entry.
+  function cellsSeq(Ms, changes, clsByRow) {
+    return [0, 1, 2].map((i) => [0, 1, 2, 3].map((k) => {
+      const vals = [{ n: Ms[0][i][k], a: 1, cls: 'en' }];
+      changes.forEach((c, q) => { if (c.i === i) vals.push({ n: Ms[q + 1][i][k], a: arr(c.t0 + c.gap * k, 0.3), cls: (clsByRow && clsByRow[i]) || 'en' }); });
+      return vals.map((vv, j) => ({ s: num(vv.n), n: vv.n, cls: vv.cls, a: Math.min(j ? vv.a : 1, vals[j + 1] ? 1 - vals[j + 1].a : 1) }));
+    }));
+  }
+  const workCells = (row, m) => row.map((x) => ({ s: num(x * m), n: x * m, cls: 'en wk' }));
+  function drawGrid(g, L) {
+    const gx = g.gx || 0, X = (x) => gx + x, gy = L.gy, colX = (k) => X(k < 3 ? GX.cx[k] : GX.kx);
+    (g.head || HEAD).forEach((h, k) => text(colX(k), gy + 14, h, 'hd'));
+    (g.lit || []).forEach((l) => part(l.a, 0, () => rect('lit', X(GX.x0) + 3, RY(L, l.i) - 11, GX.x1 - GX.x0 - 6, 22, 6)));
+    (g.litCells || []).forEach((c) => part(c.a, 0, () => rect('lit', colX(c.k) - 18, RY(L, c.i) - 11, 36, 22, 6)));
+    pathEl('brk', 'M' + X(GX.x0 + 6) + ' ' + (gy + 24) + ' H' + X(GX.x0) + ' V' + (gy + 96) + ' H' + X(GX.x0 + 6));
+    pathEl('brk', 'M' + X(GX.x1 - 6) + ' ' + (gy + 24) + ' H' + X(GX.x1) + ' V' + (gy + 96) + ' H' + X(GX.x1 - 6));
+    line('bar', X(GX.bar), gy + 26, X(GX.bar), gy + 94);
+    REC.grid = [[], [], []];
+    for (let i = 0; i < 3; i++) for (let k = 0; k < 4; k++) {
+      g.cells[i][k].forEach((ly) => {
+        const a = ly.a == null ? 1 : ly.a;
+        part(a, 0, () => text(colX(k), RY(L, i) + 6, ly.s, ly.cls || 'en'));
+        if (a >= 0.5) { REC.grid[i][k] = ly.n; if (/bad/.test(ly.cls || '')) REC.bad++; }
+      });
+    }
+    for (let i = 0; i < 3; i++) part(g.badgeA ? g.badgeA[i] : 1, 0, () => badge(X(GX.bx), RY(L, i), String(i + 1), g.badges === 'live' ? 'p' + (i + 1) : 'plain'));
+    if (g.stair > 0) {
+      const sx = (k) => X(GX.cx[k] + 20), sy = (i) => RY(L, i) + 12;
+      part(g.stair, 0, () => pathEl('stair', 'M' + X(GX.x0 + 4) + ' ' + sy(0) + ' H' + sx(0) + ' V' + sy(1) + ' H' + sx(1) + ' V' + sy(2)));
+      if (g.stair >= 0.5) REC.stair = true;
+    }
+    (g.tags || []).forEach((tg) => part(tg.a, 0, () => text(X(GX.x1) + 8, RY(L, tg.i) + 5, tg.s, 'sm', 'start')));
+  }
+  // The working line under the grid: the multiple of a row being added, in the same columns.
+  function drawWork(layers, L, gx) {
+    const X = (x) => gx + x, colX = (k) => X(k < 3 ? GX.cx[k] : GX.kx), y = L.wy;
+    const plus = Math.max.apply(null, layers.map((w) => (w.label && !w.noPlus ? w.a : 0)).concat([0]));
+    part(plus, 0, () => text(X(GX.bx), y + 6, '+', 'en wk'));
+    layers.forEach((w) => {
+      if (w.lit) part(Math.min(w.a, w.lit.a), 0, () => rect('lit', colX(w.lit.k) - 18, y - 11, 36, 22, 6));
+      part(w.a, 2, () => w.cells.forEach((c, k) => text(colX(k), y + 6, c.s, c.cls || 'en wk')));
+      if (w.label) part(Math.min(w.a, w.la == null ? 1 : w.la), 0, () => text(X(GX.x1) + 8, y + 5, w.label, 'sm', 'start'));
+      if (w.a >= 0.5) { REC.work = w.label || null; REC.workCells = w.cells.map((c) => c.n); w.cells.forEach((c) => { if (/bad/.test(c.cls || '')) REC.bad++; }); }
+    });
+  }
+  // The read-out beside the grid: what the dot is, or how many answers there are.
+  function drawRead(r, L) {
+    const gy = L.gy;
+    text(RX, gy + 26, r.label, 'sm');
+    r.vals.forEach((vv) => {
+      const a = vv.a == null ? 1 : vv.a, cls = fitCls(vv.s, ['big', 'big s16', 'big s14'], 112) + (vv.cls ? ' ' + vv.cls : '');
+      part(a, 0, () => text(RX, gy + 58, vv.s, cls));
+      if (a >= 0.5) { REC.read = vv.s; if (/bad/.test(vv.cls || '')) REC.bad++; }
+    });
+    (r.tags || []).forEach((tg) => {
+      const a = tg.a == null ? 1 : tg.a;
+      part(a, 0, () => text(RX, gy + 82, tg.s, 'tag'));
+      if (a >= 0.5) REC.tag = tg.s;
+    });
+  }
+  function loopArrow(cx, cy, lab) {
+    const r = 14, a0 = -2.2, a1 = a0 + 5.0;
+    const P0 = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)], P1 = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];
+    pathEl('loop', 'M' + r3(P0[0]) + ' ' + r3(P0[1]) + ' A' + r + ' ' + r + ' 0 1 1 ' + r3(P1[0]) + ' ' + r3(P1[1]));
+    const tx = -Math.sin(a1), ty = Math.cos(a1), n = [-ty, tx];
+    const tip = [P1[0] + tx * 5, P1[1] + ty * 5], base = [P1[0] - tx * 3, P1[1] - ty * 3];
+    pathEl('loophd', polyD([tip, [base[0] + n[0] * 4.5, base[1] + n[1] * 4.5], [base[0] - n[0] * 4.5, base[1] - n[1] * 4.5]]));
+    text(cx, cy + 5, lab, 'lb');
+  }
+  // A cell: the long plate is its + side, so loop 1's pushes up (clockwise) and loop 3's pushes down.
+  function cellAt(x, y, plusUp) {
+    const lp = plusUp ? y - 4 : y + 4, sp = plusUp ? y + 4 : y - 4;
+    line('plate', x - 12, lp, x + 12, lp); line('plate sp', x - 6, sp, x + 6, sp);
+  }
+  // Three loops in a row: a resistor of its own on top of each, neighbours share one, loop currents clockwise.
+  function drawCircuit(y0, c) {
+    const xs = [34, 126, 218, 310], yT = y0 + 26, yB = y0 + 122, yM = (yT + yB) / 2, yb = yM - 16;
+    part(c.a1, 0, () => {
+      line('wire', xs[0], yT, xs[3], yT); line('wire', xs[0], yB, xs[3], yB);
+      [0, 3].forEach((k) => { line('wire', xs[k], yT, xs[k], yb - 4); line('wire', xs[k], yb + 4, xs[k], yB); });
+      cellAt(xs[0], yb, true); cellAt(xs[3], yb, false);
+      text(xs[0] + 16, yb + 5, num(VS[0]) + ' V', 'lb', 'start'); text(xs[3] - 16, yb + 5, num(VS[2]) + ' V', 'lb', 'end');
+      [1, 2].forEach((k) => { const x = xs[k]; line('wire', x, yT, x, yB); rect('res', x - 7, yM - 17, 14, 34, 1); text(x + 11, yM + 5, num(SH) + ' Ω', 'lb', 'start'); });
+      [0, 1, 2].forEach((k) => { const cx = (xs[k] + xs[k + 1]) / 2; rect('res', cx - 18, yT - 7, 36, 14, 1); text(cx, yT - 12, num(OWN[k]) + ' Ω', 'lb'); });
+    });
+    part(c.a2, 0, () => [0, 1, 2].forEach((k) => loopArrow((xs[k] + xs[k + 1]) / 2, yM + 24, IHEAD[k])));
+    // The current in the resistor loops 2 and 3 share: I₂ − I₃ along loop 2's arrow (down), so a negative one flows up.
+    if (c.amp && c.amp.a > 0) {
+      const x = xs[2] - 14, up = c.amp.v < 0;
+      part(c.amp.a, 0, () => { arrow([x, up ? yM + 14 : yM - 18], [x, up ? yM - 18 : yM + 14], 'arr'); text(x + 6, yM - 26, num(Math.abs(c.amp.v)) + ' A', 'lb', 'end'); });
+      if (c.amp.a >= 0.5) REC.amps = c.amp.v;
+    }
+    REC.circuit = true;
+  }
+  function drawKey(y, items) {
+    items.forEach((it) => part(it.a, 0, () => {
+      const w = tw(it.s, 'key'), x = 170 - (w + 26) / 2;
+      line(it.cls, x, y - 4, x + 18, y - 4);
+      text(x + 26, y + 1, it.s, 'key', 'start');
+    }));
+  }
+  const KEY_PAIR = (a) => ({ cls: 'pair', s: 'where two planes cross', a });
+  const KEY_SHARED = (a) => ({ cls: 'shared', s: 'the line all three share', a });
+
+  // ---------- the 3-D view: patches, the lines where they cross, the dot, badges, x, y and z ----------
+  const BADGE_AT = [[0.72, 0.72], [-0.72, 0.72], [-0.72, -0.72], [0.72, -0.72], [0.82, 0], [-0.82, 0], [0, 0.82], [0, -0.82]];
+  function scene3(d, st, t, L) {
+    const al = (st.al != null ? st.al : d.al0) + (t.swing || 0), V = viewOf(al), C = d.C, u = d.u;
+    const O = [170, L.ptop + PH / 2];
+    const P = (w) => { const q = prj(V, sub(w, C)); return [O[0] + u * q[0], O[1] + u * q[1]]; };
+    const area = { x0: 4, x1: 336, y0: L.ptop, y1: L.ptop + PH };
+    const ctx = { V, P, O, area };
+    GEO = ctx;
+    const view = towards(V), pat = (row) => patchOf(row, C, d.h, d.W);
+    // The planes, farthest first, each a see-through square.
+    const pls = (t.planes || []).map((pl) => Object.assign({ P: pat(pl.row), E: pat(pl.end || pl.row) }, pl)).filter((pl) => pl.P && pl.E && pl.a > 0);
+    pls.slice().sort((a, b) => dot(a.P.c, view) - dot(b.P.c, view)).forEach((pl) => {
+      const cs = cornersOf(pl.P).map(P);
+      part(pl.a, pl.rise || 0, () => pathEl('pl ' + pl.cls, polyD(cs)));
+      if (pl.a >= 0.5) { REC.planes.push({ row: pl.row.slice(), cls: pl.cls }); if (pl.cls === 'bad') REC.bad++; }
+    });
+    // Where planes cross, cut to the patches.
+    (t.lines || []).forEach((lnx) => {
+      if (!(lnx.a > 0)) return;
+      const m = meet2(lnx.rows[0], lnx.rows[1], C);
+      if (!m) return;
+      const seg = clipLine(m, (lnx.clip || lnx.rows).map(pat).filter(Boolean));
+      if (!seg) return;
+      const p = P(seg[0]), q = P(seg[1]);
+      part(lnx.a, 0, () => line(lnx.cls, p[0], p[1], q[0], q[1]));
+      if (lnx.a >= 0.5) { if (lnx.cls === 'hinge') REC.hinge = m; else if (lnx.cls === 'pair') REC.pairs.push(m); else REC.shared = m; }
+    });
+    // The dot.
+    let dotPx = null;
+    if (t.dot && t.dot.a > 0) {
+      dotPx = P(t.dot.p);
+      part(t.dot.a, 0, () => circle('dot' + (t.dot.cls ? ' ' + t.dot.cls : ''), dotPx[0], dotPx[1], 6));
+      if (t.dot.a >= 0.5) { if (t.dot.cls === 'bad') { REC.bad++; REC.wrongDot = t.dot.p.slice(); } else REC.dot = t.dot.p.slice(); }
+    }
+    // x, y and z, in the corner, turning with the view.
+    const T0 = [40, area.y1 - 30];
+    const axes = HEAD.map((s, k) => {
+      const e = [0, 0, 0]; e[k] = 1;
+      const q = prj(V, e);
+      return { s, q, Lq: Math.hypot(q[0], q[1]), tip: [T0[0] + 22 * q[0], T0[1] + 22 * q[1]] };
+    });
+    axes.forEach((ax) => arrow(T0, ax.tip, 'ax'));
+    // Each letter beyond its arrow's tip, turned aside if that spot sits on another arrow or letter
+    // (an axis pointing nearly at the viewer draws short, and its letter would land on a neighbour).
+    const segD = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, t = L2 ? K.clamp(((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2, 0, 1) : 0; return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };
+    const spots = [];
+    axes.slice().sort((a, b) => b.Lq - a.Lq).forEach((ax) => {
+      const base = Math.atan2(ax.q[1], ax.q[0] || 1e-9), r0 = Math.max(22 * ax.Lq + 9, 16);
+      let best = null, bestS = Infinity;
+      [0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180].forEach((dg, j) => [r0, r0 + 6].forEach((r, m) => {
+        const a = base + dg * RAD, c = [T0[0] + r * Math.cos(a), T0[1] + r * Math.sin(a)];
+        let sc = j * 2 + m;
+        axes.forEach((o) => { const dd = segD(c, T0, o.tip); if (dd < (o === ax ? 7 : 10)) sc += 100; });
+        spots.forEach((o) => { if (Math.hypot(o[0] - c[0], o[1] - c[1]) < 14) sc += 100; });
+        if (sc < bestS) { bestS = sc; best = c; }
+      }));
+      spots.push(best);
+      text(best[0], best[1] + 4.5, ax.s, 'axl');
+    });
+    // Each plane carries its row's number, at a corner chosen clear of the dot and the other numbers
+    // (chosen where the plane ends up, so a number rides along smoothly while its plane swings).
+    const chosen = [], avoid = [T0];
+    if (t.dot) avoid.push(P(t.dot.p));
+    pls.forEach((pl) => {
+      let best = 0, bestS = -Infinity;
+      BADGE_AT.forEach((s, k) => {
+        const c = P(add(pl.E.c, add(scl(pl.E.u, s[0] * pl.E.h), scl(pl.E.v, s[1] * pl.E.h))));
+        let sc = 0;
+        if (c[0] < area.x0 + 16 || c[0] > area.x1 - 16 || c[1] < area.y0 + 16 || c[1] > area.y1 - 16) sc -= 1000;
+        sc += Math.min(80, avoid.concat(chosen).reduce((mm, o) => Math.min(mm, Math.hypot(o[0] - c[0], o[1] - c[1])), 200));
+        if (sc > bestS + 1e-6) { bestS = sc; best = k; }
+      });
+      const s = BADGE_AT[best], c = P(add(pl.P.c, add(scl(pl.P.u, s[0] * pl.P.h), scl(pl.P.v, s[1] * pl.P.h))));
+      chosen.push(P(add(pl.E.c, add(scl(pl.E.u, s[0] * pl.E.h), scl(pl.E.v, s[1] * pl.E.h)))));
+      part(pl.a, 0, () => badge(c[0], c[1], pl.s, pl.cls));
+    });
+    // Words in the view sit on a small backing of the page colour.
+    (t.labels || []).forEach((lb) => {
+      if (!(lb.a > 0)) return;
+      const c = P(lb.w), wd = tw(lb.s, lb.cls) + 12;
+      let pos = null;
+      [[0, -24], [0, 26], [wd / 2 + 14, 0], [-wd / 2 - 14, 0]].forEach((o) => {
+        if (pos) return;
+        const x = c[0] + o[0], y = c[1] + o[1];
+        if (x - wd / 2 < area.x0 || x + wd / 2 > area.x1 || y < area.y0 + 12 || y > area.y1 - 12) return;
+        if (chosen.some((b) => Math.abs(b[0] - x) < wd / 2 + 12 && Math.abs(b[1] - y) < 22)) return;
+        pos = [x, y];
+      });
+      pos = pos || [c[0], c[1] - 24];
+      part(lb.a, 0, () => { rect('pill', pos[0] - wd / 2, pos[1] - 10, wd, 20, 7); text(pos[0], pos[1] + 5, lb.s, lb.cls); });
+    });
+  }
+
+  // ---------- one screen ----------
+  const TM_DEMO = { lit: 0.4, work: 0.8, cells: 1.3, gap: 0.22, swing: [1.5, 1.4] };
+  const TM_PLAY = { lit: 0, work: 0.05, cells: 0.25, gap: 0.12, swing: [0.3, 1.1] };
+  const TM_FB = { lit: 0, work: 0.1, cells: 0.35, gap: 0.15, swing: [0.4, 1.1] };
+  const TM_STAIR = { lit: 0.4, work: 0.7, cells: 1.1, gap: 0.2, swing: [1.2, 1.3] };
+  const planesOf = (M, a, rise) => M.map((row, i) => ({ row, cls: 'p' + (i + 1), s: String(i + 1), a: a ? a[i] : 1, rise: rise || 0 }));
+  const pairsOf = (M, a) => [[0, 1], [0, 2], [1, 2]].map((q) => ({ rows: [M[q[0]], M[q[1]]], cls: 'pair', a }));
+  // One row changing to another: the row lit, its entries turning one by one, its plane swinging.
+  function moveParts(v, from, to, tg, work, tm, cellCls, planeCls) {
+    v.grid = { cells: cellsSeq([from, to], [{ i: tg, t0: tm.cells, gap: tm.gap }], cellCls ? { [tg]: cellCls } : null), badges: 'live', lit: [{ i: tg, a: arr(tm.lit, 0.3) }] };
+    if (work) v.work.push({ cells: work.cells, label: work.label, a: arr(tm.work, 0.35) });
+    const e = go(tm.swing[0], tm.swing[1]), planes = planesOf(from);
+    planes[tg] = Object.assign(planes[tg], { row: lerpRow(from[tg], to[tg], e), end: to[tg], cls: planeCls || planes[tg].cls });
+    return planes;
+  }
+  // A run of moves: each lights its row, shows its working line, then changes the row's entries.
+  function seqParts(v, Ms, moves, t0s, gap, lead) {
+    v.grid = { cells: cellsSeq(Ms, moves.map((mv, q) => ({ i: mv.tg, t0: t0s[q] + lead, gap }))), badges: 'plain', lit: [] };
+    moves.forEach((mv, q) => {
+      const last = q === moves.length - 1, keep = !last && moves[q + 1].tg === mv.tg, inA = arr(t0s[q], 0.3), wa = arr(t0s[q] + 0.05, 0.3);
+      v.grid.lit.push({ i: mv.tg, a: last || keep ? inA : Math.min(inA, 1 - arr(t0s[q + 1] - 0.05, 0.25)) });
+      v.work.push({ cells: workCells(Ms[q][mv.sr], mv.m), label: moveLabel(mv), a: last ? wa : Math.min(wa, 1 - arr(t0s[q + 1] - 0.05, 0.25)) });
+    });
+  }
+  const hinge = (r0, src, now, a) => ({ rows: [r0, src], clip: [now, src], cls: 'hinge', a });
+  const dotRead = (p, a) => ({ label: 'the dot', vals: [{ s: pt(p), a }], tags: [{ s: 'all three meet', a }] });
+  const ask = (label) => ({ label, vals: [{ s: '?', cls: 'q' }], tags: [] });
+
+  function drawStep(d, st, L) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    const v = { grid: null, work: [], read: null, lines: [], three: null, circuit: null, legend: [], tags: [] };
+    const reveal = (a) => { if (a > 0) REC.reveal++; };
+    const slip = (r, t0) => v.lines.push({ r: r || 0, s: d.slips[st.pick], cls: 'ln bad', a: arr(t0 || 0.1, 0.3) });
+    switch (d.key) {
+      case 'grid': {
+        const a = [0, 1, 2].map((k) => arr(0.4 + 0.6 * k, 0.5)), da = arr(2.3, 0.45);
+        v.grid = { cells: cellsOf(A1, a), badges: 'live', badgeA: a };
+        v.read = dotRead(SOL1, da);
+        v.three = { planes: planesOf(A1, a, 8), dot: { p: SOL1, a: da } };
+        break;
+      }
+      case 'row': {
+        v.grid = { cells: cellsOf(A1), badges: 'live' };
+        v.read = { label: 'the equation', vals: [{ s: eqTxt(ROW2) }], tags: [] };
+        const q = { cells: ['?', '?', '?', '?'].map((s) => ({ s, cls: 'q' })), a: 1 };
+        v.work.push(q);
+        if (right) {
+          const ra = arr(0.1, 0.4);
+          q.a = 1 - ra;
+          v.work.push({ cells: ROW2.map((x) => ({ s: num(x), n: x, cls: 'en ok' })), a: ra, label: 'no y, so 0', noPlus: true, la: arr(0.6, 0.3), lit: { k: 1, a: arr(0.5, 0.3) } });
+          v.lines.push({ s: fullEq(ROW2), cls: 'ln ok', a: arr(0.9, 0.3) });
+          reveal(ra);
+        } else if (wrong) {
+          const W = parseRow(st.pick), wa = arr(0.1, 0.3);
+          const cells = W.length === 4 ? W : [W[0], W[1], null, W[2]];
+          q.a = 1 - wa;
+          v.work.push({ cells: cells.map((x) => (x == null ? { s: '?', cls: 'q bad' } : { s: num(x), n: x, cls: 'en bad' })), a: wa });
+          slip(0, 0.3);
+        }
+        break;
+      }
+      case 'move': {
+        let mv = null, from = st.M, tm = null;
+        if (st.M == null) { mv = MV1; from = A1; tm = TM_DEMO; } else if (st.last) { mv = st.last; from = st.prev; tm = TM_PLAY; }
+        if (mv) {
+          const to = rowMove(from, mv), planes = moveParts(v, from, to, mv.tg, { cells: workCells(from[mv.sr], mv.m), label: moveLabel(mv) }, tm);
+          const ha = arr(tm.work, 0.35);
+          v.three = { planes, lines: [hinge(from[mv.tg], from[mv.sr], planes[mv.tg].row, ha)] };
+          v.legend.push(KEY_PAIR(ha));
+        } else {
+          v.grid = { cells: cellsOf(st.M), badges: 'live' };
+          v.three = { planes: planesOf(st.M) };
+        }
+        v.three.dot = { p: SOL1, a: 1 };
+        v.read = dotRead(SOL1, 1);
+        break;
+      }
+      case 'clear1': {
+        if (right) {
+          const planes = moveParts(v, A2, A3, 2, { cells: workCells(A2[0], -1), label: moveLabel(MV2) }, TM_FB), ha = arr(0.1, 0.35);
+          v.three = { planes, lines: [hinge(A2[2], A2[0], planes[2].row, ha)] };
+          v.lines.push({ s: 'Column 1 is now clear below row 1', cls: 'ln ok', a: arr(1.5, 0.3) });
+          v.legend.push(KEY_PAIR(ha));
+          reveal(arr(0.4, 0.3));
+        } else if (wrong) {
+          const W = parseRow(st.pick), to = A2.map((r, i) => (i === 2 ? W : r.slice()));
+          v.three = { planes: moveParts(v, A2, to, 2, null, TM_FB, 'en bad', 'bad') };
+          slip(0, 0.6);
+        } else {
+          v.grid = { cells: cellsOf(A2), badges: 'live', lit: [{ i: 2, a: 1 }] };
+          v.three = { planes: planesOf(A2) };
+        }
+        v.three.dot = { p: SOL1, a: 1 };
+        v.read = dotRead(SOL1, 1);
+        break;
+      }
+      case 'stair': {
+        const planes = moveParts(v, A3, A4, 2, { cells: workCells(A3[1], -2), label: moveLabel(MV3) }, TM_STAIR), ha = arr(0.7, 0.35);
+        v.grid.stair = arr(2.6, 0.4);
+        backLines(A4, HEAD).forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln', a: arr(3.0 + 0.5 * k, 0.4) }));
+        v.three = { planes, lines: [hinge(A3[2], A3[1], planes[2].row, ha)], dot: { p: SOL1, a: 1 } };
+        v.read = dotRead(SOL1, 1);
+        v.legend.push(KEY_PAIR(ha));
+        break;
+      }
+      case 'back': {
+        v.grid = { cells: cellsOf(S6), badges: 'live', stair: 1 };
+        v.three = { planes: planesOf(S6) };
+        v.read = ask('the dot');
+        if (right) {
+          const la = [0.1, 0.5, 0.9].map((t0) => arr(t0, 0.35)), da = arr(1.2, 0.35);
+          backLines(S6, HEAD).forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln ok', a: la[k] }));
+          v.three.dot = { p: SOL6, a: da };
+          v.read = { label: 'the dot', vals: [{ s: '?', cls: 'q', a: 1 - da }, { s: pt(SOL6), cls: 'ok', a: da }], tags: [{ s: 'all three meet', a: da }] };
+          reveal(la[0]);
+        } else if (wrong) {
+          const W = [toNum(st.pick), SOL6[1], SOL6[2]], wa = arr(0.7, 0.3);
+          backLines(S6, HEAD).slice(0, 2).forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln', a: arr(0.1 + 0.3 * k, 0.3) }));
+          slip(2, 0.7);
+          v.three.dot = { p: W, a: wa, cls: 'bad' };
+          v.three.labels = [{ w: W, s: pt(W), cls: 'lb bad', a: wa }];
+          v.read = { label: 'the dot', vals: [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(W), cls: 'bad', a: wa }], tags: [] };
+        }
+        break;
+      }
+      case 'none': {
+        seqParts(v, seqOf(N1, NMOVES), NMOVES, [1.0, 2.0, 3.0], 0.15, 0.35);
+        const pa = [0, 1, 2].map((k) => arr(0.35 + 0.2 * k, 0.5)), la = arr(3.9, 0.4), ra = arr(4.1, 0.4);
+        v.three = { planes: planesOf(N1, pa, 8), lines: pairsOf(N1, la) };
+        v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'none', a: ra }], tags: [{ s: 'no common point', a: ra }] };
+        v.tags.push({ s: FIRST, a: 1 });
+        v.legend.push(KEY_PAIR(la));
+        break;
+      }
+      case 'zero': {
+        v.read = ask('answers');
+        if (right) {
+          seqParts(v, seqOf(N2, NMOVES), NMOVES, [0.15, 0.6, 1.05], 0.1, 0.1);
+          const e = go(0.3, 1.2), row3 = lerpRow(N1[2], N2[2], e), rows = [N1[0], N1[1], row3];
+          const sa = arr(1.5, 0.4), ra = arr(1.7, 0.4), ta = arr(0.3, 0.3);
+          v.grid.litCells = [{ i: 2, k: 3, a: 1 - arr(0.1, 0.2) }];
+          const planes = planesOf(rows);
+          planes[2].end = N2[2];
+          v.three = { planes, lines: pairsOf(rows, 1 - sa).concat([{ rows: [N2[0], N2[1]], clip: rows, cls: 'shared', a: sa }]) };
+          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'a line', cls: 'ok', a: ra }], tags: [{ s: 'all share a line', a: ra }] };
+          v.tags = [{ s: TAG9, a: 1 - ta }, { s: TAG4, a: ta }];
+          v.legend = [KEY_PAIR(1 - sa), KEY_SHARED(sa)];
+          reveal(sa);
+        } else {
+          v.grid = { cells: cellsOf(N2), badges: 'plain', litCells: [{ i: 2, k: 3, a: 1 }] };
+          v.three = { planes: planesOf(N1), lines: pairsOf(N1, 1) };
+          v.tags = [{ s: TAG9, a: 1 }];
+          v.legend = [KEY_PAIR(1)];
+          if (wrong) slip(0, 0.1);
+        }
+        break;
+      }
+      case 'line': {
+        const p = onLine(N2S, tNow), sa = arr(0.5, 0.5), da = arr(1.1, 0.4);
+        v.grid = { cells: cellsOf(N2S), badges: 'plain' };
+        v.three = { planes: planesOf(N2), lines: [{ rows: [N2[0], N2[1]], clip: N2, cls: 'shared', a: sa }], dot: { p, a: da } };
+        v.read = { label: 'the dot', vals: [{ s: pt(p), a: da }], tags: [{ s: 't = ' + num(tNow), a: da }] };
+        N2.forEach((row, k) => v.lines.push({ r: k, s: subLine(row, p), cls: 'ln', a: arr(1.6 + 0.5 * k, 0.4), badge: 'p' + (k + 1), bs: String(k + 1) }));
+        v.tags.push({ s: FIRST, a: 1 });
+        v.legend.push(KEY_SHARED(sa));
+        break;
+      }
+      case 'many': {
+        v.grid = { cells: cellsOf(M10S), badges: 'plain' };
+        v.three = { planes: planesOf(M10) };
+        v.read = ask('answers');
+        v.tags.push({ s: FIRST, a: 1 });
+        if (right) {
+          const sa = arr(0.6, 0.4), da = arr(0.9, 0.3), z = -1 + 2 * go(1.0, 1.2), ra = arr(0.8, 0.3);
+          const y0 = onLine(M10S, 0), y1 = onLine(M10S, 1);
+          const lin = (c, k) => num(c) + (k < 0 ? ' − ' : ' + ') + (near(Math.abs(k), 1) ? '' : num(Math.abs(k))) + 'z';
+          v.three.swing = 30 * (1 - go(0, 1.2));
+          v.three.lines = [{ rows: [M10[0], M10[1]], clip: M10, cls: 'shared', a: sa }];
+          v.three.dot = { p: onLine(M10S, z), a: da };
+          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'a line', cls: 'ok', a: ra }], tags: [{ s: 'z is free', a: ra }] };
+          v.lines.push({ s: 'y = ' + lin(y0[1], y1[1] - y0[1]) + ' and x = ' + lin(y0[0], y1[0] - y0[0]) + ', for any z', cls: 'ln ok', a: arr(1.0, 0.3) });
+          v.legend.push(KEY_SHARED(sa));
+          reveal(sa);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.3);
+          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick === 'None' ? 'none' : 'one', cls: 'bad', a: wa }], tags: [] };
+          slip(0, 0.1);
+        }
+        break;
+      }
+      case 'circuit': {
+        v.circuit = { a1: arr(0.35, 0.5), a2: arr(0.8, 0.5) };
+        v.grid = { gx: GXC, head: IHEAD, cells: cellsSeq([RG, RGD, C1], [{ i: 1, t0: 1.7, gap: 0.15 }, { i: 1, t0: 3.0, gap: 0.15 }]), badges: 'plain',
+          lit: [{ i: 1, a: arr(1.3, 0.3) }], tags: [{ i: 1, s: '× 2', a: arr(1.4, 0.3) }] };
+        v.work.push({ cells: workCells(RG[0], 1), label: 'row 1', a: arr(2.5, 0.4) });
+        break;
+      }
+      case 'clear2': {
+        v.circuit = { a1: 1, a2: 1 };
+        v.grid = { gx: GXC, head: IHEAD, cells: cellsOf(C1), badges: 'plain', lit: [{ i: 2, a: 1 }] };
+        if (right) {
+          v.grid.cells = cellsSeq([C1, C1X7, C2], [{ i: 2, t0: 0.2, gap: 0.1 }, { i: 2, t0: 0.9, gap: 0.1 }]);
+          v.grid.tags = [{ i: 2, s: '× 7', a: arr(0.1, 0.3) }];
+          v.grid.stair = arr(1.4, 0.3);
+          v.work.push({ cells: workCells(C1[1], 1), label: 'row 2', a: arr(0.6, 0.3) });
+          backLines(C2, IHEAD, ' A').forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln ok', a: arr(1.5 + 0.3 * k, 0.3) }));
+          v.circuit.amp = { a: arr(2.2, 0.3), v: I23 };
+          reveal(arr(1.0, 0.3));
+        } else if (wrong) {
+          const two = /row 1/.test(st.pick), wa = arr(0.1, 0.3);
+          v.grid.cells = cellsSeq([C1, two ? C1W1 : C1W2], [{ i: 2, t0: 0.3, gap: 0.1 }], { 2: 'en bad' });
+          if (two) v.grid.tags = [{ i: 2, s: '× 2', a: wa }];
+          v.work.push({ cells: workCells(two ? C1[0] : C1[1], 1), label: two ? 'row 1' : 'row 2', a: wa });
+          slip(0, 0.4);
+        }
+        break;
+      }
+      case 'nomeet': {
+        v.grid = { cells: cellsOf(Q1), badges: 'plain' };
+        v.three = { planes: planesOf(Q1) };
+        v.read = ask('answers');
+        v.tags.push({ s: FIRST, a: 1 });
+        if (right) {
+          seqParts(v, seqOf(Q1, QMOVES), QMOVES, [0.1, 0.5, 0.9], 0.08, 0.1);
+          const la = arr(1.4, 0.4), ra = arr(1.6, 0.3);
+          v.three.swing = 30 * (1 - go(0, 1.4));
+          v.three.lines = pairsOf(Q1, la);
+          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'none', cls: 'ok', a: ra }], tags: [{ s: 'no common point', a: ra }] };
+          v.lines.push({ s: '0 = ' + num(QS[2][3]) + ', which no point fits', cls: 'ln ok', a: arr(1.7, 0.3) });
+          v.legend.push(KEY_PAIR(la));
+          reveal(la);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.3);
+          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - wa }, { s: /line/.test(st.pick) ? 'a line' : 'one', cls: 'bad', a: wa }], tags: [] };
+          slip(0, 0.1);
+        }
+        break;
+      }
+      default: break;
+    }
+    // The circuit, the grid, its working line, the read-out, worked lines, the view, its key.
+    const said = [];
+    if (v.circuit) { drawCircuit(L.cy, v.circuit); said.push('Three loops in a row. Each end loop has ' + num(OWN[0]) + ' ohms of its own and the middle loop ' + num(OWN[1]) + ' ohms. Each pair of neighbours shares ' + num(SH) + ' ohms. ' + num(VS[0]) + ' volts drive loop 1 and ' + num(VS[2]) + ' volts drive loop 3. The loop currents run clockwise.'); }
+    if (v.grid) {
+      drawGrid(v.grid, L);
+      said.push('The grid, row by row: ' + REC.grid.map((r) => [0, 1, 2, 3].map((k) => (r[k] == null ? 'blank' : say(num(r[k])))).join(', ')).join('; ') + '.');
+    }
+    if (v.work.length) drawWork(v.work, L, (v.grid && v.grid.gx) || 0);
+    if (REC.work) said.push('Under it, ' + say(REC.work) + ' is added: ' + REC.workCells.map((n) => say(num(n))).join(', ') + '.');
+    if (v.read) { drawRead(v.read, L); if (REC.read) said.push(say(v.read.label + ': ' + REC.read + (REC.tag ? ', ' + REC.tag : '')) + '.'); }
+    v.lines.forEach((lnx) => {
+      const a = lnx.a == null ? 1 : lnx.a, y = L.ly[lnx.r || 0];
+      part(a, 0, () => {
+        if (lnx.badge) { const w = tw(lnx.s, 'ln'), x0 = 170 - (w + 26) / 2; badge(x0 + 10, y, lnx.bs, lnx.badge); text(x0 + 26 + w / 2, y + 5, lnx.s, 'ln'); }
+        else fitText(170, y + 5, lnx.s, lnx.cls || 'ln');
+      });
+      if (a >= 0.5) { REC.lines.push(lnx.s); said.push(say(lnx.s) + '.'); if (/bad/.test(lnx.cls || '')) REC.bad++; }
+    });
+    if (v.three) {
+      scene3(d, st, v.three, L);
+      said.push('A 3-D view of ' + REC.planes.length + ' planes' + (REC.dot ? ', meeting at the dot ' + say(pt(REC.dot)) : REC.shared ? ', all sharing one line' : REC.pairs.length ? ', crossing in pairs along three side-by-side lines that never meet' : '') + '.');
+    }
+    if (L.tagy != null) v.tags.forEach((tg) => part(tg.a, 0, () => text(8, L.tagy, tg.s, 'tg', 'start')));
+    if (L.ky != null) drawKey(L.ky, v.legend);
+    return said.filter((s) => s).join(' ');
+  }
+
+  // ---------- the layout: circuit, grid, working line, worked lines, the view's tag, view, key ----------
+  function lay(d) {
+    const L = { cy: 0, gy: 0, ly: [] };
+    let y = 0;
+    if (d.circuit) y = CH;
+    L.gy = y; y += 102;
+    if (d.work) { L.wy = y + 10; y += 26; }
+    for (let k = 0; k < (d.rows || 0); k++) L.ly.push(y + 14 + 22 * k);
+    if (d.rows) y += 22 * d.rows + 6;
+    if (d.view) {
+      if (d.first) { L.tagy = y + 18; y += 24; }
+      L.ptop = y + 4; y = L.ptop + PH;
+      if (d.legend) { L.ky = y + 14; y += 22; }
+    }
+    L.h = y + 8;
+    return L;
+  }
+
+  // ---------- turning the view ----------
+  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 340, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The 3-D view: drag it sideways, or use the left and right arrow keys, to turn it' }));
+  function placeGrips(d) {
+    const on3 = !finished && !!d.view && !!GEO;
+    turnGrip.style.display = on3 ? '' : 'none';
+    turnGrip.setAttribute('tabindex', on3 ? '0' : '-1');
+    if (on3) { turnGrip.setAttribute('y', r3(GEO.area.y0)); turnGrip.setAttribute('height', r3(GEO.area.y1 - GEO.area.y0)); }
+  }
+  let turnHeld = null;
+  const turnOn = () => !finished && !!STEPS[at()].view;
+  const alNow = () => { const st = S[at()]; return st.al != null ? st.al : STEPS[at()].al0; };
+  function setAl(a) {
+    const st = S[at()], a0 = STEPS[at()].al0, v = K.clamp(Math.round(a), a0 - SWING, a0 + SWING);
+    if (st.al === v) return;
+    st.al = v;
+    if (!anim.playing()) K.refresh();
+  }
+  turnGrip.addEventListener('pointerdown', (e) => {
+    if (!turnOn()) return;
+    turnHeld = { id: e.pointerId, x: e.clientX, al: alNow() };
+    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the picture */ }
+  });
+  turnGrip.addEventListener('pointermove', (e) => { if (turnHeld && turnHeld.id === e.pointerId && turnOn()) setAl(turnHeld.al - (e.clientX - turnHeld.x) * 0.4); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ty) => turnGrip.addEventListener(ty, () => { turnHeld = null; }));
+  turnGrip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];
+    if (!by || !turnOn()) return;
+    e.preventDefault();
+    setAl(alNow() + by);
+  });
+
+  // ---------- the scene for a step (the animations call this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null; GEO = null;
+    REC = { texts: [], lines: [], grid: null, read: null, tag: null, work: null, workCells: null, stair: false, planes: [], dot: null, wrongDot: null,
+      hinge: null, pairs: [], shared: null, circuit: false, amps: null, bad: 0, reveal: 0 };
+    const L = lay(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(L.h));
+    svg.setAttribute('aria-label', drawStep(d, st, L) || '');
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    tNow = p.t;
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; lastT = p.t; enter('stepbox');
+      if (d.show) { if (i === MOVE) S[i] = blank(); play(d.dur); } else { anim.pause(); T = Infinity; }
+    } else if (i === LINE && p.t !== lastT) {
+      lastT = p.t;
+      if (anim.playing()) anim.pause();
+      T = Infinity;
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    const act = el('act');
+    write(act, (i === MOVE && st.msg) || d.act || '');
+    act.hidden = finished || !(d.act || (i === MOVE && st.msg));
+
+    el('moves').hidden = finished || i !== MOVE;
+    addBtn.setLabel('Add ' + moveLabel({ m: multC.get(), sr: srcC.get() - 1 }) + ' to row ' + tgtC.get());
+    el('tbox').hidden = finished || i !== LINE;
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (k) => STEPS.findIndex((d) => d.key === k);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t, tv) {
+    const keepS = S[i], keepT = T, keepTv = tNow;
+    S[i] = st; T = t == null ? Infinity : t; if (tv != null) tNow = tv;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; tNow = keepTv; paint(); }
+  }
+  const zeroRow = (r) => near(r[0], 0) && near(r[1], 0) && near(r[2], 0);
+
+  K.check('Add a nonzero multiple of one row to another row: on the row-move screen every pick of two different rows and a nonzero multiplier changes that one row, swings its plane about the line it shares with the added row\'s plane, and leaves the dot where it was', () =>
+    MULTS.indexOf(0) < 0 && [0, 1, 2].every((tg) => [0, 1, 2].every((sr) => tg === sr || MULTS.every((m) => {
+      const mv = { tg, sr, m }, to = rowMove(A2, mv), r = drawn(MOVE, Object.assign(blank(), { M: to, prev: A2, last: mv }));
+      const others = [0, 1, 2].every((k) => k === tg || samePt(to[k], A2[k]));
+      return others && sameM(r.grid, to) && samePt(r.dot, SOL1) && samePt(solve3(to), SOL1, 1e-7) && !!r.hinge && fits(to[tg], r.hinge.p) && fits(A2[sr], r.hinge.p) && fits(A2[tg], r.hinge.p);
+    }))), { source: OPENSTAX });
+  K.check('The equations are replaced by a system having the same solution but in triangular form, then solved by back-substitution: the staircase screen ends with zeros under the diagonal and the first grid\'s answer, and its lines find z, then y, then x', () => {
+    const r = drawn(idx('stair'), blank()), M = r.grid;
+    return near(M[1][0], 0) && near(M[2][0], 0) && near(M[2][1], 0) && r.stair && samePt(solve3(M), solve3(A1), 1e-7) && samePt(backSolve(M), SOL1, 1e-9) &&
+      r.lines.length === 3 && / so z = /.test(r.lines[0]) && / so y = /.test(r.lines[1]) && / so x = /.test(r.lines[2]) && samePt(r.dot, SOL1);
+  }, { source: HELM });
+  K.check('A system may have a unique solution, an infinity of solutions or no solution at all: the first planes meet at one dot; the grid whose bottom row ends as zero equals a number other than zero has no dot and three side-by-side lines; the grid whose bottom row is all zeros has a shared line, every point of which fits', () => {
+    const g = drawn(idx('grid'), blank()), n = drawn(idx('none'), blank()), l = drawn(LINE, blank());
+    const side = n.pairs.length === 3 && n.pairs.every((a) => n.pairs.every((b) => near(Math.abs(dot(a.d, b.d)), 1, 1e-9))) &&
+      n.pairs.every((a, j) => n.pairs.every((b, k) => j === k || norm(cross(sub(a.p, b.p), a.d)) > 0.3));
+    const along = [-2, -1, 0, 1, 2].every((s) => N2.every((row) => fits(row, add(l.shared.p, scl(l.shared.d, s)))));
+    return samePt(g.dot, SOL1) && !near(det3(A1), 0) && n.dot === null && zeroRow(N1S[2]) && !near(N1S[2][3], 0) && side && !!l.shared && along && zeroRow(N2S[2]) && near(N2S[2][3], 0);
+  }, { source: HELM });
+  K.check('Breaking the circuit into simple loops leads to a set of linear equations in the unknown currents: each loop\'s row holds its total resistance on the diagonal and minus each shared resistance beside it, and the currents found fit every first row', () => {
+    const r = drawn(idx('clear2'), solvedSt(idx('clear2')));
+    return RG[0][0] === OWN[0] + SH && RG[1][1] === OWN[1] + 2 * SH && RG[2][2] === OWN[2] + SH && RG[0][1] === -SH && RG[1][0] === -SH && RG[1][2] === -SH && RG[2][1] === -SH &&
+      RG[0][2] === 0 && RG[2][0] === 0 && RG.every((row) => fits(row, AMPS)) && r.circuit && near(r.amps, AMPS[1] - AMPS[2]) && r.lines.length === 3;
+  }, { source: HELM });
+  K.check('Every worked number is right: −2 × row 1 makes row 2 [0 −1 −3 | −11]; −1 × row 1 makes row 3 [0 −2 1 | −1] (5 and 11 are the slips); −2 × row 2 makes [0 0 7 | 21], so z = 3, y = 2 and x = 1, and (1, 2, 3) gives 6, 1 and 5; the staircase puzzle gives (2, 1, 2), with 0 and 1 the slips; the grid ending 9 steps to 0 = 5 and the one ending 4 to 0 = 0, both with determinant 0; the line is (2 − t, 1, t); the third grid steps to [0 −3 3 | −3] and 0 = 0; the circuit\'s determinant is 324, row 2 becomes [0 21 −6 | 12] and row 3 [0 0 36 | 54], giving 1.5 A, 1 A and 2.5 A, with −7.5 + 12 − 4.5 = 0 and 0.5 A against loop 2 (18 and 6 are the slips); the last grid ends 0 = 1', () =>
+    samePt(A2[1], [0, -1, -3, -11]) && samePt(A3[2], [0, -2, 1, -1]) && A2[2][3] === 5 && A2[2][3] + A2[0][3] === 11 && samePt(A4[2], [0, 0, 7, 21]) &&
+    samePt(SOL1, [1, 2, 3], 1e-9) && samePt(backSolve(A4), [1, 2, 3]) && samePt(A1.map((r) => dot(r, SOL1)), [6, 1, 5], 1e-9) &&
+    backLines(A4, HEAD).join('|') === '7z = 21, so z = 3|−y − 9 = −11, so y = 2|x + 2 + 3 = 6, so x = 1' &&
+    samePt(SOL6, [2, 1, 2]) && backLines(S6, HEAD).join('|') === '2z = 4, so z = 2|3y + 2 = 5, so y = 1|2x + 1 − 2 = 3, so x = 2' &&
+    (S6[0][3] - S6[0][1] * SOL6[1] + S6[0][2] * SOL6[2]) / S6[0][0] === 0 && (S6[0][3] - S6[0][1] * SOL6[1]) / S6[0][0] === 1 &&
+    samePt(seqOf(N1, NMOVES)[1][1], [0, -2, 0, -2]) && samePt(seqOf(N1, NMOVES)[2][2], [0, -2, 0, 3]) && samePt(N1S[2], [0, 0, 0, 5]) && samePt(N2S[2], [0, 0, 0, 0]) &&
+    near(det3(N1), 0) && near(det3(N2), 0) && samePt(onLine(N2S, 1), [1, 1, 1]) && samePt(onLine(N2S, -2), [4, 1, -2]) && samePt(N2[2], add(N2[0], N2[1])) &&
+    samePt(M10S[1], [0, -3, 3, -3]) && samePt(M10S[2], [0, 0, 0, 0]) && near(det3(M10), 0) &&
+    near(det3(RG), 324) && samePt(C1[1], [0, 21, -6, 12]) && samePt(C2[2], [0, 0, 36, 54]) && samePt(AMPS, [2.5, 1, 1.5]) && near(dot(RG[1], AMPS), 0) &&
+    near(-3 * AMPS[0], -7.5) && near(-3 * AMPS[2], -4.5) && near(I23, -0.5) && C1W2[2][1] === 18 && C1W1[2][0] === 6 &&
+    samePt(QS[1], [0, 1, 2, 3]) && samePt(seqOf(Q1, QMOVES)[2][2], [0, 1, 2, 4]) && samePt(QS[2], [0, 0, 0, 1]) && near(det3(Q1), 0));
+  K.check('Each puzzle\'s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {
+    const g = (k) => STEPS[idx(k)], has = (d, s) => d.opts.indexOf(s) >= 0;
+    const c1 = g('clear1'), bk = g('back'), zr = g('zero'), mn = g('many'), c2 = g('clear2'), nm = g('nomeet'), rw = g('row');
+    return rw.want === rowTxt(ROW2) && has(rw, rowTxt([ROW2[0], ROW2[2], ROW2[1], ROW2[3]])) && has(rw, '[' + num(ROW2[0]) + ' ' + num(ROW2[2]) + ' | ' + num(ROW2[3]) + ']') &&
+      c1.want === rowTxt(A3[2]) && has(c1, rowTxt(A3[2].slice(0, 3).concat([A2[2][3]]))) && has(c1, rowTxt(rowMove(A2, { tg: 2, sr: 0, m: 1 })[2])) &&
+      toNum(bk.want) === SOL6[0] && has(bk, num((S6[0][3] - S6[0][1] * SOL6[1] + S6[0][2] * SOL6[2]) / S6[0][0])) && has(bk, num((S6[0][3] - S6[0][1] * SOL6[1]) / S6[0][0])) &&
+      toNum(zr.want) === N2S[2][3] && has(zr, num(N1S[2][3])) && has(zr, num(N2[2][3])) &&
+      mn.want === 'A whole line' && zeroRow(M10S[2]) && near(M10S[2][3], 0) && near(det3(M10), 0) &&
+      c2.want === '7 × row 3, plus row 2' && near(C2[2][1], 0) && near(C2[2][0], 0) && !near(C1W2[2][1], 0) && !near(C1W1[2][0], 0) &&
+      nm.want === '0 = ' + num(QS[2][3]) + ', so no answer' && zeroRow(QS[2]) && !near(QS[2][3], 0);
+  });
+  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (drawn(i, solvedSt(i)).bad !== 0) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);
+    }));
+  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () =>
+    DO.every((i) => {
+      const b = drawn(i, blank()), s = drawn(i, solvedSt(i));
+      return b.reveal === 0 && s.reveal > 0 && b.lines.length === 0;
+    }));
+  K.check('On the line screen, at every t the slider can take, the dot sits at (2 − t, 1, t) on the shared line, and putting it into each first equation gives back that equation\'s constant', () => {
+    let ok = true;
+    for (let t = -2; t <= 2 + 1e-9; t += 0.5) {
+      const r = drawn(LINE, blank(), null, t);
+      ok = ok && samePt(r.dot, [2 - t, 1, t], 1e-9) && N2.every((row, k) => fits(row, r.dot) && r.lines[k] === subLine(row, r.dot) && r.lines[k].endsWith('= ' + num(row[3]))) && !!r.shared;
+    }
+    return ok;
+  });
+  K.check('Each demonstration ends where the lesson says: the first planes meet at (1, 2, 3); row 2 becomes [0 −1 −3 | −11] with the dot unmoved; the grid ending 9 has no dot; the circuit\'s row 2 becomes [0 21 −6 | 12]', () => {
+    const g = drawn(idx('grid'), blank()), m = drawn(MOVE, blank()), n = drawn(idx('none'), blank()), c = drawn(idx('circuit'), blank());
+    return samePt(g.dot, SOL1) && g.planes.length === 3 && sameM(m.grid, A2) && samePt(m.dot, SOL1) && m.work === '−2 × row 1' && sameM(n.grid, N1S) && n.dot === null && sameM(c.grid, C1) && c.circuit;
+  });
+  K.check('Where the three planes never meet, the view looks about 30 degrees off their lines, so they show as a triangle, not as stacked squares; where they share a line, about 50 degrees off it, so the line stays long', () =>
+    [['none', DN, 30], ['zero', DN, 30], ['nomeet', DQ, 30], ['line', DN, 50], ['many', D10, 50]].every((q) => {
+      const d = STEPS[idx(q[0])], th = Math.acos(Math.min(1, Math.abs(dot(towards(viewOf(d.al0)), q[1])))) / RAD;
+      return Math.abs(th - q[2]) < 3;
+    }));
+  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 3 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 3 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 3);
+    }) && timed(MOVE, Object.assign(blank(), { M: A3, prev: A2, last: MV2 }), 1.5);
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

@@ -1,0 +1,1189 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* The plane: the faint starting grid, the moved grid, the flag, its ghost and the origin. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gl0 { stroke: var(--k-line); stroke-width: 2.4; }
+  .scene .mg { stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.2; }
+  .scene .ma { stroke: var(--k-accent2); stroke-opacity: .8; stroke-width: 2; }
+  .scene .kg { stroke-width: 3; }
+  .scene .gl.kg { stroke: var(--k-strong); }
+  .scene .frame { fill: none; stroke: var(--k-line); stroke-width: 1; }
+  .scene .flag { fill: var(--k-accent2); fill-opacity: .7; stroke: var(--k-accent2); stroke-width: 2; stroke-linejoin: round; }
+  .scene .ghost { fill: var(--k-accent2); fill-opacity: .16; stroke: var(--k-accent2); stroke-opacity: .6; stroke-width: 1.4; stroke-dasharray: 4 3; stroke-linejoin: round; }
+  .scene .okflag { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }
+  .scene .badflag { fill: none; stroke: var(--k-warn); stroke-width: 2.4; stroke-dasharray: 6 4; stroke-linejoin: round; }
+  .scene .org { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  /* Matrices: brackets, a lit row, column or entry, a ring round the card that is acting. */
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .lit { fill: var(--k-hl); }
+  .scene .act { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; }
+  /* Arrows: i blue, j ink; a ghost is faint and dashed; a slip is dashed in the warning colour. */
+  .scene .arr .sh { fill: none; stroke-width: 3.2; stroke-linecap: round; }
+  .scene .arr.base .sh { stroke-width: 4.2; }
+  .scene .p1 .sh { stroke: var(--k-cat1); }
+  .scene .p1 .hd { fill: var(--k-cat1); }
+  .scene .p2 .sh { stroke: var(--k-ink); }
+  .scene .p2 .hd { fill: var(--k-ink); }
+  .scene .arr.gh .sh { stroke-opacity: .5; stroke-dasharray: 4 3; stroke-width: 2.4; stroke-linecap: butt; }
+  .scene .arr.gh .hd { fill-opacity: .5; }
+  .scene .ghl { stroke: var(--k-cat1); stroke-opacity: .5; stroke-dasharray: 4 3; stroke-width: 2.4; }
+  .scene .bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; stroke-width: 2.6; }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .ord .sh { stroke: var(--k-accent); stroke-width: 2.4; }
+  .scene .ord .hd { fill: var(--k-accent); }
+  /* Sizes: empty cells of a grid, lit when in use; a dashed slot where a partner is missing. */
+  .scene .cell { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .cell.lit { fill: var(--k-hl); }
+  .scene .miss { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .scene .miss.bad { stroke: var(--k-warn); stroke-width: 2.2; }
+  .scene .link { stroke: var(--k-accent2); stroke-width: 2.4; }
+  /* Words and numbers. */
+  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }
+  .scene .en.ok { fill: var(--k-accent2); }
+  .scene .en.bad { fill: var(--k-warn); }
+  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }
+  .scene .op { font: 600 17px var(--k-font); fill: var(--k-muted); }
+  .scene .pn { font: 600 17px var(--k-font); fill: var(--k-ink); }
+  .scene .pn.q { fill: var(--k-muted); }
+  .scene .pn.ok { fill: var(--k-accent2); }
+  .scene .pn.bad { fill: var(--k-warn); }
+  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ln.sm2 { font-size: 13px; }
+  .scene .ln.sm3 { font-size: 12px; }
+  .scene .ln.ok { fill: var(--k-accent2); }
+  .scene .ln.bad { fill: var(--k-warn); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag.bad { fill: var(--k-warn); font-weight: 600; }
+  .scene .nm { font: italic 700 16px var(--k-font); fill: var(--k-accent); }
+  .scene .nm.bad { fill: var(--k-warn); }
+  /* Labels on the plane carry a halo of their own, so grid lines pass behind them. */
+  .scene .hh { stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke fill; }
+  .scene .tick { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene tspan.v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  /* The card moves on screen 5 wrap onto more lines on a narrow phone; no word splits. */
+  .cards > * + * { margin-top: 8px; }
+  .moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; max-width: 26rem; margin-inline: auto; }
+  .moves .k-btn { white-space: nowrap; min-height: 44px; padding-inline: 8px; }
+  .moves .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A squared grid with the F-shaped flag, its ringed origin and the arrows i and j. Two matrix cards sit above it, with their product under them. The matrices are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 436" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="cards" id="cardbox">
+      <p class="k-label">Card A</p>
+      <div class="moves" id="movesA"></div>
+      <p class="k-label">Card B</p>
+      <div class="moves" id="movesB"></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A product runs the right-hand card first, then the left. Its columns are where i and j end up.</p>
+
+<script>
+  // ---------- numbers and words (pure, so the checks can test them) ----------
+  const MINUS = '−', NB = ' ';
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }
+  const paren = (v) => (v < 0 ? '(' + num(v) + ')' : num(v));
+  const pt = (v) => '(' + num(v[0]) + ', ' + num(v[1]) + ')';
+  const oneLine = (M) => '[' + M.map((r) => r.map(num).join(' ')).join('; ') + ']';
+  const parseGrid = (s) => String(s).replace(/[[\]]/g, '').split(';').map((r) => r.trim().split(/\s+/).map((t) => +t.replace(MINUS, '-')));
+  const parsePt = (s) => String(s).replace(/[()]/g, '').split(',').map((t) => +t.trim().replace(MINUS, '-'));
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/=/g, ' equals ')
+    .replace(/\s+/g, ' ').trim();
+
+  // ---------- the rule ----------
+  // A matrix times a point, row by row; the product of two matrices, each entry a row of the left
+  // times a column of the right (null when the sizes do not fit).
+  const ID = [[1, 0], [0, 1]];
+  const mul = (M, v) => M.map((r) => r.reduce((s, a, k) => s + a * v[k], 0));
+  function prod(A, B) {
+    if (!A || !B || !A.length || !B.length || A[0].length !== B.length) return null;
+    return A.map((r) => B[0].map((_, c) => r.reduce((s, a, k) => s + a * B[k][c], 0)));
+  }
+  // The matching pairs where row r of A meets column c of B.
+  const pairsOf = (A, B, r, c) => A[r].map((a, k) => [a, B[k][c]]);
+  const addM = (A, B) => A.map((r, i) => r.map((v, j) => v + B[i][j]));
+  const scaleM = (s, A) => A.map((r) => r.map((v) => s * v));
+  const matchM = (A, B) => A.map((r, i) => r.map((v, j) => v * B[i][j]));
+  const colsOf = (M) => [[M[0][0], M[1][0]], [M[0][1], M[1][1]]];
+  // x lots of column 1 plus y lots of column 2: where (x, y) lands.
+  const mix = (c, v) => [v[0] * c[0][0] + v[1] * c[1][0], v[0] * c[0][1] + v[1] * c[1][1]];
+  const dims = (M) => [M.length, M[0].length];
+  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);
+  const samePt = (a, b) => !!a && !!b && a.length === b.length && a.every((v, k) => near(v, b[k]));
+  const sameM = (A, B) => !!A && !!B && A.length === B.length && A.every((r, i) => r.length === B[i].length && r.every((v, j) => near(v, B[i][j])));
+  const lerpPt = (a, b, e) => [K.lerp(a[0], b[0], e), K.lerp(a[1], b[1], e)];
+  const lerpM = (A, B, e) => A.map((r, i) => r.map((v, j) => K.lerp(v, B[i][j], e)));
+  const SHEAR = [[1, 1], [0, 1]], TURN = [[0, -1], [1, 0]], MIRROR = [[-1, 0], [0, 1]], STRETCH = [[2, 0], [0, 1]];
+  // The path a move takes on screen, e of the way through it: a turn turns; the others slide straight.
+  function pathOf(M, e) {
+    if (e <= 0) return ID;
+    if (e >= 1) return M;
+    if (sameM(M, TURN)) { const a = e * Math.PI / 2; return [[Math.cos(a), -Math.sin(a)], [Math.sin(a), Math.cos(a)]]; }
+    return lerpM(ID, M, e);
+  }
+  // Two moves, right to left: the right-hand matrix R is e1 of the way through, then the left L e2.
+  const runNow = (Lm, Rm, e1, e2) => prod(pathOf(Lm, e2), pathOf(Rm, e1));
+  // The F-shaped flag, corner by corner (squares); a mirror shows at once.
+  const FLAG = [[0.25, 0.25], [0.5, 0.25], [0.5, 0.75], [0.85, 0.75], [0.85, 1], [0.5, 1], [0.5, 1.25], [1, 1.25], [1, 1.5], [0.25, 1.5]];
+  const area = (ps) => ps.reduce((s, p, k) => { const q = ps[(k + 1) % ps.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2;
+  const flagBy = (M) => FLAG.map((p) => mul(M, p));
+
+  // ---------- the cards ----------
+  const card = (n, what, M) => ({ n, what, M });
+  const CA = card('A', 'a shear', SHEAR), CB = card('B', 'a quarter turn', TURN);
+  const CS = card('S', 'the shear', SHEAR), CM = card('M', 'the mirror', MIRROR);
+  const MP = [[2, 1], [0, 3]], MQ = [[1, 4], [2, 0]];
+  const CP = card('P', '', MP), CQ = card('Q', '', MQ);
+  // C is 2 by 3 and D is 2 by 2: only their sizes matter, so their cells are drawn empty.
+  const CZ = [[0, 0, 0], [0, 0, 0]], DZ = [[0, 0], [0, 0]];
+  // The moves each card can be set to on screen 5.
+  const MOVES = [
+    { name: 'Turn', what: 'a quarter turn', M: TURN },
+    { name: 'Shear', what: 'a shear', M: SHEAR },
+    { name: 'Mirror', what: 'a mirror', M: MIRROR },
+    { name: 'Stretch', what: 'a stretch', M: STRETCH },
+    { name: 'Do nothing', what: 'do nothing', M: ID },
+  ];
+  const AB = prod(CA.M, CB.M), BA = prod(CB.M, CA.M), MS = prod(CM.M, CS.M), SM = prod(CS.M, CM.M);
+  const PQ = prod(MP, MQ), QP = prod(MQ, MP);
+
+  // ---------- timetables (seconds): move 1, its ghost, move 2, the product ----------
+  const SLOW = { m1: [0.5, 1.4], gh: 1.9, m2: [2.2, 1.4], end: 3.6 };
+  const SLOWJ = { m1: [0.5, 1.2], gh: 1.7, m2: [1.9, 1.2], end: 3.1 };
+  const QUICK = { m1: [0.1, 0.8], gh: 0.9, m2: [1.0, 0.8], end: 1.8 };
+  const ORDER = { sw: [0.1, 0.5], m1: [0.6, 0.7], gh: 1.3, m2: [1.4, 0.7], end: 2.0 };
+  const TRACK = { m1: [0.1, 0.7], gh: 0.8, m2: [0.9, 0.7], end: 1.6 };
+  const PAIRQ = { m1: [0.1, 1.0], gh: 1.1, m2: [1.2, 1.0], end: 2.2 };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: how the step draws ('plane', 'pair', 'rows', 'sums', 'size'). L, R: the left and right
+  // cards. win: the patch of plane shown [x0, x1, y0, y1]. dur: a SHOW step's demonstration;
+  // read and still: its words and state for the read-through. A puzzle: task, opts, want, hints (one
+  // per wrong answer), why, slips (the line drawn for each wrong answer), fb (seconds of motion after
+  // a right and a wrong answer).
+  const WR = [-2.1, 2.1, -1.1, 2.1], WB = [-2.1, 3.1, -1.1, 3.1], WM = [-3.1, 3.1, -1.1, 2.1], WJ = [-2.1, 2.1, -1.6, 2.1];
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, key: 'run', name: 'Two moves, one matrix', pic: 'plane', win: WR, L: CA, R: CB, dur: 4.2,
+      text: 'In `AB` the right-hand card acts first. B turns the flag a quarter, and a ghost stays where it lands. Then A leans it, and one matrix makes the whole run, `AB = [1 −1; 1 0]`.' },
+    { kind: 'pick', key: 'iab', name: 'Where i ends', pic: 'plane', win: WR, L: CA, R: CB, track: 0, fb: [2.0, 0.8],
+      task: 'Where does i end up after B, then A?', opts: ['(0, 1)', '(1, 1)', '(1, 0)'], want: '(1, 1)',
+      hints: { '(0, 1)': 'Not quite. That is where B leaves i. Then A pushes it one square across.', '(1, 0)': 'Not quite. B acts first, and it turns i to `(0, 1)`.' },
+      slips: { [pt(mul(TURN, [1, 0]))]: pt(mul(TURN, [1, 0])) + ' is where B alone leaves i', [pt([1, 0])]: pt([1, 0]) + ' is where i starts, before B turns it' },
+      why: 'B turns i a quarter, from `(1, 0)` to `(0, 1)`. The shear A then pushes that point one square across, to `(1, 1)`. So column 1 of `AB` is `(1, 1)`.' },
+    { show: true, key: 'jab', name: 'Where j ends', pic: 'plane', win: WR, L: CA, R: CB, dur: 4.0,
+      text: 'B turns j to `(−1, 0)`. The shear moves nothing on the across axis, so A leaves j there. So the columns of `AB` are where i and j end up, `(1, 1)` and `(−1, 0)`.' },
+    { kind: 'pick', key: 'ba', name: 'Swap the cards', pic: 'plane', win: WB, L: CB, R: CA, fb: [2.3, 1.0],
+      task: 'The cards are swapped, so the shear acts first. Which matrix is `BA`?', opts: ['[1 −1; 1 0]', '[0 −1; 1 0]', '[0 −1; 1 1]'], want: '[0 −1; 1 1]',
+      hints: { '[1 −1; 1 0]': 'Not quite. That is `AB` again. Shear i and j first, then turn them.', '[0 −1; 1 0]': 'Not quite. That is the turn alone. The shear acts first and moves j to `(1, 1)`.' },
+      slips: { [oneLine(AB)]: oneLine(AB) + ' is AB, with the turn first', [oneLine(TURN)]: oneLine(TURN) + ' is the turn alone' },
+      why: 'The shear acts first. It leaves i at `(1, 0)` and sends j to `(1, 1)`. The turn then sends those to `(0, 1)` and `(−1, 1)`. So `BA = [0 −1; 1 1]`.' },
+    { show: true, key: 'pair', name: 'Both orders', pic: 'pair', pair: true, dur: 4.2,
+      still: () => { const k = STEPS.findIndex((s) => s.key === 'pair'); S[k] = blank(); K.refresh(); },
+      text: 'Here `AB` and `BA` run side by side. The same two moves in opposite orders usually leave the flag in different places. Set each card to a move, then Swap or Play.',
+      read: 'Here `AB` and `BA` run side by side. The same two moves in opposite orders usually leave the flag in different places. Some pairs give the same either way, such as two turns, or any move with Do nothing.' },
+    { kind: 'pick', key: 'order', name: 'Which comes first?', pic: 'plane', win: WM, L: CM, R: CS, fb: [2.4, 1.0],
+      task: 'First comes the shear S, then the mirror `M = [−1 0; 0 1]`. Which product is that?', opts: ['MS', 'SM', 'Either, as the same move'], want: 'MS',
+      hints: { 'SM': 'Not quite. The first move sits on the right, next to the flag.', 'Either, as the same move': 'Not quite. These two moves leave the flag in a different place in each order.' },
+      slips: { 'SM': 'SM runs M first, then S', 'Either, as the same move': 'MS and SM leave the flag in different places' },
+      why: 'In a product the right-hand card acts first. The shear comes first, so S goes on the right. That gives `MS`.' },
+    { show: true, key: 'rowcol', name: 'Row times column', pic: 'rows', L: CA, R: CB, dur: 3.3,
+      still: () => { const k = STEPS.findIndex((s) => s.key === 'rowcol'); S[k] = Object.assign(blank(), { k: 0, all: true }); K.refresh(); },
+      text: 'Each entry of `AB` is a row of A times a column of B. Row 1 of A meets column 1 of B pair by pair, so the top-left is `1 × 0 + 1 × 1 = 1`. Tap Next entry to light the next pair.',
+      read: 'Each entry of `AB` is a row of A times a column of B. Row 1 of A meets column 1 of B pair by pair, so the top-left is `1 × 0 + 1 × 1 = 1`. The other three entries come the same way, giving `[1 −1; 1 0]`.' },
+    { kind: 'pick', key: 'pq', name: 'Work out PQ', pic: 'rows', L: CP, R: CQ, fb: [2.4, 0.8],
+      task: 'Take `P = [2 1; 0 3]` and `Q = [1 4; 2 0]`. Which is `PQ`?', opts: ['[2 4; 0 0]', '[4 8; 6 0]', '[2 13; 4 2]'], want: '[4 8; 6 0]',
+      hints: { '[2 4; 0 0]': 'Not quite. That multiplies matching entries. Run row 1 of P down column 1 of Q and add.', '[2 13; 4 2]': 'Not quite. That is `QP`. P goes on the left.' },
+      slips: { [oneLine(matchM(MP, MQ))]: oneLine(matchM(MP, MQ)) + ' multiplies matching entries', [oneLine(QP)]: oneLine(QP) + ' is QP, with Q on the left' },
+      why: 'Row 1 of P is `2, 1`. Column 1 of Q is `1, 2`. So the top-left is `2 × 1 + 1 × 2 = 4`. The other three entries come the same way, giving `[4 8; 6 0]`.' },
+    { show: true, key: 'sums', name: 'Adding is different', pic: 'sums', dur: 3.7,
+      text: 'Adding goes entry by entry, so `P + Q = [3 5; 2 3]`. Doubling scales every entry, so `2P = [4 2; 0 6]`. The product is different, with rows meeting columns, so `PQ = [4 8; 6 0]`.' },
+    { kind: 'pick', key: 'twoq', name: 'Double, then add', pic: 'sums', fb: [2.3, 0.8],
+      task: 'Which is `2Q + P`?', opts: ['[3 5; 2 3]', '[4 5; 2 3]', '[4 9; 4 3]'], want: '[4 9; 4 3]',
+      hints: { '[3 5; 2 3]': 'Not quite. That is `P + Q`. Double every entry of Q before adding P.', '[4 5; 2 3]': 'Not quite. That doubles only one entry. Double every entry of Q before adding P.' },
+      slips: { [oneLine(addM(MP, MQ))]: oneLine(addM(MP, MQ)) + ' is P + Q, with Q not doubled', '[4 5; 2 3]': '[4 5; 2 3] doubles only one entry of Q' },
+      why: 'Doubling every entry of Q gives `2Q = [2 8; 4 0]`. Then add P entry by entry. The top row is `2 + 2 = 4` and `8 + 1 = 9`, so `2Q + P = [4 9; 4 3]`.' },
+    { kind: 'pick', key: 'msj', name: 'Mixed: where j ends', pic: 'plane', win: WJ, L: CM, R: CS, track: 1, fb: [2.0, 0.8],
+      task: 'Where does j end up under `MS`?', opts: ['(1, 1)', '(−1, 1)', '(−1, −1)'], want: '(−1, 1)',
+      hints: { '(1, 1)': 'Not quite. S acts first and sends j to `(1, 1)`. Then M flips it.', '(−1, −1)': 'Not quite. That is row 1 of `MS`. Landing spots run down the columns.' },
+      slips: { [pt(mul(SHEAR, [0, 1]))]: pt(mul(SHEAR, [0, 1])) + ' is where S alone sends j', [pt(MS[0])]: pt(MS[0]) + ' is row 1 of MS, read across' },
+      why: 'S sits on the right, so it acts first. It sends j to `(1, 1)`. The mirror M then flips the across part, so j ends on `(−1, 1)`. That is column 2 of `MS = [−1 −1; 0 1]`.' },
+    { kind: 'pick', key: 'size', name: 'Mixed: sizes', pic: 'size', fb: [2.2, 0.8],
+      task: 'C is 2 by 3 and D is 2 by 2. Which product can you work out?', opts: ['DC only', 'CD only', 'Both'], want: 'DC only',
+      hints: { 'CD only': 'Not quite. Each row of the left must be as long as each column of the right.', 'Both': 'Not quite. Each row of C has 3 entries, but each column of D has only 2.' },
+      why: 'In `DC` each row of D has 2 entries, and each column of C has 2. They pair up, so `DC` works and is 2 by 3. In `CD` each row of C has 3 entries, but each column of D has only 2.' },
+  ];
+  const sizeSlip = 'Rows of C have ' + dims(CZ)[1] + ' entries, columns of D only ' + dims(DZ)[0];
+  STEPS[11].slips = { 'CD only': sizeSlip, 'Both': sizeSlip };
+  const FINISH = 'A *matrix product* is one move. The right-hand matrix acts first, then the left. Swap the order and you usually get a different move.';
+  // Sources the checks restate (the lesson's own).
+  const TBB = 'https://www.3blue1brown.com/lessons/matrix-multiplication';
+  const LT = 'https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. a, b: the moves on cards A
+  // and B (screen 5), fast: a quick run after a button. k, all, t0: the entry being worked on
+  // screen 7, whether all four are done, and when its working starts.
+  function blank() { return { pick: null, res: null, why: false, a: 1, b: 0, fast: false, k: 0, all: false, t0: 0.5 }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null, clipN = 0;
+  const el = (id) => document.getElementById(id);
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xyij](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);
+        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) italics(node, seg.slice(at0), false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  // Screen 5: each card's move, Swap and Play.
+  function setCard(which, k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.pair || finished) return;
+    st[which] = k; st.fast = true;
+    K.reveal();
+    play(PAIRQ.end + 0.4);
+    K.refresh();
+  }
+  const moveBtns = { a: [], b: [] };
+  MOVES.forEach((m, k) => {
+    moveBtns.a.push(K.button({ label: m.name, secondary: true, into: '#movesA', press: () => setCard('a', k) }));
+    moveBtns.b.push(K.button({ label: m.name, secondary: true, into: '#movesB', press: () => setCard('b', k) }));
+  });
+  const swapBtn = K.button({ label: 'Swap the cards', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.pair || finished) return;
+    const t = st.a; st.a = st.b; st.b = t; st.fast = true;
+    K.reveal(); play(PAIRQ.end + 0.4); K.refresh();
+  } });
+  const playBtn = K.button({ label: 'Play', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.pair || finished) return;
+    st.fast = false; play(d.dur);
+  } });
+  // Screen 7: light the next row and column.
+  const nextEntryBtn = K.button({ label: 'Next entry', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.key !== 'rowcol' || finished) return;
+    st.k = (st.k + 1) % 4;
+    if (st.k === 0) st.all = true;
+    st.t0 = 0.1;
+    K.reveal(); play(2.9); K.refresh();
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { fast: false, k: 0, all: false, t0: 0.5 });
+    play(d.dur);
+  } });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each card change and the motion after an answer; with
+  // reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, placed = [];
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  // A ring that shows while a move runs and goes once it is done.
+  const bump = (m) => arr(m[0], 0.25) - arr(m[0] + m[1], 0.3);
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = add(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  const pathEl = (cls, d) => add(K.svg('path', { class: cls, d }));
+  const polyD = (ps) => 'M' + ps.map((p) => r3(p[0]) + ' ' + r3(p[1])).join(' L') + ' Z';
+  const nb = (s) => String(s).replace(/ /g, NB);
+  // Entries sit on highlight bands, so they carry no halo of the page colour.
+  function text(x, y, s, cls, anchor) {
+    const plain = /^(en|q|op|pn)\b/.test(cls);
+    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    REC.texts.push(String(s));
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  // A line of words across the drawing, smaller when it would not fit.
+  function fitText(x, y, s, cls) {
+    if (tw(s, cls) <= 322) return text(x, y, s, cls);
+    if (tw(s, cls + ' sm2') <= 322) return text(x, y, s, cls + ' sm2');
+    return text(x, y, s, cls + ' sm3');
+  }
+  // An arrow from a to b (drawing units).
+  function arrow(a, b, cls) {
+    const g = add(K.svg('g', { class: 'arr ' + cls }));
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    if (L < 1) return g;
+    const ux = dx / L, uy = dy / L, hl = Math.min(12, L * 0.5), hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  const swatch = (cx, cy, kind) => arrow([cx - 6, cy + 6], [cx + 6, cy - 6], kind);
+  // A matrix's geometry: rows' middles from y0, py apart; columns px wide inside brackets from x0.
+  function mgeo(x0, y0, n, m, px, py) {
+    return { x0, x1: x0 + 12 + px * m, top: y0 - py / 2 - 2, bot: y0 + py * (n - 1) + py / 2 + 2, px, py,
+      cx: (j) => x0 + 6 + px * j + px / 2, cy: (i) => y0 + py * i };
+  }
+  function brackets(G) {
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(G.x0 + 6) + ' ' + r3(G.top) + ' H' + r3(G.x0) + ' V' + r3(G.bot) + ' H' + r3(G.x0 + 6) }));
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(G.x1 - 6) + ' ' + r3(G.top) + ' H' + r3(G.x1) + ' V' + r3(G.bot) + ' H' + r3(G.x1 - 6) }));
+  }
+  function entriesOf(G, rows, cls) { rows.forEach((r, i) => r.forEach((s, j) => text(G.cx(j), G.cy(i) + 6, s, cls))); }
+  const colBand = (G, j, cls) => rect(cls, G.cx(j) - G.px / 2 + 1, G.top + 2, G.px - 2, G.bot - G.top - 4, 6);
+  const rowBand = (G, i) => rect('lit', G.x0 + 4, G.cy(i) - G.py / 2 + 1, G.x1 - G.x0 - 8, G.py - 2, 6);
+  const cellBand = (G, i, j) => rect('lit', G.cx(j) - G.px / 2 + 2, G.cy(i) - G.py / 2 + 1, G.px - 4, G.py - 2, 6);
+  const midX = (G) => (G.x0 + G.x1) / 2;
+  // The two columns named under a product: i's landing spot runs down column 1, j's down column 2.
+  function names(G) { [0, 1].forEach((k) => { swatch(G.cx(k) - 9, G.bot + 13, 'p' + (k + 1)); text(G.cx(k) + 8, G.bot + 18, k ? 'j' : 'i', 'nm'); }); }
+  function drawKey(y, items) {
+    const gap = 14, glyph = 22, ws = items.map((it) => tw(it[1], 'key'));
+    const total = ws.reduce((a, w) => a + glyph + w, 0) + gap * (items.length - 1);
+    let x = Math.max(6, (340 - total) / 2);
+    items.forEach((it, k) => {
+      if (it[0] === 'ghost') rect('ghost', x + 2, y - 12, 14, 12, 1);
+      else if (it[0] === 'gha') line('ghl', x, y - 5, x + 16, y - 5);
+      else line(it[0] + ' kg', x, y - 5, x + 16, y - 5);
+      text(x + glyph, y, it[1], 'key', 'start');
+      x += glyph + ws[k] + gap;
+    });
+  }
+
+  // ---------- labels on the plane, clear of the arrows, the dots and each other ----------
+  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  function segHits(b, s) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  function placeLabel(px, py, s, cls, area0, segs, pts) {
+    const w = tw(s, cls);
+    let best = null, bestBad = Infinity;
+    [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]].forEach((c) => {
+      const cx = px + (c[0] ? c[0] * (11 + w / 2) : 0), cy = py + (c[1] ? c[1] * (c[0] ? 14 : 19) : 0);
+      const b = { x: cx - w / 2 - 3, y: cy - 8, w: w + 6, h: 17 };
+      let bad = 0;
+      if (b.x < area0.x0 || b.x + b.w > area0.x1 || b.y < area0.y0 || b.y + b.h > area0.y1) bad += 100;
+      placed.forEach((q) => { if (boxesMeet(b, q)) bad += 20; });
+      segs.forEach((sg) => { if (segHits(b, sg)) bad += 5; });
+      pts.forEach((p) => { if (p[0] > b.x - 8 && p[0] < b.x + b.w + 8 && p[1] > b.y - 8 && p[1] < b.y + b.h + 8) bad += 8; });
+      if (bad < bestBad) { bestBad = bad; best = { cx, cy, b }; }
+    });
+    placed.push(best.b);
+    return text(best.cx, best.cy + 5, s, cls + ' hh');
+  }
+
+  // ---------- the plane ----------
+  // The cards' row, the product under them, a worked line, the key, then the paper.
+  const NY = 15, CY = 40, CPY = 24, CPX = 34, CXL = 100, CXR = 240, TY = 98, PRY = 120, PX0 = 160, PPX = 40;
+  const LY = 198, KY = 218, PTOP = 230, PW = 300, PMAXH = 180, PLEFT = 32, PT2 = 190;
+  function geoAt(win, cx, top, maxW, maxH, cap) {
+    const w = win[1] - win[0], h = win[3] - win[2], U = Math.min(maxW / w, maxH / h, cap || 1e9);
+    const W = w * U, H = h * U, left = cx - W / 2;
+    const X = (x) => left + (x - win[0]) * U, Y = (y) => top + (win[3] - y) * U;
+    return { U, W, H, left, top, bot: top + H, X, Y, P: (p) => [X(p[0]), Y(p[1])], win };
+  }
+  const mainGeo = (win) => geoAt(win, PLEFT + PW / 2, PTOP, PW, PMAXH);
+  // The paper's edges, and a line or a shape cut to them, so nothing drawn reaches past the paper.
+  const paperBox = (g) => ({ x0: g.left, x1: g.left + g.W, y0: g.top, y1: g.bot });
+  function clipSeg(p1, p2, b) {
+    let t0 = 0, t1 = 1;
+    const dx = p2[0] - p1[0], dy = p2[1] - p1[1], P = [-dx, dx, -dy, dy], Q = [p1[0] - b.x0, b.x1 - p1[0], p1[1] - b.y0, b.y1 - p1[1]];
+    for (let k = 0; k < 4; k++) {
+      if (P[k] === 0) { if (Q[k] < 0) return null; continue; }
+      const r = Q[k] / P[k];
+      if (P[k] < 0) { if (r > t1) return null; if (r > t0) t0 = r; } else { if (r < t0) return null; if (r < t1) t1 = r; }
+    }
+    return t1 - t0 > 1e-9 ? [[p1[0] + t0 * dx, p1[1] + t0 * dy], [p1[0] + t1 * dx, p1[1] + t1 * dy]] : null;
+  }
+  function clipPoly(ps, b) {
+    let out = ps;
+    [[0, b.x0, 1], [0, b.x1, -1], [1, b.y0, 1], [1, b.y1, -1]].forEach((sd) => {
+      const ax = sd[0], v = sd[1], s = sd[2], inp = out;
+      out = [];
+      const ins = (p) => (p[ax] - v) * s >= -1e-9;
+      inp.forEach((p, k) => {
+        const q = inp[(k + 1) % inp.length], pi = ins(p), qi = ins(q);
+        if (pi) out.push(p);
+        if (pi !== qi) { const t = (v - p[ax]) / (q[ax] - p[ax]); out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]); }
+      });
+    });
+    return out;
+  }
+  // The moved grid: lines running up step along column 1, lines running across along column 2.
+  // Lines that close up to under 7 px apart are thinned, so a flat moment never fills the paper.
+  function gridLines(cols, g) {
+    const D = Math.abs(cols[0][0] * cols[1][1] - cols[1][0] * cols[0][1]), b = paperBox(g);
+    [[cols[0], cols[1]], [cols[1], cols[0]]].forEach((sd) => {
+      const step = sd[0], dir = sd[1], L = Math.hypot(dir[0], dir[1]);
+      if (L < 1e-6) return;
+      const u = [dir[0] / L, dir[1] / L], gap = D / L;
+      const px = gap * g.U, minGap = px >= 7 ? 7 : 7 + 3 * (7 - px);
+      const m = gap > 1e-9 ? Math.max(1, Math.ceil(minGap / px)) : 1;
+      const R = gap > 1e-9 ? Math.min(60, Math.ceil(12 / (gap * m)) + 1) : 0;
+      for (let k = -R; k <= R; k++) {
+        const o = [k * m * step[0], k * m * step[1]], along = o[0] * u[0] + o[1] * u[1], c = [o[0] - along * u[0], o[1] - along * u[1]];
+        const seg = clipSeg(g.P([c[0] - 16 * u[0], c[1] - 16 * u[1]]), g.P([c[0] + 16 * u[0], c[1] + 16 * u[1]]), b);
+        if (seg) line(k === 0 ? 'ma' : 'mg', seg[0][0], seg[0][1], seg[1][0], seg[1][1]);
+      }
+    });
+  }
+  // One sheet of paper: the faint starting grid, the moved grid, the ghost, the flag, any extra
+  // drawing (o.over), the arrows and the ringed origin. Returns what the labels must keep clear of.
+  function paper(g, o) {
+    const P = g.P, W = g.win, b = paperBox(g), id = 'pc' + (clipN++);
+    add(K.svg('clipPath', { id }, K.svg('rect', { x: r3(g.left), y: r3(g.top), width: r3(g.W), height: r3(g.H) })));
+    const cg = add(K.svg('g', { 'clip-path': 'url(#' + id + ')' }));
+    const keep = into; into = cg;
+    for (let x = Math.ceil(W[0]); x <= Math.floor(W[1]); x++) line(x === 0 ? 'gl0' : 'gl', g.X(x), g.top, g.X(x), g.bot);
+    for (let y = Math.ceil(W[2]); y <= Math.floor(W[3]); y++) line(y === 0 ? 'gl0' : 'gl', g.left, g.Y(y), g.left + g.W, g.Y(y));
+    gridLines(o.cols, g);
+    const O = P([0, 0]), tips = o.tips.map(P);
+    const ctx = { g, P, O, segs: tips.map((p) => [O[0], O[1], p[0], p[1]]), pts: tips.slice(), labels: [] };
+    if (o.ghost && o.ghost.a > 0) part(o.ghost.a, 0, () => { const gp = clipPoly(FLAG.map((v) => P(mix(o.ghost.cols, v))), b); if (gp.length) pathEl('ghost', polyD(gp)); });
+    const fl = FLAG.map((v) => mix(o.cols, v)), fpx = clipPoly(fl.map(P), b);
+    if (fpx.length) pathEl('flag', polyD(fpx));
+    fpx.forEach((p, k) => { const q = fpx[(k + 1) % fpx.length]; ctx.pts.push(p); ctx.segs.push([p[0], p[1], q[0], q[1]]); });
+    (o.ghostTips || []).forEach((gt) => {
+      const q = P(gt.p);
+      part(gt.a, 0, () => arrow(O, q, 'gh p' + (gt.k + 1)));
+      ctx.segs.push([O[0], O[1], q[0], q[1]]); ctx.pts.push(q);
+    });
+    if (o.over) o.over(ctx);
+    tips.forEach((p, k) => arrow(O, p, 'base p' + (k + 1)));
+    circle('org', O[0], O[1], 5.5);
+    into = keep;
+    rect('frame', g.left, g.top, g.W, g.H, 0);
+    if (o.ticks) {
+      for (let x = Math.ceil(W[0]); x <= Math.floor(W[1]); x++) text(g.X(x), g.bot + 17, num(x), 'tick');
+      for (let y = Math.ceil(W[2]); y <= Math.floor(W[3]); y++) text(g.left - 6, g.Y(y) + 4, num(y), 'tick', 'end');
+    }
+    tips.forEach((p, k) => ctx.labels.push({ p, s: k ? 'j' : 'i', cls: 'nm', a: 1 }));
+    REC.cols = o.cols.map((c) => c.slice()); REC.tips = o.tips.map((c) => c.slice()); REC.flag = fl; REC.area = area(fl);
+    REC.ghost = o.ghost && o.ghost.a >= 0.5 ? o.ghost.cols : null;
+    return ctx;
+  }
+  function placeAll(ctx) {
+    const g = ctx.g, box = { x0: g.left + 3, x1: g.left + g.W - 2, y0: g.top + 2, y1: g.bot - 3 };
+    ctx.labels.forEach((lb) => part(lb.a, 0, () => placeLabel(lb.p[0], lb.p[1], lb.s, lb.cls, box, ctx.segs, ctx.pts)));
+  }
+  // A card: its matrix in brackets, its name above, when it acts below, and a ring while it acts.
+  function drawCard(c, cx, act, tag) {
+    const G = mgeo(cx - (12 + 2 * CPX) / 2, CY, 2, 2, CPX, CPY);
+    part(act, 0, () => rect('act', G.x0 - 7, G.top - 5, G.x1 - G.x0 + 14, G.bot - G.top + 10, 8));
+    brackets(G);
+    entriesOf(G, c.M.map((r) => r.map(num)), 'en');
+    text(cx, NY, c.n + (c.what ? ', ' + c.what : ''), 'sm');
+    if (tag) text(cx, TY, tag, 'tag');
+    return G;
+  }
+  // The product under the cards: its name, its entries (or "?"), its lit columns, i and j named.
+  function drawProduct(pr) {
+    const G = mgeo(PX0, PRY, 2, 2, PPX, CPY);
+    pr.names.forEach((nm) => part(nm.a, 0, () => text(G.x0 - 10, PRY + 18, nm.s, nm.cls, 'end')));
+    [0, 1].forEach((c) => part(pr.lit[c], 0, () => colBand(G, c, 'lit')));
+    brackets(G);
+    let all = true;
+    [0, 1].forEach((c) => {
+      const s = pr.cols[c];
+      part(s.q, 0, () => [0, 1].forEach((r) => text(G.cx(c), G.cy(r) + 6, '?', 'q')));
+      part(s.a, 0, () => [0, 1].forEach((r) => text(G.cx(c), G.cy(r) + 6, num(pr.M[r][c]), s.cls)));
+      if (!(s.a >= 0.5)) all = false;
+      if (s.a >= 0.5 && /bad/.test(s.cls)) REC.bad++;
+    });
+    REC.prod = all ? pr.M : null;
+    REC.prodCols = pr.cols.map((s) => s.a >= 0.5);
+    names(G);
+  }
+  const centre = (ps) => [ps.reduce((s, p) => s + p[0], 0) / ps.length, ps.reduce((s, p) => s + p[1], 0) / ps.length];
+
+  function drawPlane(d, st) {
+    const g = mainGeo(d.win), right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, said = [];
+    const L = d.L, R = d.R, LR = prod(L.M, R.M);
+    const both = (a, cls) => [{ q: 1 - a, a, cls }, { q: 1 - a, a, cls }];
+    const v = { cols: ID, tips: ID, ghost: null, ghostTips: null, acts: [0, 0], xs: [CXL, CXR], tags: ['acts second', 'acts first'], arrowA: 1,
+      pr: { names: [{ s: L.n + R.n + ' =', cls: 'pn', a: 1 }], M: LR, cols: both(0, 'en'), lit: [0, 0] },
+      lines: [], over: null, labels: [], key: [['gl', 'start grid'], ['mg', 'moved grid'], ['ghost', 'after one move']] };
+    // The flag through the right-hand card, then the left, on a timetable.
+    const runIt = (tt) => {
+      const e1 = go(tt.m1[0], tt.m1[1]), e2 = go(tt.m2[0], tt.m2[1]);
+      v.cols = v.tips = colsOf(runNow(L.M, R.M, e1, e2));
+      v.ghost = { cols: colsOf(R.M), a: arr(tt.gh, 0.4) };
+      v.acts = [bump(tt.m2), bump(tt.m1)];
+    };
+    const badArrows = (spots, named) => {
+      const gr = go(0.1, 0.5), la = arr(0.4, 0.3);
+      v.over = (c) => spots.forEach((q0) => {
+        if (!(gr > 0)) return;
+        const q = c.P(q0), pe = lerpPt(c.O, q, gr);
+        arrow(c.O, pe, 'bad'); c.segs.push([c.O[0], c.O[1], pe[0], pe[1]]); c.pts.push(pe);
+        REC.bad++;
+      });
+      spots.forEach((q0, k) => v.labels.push({ w: q0, s: named ? (k ? 'j' : 'i') : pt(q0), cls: named ? 'nm bad' : 'lb bad', a: la }));
+    };
+    switch (d.key) {
+      case 'run':
+        runIt(SLOW);
+        v.pr.cols = both(arr(SLOW.end, 0.5), 'en');
+        v.lines.push({ s: 'First B turns the flag a quarter', cls: 'ln', a: arr(0.5, 0.4) - arr(1.8, 0.25) });
+        v.lines.push({ s: 'Then A leans it over', cls: 'ln', a: arr(2.2, 0.4) - arr(3.3, 0.25) });
+        v.lines.push({ s: 'Both moves make one matrix, AB = ' + oneLine(LR), cls: 'ln', a: arr(SLOW.end, 0.5) });
+        break;
+      case 'jab': {
+        runIt(SLOWJ);
+        const ci = colsOf(LR), a1 = arr(3.1, 0.4), a2 = arr(3.5, 0.4);
+        v.ghostTips = [0, 1].map((k) => ({ k, p: colsOf(R.M)[k], a: arr(SLOWJ.gh, 0.4) }));
+        v.pr.cols = both(1, 'en');
+        v.pr.lit = [a1, a2];
+        v.labels.push({ w: ci[0], s: pt(ci[0]), cls: 'lb', a: a1 }, { w: ci[1], s: pt(ci[1]), cls: 'lb', a: a2 });
+        v.lines.push({ s: 'i ends on ' + pt(ci[0]) + ', j ends on ' + pt(ci[1]), cls: 'ln', a: a2 });
+        break;
+      }
+      case 'iab': case 'msj': {
+        const k = d.track, basis = k ? [0, 1] : [1, 0];
+        v.key = [['gl', 'start grid'], ['gha', 'after one move']];
+        if (right) {
+          const tt = TRACK, e1 = go(tt.m1[0], tt.m1[1]), e2 = go(tt.m2[0], tt.m2[1]);
+          const spot = mul(runNow(L.M, R.M, e1, e2), basis), mid = mul(R.M, basis), end = mul(LR, basis), pa = arr(tt.end, 0.4);
+          v.tips = k ? [ID[0], spot] : [spot, ID[1]];
+          v.ghostTips = [{ k, p: mid, a: arr(tt.gh, 0.3) }];
+          v.acts = [bump(tt.m2), bump(tt.m1)];
+          v.pr.cols[k] = { q: 1 - pa, a: pa, cls: 'en ok' };
+          v.pr.lit[k] = pa;
+          v.labels.push({ w: end, s: pt(end), cls: 'lb', a: pa });
+          v.lines.push({ s: (k ? 'S sends j to ' : 'B turns i to ') + pt(mid) + (k ? ', then M flips it to ' : ', then A pushes it to ') + pt(end), cls: 'ln ok', a: pa });
+          if (pa > 0) REC.reveal++;
+        } else if (wrong) {
+          badArrows([parsePt(st.pick)], false);
+          v.lines.push({ s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3) });
+        }
+        break;
+      }
+      case 'ba':
+        if (right) {
+          runIt(QUICK);
+          const pa = arr(QUICK.end, 0.4);
+          v.pr.cols = both(pa, 'en ok');
+          v.lines.push({ s: 'The shear first, then the turn, BA = ' + oneLine(LR), cls: 'ln ok', a: pa });
+          if (pa > 0) REC.reveal++;
+        } else if (wrong) {
+          const Wm = parseGrid(st.pick), wa = arr(0.3, 0.4);
+          v.pr.M = Wm; v.pr.cols = both(wa, 'en bad');
+          badArrows(colsOf(Wm), true);
+          v.lines.push({ s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3) });
+        }
+        break;
+      case 'order': {
+        // Before Check the cards stand in the order the moves happen; a right answer swaps them
+        // into the product's order, the first move on the right.
+        const sw = right ? go(ORDER.sw[0], ORDER.sw[1]) : 0;
+        v.xs = [K.lerp(CXR, CXL, sw), K.lerp(CXL, CXR, sw)];
+        v.arrowA = right ? arr(ORDER.sw[0] + ORDER.sw[1], 0.3) : 0;
+        v.pr.names = [{ s: '? =', cls: 'pn q', a: 1 }];
+        v.pr.cols = both(0, 'en');
+        if (right) {
+          runIt(ORDER);
+          const pa = arr(ORDER.end, 0.4);
+          v.pr.names = [{ s: '? =', cls: 'pn q', a: 1 - pa }, { s: 'MS =', cls: 'pn ok', a: pa }];
+          v.pr.cols = both(pa, 'en ok');
+          v.lines.push({ s: 'S acts first, so it sits on the right, MS', cls: 'ln ok', a: pa });
+          if (pa > 0) REC.reveal++;
+        } else if (wrong) {
+          const wa = arr(0.3, 0.4), fSM = flagBy(SM), fMS = flagBy(MS), either = st.pick !== 'SM';
+          if (!either) { v.pr.names = [{ s: '? =', cls: 'pn q', a: 1 - wa }, { s: 'SM =', cls: 'pn bad', a: wa }]; v.pr.M = SM; v.pr.cols = both(wa, 'en bad'); }
+          v.over = (c) => part(wa, 0, () => {
+            const b = paperBox(c.g);
+            if (either) pathEl('okflag', polyD(clipPoly(fMS.map(c.P), b)));
+            pathEl('badflag', polyD(clipPoly(fSM.map(c.P), b)));
+            REC.bad++;
+          });
+          v.labels.push({ w: centre(fSM), s: 'SM', cls: 'lb bad', a: wa });
+          if (either) v.labels.push({ w: centre(fMS), s: 'MS', cls: 'lb', a: wa });
+          v.lines.push({ s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3) });
+        }
+        break;
+      }
+      default: break;
+    }
+    // The cards, the order arrow, the product, the line, the key.
+    [L, R].forEach((c, k) => drawCard(c, v.xs[k], v.acts[k], v.tags[k]));
+    part(v.arrowA, 0, () => arrow([CXR - 52, CY + 12], [CXL + 52, CY + 12], 'ord'));
+    drawProduct(v.pr);
+    v.lines.forEach((ln) => part(ln.a, 0, () => { fitText(170, LY, ln.s, ln.cls); if (/bad/.test(ln.cls)) REC.bad++; if (ln.a >= 0.5) said.push(say(ln.s) + '.'); }));
+    drawKey(KY, v.key);
+    const ctx = paper(g, { cols: v.cols, tips: v.tips, ghost: v.ghost, ghostTips: v.ghostTips, over: v.over, ticks: true });
+    v.labels.forEach((lb) => ctx.labels.push({ p: g.P(lb.w), s: lb.s, cls: lb.cls, a: lb.a }));
+    placeAll(ctx);
+    said.unshift('Card ' + L.n + ', ' + L.what + ', ' + say(oneLine(L.M)) + (v.xs[0] < v.xs[1] ? ' on the left' : ' on the right') + '. Card ' + R.n + ', ' + R.what + ', ' + say(oneLine(R.M)) + '.' +
+      (REC.prod ? ' Their product is ' + say(oneLine(REC.prod)) + '.' : ' Their product is not yet shown.') +
+      ' On squared paper, arrow i is on ' + say(pt(v.tips[0])) + ' and arrow j on ' + say(pt(v.tips[1])) + '.');
+    return said.join(' ');
+  }
+
+  // ---------- screen 5: both orders side by side ----------
+  function pairWin(Am, Bm) {
+    const pts = [[0, 0], [1, 0], [0, 1]].concat(FLAG), xs = [], ys = [];
+    [[Am, Bm], [Bm, Am]].forEach((lr) => {
+      for (let s = 0; s <= 8; s++) {
+        const e = s / 8;
+        [pathOf(lr[1], e), prod(pathOf(lr[0], e), lr[1])].forEach((M) => pts.forEach((p) => { const q = mul(M, p); xs.push(q[0]); ys.push(q[1]); }));
+      }
+    });
+    let x0 = Math.min(...xs) - 0.6, x1 = Math.max(...xs) + 0.6, y0 = Math.min(...ys) - 0.6, y1 = Math.max(...ys) + 0.6;
+    if (x1 - x0 < 3.6) { const c = (x0 + x1) / 2; x0 = c - 1.8; x1 = c + 1.8; }
+    if (y1 - y0 < 3.6) { const c = (y0 + y1) / 2; y0 = c - 1.8; y1 = c + 1.8; }
+    return [x0, x1, y0, y1];
+  }
+  const pairGeo = (win, cx) => geoAt(win, cx, PT2, 150, 150, 40);
+  function drawPair(d, st) {
+    const a = MOVES[st.a], b = MOVES[st.b], tt = st.fast ? PAIRQ : SLOW;
+    const cA = card('A', a.what, a.M), cB = card('B', b.what, b.M);
+    drawCard(cA, CXL, 0, null); drawCard(cB, CXR, 0, null);
+    const mAB = prod(a.M, b.M), mBA = prod(b.M, a.M), pa = arr(tt.end, 0.4), same = sameM(mAB, mBA);
+    [[mAB, 'AB =', 70], [mBA, 'BA =', 236]].forEach((it) => {
+      const G = mgeo(it[2], PRY, 2, 2, 34, CPY);
+      text(it[2] - 8, PRY + 18, it[1], 'pn', 'end');
+      brackets(G);
+      part(1 - pa, 0, () => entriesOf(G, [['?', '?'], ['?', '?']], 'q'));
+      part(pa, 0, () => entriesOf(G, it[0].map((r) => r.map(num)), 'en'));
+      names(G);
+    });
+    const win = pairWin(a.M, b.M), cxs = [87, 253], e1 = go(tt.m1[0], tt.m1[1]), e2 = go(tt.m2[0], tt.m2[1]), gh = arr(tt.gh, 0.4);
+    REC.ends = []; REC.ghosts = []; REC.prods = [mAB, mBA];
+    let gb = 0;
+    [[a.M, b.M], [b.M, a.M]].forEach((lr, k) => {
+      const g = pairGeo(win, cxs[k]), cols = colsOf(runNow(lr[0], lr[1], e1, e2));
+      gb = g.bot;
+      placeAll(paper(g, { cols, tips: cols, ghost: { cols: colsOf(lr[1]), a: gh }, ticks: false }));
+      REC.ends.push(FLAG.map((p) => mix(cols, p)));
+      REC.ghosts.push(FLAG.map((p) => mix(colsOf(lr[1]), p)));
+      text(cxs[k], g.bot + 18, k ? 'A first, then B' : 'B first, then A', 'tag');
+    });
+    const sl = same ? 'Here AB = BA, so both flags end in the same place' : 'AB and BA differ, so the flags end in different places';
+    part(pa, 0, () => fitText(170, gb + 42, sl, 'ln'));
+    drawKey(gb + 64, [['mg', 'moved grid'], ['ghost', 'after one move']]);
+    return 'Card A is ' + a.what + ', ' + say(oneLine(a.M)) + '. Card B is ' + b.what + ', ' + say(oneLine(b.M)) + '. On the left, B then A: AB is ' + say(oneLine(mAB)) +
+      '. On the right, A then B: BA is ' + say(oneLine(mBA)) + '. ' + (pa >= 0.5 ? say(sl) + '.' : '');
+  }
+
+  // ---------- screens 7 and 8: row times column ----------
+  const RY = 46, RPY = 28, RPX = 40;
+  function drawRows(d, st) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, said = [];
+    const L = d.L, R = d.R, PM = prod(L.M, R.M);
+    const GL = mgeo(12, RY, 2, 2, RPX, RPY), GR = mgeo(112, RY, 2, 2, RPX, RPY), GP = mgeo(234, RY, 2, 2, RPX, RPY);
+    text(midX(GL), 18, L.n, 'sm'); text(midX(GR), 18, R.n, 'sm'); text(midX(GP), 18, L.n + R.n, 'sm');
+    text(220, RY + RPY / 2 + 5, '=', 'op');
+    // Product entries: e = 2r + c. q: how far "?" shows; a: how far the number shows; cls.
+    const ent = [0, 1, 2, 3].map(() => ({ q: 1, a: 0, cls: 'en', M: PM }));
+    const bands = [];
+    let line1 = null;
+    if (d.key === 'rowcol') {
+      const k = st.k, t0 = st.t0, r = k >> 1, c = k & 1, pairs = pairsOf(L.M, R.M, r, c), sum = PM[r][c];
+      bands.push(() => part(arr(t0, 0.4), 0, () => rowBand(GL, r)), () => part(arr(t0 + 0.3, 0.4), 0, () => colBand(GR, c, 'lit')), () => part(arr(t0 + 2.0, 0.3), 0, () => cellBand(GP, r, c)));
+      ent.forEach((e, n) => { const f = st.all || n < k ? 1 : n === k ? arr(t0 + 2.3, 0.4) : 0; e.a = f; e.q = 1 - f; });
+      // The row and the column leave their matrices and line up pair by pair.
+      const PXs = [166, 226], Y1 = 140, YX = 158, Y2 = 176, Y3 = 212;
+      bands.push(() => {
+        part(arr(t0 + 0.6, 0.4), 0, () => text(136, Y1 + 5, 'row ' + (r + 1) + ' of ' + L.n, 'tag', 'end'));
+        part(arr(t0 + 0.9, 0.4), 0, () => text(136, Y2 + 5, 'column ' + (c + 1) + ' of ' + R.n, 'tag', 'end'));
+        pairs.forEach((p, j) => {
+          const f1 = go(t0 + 0.6, 0.6), f2 = go(t0 + 0.9, 0.6);
+          part(arr(t0 + 0.6, 0.2), 0, () => { const q = lerpPt([GL.cx(j), GL.cy(r) + 6], [PXs[j], Y1 + 5], f1); text(q[0], q[1], num(p[0]), 'en'); });
+          part(arr(t0 + 0.9, 0.2), 0, () => { const q = lerpPt([GR.cx(c), GR.cy(j) + 6], [PXs[j], Y2 + 5], f2); text(q[0], q[1], num(p[1]), 'en'); });
+          part(arr(t0 + 1.5, 0.3), 0, () => text(PXs[j], YX + 6, '×', 'op'));
+          part(arr(t0 + 1.6, 0.3), 0, () => text(PXs[j], Y3 + 5, num(p[0] * p[1]), 'en'));
+        });
+        part(arr(t0 + 1.6, 0.3), 0, () => { text(136, Y3 + 5, 'multiply, add', 'tag', 'end'); text((PXs[0] + PXs[1]) / 2, Y3 + 6, '+', 'op'); });
+        part(arr(t0 + 2.0, 0.3), 0, () => { text(258, Y3 + 6, '=', 'op'); text(292, Y3 + 5, num(sum), 'en'); });
+      });
+      line1 = { s: pairs.map((p) => paren(p[0]) + ' × ' + paren(p[1])).join(' + ') + ' = ' + num(sum) + ', row ' + (r + 1) + ', column ' + (c + 1) + ' of ' + L.n + R.n, cls: 'ln', a: arr(t0 + 2.3, 0.4), y: 244 };
+      REC.work = { r, c, pairs, sum, shown: T === Infinity || line1.a >= 0.5 };
+    } else if (right) {
+      ent.forEach((e, n) => {
+        const t = 0.1 + 0.45 * n, r = n >> 1, c = n & 1;
+        bands.push(() => part(arr(t, 0.2) - arr(t + 0.4, 0.2), 0, () => rowBand(GL, r)), () => part(arr(t, 0.2) - arr(t + 0.4, 0.2), 0, () => colBand(GR, c, 'lit')));
+        e.a = arr(t + 0.2, 0.3); e.q = 1 - e.a; e.cls = 'en ok';
+      });
+      const pr0 = pairsOf(L.M, R.M, 0, 0);
+      line1 = { s: 'Row 1 of ' + L.n + ' times column 1 of ' + R.n + ', ' + pr0.map((p) => paren(p[0]) + ' × ' + paren(p[1])).join(' + ') + ' = ' + num(PM[0][0]), cls: 'ln ok', a: arr(1.9, 0.4), y: 122 };
+      if (ent[3].a > 0) REC.reveal++;
+    } else if (wrong) {
+      const Wm = parseGrid(st.pick), wa = arr(0.3, 0.4);
+      ent.forEach((e) => { e.a = wa; e.q = 1 - wa; e.cls = 'en bad'; e.M = Wm; });
+      if (wa > 0) REC.bad++;
+      line1 = { s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3), y: 122 };
+    }
+    bands.slice(0, d.key === 'rowcol' ? 3 : bands.length).forEach((f) => f());
+    [[GL, L.M], [GR, R.M]].forEach((gm) => { brackets(gm[0]); entriesOf(gm[0], gm[1].map((r) => r.map(num)), 'en'); });
+    brackets(GP);
+    ent.forEach((e, n) => {
+      const r = n >> 1, c = n & 1;
+      part(e.q, 0, () => text(GP.cx(c), GP.cy(r) + 6, '?', 'q'));
+      part(e.a, 0, () => text(GP.cx(c), GP.cy(r) + 6, num(e.M[r][c]), e.cls));
+    });
+    if (d.key === 'rowcol') bands[3]();
+    REC.prod = ent.every((e) => e.a >= 0.5) ? ent[0].M : null;
+    if (line1) part(line1.a, 0, () => { fitText(170, line1.y, line1.s, line1.cls); if (line1.a >= 0.5) said.push(say(line1.s) + '.'); });
+    said.unshift(L.n + ' is ' + say(oneLine(L.M)) + ' and ' + R.n + ' is ' + say(oneLine(R.M)) + '. ' + (REC.prod ? L.n + R.n + ' is ' + say(oneLine(REC.prod)) + '.' : 'Some entries of ' + L.n + R.n + ' are not yet shown.'));
+    return said.join(' ');
+  }
+
+  // ---------- screens 9 and 10: adding beside multiplying ----------
+  function drawSums(d, st) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, said = [];
+    const GPm = mgeo(60, RY, 2, 2, RPX, RPY), GQ = mgeo(188, RY, 2, 2, RPX, RPY);
+    text(midX(GPm), 18, 'P', 'sm'); text(midX(GQ), 18, 'Q', 'sm');
+    const under = [];
+    const lines = [];
+    if (d.key === 'sums') {
+      const rows = [
+        { nm: 'P + Q =', M: addM(MP, MQ), tag: 'entry by entry', t: 0.4, y: 128 },
+        { nm: '2P =', M: scaleM(2, MP), tag: 'every entry doubled', t: 2.5, y: 190 },
+        { nm: 'PQ =', M: PQ, tag: 'rows meet columns', t: 3.1, y: 252 },
+      ];
+      [0, 1, 2, 3].forEach((n) => {
+        const t = 0.5 + 0.45 * n, r = n >> 1, c = n & 1, f = arr(t, 0.25) - arr(t + 0.45, 0.25);
+        under.push(() => part(f, 0, () => { cellBand(GPm, r, c); cellBand(GQ, r, c); }));
+      });
+      under.push(() => part(bump([2.5, 0.6]), 0, () => rect('act', GPm.x0 - 7, GPm.top - 5, GPm.x1 - GPm.x0 + 14, GPm.bot - GPm.top + 10, 8)));
+      under.forEach((f) => f());
+      rows.forEach((row, k) => part(arr(row.t, 0.4), 0, () => {
+        const G = mgeo(108, row.y, 2, 2, 34, 24);
+        text(100, row.y + 17, row.nm, 'pn', 'end');
+        brackets(G);
+        text(198, row.y + 17, row.tag, 'tag', 'start');
+        row.M.forEach((rr, i) => rr.forEach((v, j) => {
+          const a = k === 0 ? arr(0.7 + 0.45 * (2 * i + j), 0.3) : 1;
+          part(a, 0, () => text(G.cx(j), G.cy(i) + 6, num(v), 'en'));
+        }));
+        said.push(say(row.nm) + ' ' + say(oneLine(row.M)) + ', ' + row.tag + '.');
+      }));
+    } else {
+      const want = addM(scaleM(2, MQ), MP), G = mgeo(126, 128, 2, 2, 34, 24);
+      let M = want, cls = 'en', a = [0, 0, 0, 0];
+      if (right) {
+        cls = 'en ok';
+        a = [0, 1, 2, 3].map((n) => {
+          const t = 0.1 + 0.4 * n, r = n >> 1, c = n & 1;
+          under.push(() => part(arr(t, 0.2) - arr(t + 0.45, 0.25), 0, () => { cellBand(GQ, r, c); cellBand(GPm, r, c); }));
+          return arr(t + 0.2, 0.3);
+        });
+        lines.push({ s: '2Q = ' + oneLine(scaleM(2, MQ)) + ', then P is added entry by entry', cls: 'ln ok', a: arr(1.9, 0.4) });
+        if (a[3] > 0) REC.reveal++;
+      } else if (wrong) {
+        M = parseGrid(st.pick); cls = 'en bad';
+        const wa = arr(0.3, 0.4);
+        a = [wa, wa, wa, wa];
+        if (wa > 0) REC.bad++;
+        lines.push({ s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3) });
+      }
+      under.forEach((f) => f());
+      text(118, 145, '2Q + P =', 'pn', 'end');
+      brackets(G);
+      a.forEach((f, n) => {
+        const r = n >> 1, c = n & 1;
+        part(1 - f, 0, () => text(G.cx(c), G.cy(r) + 6, '?', 'q'));
+        part(f, 0, () => text(G.cx(c), G.cy(r) + 6, num(M[r][c]), cls));
+      });
+      REC.prod = a.every((f) => f >= 0.5) ? M : null;
+      said.push('2Q plus P is ' + (REC.prod ? say(oneLine(REC.prod)) : 'not yet shown') + '.');
+    }
+    [[GPm, MP], [GQ, MQ]].forEach((gm) => { brackets(gm[0]); entriesOf(gm[0], gm[1].map((r) => r.map(num)), 'en'); });
+    lines.forEach((ln) => part(ln.a, 0, () => { fitText(170, 196, ln.s, ln.cls); if (ln.a >= 0.5) said.push(say(ln.s) + '.'); }));
+    said.unshift('P is ' + say(oneLine(MP)) + ' and Q is ' + say(oneLine(MQ)) + '.');
+    return said.join(' ');
+  }
+
+  // ---------- screen 12: do the sizes fit? ----------
+  function cellGrid(x0, y0, M, s, lit) {
+    const n = dims(M)[0], m = dims(M)[1];
+    for (let r = 0; r < n; r++) for (let c = 0; c < m; c++) rect('cell' + (lit && lit(r, c) ? ' lit' : ''), x0 + c * s + 1, y0 + r * s + 1, s - 2, s - 2, 3);
+    brackets({ x0: x0 - 7, x1: x0 + m * s + 7, top: y0 - 3, bot: y0 + n * s + 3 });
+  }
+  function drawSize(d, st) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, said = [];
+    const dc = dims(CZ), dd = dims(DZ);
+    text(100, 16, 'C, ' + dc[0] + ' by ' + dc[1], 'sm'); cellGrid(64, 30, CZ, 24);
+    text(238, 16, 'D, ' + dd[0] + ' by ' + dd[1], 'sm'); cellGrid(214, 30, DZ, 24);
+    const halves = [{ nm: 'DC', L: DZ, R: CZ, cx: 85 }, { nm: 'CD', L: CZ, R: DZ, cx: 255 }];
+    halves.forEach((h, k) => {
+      text(h.cx, 112, h.nm, 'pn');
+      // The two small grids sit far enough apart that their brackets stay separate.
+      const s = 15, gap = 22, wl = dims(h.L)[1] * s, wr = dims(h.R)[1] * s, x0 = h.cx - (wl + gap + wr) / 2;
+      const show = right || (wrong && k === 1), bad = wrong && k === 1;
+      // A wrong pick is drawn at once (within 0.8 s); a right answer unfolds more slowly.
+      const tm = bad ? [0.1, 0.2, 0.3, 0.4, 0.4] : [0.1, 0.5, 0.9, 1.2, 1.4], du = bad ? 0.3 : 0.4;
+      const la = show ? arr(tm[0], du) : 0;
+      cellGrid(x0, 126, h.L, s); cellGrid(x0 + wl + gap, 126, h.R, s);
+      part(la, 0, () => { cellGrid(x0, 126, h.L, s, (r) => r === 0); cellGrid(x0 + wl + gap, 126, h.R, s, (r, c) => c === 0); });
+      const rowLen = dims(h.L)[1], colLen = dims(h.R)[0], fs = 24, fx0 = h.cx - (Math.max(rowLen, colLen) * fs - 4) / 2;
+      const fa = show ? arr(tm[1], du) : 0, lk = show ? arr(tm[2], du) : 0, lo = show ? arr(tm[3], du) : 0, vd = show ? arr(tm[4], du) : 0;
+      part(fa, 0, () => {
+        for (let j = 0; j < rowLen; j++) rect('cell lit', fx0 + j * fs, 176, 20, 20, 3);
+        for (let j = 0; j < colLen; j++) rect('cell lit', fx0 + j * fs, 208, 20, 20, 3);
+        text(fx0 - 8, 191, 'row', 'tag', 'end'); text(fx0 - 8, 223, 'column', 'tag', 'end');
+      });
+      part(lk, 0, () => { for (let j = 0; j < Math.min(rowLen, colLen); j++) line('link', fx0 + j * fs + 10, 197, fx0 + j * fs + 10, 207); });
+      part(lo, 0, () => { for (let j = colLen; j < rowLen; j++) rect(bad ? 'miss bad' : 'miss', fx0 + j * fs, 208, 20, 20, 3); });
+      const fits = rowLen === colLen, P2 = prod(h.L, h.R);
+      const verdict = rowLen + ' meets ' + colLen + (fits ? ', so it works' : ', so it fails');
+      part(vd, 0, () => { text(h.cx, 252, verdict, bad ? 'tag bad' : 'tag'); if (bad) REC.bad++; });
+      if (show) said.push(h.nm + ': a row of ' + rowLen + ' meets a column of ' + colLen + (fits ? ', so it works, giving ' + dims(P2).join(' by ') : ', so it cannot be worked out') + '.');
+    });
+    let ln = null;
+    if (right) { ln = { s: 'DC works, and the answer is ' + dims(prod(DZ, CZ)).join(' by '), cls: 'ln ok', a: arr(1.8, 0.4) }; if (ln.a > 0) REC.reveal++; }
+    if (wrong) ln = { s: d.slips[st.pick], cls: 'ln bad', a: arr(0.1, 0.3) };
+    if (ln) part(ln.a, 0, () => { fitText(170, 282, ln.s, ln.cls); if (/bad/.test(ln.cls)) REC.bad++; });
+    said.unshift('C is a grid ' + dc[0] + ' by ' + dc[1] + ', and D ' + dd[0] + ' by ' + dd[1] + '.');
+    return said.join(' ');
+  }
+
+  // ---------- the scene for a step (the animations call this every frame) ----------
+  const DRAW = { plane: drawPlane, pair: drawPair, rows: drawRows, sums: drawSums, size: drawSize };
+  function heightOf(d, st) {
+    if (d.pic === 'plane') return Math.ceil(PTOP + mainGeo(d.win).H + 26);
+    if (d.pic === 'pair') return Math.ceil(PT2 + pairGeo(pairWin(MOVES[st.a].M, MOVES[st.b].M), 170).H + 72);
+    if (d.pic === 'rows') return d.key === 'rowcol' ? 258 : 140;
+    if (d.pic === 'sums') return d.key === 'sums' ? 304 : 214;
+    // Screen 12 stays short until Check, then grows to show how the rows and columns pair up.
+    return st.res === 'right' || (st.res === 'wrong' && st.pick != null) ? 298 : 170;
+  }
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null; placed = []; clipN = 0;
+    REC = { texts: [], cols: null, tips: null, flag: null, area: null, ghost: null, prod: null, prodCols: null, ends: null, ghosts: null, prods: null, work: null, bad: 0, reveal: 0 };
+    svg.setAttribute('viewBox', '0 0 340 ' + heightOf(d, st));
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st) || '');
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { Object.assign(st, { fast: false, k: 0, all: false, t0: 0.5 }); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('cardbox').hidden = !d.pair;
+    ['a', 'b'].forEach((w) => moveBtns[w].forEach((b, k) => b.el.setAttribute('aria-pressed', d.pair && st[w] === k ? 'true' : 'false')));
+    swapBtn.el.hidden = !d.pair;
+    playBtn.el.hidden = !d.pair || REDUCE;
+    nextEntryBtn.el.hidden = d.key !== 'rowcol';
+    replayBtn.el.hidden = !d.show || !!d.pair || REDUCE;
+    el('replay').hidden = [swapBtn, playBtn, nextEntryBtn, replayBtn].every((b) => b.el.hidden);
+
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (k) => STEPS.findIndex((d) => d.name === k || d.key === k);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const sameFlag = (a, b) => !!a && !!b && a.length === b.length && a.every((p, k) => samePt(p, b[k]));
+  const pts7 = [];
+  for (let x = -3; x <= 3; x++) for (let y = -3; y <= 3; y++) pts7.push([x, y]);
+  const MATS = MOVES.map((m) => m.M).concat([MP, MQ]);
+
+  K.check('Reading right to left, you first apply the transformation represented by the matrix on the right, then the one on the left: in every run drawn, the flag passes through the right-hand card first, its ghost sits where that card alone sends it, and it ends where the product sends it', () => {
+    const ip = idx('pair');
+    for (let a = 0; a < MOVES.length; a++) for (let b = 0; b < MOVES.length; b++) {
+      const A = MOVES[a].M, B = MOVES[b].M, r = drawn(ip, Object.assign(blank(), { a, b }));
+      if (!sameM(r.prods[0], prod(A, B)) || !sameM(r.prods[1], prod(B, A))) return false;
+      if (!sameFlag(r.ends[0], flagBy(prod(A, B))) || !sameFlag(r.ends[1], flagBy(prod(B, A)))) return false;
+      if (!sameFlag(r.ghosts[0], flagBy(B)) || !sameFlag(r.ghosts[1], flagBy(A))) return false;
+      if (!FLAG.every((p) => samePt(mul(A, mul(B, p)), mul(prod(A, B), p)))) return false;
+    }
+    return ['run', 'jab', 'ba', 'order'].every((k) => {
+      const i = idx(k), d = STEPS[i], r = drawn(i, d.show ? blank() : solvedSt(i));
+      return sameFlag(r.flag, flagBy(prod(d.L.M, d.R.M))) && sameM(r.ghost, colsOf(d.R.M).length ? [[d.R.M[0][0], d.R.M[1][0]], [d.R.M[0][1], d.R.M[1][1]]] : null) && sameM(r.prod, prod(d.L.M, d.R.M));
+    });
+  }, { source: TBB });
+  K.check('Matrix multiplication is not commutative in general: the shear and the quarter turn give one matrix in one order and a different one in the other, and side by side the two flags end in different places', () => {
+    const r = drawn(idx('pair'), blank());
+    return !sameM(AB, BA) && !sameM(r.prods[0], r.prods[1]) && !sameFlag(r.ends[0], r.ends[1]) && !sameM(MS, SM) && !sameM(PQ, QP);
+  }, { source: LT });
+  K.check('Each entry of a product is a row of the left times a column of the right, pair by pair, added; for every pair of moves and for P and Q this matches running the right-hand matrix and then the left-hand one on every whole point near the origin, and screen 7 works each entry that way', () => {
+    const okRule = MATS.every((A) => MATS.every((B) => {
+      const C = prod(A, B);
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) if (!near(pairsOf(A, B, r, c).reduce((s, p) => s + p[0] * p[1], 0), C[r][c])) return false;
+      return pts7.every((p) => samePt(mul(C, p), mul(A, mul(B, p))));
+    }));
+    const irc = idx('rowcol');
+    const okDrawn = [0, 1, 2, 3].every((k) => {
+      const w = drawn(irc, Object.assign(blank(), { k, all: true })).work, r = k >> 1, c = k & 1;
+      return w.r === r && w.c === c && near(w.sum, AB[r][c]) && w.pairs.every((p, j) => p[0] === CA.M[r][j] && p[1] === CB.M[j][c]);
+    });
+    return okRule && okDrawn && sameM(drawn(irc, Object.assign(blank(), { k: 0, all: true })).prod, AB);
+  });
+  K.check('Every worked number is right: AB = [1 −1; 1 0] and BA = [0 −1; 1 1]; B sends i to (0, 1) and j to (−1, 0); after both, i is on (1, 1); the shear sends j to (1, 1) and the turn sends (1, 1) to (−1, 1); MS = [−1 −1; 0 1] sends j to (−1, 1), SM = [−1 1; 0 1]; PQ = [4 8; 6 0], QP = [2 13; 4 2], matching entries give [2 4; 0 0]; P + Q = [3 5; 2 3], 2P = [4 2; 0 6], 2Q + P = [4 9; 4 3]; the top-left of AB is 1 × 0 + 1 × 1 = 1', () =>
+    oneLine(AB) === '[1 −1; 1 0]' && oneLine(BA) === '[0 −1; 1 1]' && pt(mul(TURN, [1, 0])) === '(0, 1)' && pt(mul(TURN, [0, 1])) === '(−1, 0)' &&
+    pt(mul(AB, [1, 0])) === '(1, 1)' && pt(mul(SHEAR, [0, 1])) === '(1, 1)' && pt(mul(TURN, [1, 1])) === '(−1, 1)' &&
+    oneLine(MS) === '[−1 −1; 0 1]' && pt(colsOf(MS)[1]) === '(−1, 1)' && oneLine(SM) === '[−1 1; 0 1]' &&
+    oneLine(PQ) === '[4 8; 6 0]' && oneLine(QP) === '[2 13; 4 2]' && oneLine(matchM(MP, MQ)) === '[2 4; 0 0]' &&
+    oneLine(addM(MP, MQ)) === '[3 5; 2 3]' && oneLine(scaleM(2, MP)) === '[4 2; 0 6]' && oneLine(addM(scaleM(2, MQ), MP)) === '[4 9; 4 3]' &&
+    pairsOf(SHEAR, TURN, 0, 0).map((p) => p[0] + ' × ' + p[1]).join(' + ') === '1 × 0 + 1 × 1' && AB[0][0] === 1);
+  K.check('Sizes have to fit: a product exists only when each row of the left is as long as each column of the right; D (2 by 2) times C (2 by 3) gives a 2 by 3, C times D cannot be worked out, and a 2 by 3 times a 3 by 2 gives a 2 by 2', () => {
+    const DC = prod(DZ, CZ), CD = prod(CZ, DZ), T23 = [[0, 0, 0], [0, 0, 0]], T32 = [[0, 0], [0, 0], [0, 0]];
+    return !!DC && dims(DC).join('x') === '2x3' && CD === null && dims(prod(T23, T32)).join('x') === '2x2' && dims(CZ)[1] === 3 && dims(DZ)[0] === 2;
+  });
+  K.check('Some pairs give the same either way: two turns, any card with Do nothing, and the mirror with the stretch; every move keeps the origin fixed, a mirror turns the flag over, and turns and shears keep its size', () => {
+    const ok = (A, B) => sameM(prod(A, B), prod(B, A));
+    const origin = MATS.every((A) => MATS.every((B) => samePt(mul(prod(A, B), [0, 0]), [0, 0])));
+    const a0 = area(FLAG);
+    return ok(TURN, TURN) && MOVES.every((m) => ok(m.M, ID)) && ok(MIRROR, STRETCH) && !ok(SHEAR, TURN) && !ok(MIRROR, SHEAR) && origin &&
+      near(area(flagBy(MIRROR)), -a0) && near(area(flagBy(TURN)), a0) && near(area(flagBy(SHEAR)), a0) && near(area(flagBy(AB)), a0);
+  });
+  K.check('Each puzzle\'s answer comes from the rule (B then A for i, the shear first for BA, the first move on the right, rows times columns, doubling then adding, S then M for j, the sizes), and each slip offered is the one its hint names', () => {
+    const g = (k) => STEPS[idx(k)];
+    const s2 = g('iab'), s4 = g('ba'), s6 = g('order'), s8 = g('pq'), s10 = g('twoq'), s11 = g('msj'), s12 = g('size');
+    const has = (d, o) => d.opts.indexOf(o) >= 0;
+    const oneQ = addM(MP, [[2 * MQ[0][0], MQ[0][1]], [MQ[1][0], MQ[1][1]]]);
+    return s2.want === pt(mul(prod(s2.L.M, s2.R.M), [1, 0])) && has(s2, pt(mul(s2.R.M, [1, 0]))) && has(s2, pt([1, 0])) &&
+      s4.want === oneLine(prod(s4.L.M, s4.R.M)) && has(s4, oneLine(prod(s4.R.M, s4.L.M))) && has(s4, oneLine(TURN)) &&
+      s6.want === s6.L.n + s6.R.n && sameM(s6.R.M, SHEAR) && FLAG.every((p) => samePt(mul(MS, p), mul(MIRROR, mul(SHEAR, p)))) && !sameM(MS, SM) &&
+      s8.want === oneLine(prod(MP, MQ)) && has(s8, oneLine(matchM(MP, MQ))) && has(s8, oneLine(prod(MQ, MP))) &&
+      s10.want === oneLine(addM(scaleM(2, MQ), MP)) && has(s10, oneLine(addM(MP, MQ))) && has(s10, oneLine(oneQ)) &&
+      s11.want === pt(mul(MS, [0, 1])) && has(s11, pt(mul(SHEAR, [0, 1]))) && has(s11, pt(MS[0])) &&
+      s12.want === 'DC only' && !!prod(DZ, CZ) && prod(CZ, DZ) === null;
+  });
+  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (drawn(i, solvedSt(i)).bad !== 0) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);
+    }));
+  K.check('Before Check, no puzzle shows its answer (no landing spot, no product, no pairing); after a right answer, it does', () =>
+    DO.every((i) => drawn(i, blank()).reveal === 0 && drawn(i, solvedSt(i)).reveal > 0) &&
+    drawn(idx('ba'), blank()).prod === null && drawn(idx('pq'), blank()).prod === null && drawn(idx('twoq'), blank()).prod === null);
+  K.check('Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

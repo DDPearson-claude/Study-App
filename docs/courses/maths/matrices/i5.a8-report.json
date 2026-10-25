@@ -1,0 +1,164 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "There is no inverse once a move squishes the plane onto a line, because a line cannot be unsquished into a plane: with j on the line of i no inverse is shown, no point lands on the dot off that line, and a whole line of points lands on the dot that sits on it",
+        "ok": true,
+        "source": "https://www.3blue1brown.com/lessons/inverse-matrices"
+      },
+      {
+        "label": "A matrix is invertible if its determinant is not zero: every move in the lesson whose determinant is not zero has an inverse from the recipe, which undoes it in either order, and each whose determinant is zero has none",
+        "ok": true,
+        "source": "https://math.mit.edu/~gs/linearalgebra/ila5/linearalgebra5_2-5.pdf"
+      },
+      {
+        "label": "The solution of a system AX = B is found by pre-multiplying both sides by the inverse: on every screen that plays a move back from a dot, the point reached is the inverse times the dot, the move sends it onto the dot, and the grid ends home",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf"
+      },
+      {
+        "label": "Write the matrix equation [V] = [R] x [I]: the resistance grid, built from the resistors round each loop and the shared one, times the loop currents gives the loop voltages, and each loop's own equation holds",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/dccircuits/dcp_5.html"
+      },
+      {
+        "label": "Leaning j: with its tip at 1, 1.5, 1.8 and 1.9 across the determinant is 1, 0.5, 0.2 and 0.1, and the point that lands on (3, 2) is (1, 1), (0, 2), (−3, 5) and (−8, 10); at every setting the drawn point lands on the dot, the A⁻¹ shown is the recipe's, and each step out takes the point further away",
+        "ok": true
+      },
+      {
+        "label": "Every worked number is right: det A = 3 × 2 − 1 × 4 = 2; A⁻¹ = [1 −0.5; −2 1.5]; the swapped [2 −1; −4 3] times A is [2 0; 0 2]; (1, 1) lands on (4, 6); 1 ÷ each entry gives 5 and −A gives −13; [2 1; 1 1] has det 1 and inverse [1 −1; −1 2]; (5, 3) goes back to (2, 1) and forwards to (13, 8); the grid [6 −2; −2 6] has 36 − 4 = 32, not 40; 80 ÷ 32 = 2.5, 48 ÷ 32 = 1.5; the shared resistor carries 1 A, and 4 × 2.5 + 2 × 1 = 12",
+        "ok": true
+      },
+      {
+        "label": "The recipe works for any matrix: [d −b; −c a] times [a b; c d] is (ad − bc) times I, either way round, so dividing by ad − bc gives the inverse",
+        "ok": true
+      },
+      {
+        "label": "Playing it back: screen 1 holds A, then ends with the grid home and A⁻¹ shown; the recipe screen builds the swapped matrix, divides it into A⁻¹, and that carries the grid home",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle's answer comes from the rule, and each wrong answer offered is the slip its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": false,
+        "error": "returned false"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "jx"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Play it back",
+          "Turn it back",
+          "The target",
+          "Which undoes A?",
+          "The recipe",
+          "Your turn",
+          "Lean it flat",
+          "No way back",
+          "Equations as a move",
+          "Solve it",
+          "The circuit",
+          "Mixed: the shared resistor",
+          "Mixed: undo the grid"
+        ],
+        "value": 0
+      },
+      {
+        "id": "jx",
+        "kind": "control",
+        "label": "j's tip across",
+        "min": 1,
+        "max": 2,
+        "step": 0.1,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          1.5,
+          1.8,
+          1.9,
+          2
+        ]
+      }
+    ],
+    "actions": [
+      "Play again",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 6 (the first step that shows a control)",
+    "jx = 1.75"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/matrices/i5.a8-360-light.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-360-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-360-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-360-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-360-dark-end.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-1280-light.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-1280-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-1280-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i5.a8-1280-dark-end.png"
+  ]
+}

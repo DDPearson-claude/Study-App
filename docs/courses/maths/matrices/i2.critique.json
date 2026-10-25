@@ -1,0 +1,31 @@
+{
+  "draft": "i2.lesson.draft1.txt",
+  "keep": [
+    "The idea is named in one line up front: a 2 by 2 matrix moves every point of the plane, and its columns are where i and j land.",
+    "The rule is earned from the last lesson's mix: times (1, 0) takes 1 lot of column 1 and none of column 2, so i lands on column 1. Every point is x lots of i plus y lots of j, so it lands on x lots of column 1 plus y lots of column 2.",
+    "One worked example computed from the rule: [2 −1; 1 1] sends (1, 2) to 1 lot of (2, 1) plus 2 lots of (−1, 1), which is (0, 3). Screen 4 asks for (2, 1), which is (3, 3).",
+    "The main matrix is not the same either side of its diagonal, so the row slip gives a different answer, (5, −1), and the explanation shows [2 1; −1 1] sending i to (2, −1).",
+    "The picture is the brief's: an F that shows a flip, two draggable tips, the grid following with the origin fixed, the matrix read out by columns, buttons for stretch, turn, mirror, shear and squash. The do-nothing matrix is the setting where nothing moves.",
+    "Twelve screens alternate SHOW (1, 3, 5, 7, 9) and DO (2, 4, 6, 8, 10), ending on two mixed puzzles. Screen 6 goes picture to matrix and screen 8 matrix to picture, as the brief asks. Screen 8's clockwise choice catches the minus in the wrong corner, and screen 6's [3 1; 0 2] catches a landing spot written as a row.",
+    "The turn is built, not given: i goes to the unit circle's (cos θ, sin θ), and a quarter turn sends (a, b) to (−b, a), so j lands on (−sin θ, cos θ).",
+    "Two footnotes, each on the rule he might look up. No source is named in the text. Validator passes with no problems."
+  ],
+  "fix": [
+    "Causal step skipped: the grid lines are said to stay straight and evenly spaced, but not parallel. Say why: every line running across adds column 1 at each step, so all of them run the same way.",
+    "Analogy fails its own test: a folding trellis has rigid slats and one way to open, so you cannot move the two slat ends freely, and it cannot show a stretch at all. Replace it with setting out from two measuring tapes laid from one corner, which reproduces x lots of one plus y lots of the other.",
+    "Long sentence with a colon chain: 'Write the landing spots across as rows instead and you get a different move: …'. Split into two sentences.",
+    "Turn direction unstated: say 'anticlockwise through θ' so the sign of θ matches the unit circle.",
+    "numbers: 'Analogy: none' is a made-up entry. Remove it and list the analogy's own numbers.",
+    "whatAmILookingAt: name the labels (i and j in teal beside their tips, the matrix large enough to read at 360 px), say the five buttons and three choices wrap without splitting a word, and give screen 7 a still and a read so its slider sentence reads without controls.",
+    "Screen 12 says 'the up axis' with no anchor. Say the up axis, the line x = 0."
+  ],
+  "faults": {
+    "causalStepSkipped": "one, the parallel lines, fixed above",
+    "falseAbsolutes": "none: the origin never moving holds for every matrix, since 0 lots of each column is (0, 0); 'four numbers describe it completely' holds for every 2 by 2 matrix move",
+    "briefShowsOnlyEffect": "no: the dragged tips (cause) carry the grid and the flag, and the matrix's columns change with them (effect)",
+    "checksTestRecall": "no: every puzzle needs a landing spot worked from the columns, or a picture read into a matrix and back",
+    "thinResearch": "no: two sources, each carrying the claim the lesson rests on",
+    "unreadableLabels": "not stated in draft 1, fixed above",
+    "talksAboutTheIdea": "no"
+  }
+}

@@ -1,0 +1,210 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Matrices, from moving shapes to circuit loops
+Puzzle the course answers: In a three-loop circuit, each shared resistor lets one loop current push on its neighbour. How do you find all three loop currents at once, and know when there is no single answer?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A matrix is a grid of numbers you can read two ways: as the numbers of a set of equations, one row each, or, for a 2 by 2 grid, as a move of every point of the plane at once, its columns saying where the arrows i and j land. Moves can be done one after another, one number worked out from the grid says how much a move scales areas and whether it flips or flattens them, and a move that does not flatten can be played backwards. That is enough to write a circuit of two or three loops as one grid and solve it in one sweep.
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Matrices
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  What a matrix is — A matrix is a grid of numbers, read row then column; times a column of amounts, it mixes its own columns, each row one equation. [concept]
+  i2  Moving the whole plane — A 2 by 2 matrix moves every point of the plane at once, and its two columns are where the arrows i and j land. [mechanism] (needs i1)
+  i3  One move after another — Multiplying two matrices makes one move: the right-hand one first, then the left, so swapping their order usually gives a different move. [skill] (needs i1, i2)
+  i4  How areas change: the determinant — The determinant, ad − bc, is the number a 2 by 2 move scales every area by; negative means flipped, zero means squashed flat. [quantity] (needs i1, i2)
+  i5  Undoing a move: the inverse — The inverse matrix plays a move backwards, so it solves a two-loop circuit's equations, and it exists only when the determinant is not zero. [skill] (needs i1, i2, i3, i4)
+  i6  Three by three: the determinant and the cross product — Expanding along the top row by cofactors, small 2 by 2 determinants with signs, gives a 3 by 3 determinant and the cross product's formula. [skill] (needs i1, i2, i4)   <-- THIS LESSON
+  i7  Elimination: three unknowns, three loops — Gaussian elimination's row moves step three equations, such as a three-loop circuit's, into a staircase solved from the bottom up. [skill] (needs i1, i5, i6)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i6: "Three by three: the determinant and the cross product"
+What Dan should come away understanding: Expanding along the top row by cofactors, small 2 by 2 determinants with signs, gives a 3 by 3 determinant and the cross product's formula.
+Kind: skill. Builds on: i1 "What a matrix is", i2 "Moving the whole plane", i4 "How areas change: the determinant".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "What a matrix is"
+  Terms: matrix, entry, linear combination
+  Analogy: Think of a kit list for two kinds of job. Say job A takes 1 coil of cable and 2 boxes of clips. Job B takes 3 coils and 1 box. Each job's list is a column. For 3 of job A and 1 of job B, you order 3 …
+  Interactive: The one thing you should see is x lots of column 1 and y lots of column 2, nose to tail, landing where the grid's two rows add up to, when you slide x and y.
+  Numbers: Example 2 by 3 grid's rows, steps 1 and 2 = 2 (assumed); Example 2 by 3 grid's columns, steps 1 and 2 = 3 (assumed); Grid [4 7 1; 2 5 3], row 1, column 1 = 4 (assumed); Grid [4 7 1; 2 5 3], row 1, column 2 = 7 (assumed); Grid [4 7 1; 2 5 3], row 1, column 3 = 1 (assumed); Grid [4 7 1; 2 5 3], row 2, column 1 = 2 (assumed)
+- i2 "Moving the whole plane"
+  Terms: linear transformation, shear
+  Analogy: Picture marking out fixings on a board, measuring from one corner. Each mark is so many steps along one tape and so many steps up another. Now lay the two tapes at a slant, or use a tape with longer …
+  Interactive: The one thing you should see is the whole grid and its F-shaped flag follow, the origin staying fixed and the matrix's two columns changing, when you drag the tips of i and j to where they land.
+  Numbers: Matrix size, rows and columns = 2 (assumed); Arrow i, across part = 1 (assumed); Arrow i, up part = 0 (assumed); Main matrix [2 −1; 1 1], row 1, column 1 = 2 (assumed); Main matrix [2 −1; 1 1], row 1, column 2 = -1 (assumed); Main matrix [2 −1; 1 1], row 2 entries = 1 (assumed)
+- i3 "One move after another"
+  Terms: matrix product, identity matrix
+  Analogy: Print a socket-front label on clear acetate and lay it flat on the bench. Give it a quarter turn clockwise, then flip it over left to right. Start again with a fresh label. Flip it first, then give i…
+  Interactive: The one thing you should see is the flag landing somewhere else, and the product's columns changing, when you swap the two cards and play the two moves again.
+  Numbers: Matrix size, rows and columns = 2 (assumed); Card B quarter turn [0 −1; 1 0], row 1, column 2 = -1 (assumed); Quarter turn, in degrees = 90 (assumed); Card A shear [1 1; 0 1], row 1, column 2 = 1 (assumed); Arrow i after B lands on (0, 1), across = 0; Arrow i after both moves ends on (1, 1), across = 1
+- i4 "How areas change: the determinant"
+  Terms: determinant
+  Analogy: Think of a floor laid in square tiles, with a cupboard's outline marked on it. Count the tiles inside the outline and you have its area. Now re-lay the floor in the same pattern. Swap every tile for …
+  Interactive: The one thing you should see is the unit square's parallelogram, and a shape inside it, change by the same factor, ad − bc, when you drag where i and j land.
+  Numbers: Matrix size, rows and columns = 2 (assumed); Unit square's area = 1 (assumed); Stretch [3 0; 0 2], row 1, column 1 = 3 (assumed); Stretch [3 0; 0 2], row 2, column 2 = 2 (assumed); Stretch [3 0; 0 2], off-diagonal entries = 0 (assumed); Stretch's area scale factor, 3 × 2 = 6
+- i5 "Undoing a move: the inverse"
+  Terms: inverse, singular, invertible
+  Analogy: Think of a 10:1 step-down transformer. Read 23 V on the low side, and you know the high side is 230 V. You just multiply back by 10. Now clamp a meter round line and neutral together. On a healthy ci…
+  Interactive: The one thing you should see is the point that lands on the target dot racing away as the determinant shrinks, until at 0 no single point lands there, when you lean A's two columns towards one line.
+  Numbers: Matrix size, rows and columns = 2 (assumed); Screens in the lesson = 13 (assumed); Steps, first = 0; Steps, last = 12; A = [3 1; 4 2], row 1, column 1 = 3 (assumed); A, row 1, column 2 = 1 (assumed)
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? To understand matrices and how to work with them.
+- Where will you use it? On the job and in everyday life.
+- How do you like to learn? Hands-on, with the why explained in full.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] 77 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf
+    "obtained by multiplying each element of the first row by its corresponding cofactor and then adding the three together"
+[2] Calculus II - Cross Product — https://tutorial.math.lamar.edu/Classes/CalcII/CrossProduct.aspx
+    "the cross product is really the determinant of a 3x3 matrix."
+[3] 77 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf
+    "all the entries in the second row relate to the second equation"
+[4] 2.2: Matrix Multiplication - Mathematics LibreTexts — https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication
+    "column vector and interpret the result as a linear combination of the columns of the matrix."
+[5] 4.2 Matrices and Transformations on Vectors; the Meaning of 0 Determinant — https://ocw.mit.edu/ans7870/18/18.013a/textbook/HTML/chapter04/section02.html
+    "a matrix represents the transformation that takes the column basis vectors into the vectors that are the corresponding columns of the matrix."
+[6] Linear transformations and matrices | 3Blue1Brown — https://www.3blue1brown.com/lessons/linear-transformations
+    "you take the coordinates of that vector, multiply them by the corresponding column of the matrix, then add together what you get."
+[7] The determinant | 3Blue1Brown — https://www.3blue1brown.com/lessons/determinant
+    "if you know how much the area of that one unit square changes, it tells you how the area of _any_ region in space changes."
+[8] The determinant | 3Blue1Brown — https://www.3blue1brown.com/lessons/determinant
+    "Any transformations that do this are said to "invert the orientation of space". Whenever this happens, the determinant will be negative."
+[9] The determinant | 3Blue1Brown — https://www.3blue1brown.com/lessons/determinant
+    "if it squishes all of space onto a line, or even onto a single point, since the area of every region would then become 0."
+[10] Introduction to Linear Algebra, 5th Edition — https://math.mit.edu/~gs/linearalgebra/ila5/linearalgebra5_2-5.pdf
+    "This number ad−bc is the _determinant_ of A."
+[11] Mesh Current Analysis - DC Circuit Theory — https://www.electronics-tutorials.ws/dccircuits/dcp_5.html
+    "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+[12] 88 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf
+    "By breaking down a complicated system into simple loops, Kirchhoff’s law can be applied. This leads to a set of linear equations in the unknown quantities (usually currents)"
+
+Research notes (claims, and the sources that support them):
+- A 3 by 3 determinant is the sum of each first-row element times its cofactor. [1]
+- The cross product is the determinant of a 3 by 3 matrix, an easier way to remember its components. [2]
+- In a matrix that holds a system of equations, each row of entries belongs to one equation. [3]  (from an idea this one builds on)
+- A matrix times a column of amounts gives a mix of the matrix's own columns, a linear combination. [4]  (from an idea this one builds on)
+- A matrix represents the move that takes the basis vectors to its own columns. [5]  (from an idea this one builds on)
+- To find where a vector lands, scale each column by the matching coordinate and add the results. [6]  (from an idea this one builds on)
+- If you know how the area of one unit square changes, you know how any region's area changes; the determinant is that scale factor. [7]  (from an idea this one builds on)
+- A negative determinant means the move flips the orientation of space, and its size still gives the area scaling. [8]  (from an idea this one builds on)
+- A determinant of zero means the move squashes all of space onto a line or a point, so every area becomes zero. [9]  (from an idea this one builds on)
+- For a 2 by 2 matrix the determinant is the number ad − bc. [10]  (from an idea this one builds on)
+- Matrix methods turn the loop equations of a circuit into one equation, [V] = [R] x [I], that a solver can handle together. [11][12]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a skill idea: a worked example whose inputs he changes while every step of the working recomputes.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Footnote what he would check, one per sentence; never name a source in a sentence ("your slides say", "(p.16)").
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i6",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.

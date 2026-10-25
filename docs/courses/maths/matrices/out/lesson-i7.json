@@ -1,0 +1,801 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T17:43:38.644Z",
+ "startedAt": "2026-10-25T17:43:38.644Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Elimination: three unknowns, three loops",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is each row move swinging one plane while all three planes still meet at the same dot, when you add a multiple of one row to another until the grid is a staircase.",
+   "title": "Clear the columns",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "Thirteen small screens share one picture. On top is the grid: three rows, one for each equation. The letters x, y and z head columns 1 to 3. A bar marks off a fourth column, the constants. Below it is a 3-D view of three planes, one for each row. Each plane carries its row's number. Dragging the background turns the view. A dot marks the answer, where all three planes meet. Its x, y and z read out.\n\nThe rule. Each equation in x, y and z is a flat plane. A row move adds a multiple of one row to another. A point that fits both rows fits the new one. Taking the same multiple away brings the old row back. So no new point gets in either. Every point where the two planes cross fits the new row. So the changed row's plane swings about that line. The dot sits on that line, so it stays put. Clear column 1 below row 1, then column 2 below row 2. The grid is then a staircase, with zeros under its diagonal. Its bottom row gives z. Then row 2 gives y, and row 1 gives x.\n\nThe screens.\n- 1, the grid and the planes. The grid holds x + y + z = 6, 2x + y − z = 1 and x − y + 2z = 5, as [1 1 1 | 6; 2 1 −1 | 1; 1 −1 2 | 5]. The three planes rise into view one at a time. The dot settles where all three meet, at (1, 2, 3). This plays once as the screen opens. Its still shows the three planes and the dot, read as: each equation in x, y and z is a flat plane. Each one also makes one row of the grid. The last column holds the constant. The answer is the point where all three planes meet, here (1, 2, 3).\n- 2, a puzzle. Which row is x − 2z = 5? The choices are [1 0 −2 | 5], [1 −2 0 | 5] and [1 −2 | 5]. Picking [1 −2 0 | 5] gets the hint: column 2 is for y. The −2 belongs to z, in column 3. Picking [1 −2 | 5] gets the hint: every row needs a place for x, y and z. A missing letter gets a 0. After Check, the row lines up under the grid's x, y and z. Its 0 sits under y.\n- 3, a row move. Row 2 lights up. Row 1, times −2, slides down onto it. It adds in, entry by entry. Row 2 becomes [0 −1 −3 | −11]. Plane 2 swings round and still passes through the dot. This plays once as the screen opens. Then the move is yours. You pick the row to change and the row to add. The multiplier runs from −3 to 3, skipping 0. Add makes the move, and Reset brings back the first grid. Every move swings one plane. The dot stays put. Its still shows plane 2 swung round through the dot, read as: a row move adds a multiple of one row to another. Here −2 × row 1 goes into row 2. Row 2 becomes 0, −1, −3 and −11. Plane 2 swings about the line it shares with plane 1. So it still passes through the dot at (1, 2, 3).\n- 4, a puzzle. Add −1 × row 1 to row 3. What does row 3 become? The choices are [0 −2 1 | −1], [0 −2 1 | 5] and [2 0 3 | 11]. Picking [0 −2 1 | 5] gets the hint: the constant column changes too. Picking [2 0 3 | 11] gets the hint: that adds row 1. −1 lots of row 1 takes it away. After Check, row 3 becomes [0 −2 1 | −1]. Plane 3 swings round through the dot. Column 1 is now clear below row 1.\n- 5, the staircase. Row 2, times −2, adds into row 3. Row 3 becomes [0 0 7 | 21]. A staircase line is drawn under the grid's diagonal. Then the answers fill in from the bottom. 7z = 21 gives z = 3. Then −y − 9 = −11 gives y = 2, and x + 2 + 3 = 6 gives x = 1. This plays once as the screen opens. Its still shows the finished staircase and the answers, read as: add −2 × row 2 to row 3, and the grid becomes a staircase. It has zeros under its diagonal. Read it from the bottom up: 7z = 21, so z = 3. Then −y − 9 = −11 gives y = 2. Last, x + 2 + 3 = 6 gives x = 1.\n- 6, a puzzle. The staircase [2 1 −1 | 3; 0 3 1 | 5; 0 0 2 | 4] is finished. What is x? The choices are 2, 0 and 1. Picking 0 gets the hint: row 1's z entry is −1, so its z term is −2, not +2. Picking 1 gets the hint: row 1 has a z term too. Put in z as well as y. After Check, the answers fill in from the bottom: z = 2, y = 1 and x = 2.\n- 7, no common point. A new grid loads: x + y + z = 3, x − y + z = 1 and 2x + 2z = 9, as [1 1 1 | 3; 1 −1 1 | 1; 2 0 2 | 9]. Three moves play. −1 × row 1 into row 2 gives [0 −2 0 | −2]. −2 × row 1 into row 3 gives [0 −2 0 | 3]. −1 × row 2 into row 3 gives [0 0 0 | 5]. Each pair of planes crosses along a line. The three lines run side by side, and no dot appears. This plays once as the screen opens. Its still shows the three planes and their three lines, read as: a new grid, x + y + z = 3, x − y + z = 1 and 2x + 2z = 9. Its bottom row ends up 0 = 5. No point can fit that, so there is no answer. No two of these planes are parallel. Each pair crosses along a line, but the three lines run side by side and never meet.\n- 8, a puzzle. Row 3's constant changes from 9 to 4, so row 3 reads 2x + 2z = 4. The same three moves run. What constant ends the bottom row? The choices are 0, 5 and 4. Picking 5 gets the hint: that was for 9. Run the moves on the new constant. Picking 4 gets the hint: the moves change the constant too. Take 2 × 3 away, then take away −2. After Check, plane 3 slides across. The bottom row reads [0 0 0 | 0]. All three planes now pass through one line.\n- 9, a whole line. The grid from screen 8 stays, ending [0 0 0 | 0]. The shared line is drawn. A dot on it reads out x, y and z. A slider for t runs the dot along the line, from −2 to 2 in steps of 0.5. At every t, the dot's point fits all three equations. Its still is set at t = 1, with the dot on (1, 1, 1), read as: the bottom row now says 0 = 0, which every point fits. That is because row 3 is row 1 plus row 2. All three planes share the line where planes 1 and 2 cross. Each number t picks one point on it: x = 2 − t, y = 1 and z = t. At t = 1 that is (1, 1, 1).\n- 10, a puzzle. The grid [1 2 −1 | 4; 2 1 1 | 5; 3 3 0 | 9] has a determinant of 0. Before the moves run, how many answers will it have? The choices are none, exactly one, and a whole line of them. Check runs the three moves, and the grid steps down to [1 2 −1 | 4; 0 −3 3 | −3; 0 0 0 | 0]. Picking none gets the hint: the moves end 0 = 0, and every point fits that. Picking exactly one gets the hint: no row is left to pin down z, so z is free. After a right answer, the three planes swing into view, sharing one line. A dot runs along it.\n- 11, the circuit. Three loops sit in a row above the grid, in place of the planes. The loop currents I₁, I₂ and I₃ are drawn clockwise. Each end loop has 3 Ω of its own and the middle loop 6 Ω. Each pair of neighbours shares 3 Ω. 12 V drives loop 1 and 6 V drives loop 3. The grid [6 −3 0 | 12; −3 12 −3 | 0; 0 −3 6 | 6] reads out. Row 2 doubles, then row 1 adds in. Row 2 becomes [0 21 −6 | 12]. This plays once as the screen opens. Its still shows the circuit and the grid after the move, read as: three loops sit in a row. These are example figures. Each end loop has 3 Ω of its own and the middle loop 6 Ω. Each pair of neighbours shares 3 Ω. 12 V drives loop 1 and 6 V drives loop 3. Going round each loop gives one row: 6I₁ − 3I₂ = 12, −3I₁ + 12I₂ − 3I₃ = 0 and −3I₂ + 6I₃ = 6. Down the diagonal is each loop's total resistance. Off it is minus what two loops share. Double row 2 and add row 1. Multiplying a row by any number but 0 is safe. Here it turns the −3 into −6, which row 1's 6 clears. Row 2 becomes 0, 21, −6 and 12.\n- 12, a mixed puzzle. Row 2 is now [0 21 −6 | 12], and row 3 is still [0 −3 6 | 6]. Which move clears the −3 in row 3, column 2? The choices are 7 × row 3, plus row 2; row 3 plus row 2; and 2 × row 3, plus row 1. Picking row 3 plus row 2 gets the hint: that leaves 18 in column 2, not 0. Picking 2 × row 3, plus row 1 gets the hint: row 1 puts a 6 back in column 1. Use row 2, which has a 0 there. After Check, row 3 becomes [0 0 36 | 54]. The currents fill in from the bottom. I₃ = 54 ÷ 36 = 1.5 A. Then 21I₂ − 9 = 12 gives I₂ = 1 A. Then 6I₁ − 3 = 12 gives I₁ = 2.5 A. The resistor that loops 2 and 3 share shows I₂ − I₃ = −0.5 A. Its arrow shows 0.5 A, against loop 2's arrow.\n- 13, a mixed puzzle. The grid [1 1 1 | 3; 1 2 3 | 6; 2 3 4 | 10] has a determinant of 0. Clear column 1, then column 2. What does the bottom row say? The choices are 0 = 1, so no answer; 0 = 0, so a whole line; and z = 1, so exactly one. Picking 0 = 0 gets the hint: the x, y and z entries cancel, but the constants leave 4 − 3 = 1. Picking z = 1 gets the hint: a zero determinant rules out exactly one answer. After Check, the working shows [0 1 2 | 3], then [0 1 2 | 4], then [0 0 0 | 1]. The planes cross in pairs along three lines that never meet.\n\nSome screens show an idea. The rest ask you to try it. Each puzzle offers three choices. On a narrow phone they wrap onto more lines. No word splits. The row pickers, the multiplier and Add also wrap at 360 px. A wrong pick is drawn too, so you can see where it goes wrong.",
+   "ignores": "Each plane is drawn as a square patch, but it runs on for ever in every direction. The 3-D view is drawn on a flat screen, so some lengths look shorter than they are. The readouts give the true values. The circuit is ideal, with fixed resistances and no wire resistance. Its values are example figures. Every grid here keeps to whole numbers so the working stays short. Real ones rarely do. A calculator or computer runs the same moves on them.",
+   "numbers": [
+    {
+     "label": "Steps, first",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Steps, last",
+     "value": 12,
+     "kind": "control"
+    },
+    {
+     "label": "Screens in the lesson",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Equations and unknowns in each grid",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Columns in each grid, constants included",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 grid, row 1: x + y + z = 6, constant",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 grid, row 2: 2x + y − z = 1, x entry",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 grid, row 2, z entry",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 grid, row 2, constant",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 grid, row 3: x − y + 2z = 5, constant",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1 answer, x",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 answer, y",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 answer, z",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 equation x − 2z = 5, z entry",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 equation, constant",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 row, y entry for a missing y",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 multiplier on row 1",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 new row 2, y entry, 1 − 2",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 new row 2, z entry, −1 − 2",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 new row 2, constant, 1 − 12",
+     "value": -11,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3 multiplier stepper, lowest",
+     "value": -3,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 3 multiplier stepper, highest",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 4 multiplier on row 1",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 new row 3, y entry, −1 − 1",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 new row 3, z entry, 2 − 1",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 new row 3, constant, 5 − 6",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick, constant left unchanged",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 wrong pick, row 1 added: constant 5 + 6",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 multiplier on row 2",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 5 new row 3, z entry, 1 + 6",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 new row 3, constant, −1 + 22",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 row 2 with z = 3: −y − 9",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 check in the first equations: 6, 1 and 5",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 staircase, row 1: 2x + y − z = 3, constant",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 staircase, row 2: 3y + z = 5, constant",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 staircase, row 3: 2z = 4, constant",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 6 answer, z",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 answer, y",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 answer, x",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick, z term taken as +2",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 wrong pick, z term left out",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 grid, row 1: x + y + z = 3, constant",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 grid, row 2: x − y + z = 1, constant",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 grid, row 3: 2x + 2z = 9, constant",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 7 new row 2, constant, 1 − 3",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 new row 3 after −2 × row 1, constant, 9 − 6",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 bottom row's constant, 3 + 2",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 row 3's new constant",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 bottom row's constant, 4 − 6 + 2",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Determinant of the screen 7 and 8 grids",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 9 slider t, lowest",
+     "value": -2,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9 slider t, highest",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9 slider t, step",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Screen 9 still, t",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 9 line, x = 2 − t, at t = 1",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 grid, row 1: x + 2y − z = 4, constant",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 grid, row 2: 2x + y + z = 5, constant",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 grid, row 3: 3x + 3y = 9, constant",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 10 stepped row 2, y entry, 1 − 4",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 stepped row 2, z entry, 1 + 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 stepped row 2, constant, 5 − 8",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 grid's determinant",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Each end loop's own resistance, in ohms",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Middle loop's own resistance, in ohms",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Each shared resistor, in ohms",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply in loop 1, in volts",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply in loop 3, in volts",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Loop 1 total resistance, 3 + 3, in ohms",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Loop 2 total resistance, 3 + 6 + 3, in ohms",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Shared resistance entries off the diagonal, in ohms",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 multiplier on row 2",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 11 new row 2, I₂ entry, 24 − 3",
+     "value": 21,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 new row 2, I₃ entry",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 new row 2, constant, 0 + 12",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 multiplier on row 3",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 new row 3, I₃ entry, 42 − 6",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 new row 3, constant, 42 + 12",
+     "value": 54,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, row 3 plus row 2, column 2",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 wrong pick, 2 × row 3 plus row 1, column 1",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "I₃, 54 ÷ 36, in amps",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Row 2 with I₃ = 1.5: 21I₂ − 9",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "I₂, in amps",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "I₁, from 6I₁ − 3 = 12, in amps",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Shared resistor of loops 2 and 3, I₂ − I₃, in amps",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Check of the first row 2: −7.5 + 12 − 4.5",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Determinant of the circuit's resistance grid",
+     "value": 324,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 grid, row 2: x + 2y + 3z = 6, constant",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 grid, row 3: 2x + 3y + 4z = 10, constant",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 row 3 after −2 × row 1, constant, 10 − 6",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 bottom row's constant, 4 − 3",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 grid's determinant",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Cores a and b read together, in ohms",
+     "value": 0.9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cores b and c read together, in ohms",
+     "value": 0.7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Cores a and c read together, in ohms",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "a − c, 0.9 − 0.7, in ohms",
+     "value": 0.2,
+     "kind": "computed"
+    },
+    {
+     "label": "2a, 0.2 + 0.8, in ohms",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Core a, in ohms",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Core b, in ohms",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Core c, in ohms",
+     "value": 0.3,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Three equations in three unknowns can be solved in one sweep on a grid. Write each equation as a row, with x, y and z in columns 1 to 3 and the constant in a fourth column. A missing letter gets a 0. Each equation in x, y and z is also a flat plane in space. The answer is the point where all three planes meet. That is the dot in the picture. [[Gaussian elimination]] steps the grid down to a staircase, with zeros under its diagonal. The answer stays the same. Then you solve it from the bottom row up.\n\nThe tool is the row move: add a multiple of one row to another.[^1] It is the stack, scale and add move you already use, done on a grid. Here is why it never changes the answer. Say a point fits row 1 and row 2. Then each row's two sides are equal. Add equal amounts to equal amounts and they stay equal. So the point fits the new row too. Take the same multiple away again and the old row comes back. So the move lets in no new answers either. In the picture, every point where planes 1 and 2 cross fits the new row. So plane 2 swings about that line. The dot sits on that line, so it stays put. Multiplying a row by any number but 0 is safe for the same reason. Multiplying by 0 would wipe the row out. Nothing could bring it back.\n\nTake x + y + z = 6, 2x + y − z = 1 and x − y + 2z = 5. Add −2 × row 1 to row 2, and row 2 becomes 0, −1, −3 and −11. Add −1 × row 1 to row 3, and row 3 becomes 0, −2, 1 and −1. Column 1 is now clear below the top. Add −2 × row 2 to row 3, and row 3 becomes 0, 0, 7 and 21. The grid is a staircase. Its bottom row says 7z = 21, so z = 3. Row 2 says −y − 3z = −11, so −y − 9 = −11 and y = 2. Row 1 says x + y + z = 6, so x + 2 + 3 = 6 and x = 1. Working up like this is [[back-substitution]]. Put (1, 2, 3) back into the first three equations, not the stepped ones. They give 6, 1 and 5, as they should.\n\nThe finished grid also says how many answers there are. Three equations can have exactly one answer, infinitely many, or none. A bottom row of 0, 0, 0 and 5 says 0 = 5. No point fits that, so there is no answer. The planes need not be parallel for that. In the picture they cross in pairs along three lines that never meet. A bottom row of 0, 0, 0 and 0 says 0 = 0. Every point fits that. That row adds no limit. In the picture the other two planes meet along a line. Every point on that line fits all three equations. Both of those grids have a determinant of 0. A zero determinant rules out exactly one answer. Only the finished grid says whether there are none or many. Elimination is also the last step in solving the three-loop circuit. Going round each loop gives one equation in the loop currents.[^2] This works only for a circuit you can draw flat, with no wires crossing. Elimination then finds all three at once.\n\nReal systems are far bigger. A computer solves them, often with these same row moves. A ship's power network is written as a grid called the bus admittance matrix.[^3] A reactor core code builds one large grid for the core and hands it to a solver.[^4] You may also meet Cramer's rule. It finds each unknown as a ratio of two determinants. When the determinant is 0, it cannot tell none from many. The inverse of a 3 by 3 matrix comes from the same row moves, or from a calculator. Linear algebra takes all this further, with inverses by hand, rank, pivots and the fully reduced grid.\n\n**Row moves step three equations down to a staircase with the same answer. Back-substitution then solves it from the bottom up. A row reading 0 = 5 means no answer. With no such row, a row of 0 = 0 means infinitely many.**"
+  },
+  "analogy": {
+   "text": "Think of three cores in a cable, linked at the far end. You can only read two at a time, in series. Say you read 0.9 Ω for cores a and b, 0.7 Ω for b and c, and 0.8 Ω for a and c. Take the second reading from the first, and b drops out: a − c = 0.2 Ω. Add the third, and c drops out: 2a = 1.0 Ω, so a = 0.5 Ω. Then b = 0.4 Ω and c = 0.3 Ω. Each combined reading is still true, just as each row move keeps the answer.",
+   "breaks": "Real readings carry meter error and lead resistance. Combining them adds the errors up. A grid's numbers are exact. A core cannot have a negative resistance. An answer from a grid can be negative, like a loop current that flows the other way."
+  },
+  "practice": {
+   "text": "- Write each equation as a row: x, y and z in columns 1 to 3, the constant last. Put a 0 for a missing letter.\n- Use row 1 to clear column 1 in rows 2 and 3: add a multiple of row 1 to each.\n- Use the new row 2 to clear column 2 in row 3. Row 1 would put a number back in column 1.\n- If the row you clear with has a 0 in that column, first swap it with a lower row that does not. A swap is safe: the equations stay the same, just in a new order.\n- Read the rows. Any row of 0 = a number other than 0 means no answer. With no such row, a row of 0 = 0 means infinitely many. Otherwise the bottom row gives z.\n- Work up: put z into row 2 to find y, then y and z into row 1 to find x.\n- Check the answer in the first equations, not the stepped ones.\n\n**Rules of thumb:** Do to the constant whatever you do to the rest of the row. To keep whole numbers, multiply a row by a number other than 0 before you add. A determinant that is not 0 means exactly one answer. A determinant of 0 means none or many, and only the finished grid says which.\n\n**Worked example:** Three loops sit in a row. Each end loop has 3 Ω of its own, and the middle loop 6 Ω. Each pair of neighbours shares 3 Ω. 12 V drives loop 1 and 6 V drives loop 3. These are example figures. Draw all three loop currents clockwise. Going round each loop then gives 6I₁ − 3I₂ = 12, −3I₁ + 12I₂ − 3I₃ = 0 and −3I₂ + 6I₃ = 6. The grid's determinant is 324, so there is exactly one answer. Double row 2 and add row 1: 21I₂ − 6I₃ = 12. Multiply row 3 by 7 and add the new row 2: 36I₃ = 54, so I₃ = 1.5 A. Then 21I₂ − 9 = 12, so I₂ = 1 A. Then 6I₁ − 3 = 12, so I₁ = 2.5 A. Check in row 2 of the first grid: −7.5 + 12 − 4.5 = 0. The resistor that loops 2 and 3 share carries I₂ − I₃ = −0.5 A. So 0.5 A flows through it against loop 2's arrow.\n\n**Common mistakes**\n- Leaving the constant column out of a move.\n- Putting a number in the wrong column when a letter is missing.\n- Clearing column 2 with row 1. That spoils the zero in column 1.\n- Reading 0 = 0 as no answer. On its own it means many answers.\n- Reading a zero determinant as no answer. It can mean many.\n- Checking only in the stepped grid. A slip in a move then goes unseen."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "7.6 Solving Systems with Gaussian Elimination - College Algebra with Corequisite Support | OpenStax",
+    "url": "https://openstax.org/books/college-algebra-corequisite-support/pages/7-6-solving-systems-with-gaussian-elimination",
+    "quote": "Add a nonzero multiple of one row to another row."
+   },
+   {
+    "n": 2,
+    "title": "HELM Workbook 8: Matrix solution of equations",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf",
+    "quote": "By breaking down a complicated system into simple loops, Kirchhoff’s law can be applied. This leads to a set of linear equations in the unknown quantities (usually currents)"
+   },
+   {
+    "n": 3,
+    "title": "Power system analysis lecture notes SEE1302 (Sathyabama, SECONDARY)",
+    "url": "https://sist.sathyabama.ac.in/sist_coursematerial/uploads/SEE1302.pdf",
+    "quote": "The matrix consisting of the self and mutual admittance of the network of a power system is called Bus admittance matrix"
+   },
+   {
+    "n": 4,
+    "title": "GitHub - imronuke/KOMODO: Open Nodal Core Simulator",
+    "url": "https://github.com/imronuke/KOMODO",
+    "quote": "CMFD matrix is solved with the latest linear system solver: BiCGSTAB"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  /* The grid: header letters, brackets, the bar before the constants, a lit row, the staircase. */\n  .scene .brk, .scene .bar { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .lit { fill: var(--k-hl); }\n  .scene .stair { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }\n  .scene .hd { font: italic 600 15px var(--k-font); fill: var(--k-accent); }\n  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }\n  .scene .en.ok { fill: var(--k-accent2); }\n  .scene .en.bad { fill: var(--k-warn); }\n  .scene .en.wk { fill: var(--k-accent); }\n  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }\n  .scene .q.bad { fill: var(--k-warn); }\n  /* Row and plane badges: a ring in the plane's colour round the row's number. */\n  .scene .bdg { fill: var(--k-bg); stroke-width: 2.4; }\n  .scene .bdg.p1 { stroke: var(--k-cat1); }\n  .scene .bdg.p2 { stroke: var(--k-cat2); }\n  .scene .bdg.p3 { stroke: var(--k-cat3); }\n  .scene .bdg.plain { stroke: var(--k-muted); }\n  .scene .bdg.bad { stroke: var(--k-warn); }\n  .scene .bn { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  /* The 3-D view: the planes, where they cross, the dot, the x, y and z arrows. */\n  .scene .pl { stroke-width: 1.8; fill-opacity: .2; stroke-linejoin: round; }\n  .scene .pl.p1 { fill: var(--k-cat1); stroke: var(--k-cat1); }\n  .scene .pl.p2 { fill: var(--k-cat2); stroke: var(--k-cat2); }\n  .scene .pl.p3 { fill: var(--k-cat3); stroke: var(--k-cat3); }\n  .scene .pl.bad { fill: var(--k-warn); fill-opacity: .1; stroke: var(--k-warn); stroke-dasharray: 6 4; }\n  .scene .hinge, .scene .pair { stroke: var(--k-ink); stroke-width: 2.4; stroke-linecap: round; }\n  .scene .shared { stroke: var(--k-accent2); stroke-width: 3.6; stroke-linecap: round; }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot.bad { fill: var(--k-warn); }\n  .scene .pill { fill: var(--k-bg); }\n  .scene .ax .sh { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; }\n  .scene .ax .ah { fill: var(--k-muted); }\n  .scene .axl { font: italic 600 13px var(--k-font); fill: var(--k-muted); }\n  /* The circuit: wires, resistors, cells, loop currents. */\n  .scene .wire { stroke: var(--k-ink); stroke-width: 2; fill: none; }\n  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .scene .plate { stroke: var(--k-ink); stroke-width: 2.2; }\n  .scene .plate.sp { stroke-width: 4.5; }\n  .scene .loop { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .loophd { fill: var(--k-accent2); }\n  .scene .arr .sh { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .scene .arr .ah { fill: var(--k-accent2); }\n  /* Words and numbers. */\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tg { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .big { font: 600 20px var(--k-font); fill: var(--k-ink); }\n  .scene .big.s16 { font-size: 16px; }\n  .scene .big.s14 { font-size: 14px; }\n  .scene .big.q { fill: var(--k-muted); }\n  .scene .big.ok { fill: var(--k-accent2); }\n  .scene .big.bad { fill: var(--k-warn); }\n  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .ln.sm2 { font-size: 13px; }\n  .scene .ln.sm3 { font-size: 12px; }\n  .scene .ln.ok { fill: var(--k-accent2); }\n  .scene .ln.bad { fill: var(--k-warn); }\n  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lb.bad { fill: var(--k-warn); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene tspan.v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }\n  .scene .turn:focus { outline: none; }\n  /* Row moves: two row pickers side by side when they fit, then the multiplier, then Add and Reset. */\n  .moves { display: grid; gap: 10px; }\n  .moves .pair2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 10px; }\n  .moves .pair2 > div { min-width: 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">On top, a grid of three equations. Below it, the three flat planes they make in 3-D, and later a circuit with example values.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 420\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <p class=\"act\" id=\"act\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"moves\" id=\"moves\">\n      <div class=\"pair2\"><div id=\"tgtBox\"></div><div id=\"srcBox\"></div></div>\n      <div id=\"multBox\"></div>\n      <div class=\"row\" id=\"moveBtns\"></div>\n    </div>\n    <div id=\"tbox\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A row move never changes the answer, and the finished grid says how many answers there are.</p>\n\n<script>\n  // ---------- numbers and words (pure, so the checks can test them) ----------\n  const MINUS = '−', NB = ' ';\n  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }\n  const paren = (v) => (v < 0 ? '(' + num(v) + ')' : num(v));\n  const pt = (v) => '(' + v.map(num).join(', ') + ')';\n  const toNum = (t) => +String(t).trim().replace(MINUS, '-');\n  const rowTxt = (r) => '[' + r.slice(0, 3).map(num).join(' ') + ' | ' + num(r[3]) + ']';\n  const parseRow = (s) => { const p = String(s).replace(/[[\\]]/g, '').split('|'); return p[0].trim().split(/\\s+/).map(toNum).concat([toNum(p[1])]); };\n  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/[[\\]]/g, '').replace(/\\|/g, ', ').replace(/−/g, ' minus ')\n    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/Ω/g, ' ohms')\n    .replace(/₁/g, ' 1').replace(/₂/g, ' 2').replace(/₃/g, ' 3').replace(/\\s+/g, ' ').trim();\n  const HEAD = ['x', 'y', 'z'], IHEAD = ['I₁', 'I₂', 'I₃'];\n  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);\n  // \"2x + y − z\", leaving out letters whose number is 0.\n  function termsTxt(c, nm) {\n    const parts = [];\n    c.forEach((a, k) => {\n      if (Math.abs(a) < 1e-9) return;\n      const s = (near(Math.abs(a), 1) ? '' : num(Math.abs(a))) + nm[k];\n      parts.push(parts.length ? (a < 0 ? ' − ' : ' + ') + s : (a < 0 ? MINUS : '') + s);\n    });\n    return parts.join('');\n  }\n  const eqTxt = (r, nm) => (termsTxt(r.slice(0, 3), nm || HEAD) || '0') + ' = ' + num(r[3]);\n  // Every letter written, a missing one with its 0: \"x + 0y − 2z = 5\".\n  const fullEq = (r) => r.slice(0, 3).map((a, k) => { const s = (near(Math.abs(a), 1) ? '' : num(Math.abs(a))) + HEAD[k]; return k === 0 ? (a < 0 ? MINUS : '') + s : (a < 0 ? ' − ' : ' + ') + s; }).join('') + ' = ' + num(r[3]);\n  const signed = (v) => (v < 0 ? ' − ' : ' + ') + num(Math.abs(v));\n  const moveLabel = (mv) => (mv.m === 1 ? '' : num(mv.m) + ' × ') + 'row ' + (mv.sr + 1);\n  // A point put into a row: \"2 × 1 + 2 × 1 = 4\".\n  function subLine(r, p) {\n    const parts = [];\n    [0, 1, 2].forEach((k) => {\n      const a = r[k];\n      if (Math.abs(a) < 1e-9) return;\n      const s = near(Math.abs(a), 1) ? paren(p[k]) : num(Math.abs(a)) + ' × ' + paren(p[k]);\n      parts.push(parts.length ? (a < 0 ? ' − ' : ' + ') + s : (a < 0 ? MINUS : '') + s);\n    });\n    return parts.join('') + ' = ' + num(r[0] * p[0] + r[1] * p[1] + r[2] * p[2]);\n  }\n\n  // ---------- the rule ----------\n  // A row [a b c | d] is the equation ax + by + cz = d, a flat plane. A row move adds m times row sr\n  // to row tg. A point that fits both rows fits the new one, and taking m times row sr away again\n  // brings the old row back, so the answers never change. Clearing column 1, then column 2, leaves a\n  // staircase, solved from the bottom row up.\n  const add = (p, q) => p.map((x, k) => x + q[k]);\n  const sub = (p, q) => p.map((x, k) => x - q[k]);\n  const scl = (p, s) => p.map((x) => x * s);\n  const dot = (p, q) => p[0] * q[0] + p[1] * q[1] + p[2] * q[2];\n  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];\n  const norm = (p) => Math.sqrt(dot(p, p));\n  const unit = (p) => scl(p, 1 / (norm(p) || 1));\n  const samePt = (a, b, t) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k], t || 1e-9));\n  const sameM = (P, Q) => !!P && !!Q && P.length === Q.length && P.every((r, i) => samePt(r, Q[i]));\n  const det3 = (M) => M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);\n  // The one point that fits all three rows, or null when there is not exactly one.\n  function solve3(M) {\n    const A = M.map((r) => r.slice(0, 3)), D = det3(A);\n    if (Math.abs(D) < 1e-9) return null;\n    return [0, 1, 2].map((j) => det3(A.map((r, i) => r.map((x, k) => (k === j ? M[i][3] : x)))) / D);\n  }\n  const rowMove = (M, mv) => M.map((r, i) => (i === mv.tg ? r.map((x, k) => x + mv.m * M[mv.sr][k]) : r.slice()));\n  const scaleRow = (M, i, m) => M.map((r, k) => (k === i ? r.map((x) => x * m) : r.slice()));\n  const seqOf = (M, moves) => moves.reduce((out, mv) => out.concat([rowMove(out[out.length - 1], mv)]), [M]);\n  const fits = (r, p) => near(r[0] * p[0] + r[1] * p[1] + r[2] * p[2], r[3], 1e-7);\n  const lerpRow = (a, b, e) => (e >= 1 ? b.slice() : e <= 0 ? a.slice() : a.map((x, k) => x + (b[k] - x) * e));\n  // A staircase solved from the bottom row up.\n  function backSolve(M) { const s = [0, 0, 0]; for (let i = 2; i >= 0; i--) { let r = M[i][3]; for (let k = i + 1; k < 3; k++) r -= M[i][k] * s[k]; s[i] = r / M[i][i]; } return s; }\n  function backLines(M, nm, unitTxt) {\n    const s = backSolve(M), out = [];\n    for (let i = 2; i >= 0; i--) {\n      let lhs = termsTxt([0, 1, 2].map((k) => (k === i ? M[i][k] : 0)), nm);\n      for (let k = i + 1; k < 3; k++) if (Math.abs(M[i][k]) > 1e-9) lhs += signed(M[i][k] * s[k]);\n      out.push(lhs + ' = ' + num(M[i][3]) + ', so ' + nm[i] + ' = ' + num(s[i]) + (unitTxt || ''));\n    }\n    return out;\n  }\n  // A stepped grid whose bottom row is all zeros: y and x for any z (row 2 gives y, row 1 gives x).\n  function onLine(M, z) { const y = (M[1][3] - M[1][2] * z) / M[1][1]; return [(M[0][3] - M[0][1] * y - M[0][2] * z) / M[0][0], y, z]; }\n  // Where two planes cross: the point on that line nearest C, and its direction; null if they never cross.\n  function meet2(r1, r2, C) {\n    const n1 = r1.slice(0, 3), n2 = r2.slice(0, 3), dd = cross(n1, n2);\n    if (norm(dd) < 1e-9 * Math.max(1, norm(n1) * norm(n2))) return null;\n    const p = solve3([n1.concat([r1[3]]), n2.concat([r2[3]]), dd.concat([dot(dd, C)])]);\n    return p ? { p, d: unit(dd) } : null;\n  }\n\n  // ---------- the lesson's values ----------\n  const A1 = [[1, 1, 1, 6], [2, 1, -1, 1], [1, -1, 2, 5]];\n  const MV1 = { tg: 1, sr: 0, m: -2 }, MV2 = { tg: 2, sr: 0, m: -1 }, MV3 = { tg: 2, sr: 1, m: -2 };\n  const A2 = rowMove(A1, MV1), A3 = rowMove(A2, MV2), A4 = rowMove(A3, MV3);\n  const SOL1 = solve3(A1);\n  const ROW2 = [1, 0, -2, 5];\n  const S6 = [[2, 1, -1, 3], [0, 3, 1, 5], [0, 0, 2, 4]], SOL6 = backSolve(S6);\n  const N1 = [[1, 1, 1, 3], [1, -1, 1, 1], [2, 0, 2, 9]], N2 = [[1, 1, 1, 3], [1, -1, 1, 1], [2, 0, 2, 4]];\n  const NMOVES = [{ tg: 1, sr: 0, m: -1 }, { tg: 2, sr: 0, m: -2 }, { tg: 2, sr: 1, m: -1 }];\n  const N1S = seqOf(N1, NMOVES)[3], N2S = seqOf(N2, NMOVES)[3];\n  const M10 = [[1, 2, -1, 4], [2, 1, 1, 5], [3, 3, 0, 9]];\n  const M10MOVES = [{ tg: 1, sr: 0, m: -2 }, { tg: 2, sr: 0, m: -3 }, { tg: 2, sr: 1, m: -1 }];\n  const M10S = seqOf(M10, M10MOVES)[3];\n  const Q1 = [[1, 1, 1, 3], [1, 2, 3, 6], [2, 3, 4, 10]];\n  const QMOVES = [{ tg: 1, sr: 0, m: -1 }, { tg: 2, sr: 0, m: -2 }, { tg: 2, sr: 1, m: -1 }];\n  const QS = seqOf(Q1, QMOVES)[3];\n  // The three-loop circuit (example figures): each loop's own resistance, the one each pair of\n  // neighbours shares, and the supply in each loop. Going round a loop gives one row.\n  const OWN = [3, 6, 3], SH = 3, VS = [12, 0, 6];\n  const RG = [[OWN[0] + SH, -SH, 0, VS[0]], [-SH, OWN[1] + 2 * SH, -SH, VS[1]], [0, -SH, OWN[2] + SH, VS[2]]];\n  const RGD = scaleRow(RG, 1, 2), C1 = rowMove(RGD, { tg: 1, sr: 0, m: 1 });\n  const C1X7 = scaleRow(C1, 2, 7), C2 = rowMove(C1X7, { tg: 2, sr: 1, m: 1 });\n  const C1W2 = rowMove(C1, { tg: 2, sr: 1, m: 1 }), C1W1 = rowMove(scaleRow(C1, 2, 2), { tg: 2, sr: 0, m: 1 });\n  const AMPS = backSolve(C2), I23 = AMPS[1] - AMPS[2];\n  const MULTS = [-3, -2, -1, 1, 2, 3];\n  const FIRST = 'The planes of the first three equations';\n  const TAG9 = 'Plane 3 is still ' + eqTxt(N1[2]), TAG4 = 'Plane 3 is now ' + eqTxt(N2[2]);\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // dur: a SHOW step's demonstration. act: what he can do with the picture. work: a working line under\n  // the grid; rows: worked lines; view: the 3-D view (first: its planes are the first equations');\n  // legend: a key under the view. A puzzle: task, opts, want, hints (one per wrong answer), slips\n  // (the red line drawn for each), why, fb (seconds of motion after a right and a wrong answer).\n  const PICK = 'Tap one of the answers.';\n  const TURN = 'Drag the picture sideways to turn it.';\n  const STEPS = [\n    { show: true, key: 'grid', name: 'Planes and rows', dur: 3.0, view: true, act: TURN,\n      text: 'Each equation in x, y and z is a flat plane. Each one also makes one row of the grid. The last column holds the constant. The answer is the point where all three planes meet, here `(1, 2, 3)`.' },\n    { kind: 'pick', key: 'row', name: 'Write the row', work: true, rows: 1, fb: [1.3, 0.7],\n      task: 'Which row is `x − 2z = 5`?',\n      opts: ['[1 0 −2 | 5]', '[1 −2 0 | 5]', '[1 −2 | 5]'], want: '[1 0 −2 | 5]',\n      hints: { '[1 −2 0 | 5]': 'Not quite. Column 2 is for y. The −2 belongs to z, in column 3.', '[1 −2 | 5]': 'Not quite. Every row needs a place for x, y and z. A missing letter gets a 0.' },\n      slips: { '[1 −2 0 | 5]': 'That puts −2 under y, so it says x − 2y = 5', '[1 −2 | 5]': 'Two numbers cannot fill three columns' },\n      why: 'Write the number in front of x, then y, then z, then the constant. There is no y, so it gets a 0. That gives `[1 0 −2 | 5]`.' },\n    { show: true, key: 'move', name: 'A row move', dur: 3.2, work: true, view: true, legend: true,\n      act: 'Pick two rows and a multiplier, then press Add. ' + TURN,\n      still: () => { S[2] = blank(); T = Infinity; K.refresh(); },\n      text: 'A *row move* adds a multiple of one row to another. Here −2 × row 1 goes into row 2. Row 2 becomes 0, −1, −3 and −11. Plane 2 swings about the line it shares with plane 1. So it still passes through the dot at `(1, 2, 3)`.',\n      read: 'A row move adds a multiple of one row to another. Here −2 × row 1 goes into row 2. Row 2 becomes 0, −1, −3 and −11. Plane 2 swings about the line it shares with plane 1. So it still passes through the dot at `(1, 2, 3)`.' },\n    { kind: 'pick', key: 'clear1', name: 'Clear column 1', work: true, rows: 1, view: true, legend: true, fb: [1.9, 1.6],\n      task: 'Add −1 × row 1 to row 3. What does row 3 become?',\n      opts: ['[0 −2 1 | −1]', '[0 −2 1 | 5]', '[2 0 3 | 11]'], want: '[0 −2 1 | −1]',\n      hints: { '[0 −2 1 | 5]': 'Not quite. The constant column changes too.', '[2 0 3 | 11]': 'Not quite. That adds row 1. −1 lots of row 1 takes it away.' },\n      slips: { '[0 −2 1 | 5]': 'The constant stayed 5, so plane 3 misses the dot', '[2 0 3 | 11]': 'Adding row 1 leaves 2 in column 1' },\n      why: '−1 × row 1 is −1, −1, −1 and −6. Add it to row 3, entry by entry. 1 − 1 = 0, −1 − 1 = −2, 2 − 1 = 1 and 5 − 6 = −1.' },\n    { show: true, key: 'stair', name: 'The staircase', dur: 4.5, work: true, rows: 3, view: true, legend: true, act: TURN,\n      text: 'Add −2 × row 2 to row 3, and the grid becomes a *staircase*. It has zeros under its diagonal. Read it from the bottom up: 7z = 21, so z = 3. Then −y − 9 = −11 gives y = 2. Last, x + 2 + 3 = 6 gives x = 1.',\n      read: 'Add −2 × row 2 to row 3, and the grid becomes a staircase. It has zeros under its diagonal. Read it from the bottom up: 7z = 21, so z = 3. Then −y − 9 = −11 gives y = 2. Last, x + 2 + 3 = 6 gives x = 1.' },\n    { kind: 'pick', key: 'back', name: 'From the bottom up', rows: 3, view: true, fb: [1.6, 1.1],\n      task: 'This staircase is finished. What is x?',\n      opts: ['2', '0', '1'], want: '2',\n      hints: { 0: 'Not quite. Row 1\\'s z entry is −1, so its z term is −2, not +2.', 1: 'Not quite. Row 1 has a z term too. Put in z as well as y.' },\n      slips: { 0: '2x + 1 + 2 = 3, so x = 0', 1: '2x + 1 = 3, so x = 1' },\n      why: 'Start at the bottom. 2z = 4, so z = 2. Then 3y + 2 = 5, so y = 1. Last, 2x + 1 − 2 = 3, so x = 2.' },\n    { show: true, key: 'none', name: 'No common point', dur: 4.6, work: true, view: true, first: true, legend: true, act: TURN,\n      text: 'A new grid: `x + y + z = 3`, `x − y + z = 1` and `2x + 2z = 9`. Its bottom row ends up 0 = 5. No point can fit that, so there is no answer. No two of these planes are parallel. Each pair crosses along a line, but the three lines run side by side and never meet.' },\n    { kind: 'pick', key: 'zero', name: 'Change one constant', work: true, rows: 1, view: true, first: true, legend: true, fb: [2.2, 0.5],\n      task: 'Row 3\\'s constant changes from 9 to 4, so row 3 reads `2x + 2z = 4`. The same three moves run. What constant ends the bottom row?',\n      opts: ['0', '5', '4'], want: '0',\n      hints: { 5: 'Not quite. That was for 9. Run the moves on the new constant.', 4: 'Not quite. The moves change the constant too. Take 2 × 3 away, then take away −2.' },\n      slips: { 5: 'With 9, the moves ended 0 = 5', 4: 'The moves change the constant too' },\n      why: '−2 × row 1 takes 2 × 3 = 6 from the constant, leaving 4 − 6 = −2. Then −1 × row 2 takes away row 2\\'s −2, leaving 0. So the bottom row says 0 = 0.' },\n    { show: true, key: 'line', name: 'A whole line', dur: 3.1, rows: 3, view: true, first: true, legend: true,\n      act: 'Slide t to run the dot along the line. ' + TURN, still: { t: 1 },\n      text: 'The bottom row now says 0 = 0, which every point fits. That is because row 3 is row 1 plus row 2. All three planes share the line where planes 1 and 2 cross. Each number t picks one point on it: `x = 2 − t`, `y = 1` and `z = t`.',\n      read: 'The bottom row now says 0 = 0, which every point fits. That is because row 3 is row 1 plus row 2. All three planes share the line where planes 1 and 2 cross. Each number t picks one point on it: `x = 2 − t`, `y = 1` and `z = t`. At t = 1 that is `(1, 1, 1)`.' },\n    { kind: 'pick', key: 'many', name: 'How many answers?', work: true, rows: 1, view: true, first: true, legend: true, fb: [2.9, 1.6],\n      task: 'This grid has a determinant of 0. Guess before the moves run: how many answers does it have?',\n      opts: ['None', 'Exactly one', 'A whole line'], want: 'A whole line',\n      hints: { None: 'Not quite. The moves end 0 = 0, and every point fits that.', 'Exactly one': 'Not quite. No row is left to pin down z, so z is free.' },\n      slips: { None: '0 = 0 is true for every point', 'Exactly one': 'No row is left to pin down z' },\n      why: 'The moves end 0 = 0, which every point fits. Row 2 gives y = 1 + z. Row 1 then gives x = 2 − z. Each z gives one point, so the answers fill a whole line. The determinant alone could not tell you that.' },\n    { show: true, key: 'circuit', name: 'The circuit', dur: 3.9, circuit: true, work: true,\n      text: 'Three loops sit in a row, with example figures. Going round each loop gives one row: `6I₁ − 3I₂ = 12`, `−3I₁ + 12I₂ − 3I₃ = 0` and `−3I₂ + 6I₃ = 6`. The diagonal is each loop\\'s total resistance. Off it is minus the shared 3 Ω. Doubling row 2 makes its −3 a −6, which row 1 clears. Any multiplier but 0 is safe. Row 2 becomes 0, 21, −6 and 12.',\n      read: 'As an example, each end loop owns 3 Ω and the middle 6 Ω. 12 V drives loop 1 and 6 V loop 3. Going round each loop gives one row: `6I₁ − 3I₂ = 12`, `−3I₁ + 12I₂ − 3I₃ = 0` and `−3I₂ + 6I₃ = 6`. The diagonal is each loop\\'s total resistance. Off it is minus the shared 3 Ω. Doubling row 2 makes its −3 a −6, which row 1 clears. Any multiplier but 0 is safe. Row 2 becomes 0, 21, −6 and 12.' },\n    { kind: 'pick', key: 'clear2', name: 'Mixed: clear column 2', circuit: true, work: true, rows: 3, fb: [2.6, 1.0],\n      task: 'Row 2 is now `[0 21 −6 | 12]`, and row 3 is still `[0 −3 6 | 6]`. Which move clears the −3 in row 3, column 2?',\n      opts: ['7 × row 3, plus row 2', 'Row 3 plus row 2', '2 × row 3, plus row 1'], want: '7 × row 3, plus row 2',\n      hints: { 'Row 3 plus row 2': 'Not quite. That leaves 18 in column 2, not 0.', '2 × row 3, plus row 1': 'Not quite. Row 1 puts a 6 back in column 1. Use row 2, which has a 0 there.' },\n      slips: { 'Row 3 plus row 2': '18 is left in column 2, not 0', '2 × row 3, plus row 1': 'Row 1 puts a 6 back in column 1' },\n      why: '7 × row 3 is 0, −21, 42 and 42. Adding row 2 gives 0, 0, 36 and 54. So 36I₃ = 54 and I₃ = 1.5 A. Then I₂ = 1 A and I₁ = 2.5 A. The resistor loops 2 and 3 share carries I₂ − I₃ = −0.5 A. So 0.5 A flows against loop 2\\'s arrow.' },\n    { kind: 'pick', key: 'nomeet', name: 'Mixed: the bottom row', work: true, rows: 1, view: true, first: true, legend: true, fb: [2.1, 0.5],\n      task: 'This grid has a determinant of 0. Clear column 1, then column 2. What does the bottom row say?',\n      opts: ['0 = 1, so no answer', '0 = 0, so a whole line', 'z = 1, so exactly one'], want: '0 = 1, so no answer',\n      hints: { '0 = 0, so a whole line': 'Not quite. The x, y and z entries cancel, but the constants leave 4 − 3 = 1.', 'z = 1, so exactly one': 'Not quite. A zero determinant rules out exactly one answer.' },\n      slips: { '0 = 0, so a whole line': 'The constants leave 4 − 3 = 1, not 0', 'z = 1, so exactly one': 'A zero determinant rules out exactly one answer' },\n      why: '−1 × row 1 into row 2 gives 0, 1, 2 and 3. −2 × row 1 into row 3 gives 0, 1, 2 and 4. Then −1 × row 2 into row 3 gives 0, 0, 0 and 1. That says 0 = 1, which no point fits.' },\n  ];\n  const FINISH = 'Row moves step three equations down to a staircase with the same answer. Back-substitution then solves it from the bottom up. A row reading 0 = 5 means no answer. With no such row, a row of 0 = 0 means infinitely many.';\n  // Sources the checks restate (the lesson's own).\n  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf';\n  const OPENSTAX = 'https://openstax.org/books/college-algebra-corequisite-support/pages/7-6-solving-systems-with-gaussian-elimination';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const MOVE = STEPS.findIndex((d) => d.key === 'move'), LINE = STEPS.findIndex((d) => d.key === 'line');\n\n  // ---------- the 3-D view: a true view (never mirrored), turned by al, tipped by BE ----------\n  const RAD = Math.PI / 180, AL = 35, BE = 22, SWING = 35, PH = 236, AW = 330, RX = 280, CH = 132, GXC = 56;\n  function viewOf(al) { const a = al * RAD, b = BE * RAD; return { sa: Math.sin(a), ca: Math.cos(a), sb: Math.sin(b), cb: Math.cos(b) }; }\n  const prj = (V, w) => [-V.sa * w[0] + V.ca * w[1], V.sb * V.ca * w[0] + V.sb * V.sa * w[1] - V.cb * w[2]];\n  const towards = (V) => [V.ca * V.cb, V.sa * V.cb, V.sb];\n  // Each plane is drawn as a square patch round the point of it nearest the view's centre C.\n  const WG = unit([0.25, 0.35, 1]);\n  function patchOf(r, C, h, W) {\n    const n = r.slice(0, 3), L2 = dot(n, n);\n    if (L2 < 1e-12) return null;\n    const foot = sub(C, scl(n, (dot(n, C) - r[3]) / L2));\n    let u = cross(n, W || WG);\n    if (norm(u) < 1e-6 * Math.sqrt(L2)) u = cross(n, [1, 0, 0]);\n    u = unit(u);\n    return { c: foot, u, v: unit(cross(n, u)), h };\n  }\n  const cornersOf = (P) => [[1, 1], [-1, 1], [-1, -1], [1, -1]].map((s) => add(P.c, add(scl(P.u, s[0] * P.h), scl(P.v, s[1] * P.h))));\n  // The part of a line that lies inside every patch given.\n  function clipLine(m, pats) {\n    let lo = -Infinity, hi = Infinity;\n    pats.forEach((P) => [P.u, P.v].forEach((ax) => {\n      const a = dot(sub(m.p, P.c), ax), b = dot(m.d, ax);\n      if (Math.abs(b) < 1e-12) { if (Math.abs(a) > P.h) { lo = Infinity; hi = -Infinity; } return; }\n      let t1 = (-P.h - a) / b, t2 = (P.h - a) / b;\n      if (t1 > t2) { const s = t1; t1 = t2; t2 = s; }\n      lo = Math.max(lo, t1); hi = Math.min(hi, t2);\n    }));\n    return lo < hi ? [add(m.p, scl(m.d, lo)), add(m.p, scl(m.d, hi))] : null;\n  }\n  // The middle of three side-by-side lines, level with P0 along them.\n  const centreOf = (M, P0) => scl([[0, 1], [0, 2], [1, 2]].map((q) => meet2(M[q[0]], M[q[1]], P0).p).reduce(add), 1 / 3);\n  const lineDir = (M) => unit(cross(M[0].slice(0, 3), M[1].slice(0, 3)));\n  const CN = centreOf(N1, onLine(N2S, 0)), DN = lineDir(N1);\n  const C10 = onLine(M10S, 0), D10 = lineDir(M10);\n  const CQ = centreOf(Q1, meet2(Q1[0], Q1[1], [0, 0, 0]).p), DQ = lineDir(Q1);\n  // A turn of the view that looks about `deg` degrees off a line's direction: about 30 where three\n  // lines run side by side (the triangle they make shows), about 50 where all three planes share one\n  // line (the line stays long and the planes fan round it).\n  function alFor(dir, deg) {\n    let best = AL, bestE = Infinity;\n    for (let a = 0; a < 360; a++) {\n      const th = Math.acos(Math.min(1, Math.abs(dot(towards(viewOf(a)), dir)))) / RAD, e = Math.abs(th - deg);\n      if (e < bestE - 1e-9) { bestE = e; best = a; }\n    }\n    return best;\n  }\n  const VA = { C: SOL1, h: 2.2, W: WG, al0: AL - 30 };\n  const VIEWS = {\n    grid: Object.assign({ sets: [A1] }, VA),\n    move: Object.assign({ sets: [A1, A2] }, VA),\n    clear1: Object.assign({ sets: [A2, A3, [A2[0], A2[1], parseRow(STEPS[3].opts[1])], [A2[0], A2[1], parseRow(STEPS[3].opts[2])]] }, VA),\n    stair: Object.assign({ sets: [A3, A4] }, VA),\n    back: { C: SOL6, h: 2.2, W: WG, sets: [S6], pts: [[0, 1, 2], [1, 1, 2]] },\n    none: { C: CN, h: 3.2, W: DN, sets: [N1], al0: alFor(DN, 30) },\n    zero: { C: CN, h: 3.2, W: DN, sets: [N1, N2], al0: alFor(DN, 30) },\n    line: { C: CN, h: 3.2, W: DN, sets: [N2], pts: [onLine(N2S, -2), onLine(N2S, 2)], al0: alFor(DN, 50) },\n    many: { C: C10, h: 2.6, W: D10, sets: [M10], pts: [onLine(M10S, -1), onLine(M10S, 1)], al0: alFor(D10, 50) },\n    nomeet: { C: CQ, h: 2.4, W: DQ, sets: [Q1], al0: alFor(DQ, 30) },\n  };\n  // Each view's scale: every patch it can show stays inside the picture, however it is turned.\n  STEPS.forEach((d) => {\n    const vw = VIEWS[d.key];\n    if (!vw) return;\n    let R = 0;\n    vw.sets.forEach((M) => M.forEach((r) => {\n      const n = r.slice(0, 3), L2 = dot(n, n);\n      if (L2 < 1e-12) return;\n      const dist = Math.abs(dot(n, vw.C) - r[3]) / Math.sqrt(L2);\n      R = Math.max(R, Math.sqrt(dist * dist + 2 * vw.h * vw.h));\n    }));\n    (vw.pts || []).forEach((p) => { R = Math.max(R, norm(sub(p, vw.C)) + 0.4); });\n    Object.assign(d, { C: vw.C, h: vw.h, W: vw.W, R, u: (Math.min(AW, PH) / 2 - 8) / R, al0: vw.al0 != null ? vw.al0 : AL });\n  });\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. al: how far he has turned\n  // the view. M, prev, last, msg: the row-move screen's grid, the grid before his last move, that move\n  // and a note about it (M is null while the demonstration sets the grid).\n  function blank() { return { pick: null, res: null, why: false, al: null, M: null, prev: null, last: null, msg: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, tNow = 1, lastT = null;\n  let REC = null, GEO = null;\n  const el = (id) => document.getElementById(id);\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[xyzt](?![A-Za-z₁₂₃]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) {\n        // A grid is kept whole row by row, and may break after a semicolon.\n        seg.split('; ').forEach((piece, j, all) => italics(node.appendChild(K.el('span', { class: 'nw' })), piece + (j < all.length - 1 ? ';' : ''), false) || (j < all.length - 1 && node.appendChild(document.createTextNode(' '))));\n        return;\n      }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);\n        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) italics(node, seg.slice(at0), false);\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const rowOpts = [1, 2, 3].map((v) => ({ value: v, label: String(v) }));\n  const tgtC = K.choice({ id: 'tgt', label: 'Row to change', options: rowOpts, value: 3, into: '#tgtBox' });\n  const srcC = K.choice({ id: 'src', label: 'Row to add', options: rowOpts, value: 2, into: '#srcBox' });\n  const multC = K.choice({ id: 'mult', label: 'Multiplier', options: MULTS.map((v) => ({ value: v, label: num(v) })), value: 1, into: '#multBox' });\n  const addBtn = K.button({ label: 'Add', into: '#moveBtns', press: () => {\n    const i = at(), st = S[i];\n    if (i !== MOVE || finished) return;\n    const tg = tgtC.get() - 1, sr = srcC.get() - 1, m = multC.get();\n    if (tg === sr) { st.msg = 'Pick two different rows: one to change and one to add.'; return; }\n    const from = st.M || A2, to = rowMove(from, { tg, sr, m });\n    if (to.some((r) => r.some((x) => Math.abs(x) > 99))) { st.msg = 'That move makes numbers too big to draw. Press Reset to start again.'; return; }\n    st.prev = from; st.M = to; st.last = { tg, sr, m }; st.msg = null;\n    play(1.5);\n  } });\n  K.button({ label: 'Reset', secondary: true, into: '#moveBtns', press: () => {\n    const i = at(), st = S[i];\n    if (i !== MOVE || finished) return;\n    anim.pause(); T = Infinity;\n    st.M = A1.map((r) => r.slice()); st.prev = null; st.last = null; st.msg = null;\n  } });\n  const tCtl = K.control({ id: 't', label: 'Along the line, t', min: -2, max: 2, step: 0.5, value: 1, fmt: (v) => num(v), into: '#tbox' });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    if (i === MOVE) S[i] = blank();\n    play(d.dur);\n  } });\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer or a move; with reduced\n  // motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null;\n  const put = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? 0.4 : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = put(K.svg('g'));\n    K.fade(g, Math.min(1, a), rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx0) => put(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx0 || 0) }));\n  const line = (cls, x1, y1, x2, y2) => put(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, x, y, r) => put(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));\n  const pathEl = (cls, d) => put(K.svg('path', { class: cls, d }));\n  const polyD = (ps) => 'M' + ps.map((p) => r3(p[0]) + ' ' + r3(p[1])).join(' L') + ' Z';\n  const nb = (s) => String(s).replace(/ /g, NB);\n  // Entries sit on highlight bands and badges on their own rings, so they carry no halo.\n  function text(x, y, s, cls, anchor) {\n    const plain = /^(en|q|bn)\\b/.test(cls);\n    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    italics(t, nb(s), true);\n    REC.texts.push(String(s));\n    return put(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8.5;\n  }\n  const fitCls = (s, list, room) => list.find((c) => tw(s, c) <= room) || list[list.length - 1];\n  const fitText = (x, y, s, cls) => text(x, y, s, cls + ({ 0: '', 1: ' sm2', 2: ' sm3' })[[cls, cls + ' sm2', cls + ' sm3'].findIndex((c, k) => k === 2 || tw(s, c) <= 322)]);\n  // An arrow from a to b (drawing units).\n  function arrow(a, b, cls) {\n    const g = put(K.svg('g', { class: cls }));\n    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);\n    if (L < 1) return g;\n    const ux = dx / L, uy = dy / L, hl = Math.min(10, L * 0.5), hw = hl * 0.55, bx = b[0] - ux * hl, by = b[1] - uy * hl;\n    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));\n    g.appendChild(K.svg('path', { class: 'ah', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n    return g;\n  }\n  function badge(x, y, s, cls) { circle('bdg ' + cls, x, y, 10); text(x, y + 4.5, s, 'bn'); }\n\n  // ---------- the grid: rows of x, y and z with the constants after a bar ----------\n  const GX = { bx: 16, x0: 34, cx: [60, 100, 140], bar: 164, kx: 190, x1: 214 };\n  const RY = (L, i) => L.gy + 36 + 24 * i;\n  const cellsOf = (M, rowA) => M.map((r, i) => r.map((x) => [{ s: num(x), n: x, cls: 'en', a: rowA ? rowA[i] : 1 }]));\n  // Cells that change at the times given: each cell a stack of values that cross-fade, entry by entry.\n  function cellsSeq(Ms, changes, clsByRow) {\n    return [0, 1, 2].map((i) => [0, 1, 2, 3].map((k) => {\n      const vals = [{ n: Ms[0][i][k], a: 1, cls: 'en' }];\n      changes.forEach((c, q) => { if (c.i === i) vals.push({ n: Ms[q + 1][i][k], a: arr(c.t0 + c.gap * k, 0.3), cls: (clsByRow && clsByRow[i]) || 'en' }); });\n      return vals.map((vv, j) => ({ s: num(vv.n), n: vv.n, cls: vv.cls, a: Math.min(j ? vv.a : 1, vals[j + 1] ? 1 - vals[j + 1].a : 1) }));\n    }));\n  }\n  const workCells = (row, m) => row.map((x) => ({ s: num(x * m), n: x * m, cls: 'en wk' }));\n  function drawGrid(g, L) {\n    const gx = g.gx || 0, X = (x) => gx + x, gy = L.gy, colX = (k) => X(k < 3 ? GX.cx[k] : GX.kx);\n    (g.head || HEAD).forEach((h, k) => text(colX(k), gy + 14, h, 'hd'));\n    (g.lit || []).forEach((l) => part(l.a, 0, () => rect('lit', X(GX.x0) + 3, RY(L, l.i) - 11, GX.x1 - GX.x0 - 6, 22, 6)));\n    (g.litCells || []).forEach((c) => part(c.a, 0, () => rect('lit', colX(c.k) - 18, RY(L, c.i) - 11, 36, 22, 6)));\n    pathEl('brk', 'M' + X(GX.x0 + 6) + ' ' + (gy + 24) + ' H' + X(GX.x0) + ' V' + (gy + 96) + ' H' + X(GX.x0 + 6));\n    pathEl('brk', 'M' + X(GX.x1 - 6) + ' ' + (gy + 24) + ' H' + X(GX.x1) + ' V' + (gy + 96) + ' H' + X(GX.x1 - 6));\n    line('bar', X(GX.bar), gy + 26, X(GX.bar), gy + 94);\n    REC.grid = [[], [], []];\n    for (let i = 0; i < 3; i++) for (let k = 0; k < 4; k++) {\n      g.cells[i][k].forEach((ly) => {\n        const a = ly.a == null ? 1 : ly.a;\n        part(a, 0, () => text(colX(k), RY(L, i) + 6, ly.s, ly.cls || 'en'));\n        if (a >= 0.5) { REC.grid[i][k] = ly.n; if (/bad/.test(ly.cls || '')) REC.bad++; }\n      });\n    }\n    for (let i = 0; i < 3; i++) part(g.badgeA ? g.badgeA[i] : 1, 0, () => badge(X(GX.bx), RY(L, i), String(i + 1), g.badges === 'live' ? 'p' + (i + 1) : 'plain'));\n    if (g.stair > 0) {\n      const sx = (k) => X(GX.cx[k] + 20), sy = (i) => RY(L, i) + 12;\n      part(g.stair, 0, () => pathEl('stair', 'M' + X(GX.x0 + 4) + ' ' + sy(0) + ' H' + sx(0) + ' V' + sy(1) + ' H' + sx(1) + ' V' + sy(2)));\n      if (g.stair >= 0.5) REC.stair = true;\n    }\n    (g.tags || []).forEach((tg) => part(tg.a, 0, () => text(X(GX.x1) + 8, RY(L, tg.i) + 5, tg.s, 'sm', 'start')));\n  }\n  // The working line under the grid: the multiple of a row being added, in the same columns.\n  function drawWork(layers, L, gx) {\n    const X = (x) => gx + x, colX = (k) => X(k < 3 ? GX.cx[k] : GX.kx), y = L.wy;\n    const plus = Math.max.apply(null, layers.map((w) => (w.label && !w.noPlus ? w.a : 0)).concat([0]));\n    part(plus, 0, () => text(X(GX.bx), y + 6, '+', 'en wk'));\n    layers.forEach((w) => {\n      if (w.lit) part(Math.min(w.a, w.lit.a), 0, () => rect('lit', colX(w.lit.k) - 18, y - 11, 36, 22, 6));\n      part(w.a, 2, () => w.cells.forEach((c, k) => text(colX(k), y + 6, c.s, c.cls || 'en wk')));\n      if (w.label) part(Math.min(w.a, w.la == null ? 1 : w.la), 0, () => text(X(GX.x1) + 8, y + 5, w.label, 'sm', 'start'));\n      if (w.a >= 0.5) { REC.work = w.label || null; REC.workCells = w.cells.map((c) => c.n); w.cells.forEach((c) => { if (/bad/.test(c.cls || '')) REC.bad++; }); }\n    });\n  }\n  // The read-out beside the grid: what the dot is, or how many answers there are.\n  function drawRead(r, L) {\n    const gy = L.gy;\n    text(RX, gy + 26, r.label, 'sm');\n    r.vals.forEach((vv) => {\n      const a = vv.a == null ? 1 : vv.a, cls = fitCls(vv.s, ['big', 'big s16', 'big s14'], 112) + (vv.cls ? ' ' + vv.cls : '');\n      part(a, 0, () => text(RX, gy + 58, vv.s, cls));\n      if (a >= 0.5) { REC.read = vv.s; if (/bad/.test(vv.cls || '')) REC.bad++; }\n    });\n    (r.tags || []).forEach((tg) => {\n      const a = tg.a == null ? 1 : tg.a;\n      part(a, 0, () => text(RX, gy + 82, tg.s, 'tag'));\n      if (a >= 0.5) REC.tag = tg.s;\n    });\n  }\n  function loopArrow(cx, cy, lab) {\n    const r = 14, a0 = -2.2, a1 = a0 + 5.0;\n    const P0 = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)], P1 = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];\n    pathEl('loop', 'M' + r3(P0[0]) + ' ' + r3(P0[1]) + ' A' + r + ' ' + r + ' 0 1 1 ' + r3(P1[0]) + ' ' + r3(P1[1]));\n    const tx = -Math.sin(a1), ty = Math.cos(a1), n = [-ty, tx];\n    const tip = [P1[0] + tx * 5, P1[1] + ty * 5], base = [P1[0] - tx * 3, P1[1] - ty * 3];\n    pathEl('loophd', polyD([tip, [base[0] + n[0] * 4.5, base[1] + n[1] * 4.5], [base[0] - n[0] * 4.5, base[1] - n[1] * 4.5]]));\n    text(cx, cy + 5, lab, 'lb');\n  }\n  // A cell: the long plate is its + side, so loop 1's pushes up (clockwise) and loop 3's pushes down.\n  function cellAt(x, y, plusUp) {\n    const lp = plusUp ? y - 4 : y + 4, sp = plusUp ? y + 4 : y - 4;\n    line('plate', x - 12, lp, x + 12, lp); line('plate sp', x - 6, sp, x + 6, sp);\n  }\n  // Three loops in a row: a resistor of its own on top of each, neighbours share one, loop currents clockwise.\n  function drawCircuit(y0, c) {\n    const xs = [34, 126, 218, 310], yT = y0 + 26, yB = y0 + 122, yM = (yT + yB) / 2, yb = yM - 16;\n    part(c.a1, 0, () => {\n      line('wire', xs[0], yT, xs[3], yT); line('wire', xs[0], yB, xs[3], yB);\n      [0, 3].forEach((k) => { line('wire', xs[k], yT, xs[k], yb - 4); line('wire', xs[k], yb + 4, xs[k], yB); });\n      cellAt(xs[0], yb, true); cellAt(xs[3], yb, false);\n      text(xs[0] + 16, yb + 5, num(VS[0]) + ' V', 'lb', 'start'); text(xs[3] - 16, yb + 5, num(VS[2]) + ' V', 'lb', 'end');\n      [1, 2].forEach((k) => { const x = xs[k]; line('wire', x, yT, x, yB); rect('res', x - 7, yM - 17, 14, 34, 1); text(x + 11, yM + 5, num(SH) + ' Ω', 'lb', 'start'); });\n      [0, 1, 2].forEach((k) => { const cx = (xs[k] + xs[k + 1]) / 2; rect('res', cx - 18, yT - 7, 36, 14, 1); text(cx, yT - 12, num(OWN[k]) + ' Ω', 'lb'); });\n    });\n    part(c.a2, 0, () => [0, 1, 2].forEach((k) => loopArrow((xs[k] + xs[k + 1]) / 2, yM + 24, IHEAD[k])));\n    // The current in the resistor loops 2 and 3 share: I₂ − I₃ along loop 2's arrow (down), so a negative one flows up.\n    if (c.amp && c.amp.a > 0) {\n      const x = xs[2] - 14, up = c.amp.v < 0;\n      part(c.amp.a, 0, () => { arrow([x, up ? yM + 14 : yM - 18], [x, up ? yM - 18 : yM + 14], 'arr'); text(x + 6, yM - 26, num(Math.abs(c.amp.v)) + ' A', 'lb', 'end'); });\n      if (c.amp.a >= 0.5) REC.amps = c.amp.v;\n    }\n    REC.circuit = true;\n  }\n  function drawKey(y, items) {\n    items.forEach((it) => part(it.a, 0, () => {\n      const w = tw(it.s, 'key'), x = 170 - (w + 26) / 2;\n      line(it.cls, x, y - 4, x + 18, y - 4);\n      text(x + 26, y + 1, it.s, 'key', 'start');\n    }));\n  }\n  const KEY_PAIR = (a) => ({ cls: 'pair', s: 'where two planes cross', a });\n  const KEY_SHARED = (a) => ({ cls: 'shared', s: 'the line all three share', a });\n\n  // ---------- the 3-D view: patches, the lines where they cross, the dot, badges, x, y and z ----------\n  const BADGE_AT = [[0.72, 0.72], [-0.72, 0.72], [-0.72, -0.72], [0.72, -0.72], [0.82, 0], [-0.82, 0], [0, 0.82], [0, -0.82]];\n  function scene3(d, st, t, L) {\n    const al = (st.al != null ? st.al : d.al0) + (t.swing || 0), V = viewOf(al), C = d.C, u = d.u;\n    const O = [170, L.ptop + PH / 2];\n    const P = (w) => { const q = prj(V, sub(w, C)); return [O[0] + u * q[0], O[1] + u * q[1]]; };\n    const area = { x0: 4, x1: 336, y0: L.ptop, y1: L.ptop + PH };\n    const ctx = { V, P, O, area };\n    GEO = ctx;\n    const view = towards(V), pat = (row) => patchOf(row, C, d.h, d.W);\n    // The planes, farthest first, each a see-through square.\n    const pls = (t.planes || []).map((pl) => Object.assign({ P: pat(pl.row), E: pat(pl.end || pl.row) }, pl)).filter((pl) => pl.P && pl.E && pl.a > 0);\n    pls.slice().sort((a, b) => dot(a.P.c, view) - dot(b.P.c, view)).forEach((pl) => {\n      const cs = cornersOf(pl.P).map(P);\n      part(pl.a, pl.rise || 0, () => pathEl('pl ' + pl.cls, polyD(cs)));\n      if (pl.a >= 0.5) { REC.planes.push({ row: pl.row.slice(), cls: pl.cls }); if (pl.cls === 'bad') REC.bad++; }\n    });\n    // Where planes cross, cut to the patches.\n    (t.lines || []).forEach((lnx) => {\n      if (!(lnx.a > 0)) return;\n      const m = meet2(lnx.rows[0], lnx.rows[1], C);\n      if (!m) return;\n      const seg = clipLine(m, (lnx.clip || lnx.rows).map(pat).filter(Boolean));\n      if (!seg) return;\n      const p = P(seg[0]), q = P(seg[1]);\n      part(lnx.a, 0, () => line(lnx.cls, p[0], p[1], q[0], q[1]));\n      if (lnx.a >= 0.5) { if (lnx.cls === 'hinge') REC.hinge = m; else if (lnx.cls === 'pair') REC.pairs.push(m); else REC.shared = m; }\n    });\n    // The dot.\n    let dotPx = null;\n    if (t.dot && t.dot.a > 0) {\n      dotPx = P(t.dot.p);\n      part(t.dot.a, 0, () => circle('dot' + (t.dot.cls ? ' ' + t.dot.cls : ''), dotPx[0], dotPx[1], 6));\n      if (t.dot.a >= 0.5) { if (t.dot.cls === 'bad') { REC.bad++; REC.wrongDot = t.dot.p.slice(); } else REC.dot = t.dot.p.slice(); }\n    }\n    // x, y and z, in the corner, turning with the view.\n    const T0 = [40, area.y1 - 30];\n    const axes = HEAD.map((s, k) => {\n      const e = [0, 0, 0]; e[k] = 1;\n      const q = prj(V, e);\n      return { s, q, Lq: Math.hypot(q[0], q[1]), tip: [T0[0] + 22 * q[0], T0[1] + 22 * q[1]] };\n    });\n    axes.forEach((ax) => arrow(T0, ax.tip, 'ax'));\n    // Each letter beyond its arrow's tip, turned aside if that spot sits on another arrow or letter\n    // (an axis pointing nearly at the viewer draws short, and its letter would land on a neighbour).\n    const segD = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, t = L2 ? K.clamp(((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2, 0, 1) : 0; return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };\n    const spots = [];\n    axes.slice().sort((a, b) => b.Lq - a.Lq).forEach((ax) => {\n      const base = Math.atan2(ax.q[1], ax.q[0] || 1e-9), r0 = Math.max(22 * ax.Lq + 9, 16);\n      let best = null, bestS = Infinity;\n      [0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180].forEach((dg, j) => [r0, r0 + 6].forEach((r, m) => {\n        const a = base + dg * RAD, c = [T0[0] + r * Math.cos(a), T0[1] + r * Math.sin(a)];\n        let sc = j * 2 + m;\n        axes.forEach((o) => { const dd = segD(c, T0, o.tip); if (dd < (o === ax ? 7 : 10)) sc += 100; });\n        spots.forEach((o) => { if (Math.hypot(o[0] - c[0], o[1] - c[1]) < 14) sc += 100; });\n        if (sc < bestS) { bestS = sc; best = c; }\n      }));\n      spots.push(best);\n      text(best[0], best[1] + 4.5, ax.s, 'axl');\n    });\n    // Each plane carries its row's number, at a corner chosen clear of the dot and the other numbers\n    // (chosen where the plane ends up, so a number rides along smoothly while its plane swings).\n    const chosen = [], avoid = [T0];\n    if (t.dot) avoid.push(P(t.dot.p));\n    pls.forEach((pl) => {\n      let best = 0, bestS = -Infinity;\n      BADGE_AT.forEach((s, k) => {\n        const c = P(add(pl.E.c, add(scl(pl.E.u, s[0] * pl.E.h), scl(pl.E.v, s[1] * pl.E.h))));\n        let sc = 0;\n        if (c[0] < area.x0 + 16 || c[0] > area.x1 - 16 || c[1] < area.y0 + 16 || c[1] > area.y1 - 16) sc -= 1000;\n        sc += Math.min(80, avoid.concat(chosen).reduce((mm, o) => Math.min(mm, Math.hypot(o[0] - c[0], o[1] - c[1])), 200));\n        if (sc > bestS + 1e-6) { bestS = sc; best = k; }\n      });\n      const s = BADGE_AT[best], c = P(add(pl.P.c, add(scl(pl.P.u, s[0] * pl.P.h), scl(pl.P.v, s[1] * pl.P.h))));\n      chosen.push(P(add(pl.E.c, add(scl(pl.E.u, s[0] * pl.E.h), scl(pl.E.v, s[1] * pl.E.h)))));\n      part(pl.a, 0, () => badge(c[0], c[1], pl.s, pl.cls));\n    });\n    // Words in the view sit on a small backing of the page colour.\n    (t.labels || []).forEach((lb) => {\n      if (!(lb.a > 0)) return;\n      const c = P(lb.w), wd = tw(lb.s, lb.cls) + 12;\n      let pos = null;\n      [[0, -24], [0, 26], [wd / 2 + 14, 0], [-wd / 2 - 14, 0]].forEach((o) => {\n        if (pos) return;\n        const x = c[0] + o[0], y = c[1] + o[1];\n        if (x - wd / 2 < area.x0 || x + wd / 2 > area.x1 || y < area.y0 + 12 || y > area.y1 - 12) return;\n        if (chosen.some((b) => Math.abs(b[0] - x) < wd / 2 + 12 && Math.abs(b[1] - y) < 22)) return;\n        pos = [x, y];\n      });\n      pos = pos || [c[0], c[1] - 24];\n      part(lb.a, 0, () => { rect('pill', pos[0] - wd / 2, pos[1] - 10, wd, 20, 7); text(pos[0], pos[1] + 5, lb.s, lb.cls); });\n    });\n  }\n\n  // ---------- one screen ----------\n  const TM_DEMO = { lit: 0.4, work: 0.8, cells: 1.3, gap: 0.22, swing: [1.5, 1.4] };\n  const TM_PLAY = { lit: 0, work: 0.05, cells: 0.25, gap: 0.12, swing: [0.3, 1.1] };\n  const TM_FB = { lit: 0, work: 0.1, cells: 0.35, gap: 0.15, swing: [0.4, 1.1] };\n  const TM_STAIR = { lit: 0.4, work: 0.7, cells: 1.1, gap: 0.2, swing: [1.2, 1.3] };\n  const planesOf = (M, a, rise) => M.map((row, i) => ({ row, cls: 'p' + (i + 1), s: String(i + 1), a: a ? a[i] : 1, rise: rise || 0 }));\n  const pairsOf = (M, a) => [[0, 1], [0, 2], [1, 2]].map((q) => ({ rows: [M[q[0]], M[q[1]]], cls: 'pair', a }));\n  // One row changing to another: the row lit, its entries turning one by one, its plane swinging.\n  function moveParts(v, from, to, tg, work, tm, cellCls, planeCls) {\n    v.grid = { cells: cellsSeq([from, to], [{ i: tg, t0: tm.cells, gap: tm.gap }], cellCls ? { [tg]: cellCls } : null), badges: 'live', lit: [{ i: tg, a: arr(tm.lit, 0.3) }] };\n    if (work) v.work.push({ cells: work.cells, label: work.label, a: arr(tm.work, 0.35) });\n    const e = go(tm.swing[0], tm.swing[1]), planes = planesOf(from);\n    planes[tg] = Object.assign(planes[tg], { row: lerpRow(from[tg], to[tg], e), end: to[tg], cls: planeCls || planes[tg].cls });\n    return planes;\n  }\n  // A run of moves: each lights its row, shows its working line, then changes the row's entries.\n  function seqParts(v, Ms, moves, t0s, gap, lead) {\n    v.grid = { cells: cellsSeq(Ms, moves.map((mv, q) => ({ i: mv.tg, t0: t0s[q] + lead, gap }))), badges: 'plain', lit: [] };\n    moves.forEach((mv, q) => {\n      const last = q === moves.length - 1, keep = !last && moves[q + 1].tg === mv.tg, inA = arr(t0s[q], 0.3), wa = arr(t0s[q] + 0.05, 0.3);\n      v.grid.lit.push({ i: mv.tg, a: last || keep ? inA : Math.min(inA, 1 - arr(t0s[q + 1] - 0.05, 0.25)) });\n      v.work.push({ cells: workCells(Ms[q][mv.sr], mv.m), label: moveLabel(mv), a: last ? wa : Math.min(wa, 1 - arr(t0s[q + 1] - 0.05, 0.25)) });\n    });\n  }\n  const hinge = (r0, src, now, a) => ({ rows: [r0, src], clip: [now, src], cls: 'hinge', a });\n  const dotRead = (p, a) => ({ label: 'the dot', vals: [{ s: pt(p), a }], tags: [{ s: 'all three meet', a }] });\n  const ask = (label) => ({ label, vals: [{ s: '?', cls: 'q' }], tags: [] });\n\n  function drawStep(d, st, L) {\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const v = { grid: null, work: [], read: null, lines: [], three: null, circuit: null, legend: [], tags: [] };\n    const reveal = (a) => { if (a > 0) REC.reveal++; };\n    const slip = (r, t0) => v.lines.push({ r: r || 0, s: d.slips[st.pick], cls: 'ln bad', a: arr(t0 || 0.1, 0.3) });\n    switch (d.key) {\n      case 'grid': {\n        const a = [0, 1, 2].map((k) => arr(0.4 + 0.6 * k, 0.5)), da = arr(2.3, 0.45);\n        v.grid = { cells: cellsOf(A1, a), badges: 'live', badgeA: a };\n        v.read = dotRead(SOL1, da);\n        v.three = { planes: planesOf(A1, a, 8), dot: { p: SOL1, a: da } };\n        break;\n      }\n      case 'row': {\n        v.grid = { cells: cellsOf(A1), badges: 'live' };\n        v.read = { label: 'the equation', vals: [{ s: eqTxt(ROW2) }], tags: [] };\n        const q = { cells: ['?', '?', '?', '?'].map((s) => ({ s, cls: 'q' })), a: 1 };\n        v.work.push(q);\n        if (right) {\n          const ra = arr(0.1, 0.4);\n          q.a = 1 - ra;\n          v.work.push({ cells: ROW2.map((x) => ({ s: num(x), n: x, cls: 'en ok' })), a: ra, label: 'no y, so 0', noPlus: true, la: arr(0.6, 0.3), lit: { k: 1, a: arr(0.5, 0.3) } });\n          v.lines.push({ s: fullEq(ROW2), cls: 'ln ok', a: arr(0.9, 0.3) });\n          reveal(ra);\n        } else if (wrong) {\n          const W = parseRow(st.pick), wa = arr(0.1, 0.3);\n          const cells = W.length === 4 ? W : [W[0], W[1], null, W[2]];\n          q.a = 1 - wa;\n          v.work.push({ cells: cells.map((x) => (x == null ? { s: '?', cls: 'q bad' } : { s: num(x), n: x, cls: 'en bad' })), a: wa });\n          slip(0, 0.3);\n        }\n        break;\n      }\n      case 'move': {\n        let mv = null, from = st.M, tm = null;\n        if (st.M == null) { mv = MV1; from = A1; tm = TM_DEMO; } else if (st.last) { mv = st.last; from = st.prev; tm = TM_PLAY; }\n        if (mv) {\n          const to = rowMove(from, mv), planes = moveParts(v, from, to, mv.tg, { cells: workCells(from[mv.sr], mv.m), label: moveLabel(mv) }, tm);\n          const ha = arr(tm.work, 0.35);\n          v.three = { planes, lines: [hinge(from[mv.tg], from[mv.sr], planes[mv.tg].row, ha)] };\n          v.legend.push(KEY_PAIR(ha));\n        } else {\n          v.grid = { cells: cellsOf(st.M), badges: 'live' };\n          v.three = { planes: planesOf(st.M) };\n        }\n        v.three.dot = { p: SOL1, a: 1 };\n        v.read = dotRead(SOL1, 1);\n        break;\n      }\n      case 'clear1': {\n        if (right) {\n          const planes = moveParts(v, A2, A3, 2, { cells: workCells(A2[0], -1), label: moveLabel(MV2) }, TM_FB), ha = arr(0.1, 0.35);\n          v.three = { planes, lines: [hinge(A2[2], A2[0], planes[2].row, ha)] };\n          v.lines.push({ s: 'Column 1 is now clear below row 1', cls: 'ln ok', a: arr(1.5, 0.3) });\n          v.legend.push(KEY_PAIR(ha));\n          reveal(arr(0.4, 0.3));\n        } else if (wrong) {\n          const W = parseRow(st.pick), to = A2.map((r, i) => (i === 2 ? W : r.slice()));\n          v.three = { planes: moveParts(v, A2, to, 2, null, TM_FB, 'en bad', 'bad') };\n          slip(0, 0.6);\n        } else {\n          v.grid = { cells: cellsOf(A2), badges: 'live', lit: [{ i: 2, a: 1 }] };\n          v.three = { planes: planesOf(A2) };\n        }\n        v.three.dot = { p: SOL1, a: 1 };\n        v.read = dotRead(SOL1, 1);\n        break;\n      }\n      case 'stair': {\n        const planes = moveParts(v, A3, A4, 2, { cells: workCells(A3[1], -2), label: moveLabel(MV3) }, TM_STAIR), ha = arr(0.7, 0.35);\n        v.grid.stair = arr(2.6, 0.4);\n        backLines(A4, HEAD).forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln', a: arr(3.0 + 0.5 * k, 0.4) }));\n        v.three = { planes, lines: [hinge(A3[2], A3[1], planes[2].row, ha)], dot: { p: SOL1, a: 1 } };\n        v.read = dotRead(SOL1, 1);\n        v.legend.push(KEY_PAIR(ha));\n        break;\n      }\n      case 'back': {\n        v.grid = { cells: cellsOf(S6), badges: 'live', stair: 1 };\n        v.three = { planes: planesOf(S6) };\n        v.read = ask('the dot');\n        if (right) {\n          const la = [0.1, 0.5, 0.9].map((t0) => arr(t0, 0.35)), da = arr(1.2, 0.35);\n          backLines(S6, HEAD).forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln ok', a: la[k] }));\n          v.three.dot = { p: SOL6, a: da };\n          v.read = { label: 'the dot', vals: [{ s: '?', cls: 'q', a: 1 - da }, { s: pt(SOL6), cls: 'ok', a: da }], tags: [{ s: 'all three meet', a: da }] };\n          reveal(la[0]);\n        } else if (wrong) {\n          const W = [toNum(st.pick), SOL6[1], SOL6[2]], wa = arr(0.7, 0.3);\n          backLines(S6, HEAD).slice(0, 2).forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln', a: arr(0.1 + 0.3 * k, 0.3) }));\n          slip(2, 0.7);\n          v.three.dot = { p: W, a: wa, cls: 'bad' };\n          v.three.labels = [{ w: W, s: pt(W), cls: 'lb bad', a: wa }];\n          v.read = { label: 'the dot', vals: [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(W), cls: 'bad', a: wa }], tags: [] };\n        }\n        break;\n      }\n      case 'none': {\n        seqParts(v, seqOf(N1, NMOVES), NMOVES, [1.0, 2.0, 3.0], 0.15, 0.35);\n        const pa = [0, 1, 2].map((k) => arr(0.35 + 0.2 * k, 0.5)), la = arr(3.9, 0.4), ra = arr(4.1, 0.4);\n        v.three = { planes: planesOf(N1, pa, 8), lines: pairsOf(N1, la) };\n        v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'none', a: ra }], tags: [{ s: 'no common point', a: ra }] };\n        v.tags.push({ s: FIRST, a: 1 });\n        v.legend.push(KEY_PAIR(la));\n        break;\n      }\n      case 'zero': {\n        v.read = ask('answers');\n        if (right) {\n          seqParts(v, seqOf(N2, NMOVES), NMOVES, [0.15, 0.6, 1.05], 0.1, 0.1);\n          const e = go(0.3, 1.2), row3 = lerpRow(N1[2], N2[2], e), rows = [N1[0], N1[1], row3];\n          const sa = arr(1.5, 0.4), ra = arr(1.7, 0.4), ta = arr(0.3, 0.3);\n          v.grid.litCells = [{ i: 2, k: 3, a: 1 - arr(0.1, 0.2) }];\n          const planes = planesOf(rows);\n          planes[2].end = N2[2];\n          v.three = { planes, lines: pairsOf(rows, 1 - sa).concat([{ rows: [N2[0], N2[1]], clip: rows, cls: 'shared', a: sa }]) };\n          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'a line', cls: 'ok', a: ra }], tags: [{ s: 'all share a line', a: ra }] };\n          v.tags = [{ s: TAG9, a: 1 - ta }, { s: TAG4, a: ta }];\n          v.legend = [KEY_PAIR(1 - sa), KEY_SHARED(sa)];\n          reveal(sa);\n        } else {\n          v.grid = { cells: cellsOf(N2), badges: 'plain', litCells: [{ i: 2, k: 3, a: 1 }] };\n          v.three = { planes: planesOf(N1), lines: pairsOf(N1, 1) };\n          v.tags = [{ s: TAG9, a: 1 }];\n          v.legend = [KEY_PAIR(1)];\n          if (wrong) slip(0, 0.1);\n        }\n        break;\n      }\n      case 'line': {\n        const p = onLine(N2S, tNow), sa = arr(0.5, 0.5), da = arr(1.1, 0.4);\n        v.grid = { cells: cellsOf(N2S), badges: 'plain' };\n        v.three = { planes: planesOf(N2), lines: [{ rows: [N2[0], N2[1]], clip: N2, cls: 'shared', a: sa }], dot: { p, a: da } };\n        v.read = { label: 'the dot', vals: [{ s: pt(p), a: da }], tags: [{ s: 't = ' + num(tNow), a: da }] };\n        N2.forEach((row, k) => v.lines.push({ r: k, s: subLine(row, p), cls: 'ln', a: arr(1.6 + 0.5 * k, 0.4), badge: 'p' + (k + 1), bs: String(k + 1) }));\n        v.tags.push({ s: FIRST, a: 1 });\n        v.legend.push(KEY_SHARED(sa));\n        break;\n      }\n      case 'many': {\n        v.grid = { cells: cellsOf(M10), badges: 'plain' };\n        v.three = { planes: planesOf(M10) };\n        v.read = ask('answers');\n        v.tags.push({ s: FIRST, a: 1 });\n        if (right || wrong) seqParts(v, seqOf(M10, M10MOVES), M10MOVES, [0.1, 0.5, 0.9], 0.08, 0.1);\n        if (right) {\n          const sa = arr(1.4, 0.4), da = arr(1.6, 0.3), z = -1 + 2 * go(1.6, 1.2), ra = arr(1.5, 0.3);\n          const y0 = onLine(M10S, 0), y1 = onLine(M10S, 1);\n          const lin = (c, k) => num(c) + (k < 0 ? ' − ' : ' + ') + (near(Math.abs(k), 1) ? '' : num(Math.abs(k))) + 'z';\n          v.three.swing = 30 * (1 - go(0, 1.4));\n          v.three.lines = [{ rows: [M10[0], M10[1]], clip: M10, cls: 'shared', a: sa }];\n          v.three.dot = { p: onLine(M10S, z), a: da };\n          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'a line', cls: 'ok', a: ra }], tags: [{ s: 'z is free', a: ra }] };\n          v.lines.push({ s: 'y = ' + lin(y0[1], y1[1] - y0[1]) + ' and x = ' + lin(y0[0], y1[0] - y0[0]) + ', for any z', cls: 'ln ok', a: arr(1.6, 0.3) });\n          v.legend.push(KEY_SHARED(sa));\n          reveal(sa);\n        } else if (wrong) {\n          const wa = arr(1.2, 0.3);\n          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick === 'None' ? 'none' : 'one', cls: 'bad', a: wa }], tags: [] };\n          slip(0, 1.2);\n        }\n        break;\n      }\n      case 'circuit': {\n        v.circuit = { a1: arr(0.35, 0.5), a2: arr(0.8, 0.5) };\n        v.grid = { gx: GXC, head: IHEAD, cells: cellsSeq([RG, RGD, C1], [{ i: 1, t0: 1.7, gap: 0.15 }, { i: 1, t0: 3.0, gap: 0.15 }]), badges: 'plain',\n          lit: [{ i: 1, a: arr(1.3, 0.3) }], tags: [{ i: 1, s: '× 2', a: arr(1.4, 0.3) }] };\n        v.work.push({ cells: workCells(RG[0], 1), label: 'row 1', a: arr(2.5, 0.4) });\n        break;\n      }\n      case 'clear2': {\n        v.circuit = { a1: 1, a2: 1 };\n        v.grid = { gx: GXC, head: IHEAD, cells: cellsOf(C1), badges: 'plain', lit: [{ i: 2, a: 1 }] };\n        if (right) {\n          v.grid.cells = cellsSeq([C1, C1X7, C2], [{ i: 2, t0: 0.2, gap: 0.1 }, { i: 2, t0: 0.9, gap: 0.1 }]);\n          v.grid.tags = [{ i: 2, s: '× 7', a: arr(0.1, 0.3) }];\n          v.grid.stair = arr(1.4, 0.3);\n          v.work.push({ cells: workCells(C1[1], 1), label: 'row 2', a: arr(0.6, 0.3) });\n          backLines(C2, IHEAD, ' A').forEach((s, k) => v.lines.push({ r: k, s, cls: 'ln ok', a: arr(1.5 + 0.3 * k, 0.3) }));\n          v.circuit.amp = { a: arr(2.2, 0.3), v: I23 };\n          reveal(arr(1.0, 0.3));\n        } else if (wrong) {\n          const two = /row 1/.test(st.pick), wa = arr(0.1, 0.3);\n          v.grid.cells = cellsSeq([C1, two ? C1W1 : C1W2], [{ i: 2, t0: 0.3, gap: 0.1 }], { 2: 'en bad' });\n          if (two) v.grid.tags = [{ i: 2, s: '× 2', a: wa }];\n          v.work.push({ cells: workCells(two ? C1[0] : C1[1], 1), label: two ? 'row 1' : 'row 2', a: wa });\n          slip(0, 0.4);\n        }\n        break;\n      }\n      case 'nomeet': {\n        v.grid = { cells: cellsOf(Q1), badges: 'plain' };\n        v.three = { planes: planesOf(Q1) };\n        v.read = ask('answers');\n        v.tags.push({ s: FIRST, a: 1 });\n        if (right) {\n          seqParts(v, seqOf(Q1, QMOVES), QMOVES, [0.1, 0.5, 0.9], 0.08, 0.1);\n          const la = arr(1.4, 0.4), ra = arr(1.6, 0.3);\n          v.three.swing = 30 * (1 - go(0, 1.4));\n          v.three.lines = pairsOf(Q1, la);\n          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - ra }, { s: 'none', cls: 'ok', a: ra }], tags: [{ s: 'no common point', a: ra }] };\n          v.lines.push({ s: '0 = ' + num(QS[2][3]) + ', which no point fits', cls: 'ln ok', a: arr(1.7, 0.3) });\n          v.legend.push(KEY_PAIR(la));\n          reveal(la);\n        } else if (wrong) {\n          const wa = arr(0.1, 0.3);\n          v.read = { label: 'answers', vals: [{ s: '?', cls: 'q', a: 1 - wa }, { s: /line/.test(st.pick) ? 'a line' : 'one', cls: 'bad', a: wa }], tags: [] };\n          slip(0, 0.1);\n        }\n        break;\n      }\n      default: break;\n    }\n    // The circuit, the grid, its working line, the read-out, worked lines, the view, its key.\n    const said = [];\n    if (v.circuit) { drawCircuit(L.cy, v.circuit); said.push('Three loops in a row. Each end loop has ' + num(OWN[0]) + ' ohms of its own and the middle loop ' + num(OWN[1]) + ' ohms. Each pair of neighbours shares ' + num(SH) + ' ohms. ' + num(VS[0]) + ' volts drive loop 1 and ' + num(VS[2]) + ' volts drive loop 3. The loop currents run clockwise.'); }\n    if (v.grid) {\n      drawGrid(v.grid, L);\n      said.push('The grid, row by row: ' + REC.grid.map((r) => [0, 1, 2, 3].map((k) => (r[k] == null ? 'blank' : say(num(r[k])))).join(', ')).join('; ') + '.');\n    }\n    if (v.work.length) drawWork(v.work, L, (v.grid && v.grid.gx) || 0);\n    if (REC.work) said.push('Under it, ' + say(REC.work) + ' is added: ' + REC.workCells.map((n) => say(num(n))).join(', ') + '.');\n    if (v.read) { drawRead(v.read, L); if (REC.read) said.push(say(v.read.label + ': ' + REC.read + (REC.tag ? ', ' + REC.tag : '')) + '.'); }\n    v.lines.forEach((lnx) => {\n      const a = lnx.a == null ? 1 : lnx.a, y = L.ly[lnx.r || 0];\n      part(a, 0, () => {\n        if (lnx.badge) { const w = tw(lnx.s, 'ln'), x0 = 170 - (w + 26) / 2; badge(x0 + 10, y, lnx.bs, lnx.badge); text(x0 + 26 + w / 2, y + 5, lnx.s, 'ln'); }\n        else fitText(170, y + 5, lnx.s, lnx.cls || 'ln');\n      });\n      if (a >= 0.5) { REC.lines.push(lnx.s); said.push(say(lnx.s) + '.'); if (/bad/.test(lnx.cls || '')) REC.bad++; }\n    });\n    if (v.three) {\n      scene3(d, st, v.three, L);\n      said.push('A 3-D view of ' + REC.planes.length + ' planes' + (REC.dot ? ', meeting at the dot ' + say(pt(REC.dot)) : REC.shared ? ', all sharing one line' : REC.pairs.length ? ', crossing in pairs along three side-by-side lines that never meet' : '') + '.');\n    }\n    if (L.tagy != null) v.tags.forEach((tg) => part(tg.a, 0, () => text(8, L.tagy, tg.s, 'tg', 'start')));\n    if (L.ky != null) drawKey(L.ky, v.legend);\n    return said.filter((s) => s).join(' ');\n  }\n\n  // ---------- the layout: circuit, grid, working line, worked lines, the view's tag, view, key ----------\n  function lay(d) {\n    const L = { cy: 0, gy: 0, ly: [] };\n    let y = 0;\n    if (d.circuit) y = CH;\n    L.gy = y; y += 102;\n    if (d.work) { L.wy = y + 10; y += 26; }\n    for (let k = 0; k < (d.rows || 0); k++) L.ly.push(y + 14 + 22 * k);\n    if (d.rows) y += 22 * d.rows + 6;\n    if (d.view) {\n      if (d.first) { L.tagy = y + 18; y += 24; }\n      L.ptop = y + 4; y = L.ptop + PH;\n      if (d.legend) { L.ky = y + 14; y += 22; }\n    }\n    L.h = y + 8;\n    return L;\n  }\n\n  // ---------- turning the view ----------\n  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 340, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The 3-D view: drag it sideways, or use the left and right arrow keys, to turn it' }));\n  function placeGrips(d) {\n    const on3 = !finished && !!d.view && !!GEO;\n    turnGrip.style.display = on3 ? '' : 'none';\n    turnGrip.setAttribute('tabindex', on3 ? '0' : '-1');\n    if (on3) { turnGrip.setAttribute('y', r3(GEO.area.y0)); turnGrip.setAttribute('height', r3(GEO.area.y1 - GEO.area.y0)); }\n  }\n  let turnHeld = null;\n  const turnOn = () => !finished && !!STEPS[at()].view;\n  const alNow = () => { const st = S[at()]; return st.al != null ? st.al : STEPS[at()].al0; };\n  function setAl(a) {\n    const st = S[at()], a0 = STEPS[at()].al0, v = K.clamp(Math.round(a), a0 - SWING, a0 + SWING);\n    if (st.al === v) return;\n    st.al = v;\n    if (!anim.playing()) K.refresh();\n  }\n  turnGrip.addEventListener('pointerdown', (e) => {\n    if (!turnOn()) return;\n    turnHeld = { id: e.pointerId, x: e.clientX, al: alNow() };\n    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the picture */ }\n  });\n  turnGrip.addEventListener('pointermove', (e) => { if (turnHeld && turnHeld.id === e.pointerId && turnOn()) setAl(turnHeld.al - (e.clientX - turnHeld.x) * 0.4); });\n  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ty) => turnGrip.addEventListener(ty, () => { turnHeld = null; }));\n  turnGrip.addEventListener('keydown', (e) => {\n    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];\n    if (!by || !turnOn()) return;\n    e.preventDefault();\n    setAl(alNow() + by);\n  });\n\n  // ---------- the scene for a step (the animations call this every frame) ----------\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null; GEO = null;\n    REC = { texts: [], lines: [], grid: null, read: null, tag: null, work: null, workCells: null, stair: false, planes: [], dot: null, wrongDot: null,\n      hinge: null, pairs: [], shared: null, circuit: false, amps: null, bad: 0, reveal: 0 };\n    const L = lay(d);\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(L.h));\n    svg.setAttribute('aria-label', drawStep(d, st, L) || '');\n    placeGrips(d);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    tNow = p.t;\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; lastT = p.t; enter('stepbox');\n      if (d.show) { if (i === MOVE) S[i] = blank(); play(d.dur); } else { anim.pause(); T = Infinity; }\n    } else if (i === LINE && p.t !== lastT) {\n      lastT = p.t;\n      if (anim.playing()) anim.pause();\n      T = Infinity;\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    const act = el('act');\n    write(act, (i === MOVE && st.msg) || d.act || '');\n    act.hidden = finished || !(d.act || (i === MOVE && st.msg));\n\n    el('moves').hidden = finished || i !== MOVE;\n    addBtn.setLabel('Add ' + moveLabel({ m: multC.get(), sr: srcC.get() - 1 }) + ' to row ' + tgtC.get());\n    el('tbox').hidden = finished || i !== LINE;\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (k) => STEPS.findIndex((d) => d.key === k);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t, tv) {\n    const keepS = S[i], keepT = T, keepTv = tNow;\n    S[i] = st; T = t == null ? Infinity : t; if (tv != null) tNow = tv;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; tNow = keepTv; paint(); }\n  }\n  const zeroRow = (r) => near(r[0], 0) && near(r[1], 0) && near(r[2], 0);\n\n  K.check('Add a nonzero multiple of one row to another row: on the row-move screen every pick of two different rows and a nonzero multiplier changes that one row, swings its plane about the line it shares with the added row\\'s plane, and leaves the dot where it was', () =>\n    MULTS.indexOf(0) < 0 && [0, 1, 2].every((tg) => [0, 1, 2].every((sr) => tg === sr || MULTS.every((m) => {\n      const mv = { tg, sr, m }, to = rowMove(A2, mv), r = drawn(MOVE, Object.assign(blank(), { M: to, prev: A2, last: mv }));\n      const others = [0, 1, 2].every((k) => k === tg || samePt(to[k], A2[k]));\n      return others && sameM(r.grid, to) && samePt(r.dot, SOL1) && samePt(solve3(to), SOL1, 1e-7) && !!r.hinge && fits(to[tg], r.hinge.p) && fits(A2[sr], r.hinge.p) && fits(A2[tg], r.hinge.p);\n    }))), { source: OPENSTAX });\n  K.check('The equations are replaced by a system having the same solution but in triangular form, then solved by back-substitution: the staircase screen ends with zeros under the diagonal and the first grid\\'s answer, and its lines find z, then y, then x', () => {\n    const r = drawn(idx('stair'), blank()), M = r.grid;\n    return near(M[1][0], 0) && near(M[2][0], 0) && near(M[2][1], 0) && r.stair && samePt(solve3(M), solve3(A1), 1e-7) && samePt(backSolve(M), SOL1, 1e-9) &&\n      r.lines.length === 3 && / so z = /.test(r.lines[0]) && / so y = /.test(r.lines[1]) && / so x = /.test(r.lines[2]) && samePt(r.dot, SOL1);\n  }, { source: HELM });\n  K.check('A system may have a unique solution, an infinity of solutions or no solution at all: the first planes meet at one dot; the grid whose bottom row ends as zero equals a number other than zero has no dot and three side-by-side lines; the grid whose bottom row is all zeros has a shared line, every point of which fits', () => {\n    const g = drawn(idx('grid'), blank()), n = drawn(idx('none'), blank()), l = drawn(LINE, blank());\n    const side = n.pairs.length === 3 && n.pairs.every((a) => n.pairs.every((b) => near(Math.abs(dot(a.d, b.d)), 1, 1e-9))) &&\n      n.pairs.every((a, j) => n.pairs.every((b, k) => j === k || norm(cross(sub(a.p, b.p), a.d)) > 0.3));\n    const along = [-2, -1, 0, 1, 2].every((s) => N2.every((row) => fits(row, add(l.shared.p, scl(l.shared.d, s)))));\n    return samePt(g.dot, SOL1) && !near(det3(A1), 0) && n.dot === null && zeroRow(N1S[2]) && !near(N1S[2][3], 0) && side && !!l.shared && along && zeroRow(N2S[2]) && near(N2S[2][3], 0);\n  }, { source: HELM });\n  K.check('Breaking the circuit into simple loops leads to a set of linear equations in the unknown currents: each loop\\'s row holds its total resistance on the diagonal and minus each shared resistance beside it, and the currents found fit every first row', () => {\n    const r = drawn(idx('clear2'), solvedSt(idx('clear2')));\n    return RG[0][0] === OWN[0] + SH && RG[1][1] === OWN[1] + 2 * SH && RG[2][2] === OWN[2] + SH && RG[0][1] === -SH && RG[1][0] === -SH && RG[1][2] === -SH && RG[2][1] === -SH &&\n      RG[0][2] === 0 && RG[2][0] === 0 && RG.every((row) => fits(row, AMPS)) && r.circuit && near(r.amps, AMPS[1] - AMPS[2]) && r.lines.length === 3;\n  }, { source: HELM });\n  K.check('Every worked number is right: −2 × row 1 makes row 2 [0 −1 −3 | −11]; −1 × row 1 makes row 3 [0 −2 1 | −1] (5 and 11 are the slips); −2 × row 2 makes [0 0 7 | 21], so z = 3, y = 2 and x = 1, and (1, 2, 3) gives 6, 1 and 5; the staircase puzzle gives (2, 1, 2), with 0 and 1 the slips; the grid ending 9 steps to 0 = 5 and the one ending 4 to 0 = 0, both with determinant 0; the line is (2 − t, 1, t); the third grid steps to [0 −3 3 | −3] and 0 = 0; the circuit\\'s determinant is 324, row 2 becomes [0 21 −6 | 12] and row 3 [0 0 36 | 54], giving 1.5 A, 1 A and 2.5 A, with −7.5 + 12 − 4.5 = 0 and 0.5 A against loop 2 (18 and 6 are the slips); the last grid ends 0 = 1', () =>\n    samePt(A2[1], [0, -1, -3, -11]) && samePt(A3[2], [0, -2, 1, -1]) && A2[2][3] === 5 && A2[2][3] + A2[0][3] === 11 && samePt(A4[2], [0, 0, 7, 21]) &&\n    samePt(SOL1, [1, 2, 3], 1e-9) && samePt(backSolve(A4), [1, 2, 3]) && samePt(A1.map((r) => dot(r, SOL1)), [6, 1, 5], 1e-9) &&\n    backLines(A4, HEAD).join('|') === '7z = 21, so z = 3|−y − 9 = −11, so y = 2|x + 2 + 3 = 6, so x = 1' &&\n    samePt(SOL6, [2, 1, 2]) && backLines(S6, HEAD).join('|') === '2z = 4, so z = 2|3y + 2 = 5, so y = 1|2x + 1 − 2 = 3, so x = 2' &&\n    (S6[0][3] - S6[0][1] * SOL6[1] + S6[0][2] * SOL6[2]) / S6[0][0] === 0 && (S6[0][3] - S6[0][1] * SOL6[1]) / S6[0][0] === 1 &&\n    samePt(seqOf(N1, NMOVES)[1][1], [0, -2, 0, -2]) && samePt(seqOf(N1, NMOVES)[2][2], [0, -2, 0, 3]) && samePt(N1S[2], [0, 0, 0, 5]) && samePt(N2S[2], [0, 0, 0, 0]) &&\n    near(det3(N1), 0) && near(det3(N2), 0) && samePt(onLine(N2S, 1), [1, 1, 1]) && samePt(onLine(N2S, -2), [4, 1, -2]) && samePt(N2[2], add(N2[0], N2[1])) &&\n    samePt(M10S[1], [0, -3, 3, -3]) && samePt(M10S[2], [0, 0, 0, 0]) && near(det3(M10), 0) &&\n    near(det3(RG), 324) && samePt(C1[1], [0, 21, -6, 12]) && samePt(C2[2], [0, 0, 36, 54]) && samePt(AMPS, [2.5, 1, 1.5]) && near(dot(RG[1], AMPS), 0) &&\n    near(-3 * AMPS[0], -7.5) && near(-3 * AMPS[2], -4.5) && near(I23, -0.5) && C1W2[2][1] === 18 && C1W1[2][0] === 6 &&\n    samePt(QS[1], [0, 1, 2, 3]) && samePt(seqOf(Q1, QMOVES)[2][2], [0, 1, 2, 4]) && samePt(QS[2], [0, 0, 0, 1]) && near(det3(Q1), 0));\n  K.check('Each puzzle\\'s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {\n    const g = (k) => STEPS[idx(k)], has = (d, s) => d.opts.indexOf(s) >= 0;\n    const c1 = g('clear1'), bk = g('back'), zr = g('zero'), mn = g('many'), c2 = g('clear2'), nm = g('nomeet'), rw = g('row');\n    return rw.want === rowTxt(ROW2) && has(rw, rowTxt([ROW2[0], ROW2[2], ROW2[1], ROW2[3]])) && has(rw, '[' + num(ROW2[0]) + ' ' + num(ROW2[2]) + ' | ' + num(ROW2[3]) + ']') &&\n      c1.want === rowTxt(A3[2]) && has(c1, rowTxt(A3[2].slice(0, 3).concat([A2[2][3]]))) && has(c1, rowTxt(rowMove(A2, { tg: 2, sr: 0, m: 1 })[2])) &&\n      toNum(bk.want) === SOL6[0] && has(bk, num((S6[0][3] - S6[0][1] * SOL6[1] + S6[0][2] * SOL6[2]) / S6[0][0])) && has(bk, num((S6[0][3] - S6[0][1] * SOL6[1]) / S6[0][0])) &&\n      toNum(zr.want) === N2S[2][3] && has(zr, num(N1S[2][3])) && has(zr, num(N2[2][3])) &&\n      mn.want === 'A whole line' && zeroRow(M10S[2]) && near(M10S[2][3], 0) && near(det3(M10), 0) &&\n      c2.want === '7 × row 3, plus row 2' && near(C2[2][1], 0) && near(C2[2][0], 0) && !near(C1W2[2][1], 0) && !near(C1W1[2][0], 0) &&\n      nm.want === '0 = ' + num(QS[2][3]) + ', so no answer' && zeroRow(QS[2]) && !near(QS[2][3], 0);\n  });\n  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;\n      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;\n      if (drawn(i, solvedSt(i)).bad !== 0) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);\n    }));\n  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () =>\n    DO.every((i) => {\n      const b = drawn(i, blank()), s = drawn(i, solvedSt(i));\n      return b.reveal === 0 && s.reveal > 0 && b.lines.length === 0;\n    }));\n  K.check('On the line screen, at every t the slider can take, the dot sits at (2 − t, 1, t) on the shared line, and putting it into each first equation gives back that equation\\'s constant', () => {\n    let ok = true;\n    for (let t = -2; t <= 2 + 1e-9; t += 0.5) {\n      const r = drawn(LINE, blank(), null, t);\n      ok = ok && samePt(r.dot, [2 - t, 1, t], 1e-9) && N2.every((row, k) => fits(row, r.dot) && r.lines[k] === subLine(row, r.dot) && r.lines[k].endsWith('= ' + num(row[3]))) && !!r.shared;\n    }\n    return ok;\n  });\n  K.check('Each demonstration ends where the lesson says: the first planes meet at (1, 2, 3); row 2 becomes [0 −1 −3 | −11] with the dot unmoved; the grid ending 9 has no dot; the circuit\\'s row 2 becomes [0 21 −6 | 12]', () => {\n    const g = drawn(idx('grid'), blank()), m = drawn(MOVE, blank()), n = drawn(idx('none'), blank()), c = drawn(idx('circuit'), blank());\n    return samePt(g.dot, SOL1) && g.planes.length === 3 && sameM(m.grid, A2) && samePt(m.dot, SOL1) && m.work === '−2 × row 1' && sameM(n.grid, N1S) && n.dot === null && sameM(c.grid, C1) && c.circuit;\n  });\n  K.check('Where the three planes never meet, the view looks about 30 degrees off their lines, so they show as a triangle, not as stacked squares; where they share a line, about 50 degrees off it, so the line stays long', () =>\n    [['none', DN, 30], ['zero', DN, 30], ['nomeet', DQ, 30], ['line', DN, 50], ['many', D10, 50]].every((q) => {\n      const d = STEPS[idx(q[0])], th = Math.acos(Math.min(1, Math.abs(dot(towards(viewOf(d.al0)), q[1])))) / RAD;\n      return Math.abs(th - q[2]) < 3;\n    }));\n  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 3 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 3 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 3);\n    }) && timed(MOVE, Object.assign(blank(), { M: A3, prev: A2, last: MV2 }), 1.5);\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Clear the columns",
+  "brief": "The one thing you should see is each row move swinging one plane while all three planes still meet at the same dot, when you add a multiple of one row to another until the grid is a staircase.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Add a nonzero multiple of one row to another row: on the row-move screen every pick of two different rows and a nonzero multiplier changes that one row, swings its plane about the line it shares with the added row's plane, and leaves the dot where it was",
+     "ok": true,
+     "source": "https://openstax.org/books/college-algebra-corequisite-support/pages/7-6-solving-systems-with-gaussian-elimination"
+    },
+    {
+     "label": "The equations are replaced by a system having the same solution but in triangular form, then solved by back-substitution: the staircase screen ends with zeros under the diagonal and the first grid's answer, and its lines find z, then y, then x",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf"
+    },
+    {
+     "label": "A system may have a unique solution, an infinity of solutions or no solution at all: the first planes meet at one dot; the grid whose bottom row ends as zero equals a number other than zero has no dot and three side-by-side lines; the grid whose bottom row is all zeros has a shared line, every point of which fits",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf"
+    },
+    {
+     "label": "Breaking the circuit into simple loops leads to a set of linear equations in the unknown currents: each loop's row holds its total resistance on the diagonal and minus each shared resistance beside it, and the currents found fit every first row",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf"
+    },
+    {
+     "label": "Every worked number is right: −2 × row 1 makes row 2 [0 −1 −3 | −11]; −1 × row 1 makes row 3 [0 −2 1 | −1] (5 and 11 are the slips); −2 × row 2 makes [0 0 7 | 21], so z = 3, y = 2 and x = 1, and (1, 2, 3) gives 6, 1 and 5; the staircase puzzle gives (2, 1, 2), with 0 and 1 the slips; the grid ending 9 steps to 0 = 5 and the one ending 4 to 0 = 0, both with determinant 0; the line is (2 − t, 1, t); the third grid steps to [0 −3 3 | −3] and 0 = 0; the circuit's determinant is 324, row 2 becomes [0 21 −6 | 12] and row 3 [0 0 36 | 54], giving 1.5 A, 1 A and 2.5 A, with −7.5 + 12 − 4.5 = 0 and 0.5 A against loop 2 (18 and 6 are the slips); the last grid ends 0 = 1",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle's answer comes from the rule, and each wrong answer offered is the slip its hint names",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+     "ok": true
+    },
+    {
+     "label": "On the line screen, at every t the slider can take, the dot sits at (2 − t, 1, t) on the shared line, and putting it into each first equation gives back that equation's constant",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends where the lesson says: the first planes meet at (1, 2, 3); row 2 becomes [0 −1 −3 | −11] with the dot unmoved; the grid ending 9 has no dot; the circuit's row 2 becomes [0 21 −6 | 12]",
+     "ok": true
+    },
+    {
+     "label": "Where the three planes never meet, the view looks about 30 degrees off their lines, so they show as a triangle, not as stacked squares; where they share a line, about 50 degrees off it, so the line stays long",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "tgt",
+    "src",
+    "mult",
+    "t"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Planes and rows",
+      "Write the row",
+      "A row move",
+      "Clear column 1",
+      "The staircase",
+      "From the bottom up",
+      "No common point",
+      "Change one constant",
+      "A whole line",
+      "How many answers?",
+      "The circuit",
+      "Mixed: clear column 2",
+      "Mixed: the bottom row"
+     ],
+     "value": 0
+    },
+    {
+     "id": "tgt",
+     "kind": "choice",
+     "label": "Row to change",
+     "options": [
+      1,
+      2,
+      3
+     ],
+     "labels": [
+      "1",
+      "2",
+      "3"
+     ],
+     "value": 3,
+     "index": 2,
+     "shown": false
+    },
+    {
+     "id": "src",
+     "kind": "choice",
+     "label": "Row to add",
+     "options": [
+      1,
+      2,
+      3
+     ],
+     "labels": [
+      "1",
+      "2",
+      "3"
+     ],
+     "value": 2,
+     "index": 1,
+     "shown": false
+    },
+    {
+     "id": "mult",
+     "kind": "choice",
+     "label": "Multiplier",
+     "options": [
+      -3,
+      -2,
+      -1,
+      1,
+      2,
+      3
+     ],
+     "labels": [
+      "−3",
+      "−2",
+      "−1",
+      "1",
+      "2",
+      "3"
+     ],
+     "value": 1,
+     "index": 3,
+     "shown": false
+    },
+    {
+     "id": "t",
+     "kind": "control",
+     "label": "Along the line, t",
+     "min": -2,
+     "max": 2,
+     "step": 0.5,
+     "log": false,
+     "value": 1,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Add",
+    "Reset",
+    "Play again",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 3
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T17:43:38.644Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "The steps fail as written when a clearing row has 0 in its own column (e.g. an equation with no x put first): no multiple of it clears anything. Textbooks list swapping two rows as a row operation that fixes this."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

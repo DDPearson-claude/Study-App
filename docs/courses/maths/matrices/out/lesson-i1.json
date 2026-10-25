@@ -1,0 +1,613 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-25T17:43:38.644Z",
+ "startedAt": "2026-10-25T17:43:38.644Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "What a matrix is",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is x lots of column 1 and y lots of column 2, nose to tail, landing where the grid's two rows add up to, when you slide x and y.",
+   "title": "Mix two arrows",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in twelve small screens, all on one grid of numbers. On one line, a grid is written row by row with a semicolon between rows. So [1 3; 2 1] has rows 1 3 and 2 1. Its two columns are drawn as two arrows from the corner of a squared grid. Column 1 is the arrow (1, 2), and column 2 is (3, 1). Two sliders set the amounts x and y. The mix is drawn nose to tail, the way you add arrows. First come x copies of column 1. Then y copies of column 2 start where they end. A dot marks where the chain ends. The view zooms out to keep the whole chain in sight. Beside the picture, the grid times the column (x, y) is written out with its answer. Tap a row and it lights as one equation, such as x + 3y = 5. The top number of each column is that arrow's across part. So row 1 adds the across parts of the chain, and row 2 adds the up parts. Tap a column and its arrow lights. Drag either arrow's tip to a whole point, and the grid's numbers change with it. The screens. 1: a 2 by 3 grid, [4 7 1; 2 5 3], with its rows and columns labelled and row 1, column 3 lit. 2: a puzzle. Which number is in row 2, column 1? It offers 2, 7 and 5. 3: x + 3y = 7 and 2x + y = 4, written as [1 3; 2 1] times (x, y) = (7, 4). 4: a puzzle. Which grid holds 3x + 2y = 13 and x − y = 1? It offers [3 2; 1 −1], [3 1; 2 −1] and [3 2; 1 1]. 5: the columns as arrows, mixed with x = 2 and y = 1 to land on (5, 5). 6: a puzzle. Where does [1 3; 2 1] times (2, 2) land? It offers (8, 6), (6, 8) and (4, 3). The chain is drawn only after Check. 7: the mix of x = 3 and y = 1, landing on (6, 7), with rows and columns lit in turn and the tips free to drag. 8: a puzzle on [2 4; 1 3]. Which pair is row 2 as an equation and column 2 as an arrow? It offers x + 3y and (4, 3), 4x + 3y and (1, 3), and x + 3y and (1, 3). 9: a target dot at (7, 4). It opens on x = 1 and y = 1, which fall short on (4, 3). Sliding to x = 1 and y = 2 hits it. 10: a puzzle. Which equations find the amounts that hit (9, 8)? It offers x + 3y = 9 and 2x + y = 8, x + 2y = 9 and 3x + y = 8, and x + 3y = 8 and 2x + y = 9. 11: a mixed puzzle. What size is the grid for x + y = 5, x − y = 1 and 2x + y = 8? It offers 3 by 2, 2 by 3 and 3 by 3. 12: a mixed puzzle on an example circuit's loop equations. 6I₁ − 2I₂ = 12 and −2I₁ + 6I₂ = 4 are [6 −2; −2 6] times the loop currents. Which column of voltages do currents of 2.5 A and 1.5 A give? It offers (12, 4), (15, 9) and (18, 14). Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines. A wrong pick is drawn, so you can see where it goes wrong.",
+   "ignores": "The amounts in the puzzles are small whole numbers, chosen so the chain can be drawn and counted. An amount can be any number. An amount between 0 and 1 shortens an arrow. A negative amount turns it round. The arrows come from 2 by 2 grids. So each arrow has two parts and fits on a flat page. A grid with three rows mixes arrows with three parts in the same way, but that needs a 3-D drawing. More parts than that cannot be drawn as one picture. Not every target can be hit. Two arrows along one line can only reach points on that line.",
+   "numbers": [
+    {
+     "label": "Example 2 by 3 grid's rows, steps 1 and 2",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example 2 by 3 grid's columns, steps 1 and 2",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid [4 7 1; 2 5 3], row 1, column 1",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid [4 7 1; 2 5 3], row 1, column 2",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid [4 7 1; 2 5 3], row 1, column 3",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid [4 7 1; 2 5 3], row 2, column 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid [4 7 1; 2 5 3], row 2, column 2",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid [4 7 1; 2 5 3], row 2, column 3",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Main grid [1 3; 2 1], row 1, column 2",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Main grid [1 3; 2 1], row 2, column 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Main grid's other two entries",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Target's across part, x + 3y = 7, steps 3 and 9",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Target's up part, 2x + y = 4, steps 3 and 9",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Amount x that hits (7, 4)",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Amount y that hits (7, 4)",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 4 equation 3x + 2y = 13, its x number",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 equation 3x + 2y = 13, its y number",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 equation 3x + 2y = 13, its answer",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 equation x − y = 1, its y number",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 4 equation x − y = 1, its answer",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider x and y lowest amount",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Slider x and y highest amount",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Opening amount x, step 5",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Opening amount y, step 5",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Two lots of (1, 2), across part",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Two lots of (1, 2), up part",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Mix 2 × (1, 2) + 1 × (3, 1), each part",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Rows mixed as arrows with x = 2, y = 1, across",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Rows mixed as arrows with x = 2, y = 1, up",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 amounts x and y",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 6 mix, across part",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 mix, up part",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 wrong pick, rows as arrows, (6, 8)",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 6 wrong pick, amounts ignored, (4, 3)",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 8 grid [2 4; 1 3], row 1 entries",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 8 grid [2 4; 1 3], row 2, column 2",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 10 target, across part",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 10 target, up part",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Amount x that hits (9, 8)",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Amount y that hits (9, 8)",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 equation x + y = 5, its answer",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 equation x − y = 1, its answer",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 equation 2x + y = 8, its answer",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 11 grid size, rows",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 11 grid size, columns",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 example loop resistance on the diagonal, in ohms",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 example shared resistance entry, in ohms",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 example loop 1 voltage, in volts",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 example loop 2 voltage, in volts",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 example current I₁, in amps",
+     "value": 2.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 example current I₂, in amps",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 12 row 1, 6 × 2.5",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 row 2, 6 × 1.5",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 row 2, −2 × 2.5",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 wrong pick, signs dropped, row 1",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 12 wrong pick, signs dropped, row 2",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy example jobs of kind A",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy total coils, 3 × 1 + 1 × 3",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy total boxes, 3 × 2 + 1 × 1",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice amounts x and y",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice equation x + 4y = 15, its answer",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice arrow 3 × (−1, 4), across part",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice arrow 3 × (−1, 4), up part",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 amount x",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 7 amount y",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Step 7 mix 3 × (1, 2) + 1 × (3, 1), across part",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 7 mix 3 × (1, 2) + 1 × (3, 1), up part",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Opening amounts x and y, step 9",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Step 9 opening mix, across part",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Step 9 opening mix, up part",
+     "value": 3,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A [[matrix]] is a grid of numbers in rows and columns. You can read it two ways. When it holds a set of equations, each row holds the numbers of one equation.[^1] Down the grid, each column is an arrow. Multiplying the grid by a column of amounts mixes those arrows. It takes so many of the first plus so many of the second.\n\nA grid's size is its rows, then its columns. So 2 rows and 3 columns make a 2 by 3 grid. Each number in it is an [[entry]], named by its row first, then its column. On one line, a grid is written row by row with a semicolon between rows. In [4 7 1; 2 5 3], row 2, column 1 is 2. Row 1, column 2 is 7. Now take the equations x + 3y = 7 and 2x + y = 4. Their numbers make the grid [1 3; 2 1], one row for each equation. The unknowns x and y stand in a column beside it. The 7 and 4 stand in a column after the equals sign. To read row 1 back, multiply across the row and down the unknowns together, then add. That gives 1 × x + 3 × y, so row 1 says x + 3y = 7.\n\nRead down its columns, and the same grid becomes two arrows. Column 1 is the arrow (1, 2), and column 2 is the arrow (3, 1). Every x in the equations multiplies a number from column 1. So all the x parts together make x lots of column 1. All the y parts make y lots of column 2. The grid times (x, y) is therefore x lots of column 1 plus y lots of column 2, laid nose to tail. That mix is a [[linear combination]] of the columns.[^2] Try x = 2 and y = 1. Two lots of (1, 2) reach (2, 4). One (3, 1) on the end lands on (5, 5). The rows give the same point. The top number of each column is that arrow's across part. So row 1 adds the across parts, 1 × 2 + 3 × 1 = 5. Row 2 adds the up parts, 2 × 2 + 1 × 1 = 5. A row is not one of those arrows, because it holds one part of each. Mix the rows as if they were arrows, and you land on (4, 7) instead.\n\nTurn it round, and you have simultaneous equations. To land on (7, 4), the across parts must make 7 and the up parts 4. That is x + 3y = 7 and 2x + y = 4. They give x = 1 and y = 2. A circuit's loop equations fit a grid the same way, with the loop currents as the column of unknowns.[^3] Finding the currents then means finding the amounts that make the grid hit its column of voltages.\n\n**A matrix times a column of amounts is that many of each of its columns, added nose to tail. Each row of the grid is one equation for one part of it.**[^2]"
+  },
+  "analogy": {
+   "text": "Think of a kit list for two kinds of job. Say job A takes 1 coil of cable and 2 boxes of clips. Job B takes 3 coils and 1 box. Each job's list is a column. For 3 of job A and 1 of job B, you order 3 lots of column A plus 1 lot of column B. Row 1 then totals the coils, 3 × 1 + 1 × 3 = 6. Row 2 totals the boxes, 3 × 2 + 1 × 1 = 7.",
+   "breaks": "Jobs come in whole numbers, counted up from none. A matrix's amounts can be fractions or negative, and a negative amount turns its arrow round. A kit list has no direction either, so nothing in it is laid nose to tail."
+  },
+  "practice": {
+   "text": "- Write each equation with its unknowns in the same order, x then y. Put a 0 where an unknown is missing.\n- Each equation becomes one row of the grid, in order.\n- Each unknown's numbers go down one column.\n- The unknowns make a column after the grid. The totals make a column after the equals sign.\n- Check by multiplying across each row and down the unknowns, then adding. You should get each equation back.\n- To read it as arrows, take x lots of column 1 plus y lots of column 2.\n\n**Rule of thumb:** Rows are equations and columns are arrows. Name an entry by its row first.\n\n**Worked example:** Take 2x − y = 3 and x + 4y = 15. Row 1 is 2 and −1. Row 2 is 1 and 4. So the grid is [2 −1; 1 4]. Try x = 3 and y = 3. Row 1 gives 2 × 3 − 1 × 3 = 3. Row 2 gives 1 × 3 + 4 × 3 = 15. Both match. As arrows, 3 lots of (2, 1) is (6, 3). And 3 lots of (−1, 4) is (−3, 12). Nose to tail, they end at (3, 15). Those are the same two totals.\n\nA grid with as many rows as columns is called square. Swap its rows for its columns and you get its transpose. So [1 3; 2 1] becomes [1 2; 3 1].\n\n**Common mistakes**\n- Swapping rows and columns. In [4 7 1; 2 5 3], row 2, column 1 is 2, not 7.\n- Writing an equation down a column. x − y = 1 goes across one row, as 1 and −1.\n- Mixing the rows as arrows. [1 3; 2 1] times (2, 1) is (5, 5). Its rows as arrows give (4, 7).\n- Dropping a minus sign or a missing unknown. x − y has −1 for y. An equation with no y has 0 there.\n- Taking each column once and forgetting the amounts."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "HELM Workbook 7: Matrices",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf",
+    "quote": "all the entries in the second row relate to the second equation"
+   },
+   {
+    "n": 2,
+    "title": "2.2: Matrix Multiplication - Mathematics LibreTexts",
+    "url": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication",
+    "quote": "column vector and interpret the result as a linear combination of the columns of the matrix."
+   },
+   {
+    "n": 3,
+    "title": "Mesh Current Analysis - DC Circuit Theory",
+    "url": "https://www.electronics-tutorials.ws/dccircuits/dcp_5.html",
+    "quote": "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }\n  /* Squared paper, brackets, cells and bands. */\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .brk.bad { stroke: var(--k-warn); }\n  .scene .cell { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }\n  .scene .band { fill: var(--k-fill1); }\n  .scene .lit { fill: var(--k-hl); }\n  .scene .badbox { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }\n  /* Arrows: column 1 and column 2 told apart by colour; a slip is dashed in the warning colour. */\n  .scene .arr .sh { fill: none; stroke-width: 3.2; stroke-linecap: round; }\n  .scene .arr.base .sh { stroke-width: 4.2; }\n  .scene .p1 .sh { stroke: var(--k-cat1); }\n  .scene .p1 .hd { fill: var(--k-cat1); }\n  .scene .p2 .sh { stroke: var(--k-cat2); }\n  .scene .p2 .hd { fill: var(--k-cat2); }\n  .scene .bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; stroke-width: 2.6; }\n  .scene .bad .hd { fill: var(--k-warn); }\n  .scene .glow { fill: none; stroke: var(--k-hl); stroke-width: 12; stroke-linecap: round; }\n  .scene .leg { fill: none; stroke: var(--k-accent); stroke-width: 2.6; stroke-dasharray: 6 4; }\n  .scene .dot { fill: var(--k-accent2); }\n  .scene .dot.bad { fill: var(--k-warn); }\n  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; }\n  .scene .ring.bad { stroke: var(--k-warn); stroke-dasharray: 4 3; }\n  /* Words and numbers. */\n  .scene .big { font: 700 20px var(--k-font); fill: var(--k-ink); }\n  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }\n  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }\n  .scene .op { font: 600 17px var(--k-font); fill: var(--k-muted); }\n  .scene .eq { font: 600 16px var(--k-font); fill: var(--k-ink); }\n  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .ln.sm2 { font-size: 13px; }\n  .scene .ln.mu { font-weight: 400; fill: var(--k-muted); }\n  .scene .en.ok, .scene .ln.ok { fill: var(--k-accent2); }\n  .scene .en.bad, .scene .ln.bad, .scene .lb.bad { fill: var(--k-warn); }\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tick { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lb.mu { font-weight: 600; font-size: 13px; fill: var(--k-muted); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene tspan.v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  #xybox, #litbox { max-width: 24rem; margin-inline: auto; }\n  #litbox .k-seg button { white-space: nowrap; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A grid of numbers, read across its rows and down its columns. On squared paper, its columns are drawn as arrows. The grids and amounts are examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 248\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><clipPath id=\"pclip\"><rect id=\"pcliprect\" x=\"0\" y=\"0\" width=\"340\" height=\"366\"></rect></clipPath></defs><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"k-controls\" id=\"xybox\"></div>\n    <div class=\"k-controls\" id=\"litbox\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Rows are equations and columns are arrows. Every landing point is worked out from the grid.</p>\n\n<script>\n  // ---------- numbers and words (pure, so the checks can test them) ----------\n  const MINUS = '−', NB = ' ';\n  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }\n  const pt = (v) => '(' + num(v[0]) + ', ' + num(v[1]) + ')';\n  const oneLine = (M) => '[' + M.map((r) => r.map(num).join(' ')).join('; ') + ']';\n  // A row of numbers as the left side of an equation: [3, 2] -> '3x + 2y', [1, -1] -> 'x − y'.\n  function lin(cs, ls) {\n    let s = '';\n    cs.forEach((c, k) => {\n      if (!c) return;\n      const a = Math.abs(c), body = (a === 1 ? '' : num(a)) + ls[k];\n      s += s ? (c < 0 ? ' ' + MINUS + ' ' : ' + ') + body : (c < 0 ? MINUS : '') + body;\n    });\n    return s || '0';\n  }\n  // A row times the unknowns, written out: [1, 3] -> '1 × x + 3 × y'.\n  const work = (r, vs) => r.map((c, k) => (k ? (c < 0 ? ' ' + MINUS + ' ' : ' + ') + num(Math.abs(c)) : num(c)) + ' × ' + vs[k]).join('');\n  const parseGrid = (s) => String(s).replace(/[[\\]]/g, '').split(';').map((r) => r.trim().split(/\\s+/).map((t) => +t.replace(MINUS, '-')));\n  const parsePt = (s) => String(s).replace(/[()]/g, '').split(',').map((t) => +t.trim().replace(MINUS, '-'));\n  const XY = ['x', 'y'], II = ['I₁', 'I₂'];\n  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/=/g, ' equals ')\n    .replace(/I₁/g, 'I one').replace(/I₂/g, 'I two').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the rule ----------\n  // A grid times a column: each row multiplies across and adds.\n  const mul = (M, v) => M.map((r) => r.reduce((a, m, k) => a + m * v[k], 0));\n  const colsOf = (M) => M[0].map((z, k) => M.map((r) => r[k]));\n  const gridOf = (cols) => cols[0].map((z, i) => cols.map((c) => c[i]));\n  // The chain: so many copies of the first arrow, then of the second, each starting where the last ends.\n  function chainOf(arrows, amts) {\n    const segs = [];\n    let p = [0, 0];\n    arrows.forEach((c, k) => { for (let n = 0; n < amts[k]; n++) { const q = [p[0] + c[0], p[1] + c[1]]; segs.push({ a: p, b: q, k }); p = q; } });\n    return { segs, end: p };\n  }\n  const combo = (arrows, amts) => chainOf(arrows, amts).end;\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: what is drawn. M: the grid. dur: a SHOW step's demonstration in seconds. read: its words for\n  // the read-through, where its own words ask him to act; still: the state its picture shows there.\n  // A puzzle: task, opts (three answers), want, hints (one per wrong answer), why, fb (seconds of\n  // motion after a right and a wrong answer). Plane steps: amt, the amounts x and y; sliders, light\n  // and drag, what Dan may change; target, a point to hit; hide, the chain waits for Check; wrong,\n  // how each wrong answer is drawn.\n  const MAIN = [[1, 3], [2, 1]];\n  const PICK = 'Tap one of the answers.';\n  const STEPS = [\n    { show: true, name: 'A grid of numbers', pic: 'cells', M: [[4, 7, 1], [2, 5, 3]], lit: [0, 2], dur: 4.3,\n      text: 'A *matrix* is a grid of numbers in rows and columns. This one has 2 rows and 3 columns, so it is a 2 by 3 grid. Each number is an *entry*, named by its row first, then its column.' },\n    { kind: 'pick', name: 'Row 2, column 1', pic: 'cells', M: [[4, 7, 1], [2, 5, 3]], ask: [1, 0], fb: [1.4, 1.0],\n      task: 'Which number is in row 2, column 1?', opts: ['7', '2', '5'], want: '2',\n      hints: { '7': 'Not quite. That is row 1, column 2. Go down to row 2 first.', '5': 'Not quite. That is row 2, column 2. Column 1 is the first one across.' },\n      why: 'The row comes first. Row 2 holds 2, 5 and 3. Its entry in column 1 is 2.' },\n    { show: true, name: 'Equations as a grid', pic: 'eqs', M: MAIN, rhs: [7, 4], dur: 4.2,\n      text: 'Take `x + 3y = 7` and `2x + y = 4`. Each equation\\'s numbers make one row of the grid `[1 3; 2 1]`. The unknowns stand in a column beside it, and the totals in a column after the equals sign. To read a row back, multiply across it and down the unknowns, then add.' },\n    { kind: 'pick', name: 'Which grid?', pic: 'which', M: [[3, 2], [1, -1]], rhs: [13, 1], fb: [1.3, 1.3],\n      task: 'Which grid holds `3x + 2y = 13` and `x − y = 1`?', opts: ['[3 2; 1 −1]', '[3 1; 2 −1]', '[3 2; 1 1]'], want: '[3 2; 1 −1]',\n      hints: { '[3 1; 2 −1]': 'Not quite. That puts each equation down a column. An equation goes across one row.', '[3 2; 1 1]': 'Not quite. `x − y` has −1 for `y`. Keep the minus sign.' },\n      why: 'Row 1 holds the numbers of `3x + 2y`, which are 3 and 2. Row 2 holds the numbers of `x − y`, which are 1 and −1. So the grid is `[3 2; 1 −1]`.' },\n    { show: true, name: 'Columns are arrows', pic: 'plane', M: MAIN, amt: [2, 1], sliders: true, joint: true, dur: 4.1,\n      text: 'Read down its columns, and the grid is two arrows, `(1, 2)` and `(3, 1)`. The grid times `(2, 1)` takes 2 lots of column 1 and 1 lot of column 2, nose to tail. At first the chain lands on `(5, 5)`. Slide `x` and `y` to mix other amounts.',\n      read: 'Read down its columns, and the grid is two arrows, `(1, 2)` and `(3, 1)`. The grid times `(2, 1)` takes 2 lots of column 1 and 1 lot of column 2, nose to tail. Two lots of `(1, 2)` reach `(2, 4)`, and one `(3, 1)` more lands on `(5, 5)`.' },\n    { kind: 'pick', name: 'Two of each', pic: 'plane', M: MAIN, amt: [2, 2], hide: true, fb: [2.0, 1.6],\n      task: 'Where does `[1 3; 2 1]` times `(2, 2)` land?', opts: ['(6, 8)', '(4, 3)', '(8, 6)'], want: '(8, 6)', wrong: { '(6, 8)': 'rows', '(4, 3)': 'once' },\n      hints: { '(6, 8)': 'Not quite. That mixes the rows as arrows. The arrows are the columns.', '(4, 3)': 'Not quite. That takes each column once. Take 2 lots of each.' },\n      why: 'Two lots of `(1, 2)` reach `(2, 4)`. Two lots of `(3, 1)` add `(6, 2)`. Nose to tail, the chain lands on `(8, 6)`.' },\n    { show: true, name: 'Rows and columns', pic: 'plane', M: MAIN, amt: [3, 1], light: true, drag: true, dur: 4.3, still: { light: 'c1' },\n      text: 'Row 1 holds the top number of each column. That is each arrow\\'s across part. So row 1 adds the across parts of the chain, and at first it reads `x + 3y = 6`. Row 2 adds the up parts, and at first it reads `2x + y = 7`. Each column is one arrow. Light up a row or a column, and drag a tip to change the grid.',\n      read: 'Row 1 holds the top number of each column. That is each arrow\\'s across part. So row 1 adds the across parts of the chain, and it reads `x + 3y = 6`. Row 2 adds the up parts, and it reads `2x + y = 7`. Each column is one arrow, and moving its tip changes the grid\\'s numbers.' },\n    { kind: 'pick', name: 'Both readings', pic: 'read', M: [[2, 4], [1, 3]], fb: [1.0, 1.0],\n      task: 'In `[2 4; 1 3]`, which pair is row 2 as an equation and column 2 as an arrow?', opts: ['4x + 3y and (1, 3)', 'x + 3y and (4, 3)', 'x + 3y and (1, 3)'], want: 'x + 3y and (4, 3)',\n      hints: { '4x + 3y and (1, 3)': 'Not quite. That swaps them. A row runs across, and a column runs down.', 'x + 3y and (1, 3)': 'Not quite. The equation is right. Column 2 runs down, through 4 and 3.' },\n      why: 'Row 2 runs across, through 1 and 3, so it reads `x + 3y`. Column 2 runs down, through 4 and 3, so it is the arrow `(4, 3)`.' },\n    { show: true, name: 'Hit the target', pic: 'plane', M: MAIN, amt: [1, 1], target: [7, 4], sliders: true, dur: 3.9, still: { x: 1, y: 2 },\n      text: 'To land on the target `(7, 4)`, the across parts must make 7 and the up parts 4. That is `x + 3y = 7` and `2x + y = 4`, the same pair as before. Together they are *simultaneous equations*. At first, one lot of each falls short, on `(4, 3)`. Slide `x` and `y` until the chain hits the target.',\n      read: 'To land on the target `(7, 4)`, the across parts must make 7 and the up parts 4. That is `x + 3y = 7` and `2x + y = 4`, the same pair as before. Together they are *simultaneous equations*. One lot of column 1 and two of column 2 hit the target.' },\n    { kind: 'pick', name: 'Aim for (9, 8)', pic: 'plane', M: MAIN, amt: [3, 2], target: [9, 8], hide: true, fb: [2.3, 1.0],\n      task: 'Which equations find the amounts that hit `(9, 8)`?', opts: ['x + 3y = 8 and 2x + y = 9', 'x + 2y = 9 and 3x + y = 8', 'x + 3y = 9 and 2x + y = 8'], want: 'x + 3y = 9 and 2x + y = 8',\n      wrong: { 'x + 2y = 9 and 3x + y = 8': 'cols', 'x + 3y = 8 and 2x + y = 9': 'swap' },\n      hints: { 'x + 2y = 9 and 3x + y = 8': 'Not quite. Those read the grid down its columns. Each equation is a row.', 'x + 3y = 8 and 2x + y = 9': 'Not quite. Row 1 adds the across parts, so it must make 9.' },\n      why: 'Row 1 adds the across parts, `x + 3y`, and the target is 9 across. Row 2 adds the up parts, `2x + y`, and it is 8 up. They give `x = 3` and `y = 2`. Not every target can be hit. Two arrows along one line reach only points on that line.' },\n    { kind: 'pick', name: 'How big?', pic: 'size', eqs: [[1, 1], [1, -1], [2, 1]], rhs: [5, 1, 8], fb: [1.1, 1.1],\n      task: 'What size is the grid for `x + y = 5`, `x − y = 1` and `2x + y = 8`?', opts: ['2 by 3', '3 by 2', '3 by 3'], want: '3 by 2', wrong: { '2 by 3': 'flip', '3 by 3': 'rhs' },\n      hints: { '2 by 3': 'Not quite. Size is rows first, and each equation is a row.', '3 by 3': 'Not quite. The totals 5, 1 and 8 stand in their own column, after the equals sign.' },\n      why: 'Three equations make 3 rows. Two unknowns, `x` and `y`, make 2 columns. Rows come first, so it is a 3 by 2 grid. Turning its rows into columns gives its *transpose*, a 2 by 3 grid. A grid with as many rows as columns is *square*.' },\n    { kind: 'pick', name: 'Loop currents', pic: 'loop', M: [[6, -2], [-2, 6]], amt: [2.5, 1.5], fb: [1.3, 1.0],\n      task: 'An example circuit\\'s two loops give the grid `[6 −2; −2 6]` in ohms. It times the loop currents to give each loop\\'s voltage. Which column of voltages do currents of 2.5 A and 1.5 A give?',\n      opts: ['(12, 4)', '(18, 14)', '(15, 9)'], want: '(12, 4)', wrong: { '(15, 9)': 'diag', '(18, 14)': 'abs' },\n      hints: { '(15, 9)': 'Not quite. Each row uses both of its entries, the −2 as well.', '(18, 14)': 'Not quite. Keep the minus signs. `−2 × 1.5` takes 3 away.' },\n      why: 'Row 1 gives `6 × 2.5 − 2 × 1.5 = 12`. Row 2 gives `−2 × 2.5 + 6 × 1.5 = 4`. So the voltages are 12 V and 4 V, and `6I₁ − 2I₂ = 12` and `−2I₁ + 6I₂ = 4` both hold.' },\n  ];\n  const FINISH = 'A matrix times a column of amounts takes that many of each of its columns, added nose to tail. Each row of the grid is one equation for one part of where it lands.';\n  // Sources the checks restate (the lesson's own).\n  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf';\n  const LIBRE = 'https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication';\n  const MESH = 'https://www.electronics-tutorials.ws/dccircuits/dcp_5.html';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  // Step 7's demonstration lights row 1, then row 2, then column 1 (seconds on and off).\n  const LIGHTS = [{ k: 'r1', on: 1.0, off: 2.2 }, { k: 'r2', on: 2.5, off: 3.5 }, { k: 'c1', on: 3.8 }];\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // amt: Dan's amounts on a slider step; light: what Dan lit; c: the two columns after he drags a tip.\n  function blank() { return { pick: null, res: null, why: false, amt: null, light: null, c: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;\n  let REC = null;   // what the last paint drew, for the checks\n  const el = (id) => document.getElementById(id);\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z])|I[₁₂])/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  // The amounts x and y, on the slider screens only (their box is hidden elsewhere).\n  const xCtl = K.control({ id: 'x', label: 'x, lots of column 1', min: 0, max: 3, step: 1, value: 2, into: '#xybox' });\n  const yCtl = K.control({ id: 'y', label: 'y, lots of column 2', min: 0, max: 3, step: 1, value: 1, into: '#xybox' });\n  // What to light, on the rows-and-columns screen only.\n  const litCtl = K.choice({ id: 'light', label: 'Light up', value: 'r1', into: '#litbox', options: [\n    { value: 'r1', label: 'Row 1' }, { value: 'r2', label: 'Row 2' }, { value: 'c1', label: 'Column 1' }, { value: 'c2', label: 'Column 2' }] });\n  let xShown = xCtl.get(), yShown = yCtl.get(), litShown = litCtl.get();\n  function demoLight() { if (T === Infinity) return 'c1'; let k = 'r1'; LIGHTS.forEach((w) => { if (T >= w.on) k = w.k; }); return k; }\n  // While a demonstration plays, its controls follow it.\n  function syncCtl(i) {\n    const d = STEPS[i], st = S[i];\n    if (d.sliders) {\n      const a = st.amt || d.amt;\n      if (xCtl.get() !== a[0]) xCtl.set(a[0], true);\n      if (yCtl.get() !== a[1]) yCtl.set(a[1], true);\n      xShown = xCtl.get(); yShown = yCtl.get();\n    }\n    if (d.light) { const v = st.light || demoLight(); if (litCtl.get() !== v) litCtl.set(v, true); litShown = litCtl.get(); }\n  }\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    Object.assign(S[i], { amt: null, light: null, c: null });\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    syncCtl(at());\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncCtl(at()); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null, placed = [];\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }\n  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));\n  const nb = (s) => String(s).replace(/ /g, NB);\n  // Entries and equations sit on highlight bands, so they carry no halo of the page colour.\n  function text(x, y, s, cls, anchor) {\n    const plain = /^(en|big|q|eq|op)\\b/.test(cls);\n    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    italics(t, nb(s), true);\n    REC.texts.push(String(s).replace(/ /g, ' '));\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8.5;\n  }\n  // A line of words across the drawing, smaller when it would not fit.\n  function fitText(x, y, s, cls) { return text(x, y, s, tw(s, cls) > 322 ? cls + ' sm2' : cls); }\n  // An arrow from a to b (drawing units).\n  function arrow(a, b, cls) {\n    const g = add(K.svg('g', { class: 'arr ' + cls }));\n    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);\n    if (L < 1) return g;\n    const ux = dx / L, uy = dy / L, hl = Math.min(12, L * 0.5), hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;\n    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));\n    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n    return g;\n  }\n  const swatch = (cx, cy, kind) => arrow([cx - 6, cy + 6], [cx + 6, cy - 6], kind);\n  // A grid's geometry: rows' middles from y0, py apart; columns px wide inside brackets from x0.\n  function mgeo(x0, y0, n, m, px, py) {\n    return { x0, x1: x0 + 12 + px * m, top: y0 - py / 2 - 2, bot: y0 + py * (n - 1) + py / 2 + 2, px, py,\n      cx: (j) => x0 + 6 + px * j + px / 2, cy: (i) => y0 + py * i };\n  }\n  function brackets(G, bad) {\n    const c = 'brk' + (bad ? ' bad' : '');\n    add(K.svg('path', { class: c, d: 'M' + r3(G.x0 + 6) + ' ' + r3(G.top) + ' H' + r3(G.x0) + ' V' + r3(G.bot) + ' H' + r3(G.x0 + 6) }));\n    add(K.svg('path', { class: c, d: 'M' + r3(G.x1 - 6) + ' ' + r3(G.top) + ' H' + r3(G.x1) + ' V' + r3(G.bot) + ' H' + r3(G.x1 - 6) }));\n  }\n  function entriesOf(G, rows, cls, clsOf) { rows.forEach((r, i) => r.forEach((s, j) => text(G.cx(j), G.cy(i) + 6, s, cls + (clsOf ? clsOf(i, j) : '')))); }\n  const rowBand = (G, i, cls) => rect(cls, G.x0 + 3, G.cy(i) - G.py / 2 + 1, G.x1 - G.x0 - 6, G.py - 2, 6);\n  const colBand = (G, j, cls) => rect(cls, G.cx(j) - G.px / 2 + 1, G.top + 2, G.px - 2, G.bot - G.top - 4, 6);\n  const rowBox = (G, i) => rect('badbox', G.x0 + 2, G.cy(i) - G.py / 2, G.x1 - G.x0 - 4, G.py, 7);\n  const colBox = (G, j) => rect('badbox', G.cx(j) - G.px / 2, G.top + 1, G.px, G.bot - G.top - 2, 7);\n\n  // ---------- labels on the squared paper, clear of the arrows, the dots and each other ----------\n  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;\n  function segHits(b, s) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];\n    for (let k = 0; k < 4; k++) {\n      if (p[k] === 0) { if (q[k] < 0) return false; continue; }\n      const r = q[k] / p[k];\n      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  function placeLabel(px, py, s, cls, area, segs, pts) {\n    if (px < area.x0 - 2 || px > area.x1 + 2 || py < area.y0 - 2 || py > area.y1 + 2) return null;\n    const w = tw(s, cls);\n    let best = null, bestBad = Infinity;\n    [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]].forEach((c) => {\n      const cx = px + (c[0] ? c[0] * (11 + w / 2) : 0), cy = py + (c[1] ? c[1] * (c[0] ? 14 : 19) : 0);\n      const b = { x: cx - w / 2 - 3, y: cy - 8, w: w + 6, h: 17 };\n      let bad = 0;\n      if (b.x < area.x0 || b.x + b.w > area.x1 || b.y < area.y0 || b.y + b.h > area.y1) bad += 100;\n      placed.forEach((q) => { if (boxesMeet(b, q)) bad += 20; });\n      segs.forEach((sg) => { if (segHits(b, sg)) bad += 5; });\n      pts.forEach((p) => { if (p[0] > b.x - 8 && p[0] < b.x + b.w + 8 && p[1] > b.y - 8 && p[1] < b.y + b.h + 8) bad += 8; });\n      if (bad < bestBad) { bestBad = bad; best = { cx, cy, b }; }\n    });\n    placed.push(best.b);\n    return text(best.cx, best.cy + 5, s, cls);\n  }\n\n  // ---------- pictures ----------\n  // A grid of cells: rows and columns named, one entry lit.\n  function drawCells(d, st) {\n    const M = d.M, n = M.length, m = M[0].length, G = mgeo(118, 59, n, m, 64, 50);\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const t = d.show ? { r: [0.4, 0.7], rl: 1.1, cl: 1.5, size: 1.9, one: 2.3, rb: 2.8, cb: 3.2, lit: 3.6 }\n      : { r: [null, null], rl: null, cl: null, size: null, one: null, rb: 0.1, cb: 0.4, lit: 0.7 };\n    const cell = d.show ? d.lit : right ? d.ask : null, said = [];\n    if (cell) {\n      part(vis(t.rb), 0, () => rowBand(G, cell[0], 'band'));\n      part(vis(t.cb), 0, () => colBand(G, cell[1], 'band'));\n      part(vis(t.lit), 0, () => { rect('lit', G.cx(cell[1]) - 26, G.cy(cell[0]) - 20, 52, 40, 8); REC.lit = cell.slice(); if (!d.show) REC.reveal++; });\n    }\n    M.forEach((r, i) => part(vis(t.r[i]), 6, () => r.forEach((v, j) => { rect('cell', G.cx(j) - 26, G.cy(i) - 20, 52, 40, 8); text(G.cx(j), G.cy(i) + 7, num(v), 'big'); })));\n    part(vis(t.r[0]), 0, () => brackets(G));\n    part(vis(t.rl), 0, () => M.forEach((r, i) => text(G.x0 - 8, G.cy(i) + 5, 'row ' + (i + 1), 'sm', 'end')));\n    part(vis(t.cl), 0, () => M[0].forEach((v, j) => text(G.cx(j), G.top - 8, 'column ' + (j + 1), 'sm')));\n    said.push('A grid of ' + n + ' rows and ' + m + ' columns: ' + M.map((r, i) => 'row ' + (i + 1) + ' holds ' + r.map(num).join(', ')).join('; ') + '.');\n    const y0 = G.bot + 26;\n    part(vis(t.size), 0, () => text(170, y0, n + ' rows and ' + m + ' columns make a ' + n + ' by ' + m + ' grid.', 'ln'));\n    if (cell) part(vis(t.lit), 0, () => { const s = 'Row ' + (cell[0] + 1) + ', column ' + (cell[1] + 1) + ' holds ' + num(M[cell[0]][cell[1]]) + '.'; text(170, y0 + 26, s, 'ln ok'); said.push(s); });\n    if (wrong) {\n      let pos = null;\n      M.forEach((r, i) => r.forEach((v, j) => { if (num(v) === st.pick) pos = [i, j]; }));\n      if (pos) part(arr(0.1), 0, () => {\n        rect('badbox', G.cx(pos[1]) - 29, G.cy(pos[0]) - 23, 58, 46, 9);\n        const s = st.pick + ' sits in row ' + (pos[0] + 1) + ', column ' + (pos[1] + 1) + '.';\n        text(170, y0 + 26, s, 'ln bad'); said.push(s); REC.bad++;\n      });\n    }\n    part(vis(t.one), 0, () => { text(170, y0 + 52, 'On one line, it is ' + oneLine(M) + ',', 'ln'); text(170, y0 + 74, 'with a semicolon between rows.', 'ln'); });\n    return said.join(' ');\n  }\n\n  // An equation laid out piece by piece, so each number's place is known.\n  function eqLayout(cs, ls, rhs, x, cls) {\n    const ps = [];\n    cs.forEach((c, k) => {\n      if (k) ps.push({ s: NB + (c < 0 ? MINUS : '+') + NB });\n      else if (c < 0) ps.push({ s: MINUS });\n      const a = Math.abs(c);\n      ps.push({ s: a === 1 ? '' : num(a), coef: k });\n      ps.push({ s: ls[k], letter: k });\n    });\n    ps.push({ s: NB + '=' + NB }); ps.push({ s: num(rhs), rhs: true });\n    const L = { pieces: [], coef: [], rhs: 0, x0: x, x1: x };\n    let x1 = x;\n    ps.forEach((p) => {\n      const w = p.s ? tw(p.s, cls) : 0;\n      L.pieces.push({ s: p.s, x: x1 });\n      if (p.coef != null) L.coef[p.coef] = { x: x1 + w / 2, implicit: !p.s };\n      if (p.letter != null && L.coef[p.letter].implicit) L.coef[p.letter].x = x1 + w / 2;\n      if (p.rhs) L.rhs = x1 + w / 2;\n      x1 += w;\n    });\n    L.x1 = x1;\n    L.text = L.pieces.map((p) => p.s).join('').replace(/ /g, ' ');\n    return L;\n  }\n  function drawEq(L, y) { L.pieces.forEach((p) => { if (p.s) text(p.x, y, p.s, 'eq', 'start'); }); REC.eqs.push(L.text); }\n\n  // Two equations; their numbers fly into the rows of a grid.\n  function drawEqs(d, st) {\n    const M = d.M, ys = [30, 58], Ls = M.map((r, i) => eqLayout(r, XY, d.rhs[i], 110, 'eq'));\n    const G = mgeo(64, 104, 2, 2, 32, 28), A = mgeo(G.x1 + 20, 104, 2, 1, 32, 28), R = mgeo(A.x1 + 26, 104, 2, 1, 32, 28);\n    const t = { eq: [0.4, 0.7], fly: [1.2, 1.5], brk: 2.0, amt: 2.3, eqs: 2.5, rhs: [2.5, 2.7], under: 3.0, hl: 3.5 };\n    REC.grid = [[null, null], [null, null]];\n    part(vis(t.hl), 0, () => { rect('lit', Ls[0].x0 - 5, ys[0] - 17, Ls[0].x1 - Ls[0].x0 + 10, 24, 6); rowBand(G, 0, 'lit'); rowBand(R, 0, 'lit'); });\n    Ls.forEach((L, i) => part(vis(t.eq[i]), 6, () => drawEq(L, ys[i])));\n    M.forEach((r, i) => r.forEach((c, k) => {\n      const g = go(t.fly[i] + 0.15 * k, 0.8);\n      if (g <= 0) return;\n      const f = Ls[i].coef[k], a = f.implicit ? Math.min(1, g * 1.6) : 1;\n      part(a, 0, () => text(K.lerp(f.x, G.cx(k), g), K.lerp(ys[i], G.cy(i) + 6, g), num(c), 'en'));\n      if (g >= 1) REC.grid[i][k] = c;\n    }));\n    part(vis(t.brk), 0, () => brackets(G));\n    part(vis(t.amt), 0, () => { text(G.x1 + 10, 104 + 19, '×', 'op'); brackets(A); entriesOf(A, [['x'], ['y']], 'en'); });\n    part(vis(t.eqs), 0, () => { text(A.x1 + 13, 104 + 19, '=', 'op'); brackets(R); });\n    d.rhs.forEach((v, i) => {\n      const g = go(t.rhs[i], 0.8);\n      if (g > 0) text(K.lerp(Ls[i].rhs, R.cx(0), g), K.lerp(ys[i], R.cy(i) + 6, g), num(v), 'en');\n    });\n    part(vis(t.under), 0, () => { text((G.x0 + G.x1) / 2, R.bot + 20, 'grid', 'sm'); text(A.cx(0), R.bot + 20, 'unknowns', 'sm'); text(R.cx(0), R.bot + 20, 'answers', 'sm'); });\n    const back = 'Row 1: ' + work(M[0], XY) + ' = ' + num(d.rhs[0]);\n    part(vis(t.hl), 0, () => fitText(170, 198, back, 'ln'));\n    return 'The equations ' + Ls.map((L) => say(L.text)).join(' and ') + '. Their numbers make the grid ' + say(oneLine(M)) + ', beside the column x, y and the answers ' +\n      d.rhs.map(num).join(' and ') + '. ' + say(back) + '.';\n  }\n\n  // Two equations and a grid to fill: the chosen grid fills in and its rows are read back.\n  function drawWhich(d, st) {\n    const ys = [30, 58], Ls = d.M.map((r, i) => eqLayout(r, XY, d.rhs[i], 110, 'eq'));\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    Ls.forEach((L, i) => drawEq(L, ys[i]));\n    const G = mgeo(64, 104, 2, 2, 32, 28), A = mgeo(G.x1 + 20, 104, 2, 1, 32, 28), R = mgeo(A.x1 + 26, 104, 2, 1, 34, 28);\n    brackets(G);\n    text(G.x1 + 10, 104 + 19, '×', 'op');\n    brackets(A); entriesOf(A, [['x'], ['y']], 'en');\n    text(A.x1 + 13, 104 + 19, '=', 'op');\n    brackets(R); entriesOf(R, d.rhs.map((v) => [num(v)]), 'en');\n    const gone = right || wrong ? 1 - arr(0.1, 0.3) : 1;\n    part(gone, 0, () => entriesOf(G, [['?', '?'], ['?', '?']], 'q'));\n    let said = 'The equations ' + Ls.map((L) => say(L.text)).join(' and ') + ', and a grid to fill, times x, y, equals ' + d.rhs.map(num).join(' and ') + '.';\n    if (right || wrong) {\n      const P = parseGrid(st.pick);\n      REC.grid = P;\n      if (right) REC.reveal++;\n      part(arr(0.4, 0.4), 0, () => entriesOf(G, P.map((r) => r.map(num)), 'en', (i, j) => (P[i][j] === d.M[i][j] ? '' : ' bad')));\n      P.forEach((r, i) => {\n        const ok = r.every((v, j) => v === d.M[i][j]), s = 'Row ' + (i + 1) + ' reads ' + lin(r, XY) + ' = ' + num(d.rhs[i]);\n        if (!ok) REC.bad++;\n        part(arr(0.6), 0, () => fitText(170, 176 + 26 * i, s, 'ln' + (ok ? ' ok' : ' bad')));\n        said += ' ' + say(s) + (ok ? '.' : ', not the equation.');\n      });\n    }\n    return said;\n  }\n\n  // ---------- the squared paper ----------\n  const PL = { OX: 34, top: 150, W: 296, H: 190 }, PB = PL.top + PL.H;\n  const BY = 30, BPY = 26, LY = 118, KY = 140;\n  let PU = 30, probing = false, held = null;\n  let view = { i: -1, from: null, to: null, t: Infinity };\n  const ZDUR = 0.45;\n  function planeNow(d, st) {\n    const cols = st.c || colsOf(d.M), amt = (d.sliders && st.amt) || d.amt;\n    return { cols, amt, M: gridOf(cols) };\n  }\n  // How each wrong answer is drawn.\n  function wrongDraw(d, o) {\n    const w = d.wrong && d.wrong[o];\n    if (w === 'rows') return { arrows: d.M, amts: d.amt, chain: true };        // the rows taken as arrows\n    if (w === 'once') return { arrows: colsOf(d.M), amts: [1, 1], chain: true }; // each column once\n    if (w === 'cols') return { solo: d.M };                                       // equations read down: their arrows are the rows\n    if (w === 'swap') return { target: [d.target[1], d.target[0]] };              // the target's parts swapped\n    return null;\n  }\n  // The view: everything the step can draw, so a puzzle's view never moves; on the slider screens it\n  // fits the chain, zooming out as the chain grows.\n  function extentOf(d, st) {\n    const s = planeNow(d, st), pts = [[4, 3]].concat(s.cols);\n    const chainPts = (arrows, amts) => chainOf(arrows, amts).segs.forEach((g) => pts.push(g.b));\n    if (d.hide) {\n      chainPts(s.cols, d.amt);\n      Object.keys(d.wrong).forEach((o) => { const w = wrongDraw(d, o); if (w.chain) chainPts(w.arrows, w.amts); if (w.solo) w.solo.forEach((a) => pts.push(a)); if (w.target) pts.push(w.target); });\n    } else chainPts(s.cols, s.amt);\n    if (d.target) pts.push(d.target);\n    return [Math.max.apply(null, pts.map((p) => p[0])) + 0.6, Math.max.apply(null, pts.map((p) => p[1])) + 0.6];\n  }\n  function viewNow() {\n    if (view.t >= ZDUR || !view.from) return view.to;\n    const e = K.ease(view.t / ZDUR);\n    return [K.lerp(view.from[0], view.to[0], e), K.lerp(view.from[1], view.to[1], e)];\n  }\n  const zoom = K.anim({ button: false, label: 'Zoom', step: (dt) => { view.t += dt; paint(); return view.t < ZDUR; } });\n  function planeExt(i, d, st) {\n    const tgt = extentOf(d, st);\n    if (probing) return tgt;\n    if (view.i !== i) { view = { i, from: tgt, to: tgt, t: Infinity }; return tgt; }\n    if (held) return viewNow();   // frozen while a tip is held, so the drag stays under the finger\n    if (Math.abs(tgt[0] - view.to[0]) > 1e-9 || Math.abs(tgt[1] - view.to[1]) > 1e-9) {\n      view = { i, from: viewNow(), to: tgt, t: REDUCE || testing() ? Infinity : 0 };\n      if (view.t === 0) zoom.play();\n    }\n    return viewNow();\n  }\n  const comboLine = (cols, amt) => num(amt[0]) + ' × ' + pt(cols[0]) + ' + ' + num(amt[1]) + ' × ' + pt(cols[1]) + ' = ' + pt(combo(cols, amt));\n  function litLine(k, s, ch) {\n    if (k[0] === 'c') { const j = +k[1] - 1; return 'Column ' + (j + 1) + ' is the arrow ' + pt(s.cols[j]); }\n    const r = +k[1] - 1;\n    if (!ch.segs.length) return 'Row ' + (r + 1) + ': ' + lin(s.M[r], XY) + ' = 0';\n    return 'Row ' + (r + 1) + ': ' + lin(s.M[r], XY) + ' = ' + ch.segs.map((g) => num(s.cols[g.k][r])).join(' + ') + ' = ' + num(ch.end[r]);\n  }\n  function wrongLine(d, o) {\n    const w = d.wrong[o];\n    if (w === 'rows') return o + ' mixes the rows, ' + pt(d.M[0]) + ' and ' + pt(d.M[1]);\n    if (w === 'once') return o + ' takes each column just once';\n    if (w === 'cols') return 'Those use the arrows ' + pt(d.M[0]) + ' and ' + pt(d.M[1]);\n    return 'Those aim at ' + pt([d.target[1], d.target[0]]) + ', not ' + pt(d.target);\n  }\n  function drawKey(y, items) {\n    const gap = 12, glyph = 21, ws = items.map((it) => tw(it[1], 'key'));\n    const total = ws.reduce((a, w) => a + glyph + w, 0) + gap * (items.length - 1);\n    let x = Math.max(6, (340 - total) / 2);\n    items.forEach((it, k) => {\n      if (it[0] === 'dot') circle('dot', x + 7, y - 4, 5);\n      else if (it[0] === 'ring') circle('ring', x + 7, y - 4, 6.5);\n      else arrow([x, y + 2], [x + 15, y - 10], it[0]);\n      text(x + glyph, y, it[1], 'key', 'start');\n      x += glyph + ws[k] + gap;\n    });\n  }\n\n  function drawPlane(d, st, i) {\n    const s = planeNow(d, st), e = planeExt(i, d, st), U = Math.min(PL.W / e[0], PL.H / e[1], 40);\n    PU = U;\n    const P = (w) => [PL.OX + w[0] * U, PB - w[1] * U];\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, wd = wrong ? wrongDraw(d, st.pick) : null;\n    const moved = d.show && !!(st.amt || st.light || st.c);\n    const ch = chainOf(s.cols, s.amt), n = ch.segs.length;\n    REC.band = s.M;\n    // the timetable: null, there from the start; a time, arriving then\n    const tl = { base: [null, null], seg: null, segDur: 0, dot: null, ans: null, target: null, chain: true, joint: null };\n    if (d.show && !moved) {\n      if (d.light) Object.assign(tl, { base: [0.4, 0.4], seg: () => 0.4, dot: 0.4 });\n      else {\n        const t0 = d.target ? 1.2 : 1.4, last = t0 + 0.6 * (n - 1) + 0.5;\n        Object.assign(tl, { base: d.target ? [0.4, 0.4] : [0.4, 0.8], target: d.target ? 0.4 : null, seg: (k) => t0 + 0.6 * k, segDur: 0.5,\n          dot: last + 0.1, ans: last + 0.3, joint: t0 + 0.6 * (s.amt[0] - 1) + 0.5 });\n      }\n    } else if (d.hide) {\n      tl.chain = right;\n      if (right) { const last = 0.1 + 0.3 * (n - 1) + 0.3; Object.assign(tl, { seg: (k) => 0.1 + 0.3 * k, segDur: 0.3, dot: last + 0.05, ans: last + 0.05 }); }\n    }\n    // what is lit: Dan's pick, or the demonstration's turn\n    let lits = [];\n    if (d.light) {\n      if (st.light) lits = [{ k: st.light, a: 1 }];\n      else lits = LIGHTS.map((w) => ({ k: w.k, a: Math.max(0, arr(w.on, 0.45) - (w.off != null ? arr(w.off, 0.3) : 0)) })).filter((l) => l.a > 0);\n    }\n    const said = [];\n\n    // The grid times the amounts, equals where the chain lands.\n    const G = mgeo(70, BY, 2, 2, 32, BPY), A = mgeo(G.x1 + 22, BY, 2, 1, 32, BPY), R = mgeo(A.x1 + 26, BY, 2, 1, 34, BPY);\n    lits.forEach((l) => part(l.a, 0, () => {\n      if (l.k[0] === 'r') { const r = +l.k[1] - 1; rowBand(G, r, 'lit'); rowBand(R, r, 'lit'); } else colBand(G, +l.k[1] - 1, 'lit');\n    }));\n    brackets(G); entriesOf(G, s.M.map((r) => r.map(num)), 'en');\n    [0, 1].forEach((r) => text(G.x0 - 8, G.cy(r) + 5, 'row ' + (r + 1), 'sm', 'end'));\n    [0, 1].forEach((j) => swatch(G.cx(j), G.bot + 11, 'p' + (j + 1)));\n    text(G.x1 + 11, BY + 19, '×', 'op');\n    brackets(A);\n    const aimed = d.hide && d.target;\n    entriesOf(A, (aimed ? XY : s.amt.map(num)).map((v) => [v]), 'en');\n    text(A.x1 + 13, BY + 19, '=', 'op');\n    brackets(R);\n    const ans = mul(s.M, s.amt);\n    if (aimed) entriesOf(R, d.target.map((v) => [num(v)]), 'en');\n    else if (d.hide) {\n      part(right || wrong ? 1 - arr(0.1, 0.3) : 1, 0, () => entriesOf(R, [['?'], ['?']], 'q'));\n      if (right) part(vis(tl.ans), 0, () => { entriesOf(R, ans.map((v) => [num(v)]), 'en ok'); REC.ans = ans; REC.reveal++; });\n      if (wrong) part(arr(0.4), 0, () => { entriesOf(R, parsePt(st.pick).map((v) => [num(v)]), 'en bad'); REC.bad++; });\n    } else part(vis(tl.ans), 0, () => { entriesOf(R, ans.map((v) => [num(v)]), 'en'); REC.ans = ans; });\n    text(A.cx(0), G.bot + 25, 'x and y', 'sm');\n    text(R.cx(0), G.bot + 25, aimed ? 'target' : 'lands on', 'sm');\n    said.push('The grid ' + say(oneLine(s.M)) + ' times ' + (aimed ? 'x, y equals the target ' + say(pt(d.target)) : 'the amounts ' + s.amt.map(num).join(' and ')) + '.');\n\n    // The line under it: the mix written out, what is lit, or the slip.\n    if (d.light) lits.forEach((l) => part(l.a, 0, () => { const s1 = litLine(l.k, s, ch); fitText(170, LY, s1, 'ln'); if (l.a >= 0.5) said.push(say(s1) + '.'); }));\n    else if (d.hide) {\n      if (right) part(vis(tl.ans), 0, () => { const s1 = comboLine(s.cols, d.amt); fitText(170, LY, s1, 'ln ok'); said.push(say(s1) + '.'); });\n      else if (wrong) part(arr(0.1), 0, () => { const s1 = wrongLine(d, st.pick); fitText(170, LY, s1, 'ln bad'); said.push(say(s1) + '.'); REC.bad++; });\n    } else part(vis(tl.ans), 0, () => { const s1 = comboLine(s.cols, s.amt); fitText(170, LY, s1, 'ln'); said.push(say(s1) + '.'); });\n    drawKey(KY, [['p1', 'column 1'], ['p2', 'column 2'], ['dot', 'lands on']].concat(d.target ? [['ring', 'target']] : []));\n\n    // Squared paper: lines a square apart, the two edges, and their numbers.\n    const X = (v) => PL.OX + v * U, Y = (v) => PB - v * U;\n    const nx = Math.floor(PL.W / U + 1e-6), ny = Math.floor(PL.H / U + 1e-6), every = U >= 19 ? 1 : 2;\n    for (let k = 1; k <= nx; k++) line('gl', X(k), PB, X(k), PL.top);\n    for (let k = 1; k <= ny; k++) line('gl', PL.OX, Y(k), PL.OX + PL.W, Y(k));\n    line('ax', PL.OX, PB, PL.OX + PL.W, PB); line('ax', PL.OX, PB, PL.OX, PL.top);\n    for (let k = 0; k <= nx; k += every) text(X(k), PB + 17, String(k), 'tick');\n    for (let k = every; k <= ny; k += every) text(PL.OX - 7, Y(k) + 5, String(k), 'tick', 'end');\n\n    // Arrows, inside the paper's edges.\n    const cr = el('pcliprect');\n    cr.setAttribute('x', PL.OX - 8); cr.setAttribute('y', PL.top - 8); cr.setAttribute('width', PL.W + 16); cr.setAttribute('height', PL.H + 8);\n    const cg = add(K.svg('g', { 'clip-path': 'url(#pclip)' }));\n    const keep = into; into = cg;\n    const segsPx = [], pts = [], labels = [];\n    // a lit row: each arrow's across part (row 1) or up part (row 2), dashed\n    lits.forEach((l) => {\n      if (l.k[0] !== 'r') return;\n      const r = +l.k[1] - 1;\n      part(l.a, 0, () => ch.segs.forEach((g) => {\n        const a = r === 0 ? g.a : [g.b[0], g.a[1]], b = r === 0 ? [g.b[0], g.a[1]] : g.b;\n        if (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) < 1e-9) return;\n        const pa = P(a), pb = P(b);\n        line('leg', pa[0], pa[1], pb[0], pb[1]);\n        segsPx.push([pa[0], pa[1], pb[0], pb[1]]);\n        if (l.a >= 0.5) REC.legs.push([a, b]);\n      }));\n    });\n    // a lit column: its arrow and every copy of it glow\n    lits.forEach((l) => {\n      if (l.k[0] !== 'c') return;\n      const k = +l.k[1] - 1, glow = (a, b) => { const pa = P(a), pb = P(b); line('glow', pa[0], pa[1], pb[0], pb[1]); };\n      part(l.a, 0, () => { glow([0, 0], s.cols[k]); ch.segs.forEach((g) => { if (g.k === k) glow(g.a, g.b); }); });\n    });\n    // the chain, nose to tail\n    if (tl.chain) ch.segs.forEach((g, k) => {\n      const t0 = tl.seg ? tl.seg(k) : null;\n      const grow = t0 == null || !tl.segDur ? 1 : go(t0, tl.segDur), alpha = t0 == null || tl.segDur ? 1 : vis(t0);\n      if (grow <= 0 || alpha <= 0) return;\n      const pa = P(g.a), pb = P(g.b), pe = [K.lerp(pa[0], pb[0], grow), K.lerp(pa[1], pb[1], grow)];\n      part(alpha, 0, () => arrow(pa, pe, 'p' + (g.k + 1)));\n      segsPx.push([pa[0], pa[1], pe[0], pe[1]]); pts.push(pe);\n      REC.segs.push({ a: g.a, b: g.b, k: g.k });\n      if (d.hide) REC.reveal++;\n    });\n    // the two columns, from the corner\n    [0, 1].forEach((k) => part(vis(tl.base[k]), 0, () => {\n      const pa = P([0, 0]), pb = P(s.cols[k]);\n      arrow(pa, pb, 'base p' + (k + 1));\n      segsPx.push([pa[0], pa[1], pb[0], pb[1]]); pts.push(pb);\n    }));\n    said.push('On squared paper, column 1 is the arrow ' + say(pt(s.cols[0])) + ' and column 2 is the arrow ' + say(pt(s.cols[1])) + ', both from the corner.');\n    // a wrong answer, drawn in red\n    if (wd && wd.chain) {\n      const wc = chainOf(wd.arrows, wd.amts);\n      wc.segs.forEach((g, k) => {\n        const gr = go(0.1 + 0.25 * k, 0.25);\n        if (gr <= 0) return;\n        const pa = P(g.a), pb = P(g.b), pe = [K.lerp(pa[0], pb[0], gr), K.lerp(pa[1], pb[1], gr)];\n        arrow(pa, pe, 'bad');\n        segsPx.push([pa[0], pa[1], pe[0], pe[1]]); pts.push(pe);\n      });\n      const ta = arr(0.1 + 0.25 * wc.segs.length, 0.4);\n      part(ta, 0, () => { const p = P(wc.end); circle('dot bad', p[0], p[1], 5.5); pts.push(p); REC.bad++; });\n      if (ta > 0) labels.push({ p: P(wc.end), s: pt(wc.end), cls: 'lb bad', a: ta });\n      said.push('In red, a chain of the slip lands on ' + say(pt(wc.end)) + '.');\n    }\n    if (wd && wd.solo) {\n      const ta = arr(0.1, 0.4);\n      part(ta, 0, () => wd.solo.forEach((a) => { const pa = P([0, 0]), pb = P(a); arrow(pa, pb, 'bad'); segsPx.push([pa[0], pa[1], pb[0], pb[1]]); pts.push(pb); }));\n      if (ta > 0) { wd.solo.forEach((a) => labels.push({ p: P(a), s: pt(a), cls: 'lb bad', a: ta })); REC.bad++; }\n      said.push('In red, the arrows ' + wd.solo.map((a) => say(pt(a))).join(' and ') + '.');\n    }\n    if (wd && wd.target) {\n      const ta = arr(0.1, 0.4);\n      part(ta, 0, () => { const p = P(wd.target); circle('ring bad', p[0], p[1], 9); pts.push(p); REC.bad++; });\n      if (ta > 0) labels.push({ p: P(wd.target), s: pt(wd.target), cls: 'lb bad', a: ta });\n      said.push('In red, a target at ' + say(pt(wd.target)) + '.');\n    }\n    // the target, and the dot where the chain lands\n    const hit = !!d.target && tl.chain && vis(tl.dot) >= 0.5 && ch.end[0] === d.target[0] && ch.end[1] === d.target[1];\n    if (d.target) {\n      const ta = vis(tl.target);\n      part(ta, 0, () => { const p = P(d.target); circle('ring', p[0], p[1], 9); pts.push(p); });\n      if (ta > 0) labels.push({ p: P(d.target), s: 'target ' + pt(d.target), cls: 'lb', a: ta });\n      said.push('A target ring at ' + say(pt(d.target)) + '.');\n    }\n    if (tl.chain) {\n      const ta = vis(tl.dot);\n      part(ta, 0, () => { const p = P(ch.end); circle('dot', p[0], p[1], 5.5); pts.push(p); REC.end = ch.end; });\n      if (ta > 0 && !hit) labels.push({ p: P(ch.end), s: pt(ch.end), cls: 'lb', a: ta });\n      said.push(n ? num(s.amt[0]) + ' lots of column 1 and ' + num(s.amt[1]) + ' of column 2, nose to tail, land on ' + say(pt(ch.end)) + (hit ? ', on the target.' : '.') : 'With no amounts, the chain stays at the corner.');\n    }\n    REC.hit = hit;\n    if (d.joint && s.amt[0] >= 1 && s.amt[1] >= 1 && tl.chain) {\n      const j = [s.cols[0][0] * s.amt[0], s.cols[0][1] * s.amt[0]], ta = vis(tl.joint);\n      if (ta > 0) labels.push({ p: P(j), s: pt(j), cls: 'lb mu', a: ta });\n    }\n    into = keep;\n    // labels last, on top, each clear of the rest\n    const area = { x0: PL.OX + 3, x1: PL.OX + PL.W - 2, y0: PL.top + 2, y1: PB - 3 };\n    labels.forEach((lb) => part(lb.a, 0, () => placeLabel(lb.p[0], lb.p[1], lb.s, lb.cls, area, segsPx, pts)));\n    return said.join(' ');\n  }\n\n  // A 2 by 2 grid read both ways: row 2 as an equation, column 2 as an arrow.\n  function drawRead(d, st) {\n    const M = d.M, G = mgeo(72, 50, 2, 2, 64, 32), cols = colsOf(M);\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    let eqOk = null, arOk = null, eqPart = '', arPart = '';\n    if (right || wrong) { const ps = st.pick.split(' and '); eqPart = ps[0]; arPart = ps[1]; eqOk = eqPart === lin(M[1], XY); arOk = arPart === pt(cols[1]); }\n    if (eqOk === true) part(arr(0.1), 0, () => rowBand(G, 1, 'lit'));\n    if (arOk === true) part(arr(0.35), 0, () => colBand(G, 1, 'lit'));\n    brackets(G); entriesOf(G, M.map((r) => r.map(num)), 'en');\n    [0, 1].forEach((r) => text(G.x0 - 8, G.cy(r) + 5, 'row ' + (r + 1), 'sm', 'end'));\n    [0, 1].forEach((j) => { text(G.cx(j), G.top - 8, 'column ' + (j + 1), 'sm'); swatch(G.cx(j), G.bot + 12, 'p' + (j + 1)); });\n    if (eqOk === false) part(arr(0.1), 0, () => { colBox(G, 1); REC.bad++; });\n    if (arOk === false) part(arr(0.35), 0, () => { rowBox(G, 1); REC.bad++; });\n    // small squared paper: column 1 as an arrow; after Check, column 2's arrow or the slip's\n    const O = [244, 116], u = 16, Q = (w) => [O[0] + w[0] * u, O[1] - w[1] * u];\n    for (let k = 1; k <= 5; k++) line('gl', O[0] + k * u, O[1], O[0] + k * u, O[1] - 4 * u);\n    for (let k = 1; k <= 4; k++) line('gl', O[0], O[1] - k * u, O[0] + 5 * u, O[1] - k * u);\n    line('ax', O[0], O[1], O[0] + 5 * u, O[1]); line('ax', O[0], O[1], O[0], O[1] - 4 * u);\n    arrow(Q([0, 0]), Q(cols[0]), 'base p1');\n    let said = 'The grid ' + say(oneLine(M)) + ', its rows and columns named. Beside it, column 1 drawn as the arrow ' + say(pt(cols[0])) + '.';\n    if (arOk === true) part(arr(0.35), 0, () => { arrow(Q([0, 0]), Q(cols[1]), 'base p2'); REC.reveal++; });\n    if (arOk === false) part(arr(0.35), 0, () => arrow(Q([0, 0]), Q(parsePt(arPart)), 'bad'));\n    if (eqOk != null) {\n      const s = eqOk ? 'Row 2 runs across, so it reads ' + lin(M[1], XY) + '.' : eqPart + ' reads column 2 across.';\n      part(arr(0.1), 0, () => fitText(170, 150, s, 'ln' + (eqOk ? ' ok' : ' bad')));\n      said += ' ' + say(s);\n    }\n    if (arOk != null) {\n      const s = arOk ? 'Column 2 runs down, so it is ' + pt(cols[1]) + '.' : arPart + ' is row 2, not column 2.';\n      part(arr(0.35), 0, () => fitText(170, 176, s, 'ln' + (arOk ? ' ok' : ' bad')));\n      said += ' ' + say(s);\n    }\n    return said;\n  }\n\n  // Three equations; after Check, the grid they make, its rows and columns counted.\n  function drawSize(d, st) {\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const ex = K.lerp(116, 24, right || wrong ? go(0.1, 0.5) : 0), ys = [46, 74, 102], n = d.eqs.length, m = d.eqs[0].length;\n    d.eqs.forEach((r, i) => { const s = lin(r, XY) + ' = ' + num(d.rhs[i]); text(ex, ys[i], s, 'eq', 'start'); REC.eqs.push(s); });\n    let said = 'Three equations: ' + d.eqs.map((r, i) => say(lin(r, XY) + ' = ' + num(d.rhs[i]))).join(', ') + '.';\n    const w = wrong ? d.wrong[st.pick] : null;\n    if (right) part(arr(0.45), 0, () => {\n      const G = mgeo(190, 46, n, m, 30, 28);\n      brackets(G); entriesOf(G, d.eqs.map((r) => r.map(num)), 'en');\n      text((G.x0 + G.x1) / 2, G.top - 9, m + ' columns', 'sm');\n      text(G.x1 + 10, G.cy(1) + 5, n + ' rows', 'sm', 'start');\n      REC.grid = d.eqs; REC.reveal++;\n    });\n    if (w === 'flip') part(arr(0.45), 0, () => { const G = mgeo(176, 60, m, n, 30, 28); brackets(G, true); entriesOf(G, colsOf(d.eqs).map((r) => r.map(num)), 'en'); REC.bad++; });\n    if (w === 'rhs') part(arr(0.45), 0, () => {\n      const G = mgeo(176, 46, n, m + 1, 30, 28);\n      brackets(G, true); entriesOf(G, d.eqs.map((r, i) => r.map(num).concat(num(d.rhs[i]))), 'en', (i, j) => (j === m ? ' bad' : '')); REC.bad++;\n    });\n    const s = right ? n + ' rows and ' + m + ' columns make a ' + n + ' by ' + m + ' grid.'\n      : w === 'flip' ? m + ' by ' + n + ' would put each equation down a column.'\n      : w === 'rhs' ? 'The answers ' + d.rhs.slice(0, -1).map(num).join(', ') + ' and ' + num(d.rhs[d.rhs.length - 1]) + ' sit after the equals sign.' : '';\n    if (s) { part(arr(0.45), 0, () => fitText(170, 140, s, 'ln' + (right ? ' ok' : ' bad'))); said += ' ' + s; }\n    return said;\n  }\n\n  // Loop equations as a grid times the currents; after Check, each row worked.\n  function drawLoop(d, st) {\n    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;\n    const G = mgeo(30, 40, 2, 2, 40, 30), A = mgeo(G.x1 + 24, 40, 2, 1, 40, 30), R = mgeo(A.x1 + 26, 40, 2, 1, 40, 30);\n    brackets(G); entriesOf(G, d.M.map((r) => r.map(num)), 'en');\n    text(G.x1 + 12, 40 + 20, '×', 'op');\n    brackets(A); entriesOf(A, d.amt.map((v) => [num(v)]), 'en');\n    text(A.x1 + 13, 40 + 20, '=', 'op');\n    brackets(R);\n    const gone = right || wrong ? 1 - arr(0.1, 0.3) : 1;\n    part(gone, 0, () => entriesOf(R, [['?'], ['?']], 'q'));\n    text((G.x0 + G.x1) / 2, G.bot + 20, 'ohms', 'sm'); text(A.cx(0), G.bot + 20, 'amps', 'sm'); text(R.cx(0), G.bot + 20, 'volts', 'sm');\n    part(gone, 0, () => fitText(170, 142, 'Each row gives one loop\\'s voltage.', 'ln mu'));\n    const ans = mul(d.M, d.amt);\n    let said = 'The grid ' + say(oneLine(d.M)) + ' in ohms times the currents ' + d.amt.map(num).join(' and ') + ' amps equals a column of voltages.';\n    if (right) {\n      part(arr(0.3), 0, () => { entriesOf(R, ans.map((v) => [num(v)]), 'en ok'); REC.ans = ans; REC.reveal++; });\n      d.M.forEach((r, i) => { const s = 'Row ' + (i + 1) + ': ' + work(r, d.amt.map(num)) + ' = ' + num(ans[i]) + ' V'; part(arr(0.4 + 0.2 * i), 0, () => fitText(170, 142 + 26 * i, s, 'ln ok')); said += ' ' + say(s) + '.'; });\n    }\n    if (wrong) {\n      const w = d.wrong[st.pick], a = d.amt;\n      part(arr(0.3), 0, () => { entriesOf(R, parsePt(st.pick).map((v) => [num(v)]), 'en bad'); REC.bad++; });\n      d.M.forEach((r, i) => {\n        const s = w === 'diag'\n          ? 'Row ' + (i + 1) + ': ' + num(r[i]) + ' × ' + num(a[i]) + ' = ' + num(r[i] * a[i]) + ' leaves out ' + num(r[1 - i]) + ' × ' + num(a[1 - i])\n          : 'Row ' + (i + 1) + ': ' + r.map((c, k) => num(Math.abs(c)) + ' × ' + num(a[k])).join(' + ') + ' = ' + num(r.reduce((t, c, k) => t + Math.abs(c) * a[k], 0)) + ' drops a minus';\n        part(arr(0.1 + 0.2 * i), 0, () => fitText(170, 142 + 26 * i, s, 'ln bad'));\n        said += ' ' + say(s) + '.';\n      });\n    }\n    return said;\n  }\n\n  // ---------- the tips: Dan drags a column's arrow to a whole point ----------\n  const grips = [0, 1].map((k) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Tip of the column ' + (k + 1) + ' arrow: drag it, or use the arrow keys, to move it' })));\n  function placeGrips(d, st) {\n    const on = !!d.drag && !finished;\n    grips.forEach((g, k) => {\n      g.style.display = on ? '' : 'none';\n      g.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      const c = (st.c || colsOf(d.M))[k];\n      g.setAttribute('cx', r3(PL.OX + c[0] * PU)); g.setAttribute('cy', r3(PB - c[1] * PU));\n    });\n  }\n  function setTip(k, w) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!d.drag || finished) return;\n    const v = [K.clamp(Math.round(w[0]), 0, 3), K.clamp(Math.round(w[1]), 0, 3)];\n    if (!v[0] && !v[1]) return;\n    const cols = (st.c || colsOf(d.M)).map((c) => c.slice());\n    if (cols[k][0] === v[0] && cols[k][1] === v[1] && T === Infinity) return;\n    cols[k] = v; st.c = cols;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    K.reveal(); K.refresh();\n  }\n  function worldAt(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    return [(q.x - PL.OX) / PU, (PB - q.y) / PU];\n  }\n  grips.forEach((g, k) => {\n    g.addEventListener('pointerdown', (e) => {\n      if (!STEPS[at()].drag || finished) return;\n      const w = worldAt(e);\n      if (!w) return;\n      held = { id: e.pointerId, k };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n      e.preventDefault();\n      setTip(k, w);\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.k !== k) return;\n      const w = worldAt(e);\n      if (w) setTip(k, w);\n    });\n    const letGo = (e) => { if (held && (!e || held.id === e.pointerId)) { held = null; K.refresh(); } };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', () => letGo(null));\n    g.addEventListener('keydown', (e) => {\n      const d = STEPS[at()];\n      if (!d.drag || finished) return;\n      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];\n      if (!by) return;\n      e.preventDefault();\n      const c = (S[at()].c || colsOf(d.M))[k];\n      setTip(k, [c[0] + by[0], c[1] + by[1]]);\n    });\n  });\n\n  // ---------- the scene for a step (the animations call this every frame) ----------\n  const DRAW = { cells: drawCells, eqs: drawEqs, which: drawWhich, plane: drawPlane, read: drawRead, size: drawSize, loop: drawLoop };\n  const HEIGHT = { cells: 248, eqs: 212, which: 214, plane: 366, read: 188, size: 152, loop: 182 };\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null; placed = [];\n    REC = { texts: [], eqs: [], grid: null, band: null, segs: [], legs: [], end: null, ans: null, hit: false, lit: null, bad: 0, reveal: 0 };\n    svg.setAttribute('viewBox', '0 0 340 ' + HEIGHT[d.pic]);\n    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i) || '');\n    placeGrips(d, st);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    // Dan's own amounts and lighting, told apart from the settings the demonstrations give them.\n    const here = i === lastStep && !finished;\n    if (p.x !== xShown || p.y !== yShown) {\n      xShown = p.x; yShown = p.y;\n      if (here && d.sliders) { st.amt = [Math.round(p.x), Math.round(p.y)]; anim.pause(); T = Infinity; }\n    }\n    if (p.light !== litShown) {\n      litShown = p.light;\n      if (here && d.light) { st.light = p.light; anim.pause(); T = Infinity; }\n    }\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { Object.assign(st, { amt: null, light: null, c: null }); play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    syncCtl(i);\n    el('xybox').hidden = !d.sliders;\n    el('litbox').hidden = !d.light;\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const near = (a, b) => Math.abs(a - b) < 1e-9;\n  const samePt = (a, b) => !!a && !!b && a.length === b.length && a.every((v, k) => near(v, b[k]));\n  const sameGrid = (A, B) => !!A && !!B && A.length === B.length && A.every((r, i) => samePt(r, B[i]));\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T, keepView = view;\n    S[i] = st; T = t == null ? Infinity : t; probing = true;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; probing = false; view = keepView; paint(); }\n  }\n\n  K.check('All the entries in the second row relate to the second equation: wherever equations become a grid, each equation fills its own row in order, and a row read back gives its equation again', () => {\n    const i3 = idx('Equations as a grid'), g3 = drawn(i3, blank());\n    const i4 = idx('Which grid?'), d4 = STEPS[i4], g4 = drawn(i4, solvedSt(i4));\n    const i11 = idx('How big?'), d11 = STEPS[i11], g11 = drawn(i11, solvedSt(i11));\n    const d10 = STEPS[idx('Aim for (9, 8)')];\n    return sameGrid(g3.grid, STEPS[i3].M) && g3.eqs.join('|') === 'x + 3y = 7|2x + y = 4' && g3.texts.indexOf('Row 1: 1 × x + 3 × y = 7') >= 0 &&\n      sameGrid(parseGrid(d4.want), d4.M) && g4.eqs.join('|') === '3x + 2y = 13|x − y = 1' && g4.texts.indexOf('Row 2 reads x − y = 1') >= 0 &&\n      sameGrid(g11.grid, d11.eqs) && g11.eqs.join('|') === 'x + y = 5|x − y = 1|2x + y = 8' &&\n      d10.want === d10.M.map((r, k) => lin(r, XY) + ' = ' + num(d10.target[k])).join(' and ');\n  }, { source: HELM });\n  K.check('A matrix times a column vector is a linear combination of the columns of the matrix: for every pair of whole amounts from none to three and every tip on the paper, the chain of columns, nose to tail, ends where the rows add up to', () => {\n    const tips = [];\n    for (let a = 0; a <= 3; a++) for (let b = 0; b <= 3; b++) if (a || b) tips.push([a, b]);\n    return tips.every((c1) => tips.every((c2) => [0, 1, 2, 3].every((x) => [0, 1, 2, 3].every((y) =>\n      samePt(chainOf([c1, c2], [x, y]).end, mul(gridOf([c1, c2]), [x, y]))))));\n  }, { source: LIBRE });\n  K.check('[V] = [R] × [I], where [I] is the list of currents to be found: the loops\\' resistance grid times the loop currents gives the column of voltages, and those voltages make both loop equations true', () => {\n    const i12 = idx('Loop currents'), d = STEPS[i12], V = mul(d.M, d.amt), g = drawn(i12, solvedSt(i12));\n    return samePt(V, [12, 4]) && d.want === pt(V) && lin(d.M[0], II) + ' = ' + num(V[0]) === '6I₁ − 2I₂ = 12' &&\n      lin(d.M[1], II) + ' = ' + num(V[1]) === '−2I₁ + 6I₂ = 4' && samePt(g.ans, V);\n  }, { source: MESH });\n  K.check('Every worked number is right: row 2, column 1 of [4 7 1; 2 5 3] is 2; [1 3; 2 1] times (2, 1) is (5, 5), through (2, 4), and its rows as arrows give (4, 7); times (3, 1) it is (6, 7); times (1, 1) it is (4, 3); times (2, 2) it is (8, 6), with (6, 8) from the rows and (4, 3) from each column once; (1, 2) hits (7, 4) and (3, 2) hits (9, 8); [6 −2; −2 6] times (2.5, 1.5) is (12, 4), with (15, 9) and (18, 14) from the slips', () => {\n    const M1 = STEPS[0].M, L = STEPS[idx('Loop currents')].M, a = [2.5, 1.5];\n    const diag = L.map((r, i) => r[i] * a[i]), abs = L.map((r) => r.reduce((t, c, k) => t + Math.abs(c) * a[k], 0));\n    return M1[1][0] === 2 && M1[0][1] === 7 && samePt(mul(MAIN, [2, 1]), [5, 5]) && samePt(combo(colsOf(MAIN), [2, 0]), [2, 4]) && samePt(combo(MAIN, [2, 1]), [4, 7]) && samePt(mul(MAIN, [3, 1]), [6, 7]) && samePt(mul(MAIN, [1, 1]), [4, 3]) &&\n      samePt(mul(MAIN, [2, 2]), [8, 6]) && samePt(combo(MAIN, [2, 2]), [6, 8]) && samePt(combo(colsOf(MAIN), [1, 1]), [4, 3]) &&\n      samePt(mul(MAIN, [1, 2]), [7, 4]) && samePt(mul(MAIN, [3, 2]), [9, 8]) && samePt(mul(L, a), [12, 4]) && samePt(diag, [15, 9]) && samePt(abs, [18, 14]);\n  });\n  K.check('Each puzzle\\'s answer comes from its grid by the rule (the entry row first, the chain\\'s landing point, row 2 and column 2, the rows aimed at the target, rows then columns, the loop voltages), and each slip offered is the one its hint names', () => {\n    const g = (nm) => STEPS[idx(nm)];\n    const s2 = g('Row 2, column 1'), s6 = g('Two of each'), s8 = g('Both readings'), s10 = g('Aim for (9, 8)'), s11 = g('How big?'), s12 = g('Loop currents');\n    const key = (d, kind) => Object.keys(d.wrong).find((o) => d.wrong[o] === kind);\n    return s2.want === num(s2.M[s2.ask[0]][s2.ask[1]]) && s2.opts.indexOf(num(s2.M[0][1])) >= 0 &&\n      s6.want === pt(mul(s6.M, s6.amt)) && key(s6, 'rows') === pt(combo(s6.M, s6.amt)) && key(s6, 'once') === pt(combo(colsOf(s6.M), [1, 1])) &&\n      s8.want === lin(s8.M[1], XY) + ' and ' + pt(colsOf(s8.M)[1]) && s8.opts[0] === lin(colsOf(s8.M)[1], XY) + ' and ' + pt(s8.M[1]) &&\n      samePt(mul(s10.M, s10.amt), s10.target) && key(s10, 'cols') === colsOf(s10.M).map((r, k) => lin(r, XY) + ' = ' + num(s10.target[k])).join(' and ') &&\n      s11.want === s11.eqs.length + ' by ' + s11.eqs[0].length && s12.want === pt(mul(s12.M, s12.amt));\n  });\n  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;\n      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;\n      if (drawn(i, solvedSt(i)).bad !== 0) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0 && !!d.hints[o]);\n    }));\n  K.check('Before Check, no puzzle shows its answer (no lit entry, no filled grid, no chain, no landing point); after a right answer, it does', () =>\n    DO.every((i) => drawn(i, blank()).reveal === 0 && drawn(i, solvedSt(i)).reveal > 0));\n  K.check('The picture follows the rule: one arrow per lot, each a copy of its column, the last nose on the dot and the answer column at the same point, from none of each to three of each; a lit row reads its across or up parts; a dragged tip rewrites its column; and only one lot of column 1 with two of column 2 hits (7, 4)', () => {\n    const i5 = idx('Columns are arrows'), i7 = idx('Rows and columns'), i9 = idx('Hit the target'), C = colsOf(MAIN);\n    for (let x = 0; x <= 3; x++) for (let y = 0; y <= 3; y++) {\n      const r = drawn(i5, Object.assign(blank(), { amt: [x, y] })), want = mul(MAIN, [x, y]);\n      if (r.segs.length !== x + y || !r.segs.every((g) => samePt([g.b[0] - g.a[0], g.b[1] - g.a[1]], C[g.k])) || !samePt(r.end, want) || !samePt(r.ans, want)) return false;\n      if (drawn(i9, Object.assign(blank(), { amt: [x, y] })).hit !== (x === 1 && y === 2)) return false;\n    }\n    const r1 = drawn(i7, Object.assign(blank(), { light: 'r1' })), r2 = drawn(i7, Object.assign(blank(), { light: 'r2' })), c2 = drawn(i7, Object.assign(blank(), { light: 'c2' }));\n    const dr = drawn(i7, Object.assign(blank(), { light: 'r1', c: [[0, 3], [2, 2]] }));\n    return r1.texts.indexOf('Row 1: x + 3y = 1 + 1 + 1 + 3 = 6') >= 0 && r1.legs.length === 4 && r2.texts.indexOf('Row 2: 2x + y = 2 + 2 + 2 + 1 = 7') >= 0 &&\n      c2.texts.indexOf('Column 2 is the arrow (3, 1)') >= 0 && sameGrid(dr.band, [[0, 2], [3, 2]]) && samePt(dr.end, [2, 11]) && dr.texts.indexOf('Row 1: 2y = 0 + 0 + 0 + 2 = 2') >= 0 &&\n      drawn(i9, blank()).hit === false && drawn(i9, Object.assign(blank(), { amt: [1, 2] })).hit === true;\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity; probing = true;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; probing = false; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Mix two arrows",
+  "brief": "The one thing you should see is x lots of column 1 and y lots of column 2, nose to tail, landing where the grid's two rows add up to, when you slide x and y.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "All the entries in the second row relate to the second equation: wherever equations become a grid, each equation fills its own row in order, and a row read back gives its equation again",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf"
+    },
+    {
+     "label": "A matrix times a column vector is a linear combination of the columns of the matrix: for every pair of whole amounts from none to three and every tip on the paper, the chain of columns, nose to tail, ends where the rows add up to",
+     "ok": true,
+     "source": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication"
+    },
+    {
+     "label": "[V] = [R] × [I], where [I] is the list of currents to be found: the loops' resistance grid times the loop currents gives the column of voltages, and those voltages make both loop equations true",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/dccircuits/dcp_5.html"
+    },
+    {
+     "label": "Every worked number is right: row 2, column 1 of [4 7 1; 2 5 3] is 2; [1 3; 2 1] times (2, 1) is (5, 5), through (2, 4), and its rows as arrows give (4, 7); times (3, 1) it is (6, 7); times (1, 1) it is (4, 3); times (2, 2) it is (8, 6), with (6, 8) from the rows and (4, 3) from each column once; (1, 2) hits (7, 4) and (3, 2) hits (9, 8); [6 −2; −2 6] times (2.5, 1.5) is (12, 4), with (15, 9) and (18, 14) from the slips",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle's answer comes from its grid by the rule (the entry row first, the chain's landing point, row 2 and column 2, the rows aimed at the target, rows then columns, the loop voltages), and each slip offered is the one its hint names",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle shows its answer (no lit entry, no filled grid, no chain, no landing point); after a right answer, it does",
+     "ok": true
+    },
+    {
+     "label": "The picture follows the rule: one arrow per lot, each a copy of its column, the last nose on the dot and the answer column at the same point, from none of each to three of each; a lit row reads its across or up parts; a dragged tip rewrites its column; and only one lot of column 1 with two of column 2 hits (7, 4)",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "x",
+    "y",
+    "light"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "A grid of numbers",
+      "Row 2, column 1",
+      "Equations as a grid",
+      "Which grid?",
+      "Columns are arrows",
+      "Two of each",
+      "Rows and columns",
+      "Both readings",
+      "Hit the target",
+      "Aim for (9, 8)",
+      "How big?",
+      "Loop currents"
+     ],
+     "value": 0
+    },
+    {
+     "id": "x",
+     "kind": "control",
+     "label": "x, lots of column 1",
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "log": false,
+     "value": 2,
+     "shown": false
+    },
+    {
+     "id": "y",
+     "kind": "control",
+     "label": "y, lots of column 2",
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "log": false,
+     "value": 1,
+     "shown": false
+    },
+    {
+     "id": "light",
+     "kind": "choice",
+     "label": "Light up",
+     "options": [
+      "r1",
+      "r2",
+      "c1",
+      "c2"
+     ],
+     "labels": [
+      "Row 1",
+      "Row 2",
+      "Column 1",
+      "Column 2"
+     ],
+     "value": "r1",
+     "index": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration",
+    "Zoom"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"x\" and \"+\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 1 more setting)",
+    "SVG labels \"+\" and \"3\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 1 more setting)",
+    "SVG labels \"3\" and \"y\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 1 more setting)"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-25T17:43:38.644Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"A row is not an arrow\" is absolute: a row can be read as a vector too (the row picture, used later). It is only not one of the column arrows. The summary also says each row is an equation for the whole sum, when it gives one part of it."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "\"A fraction shortens an arrow\" fails for fractions above 1, such as 3/2, which lengthen it. \"Cannot be drawn at all\" overstates: more than three parts cannot be drawn as one picture."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

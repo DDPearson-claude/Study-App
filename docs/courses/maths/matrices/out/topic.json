@@ -1,0 +1,185 @@
+{
+ "id": "matrices-kozxd",
+ "title": "Matrices, from moving shapes to circuit loops",
+ "query": "Matrices",
+ "createdAt": "2026-10-25T17:43:38.644Z",
+ "updatedAt": "2026-10-25T17:43:38.644Z",
+ "plannedAt": "2026-10-25T17:43:38.644Z",
+ "status": "ready",
+ "error": null,
+ "hook": "In a three-loop circuit, each shared resistor lets one loop current push on its neighbour. How do you find all three loop currents at once, and know when there is no single answer?",
+ "oneBreath": "A matrix is a grid of numbers you can read two ways: as the numbers of a set of equations, one row each, or, for a 2 by 2 grid, as a move of every point of the plane at once, its columns saying where the arrows i and j land. Moves can be done one after another, one number worked out from the grid says how much a move scales areas and whether it flips or flattens them, and a move that does not flatten can be played backwards. That is enough to write a circuit of two or three loops as one grid and solve it in one sweep.",
+ "level": "some",
+ "hue": 222,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand matrices and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand matrices and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "What a matrix is",
+   "oneLine": "A matrix is a grid of numbers, read row then column; times a column of amounts, it mixes its own columns, each row one equation.",
+   "deps": [],
+   "kind": "concept"
+  },
+  {
+   "id": "i2",
+   "title": "Moving the whole plane",
+   "oneLine": "A 2 by 2 matrix moves every point of the plane at once, and its two columns are where the arrows i and j land.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i3",
+   "title": "One move after another",
+   "oneLine": "Multiplying two matrices makes one move: the right-hand one first, then the left, so swapping their order usually gives a different move.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i4",
+   "title": "How areas change: the determinant",
+   "oneLine": "The determinant, ad − bc, is the number a 2 by 2 move scales every area by; negative means flipped, zero means squashed flat.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i5",
+   "title": "Undoing a move: the inverse",
+   "oneLine": "The inverse matrix plays a move backwards, so it solves a two-loop circuit's equations, and it exists only when the determinant is not zero.",
+   "deps": [
+    "i1",
+    "i2",
+    "i3",
+    "i4"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i6",
+   "title": "Three by three: the determinant and the cross product",
+   "oneLine": "Expanding along the top row by cofactors, small 2 by 2 determinants with signs, gives a 3 by 3 determinant and the cross product's formula.",
+   "deps": [
+    "i1",
+    "i2",
+    "i4"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i7",
+   "title": "Elimination: three unknowns, three loops",
+   "oneLine": "Gaussian elimination's row moves step three equations, such as a three-loop circuit's, into a staircase solved from the bottom up.",
+   "deps": [
+    "i1",
+    "i5",
+    "i6"
+   ],
+   "kind": "skill"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "One step moves 2 m east and 1 m north; another moves 1 m east and 1 m north. How many of each make 5 m east, 3 m north?",
+   "options": [
+    "1 of the first and 3 of the second",
+    "2 of the first and 1 of the second",
+    "It cannot be done with whole steps"
+   ],
+   "answer": 1,
+   "why": "Two of the first step give 4 m east and 2 m north, and one of the second adds 1 m each way, making 5 m and 3 m. One of the first and three of the second reaches 5 m east but overshoots to 4 m north."
+  },
+  {
+   "id": "c2",
+   "iid": "i2",
+   "q": "A drawing of a round dial is stretched to twice its width, with its height unchanged. What shape is the dial now?",
+   "options": [
+    "A bigger circle",
+    "A rounded rectangle, flat on top and bottom",
+    "An oval, twice as wide as it is tall"
+   ],
+   "answer": 2,
+   "why": "Every point moves twice as far from the centre sideways while its height stays put, so the dial becomes an oval twice as wide as it is tall. A bigger circle would need its height stretched as well."
+  }
+ ],
+ "readyMade": {
+  "shelf": "maths",
+  "course": "matrices"
+ },
+ "overviewChecked": true,
+ "guideV": 3,
+ "research": {
+  "status": "done",
+  "at": "2026-10-25T17:43:38.644Z",
+  "sources": 25,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}

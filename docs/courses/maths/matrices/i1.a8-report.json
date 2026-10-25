@@ -1,0 +1,183 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "All the entries in the second row relate to the second equation: wherever equations become a grid, each equation fills its own row in order, and a row read back gives its equation again",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf"
+      },
+      {
+        "label": "A matrix times a column vector is a linear combination of the columns of the matrix: for every pair of whole amounts from none to three and every tip on the paper, the chain of columns, nose to tail, ends where the rows add up to",
+        "ok": true,
+        "source": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication"
+      },
+      {
+        "label": "[V] = [R] × [I], where [I] is the list of currents to be found: the loops' resistance grid times the loop currents gives the column of voltages, and those voltages make both loop equations true",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/dccircuits/dcp_5.html"
+      },
+      {
+        "label": "Every worked number is right: row 2, column 1 of [4 7 1; 2 5 3] is 2; [1 3; 2 1] times (2, 1) is (5, 5), through (2, 4), and its rows as arrows give (4, 7); times (3, 1) it is (6, 7); times (1, 1) it is (4, 3); times (2, 2) it is (8, 6), with (6, 8) from the rows and (4, 3) from each column once; (1, 2) hits (7, 4) and (3, 2) hits (9, 8); [6 −2; −2 6] times (2.5, 1.5) is (12, 4), with (15, 9) and (18, 14) from the slips",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle's answer comes from its grid by the rule (the entry row first, the chain's landing point, row 2 and column 2, the rows aimed at the target, rows then columns, the loop voltages), and each slip offered is the one its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer (no lit entry, no filled grid, no chain, no landing point); after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "The picture follows the rule: one arrow per lot, each a copy of its column, the last nose on the dot and the answer column at the same point, from none of each to three of each; a lit row reads its across or up parts; a dragged tip rewrites its column; and only one lot of column 1 with two of column 2 hits (7, 4)",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "x",
+      "y",
+      "light"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "A grid of numbers",
+          "Row 2, column 1",
+          "Equations as a grid",
+          "Which grid?",
+          "Columns are arrows",
+          "Two of each",
+          "Rows and columns",
+          "Both readings",
+          "Hit the target",
+          "Aim for (9, 8)",
+          "How big?",
+          "Loop currents"
+        ],
+        "value": 0
+      },
+      {
+        "id": "x",
+        "kind": "control",
+        "label": "x, lots of column 1",
+        "min": 0,
+        "max": 3,
+        "step": 1,
+        "log": false,
+        "value": 2,
+        "shown": false
+      },
+      {
+        "id": "y",
+        "kind": "control",
+        "label": "y, lots of column 2",
+        "min": 0,
+        "max": 3,
+        "step": 1,
+        "log": false,
+        "value": 1,
+        "shown": false
+      },
+      {
+        "id": "light",
+        "kind": "choice",
+        "label": "Light up",
+        "options": [
+          "r1",
+          "r2",
+          "c1",
+          "c2"
+        ],
+        "labels": [
+          "Row 1",
+          "Row 2",
+          "Column 1",
+          "Column 2"
+        ],
+        "value": "r1",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration",
+      "Zoom"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"x\" and \"+\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 1 more setting)",
+      "SVG labels \"+\" and \"3\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 1 more setting)",
+      "SVG labels \"3\" and \"y\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 1 more setting)"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 4 (the first step that shows a control)",
+    "x = 3",
+    "y = 2.25",
+    "light = \"r2\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/matrices/i1.a8-360-light.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-360-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-360-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-360-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-360-dark-end.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-1280-light.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-1280-light-end.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-1280-dark.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/matrices/i1.a8-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,1124 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }
+  /* Squared paper, brackets, cells and bands. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .brk.bad { stroke: var(--k-warn); }
+  .scene .cell { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .band { fill: var(--k-fill1); }
+  .scene .lit { fill: var(--k-hl); }
+  .scene .badbox { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  /* Arrows: column 1 and column 2 told apart by colour; a slip is dashed in the warning colour. */
+  .scene .arr .sh { fill: none; stroke-width: 3.2; stroke-linecap: round; }
+  .scene .arr.base .sh { stroke-width: 4.2; }
+  .scene .p1 .sh { stroke: var(--k-cat1); }
+  .scene .p1 .hd { fill: var(--k-cat1); }
+  .scene .p2 .sh { stroke: var(--k-cat2); }
+  .scene .p2 .hd { fill: var(--k-cat2); }
+  .scene .bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; stroke-width: 2.6; }
+  .scene .bad .hd { fill: var(--k-warn); }
+  .scene .glow { fill: none; stroke: var(--k-hl); stroke-width: 12; stroke-linecap: round; }
+  .scene .leg { fill: none; stroke: var(--k-accent); stroke-width: 2.6; stroke-dasharray: 6 4; }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; }
+  .scene .ring.bad { stroke: var(--k-warn); stroke-dasharray: 4 3; }
+  /* Words and numbers. */
+  .scene .big { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }
+  .scene .op { font: 600 17px var(--k-font); fill: var(--k-muted); }
+  .scene .eq { font: 600 16px var(--k-font); fill: var(--k-ink); }
+  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ln.sm2 { font-size: 13px; }
+  .scene .ln.mu { font-weight: 400; fill: var(--k-muted); }
+  .scene .en.ok, .scene .ln.ok { fill: var(--k-accent2); }
+  .scene .en.bad, .scene .ln.bad, .scene .lb.bad { fill: var(--k-warn); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tick { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.mu { font-weight: 600; font-size: 13px; fill: var(--k-muted); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene tspan.v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  #xybox, #litbox { max-width: 24rem; margin-inline: auto; }
+  #litbox .k-seg button { white-space: nowrap; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A grid of numbers, read across its rows and down its columns. On squared paper, its columns are drawn as arrows. The grids and amounts are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 248" width="100%" role="img" aria-label=""><defs><clipPath id="pclip"><rect id="pcliprect" x="0" y="0" width="340" height="366"></rect></clipPath></defs><g id="art"></g><g id="ui"></g></svg>
+    <div class="k-controls" id="xybox"></div>
+    <div class="k-controls" id="litbox"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Rows are equations and columns are arrows. Every landing point is worked out from the grid.</p>
+
+<script>
+  // ---------- numbers and words (pure, so the checks can test them) ----------
+  const MINUS = '−', NB = ' ';
+  function num(v) { let r = Math.round(v * 100) / 100; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }
+  const pt = (v) => '(' + num(v[0]) + ', ' + num(v[1]) + ')';
+  const oneLine = (M) => '[' + M.map((r) => r.map(num).join(' ')).join('; ') + ']';
+  // A row of numbers as the left side of an equation: [3, 2] -> '3x + 2y', [1, -1] -> 'x − y'.
+  function lin(cs, ls) {
+    let s = '';
+    cs.forEach((c, k) => {
+      if (!c) return;
+      const a = Math.abs(c), body = (a === 1 ? '' : num(a)) + ls[k];
+      s += s ? (c < 0 ? ' ' + MINUS + ' ' : ' + ') + body : (c < 0 ? MINUS : '') + body;
+    });
+    return s || '0';
+  }
+  // A row times the unknowns, written out: [1, 3] -> '1 × x + 3 × y'.
+  const work = (r, vs) => r.map((c, k) => (k ? (c < 0 ? ' ' + MINUS + ' ' : ' + ') + num(Math.abs(c)) : num(c)) + ' × ' + vs[k]).join('');
+  const parseGrid = (s) => String(s).replace(/[[\]]/g, '').split(';').map((r) => r.trim().split(/\s+/).map((t) => +t.replace(MINUS, '-')));
+  const parsePt = (s) => String(s).replace(/[()]/g, '').split(',').map((t) => +t.trim().replace(MINUS, '-'));
+  const XY = ['x', 'y'], II = ['I₁', 'I₂'];
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/=/g, ' equals ')
+    .replace(/I₁/g, 'I one').replace(/I₂/g, 'I two').replace(/\s+/g, ' ').trim();
+
+  // ---------- the rule ----------
+  // A grid times a column: each row multiplies across and adds.
+  const mul = (M, v) => M.map((r) => r.reduce((a, m, k) => a + m * v[k], 0));
+  const colsOf = (M) => M[0].map((z, k) => M.map((r) => r[k]));
+  const gridOf = (cols) => cols[0].map((z, i) => cols.map((c) => c[i]));
+  // The chain: so many copies of the first arrow, then of the second, each starting where the last ends.
+  function chainOf(arrows, amts) {
+    const segs = [];
+    let p = [0, 0];
+    arrows.forEach((c, k) => { for (let n = 0; n < amts[k]; n++) { const q = [p[0] + c[0], p[1] + c[1]]; segs.push({ a: p, b: q, k }); p = q; } });
+    return { segs, end: p };
+  }
+  const combo = (arrows, amts) => chainOf(arrows, amts).end;
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: what is drawn. M: the grid. dur: a SHOW step's demonstration in seconds. read: its words for
+  // the read-through, where its own words ask him to act; still: the state its picture shows there.
+  // A puzzle: task, opts (three answers), want, hints (one per wrong answer), why, fb (seconds of
+  // motion after a right and a wrong answer). Plane steps: amt, the amounts x and y; sliders, light
+  // and drag, what Dan may change; target, a point to hit; hide, the chain waits for Check; wrong,
+  // how each wrong answer is drawn.
+  const MAIN = [[1, 3], [2, 1]];
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'A grid of numbers', pic: 'cells', M: [[4, 7, 1], [2, 5, 3]], lit: [0, 2], dur: 4.3,
+      text: 'A *matrix* is a grid of numbers in rows and columns. This one has 2 rows and 3 columns, so it is a 2 by 3 grid. Each number is an *entry*, named by its row first, then its column.' },
+    { kind: 'pick', name: 'Row 2, column 1', pic: 'cells', M: [[4, 7, 1], [2, 5, 3]], ask: [1, 0], fb: [1.4, 1.0],
+      task: 'Which number is in row 2, column 1?', opts: ['7', '2', '5'], want: '2',
+      hints: { '7': 'Not quite. That is row 1, column 2. Go down to row 2 first.', '5': 'Not quite. That is row 2, column 2. Column 1 is the first one across.' },
+      why: 'The row comes first. Row 2 holds 2, 5 and 3. Its entry in column 1 is 2.' },
+    { show: true, name: 'Equations as a grid', pic: 'eqs', M: MAIN, rhs: [7, 4], dur: 4.2,
+      text: 'Take `x + 3y = 7` and `2x + y = 4`. Each equation\'s numbers make one row of the grid `[1 3; 2 1]`. The unknowns stand in a column beside it, and the totals in a column after the equals sign. To read a row back, multiply across it and down the unknowns, then add.' },
+    { kind: 'pick', name: 'Which grid?', pic: 'which', M: [[3, 2], [1, -1]], rhs: [13, 1], fb: [1.3, 1.3],
+      task: 'Which grid holds `3x + 2y = 13` and `x − y = 1`?', opts: ['[3 2; 1 −1]', '[3 1; 2 −1]', '[3 2; 1 1]'], want: '[3 2; 1 −1]',
+      hints: { '[3 1; 2 −1]': 'Not quite. That puts each equation down a column. An equation goes across one row.', '[3 2; 1 1]': 'Not quite. `x − y` has −1 for `y`. Keep the minus sign.' },
+      why: 'Row 1 holds the numbers of `3x + 2y`, which are 3 and 2. Row 2 holds the numbers of `x − y`, which are 1 and −1. So the grid is `[3 2; 1 −1]`.' },
+    { show: true, name: 'Columns are arrows', pic: 'plane', M: MAIN, amt: [2, 1], sliders: true, joint: true, dur: 4.1,
+      text: 'Read down its columns, and the grid is two arrows, `(1, 2)` and `(3, 1)`. The grid times `(2, 1)` takes 2 lots of column 1 and 1 lot of column 2, nose to tail. At first the chain lands on `(5, 5)`. Slide `x` and `y` to mix other amounts.',
+      read: 'Read down its columns, and the grid is two arrows, `(1, 2)` and `(3, 1)`. The grid times `(2, 1)` takes 2 lots of column 1 and 1 lot of column 2, nose to tail. Two lots of `(1, 2)` reach `(2, 4)`, and one `(3, 1)` more lands on `(5, 5)`.' },
+    { kind: 'pick', name: 'Two of each', pic: 'plane', M: MAIN, amt: [2, 2], hide: true, fb: [2.0, 1.6],
+      task: 'Where does `[1 3; 2 1]` times `(2, 2)` land?', opts: ['(6, 8)', '(4, 3)', '(8, 6)'], want: '(8, 6)', wrong: { '(6, 8)': 'rows', '(4, 3)': 'once' },
+      hints: { '(6, 8)': 'Not quite. That mixes the rows as arrows. The arrows are the columns.', '(4, 3)': 'Not quite. That takes each column once. Take 2 lots of each.' },
+      why: 'Two lots of `(1, 2)` reach `(2, 4)`. Two lots of `(3, 1)` add `(6, 2)`. Nose to tail, the chain lands on `(8, 6)`.' },
+    { show: true, name: 'Rows and columns', pic: 'plane', M: MAIN, amt: [3, 1], light: true, drag: true, dur: 4.3, still: { light: 'c1' },
+      text: 'Row 1 holds the top number of each column. That is each arrow\'s across part. So row 1 adds the across parts of the chain, and at first it reads `x + 3y = 6`. Row 2 adds the up parts, and at first it reads `2x + y = 7`. Each column is one arrow. Light up a row or a column, and drag a tip to change the grid.',
+      read: 'Row 1 holds the top number of each column. That is each arrow\'s across part. So row 1 adds the across parts of the chain, and it reads `x + 3y = 6`. Row 2 adds the up parts, and it reads `2x + y = 7`. Each column is one arrow, and moving its tip changes the grid\'s numbers.' },
+    { kind: 'pick', name: 'Both readings', pic: 'read', M: [[2, 4], [1, 3]], fb: [1.0, 1.0],
+      task: 'In `[2 4; 1 3]`, which pair is row 2 as an equation and column 2 as an arrow?', opts: ['4x + 3y and (1, 3)', 'x + 3y and (4, 3)', 'x + 3y and (1, 3)'], want: 'x + 3y and (4, 3)',
+      hints: { '4x + 3y and (1, 3)': 'Not quite. That swaps them. A row runs across, and a column runs down.', 'x + 3y and (1, 3)': 'Not quite. The equation is right. Column 2 runs down, through 4 and 3.' },
+      why: 'Row 2 runs across, through 1 and 3, so it reads `x + 3y`. Column 2 runs down, through 4 and 3, so it is the arrow `(4, 3)`.' },
+    { show: true, name: 'Hit the target', pic: 'plane', M: MAIN, amt: [1, 1], target: [7, 4], sliders: true, dur: 3.9, still: { x: 1, y: 2 },
+      text: 'To land on the target `(7, 4)`, the across parts must make 7 and the up parts 4. That is `x + 3y = 7` and `2x + y = 4`, the same pair as before. Together they are *simultaneous equations*. At first, one lot of each falls short, on `(4, 3)`. Slide `x` and `y` until the chain hits the target.',
+      read: 'To land on the target `(7, 4)`, the across parts must make 7 and the up parts 4. That is `x + 3y = 7` and `2x + y = 4`, the same pair as before. Together they are *simultaneous equations*. One lot of column 1 and two of column 2 hit the target.' },
+    { kind: 'pick', name: 'Aim for (9, 8)', pic: 'plane', M: MAIN, amt: [3, 2], target: [9, 8], hide: true, fb: [2.3, 1.0],
+      task: 'Which equations find the amounts that hit `(9, 8)`?', opts: ['x + 3y = 8 and 2x + y = 9', 'x + 2y = 9 and 3x + y = 8', 'x + 3y = 9 and 2x + y = 8'], want: 'x + 3y = 9 and 2x + y = 8',
+      wrong: { 'x + 2y = 9 and 3x + y = 8': 'cols', 'x + 3y = 8 and 2x + y = 9': 'swap' },
+      hints: { 'x + 2y = 9 and 3x + y = 8': 'Not quite. Those read the grid down its columns. Each equation is a row.', 'x + 3y = 8 and 2x + y = 9': 'Not quite. Row 1 adds the across parts, so it must make 9.' },
+      why: 'Row 1 adds the across parts, `x + 3y`, and the target is 9 across. Row 2 adds the up parts, `2x + y`, and it is 8 up. They give `x = 3` and `y = 2`. Not every target can be hit. Two arrows along one line reach only points on that line.' },
+    { kind: 'pick', name: 'How big?', pic: 'size', eqs: [[1, 1], [1, -1], [2, 1]], rhs: [5, 1, 8], fb: [1.1, 1.1],
+      task: 'What size is the grid for `x + y = 5`, `x − y = 1` and `2x + y = 8`?', opts: ['2 by 3', '3 by 2', '3 by 3'], want: '3 by 2', wrong: { '2 by 3': 'flip', '3 by 3': 'rhs' },
+      hints: { '2 by 3': 'Not quite. Size is rows first, and each equation is a row.', '3 by 3': 'Not quite. The totals 5, 1 and 8 stand in their own column, after the equals sign.' },
+      why: 'Three equations make 3 rows. Two unknowns, `x` and `y`, make 2 columns. Rows come first, so it is a 3 by 2 grid. Turning its rows into columns gives its *transpose*, a 2 by 3 grid. A grid with as many rows as columns is *square*.' },
+    { kind: 'pick', name: 'Loop currents', pic: 'loop', M: [[6, -2], [-2, 6]], amt: [2.5, 1.5], fb: [1.3, 1.0],
+      task: 'An example circuit\'s two loops give the grid `[6 −2; −2 6]` in ohms. It times the loop currents to give each loop\'s voltage. Which column of voltages do currents of 2.5 A and 1.5 A give?',
+      opts: ['(12, 4)', '(18, 14)', '(15, 9)'], want: '(12, 4)', wrong: { '(15, 9)': 'diag', '(18, 14)': 'abs' },
+      hints: { '(15, 9)': 'Not quite. Each row uses both of its entries, the −2 as well.', '(18, 14)': 'Not quite. Keep the minus signs. `−2 × 1.5` takes 3 away.' },
+      why: 'Row 1 gives `6 × 2.5 − 2 × 1.5 = 12`. Row 2 gives `−2 × 2.5 + 6 × 1.5 = 4`. So the voltages are 12 V and 4 V, and `6I₁ − 2I₂ = 12` and `−2I₁ + 6I₂ = 4` both hold.' },
+  ];
+  const FINISH = 'A matrix times a column of amounts takes that many of each of its columns, added nose to tail. Each row of the grid is one equation for one part of where it lands.';
+  // Sources the checks restate (the lesson's own).
+  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf';
+  const LIBRE = 'https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication';
+  const MESH = 'https://www.electronics-tutorials.ws/dccircuits/dcp_5.html';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  // Step 7's demonstration lights row 1, then row 2, then column 1 (seconds on and off).
+  const LIGHTS = [{ k: 'r1', on: 1.0, off: 2.2 }, { k: 'r2', on: 2.5, off: 3.5 }, { k: 'c1', on: 3.8 }];
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // amt: Dan's amounts on a slider step; light: what Dan lit; c: the two columns after he drags a tip.
+  function blank() { return { pick: null, res: null, why: false, amt: null, light: null, c: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+  const el = (id) => document.getElementById(id);
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z])|I[₁₂])/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  // The amounts x and y, on the slider screens only (their box is hidden elsewhere).
+  const xCtl = K.control({ id: 'x', label: 'x, lots of column 1', min: 0, max: 3, step: 1, value: 2, into: '#xybox' });
+  const yCtl = K.control({ id: 'y', label: 'y, lots of column 2', min: 0, max: 3, step: 1, value: 1, into: '#xybox' });
+  // What to light, on the rows-and-columns screen only.
+  const litCtl = K.choice({ id: 'light', label: 'Light up', value: 'r1', into: '#litbox', options: [
+    { value: 'r1', label: 'Row 1' }, { value: 'r2', label: 'Row 2' }, { value: 'c1', label: 'Column 1' }, { value: 'c2', label: 'Column 2' }] });
+  let xShown = xCtl.get(), yShown = yCtl.get(), litShown = litCtl.get();
+  function demoLight() { if (T === Infinity) return 'c1'; let k = 'r1'; LIGHTS.forEach((w) => { if (T >= w.on) k = w.k; }); return k; }
+  // While a demonstration plays, its controls follow it.
+  function syncCtl(i) {
+    const d = STEPS[i], st = S[i];
+    if (d.sliders) {
+      const a = st.amt || d.amt;
+      if (xCtl.get() !== a[0]) xCtl.set(a[0], true);
+      if (yCtl.get() !== a[1]) yCtl.set(a[1], true);
+      xShown = xCtl.get(); yShown = yCtl.get();
+    }
+    if (d.light) { const v = st.light || demoLight(); if (litCtl.get() !== v) litCtl.set(v, true); litShown = litCtl.get(); }
+  }
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    Object.assign(S[i], { amt: null, light: null, c: null });
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    syncCtl(at());
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); syncCtl(at()); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, placed = [];
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived, noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => add(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  const nb = (s) => String(s).replace(/ /g, NB);
+  // Entries and equations sit on highlight bands, so they carry no halo of the page colour.
+  function text(x, y, s, cls, anchor) {
+    const plain = /^(en|big|q|eq|op)\b/.test(cls);
+    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    REC.texts.push(String(s).replace(/ /g, ' '));
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  // A line of words across the drawing, smaller when it would not fit.
+  function fitText(x, y, s, cls) { return text(x, y, s, tw(s, cls) > 322 ? cls + ' sm2' : cls); }
+  // An arrow from a to b (drawing units).
+  function arrow(a, b, cls) {
+    const g = add(K.svg('g', { class: 'arr ' + cls }));
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    if (L < 1) return g;
+    const ux = dx / L, uy = dy / L, hl = Math.min(12, L * 0.5), hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  const swatch = (cx, cy, kind) => arrow([cx - 6, cy + 6], [cx + 6, cy - 6], kind);
+  // A grid's geometry: rows' middles from y0, py apart; columns px wide inside brackets from x0.
+  function mgeo(x0, y0, n, m, px, py) {
+    return { x0, x1: x0 + 12 + px * m, top: y0 - py / 2 - 2, bot: y0 + py * (n - 1) + py / 2 + 2, px, py,
+      cx: (j) => x0 + 6 + px * j + px / 2, cy: (i) => y0 + py * i };
+  }
+  function brackets(G, bad) {
+    const c = 'brk' + (bad ? ' bad' : '');
+    add(K.svg('path', { class: c, d: 'M' + r3(G.x0 + 6) + ' ' + r3(G.top) + ' H' + r3(G.x0) + ' V' + r3(G.bot) + ' H' + r3(G.x0 + 6) }));
+    add(K.svg('path', { class: c, d: 'M' + r3(G.x1 - 6) + ' ' + r3(G.top) + ' H' + r3(G.x1) + ' V' + r3(G.bot) + ' H' + r3(G.x1 - 6) }));
+  }
+  function entriesOf(G, rows, cls, clsOf) { rows.forEach((r, i) => r.forEach((s, j) => text(G.cx(j), G.cy(i) + 6, s, cls + (clsOf ? clsOf(i, j) : '')))); }
+  const rowBand = (G, i, cls) => rect(cls, G.x0 + 3, G.cy(i) - G.py / 2 + 1, G.x1 - G.x0 - 6, G.py - 2, 6);
+  const colBand = (G, j, cls) => rect(cls, G.cx(j) - G.px / 2 + 1, G.top + 2, G.px - 2, G.bot - G.top - 4, 6);
+  const rowBox = (G, i) => rect('badbox', G.x0 + 2, G.cy(i) - G.py / 2, G.x1 - G.x0 - 4, G.py, 7);
+  const colBox = (G, j) => rect('badbox', G.cx(j) - G.px / 2, G.top + 1, G.px, G.bot - G.top - 2, 7);
+
+  // ---------- labels on the squared paper, clear of the arrows, the dots and each other ----------
+  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  function segHits(b, s) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  function placeLabel(px, py, s, cls, area, segs, pts) {
+    if (px < area.x0 - 2 || px > area.x1 + 2 || py < area.y0 - 2 || py > area.y1 + 2) return null;
+    const w = tw(s, cls);
+    let best = null, bestBad = Infinity;
+    [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]].forEach((c) => {
+      const cx = px + (c[0] ? c[0] * (11 + w / 2) : 0), cy = py + (c[1] ? c[1] * (c[0] ? 14 : 19) : 0);
+      const b = { x: cx - w / 2 - 3, y: cy - 8, w: w + 6, h: 17 };
+      let bad = 0;
+      if (b.x < area.x0 || b.x + b.w > area.x1 || b.y < area.y0 || b.y + b.h > area.y1) bad += 100;
+      placed.forEach((q) => { if (boxesMeet(b, q)) bad += 20; });
+      segs.forEach((sg) => { if (segHits(b, sg)) bad += 5; });
+      pts.forEach((p) => { if (p[0] > b.x - 8 && p[0] < b.x + b.w + 8 && p[1] > b.y - 8 && p[1] < b.y + b.h + 8) bad += 8; });
+      if (bad < bestBad) { bestBad = bad; best = { cx, cy, b }; }
+    });
+    placed.push(best.b);
+    return text(best.cx, best.cy + 5, s, cls);
+  }
+
+  // ---------- pictures ----------
+  // A grid of cells: rows and columns named, one entry lit.
+  function drawCells(d, st) {
+    const M = d.M, n = M.length, m = M[0].length, G = mgeo(118, 59, n, m, 64, 50);
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    const t = d.show ? { r: [0.4, 0.7], rl: 1.1, cl: 1.5, size: 1.9, one: 2.3, rb: 2.8, cb: 3.2, lit: 3.6 }
+      : { r: [null, null], rl: null, cl: null, size: null, one: null, rb: 0.1, cb: 0.4, lit: 0.7 };
+    const cell = d.show ? d.lit : right ? d.ask : null, said = [];
+    if (cell) {
+      part(vis(t.rb), 0, () => rowBand(G, cell[0], 'band'));
+      part(vis(t.cb), 0, () => colBand(G, cell[1], 'band'));
+      part(vis(t.lit), 0, () => { rect('lit', G.cx(cell[1]) - 26, G.cy(cell[0]) - 20, 52, 40, 8); REC.lit = cell.slice(); if (!d.show) REC.reveal++; });
+    }
+    M.forEach((r, i) => part(vis(t.r[i]), 6, () => r.forEach((v, j) => { rect('cell', G.cx(j) - 26, G.cy(i) - 20, 52, 40, 8); text(G.cx(j), G.cy(i) + 7, num(v), 'big'); })));
+    part(vis(t.r[0]), 0, () => brackets(G));
+    part(vis(t.rl), 0, () => M.forEach((r, i) => text(G.x0 - 8, G.cy(i) + 5, 'row ' + (i + 1), 'sm', 'end')));
+    part(vis(t.cl), 0, () => M[0].forEach((v, j) => text(G.cx(j), G.top - 8, 'column ' + (j + 1), 'sm')));
+    said.push('A grid of ' + n + ' rows and ' + m + ' columns: ' + M.map((r, i) => 'row ' + (i + 1) + ' holds ' + r.map(num).join(', ')).join('; ') + '.');
+    const y0 = G.bot + 26;
+    part(vis(t.size), 0, () => text(170, y0, n + ' rows and ' + m + ' columns make a ' + n + ' by ' + m + ' grid.', 'ln'));
+    if (cell) part(vis(t.lit), 0, () => { const s = 'Row ' + (cell[0] + 1) + ', column ' + (cell[1] + 1) + ' holds ' + num(M[cell[0]][cell[1]]) + '.'; text(170, y0 + 26, s, 'ln ok'); said.push(s); });
+    if (wrong) {
+      let pos = null;
+      M.forEach((r, i) => r.forEach((v, j) => { if (num(v) === st.pick) pos = [i, j]; }));
+      if (pos) part(arr(0.1), 0, () => {
+        rect('badbox', G.cx(pos[1]) - 29, G.cy(pos[0]) - 23, 58, 46, 9);
+        const s = st.pick + ' sits in row ' + (pos[0] + 1) + ', column ' + (pos[1] + 1) + '.';
+        text(170, y0 + 26, s, 'ln bad'); said.push(s); REC.bad++;
+      });
+    }
+    part(vis(t.one), 0, () => { text(170, y0 + 52, 'On one line, it is ' + oneLine(M) + ',', 'ln'); text(170, y0 + 74, 'with a semicolon between rows.', 'ln'); });
+    return said.join(' ');
+  }
+
+  // An equation laid out piece by piece, so each number's place is known.
+  function eqLayout(cs, ls, rhs, x, cls) {
+    const ps = [];
+    cs.forEach((c, k) => {
+      if (k) ps.push({ s: NB + (c < 0 ? MINUS : '+') + NB });
+      else if (c < 0) ps.push({ s: MINUS });
+      const a = Math.abs(c);
+      ps.push({ s: a === 1 ? '' : num(a), coef: k });
+      ps.push({ s: ls[k], letter: k });
+    });
+    ps.push({ s: NB + '=' + NB }); ps.push({ s: num(rhs), rhs: true });
+    const L = { pieces: [], coef: [], rhs: 0, x0: x, x1: x };
+    let x1 = x;
+    ps.forEach((p) => {
+      const w = p.s ? tw(p.s, cls) : 0;
+      L.pieces.push({ s: p.s, x: x1 });
+      if (p.coef != null) L.coef[p.coef] = { x: x1 + w / 2, implicit: !p.s };
+      if (p.letter != null && L.coef[p.letter].implicit) L.coef[p.letter].x = x1 + w / 2;
+      if (p.rhs) L.rhs = x1 + w / 2;
+      x1 += w;
+    });
+    L.x1 = x1;
+    L.text = L.pieces.map((p) => p.s).join('').replace(/ /g, ' ');
+    return L;
+  }
+  function drawEq(L, y) { L.pieces.forEach((p) => { if (p.s) text(p.x, y, p.s, 'eq', 'start'); }); REC.eqs.push(L.text); }
+
+  // Two equations; their numbers fly into the rows of a grid.
+  function drawEqs(d, st) {
+    const M = d.M, ys = [30, 58], Ls = M.map((r, i) => eqLayout(r, XY, d.rhs[i], 110, 'eq'));
+    const G = mgeo(64, 104, 2, 2, 32, 28), A = mgeo(G.x1 + 20, 104, 2, 1, 32, 28), R = mgeo(A.x1 + 26, 104, 2, 1, 32, 28);
+    const t = { eq: [0.4, 0.7], fly: [1.2, 1.5], brk: 2.0, amt: 2.3, eqs: 2.5, rhs: [2.5, 2.7], under: 3.0, hl: 3.5 };
+    REC.grid = [[null, null], [null, null]];
+    part(vis(t.hl), 0, () => { rect('lit', Ls[0].x0 - 5, ys[0] - 17, Ls[0].x1 - Ls[0].x0 + 10, 24, 6); rowBand(G, 0, 'lit'); rowBand(R, 0, 'lit'); });
+    Ls.forEach((L, i) => part(vis(t.eq[i]), 6, () => drawEq(L, ys[i])));
+    M.forEach((r, i) => r.forEach((c, k) => {
+      const g = go(t.fly[i] + 0.15 * k, 0.8);
+      if (g <= 0) return;
+      const f = Ls[i].coef[k], a = f.implicit ? Math.min(1, g * 1.6) : 1;
+      part(a, 0, () => text(K.lerp(f.x, G.cx(k), g), K.lerp(ys[i], G.cy(i) + 6, g), num(c), 'en'));
+      if (g >= 1) REC.grid[i][k] = c;
+    }));
+    part(vis(t.brk), 0, () => brackets(G));
+    part(vis(t.amt), 0, () => { text(G.x1 + 10, 104 + 19, '×', 'op'); brackets(A); entriesOf(A, [['x'], ['y']], 'en'); });
+    part(vis(t.eqs), 0, () => { text(A.x1 + 13, 104 + 19, '=', 'op'); brackets(R); });
+    d.rhs.forEach((v, i) => {
+      const g = go(t.rhs[i], 0.8);
+      if (g > 0) text(K.lerp(Ls[i].rhs, R.cx(0), g), K.lerp(ys[i], R.cy(i) + 6, g), num(v), 'en');
+    });
+    part(vis(t.under), 0, () => { text((G.x0 + G.x1) / 2, R.bot + 20, 'grid', 'sm'); text(A.cx(0), R.bot + 20, 'unknowns', 'sm'); text(R.cx(0), R.bot + 20, 'answers', 'sm'); });
+    const back = 'Row 1: ' + work(M[0], XY) + ' = ' + num(d.rhs[0]);
+    part(vis(t.hl), 0, () => fitText(170, 198, back, 'ln'));
+    return 'The equations ' + Ls.map((L) => say(L.text)).join(' and ') + '. Their numbers make the grid ' + say(oneLine(M)) + ', beside the column x, y and the answers ' +
+      d.rhs.map(num).join(' and ') + '. ' + say(back) + '.';
+  }
+
+  // Two equations and a grid to fill: the chosen grid fills in and its rows are read back.
+  function drawWhich(d, st) {
+    const ys = [30, 58], Ls = d.M.map((r, i) => eqLayout(r, XY, d.rhs[i], 110, 'eq'));
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    Ls.forEach((L, i) => drawEq(L, ys[i]));
+    const G = mgeo(64, 104, 2, 2, 32, 28), A = mgeo(G.x1 + 20, 104, 2, 1, 32, 28), R = mgeo(A.x1 + 26, 104, 2, 1, 34, 28);
+    brackets(G);
+    text(G.x1 + 10, 104 + 19, '×', 'op');
+    brackets(A); entriesOf(A, [['x'], ['y']], 'en');
+    text(A.x1 + 13, 104 + 19, '=', 'op');
+    brackets(R); entriesOf(R, d.rhs.map((v) => [num(v)]), 'en');
+    const gone = right || wrong ? 1 - arr(0.1, 0.3) : 1;
+    part(gone, 0, () => entriesOf(G, [['?', '?'], ['?', '?']], 'q'));
+    let said = 'The equations ' + Ls.map((L) => say(L.text)).join(' and ') + ', and a grid to fill, times x, y, equals ' + d.rhs.map(num).join(' and ') + '.';
+    if (right || wrong) {
+      const P = parseGrid(st.pick);
+      REC.grid = P;
+      if (right) REC.reveal++;
+      part(arr(0.4, 0.4), 0, () => entriesOf(G, P.map((r) => r.map(num)), 'en', (i, j) => (P[i][j] === d.M[i][j] ? '' : ' bad')));
+      P.forEach((r, i) => {
+        const ok = r.every((v, j) => v === d.M[i][j]), s = 'Row ' + (i + 1) + ' reads ' + lin(r, XY) + ' = ' + num(d.rhs[i]);
+        if (!ok) REC.bad++;
+        part(arr(0.6), 0, () => fitText(170, 176 + 26 * i, s, 'ln' + (ok ? ' ok' : ' bad')));
+        said += ' ' + say(s) + (ok ? '.' : ', not the equation.');
+      });
+    }
+    return said;
+  }
+
+  // ---------- the squared paper ----------
+  const PL = { OX: 34, top: 150, W: 296, H: 190 }, PB = PL.top + PL.H;
+  const BY = 30, BPY = 26, LY = 118, KY = 140;
+  let PU = 30, probing = false, held = null;
+  let view = { i: -1, from: null, to: null, t: Infinity };
+  const ZDUR = 0.45;
+  function planeNow(d, st) {
+    const cols = st.c || colsOf(d.M), amt = (d.sliders && st.amt) || d.amt;
+    return { cols, amt, M: gridOf(cols) };
+  }
+  // How each wrong answer is drawn.
+  function wrongDraw(d, o) {
+    const w = d.wrong && d.wrong[o];
+    if (w === 'rows') return { arrows: d.M, amts: d.amt, chain: true };        // the rows taken as arrows
+    if (w === 'once') return { arrows: colsOf(d.M), amts: [1, 1], chain: true }; // each column once
+    if (w === 'cols') return { solo: d.M };                                       // equations read down: their arrows are the rows
+    if (w === 'swap') return { target: [d.target[1], d.target[0]] };              // the target's parts swapped
+    return null;
+  }
+  // The view: everything the step can draw, so a puzzle's view never moves; on the slider screens it
+  // fits the chain, zooming out as the chain grows.
+  function extentOf(d, st) {
+    const s = planeNow(d, st), pts = [[4, 3]].concat(s.cols);
+    const chainPts = (arrows, amts) => chainOf(arrows, amts).segs.forEach((g) => pts.push(g.b));
+    if (d.hide) {
+      chainPts(s.cols, d.amt);
+      Object.keys(d.wrong).forEach((o) => { const w = wrongDraw(d, o); if (w.chain) chainPts(w.arrows, w.amts); if (w.solo) w.solo.forEach((a) => pts.push(a)); if (w.target) pts.push(w.target); });
+    } else chainPts(s.cols, s.amt);
+    if (d.target) pts.push(d.target);
+    return [Math.max.apply(null, pts.map((p) => p[0])) + 0.6, Math.max.apply(null, pts.map((p) => p[1])) + 0.6];
+  }
+  function viewNow() {
+    if (view.t >= ZDUR || !view.from) return view.to;
+    const e = K.ease(view.t / ZDUR);
+    return [K.lerp(view.from[0], view.to[0], e), K.lerp(view.from[1], view.to[1], e)];
+  }
+  const zoom = K.anim({ button: false, label: 'Zoom', step: (dt) => { view.t += dt; paint(); return view.t < ZDUR; } });
+  function planeExt(i, d, st) {
+    const tgt = extentOf(d, st);
+    if (probing) return tgt;
+    if (view.i !== i) { view = { i, from: tgt, to: tgt, t: Infinity }; return tgt; }
+    if (held) return viewNow();   // frozen while a tip is held, so the drag stays under the finger
+    if (Math.abs(tgt[0] - view.to[0]) > 1e-9 || Math.abs(tgt[1] - view.to[1]) > 1e-9) {
+      view = { i, from: viewNow(), to: tgt, t: REDUCE || testing() ? Infinity : 0 };
+      if (view.t === 0) zoom.play();
+    }
+    return viewNow();
+  }
+  const comboLine = (cols, amt) => num(amt[0]) + ' × ' + pt(cols[0]) + ' + ' + num(amt[1]) + ' × ' + pt(cols[1]) + ' = ' + pt(combo(cols, amt));
+  function litLine(k, s, ch) {
+    if (k[0] === 'c') { const j = +k[1] - 1; return 'Column ' + (j + 1) + ' is the arrow ' + pt(s.cols[j]); }
+    const r = +k[1] - 1;
+    if (!ch.segs.length) return 'Row ' + (r + 1) + ': ' + lin(s.M[r], XY) + ' = 0';
+    return 'Row ' + (r + 1) + ': ' + lin(s.M[r], XY) + ' = ' + ch.segs.map((g) => num(s.cols[g.k][r])).join(' + ') + ' = ' + num(ch.end[r]);
+  }
+  function wrongLine(d, o) {
+    const w = d.wrong[o];
+    if (w === 'rows') return o + ' mixes the rows, ' + pt(d.M[0]) + ' and ' + pt(d.M[1]);
+    if (w === 'once') return o + ' takes each column just once';
+    if (w === 'cols') return 'Those use the arrows ' + pt(d.M[0]) + ' and ' + pt(d.M[1]);
+    return 'Those aim at ' + pt([d.target[1], d.target[0]]) + ', not ' + pt(d.target);
+  }
+  function drawKey(y, items) {
+    const gap = 12, glyph = 21, ws = items.map((it) => tw(it[1], 'key'));
+    const total = ws.reduce((a, w) => a + glyph + w, 0) + gap * (items.length - 1);
+    let x = Math.max(6, (340 - total) / 2);
+    items.forEach((it, k) => {
+      if (it[0] === 'dot') circle('dot', x + 7, y - 4, 5);
+      else if (it[0] === 'ring') circle('ring', x + 7, y - 4, 6.5);
+      else arrow([x, y + 2], [x + 15, y - 10], it[0]);
+      text(x + glyph, y, it[1], 'key', 'start');
+      x += glyph + ws[k] + gap;
+    });
+  }
+
+  function drawPlane(d, st, i) {
+    const s = planeNow(d, st), e = planeExt(i, d, st), U = Math.min(PL.W / e[0], PL.H / e[1], 40);
+    PU = U;
+    const P = (w) => [PL.OX + w[0] * U, PB - w[1] * U];
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, wd = wrong ? wrongDraw(d, st.pick) : null;
+    const moved = d.show && !!(st.amt || st.light || st.c);
+    const ch = chainOf(s.cols, s.amt), n = ch.segs.length;
+    REC.band = s.M;
+    // the timetable: null, there from the start; a time, arriving then
+    const tl = { base: [null, null], seg: null, segDur: 0, dot: null, ans: null, target: null, chain: true, joint: null };
+    if (d.show && !moved) {
+      if (d.light) Object.assign(tl, { base: [0.4, 0.4], seg: () => 0.4, dot: 0.4 });
+      else {
+        const t0 = d.target ? 1.2 : 1.4, last = t0 + 0.6 * (n - 1) + 0.5;
+        Object.assign(tl, { base: d.target ? [0.4, 0.4] : [0.4, 0.8], target: d.target ? 0.4 : null, seg: (k) => t0 + 0.6 * k, segDur: 0.5,
+          dot: last + 0.1, ans: last + 0.3, joint: t0 + 0.6 * (s.amt[0] - 1) + 0.5 });
+      }
+    } else if (d.hide) {
+      tl.chain = right;
+      if (right) { const last = 0.1 + 0.3 * (n - 1) + 0.3; Object.assign(tl, { seg: (k) => 0.1 + 0.3 * k, segDur: 0.3, dot: last + 0.05, ans: last + 0.05 }); }
+    }
+    // what is lit: Dan's pick, or the demonstration's turn
+    let lits = [];
+    if (d.light) {
+      if (st.light) lits = [{ k: st.light, a: 1 }];
+      else lits = LIGHTS.map((w) => ({ k: w.k, a: Math.max(0, arr(w.on, 0.45) - (w.off != null ? arr(w.off, 0.3) : 0)) })).filter((l) => l.a > 0);
+    }
+    const said = [];
+
+    // The grid times the amounts, equals where the chain lands.
+    const G = mgeo(70, BY, 2, 2, 32, BPY), A = mgeo(G.x1 + 22, BY, 2, 1, 32, BPY), R = mgeo(A.x1 + 26, BY, 2, 1, 34, BPY);
+    lits.forEach((l) => part(l.a, 0, () => {
+      if (l.k[0] === 'r') { const r = +l.k[1] - 1; rowBand(G, r, 'lit'); rowBand(R, r, 'lit'); } else colBand(G, +l.k[1] - 1, 'lit');
+    }));
+    brackets(G); entriesOf(G, s.M.map((r) => r.map(num)), 'en');
+    [0, 1].forEach((r) => text(G.x0 - 8, G.cy(r) + 5, 'row ' + (r + 1), 'sm', 'end'));
+    [0, 1].forEach((j) => swatch(G.cx(j), G.bot + 11, 'p' + (j + 1)));
+    text(G.x1 + 11, BY + 19, '×', 'op');
+    brackets(A);
+    const aimed = d.hide && d.target;
+    entriesOf(A, (aimed ? XY : s.amt.map(num)).map((v) => [v]), 'en');
+    text(A.x1 + 13, BY + 19, '=', 'op');
+    brackets(R);
+    const ans = mul(s.M, s.amt);
+    if (aimed) entriesOf(R, d.target.map((v) => [num(v)]), 'en');
+    else if (d.hide) {
+      part(right || wrong ? 1 - arr(0.1, 0.3) : 1, 0, () => entriesOf(R, [['?'], ['?']], 'q'));
+      if (right) part(vis(tl.ans), 0, () => { entriesOf(R, ans.map((v) => [num(v)]), 'en ok'); REC.ans = ans; REC.reveal++; });
+      if (wrong) part(arr(0.4), 0, () => { entriesOf(R, parsePt(st.pick).map((v) => [num(v)]), 'en bad'); REC.bad++; });
+    } else part(vis(tl.ans), 0, () => { entriesOf(R, ans.map((v) => [num(v)]), 'en'); REC.ans = ans; });
+    text(A.cx(0), G.bot + 25, 'x and y', 'sm');
+    text(R.cx(0), G.bot + 25, aimed ? 'target' : 'lands on', 'sm');
+    said.push('The grid ' + say(oneLine(s.M)) + ' times ' + (aimed ? 'x, y equals the target ' + say(pt(d.target)) : 'the amounts ' + s.amt.map(num).join(' and ')) + '.');
+
+    // The line under it: the mix written out, what is lit, or the slip.
+    if (d.light) lits.forEach((l) => part(l.a, 0, () => { const s1 = litLine(l.k, s, ch); fitText(170, LY, s1, 'ln'); if (l.a >= 0.5) said.push(say(s1) + '.'); }));
+    else if (d.hide) {
+      if (right) part(vis(tl.ans), 0, () => { const s1 = comboLine(s.cols, d.amt); fitText(170, LY, s1, 'ln ok'); said.push(say(s1) + '.'); });
+      else if (wrong) part(arr(0.1), 0, () => { const s1 = wrongLine(d, st.pick); fitText(170, LY, s1, 'ln bad'); said.push(say(s1) + '.'); REC.bad++; });
+    } else part(vis(tl.ans), 0, () => { const s1 = comboLine(s.cols, s.amt); fitText(170, LY, s1, 'ln'); said.push(say(s1) + '.'); });
+    drawKey(KY, [['p1', 'column 1'], ['p2', 'column 2'], ['dot', 'lands on']].concat(d.target ? [['ring', 'target']] : []));
+
+    // Squared paper: lines a square apart, the two edges, and their numbers.
+    const X = (v) => PL.OX + v * U, Y = (v) => PB - v * U;
+    const nx = Math.floor(PL.W / U + 1e-6), ny = Math.floor(PL.H / U + 1e-6), every = U >= 19 ? 1 : 2;
+    for (let k = 1; k <= nx; k++) line('gl', X(k), PB, X(k), PL.top);
+    for (let k = 1; k <= ny; k++) line('gl', PL.OX, Y(k), PL.OX + PL.W, Y(k));
+    line('ax', PL.OX, PB, PL.OX + PL.W, PB); line('ax', PL.OX, PB, PL.OX, PL.top);
+    for (let k = 0; k <= nx; k += every) text(X(k), PB + 17, String(k), 'tick');
+    for (let k = every; k <= ny; k += every) text(PL.OX - 7, Y(k) + 5, String(k), 'tick', 'end');
+
+    // Arrows, inside the paper's edges.
+    const cr = el('pcliprect');
+    cr.setAttribute('x', PL.OX - 8); cr.setAttribute('y', PL.top - 8); cr.setAttribute('width', PL.W + 16); cr.setAttribute('height', PL.H + 8);
+    const cg = add(K.svg('g', { 'clip-path': 'url(#pclip)' }));
+    const keep = into; into = cg;
+    const segsPx = [], pts = [], labels = [];
+    // a lit row: each arrow's across part (row 1) or up part (row 2), dashed
+    lits.forEach((l) => {
+      if (l.k[0] !== 'r') return;
+      const r = +l.k[1] - 1;
+      part(l.a, 0, () => ch.segs.forEach((g) => {
+        const a = r === 0 ? g.a : [g.b[0], g.a[1]], b = r === 0 ? [g.b[0], g.a[1]] : g.b;
+        if (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) < 1e-9) return;
+        const pa = P(a), pb = P(b);
+        line('leg', pa[0], pa[1], pb[0], pb[1]);
+        segsPx.push([pa[0], pa[1], pb[0], pb[1]]);
+        if (l.a >= 0.5) REC.legs.push([a, b]);
+      }));
+    });
+    // a lit column: its arrow and every copy of it glow
+    lits.forEach((l) => {
+      if (l.k[0] !== 'c') return;
+      const k = +l.k[1] - 1, glow = (a, b) => { const pa = P(a), pb = P(b); line('glow', pa[0], pa[1], pb[0], pb[1]); };
+      part(l.a, 0, () => { glow([0, 0], s.cols[k]); ch.segs.forEach((g) => { if (g.k === k) glow(g.a, g.b); }); });
+    });
+    // the chain, nose to tail
+    if (tl.chain) ch.segs.forEach((g, k) => {
+      const t0 = tl.seg ? tl.seg(k) : null;
+      const grow = t0 == null || !tl.segDur ? 1 : go(t0, tl.segDur), alpha = t0 == null || tl.segDur ? 1 : vis(t0);
+      if (grow <= 0 || alpha <= 0) return;
+      const pa = P(g.a), pb = P(g.b), pe = [K.lerp(pa[0], pb[0], grow), K.lerp(pa[1], pb[1], grow)];
+      part(alpha, 0, () => arrow(pa, pe, 'p' + (g.k + 1)));
+      segsPx.push([pa[0], pa[1], pe[0], pe[1]]); pts.push(pe);
+      REC.segs.push({ a: g.a, b: g.b, k: g.k });
+      if (d.hide) REC.reveal++;
+    });
+    // the two columns, from the corner
+    [0, 1].forEach((k) => part(vis(tl.base[k]), 0, () => {
+      const pa = P([0, 0]), pb = P(s.cols[k]);
+      arrow(pa, pb, 'base p' + (k + 1));
+      segsPx.push([pa[0], pa[1], pb[0], pb[1]]); pts.push(pb);
+    }));
+    said.push('On squared paper, column 1 is the arrow ' + say(pt(s.cols[0])) + ' and column 2 is the arrow ' + say(pt(s.cols[1])) + ', both from the corner.');
+    // a wrong answer, drawn in red
+    if (wd && wd.chain) {
+      const wc = chainOf(wd.arrows, wd.amts);
+      wc.segs.forEach((g, k) => {
+        const gr = go(0.1 + 0.25 * k, 0.25);
+        if (gr <= 0) return;
+        const pa = P(g.a), pb = P(g.b), pe = [K.lerp(pa[0], pb[0], gr), K.lerp(pa[1], pb[1], gr)];
+        arrow(pa, pe, 'bad');
+        segsPx.push([pa[0], pa[1], pe[0], pe[1]]); pts.push(pe);
+      });
+      const ta = arr(0.1 + 0.25 * wc.segs.length, 0.4);
+      part(ta, 0, () => { const p = P(wc.end); circle('dot bad', p[0], p[1], 5.5); pts.push(p); REC.bad++; });
+      if (ta > 0) labels.push({ p: P(wc.end), s: pt(wc.end), cls: 'lb bad', a: ta });
+      said.push('In red, a chain of the slip lands on ' + say(pt(wc.end)) + '.');
+    }
+    if (wd && wd.solo) {
+      const ta = arr(0.1, 0.4);
+      part(ta, 0, () => wd.solo.forEach((a) => { const pa = P([0, 0]), pb = P(a); arrow(pa, pb, 'bad'); segsPx.push([pa[0], pa[1], pb[0], pb[1]]); pts.push(pb); }));
+      if (ta > 0) { wd.solo.forEach((a) => labels.push({ p: P(a), s: pt(a), cls: 'lb bad', a: ta })); REC.bad++; }
+      said.push('In red, the arrows ' + wd.solo.map((a) => say(pt(a))).join(' and ') + '.');
+    }
+    if (wd && wd.target) {
+      const ta = arr(0.1, 0.4);
+      part(ta, 0, () => { const p = P(wd.target); circle('ring bad', p[0], p[1], 9); pts.push(p); REC.bad++; });
+      if (ta > 0) labels.push({ p: P(wd.target), s: pt(wd.target), cls: 'lb bad', a: ta });
+      said.push('In red, a target at ' + say(pt(wd.target)) + '.');
+    }
+    // the target, and the dot where the chain lands
+    const hit = !!d.target && tl.chain && vis(tl.dot) >= 0.5 && ch.end[0] === d.target[0] && ch.end[1] === d.target[1];
+    if (d.target) {
+      const ta = vis(tl.target);
+      part(ta, 0, () => { const p = P(d.target); circle('ring', p[0], p[1], 9); pts.push(p); });
+      if (ta > 0) labels.push({ p: P(d.target), s: 'target ' + pt(d.target), cls: 'lb', a: ta });
+      said.push('A target ring at ' + say(pt(d.target)) + '.');
+    }
+    if (tl.chain) {
+      const ta = vis(tl.dot);
+      part(ta, 0, () => { const p = P(ch.end); circle('dot', p[0], p[1], 5.5); pts.push(p); REC.end = ch.end; });
+      if (ta > 0 && !hit) labels.push({ p: P(ch.end), s: pt(ch.end), cls: 'lb', a: ta });
+      said.push(n ? num(s.amt[0]) + ' lots of column 1 and ' + num(s.amt[1]) + ' of column 2, nose to tail, land on ' + say(pt(ch.end)) + (hit ? ', on the target.' : '.') : 'With no amounts, the chain stays at the corner.');
+    }
+    REC.hit = hit;
+    if (d.joint && s.amt[0] >= 1 && s.amt[1] >= 1 && tl.chain) {
+      const j = [s.cols[0][0] * s.amt[0], s.cols[0][1] * s.amt[0]], ta = vis(tl.joint);
+      if (ta > 0) labels.push({ p: P(j), s: pt(j), cls: 'lb mu', a: ta });
+    }
+    into = keep;
+    // labels last, on top, each clear of the rest
+    const area = { x0: PL.OX + 3, x1: PL.OX + PL.W - 2, y0: PL.top + 2, y1: PB - 3 };
+    labels.forEach((lb) => part(lb.a, 0, () => placeLabel(lb.p[0], lb.p[1], lb.s, lb.cls, area, segsPx, pts)));
+    return said.join(' ');
+  }
+
+  // A 2 by 2 grid read both ways: row 2 as an equation, column 2 as an arrow.
+  function drawRead(d, st) {
+    const M = d.M, G = mgeo(72, 50, 2, 2, 64, 32), cols = colsOf(M);
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    let eqOk = null, arOk = null, eqPart = '', arPart = '';
+    if (right || wrong) { const ps = st.pick.split(' and '); eqPart = ps[0]; arPart = ps[1]; eqOk = eqPart === lin(M[1], XY); arOk = arPart === pt(cols[1]); }
+    if (eqOk === true) part(arr(0.1), 0, () => rowBand(G, 1, 'lit'));
+    if (arOk === true) part(arr(0.35), 0, () => colBand(G, 1, 'lit'));
+    brackets(G); entriesOf(G, M.map((r) => r.map(num)), 'en');
+    [0, 1].forEach((r) => text(G.x0 - 8, G.cy(r) + 5, 'row ' + (r + 1), 'sm', 'end'));
+    [0, 1].forEach((j) => { text(G.cx(j), G.top - 8, 'column ' + (j + 1), 'sm'); swatch(G.cx(j), G.bot + 12, 'p' + (j + 1)); });
+    if (eqOk === false) part(arr(0.1), 0, () => { colBox(G, 1); REC.bad++; });
+    if (arOk === false) part(arr(0.35), 0, () => { rowBox(G, 1); REC.bad++; });
+    // small squared paper: column 1 as an arrow; after Check, column 2's arrow or the slip's
+    const O = [244, 116], u = 16, Q = (w) => [O[0] + w[0] * u, O[1] - w[1] * u];
+    for (let k = 1; k <= 5; k++) line('gl', O[0] + k * u, O[1], O[0] + k * u, O[1] - 4 * u);
+    for (let k = 1; k <= 4; k++) line('gl', O[0], O[1] - k * u, O[0] + 5 * u, O[1] - k * u);
+    line('ax', O[0], O[1], O[0] + 5 * u, O[1]); line('ax', O[0], O[1], O[0], O[1] - 4 * u);
+    arrow(Q([0, 0]), Q(cols[0]), 'base p1');
+    let said = 'The grid ' + say(oneLine(M)) + ', its rows and columns named. Beside it, column 1 drawn as the arrow ' + say(pt(cols[0])) + '.';
+    if (arOk === true) part(arr(0.35), 0, () => { arrow(Q([0, 0]), Q(cols[1]), 'base p2'); REC.reveal++; });
+    if (arOk === false) part(arr(0.35), 0, () => arrow(Q([0, 0]), Q(parsePt(arPart)), 'bad'));
+    if (eqOk != null) {
+      const s = eqOk ? 'Row 2 runs across, so it reads ' + lin(M[1], XY) + '.' : eqPart + ' reads column 2 across.';
+      part(arr(0.1), 0, () => fitText(170, 150, s, 'ln' + (eqOk ? ' ok' : ' bad')));
+      said += ' ' + say(s);
+    }
+    if (arOk != null) {
+      const s = arOk ? 'Column 2 runs down, so it is ' + pt(cols[1]) + '.' : arPart + ' is row 2, not column 2.';
+      part(arr(0.35), 0, () => fitText(170, 176, s, 'ln' + (arOk ? ' ok' : ' bad')));
+      said += ' ' + say(s);
+    }
+    return said;
+  }
+
+  // Three equations; after Check, the grid they make, its rows and columns counted.
+  function drawSize(d, st) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    const ex = K.lerp(116, 24, right || wrong ? go(0.1, 0.5) : 0), ys = [46, 74, 102], n = d.eqs.length, m = d.eqs[0].length;
+    d.eqs.forEach((r, i) => { const s = lin(r, XY) + ' = ' + num(d.rhs[i]); text(ex, ys[i], s, 'eq', 'start'); REC.eqs.push(s); });
+    let said = 'Three equations: ' + d.eqs.map((r, i) => say(lin(r, XY) + ' = ' + num(d.rhs[i]))).join(', ') + '.';
+    const w = wrong ? d.wrong[st.pick] : null;
+    if (right) part(arr(0.45), 0, () => {
+      const G = mgeo(190, 46, n, m, 30, 28);
+      brackets(G); entriesOf(G, d.eqs.map((r) => r.map(num)), 'en');
+      text((G.x0 + G.x1) / 2, G.top - 9, m + ' columns', 'sm');
+      text(G.x1 + 10, G.cy(1) + 5, n + ' rows', 'sm', 'start');
+      REC.grid = d.eqs; REC.reveal++;
+    });
+    if (w === 'flip') part(arr(0.45), 0, () => { const G = mgeo(176, 60, m, n, 30, 28); brackets(G, true); entriesOf(G, colsOf(d.eqs).map((r) => r.map(num)), 'en'); REC.bad++; });
+    if (w === 'rhs') part(arr(0.45), 0, () => {
+      const G = mgeo(176, 46, n, m + 1, 30, 28);
+      brackets(G, true); entriesOf(G, d.eqs.map((r, i) => r.map(num).concat(num(d.rhs[i]))), 'en', (i, j) => (j === m ? ' bad' : '')); REC.bad++;
+    });
+    const s = right ? n + ' rows and ' + m + ' columns make a ' + n + ' by ' + m + ' grid.'
+      : w === 'flip' ? m + ' by ' + n + ' would put each equation down a column.'
+      : w === 'rhs' ? 'The answers ' + d.rhs.slice(0, -1).map(num).join(', ') + ' and ' + num(d.rhs[d.rhs.length - 1]) + ' sit after the equals sign.' : '';
+    if (s) { part(arr(0.45), 0, () => fitText(170, 140, s, 'ln' + (right ? ' ok' : ' bad'))); said += ' ' + s; }
+    return said;
+  }
+
+  // Loop equations as a grid times the currents; after Check, each row worked.
+  function drawLoop(d, st) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null;
+    const G = mgeo(30, 40, 2, 2, 40, 30), A = mgeo(G.x1 + 24, 40, 2, 1, 40, 30), R = mgeo(A.x1 + 26, 40, 2, 1, 40, 30);
+    brackets(G); entriesOf(G, d.M.map((r) => r.map(num)), 'en');
+    text(G.x1 + 12, 40 + 20, '×', 'op');
+    brackets(A); entriesOf(A, d.amt.map((v) => [num(v)]), 'en');
+    text(A.x1 + 13, 40 + 20, '=', 'op');
+    brackets(R);
+    const gone = right || wrong ? 1 - arr(0.1, 0.3) : 1;
+    part(gone, 0, () => entriesOf(R, [['?'], ['?']], 'q'));
+    text((G.x0 + G.x1) / 2, G.bot + 20, 'ohms', 'sm'); text(A.cx(0), G.bot + 20, 'amps', 'sm'); text(R.cx(0), G.bot + 20, 'volts', 'sm');
+    part(gone, 0, () => fitText(170, 142, 'Each row gives one loop\'s voltage.', 'ln mu'));
+    const ans = mul(d.M, d.amt);
+    let said = 'The grid ' + say(oneLine(d.M)) + ' in ohms times the currents ' + d.amt.map(num).join(' and ') + ' amps equals a column of voltages.';
+    if (right) {
+      part(arr(0.3), 0, () => { entriesOf(R, ans.map((v) => [num(v)]), 'en ok'); REC.ans = ans; REC.reveal++; });
+      d.M.forEach((r, i) => { const s = 'Row ' + (i + 1) + ': ' + work(r, d.amt.map(num)) + ' = ' + num(ans[i]) + ' V'; part(arr(0.4 + 0.2 * i), 0, () => fitText(170, 142 + 26 * i, s, 'ln ok')); said += ' ' + say(s) + '.'; });
+    }
+    if (wrong) {
+      const w = d.wrong[st.pick], a = d.amt;
+      part(arr(0.3), 0, () => { entriesOf(R, parsePt(st.pick).map((v) => [num(v)]), 'en bad'); REC.bad++; });
+      d.M.forEach((r, i) => {
+        const s = w === 'diag'
+          ? 'Row ' + (i + 1) + ': ' + num(r[i]) + ' × ' + num(a[i]) + ' = ' + num(r[i] * a[i]) + ' leaves out ' + num(r[1 - i]) + ' × ' + num(a[1 - i])
+          : 'Row ' + (i + 1) + ': ' + r.map((c, k) => num(Math.abs(c)) + ' × ' + num(a[k])).join(' + ') + ' = ' + num(r.reduce((t, c, k) => t + Math.abs(c) * a[k], 0)) + ' drops a minus';
+        part(arr(0.1 + 0.2 * i), 0, () => fitText(170, 142 + 26 * i, s, 'ln bad'));
+        said += ' ' + say(s) + '.';
+      });
+    }
+    return said;
+  }
+
+  // ---------- the tips: Dan drags a column's arrow to a whole point ----------
+  const grips = [0, 1].map((k) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Tip of the column ' + (k + 1) + ' arrow: drag it, or use the arrow keys, to move it' })));
+  function placeGrips(d, st) {
+    const on = !!d.drag && !finished;
+    grips.forEach((g, k) => {
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const c = (st.c || colsOf(d.M))[k];
+      g.setAttribute('cx', r3(PL.OX + c[0] * PU)); g.setAttribute('cy', r3(PB - c[1] * PU));
+    });
+  }
+  function setTip(k, w) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.drag || finished) return;
+    const v = [K.clamp(Math.round(w[0]), 0, 3), K.clamp(Math.round(w[1]), 0, 3)];
+    if (!v[0] && !v[1]) return;
+    const cols = (st.c || colsOf(d.M)).map((c) => c.slice());
+    if (cols[k][0] === v[0] && cols[k][1] === v[1] && T === Infinity) return;
+    cols[k] = v; st.c = cols;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  function worldAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [(q.x - PL.OX) / PU, (PB - q.y) / PU];
+  }
+  grips.forEach((g, k) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      const w = worldAt(e);
+      if (!w) return;
+      held = { id: e.pointerId, k };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      setTip(k, w);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.k !== k) return;
+      const w = worldAt(e);
+      if (w) setTip(k, w);
+    });
+    const letGo = (e) => { if (held && (!e || held.id === e.pointerId)) { held = null; K.refresh(); } };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => letGo(null));
+    g.addEventListener('keydown', (e) => {
+      const d = STEPS[at()];
+      if (!d.drag || finished) return;
+      const by = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const c = (S[at()].c || colsOf(d.M))[k];
+      setTip(k, [c[0] + by[0], c[1] + by[1]]);
+    });
+  });
+
+  // ---------- the scene for a step (the animations call this every frame) ----------
+  const DRAW = { cells: drawCells, eqs: drawEqs, which: drawWhich, plane: drawPlane, read: drawRead, size: drawSize, loop: drawLoop };
+  const HEIGHT = { cells: 248, eqs: 212, which: 214, plane: 366, read: 188, size: 152, loop: 182 };
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null; placed = [];
+    REC = { texts: [], eqs: [], grid: null, band: null, segs: [], legs: [], end: null, ans: null, hit: false, lit: null, bad: 0, reveal: 0 };
+    svg.setAttribute('viewBox', '0 0 340 ' + HEIGHT[d.pic]);
+    svg.setAttribute('aria-label', DRAW[d.pic](d, st, i) || '');
+    placeGrips(d, st);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    // Dan's own amounts and lighting, told apart from the settings the demonstrations give them.
+    const here = i === lastStep && !finished;
+    if (p.x !== xShown || p.y !== yShown) {
+      xShown = p.x; yShown = p.y;
+      if (here && d.sliders) { st.amt = [Math.round(p.x), Math.round(p.y)]; anim.pause(); T = Infinity; }
+    }
+    if (p.light !== litShown) {
+      litShown = p.light;
+      if (here && d.light) { st.light = p.light; anim.pause(); T = Infinity; }
+    }
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { Object.assign(st, { amt: null, light: null, c: null }); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    syncCtl(i);
+    el('xybox').hidden = !d.sliders;
+    el('litbox').hidden = !d.light;
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const near = (a, b) => Math.abs(a - b) < 1e-9;
+  const samePt = (a, b) => !!a && !!b && a.length === b.length && a.every((v, k) => near(v, b[k]));
+  const sameGrid = (A, B) => !!A && !!B && A.length === B.length && A.every((r, i) => samePt(r, B[i]));
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T, keepView = view;
+    S[i] = st; T = t == null ? Infinity : t; probing = true;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; probing = false; view = keepView; paint(); }
+  }
+
+  K.check('All the entries in the second row relate to the second equation: wherever equations become a grid, each equation fills its own row in order, and a row read back gives its equation again', () => {
+    const i3 = idx('Equations as a grid'), g3 = drawn(i3, blank());
+    const i4 = idx('Which grid?'), d4 = STEPS[i4], g4 = drawn(i4, solvedSt(i4));
+    const i11 = idx('How big?'), d11 = STEPS[i11], g11 = drawn(i11, solvedSt(i11));
+    const d10 = STEPS[idx('Aim for (9, 8)')];
+    return sameGrid(g3.grid, STEPS[i3].M) && g3.eqs.join('|') === 'x + 3y = 7|2x + y = 4' && g3.texts.indexOf('Row 1: 1 × x + 3 × y = 7') >= 0 &&
+      sameGrid(parseGrid(d4.want), d4.M) && g4.eqs.join('|') === '3x + 2y = 13|x − y = 1' && g4.texts.indexOf('Row 2 reads x − y = 1') >= 0 &&
+      sameGrid(g11.grid, d11.eqs) && g11.eqs.join('|') === 'x + y = 5|x − y = 1|2x + y = 8' &&
+      d10.want === d10.M.map((r, k) => lin(r, XY) + ' = ' + num(d10.target[k])).join(' and ');
+  }, { source: HELM });
+  K.check('A matrix times a column vector is a linear combination of the columns of the matrix: for every pair of whole amounts from none to three and every tip on the paper, the chain of columns, nose to tail, ends where the rows add up to', () => {
+    const tips = [];
+    for (let a = 0; a <= 3; a++) for (let b = 0; b <= 3; b++) if (a || b) tips.push([a, b]);
+    return tips.every((c1) => tips.every((c2) => [0, 1, 2, 3].every((x) => [0, 1, 2, 3].every((y) =>
+      samePt(chainOf([c1, c2], [x, y]).end, mul(gridOf([c1, c2]), [x, y]))))));
+  }, { source: LIBRE });
+  K.check('[V] = [R] × [I], where [I] is the list of currents to be found: the loops\' resistance grid times the loop currents gives the column of voltages, and those voltages make both loop equations true', () => {
+    const i12 = idx('Loop currents'), d = STEPS[i12], V = mul(d.M, d.amt), g = drawn(i12, solvedSt(i12));
+    return samePt(V, [12, 4]) && d.want === pt(V) && lin(d.M[0], II) + ' = ' + num(V[0]) === '6I₁ − 2I₂ = 12' &&
+      lin(d.M[1], II) + ' = ' + num(V[1]) === '−2I₁ + 6I₂ = 4' && samePt(g.ans, V);
+  }, { source: MESH });
+  K.check('Every worked number is right: row 2, column 1 of [4 7 1; 2 5 3] is 2; [1 3; 2 1] times (2, 1) is (5, 5), through (2, 4), and its rows as arrows give (4, 7); times (3, 1) it is (6, 7); times (1, 1) it is (4, 3); times (2, 2) it is (8, 6), with (6, 8) from the rows and (4, 3) from each column once; (1, 2) hits (7, 4) and (3, 2) hits (9, 8); [6 −2; −2 6] times (2.5, 1.5) is (12, 4), with (15, 9) and (18, 14) from the slips', () => {
+    const M1 = STEPS[0].M, L = STEPS[idx('Loop currents')].M, a = [2.5, 1.5];
+    const diag = L.map((r, i) => r[i] * a[i]), abs = L.map((r) => r.reduce((t, c, k) => t + Math.abs(c) * a[k], 0));
+    return M1[1][0] === 2 && M1[0][1] === 7 && samePt(mul(MAIN, [2, 1]), [5, 5]) && samePt(combo(colsOf(MAIN), [2, 0]), [2, 4]) && samePt(combo(MAIN, [2, 1]), [4, 7]) && samePt(mul(MAIN, [3, 1]), [6, 7]) && samePt(mul(MAIN, [1, 1]), [4, 3]) &&
+      samePt(mul(MAIN, [2, 2]), [8, 6]) && samePt(combo(MAIN, [2, 2]), [6, 8]) && samePt(combo(colsOf(MAIN), [1, 1]), [4, 3]) &&
+      samePt(mul(MAIN, [1, 2]), [7, 4]) && samePt(mul(MAIN, [3, 2]), [9, 8]) && samePt(mul(L, a), [12, 4]) && samePt(diag, [15, 9]) && samePt(abs, [18, 14]);
+  });
+  K.check('Each puzzle\'s answer comes from its grid by the rule (the entry row first, the chain\'s landing point, row 2 and column 2, the rows aimed at the target, rows then columns, the loop voltages), and each slip offered is the one its hint names', () => {
+    const g = (nm) => STEPS[idx(nm)];
+    const s2 = g('Row 2, column 1'), s6 = g('Two of each'), s8 = g('Both readings'), s10 = g('Aim for (9, 8)'), s11 = g('How big?'), s12 = g('Loop currents');
+    const key = (d, kind) => Object.keys(d.wrong).find((o) => d.wrong[o] === kind);
+    return s2.want === num(s2.M[s2.ask[0]][s2.ask[1]]) && s2.opts.indexOf(num(s2.M[0][1])) >= 0 &&
+      s6.want === pt(mul(s6.M, s6.amt)) && key(s6, 'rows') === pt(combo(s6.M, s6.amt)) && key(s6, 'once') === pt(combo(colsOf(s6.M), [1, 1])) &&
+      s8.want === lin(s8.M[1], XY) + ' and ' + pt(colsOf(s8.M)[1]) && s8.opts[0] === lin(colsOf(s8.M)[1], XY) + ' and ' + pt(s8.M[1]) &&
+      samePt(mul(s10.M, s10.amt), s10.target) && key(s10, 'cols') === colsOf(s10.M).map((r, k) => lin(r, XY) + ' = ' + num(s10.target[k])).join(' and ') &&
+      s11.want === s11.eqs.length + ' by ' + s11.eqs[0].length && s12.want === pt(mul(s12.M, s12.amt));
+  });
+  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (drawn(i, solvedSt(i)).bad !== 0) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawn(i, wrongSt(i, o)).bad > 0 && !!d.hints[o]);
+    }));
+  K.check('Before Check, no puzzle shows its answer (no lit entry, no filled grid, no chain, no landing point); after a right answer, it does', () =>
+    DO.every((i) => drawn(i, blank()).reveal === 0 && drawn(i, solvedSt(i)).reveal > 0));
+  K.check('The picture follows the rule: one arrow per lot, each a copy of its column, the last nose on the dot and the answer column at the same point, from none of each to three of each; a lit row reads its across or up parts; a dragged tip rewrites its column; and only one lot of column 1 with two of column 2 hits (7, 4)', () => {
+    const i5 = idx('Columns are arrows'), i7 = idx('Rows and columns'), i9 = idx('Hit the target'), C = colsOf(MAIN);
+    for (let x = 0; x <= 3; x++) for (let y = 0; y <= 3; y++) {
+      const r = drawn(i5, Object.assign(blank(), { amt: [x, y] })), want = mul(MAIN, [x, y]);
+      if (r.segs.length !== x + y || !r.segs.every((g) => samePt([g.b[0] - g.a[0], g.b[1] - g.a[1]], C[g.k])) || !samePt(r.end, want) || !samePt(r.ans, want)) return false;
+      if (drawn(i9, Object.assign(blank(), { amt: [x, y] })).hit !== (x === 1 && y === 2)) return false;
+    }
+    const r1 = drawn(i7, Object.assign(blank(), { light: 'r1' })), r2 = drawn(i7, Object.assign(blank(), { light: 'r2' })), c2 = drawn(i7, Object.assign(blank(), { light: 'c2' }));
+    const dr = drawn(i7, Object.assign(blank(), { light: 'r1', c: [[0, 3], [2, 2]] }));
+    return r1.texts.indexOf('Row 1: x + 3y = 1 + 1 + 1 + 3 = 6') >= 0 && r1.legs.length === 4 && r2.texts.indexOf('Row 2: 2x + y = 2 + 2 + 2 + 1 = 7') >= 0 &&
+      c2.texts.indexOf('Column 2 is the arrow (3, 1)') >= 0 && sameGrid(dr.band, [[0, 2], [3, 2]]) && samePt(dr.end, [2, 11]) && dr.texts.indexOf('Row 1: 2y = 0 + 0 + 0 + 2 = 2') >= 0 &&
+      drawn(i9, blank()).hit === false && drawn(i9, Object.assign(blank(), { amt: [1, 2] })).hit === true;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; probing = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; probing = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

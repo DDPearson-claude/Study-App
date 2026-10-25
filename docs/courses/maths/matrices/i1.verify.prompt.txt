@@ -1,0 +1,459 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Matrices, from moving shapes to circuit loops
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "What a matrix is" — A matrix is a grid of numbers, read row then column; times a column of amounts, it mixes its own columns, each row one equation. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Moving the whole plane — A 2 by 2 matrix moves every point of the plane at once, and its two columns are where the arrows i and j land.
+- i3 One move after another — Multiplying two matrices makes one move: the right-hand one first, then the left, so swapping their order usually gives a different move.
+- i4 How areas change: the determinant — The determinant, ad − bc, is the number a 2 by 2 move scales every area by; negative means flipped, zero means squashed flat.
+- i5 Undoing a move: the inverse — The inverse matrix plays a move backwards, so it solves a two-loop circuit's equations, and it exists only when the determinant is not zero.
+- i6 Three by three: the determinant and the cross product — Expanding along the top row by cofactors, small 2 by 2 determinants with signs, gives a 3 by 3 determinant and the cross product's formula.
+- i7 Elimination: three unknowns, three loops — Gaussian elimination's row moves step three equations, such as a three-loop circuit's, into a staircase solved from the bottom up.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 77 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf
+    "all the entries in the second row relate to the second equation"
+[R2] 2.2: Matrix Multiplication - Mathematics LibreTexts — https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication
+    "column vector and interpret the result as a linear combination of the columns of the matrix."
+[R3] Mesh Current Analysis - DC Circuit Theory — https://www.electronics-tutorials.ws/dccircuits/dcp_5.html
+    "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+[R4] 88 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf
+    "By breaking down a complicated system into simple loops, Kirchhoff’s law can be applied. This leads to a set of linear equations in the unknown quantities (usually currents)"
+Notes (claims, and the sources that support them):
+- In a matrix that holds a system of equations, each row of entries belongs to one equation. [R1]
+- A matrix times a column of amounts gives a mix of the matrix's own columns, a linear combination. [R2]
+- Matrix methods turn the loop equations of a circuit into one equation, [V] = [R] x [I], that a solver can handle together. [R3][R4]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "What a matrix is",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is x lots of column 1 and y lots of column 2, laid nose to tail, landing on the point the grid's two rows add up to, when you slide x and y.",
+  "title": "Mix two arrows",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one grid of numbers. On one line a grid is written row by row, with a semicolon between rows, so [1 3; 2 1] has rows 1 3 and 2 1. Its two columns are drawn as two arrows from the corner of a squared grid, column 1 as (1, 2) and column 2 as (3, 1). Two sliders set the amounts x and y. The mix is drawn nose to tail, as you add arrows: x copies of column 1, then y copies of column 2 starting where they end. A dot marks where the chain ends, and the view zooms out to keep the whole chain in sight. Beside the picture, the grid times the column (x, y) is written out with its answer. Tap a row and it lights as one equation, such as x + 3y = 5. The top number of each column is that arrow's across part, so row 1 adds the across parts of the chain, and row 2 adds the up parts. Tap a column and its arrow lights. Drag either arrow's tip to a whole point, and the grid's numbers change with it. The screens. 1, a 2 by 3 grid, [4 7 1; 2 5 3], with its rows and columns labelled and row 1, column 3 lit. 2, a puzzle: which number is in row 2, column 1, with 2, 7 and 5 offered. 3, x + 3y = 7 and 2x + y = 4 written as [1 3; 2 1] times (x, y) = (7, 4). 4, a puzzle: which grid holds 3x + 2y = 13 and x − y = 1, with [3 2; 1 −1], [3 1; 2 −1] and [3 2; 1 1] offered. 5, the columns as arrows, mixed with x = 2 and y = 1 to land on (5, 5). 6, a puzzle: where [1 3; 2 1] times (2, 2) lands, with (8, 6), (6, 8) and (4, 3) offered, the chain drawn only after Check. 7, rows and columns lit in turn, with the tips free to drag. 8, a puzzle on [2 4; 1 3]: which pair is row 2 as an equation and column 2 as an arrow, with x + 3y and (4, 3), 4x + 3y and (1, 3), and x + 3y and (1, 3) offered. 9, a target dot at (7, 4), hit by x = 1 and y = 2. 10, a puzzle: which equations find the amounts that hit (9, 8), with x + 3y = 9 and 2x + y = 8, x + 2y = 9 and 3x + y = 8, and x + 3y = 8 and 2x + y = 9 offered. 11, a mixed puzzle: the size of the grid for x + y = 5, x − y = 1 and 2x + y = 8, with 3 by 2, 2 by 3 and 3 by 3 offered. 12, a mixed puzzle: example loop equations 6I₁ − 2I₂ = 12 and −2I₁ + 6I₂ = 4 are [6 −2; −2 6] times the loop currents. Which column of voltages do currents of 2.5 A and 1.5 A give, with (12, 4), (15, 9) and (18, 14) offered. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone, and a wrong pick is drawn so you can see where it goes wrong.",
+  "ignores": "The amounts in the puzzles are small whole numbers, chosen so the chain can be drawn and counted. An amount can be any number. A fraction shortens an arrow, and a negative amount turns it round. The arrows come from 2 by 2 grids, so each has two parts and fits on a flat page. A grid with three rows mixes arrows with three parts in the same way, which needs a 3-D drawing. More parts than that cannot be drawn at all. Not every target can be hit. Two arrows along one line can only reach points on that line.",
+  "numbers": [
+   {
+    "label": "Example 2 by 3 grid's rows, steps 1 and 2",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example 2 by 3 grid's columns, steps 1 and 2",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid [4 7 1; 2 5 3], row 1, column 1",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid [4 7 1; 2 5 3], row 1, column 2",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid [4 7 1; 2 5 3], row 1, column 3",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid [4 7 1; 2 5 3], row 2, column 1",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid [4 7 1; 2 5 3], row 2, column 2",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid [4 7 1; 2 5 3], row 2, column 3",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Main grid [1 3; 2 1], row 1, column 2",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Main grid [1 3; 2 1], row 2, column 1",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Main grid's other two entries",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Target's across part, x + 3y = 7, steps 3 and 9",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Target's up part, 2x + y = 4, steps 3 and 9",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Amount x that hits (7, 4)",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Amount y that hits (7, 4)",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 equation 3x + 2y = 13, its x number",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 4 equation 3x + 2y = 13, its y number",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 4 equation 3x + 2y = 13, its answer",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 4 equation x − y = 1, its y number",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 4 equation x − y = 1, its answer",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider x and y lowest amount",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Slider x and y highest amount",
+    "value": 3,
+    "kind": "control"
+   },
+   {
+    "label": "Opening amount x, step 5",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Opening amount y, step 5",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Two lots of (1, 2), across part",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Two lots of (1, 2), up part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Mix 2 × (1, 2) + 1 × (3, 1), each part",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Rows mixed as arrows with x = 2, y = 1, across",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Rows mixed as arrows with x = 2, y = 1, up",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 amounts x and y",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 6 mix, across part",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 mix, up part",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 wrong pick, rows as arrows, (6, 8)",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 6 wrong pick, amounts ignored, (4, 3)",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 8 grid [2 4; 1 3], row 1 entries",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 8 grid [2 4; 1 3], row 2, column 2",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 10 target, across part",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 10 target, up part",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Amount x that hits (9, 8)",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Amount y that hits (9, 8)",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 equation x + y = 5, its answer",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 11 equation x − y = 1, its answer",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 11 equation 2x + y = 8, its answer",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 11 grid size, rows",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 grid size, columns",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 example loop resistance on the diagonal, in ohms",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 example shared resistance entry, in ohms",
+    "value": -2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 example loop 1 voltage, in volts",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 example loop 2 voltage, in volts",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 example current I₁, in amps",
+    "value": 2.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 example current I₂, in amps",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 12 row 1, 6 × 2.5",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 row 2, 6 × 1.5",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 row 2, −2 × 2.5",
+    "value": -5,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 wrong pick, signs dropped, row 1",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 wrong pick, signs dropped, row 2",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy example jobs of kind A",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy total coils, 3 × 1 + 1 × 3",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy total boxes, 3 × 2 + 1 × 1",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice amounts x and y",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice equation x + 4y = 15, its answer",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice arrow 3 × (−1, 4), across part",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Practice arrow 3 × (−1, 4), up part",
+    "value": 12,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A [[matrix]] is a grid of numbers in rows and columns, and you can read it two ways. When it holds a set of equations, each row holds the numbers of one equation.[^1] Down the grid, each column is an arrow. Multiplying the grid by a column of amounts mixes those arrows, so many of the first plus so many of the second.\n\nA grid's size is its rows, then its columns, so 2 rows and 3 columns make a 2 by 3 grid. Each number in it is an [[entry]], named by its row first, then its column. On one line, a grid is written row by row with a semicolon between rows. In [4 7 1; 2 5 3], row 2, column 1 is 2, while row 1, column 2 is 7. Now take the equations x + 3y = 7 and 2x + y = 4. Their numbers make the grid [1 3; 2 1], one row for each equation. The unknowns x and y stand in a column beside it, and 7 and 4 in a column after the equals sign. To read row 1 back, multiply across the row and down the unknowns together, then add. That gives 1 × x + 3 × y, so row 1 says x + 3y = 7.\n\nNow read the same grid down its columns. Column 1 is the arrow (1, 2), and column 2 is the arrow (3, 1). Every x in the equations multiplies a number from column 1. So all the x parts together are x lots of column 1, and all the y parts are y lots of column 2. The grid times (x, y) is therefore x lots of column 1 plus y lots of column 2, laid nose to tail. That mix is a [[linear combination]] of the columns.[^2] With x = 2 and y = 1, two lots of (1, 2) reach (2, 4). One (3, 1) on the end lands on (5, 5). The rows give the same point. The top number of each column is that arrow's across part, so row 1 adds the across parts, 1 × 2 + 3 × 1 = 5. Row 2 adds the up parts, 2 × 2 + 1 × 1 = 5. A row is not an arrow, because it holds one part of each arrow. Mix the rows as if they were arrows and you land on (4, 7) instead.\n\nTurn it round and you have simultaneous equations. To land on (7, 4), the across parts must make 7 and the up parts 4. That is x + 3y = 7 and 2x + y = 4, which give x = 1 and y = 2. A circuit's loop equations fit a grid the same way, with the loop currents as the column of unknowns.[^3] Finding the currents then means finding the amounts that make the grid hit its column of voltages.\n\n**A matrix times a column of amounts is that many of each of its columns, added nose to tail, and each row of the grid is one equation for that sum.**[^2]"
+ },
+ "analogy": {
+  "text": "Think of a kit list for two kinds of job. Say job A takes 1 coil of cable and 2 boxes of clips, and job B takes 3 coils and 1 box. Each job's list is a column. For 3 of job A and 1 of job B, you order 3 lots of column A plus 1 lot of column B. Row 1 then totals the coils, 3 × 1 + 1 × 3 = 6. Row 2 totals the boxes, 3 × 2 + 1 × 1 = 7.",
+  "breaks": "Jobs come in whole numbers, counted up from none. A matrix's amounts can be fractions or negative, and a negative amount turns its arrow round. A kit list has no direction either, so nothing in it is laid nose to tail."
+ },
+ "practice": {
+  "text": "- Write each equation with its unknowns in the same order, x then y. Put a 0 where an unknown is missing.\n- Each equation becomes one row of the grid, in order.\n- Each unknown's numbers go down one column.\n- The unknowns make a column after the grid, and the answers make a column after the equals sign.\n- Check by multiplying across each row and down the unknowns, then adding. You should get each equation back.\n- To read it as arrows, take x lots of column 1 plus y lots of column 2.\n\n**Rule of thumb:** Rows are equations and columns are arrows. Name an entry by its row first.\n\n**Worked example:** Take 2x − y = 3 and x + 4y = 15. Row 1 is 2 and −1, and row 2 is 1 and 4, so the grid is [2 −1; 1 4]. Try x = 3 and y = 3. Row 1 gives 2 × 3 − 1 × 3 = 3, and row 2 gives 1 × 3 + 4 × 3 = 15. Both match. As arrows, 3 lots of (2, 1) is (6, 3), and 3 lots of (−1, 4) is (−3, 12). Nose to tail they end at (3, 15), the same two answers.\n\nA grid with as many rows as columns is called square. Swapping its rows for its columns gives its transpose, so [1 3; 2 1] becomes [1 2; 3 1].\n\n**Common mistakes**\n- Swapping rows and columns. In [4 7 1; 2 5 3], row 2, column 1 is 2, not 7.\n- Writing an equation down a column. x − y = 1 goes across one row, as 1 and −1.\n- Mixing the rows as arrows. [1 3; 2 1] times (2, 1) is (5, 5), but its rows as arrows give (4, 7).\n- Dropping a minus sign or a missing unknown. x − y has −1 for y, and an equation with no y has 0 there.\n- Taking each column once and forgetting the amounts."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "77",
+   "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf",
+   "quote": "all the entries in the second row relate to the second equation"
+  },
+  {
+   "n": 2,
+   "title": "2.2: Matrix Multiplication - Mathematics LibreTexts",
+   "url": "https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication",
+   "quote": "column vector and interpret the result as a linear combination of the columns of the matrix."
+  },
+  {
+   "n": 3,
+   "title": "Mesh Current Analysis - DC Circuit Theory",
+   "url": "https://www.electronics-tutorials.ws/dccircuits/dcp_5.html",
+   "quote": "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

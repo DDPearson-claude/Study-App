@@ -1,0 +1,298 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Matrices, from moving shapes to circuit loops
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Moving the whole plane" — A 2 by 2 matrix moves every point of the plane at once, and its two columns are where the arrows i and j land. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 One move after another — Multiplying two matrices makes one move: the right-hand one first, then the left, so swapping their order usually gives a different move.
+- i4 How areas change: the determinant — The determinant, ad − bc, is the number a 2 by 2 move scales every area by; negative means flipped, zero means squashed flat.
+- i5 Undoing a move: the inverse — The inverse matrix plays a move backwards, so it solves a two-loop circuit's equations, and it exists only when the determinant is not zero.
+- i6 Three by three: the determinant and the cross product — Expanding along the top row by cofactors, small 2 by 2 determinants with signs, gives a 3 by 3 determinant and the cross product's formula.
+- i7 Elimination: three unknowns, three loops — Gaussian elimination's row moves step three equations, such as a three-loop circuit's, into a staircase solved from the bottom up.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 4.2 Matrices and Transformations on Vectors; the Meaning of 0 Determinant — https://ocw.mit.edu/ans7870/18/18.013a/textbook/HTML/chapter04/section02.html
+    "a matrix represents the transformation that takes the column basis vectors into the vectors that are the corresponding columns of the matrix."
+[R2] Linear transformations and matrices | 3Blue1Brown — https://www.3blue1brown.com/lessons/linear-transformations
+    "you take the coordinates of that vector, multiply them by the corresponding column of the matrix, then add together what you get."
+[R3] 77 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%207%20Matrices.pdf
+    "all the entries in the second row relate to the second equation"
+[R4] 2.2: Matrix Multiplication - Mathematics LibreTexts — https://math.libretexts.org/Courses/Canada_College/Linear_Algebra_and_Its_Application/02%3A_Matrices/2.02%3A_Matrix_Multiplication
+    "column vector and interpret the result as a linear combination of the columns of the matrix."
+[R5] Mesh Current Analysis - DC Circuit Theory — https://www.electronics-tutorials.ws/dccircuits/dcp_5.html
+    "Write the matrix or vector equation [V] = [R] x [I]. Where [I] is the list of currents to be found."
+[R6] 88 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf
+    "By breaking down a complicated system into simple loops, Kirchhoff’s law can be applied. This leads to a set of linear equations in the unknown quantities (usually currents)"
+Notes (claims, and the sources that support them):
+- A matrix represents the move that takes the basis vectors to its own columns. [R1]
+- To find where a vector lands, scale each column by the matching coordinate and add the results. [R2]
+- In a matrix that holds a system of equations, each row of entries belongs to one equation. [R3]  (from an idea this one builds on)
+- A matrix times a column of amounts gives a mix of the matrix's own columns, a linear combination. [R4]  (from an idea this one builds on)
+- Matrix methods turn the loop equations of a circuit into one equation, [V] = [R] x [I], that a solver can handle together. [R5][R6]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Moving the whole plane",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the whole grid and its F-shaped flag following, with the origin fixed and the matrix's two columns changing, when you drag the tips of the arrows where i and j land.",
+  "title": "Drag where i and j land",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on one picture. A squared grid of the plane has its origin ringed and an F-shaped flag drawn on it. The F looks different in a mirror, so a flip shows at once. Two arrows start at the origin: i, one square across to (1, 0), and j, one square up to (0, 1). Their names sit in teal beside their tips. A faint copy of the starting grid stays behind. The rule is the mix of columns from What a matrix is. A matrix times (1, 0) takes 1 lot of column 1 and none of column 2, so i lands on column 1. In the same way j lands on column 2. Any point (x, y) is x lots of i plus y lots of j, so it lands on x lots of column 1 plus y lots of column 2. Every grid line and every corner of the flag is carried that way. Each step along a grid line adds the same arrow. Lines running across add column 1 at every step, and lines running up add column 2, so the lines stay straight, parallel and evenly spaced. The origin is no lots of anything, so it stays put. Beside the picture, or under it on a phone, the matrix is written large enough to read at 360 px, with i's landing spot down column 1 and j's down column 2. Dragging a tip snaps it to whole squares. The screens. 1, the matrix [2 −1; 1 1] played from the do-nothing grid: i slides to (2, 1) and the grid follows, with 1 × column 1 + 0 × column 2 written out. 2, a puzzle: where j lands under [2 −1; 1 1], with (−1, 1), (1, 1) and (2, 1) offered, j sliding there after Check. 3, the point (1, 2) tracked as a dot: it lands on 1 lot of (2, 1) plus 2 lots of (−1, 1), drawn nose to tail, which is (0, 3). 4, a puzzle: where (2, 1) lands under the same matrix, with (3, 3), (5, −1) and (4, 2) offered, the chain drawn only after Check. 5, both tips free to drag, and buttons Stretch [2 0; 0 3], Turn, Mirror [−1 0; 0 1], Shear [1 1; 0 1] and Squash, which wrap onto more lines on a narrow phone without splitting a word. Putting the tips back on (1, 0) and (0, 1) gives the do-nothing matrix [1 0; 0 1], and nothing moves. Its still is the mirror, read as: the mirror [−1 0; 0 1] sends i to (−1, 0) and leaves j, so the F faces the other way. 6, a puzzle from picture to matrix: the grid already moved, with i on (3, 1) and j on (0, 2), and [3 0; 1 2], [3 1; 0 2] and [0 3; 2 1] offered. 7, the turn: an angle slider from 0° to 360° in steps of 15°, opening at 30°. i's tip runs round the unit circle at (cos θ, sin θ), and j's tip stays a quarter turn ahead at (−sin θ, cos θ). The matrix reads [cos θ −sin θ; sin θ cos θ] with its values to two decimal places, [0.87 −0.5; 0.5 0.87] at 30°. Its still is 30°, read as: turned 30°, i lands on (0.87, 0.5) and j a quarter turn ahead on (−0.5, 0.87). 8, a puzzle from matrix to picture: which flag [0 −1; 1 0] makes, with the F turned a quarter anticlockwise, turned a quarter clockwise, and flipped over the line y = x offered, each as a small drawing with those words under it. 9, the squash [2 1; 4 2]: i lands on (2, 4) and j on (1, 2), both on one line through the origin, and the grid folds down onto that line with the flag as a short line. 10, a puzzle: which matrix squashes the plane onto a line, with [1 3; 2 6], [1 3; 6 2] and [3 0; 0 2] offered. 11, a mixed puzzle: where (2, 1) lands under the quarter turn [0 −1; 1 0], with (−1, 2), (1, −2) and (−2, 1) offered. 12, a mixed puzzle: which move no 2 by 2 matrix can make, with slide the flag 3 squares right, turn it a half turn, and mirror it in the up axis, the line x = 0, offered. The answer is the slide, because the origin is no lots of anything and stays put. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone, and a wrong pick is drawn so you can see where it goes wrong.",
+  "ignores": "The grid shows a small patch of the plane, which goes on for ever in every direction, and every point of it moves. Dragged tips snap to whole squares so the numbers stay easy, but a landing spot can be any point, as the turn's are. A slide of the whole plane can be done with a 3 by 3 matrix and an extra coordinate, which this picture does not show. A 3 by 3 matrix also moves space in the same way, with a third arrow k.",
+  "numbers": [
+   {
+    "label": "Matrix size, rows and columns",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow i, across part",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow i, up part",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Main matrix [2 −1; 1 1], row 1, column 1",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Main matrix [2 −1; 1 1], row 1, column 2",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Main matrix [2 −1; 1 1], row 2 entries",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tracked point (1, 2), up part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Tracked point lands at (0, 3), across",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Tracked point lands at (0, 3), up",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 point (2, 1) lands at (3, 3)",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 wrong pick, rows as arrows, (5, −1)",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 4 wrong pick, y forgotten, (4, 2)",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Stretch [2 0; 0 3], up stretch",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Mirror sends i to (−1, 0)",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 6 i lands on (3, 1), across",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 6 j lands on (0, 2), up",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Angle slider lowest, in degrees",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Angle slider highest, in degrees",
+    "value": 360,
+    "kind": "control"
+   },
+   {
+    "label": "Angle slider step, in degrees",
+    "value": 15,
+    "kind": "control"
+   },
+   {
+    "label": "Opening angle, in degrees",
+    "value": 30,
+    "kind": "control"
+   },
+   {
+    "label": "cos 30°, to two decimal places",
+    "value": 0.87,
+    "kind": "computed"
+   },
+   {
+    "label": "sin 30°",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarter turn, in degrees",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Squash [2 1; 4 2], i lands on (2, 4), up",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 10 squash [1 3; 2 6], column 2 up part",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Step 10 squash, column 2 is 3 lots of column 1",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 quarter turn lands (2, 1) on (−1, 2)",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 11 wrong pick, clockwise turn, (1, −2)",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Step 12 slide, in squares",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice point (3, 2), across",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Practice point lands on (−2, 3), across",
+    "value": -2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A 2 by 2 matrix can do more than hold two equations. It can move every point of the plane at once. Its two columns say where the arrows i and j land, and every other point follows from those two.\n\nRemember the mix of columns? A matrix times a column of amounts is x lots of column 1 plus y lots of column 2. The arrow i is (1, 0), one square across. So the matrix times i is 1 lot of column 1 and none of column 2. That is column 1 itself. In the same way j is (0, 1), so it lands on column 2. The matrix sends i and j to its own columns.[^1]\n\nEvery other point is built from i and j. The point (x, y) is x lots of i plus y lots of j. So it lands on x lots of column 1 plus y lots of column 2.[^2] Take [2 −1; 1 1]. Here i lands on (2, 1) and j lands on (−1, 1). The point (1, 2) lands on 1 lot of (2, 1) plus 2 lots of (−1, 1), which is (0, 3). Each step along a grid line adds the same arrow. Lines running across add column 1 at every step, and lines running up add column 2. So the grid lines stay straight, parallel and evenly spaced. The origin is no lots of anything, so it never moves. A move of the whole plane like this is called a [[transformation]]. Four numbers describe it completely, because they are just two landing spots. Write the landing spots across as rows instead, and you get a different move. [2 1; −1 1] sends i to (2, −1), not (2, 1).\n\nNamed moves have named landing spots. A stretch keeps i and j on their axes but longer, as [2 0; 0 3] does. A mirror such as [−1 0; 0 1] sends i to (−1, 0) and keeps j, so the F faces the other way. A [[shear]] keeps i and slides j along to (1, 1), so the squares lean like a pushed stack of paper. A turn anticlockwise through θ sends i to (cos θ, sin θ), the tip of the arm on the unit circle. A quarter turn anticlockwise sends an arrow's across part up and its up part to the left, so (a, b) becomes (−b, a). j starts a quarter turn ahead of i, so it lands on (−sin θ, cos θ). If both landing spots fall on one line through the origin, every mix of them does too, and the whole plane is squashed flat onto that line.\n\n**A 2 by 2 matrix moves the whole plane, and its two columns are where i and j land.**[^1]"
+ },
+ "analogy": {
+  "text": "Think of marking out fixings on a board by measuring from one corner. Each mark is so many steps along one tape and so many steps up another. Lay the two tapes at a slant, or use a tape with longer steps, and every mark you set out moves with them. Where each tape's first step ends is all you need to find every mark.",
+  "breaks": "Real tapes share one step size, and you lay them square on purpose. A matrix can give a step that points backwards, which turns the board over. It can also lay both tapes along one line, which squashes the board flat."
+ },
+ "practice": {
+  "text": "- Follow i: find where (1, 0) lands. Write it down column 1.\n- Follow j: find where (0, 1) lands. Write it down column 2.\n- To move any point (x, y), take x lots of column 1 plus y lots of column 2.\n- Check one easy point by drawing it.\n\n**Rule of thumb:** Columns are landing spots, and i's comes first.\n\n**Worked example:** A quarter turn anticlockwise sends i to (0, 1) and j to (−1, 0). So its matrix is [0 −1; 1 0]. The point (3, 2) lands on 3 lots of (0, 1) plus 2 lots of (−1, 0), which is (−2, 3). Check by turning it in your head. A point 3 across and 2 up, turned a quarter, ends 3 up and 2 to the left.\n\n**The turn anticlockwise through θ** is [cos θ −sin θ; sin θ cos θ]. To check the minus is in the right corner, put θ = 90°. That gives [0 −1; 1 0], which sends i straight up.\n\n**Common mistakes**\n- Writing a landing spot across a row. [2 1; −1 1] sends i to (2, −1), not (2, 1).\n- Putting i's landing spot in column 2.\n- Putting the turn's minus in the wrong corner. [0 1; −1 0] turns clockwise.\n- Expecting a matrix to slide a shape. The origin is no lots of anything, so it never moves."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "4.2 Matrices and Transformations on Vectors; the Meaning of 0 Determinant",
+   "url": "https://ocw.mit.edu/ans7870/18/18.013a/textbook/HTML/chapter04/section02.html",
+   "quote": "a matrix represents the transformation that takes the column basis vectors into the vectors that are the corresponding columns of the matrix."
+  },
+  {
+   "n": 2,
+   "title": "Linear transformations and matrices | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/linear-transformations",
+   "quote": "you take the coordinates of that vector, multiply them by the corresponding column of the matrix, then add together what you get."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

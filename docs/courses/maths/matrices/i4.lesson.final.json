@@ -1,0 +1,395 @@
+{
+  "iid": "i4",
+  "title": "How areas change: the determinant",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the unit square's parallelogram, and a shape inside it, change by the same factor, ad − bc, when you drag where i and j land.",
+    "title": "The stretched unit square",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "Thirteen small screens share one picture. It is the squared grid and F-shaped flag you used to move the whole plane. The origin is ringed. Arrow i is blue and arrow j is ink. Each is named in teal beside its tip. The unit square between i and j is shaded. The move carries it onto the parallelogram made by the matrix's two columns. Its area shows beside the matrix [a b; c d].\n\nThe rule. The move sends i to column 1 and j to column 2. So the square lands on the parallelogram those two arrows make. Grid lines stay straight, parallel and evenly spaced. So every square of the grid lands on a copy of the same parallelogram. So any shape's area is multiplied by that parallelogram's area. That area is ad − bc.\n\nThe screens.\n- 1, the stretch [3 0; 0 2]. The square grows into a 3 by 2 box, and the readout shows 6. Every square of the grid becomes the same box. This plays once as the screen opens. Its still shows the finished stretch, read as: the stretch [3 0; 0 2] turns each square into a 3 by 2 box, so every area grows 6 times.\n- 2, a puzzle. A shape covering 2 squares sits on the grid. What is its area after [3 0; 0 2]? The answers are 12, 6 and 8. Picking 6 gets the hint: each square becomes 6, so two squares make two lots of 6. Picking 8 gets the hint: the areas multiply, they do not add. After Check, the shape stretches with the grid.\n- 3, the shear [1 1; 0 1]. The square leans into a parallelogram. Tapping Cut and slide cuts the triangle off one end. It slides to the other end and makes a 1 by 1 square. Its still shows the finished cut, read as: cut the triangle off one end and slide it to the other, and the leaning square is a 1 by 1 square again, so its area is base times height.\n- 4, a puzzle with no numbers on the matrix. In the picture, i lands two squares across. Arrow j lands one across and three up. What is the parallelogram's area? The answers are 6, about 6.3 and 3. Picking about 6.3 gets the hint: the height runs at right angles to the base, not along the slanted side. Picking 3 gets the hint: 3 is the triangle cut along the diagonal, half the parallelogram. After Check, the cut and slide plays.\n- 5, the formula. The parallelogram of [3 1; 1 2] sits in a 4 by 3 box of area 12. The corner pieces fade out one by one. Two pairs of triangles take away 3 and 2. Two small rectangles take away 2. That leaves 5, written as 3 × 2 − 1 × 1 = 5. Then a × d and b × c light up on the matrix's two diagonals. The words give the reason for any matrix. The box is (a + b)(c + d), which is ac + ad + bc + bd. The corners take away ac, bd and 2bc, which leaves ad − bc. The determinant of a matrix A is written det A or |A|. Its still shows the finished cut, read as: box the parallelogram of [3 1; 1 2] in a 4 by 3 rectangle, take away the corners, and 5 is left, which is 3 × 2 − 1 × 1.\n- 6, a puzzle. What is the determinant of [2 −1; 1 1]? It is the matrix you used to move the whole plane. The answers are 3, 1 and −3. Picking 1 gets the hint: b is −1, so bc is −1. Taking away −1 adds 1. Picking −3 gets the hint: start with a × d, then take away b × c.\n- 7, a shape inside. A shape of 2 squares rides with the grid under [2 −1; 1 1]. Two readouts show its area: 2 before and 6 after. Below them, 6 ÷ 2 = 3, which is the determinant. Its still shows the shape after the move, read as: under [2 −1; 1 1] a shape of 2 squares covers 6, and 6 ÷ 2 = 3, the determinant.\n- 8, a puzzle. After a move with determinant 4, a shape's area is 24. What was it before? The answers are 6, 96 and 20. Picking 96 gets the hint: 24 is the area after the move, so divide by 4 to go back. Picking 20 gets the hint: the area was multiplied by 4, not added to.\n- 9, flat and flipped. Arrow i stays on (2, 0). Arrow j's tip starts on (1, 1). A slider pushes it down to (1, −1). The parallelogram thins as it goes. The readout falls from 2 to 0 when j lies on i's line. It rests there flat for a second. Past that line, the parallelogram opens again. It is hatched, the flag is mirrored and the readout shows −2. Its still shows j on (1, −1), read as: with j pushed across i's line, the parallelogram opens again with the flag mirrored, and its determinant is −2.\n- 10, a puzzle. The determinant of [1 2; 2 1] is 1 × 1 − 2 × 2 = −3. What does that say about the move? The answers are: it triples every area and flips the plane; it shrinks every area to −3; it triples every area and does not flip it. Picking the second gets the hint: as with area below an axis, the minus marks a direction, the flip. The size, 3, is the scale.\n- 11, your own move. The shape of 2 squares starts under [2 −1; 1 1]. You drag the tips of i and j onto any grid points. The matrix, ad − bc and the shape's area before and after follow your moves. The area after is always the area before times the size of ad − bc. Hatching shows when you have flipped it. Its still shows the opening move, read as: i lands on (2, 1) and j on (−1, 1), so ad − bc is 3, and the shape of 2 squares covers 6.\n- 12, a mixed puzzle. Which move squashes the plane flat? The answers are [2 4; 1 2], [2 4; 1 3] and [1 0; 0 −1]. Picking [2 4; 1 3] gets the hint: ad − bc is 6 − 4 = 2, so it doubles areas. Picking [1 0; 0 −1] gets the hint: its determinant is −1, so it flips and keeps areas. After Check, [2 4; 1 2] squashes the grid onto one line.\n- 13, a mixed puzzle. What is the determinant of the quarter turn [0 −1; 1 0]? The answers are 1, −1 and 0. Picking −1 gets the hint: bc is −1 × 1 = −1, and 0 − (−1) = 1. So a turn keeps the area and does not flip the flag. After Check, the flag turns and its area stays 1.\n\nSome screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines, and no word splits. A wrong pick is drawn, so you can see where it goes wrong.",
+    "ignores": "The parallelogram slides smoothly out of the square so you can watch it. A matrix says only where each point ends up. It says nothing about the path. The grid shows only a small patch of the plane. Every area in the whole plane scales by the same number. The hatching just marks a flip. A flipped shape's area is still its size, never below zero.",
+    "numbers": [
+      {
+        "label": "Matrix size, rows and columns",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Unit square's area",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stretch [3 0; 0 2], row 1, column 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stretch [3 0; 0 2], row 2, column 2",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stretch [3 0; 0 2], off-diagonal entries",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stretch's area scale factor, 3 × 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Shape's area before, in squares",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Shape's area after the stretch",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, areas added, 2 + 6",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Shear [1 1; 0 1], row 1, column 2",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Shear's parallelogram area, base 1 times height 1",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4, i lands across",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4, j lands up",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4, area, base 2 times height 3",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, base times slanted side",
+        "value": 6.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, the triangle's area",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Triangle's area, base times height divided by",
+        "value": 2,
+        "kind": "constant"
+      },
+      {
+        "label": "Matrix [3 1; 1 2], row 1, column 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Matrix [3 1; 1 2], row 2, column 2",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Box round [3 1; 1 2], across",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Box round [3 1; 1 2], area",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Two triangles of ac ÷ 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Two triangles of bd ÷ 2",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Two small rectangles of bc",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Corners taken away in all",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of [3 1; 1 2]",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Matrix [2 −1; 1 1], row 1, column 2",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Determinant of [2 −1; 1 1]",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, minus sign dropped",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, bc − ad",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Shape of 2 squares after [2 −1; 1 1]",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8, determinant",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8, area after the move",
+        "value": 24,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8, area before, 24 ÷ 4",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, 24 × 4",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong pick, 24 − 4",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9, i lands on (2, 0)",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 9, j's tip up part, start",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9, j's tip up part, end",
+        "value": -1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 9, determinant at the start",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9, determinant with j on i's line",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9, determinant at the end",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of [1 2; 2 1]",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of [2 4; 1 2]",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of [2 4; 1 3]",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of [1 0; 0 −1]",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Mirror [−1 0; 0 1], row 1, column 1",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Determinant of the mirror",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of the quarter turn [0 −1; 1 0]",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screens in the lesson",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Steps, first",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Steps, last",
+        "value": 12,
+        "kind": "control"
+      },
+      {
+        "label": "Phone width, in px",
+        "value": 360,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tile swapped for one with this many times the area",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Loop grid [6 −2; −2 6], diagonal entries",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Loop grid [6 −2; −2 6], shared entries",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Loop 1 voltage, in volts",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Loop 2 voltage, in volts",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Loop grid, a × d",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Loop grid, b × c",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Determinant of the loop grid",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example, area after [2 −1; 1 1]",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example, area before, 12 ÷ 3",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9, seconds j rests on i's line",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 11, i starts on (2, 1), across",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 11, j starts on (−1, 1), across",
+        "value": -1,
+        "kind": "control"
+      },
+      {
+        "label": "Screen 11, determinant at the start",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11, shape's area at the start",
+        "value": 6,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A 2 by 2 matrix scales every area in the plane by one number. You work that number out from the four entries as ad − bc. A minus sign means the move flips the plane over. Zero means it squashes the plane flat.\n\nWatch one square to find the number. The square between i and j has area 1. The move sends i and j to the matrix's two columns. So the square lands on the parallelogram those two columns make. Grid lines stay straight, parallel and evenly spaced. So every square of the grid lands on a copy of that same parallelogram. You can fill any shape with squares, cut as small as you like. So its area is multiplied by the parallelogram's area too.[^1]\n\nTake the stretch [3 0; 0 2]. The square becomes a 3 by 2 box, so every area grows 6 times. Now take the shear [1 1; 0 1]. The square leans over into a parallelogram. Cut the triangle off one end and slide it to the other. You get a 1 by 1 square again. So the shear keeps every area the same. The cut shows that a parallelogram's area is its base times its height. The height runs at right angles to the base, not along the slanted side.\n\nBoxing the parallelogram gives the rule. Take a matrix [a b; c d] with positive entries that does not flip. Box its parallelogram in a rectangle. The box is a + b across and c + d up. So its area is (a + b)(c + d), which multiplies out to ac + ad + bc + bd. The corners are two triangles of ac ÷ 2, two of bd ÷ 2 and two small rectangles of bc. Together they take away ac + bd + 2bc. What is left is ad − bc. This number is the [[determinant]] of the matrix.[^2] For a matrix called A, it is written det A or |A|. For [3 1; 1 2] the box is 4 by 3, so its area is 12. The corners take away 3, 2 and 2. That leaves 5. And ad − bc is 3 × 2 − 1 × 1 = 5. Other unflipped layouts cut up differently. They still leave ad − bc.\n\nNow push j toward the line of i. The parallelogram gets thinner. Its area falls to 0 when j lies on i's line. The whole plane is then squashed onto that line, so every area is 0. Push j across the line and the parallelogram opens again. But the flag now reads backwards. The plane has flipped over, and ad − bc comes out negative. Drop the minus sign and the number is still the scale factor. The mirror [−1 0; 0 1] has determinant −1. It keeps every area and flips the flag.\n\n**The determinant, ad − bc, is the number a move multiplies every area by. It is negative when the move flips the plane and zero when it squashes it flat.**"
+  },
+  "analogy": {
+    "text": "Think of a floor laid in square tiles, with a cupboard's outline marked on it. Count the tiles inside the outline and you have its area. Now re-lay the floor in the same pattern. Swap every tile for a slanted tile with 3 times the area. The outline moves with the tiles, so it still covers the same number of them. Its area is 3 times bigger, whatever its shape. The determinant is the area of the new tile, measured in old tiles.",
+    "breaks": "A real tile always has some area. A move can squash every tile flat, to an area of 0. A tile laid face down is only flipped. Its area never goes below 0, though the determinant does."
+  },
+  "practice": {
+    "text": "- Write the matrix as [a b; c d].\n- Multiply down the main diagonal, a × d.\n- Multiply the other diagonal, b × c, and take it away.\n- The size is the area scale factor. A minus sign means flipped. Zero means squashed flat.\n- To find an area after the move, multiply by the size. To find the area before, divide, as long as the determinant is not 0.\n\n**Rule of thumb:** If one column is a multiple of the other, both arrows lie on one line. Then the determinant is 0. A turn neither stretches nor flips, so its determinant is 1.\n\n**Worked example:** Take [2 −1; 1 1]. Then a × d = 2 × 1 = 2, and b × c = −1 × 1 = −1. So the determinant is 2 − (−1) = 3. A shape of 2 squares becomes 6. A shape that covers 12 after the move started at 12 ÷ 3 = 4.\n\n**Loop equations:** Say a two-loop circuit gives 6I₁ − 2I₂ = 12 and −2I₁ + 6I₂ = 4. The numbers in front of the currents make the grid [6 −2; −2 6]. Its determinant is 6 × 6 − (−2) × (−2) = 36 − 4 = 32. It is not zero, so exactly one pair of currents lands on (12, 4). Here is why. A zero determinant would squash the plane onto a line. Then either no pair of currents lands on (12, 4), or many pairs do. A determinant that is not zero squashes nothing. So the move covers the whole plane, and some pair of currents lands on (12, 4). Different pairs land on different points, so only one pair does.\n\n**Common mistakes**\n- Multiplying when you should divide. If you know the area after the move, divide by the determinant to go back.\n- Working out bc − ad. That gives the right size with the wrong sign.\n- Reading −3 as an area of minus 3. The move triples every area and flips the plane.\n- Thinking a minus entry means a flip. The quarter turn [0 −1; 1 0] has determinant 1.\n- Measuring the height along the slanted side. Measure it at right angles to the base."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "The determinant | 3Blue1Brown",
+      "url": "https://www.3blue1brown.com/lessons/determinant",
+      "quote": "if you know how much the area of that one unit square changes, it tells you how the area of _any_ region in space changes."
+    },
+    {
+      "n": 2,
+      "title": "Introduction to Linear Algebra, 5th Edition",
+      "url": "https://math.mit.edu/~gs/linearalgebra/ila5/linearalgebra5_2-5.pdf",
+      "quote": "This number ad−bc is the _determinant_ of A."
+    }
+  ]
+}

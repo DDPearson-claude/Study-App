@@ -1,0 +1,16 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "problem": "\"the grid is still a grid\" fails once i4 shows a zero-determinant move squashing the plane flat; and \"two turns\" commute only in the plane (3D turns from i6 on do not), and the identity pairing holds for square matrices of matching size.",
+   "severity": "fix",
+   "now": "Do one move of the plane, then another. Together they make a single move, with a matrix of its own. That matrix is the [[matrix product]]. AB reads right to left: B acts first, then A.[^1] It works like f(g(x)), where the machine next to x goes first.\n\nEach move keeps grid lines straight, parallel and evenly spaced, with the origin fixed. So the two moves together make one move of the same kind, and one matrix describes the whole run. Its columns are where i and j end up. Take B as the quarter turn [0 −1; 1 0] and A as the shear [1 1; 0 1]. B turns i to (0, 1). A then pushes that point one square across, to (1, 1). B turns j to (−1, 0). The shear moves nothing on the across axis, so j stays at (−1, 0). So AB = [1 −1; 1 0].\n\nNow swap them. In BA the shear acts first. It leaves i at (1, 0) and sends j to (1, 1). The turn then sends those to (0, 1) and (−1, 1). So BA = [0 −1; 1 1], a different move. Swapping the order usually changes the product.[^2] Some pairs give the same either way. Two turns of the plane do. So does any 2 by 2 matrix paired with the [[identity matrix]] [1 0; 0 1], the do-nothing move.\n\nYou can find the product without drawing. B sends i to B's own column 1. A then moves that point. So column 1 of AB is A times column 1 of B. A times a column gives one number per row. Each is a row of A times the column, matching pairs multiplied and added. So the entry in row r, column c of AB is row r of A times column c of B. The top-left entry here is 1 × 0 + 1 × 1 = 1.\n\nA row meets a column pair by pair. So each row of the left must be as long as each column of the right. A 2 by 3 grid times a 3 by 2 grid works, and gives a 2 by 2 grid.\n\nAdding is different. Two matrices of the same size add entry by entry. A number times a matrix scales every entry. The product does not work entry by entry.\n\n**A product of two matrices is one move, the right-hand one first, so swapping the order usually gives a different move.**[^1]"
+  },
+  {
+   "path": "analogy.breaks",
+   "problem": "\"two turns\" is ambiguous here, since the flip is itself a turn over and does not commute with the quarter turn; only two turns flat on the bench give the same result in either order.",
+   "severity": "fix",
+   "now": "A real label lifts off the bench as it flips, and you can slide it about. A 2 by 2 matrix keeps the origin where it is, so it cannot slide anything. And some pairs of moves, such as two turns flat on the bench, give the same result in either order."
+  }
+ ]
+}
