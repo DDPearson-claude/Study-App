@@ -34,3 +34,19 @@ Order (one course at a time, each published when it passes; about 6 to 8M tokens
 Each course uses scratchpad vectors-course.js (the Advanced maths build: brief research, brief, plan, research,
 then per lesson write, fact-check, plain edit, build, review, fix, confirm; guides and assemble), with its
 folder and earlier courses set per course. Dan can reorder or stop at any point.
+
+## Next: engineering and electrical foundations (Dan, 26 Oct)
+
+Asked "Have we built everything we need?", Dan was given this list, most useful first, and said "Start with
+engineering science." It is a new shelf, Engineering science (docs/shelves-engineering.json), with two courses
+built side by side, each about 8 lessons and 8 to 10M tokens:
+
+1. Engineering science: Mechanics and materials, and Heat and fluids (building, started 26 Oct)
+2. Insulated systems and earth faults (not started)
+3. Batteries: cells, charging, hydrogen (not started)
+4. Generators and paralleling (not started)
+5. Transformers and magnetism (on the Electrical shelf; not started)
+Lower: Control and instrumentation with digital logic; Distribution and protection at sea.
+
+Items 2 to 5 wait for Dan's say. Everything is taught from public sources as general engineering, never as how
+the Navy or a particular boat does it (CLAUDE.md).
