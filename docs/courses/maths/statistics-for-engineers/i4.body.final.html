@@ -7,7 +7,7 @@
   .bd-scene .bd-glint { fill: var(--k-bg); fill-opacity: .42; pointer-events: none; } :root[data-theme="dark"] .bd-scene .bd-glint { fill: var(--k-ink); fill-opacity: .5; } .bd-scene .bd-ghost { fill: none; stroke: var(--k-strong); stroke-width: 1.1; }
   .bd-scene .bd-peg { fill: var(--k-strong); } .bd-scene .bd-hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-linecap: round; } .bd-scene .bd-trail { fill: none; stroke: var(--k-accent); stroke-width: 1.7; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
   .bd-scene .bd-win { fill: var(--k-accent); fill-opacity: .16; } .bd-scene .bd-edge { stroke: var(--k-strong); stroke-width: 1.1; stroke-dasharray: 2 3; } .bd-scene .bd-beam { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } .bd-scene .bd-fulcrum { fill: var(--k-ink); } .bd-scene .bd-grid { stroke: var(--k-line); stroke-width: 1; }
-  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; } .bd-scene .bd-off { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.6px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; }
+  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; }
   /* Words: muted names and units, bold numbers, accent small labels, warnings; a halo for a label over a line. */ .bd-scene .bd-tn, .bd-scene .bd-title, .bd-scene .bd-w, .bd-scene .bd-u { fill: var(--k-muted); } .bd-scene .bd-lab, .bd-scene .bd-name { fill: var(--k-ink); } .bd-scene .bd-n, .bd-scene .bd-name { font-weight: 700; }
   .bd-scene .bd-small { font-weight: 600; fill: var(--k-accent); } .bd-scene .bd-wt { font-weight: 600; fill: var(--k-warn); } .bd-scene .bd-halo { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
   /* The ringed reading: its drag handle, ring and arrows; warnings and limits. */ .bd-scene .bd-handle { fill: var(--k-bg); fill-opacity: 0; cursor: grab; } .bd-scene.nodrag .k-drag-hit, .bd-scene.nodrag .bd-handle { pointer-events: none; } .bd-scene .bd-ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.7; pointer-events: none; }
@@ -15,7 +15,7 @@
   .bd-scene .bd-pulse { fill: none; stroke: var(--k-warn); stroke-width: 1.4; pointer-events: none; } .bd-scene .bd-zone { fill: var(--k-warn); fill-opacity: .55; } .bd-scene .bd-limit { stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
   /* The statistics: mean, dimension lines, small-label spans and their extension lines, ruler, stems and pointers, range jaws, median, bands, curves, thread, mean so far, true value. */ .bd-scene .bd-mean { stroke: var(--k-ink); stroke-width: 1.7; stroke-dasharray: 4 3; } .bd-scene .bd-dim { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
   .bd-scene .bd-span { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .bd-scene .bd-ext { fill: none; stroke: var(--k-accent); stroke-width: 1; stroke-dasharray: 1.5 2.5; } .bd-scene .bd-ruler { fill: none; stroke: var(--k-accent); stroke-width: 1.3; }
-  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer, .bd-scene .bd-med { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
+  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
   .bd-scene .bd-jaw { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.4; stroke-linejoin: round; } .bd-scene .bd-bell { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
   .bd-scene .bd-curve, .bd-scene .bd-trend { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; } .bd-scene .bd-truth { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
   .bd-scene .bd-thread { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; } .bd-scene .bd-run { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-linejoin: round; }
@@ -25,6 +25,12 @@
   .bd-scene .bd-harness { fill: none; stroke: var(--k-accent2); stroke-linecap: round; } .bd-scene .bd-harness.in { stroke: var(--k-bg); } .bd-scene .bd-now { stroke: var(--k-ink); stroke-width: 1.4; } .bd-scene .bd-nowhead { fill: var(--k-ink); }
   .bd-gauge { display: block; position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--k-line); } .bd-gauge i { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--k-accent2); } .bd-gauge b { position: absolute; top: -3px; width: 2px; height: 12px; margin-left: -1px; border-radius: 1px; background: var(--k-amber-line); }
   /* ==== end of the shared look ==== */
+  /* ==== Swarm: the look's additions (swarm.md, "Copy this code"). Paste unchanged, after the shared look. ==== */
+  /* The median's line (the mean keeps .bd-mean); the overflow piles' own short axes; a value the drawing sets bold, which has no tile and hides while Dan answers a check. */
+  .bd-scene .bd-medl { stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 1.5 3; stroke-linecap: round; } .bd-scene .bd-ovax { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } :root.k-quiz .bd-scene .bd-val { visibility: hidden; }
+  /* The colour key under the drawing: a row of beads, deepest to faintest to deepest, between its two words. */ .bd-fig { max-width: 32rem; margin-inline: auto; } .bd-key { justify-content: center; margin: 2px 0 0; } .bd-key svg { display: block; width: 5.4rem; height: auto; }
+  .bd-key .bd-kb { stroke: var(--k-bg); stroke-width: 1.2; } .bd-key > span { white-space: nowrap; }
+  /* ==== end of the swarm's look ==== */
   .pz, .lead, .caption { max-width: 34rem; }
   .pz > * + *, #stepbox > * + * { margin-top: 14px; }
   /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
@@ -71,7 +77,10 @@
     <p class="k-label count" id="count"></p>
     <p class="task" id="task"></p>
     <div class="k-controls" id="choice"></div>
-    <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+    <div class="bd-fig" id="fig">
+      <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+      <p class="key bd-key" id="fkey"><span>lower <svg viewBox="0 0 86 14" aria-hidden="true" id="fkeyDots"></svg> higher</span><span>fainter is nearer the mean</span></p>
+    </div>
     <div class="replay" id="replay"></div>
     <div class="k-controls" id="ctl"></div>
     <div class="row" id="fresh"></div>
@@ -125,8 +134,7 @@
     /* In the order taken: reading i across from x0 to x1, its value up the page on scale sv. */ B.run = (vs, sv, x0, x1, r) => vs.map((v, i) => ({ x: lerp(x0, x1, vs.length > 1 ? i / (vs.length - 1) : 0.5), y: sv.at(v), r }));
     // A pile place turned u of the way onto its side about (x0, y0) sliding to (x1, y1): value up the page (k), stacks leftwards (kh); at u = 1, level with B.run.
     B.tip = (p, u, A) => { const th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th), k = lerp(1, A.k, u), kh = lerp(1, A.kh, u), dx = p.x - A.x0, dh = A.y0 - p.y;
-      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; }; B.anchor = (st, sc, sv, ref, spine, room) => { let h = 1; st.pos.forEach((p) => { h = Math.max(h, st.base - p.y + p.r); }); const k = Math.abs(sv.w / sc.w);
-      return { x0: sc.at(ref), y0: st.base, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / h) }; };
+      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; };
     // Two strings over time folded into one against the other, u 0..1: a and b are reading i's places in their strips, f the pair's place once folded.
     B.fold = (a, b, f, u) => { const ux = K.ease(c01(2 * u)), uy = K.ease(c01(2 * u - 1)), x = lerp(a.x, f.x, ux), q = { x: lerp(b.x, f.x, ux), y: lerp(b.y, f.y, uy), r: lerp(b.r, f.r, uy) }; return [uy > 0 ? B.hop({ x, y: a.y, r: a.r }, q, uy, 12, (v) => v) : { x, y: a.y, r: a.r }, q]; };
     /* Timings (s) every lesson shares: a pour releases a bead every dt, each jinks `jink` high off every peg; a fresh batch re-sorts one every hop. */ B.T = { dt: 0.045, hop: 0.028, field: 0.5, fly: 0.5, settle: 0.45, bounce: 0.24, peel: 0.025, tip: 0.8, fold: 1.6, g: 1600, jink: 2 };
@@ -184,8 +192,6 @@
     const PENTA = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319]; B.ticks = (vs, sc, gap) => { const a = sc.at(sc.lo), w = sc.at(sc.hi) - a || 1; return K.sound.chord(vs.map((v) => PENTA[Math.round(c01((sc.at(v) - a) / w) * 10)]), { dur: 0.07, type: 'triangle', gain: 1, stagger: gap }); };
     /* The bead nearest a tap (pointer to drawing units), or −1 when none is within reach. */ B.pick = (svg, ev, pos, reach) => { const m = svg.getScreenCTM(); if (!m) return -1; const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); let best = -1, bd = (reach || 14) * (reach || 14);
       pos.forEach((p, i) => { const d = (p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y); if (d < bd) { bd = d; best = i; } }); return best; };
-    // A reading past its scale's end: an arrow the way it went, beside the bead, or `lift` above it over a ring. Never clip a reading silently.
-    B.offMark = (d, dir, lift) => { const x = lift == null ? d.x + dir * (d.r + 6.5) : d.x, y = lift == null ? d.y : d.y - d.r - lift - 4.5, f = B.r2; return 'M' + f(x - 4.5 * dir) + ' ' + f(y - 1.4) + 'h' + f(4 * dir) + 'v-2.8l' + f(5 * dir) + ' 4.2l' + f(-5 * dir) + ' 4.2v-2.8h' + f(-4 * dir) + 'z'; };
     /* A check of several named facts: true, or the name of the first that broke (the self-test report shows it). */ B.facts = (list) => { for (const f of list) if (f[1] !== true) return 'broke: ' + f[0]; return true; }; return B; })();
   // ==== end of the shared language ====
 
@@ -228,6 +234,71 @@
     M.idle = () => M.Tb === Infinity && M.Ts === Infinity && !M.anim.playing(); document.addEventListener('visibilitychange', () => { if (!document.hidden && !M.anim.playing() && (M.Tb !== Infinity || M.Ts !== Infinity)) { M.Tb = M.Ts = Infinity; o.paint(); if (o.done) o.done(); } }); return M; };
   // ==== end of the shared motion ====
 
+  // ==== Swarm: the shared additions (swarm.md, "Copy this code"). Paste unchanged, after the shared motion. ====
+  // Readings as a beeswarm: each bead at its value, packed about one line, coloured by its distance from the mean; past an end, in a pile past a
+  // gap. A pour lands as a pile, then rises into it (0.75 s a bead). Beads sit one unit apart; a ringed one keeps 6 more.
+  (() => { B.T.rise = 0.75; B.T.dt = 0.032; B.GAP = 1; B.RING = 6;
+    // Offsets from the line, best first: each round the bead of ids whose closest free spot is nearest the line takes it (leftmost on a tie); a tie
+    // of sides to the one with fewer neighbours; a bigger, ringed bead only above. ys, on: beads placed already.
+    B.swarmY = (xs, rs, ids, ys, on) => { ys = ys || []; on = on || []; const r0 = Math.min(...rs), dd = (i, j) => rs[i] + rs[j] + B.GAP, sp = {}, left = ids.slice();
+      const find = (i) => { const nb = on.filter((j) => Math.abs(xs[j] - xs[i]) < dd(i, j)), c = [0]; let s = 0;
+        nb.forEach((j) => { const h = Math.sqrt(dd(i, j) ** 2 - (xs[j] - xs[i]) ** 2); c.push(ys[j] - h, ys[j] + h); s += Math.sign(ys[j]); });
+        const up = s ? s > 0 : i % 2 === 0; c.sort((a, b) => { const k = Math.abs(a) - Math.abs(b); return Math.abs(k) > 1e-6 ? k : up ? a - b : b - a; });
+        return c.find((y) => (rs[i] <= r0 || y < 1e-9) && nb.every((j) => (xs[j] - xs[i]) ** 2 + (ys[j] - y) ** 2 >= dd(i, j) ** 2 - 1e-6)); }; left.forEach((i) => { sp[i] = find(i); });
+      while (left.length) { let m = 0; left.forEach((i, k) => { const q = Math.abs(sp[i]) - Math.abs(sp[left[m]]); if (q < -1e-6 || (q < 1e-6 && xs[i] < xs[left[m]])) m = k; });
+        const i = left.splice(m, 1)[0]; ys[i] = sp[i]; on.push(i); left.forEach((j) => { if ((xs[j] - xs[i]) ** 2 + (sp[j] - ys[i]) ** 2 < dd(i, j) ** 2 - 1e-6) sp[j] = find(j); }); } return ys; };
+    // Readings on a meter's marks fall in columns, so they pack as a honeycomb: each column's beads take the places nearest the line, alternately
+    // above and below (an odd one to the side with fewer), every other column half a place up (legal while p <= w / 0.866), whichever way // leaves the tallest reach least. -> ys
+    B.comb = (col, ids, p) => { const by = {}, ys = []; ids.forEach((i) => { (by[col[i]] = by[col[i]] || []).push(i); }); const cs = Object.keys(by).map(Number).sort((a, b) => a - b);
+      const cost = (ph) => Math.max(0, ...cs.map((c) => ((c + ph) % 2 ? Math.ceil(by[c].length / 2) - 0.5 : Math.ceil((by[c].length - 1) / 2)))), ph = cost(1) < cost(0) ? 1 : 0; let bal = 0;
+      cs.forEach((c) => { const h = (c + ph) % 2, sd = bal < 0 ? 1 : bal > 0 ? -1 : c % 2 ? 1 : -1;
+        by[c].forEach((i, j) => { const y = h ? (j % 2 ? -sd : sd) * (Math.floor(j / 2) + 0.5) : (j % 2 ? sd : -sd) * Math.ceil(j / 2); ys[i] = y * p; bal += Math.sign(y); }); }); return ys; };
+    B.alt = (k) => (k % 2 ? -(k + 1) / 2 : k / 2);   // row k of a stack mirrored about a line: 0 on it, then above, below, above...
+    // The overflow piles of a scale: w wide, past a gap at each end. rows(): ids stacked `per` across about x, row j at y(j).
+    B.ends = (sc, w, gap) => ({ lo: { x0: sc.a0 - gap - w, x1: sc.a0 - gap, dir: -1 }, hi: { x0: sc.a1 + gap, x1: sc.a1 + gap + w, dir: 1 }, a0: sc.a0, a1: sc.a1 });
+    const rows = (pos, ids, x, w, p, r, y) => { const per = Math.max(1, Math.floor((w + B.GAP) / p)); ids.forEach((i, j) => { const row = Math.floor(j / per), n = Math.min(per, ids.length - row * per); pos[i] = { x: x + (j % per - (n - 1) / 2) * p, y: y(row), r }; }); };
+    // The swarm of vs on sc about y = line, `half` room each way: on the meter's marks a honeycomb, else best first, the ringed one last; a coarse
+    // meter's wide column in bricks; past an end, in its pile. Too tall, every bead shrinks. -> {r, pitch, line, pos, ext, over, cnt, per}
+    B.swarm = (vs, sc, line, half, fit, ends, ring) => { const w = Math.abs(sc.w), ord = vs.map((v, i) => i).filter((i) => i !== ring).sort((a, b) => sc.at(vs[a]) - sc.at(vs[b]) || a - b).concat(ring >= 0 ? [ring] : []);
+      const lay = (r) => { const p = 2 * r + B.GAP, pos = new Array(vs.length), over = { lo: [], hi: [] }, main = [], cnt = {}, brick = !!sc.col && w + B.GAP >= 2 * p;
+        ord.forEach((i) => { const o = sc.off(vs[i]); (o < 0 ? over.lo : o > 0 ? over.hi : main).push(i); if (!o && sc.col) cnt[sc.col(vs[i])] = (cnt[sc.col(vs[i])] || 0) + 1; });
+        if (brick) { const by = {}; main.forEach((i) => { const c = sc.col(vs[i]); (by[c] = by[c] || []).push(i); });
+          Object.keys(by).forEach((c) => { const m = sc.mid(+c), a = Math.max(m - w / 2, ends.a0), b = Math.min(m + w / 2, ends.a1); rows(pos, by[c], (a + b) / 2, b - a, p, r, (k) => line + B.alt(k) * p); }); }
+        else { const xs = vs.map((v) => sc.at(v)), rs = vs.map((v, i) => (i === ring ? r + B.RING : r)), ids = main.filter((i) => i !== ring), col = vs.map((v) => sc.col(v));
+          const comb = !!sc.col && 0.866 * p <= w + 1e-6 && ids.every((i) => Math.abs(xs[i] - sc.mid(col[i])) < 0.01 * w), on = comb ? ids.slice() : [], ys = comb ? B.comb(col, ids, p) : B.swarmY(xs, rs, ids, [], on);
+          if (main.includes(ring)) B.swarmY(xs, rs, [ring], ys, on); main.forEach((i) => { pos[i] = { x: xs[i], y: line + ys[i], r }; }); }
+        ['lo', 'hi'].forEach((k) => rows(pos, over[k], (ends[k].x0 + ends[k].x1) / 2, ends[k].x1 - ends[k].x0, p, r, (j) => line + B.alt(j) * p)); let ext = 0; pos.forEach((q) => { ext = Math.max(ext, Math.abs(q.y - line) + q.r); });
+        return { r, pitch: p, line, pos, ext, over, cnt, per: brick ? Math.floor((w + B.GAP) / p) : 1 }; };
+      const s = lay(fit.r); if (s.ext <= half + 1e-6) return s; let lo = 1, hi = fit.r; for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; if (lay(m).ext <= half + 1e-6) lo = m; else hi = m; } return lay(lo); };
+    // The pile a pour lands on: B.stack's, a reading past an end in that end's pile.
+    B.heap = (vs, sc, base, top, fit, ends) => { const on = vs.map((v, i) => i).filter((i) => !sc.off(vs[i])), st = B.stack(on.map((i) => vs[i]), sc, base, top, fit), pos = new Array(vs.length); on.forEach((i, j) => { pos[i] = st.pos[j]; });
+      ['lo', 'hi'].forEach((k) => { const e = ends[k]; rows(pos, vs.map((v, i) => i).filter((i) => sc.off(vs[i]) === e.dir), (e.x0 + e.x1) / 2, e.x1 - e.x0, st.pitch, st.r, (j) => base - 1.5 - st.r - j * st.pitch); }); return Object.assign({}, st, { pos }); };
+    // The fade: z SDs from the mean, cat2 below and cat1 above, mixed with the page (26% at the mean) or on the dark page a neutral grey (14%), the
+    // role itself from 2.6 SD. lo: another share at the mean (small dots).
+    B.fade = (z, lo) => { const dk = K.theme.dark, base = dk ? 'color-mix(in srgb, var(--k-ink) 30%, var(--k-bg))' : 'var(--k-bg)'; lo = lo == null ? (dk ? 14 : 26) : lo; if (Math.abs(z) < 1e-6) return 'color-mix(in srgb, var(--k-ink) ' + Math.round(0.6 * lo) + '%, ' + base + ')'; return 'color-mix(in srgb, var(--k-' + (z < 0 ? 'cat2' : 'cat1') + ') ' + Math.round(lo + (100 - lo) * Math.min(1, Math.abs(z) / 2.6)) + '%, ' + base + ')'; };
+    // B.blooms: a disc under each glint. B.paint: B.draw, k 0..1 of the way to its colour: the old body dims to a ghost (k 0.12 to 0.27), then the
+    // colour wells up from the centre in a faint wash of itself (to 0.52; never two hues at once), then a swell of 8% and back; a warning mixes in.
+    B.blooms = (bs) => bs.forEach((b) => { b.f = K.svg('circle', { 'pointer-events': 'none' }); b.g.before(b.f); });
+    B.paint = (b, d, warn, floor, z, k) => { const s = k > 0 && k < 1 ? 1 + 0.08 * Math.sin(Math.PI * B.c01((k - 0.6) / 0.4)) : 1, u = B.c01((k - 0.27) / 0.25), on = d && d.a > 0.002 && !d.hollow && k > 0.002;
+      B.draw(b, d && Object.assign({}, d, { r: d.r * s }), warn, floor); const f = B.fade(z, d && d.r < 3 ? (K.theme.dark ? 24 : 40) : null), c = on && (warn > 0 ? 'color-mix(in srgb, var(--k-warn) ' + Math.round(100 * Math.min(1, warn)) + '%, ' + f + ')' : f);
+      if (B.vis(b.f, on && u > 0 && u < 1 ? Math.min(1, d.a) : 0)) { B.set(b.f, { cx: d.x, cy: d.y, r: Math.max(0, d.r * s - 0.6) * K.ease(u) }); b.f.style.fill = c; }
+      if (!on) return; const a = Math.min(1, d.a); if (u > 0) { b.c.style.fill = c; if (u < 1) b.c.style.opacity = (a * (0.15 + 0.85 * u)).toFixed(3); } else b.c.style.opacity = (a * (1 - 0.85 * B.c01((k - 0.12) / 0.15))).toFixed(3); b.g.style.opacity = (a * B.lerp(1, 0.2 + 0.8 * Math.min(1, Math.max(warn, Math.abs(z) / 2.6)), k)).toFixed(3); };
+    // The swarm's outline, mirrored, v0..v1: the reach of the beads within 3/4 of a column, relaxing 0..1 into expect(v) beads; thinner than a bead,
+    // it opens round any bead there (drawn under the beads, so a taller one sits over it). -> {up, dn, area}.
+    B.mirror = (sc, sw, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), w = Math.abs(sc.w), n = Math.max(1, Math.ceil(Math.abs(b - a) / (w / 6))), per = sw.per || 1, U = [], D = [];
+      const on = sw.pos.filter((q) => q && q.x >= Math.min(sc.a0, sc.a1) && q.x <= Math.max(sc.a0, sc.a1)); for (let k = 0; k <= n; k++) { const x = B.lerp(a, b, k / n); let sky = 0, ring = 0;
+        on.forEach((q) => { const dx = Math.abs(q.x - x), dy = Math.abs(q.y - sw.line), c = q.r + 0.8; if (dx < 0.75 * w) sky = Math.max(sky, dy + c); if (dx < c) ring = Math.max(ring, dy + Math.sqrt(c * c - dx * dx)); });
+        const bell = expect(sc.val(x)) / per * sw.pitch / 2, h = B.lerp(sky, Math.max(bell, B.lerp(bell, ring, B.c01(2 - 2 * bell / sw.pitch))), relax); U.push(B.r2(x) + ' ' + B.r2(sw.line - h)); D.push(B.r2(x) + ' ' + B.r2(sw.line + h)); }
+      return { up: 'M' + U.join('L'), dn: 'M' + D.join('L'), area: 'M' + U.join('L') + 'L' + D.reverse().join('L') + 'Z' }; };
+    // The tip's hinge: about the line at ref onto a spine at x1 (value up the page, k), its depth squeezed to `room`.
+    B.swarmAnchor = (sw, sc, sv, ref, spine, room) => { const k = Math.abs(sv.w / sc.w); return { x0: sc.at(ref), y0: sw.line, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / 2 / Math.max(1, sw.ext)) }; };
+    // A pour's pile holds 0.42 s, then rises in a wave from `mid` (the farthest 0.7 s later), 6% overshoot. B.risen -> [bead, k]. B.chime: from a press.
+    B.rise = (scene, heap, mid) => { const t0 = Math.max(...scene.land) + 0.42, wave = Math.max(0.35, Math.min(0.7, 4.9 - B.T.rise - t0)), far = Math.max(1, ...heap.map((q) => Math.abs(q.x - mid))); scene.rise = heap.map((q) => t0 + wave * Math.abs(q.x - mid) / far); scene.end = Math.max(scene.end, Math.max(...scene.rise) + B.T.rise); return scene; };
+    B.risen = (T, scene, i, q, heap, sw) => { const u = scene.rise ? (T - scene.rise[i]) / B.T.rise : 0; return u <= 0 ? [q, 0] : [B.hop(heap[i], sw[i], u, 0, B.backOut), B.c01(u)]; };
+    B.chime = (scene) => K.sound.chord([523, 587, 659, 784, 880, 1047], { at: Math.min(...scene.rise), stagger: 0.14, dur: 0.12, type: 'sine', gain: 0.4 });
+  })();
+  // ==== end of the swarm's additions ====
+
   // ---------- the rule and the examples ----------
   // Reading i = 27.00 V + drift × i ÷ 10 + 0.03 V × the sum of its twelve nudges (each −½ to +½), read to the meter's step of 0.01 V.
   // Twelve such nudges add to an SD of exactly 1, so 0.03 V is the SD of one reading's scatter. Batches picked by script
@@ -237,7 +308,7 @@
   // the eight batches after it are shown as they come. A fresh batch is the next seed.
   const N = 50, TRUE = 27.0, SD = 0.03, RES = 0.01, PER = 10;
   const SEED = 3128, SEED3 = 5016, SEED5 = 9009, CREEP = 11, IR_SEED = 3, C_SEED = 7, FAN5 = 8;
-  const ANSWER = 2.4, FADE = 0.35;
+  const ANSWER = 2.4, FADE = 0.2;   // FADE: when the first pour leaves the hopper
   const SRC_UKAS = 'https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf';
   const SRC_MEG = 'https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf';
   const SRC_CI = 'http://www-stat.wharton.upenn.edu/~stine/stat621/lecture4.621.pdf';
@@ -294,21 +365,39 @@
   }
 
   // ---------- geometry: viewBox 340 × 300, one height for every view ----------
-  // The pile: beam at y 232, numbers 258, title 295; stacks stop at y 92, the peg field 22 above the tallest. On its side: the time view runs
-  // x 46-266, values from y 222 up to 40, the side pile against the right edge (spine 334, 48 deep); title 277, key 295.
-  const BASE = 232, TOPP = 92, FH = 56, RN = 258, RT = 295, RMAX = 5.6;
-  const SC = B.scale(26.87, 27.13, RES, 8, 332), HX = SC.at(TRUE), SLOPE = SD / RES * SC.w;
-  const RX0 = 46, RX1 = 266, RR = 3.6, SPINE = 334, ROOMT = 48, VY0 = 222, VY1 = 40;
-  const FIT = B.fitPile(B.tallest(readings(SEED, 0), SC), BASE - 1.5 - TOPP, SC.w, RMAX);
-  const topOf = (st) => st.pos.reduce((m, q) => Math.min(m, q.y - q.r), BASE);
+  // The swarm: beam at y 232 (the axis), numbers 258, title 295. One voltage scale, 26.90 to 27.10 V, 21 columns of one meter step; past
+  // each end, after a 9-unit gap in the axis, an overflow pile. A swarm keeps to y 70..227 under the peg field, its line just over its reach
+  // below. On its side: the time view runs x 46-266, values from y 222 up to 40, the swarm turned about its line onto a spine at x 310, 48
+  // deep; title 277, key 295.
+  const BASE = 232, FH = 56, RN = 258, RT = 295, SWB = BASE - 5, TOPS = 70;
+  const SC = B.scale(26.9, 27.1, RES, 41, 299), ENDS = B.ends(SC, 24, 9), HX = SC.at(TRUE), SLOPE = SD / RES * SC.w;
+  const RX0 = 46, RX1 = 266, RR = 2.2, SPINE = 310, ROOMT = 48, VY0 = 222, VY1 = 40;
+  // Bead size, the tallest column k reaching (k − 1) ÷ 2 places each way: at most 0.52 of a column (r 6.4), so columns nest; B.swarm
+  // shrinks it. Each batch sizes for its own tallest column.
+  const RSW = 0.52 * SC.w, HALF = (SWB - TOPS) / 2, fitSw = (k) => { const c = Math.ceil((k - 1) / 2), r = Math.min(RSW, (HALF - c) / (2 * c + 1)); return { r, pitch: 2 * r + 1 }; };
+  const topOf = (ps) => ps.reduce((m, q) => (q ? Math.min(m, q.y - q.r) : m), BASE);
+  // The fade's z: each reading's SDs from its own batch's mean (by factors, of the logs).
+  const zOf = (vs, lg) => { const zv = vs.map((v) => (lg ? Math.log10(v) : v)), s = B.stats(zv); return zv.map((v) => (s.sd > 0 ? (v - s.m) / s.sd : 0)); };
+  // A batch's swarm (a honeycomb, as every reading sits on a meter mark), moved down to hug the beam: its line just over its reach below.
+  function swarmOf(vs) {
+    const fit = fitSw(B.tallest(vs.filter((v) => !SC.off(v)), SC)), sw = B.swarm(vs, SC, (TOPS + SWB) / 2, HALF, fit, ENDS, -1);
+    let up = 0, R2 = 0;
+    sw.pos.forEach((q) => { up = Math.max(up, sw.line - q.y + q.r); R2 = Math.max(R2, q.y - sw.line + q.r); });
+    const dl = Math.max(TOPS + up, SWB - 2 - R2) - sw.line;
+    sw.pos.forEach((q) => { q.y += dl; });
+    sw.line += dl;
+    return { sw, fit };
+  }
   const TL = new Map();
   function tlay(seed, drift, creep) {
     const key = seed + '|' + drift.toFixed(3) + '|' + (creep ? 1 : 0);
     let L = TL.get(key);
     if (L) return L;
-    const vs = readings(seed, drift), pos = creep ? CREEP_POS : ID, inv = invOf(pos), st = B.stack(vs, SC, BASE, TOPP, FIT), s = B.stats(vs);
-    const f = fitAt(vs, pos), f0 = fitAt(vs, ID), sr = Math.max(0.6 * RES, f0.res), e0 = f0.at(0), e1 = f0.at(N - 1), top = topOf(st);
-    L = { seed, drift, vs, pos, inv, st, pile: st.pos, s, f, top, fy: Math.max(86, Math.min(150, top - 22)),
+    const vs = readings(seed, drift), pos = creep ? CREEP_POS : ID, inv = invOf(pos), s = B.stats(vs), { sw, fit } = swarmOf(vs), heap = B.heap(vs, SC, BASE, TOPS, fit, ENDS);
+    const f = fitAt(vs, pos), f0 = fitAt(vs, ID), sr = Math.max(0.6 * RES, f0.res), e0 = f0.at(0), e1 = f0.at(N - 1), top = topOf(sw.pos);
+    // The peg field hangs just above the swarm and the pile a pour lands on; the mean's value fits under it only where there is room.
+    const fy = Math.max(68, Math.min(150, Math.min(top, topOf(heap.pos)) - 31));
+    L = { seed, drift, vs, pos, inv, sw, pile: sw.pos, heap: heap.pos, z: zOf(vs), s, f, top, fy, vroom: top - fy >= 20,
       vlo: Math.min(Math.min(e0, e1) - 3.6 * sr, s.lo - 0.8 * sr, TRUE - sr), vhi: Math.max(Math.max(e0, e1) + 3.6 * sr, s.hi + 0.8 * sr, TRUE + drift * (N - 1) / PER + sr),
       run: longest(inv.map((k) => vs[k])), cum: nudgesOf(seed).map((u) => Array.from({ length: 13 }, (_, row) => B.sum(u, row))) };
     TL.set(key, L);
@@ -317,6 +406,8 @@
   // Insulation resistance on a scale by factors (200 to 2500 MΩ), a test every 15.5 units; the test temperatures above it.
   const IX0 = 64, IX1 = 296, IRR = 5, IXat = (k) => B.lerp(IX0, IX1, k / (IRN - 1));
   const LV = B.lin(Math.log10(200), Math.log10(2500), 222, 64), yIR = (v) => LV.at(Math.log10(v)), TY = B.lin(10, 30, 50, 26);
+  // The retest's place on the fade: its SDs from the mean of the string as measured, by factors.
+  const ZTW = (() => { const s = B.stats(IRM.map((v) => Math.log10(v))); return (Math.log10(IRM[TWIN] / 2) - s.m) / s.sd; })();
   // The two strings: stacked strips on one time axis, each its own scale; folded, the current against the bearing.
   const CX0 = 52, CX1 = 326, CR = 3.4, CT = (k) => CX0 + 6 + k * (CX1 - CX0 - 12) / (N - 1);
   const CXS = B.lin(34, 46, CX0, CX1), CYB = B.lin(34, 46, 110, 34), CYA = B.lin(21, 29, 148, 124), CYC = B.lin(0.2, 0.6, 222, 166), CYF = B.lin(0.2, 0.6, 222, 40);
@@ -333,12 +424,13 @@
     return C;
   }
   // Four readings in a row, and the 24 orders four different readings can come in (lexicographic: the first climbs, the last falls).
-  const FOUR = [1, 3, 0, 2];
+  // Each rank keeps its place on the fade (its SDs from the mean of the four), so a climbing order deepens from one colour to the other.
+  const FOUR = [1, 3, 0, 2], ZR = zOf([0, 1, 2, 3]);
   const PERMS = (() => { const out = [], go = (pre, rest) => { if (!rest.length) { out.push(pre); return; } rest.forEach((v, j) => go(pre.concat([v]), rest.slice(0, j).concat(rest.slice(j + 1)))); }; go([], [0, 1, 2, 3]); return out; })();
   const cellAt = (c) => ({ x: 35 + 54 * (c % 6), y: 66 + 44 * Math.floor(c / 6) });
 
   // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
-  // view: time (the pile, tipped on screen 1), four, ir or cause. seed: a fixed batch; drift: a fixed drift; ctls: the slider shown;
+  // view: time (the swarm, tipped on screen 1), four, ir or cause. seed: a fixed batch; drift: a fixed drift; ctls: the slider shown;
   // choice: the choice above the picture; fresh: Drop a fresh batch; fan: earlier batches' lines; fit, truth, meanPt, runs: the best-fit
   // line, the line without noise, the mean point, the longest run. key: what a right answer brings in. arr: [start, duration] in seconds.
   const PICK = 'Tap one of the answers.';
@@ -349,17 +441,17 @@
   const STEPS = [
     { show: true, name: 'Fifty readings', view: 'time', demo: true,
       still: () => stillAt('Fifty readings', { tipped: true }),
-      alt: 'Fifty simulated readings of a battery bank\'s float voltage pour from a hopper over 27.00 volts through a field of pegs and pile up on a beam balanced at their mean.',
-      altAfter: 'The pile has tipped onto its side against the right edge, and the readings lie in the order taken along a thread, with the mean so far beside them.',
-      text: 'Fifty readings pour and pile up round 27.00 V. A pile hides the order the readings came in. Tip it onto its side, and the readings peel off in the order taken. The mean so far writes itself beside them. *Noise* is the random scatter every reading has. One reading on its own tells you little, because noise moves every reading. What matters is the trend over many.',
-      read: 'Fifty readings have piled up round 27.00 V. A pile hides the order the readings came in. Tipped onto its side, the readings peel off in the order taken. The mean so far writes itself beside them. *Noise* is the random scatter every reading has. One reading on its own tells you little, because noise moves every reading. What matters is the trend over many.' },
+      alt: 'Fifty simulated readings of a battery bank\'s float voltage pour from a hopper over 27.00 volts through a field of pegs, land on a beam balanced at their mean, and rise into a swarm, each bead coloured by how far it sits from the mean.',
+      altAfter: 'The swarm has tipped onto its side against the right edge, and the readings lie in the order taken along a thread, keeping their colours, with the mean so far beside them.',
+      text: 'Fifty readings pour, land round 27.00 V and rise into a swarm. A swarm hides the order the readings came in. Tip it onto its side, and the readings peel off in the order taken. The mean so far writes itself beside them. *Noise* is the random scatter every reading has. One reading on its own tells you little, because noise moves every reading. What matters is the trend over many.',
+      read: 'Fifty readings have landed round 27.00 V and risen into a swarm. A swarm hides the order the readings came in. Tipped onto its side, the readings peel off in the order taken. The mean so far writes itself beside them. *Noise* is the random scatter every reading has. One reading on its own tells you little, because noise moves every reading. What matters is the trend over many.' },
     { name: 'Two orders', view: 'time', key: 'creep',
-      alt: 'Fifty simulated readings laid out in the order taken, jumbled, with the pile on its side at the right.',
-      altAfter: 'The same fifty readings re-sort into a creeping order that climbs from left to right. The pile on its side stays exactly the same.',
+      alt: 'Fifty simulated readings laid out in the order taken, jumbled, with the swarm on its side at the right.',
+      altAfter: 'The same fifty readings re-sort into a creeping order that climbs from left to right. The swarm on its side stays exactly the same.',
       task: 'The same fifty readings come in two different orders. In one they creep up steadily. In the other they jumble. What tells the two apart?',
-      opts: ['Plotting them in the order taken', 'Their mean and standard deviation', 'The shape of the pile'], want: 'Plotting them in the order taken',
-      why: 'The pile, its mean and its SD use only the values, so they come out the same for both orders. Laid out in the order taken, one order climbs and the other jumbles. Here the beads re-sort into the creeping order, and the pile on its side stays just the same.',
-      hint: 'Not quite. The pile and its numbers keep no record of the order.' },
+      opts: ['Plotting them in the order taken', 'Their mean and standard deviation', 'The shape of the swarm'], want: 'Plotting them in the order taken',
+      why: 'The swarm, its mean and its SD use only the values, so they come out the same for both orders. Laid out in the order taken, one order climbs and the other jumbles. Here the beads re-sort into the creeping order, and the swarm on its side stays just the same.',
+      hint: 'Not quite. The swarm and its numbers keep no record of the order.' },
     { show: true, name: 'The best-fit line', view: 'time', ctls: 'drift', fit: true, truth: true, meanPt: true, tiles: ['trend'], demo: true, dur: 1.8,
       arr: { line: [0.1, 0.3], tilt: [0.45, 0.8], mean: [1.25, 0.4] },
       still: () => stillAt('The best-fit line', { drift: 0.008 }),
@@ -389,8 +481,8 @@
     { show: true, name: 'Runs', view: 'time', ctls: 'drift', fresh: true, truth: true, runs: true, tiles: ['run', 'trend'], demo: true,
       still: () => stillAt('Runs', {}),
       alt: 'Fifty simulated readings in the order taken, with the longest run of readings each higher than the last, or each lower, picked out.',
-      text: 'The run tile counts the most readings in a row each higher than the last, or each lower. With pure noise, six readings come in 720 orders, all equally likely. One climbs and one falls, so a given six run one way about 1 time in 360. Fifty noisy readings usually give a longest run of 3 to 5. A run needs a change per reading as big as the noise, as in the insulation tests ahead. Even the largest drift is far smaller, so it shows only in the fitted line.',
-      read: 'The run tile counts the most readings in a row each higher than the last, or each lower. With pure noise, six readings come in 720 orders, all equally likely. One climbs and one falls, so a given six run one way about 1 time in 360. Fifty noisy readings usually give a longest run of 3 to 5. A run needs a change per reading as big as the noise, as in the insulation tests ahead. Even the largest drift is far smaller, so it shows only in the fitted line.' },
+      text: 'The run tile counts the most readings in a row each higher than the last, or each lower. With pure noise, six readings come in 720 orders, all equally likely. One climbs and one falls, so a given six run one way about 1 time in 360. Fifty noisy readings usually give a longest run of 3 to 5. A run needs a change per reading as big as the noise, as in the insulation tests ahead. Even the largest drift is far smaller, so it shows only in the trend tile.',
+      read: 'The run tile counts the most readings in a row each higher than the last, or each lower. With pure noise, six readings come in 720 orders, all equally likely. One climbs and one falls, so a given six run one way about 1 time in 360. Fifty noisy readings usually give a longest run of 3 to 5. A run needs a change per reading as big as the noise, as in the insulation tests ahead. Even the largest drift is far smaller, so it shows only in the trend tile.' },
     { name: 'Four in a row', view: 'four', key: 'grid', lead: 'Four simulated readings in a row, with noise alone.', caption: 'With noise alone, each order of four different readings is equally likely.',
       alt: 'Four simulated readings in a row, joined by a thread, in one jumbled order.',
       altAfter: 'All 24 orders of four readings are laid out in a grid. Only the first climbs all the way, and only the last falls all the way.',
@@ -430,7 +522,7 @@
     { name: 'Six falling', view: 'ir', ir: 'corrected', fit: true, key: 'run', lead: LEAD_IR, caption: CAP_IR,
       alt: 'Sixteen simulated insulation resistance tests corrected to 20 degrees, falling along their best-fit line.',
       altAfter: 'The last seven tests ring one after another, each lower than the one before.',
-      task: 'Corrected to 20 °C, a motor\'s last six tests each read lower than the one before. Every reading is still above the example minimum. What do you make of it?',
+      task: 'Corrected to 20 °C, a motor\'s last six tests each read lower than the one before. Every reading still passes its minimum. What do you make of it?',
       opts: ['A steady fall, rare by chance, so look into it now', 'Nothing, as every reading passes', 'Run the line on to find the day it reaches the minimum'], want: 'A steady fall, rare by chance, so look into it now',
       why: 'From noise alone, a given six run one way about 1 time in 360. So six falling in a row is very likely a real fall, not noise, even while every reading passes. Look into it now. Read the line only across the tests you have. Here the last tests ring one after another as they fall.',
       hint: 'Not quite. Six in a row one way is rare from noise alone. A reading can pass and still be part of a fall. The trend shows where it is heading.',
@@ -440,7 +532,7 @@
   const FINISH = 'Judge a trend over many readings in the order taken. Noise alone makes a fitted line lean a little. So trust a *drift* when it leans the same way batch after batch, or runs one way for longer than chance usually gives.';
 
   // Each screen's own state: pick and got ('right', 'wrong' or 'empty') and why for a puzzle; b the fresh batches dropped; drift, swing, ir
-  // and view its own settings; tipped once the pile has tipped; fan the lines of earlier batches.
+  // and view its own settings; tipped once the swarm has tipped; fan the lines of earlier batches.
   const blank = (i) => Object.assign({ pick: null, got: null, why: false, b: 0, drift: 0, swing: 3, ir: 'measured', view: 'time', tipped: false, fan: [], moved: false }, STEPS[i].open || {});
   let S = STEPS.map((d, i) => blank(i));
   const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
@@ -486,41 +578,49 @@
   const hopper = A(G.field, 'path', { class: 'bd-hopper' }), trail = A(G.field, 'path', { class: 'bd-trail' });
   const intro = A(G.field, 'text', { class: 'bd-lab', 'text-anchor': 'end' });
   const counter = A(G.over, 'text', { class: 'bd-small', x: 14 });
-  // Under the beads: the thread, the mean so far, the line without noise, earlier batches' lines, the test temperatures, the air.
+  // Under the beads: the mean's dashed line, the thread, the mean so far, the line without noise, earlier batches' lines, the test
+  // temperatures, the air.
+  const meanLine = A(G.under, 'line', { class: 'bd-mean' });
   const thread = A(G.under, 'path', { class: 'bd-thread' }), runMean = A(G.under, 'path', { class: 'bd-run' });
   const truth = A(G.under, 'line', { class: 'bd-truth' });
   const fans = Array.from({ length: FAN5 }, () => A(G.under, 'line', { class: 'fan' }));
   const ext = A(G.under, 'path', { class: 'bd-ext' });
   const tempLine = A(G.under, 'path', { class: 'bd-air' }), cAir = A(G.under, 'path', { class: 'bd-air' });
   const cellThreads = PERMS.map(() => A(G.under, 'path', { class: 'bd-thread' })), fourThread = A(G.under, 'path', { class: 'bd-thread' });
-  // The side pile's outlines and the grid of the time view.
+  // The side swarm's outlines and the grid of the time view.
   const GRIDV = Array.from({ length: 9 }, (_, j) => +(26.8 + 0.05 * j).toFixed(2));
   const grids = GRIDV.map(() => A(G.ghosts, 'line', { class: 'bd-grid', x1: RX0 - 4, x2: RX1 + 4 }));
   const IRG = [200, 500, 1000, 2000];
   const irGrids = IRG.map((v) => A(G.ghosts, 'line', { class: 'bd-grid', x1: IX0 - 6, x2: IX1 + 6, y1: B.r2(yIR(v)), y2: B.r2(yIR(v)) }));
   const ghosts = Array.from({ length: N }, () => A(G.ghosts, 'circle', { class: 'bd-ghost' }));
-  // The beam (the spine of the side pile once tipped), its ticks; the beads (the second string under the first, so a folded pair shows as one).
+  // The beam (the scale alone), its ticks and the overflow piles' own short axes; the beads (the second string under the first, so a
+  // folded pair shows as one), each with its colour disc.
   const beam = A(G.scale, 'line', { class: 'bd-beam' });
   const minor = A(G.scale, 'path', { class: 'bd-tick' }), major = A(G.scale, 'path', { class: 'bd-tick major' });
+  const ovAx = [ENDS.lo, ENDS.hi].map((e) => A(G.scale, 'line', { class: 'bd-ovax', x1: e.x0 + 1, x2: e.x1 - 1, y1: BASE, y2: BASE }));
   const beads2 = B.beads(G.beads, N, 'two'), beads = B.beads(G.beads, N), mini = B.beads(G.beads, 4 * PERMS.length), twin = B.beads(G.beads, 1)[0];
+  B.blooms(beads); B.blooms(mini); B.blooms([twin]);
   const ring = A(G.marks, 'circle', { class: 'bd-ring' });
   const fulcrum = A(G.over, 'path', { class: 'bd-fulcrum' });
-  // Over the beads: the best-fit line, the mean point, the longest run, the brackets and their words.
-  const trend = A(G.over, 'line', { class: 'bd-trend' }), cFit = A(G.over, 'line', { class: 'bd-trend' });
+  // Over the beads: the mean's value (bold, no tile), the best-fit line, the mean point, the longest run, the brackets and their words.
+  const meanVal = A(G.over, 'text', { class: 'bd-lab bd-val' });
+  // The best-fit line and the longest run sit under the beads (over the grid), so every bead stays whole.
+  const trend = A(G.ghosts, 'line', { class: 'bd-trend' }), cFit = A(G.over, 'line', { class: 'bd-trend' });
   const meanPt = A(G.over, 'circle', { class: 'mp', r: 4.5 });
-  const runPath = A(G.over, 'path', { class: 'bd-run' });
+  const runPath = A(G.ghosts, 'path', { class: 'bd-run' });
   const dim = A(G.over, 'path', { class: 'bd-dim' }), dimLab = A(G.over, 'text', { class: 'bd-lab bd-halo' });
   const runLab = A(G.over, 'text', { class: 'bd-small bd-halo', 'text-anchor': 'middle' }, 'each lower than the last');
   const orderA = A(G.over, 'text', { class: 'bd-small', x: RX0, y: 18 }, 'one order: a jumble');
   const orderB = A(G.over, 'text', { class: 'bd-small', x: RX0, y: 18 }, 'the same fifty, creeping up');
-  const pileLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', x: 307, y: 28 }, 'the pile');
+  const swarmLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'end', x: 334, y: 28 }, 'the swarm');
   const boxes = [A(G.over, 'rect', { class: 'cellbox', rx: 7 }), A(G.over, 'rect', { class: 'cellbox quiet', rx: 7 })];
   const climbsLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', x: 35, y: 44 }, 'climbs');
   const fallsLab = A(G.over, 'text', { class: 'bd-w', 'text-anchor': 'middle', x: 305, y: 232 }, 'falls');
   const fourLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', x: 170, y: 76 }, 'four readings in a row, one order');
-  // Axes and titles: the pile's volts, the time view, the tests' years, the 24 orders, the two strings.
-  const VT = Array.from({ length: 27 }, (_, c) => +(26.87 + c * RES).toFixed(2));
-  const nums = [26.9, 27.0, 27.1].map((v) => A(G.axes, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x: B.r2(SC.at(v)), y: RN }, K.fmt(v, { decimals: 2 })));
+  // Axes and titles: the swarm's volts and its overflow piles' names, the time view, the tests' years, the 24 orders, the two strings.
+  const VT = Array.from({ length: 21 }, (_, c) => +(26.9 + c * RES).toFixed(2)), NUMV = [26.9, 26.95, 27.0, 27.05, 27.1];
+  const nums = NUMV.map((v) => A(G.axes, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x: B.r2(SC.at(v)), y: RN }, K.fmt(v, { decimals: 2 })));
+  const ovLab = [ENDS.lo, ENDS.hi].map((e, j) => A(G.axes, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x: (e.x0 + e.x1) / 2, y: RN }, j ? 'over' : 'under'));
   const pileTitle = A(G.axes, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: 170, y: RT }, 'Float voltage (V), simulated');
   {
     let dm = '', dM = '';
@@ -564,6 +664,7 @@
     const t = B.add(g, 'text', { class: 'bd-w', x: 21, y: RT }, words);
     return { g, t };
   }
+  let KEYTWIN = null;   // the retest's swatch takes the retest's own colour
   const KEY = {
     fit: keyEntry((g) => B.add(g, 'line', { class: 'bd-trend', x1: 0, x2: 16, y1: 291, y2: 291 }), 'best fit'),
     truth: keyEntry((g) => B.add(g, 'line', { class: 'bd-truth', x1: 0, x2: 16, y1: 291, y2: 291 }), 'without noise'),
@@ -572,7 +673,7 @@
     fan: keyEntry((g) => B.add(g, 'line', { class: 'fan', x1: 0, x2: 16, y1: 291, y2: 291 }), 'earlier batches'),
     fan5: keyEntry((g) => B.add(g, 'line', { class: 'fan', x1: 0, x2: 16, y1: 291, y2: 291 }), 'other batches'),
     long: keyEntry((g) => B.add(g, 'path', { class: 'bd-run', d: 'M1 295L6 290L11 287L16 285' }), 'longest run'),
-    twin: keyEntry((g) => { B.add(g, 'circle', { class: 'bd-bead', cx: 8, cy: 290.5, r: 4 }); B.add(g, 'circle', { class: 'bd-ring', cx: 8, cy: 290.5, r: 6.6 }); }, 'same winding, same day, 10 °C warmer'),
+    twin: keyEntry((g) => { KEYTWIN = B.add(g, 'circle', { class: 'bd-bead', cx: 8, cy: 290.5, r: 4 }); B.add(g, 'circle', { class: 'bd-ring', cx: 8, cy: 290.5, r: 6.6 }); }, 'same winding, same day, 10 °C warmer'),
   };
   function keys(list, a) {
     let w = 0;
@@ -583,23 +684,40 @@
   }
 
   // ---------- motion: the shared engine (B.motion) moves every bead; this lesson's own parts run on its story clock, M.Ts ----------
-  let finished = false, lastStep = -1, lastDone = false, FORCE = false, CUM = null, REC = {}, SEEN = new Set(), FU = 0, QUIET = 1, quietSince = -Infinity, LASTRUN = null, LASTFIT = null;
-  const FLOOR = new Array(N).fill(BASE);
+  let finished = false, lastStep = -1, lastDone = false, FORCE = false, CUM = null, REC = {}, SEEN = new Set(), FU = 0, QUIET = 1, quietSince = -Infinity, LASTRUN = null, LASTFIT = null, kSnap = true, zSc = null;
+  // FLOOR: where each bead's splash sits; ZT: each bead's SDs from the mean now; ZD: as drawn (easing in a move); KK: how far it has taken
+  // its colour (0 the plain falling bead, 1 its place on the fade).
+  const FLOOR = new Array(N).fill(BASE), ZT = new Array(N).fill(0), ZD = new Array(N).fill(0), KK = new Array(N).fill(0);
   const STILL = { kind: 'still', end: 0 };
   const drawnG = Array.from({ length: N }, () => ({ x: 310, y: 130, r: 2 })), drawn2 = Array.from({ length: N }, () => ({ x: 170, y: 200, r: CR, a: 1 }));
-  // The peg field fades by its own rule (in 0.4 s, out 0.3 s); the fold runs 1.6 s.
-  const FA = { field: 0 };
-  const faTo = (i) => (i === 0 && !S[0].tipped ? 1 : 0);
+  // Fades with their own rule (in 0.4 s, out 0.3 s): the peg field over the upright swarm, and each overflow pile while it holds a reading.
+  const FA = { field: 0, o0: 0, o1: 0 };
+  const upright = (i) => i === 0 && !S[0].tipped;
+  const faTo = (i) => { const up = upright(i), sw = up ? tlay(SEED, 0, false).sw : null; return { field: up ? 1 : 0, o0: up && sw.over.lo.length ? 1 : 0, o1: up && sw.over.hi.length ? 1 : 0 }; };
+  function fadeStep(dt, i) { const to = faTo(i); Object.keys(FA).forEach((k) => { FA[k] = B.toward(FA[k], to[k], dt, 0.4, 0.3); }); }
+  const faDone = (i) => { const to = faTo(i); return Object.keys(FA).every((k) => FA[k] === to[k]); };
   const foldTo = () => (S[IX('Same cause')].view === 'xy' ? 1 : 0);
-  function fadeStep(dt, i) { FA.field = B.toward(FA.field, faTo(i), dt, 0.4, 0.3); }
-  const M = B.motion({ n: N, r: FIT.r, paint: () => paint(), leaving: () => [], unmanaged: G.tags,
-    capture: () => ({ gfrom: drawnG.map((q) => Object.assign({}, q)), from2: drawn2.map((q) => Object.assign({}, q)) }),
-    tick: (dt) => { const i = at(); if (STEPS[i].view === 'cause') { const g = foldTo(); FU = g > FU ? Math.min(g, FU + dt / B.T.fold) : Math.max(g, FU - dt / B.T.fold); } fadeStep(dt, i); },
-    busy: () => FA.field !== faTo(at()) || (STEPS[at()].view === 'cause' && FU !== foldTo()) || QUIET < 1 });
+  // How far bead k should have taken its colour: in a pour, as it rises (a falling bead is plain, one not yet released keeps its colour);
+  // the two strings are plain; every other reading rests on the fade.
+  function kWant(i, k) {
+    const v = STEPS[i].view;
+    if (v === 'cause') return 0;
+    if (v === 'time' && M.live('pour')) { const s = M.sc; return M.Tb < s.rel[k] ? null : s.rise ? B.c01((M.Tb - s.rise[k]) / B.T.rise) : 0; }
+    return 1;
+  }
+  const kStep = (dt, i) => { const pour = M.live('pour'); for (let k = 0; k < N; k++) { const t = kWant(i, k); if (t != null) KK[k] = dt > 1e8 || pour ? t : B.toward(KK[k], t, dt, 0.45); } };
+  const kBusy = (i) => KK.some((v, k) => { const t = kWant(i, k); return t != null && Math.abs(v - t) > 1e-3; });
+  // In a move a bead's colour eases from its old reading's z to its new one's.
+  const zAt = (k) => { const s = M.sc; return !M.live() || !s.z0 ? ZT[k] : B.lerp(s.z0[k], ZT[k], s.kind === 'hop' ? K.ease(B.c01((M.Tb - s.t[k]) / s.dur)) : s.kind === 'pour' && M.Tb < s.rel[k] ? 0 : 1); };
+  const M = B.motion({ n: N, r: RSW, paint: () => paint(), leaving: () => [], unmanaged: G.tags,
+    capture: () => ({ gfrom: drawnG.map((q) => Object.assign({}, q)), from2: drawn2.map((q) => Object.assign({}, q)), z0: ZD.slice() }),
+    tick: (dt) => { const i = at(); if (STEPS[i].view === 'cause') { const g = foldTo(); FU = g > FU ? Math.min(g, FU + dt / B.T.fold) : Math.max(g, FU - dt / B.T.fold); } fadeStep(dt, i); kStep(dt, i); },
+    busy: () => !faDone(at()) || (STEPS[at()].view === 'cause' && FU !== foldTo()) || QUIET < 1 || kBusy(at()) });
   const drawn = M.drawn;
   drawn.forEach((q) => { q.a = 0; });   // nothing stands on the beam before the first pour
-  // Springs: the fulcrum lags the mean; the time view's scale, the best-fit line's ends and the folded line glide to a new batch or setting.
-  const SP = { f: M.spring(6, 0.75), vlo: M.spring(6, 0.85), vhi: M.spring(6, 0.85), fa: M.spring(7, 0.8), fb: M.spring(7, 0.8), ia: M.spring(7, 0.8), ib: M.spring(7, 0.8),
+  // Springs: the fulcrum lags the mean (it rocks the beam), the mean's line follows it; the time view's scale, the best-fit line's ends and
+  // the folded line glide to a new batch or setting.
+  const SP = { f: M.spring(5, 0.42), m: M.spring(9, 0.85), vlo: M.spring(6, 0.85), vhi: M.spring(6, 0.85), fa: M.spring(7, 0.8), fb: M.spring(7, 0.8), ia: M.spring(7, 0.8), ib: M.spring(7, 0.8),
     cxa: M.spring(7, 0.8), cxb: M.spring(7, 0.8), ca: M.spring(7, 0.8), cb: M.spring(7, 0.8) };
   const restIfStill = () => { if (FORCE || (!M.live() && M.Ts === Infinity)) M.rest(); };
   const FY = { y0: 34, y1: 90 };
@@ -629,6 +747,12 @@
   const P = (q) => B.r2(q.x) + ' ' + B.r2(q.y);
   const lineThrough = (pts) => pts.map((q, j) => (j ? 'L' : 'M') + P(q)).join('');
   const label = (t, parts) => { B.words(t, parts); return t; };
+  // Bead k on the fade: its colour eases in a move (zAt); only a landing on the beam splashes, a bead settling in mid-air sends a faint ripple.
+  function bead(k, d, floor, ring) {
+    const rp = ring != null ? ring : d && d.tc != null && !M.live('pour') ? 0.65 + 2 * d.tc : null;
+    B.paint(beads[k], d && Object.assign({}, d, { ring: rp }), 0, floor, ZD[k] = zAt(k), KK[k]);
+  }
+  const plain = (b, d) => B.paint(b, d, 0, undefined, 0, 0);
   // The path the first bead takes through the field, f of the way (0..12 rows, then on to its place in the pile).
   function trailD(k, f, end) {
     const X = (row) => fieldX(k, row), Y = (row) => FY.y0 + row * FH / 12, j = Math.min(12, Math.floor(f)), g = Math.min(12, f) - j;
@@ -638,7 +762,7 @@
     if (f > 12 && end) { const u = B.c01(f - 12); s += 'L' + B.r2(B.lerp(X(12), end.x, u)) + ' ' + B.r2(B.lerp(Y(12), end.y - end.r - 1.5, u)); }
     return s;
   }
-  // The field over the pile: the pegs, the hopper, the first bead's path as it falls, the first three readings as numbers, and the count.
+  // The field over the swarm: the pegs, the hopper, the first bead's path as it falls, the first three readings as numbers, and the count.
   function paintField(L, n, pouring) {
     const y0 = FY.y0, mv = M.sc;
     B.pegsAt(PEG, HX, SLOPE / 2.4, y0, FH); B.pegHit(PEG, M.hits(fieldX));
@@ -646,15 +770,16 @@
     B.set(hopper, { d: 'M' + B.r2(HX - 12) + ' ' + B.r2(y0 - 11) + 'L' + B.r2(HX - 4) + ' ' + B.r2(y0 - 3) + 'M' + B.r2(HX + 12) + ' ' + B.r2(y0 - 11) + 'L' + B.r2(HX + 4) + ' ' + B.r2(y0 - 3) });
     if (pouring && mv.slow) {
       const tau = M.Tb - mv.rel[0];
-      if (tau > 0 && show(trail, 1 - K.arrive(M.Tb, mv.end - 0.7, 0.5))) B.set(trail, { d: trailD(0, tau < B.T.field ? 12 * tau / B.T.field : 12 + B.c01((tau - B.T.field) / 0.3), L.pile[0]) });
+      if (tau > 0 && show(trail, 1 - K.arrive(M.Tb, mv.end - 0.7, 0.5))) B.set(trail, { d: trailD(0, tau < B.T.field ? 12 * tau / B.T.field : 12 + B.c01((tau - B.T.field) / 0.3), L.heap[0]) });
     }
     let ia = 0;
     if (pouring && mv.slow) for (let k = 0; k < 3; k++) { const a = K.arrive(M.Tb, mv.rel[k] - 0.3, 0.25) * (1 - K.arrive(M.Tb, mv.rel[k], 0.18)); if (a > 0.002) { ia = a; label(intro, [[K.fmt(L.vs[k], { decimals: 2 }), 'n'], [' V', 'u']]); } }
-    if (show(intro, ia)) B.set(intro, { x: HX - 24, y: y0 - 2 });
+    if (show(intro, ia)) B.set(intro, { x: HX - 44, y: Math.max(16, y0 - 2) });
     if (show(counter, n ? 1 : 0)) { counter.textContent = n === 1 ? '1 reading' : n + ' readings'; B.set(counter, { y: y0 + 14 }); }
   }
 
-  // The voltage readings: the pile on the beam (screen 1, until it tips), then on its side, in the order taken.
+  // The voltage readings: they land on the beam as a pile and rise into the swarm (screen 1, until it tips), then on its side, in the
+  // order taken, as small dots keeping their colours.
   function paintTime(i, d, st) {
     const L = tlay(seedOf(i, st), driftOf(i, st), creepOf(i, st)), T = M.Ts, right = st.got === 'right';
     const tipping = M.live('tip'), pouring = M.live('pour'), lifted = M.live('hop') && !!M.sc.lift;
@@ -665,28 +790,53 @@
     for (let k = 0; k < N; k++) if (M.counted(k)) inK.push(k);
     const RS = inK.length ? B.stats(inK.map((k) => L.vs[k])) : null;
     const FT = inK.length >= (lifted ? 10 : 2) ? B.fit(inK.map((k) => [L.pos[k], L.vs[k]])) : null;
-    if (RS && !time) B.aim(SP.f, SC.at(RS.m));
+    if (RS && !time) { B.aim(SP.f, SC.at(RS.m)); B.aim(SP.m, SC.at(RS.m)); }
     if (FT) { B.aim(SP.fa, FT.at(0) * 1000); B.aim(SP.fb, FT.at(N - 1) * 1000); }
     restIfStill();
     FY.y1 = L.fy; FY.y0 = FY.y1 - FH; CUM = L.cum;
-    const TG = timeGeom(L, false), tgt = time ? TG.run : L.pile, geo = { field: fieldNow, A: TG.A, rug: TG.rug, run: TG.run };
-    for (let k = 0; k < N; k++) { FLOOR[k] = tgt[k].y; drawn[k] = M.place(k, tgt, L.pile, geo) || { x: tgt[k].x, y: tgt[k].y, r: tgt[k].r, a: 1 }; }
+    const TG = timeGeom(L, false), tgt = time ? TG.run : L.pile, landOn = pouring ? L.heap : L.pile, geo = { field: fieldNow, A: TG.A, rug: TG.rug, run: TG.run };
+    // A new move restacks the beads, the farthest travellers on top.
+    if (M.sc !== zSc && M.sc.from) beads.map((b, k) => [Math.hypot(M.sc.from[k].x - tgt[k].x, M.sc.from[k].y - tgt[k].y), k]).sort((a, b) => a[0] - b[0]).forEach((q) => G.beads.append(beads[q[1]].c, beads[q[1]].f, beads[q[1]].g));
+    zSc = M.sc;
+    for (let k = 0; k < N; k++) {
+      ZT[k] = L.z[k];
+      let q = M.place(k, tgt, landOn, geo);
+      if (q && pouring && M.sc.rise) q = B.risen(M.Tb, M.sc, k, q, L.heap, L.pile)[0];
+      drawn[k] = q || { x: tgt[k].x, y: tgt[k].y, r: tgt[k].r, a: 1 };
+      FLOOR[k] = pouring ? L.heap[k].y : tgt[k].y;
+    }
     const qa = quiet();
-    // How far the pile has tipped onto its side; the fulcrum and the balance belong to the upright pile.
+    // How far the swarm has turned onto its side; the fulcrum, the beam, its numbers and the overflow piles belong to the upright swarm.
     const tipU = time ? (tipping ? K.arrive(M.Tb, M.sc.t0, B.T.tip) : 1) : 0;
     const fa = !time && RS ? (pouring ? K.arrive(M.Tb, M.sc.land[0], 0.4) : 1) : tipping ? 1 - K.arrive(M.Tb, M.sc.t0, 0.3) : 0, fx = SP.f.v;
     const theta = !time && fa > 0 && RS ? 5 * Math.tanh((SC.at(RS.m) - fx) / Math.max(6, 1.2 * RS.sd / RES * SC.w)) * fa : 0;
     tilt(theta, fx);
     if (show(fulcrum, fa)) B.set(fulcrum, { d: 'M' + B.r2(fx) + ' ' + (BASE + 1) + 'l-7 10h14z' });
-    const xs = L.pile.map((q) => q.x);
-    const e0 = tipU > 0 ? B.tip({ x: B.lerp(6, Math.min(...xs) - 16, tipU), y: BASE, r: 0 }, tipU, TG.A) : { x: 6, y: BASE };
-    const e1 = tipU > 0 ? B.tip({ x: B.lerp(334, Math.max(...xs) + 16, tipU), y: BASE, r: 0 }, tipU, TG.A) : { x: 334, y: BASE };
-    if (show(beam, 1)) B.set(beam, { x1: e0.x, y1: e0.y, x2: e1.x, y2: e1.y });
-    [minor, major, pileTitle].concat(nums).forEach((e) => show(e, 1 - tipU));
+    if (show(beam, 1 - tipU)) B.set(beam, { x1: ENDS.a0 - 3, y1: BASE, x2: ENDS.a1 + 3, y2: BASE });
+    const oa = [FA.o0 * (1 - tipU), FA.o1 * (1 - tipU)];
+    ovAx.forEach((e, j) => { show(e, oa[j]); show(ovLab[j], oa[j]); });
+    [minor, major, pileTitle].forEach((e) => show(e, 1 - tipU));
+    // The scale's end numbers slide in, clear of an overflow pile's name.
+    nums.forEach((t, j) => { let x = SC.at(NUMV[j]); const w = B.tw(t) / 2; if (!j) x = B.lerp(x, Math.max(x, ENDS.a0 + w), oa[0]); if (j === nums.length - 1) x = B.lerp(x, Math.min(x, ENDS.a1 - w), oa[1]); if (show(t, 1 - tipU)) B.set(t, { x }); });
     const ta = time ? (tipping ? K.arrive(M.Tb, M.sc.t0 + 0.4, 0.5) : 1) : 0;
     show(tAxis, ta);
     if (B.vis(G.field, FA.field)) paintField(L, inK.length, pouring); else B.pegHit(PEG, []);
-    // The side pile's outlines: each appears as its bead peels off, and glides with the beads to a new batch.
+    // The mean, dashed, its value bold over it. After a pour it waits for the beads under it to settle past their overshoot; a new pour
+    // fades it out in place; it fades as the swarm tips.
+    const MS = pouring ? RS : L.s;
+    REC.ma = 0;
+    if (pouring && M.Tb < 0.3) [meanLine, meanVal].forEach((e) => { if (e.getAttribute('display') !== 'none') show(e, Math.min(e.style.opacity === '' ? 1 : +e.style.opacity, 1 - M.Tb / 0.3)); });
+    else if (MS && (!time || tipping)) {
+      const xm = SP.m.v, near = pouring && M.sc.rise ? Math.max(0, ...L.pile.map((q, k) => (Math.abs(q.x - SC.at(L.s.m)) < 46 ? M.sc.rise[k] + 0.85 * B.T.rise : 0))) : 0;
+      const ma = pouring ? K.arrive(M.Tb, Math.min(Math.max(M.sc.end - 0.6, near), M.sc.end - 0.4), 0.4) : tipping ? 1 - K.arrive(M.Tb, M.sc.t0, 0.25) : 1;
+      label(meanVal, [['mean ', 'w'], [K.fmt(MS.m, { decimals: 3 }), 'n'], [' V', 'u']]);
+      const w = B.tw(meanVal), x = Math.max(4 + w / 2, Math.min(336 - w / 2, xm)), ly = B.clearY(x - w / 2 - 2, x + w / 2 + 2, L.sw.line, L.pile, 1);
+      const va = FA.field > 0.01 && !L.vroom ? 1 - FA.field : 1;
+      if (show(meanLine, ma * va)) B.set(meanLine, { x1: xm, x2: xm, y1: BASE - 1, y2: B.lerp(BASE - 1, ly + 5, ma) });
+      if (show(meanVal, ma * va, 4)) B.set(meanVal, { x, y: ly, 'text-anchor': 'middle' });
+      REC.ma = ma * va; REC.meanBox = { x0: x - w / 2, x1: x + w / 2, y: ly }; REC.fx = fx;
+    }
+    // The side swarm's outlines: each appears as its bead peels off, and glides with the beads to a new batch.
     const hopping = M.live('hop');
     for (let k = 0; k < N; k++) {
       const a = time ? (tipping ? K.arrive(M.Tb, M.sc.peel[k], 0.3) : 1) : 0;
@@ -694,7 +844,7 @@
       drawnG[k] = { x: q.x, y: q.y, r: q.r };
       if (show(ghosts[k], a * 0.9)) B.set(ghosts[k], { cx: q.x, cy: q.y, r: q.r });
     }
-    if (time) show(pileLab, tipping ? K.arrive(M.Tb, M.sc.end - 0.6, 0.4) : 1);
+    if (time) show(swarmLab, tipping ? K.arrive(M.Tb, M.sc.end - 0.6, 0.4) : 1);
     GRIDV.forEach((v, j) => {
       const y = TG.sv.at(v), ok = time && y >= VY1 - 1 && y <= VY0 + 1;
       if (show(grids[j], ok ? ta : 0)) B.set(grids[j], { y1: y, y2: y });
@@ -761,7 +911,9 @@
     }
     // Screen 2's two orders: which one is drawn.
     if (d.key === 'creep') { show(orderA, right ? 1 - ans(T, 0, 0.3) : 1); show(orderB, right ? ans(T, 1.3, 0.4) : 0); REC.order = creepOf(i, st) ? 'creep' : 'jumble'; }
-    for (let k = 0; k < N; k++) B.draw(beads[k], Object.assign({}, drawn[k], { ring: ringPh[k] }), 0, FLOOR[k]);
+    // Each bead on the fade; the time view's small dots keep a thinner surface ring.
+    const sk = time ? String(B.r2(1.2 - 0.5 * tipU)) : '';
+    for (let k = 0; k < N; k++) { beads[k].c.style.strokeWidth = sk; bead(k, drawn[k], FLOOR[k], ringPh[k]); }
     if (d.tiles && d.tiles.indexOf('trend') >= 0) { const tv = FT ? FT.b * PER : 0; TREND_O.prefix = Math.round(tv * 1000) > 0 ? '+' : ''; R.trend.set(tv); }
     // The key: what each line is.
     const list = [], la = [];
@@ -777,24 +929,25 @@
     drawn.forEach((q) => { if (q.a > 0.5) rmin = Math.min(rmin, q.r); });
     Object.assign(REC, { rmin, time, tipU, theta, L, TG, inside: drawn.every((q) => !(q.a > 0.5) || (q.x - q.r >= 0 && q.x + q.r <= 340 && q.y - q.r >= 0 && q.y + q.r <= 300)) });
   }
+  // The time view's scale and places; the swarm turns about its line onto a spine at the right edge, its depth squeezed to 48.
   function timeGeom(L, settled) {
-    const sv = settled ? B.lin(L.vlo, L.vhi, VY0, VY1, RES) : B.lin(SP.vlo.v / 1000, SP.vhi.v / 1000, VY0, VY1, RES), A0 = B.anchor(L.st, SC, sv, TRUE, SPINE, ROOMT);
+    const sv = settled ? B.lin(L.vlo, L.vhi, VY0, VY1, RES) : B.lin(SP.vlo.v / 1000, SP.vhi.v / 1000, VY0, VY1, RES), A0 = B.swarmAnchor(L.sw, SC, sv, TRUE, SPINE, ROOMT);
     return { sv, A: A0, run: L.vs.map((v, k) => ({ x: B.lerp(RX0, RX1, L.pos[k] / (N - 1)), y: sv.at(v), r: RR })), rug: L.pile.map((q) => B.tip(q, 1, A0)) };
   }
 
-  // Four readings in a row (screen 8), and after a right answer the 24 orders they can come in.
+  // Four readings in a row (screen 8), and after a right answer the 24 orders they can come in. Each rank keeps its colour.
   function paintFour(i, d, st) {
     const T = M.Ts, right = st.got === 'right', fa = right ? 1 - ans(T, 0, 0.3) : 1;
     tilt(0, 0);
     const big = FOUR.map((rank, k) => ({ x: 125 + 30 * k, y: 180 - 26 * rank, r: 7, a: fa }));
-    for (let k = 0; k < N; k++) B.draw(beads[k], k < 4 && fa > 0.002 ? big[k] : null);
+    for (let k = 0; k < N; k++) { beads[k].c.style.strokeWidth = ''; ZT[k] = k < 4 ? ZR[FOUR[k]] : 0; bead(k, k < 4 && fa > 0.002 ? big[k] : null); }
     if (show(fourThread, fa * 0.75)) B.set(fourThread, { d: lineThrough(big) });
     show(fourLab, fa);
     let cells = 0;
     PERMS.forEach((perm, c) => {
       const a = right ? ans(T, 0.3 + 0.04 * c, 0.25) : 0, ctr = cellAt(c), pts = perm.map((rank, k) => ({ x: ctr.x + (k - 1.5) * 10.5, y: ctr.y + 9 - 6 * rank, r: 3.3, a }));
       if (a >= 0.5) cells++;
-      pts.forEach((q, k) => { const t = c === 0 && right ? (T === Infinity ? 9 : T - 1.45 - 0.08 * k) : -1; B.draw(mini[4 * c + k], a > 0.002 ? Object.assign({}, q, { ring: t >= 0 && t < 0.5 ? t / 0.5 : null }) : null); });
+      pts.forEach((q, k) => { const t = c === 0 && right ? (T === Infinity ? 9 : T - 1.45 - 0.08 * k) : -1; B.paint(mini[4 * c + k], a > 0.002 ? Object.assign({}, q, { ring: t >= 0 && t < 0.5 ? t / 0.5 : null }) : null, 0, undefined, ZR[perm[k]], 1); });
       if (show(cellThreads[c], a * 0.75)) B.set(cellThreads[c], { d: lineThrough(pts) });
     });
     [0, PERMS.length - 1].forEach((c, j) => { const ctr = cellAt(c); if (show(boxes[j], right ? ans(T, 1.4 + 0.4 * j, 0.3) : 0)) B.set(boxes[j], { x: ctr.x - 25, y: ctr.y - 16, width: 50, height: 32 }); });
@@ -802,14 +955,15 @@
     REC.grid = cells; REC.rmin = 3.3; REC.inside = true;
   }
 
-  // Insulation resistance tests on a scale by factors (screens 9, 10, 12 and 13).
+  // Insulation resistance tests on a scale by factors (screens 9, 10, 12 and 13), each on the fade by factors.
   function paintIR(i, d, st) {
-    const T = M.Ts, right = st.got === 'right', vs = irVals(i, st), f = irFit(vs);
+    const T = M.Ts, right = st.got === 'right', vs = irVals(i, st), f = irFit(vs), zs = zOf(vs, true);
     B.aim(SP.ia, f.at(0) * 1000); B.aim(SP.ib, f.at(IRN - 1) * 1000);
     restIfStill(); tilt(0, 0);
     const tgt = vs.map((v, k) => ({ x: IXat(k), y: yIR(v), r: IRR }));
     for (let k = 0; k < N; k++) {
-      if (k >= IRN) { drawn[k] = { x: 170, y: 224, r: IRR, a: 0 }; B.draw(beads[k], null); continue; }
+      if (k >= IRN) { drawn[k] = { x: 170, y: 224, r: IRR, a: 0 }; bead(k, null); continue; }
+      ZT[k] = zs[k];
       FLOOR[k] = tgt[k].y; drawn[k] = M.place(k, tgt, tgt, {}) || { x: tgt[k].x, y: tgt[k].y, r: IRR, a: 1 };
     }
     const qa = quiet();
@@ -844,13 +998,14 @@
       if (show(dimLab, ans(T, 1.6, 0.3), 3)) B.set(dimLab, { x: xb + 6, y: B.r2((ya + yz) / 2 + 4.5), 'text-anchor': 'start' });
       REC.x2 = hops;
     }
-    // Screen 12: the last winding tested again the same day, 10 °C warmer: half the reading.
+    // Screen 12: the last winding tested again the same day, 10 °C warmer: half the reading, on the fade of the string as measured.
     if (d.key === 'twin' && right) {
       const k = TWIN, slot = { x: IXat(k), y: yIR(IRM[k] / 2), r: IRR }, top = { x: slot.x, y: 40, r: IRR };
       let q = null;
       if (T === Infinity || T > 1.2) q = Object.assign({}, slot, { a: 1 });
       else if (T > 0.3) { q = B.fall(top, slot, T - 0.3); q.a = B.c01((T - 0.3) / 0.12); }
-      B.draw(twin, q, 0, slot.y);
+      B.paint(twin, q, 0, slot.y, ZTW, 1);
+      if (KEYTWIN) KEYTWIN.style.fill = B.fade(ZTW);
       if (q && show(ring, ans(T, 0.9, 0.35))) B.set(ring, { cx: q.x, cy: q.y, r: IRR + 2.6 });
       const xb = slot.x + 10, ya = yIR(IRM[k]), yz = slot.y, g = ans(T, 1.1, 0.4);
       if (show(dim, g > 0.01 ? 1 : 0)) B.set(dim, { d: 'M' + B.r2(xb - 4) + ' ' + B.r2(ya) + 'H' + B.r2(xb + 4) + 'M' + xb + ' ' + B.r2(ya) + 'V' + B.r2(B.lerp(ya, yz, g)) + (g >= 1 ? 'M' + B.r2(xb - 4) + ' ' + B.r2(yz) + 'H' + B.r2(xb + 4) : '') });
@@ -858,13 +1013,13 @@
       if (show(dimLab, ans(T, 1.5, 0.3), 3)) B.set(dimLab, { x: xb + 5, y: B.r2((ya + yz) / 2 + 4.5), 'text-anchor': 'start' });
       list.push('twin'); la.push(ans(T, 1.4, 0.4));
       REC.twin = !!q && q.a >= 1;
-    } else B.draw(twin, null);
-    for (let k = 0; k < IRN; k++) B.draw(beads[k], Object.assign({}, drawn[k], { ring: ringPh[k] }), 0, FLOOR[k]);
+    } else plain(twin, null);
+    for (let k = 0; k < IRN; k++) { beads[k].c.style.strokeWidth = ''; bead(k, drawn[k], FLOOR[k], ringPh[k]); }
     keys(list, la);
-    REC.rmin = IRR; REC.inside = true; REC.vs = vs;
+    REC.rmin = IRR; REC.inside = true; REC.vs = vs; REC.zs = zs;
   }
 
-  // The two strings over time, folded FU of the way into one against the other (screen 11).
+  // The two strings over time, folded FU of the way into one against the other (screen 11). Plain beads: no mean to fade about here.
   function paintCause(i, d, st) {
     const C = clay(st.swing);
     if (FORCE || M.instant()) FU = foldTo();
@@ -875,7 +1030,8 @@
       drawn[k] = M.place(k, tgt, tgt, {}) || Object.assign({}, tgt[k], { a: 1 });
       const g = FD[k][1], h = M.live('hop') && M.sc.from2 ? B.hop(M.sc.from2[k], g, (M.Tb - M.sc.t[k]) / M.sc.dur, M.sc.lift, M.sc.ease, M.Tb - M.sc.t[k] - M.sc.dur) : Object.assign({}, g, { a: 1 });
       drawn2[k] = { x: h.x, y: h.y, r: h.r, a: 1 };
-      B.draw(beads2[k], h, 0); B.draw(beads[k], drawn[k], 0);
+      beads[k].c.style.strokeWidth = '';
+      B.draw(beads2[k], h, 0); plain(beads[k], drawn[k]);
     }
     if (show(cG, 1)) {
       B.vis(cTime, 1 - ux); B.vis(cBear, 1 - ux); B.vis(cX, B.c01(2 * FU - 1));
@@ -895,9 +1051,9 @@
   function sayFor(i, d, st) {
     const lifted = M.live('hop') && !!M.sc.lift;
     if (i === 0) {
-      if (M.live('pour')) return 'Readings are landing, and the fulcrum keeps sliding to the mean of those down so far.';
-      if (M.live('tip')) return 'The pile tips onto its side, and the readings peel off in the order taken.';
-      if (!st.tipped) return 'The pile shows how the readings spread, but not the order they came in. Tip it onto its side to lay them out in turn.';
+      if (M.live('pour')) return M.Tb < Math.min(...M.sc.land) ? 'Readings are falling through the pegs.' : M.Tb < Math.max(...M.sc.land) + 0.42 ? 'Readings are landing, and the fulcrum keeps sliding to the mean of those down so far.' : 'The readings rise into a swarm, each at its own value. The fainter a bead, the nearer it sits to the mean.';
+      if (M.live('tip')) return 'The swarm tips onto its side, and the readings peel off in the order taken, keeping their colours.';
+      if (!st.tipped) return 'The swarm shows how the readings spread, but not the order they came in. Tip it onto its side to lay them out in turn.';
       return 'In the order taken, the readings wobble round 27.00 V. The mean so far settles as more readings come in.';
     }
     const L = d.view === 'time' ? tlay(seedOf(i, st), driftOf(i, st), false) : null, lean = L ? L.f.b * PER : 0, dr = st.drift;
@@ -935,20 +1091,23 @@
     if (i == null) i = at();
     const d = STEPS[i], st = S[i];
     if (FORCE || M.idle()) fadeStep(1e9, i);
+    if (FORCE || M.instant() || M.idle() || kSnap) { kStep(1e9, i); if (!FORCE) kSnap = false; }
     SEEN = new Set(); REC = {};
     if (d.view !== 'cause') for (let k = 0; k < N; k++) B.draw(beads2[k], null);
-    if (d.view !== 'four') mini.forEach((b) => B.draw(b, null));
+    if (d.view !== 'four') mini.forEach((b) => plain(b, null));
     if (d.view !== 'time') { B.vis(G.field, 0); B.pegHit(PEG, []); }
     if (d.view === 'time') paintTime(i, d, st);
     else if (d.view === 'four') paintFour(i, d, st);
     else if (d.view === 'ir') paintIR(i, d, st);
     else paintCause(i, d, st);
-    if (d.view !== 'ir') B.draw(twin, null);
+    if (d.view !== 'ir') plain(twin, null);
     ALL.forEach((e) => { if (!SEEN.has(e)) e.setAttribute('display', 'none'); });
     const after = (d.show && i === 0 && st.tipped) || (d.show && d.name === 'Same cause' && st.view === 'xy') || (!d.show && st.got === 'right');
     svg.setAttribute('aria-label', d.alt + (after && d.altAfter ? ' ' + d.altAfter : ''));
     const sy = el('say'), s = d.show ? sayFor(i, d, st) : '';
     sy.textContent = s; sy.hidden = !s;
+    // The colour key fades in as the opening pour's beads rise and take their colours.
+    el('fkey').style.opacity = i === 0 && M.live('pour') && M.sc.rise ? K.arrive(M.Tb, Math.min(...M.sc.rise), 0.4) : 1;
     M.fade();
   }
 
@@ -975,8 +1134,8 @@
     if (STEPS[at()].show || finished) return;
     const st = S[at()]; st.why = !st.why;
   } });
-  // Tip the pile: it turns onto its side and the readings peel off in the order taken (the shared M.tip).
-  const tipBtn = K.button({ label: 'Tip the pile onto its side', secondary: true, into: '#fresh', press: () => {
+  // Tip the swarm: it turns about its line onto its side and the readings peel off in the order taken, keeping their colours (the shared M.tip).
+  const tipBtn = K.button({ label: 'Tip the swarm onto its side', secondary: true, into: '#fresh', press: () => {
     const st = S[0];
     if (at() !== 0 || finished || st.tipped) return;
     st.tipped = true;
@@ -1021,7 +1180,7 @@
     SP.f.init = false; st.moved = false;
     if (i === 0) {
       if (st.tipped) return;
-      const L = tlay(SEED, 0, false), Pp = M.pour(L.pile, L.fy - FH, L.fy, FADE, true);
+      const L = tlay(SEED, 0, false), Pp = B.rise(M.pour(L.heap, L.fy - FH, L.fy, FADE, true), L.heap, SC.at(L.s.m));
       M.enter(M.plan(Pp, 0, Pp.end, {}, false));
     } else if (d.runs && d.view === 'time') {
       const n = tlay(seedOf(i, st), st.drift, false).run.n;
@@ -1042,14 +1201,14 @@
     lastStep = i; enter('stepbox');
     syncCtl(st);
     M.springs.forEach((s) => { s.init = false; });
-    halt(); fadeStep(1e9, i); quietSince = -Infinity; LASTRUN = null; LASTFIT = null;
+    halt(); fadeStep(1e9, i); quietSince = -Infinity; LASTRUN = null; LASTFIT = null; kSnap = true; zSc = null;
     if (d.view === 'cause') FU = foldTo();
     if (d.demo) startDemo(i);
   }
   // The still for the read-through: the step settled in the state its words end on.
   function stillAt(name, patch) {
     const i = IX(name);
-    Object.assign(S[i], patch); syncCtl(S[i]); halt(); quietSince = -Infinity; LASTRUN = null;
+    Object.assign(S[i], patch); syncCtl(S[i]); halt(); quietSince = -Infinity; LASTRUN = null; kSnap = true; zSc = null;
     if (STEPS[i].view === 'cause') FU = foldTo();
     M.springs.forEach((s) => { s.init = false; });
     K.refresh();
@@ -1058,6 +1217,8 @@
   const irHop = () => M.hop(drawn.map((q, k) => (k < IRN ? 0.03 + 0.03 * k : -10)), B.T.fly, 12, K.ease);
 
   write(el('finish'), FINISH);
+  // The colour key: deepest below, palest at the mean, deepest above, painted by the rule the beads use, so it matches them in both themes.
+  const fkDots = [-2.6, -1.5, -0.5, 0.5, 1.5, 2.6].map((z, j) => [B.add(el('fkeyDots'), 'circle', { class: 'bd-kb', cx: B.r2(7 + j * 14.4), cy: 7, r: 5.8 }), z]);
   K.update((p) => {
     const i = Math.round(p.step), d = STEPS[i], st = S[i];
     if (i !== lastStep) enterStep(i);
@@ -1090,6 +1251,8 @@
     const task = el('task');
     task.className = 'task' + (d.show ? ' show' : '');
     write(task, d.show ? d.text : d.task);
+    fkDots.forEach(([c, z]) => { c.style.fill = B.fade(z); });
+    el('fkey').style.visibility = d.view === 'cause' ? 'hidden' : '';
     replayBtn.el.hidden = !d.show || !d.demo || M.reduce;
     el('replay').hidden = replayBtn.el.hidden;
     irCh.el.hidden = finished || !d.show || d.choice !== 'ir';
@@ -1133,15 +1296,15 @@
   // ---------- known answers, worked out by hand ----------
   // A step painted in the state given, settled: what it draws. Everything a paint moves is put back as it was.
   function drawnAt(i, patch) {
-    const keepS = S[i], keepTb = M.Tb, keepTs = M.Ts, keepSc = M.sc, keepFA = FA.field, keepFU = FU, keepQ = quietSince, keepLR = LASTRUN;
-    const keepSp = M.springs.map((s) => [s.v, s.vel, s.to, s.init]), keepD = drawn.map((q) => Object.assign({}, q)), keepF = FLOOR.slice();
+    const keepS = S[i], keepTb = M.Tb, keepTs = M.Ts, keepSc = M.sc, keepFA = Object.assign({}, FA), keepFU = FU, keepQ = quietSince, keepLR = LASTRUN, keepZs = zSc;
+    const keepSp = M.springs.map((s) => [s.v, s.vel, s.to, s.init]), keepD = drawn.map((q) => Object.assign({}, q)), keepF = FLOOR.slice(), keepK = KK.slice(), keepZT = ZT.slice(), keepZD = ZD.slice();
     S[i] = Object.assign({}, keepS, patch); M.Tb = M.Ts = Infinity; M.sc = STILL; FORCE = true; quietSince = -Infinity; LASTRUN = null;
     M.springs.forEach((s) => { s.init = false; });
     try { paint(i); return Object.assign({}, REC); }
     finally {
-      S[i] = keepS; M.Tb = keepTb; M.Ts = keepTs; M.sc = keepSc; FA.field = keepFA; FU = keepFU; quietSince = keepQ; LASTRUN = keepLR; FORCE = false;
+      S[i] = keepS; M.Tb = keepTb; M.Ts = keepTs; M.sc = keepSc; Object.assign(FA, keepFA); FU = keepFU; quietSince = keepQ; LASTRUN = keepLR; zSc = keepZs; FORCE = false;
       M.springs.forEach((s, k) => { [s.v, s.vel, s.to, s.init] = keepSp[k]; });
-      keepD.forEach((q, k) => { drawn[k] = q; FLOOR[k] = keepF[k]; });
+      keepD.forEach((q, k) => { drawn[k] = q; FLOOR[k] = keepF[k]; KK[k] = keepK[k]; ZT[k] = keepZT[k]; ZD[k] = keepZD[k]; });
       paint();
     }
   }
@@ -1187,24 +1350,50 @@
       ['+0.91 at ±3 °C', K.fmt(clay(3).r, { decimals: 2 }) === '0.91' && rr > 0.85 && rr < 0.95], ['about 0 with the air steady', Math.abs(clay(0).r) < 0.1],
     ]);
   });
-  K.check('Drawn right, and each puzzle hidden until answered: the best-fit line passes through the mean point at every drift; the side pile lies against the right edge; every bead stays on the picture and no bead is under r 3.3; each puzzle accepts one right answer of three, and before it nothing gives the answer away (no creeping order, climb bracket, fan of other batches, grid of orders, hop by a factor of 2, retest or ringed run); a right answer brings each in; every demonstration settles within 5 s, and every answer within 2.5 s', () => {
+  K.check('Drawn true, and each puzzle hidden until answered: settled, the fulcrum sits under the mean and the mean\'s value clears every bead and the pegs; in 60 batches at every drift no two beads touch, each keeps inside its room, none is under r 3.2, and a reading past the scale sits in its overflow pile; turned onto its side the swarm lies level with the time view, against the right edge, and the best-fit line passes through the mean point, at every drift; the fade deepens outward on each side, its deepest 3:1 against the page and its palest still seen; each puzzle accepts one right answer of three, and before it nothing gives the answer away; a right answer brings each in; every demonstration settles within 5 s, and every answer within 2.5 s', () => {
     const facts = [], j2 = IX('The best-fit line');
-    [0, 0.004, 0.008, 0.01].forEach((dr) => {
-      const r = drawnAt(j2, { drift: dr }), f = r.L.f, mid = (r.fitEnds[0] + r.fitEnds[1]) / 2;
-      facts.push(['mean point at drift ' + dr, near(f.at((N - 1) / 2), r.L.s.m, 1e-9) && near(r.mp.v, r.L.s.m, 1e-6) && near(mid, r.L.s.m, 1e-6) && near(r.fitEnds[0], f.at(0), 1e-6)]);
-      facts.push(['side pile at drift ' + dr, r.TG.rug.every((q) => q.x <= SPINE + 0.01 && q.x >= SPINE - ROOMT - 6)]);
+    // The upright swarm, settled: the beam level on its fulcrum under the mean; the mean's value under the pegs, clear of every bead.
+    const r0 = drawnAt(0, { tipped: false }), L0 = r0.L, mb = r0.meanBox;
+    facts.push(['the fulcrum under the mean', near(r0.fx, SC.at(L0.s.m), 0.05) && Math.abs(r0.theta) < 0.01]);
+    facts.push(['the mean\'s value clear', !!mb && r0.ma > 0.99 && mb.x0 > 1 && mb.x1 < 339 && mb.y - 10 > L0.fy + 1.8 && B.free(mb.x0, mb.x1, mb.y - 10, mb.y + 3, L0.pile, 0.5)]);
+    // 60 batches at every drift: beads apart, inside their room, none under r 3.2; a reading past the scale in its overflow pile.
+    let rmin = Infinity, apart = true, inside = true, past = 0, inPile = true;
+    for (let b = 0; b < 60; b++) [0, 0.005, 0.01].forEach((dr) => {
+      const vs = raw(SEED + b, dr), sw = swarmOf(vs).sw;
+      rmin = Math.min(rmin, sw.r);
+      sw.pos.forEach((q, a) => {
+        if (q.x - q.r < 1 || q.x + q.r > 339 || q.y - q.r < TOPS - 1e-6 || q.y + q.r > SWB + 1e-6) inside = false;
+        const o = SC.off(vs[a]), e = ENDS[o < 0 ? 'lo' : 'hi'];
+        if (o) { past++; if (q.x - q.r < e.x0 - 1e-6 || q.x + q.r > e.x1 + 1e-6) inPile = false; } else if (q.x < SC.a0 || q.x > SC.a1) inPile = false;
+        for (let c = a + 1; c < N; c++) { const u = sw.pos[c], dx = q.x - u.x, dy = q.y - u.y, g = q.r + u.r + B.GAP - 1e-6; if (Math.abs(dx) < g && dx * dx + dy * dy < g * g) apart = false; }
+      });
     });
+    const off = [0.2, -0.2].map((s) => { const vs = readings(SEED, 0).slice(); vs[7] = B.round(vs[7] + s, RES); const sw = swarmOf(vs).sw, q = sw.pos[7], e = ENDS[s > 0 ? 'hi' : 'lo']; return sw.over[s > 0 ? 'hi' : 'lo'].indexOf(7) >= 0 && q.x - q.r >= e.x0 - 1e-6 && q.x + q.r <= e.x1 + 1e-6; });
+    facts.push(['beads at least r 3.2', rmin >= 3.2], ['no two beads touch', apart], ['every bead inside its room', inside], ['past the end in its overflow pile', inPile && off[0] && off[1]]);
+    // Turned onto its side: level with the time view and against the right edge; the best-fit line through the mean point.
+    [0, 0.004, 0.008, 0.01].forEach((dr) => {
+      const r = drawnAt(j2, { drift: dr }), f = r.L.f, mid = (r.fitEnds[0] + r.fitEnds[1]) / 2, TG = timeGeom(r.L, true);
+      facts.push(['mean point at drift ' + dr, near(f.at((N - 1) / 2), r.L.s.m, 1e-9) && near(r.mp.v, r.L.s.m, 1e-6) && near(mid, r.L.s.m, 1e-6) && near(r.fitEnds[0], f.at(0), 1e-6)]);
+      facts.push(['side swarm at drift ' + dr, TG.rug.every((q, k) => q.x >= SPINE - ROOMT / 2 - 1e-6 && q.x <= SPINE + ROOMT / 2 + 1e-6 && q.x + q.r <= 340 && (SC.off(r.L.vs[k]) !== 0 || Math.abs(q.y - TG.run[k].y) < 1e-6))]);
+    });
+    // The fade: one hue below the mean, another above, deepening outward; the deepest 3:1 against the page, the palest still seen.
+    const rgb = (css) => { const e = B.add(G.tags, 'circle', { r: 0 }); e.style.fill = css; const v = getComputedStyle(e).fill; e.remove(); const c = /color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)/.exec(v);
+      return c ? [+c[1] * 255, +c[2] * 255, +c[3] * 255] : (v.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
+    const lum = (c) => c.reduce((a, x, j) => { x /= 255; return a + [0.2126, 0.7152, 0.0722][j] * (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); }, 0);
+    const bgc = rgb('var(--k-bg)'), con = (z) => { const x = lum(rgb(B.fade(z))), y = lum(bgc); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    facts.push(['the fade', con(-3) >= 3 && con(3) >= 3 && con(-0.01) >= 1.15 && con(0.01) >= 1.15 && /cat2/.test(B.fade(-1)) && /cat1/.test(B.fade(1)) && [0.5, 1, 1.5, 2, 2.5].every((z, j, a) => !j || (con(z) > con(a[j - 1]) && con(-z) > con(-a[j - 1])))]);
+    // Every screen: drawn inside, no swarm bead under r 3.2 (the time view's small dots r 2.2); each puzzle hidden before, shown after.
     const shows = { creep: (r) => r.order === 'creep', climb: (r) => r.climb && r.climbClear, fan: (r) => r.fan === FAN5, grid: (r) => r.grid === PERMS.length, x2: (r) => r.x2 === 4, twin: (r) => r.twin, run: (r) => r.runShown === runC.n && r.runClear };
     STEPS.forEach((d, i) => {
       const r = drawnAt(i, d.show ? {} : { pick: d.want, got: 'right' });
-      facts.push([d.name + ': drawn inside', r.inside && r.rmin >= 3.3]);
+      facts.push([d.name + ': drawn inside', r.inside && r.rmin >= (r.time ? RR - 1e-9 : 3.2)]);
       if (d.show) return;
       const before = drawnAt(i, { pick: null, got: null });
       facts.push([d.name + ': one right answer of three', d.opts.length === 3 && d.opts.filter((o) => o === d.want).length === 1]);
       facts.push([d.name + ': hidden before, shown after', !shows[d.key](before) && !!shows[d.key](r)]);
     });
-    const L = tlay(SEED, 0, false), Pp = M.pour(L.pile, L.fy - FH, L.fy, FADE, true);
-    facts.push(['the pour settles within 5 s', Pp.end <= 5 && Pp.rel[0] >= FADE]);
+    const L = tlay(SEED, 0, false), Pp = B.rise(M.pour(L.heap, L.fy - FH, L.fy, FADE, true), L.heap, SC.at(L.s.m));
+    facts.push(['the pour and its rise settle within 5 s', Pp.end <= 5 && Pp.rel[0] >= FADE]);
     facts.push(['the tip settles within 3.2 s', 0.1 + B.T.tip + 0.1 + B.T.peel * (N - 1) + B.T.fly + B.T.bounce <= 3.2]);
     facts.push(['the tilt and the run count', STEPS[j2].dur <= 4.5 && 0.3 + 0.15 * (L.run.n - 1) + 0.6 <= 4.5]);
     facts.push(['answers within 2.5 s', ANSWER <= 2.5 && 0.03 + 0.02 * (N - 1) + B.T.fly + B.T.bounce <= ANSWER && 0.15 + 0.15 * 3 + 0.55 + B.T.bounce <= ANSWER && 1.9 + 0.3 <= ANSWER && 0.2 + 0.16 * (FAN5 - 1) + 0.25 <= ANSWER && 0.2 + 0.15 * (runC.n - 1) + 0.5 <= ANSWER && 0.25 + 0.15 * runC.n + 0.4 <= ANSWER]);

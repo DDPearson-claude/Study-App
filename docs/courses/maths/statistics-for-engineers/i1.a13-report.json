@@ -1,0 +1,177 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Extreme values in the tails distort the mean but not the median, since the median is based on ranks: slipping the ringed reading off the top of the scale lifts the mean of the fifty by a fiftieth of the slip and moves the median by half a meter step at most, at every random error",
+        "ok": true,
+        "source": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm"
+      },
+      {
+        "label": "The mean will be pulled in the direction of the skewness: if the right tail is heavier than the left, the mean will be greater than the median. Insulation resistance nudged by factors makes a bell about 200 MΩ on a scale of 20 columns a decade, each 12% more than the last; on an even scale its mean sits above its median and the settled beam balances there, level, with every reading on both scales and no bead under r 3.2",
+        "ok": true,
+        "source": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm"
+      },
+      {
+        "label": "From every raw data value, subtract the mean, square the results, average them over one fewer than the count and then take the square root: every SD worked on screen follows that recipe line by line and agrees with the standard deviation of its readings",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf"
+      },
+      {
+        "label": "Worked by hand: 0.79, 0.80, 0.80, 0.81 and 0.85 Ω add to 4.05 Ω and balance at 0.81 Ω, with 0.04 Ω of distance each side; nine readings of 0.50 Ω and one of 1.50 Ω have a mean of 0.60 Ω and a median of 0.50 Ω; 0.77 to 0.82 Ω give squares adding to 0.0016, then 0.0004 and an SD of 0.02 Ω; 0.75 to 0.83 Ω give 0.0036, 0.0009 and 0.03 Ω; sets A and B both span 0.08 Ω with SDs of 0.028 and 0.040 Ω; the bumpy and flat sets 0.016 and 0.035 Ω; the ten circuits a mean of 0.62 Ω and an SD of 0.13 Ω; twelve nudges of −½ to +½ add to an error of SD 1; halving the random error from 0.02 to 0.01 Ω takes the fifty from 10 columns to 5 and their fullest column from 11 to 20 beads; a 1.00 Ω slip lifts the mean exactly 0.02 Ω and the SD to about 0.14 Ω",
+        "ok": true
+      },
+      {
+        "label": "Drawn true: settled, the fulcrum sits under the mean and the beam is level, honest or slipped, at every random error; a slip past the scale sits in its overflow pile, named, never clipped; no two beads touch, every bead inside its room, none under r 3.2; the values clear of every bead; the fade deepest at 3:1 and palest still seen; each puzzle accepts only its right answer, its fulcrum lands where its pick puts it, and before an answer nothing gives the answer away; every demonstration settles within 5 s, every answer within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "spread",
+      "probe",
+      "irs"
+    ],
+    "readouts": [
+      "sd",
+      "cols",
+      "tall",
+      "sdA",
+      "mB",
+      "sdB"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Fifty readings",
+          "Where it balances",
+          "A slipped probe",
+          "Mean or median",
+          "Spread by a factor",
+          "Halve the random error",
+          "Same range",
+          "The standard deviation",
+          "Work it out",
+          "Back to the fifty",
+          "Bumpy or flat",
+          "One circuit or ten",
+          "Two testers",
+          "Twelve sockets"
+        ],
+        "value": 0
+      },
+      {
+        "id": "spread",
+        "kind": "control",
+        "label": "Random error",
+        "min": 0.01,
+        "max": 0.03,
+        "step": 0.005,
+        "log": false,
+        "value": 0.02,
+        "shown": false,
+        "snap": [
+          0.01,
+          0.02
+        ]
+      },
+      {
+        "id": "probe",
+        "kind": "control",
+        "label": "Ringed reading",
+        "min": 0.7,
+        "max": 1.8,
+        "step": 0.01,
+        "log": false,
+        "value": 0.8,
+        "shown": false,
+        "snap": [
+          0.8,
+          1.8
+        ]
+      },
+      {
+        "id": "irs",
+        "kind": "choice",
+        "label": "Scale",
+        "options": [
+          "log",
+          "even"
+        ],
+        "labels": [
+          "By factors",
+          "Even"
+        ],
+        "value": "log",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Beads"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "K.sound is used but no K.button press played anything: play sound from a K.button's press so the self-test (and Dan) can reach it."
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "spread = 0.024999999999999998",
+    "probe = 1.525",
+    "irs = \"even\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-360-light.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-360-light-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-360-light-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-360-dark.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-360-dark-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-1280-light.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-1280-light-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-1280-dark.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a13-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "scores": { "lands": 4, "cause": 5, "honest": 4, "pleasure": 4, "likeSwarm": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 5 'The result' text and screen 6 'The next reading' task (i2.body.final.html STEPS), and screens 5-6 in whatAmILookingAt (i2.lesson.verified.json)",
+      "what": "The words give the result as 27.000 ± 0.011 V, but the drawing sets this batch's mean in bold as 'mean 27.001 V' (seed 2889, one reading a bead), so Dan reads one value and sees another; write 27.001 ± 0.011 V in all three places, or pick an opening batch whose mean shows as 27.000 V."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11 'Against a limit', the red dashed example limit at 27.02 V",
+      "what": "The limit line runs up through the swarm and passes behind 5 to 12 beads at every offset (means of four sit on 27.02 V or a quarter step either side), so in-tolerance beads look threaded on a warning line; gap the line where it crosses the beads, as vline already does round labels, or stop it under the swarm and resume it above for the result bracket."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 10, 11 and 13, where the meter reads high",
+      "what": "The dashed true-value line runs through up to 7 beads at 27.00 V although it is not the swarm's mean there; in Dan's reference only the mean's line goes through the dots, so stop the true-value line at the top of the swarm once the mean has moved off it (on screens 1-9 the two lines meet, and the one dashed line through the 27.00 column matches the reference)."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11 'Against a limit', which has no peg field",
+      "what": "The label 'true value ± the meter's accuracy' sits at the very top of the drawing, its text box starting at y −0.7 of the 300-unit view, so it almost touches the edge; move it and the window down about 4 units."
+    },
+    {
+      "severity": "polish",
+      "where": "whatAmILookingAt in i2.lesson.verified.json",
+      "what": "It never says what the bead colours mean (one colour below the mean, another above, fainter nearer the mean) or that a reading past 27.10 V goes to the 'over' pile, which shows at 0.03 V high; add a short sentence for each so the description matches the swarm."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 5 'The result' text (94 words) and screen 9 'Reads high' finished read (92 words)",
+      "what": "Both run a little over the 90-word limit for a SHOW screen; cutting ', as the 0.08 V does for single readings' from screen 5 and 'Each fresh batch misses it too.' from screen 9's read brings both under it."
+    }
+  ]
+}

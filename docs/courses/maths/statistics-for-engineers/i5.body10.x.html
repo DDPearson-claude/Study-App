@@ -1,0 +1,1003 @@
+<!-- kind: quantity -->
+<style>
+  /* ==== Beads: the shared look (dataviz.md, "Copy this code"). Paste unchanged. ==== */
+  [hidden] { display: none !important; } .bd-scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; touch-action: pan-y; font-variant-numeric: tabular-nums; -webkit-user-select: none; user-select: none; } .bd-scene text { font-family: var(--k-font); font-size: 13px; }
+  /* A reading: a bead with a surface ring and a glint (a second string's: .two), its splash and counted ring; its outline in the side pile; the pegs it strikes. */
+  .bd-scene .bd-bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.2; } .bd-scene .bd-bead.two { fill: var(--k-accent); } .bd-scene .bd-splash { fill: none; stroke: var(--k-accent2); stroke-width: 1.2; pointer-events: none; } .bd-scene .bd-splash.two { stroke: var(--k-accent); }
+  .bd-scene .bd-glint { fill: var(--k-bg); fill-opacity: .42; pointer-events: none; } :root[data-theme="dark"] .bd-scene .bd-glint { fill: var(--k-ink); fill-opacity: .5; } .bd-scene .bd-ghost { fill: none; stroke: var(--k-strong); stroke-width: 1.1; }
+  .bd-scene .bd-peg { fill: var(--k-strong); } .bd-scene .bd-hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-linecap: round; } .bd-scene .bd-trail { fill: none; stroke: var(--k-accent); stroke-width: 1.7; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
+  .bd-scene .bd-win { fill: var(--k-accent); fill-opacity: .16; } .bd-scene .bd-edge { stroke: var(--k-strong); stroke-width: 1.1; stroke-dasharray: 2 3; } .bd-scene .bd-beam { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } .bd-scene .bd-fulcrum { fill: var(--k-ink); } .bd-scene .bd-grid { stroke: var(--k-line); stroke-width: 1; }
+  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; }
+  /* Words: muted names and units, bold numbers, accent small labels, warnings; a halo for a label over a line. */ .bd-scene .bd-tn, .bd-scene .bd-title, .bd-scene .bd-w, .bd-scene .bd-u { fill: var(--k-muted); } .bd-scene .bd-lab, .bd-scene .bd-name { fill: var(--k-ink); } .bd-scene .bd-n, .bd-scene .bd-name { font-weight: 700; }
+  .bd-scene .bd-small { font-weight: 600; fill: var(--k-accent); } .bd-scene .bd-wt { font-weight: 600; fill: var(--k-warn); } .bd-scene .bd-halo { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  /* The ringed reading: its drag handle, ring and arrows; warnings and limits. */ .bd-scene .bd-handle { fill: var(--k-bg); fill-opacity: 0; cursor: grab; } .bd-scene.nodrag .k-drag-hit, .bd-scene.nodrag .bd-handle { pointer-events: none; } .bd-scene .bd-ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.7; pointer-events: none; }
+  .bd-scene .bd-chev { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.8px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; } .bd-scene .bd-ring.out { stroke: var(--k-warn); } .bd-scene .bd-chev.out { fill: var(--k-warn); }
+  .bd-scene .bd-pulse { fill: none; stroke: var(--k-warn); stroke-width: 1.4; pointer-events: none; } .bd-scene .bd-zone { fill: var(--k-warn); fill-opacity: .55; } .bd-scene .bd-limit { stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  /* The statistics: mean, dimension lines, small-label spans and their extension lines, ruler, stems and pointers, range jaws, median, bands, curves, thread, mean so far, true value. */ .bd-scene .bd-mean { stroke: var(--k-ink); stroke-width: 1.7; stroke-dasharray: 4 3; } .bd-scene .bd-dim { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .bd-scene .bd-span { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .bd-scene .bd-ext { fill: none; stroke: var(--k-accent); stroke-width: 1; stroke-dasharray: 1.5 2.5; } .bd-scene .bd-ruler { fill: none; stroke: var(--k-accent); stroke-width: 1.3; }
+  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
+  .bd-scene .bd-jaw { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.4; stroke-linejoin: round; } .bd-scene .bd-bell { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
+  .bd-scene .bd-curve, .bd-scene .bd-trend { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; } .bd-scene .bd-truth { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .bd-scene .bd-thread { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; } .bd-scene .bd-run { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-linejoin: round; }
+  .bd-scene .bd-air { fill: none; stroke: var(--k-muted); stroke-width: 1.7; stroke-linejoin: round; } .bd-scene .bd-hz { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  /* One amber line a view: .lead hands it to the failure rate (the bathtub), .quiet takes it off a curve. */ .bd-scene .bd-hz.lead { stroke: var(--k-amber-line); stroke-width: 2.6; } .bd-scene .bd-curve.quiet { stroke: var(--k-muted); stroke-width: 1.6; }
+  /* Lifetimes: the shelf, a pair's link (series) or harness (parallel), the clock's hand; and a share bar inside a tile. */ .bd-scene .bd-shelf { stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; } .bd-scene .bd-link { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; stroke-linecap: round; }
+  .bd-scene .bd-harness { fill: none; stroke: var(--k-accent2); stroke-linecap: round; } .bd-scene .bd-harness.in { stroke: var(--k-bg); } .bd-scene .bd-now { stroke: var(--k-ink); stroke-width: 1.4; } .bd-scene .bd-nowhead { fill: var(--k-ink); }
+  .bd-gauge { display: block; position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--k-line); } .bd-gauge i { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--k-accent2); } .bd-gauge b { position: absolute; top: -3px; width: 2px; height: 12px; margin-left: -1px; border-radius: 1px; background: var(--k-amber-line); }
+  /* ==== end of the shared look ==== */
+  /* ==== Swarm: the look's additions (swarm.md, "Copy this code"). Paste unchanged, after the shared look. ==== */
+  /* The median's line (the mean keeps .bd-mean); the overflow piles' own short axes; a value the drawing sets bold, which has no tile and hides while Dan answers a check. */
+  .bd-scene .bd-medl { stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 1.5 3; stroke-linecap: round; } .bd-scene .bd-ovax { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } :root.k-quiz .bd-scene .bd-val { visibility: hidden; }
+  /* The colour key under the drawing: a row of beads, deepest to faintest to deepest, between its two words. */ .bd-fig { max-width: 32rem; margin-inline: auto; } .bd-key { justify-content: center; margin: 2px 0 0; } .bd-key svg { display: block; width: 5.4rem; height: auto; }
+  .bd-key .bd-kb { stroke: var(--k-bg); stroke-width: 1.2; } .bd-key > span { white-space: nowrap; }
+  /* ==== end of the swarm's look ==== */
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  #outs { grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+  #outs .k-readout-value { margin-top: 0; }
+  @media (max-width: 480px) { #outs .k-readout-label { min-height: 2.6em; } }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap whole; long ones stack one to a row. */
+  .picks .k-btn { flex: 1 1 6rem; min-height: 52px; font-size: 1.1rem; white-space: nowrap; padding-inline: 8px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* This lesson's own marks: each part's failure rate drawn as a length, and the load the UPSs feed. */
+  .bd-scene .seg { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.3; }
+  .bd-scene .loadbox { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead">Each bead is one simulated unit in service, say a pump. Each fails at random, at the same steady failure rate λ = 0.1 a year, an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls" id="choice"></div>
+    <div class="bd-fig" id="fig">
+      <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+      <p class="key bd-key" id="fkey"><span>lower <svg viewBox="0 0 86 14" aria-hidden="true" id="fkeyDots"></svg> higher</span><span>fainter is nearer the mean</span></p>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Simulated: each lifetime is t = −ln(u) ÷ λ, with u a random number between 0 and 1.</p>
+
+<script>
+  // ==== Beads: the shared language (dataviz.md, "Copy this code"). Paste unchanged. ====
+  const B = (() => { const B = {}, lerp = (a, b, t) => a + (b - a) * t, c01 = (v) => Math.max(0, Math.min(1, v)); B.lerp = lerp; B.c01 = c01; B.r2 = (v) => Math.round(v * 100) / 100;
+    // The rule. Seeded, so every picture and check is stable; a fresh batch is the next seed.
+    B.rng = (seed) => { let a = (Math.imul(seed | 0, 7919) + 104729) >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+    // n readings × 12 nudges in −½..+½: twelve sum to SD exactly 1, so sd × B.sum(u) is an error of SD sd; B.sum(u, row) is a bead after `row` rows of pegs.
+    // A second string of readings takes rows n..2n−1 of B.nudges(seed, 2n), never reading i's own: two strings share only what the rule gives them both.
+    B.nudges = (seed, n) => { const r = B.rng(seed); return Array.from({ length: n }, () => Array.from({ length: 12 }, () => r() - 0.5)); }; B.sum = (u, upto) => { let s = 0; for (let j = 0; j < (upto == null ? u.length : upto); j++) s += u[j]; return s; };
+    B.uni = (seed, n) => { const r = B.rng(seed); return Array.from({ length: n }, () => 1 - r()); };   // in (0, 1]: a lifetime is −ln(u) / rate
+    B.round = (v, res) => +(Math.round(v / res) * res).toFixed(9); B.stats = (vs) => { const n = vs.length; if (!n) return null; let m = 0, q = 0; vs.forEach((v) => { m += v / n; }); vs.forEach((v) => { q += (v - m) * (v - m); });
+      const s = vs.slice().sort((a, b) => a - b); return { n, m, sd: n > 1 ? Math.sqrt(q / (n - 1)) : 0, med: n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2, lo: s[0], hi: s[n - 1] }; }; B.within = (vs, m, sd, z) => vs.filter((v) => Math.abs(v - m) <= z * sd * (1 + 1e-9)).length;
+    B.fit = (pts) => { const n = pts.length; if (n < 2) return null; let mx = 0, my = 0, sxx = 0, sxy = 0, rr = 0; pts.forEach((p) => { mx += p[0] / n; my += p[1] / n; }); pts.forEach((p) => { sxx += (p[0] - mx) * (p[0] - mx); sxy += (p[0] - mx) * (p[1] - my); }); const b = sxx ? sxy / sxx : 0;
+      pts.forEach((p) => { rr += Math.pow(p[1] - my - b * (p[0] - mx), 2); }); return { b, mx, my, at: (x) => my + b * (x - mx), res: n > 2 ? Math.sqrt(rr / (n - 2)) : 0 }; };
+    /* How closely two strings move together: +1 a rising line, −1 a falling one, 0 no line at all. */ B.corr = (xs, ys) => { const n = xs.length; let mx = 0, my = 0, sxy = 0, sxx = 0, syy = 0; xs.forEach((x, i) => { mx += x / n; my += ys[i] / n; });
+      xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) * (x - mx); syy += (ys[i] - my) * (ys[i] - my); }); return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0; };
+    // A lifetime from a sketched hazard: the t at which the total hazard H(t) reaches −ln u, by halving; Infinity past tmax. A column's expected count from R.
+    B.lifeFrom = (H, u, tmax) => { const goal = -Math.log(u); if (!(H(tmax) >= goal)) return Infinity; let a = 0, b = tmax; for (let k = 0; k < 44; k++) { const m = (a + b) / 2; if (H(m) < goal) a = m; else b = m; } return (a + b) / 2; };
+    B.colExpect = (R, n, bin) => (t) => n * (R(Math.max(0, t - bin / 2)) - R(Math.max(0, t + bin / 2)));
+    // Columns one bin wide: lo, hi the end columns' centres, drawn a0 → a1. col(v) clamps; a value on an edge goes up; off(v) is −1 or +1 past an end.
+    B.scale = (lo, hi, bin, a0, a1) => { const n = Math.round((hi - lo) / bin) + 1, w = (a1 - a0) / n, col = (v) => Math.max(0, Math.min(n - 1, Math.round((v - lo) / bin + 1e-7)));
+      return { lo, hi, bin, n, w, a0, a1, col, mid: (c) => a0 + (c + 0.5) * w, at: (v) => a0 + ((v - lo) / bin + 0.5) * w, val: (x) => lo + ((x - a0) / w - 0.5) * bin, off: (v) => (v < lo - bin / 2 ? -1 : v > hi + bin / 2 ? 1 : 0) }; };
+    // Columns of equal ratio, `steps` to a decade, for readings that spread by a factor (insulation resistance). Takes and gives plain values.
+    B.logScale = (lo, hi, steps, a0, a1) => { const L = Math.log10, s = B.scale(L(lo), L(hi), 1 / steps, a0, a1); return Object.assign({}, s, { lo, hi, log: true, col: (v) => s.col(L(v)), at: (v) => s.at(L(v)), val: (x) => Math.pow(10, s.val(x)), off: (v) => s.off(L(v)) }); };
+    /* A scale with no columns, for a view that zooms or a strip of a time view: v0..v1 drawn a0 → a1; w is one bin's length on it. */ B.lin = (v0, v1, a0, a1, bin) => { const k = (a1 - a0) / (v1 - v0); return { lo: v0, hi: v1, bin, w: k * bin, a0, a1, at: (v) => a0 + (v - v0) * k, val: (x) => v0 + (x - a0) / k }; };
+    // Bead size: B.peak, about the tallest stack of the narrowest pile a slider allows; B.tallest, a batch's own; B.fitPile, the bead for that height and column.
+    B.peak = (n, bin, sd) => { const x = Math.min(2, bin / sd), t = Math.min(n, n * x * 0.3989 * (1 - x * x / 24)); return t + Math.sqrt(t); }; B.tallest = (vs, sc) => { const c = {}; let m = 1; vs.forEach((v) => { const k = sc.col(v); c[k] = (c[k] || 0) + 1; m = Math.max(m, c[k]); }); return m; };
+    B.fitPile = (tall, room, colW, rmax) => { const r = Math.min(rmax, Math.abs(colW) / 2 - 0.6, (room / Math.max(1, tall) - 1) / 2); return { r, pitch: 2 * r + 1 }; };
+    /* The pile on the beam at y base, earlier readings lower, `per` across a wide column; readings past an end on top; a batch too tall shrinks every bead. */ B.stack = (vs, sc, base, top, fit) => { const per = Math.max(1, Math.floor((Math.abs(sc.w) + 1) / fit.pitch)), cnt = {}, idx = [];
+      vs.map((v, i) => i).sort((a, b) => (sc.off(vs[a]) ? 1 : 0) - (sc.off(vs[b]) ? 1 : 0) || a - b).forEach((i) => { const c = sc.col(vs[i]); cnt[c] = (cnt[c] || 0) + 1; idx[i] = cnt[c] - 1; });
+      const tall = Math.max(1, ...Object.values(cnt).map((k) => Math.ceil(k / per))), pitch = Math.min(fit.pitch, (base - 1.5 - top) / tall), r = Math.min(fit.r, (pitch - 1) / 2);
+      return { r, tall, pitch, per, base, cnt, pos: vs.map((v, i) => { const c = sc.col(v), lay = Math.floor(idx[i] / per), row = Math.min(per, cnt[c] - lay * per); return { x: sc.mid(c) + (idx[i] % per - (row - 1) / 2) * pitch, y: base - 1.5 - r - lay * pitch, r }; }) }; };
+    /* In the order taken: reading i across from x0 to x1, its value up the page on scale sv. */ B.run = (vs, sv, x0, x1, r) => vs.map((v, i) => ({ x: lerp(x0, x1, vs.length > 1 ? i / (vs.length - 1) : 0.5), y: sv.at(v), r }));
+    // A pile place turned u of the way onto its side about (x0, y0) sliding to (x1, y1): value up the page (k), stacks leftwards (kh); at u = 1, level with B.run.
+    B.tip = (p, u, A) => { const th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th), k = lerp(1, A.k, u), kh = lerp(1, A.kh, u), dx = p.x - A.x0, dh = A.y0 - p.y;
+      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; };
+    // Two strings over time folded into one against the other, u 0..1: a and b are reading i's places in their strips, f the pair's place once folded.
+    B.fold = (a, b, f, u) => { const ux = K.ease(c01(2 * u)), uy = K.ease(c01(2 * u - 1)), x = lerp(a.x, f.x, ux), q = { x: lerp(b.x, f.x, ux), y: lerp(b.y, f.y, uy), r: lerp(b.r, f.r, uy) }; return [uy > 0 ? B.hop({ x, y: a.y, r: a.r }, q, uy, 12, (v) => v) : { x, y: a.y, r: a.r }, q]; };
+    /* Timings (s) every lesson shares: a pour releases a bead every dt, each jinks `jink` high off every peg; a fresh batch re-sorts one every hop. */ B.T = { dt: 0.045, hop: 0.028, field: 0.5, fly: 0.5, settle: 0.45, bounce: 0.24, peel: 0.025, tip: 0.8, fold: 1.6, g: 1600, jink: 2 };
+    B.releases = (n, t0, slow) => { const out = []; let t = t0; for (let i = 0; i < n; i++) { out.push(t); t += slow ? Math.max(B.T.dt, 0.32 * Math.pow(0.68, i)) : B.T.dt; } return out; };
+    B.bounce = (tc) => (tc < 0 ? 0 : tc < 0.15 ? 4.5 * Math.sin(Math.PI * tc / 0.15) : tc < B.T.bounce ? 1.3 * Math.sin(Math.PI * (tc - 0.15) / (B.T.bounce - 0.15)) : 0); const fallT = (d, v0) => (-v0 + Math.sqrt(v0 * v0 + 2 * B.T.g * Math.max(2, d))) / B.T.g;
+    /* A bead released at rel strikes a peg on each of the twelve rows (y0..y1), xAt(row) its nudges so far, then falls onto p and bounces twice; tc = s since landing. */ B.pour = (T, rel, xAt, p, y0, y1) => { const tau = T - rel, F = B.T.field, v0 = (y1 - y0) / F; if (tau < 0) return null;
+      if (tau < F) { const f = 12 * tau / F, row = Math.min(11, Math.floor(f)), u = f - row; return { x: lerp(xAt(row), xAt(row + 1), K.ease(u)), y: lerp(y0, y1, tau / F) - (row ? B.T.jink * Math.sin(Math.PI * u) : 0), r: p.r, a: c01(tau / 0.08) }; }
+      const tf = tau - F, tb = fallT(p.y - y1, v0); if (tf < tb) return { x: lerp(xAt(12), p.x, K.ease(tf / tb)), y: Math.min(p.y, y1 + v0 * tf + B.T.g * tf * tf / 2), r: p.r, a: 1 };
+      return { x: p.x, y: p.y - B.bounce(tf - tb), r: p.r, a: 1, tc: tf - tb }; }; B.landed = (rel, p, y0, y1) => rel + B.T.field + fallT(p.y - y1, (y1 - y0) / B.T.field);
+    // Dropped from rest at a onto b (a unit leaving a shelf), tau s after the drop: falls, lands, bounces.
+    B.fall = (a, b, tau) => { const tb = fallT(b.y - a.y, 0); if (tau < tb) return { x: lerp(a.x, b.x, K.ease(tau / tb)), y: Math.min(b.y, a.y + B.T.g * tau * tau / 2), r: lerp(a.r, b.r, tau / tb), a: 1 }; return { x: b.x, y: b.y - B.bounce(tau - tb), r: b.r, a: 1, tc: tau - tb }; };
+    // From a to b, q of the way, on an arc `lift` high (landing with the bounce); ease K.ease to travel, B.backOut to settle with a 6% overshoot.
+    B.backOut = (q) => 1 + 2.25 * Math.pow(q - 1, 3) + 1.25 * Math.pow(q - 1, 2); B.still = (list) => list.every((s) => Math.abs(s.v - s.to) < 0.05 && Math.abs(s.vel) < 0.5); B.hop = (a, b, q, lift, ease, tc) => { const u = c01(q), e = (ease || K.ease)(u), land = lift && q >= 1;
+      return { x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e) - (lift || 0) * Math.sin(Math.PI * u) - (land ? B.bounce(tc) : 0), r: lerp(a.r, b.r, c01(e)), a: lerp(a.a == null ? 1 : a.a, 1, c01(u * 3)), tc: land ? tc : undefined }; };
+    // Springs give the balance point, the spread and the lines their weight: they lag, overshoot a touch and settle. B.toward eases a fade at up / down s.
+    B.spring = (w, z) => ({ v: 0, vel: 0, to: 0, w, z, init: false }); B.aim = (s, to, snap) => { s.to = to; if (!s.init || snap) { s.v = to; s.vel = 0; s.init = true; } };
+    B.springs = (list, dt) => { const n = Math.max(1, Math.ceil(dt / 0.008)), h = dt / n; list.forEach((s) => { for (let j = 0; j < n; j++) { s.vel += (-s.w * s.w * (s.v - s.to) - 2 * s.z * s.w * s.vel) * h; s.v += s.vel * h; } }); };
+    B.toward = (a, to, dt, up, down) => (to > a ? Math.min(to, a + dt / up) : Math.max(to, a - dt / (down || up)));
+    // Drawing: every element is made once and moved. B.vis fades el to a (K.fade) and takes it out of the page at 0.
+    B.add = (g, tag, attrs, text) => g.appendChild(K.svg(tag, attrs || {}, text == null ? undefined : String(text))); B.set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, typeof attrs[k] === 'number' ? B.r2(attrs[k]) : attrs[k]); return el; };
+    B.vis = (el, a, rise) => { if (!(a > 0.002)) { el.setAttribute('display', 'none'); return false; } el.removeAttribute('display'); K.fade(el, a, rise || 0); return true; };
+    // The scene's layers, bottom to top; the beam and the beads sit in `tilt`, which rocks about the fulcrum.
+    B.layers = (svg) => { const L = {}; ['field', 'under', 'ghosts', 'tilt', 'over', 'axes', 'tags'].forEach((k) => { L[k] = B.add(svg, 'g'); }); ['scale', 'beads', 'marks'].forEach((k) => { L[k] = B.add(L.tilt, 'g'); }); return L; };
+    // n beads (splash, bead, glint); cls 'two' for a second string. B.draw puts one at d = {x, y, r, a, tc, ring, hollow}: ring 0..1 sends a counted ring out; hollow a failed unit held; warn 0..1.
+    B.beads = (g, n, cls) => { const k = cls ? ' ' + cls : '', sp = [], bd = []; for (let i = 0; i < n; i++) sp.push(B.add(g, 'ellipse', { class: 'bd-splash' + k }));
+      for (let i = 0; i < n; i++) bd.push([B.add(g, 'circle', { class: 'bd-bead' + k }), B.add(g, 'circle', { class: 'bd-glint' })]); return bd.map((b, i) => ({ c: b[0], g: b[1], s: sp[i] })); };
+    B.draw = (b, d, warn, floor) => { if (!d || !(d.a > 0.002)) { [b.c, b.g, b.s].forEach((e) => e.setAttribute('display', 'none')); return; }
+      b.c.removeAttribute('display'); B.set(b.c, { cx: d.x, cy: d.y, r: d.r }); if (B.vis(b.g, d.hollow ? 0 : 1)) B.set(b.g, { cx: d.x - 0.34 * d.r, cy: d.y - 0.36 * d.r, r: 0.3 * d.r }); b.c.style.opacity = b.g.style.opacity = d.a >= 1 ? '' : d.a.toFixed(3); b.c.style.stroke = d.hollow ? 'var(--k-accent2)' : '';
+      b.c.style.fill = d.hollow ? 'var(--k-bg)' : warn > 0 ? (warn >= 1 ? 'var(--k-warn)' : 'color-mix(in srgb, var(--k-warn) ' + Math.round(warn * 100) + '%, var(--k-accent2))') : '';
+      if (d.ring != null) { const R = d.r + 1.6 + 4.5 * d.ring; if (B.vis(b.s, 0.9 * (1 - d.ring))) B.set(b.s, { cx: d.x, cy: d.y, rx: R, ry: R }); return; }
+      const u = d.tc == null ? 1 : d.tc / 0.3; if (B.vis(b.s, u < 1 ? 0.45 * (1 - u) * (1 - u) : 0)) B.set(b.s, { cx: d.x, cy: (floor == null ? d.y : floor) + d.r * 0.9, rx: d.r * (1 + 1.6 * K.ease(u)), ry: d.r * (0.27 + 0.45 * K.ease(u)) }); };
+    // The peg field: twelve rows one nudge apart, odd rows offset by half, each peg made once. B.pegsAt sets them about the hopper at hx, sp apart, over
+    // rows y0..y0 + h; B.pegHit swells the peg beside each bead that has just struck its row ([{x, row, since}], from M.hits).
+    B.pegs = (g) => { const P = { list: [], at: {}, hot: [], hx: 0, sp: 1 }; for (let row = 1; row <= 12; row++) { const lim = 7.2 * Math.sqrt(row / 12) + 0.6, off = row % 2 ? 0.5 : 0;
+      for (let j = -9; j <= 9; j++) if (Math.abs(j + off) <= lim) { const el = B.add(g, 'circle', { class: 'bd-peg', r: 1.8 }); P.list.push({ el, k: j + off, row }); P.at[row + ':' + (j + off)] = el; } } return P; };
+    B.pegsAt = (P, hx, sp, y0, h) => { P.hx = hx; P.sp = sp; P.list.forEach((q) => B.set(q.el, { cx: hx + q.k * sp, cy: y0 + q.row * h / 12 })); }; B.pegHit = (P, hits) => { P.hot.forEach((el) => el.setAttribute('r', 1.8)); P.hot = [];
+      hits.forEach((q) => { const off = q.row % 2 ? 0.5 : 0, el = P.at[q.row + ':' + (Math.round((q.x - P.hx) / P.sp - off) + off)]; if (el) { el.setAttribute('r', B.r2(1.8 + 1.4 * (1 - q.since / 0.07))); P.hot.push(el); } }); };
+    /* A label set like a newspaper's: [['mean ', 'w'], ['27.01', 'n'], [' V', 'u']] gives muted words and units, a bold number. */ B.words = (t, parts) => { t.textContent = ''; parts.forEach((p) => t.appendChild(K.svg('tspan', { class: p[1] ? 'bd-' + p[1] : null }, p[0]))); return t; };
+    const tws = {}; B.tw = (t) => { const k = t.getAttribute('class') + '|' + t.textContent; if (!tws[k]) { let w = 0; try { w = t.getComputedTextLength(); } catch (e) { w = 0; } if (w > 0) tws[k] = w; } return tws[k] || t.textContent.length * 7.4; };
+    // Is the box clear of every bead {x, y, r} by pad? B.clearY: the lowest baseline at or above y whose letters (10 up, 3 down) clear them. Late labels use these.
+    B.free = (x0, x1, y0, y1, marks, pad) => marks.every((q) => q.x + q.r + pad <= x0 || q.x - q.r - pad >= x1 || q.y + q.r + pad <= y0 || q.y - q.r - pad >= y1);
+    B.clearY = (x0, x1, y, marks, pad) => { let hit = true; for (let k = 0; hit && k <= marks.length; k++) { hit = false; marks.forEach((q) => { if (!B.free(x0, x1, y - 10, y + 3, [q], pad)) { y = q.y - q.r - pad - 3.01; hit = true; } }); } return y; };
+    /* A dimension line x0 to x1 at y, ends ticked `tick`, its words in a gap when they fit, else centred above (`above`, stacked brackets) or beside it. */ B.bracket = (path, text, x0, x1, y, tick, above) => { const w = B.tw(text), m = (x0 + x1) / 2, gap = x1 - x0 >= w + 16, right = x1 + 6 + w < 336, f = B.r2;
+      path.setAttribute('d', 'M' + f(x0) + ' ' + f(y + tick) + 'V' + f(y) + (gap ? 'H' + f(m - w / 2 - 5) + 'M' + f(m + w / 2 + 5) + ' ' + f(y) : '') + 'H' + f(x1) + 'V' + f(y + tick));
+      B.set(text, gap ? { x: m, y: y + 4.5, 'text-anchor': 'middle' } : above ? { x: Math.max(4 + w / 2, Math.min(336 - w / 2, m)), y: y - 5, 'text-anchor': 'middle' } : { x: right ? x1 + 6 : x0 - 6, y: y + 4.5, 'text-anchor': right ? 'start' : 'end' }); };
+    // Over pile st from v0 to v1: the skyline (count(c) in column c) relaxing 0..1 into expect(v), beads expected per column. Works on a log scale too.
+    B.relax = (sc, st, count, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), q = sc.w / 4, n = Math.max(1, Math.ceil(Math.abs(b - a) / Math.abs(q))), pts = [], per = st.per || 1;
+      for (let k = 0; k <= n; k++) { const x = lerp(a, b, k / n), sky = Math.ceil(Math.max(count(sc.col(sc.val(x - q * 0.99))), count(sc.col(sc.val(x + q * 0.99)))) / per);
+        pts.push(B.r2(x) + ' ' + B.r2(st.base - 1.5 - lerp(sky, expect(sc.val(x)) / per, relax) * st.pitch - (1 - relax) * (2 * st.r - st.pitch))); } return 'M' + pts.join('L'); };
+    /* A rule's curve f(t), t from a to b in n pieces, drawn by X and Y; it stops where it leaves the top (y < top) and gives that point as `exit`, for an arrow. */ B.trace = (f, a, b, X, Y, n, top) => { let d = '', exit = null; for (let k = 0; k <= n; k++) { const t = lerp(a, b, k / n), y = Y(f(t));
+      if (y < top) { if (k) { const t0 = lerp(a, b, (k - 1) / n), y0 = Y(f(t0)), q = (y0 - top) / (y0 - y); exit = { x: lerp(X(t0), X(t), q), y: top }; d += 'L' + B.r2(exit.x) + ' ' + B.r2(top); } break; } d += (k ? 'L' : 'M') + B.r2(X(t)) + ' ' + B.r2(y); } return { d: d || 'M0 0', exit }; };
+    // A share bar inside a readout tile (hidden with it during a check): filled to the counted share, a tick at what the rule expects.
+    B.gauge = (ro, rule) => { const f = K.el('i'), t = K.el('b'); t.style.left = (100 * rule).toFixed(1) + '%'; ro.el.appendChild(K.el('span', { class: 'bd-gauge', 'aria-hidden': 'true' }, f, t)); return (share) => { f.style.width = (100 * c01(share)).toFixed(1) + '%'; }; };
+    // One soft tick per bead as it leaves the hopper (its first peg), pitched to where its reading sits on the scale, `gap` s apart. Only from a Fresh batch press.
+    const PENTA = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319]; B.ticks = (vs, sc, gap) => { const a = sc.at(sc.lo), w = sc.at(sc.hi) - a || 1; return K.sound.chord(vs.map((v) => PENTA[Math.round(c01((sc.at(v) - a) / w) * 10)]), { dur: 0.07, type: 'triangle', gain: 1, stagger: gap }); };
+    /* The bead nearest a tap (pointer to drawing units), or −1 when none is within reach. */ B.pick = (svg, ev, pos, reach) => { const m = svg.getScreenCTM(); if (!m) return -1; const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); let best = -1, bd = (reach || 14) * (reach || 14);
+      pos.forEach((p, i) => { const d = (p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y); if (d < bd) { bd = d; best = i; } }); return best; };
+    /* A check of several named facts: true, or the name of the first that broke (the self-test report shows it). */ B.facts = (list) => { for (const f of list) if (f[1] !== true) return 'broke: ' + f[0]; return true; }; return B; })();
+  // ==== end of the shared language ====
+
+  // ==== Beads: the shared motion (dataviz.md, "Copy this code"). Paste unchanged, after the shared language. ====
+  // One engine moves every lesson's beads. Clocks: Tb the beads' move, Ts the step's story, Tl always running; Infinity is the finished picture.
+  // o: {n, r, paint(), leaving() the elements a step change may fade, unmanaged (a group paint never hides), capture() more to snapshot with
+  // each move, tick(dt) before each paint, busy(dt) after it (true while the lesson's own parts move), done() once still (true to go on)}.
+  B.motion = (o) => { const STILL = { kind: 'still', end: 0 }, M = { Tb: Infinity, Ts: Infinity, Tl: 0, sc: STILL, s0: 0, sk: 1, len: 0, times: {}, leave: null, springs: [], dry: false }; M.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    M.instant = () => M.dry || M.reduce || document.documentElement.classList.contains('k-testing');   // tests and reduced motion open every step finished
+    M.drawn = Array.from({ length: o.n }, () => ({ x: 170, y: 224, r: o.r, a: 1 })); M.snap = () => M.drawn.map((d) => ({ x: d.x, y: d.y, r: d.r, a: d.a })); M.live = (kind) => M.Tb !== Infinity && (!kind || M.sc.kind === kind); M.moving = (kind) => M.live(kind) && M.Tb < M.sc.end;
+    M.spring = (w, z) => { const s = B.spring(w, z); M.springs.push(s); return s; }; M.rest = () => M.springs.forEach((s) => { s.v = s.to; s.vel = 0; }); const grab = (s) => Object.assign(s, o.capture ? o.capture() : {});
+    /* Where the beads are now, as the start of a move; leaving a pour early, a bead not yet released starts from its place before the pour. */ M.fromNow = () => { const f = M.snap(); if (M.live('pour')) f.forEach((d, i) => { if (M.Tb < M.sc.rel[i]) Object.assign(d, M.sc.from[i], { a: d.a }); }); return f; };
+    // pour: the old pile sinks while bead i leaves the hopper at rel[i], strikes its way down the field (y0..y1) and lands on pile[i].
+    M.pour = (pile, y0, y1, t0, slow) => { const rel = B.releases(o.n, t0, slow), land = rel.map((r, i) => B.landed(r, pile[i], y0, y1)); return grab({ kind: 'pour', from: M.snap(), rel, land, slow, hold: slow ? 0.2 : 0, end: Math.max(...land) + B.T.bounce }); };
+    // hop: bead i leaves where it is at t[i] for its place, dur s, on an arc `lift` high (landing with a bounce) or eased (B.backOut overshoots 6%).
+    M.hop = (t, dur, lift, ease) => grab({ kind: 'hop', from: M.fromNow(), t, dur, lift, ease: ease || K.ease, end: Math.max(...t) + dur + (lift ? B.T.bounce : 0) }); M.settle = (gap) => M.hop(M.drawn.map((d, i) => (gap || 0) * i), B.T.settle, 0, B.backOut);   // a slider or a drag
+    M.arc = (gap, lift) => M.hop(M.drawn.map((d, i) => 0.03 + gap * i), B.T.fly, lift, K.ease);    // a fresh batch or a choice re-sorts
+    M.finish = () => M.hop(M.drawn.map((d, i) => 0.012 * i), 0.55, 0, K.ease);                    // left mid-pour: every bead home within 1.2 s
+    // tip: from t0 the pile turns onto its side, then the beads peel into the time view one every B.T.peel; untip: back, last first, then it stands.
+    M.tip = (t0) => { const p0 = t0 + B.T.tip + 0.1; return grab({ kind: 'tip', from: M.fromNow(), t0, peel: M.drawn.map((d, i) => p0 + B.T.peel * i), end: p0 + B.T.peel * (o.n - 1) + B.T.fly + B.T.bounce }); };
+    M.untip = () => { const t = M.drawn.map((d, i) => 0.05 + 0.018 * (o.n - 1 - i)), ua = 0.05 + 0.018 * (o.n - 1) + 0.45; return grab({ kind: 'untip', from: M.snap(), t, dur: 0.45, ua, end: ua + B.T.tip }); };
+    // Bead i now, bound for tgt[i]; pile[i] its place in the pile; g.field() the field now {y0, y1, x(i, row)}; g.A, g.rug, g.run the tip's hinge, side pile, time view.
+    M.place = (i, tgt, pile, g) => { const T = M.Tb, s = M.sc; if (T === Infinity || s.kind === 'still') return { x: tgt[i].x, y: tgt[i].y, r: tgt[i].r, a: 1 };
+      if (s.kind === 'pour') { const f = g.field(), q = B.pour(T, s.rel[i], (row) => f.x(i, row), pile[i], f.y0, f.y1); if (q) return q; const h = s.from[i], e = K.ease(B.c01((T - s.hold) / 0.3)); return { x: h.x, y: h.y + 10 * e, r: h.r, a: h.a * (1 - e) }; }
+      if (s.kind === 'hop') { const h = B.hop(s.from[i], tgt[i], (T - s.t[i]) / s.dur, s.lift, s.ease, T - s.t[i] - s.dur); h.a = B.lerp(s.from[i].a == null ? 1 : s.from[i].a, 1, B.c01(T / 0.2)); return h; }
+      if (s.kind === 'tip') { const q = (T - s.peel[i]) / B.T.fly; if (q >= 0) return B.hop(g.rug[i], g.run[i], q, 7, K.ease, T - s.peel[i] - B.T.fly);
+        const side = B.tip(pile[i], K.arrive(T, s.t0, B.T.tip), g.A), w = K.arrive(T, 0, 0.3), f = s.from[i]; return { x: B.lerp(f.x, side.x, w), y: B.lerp(f.y, side.y, w), r: B.lerp(f.r, side.r, w), a: B.lerp(f.a, 1, B.c01(T / 0.2)) }; }
+      if (s.kind === 'untip') { const q = (T - s.t[i]) / s.dur; if (q < 1) return B.hop(s.from[i], g.rug[i], q, 7, K.ease); const b = B.tip(pile[i], 1 - K.arrive(T, s.ua, B.T.tip), g.A); return { x: b.x, y: b.y, r: b.r, a: 1 }; } return null; };   // a lesson's own move (kind 'own', say) places its beads itself
+    // The running statistics count only the beads that have landed. M.hits: the pegs a pouring bead has just struck, for B.pegHit.
+    M.landedAt = (i) => { const s = M.sc; return s.kind === 'pour' ? s.land[i] : s.kind === 'tip' ? s.peel[i] + B.T.fly : s.kind === 'hop' && s.lift ? s.t[i] + s.dur : -Infinity; }; M.counted = (i) => M.Tb === Infinity || M.Tb >= M.landedAt(i);
+    M.hits = (xAt) => { const out = []; if (M.live('pour')) M.sc.rel.forEach((r, i) => { const tau = M.Tb - r, f = 12 * tau / B.T.field, row = Math.floor(f), since = (f - row) * B.T.field / 12; if (tau > 0 && tau < B.T.field && row >= 1 && since < 0.07) out.push({ x: xAt(i, row), row, since }); }); return out; };
+    /* The story: parts arrive by a timetable {name: [start, dur]} after s0, squeezed by sk so a step settles within 5 s. */ M.arrive = (name, extra) => { const t = M.times[name]; return t ? K.arrive(M.Ts, M.s0 + t[0] * M.sk + (extra || 0), t[1] * M.sk) : 1; };
+    M.plan = (scene, start, len, times, squeeze) => { const k = squeeze ? Math.max(0.35, Math.min(1, (4.8 - start) / Math.max(0.01, len))) : 1; return { scene, start, len, times: times || {}, k, end: Math.max(scene.end, start + len * k) }; };
+    /* A new step, or a choice that changes the story: what showed and now hides fades where it stands (0.35 s) while the plan runs. mode 'first' | 'replay'. */ M.enter = (plan, mode) => { M.times = plan.times; M.leave = null; if (mode === 'first' || M.instant()) { M.Tb = M.Ts = Infinity; M.sc = STILL; return false; }
+      if (mode !== 'replay') M.leave = o.leaving().filter((el) => el.getAttribute('display') !== 'none').map((el) => [el, el.style.opacity === '' ? 1 : +el.style.opacity]); Object.assign(M, { sc: plan.scene, Tb: 0, Ts: 0, s0: plan.start, sk: plan.k, len: plan.len }); M.anim.play(); return true; };
+    M.move = (scene) => { if (M.instant()) { M.Tb = Infinity; M.sc = STILL; return false; } M.sc = scene; M.Tb = 0; M.anim.play(); return true; }; M.fade = () => { if (!M.leave) return; const f = M.Ts === Infinity ? 0 : 1 - K.arrive(M.Ts, 0, 0.35);   // the last thing paint() does
+      if (f > 0) M.leave.forEach(([el, a]) => { if (el.getAttribute('display') === 'none') B.vis(el, a * f); }); else { M.leave.forEach(([el]) => { if (el.parentNode === o.unmanaged) el.setAttribute('display', 'none'); }); M.leave = null; } }; M.anim = K.anim({ button: false, label: 'Beads', step: (dt) => {
+      M.Tl += dt; if (M.Tb !== Infinity) M.Tb += dt; if (M.Ts !== Infinity) M.Ts += dt; B.springs(M.springs, dt); if (o.tick) o.tick(dt); o.paint(); const more = o.busy ? o.busy(dt) : false;
+      if ((M.Tb !== Infinity && M.Tb < M.sc.end + 0.2) || (M.Ts !== Infinity && M.Ts < M.s0 + M.len * M.sk + 0.1) || !B.still(M.springs) || more) return true; if (M.Tb !== Infinity || M.Ts !== Infinity) { M.Tb = M.Ts = Infinity; o.paint(); } return o.done ? !!o.done() : false; } });
+    M.idle = () => M.Tb === Infinity && M.Ts === Infinity && !M.anim.playing(); document.addEventListener('visibilitychange', () => { if (!document.hidden && !M.anim.playing() && (M.Tb !== Infinity || M.Ts !== Infinity)) { M.Tb = M.Ts = Infinity; o.paint(); if (o.done) o.done(); } }); return M; };
+  // ==== end of the shared motion ====
+
+  // ==== Swarm: the shared additions (swarm.md, "Copy this code"). Paste unchanged, after the shared motion. ====
+  // Readings as a beeswarm: each bead at its value, packed about one line, coloured by its distance from the mean; past an end, in a pile past a
+  // gap. A pour lands as a pile, then rises into it (0.75 s a bead). Beads sit one unit apart; a ringed one keeps 6 more.
+  (() => { B.T.rise = 0.75; B.T.dt = 0.032; B.GAP = 1; B.RING = 6;
+    // Offsets from the line, best first: each round the bead of ids whose closest free spot is nearest the line takes it (leftmost on a tie); a tie
+    // of sides to the one with fewer neighbours; a bigger, ringed bead only above. ys, on: beads placed already.
+    B.swarmY = (xs, rs, ids, ys, on) => { ys = ys || []; on = on || []; const r0 = Math.min(...rs), dd = (i, j) => rs[i] + rs[j] + B.GAP, sp = {}, left = ids.slice();
+      const find = (i) => { const nb = on.filter((j) => Math.abs(xs[j] - xs[i]) < dd(i, j)), c = [0]; let s = 0;
+        nb.forEach((j) => { const h = Math.sqrt(dd(i, j) ** 2 - (xs[j] - xs[i]) ** 2); c.push(ys[j] - h, ys[j] + h); s += Math.sign(ys[j]); });
+        const up = s ? s > 0 : i % 2 === 0; c.sort((a, b) => { const k = Math.abs(a) - Math.abs(b); return Math.abs(k) > 1e-6 ? k : up ? a - b : b - a; });
+        return c.find((y) => (rs[i] <= r0 || y < 1e-9) && nb.every((j) => (xs[j] - xs[i]) ** 2 + (ys[j] - y) ** 2 >= dd(i, j) ** 2 - 1e-6)); }; left.forEach((i) => { sp[i] = find(i); });
+      while (left.length) { let m = 0; left.forEach((i, k) => { const q = Math.abs(sp[i]) - Math.abs(sp[left[m]]); if (q < -1e-6 || (q < 1e-6 && xs[i] < xs[left[m]])) m = k; });
+        const i = left.splice(m, 1)[0]; ys[i] = sp[i]; on.push(i); left.forEach((j) => { if ((xs[j] - xs[i]) ** 2 + (sp[j] - ys[i]) ** 2 < dd(i, j) ** 2 - 1e-6) sp[j] = find(j); }); } return ys; };
+    // Readings on a meter's marks fall in columns, so they pack as a honeycomb: each column's beads take the places nearest the line, alternately
+    // above and below (an odd one to the side with fewer), every other column half a place up (legal while p <= w / 0.866), whichever way // leaves the tallest reach least. -> ys
+    B.comb = (col, ids, p) => { const by = {}, ys = []; ids.forEach((i) => { (by[col[i]] = by[col[i]] || []).push(i); }); const cs = Object.keys(by).map(Number).sort((a, b) => a - b);
+      const cost = (ph) => Math.max(0, ...cs.map((c) => ((c + ph) % 2 ? Math.ceil(by[c].length / 2) - 0.5 : Math.ceil((by[c].length - 1) / 2)))), ph = cost(1) < cost(0) ? 1 : 0; let bal = 0;
+      cs.forEach((c) => { const h = (c + ph) % 2, sd = bal < 0 ? 1 : bal > 0 ? -1 : c % 2 ? 1 : -1;
+        by[c].forEach((i, j) => { const y = h ? (j % 2 ? -sd : sd) * (Math.floor(j / 2) + 0.5) : (j % 2 ? sd : -sd) * Math.ceil(j / 2); ys[i] = y * p; bal += Math.sign(y); }); }); return ys; };
+    B.alt = (k) => (k % 2 ? -(k + 1) / 2 : k / 2);   // row k of a stack mirrored about a line: 0 on it, then above, below, above...
+    // The overflow piles of a scale: w wide, past a gap at each end. rows(): ids stacked `per` across about x, row j at y(j).
+    B.ends = (sc, w, gap) => ({ lo: { x0: sc.a0 - gap - w, x1: sc.a0 - gap, dir: -1 }, hi: { x0: sc.a1 + gap, x1: sc.a1 + gap + w, dir: 1 }, a0: sc.a0, a1: sc.a1 });
+    const rows = (pos, ids, x, w, p, r, y) => { const per = Math.max(1, Math.floor((w + B.GAP) / p)); ids.forEach((i, j) => { const row = Math.floor(j / per), n = Math.min(per, ids.length - row * per); pos[i] = { x: x + (j % per - (n - 1) / 2) * p, y: y(row), r }; }); };
+    // The swarm of vs on sc about y = line, `half` room each way: on the meter's marks a honeycomb, else best first, the ringed one last; a coarse
+    // meter's wide column in bricks; past an end, in its pile. Too tall, every bead shrinks. -> {r, pitch, line, pos, ext, over, cnt, per}
+    B.swarm = (vs, sc, line, half, fit, ends, ring) => { const w = Math.abs(sc.w), ord = vs.map((v, i) => i).filter((i) => i !== ring).sort((a, b) => sc.at(vs[a]) - sc.at(vs[b]) || a - b).concat(ring >= 0 ? [ring] : []);
+      const lay = (r) => { const p = 2 * r + B.GAP, pos = new Array(vs.length), over = { lo: [], hi: [] }, main = [], cnt = {}, brick = !!sc.col && w + B.GAP >= 2 * p;
+        ord.forEach((i) => { const o = sc.off(vs[i]); (o < 0 ? over.lo : o > 0 ? over.hi : main).push(i); if (!o && sc.col) cnt[sc.col(vs[i])] = (cnt[sc.col(vs[i])] || 0) + 1; });
+        if (brick) { const by = {}; main.forEach((i) => { const c = sc.col(vs[i]); (by[c] = by[c] || []).push(i); });
+          Object.keys(by).forEach((c) => { const m = sc.mid(+c), a = Math.max(m - w / 2, ends.a0), b = Math.min(m + w / 2, ends.a1); rows(pos, by[c], (a + b) / 2, b - a, p, r, (k) => line + B.alt(k) * p); }); }
+        else { const xs = vs.map((v) => sc.at(v)), rs = vs.map((v, i) => (i === ring ? r + B.RING : r)), ids = main.filter((i) => i !== ring), col = vs.map((v) => sc.col(v));
+          const comb = !!sc.col && 0.866 * p <= w + 1e-6 && ids.every((i) => Math.abs(xs[i] - sc.mid(col[i])) < 0.01 * w), on = comb ? ids.slice() : [], ys = comb ? B.comb(col, ids, p) : B.swarmY(xs, rs, ids, [], on);
+          if (main.includes(ring)) B.swarmY(xs, rs, [ring], ys, on); main.forEach((i) => { pos[i] = { x: xs[i], y: line + ys[i], r }; }); }
+        ['lo', 'hi'].forEach((k) => rows(pos, over[k], (ends[k].x0 + ends[k].x1) / 2, ends[k].x1 - ends[k].x0, p, r, (j) => line + B.alt(j) * p)); let ext = 0; pos.forEach((q) => { ext = Math.max(ext, Math.abs(q.y - line) + q.r); });
+        return { r, pitch: p, line, pos, ext, over, cnt, per: brick ? Math.floor((w + B.GAP) / p) : 1 }; };
+      const s = lay(fit.r); if (s.ext <= half + 1e-6) return s; let lo = 1, hi = fit.r; for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; if (lay(m).ext <= half + 1e-6) lo = m; else hi = m; } return lay(lo); };
+    // The pile a pour lands on: B.stack's, a reading past an end in that end's pile.
+    B.heap = (vs, sc, base, top, fit, ends) => { const on = vs.map((v, i) => i).filter((i) => !sc.off(vs[i])), st = B.stack(on.map((i) => vs[i]), sc, base, top, fit), pos = new Array(vs.length); on.forEach((i, j) => { pos[i] = st.pos[j]; });
+      ['lo', 'hi'].forEach((k) => { const e = ends[k]; rows(pos, vs.map((v, i) => i).filter((i) => sc.off(vs[i]) === e.dir), (e.x0 + e.x1) / 2, e.x1 - e.x0, st.pitch, st.r, (j) => base - 1.5 - st.r - j * st.pitch); }); return Object.assign({}, st, { pos }); };
+    // The fade: z SDs from the mean, cat2 below and cat1 above, mixed with the page (26% at the mean) or on the dark page a neutral grey (14%), the
+    // role itself from 2.6 SD. lo: another share at the mean (small dots).
+    B.fade = (z, lo) => { const dk = K.theme.dark; lo = lo == null ? (dk ? 14 : 26) : lo; return 'color-mix(in srgb, var(--k-' + (z < 0 ? 'cat2' : 'cat1') + ') ' + Math.round(lo + (100 - lo) * Math.min(1, Math.abs(z) / 2.6)) + '%, ' + (dk ? 'color-mix(in srgb, var(--k-ink) 30%, var(--k-bg))' : 'var(--k-bg)') + ')'; };
+    // B.blooms: a disc under each glint. B.paint: B.draw, k 0..1 of the way to its colour: the old body dims to a ghost (k 0.12 to 0.27), then the
+    // colour wells up from the centre in a faint wash of itself (to 0.52; never two hues at once), then a swell of 8% and back; a warning mixes in.
+    B.blooms = (bs) => bs.forEach((b) => { b.f = K.svg('circle', { 'pointer-events': 'none' }); b.g.before(b.f); });
+    B.paint = (b, d, warn, floor, z, k) => { const s = k > 0 && k < 1 ? 1 + 0.08 * Math.sin(Math.PI * B.c01((k - 0.6) / 0.4)) : 1, u = B.c01((k - 0.27) / 0.25), on = d && d.a > 0.002 && !d.hollow && k > 0.002;
+      B.draw(b, d && Object.assign({}, d, { r: d.r * s }), warn, floor); const f = B.fade(z, d && d.r < 3 ? (K.theme.dark ? 24 : 40) : null), c = on && (warn > 0 ? 'color-mix(in srgb, var(--k-warn) ' + Math.round(100 * Math.min(1, warn)) + '%, ' + f + ')' : f);
+      if (B.vis(b.f, on && u > 0 && u < 1 ? Math.min(1, d.a) : 0)) { B.set(b.f, { cx: d.x, cy: d.y, r: Math.max(0, d.r * s - 0.6) * K.ease(u) }); b.f.style.fill = c; }
+      if (!on) return; const a = Math.min(1, d.a); if (u > 0) { b.c.style.fill = c; if (u < 1) b.c.style.opacity = (a * (0.15 + 0.85 * u)).toFixed(3); } else b.c.style.opacity = (a * (1 - 0.85 * B.c01((k - 0.12) / 0.15))).toFixed(3); b.g.style.opacity = (a * B.lerp(1, 0.2 + 0.8 * Math.min(1, Math.max(warn, Math.abs(z) / 2.6)), k)).toFixed(3); };
+    // The swarm's outline, mirrored, v0..v1: the reach of the beads within 3/4 of a column, relaxing 0..1 into expect(v) beads; thinner than a bead,
+    // it opens round any bead there (drawn under the beads, so a taller one sits over it). -> {up, dn, area}.
+    B.mirror = (sc, sw, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), w = Math.abs(sc.w), n = Math.max(1, Math.ceil(Math.abs(b - a) / (w / 6))), per = sw.per || 1, U = [], D = [];
+      const on = sw.pos.filter((q) => q && q.x >= Math.min(sc.a0, sc.a1) && q.x <= Math.max(sc.a0, sc.a1)); for (let k = 0; k <= n; k++) { const x = B.lerp(a, b, k / n); let sky = 0, ring = 0;
+        on.forEach((q) => { const dx = Math.abs(q.x - x), dy = Math.abs(q.y - sw.line), c = q.r + 0.8; if (dx < 0.75 * w) sky = Math.max(sky, dy + c); if (dx < c) ring = Math.max(ring, dy + Math.sqrt(c * c - dx * dx)); });
+        const bell = expect(sc.val(x)) / per * sw.pitch / 2, h = B.lerp(sky, Math.max(bell, B.lerp(bell, ring, B.c01(2 - 2 * bell / sw.pitch))), relax); U.push(B.r2(x) + ' ' + B.r2(sw.line - h)); D.push(B.r2(x) + ' ' + B.r2(sw.line + h)); }
+      return { up: 'M' + U.join('L'), dn: 'M' + D.join('L'), area: 'M' + U.join('L') + 'L' + D.reverse().join('L') + 'Z' }; };
+    // The tip's hinge: about the line at ref onto a spine at x1 (value up the page, k), its depth squeezed to `room`.
+    B.swarmAnchor = (sw, sc, sv, ref, spine, room) => { const k = Math.abs(sv.w / sc.w); return { x0: sc.at(ref), y0: sw.line, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / 2 / Math.max(1, sw.ext)) }; };
+    // A pour's pile holds 0.42 s, then rises in a wave from `mid` (the farthest 0.7 s later), 6% overshoot. B.risen -> [bead, k]. B.chime: from a press.
+    B.rise = (scene, heap, mid) => { const t0 = Math.max(...scene.land) + 0.42, wave = Math.max(0.35, Math.min(0.7, 4.9 - B.T.rise - t0)), far = Math.max(1, ...heap.map((q) => Math.abs(q.x - mid))); scene.rise = heap.map((q) => t0 + wave * Math.abs(q.x - mid) / far); scene.end = Math.max(scene.end, Math.max(...scene.rise) + B.T.rise); return scene; };
+    B.risen = (T, scene, i, q, heap, sw) => { const u = scene.rise ? (T - scene.rise[i]) / B.T.rise : 0; return u <= 0 ? [q, 0] : [B.hop(heap[i], sw[i], u, 0, B.backOut), B.c01(u)]; };
+    B.chime = (scene) => K.sound.chord([523, 587, 659, 784, 880, 1047], { at: Math.min(...scene.rise), stagger: 0.14, dur: 0.12, type: 'sine', gain: 0.4 });
+  })();
+  // ==== end of the swarm's additions ====
+
+  // ---------- the rule and the examples ----------
+  // A unit's lifetime is t = −ln(u) ÷ λ, u random in (0, 1] (B.uni), λ = 0.1 a year, an example: every unit has the same steady failure
+  // rate at every age. Pairs are units 2k and 2k + 1: a pair in series stops at its first failure, in parallel at its second.
+  // The bathtub is a sketch, not measured: an early extra 0.25 a year fading over about a year, a steady 0.02 a year, and wear-out climbing
+  // steeply near 24 years. H is the failure rate added up so far, h the rate now for each unit still working; a lifetime is where H reaches −ln u.
+  // Batches picked by script (scratchpad seeds.mjs), for the facts the lesson states, never to exaggerate: 3599 has 30 of 50 still working
+  // at 5 years, 27 at 6, 25 at 7 and 18 at 10; in series pairs 21 of 25 at 1 year and 3 at 10; in parallel all 25 at 1 year and 15 at 10.
+  // Bathtub 640 is the batch whose counts in each part of life sit closest to what the sketch expects.
+  const N = 50, RATE = 0.1, SEED = 3599, TSEED = 640, ANSWER = 2.3;
+  const SRC_BEL = 'https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy';
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+  const OWN = B.uni(SEED, N).map((u) => -Math.log(u) / RATE);
+  const TUB = { e0: 0.25, tau: 1, lam: 0.02, T: 24, k: 8 };
+  const Htub = (t) => TUB.e0 * TUB.tau * (1 - Math.exp(-t / TUB.tau)) + TUB.lam * t + Math.pow(t / TUB.T, TUB.k);
+  const htub = (t) => TUB.e0 * Math.exp(-t / TUB.tau) + TUB.lam + (TUB.k / TUB.T) * Math.pow(t / TUB.T, TUB.k - 1);
+  const OWN_TUB = B.uni(TSEED, N).map((u) => B.lifeFrom(Htub, u, 30));
+  const ARRS = ['single', 'series', 'parallel'];
+  const paired = (arr) => arr === 'series' || arr === 'parallel';
+  const ownOf = (arr) => (arr === 'tub' ? OWN_TUB : OWN);
+  const TF = {};
+  const tfOf = (arr) => TF[arr] || (TF[arr] = ownOf(arr).map((t, i, o) => (arr === 'series' ? Math.min(t, o[i ^ 1]) : arr === 'parallel' ? Math.max(t, o[i ^ 1]) : t)));
+  // R: the share still working; h: the failure rate now for each unit (or pair) still working.
+  const Rsys = (arr, t) => { if (arr === 'tub') return Math.exp(-Htub(t)); const R = Math.exp(-RATE * t); return arr === 'series' ? R * R : arr === 'parallel' ? 1 - (1 - R) * (1 - R) : R; };
+  const hsys = (arr, t) => { if (arr === 'tub') return htub(t); const R = Math.exp(-RATE * t); return arr === 'series' ? 2 * RATE : arr === 'parallel' ? 2 * RATE * (1 - R) / (2 - R) : RATE; };
+  const MTBF = (arr) => (arr === 'series' ? 0.5 : arr === 'parallel' ? 1.5 : 1) / RATE;
+  const nSys = (arr) => (paired(arr) ? N / 2 : N);
+  const aliveAt = (arr, t) => { const tf = tfOf(arr); let a = 0; for (let i = 0; i < N; i += paired(arr) ? 2 : 1) if (tf[i] > t + 1e-9) a++; return a; };
+  const RULE = { single: '50 × e^(−λt)', series: '25 pairs × e^(−2λt)', parallel: '25 pairs × (1 − (1 − R)²)', tub: '50 × R, from the sketch' };
+  const MRULE = { single: '1 ÷ λ for one unit', series: '1 ÷ 2λ for a pair', parallel: '1 ÷ 2λ + 1 ÷ λ for a pair', tub: '' };
+
+  // ---------- geometry: viewBox 340 × 300 ----------
+  // The shelf (two rows, a pair to a column) at the top; the pile of failures on a beam at y 176, a column a year, years at 202; under
+  // them the failure rate of the units still working, y 228-268, its own scale at the right (0.1 and 0.3 a year); title and key at 295.
+  // Lifetimes are counts of failures per year, so they keep the stack (B.stack), and the units stay plain accent2: no mean to fade about.
+  const SCL = B.scale(0.5, 29.5, 1, 14, 306), LB = 176, LTOP = 58, LN = LB + 26, SHB = 40, SHG = 13.5, HZ0 = 268, HZT = 228, HZMAX = 0.3, RT = 295;
+  const HZY = (h) => HZ0 - Math.min(h, 99) / HZMAX * (HZ0 - HZT);
+  const FIT = B.fitPile(B.peak(N, 0.01, 0.015), 160.5, 10.76, 5.6);   // the bead every lifetimes view uses (r 4.32)
+  const shelfAt = (i) => ({ x: 170 + ((i >> 1) - 12) * 11, y: SHB - (i & 1) * SHG, r: FIT.r, a: 1 });
+  // Each unit's place in the pile: a column a year, earlier failures lower down. Units that outlast 30 years have none.
+  const LAYS = {};
+  function lay(arr) {
+    if (LAYS[arr]) return LAYS[arr];
+    const tf = tfOf(arr), ids = [];
+    for (let i = 0; i < N; i++) if (tf[i] <= 30) ids.push(i);
+    ids.sort((a, b) => tf[a] - tf[b] || a - b);
+    const lst = B.stack(ids.map((i) => tf[i]), SCL, LB, LTOP, FIT), slot = new Array(N).fill(null);
+    ids.forEach((i, j) => { slot[i] = lst.pos[j]; });
+    return (LAYS[arr] = { tf, lst, slot, own: ownOf(arr) });
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // view: life (the steady rule), tub (the bathtub sketch) or parts (an example UPS). years: the clock's setting (a DO step's before its
+  // answer; after: once answered right); arr: fixed pairs; choice: the Units choice (arr0 its opening); ctl: the Years slider; curve: what the
+  // rule expects, over the pile; mtbf: the dashed MTBF line; gauge: the share bar in the Still working tile; key: what a right answer brings in.
+  const PICK = 'Tap one of the answers.';
+  const LEAD = 'Each bead is one simulated unit in service, say a pump. Each fails at random, at the same steady failure rate λ = 0.1 a year, an example.';
+  const CAP = 'Simulated: each lifetime is t = −ln(u) ÷ λ, with u a random number between 0 and 1.';
+  const LEAD_TUB = 'Each bead is one simulated unit in service. Say its failure rate starts 0.25 a year higher. That extra fades over about a year. The rate then sits at a steady 0.02 a year. Wear-out makes it climb near 24 years.';
+  const CAP_TUB = 'Simulated lifetimes from a sketched failure rate, not measured data.';
+  const ALT_ARR = {
+    single: 'Fifty simulated units on a shelf, the clock\'s hand on a time axis in years, each failed unit piled up by the year it failed under the amber curve the rule expects, and a dashed line at the MTBF.',
+    series: 'The simulated units joined in 25 pairs in series, each pair\'s two units linked. A pair drops off the shelf when either unit fails, and the failure rate strip reads twice as high.',
+    parallel: 'The simulated units in 25 pairs in parallel, each pair held in one harness. A failed unit stays on the shelf, drawn hollow, until its partner fails too. The failure rate strip starts at zero and climbs.',
+  };
+  const STEPS = [
+    { show: true, name: 'Fifty units', view: 'life', years: 5, ctl: true, demo: true, tiles: ['alive', 'rate'],
+      still: () => stillAt(0, { years: 5 }),
+      alt: 'Fifty simulated units sit in two rows on a shelf, with a clock\'s hand on a time axis in years below. Each unit drops onto the axis when it fails and piles up by the year it failed. Under the years, a strip draws the failure rate of the units still working, flat.',
+      text: 'Fifty units sit on a shelf. Each drops off when it fails. Drag Years in service. Units drop as the clock runs. The strip below reads flat at 0.1 a year. That is the *failure rate*: failures each year for each unit still working. Here an old unit is as likely to fail next month as a new one. The shelf empties fastest at first only because more units are there to fail.',
+      read: 'Fifty units sit on a shelf. Each drops off when it fails. Here the clock has run 5 years, and the units that failed have dropped. The strip below reads flat at 0.1 a year. That is the *failure rate*: failures each year for each unit still working. Here an old unit is as likely to fail next month as a new one. The shelf empties fastest at first only because more units are there to fail.' },
+    { name: 'The next year', view: 'life', years: 5, after: 6, key: 'year', tilesAfter: ['alive'],
+      alt: 'Fifty simulated units at 5 years in service: some still on the shelf, the rest piled up by the year they failed. The failure rate strip is flat.',
+      altAfter: 'The clock runs on to 6 years, and a few more units drop off the shelf.',
+      task: 'At 5 years, say 30 units are still working. About how many fail in the next year?',
+      opts: ['About 3', 'About 5', 'About 1, as the weak ones have already gone'], want: 'About 3',
+      why: 'The rate counts failures each year for each unit still working. So about 30 × 0.1 = 3 are expected to fail. A few either side is normal. At a steady rate age changes nothing, so the units left are no stronger. A right answer runs the clock on to 6 years.',
+      hint: 'Not quite. The rate counts failures for each unit still working. Here it does not change with age.',
+      hints: { 'About 5': 'Not quite. That is 50 × 0.1. Only the units still working can fail.' } },
+    { show: true, name: 'The share still working', view: 'life', years: 5, ctl: true, curve: true, mtbf: true, gauge: true, tiles: ['alive', 'expect', 'mtbf'],
+      still: () => stillAt(2, { years: 5 }),
+      alt: 'The shelf of simulated units at 5 years, with an amber curve over the pile showing what the rule expects, and a dashed line at the MTBF of 10 years.',
+      text: 'The share still working is the *reliability*, R. Each short spell, the shelf loses the same fraction of what is left. That gives the decay curve you know from a capacitor: R = e^(−λt). At 5 years, R = e^(−0.5), about 0.61. So the rule expects 30.3 of the fifty. *MTBF* means mean time between failures. A unit fails 0.1 times for each year it runs. So on average it runs 1 ÷ λ = 10 years to a failure.' },
+    { name: 'At 10 years', view: 'life', years: 5, after: 10, curve: true, mtbf: true, gauge: true, key: 'mtbf', tilesAfter: ['alive'],
+      alt: 'The shelf of simulated units at 5 years, with the rule\'s curve over the pile and a dashed line at the MTBF.',
+      altAfter: 'The clock runs on to the MTBF, 10 years, and only about 37% are left on the shelf.',
+      task: 'The MTBF here is 10 years. At 10 years in service, what share of the units still work?',
+      opts: ['About 37%', 'About half', 'Nearly all, as 10 years is their mean life'], want: 'About 37%',
+      why: 'Put t = 10 into the rule: R = e^(−0.1 × 10) = e^(−1), about 0.37. So only about 37% reach the MTBF. Most lifetimes are short, and a few long ones pull the mean up. A right answer runs the clock on to 10 years.',
+      hint: 'Not quite. Put t = 10 into R = e^(−0.1t).',
+      hints: { 'About half': 'Not quite. The MTBF is a mean, not a middle. Put t = 10 into R = e^(−0.1t).' } },
+    { show: true, name: 'At the MTBF', view: 'life', years: 5, ctl: true, curve: true, mtbf: true, gauge: true, tiles: ['alive', 'expect', 'mtbf'],
+      still: () => stillAt(4, { years: 10 }),
+      alt: ALT_ARR.single,
+      text: 'Slide to 10 years. The shelf holds close to the 18.4 the rule expects. That is about 37%, the same 0.37 you meet after one time constant. Most units fail before the mean lifetime. A few long-lived units pull the mean up. A long high tail did the same with insulation resistance. Half have failed by about 7 years. So the MTBF is a rate turned over, not a life to count on.',
+      read: 'At 10 years, the shelf holds close to the 18.4 the rule expects. That is about 37%, the same 0.37 you meet after one time constant. Most units fail before the mean lifetime. A few long-lived units pull the mean up. A long high tail did the same with insulation resistance. Half have failed by about 7 years. So the MTBF is a rate turned over, not a life to count on.' },
+    { name: 'Failed by 5 years', view: 'life', years: 0, after: 5, curve: true, mtbf: true, key: 'five', tilesAfter: ['alive'],
+      alt: 'The full shelf of fifty simulated units at 0 years, with a dashed line at the MTBF.',
+      altAfter: 'The clock runs to 5 years, and the units that failed pile up under the hand.',
+      task: 'λ is 0.1 a year. What is the chance one unit has failed by 5 years?',
+      opts: ['About 39%', 'About 61%', '50%, as 5 years is half the MTBF'], want: 'About 39%',
+      why: 'At 5 years, R = e^(−0.5), about 0.61. That is the chance a unit still works. So the chance it has failed is 1 − 0.61, about 0.39, or 39%. A right answer runs the clock from 0 to 5 years, and the failed units pile up.',
+      hint: 'Not quite. R is the chance it still works. So the chance it has failed is 1 − R.',
+      hints: { '50%, as 5 years is half the MTBF': 'Not quite. The share does not fall in a straight line. R is the chance it still works, so the chance it has failed is 1 − R.' } },
+    { show: true, name: 'Pairs in series', view: 'life', choice: true, arr0: 'single', years: 10, ctl: true, curve: true, mtbf: true, gauge: true, tiles: ['alive', 'expect', 'mtbf', 'rate'],
+      still: () => stillAt(6, { arr: 'series', years: 10 }),
+      alt: (st) => ALT_ARR[st.arr],
+      text: 'Choose Pairs in series. A pair works only while both units work. A share R of the first units still works. R of those have a working partner. If each unit fails on its own, R × R of pairs still work. That is e^(−2λt). So the rates add to 0.2 a year. The shelf empties twice as fast. The MTBF halves to 5 years. Working case: both work. Failing case: either fails.',
+      read: 'Here the units work as pairs in series, at 10 years. A pair works only while both units work. A share R of the first units still works. R of those have a working partner. If each unit fails on its own, R × R of pairs still work. That is e^(−2λt). So the rates add to 0.2 a year. The shelf empties twice as fast. The MTBF halves to 5 years. Working case: both work. Failing case: either fails.' },
+    { name: 'A pump and its starter', view: 'life', arr: 'series', years: 0, after: 1, curve: true, mtbf: true, key: 'ser1', tilesAfter: ['alive'],
+      alt: 'The simulated units in 25 pairs in series, each pair linked, on a full shelf at 0 years.',
+      altAfter: 'The clock runs one year, and the pairs that lost either unit drop off.',
+      task: 'A pump and its starter are in series. Each has a 0.9 chance of lasting the year. What is the chance the pair lasts the year?',
+      opts: ['0.81', '1.8', '0.9, the chance of each part'], want: '0.81',
+      why: 'Both must last. So take 0.9 of 0.9: 0.9 × 0.9 = 0.81. In series the chances multiply, so the pair is less reliable than either part. A right answer runs one year on pairs in series. At 0.1 a year, each unit lasts it with a chance of about 90%.',
+      hint: 'Not quite. Both must last, so take 0.9 of 0.9.',
+      hints: { '1.8': 'Not quite. A chance can never be more than 1. Both must last, so take 0.9 of 0.9.' } },
+    { show: true, name: 'Pairs in parallel', view: 'life', choice: true, arr0: 'series', years: 10, ctl: true, curve: true, mtbf: true, gauge: true, tiles: ['alive', 'expect', 'mtbf', 'rate'],
+      still: () => stillAt(8, { arr: 'parallel', years: 10 }),
+      alt: (st) => ALT_ARR[st.arr],
+      text: 'Choose Pairs in parallel. A pair works while at least one unit works. So work the failing case: both fail with chance (1 − R) × (1 − R). The pair\'s reliability is 1 − (1 − R)², about 60% at 10 years. The failure rate starts at zero, because one failure leaves a pair working. Two units run, so the first failure comes after 5 years on average. The survivor then runs another 10 on average. So the MTBF is 15 years.',
+      read: 'Here the units work as pairs in parallel, at 10 years. A pair works while at least one unit works. So work the failing case: both fail with chance (1 − R) × (1 − R). The pair\'s reliability is 1 − (1 − R)², about 60% at 10 years. The failure rate starts at zero, because one failure leaves a pair working. Two units run, so the first failure comes after 5 years on average. The survivor then runs another 10 on average. So the MTBF is 15 years.' },
+    { name: 'Two chargers', view: 'life', arr: 'parallel', years: 0, after: 1, curve: true, mtbf: true, key: 'par1', tilesAfter: ['alive'],
+      alt: 'The simulated units in 25 pairs in parallel, each pair in one harness, on a full shelf at 0 years.',
+      altAfter: 'The clock runs one year. A few units fail and stay on the shelf, held by their partners, so every pair still works.',
+      task: 'Two battery chargers run in parallel. Each has a 0.9 chance of lasting the year. What is the chance at least one lasts?',
+      opts: ['0.99', '0.81', '0.18, one working and the other not'], want: '0.99',
+      why: 'Each charger fails with a chance of 0.1. Both fail with a chance of 0.1 × 0.1 = 0.01. So at least one lasts with a chance of 1 − 0.01 = 0.99. The 0.18 counts only one working and the other not. It leaves out both working. A right answer runs one year on pairs in parallel. A failed unit stays, held by its partner.',
+      hint: 'Not quite. The pair fails only if both fail. Find that chance, then take it from 1.',
+      hints: { '0.81': 'Not quite. That is the chance both last. One is enough here. The pair fails only if both fail.' } },
+    { show: true, name: 'The bathtub', view: 'tub', years: 30, ctl: true, curve: true, demo: true, tiles: ['alive', 'expect', 'rate'],
+      still: () => stillAt(10, { years: 30 }),
+      alt: 'Fifty simulated units whose failure rate follows a sketched bathtub, drawn under the years: high early, low and steady in the middle years, rising with wear-out. The failures pile up early and late.',
+      text: 'Real units are rarely steady for life. Units with hidden faults often fail early, so the rate starts high. For most of a useful life it settles low and roughly steady. Then wear-out sets in, and the rate climbs. That shape is the *bathtub curve*. This one is a sketch, not measured. The steady model fits only its flat middle.' },
+    { name: 'Two ages', view: 'life', years: 8, curve: true, mtbf: true, key: 'dots',
+      alt: 'The shelf of simulated units at 8 years, with the failure rate flat at 0.1 a year under the years.',
+      altAfter: 'Two dots on the flat failure rate, at 3 years and at 8 years, sit at the same height.',
+      task: 'Say two units sit in the flat middle of their lives. One has run 8 years, the other 3. Which is more likely to fail next year?',
+      opts: ['The same chance for both', 'The 8-year unit, as it is older', 'The 3-year unit, as the older one has proved itself'], want: 'The same chance for both',
+      why: 'In the flat middle the failure rate is steady. So each unit still working has the same chance of failing next year, whatever its age. There a failure comes by chance, not age. A right answer marks the rate at 3 years and at 8 years. The two marks sit at the same height.',
+      hint: 'Not quite. In the flat middle, the rate does not change with age.' },
+    { name: 'A UPS in series', view: 'parts', parts: 'ups', key: 'add',
+      lead: 'Each bead is one part of an example UPS, joined in series.', caption: 'The failure rates are examples.',
+      alt: 'Three parts of an example UPS in a row, joined in series: a rectifier, a battery and an inverter, with failure rates of 20, 10 and 20 per million hours, each drawn as a length.',
+      altAfter: 'The three lengths slide end to end into one total, 50 per million hours, and the MTBF, 1,000,000 ÷ 50 = 20,000 hours, appears below.',
+      task: 'An example UPS has a rectifier, a battery and an inverter in series. Say their failure rates are 20, 10 and 20 per million hours. What is the UPS\'s MTBF?',
+      opts: ['20,000 hours', '50,000 hours, the weakest part\'s', '200,000 hours, the parts\' MTBFs added'], want: '20,000 hours',
+      why: 'In series, any part\'s failure stops the UPS. So the failure rates add: 20 + 10 + 20 = 50 per million hours. The MTBF turns that over: 1,000,000 ÷ 50 = 20,000 hours. A right answer slides the three rates end to end into one total.',
+      hint: 'Not quite. In series, any failure stops it. So the failure rates add. Then turn the total over.',
+      hints: { '50,000 hours, the weakest part\'s': 'Not quite. The other two parts can fail as well. In series the failure rates add. Then turn the total over.',
+        '200,000 hours, the parts\' MTBFs added': 'Not quite. MTBFs never add in series. The failure rates add. Then turn the total over.' } },
+    { name: 'A shared battery', view: 'parts', parts: 'shared', key: 'fault',
+      lead: 'Each bead is one part: two example UPSs in parallel, fed from one shared battery bank.', caption: 'An example layout, not a real installation.',
+      alt: 'One battery bank feeds two UPSs in parallel, and both feed one load.',
+      altAfter: 'The battery bank fails, and both UPSs stop at once.',
+      task: 'Two UPSs run in parallel from one shared battery bank. Is 1\u00a0−\u00a0(1\u00a0−\u00a0R)² right for the pair?',
+      opts: ['No, too hopeful, as a battery fault can stop both', 'Yes, as parallel pairs always work that way', 'No, it should be R × R'], want: 'No, too hopeful, as a battery fault can stop both',
+      why: 'The parallel rule assumes each unit fails on its own. A shared battery bank breaks that. One battery fault can stop both UPSs at once. So the battery sits in series with the pair, and the pair is less reliable than the rule promises. A right answer shows the battery bank failing and both UPSs stopping.',
+      hint: 'Not quite. The parallel rule assumes each unit fails on its own.' },
+  ];
+  const FINISH = 'With a steady failure rate λ, the share of units still working after a time t is e^(−λt). So only about 37% reach the *MTBF* of 1 ÷ λ.';
+
+  // Each screen's own state: pick and got ('right', 'wrong' or 'empty') and why for a puzzle; years and arr its own settings.
+  const blank = (i) => ({ pick: null, got: null, why: false, years: STEPS[i].years == null ? 5 : STEPS[i].years, arr: STEPS[i].arr0 || 'single', moved: false });
+  let S = STEPS.map((d, i) => blank(i));
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const arrOf = (i, st) => { const d = STEPS[i]; return d.view === 'tub' ? 'tub' : d.choice ? st.arr : d.arr || 'single'; };
+  const yearsOf = (i, st) => { const d = STEPS[i]; if (d.show) return st.years; return st.got === 'right' && d.after != null ? d.after : d.years; };
+
+  // ---------- words: *a key term* is highlighted (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g, str = String(s || '');
+    let at0 = 0, m;
+    while ((m = re.exec(str))) {
+      if (m.index > at0) node.appendChild(document.createTextNode(str.slice(at0, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at0 = m.index + m[0].length;
+    }
+    if (at0 < str.length) node.appendChild(document.createTextNode(str.slice(at0)));
+  }
+
+  // ---------- controls and readouts ----------
+  let ARR = 'single';   // the arrangement the shelf shows now
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const arrCh = K.choice({ id: 'arr', label: 'Units', options: [{ value: 'single', label: 'One by one' }, { value: 'series', label: 'Pairs in series' }, { value: 'parallel', label: 'Pairs in parallel' }], value: 'single', into: '#choice' });
+  const yearsCtl = K.control({ id: 'years', label: 'Years in service', min: 0, max: 30, step: 1, value: 5, snap: [10], fmt: (v) => v + (v === 1 ? ' year' : ' years'), into: '#ctl' });
+  const R = {
+    alive: K.readout({ id: 'alive', label: 'Still working', fmt: (v) => v + ' of ' + (paired(ARR) ? '25 pairs' : '50'), hint: 'Counted on the shelf', into: '#outs' }),
+    expect: K.readout({ id: 'expect', label: 'The rule expects', decimals: 1, hint: RULE.single, into: '#outs' }),
+    mtbf: K.readout({ id: 'mtbf', label: 'MTBF', unit: 'years', decimals: 0, hint: MRULE.single, into: '#outs' }),
+    rate: K.readout({ id: 'rate', label: 'Failure rate now', unit: 'a year', decimals: 2, hint: 'For each unit still working', into: '#outs' }),
+  };
+  const GAUGE = B.gauge(R.alive, Math.exp(-1)), gaugeEl = R.alive.el.lastChild;   // the share still working; its tick at 37%
+  const hintOf = (r) => r.el.querySelector('.k-hint'), labOf = (r) => r.el.querySelector('.k-readout-label');
+  const setText = (e, t) => { if (e && e.textContent !== t) e.textContent = t; };
+
+  // ---------- the drawing: every element made once, moved in paint() ----------
+  const el = (id) => document.getElementById(id);
+  const svg = el('scene'), G = B.layers(svg), ALL = [];
+  // The shared figure's colour key names the fade. Every unit here is a plain accent2 bead, nothing is coloured, so the key stays hidden.
+  const fkey = el('fkey'), fkDots = [-2.6, -1.5, -0.5, 0.5, 1.5, 2.6].map((z, j) => [B.add(el('fkeyDots'), 'circle', { class: 'bd-kb', cx: B.r2(7 + j * 14.4), cy: 7, r: 5.8 }), z]);
+  fkey.hidden = true;
+  const A = (g, tag, attrs, text) => { const e = B.add(g, tag, attrs, text); ALL.push(e); return e; };
+  // Under the units: the MTBF and the clock's hand. The shelf, each pair's link (series) or harness (parallel, outlines first, so
+  // neighbouring harnesses stay apart). The beam, its ticks; the units; the parts of the UPS.
+  const mtbfLine = A(G.under, 'line', { class: 'bd-truth' }), nowLine = A(G.under, 'line', { class: 'bd-now' }), nowHz = A(G.under, 'line', { class: 'bd-now' });
+  const shelfY = B.r2(SHB + FIT.r + 1.6), shelf = A(G.ghosts, 'line', { class: 'bd-shelf', x1: 30, x2: 310, y1: shelfY, y2: shelfY });
+  const harnessOut = Array.from({ length: N / 2 }, () => A(G.ghosts, 'line', { class: 'bd-harness' }));
+  const harnessIn = Array.from({ length: N / 2 }, () => A(G.ghosts, 'line', { class: 'bd-harness in' }));
+  const links = Array.from({ length: N / 2 }, () => A(G.ghosts, 'line', { class: 'bd-link' }));
+  const beam = A(G.scale, 'line', { class: 'bd-beam', x1: 10, x2: 310, y1: LB, y2: LB });
+  const lminor = A(G.scale, 'path', { class: 'bd-tick' }), lmajor = A(G.scale, 'path', { class: 'bd-tick major' });
+  {
+    let lm = '', lM = '';
+    for (let t = 0; t <= 30; t++) { const x = B.r2(SCL.at(t)); if (t % 5) lm += 'M' + x + ' ' + (LB + 1) + 'v2.5'; else lM += 'M' + x + ' ' + (LB + 1) + 'v4'; }
+    B.set(lminor, { d: lm }); B.set(lmajor, { d: lM });
+  }
+  const beads = B.beads(G.beads, N), parts = B.beads(G.beads, 3);
+  B.blooms(beads);   // each unit's colour disc for B.paint; at k 0 it never shows
+  // Over the units: what the rule expects, the failure rate and its dot at the clock, the hand's head, the labels.
+  const curve = A(G.over, 'path', { class: 'bd-curve' });
+  const hzC = A(G.over, 'path', { class: 'bd-hz' }), hzUp = A(G.over, 'path', { class: 'bd-pointer' }), hzDot = A(G.over, 'circle', { class: 'bd-pointer', r: 3.4 });
+  const nowHead = A(G.over, 'path', { class: 'bd-nowhead' }), mtbfLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', y: 57 }, 'MTBF');
+  const stillLab = A(G.over, 'text', { class: 'bd-small', x: 30, y: 13 }, 'still working');
+  const dot3 = A(G.over, 'circle', { class: 'bd-pointer', r: 3.4 });
+  const lab3 = A(G.over, 'text', { class: 'bd-small bd-halo', 'text-anchor': 'middle', y: 247 }, '3 years'), lab8 = A(G.over, 'text', { class: 'bd-small bd-halo', y: 247 }, '8 years');
+  // The years, the failure rate's own scale at the right, its name, the title and the key.
+  const lAxis = A(G.axes, 'g');
+  [0, 5, 10, 15, 20, 25, 30].forEach((t) => B.add(lAxis, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x: B.r2(SCL.at(t)), y: LN }, String(t)));
+  B.add(lAxis, 'line', { class: 'bd-axis', x1: 14, x2: 306, y1: HZ0, y2: HZ0 });
+  B.add(lAxis, 'path', { class: 'bd-tick major', d: 'M306 ' + HZT + 'V' + HZ0 + [0.1, 0.2, 0.3].map((h) => 'M306 ' + B.r2(HZY(h)) + 'h3.5').join('') });
+  [0.1, 0.3].forEach((h) => B.add(lAxis, 'text', { class: 'bd-tn', x: 312, y: B.r2(HZY(h) + 4.5) }, K.fmt(h, { decimals: 1 })));
+  B.add(lAxis, 'text', { class: 'bd-title', x: 14, y: RT }, 'Years in service, simulated');
+  const hzLab = A(G.axes, 'text', { class: 'bd-small', x: 14, y: HZT - 8 });
+  const lKey = A(G.axes, 'g'), lKeyLine = B.add(lKey, 'line', { class: 'bd-curve', y1: 291, y2: 291 }), lKeyText = B.add(lKey, 'text', { class: 'bd-w', 'text-anchor': 'end', x: 330, y: RT });
+  // The example UPS: three parts in series, their names and failure rates, each rate drawn as a length; added end to end, the total and the MTBF.
+  const PX = [70, 170, 270], PY = 64, PR = 9, RATES = [20, 10, 20], NAMES = ['rectifier', 'battery', 'inverter'], SW = 4.4, SEGY = 154, SEGH = 16;
+  const pLink = A(G.under, 'line', { class: 'bd-link', x1: 30, x2: 310, y1: PY, y2: PY });
+  const pNames = NAMES.map((t, k) => A(G.axes, 'text', { class: 'bd-lab', 'text-anchor': 'middle', x: PX[k], y: 96 }, t));
+  const pRates = RATES.map((v, k) => A(G.axes, 'text', { class: 'bd-lab bd-n', 'text-anchor': 'middle', x: PX[k], y: 114 }, String(v)));
+  const pKey = A(G.axes, 'text', { class: 'bd-w', 'text-anchor': 'middle', x: 170, y: 134 }, 'failure rates, per million hours');
+  const segs = RATES.map(() => A(G.over, 'rect', { class: 'seg', y: SEGY, height: SEGH, rx: 3 }));
+  const pDim = A(G.over, 'path', { class: 'bd-dim' }), pDimLab = A(G.over, 'text', { class: 'bd-lab' });
+  B.words(pDimLab, [['50', 'n'], [' per million hours', 'w']]);
+  const pMtbf = A(G.over, 'text', { class: 'bd-lab', 'text-anchor': 'middle', x: 170, y: 232 });
+  B.words(pMtbf, [['MTBF = 1,000,000 ÷ 50 = ', 'w'], ['20,000', 'n'], [' hours', 'u']]);
+  const upsTitle = A(G.axes, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: 170, y: RT }, 'An example UPS, its three parts in series');
+  // Two UPSs in parallel from one battery bank, both feeding one load.
+  const SB = { bat: { x: 64, y: 120 }, a: { x: 184, y: 76 }, b: { x: 184, y: 164 }, load: { x: 292, y: 120 } };
+  const sLines = [[SB.bat, SB.a, 0], [SB.bat, SB.b, 0], [SB.a, SB.load, 8], [SB.b, SB.load, 8]].map(([p, q, o]) => A(G.under, 'line', { class: 'bd-link', x1: p.x, y1: p.y, x2: q.x - o, y2: q.y }));
+  const loadBox = A(G.over, 'rect', { class: 'loadbox', x: SB.load.x - 8, y: SB.load.y - 8, width: 16, height: 16, rx: 2 });
+  const loadLab = A(G.axes, 'text', { class: 'bd-w', 'text-anchor': 'middle', x: SB.load.x, y: 146 }, 'load');
+  const batLab = A(G.axes, 'text', { class: 'bd-lab', 'text-anchor': 'middle', x: SB.bat.x, y: 98 }, 'battery bank');
+  const upsA = A(G.axes, 'text', { class: 'bd-lab', 'text-anchor': 'middle', x: SB.a.x, y: 56 }, 'UPS A');
+  const upsB = A(G.axes, 'text', { class: 'bd-lab', 'text-anchor': 'middle', x: SB.b.x, y: 196 }, 'UPS B');
+  const pulse = A(G.over, 'circle', { class: 'bd-pulse', cx: SB.bat.x, cy: SB.bat.y });
+  const faultLab = A(G.over, 'text', { class: 'bd-wt', 'text-anchor': 'middle', x: 170, y: 236 }, 'a battery fault can stop both');
+  const sharedTitle = A(G.axes, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: 170, y: RT }, 'Two UPSs in parallel, one battery bank');
+
+  // ---------- motion: the shared engine (B.motion) keeps the clocks; each unit falls (B.fall) as the clock's hand passes its lifetime ----------
+  let finished = false, lastStep = -1, lastDone = false, booted = false, FORCE = false, SEEN = new Set(), REC = {};
+  const STILL = { kind: 'still', end: 0 };
+  const CLOCK0 = 0.95, CLOCK_D = 2.0, SHELF_GAP = 0.008, SHELF_D = 0.45, EASE_D = 0.9, RUN_D = 1.4;
+  const FILL_T = { sky: [CLOCK0 + CLOCK_D + 0.3, 0.5], relax: [CLOCK0 + CLOCK_D + 0.85, 0.6] }, FILL_LEN = CLOCK0 + CLOCK_D + 1.45;
+  const LS = Array.from({ length: N }, () => ({ on: false, t: -Infinity, from: null, dn: false, dt: -Infinity, df: null }));
+  let RESET_END = -Infinity, lifeT0 = -Infinity, CK = { from: 5, to: 5, t0: -Infinity, dur: 0, lin: false };
+  const lifeBusy = () => STEPS[at()].view !== 'parts' && (M.Tl < CK.t0 + CK.dur + 0.1 || LS.some((s) => M.Tl - s.t < 1.25 || M.Tl - s.dt < 1) || M.Tl < RESET_END);
+  const M = B.motion({ n: N, r: FIT.r, paint: () => paint(), leaving: () => [], unmanaged: G.tags, busy: () => lifeBusy() });
+  const drawn = M.drawn;
+  const SP = { mt: M.spring(6, 0.8) };
+  // The clock: it may first glide back (a replay, while the units hop back onto the shelf), then run or ease to its setting.
+  const clockNow = () => {
+    if (CK.back != null && M.Tl < CK.t0) return B.lerp(CK.back, CK.from, K.ease(B.c01((M.Tl - CK.bt0) / CK.bdur)));
+    const q = CK.dur > 0 ? B.c01((M.Tl - CK.t0) / CK.dur) : 1;
+    return B.lerp(CK.from, CK.to, CK.lin ? q : K.ease(q));
+  };
+  const freeze = () => { const c = clockNow(); CK = { from: c, to: c, t0: -Infinity, dur: 0, lin: false }; lifeT0 = -Infinity; };
+  // One by one, a unit on the upper row drops onto the lower row's place once the unit under it has gone, so nothing hangs in the air.
+  const dropped = (i, arr) => !paired(arr) && (i & 1) === 1 && LS[i - 1].on && !LS[i].on;
+  const makeLife = () => ({ kind: 'life', from: M.fromNow(), end: CLOCK0 + CLOCK_D + 0.8 });
+  // The shelf at once in the state (arr, years): no motion.
+  function lifeSet(arr, years) {
+    ARR = arr; lifeT0 = -Infinity; CK = { from: years, to: years, t0: -Infinity, dur: 0, lin: false };
+    const tf = tfOf(arr);
+    LS.forEach((s, i) => Object.assign(s, { on: tf[i] <= years + 1e-9, t: -Infinity, from: null, dn: false, dt: -Infinity, df: null }));
+    LS.forEach((s, i) => { s.dn = dropped(i, arr); });
+  }
+  // To (arr, years). 'fill': every unit hops back onto the shelf while the clock glides back, then the clock runs from 0 (a new
+  // arrangement, or a replay); 'run': it runs on at a steady pace (an answer); 'ease': it glides there (the slider).
+  function lifeGo(arr, years, how, extra) {
+    if (M.instant()) { lifeSet(arr, years); return; }
+    if (how === 'fill' || arr !== ARR) {
+      const c0 = clockNow();
+      M.enter(M.plan(makeLife(), 0, FILL_LEN, Object.assign({}, FILL_T, extra || {}), false), 'replay');
+      ARR = arr; lifeT0 = M.Tl;
+      CK = { from: 0, to: years, t0: M.Tl + CLOCK0, dur: years > 0 ? CLOCK_D : 0, lin: true, back: c0, bt0: M.Tl, bdur: 0.6 };
+      LS.forEach((s) => Object.assign(s, { on: false, t: -Infinity, from: null, dn: false, dt: -Infinity, df: null }));
+      return;
+    }
+    if (lifeT0 > -Infinity && M.Tl - lifeT0 < CLOCK0) { CK.to = years; CK.dur = years > 0 ? CLOCK_D : 0; M.anim.play(); return; }
+    const c0 = clockNow();
+    CK = how === 'run' ? { from: c0, to: years, t0: M.Tl + 0.1, dur: Math.abs(years - c0) > 1e-9 ? RUN_D : 0, lin: true }
+      : { from: c0, to: years, t0: M.Tl, dur: Math.abs(years - c0) > 1e-9 ? EASE_D : 0, lin: false };
+    M.anim.play();
+  }
+  // As the clock passes a unit's failure time it falls (or, going back, climbs back onto the shelf).
+  function lifeUpdate(D) {
+    if (M.Tl - lifeT0 < CLOCK0 || M.Tl < RESET_END) return;
+    const c = clockNow();
+    for (let i = 0; i < N; i++) { const on = D.tf[i] <= c + 1e-9; if (on !== LS[i].on) Object.assign(LS[i], { on, t: M.Tl, from: Object.assign({}, drawn[i]) }); }
+    for (let i = 1; i < N; i += 2) { const dn = dropped(i, ARR); if (dn !== LS[i].dn) Object.assign(LS[i], { dn, dt: M.Tl, df: Object.assign({}, drawn[i]) }); }
+  }
+  // Unit i now: hopping onto the shelf (a replay), falling to its place in the pile, or on the shelf (hollow once failed, held by its partner).
+  function lifePos(i, D) {
+    const s = LS[i], sh = shelfAt(s.dn ? i - 1 : i), q = (M.Tl - lifeT0 - SHELF_GAP * i) / SHELF_D;
+    if (q < 1.6 && M.live('life') && M.Tl - lifeT0 < CLOCK0 && M.sc.from) {
+      const a = M.sc.from[i], b = shelfAt(i);
+      if (Math.abs(a.y - b.y) < 4) return B.hop(a, b, q, 2, K.ease, (q - 1) * SHELF_D);
+      return xfade(a, b, q);   // a reset: the pile fades out and the shelf fades in, so nothing reads as a repair
+    }
+    const tau = M.Tl - s.t;
+    if (s.on && D.slot[i]) return tau > 1.2 || !s.from ? Object.assign({}, D.slot[i], { a: 1 }) : B.fall(s.from, D.slot[i], tau);
+    let d = sh;
+    if (tau < 0.45 && s.from) d = s.t < RESET_END ? xfade(s.from, sh, tau / 0.45) : B.hop(s.from, sh, tau / 0.45, 8, K.ease);
+    else if (s.df && M.Tl - s.dt < 1) d = s.dn ? B.fall(s.df, sh, M.Tl - s.dt) : B.hop(s.df, sh, (M.Tl - s.dt) / 0.4, 5, K.ease);
+    return Object.assign({}, d, { a: d.xa == null ? 1 : d.xa, hollow: D.own[i] <= clockNow() + 1e-9 });
+  }
+  // A crossfade from a to b: a fades out, then b fades in.
+  function xfade(a, b, q) { const u = B.c01(q); return u < 0.5 ? Object.assign({}, a, { a: (a.a == null ? 1 : a.a) * (1 - 2 * u) }) : Object.assign({}, b, { a: 2 * u - 1, xa: 2 * u - 1 }); }
+  // Back to an earlier clock on a new step: failed units fade off the pile and fade in on the shelf while the hand glides back.
+  function lifeReset(arr, years) {
+    if (M.instant()) { lifeSet(arr, years); return; }
+    const D = lay(arr); RESET_END = M.Tl + 0.7;
+    for (let i = 0; i < N; i++) { const on = D.tf[i] <= years + 1e-9; if (on !== LS[i].on) Object.assign(LS[i], { on, t: M.Tl, from: Object.assign({}, drawn[i]) }); }
+    for (let i = 1; i < N; i += 2) { const dn = dropped(i, arr); if (dn !== LS[i].dn) Object.assign(LS[i], { dn, dt: M.Tl, df: Object.assign({}, drawn[i]) }); }
+    CK = { from: clockNow(), to: years, t0: M.Tl, dur: 0.6, lin: false }; lifeT0 = -Infinity; M.anim.play();
+  }
+  function halt() { M.anim.pause(); M.Tb = M.Ts = Infinity; M.sc = STILL; M.leave = null; M.times = {}; }
+  const story = (dur, times) => M.enter(M.plan(STILL, 0, dur, times || {}, false));
+  const ans = (T, t0, dur) => (T === Infinity ? 1 : K.arrive(T, t0, dur));   // a right answer's part, on the story clock
+  function enter(id) {
+    if (M.reduce) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- painting ----------
+  const show = (e, a, rise) => { if (B.vis(e, a, rise)) { SEEN.add(e); return true; } return false; };
+  function paintLife(i, d, st) {
+    const arr = ARR, D = lay(arr), pairs = paired(arr), tub = arr === 'tub';
+    if (!FORCE) lifeUpdate(D);
+    const c = clockNow(), cc = Math.min(30, Math.max(0, c)), xc = SCL.at(cc);
+    B.aim(SP.mt, SCL.at(MTBF(arr)), FORCE || M.instant());
+    parts.forEach((b) => B.draw(b, null));
+    // The units, and the shelf they stand on.
+    let hollow = 0, rmin = Infinity, inside = true, tinted = 0;
+    for (let k = 0; k < N; k++) {
+      const q = lifePos(k, D);
+      drawn[k] = q; B.paint(beads[k], q, 0, undefined, 0, 0);   // a plain accent2 unit: k 0, no fade
+      if (beads[k].c.style.fill && !q.hollow) tinted++;
+      if (q.hollow) hollow++;
+      if (q.a > 0.5) { rmin = Math.min(rmin, q.r); if (q.x - q.r < 0 || q.x + q.r > 340 || q.y - q.r < 0 || q.y + q.r > 300) inside = false; }
+    }
+    show(shelf, 1); show(stillLab, 1); setText(stillLab, pairs ? 'pairs still working' : 'still working');
+    // Each pair's link (series) or harness (parallel); it goes as the pair falls.
+    const filling = lifeT0 > -Infinity && M.Tl - lifeT0 < CLOCK0, linkIn = pairs ? (filling && M.live('life') ? K.arrive(M.Tl, lifeT0 + SHELF_D + 0.3, 0.3) : 1) : 0, w = 2 * FIT.r;
+    for (let k = 0; k < N / 2; k++) {
+      const a = drawn[2 * k], b = drawn[2 * k + 1], s = LS[2 * k], down = s.on ? 1 - B.c01((M.Tl - s.t) / 0.15) : 1, al = linkIn * down, ends = { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
+      if (show(links[k], arr === 'series' ? al : 0)) B.set(links[k], ends);
+      if (show(harnessOut[k], arr === 'parallel' ? al : 0)) B.set(harnessOut[k], Object.assign({ 'stroke-width': w + 4.6 }, ends));
+      if (show(harnessIn[k], arr === 'parallel' ? al : 0)) B.set(harnessIn[k], Object.assign({ 'stroke-width': w + 2.2 }, ends));
+    }
+    // The beam and its years; the clock's hand through the pile and the strip.
+    [beam, lminor, lmajor, lAxis, hzLab].forEach((e) => show(e, 1));
+    if (show(nowLine, 1)) B.set(nowLine, { x1: xc, x2: xc, y1: 70, y2: LB - 1 });
+    if (show(nowHead, 1)) B.set(nowHead, { d: 'M' + B.r2(xc) + ' ' + (LB + 1) + 'l-6 9h12z' });
+    if (show(nowHz, 1)) B.set(nowHz, { x1: xc, x2: xc, y1: HZT - 2, y2: HZ0 });
+    // The MTBF, gliding to a pair's.
+    const mta = d.mtbf && !tub ? M.arrive('mtbf') : 0;
+    if (show(mtbfLine, mta)) B.set(mtbfLine, { x1: SP.mt.v, x2: SP.mt.v, y1: 62, y2: LB - 1 });
+    if (show(mtbfLab, mta)) B.set(mtbfLab, { x: SP.mt.v });
+    // The failure rate of the units still working; on the bathtub it is the one amber line, the bathtub itself.
+    hzC.classList.toggle('lead', tub); curve.classList.toggle('quiet', tub); lKeyLine.classList.toggle('quiet', tub);
+    setText(hzLab, tub ? 'failure rate per year, a sketch' : pairs ? 'failure rate per year, per pair' : 'failure rate per year');
+    const tr = B.trace((t) => hsys(arr, t), 0, 30, (t) => SCL.at(t), HZY, 240, HZT);
+    if (show(hzC, 1)) B.set(hzC, { d: tr.d });
+    if (show(hzUp, tr.exit ? 1 : 0)) B.set(hzUp, { d: 'M' + B.r2(tr.exit.x) + ' ' + B.r2(HZT - 8) + 'l-4 7h8z' });
+    const hy = HZY(hsys(arr, cc));
+    if (show(hzDot, hy >= HZT - 0.01 ? 1 : 0)) B.set(hzDot, { cx: xc, cy: hy });
+    // What the rule expects over the pile: the skyline traced, then relaxed into the rule's count for each year.
+    if (d.curve) {
+      const lca = filling ? 1 : M.arrive('sky'), rlx = filling ? 1 : M.arrive('relax'), lc = {};
+      for (let k = 0; k < N; k++) if (LS[k].on && D.slot[k]) { const col = SCL.col(D.tf[k]); lc[col] = (lc[col] || 0) + 1; }
+      const ex = B.colExpect((t) => Rsys(arr, t), N, 1);
+      if (show(curve, lca > 0 && cc > 0.05 ? 1 : 0)) B.set(curve, { d: B.relax(SCL, D.lst, (col) => lc[col] || 0, ex, 0, cc * lca, rlx) });
+      setText(lKeyText, tub ? 'the sketch expects' : 'the rule expects');
+      if (show(lKey, cc > 0.05 ? lca : 0)) { const tw = B.tw(lKeyText); B.set(lKeyLine, { x1: 330 - tw - 21, x2: 330 - tw - 5 }); }
+    }
+    // Two ages on the flat rate, once answered.
+    let dots = 0;
+    if (d.key === 'dots') {
+      const a = st.got === 'right' ? ans(M.Ts, 0.15, 0.45) : 0;
+      if (show(dot3, a)) B.set(dot3, { cx: SCL.at(3), cy: HZY(hsys(arr, 3)) });
+      if (show(lab3, a)) B.set(lab3, { x: SCL.at(3) });
+      if (show(lab8, a)) B.set(lab8, { x: SCL.at(8) + 6 });
+      if (a >= 1) dots = 2;
+    }
+    const alive = aliveAt(arr, cc);
+    Object.assign(REC, { clock: c, alive, hollow, dots, rmin, inside, tinted });
+    if (!FORCE) {
+      R.alive.set(alive); GAUGE(alive / nSys(arr));
+      R.expect.set(nSys(arr) * Rsys(arr, cc)); R.mtbf.set(MTBF(arr)); R.rate.set(hsys(arr, cc));
+    }
+  }
+  function paintParts(i, d, st) {
+    const right = st.got === 'right', T = M.Ts, pa = M.arrive('parts'), la = M.arrive('labs');
+    const rv = (t0, dur) => (right ? ans(T, t0, dur) : 0);
+    for (let k = 0; k < N; k++) B.paint(beads[k], null, 0, undefined, 0, 0);
+    Object.assign(REC, { rmin: PR, inside: true, tinted: 0 });
+    if (d.parts === 'ups') {
+      B.draw(parts[2], null);
+      show(pLink, pa);
+      PX.forEach((x, k) => B.draw(parts[k], { x, y: PY, r: PR, a: pa }));
+      pNames.concat(pRates, [pKey, upsTitle]).forEach((e) => show(e, la));
+      // Each rate as a length under its part; a right answer slides them end to end.
+      const u = K.ease(rv(0.1, 0.8)), W = RATES.map((v) => v * SW), tot = W.reduce((s, x) => s + x, 0);
+      let x0 = 170 - tot / 2;
+      segs.forEach((e, k) => { const a = PX[k] - W[k] / 2, b = x0; x0 += W[k]; if (show(e, la)) B.set(e, { x: B.lerp(a, b, u), width: W[k] }); });
+      const ba = rv(0.95, 0.4), sd = show(pDim, ba), sl = show(pDimLab, ba);
+      if (sd || sl) B.bracket(pDim, pDimLab, 170 - tot / 2, 170 + tot / 2, SEGY + SEGH + 20, -6);
+      const ma = rv(1.45, 0.4);
+      show(pMtbf, ma);
+      REC.add = u >= 1 && ba >= 1 && ma >= 1;
+    } else {
+      sLines.forEach((e) => show(e, pa)); show(loadBox, pa);
+      [loadLab, batLab, upsA, upsB, sharedTitle].forEach((e) => show(e, la));
+      // A right answer: the battery bank fails, and both UPSs stop with it.
+      const wa = rv(0.15, 0.4), off = rv(0.75, 0.3) >= 0.5, ring = rv(0.75, 0.5);
+      B.draw(parts[0], { x: SB.bat.x, y: SB.bat.y, r: PR, a: pa }, wa);
+      [SB.a, SB.b].forEach((q, k) => B.draw(parts[k + 1], Object.assign({ x: q.x, y: q.y, r: PR, a: pa, hollow: off }, ring > 0 && ring < 1 ? { ring } : {})));
+      const pu = rv(0.25, 0.8);
+      if (show(pulse, pu > 0 && pu < 1 ? 0.9 * (1 - pu) : 0)) B.set(pulse, { r: 12 + 14 * pu });
+      const fa = rv(1.05, 0.4);
+      show(faultLab, fa);
+      REC.fault = wa >= 1 && off && fa >= 1;
+    }
+  }
+  function sayFor(i, d, st) {
+    const arr = arrOf(i, st), y = yearsOf(i, st);
+    if (arr === 'tub') {
+      if (y === 0) return 'At 0 years every unit is still on the shelf. The sketched rate starts high.';
+      if (y < 3) return 'Early on, units with hidden faults fail fast. The failure rate starts high and falls.';
+      if (y < 18) return 'In the middle years few fail. The rate sits low and roughly steady, like the steady model.';
+      return 'Many fail early and few for years. Then the survivors wear out together, and the rate climbs steeply.';
+    }
+    if (y === 0) return paired(arr) ? 'At 0 years every pair still works.' : 'At 0 years every unit is still on the shelf.';
+    if (arr === 'series') return 'Watch each linked pair drop at its first failure.';
+    if (arr === 'parallel') return '';
+    if (d.mtbf && y === 10) return '';
+    if (y === 30) return 'By 30 years nearly all have gone, yet the strip stays flat.';
+    if (y < 10) return d.curve ? 'Fifty units wander a little either side of the rule.' : '';
+    return d.mtbf ? 'Past the MTBF, the few left keep failing at the same rate.' : 'The shelf keeps emptying at the same steady rate.';
+  }
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    SEEN = new Set(); REC = {};
+    if (d.view === 'parts') paintParts(i, d, st); else paintLife(i, d, st);
+    REC.key = !fkey.hidden;
+    ALL.forEach((e) => { if (!SEEN.has(e)) e.setAttribute('display', 'none'); });
+    const after = !d.show && st.got === 'right', alt = typeof d.alt === 'function' ? d.alt(st) : d.alt;
+    svg.setAttribute('aria-label', alt + (after && d.altAfter ? ' ' + d.altAfter : ''));
+    const sy = el('say'), s = d.show && !finished ? sayFor(i, d, st) : '';
+    sy.textContent = s; sy.hidden = !s;
+    M.fade();
+  }
+
+  // ---------- Dan's moves ----------
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.got === 'right') return;
+    st.pick = d.opts[k]; st.got = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.got === 'right') return;
+    if (st.pick == null) { st.got = 'empty'; return; }
+    st.got = st.pick === d.want ? 'right' : 'wrong';
+    if (st.got !== 'right') return;
+    // A right answer brings in its working: the clock runs on, the rates add up, or the battery bank fails.
+    story(ANSWER);
+    if (d.view !== 'parts' && d.after != null) lifeGo(arrOf(i, st), yearsOf(i, st), 'run');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || !d.demo || finished) return;
+    lifeGo(arrOf(i, st), yearsOf(i, st), 'fill');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].got !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; halt();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // A screen's controls open where that screen left them (quietly: this is not Dan moving them).
+  function syncCtl(st) {
+    if (yearsCtl.get() !== st.years) yearsCtl.set(st.years, true);
+    if (arrCh.get() !== st.arr) arrCh.set(st.arr, true);
+  }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i], w = lastStep, wd = w >= 0 ? STEPS[w] : null;
+    lastStep = i; enter('stepbox');
+    syncCtl(st); halt();
+    M.springs.forEach((s) => { s.init = false; });
+    if (d.view === 'parts') { story(0.9, { parts: [0, 0.45], labs: [0.25, 0.45] }); return; }
+    freeze();
+    const arr = arrOf(i, st), yrs = yearsOf(i, st);
+    // The first screen opens on a full shelf, and the clock runs to its setting.
+    if (!booted) {
+      booted = true;
+      lifeSet(arr, M.instant() ? yrs : 0);
+      if (!M.instant()) { CK = { from: 0, to: yrs, t0: M.Tl + 0.6, dur: CLOCK_D, lin: true }; M.anim.play(); }
+      return;
+    }
+    if (!wd || wd.view === 'parts') { if (d.demo) { lifeSet(arr, 0); lifeGo(arr, yrs, 'fill'); } else lifeSet(arr, yrs); return; }
+    // What this screen adds arrives by a timetable: the MTBF line, then the curve traces the skyline and relaxes.
+    const times = {};
+    if (d.mtbf && !wd.mtbf) times.mtbf = [0.1, 0.5];
+    if (d.demo || arr !== ARR) { lifeGo(arr, yrs, 'fill', times); return; }
+    if (d.curve && !wd.curve) Object.assign(times, { sky: [0.35, 0.6], relax: [1.0, 0.6] });
+    if (Object.keys(times).length) story(1.7, times);
+    if (yrs < clockNow() - 1e-9) lifeReset(arr, yrs); else lifeGo(arr, yrs, 'ease');
+  }
+  // The still for the read-through: the step settled in the state its words end on.
+  function stillAt(i, patch) {
+    Object.assign(S[i], patch); syncCtl(S[i]); halt(); freeze();
+    if (STEPS[i].view !== 'parts') lifeSet(arrOf(i, S[i]), yearsOf(i, S[i]));
+    M.springs.forEach((s) => { s.init = false; });
+    K.refresh();
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (i !== lastStep) enterStep(i);
+    else if (d.show && !finished) {
+      if (d.ctl && typeof p.years === 'number') {
+        const v = Math.max(0, Math.min(30, Math.round(p.years)));
+        if (v !== st.years) { st.years = v; st.moved = true; lifeGo(arrOf(i, st), v, 'ease'); }
+      }
+      if (d.choice && ARRS.indexOf(p.arr) >= 0 && p.arr !== st.arr) { st.arr = p.arr; lifeGo(p.arr, yearsOf(i, st), 'fill'); }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.got === 'right', arr = arrOf(i, st), life = d.view !== 'parts';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('lead').textContent = d.lead || (d.view === 'tub' ? LEAD_TUB : LEAD);
+    el('cap').textContent = d.caption || (d.view === 'tub' ? CAP_TUB : CAP);
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    replayBtn.el.hidden = finished || !d.show || !d.demo || M.reduce;
+    el('replay').hidden = replayBtn.el.hidden;
+    arrCh.el.hidden = finished || !d.show || !d.choice;
+    el('choice').hidden = arrCh.el.hidden;
+    yearsCtl.el.hidden = finished || !d.show || !d.ctl;
+    el('ctl').hidden = yearsCtl.el.hidden;
+    const tiles = finished || !life ? [] : d.show ? d.tiles || [] : right ? d.tilesAfter || [] : [];
+    Object.keys(R).forEach((k) => { R[k].el.hidden = tiles.indexOf(k) < 0; });
+    el('outs').hidden = !tiles.length;
+    gaugeEl.hidden = !d.gauge;
+    setText(hintOf(R.alive), d.gauge ? 'Counted on the shelf. The tick marks 37%.' : 'Counted on the shelf');
+    setText(labOf(R.expect), arr === 'tub' ? 'The sketch expects' : 'The rule expects');
+    setText(hintOf(R.expect), RULE[arr]);
+    setText(hintOf(R.mtbf), MRULE[arr]);
+    setText(hintOf(R.rate), arr === 'tub' ? 'The sketch\'s rate at this age' : paired(arr) ? 'For each pair still working' : 'For each unit still working');
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.got === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.got === 'wrong' ? hintFor(i, st) : st.got === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    fkDots.forEach(([c, z]) => { c.style.fill = B.fade(z); }); fkey.hidden = true;   // nothing here is coloured by the fade
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  // A step painted in the state given, settled: what it draws. Everything a paint moves is put back as it was.
+  function drawnAt(i, patch) {
+    const keep = { S: S[i], LS: LS.map((s) => Object.assign({}, s)), CK: Object.assign({}, CK), lifeT0, ARR, Tb: M.Tb, Ts: M.Ts, sc: M.sc, times: M.times,
+      sp: M.springs.map((s) => [s.v, s.vel, s.to, s.init]), dr: drawn.map((q) => Object.assign({}, q)) };
+    S[i] = Object.assign({}, keep.S, patch); M.Tb = M.Ts = Infinity; M.sc = STILL; M.times = {}; FORCE = true;
+    if (STEPS[i].view !== 'parts') lifeSet(arrOf(i, S[i]), yearsOf(i, S[i]));
+    M.springs.forEach((s) => { s.init = false; });
+    try { paint(i); return Object.assign({}, REC); }
+    finally {
+      S[i] = keep.S; keep.LS.forEach((s, k) => Object.assign(LS[k], s)); CK = keep.CK; lifeT0 = keep.lifeT0; ARR = keep.ARR;
+      M.Tb = keep.Tb; M.Ts = keep.Ts; M.sc = keep.sc; M.times = keep.times; FORCE = false;
+      M.springs.forEach((s, k) => { [s.v, s.vel, s.to, s.init] = keep.sp[k]; });
+      keep.dr.forEach((q, k) => { drawn[k] = q; });
+      paint();
+    }
+  }
+  K.check('Only 36.7% of units are statistically likely to operate as long as the MTBF: with R(t) = e^(−λt), R at the MTBF of 1 ÷ λ is e^(−1) = 0.368, and of 20,000 lifetimes from the rule on screen at λ = 0.1 a year, about 36.8% outlast 10 years', () => {
+    let k = 0;
+    B.uni(910001, 20000).forEach((u) => { if (-Math.log(u) / RATE > 10) k++; });
+    return B.facts([['e^(−1) = 0.368', near(Rsys('single', MTBF('single')), 0.3679, 1e-4)], ['about 36.8% outlast it', near(k / 20000, 0.368, 0.012)]]);
+  }, { source: SRC_BEL });
+  K.check('The inverse of λ, 1/λ, gives the mean time to failure, the MTBF: at λ = 0.1 a year that is 10 years, and 20,000 lifetimes from the rule on screen average about 10 years', () => {
+    let s = 0;
+    B.uni(920001, 20000).forEach((u) => { s += -Math.log(u) / RATE; });
+    return B.facts([['1 ÷ λ = 10 years', MTBF('single') === 10], ['they average about 10 years', near(s / 20000, 10, 0.3)]]);
+  }, { source: SRC_BEL });
+  K.check('Worked by hand: 30 × 0.1 = 3 and 50 × 0.1 = 5; e^(−0.5) = 0.61, so 50 × e^(−0.5) = 30.3 and 1 − e^(−0.5) = 39%; 50 × e^(−1) = 18.4, 37%; ln 2 ÷ 0.1 = 6.9, about 7 years; in series e^(−2) = 13.5%, 0.1 + 0.1 = 0.2 a year and an MTBF of 5 years; in parallel 1 − (1 − e^(−1))² = 60%, and R added up over all time gives an MTBF of 15 years; 0.9 × 0.9 = 0.81, 1 − 0.1 × 0.1 = 0.99 and 0.9 × 0.1 + 0.1 × 0.9 = 0.18; 20 + 10 + 20 = 50 per million hours, so 1,000,000 ÷ 50 = 20,000 hours, the weakest part alone 50,000 and the MTBFs added 200,000. From the batch shown: 30 of 50 still work at 5 years, 27 at 6, 25 at 7 and 18 at 10; in series 21 of 25 pairs at 1 year and 3 at 10; in parallel all 25 at 1 year and 15 at 10', () => {
+    const f = (v, dp) => K.fmt(v, { decimals: dp });
+    let mp = 0, ms = 0;
+    for (let t = 0; t < 400; t += 0.01) { mp += 0.005 * (Rsys('parallel', t) + Rsys('parallel', t + 0.01)); ms += 0.005 * (Rsys('series', t) + Rsys('series', t + 0.01)); }
+    return B.facts([
+      ['3 and 5', near(30 * RATE, 3, 1e-12) && near(N * RATE, 5, 1e-12)],
+      ['0.61, 30.3 and 39%', f(Math.exp(-0.5), 2) === '0.61' && f(N * Math.exp(-0.5), 1) === '30.3' && f(100 * (1 - Math.exp(-0.5)), 0) === '39'],
+      ['18.4 and 37%', f(N * Math.exp(-1), 1) === '18.4' && f(100 * Math.exp(-1), 0) === '37'],
+      ['about 7 years', f(Math.LN2 / RATE, 1) === '6.9'],
+      ['series: 13.5%, 0.2 a year, 5 years', f(100 * Rsys('series', 10), 1) === '13.5' && near(hsys('series', 3), 0.2, 1e-12) && MTBF('series') === 5 && near(ms, 5, 0.01)],
+      ['parallel: 60% and 15 years', f(100 * Rsys('parallel', 10), 0) === '60' && near(mp, 15, 0.01) && MTBF('parallel') === 15],
+      ['0.81, 0.99 and 0.18', near(0.9 * 0.9, 0.81, 1e-12) && near(1 - 0.1 * 0.1, 0.99, 1e-12) && near(0.9 * 0.1 + 0.1 * 0.9, 0.18, 1e-12)],
+      ['the UPS', 20 + 10 + 20 === 50 && 1e6 / 50 === 20000 && 1e6 / 20 === 50000 && 1e6 / 20 + 1e6 / 10 + 1e6 / 20 === 200000],
+      ['the batch, one by one', aliveAt('single', 5) === 30 && aliveAt('single', 6) === 27 && aliveAt('single', 7) === 25 && aliveAt('single', 10) === 18],
+      ['the batch in pairs', aliveAt('series', 1) === 21 && aliveAt('series', 10) === 3 && aliveAt('parallel', 1) === 25 && aliveAt('parallel', 10) === 15],
+    ]);
+  });
+  K.check('Shapes the rules give: one unit\'s failure rate is flat at 0.1 a year at every age and a series pair\'s at 0.2, while a parallel pair\'s starts at 0 and climbs towards 0.1 without reaching it; a steady rate loses the same share of what is left each year; the bathtub sketch starts high, sits near 0.02 a year in its middle years and climbs past 0.3 with wear-out; its batch fails in an early heap, a quiet floor and a wear-out hump; a lifetime is where the failure rate added up reaches −ln u', () => {
+    const ys = Array.from({ length: 31 }, (_, t) => t), per = Array(30).fill(0);
+    OWN_TUB.forEach((t) => { if (t <= 30) per[Math.min(29, Math.floor(t))]++; });
+    let rising = true;
+    for (let t = 0; t < 30; t++) if (!(hsys('parallel', t + 1) > hsys('parallel', t))) rising = false;
+    return B.facts([
+      ['flat at 0.1', ys.every((t) => hsys('single', t) === RATE)], ['0.2 in series', ys.every((t) => near(hsys('series', t), 0.2, 1e-12))],
+      ['parallel from 0, climbing, under 0.1', hsys('parallel', 0) === 0 && rising && hsys('parallel', 30) < RATE && hsys('parallel', 30) > 0.09],
+      ['the same share each year', ys.slice(0, 29).every((t) => near(Rsys('single', t + 1) / Rsys('single', t), Math.exp(-RATE), 1e-12))],
+      ['the sketch high, low, high', htub(0) > 0.25 && htub(10) > 0.019 && htub(10) < 0.021 && htub(26) > 0.3],
+      ['an early heap, a quiet floor, a wear-out hump', per[0] >= 7 && Math.max(...per.slice(4, 15)) <= 2 && per.slice(15).reduce((s, v) => s + v, 0) >= 25],
+      ['a lifetime from the rate added up', near(B.lifeFrom(Htub, Math.exp(-Htub(10)), 30), 10, 1e-9) && near(B.lifeFrom((t) => RATE * t, Math.exp(-1), 30), 10, 1e-9)],
+    ]);
+  });
+  K.check('Drawn true, and each puzzle hidden until answered: every unit stays on the picture at full size, a plain bead with no colour key, as lifetimes have no mean to fade about; no two units touch in the pile, and every arrangement\'s pile fits between the shelf and the years; each puzzle accepts one right answer of three, and before it nothing gives the answer away (the clock waits, no dots on the rate, no rates added, no fault); a right answer brings each in; every demonstration settles within 5 s and every answer within 2.5 s', () => {
+    const facts = [];
+    const shows = { year: (r) => r.clock === 6 && r.alive === 27, mtbf: (r) => r.clock === 10 && r.alive === 18, five: (r) => r.clock === 5 && r.alive === 30,
+      ser1: (r) => r.clock === 1 && r.alive === 21, par1: (r) => r.clock === 1 && r.alive === 25 && r.hollow > 0, dots: (r) => r.dots === 2, add: (r) => r.add === true, fault: (r) => r.fault === true };
+    STEPS.forEach((d, i) => {
+      const r = drawnAt(i, d.show ? {} : { pick: d.want, got: 'right' });
+      facts.push([d.name + ': drawn inside', r.inside && r.rmin >= 4.3]);
+      facts.push([d.name + ': plain units, no colour key', r.tinted === 0 && r.key === false]);
+      if (d.show) return;
+      const before = drawnAt(i, { pick: null, got: null });
+      facts.push([d.name + ': one right answer of three', d.opts.length === 3 && d.opts.filter((o) => o === d.want).length === 1]);
+      facts.push([d.name + ': hidden before, shown after', !shows[d.key](before) && !!shows[d.key](r)]);
+    });
+    // Every arrangement's pile at 30 years: units one gap apart (B.GAP), none touching, all between the shelf and the beam.
+    let apart = true, room = SHB + FIT.r + 2 < LTOP && LN + 4 < HZT - 18 && HZ0 + 14 < RT - 10;
+    ['single', 'series', 'parallel', 'tub'].forEach((arr) => { const ps = lay(arr).lst.pos;
+      ps.forEach((q, a) => { if (q.y - q.r < LTOP - 1e-6 || q.y + q.r > LB + 1e-6) room = false;
+        for (let b = a + 1; b < ps.length; b++) { const u = ps[b], g = q.r + u.r + B.GAP - 1e-6; if ((q.x - u.x) ** 2 + (q.y - u.y) ** 2 < g * g) apart = false; } }); });
+    facts.push(['no two units touch in the pile', apart], ['every pile fits between the shelf and the years', room]);
+    facts.push(['series pairs at 10 years: 3 still work', drawnAt(6, { arr: 'series', years: 10 }).alive === 3]);
+    facts.push(['a replay settles within 5 s', FILL_LEN <= 4.5 && CLOCK0 + CLOCK_D + 0.5 + B.T.bounce <= 4.5]);
+    facts.push(['answers within 2.5 s', 0.1 + RUN_D + 0.5 + B.T.bounce <= ANSWER && 1.45 + 0.4 <= ANSWER && 1.05 + 0.4 <= ANSWER]);
+    return B.facts(facts);
+  });
+
+  K.ready();
+</script>

@@ -7,7 +7,7 @@
   .bd-scene .bd-glint { fill: var(--k-bg); fill-opacity: .42; pointer-events: none; } :root[data-theme="dark"] .bd-scene .bd-glint { fill: var(--k-ink); fill-opacity: .5; } .bd-scene .bd-ghost { fill: none; stroke: var(--k-strong); stroke-width: 1.1; }
   .bd-scene .bd-peg { fill: var(--k-strong); } .bd-scene .bd-hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-linecap: round; } .bd-scene .bd-trail { fill: none; stroke: var(--k-accent); stroke-width: 1.7; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
   .bd-scene .bd-win { fill: var(--k-accent); fill-opacity: .16; } .bd-scene .bd-edge { stroke: var(--k-strong); stroke-width: 1.1; stroke-dasharray: 2 3; } .bd-scene .bd-beam { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } .bd-scene .bd-fulcrum { fill: var(--k-ink); } .bd-scene .bd-grid { stroke: var(--k-line); stroke-width: 1; }
-  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; } .bd-scene .bd-off { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.6px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; }
+  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; }
   /* Words: muted names and units, bold numbers, accent small labels, warnings; a halo for a label over a line. */ .bd-scene .bd-tn, .bd-scene .bd-title, .bd-scene .bd-w, .bd-scene .bd-u { fill: var(--k-muted); } .bd-scene .bd-lab, .bd-scene .bd-name { fill: var(--k-ink); } .bd-scene .bd-n, .bd-scene .bd-name { font-weight: 700; }
   .bd-scene .bd-small { font-weight: 600; fill: var(--k-accent); } .bd-scene .bd-wt { font-weight: 600; fill: var(--k-warn); } .bd-scene .bd-halo { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
   /* The ringed reading: its drag handle, ring and arrows; warnings and limits. */ .bd-scene .bd-handle { fill: var(--k-bg); fill-opacity: 0; cursor: grab; } .bd-scene.nodrag .k-drag-hit, .bd-scene.nodrag .bd-handle { pointer-events: none; } .bd-scene .bd-ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.7; pointer-events: none; }
@@ -15,7 +15,7 @@
   .bd-scene .bd-pulse { fill: none; stroke: var(--k-warn); stroke-width: 1.4; pointer-events: none; } .bd-scene .bd-zone { fill: var(--k-warn); fill-opacity: .55; } .bd-scene .bd-limit { stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
   /* The statistics: mean, dimension lines, small-label spans and their extension lines, ruler, stems and pointers, range jaws, median, bands, curves, thread, mean so far, true value. */ .bd-scene .bd-mean { stroke: var(--k-ink); stroke-width: 1.7; stroke-dasharray: 4 3; } .bd-scene .bd-dim { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
   .bd-scene .bd-span { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .bd-scene .bd-ext { fill: none; stroke: var(--k-accent); stroke-width: 1; stroke-dasharray: 1.5 2.5; } .bd-scene .bd-ruler { fill: none; stroke: var(--k-accent); stroke-width: 1.3; }
-  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer, .bd-scene .bd-med { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
+  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
   .bd-scene .bd-jaw { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.4; stroke-linejoin: round; } .bd-scene .bd-bell { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
   .bd-scene .bd-curve, .bd-scene .bd-trend { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; } .bd-scene .bd-truth { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
   .bd-scene .bd-thread { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; } .bd-scene .bd-run { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-linejoin: round; }
@@ -25,6 +25,12 @@
   .bd-scene .bd-harness { fill: none; stroke: var(--k-accent2); stroke-linecap: round; } .bd-scene .bd-harness.in { stroke: var(--k-bg); } .bd-scene .bd-now { stroke: var(--k-ink); stroke-width: 1.4; } .bd-scene .bd-nowhead { fill: var(--k-ink); }
   .bd-gauge { display: block; position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--k-line); } .bd-gauge i { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--k-accent2); } .bd-gauge b { position: absolute; top: -3px; width: 2px; height: 12px; margin-left: -1px; border-radius: 1px; background: var(--k-amber-line); }
   /* ==== end of the shared look ==== */
+  /* ==== Swarm: the look's additions (swarm.md, "Copy this code"). Paste unchanged, after the shared look. ==== */
+  /* The median's line (the mean keeps .bd-mean); the overflow piles' own short axes; a value the drawing sets bold, which has no tile and hides while Dan answers a check. */
+  .bd-scene .bd-medl { stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 1.5 3; stroke-linecap: round; } .bd-scene .bd-ovax { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } :root.k-quiz .bd-scene .bd-val { visibility: hidden; }
+  /* The colour key under the drawing: a row of beads, deepest to faintest to deepest, between its two words. */ .bd-fig { max-width: 32rem; margin-inline: auto; } .bd-key { justify-content: center; margin: 2px 0 0; } .bd-key svg { display: block; width: 5.4rem; height: auto; }
+  .bd-key .bd-kb { stroke: var(--k-bg); stroke-width: 1.2; } .bd-key > span { white-space: nowrap; }
+  /* ==== end of the swarm's look ==== */
   .pz, .lead, .caption { max-width: 34rem; }
   .pz > * + *, #stepbox > * + * { margin-top: 14px; }
   /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
@@ -69,7 +75,10 @@
     <p class="k-label count" id="count"></p>
     <p class="task" id="task"></p>
     <div class="k-controls" id="choice"></div>
-    <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+    <div class="bd-fig" id="fig">
+      <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+      <p class="key bd-key" id="fkey"><span>lower <svg viewBox="0 0 86 14" aria-hidden="true" id="fkeyDots"></svg> higher</span><span>fainter is nearer the mean</span></p>
+    </div>
     <div class="replay" id="replay"></div>
     <div class="k-controls" id="ctl"></div>
     <p class="say" id="say"></p>
@@ -122,8 +131,7 @@
     /* In the order taken: reading i across from x0 to x1, its value up the page on scale sv. */ B.run = (vs, sv, x0, x1, r) => vs.map((v, i) => ({ x: lerp(x0, x1, vs.length > 1 ? i / (vs.length - 1) : 0.5), y: sv.at(v), r }));
     // A pile place turned u of the way onto its side about (x0, y0) sliding to (x1, y1): value up the page (k), stacks leftwards (kh); at u = 1, level with B.run.
     B.tip = (p, u, A) => { const th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th), k = lerp(1, A.k, u), kh = lerp(1, A.kh, u), dx = p.x - A.x0, dh = A.y0 - p.y;
-      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; }; B.anchor = (st, sc, sv, ref, spine, room) => { let h = 1; st.pos.forEach((p) => { h = Math.max(h, st.base - p.y + p.r); }); const k = Math.abs(sv.w / sc.w);
-      return { x0: sc.at(ref), y0: st.base, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / h) }; };
+      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; };
     // Two strings over time folded into one against the other, u 0..1: a and b are reading i's places in their strips, f the pair's place once folded.
     B.fold = (a, b, f, u) => { const ux = K.ease(c01(2 * u)), uy = K.ease(c01(2 * u - 1)), x = lerp(a.x, f.x, ux), q = { x: lerp(b.x, f.x, ux), y: lerp(b.y, f.y, uy), r: lerp(b.r, f.r, uy) }; return [uy > 0 ? B.hop({ x, y: a.y, r: a.r }, q, uy, 12, (v) => v) : { x, y: a.y, r: a.r }, q]; };
     /* Timings (s) every lesson shares: a pour releases a bead every dt, each jinks `jink` high off every peg; a fresh batch re-sorts one every hop. */ B.T = { dt: 0.045, hop: 0.028, field: 0.5, fly: 0.5, settle: 0.45, bounce: 0.24, peel: 0.025, tip: 0.8, fold: 1.6, g: 1600, jink: 2 };
@@ -181,8 +189,6 @@
     const PENTA = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319]; B.ticks = (vs, sc, gap) => { const a = sc.at(sc.lo), w = sc.at(sc.hi) - a || 1; return K.sound.chord(vs.map((v) => PENTA[Math.round(c01((sc.at(v) - a) / w) * 10)]), { dur: 0.07, type: 'triangle', gain: 1, stagger: gap }); };
     /* The bead nearest a tap (pointer to drawing units), or −1 when none is within reach. */ B.pick = (svg, ev, pos, reach) => { const m = svg.getScreenCTM(); if (!m) return -1; const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); let best = -1, bd = (reach || 14) * (reach || 14);
       pos.forEach((p, i) => { const d = (p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y); if (d < bd) { bd = d; best = i; } }); return best; };
-    // A reading past its scale's end: an arrow the way it went, beside the bead, or `lift` above it over a ring. Never clip a reading silently.
-    B.offMark = (d, dir, lift) => { const x = lift == null ? d.x + dir * (d.r + 6.5) : d.x, y = lift == null ? d.y : d.y - d.r - lift - 4.5, f = B.r2; return 'M' + f(x - 4.5 * dir) + ' ' + f(y - 1.4) + 'h' + f(4 * dir) + 'v-2.8l' + f(5 * dir) + ' 4.2l' + f(-5 * dir) + ' 4.2v-2.8h' + f(-4 * dir) + 'z'; };
     /* A check of several named facts: true, or the name of the first that broke (the self-test report shows it). */ B.facts = (list) => { for (const f of list) if (f[1] !== true) return 'broke: ' + f[0]; return true; }; return B; })();
   // ==== end of the shared language ====
 
@@ -225,6 +231,71 @@
     M.idle = () => M.Tb === Infinity && M.Ts === Infinity && !M.anim.playing(); document.addEventListener('visibilitychange', () => { if (!document.hidden && !M.anim.playing() && (M.Tb !== Infinity || M.Ts !== Infinity)) { M.Tb = M.Ts = Infinity; o.paint(); if (o.done) o.done(); } }); return M; };
   // ==== end of the shared motion ====
 
+  // ==== Swarm: the shared additions (swarm.md, "Copy this code"). Paste unchanged, after the shared motion. ====
+  // Readings as a beeswarm: each bead at its value, packed about one line, coloured by its distance from the mean; past an end, in a pile past a
+  // gap. A pour lands as a pile, then rises into it (0.75 s a bead). Beads sit one unit apart; a ringed one keeps 6 more.
+  (() => { B.T.rise = 0.75; B.T.dt = 0.032; B.GAP = 1; B.RING = 6;
+    // Offsets from the line, best first: each round the bead of ids whose closest free spot is nearest the line takes it (leftmost on a tie); a tie
+    // of sides to the one with fewer neighbours; a bigger, ringed bead only above. ys, on: beads placed already.
+    B.swarmY = (xs, rs, ids, ys, on) => { ys = ys || []; on = on || []; const r0 = Math.min(...rs), dd = (i, j) => rs[i] + rs[j] + B.GAP, sp = {}, left = ids.slice();
+      const find = (i) => { const nb = on.filter((j) => Math.abs(xs[j] - xs[i]) < dd(i, j)), c = [0]; let s = 0;
+        nb.forEach((j) => { const h = Math.sqrt(dd(i, j) ** 2 - (xs[j] - xs[i]) ** 2); c.push(ys[j] - h, ys[j] + h); s += Math.sign(ys[j]); });
+        const up = s ? s > 0 : i % 2 === 0; c.sort((a, b) => { const k = Math.abs(a) - Math.abs(b); return Math.abs(k) > 1e-6 ? k : up ? a - b : b - a; });
+        return c.find((y) => (rs[i] <= r0 || y < 1e-9) && nb.every((j) => (xs[j] - xs[i]) ** 2 + (ys[j] - y) ** 2 >= dd(i, j) ** 2 - 1e-6)); }; left.forEach((i) => { sp[i] = find(i); });
+      while (left.length) { let m = 0; left.forEach((i, k) => { const q = Math.abs(sp[i]) - Math.abs(sp[left[m]]); if (q < -1e-6 || (q < 1e-6 && xs[i] < xs[left[m]])) m = k; });
+        const i = left.splice(m, 1)[0]; ys[i] = sp[i]; on.push(i); left.forEach((j) => { if ((xs[j] - xs[i]) ** 2 + (sp[j] - ys[i]) ** 2 < dd(i, j) ** 2 - 1e-6) sp[j] = find(j); }); } return ys; };
+    // Readings on a meter's marks fall in columns, so they pack as a honeycomb: each column's beads take the places nearest the line, alternately
+    // above and below (an odd one to the side with fewer), every other column half a place up (legal while p <= w / 0.866), whichever way // leaves the tallest reach least. -> ys
+    B.comb = (col, ids, p) => { const by = {}, ys = []; ids.forEach((i) => { (by[col[i]] = by[col[i]] || []).push(i); }); const cs = Object.keys(by).map(Number).sort((a, b) => a - b);
+      const cost = (ph) => Math.max(0, ...cs.map((c) => ((c + ph) % 2 ? Math.ceil(by[c].length / 2) - 0.5 : Math.ceil((by[c].length - 1) / 2)))), ph = cost(1) < cost(0) ? 1 : 0; let bal = 0;
+      cs.forEach((c) => { const h = (c + ph) % 2, sd = bal < 0 ? 1 : bal > 0 ? -1 : c % 2 ? 1 : -1;
+        by[c].forEach((i, j) => { const y = h ? (j % 2 ? -sd : sd) * (Math.floor(j / 2) + 0.5) : (j % 2 ? sd : -sd) * Math.ceil(j / 2); ys[i] = y * p; bal += Math.sign(y); }); }); return ys; };
+    B.alt = (k) => (k % 2 ? -(k + 1) / 2 : k / 2);   // row k of a stack mirrored about a line: 0 on it, then above, below, above...
+    // The overflow piles of a scale: w wide, past a gap at each end. rows(): ids stacked `per` across about x, row j at y(j).
+    B.ends = (sc, w, gap) => ({ lo: { x0: sc.a0 - gap - w, x1: sc.a0 - gap, dir: -1 }, hi: { x0: sc.a1 + gap, x1: sc.a1 + gap + w, dir: 1 }, a0: sc.a0, a1: sc.a1 });
+    const rows = (pos, ids, x, w, p, r, y) => { const per = Math.max(1, Math.floor((w + B.GAP) / p)); ids.forEach((i, j) => { const row = Math.floor(j / per), n = Math.min(per, ids.length - row * per); pos[i] = { x: x + (j % per - (n - 1) / 2) * p, y: y(row), r }; }); };
+    // The swarm of vs on sc about y = line, `half` room each way: on the meter's marks a honeycomb, else best first, the ringed one last; a coarse
+    // meter's wide column in bricks; past an end, in its pile. Too tall, every bead shrinks. -> {r, pitch, line, pos, ext, over, cnt, per}
+    B.swarm = (vs, sc, line, half, fit, ends, ring) => { const w = Math.abs(sc.w), ord = vs.map((v, i) => i).filter((i) => i !== ring).sort((a, b) => sc.at(vs[a]) - sc.at(vs[b]) || a - b).concat(ring >= 0 ? [ring] : []);
+      const lay = (r) => { const p = 2 * r + B.GAP, pos = new Array(vs.length), over = { lo: [], hi: [] }, main = [], cnt = {}, brick = !!sc.col && w + B.GAP >= 2 * p;
+        ord.forEach((i) => { const o = sc.off(vs[i]); (o < 0 ? over.lo : o > 0 ? over.hi : main).push(i); if (!o && sc.col) cnt[sc.col(vs[i])] = (cnt[sc.col(vs[i])] || 0) + 1; });
+        if (brick) { const by = {}; main.forEach((i) => { const c = sc.col(vs[i]); (by[c] = by[c] || []).push(i); });
+          Object.keys(by).forEach((c) => { const m = sc.mid(+c), a = Math.max(m - w / 2, ends.a0), b = Math.min(m + w / 2, ends.a1); rows(pos, by[c], (a + b) / 2, b - a, p, r, (k) => line + B.alt(k) * p); }); }
+        else { const xs = vs.map((v) => sc.at(v)), rs = vs.map((v, i) => (i === ring ? r + B.RING : r)), ids = main.filter((i) => i !== ring), col = vs.map((v) => sc.col(v));
+          const comb = !!sc.col && 0.866 * p <= w + 1e-6 && ids.every((i) => Math.abs(xs[i] - sc.mid(col[i])) < 0.01 * w), on = comb ? ids.slice() : [], ys = comb ? B.comb(col, ids, p) : B.swarmY(xs, rs, ids, [], on);
+          if (main.includes(ring)) B.swarmY(xs, rs, [ring], ys, on); main.forEach((i) => { pos[i] = { x: xs[i], y: line + ys[i], r }; }); }
+        ['lo', 'hi'].forEach((k) => rows(pos, over[k], (ends[k].x0 + ends[k].x1) / 2, ends[k].x1 - ends[k].x0, p, r, (j) => line + B.alt(j) * p)); let ext = 0; pos.forEach((q) => { ext = Math.max(ext, Math.abs(q.y - line) + q.r); });
+        return { r, pitch: p, line, pos, ext, over, cnt, per: brick ? Math.floor((w + B.GAP) / p) : 1 }; };
+      const s = lay(fit.r); if (s.ext <= half + 1e-6) return s; let lo = 1, hi = fit.r; for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; if (lay(m).ext <= half + 1e-6) lo = m; else hi = m; } return lay(lo); };
+    // The pile a pour lands on: B.stack's, a reading past an end in that end's pile.
+    B.heap = (vs, sc, base, top, fit, ends) => { const on = vs.map((v, i) => i).filter((i) => !sc.off(vs[i])), st = B.stack(on.map((i) => vs[i]), sc, base, top, fit), pos = new Array(vs.length); on.forEach((i, j) => { pos[i] = st.pos[j]; });
+      ['lo', 'hi'].forEach((k) => { const e = ends[k]; rows(pos, vs.map((v, i) => i).filter((i) => sc.off(vs[i]) === e.dir), (e.x0 + e.x1) / 2, e.x1 - e.x0, st.pitch, st.r, (j) => base - 1.5 - st.r - j * st.pitch); }); return Object.assign({}, st, { pos }); };
+    // The fade: z SDs from the mean, cat2 below and cat1 above, mixed with the page (26% at the mean) or on the dark page a neutral grey (14%), the
+    // role itself from 2.6 SD. lo: another share at the mean (small dots).
+    B.fade = (z, lo) => { const dk = K.theme.dark, base = dk ? 'color-mix(in srgb, var(--k-ink) 30%, var(--k-bg))' : 'var(--k-bg)'; lo = lo == null ? (dk ? 14 : 26) : lo; if (Math.abs(z) < 1e-6) return 'color-mix(in srgb, var(--k-ink) ' + Math.round(0.6 * lo) + '%, ' + base + ')'; return 'color-mix(in srgb, var(--k-' + (z < 0 ? 'cat2' : 'cat1') + ') ' + Math.round(lo + (100 - lo) * Math.min(1, Math.abs(z) / 2.6)) + '%, ' + base + ')'; };
+    // B.blooms: a disc under each glint. B.paint: B.draw, k 0..1 of the way to its colour: the old body dims to a ghost (k 0.12 to 0.27), then the
+    // colour wells up from the centre in a faint wash of itself (to 0.52; never two hues at once), then a swell of 8% and back; a warning mixes in.
+    B.blooms = (bs) => bs.forEach((b) => { b.f = K.svg('circle', { 'pointer-events': 'none' }); b.g.before(b.f); });
+    B.paint = (b, d, warn, floor, z, k) => { const s = k > 0 && k < 1 ? 1 + 0.08 * Math.sin(Math.PI * B.c01((k - 0.6) / 0.4)) : 1, u = B.c01((k - 0.27) / 0.25), on = d && d.a > 0.002 && !d.hollow && k > 0.002;
+      B.draw(b, d && Object.assign({}, d, { r: d.r * s }), warn, floor); const f = B.fade(z, d && d.r < 3 ? (K.theme.dark ? 24 : 40) : null), c = on && (warn > 0 ? 'color-mix(in srgb, var(--k-warn) ' + Math.round(100 * Math.min(1, warn)) + '%, ' + f + ')' : f);
+      if (B.vis(b.f, on && u > 0 && u < 1 ? Math.min(1, d.a) : 0)) { B.set(b.f, { cx: d.x, cy: d.y, r: Math.max(0, d.r * s - 0.6) * K.ease(u) }); b.f.style.fill = c; }
+      if (!on) return; const a = Math.min(1, d.a); if (u > 0) { b.c.style.fill = c; if (u < 1) b.c.style.opacity = (a * (0.15 + 0.85 * u)).toFixed(3); } else b.c.style.opacity = (a * (1 - 0.85 * B.c01((k - 0.12) / 0.15))).toFixed(3); b.g.style.opacity = (a * B.lerp(1, 0.2 + 0.8 * Math.min(1, Math.max(warn, Math.abs(z) / 2.6)), k)).toFixed(3); };
+    // The swarm's outline, mirrored, v0..v1: the reach of the beads within 3/4 of a column, relaxing 0..1 into expect(v) beads; thinner than a bead,
+    // it opens round any bead there (drawn under the beads, so a taller one sits over it). -> {up, dn, area}.
+    B.mirror = (sc, sw, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), w = Math.abs(sc.w), n = Math.max(1, Math.ceil(Math.abs(b - a) / (w / 6))), per = sw.per || 1, U = [], D = [];
+      const on = sw.pos.filter((q) => q && q.x >= Math.min(sc.a0, sc.a1) && q.x <= Math.max(sc.a0, sc.a1)); for (let k = 0; k <= n; k++) { const x = B.lerp(a, b, k / n); let sky = 0, ring = 0;
+        on.forEach((q) => { const dx = Math.abs(q.x - x), dy = Math.abs(q.y - sw.line), c = q.r + 0.8; if (dx < 0.75 * w) sky = Math.max(sky, dy + c); if (dx < c) ring = Math.max(ring, dy + Math.sqrt(c * c - dx * dx)); });
+        const bell = expect(sc.val(x)) / per * sw.pitch / 2, h = B.lerp(sky, Math.max(bell, B.lerp(bell, ring, B.c01(2 - 2 * bell / sw.pitch))), relax); U.push(B.r2(x) + ' ' + B.r2(sw.line - h)); D.push(B.r2(x) + ' ' + B.r2(sw.line + h)); }
+      return { up: 'M' + U.join('L'), dn: 'M' + D.join('L'), area: 'M' + U.join('L') + 'L' + D.reverse().join('L') + 'Z' }; };
+    // The tip's hinge: about the line at ref onto a spine at x1 (value up the page, k), its depth squeezed to `room`.
+    B.swarmAnchor = (sw, sc, sv, ref, spine, room) => { const k = Math.abs(sv.w / sc.w); return { x0: sc.at(ref), y0: sw.line, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / 2 / Math.max(1, sw.ext)) }; };
+    // A pour's pile holds 0.42 s, then rises in a wave from `mid` (the farthest 0.7 s later), 6% overshoot. B.risen -> [bead, k]. B.chime: from a press.
+    B.rise = (scene, heap, mid) => { const t0 = Math.max(...scene.land) + 0.42, wave = Math.max(0.35, Math.min(0.7, 4.9 - B.T.rise - t0)), far = Math.max(1, ...heap.map((q) => Math.abs(q.x - mid))); scene.rise = heap.map((q) => t0 + wave * Math.abs(q.x - mid) / far); scene.end = Math.max(scene.end, Math.max(...scene.rise) + B.T.rise); return scene; };
+    B.risen = (T, scene, i, q, heap, sw) => { const u = scene.rise ? (T - scene.rise[i]) / B.T.rise : 0; return u <= 0 ? [q, 0] : [B.hop(heap[i], sw[i], u, 0, B.backOut), B.c01(u)]; };
+    B.chime = (scene) => K.sound.chord([523, 587, 659, 784, 880, 1047], { at: Math.min(...scene.rise), stagger: 0.14, dur: 0.12, type: 'sine', gain: 0.4 });
+  })();
+  // ==== end of the swarm's additions ====
+
   // ---------- the rule and the examples ----------
   // A unit's lifetime is t = −ln(u) ÷ λ, u random in (0, 1] (B.uni), λ = 0.1 a year, an example: every unit has the same steady failure
   // rate at every age. Pairs are units 2k and 2k + 1: a pair in series stops at its first failure, in parallel at its second.
@@ -258,9 +329,10 @@
   // ---------- geometry: viewBox 340 × 300 ----------
   // The shelf (two rows, a pair to a column) at the top; the pile of failures on a beam at y 176, a column a year, years at 202; under
   // them the failure rate of the units still working, y 228-268, its own scale at the right (0.1 and 0.3 a year); title and key at 295.
+  // Lifetimes are counts of failures per year, so they keep the stack (B.stack), and the units stay plain accent2: no mean to fade about.
   const SCL = B.scale(0.5, 29.5, 1, 14, 306), LB = 176, LTOP = 58, LN = LB + 26, SHB = 40, SHG = 13.5, HZ0 = 268, HZT = 228, HZMAX = 0.3, RT = 295;
   const HZY = (h) => HZ0 - Math.min(h, 99) / HZMAX * (HZ0 - HZT);
-  const FIT = B.fitPile(B.peak(N, 0.01, 0.015), 160.5, 10.76, 5.6);   // the bead every lifetimes view uses (r 4.32)
+  const FIT = B.fitPile(B.peak(N, 0.01, 0.015), 160.5, 10.76, 3.8);   // the bead every lifetimes view uses (r 3.8: the hand and the MTBF line clear the columns)
   const shelfAt = (i) => ({ x: 170 + ((i >> 1) - 12) * 11, y: SHB - (i & 1) * SHG, r: FIT.r, a: 1 });
   // Each unit's place in the pile: a column a year, earlier failures lower down. Units that outlast 30 years have none.
   const LAYS = {};
@@ -424,10 +496,14 @@
   // ---------- the drawing: every element made once, moved in paint() ----------
   const el = (id) => document.getElementById(id);
   const svg = el('scene'), G = B.layers(svg), ALL = [];
+  // The shared figure's colour key names the fade. Every unit here is a plain accent2 bead, nothing is coloured, so the key stays hidden.
+  const fkey = el('fkey'), fkDots = [-2.6, -1.5, -0.5, 0.5, 1.5, 2.6].map((z, j) => [B.add(el('fkeyDots'), 'circle', { class: 'bd-kb', cx: B.r2(7 + j * 14.4), cy: 7, r: 5.8 }), z]);
+  fkey.hidden = true;
   const A = (g, tag, attrs, text) => { const e = B.add(g, tag, attrs, text); ALL.push(e); return e; };
-  // Under the units: the MTBF and the clock's hand. The shelf, each pair's link (series) or harness (parallel, outlines first, so
+  // Under the units: the MTBF, the clock's hand and what the rule expects, so taller columns sit over the curve. The shelf, each pair's link (series) or harness (parallel, outlines first, so
   // neighbouring harnesses stay apart). The beam, its ticks; the units; the parts of the UPS.
   const mtbfLine = A(G.under, 'line', { class: 'bd-truth' }), nowLine = A(G.under, 'line', { class: 'bd-now' }), nowHz = A(G.under, 'line', { class: 'bd-now' });
+  const curve = A(G.under, 'path', { class: 'bd-curve' });
   const shelfY = B.r2(SHB + FIT.r + 1.6), shelf = A(G.ghosts, 'line', { class: 'bd-shelf', x1: 30, x2: 310, y1: shelfY, y2: shelfY });
   const harnessOut = Array.from({ length: N / 2 }, () => A(G.ghosts, 'line', { class: 'bd-harness' }));
   const harnessIn = Array.from({ length: N / 2 }, () => A(G.ghosts, 'line', { class: 'bd-harness in' }));
@@ -440,9 +516,9 @@
     B.set(lminor, { d: lm }); B.set(lmajor, { d: lM });
   }
   const beads = B.beads(G.beads, N), parts = B.beads(G.beads, 3);
-  // Over the units: what the rule expects, the failure rate and its dot at the clock, the hand's head, the labels.
-  const curve = A(G.over, 'path', { class: 'bd-curve' });
-  const hzC = A(G.over, 'path', { class: 'bd-hz' }), hzUp = A(G.over, 'path', { class: 'bd-pointer' }), hzDot = A(G.over, 'circle', { class: 'bd-pointer', r: 3.4 });
+  B.blooms(beads);   // each unit's colour disc for B.paint; at k 0 it never shows
+  // Over the units: the failure rate and its dot at the clock, the hand's head, the labels.
+    const hzC = A(G.over, 'path', { class: 'bd-hz' }), hzUp = A(G.over, 'path', { class: 'bd-pointer' }), hzDot = A(G.over, 'circle', { class: 'bd-pointer', r: 3.4 });
   const nowHead = A(G.over, 'path', { class: 'bd-nowhead' }), mtbfLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', y: 57 }, 'MTBF');
   const stillLab = A(G.over, 'text', { class: 'bd-small', x: 30, y: 13 }, 'still working');
   const dot3 = A(G.over, 'circle', { class: 'bd-pointer', r: 3.4 });
@@ -578,10 +654,11 @@
     B.aim(SP.mt, SCL.at(MTBF(arr)), FORCE || M.instant());
     parts.forEach((b) => B.draw(b, null));
     // The units, and the shelf they stand on.
-    let hollow = 0, rmin = Infinity, inside = true;
+    let hollow = 0, rmin = Infinity, inside = true, tinted = 0;
     for (let k = 0; k < N; k++) {
       const q = lifePos(k, D);
-      drawn[k] = q; B.draw(beads[k], q);
+      drawn[k] = q; B.paint(beads[k], q, 0, undefined, 0, 0);   // a plain accent2 unit: k 0, no fade
+      if (beads[k].c.style.fill && !q.hollow) tinted++;
       if (q.hollow) hollow++;
       if (q.a > 0.5) { rmin = Math.min(rmin, q.r); if (q.x - q.r < 0 || q.x + q.r > 340 || q.y - q.r < 0 || q.y + q.r > 300) inside = false; }
     }
@@ -591,8 +668,8 @@
     for (let k = 0; k < N / 2; k++) {
       const a = drawn[2 * k], b = drawn[2 * k + 1], s = LS[2 * k], down = s.on ? 1 - B.c01((M.Tl - s.t) / 0.15) : 1, al = linkIn * down, ends = { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
       if (show(links[k], arr === 'series' ? al : 0)) B.set(links[k], ends);
-      if (show(harnessOut[k], arr === 'parallel' ? al : 0)) B.set(harnessOut[k], Object.assign({ 'stroke-width': w + 4.6 }, ends));
-      if (show(harnessIn[k], arr === 'parallel' ? al : 0)) B.set(harnessIn[k], Object.assign({ 'stroke-width': w + 2.2 }, ends));
+      if (show(harnessOut[k], arr === 'parallel' ? al : 0)) B.set(harnessOut[k], Object.assign({ 'stroke-width': w + 2.4 }, ends));
+      if (show(harnessIn[k], arr === 'parallel' ? al : 0)) B.set(harnessIn[k], Object.assign({ 'stroke-width': w + 0.8 }, ends));
     }
     // The beam and its years; the clock's hand through the pile and the strip.
     [beam, lminor, lmajor, lAxis, hzLab].forEach((e) => show(e, 1));
@@ -630,7 +707,7 @@
       if (a >= 1) dots = 2;
     }
     const alive = aliveAt(arr, cc);
-    Object.assign(REC, { clock: c, alive, hollow, dots, rmin, inside });
+    Object.assign(REC, { clock: c, alive, hollow, dots, rmin, inside, tinted });
     if (!FORCE) {
       R.alive.set(alive); GAUGE(alive / nSys(arr));
       R.expect.set(nSys(arr) * Rsys(arr, cc)); R.mtbf.set(MTBF(arr)); R.rate.set(hsys(arr, cc));
@@ -639,8 +716,8 @@
   function paintParts(i, d, st) {
     const right = st.got === 'right', T = M.Ts, pa = M.arrive('parts'), la = M.arrive('labs');
     const rv = (t0, dur) => (right ? ans(T, t0, dur) : 0);
-    for (let k = 0; k < N; k++) B.draw(beads[k], null);
-    Object.assign(REC, { rmin: PR, inside: true });
+    for (let k = 0; k < N; k++) B.paint(beads[k], null, 0, undefined, 0, 0);
+    Object.assign(REC, { rmin: PR, inside: true, tinted: 0 });
     if (d.parts === 'ups') {
       B.draw(parts[2], null);
       show(pLink, pa);
@@ -690,6 +767,7 @@
     const d = STEPS[i], st = S[i];
     SEEN = new Set(); REC = {};
     if (d.view === 'parts') paintParts(i, d, st); else paintLife(i, d, st);
+    REC.key = !fkey.hidden;
     ALL.forEach((e) => { if (!SEEN.has(e)) e.setAttribute('display', 'none'); });
     const after = !d.show && st.got === 'right', alt = typeof d.alt === 'function' ? d.alt(st) : d.alt;
     svg.setAttribute('aria-label', alt + (after && d.altAfter ? ' ' + d.altAfter : ''));
@@ -834,6 +912,7 @@
     nextBtn.el.hidden = finished || (!d.show && !right);
     nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
     el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    fkDots.forEach(([c, z]) => { c.style.fill = B.fade(z); }); fkey.hidden = true;   // nothing here is coloured by the fade
     paint(i);
   });
 
@@ -895,18 +974,25 @@
       ['a lifetime from the rate added up', near(B.lifeFrom(Htub, Math.exp(-Htub(10)), 30), 10, 1e-9) && near(B.lifeFrom((t) => RATE * t, Math.exp(-1), 30), 10, 1e-9)],
     ]);
   });
-  K.check('Drawn right, and each puzzle hidden until answered: every unit stays on the picture at full size; each puzzle accepts one right answer of three, and before it nothing gives the answer away (the clock waits, no dots on the rate, no rates added, no fault); a right answer brings each in; every demonstration settles within 5 s and every answer within 2.5 s', () => {
+  K.check('Drawn true, and each puzzle hidden until answered: every unit stays on the picture at full size, a plain bead with no colour key, as lifetimes have no mean to fade about; no two units touch in the pile, and every arrangement\'s pile fits between the shelf and the years; each puzzle accepts one right answer of three, and before it nothing gives the answer away (the clock waits, no dots on the rate, no rates added, no fault); a right answer brings each in; every demonstration settles within 5 s and every answer within 2.5 s', () => {
     const facts = [];
     const shows = { year: (r) => r.clock === 6 && r.alive === 27, mtbf: (r) => r.clock === 10 && r.alive === 18, five: (r) => r.clock === 5 && r.alive === 30,
       ser1: (r) => r.clock === 1 && r.alive === 21, par1: (r) => r.clock === 1 && r.alive === 25 && r.hollow > 0, dots: (r) => r.dots === 2, add: (r) => r.add === true, fault: (r) => r.fault === true };
     STEPS.forEach((d, i) => {
       const r = drawnAt(i, d.show ? {} : { pick: d.want, got: 'right' });
-      facts.push([d.name + ': drawn inside', r.inside && r.rmin >= 4.3]);
+      facts.push([d.name + ': drawn inside', r.inside && r.rmin >= FIT.r - 0.01]);
+      facts.push([d.name + ': plain units, no colour key', r.tinted === 0 && r.key === false]);
       if (d.show) return;
       const before = drawnAt(i, { pick: null, got: null });
       facts.push([d.name + ': one right answer of three', d.opts.length === 3 && d.opts.filter((o) => o === d.want).length === 1]);
       facts.push([d.name + ': hidden before, shown after', !shows[d.key](before) && !!shows[d.key](r)]);
     });
+    // Every arrangement's pile at 30 years: units one gap apart (B.GAP), none touching, all between the shelf and the beam.
+    let apart = true, room = SHB + FIT.r + 2 < LTOP && LN + 4 < HZT - 18 && HZ0 + 14 < RT - 10;
+    ['single', 'series', 'parallel', 'tub'].forEach((arr) => { const ps = lay(arr).lst.pos;
+      ps.forEach((q, a) => { if (q.y - q.r < LTOP - 1e-6 || q.y + q.r > LB + 1e-6) room = false;
+        for (let b = a + 1; b < ps.length; b++) { const u = ps[b], g = q.r + u.r + B.GAP - 1e-6; if ((q.x - u.x) ** 2 + (q.y - u.y) ** 2 < g * g) apart = false; } }); });
+    facts.push(['no two units touch in the pile', apart], ['every pile fits between the shelf and the years', room]);
     facts.push(['series pairs at 10 years: 3 still work', drawnAt(6, { arr: 'series', years: 10 }).alive === 3]);
     facts.push(['a replay settles within 5 s', FILL_LEN <= 4.5 && CLOCK0 + CLOCK_D + 0.5 + B.T.bounce <= 4.5]);
     facts.push(['answers within 2.5 s', 0.1 + RUN_D + 0.5 + B.T.bounce <= ANSWER && 1.45 + 0.4 <= ANSWER && 1.05 + 0.4 <= ANSWER]);

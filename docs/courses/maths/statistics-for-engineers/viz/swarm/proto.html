@@ -1,0 +1,1404 @@
+<!-- kind: concept -->
+<style>
+  /* ==== Beads: the shared look (dataviz.md, "Copy this code"). Paste unchanged. ==== */
+  [hidden] { display: none !important; } .bd-scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; touch-action: pan-y; font-variant-numeric: tabular-nums; -webkit-user-select: none; user-select: none; } .bd-scene text { font-family: var(--k-font); font-size: 13px; }
+  /* A reading: a bead with a surface ring and a glint (a second string's: .two), its splash and counted ring; its outline in the side pile; the pegs it strikes. */
+  .bd-scene .bd-bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.2; } .bd-scene .bd-bead.two { fill: var(--k-accent); } .bd-scene .bd-splash { fill: none; stroke: var(--k-accent2); stroke-width: 1.2; pointer-events: none; } .bd-scene .bd-splash.two { stroke: var(--k-accent); }
+  .bd-scene .bd-glint { fill: var(--k-bg); fill-opacity: .42; pointer-events: none; } :root[data-theme="dark"] .bd-scene .bd-glint { fill: var(--k-ink); fill-opacity: .5; } .bd-scene .bd-ghost { fill: none; stroke: var(--k-strong); stroke-width: 1.1; }
+  .bd-scene .bd-peg { fill: var(--k-strong); } .bd-scene .bd-hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-linecap: round; } .bd-scene .bd-trail { fill: none; stroke: var(--k-accent); stroke-width: 1.7; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
+  .bd-scene .bd-win { fill: var(--k-accent); fill-opacity: .16; } .bd-scene .bd-edge { stroke: var(--k-strong); stroke-width: 1.1; stroke-dasharray: 2 3; } .bd-scene .bd-beam { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } .bd-scene .bd-fulcrum { fill: var(--k-ink); } .bd-scene .bd-grid { stroke: var(--k-line); stroke-width: 1; }
+  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; }
+  /* Words: muted names and units, bold numbers, accent small labels, warnings; a halo for a label over a line. */ .bd-scene .bd-tn, .bd-scene .bd-title, .bd-scene .bd-w, .bd-scene .bd-u { fill: var(--k-muted); } .bd-scene .bd-lab, .bd-scene .bd-name { fill: var(--k-ink); } .bd-scene .bd-n, .bd-scene .bd-name { font-weight: 700; }
+  .bd-scene .bd-small { font-weight: 600; fill: var(--k-accent); } .bd-scene .bd-wt { font-weight: 600; fill: var(--k-warn); } .bd-scene .bd-halo { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  /* The ringed reading: its drag handle, ring and arrows; warnings and limits. */ .bd-scene .bd-handle { fill: var(--k-bg); fill-opacity: 0; cursor: grab; } .bd-scene.nodrag .k-drag-hit, .bd-scene.nodrag .bd-handle { pointer-events: none; } .bd-scene .bd-ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.7; pointer-events: none; }
+  .bd-scene .bd-chev { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.8px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; } .bd-scene .bd-ring.out { stroke: var(--k-warn); } .bd-scene .bd-chev.out { fill: var(--k-warn); }
+  .bd-scene .bd-pulse { fill: none; stroke: var(--k-warn); stroke-width: 1.4; pointer-events: none; } .bd-scene .bd-zone { fill: var(--k-warn); fill-opacity: .55; } .bd-scene .bd-limit { stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  /* The statistics: mean, dimension lines, small-label spans and their extension lines, ruler, stems and pointers, range jaws, median, bands, curves, thread, mean so far, true value. */ .bd-scene .bd-mean { stroke: var(--k-ink); stroke-width: 1.7; stroke-dasharray: 4 3; } .bd-scene .bd-dim { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .bd-scene .bd-span { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .bd-scene .bd-ext { fill: none; stroke: var(--k-accent); stroke-width: 1; stroke-dasharray: 1.5 2.5; } .bd-scene .bd-ruler { fill: none; stroke: var(--k-accent); stroke-width: 1.3; }
+  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
+  .bd-scene .bd-jaw { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.4; stroke-linejoin: round; } .bd-scene .bd-bell { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
+  .bd-scene .bd-curve, .bd-scene .bd-trend { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; } .bd-scene .bd-truth { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .bd-scene .bd-thread { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; } .bd-scene .bd-run { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-linejoin: round; }
+  .bd-scene .bd-air { fill: none; stroke: var(--k-muted); stroke-width: 1.7; stroke-linejoin: round; } .bd-scene .bd-hz { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  /* One amber line a view: .lead hands it to the failure rate (the bathtub), .quiet takes it off a curve. */ .bd-scene .bd-hz.lead { stroke: var(--k-amber-line); stroke-width: 2.6; } .bd-scene .bd-curve.quiet { stroke: var(--k-muted); stroke-width: 1.6; }
+  /* Lifetimes: the shelf, a pair's link (series) or harness (parallel), the clock's hand; and a share bar inside a tile. */ .bd-scene .bd-shelf { stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; } .bd-scene .bd-link { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; stroke-linecap: round; }
+  .bd-scene .bd-harness { fill: none; stroke: var(--k-accent2); stroke-linecap: round; } .bd-scene .bd-harness.in { stroke: var(--k-bg); } .bd-scene .bd-now { stroke: var(--k-ink); stroke-width: 1.4; } .bd-scene .bd-nowhead { fill: var(--k-ink); }
+  .bd-gauge { display: block; position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--k-line); } .bd-gauge i { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--k-accent2); } .bd-gauge b { position: absolute; top: -3px; width: 2px; height: 12px; margin-left: -1px; border-radius: 1px; background: var(--k-amber-line); }
+  /* ==== end of the shared look ==== */
+  /* ==== Swarm: the look's additions (swarm.md, "Copy this code"). Paste unchanged, after the shared look. ==== */
+  /* The median's line (the mean keeps .bd-mean); the overflow piles' own short axes; a value the drawing sets bold, which has no tile and hides while Dan answers a check. */
+  .bd-scene .bd-medl { stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 1.5 3; stroke-linecap: round; } .bd-scene .bd-ovax { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } :root.k-quiz .bd-scene .bd-val { visibility: hidden; }
+  /* The colour key under the drawing: a row of beads, deepest to faintest to deepest, between its two words. */ .bd-fig { max-width: 32rem; margin-inline: auto; } .bd-key { justify-content: center; margin: 2px 0 0; } .bd-key svg { display: block; width: 5.4rem; height: auto; }
+  .bd-key .bd-kb { stroke: var(--k-bg); stroke-width: 1.2; } .bd-key > span { white-space: nowrap; }
+  /* ==== end of the swarm's look ==== */
+  .lead, .caption, #prog { max-width: 34rem; }
+  #controls .k-btn { width: 100%; }
+</style>
+
+<p class="lead" id="lead">Each bead is one simulated reading of a battery bank's float voltage. Say its charger holds it at 27.00 V.</p>
+
+<div id="prog"></div>
+<div class="k-controls" id="choices"></div>
+
+<div class="bd-fig" id="fig">
+  <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+  <p class="key bd-key" id="fkey"><span>lower <svg viewBox="0 0 86 14" aria-hidden="true" id="fkeyDots"></svg> higher</span><span>fainter is nearer the mean</span></p>
+</div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<p class="caption" id="cap"></p>
+
+<script>
+  // ==== Beads: the shared language (dataviz.md, "Copy this code"). Paste unchanged. ====
+  const B = (() => { const B = {}, lerp = (a, b, t) => a + (b - a) * t, c01 = (v) => Math.max(0, Math.min(1, v)); B.lerp = lerp; B.c01 = c01; B.r2 = (v) => Math.round(v * 100) / 100;
+    // The rule. Seeded, so every picture and check is stable; a fresh batch is the next seed.
+    B.rng = (seed) => { let a = (Math.imul(seed | 0, 7919) + 104729) >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+    // n readings × 12 nudges in −½..+½: twelve sum to SD exactly 1, so sd × B.sum(u) is an error of SD sd; B.sum(u, row) is a bead after `row` rows of pegs.
+    // A second string of readings takes rows n..2n−1 of B.nudges(seed, 2n), never reading i's own: two strings share only what the rule gives them both.
+    B.nudges = (seed, n) => { const r = B.rng(seed); return Array.from({ length: n }, () => Array.from({ length: 12 }, () => r() - 0.5)); }; B.sum = (u, upto) => { let s = 0; for (let j = 0; j < (upto == null ? u.length : upto); j++) s += u[j]; return s; };
+    B.uni = (seed, n) => { const r = B.rng(seed); return Array.from({ length: n }, () => 1 - r()); };   // in (0, 1]: a lifetime is −ln(u) / rate
+    B.round = (v, res) => +(Math.round(v / res) * res).toFixed(9); B.stats = (vs) => { const n = vs.length; if (!n) return null; let m = 0, q = 0; vs.forEach((v) => { m += v / n; }); vs.forEach((v) => { q += (v - m) * (v - m); });
+      const s = vs.slice().sort((a, b) => a - b); return { n, m, sd: n > 1 ? Math.sqrt(q / (n - 1)) : 0, med: n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2, lo: s[0], hi: s[n - 1] }; }; B.within = (vs, m, sd, z) => vs.filter((v) => Math.abs(v - m) <= z * sd * (1 + 1e-9)).length;
+    B.fit = (pts) => { const n = pts.length; if (n < 2) return null; let mx = 0, my = 0, sxx = 0, sxy = 0, rr = 0; pts.forEach((p) => { mx += p[0] / n; my += p[1] / n; }); pts.forEach((p) => { sxx += (p[0] - mx) * (p[0] - mx); sxy += (p[0] - mx) * (p[1] - my); }); const b = sxx ? sxy / sxx : 0;
+      pts.forEach((p) => { rr += Math.pow(p[1] - my - b * (p[0] - mx), 2); }); return { b, mx, my, at: (x) => my + b * (x - mx), res: n > 2 ? Math.sqrt(rr / (n - 2)) : 0 }; };
+    /* How closely two strings move together: +1 a rising line, −1 a falling one, 0 no line at all. */ B.corr = (xs, ys) => { const n = xs.length; let mx = 0, my = 0, sxy = 0, sxx = 0, syy = 0; xs.forEach((x, i) => { mx += x / n; my += ys[i] / n; });
+      xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) * (x - mx); syy += (ys[i] - my) * (ys[i] - my); }); return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0; };
+    // A lifetime from a sketched hazard: the t at which the total hazard H(t) reaches −ln u, by halving; Infinity past tmax. A column's expected count from R.
+    B.lifeFrom = (H, u, tmax) => { const goal = -Math.log(u); if (!(H(tmax) >= goal)) return Infinity; let a = 0, b = tmax; for (let k = 0; k < 44; k++) { const m = (a + b) / 2; if (H(m) < goal) a = m; else b = m; } return (a + b) / 2; };
+    B.colExpect = (R, n, bin) => (t) => n * (R(Math.max(0, t - bin / 2)) - R(Math.max(0, t + bin / 2)));
+    // Columns one bin wide: lo, hi the end columns' centres, drawn a0 → a1. col(v) clamps; a value on an edge goes up; off(v) is −1 or +1 past an end.
+    B.scale = (lo, hi, bin, a0, a1) => { const n = Math.round((hi - lo) / bin) + 1, w = (a1 - a0) / n, col = (v) => Math.max(0, Math.min(n - 1, Math.round((v - lo) / bin + 1e-7)));
+      return { lo, hi, bin, n, w, a0, a1, col, mid: (c) => a0 + (c + 0.5) * w, at: (v) => a0 + ((v - lo) / bin + 0.5) * w, val: (x) => lo + ((x - a0) / w - 0.5) * bin, off: (v) => (v < lo - bin / 2 ? -1 : v > hi + bin / 2 ? 1 : 0) }; };
+    // Columns of equal ratio, `steps` to a decade, for readings that spread by a factor (insulation resistance). Takes and gives plain values.
+    B.logScale = (lo, hi, steps, a0, a1) => { const L = Math.log10, s = B.scale(L(lo), L(hi), 1 / steps, a0, a1); return Object.assign({}, s, { lo, hi, log: true, col: (v) => s.col(L(v)), at: (v) => s.at(L(v)), val: (x) => Math.pow(10, s.val(x)), off: (v) => s.off(L(v)) }); };
+    /* A scale with no columns, for a view that zooms or a strip of a time view: v0..v1 drawn a0 → a1; w is one bin's length on it. */ B.lin = (v0, v1, a0, a1, bin) => { const k = (a1 - a0) / (v1 - v0); return { lo: v0, hi: v1, bin, w: k * bin, a0, a1, at: (v) => a0 + (v - v0) * k, val: (x) => v0 + (x - a0) / k }; };
+    // Bead size: B.peak, about the tallest stack of the narrowest pile a slider allows; B.tallest, a batch's own; B.fitPile, the bead for that height and column.
+    B.peak = (n, bin, sd) => { const x = Math.min(2, bin / sd), t = Math.min(n, n * x * 0.3989 * (1 - x * x / 24)); return t + Math.sqrt(t); }; B.tallest = (vs, sc) => { const c = {}; let m = 1; vs.forEach((v) => { const k = sc.col(v); c[k] = (c[k] || 0) + 1; m = Math.max(m, c[k]); }); return m; };
+    B.fitPile = (tall, room, colW, rmax) => { const r = Math.min(rmax, Math.abs(colW) / 2 - 0.6, (room / Math.max(1, tall) - 1) / 2); return { r, pitch: 2 * r + 1 }; };
+    /* The pile on the beam at y base, earlier readings lower, `per` across a wide column; readings past an end on top; a batch too tall shrinks every bead. */ B.stack = (vs, sc, base, top, fit) => { const per = Math.max(1, Math.floor((Math.abs(sc.w) + 1) / fit.pitch)), cnt = {}, idx = [];
+      vs.map((v, i) => i).sort((a, b) => (sc.off(vs[a]) ? 1 : 0) - (sc.off(vs[b]) ? 1 : 0) || a - b).forEach((i) => { const c = sc.col(vs[i]); cnt[c] = (cnt[c] || 0) + 1; idx[i] = cnt[c] - 1; });
+      const tall = Math.max(1, ...Object.values(cnt).map((k) => Math.ceil(k / per))), pitch = Math.min(fit.pitch, (base - 1.5 - top) / tall), r = Math.min(fit.r, (pitch - 1) / 2);
+      return { r, tall, pitch, per, base, cnt, pos: vs.map((v, i) => { const c = sc.col(v), lay = Math.floor(idx[i] / per), row = Math.min(per, cnt[c] - lay * per); return { x: sc.mid(c) + (idx[i] % per - (row - 1) / 2) * pitch, y: base - 1.5 - r - lay * pitch, r }; }) }; };
+    /* In the order taken: reading i across from x0 to x1, its value up the page on scale sv. */ B.run = (vs, sv, x0, x1, r) => vs.map((v, i) => ({ x: lerp(x0, x1, vs.length > 1 ? i / (vs.length - 1) : 0.5), y: sv.at(v), r }));
+    // A pile place turned u of the way onto its side about (x0, y0) sliding to (x1, y1): value up the page (k), stacks leftwards (kh); at u = 1, level with B.run.
+    B.tip = (p, u, A) => { const th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th), k = lerp(1, A.k, u), kh = lerp(1, A.kh, u), dx = p.x - A.x0, dh = A.y0 - p.y;
+      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; };
+    // Two strings over time folded into one against the other, u 0..1: a and b are reading i's places in their strips, f the pair's place once folded.
+    B.fold = (a, b, f, u) => { const ux = K.ease(c01(2 * u)), uy = K.ease(c01(2 * u - 1)), x = lerp(a.x, f.x, ux), q = { x: lerp(b.x, f.x, ux), y: lerp(b.y, f.y, uy), r: lerp(b.r, f.r, uy) }; return [uy > 0 ? B.hop({ x, y: a.y, r: a.r }, q, uy, 12, (v) => v) : { x, y: a.y, r: a.r }, q]; };
+    /* Timings (s) every lesson shares: a pour releases a bead every dt, each jinks `jink` high off every peg; a fresh batch re-sorts one every hop. */ B.T = { dt: 0.045, hop: 0.028, field: 0.5, fly: 0.5, settle: 0.45, bounce: 0.24, peel: 0.025, tip: 0.8, fold: 1.6, g: 1600, jink: 2 };
+    B.releases = (n, t0, slow) => { const out = []; let t = t0; for (let i = 0; i < n; i++) { out.push(t); t += slow ? Math.max(B.T.dt, 0.32 * Math.pow(0.68, i)) : B.T.dt; } return out; };
+    B.bounce = (tc) => (tc < 0 ? 0 : tc < 0.15 ? 4.5 * Math.sin(Math.PI * tc / 0.15) : tc < B.T.bounce ? 1.3 * Math.sin(Math.PI * (tc - 0.15) / (B.T.bounce - 0.15)) : 0); const fallT = (d, v0) => (-v0 + Math.sqrt(v0 * v0 + 2 * B.T.g * Math.max(2, d))) / B.T.g;
+    /* A bead released at rel strikes a peg on each of the twelve rows (y0..y1), xAt(row) its nudges so far, then falls onto p and bounces twice; tc = s since landing. */ B.pour = (T, rel, xAt, p, y0, y1) => { const tau = T - rel, F = B.T.field, v0 = (y1 - y0) / F; if (tau < 0) return null;
+      if (tau < F) { const f = 12 * tau / F, row = Math.min(11, Math.floor(f)), u = f - row; return { x: lerp(xAt(row), xAt(row + 1), K.ease(u)), y: lerp(y0, y1, tau / F) - (row ? B.T.jink * Math.sin(Math.PI * u) : 0), r: p.r, a: c01(tau / 0.08) }; }
+      const tf = tau - F, tb = fallT(p.y - y1, v0); if (tf < tb) return { x: lerp(xAt(12), p.x, K.ease(tf / tb)), y: Math.min(p.y, y1 + v0 * tf + B.T.g * tf * tf / 2), r: p.r, a: 1 };
+      return { x: p.x, y: p.y - B.bounce(tf - tb), r: p.r, a: 1, tc: tf - tb }; }; B.landed = (rel, p, y0, y1) => rel + B.T.field + fallT(p.y - y1, (y1 - y0) / B.T.field);
+    // Dropped from rest at a onto b (a unit leaving a shelf), tau s after the drop: falls, lands, bounces.
+    B.fall = (a, b, tau) => { const tb = fallT(b.y - a.y, 0); if (tau < tb) return { x: lerp(a.x, b.x, K.ease(tau / tb)), y: Math.min(b.y, a.y + B.T.g * tau * tau / 2), r: lerp(a.r, b.r, tau / tb), a: 1 }; return { x: b.x, y: b.y - B.bounce(tau - tb), r: b.r, a: 1, tc: tau - tb }; };
+    // From a to b, q of the way, on an arc `lift` high (landing with the bounce); ease K.ease to travel, B.backOut to settle with a 6% overshoot.
+    B.backOut = (q) => 1 + 2.25 * Math.pow(q - 1, 3) + 1.25 * Math.pow(q - 1, 2); B.still = (list) => list.every((s) => Math.abs(s.v - s.to) < 0.05 && Math.abs(s.vel) < 0.5); B.hop = (a, b, q, lift, ease, tc) => { const u = c01(q), e = (ease || K.ease)(u), land = lift && q >= 1;
+      return { x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e) - (lift || 0) * Math.sin(Math.PI * u) - (land ? B.bounce(tc) : 0), r: lerp(a.r, b.r, c01(e)), a: lerp(a.a == null ? 1 : a.a, 1, c01(u * 3)), tc: land ? tc : undefined }; };
+    // Springs give the balance point, the spread and the lines their weight: they lag, overshoot a touch and settle. B.toward eases a fade at up / down s.
+    B.spring = (w, z) => ({ v: 0, vel: 0, to: 0, w, z, init: false }); B.aim = (s, to, snap) => { s.to = to; if (!s.init || snap) { s.v = to; s.vel = 0; s.init = true; } };
+    B.springs = (list, dt) => { const n = Math.max(1, Math.ceil(dt / 0.008)), h = dt / n; list.forEach((s) => { for (let j = 0; j < n; j++) { s.vel += (-s.w * s.w * (s.v - s.to) - 2 * s.z * s.w * s.vel) * h; s.v += s.vel * h; } }); };
+    B.toward = (a, to, dt, up, down) => (to > a ? Math.min(to, a + dt / up) : Math.max(to, a - dt / (down || up)));
+    // Drawing: every element is made once and moved. B.vis fades el to a (K.fade) and takes it out of the page at 0.
+    B.add = (g, tag, attrs, text) => g.appendChild(K.svg(tag, attrs || {}, text == null ? undefined : String(text))); B.set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, typeof attrs[k] === 'number' ? B.r2(attrs[k]) : attrs[k]); return el; };
+    B.vis = (el, a, rise) => { if (!(a > 0.002)) { el.setAttribute('display', 'none'); return false; } el.removeAttribute('display'); K.fade(el, a, rise || 0); return true; };
+    // The scene's layers, bottom to top; the beam and the beads sit in `tilt`, which rocks about the fulcrum.
+    B.layers = (svg) => { const L = {}; ['field', 'under', 'ghosts', 'tilt', 'over', 'axes', 'tags'].forEach((k) => { L[k] = B.add(svg, 'g'); }); ['scale', 'beads', 'marks'].forEach((k) => { L[k] = B.add(L.tilt, 'g'); }); return L; };
+    // n beads (splash, bead, glint); cls 'two' for a second string. B.draw puts one at d = {x, y, r, a, tc, ring, hollow}: ring 0..1 sends a counted ring out; hollow a failed unit held; warn 0..1.
+    B.beads = (g, n, cls) => { const k = cls ? ' ' + cls : '', sp = [], bd = []; for (let i = 0; i < n; i++) sp.push(B.add(g, 'ellipse', { class: 'bd-splash' + k }));
+      for (let i = 0; i < n; i++) bd.push([B.add(g, 'circle', { class: 'bd-bead' + k }), B.add(g, 'circle', { class: 'bd-glint' })]); return bd.map((b, i) => ({ c: b[0], g: b[1], s: sp[i] })); };
+    B.draw = (b, d, warn, floor) => { if (!d || !(d.a > 0.002)) { [b.c, b.g, b.s].forEach((e) => e.setAttribute('display', 'none')); return; }
+      b.c.removeAttribute('display'); B.set(b.c, { cx: d.x, cy: d.y, r: d.r }); if (B.vis(b.g, d.hollow ? 0 : 1)) B.set(b.g, { cx: d.x - 0.34 * d.r, cy: d.y - 0.36 * d.r, r: 0.3 * d.r }); b.c.style.opacity = b.g.style.opacity = d.a >= 1 ? '' : d.a.toFixed(3); b.c.style.stroke = d.hollow ? 'var(--k-accent2)' : '';
+      b.c.style.fill = d.hollow ? 'var(--k-bg)' : warn > 0 ? (warn >= 1 ? 'var(--k-warn)' : 'color-mix(in srgb, var(--k-warn) ' + Math.round(warn * 100) + '%, var(--k-accent2))') : '';
+      if (d.ring != null) { const R = d.r + 1.6 + 4.5 * d.ring; if (B.vis(b.s, 0.9 * (1 - d.ring))) B.set(b.s, { cx: d.x, cy: d.y, rx: R, ry: R }); return; }
+      const u = d.tc == null ? 1 : d.tc / 0.3; if (B.vis(b.s, u < 1 ? 0.45 * (1 - u) * (1 - u) : 0)) B.set(b.s, { cx: d.x, cy: (floor == null ? d.y : floor) + d.r * 0.9, rx: d.r * (1 + 1.6 * K.ease(u)), ry: d.r * (0.27 + 0.45 * K.ease(u)) }); };
+    // The peg field: twelve rows one nudge apart, odd rows offset by half, each peg made once. B.pegsAt sets them about the hopper at hx, sp apart, over
+    // rows y0..y0 + h; B.pegHit swells the peg beside each bead that has just struck its row ([{x, row, since}], from M.hits).
+    B.pegs = (g) => { const P = { list: [], at: {}, hot: [], hx: 0, sp: 1 }; for (let row = 1; row <= 12; row++) { const lim = 7.2 * Math.sqrt(row / 12) + 0.6, off = row % 2 ? 0.5 : 0;
+      for (let j = -9; j <= 9; j++) if (Math.abs(j + off) <= lim) { const el = B.add(g, 'circle', { class: 'bd-peg', r: 1.8 }); P.list.push({ el, k: j + off, row }); P.at[row + ':' + (j + off)] = el; } } return P; };
+    B.pegsAt = (P, hx, sp, y0, h) => { P.hx = hx; P.sp = sp; P.list.forEach((q) => B.set(q.el, { cx: hx + q.k * sp, cy: y0 + q.row * h / 12 })); }; B.pegHit = (P, hits) => { P.hot.forEach((el) => el.setAttribute('r', 1.8)); P.hot = [];
+      hits.forEach((q) => { const off = q.row % 2 ? 0.5 : 0, el = P.at[q.row + ':' + (Math.round((q.x - P.hx) / P.sp - off) + off)]; if (el) { el.setAttribute('r', B.r2(1.8 + 1.4 * (1 - q.since / 0.07))); P.hot.push(el); } }); };
+    /* A label set like a newspaper's: [['mean ', 'w'], ['27.01', 'n'], [' V', 'u']] gives muted words and units, a bold number. */ B.words = (t, parts) => { t.textContent = ''; parts.forEach((p) => t.appendChild(K.svg('tspan', { class: p[1] ? 'bd-' + p[1] : null }, p[0]))); return t; };
+    const tws = {}; B.tw = (t) => { const k = t.getAttribute('class') + '|' + t.textContent; if (!tws[k]) { let w = 0; try { w = t.getComputedTextLength(); } catch (e) { w = 0; } if (w > 0) tws[k] = w; } return tws[k] || t.textContent.length * 7.4; };
+    // Is the box clear of every bead {x, y, r} by pad? B.clearY: the lowest baseline at or above y whose letters (10 up, 3 down) clear them. Late labels use these.
+    B.free = (x0, x1, y0, y1, marks, pad) => marks.every((q) => q.x + q.r + pad <= x0 || q.x - q.r - pad >= x1 || q.y + q.r + pad <= y0 || q.y - q.r - pad >= y1);
+    B.clearY = (x0, x1, y, marks, pad) => { let hit = true; for (let k = 0; hit && k <= marks.length; k++) { hit = false; marks.forEach((q) => { if (!B.free(x0, x1, y - 10, y + 3, [q], pad)) { y = q.y - q.r - pad - 3.01; hit = true; } }); } return y; };
+    /* A dimension line x0 to x1 at y, ends ticked `tick`, its words in a gap when they fit, else centred above (`above`, stacked brackets) or beside it. */ B.bracket = (path, text, x0, x1, y, tick, above) => { const w = B.tw(text), m = (x0 + x1) / 2, gap = x1 - x0 >= w + 16, right = x1 + 6 + w < 336, f = B.r2;
+      path.setAttribute('d', 'M' + f(x0) + ' ' + f(y + tick) + 'V' + f(y) + (gap ? 'H' + f(m - w / 2 - 5) + 'M' + f(m + w / 2 + 5) + ' ' + f(y) : '') + 'H' + f(x1) + 'V' + f(y + tick));
+      B.set(text, gap ? { x: m, y: y + 4.5, 'text-anchor': 'middle' } : above ? { x: Math.max(4 + w / 2, Math.min(336 - w / 2, m)), y: y - 5, 'text-anchor': 'middle' } : { x: right ? x1 + 6 : x0 - 6, y: y + 4.5, 'text-anchor': right ? 'start' : 'end' }); };
+    // Over pile st from v0 to v1: the skyline (count(c) in column c) relaxing 0..1 into expect(v), beads expected per column. Works on a log scale too.
+    B.relax = (sc, st, count, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), q = sc.w / 4, n = Math.max(1, Math.ceil(Math.abs(b - a) / Math.abs(q))), pts = [], per = st.per || 1;
+      for (let k = 0; k <= n; k++) { const x = lerp(a, b, k / n), sky = Math.ceil(Math.max(count(sc.col(sc.val(x - q * 0.99))), count(sc.col(sc.val(x + q * 0.99)))) / per);
+        pts.push(B.r2(x) + ' ' + B.r2(st.base - 1.5 - lerp(sky, expect(sc.val(x)) / per, relax) * st.pitch - (1 - relax) * (2 * st.r - st.pitch))); } return 'M' + pts.join('L'); };
+    /* A rule's curve f(t), t from a to b in n pieces, drawn by X and Y; it stops where it leaves the top (y < top) and gives that point as `exit`, for an arrow. */ B.trace = (f, a, b, X, Y, n, top) => { let d = '', exit = null; for (let k = 0; k <= n; k++) { const t = lerp(a, b, k / n), y = Y(f(t));
+      if (y < top) { if (k) { const t0 = lerp(a, b, (k - 1) / n), y0 = Y(f(t0)), q = (y0 - top) / (y0 - y); exit = { x: lerp(X(t0), X(t), q), y: top }; d += 'L' + B.r2(exit.x) + ' ' + B.r2(top); } break; } d += (k ? 'L' : 'M') + B.r2(X(t)) + ' ' + B.r2(y); } return { d: d || 'M0 0', exit }; };
+    // A share bar inside a readout tile (hidden with it during a check): filled to the counted share, a tick at what the rule expects.
+    B.gauge = (ro, rule) => { const f = K.el('i'), t = K.el('b'); t.style.left = (100 * rule).toFixed(1) + '%'; ro.el.appendChild(K.el('span', { class: 'bd-gauge', 'aria-hidden': 'true' }, f, t)); return (share) => { f.style.width = (100 * c01(share)).toFixed(1) + '%'; }; };
+    // One soft tick per bead as it leaves the hopper (its first peg), pitched to where its reading sits on the scale, `gap` s apart. Only from a Fresh batch press.
+    const PENTA = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319]; B.ticks = (vs, sc, gap) => { const a = sc.at(sc.lo), w = sc.at(sc.hi) - a || 1; return K.sound.chord(vs.map((v) => PENTA[Math.round(c01((sc.at(v) - a) / w) * 10)]), { dur: 0.07, type: 'triangle', gain: 1, stagger: gap }); };
+    /* The bead nearest a tap (pointer to drawing units), or −1 when none is within reach. */ B.pick = (svg, ev, pos, reach) => { const m = svg.getScreenCTM(); if (!m) return -1; const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); let best = -1, bd = (reach || 14) * (reach || 14);
+      pos.forEach((p, i) => { const d = (p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y); if (d < bd) { bd = d; best = i; } }); return best; };
+    /* A check of several named facts: true, or the name of the first that broke (the self-test report shows it). */ B.facts = (list) => { for (const f of list) if (f[1] !== true) return 'broke: ' + f[0]; return true; }; return B; })();
+  // ==== end of the shared language ====
+
+  // ==== Beads: the shared motion (dataviz.md, "Copy this code"). Paste unchanged, after the shared language. ====
+  // One engine moves every lesson's beads. Clocks: Tb the beads' move, Ts the step's story, Tl always running; Infinity is the finished picture.
+  // o: {n, r, paint(), leaving() the elements a step change may fade, unmanaged (a group paint never hides), capture() more to snapshot with
+  // each move, tick(dt) before each paint, busy(dt) after it (true while the lesson's own parts move), done() once still (true to go on)}.
+  B.motion = (o) => { const STILL = { kind: 'still', end: 0 }, M = { Tb: Infinity, Ts: Infinity, Tl: 0, sc: STILL, s0: 0, sk: 1, len: 0, times: {}, leave: null, springs: [], dry: false }; M.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    M.instant = () => M.dry || M.reduce || document.documentElement.classList.contains('k-testing');   // tests and reduced motion open every step finished
+    M.drawn = Array.from({ length: o.n }, () => ({ x: 170, y: 224, r: o.r, a: 1 })); M.snap = () => M.drawn.map((d) => ({ x: d.x, y: d.y, r: d.r, a: d.a })); M.live = (kind) => M.Tb !== Infinity && (!kind || M.sc.kind === kind); M.moving = (kind) => M.live(kind) && M.Tb < M.sc.end;
+    M.spring = (w, z) => { const s = B.spring(w, z); M.springs.push(s); return s; }; M.rest = () => M.springs.forEach((s) => { s.v = s.to; s.vel = 0; }); const grab = (s) => Object.assign(s, o.capture ? o.capture() : {});
+    /* Where the beads are now, as the start of a move; leaving a pour early, a bead not yet released starts from its place before the pour. */ M.fromNow = () => { const f = M.snap(); if (M.live('pour')) f.forEach((d, i) => { if (M.Tb < M.sc.rel[i]) Object.assign(d, M.sc.from[i], { a: d.a }); }); return f; };
+    // pour: the old pile sinks while bead i leaves the hopper at rel[i], strikes its way down the field (y0..y1) and lands on pile[i].
+    M.pour = (pile, y0, y1, t0, slow) => { const rel = B.releases(o.n, t0, slow), land = rel.map((r, i) => B.landed(r, pile[i], y0, y1)); return grab({ kind: 'pour', from: M.snap(), rel, land, slow, hold: slow ? 0.2 : 0, end: Math.max(...land) + B.T.bounce }); };
+    // hop: bead i leaves where it is at t[i] for its place, dur s, on an arc `lift` high (landing with a bounce) or eased (B.backOut overshoots 6%).
+    M.hop = (t, dur, lift, ease) => grab({ kind: 'hop', from: M.fromNow(), t, dur, lift, ease: ease || K.ease, end: Math.max(...t) + dur + (lift ? B.T.bounce : 0) }); M.settle = (gap) => M.hop(M.drawn.map((d, i) => (gap || 0) * i), B.T.settle, 0, B.backOut);   // a slider or a drag
+    M.arc = (gap, lift) => M.hop(M.drawn.map((d, i) => 0.03 + gap * i), B.T.fly, lift, K.ease);    // a fresh batch or a choice re-sorts
+    M.finish = () => M.hop(M.drawn.map((d, i) => 0.012 * i), 0.55, 0, K.ease);                    // left mid-pour: every bead home within 1.2 s
+    // tip: from t0 the pile turns onto its side, then the beads peel into the time view one every B.T.peel; untip: back, last first, then it stands.
+    M.tip = (t0) => { const p0 = t0 + B.T.tip + 0.1; return grab({ kind: 'tip', from: M.fromNow(), t0, peel: M.drawn.map((d, i) => p0 + B.T.peel * i), end: p0 + B.T.peel * (o.n - 1) + B.T.fly + B.T.bounce }); };
+    M.untip = () => { const t = M.drawn.map((d, i) => 0.05 + 0.018 * (o.n - 1 - i)), ua = 0.05 + 0.018 * (o.n - 1) + 0.45; return grab({ kind: 'untip', from: M.snap(), t, dur: 0.45, ua, end: ua + B.T.tip }); };
+    // Bead i now, bound for tgt[i]; pile[i] its place in the pile; g.field() the field now {y0, y1, x(i, row)}; g.A, g.rug, g.run the tip's hinge, side pile, time view.
+    M.place = (i, tgt, pile, g) => { const T = M.Tb, s = M.sc; if (T === Infinity || s.kind === 'still') return { x: tgt[i].x, y: tgt[i].y, r: tgt[i].r, a: 1 };
+      if (s.kind === 'pour') { const f = g.field(), q = B.pour(T, s.rel[i], (row) => f.x(i, row), pile[i], f.y0, f.y1); if (q) return q; const h = s.from[i], e = K.ease(B.c01((T - s.hold) / 0.3)); return { x: h.x, y: h.y + 10 * e, r: h.r, a: h.a * (1 - e) }; }
+      if (s.kind === 'hop') { const h = B.hop(s.from[i], tgt[i], (T - s.t[i]) / s.dur, s.lift, s.ease, T - s.t[i] - s.dur); h.a = B.lerp(s.from[i].a == null ? 1 : s.from[i].a, 1, B.c01(T / 0.2)); return h; }
+      if (s.kind === 'tip') { const q = (T - s.peel[i]) / B.T.fly; if (q >= 0) return B.hop(g.rug[i], g.run[i], q, 7, K.ease, T - s.peel[i] - B.T.fly);
+        const side = B.tip(pile[i], K.arrive(T, s.t0, B.T.tip), g.A), w = K.arrive(T, 0, 0.3), f = s.from[i]; return { x: B.lerp(f.x, side.x, w), y: B.lerp(f.y, side.y, w), r: B.lerp(f.r, side.r, w), a: B.lerp(f.a, 1, B.c01(T / 0.2)) }; }
+      if (s.kind === 'untip') { const q = (T - s.t[i]) / s.dur; if (q < 1) return B.hop(s.from[i], g.rug[i], q, 7, K.ease); const b = B.tip(pile[i], 1 - K.arrive(T, s.ua, B.T.tip), g.A); return { x: b.x, y: b.y, r: b.r, a: 1 }; } return null; };   // a lesson's own move (kind 'own', say) places its beads itself
+    // The running statistics count only the beads that have landed. M.hits: the pegs a pouring bead has just struck, for B.pegHit.
+    M.landedAt = (i) => { const s = M.sc; return s.kind === 'pour' ? s.land[i] : s.kind === 'tip' ? s.peel[i] + B.T.fly : s.kind === 'hop' && s.lift ? s.t[i] + s.dur : -Infinity; }; M.counted = (i) => M.Tb === Infinity || M.Tb >= M.landedAt(i);
+    M.hits = (xAt) => { const out = []; if (M.live('pour')) M.sc.rel.forEach((r, i) => { const tau = M.Tb - r, f = 12 * tau / B.T.field, row = Math.floor(f), since = (f - row) * B.T.field / 12; if (tau > 0 && tau < B.T.field && row >= 1 && since < 0.07) out.push({ x: xAt(i, row), row, since }); }); return out; };
+    /* The story: parts arrive by a timetable {name: [start, dur]} after s0, squeezed by sk so a step settles within 5 s. */ M.arrive = (name, extra) => { const t = M.times[name]; return t ? K.arrive(M.Ts, M.s0 + t[0] * M.sk + (extra || 0), t[1] * M.sk) : 1; };
+    M.plan = (scene, start, len, times, squeeze) => { const k = squeeze ? Math.max(0.35, Math.min(1, (4.8 - start) / Math.max(0.01, len))) : 1; return { scene, start, len, times: times || {}, k, end: Math.max(scene.end, start + len * k) }; };
+    /* A new step, or a choice that changes the story: what showed and now hides fades where it stands (0.35 s) while the plan runs. mode 'first' | 'replay'. */ M.enter = (plan, mode) => { M.times = plan.times; M.leave = null; if (mode === 'first' || M.instant()) { M.Tb = M.Ts = Infinity; M.sc = STILL; return false; }
+      if (mode !== 'replay') M.leave = o.leaving().filter((el) => el.getAttribute('display') !== 'none').map((el) => [el, el.style.opacity === '' ? 1 : +el.style.opacity]); Object.assign(M, { sc: plan.scene, Tb: 0, Ts: 0, s0: plan.start, sk: plan.k, len: plan.len }); M.anim.play(); return true; };
+    M.move = (scene) => { if (M.instant()) { M.Tb = Infinity; M.sc = STILL; return false; } M.sc = scene; M.Tb = 0; M.anim.play(); return true; }; M.fade = () => { if (!M.leave) return; const f = M.Ts === Infinity ? 0 : 1 - K.arrive(M.Ts, 0, 0.35);   // the last thing paint() does
+      if (f > 0) M.leave.forEach(([el, a]) => { if (el.getAttribute('display') === 'none') B.vis(el, a * f); }); else { M.leave.forEach(([el]) => { if (el.parentNode === o.unmanaged) el.setAttribute('display', 'none'); }); M.leave = null; } }; M.anim = K.anim({ button: false, label: 'Beads', step: (dt) => {
+      M.Tl += dt; if (M.Tb !== Infinity) M.Tb += dt; if (M.Ts !== Infinity) M.Ts += dt; B.springs(M.springs, dt); if (o.tick) o.tick(dt); o.paint(); const more = o.busy ? o.busy(dt) : false;
+      if ((M.Tb !== Infinity && M.Tb < M.sc.end + 0.2) || (M.Ts !== Infinity && M.Ts < M.s0 + M.len * M.sk + 0.1) || !B.still(M.springs) || more) return true; if (M.Tb !== Infinity || M.Ts !== Infinity) { M.Tb = M.Ts = Infinity; o.paint(); } return o.done ? !!o.done() : false; } });
+    M.idle = () => M.Tb === Infinity && M.Ts === Infinity && !M.anim.playing(); document.addEventListener('visibilitychange', () => { if (!document.hidden && !M.anim.playing() && (M.Tb !== Infinity || M.Ts !== Infinity)) { M.Tb = M.Ts = Infinity; o.paint(); if (o.done) o.done(); } }); return M; };
+  // ==== end of the shared motion ====
+
+  // ==== Swarm: the shared additions (swarm.md, "Copy this code"). Paste unchanged, after the shared motion. ====
+  // Readings as a beeswarm: each bead at its value, packed about one line, coloured by its distance from the mean; past an end, in a pile past a
+  // gap. A pour lands as a pile, then rises into it (0.75 s a bead). Beads sit one unit apart; a ringed one keeps 6 more.
+  (() => { B.T.rise = 0.75; B.T.dt = 0.032; B.GAP = 1; B.RING = 6;
+    // Offsets from the line, best first: each round the bead of ids whose closest free spot is nearest the line takes it (leftmost on a tie); a tie
+    // of sides to the one with fewer neighbours; a bigger, ringed bead only above. ys, on: beads placed already.
+    B.swarmY = (xs, rs, ids, ys, on) => { ys = ys || []; on = on || []; const r0 = Math.min(...rs), dd = (i, j) => rs[i] + rs[j] + B.GAP, sp = {}, left = ids.slice();
+      const find = (i) => { const nb = on.filter((j) => Math.abs(xs[j] - xs[i]) < dd(i, j)), c = [0]; let s = 0;
+        nb.forEach((j) => { const h = Math.sqrt(dd(i, j) ** 2 - (xs[j] - xs[i]) ** 2); c.push(ys[j] - h, ys[j] + h); s += Math.sign(ys[j]); });
+        const up = s ? s > 0 : i % 2 === 0; c.sort((a, b) => { const k = Math.abs(a) - Math.abs(b); return Math.abs(k) > 1e-6 ? k : up ? a - b : b - a; });
+        return c.find((y) => (rs[i] <= r0 || y < 1e-9) && nb.every((j) => (xs[j] - xs[i]) ** 2 + (ys[j] - y) ** 2 >= dd(i, j) ** 2 - 1e-6)); }; left.forEach((i) => { sp[i] = find(i); });
+      while (left.length) { let m = 0; left.forEach((i, k) => { const q = Math.abs(sp[i]) - Math.abs(sp[left[m]]); if (q < -1e-6 || (q < 1e-6 && xs[i] < xs[left[m]])) m = k; });
+        const i = left.splice(m, 1)[0]; ys[i] = sp[i]; on.push(i); left.forEach((j) => { if ((xs[j] - xs[i]) ** 2 + (sp[j] - ys[i]) ** 2 < dd(i, j) ** 2 - 1e-6) sp[j] = find(j); }); } return ys; };
+    // Readings on a meter's marks fall in columns, so they pack as a honeycomb: each column's beads take the places nearest the line, alternately
+    // above and below (an odd one to the side with fewer), every other column half a place up (legal while p <= w / 0.866), whichever way // leaves the tallest reach least. -> ys
+    B.comb = (col, ids, p) => { const by = {}, ys = []; ids.forEach((i) => { (by[col[i]] = by[col[i]] || []).push(i); }); const cs = Object.keys(by).map(Number).sort((a, b) => a - b);
+      const cost = (ph) => Math.max(0, ...cs.map((c) => ((c + ph) % 2 ? Math.ceil(by[c].length / 2) - 0.5 : Math.ceil((by[c].length - 1) / 2)))), ph = cost(1) < cost(0) ? 1 : 0; let bal = 0;
+      cs.forEach((c) => { const h = (c + ph) % 2, sd = bal < 0 ? 1 : bal > 0 ? -1 : c % 2 ? 1 : -1;
+        by[c].forEach((i, j) => { const y = h ? (j % 2 ? -sd : sd) * (Math.floor(j / 2) + 0.5) : (j % 2 ? sd : -sd) * Math.ceil(j / 2); ys[i] = y * p; bal += Math.sign(y); }); }); return ys; };
+    B.alt = (k) => (k % 2 ? -(k + 1) / 2 : k / 2);   // row k of a stack mirrored about a line: 0 on it, then above, below, above...
+    // The overflow piles of a scale: w wide, past a gap at each end. rows(): ids stacked `per` across about x, row j at y(j).
+    B.ends = (sc, w, gap) => ({ lo: { x0: sc.a0 - gap - w, x1: sc.a0 - gap, dir: -1 }, hi: { x0: sc.a1 + gap, x1: sc.a1 + gap + w, dir: 1 }, a0: sc.a0, a1: sc.a1 });
+    const rows = (pos, ids, x, w, p, r, y) => { const per = Math.max(1, Math.floor((w + B.GAP) / p)); ids.forEach((i, j) => { const row = Math.floor(j / per), n = Math.min(per, ids.length - row * per); pos[i] = { x: x + (j % per - (n - 1) / 2) * p, y: y(row), r }; }); };
+    // The swarm of vs on sc about y = line, `half` room each way: on the meter's marks a honeycomb, else best first, the ringed one last; a coarse
+    // meter's wide column in bricks; past an end, in its pile. Too tall, every bead shrinks. -> {r, pitch, line, pos, ext, over, cnt, per}
+    B.swarm = (vs, sc, line, half, fit, ends, ring) => { const w = Math.abs(sc.w), ord = vs.map((v, i) => i).filter((i) => i !== ring).sort((a, b) => sc.at(vs[a]) - sc.at(vs[b]) || a - b).concat(ring >= 0 ? [ring] : []);
+      const lay = (r) => { const p = 2 * r + B.GAP, pos = new Array(vs.length), over = { lo: [], hi: [] }, main = [], cnt = {}, brick = !!sc.col && w + B.GAP >= 2 * p;
+        ord.forEach((i) => { const o = sc.off(vs[i]); (o < 0 ? over.lo : o > 0 ? over.hi : main).push(i); if (!o && sc.col) cnt[sc.col(vs[i])] = (cnt[sc.col(vs[i])] || 0) + 1; });
+        if (brick) { const by = {}; main.forEach((i) => { const c = sc.col(vs[i]); (by[c] = by[c] || []).push(i); });
+          Object.keys(by).forEach((c) => { const m = sc.mid(+c), a = Math.max(m - w / 2, ends.a0), b = Math.min(m + w / 2, ends.a1); rows(pos, by[c], (a + b) / 2, b - a, p, r, (k) => line + B.alt(k) * p); }); }
+        else { const xs = vs.map((v) => sc.at(v)), rs = vs.map((v, i) => (i === ring ? r + B.RING : r)), ids = main.filter((i) => i !== ring), col = vs.map((v) => sc.col(v));
+          const comb = !!sc.col && 0.866 * p <= w + 1e-6 && ids.every((i) => Math.abs(xs[i] - sc.mid(col[i])) < 0.01 * w), on = comb ? ids.slice() : [], ys = comb ? B.comb(col, ids, p) : B.swarmY(xs, rs, ids, [], on);
+          if (main.includes(ring)) B.swarmY(xs, rs, [ring], ys, on); main.forEach((i) => { pos[i] = { x: xs[i], y: line + ys[i], r }; }); }
+        ['lo', 'hi'].forEach((k) => rows(pos, over[k], (ends[k].x0 + ends[k].x1) / 2, ends[k].x1 - ends[k].x0, p, r, (j) => line + B.alt(j) * p)); let ext = 0; pos.forEach((q) => { ext = Math.max(ext, Math.abs(q.y - line) + q.r); });
+        return { r, pitch: p, line, pos, ext, over, cnt, per: brick ? Math.floor((w + B.GAP) / p) : 1 }; };
+      const s = lay(fit.r); if (s.ext <= half + 1e-6) return s; let lo = 1, hi = fit.r; for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; if (lay(m).ext <= half + 1e-6) lo = m; else hi = m; } return lay(lo); };
+    // The pile a pour lands on: B.stack's, a reading past an end in that end's pile.
+    B.heap = (vs, sc, base, top, fit, ends) => { const on = vs.map((v, i) => i).filter((i) => !sc.off(vs[i])), st = B.stack(on.map((i) => vs[i]), sc, base, top, fit), pos = new Array(vs.length); on.forEach((i, j) => { pos[i] = st.pos[j]; });
+      ['lo', 'hi'].forEach((k) => { const e = ends[k]; rows(pos, vs.map((v, i) => i).filter((i) => sc.off(vs[i]) === e.dir), (e.x0 + e.x1) / 2, e.x1 - e.x0, st.pitch, st.r, (j) => base - 1.5 - st.r - j * st.pitch); }); return Object.assign({}, st, { pos }); };
+    // The fade: z SDs from the mean, cat2 below and cat1 above, mixed with the page (26% at the mean) or on the dark page a neutral grey (14%), the
+    // role itself from 2.6 SD. lo: another share at the mean (small dots).
+    B.fade = (z, lo) => { const dk = K.theme.dark; lo = lo == null ? (dk ? 14 : 26) : lo; return 'color-mix(in srgb, var(--k-' + (z < 0 ? 'cat2' : 'cat1') + ') ' + Math.round(lo + (100 - lo) * Math.min(1, Math.abs(z) / 2.6)) + '%, ' + (dk ? 'color-mix(in srgb, var(--k-ink) 30%, var(--k-bg))' : 'var(--k-bg)') + ')'; };
+    // B.blooms: a disc under each glint. B.paint: B.draw, k 0..1 of the way to its colour: the old body dims to a ghost (k 0.12 to 0.27), then the
+    // colour wells up from the centre in a faint wash of itself (to 0.52; never two hues at once), then a swell of 8% and back; a warning mixes in.
+    B.blooms = (bs) => bs.forEach((b) => { b.f = K.svg('circle', { 'pointer-events': 'none' }); b.g.before(b.f); });
+    B.paint = (b, d, warn, floor, z, k) => { const s = k > 0 && k < 1 ? 1 + 0.08 * Math.sin(Math.PI * B.c01((k - 0.6) / 0.4)) : 1, u = B.c01((k - 0.27) / 0.25), on = d && d.a > 0.002 && !d.hollow && k > 0.002;
+      B.draw(b, d && Object.assign({}, d, { r: d.r * s }), warn, floor); const f = B.fade(z, d && d.r < 3 ? (K.theme.dark ? 24 : 40) : null), c = on && (warn > 0 ? 'color-mix(in srgb, var(--k-warn) ' + Math.round(100 * Math.min(1, warn)) + '%, ' + f + ')' : f);
+      if (B.vis(b.f, on && u > 0 && u < 1 ? Math.min(1, d.a) : 0)) { B.set(b.f, { cx: d.x, cy: d.y, r: Math.max(0, d.r * s - 0.6) * K.ease(u) }); b.f.style.fill = c; }
+      if (!on) return; const a = Math.min(1, d.a); if (u > 0) { b.c.style.fill = c; if (u < 1) b.c.style.opacity = (a * (0.15 + 0.85 * u)).toFixed(3); } else b.c.style.opacity = (a * (1 - 0.85 * B.c01((k - 0.12) / 0.15))).toFixed(3); b.g.style.opacity = (a * B.lerp(1, 0.2 + 0.8 * Math.min(1, Math.max(warn, Math.abs(z) / 2.6)), k)).toFixed(3); };
+    // The swarm's outline, mirrored, v0..v1: the reach of the beads within 3/4 of a column, relaxing 0..1 into expect(v) beads; thinner than a bead,
+    // it opens round any bead there (drawn under the beads, so a taller one sits over it). -> {up, dn, area}.
+    B.mirror = (sc, sw, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), w = Math.abs(sc.w), n = Math.max(1, Math.ceil(Math.abs(b - a) / (w / 6))), per = sw.per || 1, U = [], D = [];
+      const on = sw.pos.filter((q) => q && q.x >= Math.min(sc.a0, sc.a1) && q.x <= Math.max(sc.a0, sc.a1)); for (let k = 0; k <= n; k++) { const x = B.lerp(a, b, k / n); let sky = 0, ring = 0;
+        on.forEach((q) => { const dx = Math.abs(q.x - x), dy = Math.abs(q.y - sw.line), c = q.r + 0.8; if (dx < 0.75 * w) sky = Math.max(sky, dy + c); if (dx < c) ring = Math.max(ring, dy + Math.sqrt(c * c - dx * dx)); });
+        const bell = expect(sc.val(x)) / per * sw.pitch / 2, h = B.lerp(sky, Math.max(bell, B.lerp(bell, ring, B.c01(2 - 2 * bell / sw.pitch))), relax); U.push(B.r2(x) + ' ' + B.r2(sw.line - h)); D.push(B.r2(x) + ' ' + B.r2(sw.line + h)); }
+      return { up: 'M' + U.join('L'), dn: 'M' + D.join('L'), area: 'M' + U.join('L') + 'L' + D.reverse().join('L') + 'Z' }; };
+    // The tip's hinge: about the line at ref onto a spine at x1 (value up the page, k), its depth squeezed to `room`.
+    B.swarmAnchor = (sw, sc, sv, ref, spine, room) => { const k = Math.abs(sv.w / sc.w); return { x0: sc.at(ref), y0: sw.line, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / 2 / Math.max(1, sw.ext)) }; };
+    // A pour's pile holds 0.42 s, then rises in a wave from `mid` (the farthest 0.7 s later), 6% overshoot. B.risen -> [bead, k]. B.chime: from a press.
+    B.rise = (scene, heap, mid) => { const t0 = Math.max(...scene.land) + 0.42, wave = Math.max(0.35, Math.min(0.7, 4.9 - B.T.rise - t0)), far = Math.max(1, ...heap.map((q) => Math.abs(q.x - mid))); scene.rise = heap.map((q) => t0 + wave * Math.abs(q.x - mid) / far); scene.end = Math.max(scene.end, Math.max(...scene.rise) + B.T.rise); return scene; };
+    B.risen = (T, scene, i, q, heap, sw) => { const u = scene.rise ? (T - scene.rise[i]) / B.T.rise : 0; return u <= 0 ? [q, 0] : [B.hop(heap[i], sw[i], u, 0, B.backOut), B.c01(u)]; };
+    B.chime = (scene) => K.sound.chord([523, 587, 659, 784, 880, 1047], { at: Math.min(...scene.rise), stagger: 0.14, dur: 0.12, type: 'sine', gain: 0.4 });
+  })();
+  // ==== end of the swarm's additions ====
+
+  // ---------- the examples and their rules ----------
+  // Reading i = 27.00 V + offset + drift × i / 10 + random error (1 SD) × its twelve nudges added, read to the meter's step (the offset step
+  // uses its own 0.04 V). Each extra applies only where shown. Insulation resistance i = 200 MΩ × 10^(0.15 × its nudges), read to 1 MΩ.
+  const N = 50, TRUE = 27.0, RES = 0.01, LIM = [26.92, 27.08], FIRST = 544775, RING = 27, RATE = 0.1, LSEED = 2045, TSEED = 24;
+  const OFF_SD = 0.04, ACC = 0.001 * TRUE + 2 * RES, IR0 = 200, IR_SD = 0.15;
+  const S = { pour: 0, bal: 1, ir: 2, off: 3, res: 4, curve: 5, tol: 6, time: 7, cause: 8, life: 9, tub: 10 };
+  let batch = FIRST, sel = RING;
+  const NUD = new Map(), nud = (b) => { if (!NUD.has(b)) NUD.set(b, B.nudges(b, 4 * N)); return NUD.get(b); };
+  const slipOf = (p) => (p.step === S.bal || p.step === S.tol ? p.slip : 0), driftOf = (p) => (p.step === S.time ? p.drift : 0);
+  const offOf = (p) => (p.step === S.off ? p.offset : 0), avgOf = (p) => (p.step === S.off ? +p.avg : 1), resOf = (p) => (p.step === S.res ? +p.res : RES);
+  const spreadOf = (p) => (p.step === S.off ? OFF_SD : p.spread);
+  const irOn = (p) => p.step === S.ir, irEven = (p) => irOn(p) && p.irs === 'even', hasF = (p) => p.step === S.pour || p.step === S.off || (irOn(p) && !irEven(p));
+  const isLife = (s) => s === S.life || s === S.tub, arrOf = (p) => (p.step === S.tub ? 'tub' : p.arr), yearsOf = (p) => (p.step === S.tub ? p.age : p.years);
+  const voltPile = (s) => s === S.pour || s === S.bal || (s >= S.off && s <= S.tol);   // a swarm on the voltage scale
+  const fulOf = (p) => p.step === S.bal || (p.step >= S.off && p.step <= S.tol) || irEven(p);   // the beam rests on a fulcrum at the mean
+  const fadeOn = (p) => voltPile(p.step) || irOn(p) || p.step === S.time;   // beads coloured by how far they sit from the mean
+  const dragOn = (s) => s === S.bal || s === S.tol;   // the ringed reading can be dragged
+  // The rule, pure: from a batch's nudges U, each bead the mean of n readings, each read to res.
+  function gen(U, spread, n, res, off, drift) {
+   const out = [];
+   for (let i = 0; i < N; i++) { let v = 0; for (let j = 0; j < n; j++) v += B.round(TRUE + off + drift * i / 10 + spread * B.sum(U[i * n + j]), res); out.push(n > 1 ? +(v / n).toFixed(6) : v); }
+   return out;
+  }
+  const irGen = (U) => Array.from({ length: N }, (_, i) => B.round(IR0 * Math.pow(10, IR_SD * B.sum(U[2 * N + i])), 1));
+  function readings(p, b, s) {
+   const U = nud(b == null ? batch : b);
+   if (irOn(p)) return irGen(U);
+   const vs = gen(U, spreadOf(p), avgOf(p), resOf(p), offOf(p), driftOf(p)), k = s == null ? sel : s;
+   if (slipOf(p)) vs[k] = B.round(vs[k] + slipOf(p), RES);
+   return vs;
+  }
+  // On a limit is in; past it, out. Each limit line sits on the outer edge of its limit's column, so a bead past a line is out.
+  const isOut = (v) => v < LIM[0] - 1e-9 || v > LIM[1] + 1e-9, limX = (Z) => [Z.at(LIM[0]) - Z.w / 2, Z.at(LIM[1]) + Z.w / 2];
+  const seen = new Map(), note = (b, spread) => seen.set(b, readings({ step: S.pour, spread }, b).some(isOut));   // the tally: did an honest reading land out?
+  note(FIRST, 0.03);
+  // Same cause: a reading every 4 hours. The air swings daily; bearing and current each follow it, plus their own nudges (the current's rows
+  // N..2N−1, never the bearing's): with a steady air they share nothing.
+  const AIR = 25, DAY = 6, airAt = (i, sw) => AIR + sw * Math.sin(2 * Math.PI * i / DAY);
+  function pairsFrom(U, sw) {
+   const xs = [], ys = [];
+   for (let i = 0; i < N; i++) { const a = airAt(i, sw) - AIR; xs.push(B.round(40 + 0.8 * a + 0.5 * B.sum(U[i]), 0.1)); ys.push(B.round(0.4 + 0.03 * a + 0.02 * B.sum(U[N + i]), 0.001)); }
+   return [xs, ys];
+  }
+  // Lifetimes. A series pair stops at its first failure, a parallel one at its second. The bathtub is a sketch: early faults fading over a year, a
+  // low steady rate, wear-out near 24 years. H: the failure rate added up so far; h: the rate now.
+  const TUB = { e0: 0.25, tau: 1, lam: 0.02, T: 24, k: 8 };
+  const Htub = (t) => TUB.e0 * TUB.tau * (1 - Math.exp(-t / TUB.tau)) + TUB.lam * t + Math.pow(t / TUB.T, TUB.k);
+  const htub = (t) => TUB.e0 * Math.exp(-t / TUB.tau) + TUB.lam + (TUB.k / TUB.T) * Math.pow(t / TUB.T, TUB.k - 1);
+  const LIFE = new Map();
+  function lives(b, arr) {
+   const key = b + arr;
+   if (!LIFE.has(key)) {
+    const own = arr === 'tub' ? B.uni(b + TSEED, N).map((u) => B.lifeFrom(Htub, u, 30)) : B.uni(b + LSEED, N).map((u) => -Math.log(u) / RATE);
+    LIFE.set(key, { own, tf: own.map((t, i) => (arr === 'series' ? Math.min(t, own[i ^ 1]) : arr === 'parallel' ? Math.max(t, own[i ^ 1]) : t)) });
+   }
+   return LIFE.get(key);
+  }
+  const paired = (arr) => arr === 'series' || arr === 'parallel';
+  const Rsys = (arr, t) => { if (arr === 'tub') return Math.exp(-Htub(t)); const R = Math.exp(-RATE * t); return arr === 'series' ? R * R : arr === 'parallel' ? 1 - (1 - R) * (1 - R) : R; };
+  const hsys = (arr, t) => { if (arr === 'tub') return htub(t); const R = Math.exp(-RATE * t); return arr === 'series' ? 2 * RATE : arr === 'parallel' ? 2 * RATE * (1 - R) / (2 - R) : RATE; };
+  const MTBF = (arr) => (arr === 'series' ? 0.5 : arr === 'parallel' ? 1.5 : 1) / RATE;
+  const nSys = (arr) => (paired(arr) ? N / 2 : N);
+  const nb = (t) => t.replace(/ /g, ' ');   // a formula never splits across lines
+  const RULE = { single: '50 × R, where ' + nb('R = e^(−λt)'), series: '25 pairs × R², ' + nb('R = e^(−λt)'), parallel: '25 pairs × ' + nb('(1 − (1 − R)²)'), tub: '50 × R, with R from the sketch' };
+  const MRULE = { single: '1 ÷ λ for one unit', series: '1 ÷ (2λ) for a pair', parallel: '1.5 ÷ λ for a pair', tub: '' };
+
+  // ---------- controls and readouts ----------
+  const STEPS = [
+   { title: 'Fifty readings', text: 'Each reading starts at the true value and is nudged by chance twelve times on its way down. Tap a bead to see its path.' },
+   { title: 'Mean and spread', text: 'The mean is where the pile balances. Drag the ringed bead to make one reading slip.' },
+   { title: 'Spread by a factor', text: 'Insulation resistance spreads by a factor, so each nudge multiplies the reading. On a scale by factors, the nudges add again.' },
+   { title: 'Offset and repeats', text: 'Here each reading\'s random error is 0.04 V. Say the meter reads a little high, and a bead can be the mean of several readings.' },
+   { title: 'A coarser meter', text: 'A meter shows only whole steps of its last digit. Each column of the pile is one step.' },
+   { title: 'The normal curve', text: 'About 68% of readings sit within 1 SD of the mean, 95% within 2 SD and 99.7% within 3 SD.' },
+   { title: 'Out of tolerance', text: 'Say the limits are 26.92 V and 27.08 V, and a reading on a limit is in. The ruler counts how many SDs a reading sits from the others.' },
+   { title: 'Over time', text: 'The pile tips onto its side, and the readings peel off in the order they were taken.' },
+   { title: 'Same cause', text: 'Two other strings of readings, taken every 4 hours over the same days: a pump bearing\'s temperature and a battery\'s float current.' },
+   { title: 'Lifetimes', text: 'Now each bead is a unit in service, and each one fails at its own random time.' },
+   { title: 'The bathtub', text: 'Real units often fail early, then rarely, then wear out. Here each unit\'s failure rate follows a sketch of that shape.' },
+  ];
+  const cStep = K.stepper({ id: 'step', label: 'Readings', steps: STEPS, value: 0, into: '#prog' });
+  const cSpread = K.control({ id: 'spread', label: 'Random error (1 SD)', min: 0.015, max: 0.04, step: 0.005, value: 0.03, snap: [0.015], fmt: (v) => K.fmt(v, { decimals: 3 }) + ' V', into: '#controls' });
+  const cSlip = K.control({ id: 'slip', label: 'Slip on the ringed reading', min: -0.1, max: 0.1, step: 0.01, value: 0, fmt: (v) => K.fmt(v, { decimals: 2, sign: true }) + ' V', into: '#controls' });
+  const cIrs = K.choice({ id: 'irs', label: 'Scale', options: [{ value: 'log', label: 'By factors' }, { value: 'even', label: 'Even' }], value: 'log', into: '#choices' });
+  const cOff = K.control({ id: 'offset', label: 'Meter reads high by', min: 0, max: 0.03, step: 0.01, value: 0, fmt: (v) => K.fmt(v, { decimals: 2 }) + ' V', into: '#controls' });
+  const cAvg = K.choice({ id: 'avg', label: 'Each bead is the mean of', options: [{ value: '1', label: '1 reading' }, { value: '2', label: '2 readings' }, { value: '4', label: '4 readings' }], value: '1', into: '#choices' });
+  const cRes = K.choice({ id: 'res', label: 'The meter reads to', options: [{ value: '0.01', label: '0.01 V' }, { value: '0.05', label: '0.05 V' }], value: '0.01', into: '#choices' });
+  const cDrift = K.control({ id: 'drift', label: 'Drift per 10 readings', min: 0, max: 0.01, step: 0.001, value: 0, fmt: (v) => K.fmt(v, { decimals: 3, sign: v > 0 }) + ' V', into: '#controls' });
+  const cView = K.choice({ id: 'view', label: 'Show them', options: [{ value: 'time', label: 'Over time' }, { value: 'xy', label: 'One against the other' }], value: 'time', into: '#choices' });
+  const cSwing = K.control({ id: 'swing', label: 'How much the air swings', min: 0, max: 4, step: 0.5, value: 3, fmt: (v) => '±' + K.fmt(v, { decimals: 1 }) + ' °C', into: '#controls' });
+  const cYears = K.control({ id: 'years', label: 'Years in service', min: 0, max: 30, step: 1, value: 5, snap: [10], fmt: (v) => v + (v === 1 ? ' year' : ' years'), into: '#controls' });
+  const cArr = K.choice({ id: 'arr', label: 'Units', options: [{ value: 'single', label: 'One by one' }, { value: 'series', label: 'Pairs in series' }, { value: 'parallel', label: 'Pairs in parallel' }], value: 'single', into: '#choices' });
+  const cAge = K.control({ id: 'age', label: 'Years in service', min: 0, max: 30, step: 1, value: 30, fmt: (v) => v + (v === 1 ? ' year' : ' years'), into: '#controls' });
+  K.button({ label: 'Drop a fresh batch', secondary: true, into: '#controls', press: fresh });
+  K.stage('#fig', '#controls');
+
+  const of50 = (v) => v + ' of ' + N;
+  const R = {
+   lo: K.readout({ id: 'lo', label: 'Lowest', unit: 'V', decimals: 2, into: '#outs' }),
+   hi: K.readout({ id: 'hi', label: 'Highest', unit: 'V', decimals: 2, into: '#outs' }),
+   range: K.readout({ id: 'range', label: 'Range', unit: 'V', decimals: 2, into: '#outs' }),
+   sd: K.readout({ id: 'sd', label: 'Standard deviation', unit: 'V', decimals: 3, into: '#outs' }),
+   unc: K.readout({ id: 'unc', label: 'Give or take', prefix: '±', unit: 'V', decimals: 3, hint: nb('2 SD ÷ √50'), into: '#outs' }),
+   err: K.readout({ id: 'err', label: 'Mean minus true value', unit: 'V', decimals: 3, into: '#outs' }),
+   in1: K.readout({ id: 'in1', label: 'Within 1 SD', fmt: of50, hint: 'The curve expects 68%', into: '#outs' }),
+   in2: K.readout({ id: 'in2', label: 'Within 2 SD', fmt: of50, hint: 'The curve expects 95%', into: '#outs' }),
+   in3: K.readout({ id: 'in3', label: 'Within 3 SD', fmt: of50, hint: 'The curve expects 99.7%', into: '#outs' }),
+   out: K.readout({ id: 'out', label: 'Out of tolerance', fmt: of50, into: '#outs' }),
+   z: K.readout({ id: 'z', label: 'Ringed reading', unit: 'SD', decimals: 1, into: '#outs' }),
+   tally: K.readout({ id: 'tally', label: 'Batches with a reading out', fmt: (v) => v + ' of ' + seen.size, into: '#outs' }),
+   trend: K.readout({ id: 'trend', label: 'Trend per 10 readings', unit: 'V', decimals: 3, into: '#outs' }),
+   r: K.readout({ id: 'r', label: 'How closely they line up', fmt: (v) => K.fmt(v, { decimals: 2, sign: true }), hint: '+1 a perfect line, 0 none', into: '#outs' }),
+   alive: K.readout({ id: 'alive', label: 'Still working', fmt: (v) => v + ' of ' + (paired(arrOf(K.params())) ? N / 2 + ' pairs' : N), hint: 'Counted on the shelf', into: '#outs' }),
+   expect: K.readout({ id: 'expect', label: 'The rule expects', decimals: 1, hint: RULE.single, into: '#outs' }),
+   mtbf: K.readout({ id: 'mtbf', label: 'MTBF', unit: 'years', decimals: 0, hint: MRULE.single, into: '#outs' }),
+   rate: K.readout({ id: 'rate', label: 'Failure rate now', unit: 'a year', decimals: 2, hint: 'For each unit still working', into: '#outs' }),
+  };
+  const GAUGE = [R.in1, R.in2, R.in3].map((r, j) => B.gauge(r, [0.6827, 0.9545, 0.9973][j]));
+  // The mean and median have no tiles: the drawing sets them bold (bd-val, hidden while Dan answers a check).
+  const SHOWN = [['lo', 'hi', 'range'], ['sd'], [], ['unc', 'err'], ['sd'], ['in1', 'in2', 'in3'], ['out', 'z', 'tally'], ['trend'], ['r'], ['alive', 'expect', 'mtbf'], ['alive', 'expect', 'rate']];
+  const CTRLS = [[cSpread], [cSlip], [cIrs], [cOff, cAvg], [cRes], [cSpread], [cSlip], [cDrift], [cView, cSwing], [cYears, cArr], [cAge]];
+
+  K.model((p) => {
+    const vs = readings(irOn(p) ? Object.assign({}, p, { step: S.pour }) : p), s = B.stats(vs), rest = B.stats(vs.filter((v, i) => i !== sel)), f = B.fit(vs.map((v, i) => [i, v]));
+    const pr = pairsFrom(nud(batch), p.swing), ir = B.stats(irGen(nud(batch)));
+    let tally = 0, alive = 0;
+    seen.forEach((v) => { if (v) tally++; });
+    const arr = arrOf(p), yrs = yearsOf(p), L = lives(batch, arr), by = paired(arr) ? 2 : 1;
+    for (let i = 0; i < N; i += by) if (L.tf[i] > yrs) alive++;
+    return { lo: s.lo, hi: s.hi, range: s.hi - s.lo, mean: s.m, median: s.med, sd: s.sd, irMean: ir.m, irMed: ir.med, unc: 2 * s.sd / Math.sqrt(N), err: s.m - TRUE,
+     in1: B.within(vs, s.m, s.sd, 1), in2: B.within(vs, s.m, s.sd, 2), in3: B.within(vs, s.m, s.sd, 3),
+     out: vs.filter(isOut).length, z: rest.sd > 0 ? (vs[sel] - rest.m) / rest.sd : 0, tally, trend: f.b * 10, r: B.corr(pr[0], pr[1]),
+     alive, expect: nSys(arr) * Rsys(arr, yrs), mtbf: MTBF(arr), rate: hsys(arr, yrs) };
+  });
+
+  // ---------- geometry: viewBox 340 × 300, one height for every view ----------
+  // The beam is the axis; a swarm sits over it about its own line. Past each end, after a gap, a pile.
+  const BASE = 232, FH = 56, RN = 258, RD = 274, RT = 295, RMAX = 5.6, SWB = BASE - 5;   // the beam; the field's height; the rows under the beam; a swarm's lowest reach
+  const TOPS = (st) => (st === S.off ? 84 : st === S.pour || st === S.ir || st === S.curve ? 70 : st === S.tol ? 58 : 56);   // a swarm's highest reach: under the field, the bell's brackets or the values
+  const LINE = (st) => (TOPS(st) + SWB) / 2, HALF = (st) => (SWB - TOPS(st)) / 2;   // its line, and its room each way
+  const VZ = B.scale(26.9, 27.1, RES, 41, 299), ENDS = B.ends(VZ, 24, 9);   // 21 columns of 0.01 V; under 26.90 V and over 27.10 V, a pile each
+  const ZCB = B.scale(26.9, 27.1, 0.05, VZ.at(26.875), VZ.at(27.125));   // the coarse meter: columns five times as wide, on the same voltage scale
+  const IRB = Math.log10(16) / 24, IRL = B.logScale(50 * Math.pow(10, IRB / 2), 800 / Math.pow(10, IRB / 2), 1 / IRB, 41, 299), IRE = B.scale(12.5, 587.5, 25, 41, 299);   // by factors 50 to 800 MΩ (each column 12% more), or even to 600 MΩ (25 MΩ a column)
+  // Bead size, the tallest column k reaching (k − 1) ÷ 2 places each way: at most 0.52 of a column (r 6.4), so columns nest; B.swarm shrinks it.
+  const RSW = 0.52 * VZ.w, fitSw = (k, half) => { const c = Math.ceil((k - 1) / 2), r = Math.min(RSW, (half - c) / (2 * c + 1)); return { r, pitch: 2 * r + 1 }; };
+  const FIT0 = fitSw(B.peak(N, RES, 0.015), HALF(S.pour));
+  const zOf = (vs, lg) => { const zv = vs.map((v) => (lg ? Math.log10(v) : v)), s = B.stats(zv); return zv.map((v) => (s.sd > 0 ? (v - s.m) / s.sd : 0)); };   // SDs from the mean on the scale shown
+  const RX0 = 46, RX1 = 266, RR = 2.2, SPINE = 310, ROOMT = 48, VY0 = 222, VY1 = 40;   // the time view; the swarm on its side about a spine near the right edge
+  const CX0 = 52, CX1 = 326, CR = 3.4, CT = (i) => CX0 + 6 + i * (CX1 - CX0 - 12) / (N - 1);
+  const CXS = B.lin(34, 46, CX0, CX1), CYB = B.lin(34, 46, 110, 34), CYA = B.lin(21, 29, 148, 124), CYC = B.lin(0.2, 0.6, 222, 166), CYF = B.lin(0.2, 0.6, 222, 40);
+  // Lifetimes: a column a year on a higher beam, the shelf above; the failure rate under the years.
+  const SCL = B.scale(0.5, 29.5, 1, 14, 306), LB = 176, LTOP = 58, LN = LB + 26, SHB = 34, SHG = 13.5, HZ0 = 268, HZT = 228, HZMAX = 0.3;
+  const HZY = (h) => HZ0 - Math.min(h, 99) / HZMAX * (HZ0 - HZT);
+  const shelfAt = (i) => ({ x: 170 + ((i >> 1) - 12) * 11, y: SHB - (i & 1) * SHG, r: FIT0.r, a: 1 });
+  // Bead size: with the field, for the narrowest swarm the slider allows; else this batch's, no slip (one more where it drags).
+  function fitOf(p, U) {
+   U = U || nud(batch);
+   if (p.step === S.pour || p.step === S.off) return FIT0;
+   if (irOn(p)) { const vs = irGen(U), f = { r: RMAX, pitch: 2 * RMAX + 1 }, r = Math.min(IRL.w / 2 - 0.6, B.swarm(vs, IRL, LINE(S.ir), HALF(S.ir), f, ENDS).r, B.swarm(vs, IRE, LINE(S.ir), HALF(S.ir), f, ENDS).r); return { r, pitch: 2 * r + 1 }; }
+   return fitSw(B.tallest(gen(U, p.spread, 1, RES, 0, driftOf(p)).filter((v) => !VZ.off(v)), VZ) + (dragOn(p.step) ? 1 : 0), HALF(p.step));
+  }
+  const keyOf = (p) => [p.step, batch, sel, p.spread, slipOf(p), driftOf(p), offOf(p), avgOf(p), resOf(p), irOn(p) ? p.irs : '-', isLife(p.step) ? arrOf(p) : '-', p.step === S.cause ? p.swing : '-'].join('|');
+  let cacheKey = '', LAY = null;
+  function layout(p) {
+   const key = keyOf(p);
+   if (key === cacheKey) return LAY;
+   const st = p.step, ir = irOn(p), vs = readings(p), zc = ir ? (irEven(p) ? IRE : IRL) : VZ, sc = resOf(p) > RES ? ZCB : zc;
+   const fit = fitOf(p), s = B.stats(vs), f = B.fit(vs.map((v, i) => [i, v]));
+   // Each bead's colour: its SDs from the mean (by factors, of the logs).
+   const z = zOf(vs, ir && !irEven(p));
+   // The swarm (one that drags last); the pile a pour lands on.
+   const sw = B.swarm(vs, sc, LINE(st), HALF(st), fit, ENDS, dragOn(st) ? sel : -1), heap = B.heap(vs, sc, BASE, TOPS(st), fit, ENDS);
+   // It hugs the beam: its line just over its reach below (the ringed bead goes only above, so the line holds still), or the bell's.
+   let up = 0, R = st === S.curve || st === S.time ? N * RES / (s.sd * 2.5066) / 2 * sw.pitch + 2 : 0;
+   sw.pos.forEach((q) => { up = Math.max(up, sw.line - q.y + q.r); R = Math.max(R, q.y - sw.line + q.r); });
+   const dl = Math.max(TOPS(st) + up, SWB - (st === S.off ? 14 : 2) - R) - sw.line;
+   sw.pos.forEach((q) => { q.y += dl; }); sw.line += dl;
+   // The peg field hangs just above the swarm and the pile.
+   const tops = (ps) => ps.reduce((m, q) => Math.min(m, q.y - q.r), BASE), top = tops(sw.pos), fy = Math.max(st === S.off ? 86 : 68, Math.min(150, Math.min(top, tops(heap.pos)) - (st === S.off ? 30 : st === S.pour || st === S.ir ? 28 : 22)));
+   // Each bead's path through the pegs: its nudges added row by row (a mean of n: their paths' mean), `slope` per nudge.
+   const n = avgOf(p), U = nud(batch), cum = vs.map((v, i) => { const rows = ir ? [U[2 * N + i]] : Array.from({ length: n }, (_, j) => U[i * n + j]);
+     return Array.from({ length: 13 }, (_, k) => rows.reduce((a, u) => a + B.sum(u, k), 0) / rows.length); });
+   const slope = (ir ? IR_SD * 20 : spreadOf(p) / RES) * zc.w, hx = zc.at(ir ? IR0 : TRUE + offOf(p)), sp = slope / (2.4 * Math.sqrt(n));
+   // The time view's value scale: about ±3.6 SD about its trend.
+   const sr = Math.max(0.6 * RES, f.res), e0 = f.at(0), e1 = f.at(N - 1);
+   const vlo = Math.min(Math.min(e0, e1) - 3.6 * sr, s.lo - 0.8 * sr, TRUE - sr), vhi = Math.max(Math.max(e0, e1) + 3.6 * sr, s.hi + 0.8 * sr, TRUE + driftOf(p) * (N - 1) / 10 + sr);
+   // Lifetimes: each unit's place in the pile, columns of a year, earlier failures lower down.
+   const arr = arrOf(p), L = lives(batch, arr), ids = [];
+   for (let i = 0; i < N; i++) if (L.tf[i] < 30) ids.push(i);
+   ids.sort((a, b) => L.tf[a] - L.tf[b] || a - b);
+   const lst = B.stack(ids.map((i) => L.tf[i]), SCL, LB, LTOP, FIT0), slot = new Array(N).fill(null);
+   ids.forEach((i, j) => { slot[i] = lst.pos[j]; });
+   // Same cause: the strips, folded places, the air, the best fit.
+   let C = null;
+   if (st === S.cause) {
+    const [xs, ys] = pairsFrom(nud(batch), p.swing);
+    C = { xs, ys, tB: xs.map((x, i) => ({ x: CT(i), y: CYB.at(x), r: CR })), tC: ys.map((y, i) => ({ x: CT(i), y: CYC.at(y), r: CR })), F: xs.map((x, i) => ({ x: CXS.at(x), y: CYF.at(ys[i]), r: CR })),
+     fit: B.fit(xs.map((x, i) => [x, ys[i]])), lo: Math.min(...xs), hi: Math.max(...xs), air: B.trace((t) => airAt(t, p.swing), 0, N - 1, CT, CYA.at, 196, -Infinity).d };
+   }
+   LAY = { vroom: top - fy >= 20, vs, st: sw, sw, hp: heap, heap: heap.pos, sc, zc, fit, s, f, z, pile: sw.pos, top, fy, cum, slope, hx, sp, vlo, vhi, L, lst, slot, C, cp: null, unit: ir ? ' MΩ' : ' V', dec: ir ? 0 : 2, ends: ir ? (irEven(p) ? 'e' : 'l') : 'v' };
+   cacheKey = key;
+   return LAY;
+  }
+  const FY = { y0: 12, y1: 68 };   // the peg field's top and bottom as drawn now (it rides a spring)
+  const fieldX = (i, row) => Math.max(6, Math.min(334, SP.h.v + SP.sl.v * LAY.cum[i][row])), fieldNow = () => ({ y0: FY.y0, y1: FY.y1, x: fieldX });
+
+  // ---------- the drawing: every element made once, moved in paint() ----------
+  const $ = (id) => document.getElementById(id);
+  const svg = $('scene'), G = B.layers(svg), A = B.add, OWN = { 'data-own': '1' };   // OWN: fades by its own rule, not with the step
+  const PEG = B.pegs(G.field);
+  const win = A(G.field, 'rect', { class: 'bd-win', rx: 2 });
+  const hopper = A(G.field, 'path', { class: 'bd-hopper' }), trail = A(G.field, 'path', { class: 'bd-trail' });
+  const trueLab = A(G.field, 'text', { class: 'bd-small' }, 'true value'), meterLab = A(G.field, 'text', { class: 'bd-small' }, 'meter');
+  const accLab = A(G.field, 'text', { class: 'bd-small', 'text-anchor': 'middle' }, 'true value ± the meter\'s accuracy');
+  const intro = A(G.field, 'text', { class: 'bd-lab', 'text-anchor': 'end' });
+  const counter = A(G.over, 'text', { class: 'bd-small', x: 14 });
+  const bands = [3, 2, 1].map((z) => A(G.under, 'path', { class: 'bd-band', 'fill-opacity': z === 1 ? 1 : z === 2 ? 0.6 : 0.32 }));
+  const exts = [1, 2, 3].map(() => A(G.under, 'path', { class: 'bd-ext' }));
+  const edges = A(G.under, 'path', Object.assign({ class: 'bd-edge' }, OWN));
+  const meanLine = A(G.under, 'line', { class: 'bd-mean' }), medLine = A(G.under, 'line', { class: 'bd-medl' }), truthUp = A(G.under, 'line', { class: 'bd-truth' });
+  const thread = A(G.under, 'path', { class: 'bd-thread' }), runMean = A(G.under, 'path', { class: 'bd-run' }), hair = A(G.under, 'line', { class: 'bd-stem' });
+  const mtbfLine = A(G.under, 'line', { class: 'bd-truth' }), nowLine = A(G.under, 'line', { class: 'bd-now' }), nowHz = A(G.under, 'line', { class: 'bd-now' });
+  const cAir = A(G.under, 'path', { class: 'bd-air' });
+  const GRIDV = Array.from({ length: 15 }, (_, j) => +(26.7 + 0.05 * j).toFixed(2));
+  const grids = GRIDV.map(() => A(G.ghosts, 'line', { class: 'bd-grid', x1: RX0 - 4, x2: RX1 + 4 }));
+  const ghosts = Array.from({ length: N }, () => A(G.ghosts, 'circle', { class: 'bd-ghost' }));
+  const shelf = A(G.ghosts, 'line', { class: 'bd-shelf', x1: 30, x2: 310 });
+  const harness = Array.from({ length: N / 2 }, () => [A(G.ghosts, 'line', { class: 'bd-harness' }), A(G.ghosts, 'line', { class: 'bd-harness in' })]);
+  const links = Array.from({ length: N / 2 }, () => A(G.ghosts, 'line', { class: 'bd-link' }));
+  const beam = A(G.scale, 'line', { class: 'bd-beam' });
+  // The overflow piles' short axes, each named under it ("under", "over").
+  const ovAx = [0, 1].map(() => A(G.scale, 'line', Object.assign({ class: 'bd-ovax' }, OWN))), ovLab = [ENDS.lo, ENDS.hi].map((e, j) => A(G.axes, 'text', Object.assign({ class: 'bd-tn', 'text-anchor': 'middle', x: (e.x0 + e.x1) / 2, y: RN }, OWN), j ? 'over' : 'under'));
+  // The beam's ticks and numbers: volts, resistance by factors or even.
+  function tickSet(minorV, majorV, labs, own, dec) {
+   const o = own ? OWN : {};
+   return { minorV, majorV, minor: A(G.scale, 'path', Object.assign({ class: 'bd-tick' }, o)), major: A(G.scale, 'path', Object.assign({ class: 'bd-tick major' }, o)),
+    labs: labs.map((v) => [A(G.axes, 'text', Object.assign({ class: 'bd-tn', 'text-anchor': 'middle', y: RN }, o), K.fmt(v, { decimals: dec })), v]) };
+  }
+  const VT = Array.from({ length: 21 }, (_, c) => +(26.9 + c * RES).toFixed(2));
+  const TK = {
+   v: tickSet(VT.filter((v) => Math.round(v * 100) % 5), VT.filter((v) => !(Math.round(v * 100) % 5)), [26.9, 26.95, 27.0, 27.05, 27.1], false, 2),
+   l: tickSet(Array.from({ length: IRL.n }, (_, c) => Math.pow(10, Math.log10(IRL.lo) + c * IRB)), [50, 100, 200, 500, 800], [50, 100, 200, 500, 800], true, 0),
+   e: tickSet([50, 150, 250, 350, 450, 550], [0, 100, 200, 300, 400, 500, 600], [0, 200, 400, 600], true, 0),
+  };
+  // While a pile shows, the end number slides in, clear of its name.
+  function drawTicks(T, at, a, la, ov) {
+   const d = (vs, h) => vs.reduce((s, v) => { const x = at(v); return x < 5 || x > 335 ? s : s + 'M' + B.r2(x) + ' ' + (BASE + 1) + 'v' + h; }, '') || 'M0 0';
+   if (B.vis(T.minor, a)) B.set(T.minor, { d: d(T.minorV, 2.5) }); if (B.vis(T.major, a)) B.set(T.major, { d: d(T.majorV, 4) });
+   T.labs.forEach(([t, v], j) => { let x = at(v); const w = B.tw(t) / 2; if (ov && !j) x = B.lerp(x, Math.max(x, ENDS.a0 + w), ov[0]); if (ov && j === T.labs.length - 1) x = B.lerp(x, Math.min(x, ENDS.a1 - w), ov[1]); if (B.vis(t, la)) B.set(t, { x }); });
+  }
+  const lminor = A(G.scale, 'path', { class: 'bd-tick' }), lmajor = A(G.scale, 'path', { class: 'bd-tick major' });
+  const zones = [0, 1].map(() => A(G.scale, 'rect', { class: 'bd-zone', height: 4 }));
+  const beads2 = B.beads(G.beads, N, 'two'), beads = B.beads(G.beads, N); B.blooms(beads);   // the second string under the first, so a folded pair shows as one bead
+  const pulses = Array.from({ length: 12 }, () => A(G.marks, 'circle', { class: 'bd-pulse' }));
+  const ring = A(G.marks, 'circle', { class: 'bd-ring' }), chev = A(G.marks, 'path', { class: 'bd-chev' });
+  const handle = A(G.marks, 'circle', { class: 'bd-handle', r: 8 });
+  const fulcrum = A(G.over, 'path', { class: 'bd-fulcrum' });
+  // The mean's and median's values, bold over their dashed lines.
+  const meanVal = A(G.over, 'text', { class: 'bd-lab bd-val' }), medVal = A(G.over, 'text', { class: 'bd-lab bd-val' });
+  const span = A(G.over, 'path', { class: 'bd-span' }), jaws = A(G.over, 'path', { class: 'bd-jaw' }), rangeLab = A(G.over, 'text', { class: 'bd-small' }, 'range');
+  const sdDim = A(G.over, 'path', { class: 'bd-dim' }), sdL = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'end' }, '1 SD'), sdR = A(G.over, 'text', { class: 'bd-small' }, '1 SD');
+  const resDim = A(G.over, 'path', { class: 'bd-span' }), resLab = A(G.over, 'text', { class: 'bd-small' }, 'most beads');
+  const hat = A(G.over, 'path', { class: 'bd-dim' }), hatLab = A(G.over, 'text', { class: 'bd-name' }, 'result');
+  const stepDim = A(G.over, 'path', { class: 'bd-span' }), stepLab = A(G.over, 'text', { class: 'bd-small' }, 'one meter step');
+  const swCurve = A(G.under, 'path', { class: 'bd-curve' });   // the swarm's bell lies under the beads: a bead taller than it is drawn over it
+  const curve = A(G.over, 'path', { class: 'bd-curve' }), bellM = A(G.over, 'path', { class: 'bd-bell' }), bellA = A(G.over, 'path', { class: 'bd-curve' });
+  const brk = ['68%', '95%', '99.7%'].map((t) => [A(G.over, 'path', { class: 'bd-span' }), A(G.over, 'text', { class: 'bd-small' }, t)]);
+  const limits = [0, 1].map(() => A(G.over, 'line', { class: 'bd-limit' }));
+  const zoneLabs = ['too low', 'too high'].map((t) => A(G.over, 'text', { class: 'bd-wt', 'text-anchor': 'middle', y: RD + 2 }, t));
+  const ruler = A(G.over, 'path', { class: 'bd-ruler' }), rulerEnd = A(G.over, 'path', { class: 'bd-pointer' }), pointer = A(G.over, 'path', { class: 'bd-pointer' });
+  const ZS = Array.from({ length: 25 }, (_, j) => j - 12);
+  const zLabs = ZS.map((z) => A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', y: 34 }, z > 0 ? '+' + z : z < 0 ? '−' + -z : '0'));
+  const rulerCap = A(G.over, 'text', { class: 'bd-small', x: 14, y: 14 }, 'SDs from the mean of the others');
+  const trend = A(G.over, 'line', { class: 'bd-trend' }), truth = A(G.over, 'line', { class: 'bd-truth' });   // the true value over the best fit, so both show when they meet
+  const cFit = A(G.over, 'line', { class: 'bd-trend' });
+  const hzC = A(G.over, 'path', { class: 'bd-hz' }), hzUp = A(G.over, 'path', { class: 'bd-pointer' }), hzDot = A(G.over, 'circle', { class: 'bd-pointer' });
+  const nowHead = A(G.over, 'path', { class: 'bd-nowhead' }), mtbfLab = A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', y: 57 }, 'MTBF');
+  // Each view's titles and keys.
+  const pileTitle = A(G.axes, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: 170, y: RT }, 'Float voltage (V), simulated');
+  const irTitle = A(G.axes, 'text', Object.assign({ class: 'bd-title', 'text-anchor': 'middle', x: 170, y: RT }, OWN), 'Insulation resistance (MΩ), simulated');
+  const keyBell = A(G.axes, 'g');
+  A(keyBell, 'line', { class: 'bd-curve', x1: 118, x2: 134, y1: RD - 4, y2: RD - 4 }); A(keyBell, 'text', { class: 'bd-w', x: 139, y: RD }, 'normal curve');
+  const tAxis = A(G.axes, 'g');
+  A(tAxis, 'line', { class: 'bd-axis', x1: RX0 - 6, x2: RX1 + 6, y1: BASE, y2: BASE });
+  [1, 10, 20, 30, 40, 50].forEach((n) => { const x = B.r2(RX0 + (n - 1) * (RX1 - RX0) / (N - 1)); A(tAxis, 'line', { class: 'bd-axis', x1: x, x2: x, y1: BASE, y2: BASE + 4 }); A(tAxis, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x, y: RN }, String(n)); });
+  A(tAxis, 'text', { class: 'bd-tn', 'text-anchor': 'end', x: RX0 - 9, y: 26 }, 'V');
+  A(tAxis, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: (RX0 + RX1) / 2, y: 277 }, 'Simulated readings, in the order taken');
+  const gridN = GRIDV.map((v) => A(tAxis, 'text', { class: 'bd-tn', 'text-anchor': 'end', x: RX0 - 9 }, K.fmt(v, { decimals: 2 })));
+  const key = A(G.axes, 'g'), keyFit = A(key, 'g'), keyTrue = A(key, 'g');   // each key entry arrives with its line
+  A(keyFit, 'line', { class: 'bd-trend', x1: 46, x2: 62, y1: 291, y2: 291 }); A(keyFit, 'text', { class: 'bd-w', x: 67, y: RT }, 'best fit');
+  A(keyTrue, 'line', { class: 'bd-truth', x1: 134, x2: 152, y1: 291, y2: 291 }); A(keyTrue, 'text', { class: 'bd-w', x: 157, y: RT }, 'true value');
+  const keyRun = A(key, 'g');
+  A(keyRun, 'line', { class: 'bd-run', x1: 232, x2: 248, y1: 291, y2: 291 }); A(keyRun, 'text', { class: 'bd-w', x: 253, y: RT }, 'mean so far');
+  const lAxis = A(G.axes, 'g');
+  [0, 5, 10, 15, 20, 25, 30].forEach((t) => A(lAxis, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x: B.r2(SCL.at(t)), y: LN }, String(t)));
+  A(lAxis, 'line', { class: 'bd-axis', x1: 14, x2: 306, y1: HZ0, y2: HZ0 });
+  A(lAxis, 'path', { class: 'bd-tick major', d: 'M306 ' + HZT + 'V' + HZ0 + [0.1, 0.2, 0.3].map((h) => 'M306 ' + B.r2(HZY(h)) + 'h3.5').join('') });   // its own scale, at the right
+  [0.1, 0.3].forEach((h) => A(lAxis, 'text', { class: 'bd-tn', x: 312, y: B.r2(HZY(h) + 4.5) }, K.fmt(h, { decimals: 1 })));   // 0.1 a year: the steady rate reads at a glance
+  const hzLab = A(lAxis, 'text', { class: 'bd-small', x: 14, y: HZT - 8 });
+  A(lAxis, 'text', { class: 'bd-title', x: 14, y: RT }, 'Years in service, simulated');
+  const lKey = A(G.axes, 'g'), lKeyLine = A(lKey, 'line', { class: 'bd-curve', y1: 291, y2: 291 }), lKeyText = A(lKey, 'text', { class: 'bd-w', 'text-anchor': 'end', x: 330, y: RT }, 'the rule expects');
+  // Same cause: the time axis, its strips and the folded axes.
+  const cG = A(G.axes, 'g'), cTime = A(cG, 'g'), cBear = A(cG, 'g'), cX = A(cG, 'g');
+  A(cG, 'line', { class: 'bd-axis', x1: CX0 - 4, x2: CX1 + 2, y1: BASE, y2: BASE });
+  [1, 10, 20, 30, 40, 50].forEach((n) => { const x = B.r2(CT(n - 1)); A(cTime, 'line', { class: 'bd-axis', x1: x, x2: x, y1: BASE, y2: BASE + 4 }); A(cTime, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x, y: RN }, String(n)); });
+  A(cTime, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: (CX0 + CX1) / 2, y: 277 }, 'Simulated readings, one every 4 hours');
+  A(cBear, 'circle', { class: 'bd-bead', cx: 19, cy: 21.5, r: 4 }); A(cBear, 'text', { class: 'bd-lab', x: 27, y: 26 }, 'Pump bearing (°C)');
+  [36, 40, 44].forEach((v) => { const y = B.r2(CYB.at(v)); A(cBear, 'line', { class: 'bd-grid', x1: CX0 - 4, x2: CX1, y1: y, y2: y }); A(cBear, 'text', { class: 'bd-tn', 'text-anchor': 'end', x: CX0 - 8, y: y + 4.5 }, String(v)); });
+  [36, 38, 40, 42, 44].forEach((v) => { const x = B.r2(CXS.at(v)); A(cX, 'line', { class: 'bd-axis', x1: x, x2: x, y1: BASE, y2: BASE + 4 }); A(cX, 'text', { class: 'bd-tn', 'text-anchor': 'middle', x, y: RN }, String(v)); });
+  A(cX, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: (CX0 + CX1) / 2, y: 277 }, 'Pump bearing (°C), simulated');
+  const cCur = [0.3, 0.4, 0.5].map((v) => [A(cG, 'line', { class: 'bd-grid', x1: CX0 - 4, x2: CX1 }), A(cG, 'text', { class: 'bd-tn', 'text-anchor': 'end', x: CX0 - 8 }, K.fmt(v, { decimals: 1 })), v]);
+  const cCurS = A(cG, 'circle', { class: 'bd-bead two', cx: 19, r: 4 }), cCurT = A(cG, 'text', { class: 'bd-lab' }, 'Float current (A)');
+  const cAirLab = A(cG, 'text', { class: 'bd-w', 'text-anchor': 'end', x: CX0 - 8, y: B.r2(CYA.at(AIR) + 4.5) }, 'air');
+  const cKey = A(G.axes, 'g');
+  A(cKey, 'line', { class: 'bd-trend', x1: 236, x2: 252, y1: 291, y2: 291 }); A(cKey, 'text', { class: 'bd-w', x: 257, y: RT }, 'best fit');
+  {
+   let lm = '', lM = '';
+   for (let t = 0; t <= 30; t++) { const x = B.r2(SCL.at(t)); if (t % 5) lm += 'M' + x + ' ' + (LB + 1) + 'v2.5'; else lM += 'M' + x + ' ' + (LB + 1) + 'v4'; }
+   B.set(lminor, { d: lm }); B.set(lmajor, { d: lM });
+  }
+
+  // ---------- motion: the shared engine, and this lesson's own parts ----------
+  let stepNow = 0, was = -1, tipU = 0, rock = false, fulIn = false, fulWas = false, tagA = 1, tagDone = false, rolled = false, snapV = true, snapP = true;
+  let replay = false, T5A = null, trace = { i: -1, t: -1e9 }, FU = 0, lifeMoved = false, irMoved = false, PP = null;
+  const cur = () => PP || K.params();   // the settings K.update last took in
+  const drawnG = Array.from({ length: N }, () => ({ x: 170, y: BASE - 8, r: FIT0.r })), drawn2 = drawnG.map((d) => Object.assign({}, d));
+  const leaving = () => [G.under, G.over, G.axes, G.ghosts, G.marks, G.scale, G.tags].reduce((out, g) => out.concat(Array.prototype.filter.call(g.children, (el) => el !== beam && !el.hasAttribute('data-own'))), []);
+  const M = B.motion({ n: N, r: FIT0.r, paint: () => paint(), leaving, unmanaged: G.tags, tick, busy, done,
+    capture: () => ({ from2: drawn2.map((d) => Object.assign({}, d)), gfrom: drawnG.map((d) => Object.assign({}, d)), z0: ZD.slice() }) });
+  const drawn = M.drawn;
+  const SP = { f: M.spring(5, 0.42), m: M.spring(9, 0.85), sd: M.spring(9, 0.85), lo: M.spring(11, 0.5), hi: M.spring(11, 0.5), sl: M.spring(8, 0.7), sp: M.spring(8, 0.7), h: M.spring(7, 0.6),
+   vlo: M.spring(6, 0.85), vhi: M.spring(6, 0.85), fa: M.spring(7, 0.8), fb: M.spring(7, 0.8), bm: M.spring(7, 0.85), bs: M.spring(7, 0.85), mt: M.spring(7, 0.7), b0: M.spring(8, 0.9),
+   fy: M.spring(7, 0.8), b1: M.spring(8, 0.9), zp: M.spring(9, 0.5), by: M.spring(7, 0.85), ca: M.spring(7, 0.8), cb: M.spring(7, 0.8), cxa: M.spring(7, 0.8), cxb: M.spring(7, 0.8),
+   s0: M.spring(9, 0.8), s1: M.spring(9, 0.8), sy: M.spring(9, 0.8), ly: M.spring(9, 0.85) };   // vlo, vhi, fa, fb, bm and bs ride in mV; b0, b1 the beam's ends; the rest in drawing units
+  // Own fades (in 0.4 s, out 0.3 s): the field, coarse edges, resistance's numbers, overflow piles.
+  const FA = { field: 0, edge: 0, l: 0, e: 0, o0: 0, o1: 0, v: 0 };
+  const ovTo = (p, k) => ((voltPile(p.step) || irOn(p)) && layout(p).sw.over[k].length ? 1 : 0);
+  const faTo = (p) => ({ field: hasF(p) ? 1 : 0, edge: p.step === S.res && resOf(p) > RES ? 1 : 0, l: irOn(p) && !irEven(p) ? 1 : 0, e: irEven(p) ? 1 : 0, o0: ovTo(p, 'lo'), o1: ovTo(p, 'hi'), v: layout(p).vroom ? 1 : 0 });
+  const fadeStep = (dt, p) => { const to = faTo(p); Object.keys(FA).forEach((k) => {   // one set of numbers goes before the other comes, so they never overlap
+     const other = k === 'l' ? FA.e : k === 'e' ? FA.l : 0, wait = dt < 1e8 && to[k] > FA[k] && (k === 'l' || k === 'e') && (other > 0.01 || !!M.leave); if (!wait) FA[k] = B.toward(FA[k], to[k], dt, 0.4, 0.3); }); };
+  const faDone = (p) => { const to = faTo(p); return Object.keys(FA).every((k) => FA[k] === to[k]); };
+  // When each step's parts arrive, squeezed to settle within 5 s.
+  const OV = {
+   [S.pour]: {}, [S.ir]: {},
+   [S.bal]: { fulc: [0, 0.4], mean: [1.0, 0.5], sd: [1.5, 0.7], sdl: [2.1, 0.4], med: [2.4, 0.5], ring: [2.8, 0.5] },
+   [S.off]: { fulc: [0, 0.4], truth: [0.3, 0.6], labs: [0.6, 0.4], res: [1.1, 0.5], most: [1.6, 0.6] },
+   [S.res]: { fulc: [0, 0.4], step: [0.6, 0.5], mean: [1.1, 0.5] },
+   [S.curve]: { fulc: [0, 0.4], sky: [0, 1.0], relax: [1.1, 0.8] },
+   [S.tol]: { fulc: [0, 0.4], lines: [0, 0.6], zl: [0.5, 0.5], red: [0.9, 0.35], ruler: [1.8, 0.5], ring: [2.3, 0.5] },
+   [S.time]: { axes: [0.8, 0.5], bell: [0.25, 0.4], key: [1.2, 0.5], truth: [2.4, 0.5], tilt: [2.95, 0.7], ring: [3.0, 0.4], tag: [3.4, 0.35] },
+   [S.cause]: { axes: [0.15, 0.5], two: [0.55, 0.3], twoEnd: [0.55 + 0.018 * (N - 1), 0.3], air: [1.5, 0.5] },
+   [S.life]: { axes: [0.45, 0.5], mtbf: [0.8, 0.5], sky: [3.25, 0.5], relax: [3.8, 0.6] },
+   [S.tub]: { axes: [0.45, 0.5], sky: [3.25, 0.5], relax: [3.8, 0.6] },
+  };
+  const OV_IRE = { fulc: [0, 0.4], mean: [0.6, 0.5], med: [1.2, 0.5] };   // insulation resistance turned onto an even scale: the beam finds its balance
+  const RED_GAP = 0.12, CLOCK0 = 0.95, CLOCK_D = 2.0, SHELF_GAP = 0.008, SHELF_D = 0.45, TIP0 = 0.25;
+  // The normal curve's count: each band blooms, then its beads ring one by one from the middle out.
+  function countPlan(D) {
+   if (D.cp) return D.cp;
+   const m = D.s.m, sd = D.s.sd, t = new Array(N).fill(Infinity), band = new Array(N).fill(0), b = [];
+   let at = 2.0;
+   [1, 2, 3].forEach((z) => {
+     b.push(at);
+     const ids = [];
+     for (let i = 0; i < N; i++) if (!band[i] && Math.abs(D.vs[i] - m) <= z * sd * (1 + 1e-9)) ids.push(i);
+     ids.sort((a, c) => Math.abs(D.vs[a] - m) - Math.abs(D.vs[c] - m) || a - c);
+     const gap = z === 1 ? 0.02 : 0.03;
+     ids.forEach((i, j) => { band[i] = z; t[i] = at + 0.15 + j * gap; });
+     at += 0.15 + Math.max(0, ids.length - 1) * gap + 0.3;
+   });
+   D.cp = { t, band, b, end: at - 0.3 };
+   return D.cp;
+  }
+  const storyLen = (st, D, times) => (st === S.curve ? countPlan(D).end + 0.5 : Math.max(0, ...Object.values(times).map((o) => o[0] + o[1])) + (st === S.tol ? RED_GAP * Math.max(0, D.vs.filter(isOut).length - 1) + 0.8 : 0));
+
+  // Lifetimes run on Tl: a unit falls as the clock passes its failure time.
+  const LS = Array.from({ length: N }, () => ({ on: false, t: -Infinity, from: null, dn: false, dt: -Infinity, df: null }));
+  let lifeT0 = -Infinity, CK = { from: 10, to: 10, t0: -Infinity, dur: 0, lin: false };
+  const makeLife = () => ({ kind: 'life', from: M.fromNow(), end: CLOCK0 + CLOCK_D + 0.8 });
+  const clockNow = () => { const q = CK.dur > 0 ? B.c01((M.Tl - CK.t0) / CK.dur) : 1; return B.lerp(CK.from, CK.to, CK.lin ? q : K.ease(q)); };
+  const dropped = (i, a) => !paired(a) && (i & 1) === 1 && LS[i - 1].on && !LS[i].on;
+  function lifeStart(years, story) {
+   lifeT0 = story ? M.Tl : -Infinity;
+   CK = story ? { from: 0, to: years, t0: M.Tl + CLOCK0, dur: years > 0 ? CLOCK_D : 0, lin: true } : { from: years, to: years, t0: -Infinity, dur: 0, lin: false };
+   const p = cur(), D = layout(p);
+   LS.forEach((s, i) => Object.assign(s, { on: !story && D.L.tf[i] <= years, t: -Infinity, from: null, dt: -Infinity, df: null }));
+   LS.forEach((s, i) => { s.dn = dropped(i, arrOf(p)); });
+  }
+  function lifeUpdate() {
+   if (!isLife(stepNow) || M.Tl - lifeT0 < CLOCK0) return;
+   const p = cur(), D = layout(p), c = clockNow();
+   for (let i = 0; i < N; i++) { const on = D.L.tf[i] <= c + 1e-9; if (on !== LS[i].on) Object.assign(LS[i], { on, t: M.Tl, from: Object.assign({}, drawn[i]) }); }
+   for (let i = 1; i < N; i += 2) { const dn = dropped(i, arrOf(p)); if (dn !== LS[i].dn) Object.assign(LS[i], { dn, dt: M.Tl, df: Object.assign({}, drawn[i]) }); }
+  }
+  function lifePos(i, D) {
+   const s = LS[i], sh = shelfAt(s.dn ? i - 1 : i), q = (M.Tl - lifeT0 - SHELF_GAP * i) / SHELF_D;
+   if (q < 1.6 && M.live('life') && M.Tl - lifeT0 < CLOCK0) return B.hop(M.sc.from[i], shelfAt(i), q, 18, K.ease, (q - 1) * SHELF_D);
+   const tau = M.Tl - s.t;
+   if (s.on) return tau > 1.2 || !s.from ? Object.assign({}, D.slot[i], { a: 1 }) : B.fall(s.from, D.slot[i], tau);
+   let d = sh;
+   if (tau < 0.45 && s.from) d = B.hop(s.from, sh, tau / 0.45, 8, K.ease);
+   else if (s.df && M.Tl - s.dt < 1) d = s.dn ? B.fall(s.df, sh, M.Tl - s.dt) : B.hop(s.df, sh, (M.Tl - s.dt) / 0.4, 5, K.ease);
+   return Object.assign({}, d, { hollow: D.L.own[i] <= clockNow() + 1e-9 });
+  }
+  const lifeBusy = () => isLife(stepNow) && (M.Tl < CK.t0 + CK.dur + 0.1 || LS.some((s) => M.Tl - s.t < 1.25 || M.Tl - s.dt < 1));
+
+  // KK[i]: how far bead i has taken its colour; in a pour, as it rises.
+  const KK = new Array(N).fill(0);
+  const kOf = (i, p) => { if (!fadeOn(p)) return 0; if (M.live('pour')) { const s = M.sc; return M.Tb < s.rel[i] ? null : s.rise ? B.c01((M.Tb - s.rise[i]) / B.T.rise) : 0; } return 1; };
+  const kStep = (dt, p) => { for (let i = 0; i < N; i++) { const t = kOf(i, p); if (t != null) KK[i] = dt > 1e8 || M.live('pour') ? t : B.toward(KK[i], t, dt, 0.45); } };
+  const kBusy = (p) => KK.some((k, i) => { const t = kOf(i, p); return t != null && Math.abs(k - t) > 1e-3; });
+  // In a move a bead's z eases from its old reading's to its new one's.
+  const ZD = new Array(N).fill(0), zAt = (i, D) => { const s = M.sc; return !M.live() || !s.z0 ? D.z[i] : B.lerp(s.z0[i], D.z[i], s.kind === 'hop' ? K.ease(B.c01((M.Tb - s.t[i]) / s.dur)) : s.kind === 'pour' && M.Tb < s.rel[i] ? 0 : 1); };
+  let zSc = null;
+  const home = (D) => M.hop(D.pile.map((q) => 0.25 * B.c01((q.x - 41) / 258)), 0.55, 0, K.ease);   // left mid-pour: home in a sweep, a column together so none cross
+
+  // The time view's scale and places; the swarm turns about its line onto a spine at the right.
+  function timeGeom(D, settled) {
+   const sv = settled ? B.lin(D.vlo, D.vhi, VY0, VY1, RES) : B.lin(SP.vlo.v / 1000, SP.vhi.v / 1000, VY0, VY1, RES), A0 = B.swarmAnchor(D.sw, D.zc, sv, TRUE, SPINE, ROOMT);
+   return { sv, A: A0, run: B.run(D.vs, sv, RX0, RX1, RR), rug: D.pile.map((q) => B.tip(q, 1, A0)) };
+  }
+  // Bead i's path through the field, f of the way (12 rows, then to `end`).
+  function trailD(i, f, end) {
+   const X = (row) => fieldX(i, row), Y = (row) => FY.y0 + row * FH / 12, k = Math.min(12, Math.floor(f)), g = Math.min(12, f) - k;
+   let d = 'M' + B.r2(X(0)) + ' ' + B.r2(FY.y0);
+   for (let row = 1; row <= k; row++) d += 'L' + B.r2(X(row)) + ' ' + B.r2(Y(row));
+   if (k < 12 && g > 0) d += 'L' + B.r2(B.lerp(X(k), X(k + 1), g)) + ' ' + B.r2(B.lerp(Y(k), Y(k + 1), g));
+   if (f > 12 && end) { const u = B.c01(f - 12); d += 'L' + B.r2(B.lerp(X(12), end.x, u)) + ' ' + B.r2(B.lerp(Y(12), end.y - end.r - 1.5, u)); }
+   return d;
+  }
+
+  // Entering step st from w: the move, the story's start and squeeze. Pure.
+  function planFor(st, w, D, p) {
+   let scene, start = 0.3, times = OV[st];
+   const midPour = M.moving('pour');
+   if (st === S.pour || (st === S.ir && !irEven(p))) { scene = B.rise(M.pour(D.heap, D.fy - FH, D.fy, 0.2, true), D.heap, D.zc.at(st === S.ir ? IR0 : D.s.m)); start = 0; }
+   else if (st === S.ir) { scene = midPour ? home(D) : M.arc(0.012, 20); start = 0.6; times = OV_IRE; }
+   else if (isLife(st)) { scene = makeLife(); start = 0; }
+   else if (st === S.time && w !== S.time) { scene = M.tip(TIP0); start = 0; }
+   else if (st === S.cause) { scene = Object.assign(M.hop(drawn.map((d, i) => 0.012 * i), 0.6, 0, K.ease), { drop2: true }); start = 0; }
+   else if (w === S.time) { scene = M.untip(); start = scene.end; }
+   else if (isLife(w) || w === S.cause || w === S.ir) { scene = M.arc(0.01, w === S.ir ? 20 : 26); start = 0.6; }
+   else if (midPour) { scene = home(D); start = 0.9; }
+   else scene = M.settle(0);
+   return M.plan(scene, start, storyLen(st, D, times), times, !(st === S.pour || st >= S.time || (st === S.ir && !irEven(p))));
+  }
+  function enterStep(st, w, p) {
+   K.sound.stop(); T5A = w === S.time && st !== S.time ? timeGeom(layout(Object.assign({}, p, { step: S.time })), true).A : null;   // the side pile's hinge, as the beam swings back or fades
+   const D = layout(p), plan = planFor(st, w, D, p);
+   was = w; snapV = true; snapP = true; replay = false; tagDone = false; tagA = 0;
+   if (st !== S.pour) trace.i = -1;
+   if (st === S.life) lifeMoved = false;
+   if (st === S.ir) irMoved = false;
+   FU = p.view === 'xy' ? 1 : 0;
+   fulIn = fulOf(p) && !fulWas; rock = fulIn && (st === S.bal || st === S.ir); fulWas = fulOf(p);   // the fulcrum slides in, and the beam rocks, only when it was not there
+   const moving = M.enter(plan, w < 0 ? 'first' : undefined);
+   Array.prototype.forEach.call(G.tags.children, (t) => t.setAttribute('display', 'none'));
+   lifeStart(yearsOf(p), moving && isLife(st));
+  }
+  function settle(p, lifeAgain, irFlip) {
+   if (irFlip) { fulIn = fulOf(p) && !fulWas; rock = fulIn; fulWas = fulOf(p); }
+   if (M.instant()) { M.Tb = M.Ts = Infinity; if (isLife(stepNow)) lifeStart(yearsOf(p), false); return; }
+   if (isLife(stepNow)) {
+    if (lifeAgain) { replay = true; was = stepNow; M.enter(M.plan(makeLife(), 0, storyLen(stepNow, layout(p), OV[stepNow]), OV[stepNow], false), 'replay'); lifeStart(yearsOf(p), true); }
+    else CK = { from: clockNow(), to: yearsOf(p), t0: M.Tl, dur: 0.9, lin: false };
+   } else if (irFlip) { const t = irEven(p) ? OV_IRE : {}; M.enter(M.plan(M.arc(0.012, 20), irEven(p) ? 0.5 : 0, storyLen(S.ir, layout(p), t), t, false)); }
+   else if ((stepNow === S.off && p.avg !== lastAvg) || (stepNow === S.res && p.res !== lastRes)) M.move(M.arc(0.012, 20));
+   else M.move(M.settle(stepNow === S.time ? 0.004 : 0));
+   M.anim.play();
+  }
+  function fresh() {
+   batch += 1;
+   const p = K.params(), st = p.step, D = layout(p);
+   note(batch, p.spread);
+   trace.i = -1; lastKey = stateKey(p); G.tags.textContent = ''; tagA = 0; tagDone = false;
+   if (st === S.cause) B.ticks(D.C.xs, CXS, B.T.hop);
+   else if (!isLife(st)) B.ticks(D.vs, D.sc, hasF(p) ? B.T.dt : B.T.hop);
+   if (isLife(st)) settle(p, true);
+   else if (hasF(p)) { const sc = B.rise(M.pour(D.heap, D.fy - FH, D.fy, 0.03, false), D.heap, D.zc.at(irOn(p) ? IR0 : D.s.m)); M.move(sc); B.chime(sc); }
+   else M.move(M.arc(B.T.hop, st === S.time || st === S.cause ? 12 : 26));
+   K.refresh();
+  }
+  // The followed reading's label, once its bead is still.
+  const tagReady = () => !tagDone && (stepNow === S.time ? M.Tb >= M.sc.end && M.Ts >= M.s0 + OV[S.time].tag[0] * M.sk
+   : stepNow === S.pour && trace.i === sel && M.Tl >= trace.t + 0.6 && !M.moving('pour'));
+  const foldTo = () => (cur().view === 'xy' ? 1 : 0);
+  function tick(dt) {
+   const p = cur();
+   if (stepNow === S.cause) { const g = foldTo(); FU = g > FU ? Math.min(g, FU + dt / B.T.fold) : Math.max(g, FU - dt / B.T.fold); }
+   fadeStep(dt, p); lifeUpdate(); kStep(dt, p);
+  }
+  function busy(dt) {
+   if (tagReady()) tags(false);
+   let tagBusy = false;
+   if (G.tags.firstChild && tagA < 1) { tagA = Math.min(1, tagA + dt / 0.3); Array.prototype.forEach.call(G.tags.children, (t) => { if (t.getAttribute('display') !== 'none') K.fade(t, tagA, 3); }); tagBusy = tagA < 1; }
+   return tagBusy || lifeBusy() || (stepNow === S.pour && M.Tl < trace.t + 0.8) || (stepNow === S.cause && FU !== foldTo()) || !faDone(cur()) || kBusy(cur());
+  }
+  function done() { if (tagReady()) tags(false); return !!G.tags.firstChild && tagA < 1; }
+
+  // ---------- painting ----------
+  function paint(P) {
+   const p = P || cur(), st = stepNow, time = st === S.time, life = isLife(st), cause = st === S.cause, D = layout(p), Z = D.zc, live = M.live();
+   if (M.idle()) fadeStep(1e9, p);
+   if (time) { B.aim(SP.vlo, D.vlo * 1000, snapV); B.aim(SP.vhi, D.vhi * 1000, snapV); snapV = false; }
+   if (hasF(p)) { const s0 = FA.field < 0.01; B.aim(SP.fy, D.fy, s0); B.aim(SP.sl, D.slope, s0); B.aim(SP.sp, D.sp, s0); B.aim(SP.h, D.hx, s0); }
+   B.aim(SP.mt, SCL.at(MTBF(arrOf(p)))); B.aim(SP.by, life ? LB : BASE); B.aim(SP.b0, life || cause ? 6 : ENDS.a0 - 3); B.aim(SP.b1, life || cause ? 334 : ENDS.a1 + 3);
+   if (M.idle() || M.instant()) kStep(1e9, p);
+   FY.y1 = SP.fy.v; FY.y0 = FY.y1 - FH;
+   const untip = M.live('untip'), TG = time || untip ? timeGeom(D) : null;
+   // Where each bead is headed: the time view's run, the two strings, or the swarm.
+   const FD = cause && D.C ? D.C.tB.map((a, i) => B.fold(a, D.C.tC[i], D.C.F[i], FU)) : null;
+   const tgt = time ? TG.run : FD ? FD.map((q) => q[0]) : D.pile, inV = [], inI = [], geo = { field: fieldNow, A: TG && TG.A, rug: TG && TG.rug, run: TG && TG.run };
+   // A pour lands on the beam, then rises into the swarm (B.risen); other moves go straight to it.
+   const pouring = M.live('pour'), landOn = pouring ? D.heap : D.pile;
+   // A new move restacks the beads, the farthest travellers on top.
+   if (M.sc !== zSc && M.sc.from) beads.map((b, i) => [Math.hypot(M.sc.from[i].x - tgt[i].x, M.sc.from[i].y - tgt[i].y), i]).sort((a, b) => a[0] - b[0]).forEach((q) => G.beads.append(beads[q[1]].c, beads[q[1]].f, beads[q[1]].g));
+   zSc = M.sc;
+   for (let i = 0; i < N; i++) {
+    let q = life ? lifePos(i, D) : M.place(i, tgt, landOn, geo);
+    if (q && pouring && M.sc.rise) q = B.risen(M.Tb, M.sc, i, q, D.heap, D.pile)[0];
+    drawn[i] = q || { x: tgt[i].x, y: tgt[i].y, r: tgt[i].r, a: 0 };
+    if (!life && !cause && M.counted(i)) { inV.push(D.vs[i]); inI.push(i); }
+   }
+   const RS = B.stats(inV), FT = B.fit(inI.map((i, j) => [i, inV[j]])), now = {};
+   if (RS) Object.assign(now, { lo: RS.lo, hi: RS.hi, range: RS.hi - RS.lo, mean: RS.m, median: RS.med, sd: RS.sd, irMean: RS.m, irMed: RS.med, unc: 2 * RS.sd / Math.sqrt(RS.n), err: RS.m - TRUE, trend: FT ? FT.b * 10 : 0 });
+   const xAt = (v) => { const o = D.sc.off(v), e = ENDS[o < 0 ? 'lo' : 'hi']; return o ? (e.x0 + e.x1) / 2 : D.sc.at(v); };   // where a reading sits on the beam, or its overflow pile
+   if (RS) { const xm0 = Z.at(RS.m); B.aim(SP.f, xm0); B.aim(SP.m, xm0); B.aim(SP.sd, Math.abs(Z.at(RS.m + RS.sd) - xm0)); B.aim(SP.lo, xAt(RS.lo)); B.aim(SP.hi, xAt(RS.hi)); }
+   if (RS && !irOn(p)) { B.aim(SP.bm, D.s.m * 1000); B.aim(SP.bs, D.s.sd * 1000); if (FT) { B.aim(SP.fa, FT.at(0) * 1000); B.aim(SP.fb, FT.at(N - 1) * 1000); } }
+   if (D.C) { const ft = D.C.fit; B.aim(SP.cxa, CXS.at(D.C.lo)); B.aim(SP.cxb, CXS.at(D.C.hi)); B.aim(SP.ca, CYF.at(ft.at(D.C.lo))); B.aim(SP.cb, CYF.at(ft.at(D.C.hi))); }
+   // The coarse meter: one step bracketed under the beam.
+   let cMax = 0, cTop = 0;
+   Object.keys(D.st.cnt).forEach((c) => { if (D.st.cnt[c] > (D.st.cnt[cMax] || 0)) cMax = +c; });
+   D.pile.forEach((q, i) => { if (D.sc.col(D.vs[i]) === cMax) cTop = Math.max(cTop, BASE - (q.y - q.r)); });
+   B.aim(SP.s0, Math.max(ENDS.a0, D.sc.mid(cMax) - D.sc.w / 2) + 1); B.aim(SP.s1, Math.min(ENDS.a1, D.sc.mid(cMax) + D.sc.w / 2) - 1); B.aim(SP.sy, BASE - cTop - 10);
+   if (!live && M.Ts === Infinity) M.rest();
+   FY.y1 = SP.fy.v; FY.y0 = FY.y1 - FH;
+   const fa = fulOf(p) ? (fulIn ? M.arrive('fulc') : 1) : 0;
+   if (rock && fa < 0.01 && RS) { SP.f.v = Math.max(12, xAt(RS.lo) - 24); SP.f.vel = 0; }   // held at the swarm's left end until it slides in
+
+   // How far the swarm has turned onto its side (0 upright, 1 the time view).
+   const back5 = !time && !untip && T5A && M.Ts !== Infinity && M.Ts < 0.6;
+   tipU = time ? (M.live('tip') ? K.arrive(M.Tb, M.sc.t0, B.T.tip) : 1) : untip ? 1 - K.arrive(M.Tb, M.sc.ua, B.T.tip) : back5 ? (cause ? 1 : 1 - K.arrive(M.Ts, 0, 0.6)) : 0;
+   const pa = voltPile(st) ? (untip ? K.arrive(M.Tb, M.sc.end - 0.2, 0.4) : !voltPile(was) && M.Ts !== Infinity ? K.arrive(M.Ts, 0.4, 0.4) : 1) : 0;   // the voltage numbers
+   const la = life ? (replay ? 1 : M.arrive('axes')) : 0;   // the lifetimes' years, shelf and failure rate
+   // The beam rocks about the fulcrum until it balances (5° at most).
+   const fx = SP.f.v, theta = fa > 0 && RS ? 5 * Math.tanh((Z.at(RS.m) - fx) / Math.max(6, 1.2 * SP.sd.v)) * fa : 0;
+   if (Math.abs(theta) > 0.01) G.tilt.setAttribute('transform', 'rotate(' + theta.toFixed(2) + ' ' + B.r2(fx) + ' ' + BASE + ')'); else G.tilt.removeAttribute('transform');
+   const rot = (d) => { if (Math.abs(theta) <= 0.01) return d; const a = theta * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), dx = d.x - fx, dy = d.y - BASE; return { x: fx + dx * c - dy * s, y: BASE + dx * s + dy * c, r: d.r }; };
+
+   // The normal curve: as each band blooms, its beads ring from the middle out; the tiles count them.
+   const ringPh = new Array(N).fill(null), cnt3 = [0, 0, 0];
+   if (st === S.curve) {
+    const cp = countPlan(D);
+    for (let i = 0; i < N; i++) {
+     if (cp.t[i] === Infinity) continue;   // beyond 3 SD: never counted
+     const t = M.Ts === Infinity ? 1e9 : M.Ts - M.s0 - cp.t[i] * M.sk;
+     if (t >= 0 && t < 0.5) ringPh[i] = t / 0.5;
+     if (t >= 0) for (let z = cp.band[i]; z <= 3; z++) cnt3[z - 1]++;
+    }
+    Object.assign(now, { in1: cnt3[0], in2: cnt3[1], in3: cnt3[2] });
+   }
+   // Out of tolerance: a reading past a limit shivers, turns to a warning and rings.
+   const outIdx = [], warn = new Array(N).fill(0), shake = new Array(N).fill(0);
+   D.vs.forEach((v, i) => { if (isOut(v)) outIdx.push(i); });
+   pulses.forEach((c) => B.vis(c, 0));
+   let outNow = 0;
+   if (st === S.tol) outIdx.forEach((i, j) => {
+     const t0 = OV[S.tol].red[0] * M.sk + j * RED_GAP, a = M.arrive('red', j * RED_GAP);
+     warn[i] = a; if (a >= 0.5) outNow++;
+     const u = M.Ts === Infinity ? 1 : B.c01((M.Ts - M.s0 - t0) / 0.4);
+     shake[i] = u > 0 && u < 1 ? 2.2 * Math.sin(u * Math.PI * 6) * (1 - u) : 0;
+     const pu = M.Ts === Infinity ? 1 : B.c01((M.Ts - M.s0 - t0 - 0.35) / 0.8), c = pulses[j];
+     if (c && pu > 0 && pu < 1 && B.vis(c, 1 - pu)) B.set(c, { cx: drawn[i].x, cy: drawn[i].y, r: 3 + 12 * pu });
+   });
+   now.out = outNow;
+   // Each bead on the fade (KK), warnings over it; a splash on the beam, a ripple in mid-air.
+   const sk = time || untip ? String(B.r2(1.2 - 0.5 * tipU)) : '';   // the time view's small dots keep a thinner surface ring
+   for (let i = 0; i < N; i++) { beads[i].c.style.strokeWidth = sk; const d = drawn[i], rp = ringPh[i] == null && d.tc != null && !pouring && !life ? 0.65 + 2 * d.tc : ringPh[i]; B.paint(beads[i], Object.assign({}, d, { x: d.x + shake[i], ring: rp }), warn[i], life || cause ? undefined : pouring ? D.heap[i].y : tgt[i].y, ZD[i] = zAt(i, D), KK[i]); }
+   // The second string drops in, hops with a fresh batch, fades where it is.
+   for (let i = 0; i < N; i++) {
+    let d = null;
+    if (cause && FD) {
+     const g = FD[i][1];
+     if (live && M.sc.kind === 'hop' && !M.sc.drop2) d = B.hop(M.sc.from2[i], g, (M.Tb - M.sc.t[i]) / M.sc.dur, M.sc.lift, M.sc.ease, M.Tb - M.sc.t[i] - M.sc.dur);
+     else { const a = M.Ts === Infinity || was === S.cause ? 1 : K.arrive(M.Ts, M.s0 + (OV[S.cause].two[0] + 0.018 * i) * M.sk, 0.3); d = { x: g.x, y: g.y - 14 * (1 - a), r: g.r, a }; }
+     drawn2[i] = { x: d.x, y: d.y, r: d.r, a: 1 };
+    } else if (was === S.cause && M.Ts !== Infinity) d = Object.assign({}, drawn2[i], { a: 1 - K.arrive(M.Ts, 0, 0.35) });
+    B.draw(beads2[i], d, 0);
+   }
+
+   // The ringed reading: a ring, and two arrows where it drags.
+   const rd = drawn[sel], drag = dragOn(st), traced = st === S.pour && trace.i === sel && !M.moving('pour');
+   const ra = drag || time ? M.arrive('ring') * B.c01(rd.a) : traced ? K.arrive(M.Tl, trace.t + 0.45, 0.3) : 0, rOut = st === S.tol && warn[sel] >= 0.5;
+   svg.classList.toggle('nodrag', !drag);
+   if (B.vis(ring, ra)) { B.set(ring, { cx: rd.x + shake[sel], cy: rd.y, r: rd.r + 2.6 }); ring.classList.toggle('out', rOut); }
+   if (B.vis(chev, drag ? ra : 0)) {
+    const cx = rd.x + shake[sel], o = rd.r + 5;
+    B.set(chev, { d: 'M' + B.r2(cx - o) + ' ' + B.r2(rd.y - 3.5) + 'v7l-4 -3.5zM' + B.r2(cx + o) + ' ' + B.r2(rd.y - 3.5) + 'v7l4 -3.5z' }); chev.classList.toggle('out', rOut);
+   }
+   B.set(handle, { cx: rd.x, cy: rd.y }); B.vis(handle, drag ? 1 : 0);
+
+   // The beam, fading as the swarm tips; each overflow pile's axis and name.
+   const dy = SP.by.v - BASE, beamA = (cause ? (was === S.cause || M.Ts === Infinity ? 0 : 1 - K.arrive(M.Ts, 0, 0.35)) : was === S.cause && M.Ts !== Infinity ? K.arrive(M.Ts, 0.3, 0.35) : 1) * (1 - tipU);
+   if (B.vis(beam, beamA)) B.set(beam, { x1: SP.b0.v, y1: BASE + dy, x2: SP.b1.v, y2: BASE + dy });
+   const ovA = [FA.o0 * (1 - tipU), FA.o1 * (1 - tipU)];
+   ['lo', 'hi'].forEach((k, j) => { const e = ENDS[k]; if (B.vis(ovAx[j], ovA[j])) B.set(ovAx[j], { x1: e.x0 + 1, x2: e.x1 - 1, y1: BASE, y2: BASE }); B.vis(ovLab[j], ovA[j]); });
+   drawTicks(TK.v, VZ.at, (1 - tipU) * pa, pa, D.ends === 'v' ? ovA : null); B.vis(pileTitle, pa);
+   drawTicks(TK.l, IRL.at, FA.l, FA.l, D.ends === 'l' ? ovA : null); drawTicks(TK.e, IRE.at, FA.e, FA.e, D.ends === 'e' ? ovA : null); B.vis(irTitle, Math.max(FA.l, FA.e));
+   B.vis(lminor, la); B.vis(lmajor, la); B.vis(lAxis, la);
+   const ta = time ? M.arrive('axes') : untip ? 1 - K.arrive(M.Tb, 0, 0.3) : 0;
+   B.vis(tAxis, ta);
+
+   // The field: pegs (a struck one swells), hopper, counter, the range's jaws.
+   if (B.vis(G.field, FA.field)) {
+    const hx = SP.h.v, y0 = FY.y0, off = st === S.off;
+    B.pegsAt(PEG, hx, SP.sp.v, y0, FH); B.pegHit(PEG, M.hits(fieldX));
+    B.set(hopper, { d: 'M' + B.r2(hx - 12) + ' ' + B.r2(y0 - 11) + 'L' + B.r2(hx - 4) + ' ' + B.r2(y0 - 3) + 'M' + B.r2(hx + 12) + ' ' + B.r2(y0 - 11) + 'L' + B.r2(hx + 4) + ' ' + B.r2(y0 - 3) });
+    B.vis(trueLab, off ? 0 : 1); B.set(trueLab, { x: hx + 18, y: y0 - 1 });
+    B.set(meterLab, { x: hx + 18, y: y0 - 1 }); B.vis(meterLab, off ? M.arrive('labs') : 0);
+    // The offset step: a window round the true value, the meter's accuracy wide.
+    const wa = off ? M.arrive('labs') : 0, xa = Z.at(TRUE - ACC), xb = Z.at(TRUE + ACC);
+    if (B.vis(win, wa)) B.set(win, { x: xa, y: y0 - 13, width: xb - xa, height: 13 });
+    if (B.vis(accLab, wa)) B.set(accLab, { x: Z.at(TRUE), y: y0 - 18 });
+    // A path through the pegs: the first reading's, then any bead Dan taps.
+    let tr = '', tra = 0;
+    if (st === S.pour && pouring && M.sc.slow && !traced) {
+     const tau = M.Tb - M.sc.rel[0];
+     if (tau > 0) { tr = trailD(0, tau < B.T.field ? 12 * tau / B.T.field : 12 + B.c01((tau - B.T.field) / 0.3), drawn[0]); tra = 1 - K.arrive(M.Tb, M.sc.end - 0.7, 0.5); }
+    } else if (traced) { tr = trailD(sel, 13 * K.arrive(M.Tl, trace.t, 0.6), D.pile[sel]); tra = 1; }
+    if (tr) B.set(trail, { d: tr });
+    B.vis(trail, st === S.pour ? tra : 0);
+    // The first readings are slow: each shows as its number, then turns into its bead.
+    let ia = 0;
+    if (pouring && M.sc.slow) for (let i = 0; i < 3; i++) { const a = K.arrive(M.Tb, M.sc.rel[i] - 0.3, 0.25) * (1 - K.arrive(M.Tb, M.sc.rel[i], 0.18)); if (a > 0.002) { ia = a; B.words(intro, [[K.fmt(D.vs[i], { decimals: D.dec }), 'n'], [D.unit, 'u']]); } }
+    B.set(intro, { x: hx - 30, y: y0 - 1 }); B.vis(intro, ia);
+   }
+   if (B.vis(counter, st === S.pour && inV.length ? FA.field : 0)) { counter.textContent = inV.length === 1 ? '1 reading' : inV.length + ' readings'; counter.setAttribute('y', B.r2(FY.y0 + 14)); }
+   const spanA = st === S.pour && RS && RS.n >= 2 ? (pouring ? K.arrive(M.Tb, M.sc.land[1], 0.3) : 1) : 0;
+   if (B.vis(span, spanA)) {
+    const xl = Math.min(SP.lo.v, SP.hi.v), xh = Math.max(SP.lo.v, SP.hi.v);
+    B.bracket(span, rangeLab, xl, xh, RD, -3);
+    B.set(jaws, { d: [xl, xh].map((x) => 'M' + B.r2(x) + ' ' + (RN + 4) + 'l-4.5 7h9z').join('') });
+   }
+   B.vis(jaws, spanA); B.vis(rangeLab, spanA ? (pouring ? K.arrive(M.Tb, M.sc.end - 0.2, 0.4) : 1) : 0);
+
+   // A label never rides over flying beads: it fades out on a re-sort, back once they land.
+   const hopFade = live && M.sc.kind === 'hop' && M.sc.lift ? Math.max(1 - K.arrive(M.Tb, 0, 0.25), K.arrive(M.Tb, M.sc.end - 0.15, 0.35)) : 1;
+   // The fulcrum. The mean and median (by factors the median alone) dashed, each value bold over it on its line's outer side; a pour fades them
+   // out in place and back as the swarm settles. One SD each side, under the beam.
+   if (B.vis(fulcrum, fa)) B.set(fulcrum, { d: 'M' + B.r2(fx) + ' ' + (BASE + 1) + 'l-7 10h14z' });
+   const balLike = st === S.bal || irEven(p), xm = SP.m.v, s = Math.max(0.5, SP.sd.v), MV = [meanLine, meanVal, medLine, medVal];
+   // After a pour the values wait for the beads under them to settle past their overshoot.
+   const near = pouring && M.sc.rise ? Math.max(0, ...D.pile.map((q, i) => (Math.abs(q.x - xm) < 46 ? M.sc.rise[i] + 0.85 * B.T.rise : 0))) : 0;
+   const sta = st === S.res ? M.arrive('step') * hopFade : 0, wave = pouring ? K.arrive(M.Tb, Math.min(Math.max(M.sc.end - 0.6, near), M.sc.end - 0.4), 0.4) : 1, mOn = (balLike || st === S.res || st === S.pour) && RS, dOn = (balLike || (irOn(p) && !irEven(p))) && RS;
+   const ma = mOn ? M.arrive('mean') * hopFade * wave : 0, mda = dOn ? M.arrive('med') * hopFade * wave : 0;
+   if (pouring && M.Tb < 0.3) MV.forEach((e) => { if (e.getAttribute('display') !== 'none') B.vis(e, Math.min(e.style.opacity === '' ? 1 : +e.style.opacity, 1 - M.Tb / 0.3)); });
+   else if (ma > 0.002 || mda > 0.002) {
+    const ir = irOn(p), dec = ir ? 0 : 3, u = ir ? ' MΩ' : ' V', xd = Z.at(RS.med), both = mOn && dOn, medLeft = RS.med <= RS.m + 1e-9, xa = both ? Math.min(xm, xd) : xm, xb = both ? Math.max(xm, xd) : xm;
+    B.words(meanVal, [['mean ', 'w'], [K.fmt(RS.m, { decimals: dec }), 'n'], [u, 'u']]); B.words(medVal, [['median ', 'w'], [K.fmt(RS.med, { decimals: dec }), 'n'], [u, 'u']]);
+    const xc = mOn ? xm : xd, wm = B.tw(meanVal), wd = B.tw(medVal), wc = mOn ? wm : wd, x0 = both ? xa - 7 - (medLeft ? wd : wm) : xc - wc / 2, x1 = both ? xb + 7 + (medLeft ? wm : wd) : xc + wc / 2;
+    // Their row: the lowest clear of every bead and the ring; under the pegs only where it fits.
+    const q = D.pile[sel], marks = drag ? D.pile.concat([{ x: q.x, y: q.y, r: q.r + 9 }]) : D.pile;
+    let ly = B.clearY(x0 - 2, x1 + 2, D.sw.line, marks, 3);
+     B.aim(SP.ly, ly); if (!live && M.Ts === Infinity) { SP.ly.v = ly; SP.ly.vel = 0; } ly = SP.ly.v;
+    const top = both ? ly - 10 : ly + 5, va = hasF(p) ? FA.v * (st === S.pour && trace.i >= 0 ? 1 - K.arrive(M.Tl, trace.t, 0.3) : 1) : 1;
+    if (B.vis(meanLine, ma)) B.set(meanLine, { x1: xm, x2: xm, y1: BASE - 1, y2: B.lerp(BASE - 1, top, ma) });
+    if (B.vis(meanVal, ma * va, 4)) B.set(meanVal, both ? { x: medLeft ? xb + 7 : xa - 7, y: ly, 'text-anchor': medLeft ? 'start' : 'end' } : { x: xm, y: ly, 'text-anchor': 'middle' });
+    if (B.vis(medLine, mda * (both ? B.c01(Math.abs(xm - xd) / D.sw.r - 0.5) : 1))) B.set(medLine, { x1: xd, x2: xd, y1: BASE - 1, y2: B.lerp(BASE - 1, top, mda) });
+    if (B.vis(medVal, mda * va, 4)) B.set(medVal, both ? { x: medLeft ? xa - 7 : xb + 7, y: ly, 'text-anchor': medLeft ? 'end' : 'start' } : { x: xd, y: ly, 'text-anchor': 'middle' });
+   } else MV.forEach((e) => B.vis(e, 0));
+   const sa = st === S.bal && RS ? M.arrive('sd') : 0;
+   if (B.vis(sdDim, Math.min(1, sa * 3))) { const hw = s * sa; B.set(sdDim, { d: 'M' + B.r2(xm - hw) + ' ' + (RD - 7) + 'V' + RD + 'H' + B.r2(xm + hw) + 'V' + (RD - 7) + 'M' + B.r2(xm) + ' ' + RD + 'v-4' }); }
+   const sl = st === S.bal && RS ? M.arrive('sdl') : 0;
+   if (B.vis(sdL, sl)) B.set(sdL, { x: xm - s - 5, y: RD + 4.5 });
+   if (B.vis(sdR, sl)) B.set(sdR, { x: xm + s + 5, y: RD + 4.5 });
+
+   // Offset: the true value dashed; the result, mean ± 2 SD ÷ √50, over the swarm; most beads under the beam.
+   const tu = st === S.off ? M.arrive('truth') : 0;
+   if (B.vis(truthUp, tu)) { const x = Z.at(TRUE); B.set(truthUp, { x1: x, x2: x, y1: FY.y0 - 13, y2: B.lerp(FY.y0 - 13, BASE - 1, tu) }); }
+   const ha = st === S.off && RS ? M.arrive('res') * hopFade : 0;
+   if (B.vis(hat, ha) && RS) {
+    const U = 2 * RS.sd / Math.sqrt(RS.n), xa = Z.at(RS.m - U), xb = Z.at(RS.m + U), w = B.tw(hatLab), y = B.clearY(xa - 3, xb + 8 + w, BASE - 10, D.pile, 2.5);
+    B.set(hat, { d: 'M' + B.r2(xa) + ' ' + B.r2(y + 0.5) + 'V' + B.r2(y - 4.5) + 'H' + B.r2(xb) + 'V' + B.r2(y + 0.5) });
+    B.set(hatLab, { x: xb + 6, y });
+   }
+   B.vis(hatLab, ha);
+   const rsa = st === S.off && RS ? M.arrive('most') : 0;
+   if (B.vis(resDim, rsa) && B.vis(resLab, rsa)) B.bracket(resDim, resLab, xm - 2 * s * rsa, xm + 2 * s * rsa, RD, -5);
+   else B.vis(resLab, 0);
+
+   // A coarser meter: its column edges, and one step bracketed under the beam.
+   if (B.vis(stepDim, sta) && B.vis(stepLab, sta)) B.bracket(stepDim, stepLab, SP.s0.v, SP.s1.v, RD, -5);
+   else B.vis(stepLab, 0);
+   if (B.vis(edges, st === S.res ? FA.edge : 0)) { let d = ''; for (let j = 1; j < ZCB.n; j++) d += 'M' + B.r2(ZCB.a0 + j * ZCB.w) + ' ' + (BASE - 1) + 'V' + B.r2(Math.min(BASE - 30, D.top - 8)); B.set(edges, { d }); }
+
+   // The normal curve traces the swarm and relaxes into the mirrored bell; the bands bloom out from the mean.
+   const ca = st === S.curve && RS && RS.n >= 2 ? M.arrive('sky') : 0;
+   const mv = Z.val(xm), sv = s / Z.w * RES, inS = new Set(inI), swIn = Object.assign({}, D.sw, { pos: D.pile.map((q, i) => (inS.has(i) ? q : null)) });   // the outline of the beads landed so far
+   const expect = (v) => (RS ? RS.n * RES * Math.exp(-0.5 * Math.pow((v - mv) / sv, 2)) / (sv * Math.sqrt(2 * Math.PI)) : 0);
+   const v0 = Math.max(Z.lo - RES / 2, mv - 4 * sv), v1 = Math.min(Z.hi + RES / 2, mv + 4 * sv);
+   let curveD = '';
+   if (ca > 0) { const mr = B.mirror(Z, swIn, expect, v0, B.lerp(v0, v1, ca), M.arrive('relax')); curveD = mr.up + mr.dn; }
+   B.vis(swCurve, ca > 0 ? 1 : 0);
+   let peak = BASE;
+   if (st === S.curve) for (let v = v0; v <= v1; v += RES / 4) peak = Math.min(peak, D.sw.line - expect(v) * D.sw.pitch / 2);
+   const yb = Math.max(64, Math.min(peak, D.top) - 14);
+   const cp = st === S.curve ? countPlan(D) : null;
+   [1, 2, 3].forEach((z) => {
+     const g = cp && RS ? K.arrive(M.Ts, M.s0 + cp.b[z - 1] * M.sk, 0.4 * M.sk) : 0, band = bands[3 - z], ya = yb - 21 * (z - 1), xa = Z.at(mv - z * sv * g), xb = Z.at(mv + z * sv * g);
+     if (B.vis(band, Math.min(1, g * 2))) {
+      const a = Math.max(v0, mv - z * sv * g), b = Math.min(v1, mv + z * sv * g);
+      B.set(band, { d: B.mirror(Z, swIn, expect, a, b, 1).area });
+     }
+     const pb = brk[z - 1];
+     if (B.vis(pb[0], g) && B.vis(pb[1], g, 3)) B.bracket(pb[0], pb[1], xa, xb, ya, 5, true);
+     else B.vis(pb[1], 0);
+     if (B.vis(exts[z - 1], g)) B.set(exts[z - 1], { d: 'M' + B.r2(xa) + ' ' + B.r2(ya + 6) + 'V' + (BASE - 2) + 'M' + B.r2(xb) + ' ' + B.r2(ya + 6) + 'V' + (BASE - 2) });
+   });
+   if (st === S.curve) cnt3.forEach((c, j) => GAUGE[j](c / N));
+   B.vis(keyBell, st === S.curve ? M.arrive('relax') : 0);
+
+   // Out of tolerance: the limits, warning strips, the SD ruler of the others.
+   const lia = st === S.tol ? M.arrive('lines') : 0, [xL, xH] = limX(Z);
+   [[12, xL], [xH, 328]].forEach((zn, j) => {
+     if (B.vis(zones[j], lia)) B.set(zones[j], { x: zn[0], width: zn[1] - zn[0], y: BASE + 1 });
+     const x = j ? xH : xL;
+     if (B.vis(limits[j], lia > 0 ? 1 : 0)) B.set(limits[j], { x1: x, x2: x, y1: 66, y2: B.r2(66 + (BASE - 1 - 66) * lia) });
+     if (B.vis(zoneLabs[j], st === S.tol ? M.arrive('zl') : 0, 4)) B.set(zoneLabs[j], { x: (zn[0] + zn[1]) / 2 });
+   });
+   const rest = B.stats(D.vs.filter((v, i) => i !== sel)), ua = st === S.tol && rest && rest.sd > 0 ? M.arrive('ruler') : 0;
+   let pz = null, past = 0;
+   if (B.vis(ruler, ua) && rest) {
+    const zr = (D.vs[sel] - rest.m) / rest.sd, u1 = Math.abs(Z.w) * rest.sd / RES, every = u1 >= 26 ? 1 : u1 >= 13 ? 2 : 5;
+    const zlo = Math.max(-12, Math.min(-3, Math.floor(zr))), zhi = Math.min(12, Math.max(3, Math.ceil(zr)));
+    let d = '', x0 = null, x1 = null;
+    ZS.forEach((z, j) => {
+      const x = Z.at(rest.m + z * rest.sd), ok = z >= zlo && z <= zhi && x >= 16 && x <= 324;
+      if (ok) { d += 'M' + B.r2(x) + ' 38v6'; if (x0 == null) x0 = x; x1 = x; }
+      if (B.vis(zLabs[j], ok && z % every === 0 ? ua : 0)) B.set(zLabs[j], { x });
+    });
+    past = D.sc.off(D.vs[sel]);
+    if (x0 != null) {
+     const a = past < 0 ? x0 - 9 : x0, b = past > 0 ? x1 + 9 : x1;
+     d += 'M' + B.r2(a) + ' 41H' + B.r2(b);
+     pz = past > 0 ? b : past < 0 ? a : Z.at(D.vs[sel]);
+     if (past) B.set(rulerEnd, { d: 'M' + B.r2(pz) + ' 37.5l' + 5 * past + ' 3.5l' + -5 * past + ' 3.5z' });
+    }
+    B.set(ruler, { d: d || 'M0 0' });
+   } else zLabs.forEach((t) => B.vis(t, 0));
+   B.vis(rulerCap, ua); B.vis(rulerEnd, past && pz != null ? ua : 0);
+   if (pz != null) { B.aim(SP.zp, pz, snapP); snapP = false; if (M.Ts === Infinity && !live) { SP.zp.v = pz; SP.zp.vel = 0; } }
+   const pta = st === S.tol && pz != null ? Math.min(ua, M.arrive('ring')) : 0;
+   if (B.vis(pointer, pta)) {
+    const px = SP.zp.v, rq = rot(rd), lift = past ? rd.r + 17 : rd.r + 4.5;
+    B.set(pointer, { d: 'M' + B.r2(px) + ' 45l-4.5 7h9z' });
+    B.set(hair, { x1: px, y1: 52, x2: rq.x, y2: Math.max(53, rq.y - lift) });
+   }
+   B.vis(hair, pta);
+
+   // Over time: the side swarm, the thread, the mean so far, the true value, the best fit.
+   const ghostOn = time || untip;
+   ghosts.forEach((g, i) => {
+     let a = 0;
+     if (ghostOn) a = M.live('tip') ? K.arrive(M.Tb, M.sc.peel[i], 0.3) : untip ? 1 - K.arrive(M.Tb, M.sc.t[i] + M.sc.dur * 0.6, 0.3) : 1;
+     const q = TG ? (live && M.sc.kind === 'hop' && time ? B.hop(M.sc.gfrom[i], TG.rug[i], (M.Tb - M.sc.t[i]) / M.sc.dur, 0, M.sc.ease) : TG.rug[i]) : drawnG[i];
+     drawnG[i] = { x: q.x, y: q.y, r: q.r };
+     if (B.vis(g, a * 0.9)) B.set(g, { cx: q.x, cy: q.y, r: q.r });
+   });
+   let th = '', rm = '', sum = 0, n = 0;
+   if (time) for (let i = 0; i < N; i++) {
+    if (!M.counted(i)) break;
+    th += (i ? 'L' : 'M') + B.r2(drawn[i].x) + ' ' + B.r2(drawn[i].y);
+    sum += D.vs[i]; n++;
+    rm += (i ? 'L' : 'M') + B.r2(TG.run[i].x) + ' ' + B.r2(TG.sv.at(sum / n));
+   }
+   if (th) B.set(thread, { d: th });
+   B.vis(thread, time && n > 1 ? 0.75 : 0);
+   const tilt = time ? M.arrive('tilt') : 0, landing = live && (M.sc.kind === 'tip' || (M.sc.kind === 'hop' && M.sc.lift));
+   // The mean so far writes itself while readings land, then gives way to the best fit.
+   const rmA = time && n > 1 ? (M.live('tip') ? 1 - tilt : landing ? 1 - K.arrive(M.Tb, M.sc.end - 0.1, 0.4) : 0) : 0;
+   if (rm) B.set(runMean, { d: rm });
+   B.vis(runMean, rmA); B.vis(key, time ? M.arrive('key') : untip ? ta : 0); B.vis(keyRun, rmA); B.vis(keyFit, time ? Math.min(1, tilt * 2) : 1); B.vis(keyTrue, time ? M.arrive('truth') : 1);
+   if (TG && B.vis(truth, time ? M.arrive('truth') : 0)) B.set(truth, { x1: RX0, y1: TG.sv.at(TRUE), x2: RX1, y2: TG.sv.at(TRUE + driftOf(p) * (N - 1) / 10) });
+   if (!time) B.vis(truth, 0);
+   // The best-fit line: on entry the flat mean line tilts into it.
+   const iEnd = Math.max(1, n - 1);
+   if (TG && B.vis(trend, time && RS && n > 1 && (M.Ts === Infinity || n === N) ? (M.Ts === Infinity ? 1 : Math.min(1, tilt * 4)) : 0)) {
+    const yc = (y) => Math.max(VY1 - 6, Math.min(VY0 + 6, y)), ym = TG.sv.at(RS.m), ya = B.lerp(ym, TG.sv.at(SP.fa.v / 1000), tilt), yz = B.lerp(ym, TG.sv.at(B.lerp(SP.fa.v, SP.fb.v, iEnd / (N - 1)) / 1000), tilt);
+    B.set(trend, { x1: RX0, y1: yc(ya), x2: TG.run[iEnd].x, y2: yc(yz) });
+   }
+   if (!TG) B.vis(trend, 0);
+   // The mirrored bell tips with the swarm, then hands over to the best-fit line.
+   const bA = ghostOn && TG ? (time ? M.arrive('bell') : 1 - K.arrive(M.Tb, 0, 0.3)) : 0;
+   if (bA > 0.002) {
+    const bm = SP.bm.v / 1000, bs = Math.max(RES / 2, SP.bs.v / 1000), up = [], dn = [];
+    for (let v = bm - 3.8 * bs; v <= bm + 3.8 * bs + 1e-9; v += bs / 8) {
+     const h = N * RES * Math.exp(-0.5 * Math.pow((v - bm) / bs, 2)) / (bs * Math.sqrt(2 * Math.PI)) / (D.sw.per || 1) * D.sw.pitch / 2;
+     [[up, -h], [dn, h]].forEach(([pts, k]) => { const q = B.tip({ x: Z.at(v), y: D.sw.line + k, r: 0 }, tipU, TG.A); pts.push(B.r2(q.x) + ' ' + B.r2(q.y)); });
+    }
+    const d = 'M' + up.join('L') + 'M' + dn.join('L');
+    B.set(bellA, { d }); B.set(bellM, { d });
+   }
+   B.vis(bellA, bA * (time ? 1 - tilt : 0)); B.vis(bellM, bA * (time ? tilt : 1));
+   GRIDV.forEach((v, j) => {
+     const y = TG ? TG.sv.at(v) : 0, ok = TG && y >= VY1 - 1 && y <= VY0 + 1;
+     if (B.vis(grids[j], ok ? ta : 0)) B.set(grids[j], { y1: y, y2: y });
+     if (B.vis(gridN[j], ok && y >= 30 ? ta : 0)) B.set(gridN[j], { y: y + 4.5 });
+   });
+
+   // Same cause: the strips, the air; folded, current against bearing.
+   const cA = cause ? M.arrive('axes') : 0, ux = B.c01(2 * FU), uy = K.ease(B.c01(2 * FU - 1));
+   if (B.vis(cG, cA)) {
+    B.vis(cTime, 1 - ux); B.vis(cBear, 1 - ux); B.vis(cX, B.c01(2 * FU - 1));
+    cCur.forEach(([ln, tx, v]) => { const y = B.lerp(CYC.at(v), CYF.at(v), uy); B.set(ln, { y1: y, y2: y }); B.set(tx, { y: y + 4.5 }); });
+    B.set(cCurT, { x: B.lerp(27, 14, uy), y: B.lerp(160, 26, uy) }); if (B.vis(cCurS, 1 - uy)) B.set(cCurS, { cy: B.lerp(155.5, 21.5, uy) });
+    B.vis(cAirLab, M.arrive('air') * (1 - B.c01(2.5 * FU)));
+   }
+   if (B.vis(cAir, cause && D.C ? M.arrive('air') * (1 - B.c01(2.5 * FU)) : 0)) B.set(cAir, { d: D.C.air });
+   const fl = cause && D.C ? B.c01((FU - 0.8) / 0.2) * cA : 0;
+   if (B.vis(cFit, fl > 0 ? 1 : 0)) B.set(cFit, { x1: SP.cxa.v, y1: SP.ca.v, x2: B.lerp(SP.cxa.v, SP.cxb.v, fl), y2: B.lerp(SP.ca.v, SP.cb.v, fl) });
+   B.vis(cKey, fl);
+
+   // Lifetimes: the shelf, links or harnesses, the clock, the MTBF, failures under what the rule expects, the failure rate.
+   const arrL = arrOf(p), clock = life ? clockNow() : 0, pairs = paired(arrL), tub = life && arrL === 'tub';
+   B.vis(shelf, la); B.set(shelf, { y1: SHB + FIT0.r + 1.6, y2: SHB + FIT0.r + 1.6 });
+   const linkIn = life ? (M.live('life') ? K.arrive(M.Tl, lifeT0 + SHELF_D + 0.3, 0.3) : 1) : 0;
+   for (let k = 0; k < N / 2; k++) {
+    const a = drawn[2 * k], b = drawn[2 * k + 1], down = LS[2 * k].on ? 1 - B.c01((M.Tl - LS[2 * k].t) / 0.15) : 1, al = life && pairs ? linkIn * down * la : 0;
+    const ser = arrL === 'series', w = 2 * FIT0.r;
+    if (B.vis(links[k], ser ? al : 0)) B.set(links[k], { x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+    if (B.vis(harness[k][0], ser ? 0 : al)) B.set(harness[k][0], { x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'stroke-width': w + 6 });
+    if (B.vis(harness[k][1], ser ? 0 : al)) B.set(harness[k][1], { x1: a.x, y1: a.y, x2: b.x, y2: b.y, 'stroke-width': w + 3 });
+   }
+   const xc = SCL.at(Math.min(30, clock)), na = life ? la * (M.Tl - lifeT0 >= CLOCK0 - 0.2 || !M.live('life') ? 1 : 0) : 0;
+   if (B.vis(nowLine, na)) B.set(nowLine, { x1: xc, x2: xc, y1: 70, y2: LB - 1 });
+   if (B.vis(nowHead, na)) B.set(nowHead, { d: 'M' + B.r2(xc) + ' ' + (LB + 1) + 'l-6 9h12z' });
+   if (B.vis(nowHz, na)) B.set(nowHz, { x1: xc, x2: xc, y1: HZT - 2, y2: HZ0 });
+   const mta = life && arrL !== 'tub' ? (replay ? 1 : M.arrive('mtbf')) : 0;
+   if (B.vis(mtbfLine, mta)) B.set(mtbfLine, { x1: SP.mt.v, x2: SP.mt.v, y1: 62, y2: LB - 1 });
+   if (B.vis(mtbfLab, mta)) B.set(mtbfLab, { x: SP.mt.v });
+   hzC.classList.toggle('lead', tub); curve.classList.toggle('quiet', tub); lKeyLine.classList.toggle('quiet', tub);
+   if (life) {
+    const hl = tub ? 'failure rate per year, a sketch' : 'failure rate per year of the units still working', kt = tub ? 'the sketch expects' : 'the rule expects';
+    if (hzLab.textContent !== hl) hzLab.textContent = hl;
+    if (lKeyText.textContent !== kt) lKeyText.textContent = kt;
+    const tr = B.trace((t) => hsys(arrL, t), 0, 30, (t) => SCL.at(t), HZY, 240, HZT);
+    if (B.vis(hzC, la)) B.set(hzC, { d: tr.d });
+    if (B.vis(hzUp, tr.exit ? la : 0)) B.set(hzUp, { d: 'M' + B.r2(tr.exit.x) + ' ' + B.r2(HZT - 8) + 'l-4 7h8z' });
+    const hy = HZY(hsys(arrL, Math.min(30, clock)));
+    if (B.vis(hzDot, hy >= HZT - 0.01 ? na : 0)) B.set(hzDot, { cx: xc, cy: hy, r: 3.4 });
+    const lc = {};
+    for (let i = 0; i < N; i++) if (LS[i].on && D.slot[i]) { const c = SCL.col(D.L.tf[i]); lc[c] = (lc[c] || 0) + 1; }
+    const lca = M.arrive('sky'), ex = B.colExpect((t) => Rsys(arrL, t), N, 1);
+    if (B.vis(curve, lca > 0 && clock > 0.05 ? 1 : 0)) B.set(curve, { d: B.relax(SCL, D.lst, (c) => lc[c] || 0, ex, 0, Math.min(30, clock) * lca, M.arrive('relax')) });
+    // Its name in the key, arriving with it.
+    if (B.vis(lKey, clock > 0.05 ? (replay ? 1 : lca) : 0)) { const w = B.tw(lKeyText); B.set(lKeyLine, { x1: 330 - w - 21, x2: 330 - w - 5 }); }
+    let alive = 0;
+    for (let i = 0; i < N; i += pairs ? 2 : 1) if (D.L.tf[i] > clock + 1e-9) alive++;
+    Object.assign(now, { alive, expect: nSys(arrL) * Rsys(arrL, clock), rate: hsys(arrL, clock) });
+   } else { if (curveD) B.set(swCurve, { d: curveD }); B.vis(curve, 0); B.vis(hzC, 0); B.vis(hzUp, 0); B.vis(hzDot, 0); B.vis(lKey, 0); }
+   svg.setAttribute('aria-label', ARIA[st]);
+
+   M.fade();   // what the last step had and this one hides fades out in place
+   // While beads land or a story counts them, the tiles give what is drawn now.
+   const rolling = (live && M.sc.kind !== 'still') || (M.Ts !== Infinity && (st === S.curve || st === S.tol)) || lifeBusy();
+   if (rolling) SHOWN[st].forEach((k) => { if (k in now) R[k].set(now[k]); });
+   else if (rolled) { rolled = false; K.refresh(); return; }
+   rolled = rolling;
+  }
+  const ARIA = [
+   'Fifty simulated readings fall through twelve rows of pegs, land on the beam, then rise into a swarm about one line, fainter nearer the mean.',
+   'The swarm on a beam balanced at the mean; the mean and the median dashed with their values; one standard deviation each side.',
+   'Fifty simulated insulation resistance readings: by factors a bell-shaped swarm; on an even scale it leans, the mean above the median.',
+   'The peg field and swarm under a window as wide as the meter\'s accuracy; brackets for the result and where most beads fall.',
+   'The swarm with the mean dashed; on the coarse meter the readings stack into bricks one meter step wide.',
+   'The swarm inside a bell traced above and below its line, with bands 1, 2 and 3 standard deviations from the mean.',
+   'The swarm with limits at 26.92 and 27.08 V, readings past them marked as warnings, and a ruler in standard deviations.',
+   'The fifty readings in the order taken, with a best-fit line, the true value, and the swarm on its side at the right.',
+   'Two strings of simulated readings over the same days, a bearing\'s temperature and a float current; folded, one against the other.',
+   'Fifty simulated units on a shelf; each drops onto a time axis when it fails, under the curve the rule expects, the failure rate below.',
+   'Fifty simulated units whose failure rate follows a sketched bathtub: high early, low in the middle years, rising with wear-out.',
+  ];
+  // The followed reading's label, once its bead is still, clear of every bead.
+  function tags(instant) {
+   G.tags.textContent = ''; tagDone = true; tagA = instant || M.instant() ? 1 : 0;
+   const p = cur(), D = layout(p);
+   let spot = null, txt = '', parts = null, avoid = [ring];
+   if (stepNow === S.time) {
+    const TG = timeGeom(D, true), d = TG.run[sel], val = K.fmt(D.vs[sel], { decimals: 2 }), marks = TG.run.concat(TG.rug);
+    txt = 'reading ' + (sel + 1) + ' · ' + val + ' V'; parts = [['reading ', 'w'], [String(sel + 1), 'n'], [' · ', 'w'], [val, 'n'], [' V', 'u']];
+    const w = txt.length * 6.6 + 6, free = (x, y) => x - w / 2 > RX0 - 6 && x + w / 2 < 338 && y - 12 > 4 && y + 3 < BASE - 4 && B.free(x - w / 2, x + w / 2, y - 12, y + 3, marks, 1.5);
+    [-11, 20, -24, 33, -37, 46, -50].some((dy) => { const x = Math.max(RX0 - 6 + w / 2, Math.min(338 - w / 2, d.x)), y = d.y + dy; if (free(x, y)) spot = [x, y, free]; return !!spot; });
+   } else if (stepNow === S.pour && trace.i === sel) {
+    const q = D.pile[sel], y = FY.y1 + 15, xa = fieldX(sel, 12), xt = B.lerp(xa, q.x, 9 / Math.max(10, q.y - q.r - FY.y1));
+    txt = 'reading ' + (sel + 1); parts = [['reading ', 'w'], [String(sel + 1), 'n']]; avoid = [ring, trail];
+    const w = txt.length * 6.6 + 6, free = (x, yy) => x - w / 2 > 4 && x + w / 2 < 336 && B.free(x - w / 2, x + w / 2, yy - 11, yy + 3, D.pile, 2);
+    (q.x >= xa ? [xt - 9 - w / 2, xt + 9 + w / 2] : [xt + 9 + w / 2, xt - 9 - w / 2]).some((x) => { if (free(x, y)) spot = [x, y, free]; return !!spot; });
+   }
+   if (!spot) return;   // a crowded corner: the ring alone marks it
+   K.labels(G.tags, [{ x: spot[0], y: spot[1], text: txt, class: 'bd-lab bd-halo' }], { avoid }).forEach((t) => {
+     if (!spot[2](+t.getAttribute('x'), +t.getAttribute('y'))) { t.remove(); return; }
+     B.words(t, parts); K.fade(t, tagA, 3);
+   });
+  }
+
+  // ---------- Dan's moves ----------
+  // Drag the ringed bead along the scale: its slider follows.
+  K.drag(handle, { control: 'slip', toValue: (x) => { const p = K.params(), base = B.round(TRUE + p.spread * B.sum(nud(batch)[sel]), RES); return B.round(layout(p).zc.val(x) - base, RES); } });
+  // Tap a bead: in step 0 its path draws in; elsewhere it becomes the ringed reading.
+  svg.addEventListener('click', (ev) => {
+    if (ev.target.closest && ev.target.closest('.k-drag-hit, .bd-handle')) return;
+    const st = stepNow;
+    if (!(st === S.pour || st === S.bal || st === S.tol || st === S.time) || (st === S.pour && M.moving('pour'))) return;   // once the pour has landed
+    const i = B.pick(svg, ev, drawn, st === S.time ? 20 : 12);
+    if (i < 0 || (i === sel && st !== S.pour)) return;
+    sel = i;
+    if (st === S.pour) { trace = { i, t: M.instant() ? M.Tl - 10 : M.Tl }; tagDone = false; G.tags.textContent = ''; } else K.reveal();
+    cSlip.set(0);
+    K.refresh();
+    M.anim.play();
+  });
+
+  let lastKey = '', lastAvg = '1', lastRes = '0.01', lastArr = 'single', lastView = 'time', lastYears = 5, lastIrs = 'log', first = true;
+  const stateKey = (p) => keyOf(p) + '|' + yearsOf(p) + '|' + p.view;
+  const remember = (p) => { lastAvg = p.avg; lastRes = p.res; lastArr = arrOf(p); lastView = p.view; lastYears = p.years; lastIrs = p.irs; };
+  const sayEl = $('say'), capEl = $('cap'), leadEl = $('lead'), choicesEl = $('choices'), fkey = $('fkey');
+  const fkDots = [-2.6, -1.5, -0.5, 0.5, 1.5, 2.6].map((z, j) => [B.add($('fkeyDots'), 'circle', { class: 'bd-kb', cx: B.r2(7 + j * 14.4), cy: 7, r: 5.8 }), z]);   // the key: deepest, palest, deepest
+  const hintOf = (r) => r.el.querySelector('.k-hint');
+  K.update((p, o) => {
+    PP = p;
+    const st = p.step, kk = stateKey(p);
+    if (first || st !== stepNow) { const w = first ? -1 : stepNow; first = false; stepNow = st; lastKey = kk; remember(p); enterStep(st, w, p); }
+    else if (kk !== lastKey) {
+     const viewOnly = p.view !== lastView && kk.split('|').slice(0, -1).join('|') === lastKey.split('|').slice(0, -1).join('|'), irFlip = st === S.ir && p.irs !== lastIrs;
+     if (st === S.life && p.years !== lastYears) lifeMoved = true;
+     if (irFlip) irMoved = true;
+     lastKey = kk; G.tags.textContent = ''; tagA = 0; tagDone = false;
+     if (viewOnly) { if (M.instant()) FU = foldTo(); M.anim.play(); }
+     else settle(p, isLife(st) && arrOf(p) !== lastArr, irFlip);
+     remember(p);
+    }
+    [cSpread, cSlip, cIrs, cOff, cAvg, cRes, cDrift, cView, cSwing, cYears, cArr, cAge].forEach((c) => { c.el.hidden = CTRLS[st].indexOf(c) < 0; });
+    choicesEl.hidden = !(st === S.ir || st === S.off || st === S.res || st === S.cause || st === S.life);
+    fkDots.forEach(([c, z]) => { c.style.fill = B.fade(z); }); fkey.hidden = !fadeOn(p);   // the colour's key, where beads are coloured
+    Object.keys(R).forEach((k) => { R[k].el.hidden = SHOWN[st].indexOf(k) < 0 || (k === 'r' && p.view !== 'xy'); });
+    hintOf(R.expect).textContent = RULE[arrOf(p)]; hintOf(R.mtbf).textContent = MRULE[arrOf(p)];
+    sayEl.textContent = sayFor(st, p, o);
+    leadEl.textContent = LEADS[st];
+    capEl.textContent = CAPS[st];
+    paint();
+    if (M.idle() && tagReady()) tags(false);
+  });
+  const VOLT = 'Each bead is one simulated reading of a battery bank\'s float voltage. Say its charger holds it at 27.00 V.';
+  const LEADS = [VOLT, VOLT, 'Each bead is now one simulated insulation resistance reading of a cable. Say its true value is 200 MΩ.', VOLT, VOLT, VOLT, VOLT, VOLT,
+   'Two strings of simulated readings over the same days: a pump bearing\'s temperature and a battery\'s float current. The air around them warms both.',
+   'Each bead is now one of fifty identical units in service, simulated. Say each fails at random at 0.1 a year.',
+   'Each bead is one of fifty units in service, simulated. Their failure rate follows a sketch: high at first, then low, then rising as they wear out.'];
+  const CAPS = [
+   'Simulated: 27.00 V plus twelve random nudges of up to half the random error, read to 0.01 V.',
+   'Simulated: 27.00 V plus twelve random nudges, read to 0.01 V.',
+   'Simulated: ' + nb('200 MΩ × 10^(0.15 × the twelve nudges added)') + ', read to 1 MΩ. An example.',
+   'Simulated. The meter\'s offset and its accuracy, ±(0.1% of the reading + 2 digits), are examples.',
+   'Simulated, as before, then rounded to the meter\'s step. Both meters are examples.',
+   'Simulated, as before. The 68, 95 and 99.7% are the normal curve\'s rule.',
+   'Simulated, as before. The limits are an example; a reading on a limit is in.',
+   'Simulated: 27.00 V plus the drift and twelve random nudges, read to 0.01 V.',
+   'Simulated: the air swings daily, and the bearing and the current each follow it, plus their own random nudges. Examples.',
+   'Simulated lifetimes: −ln(u) ÷ λ with u random between 0 and 1. The rate λ is an example.',
+   'Simulated lifetimes from a sketch of the failure rate: early, steady and wear-out parts, not measured data.',
+  ];
+
+  function sayFor(st, p, o) {
+   if (st === S.pour) {
+    if (!K.moved) return 'Predict first: halve the random error. Will the swarm get narrower, taller, or both?';
+    if (p.spread < 0.029) return 'Less random error: a narrower swarm, and a taller one, because the same fifty readings share fewer columns.';
+    if (p.spread > 0.031) return 'More random error: a wider swarm, and a flatter one, because the same fifty readings spread over more columns.';
+    return 'Twelve small nudges push each bead left or right. Most of them cancel out, so most beads land near 27.00 V and only a few reach the ends.';
+   }
+   if (st === S.bal) {
+    if (!slipOf(p)) return 'The beam balances at the mean, the swarm\'s balance point. The median is the middle reading once they are put in order.';
+    return 'The slipped reading pulls the balance point its way, and the fulcrum follows. The mean moves a fiftieth of the slip; the median, the middle bead, hardly moves.';
+   }
+   if (st === S.ir) {
+    if (irEven(p)) return 'On an even scale the swarm leans: most readings bunch low and a few run far high. That long tail pulls the mean, where the beam balances, above the median.';
+    if (!irMoved) return 'Each nudge multiplies the reading, so on a scale by factors the swarm is a bell again. Predict: on an even scale of megohms, will it still be one?';
+    return 'By factors, each step along the scale is the last one times the same amount, so the twelve nudges add and the swarm is a bell again.';
+   }
+   if (st === S.off) {
+    const n = +p.avg, off = p.offset > 0.001, miss = Math.abs(o.mean - TRUE) > o.unc;
+    if (n === 1 && !off) return 'The result brackets the true value, much more tightly than the beads scatter. Make each bead the mean of a few readings, or make the meter read high.';
+    const lead = n === 4 ? 'Four readings averaged into each bead halve the spread, because their random errors partly cancel. ' : n === 2 ? 'Two readings averaged into each bead shrink the spread to about seven tenths, because their random errors partly cancel. ' : '';
+    if (!off) return lead + 'The swarm and the result still centre on the true value.';
+    return (lead || 'The meter reads high, so every reading lands high: the swarm shifts across, still inside the meter\'s accuracy. ')
+    + (lead ? 'But the swarm and the result tighten round where the meter centres, not the true value' : 'The result moves with it') + (miss ? ', and the true value falls outside the result.' : '.') + ' Repeats cannot remove a systematic error.';
+   }
+   if (st === S.res) {
+    if (+p.res <= RES) return 'This meter reads to 0.01 V, one column of the swarm. Predict: what does the swarm look like on a meter that reads only to 0.05 V?';
+    return 'A meter that reads to 0.05 V shows only a few values, so the readings stack into bricks one step wide. The mean of many still lands close to 27.00 V, but one reading can be half a step out.';
+   }
+   if (st === S.curve) return 'This curve has the swarm\'s own mean and standard deviation. Some columns reach past it and some fall short: real counts wobble about what the rule expects.';
+   if (st === S.tol) {
+    const vs = readings(p), mine = isOut(vs[sel]), others = vs.filter((v, i) => i !== sel && isOut(v)).length;
+    if (mine && Math.abs(o.z) >= 4) return 'The ringed reading is out of tolerance and far out on the ruler. A reading that unusual is more likely a slip than a real change, so test again before trusting it.';
+    if (mine) return 'The ringed reading lands past a limit, yet it is an honest reading: chance alone puts one out now and then. Drop fresh batches and keep count.';
+    if (others) return 'An honest reading lands past a limit. Nothing is wrong: chance alone puts one out now and then. Drop fresh batches and keep count.';
+    return 'Every reading is inside the limits. Slip the ringed reading past one, or drop fresh batches and keep count.';
+   }
+   if (st === S.time) {
+    if (!p.drift) return 'In the order taken, the readings wander but do not climb, and the swarm on its side keeps its bell. ' + (Math.abs(o.trend) >= 0.001 ? 'The best-fit line still leans a little, and that lean is noise.' : 'The best-fit line lies almost flat.');
+    // How far the drift carries the readings, against the noise.
+    const total = p.drift * (N - 1) / 10, close = Math.abs(o.trend - p.drift) <= 0.25 * p.drift, d = 'A drift of ' + K.fmt(p.drift, { decimals: 3 }) + ' V per 10 readings ';
+    if (total < p.spread) return d + 'adds up to only ' + K.fmt(total, { decimals: 3 }) + ' V over all fifty: too small to see beside the noise. ' + (close ? 'The best-fit line happens to find it this time.' : 'The best-fit line may not find it.');
+    if (total < 2.5 * p.spread) return d + 'tilts the trace a little, yet the swarm on its side hardly widens: only the order taken shows it. ' + (close ? 'The best-fit line finds it through the noise.' : 'The noise pulls the best-fit line off the dashed true value; more readings would pin it down.');
+    return d + 'tilts the whole trace, and the swarm on its side grows wider than its noise alone. ' + (close ? 'The best-fit line finds the drift through the noise.'
+     : 'The best-fit line finds it, though the noise pulls it off the dashed true value. More readings, or less random error, pin it down better.');
+   }
+   if (st === S.cause) {
+    if (p.view !== 'xy') return p.swing > 0.4 ? 'Over the days the bearing and the current rise and fall together. Does one drive the other? Show them one against the other.'
+    : 'With the air steady, the bearing and the current only wobble by chance. Show them one against the other.';
+    if (p.swing < 0.4) return 'With the air steady they share nothing but chance: a round cloud, and a best-fit line that means nothing.';
+    if (p.swing < 1.6) return 'A smaller swing in the air gives a looser line: the shared cause is small beside each string\'s own wobble.';
+    return 'The pairs line up closely, yet neither drives the other: the air warms them both. Steady the air and the line goes.';
+   }
+   if (st === S.tub) {
+    const t = p.age;
+    if (t < 3) return 'Early on, units with hidden faults fail fast: the failure rate starts high and falls.';
+    if (t < 18) return 'In the middle years few fail: the rate sits low and steady, like the one-by-one model.';
+    return 'Many fail early, few for years, then the survivors wear out together and the rate climbs steeply: the bathtub.';
+   }
+   if (p.arr === 'series') return 'A pair in series stops when either unit fails, so pairs drop off twice as fast. The chance a pair still works is R × R.';
+   if (p.arr === 'parallel') return 'A pair in parallel works until both units have failed. A failed unit stays on the shelf, held by its partner, so few pairs fail early.';
+   if (!lifeMoved) return 'Predict first: the MTBF is 10 years. At 10 years in service, how many of the fifty will still work: half?';
+   if (p.years === 10) return 'At the MTBF, 10 years, only about 37% are still working, not half: a few long-lived units pull the average up.';
+   return p.years < 10 ? 'Units fail at the same steady rate at every age. The shelf empties fastest at first only because more are left to fail.'
+   : 'Past the MTBF the shelf keeps emptying at the same rate for each unit still there, so a few last far longer than the average.';
+  }
+
+  // ---------- known answers, worked out by hand; each names the fact that broke ----------
+  const at = (over) => Object.assign({}, K.params(), over);
+  // Walk the real step changes, motion held finished, then come back.
+  function dryVisit(list) {
+   const back = K.params().step;
+   M.dry = true;
+   try { list.forEach((s) => { cStep.set(s, true); K.refresh(); }); return { spread: K.params().spread, sd: K.outputs().sd }; }
+   finally { cStep.set(back, true); K.refresh(); M.dry = false; }
+  }
+  K.check('By hand: 26.98, 27.00, 27.02, 27.04 V have mean and median 27.01 V and SD 0.0258 V; a 0.06 V slip on one of 50 moves the mean 0.0012 V', () => {
+    const s = B.stats([26.98, 27.0, 27.02, 27.04]), a = K.at({ step: S.bal, slip: 0 }), b = K.at({ step: S.bal, slip: 0.06 }), c = K.at({ step: S.bal, slip: -0.1 });
+    return B.facts([['mean 27.01 V', K.near(s.m, 27.01, 1e-9)], ['median 27.01 V', K.near(s.med, 27.01, 1e-9)], ['SD 0.0258 V', K.near(s.sd, Math.sqrt(0.002 / 3), 1e-9) && K.near(s.sd, 0.0258, 1e-4)],
+      ['a slip moves the mean a fiftieth of it', K.near(b.mean - a.mean, 0.0012, 1e-9) && K.near(c.mean - a.mean, -0.002, 1e-9)], ['the median moves a step at most', Math.abs(b.median - a.median) <= 0.01 + 1e-9 && Math.abs(c.median - a.median) <= 0.01 + 1e-9]]);
+  });
+  K.check('Edge case: a reading on a limit is in; a bead past a limit line is counted out and only then; the tolerance step still opens at 0.03 V after the offset step', () => {
+    let lines = true;
+    for (let b = FIRST; b < FIRST + 40; b++) {
+     const keep = batch; batch = b;
+     [-0.1, -0.05, 0, 0.05, 0.1].forEach((slip) => { const D = layout(at({ step: S.tol, slip, spread: 0.03 })), [xL, xH] = limX(D.zc); D.pile.forEach((q, i) => { if ((q.x < xL || q.x > xH) !== isOut(D.vs[i])) lines = false; }); });
+     batch = keep;
+    }
+    cacheKey = '';
+    const v = dryVisit([S.off, S.tol]);
+    return B.facts([['on a limit is in', !isOut(26.92) && !isOut(27.08) && isOut(26.91) && isOut(27.09)], ['past a line is counted out', lines],
+      ['the offset step keeps its 0.04 V to itself', v.spread === 0.03 && K.near(v.sd, B.stats(readings({ step: S.tol, spread: 0.03, slip: 0 })).sd, 1e-12) && K.near(B.stats(readings({ step: S.off, spread: 0.03, avg: '1', offset: 0 })).sd, 0.04, 0.012)]]);
+  });
+  K.check('From outside: of 20,000 simulated readings 68.3, 95.4 and 99.7% fall within 1, 2 and 3 SD; at its 10-year MTBF a unit still works with chance e^−1 = 0.368, a series pair 0.135, a parallel pair 0.600', () => {
+    const r = B.rng(12345), n = 20000, e = [];
+    for (let j = 0; j < n; j++) { let s = 0; for (let q = 0; q < 12; q++) s += r() - 0.5; e.push(0.03 * s); }
+    const s = B.stats(e), share = (z) => B.within(e, s.m, s.sd, z) / n, life = B.uni(777, n).filter((u) => -Math.log(u) / RATE > 10).length / n;
+    return B.facts([['twelve nudges make an SD of 1', Math.abs(s.sd / 0.03 - 1) < 0.02], ['68.3% within 1 SD', Math.abs(share(1) - 0.683) < 0.01], ['95.4% within 2 SD', Math.abs(share(2) - 0.954) < 0.01],
+      ['99.7% within 3 SD', Math.abs(share(3) - 0.997) < 0.005], ['one unit: e^−1', K.near(Rsys('single', 10), 0.3679, 1e-4)], ['a series pair: e^−2', K.near(Rsys('series', 10), 0.1353, 1e-4)],
+      ['a parallel pair: 1 − (1 − e^−1)²', K.near(Rsys('parallel', 10), 0.6004, 1e-4)], ['the tile reads 25 × R²', K.near(K.at({ step: S.life, years: 10, arr: 'series' }).expect, 25 * 0.13534, 1e-3)],
+      ['simulated lifetimes agree', Math.abs(life - 0.368) < 0.01]]);
+  });
+  K.check('Shapes: four averaged halve the SD; batch means scatter by SD ÷ √50; a steady air correlates near 0, ±3 °C above 0.8; resistance is a bell by factors, mean above median; the bathtub high, low, high', () => {
+    const r = B.rng(4242), m4 = [], means = [], irs = [];
+    for (let j = 0; j < 4000; j++) { let s = 0; for (let k = 0; k < 4; k++) { let t = 0; for (let q = 0; q < 12; q++) t += r() - 0.5; s += 0.03 * t; } m4.push(s / 4); }
+    for (let b = 1; b <= 300; b++) means.push(B.stats(gen(B.nudges(b, N), 0.03, 1, RES, 0, 0)).m);
+    for (let b = 1; b <= 20; b++) irGen(B.nudges(b, 4 * N)).forEach((v) => irs.push(v));
+    let rs = 0;
+    for (let b = 1; b <= 100; b++) rs += B.corr(...pairsFrom(B.nudges(b, 2 * N), 0)) / 100;
+    const U = nud(FIRST), sameR = B.corr(U.slice(0, N).map((u) => B.round(40 + 0.5 * B.sum(u), 0.1)), U.slice(0, N).map((u) => B.round(0.4 + 0.02 * B.sum(u), 0.001)));
+    const ir = B.stats(irs), lg = B.stats(irs.map((v) => Math.log10(v))), ls = B.logScale(10, 1000, 4, 0, 90);
+    return B.facts([['four averaged halve the SD', Math.abs(B.stats(m4).sd / 0.015 - 1) < 0.05], ['means scatter by SD ÷ √50', Math.abs(B.stats(means).sd / (0.03 / Math.sqrt(N)) - 1) < 0.12],
+      ['steady air: about 0', Math.abs(rs) < 0.05 && Math.abs(B.corr(...pairsFrom(U, 0))) < 0.3], ['shared air: above 0.8', B.corr(...pairsFrom(U, 3)) > 0.8], ['reused nudges would correlate', sameR > 0.98],
+      ['correlation by hand', K.near(B.corr([1, 2, 3], [1, 3, 2]), 0.5, 1e-12) && K.near(B.corr([1, 2, 3], [6, 4, 2]), -1, 1e-12)],
+      ['by factors a bell about 200 MΩ', Math.abs(lg.m - Math.log10(IR0)) < 0.02 && Math.abs(lg.sd / IR_SD - 1) < 0.08], ['its mean above its median', ir.m / ir.med > 1.02 && ir.m / ir.med < 1.11],
+      ['a log scale, 4 columns a decade', ls.n === 9 && K.near(ls.at(100), 45, 1e-9) && ls.col(178) === 5 && K.near(ls.val(45), 100, 1e-9)],
+      ['the bathtub high, low, high', htub(0) > 0.25 && htub(10) < 0.03 && htub(28) > 0.5 && hsys('parallel', 0) === 0], ['a lifetime from the sketch', K.near(B.lifeFrom(Htub, Math.exp(-Htub(10)), 30), 10, 1e-9)],
+      ['a lifetime from a steady rate', K.near(B.lifeFrom((t) => RATE * t, Math.exp(-1), 30), 10, 1e-9) && B.lifeFrom((t) => RATE * t, 0.01, 30) === Infinity]]);
+  });
+  K.check('Drawn true: the fulcrum under the mean; values clear of beads; no two beads touch, none under r 3.2; a reading past the scale in its overflow pile; the deepest colours 3:1, the palest seen; all settles within 5 s', () => {
+    const keep = { stepNow, was, rolled, fulIn, rock, sel, Tb: M.Tb, Ts: M.Ts, sc: M.sc, leave: M.leave, spr: M.springs.map((q) => [q.v, q.vel, q.to, q.init]), fa: Object.assign({}, FA) };
+    const go = (st) => { stepNow = st; was = st; rolled = false; M.Tb = M.Ts = Infinity; M.sc = { kind: 'still', end: 0 }; fulIn = false; rock = false; M.leave = null; sel = RING; };
+    go(S.bal);
+    const p1 = at({ step: S.bal, slip: 0.04 }), m = B.stats(readings(p1)).m;
+    paint(p1);
+    const fx = parseFloat((fulcrum.getAttribute('d') || 'M0').slice(1)), level = !G.tilt.getAttribute('transform') && fulcrum.getAttribute('display') !== 'none', under = Math.abs(fx - layout(p1).zc.at(m)) < 0.05;
+    // The values: clear of every bead, inside the scene.
+    let clear = true;
+    const valClear = (q) => { paint(q); const D = layout(q); return [meanVal, medVal].every((t) => { if (t.getAttribute('display') === 'none') return false;
+       const x = +t.getAttribute('x'), y = +t.getAttribute('y'), w = B.tw(t), a = t.getAttribute('text-anchor'), x0 = a === 'end' ? x - w : a === 'middle' ? x - w / 2 : x; return x0 > 1 && x0 + w < 339 && B.free(x0, x0 + w, y - 10, y + 3, D.pile, 0.5); }); };
+    [0.015, 0.03, 0.04].forEach((spread) => [-0.1, -0.03, 0, 0.04, 0.1].forEach((slip) => { clear = clear && valClear(at({ step: S.bal, spread, slip })); }));
+    go(S.ir); clear = clear && valClear(at({ step: S.ir, irs: 'even' }));
+    // A reading slipped past the scale: in its pile, named, the end number shown, the pointer past the ruler.
+    go(S.tol);
+    const big = layout(at({ step: S.tol, slip: 0, spread: 0.03 })).vs.findIndex((v) => v >= 27.04);
+    sel = big; const q4 = at({ step: S.tol, spread: 0.03, slip: 0.1 });
+    Object.assign(FA, faTo(q4)); paint(q4);
+    const D4 = layout(q4), bq = D4.pile[big], eh = ENDS.hi;
+    const ticks = Array.from((ruler.getAttribute('d') || '').matchAll(/M([\d.]+) 38v6/g)).map((t) => +t[1]), px = parseFloat((pointer.getAttribute('d') || 'M0').slice(1));
+    const pastOk = big >= 0 && D4.sc.off(D4.vs[big]) === 1 && bq.x - bq.r >= eh.x0 - 1e-6 && bq.x + bq.r <= eh.x1 + 1e-6 && ovAx[1].getAttribute('display') !== 'none' && ovLab[1].getAttribute('display') !== 'none'
+    && ovLab[1].textContent === 'over' && TK.v.labs[4][0].getAttribute('display') !== 'none' && rulerEnd.getAttribute('display') !== 'none' && ticks.length > 3 && px > Math.max(...ticks) + 5;
+    sel = RING;
+    const D = layout(at({ step: S.time, drift: 0.006 })), TG = timeGeom(D, true), side = D.pile.every((q, i) => D.sc.off(D.vs[i]) || Math.abs(B.tip(q, 1, TG.A).y - TG.run[i].y) < 1e-6);
+    // Every swarm the controls allow, 60 batches: beads apart, inside its room, none under r 3.2.
+    let rmin = Infinity, apart = true, inside = true;
+    const sw = (vs, sc, st, ft, ring) => { const w = B.swarm(vs, sc, LINE(st), HALF(st), ft, ENDS, ring); rmin = Math.min(rmin, w.r);
+     for (let a = 0; a < N; a++) { const q = w.pos[a]; if (q.x - q.r < 1 || q.x + q.r > 339 || q.y - q.r < TOPS(st) - 1e-6 || q.y + q.r > SWB + 1e-6) inside = false;
+      for (let b = a + 1; b < N; b++) { const u = w.pos[b], dx = q.x - u.x, dy = q.y - u.y, g = q.r + u.r + B.GAP - 1e-6; if (Math.abs(dx) < g && dx * dx + dy * dy < g * g) apart = false; } } };
+    for (let b = FIRST; b < FIRST + 60; b++) {
+     const U = B.nudges(b, 4 * N);
+     [0.015, 0.02, 0.025, 0.03, 0.035, 0.04].forEach((sd) => { const fine = gen(U, sd, 1, RES, 0, 0);
+       sw(fine, VZ, S.pour, FIT0); sw(fine, VZ, S.curve, fitOf({ step: S.curve, spread: sd }, U));
+       [S.bal, S.tol].forEach((st) => [-0.1, 0, 0.1].forEach((sl) => { const v = fine.slice(); v[RING] = B.round(v[RING] + sl, RES); sw(v, VZ, st, fitOf({ step: st, spread: sd }, U), RING); }));
+       sw(gen(U, sd, 1, 0.05, 0, 0), ZCB, S.res, fitOf({ step: S.res, spread: sd }, U)); });
+     [1, 2, 4].forEach((k) => [0, 0.03].forEach((o) => sw(gen(U, OFF_SD, k, RES, o, 0), VZ, S.off, FIT0)));
+     const irf = fitOf({ step: S.ir }, U); sw(irGen(U), IRL, S.ir, irf); sw(irGen(U), IRE, S.ir, irf);
+    }
+    // The fade: one hue below the mean, another above, deepening outward; the deepest 3:1, the palest still there.
+    const rgb = (css) => { const e = A(G.tags, 'circle', { r: 0 }); e.style.fill = css; const v = getComputedStyle(e).fill; e.remove(); const c = /color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)/.exec(v);
+     return c ? [+c[1] * 255, +c[2] * 255, +c[3] * 255] : (v.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
+    const lum = (c) => c.reduce((a, x, j) => { x /= 255; return a + [0.2126, 0.7152, 0.0722][j] * (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); }, 0);
+    const bgc = rgb('var(--k-bg)'), con = (z) => { const x = lum(rgb(B.fade(z))), y = lum(bgc); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const fadeOk = con(-3) >= 3 && con(3) >= 3 && con(-0.01) >= 1.15 && con(0.01) >= 1.15 && /cat2/.test(B.fade(-1)) && /cat1/.test(B.fade(1)) && [0.5, 1, 1.5, 2, 2.5].every((z, j, a) => !j || (con(z) > con(a[j - 1]) && con(-z) > con(-a[j - 1])));
+    const C = layout(at({ step: S.cause, swing: 3 })).C;
+    const merged = C.tB.every((a, i) => { const f1 = B.fold(a, C.tC[i], C.F[i], 1), f0 = B.fold(a, C.tC[i], C.F[i], 0);
+      return Math.hypot(f1[0].x - f1[1].x, f1[0].y - f1[1].y) < 1e-9 && f1[1].x >= CX0 && f1[1].x <= CX1 && f1[1].y >= 40 && f1[1].y <= 222 && f0[0].x === a.x && f0[0].y === a.y && f0[1].y === C.tC[i].y; });
+    const room = [S.life, S.tub].every((stp) => layout(at({ step: stp, arr: 'single' })).lst.pos.every((q) => q.y - q.r >= LTOP - 1e-6 && q.y + q.r <= LB + 1e-6)) && SHB + FIT0.r + 2 < LTOP && LN + 4 < HZT - 18 && HZ0 + 14 < RT - 10;
+    Object.assign(M, { Tb: Infinity });
+    let on5 = true;
+    for (let st = 0; st < STEPS.length; st++) for (let w = 0; w < STEPS.length; w++) if (w !== st) ['log', 'even'].forEach((irs) => { const q = at({ step: st, irs }); on5 = on5 && planFor(st, w, layout(q), q).end <= 5; });
+    const Dp = layout(at({ step: S.pour })), pour = B.rise(M.pour(Dp.heap, Dp.fy - FH, Dp.fy, 0.03, false), Dp.heap, Dp.zc.at(Dp.s.m)).end, hop = 0.03 + B.T.hop * (N - 1) + B.T.fly + B.T.bounce;
+    const flip = M.plan(M.arc(0.012, 20), 0.5, storyLen(S.ir, layout(at({ step: S.ir, irs: 'even' })), OV_IRE), OV_IRE, false).end;
+    stepNow = keep.stepNow; was = keep.was; rolled = keep.rolled; fulIn = keep.fulIn; rock = keep.rock; sel = keep.sel; Object.assign(FA, keep.fa);
+    Object.assign(M, { Tb: keep.Tb, Ts: keep.Ts, sc: keep.sc, leave: keep.leave });
+    M.springs.forEach((q, j) => { [q.v, q.vel, q.to, q.init] = keep.spr[j]; });
+    cacheKey = '';
+    paint();
+    return B.facts([['the fulcrum under the mean', under], ['the beam level', level], ['the values clear', clear], ['past the end in its overflow pile', pastOk], ['tipped level with the time view', side],
+      ['beads at least r 3.2', rmin >= 3.2], ['no two beads touch', apart], ['every bead inside its room', inside], ['the fade', fadeOk], ['folded pairs inside the plot', merged], ['lifetimes fit their rows', room], ['every step within 5 s', on5],
+      ['a fresh batch within 5 s', pour <= 5 && hop <= 5], ['a choice within 5 s', flip <= 5 && B.T.settle <= 0.5 && B.T.fold <= 2 && CLOCK0 + CLOCK_D + 0.8 <= 5]]);
+  });
+  K.ready();
+</script>

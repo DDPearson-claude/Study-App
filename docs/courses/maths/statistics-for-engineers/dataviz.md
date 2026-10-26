@@ -1,102 +1,193 @@
 # Beads: how Statistics for engineers draws its data
 
-The binding guide for the five lesson builders and reviewers (26 Oct, fifth version). Base "beads", grafts from "morph" and "recorder". Prototype `dataviz.proto.html`:
-eleven steps through all five lessons, five self-tests passing at 340, 720 and 1040 px in both themes. At a glance: `dataviz.showcase.png`.
+The binding guide for the five lesson builders and reviewers (26 Oct, sixth version: the swarm). Dan shared a beeswarm chart and asked "Can we visualise our
+data like this?"; on 26 Oct he said "Yes do it", so every lesson draws its readings as a swarm. Prototype `dataviz.proto.html`: eleven steps through all five
+lessons, five self-tests passing at 340, 720 and 1040 px in both themes, 149.5 KiB. At a glance: `dataviz.showcase.png`. The pile version is kept, for
+reference only, in `dataviz.pile.md`, `dataviz.pile.proto.html` and `dataviz.pile.showcase.png`.
 
 ## The language
-Every simulated reading is a bead that leaves a hopper, strikes its way down through the rule that made it and lands with a small bounce on a beam, so every statistic is
-something the pile does: it balances on a fulcrum at the mean, its skyline relaxes into the bell, it tips and peels out in the order taken, and a unit drops off its shelf
-when it fails. The numbers come out of the pile, and the pile out of a rule on screen.
+Every simulated reading is a bead that leaves a hopper, strikes its way down through the rule that made it and lands with a small bounce on the beam. The
+pile it lands on then rises into a **swarm**: each bead at its own value, packed above and below one line just over the axis, coloured by how far it sits
+from the mean. So every statistic is something the swarm does: it balances on a fulcrum at the mean, its outline relaxes into the mirrored bell, it tips
+onto its side and peels out in the order taken, and a unit drops off its shelf when it fails. The numbers come out of the swarm, and the swarm out of a rule
+on screen. Every pour lands as a pile and rises, so each batch shows the pile and the swarm are the same readings; there is no Pile | Swarm choice.
 
 ## Marks (viewBox 0 0 340 300, one height for every view, so the page never jumps)
-- **Bead** = one reading: `bd-bead` in `accent2`, surface ring and glint; a second string's `bd-bead two` in `accent`. With the peg field the scale is `SC` (±3.5 SD at the
-  widest error); without it the pile is drawn closer, `ZC` (27 columns 12 wide), the beam's numbers gliding between the two on a spring. A step with the field and the
-  spread slider sizes beads for the narrowest pile the slider allows (`B.fitPile(B.peak(…))`, r 4.32); every other step for its own batch (`B.tallest`, plus one where a
-  reading drags): r 5.4 at 0.03 V. A batch too tall shrinks every bead; a K.check walks 200 batches at every setting: r never under 3.5.
-- **Column** = one meter step (`B.scale`); a coarse meter's columns sit on the same voltage scale, `per` beads across, so readings stack into **bricks**. Readings that
-  spread by a factor (insulation resistance) use `B.logScale` (20 columns a decade, each 12% more) or an even scale of 25 MΩ bins: there a column is a bin.
-- **Peg field**: twelve rows of r 1.8 pegs one nudge apart (closer for a mean), 22 above the tallest stack. A bead's path is its own nudges added row by row (a mean takes
-  the mean of its readings' paths; by factors, powers add); it strikes each row with a 2-unit jink and the peg it passes swells (`M.hits`, `B.pegHit`).
-- **Rows**: stacks below y 70 (60 where no bell or field sits above), beam y 232 with the **fulcrum** at the mean, numbers 258, dimension row 274, title or key 295.
-  **Ringed bead**: ring r + 2.6, two drag arrows. **Off the scale**, never clipped: on the end column with an arrow (`B.offMark`). **Limits** (lesson 3): a reading on a
-  limit is in, so each limit line sits on the *outer* edge of its limit's column (`limX`): every bead past a line is counted out, and every one counted is past a line.
-- **Offset step**: a window as wide as an example meter's accuracy behind the hopper; "result" (mean ± 2 SD ÷ √50) an ink bracket over the pile; "most beads" (± 2 SD) under
-  the beam. **Two strings**: stacked strips on one time axis, each its own scale. **Lifetimes**: shelf, pile on a beam at y 176, years at 202, and under them the failure
-  rate of the units still working (y 228-268, its own scale at the right, 0.1 and 0.3 a year); the clock's hand runs through both.
+- **Bead** = one reading: `bd-bead` with a surface ring and glint. It falls and lands in `accent2`, then takes its place on **the fade** (below); a
+  second string's `bd-bead two` in `accent`. Lifetimes' units stay `accent2`: the fade is for readings about a mean.
+- **The scale**: one voltage scale, `B.scale(26.9, 27.1, 0.01, 41, 299)`, 21 columns of one meter step, 12.3 units wide; insulation resistance on
+  `B.logScale` (50 to 800 MΩ, each column 12% more) or an even scale of 25 MΩ bins. The beam spans the scale alone; past each end, after a 9-unit gap in the
+  axis, sits an **overflow pile** (below).
+- **The swarm layout** (`B.swarm`): readings on the meter's marks pack as a **honeycomb** (`B.comb`): each column's beads take the free places nearest the
+  line, alternately above and below (an odd one to the side with fewer so far), and every other column sits half a place up so neighbours nest; the half
+  place goes to whichever columns leave the tallest reach least. Legal while r ≤ 0.536 of a column, so the cap of 0.52 keeps every bead a unit clear by
+  construction. Other readings (resistance, means of 2 or 4) go **best first** (`B.swarmY`): each round the bead whose closest free spot is nearest the
+  line takes it, leftmost on a tie. Beads sit one unit apart (`B.GAP`). The ringed reading goes last, keeping 6 more room (`B.RING`), and only above, so
+  the line holds still while Dan drags it.
+- **A coarse meter** (0.05 V): its columns are five meter steps wide, so its readings stack into **bricks**, rows centred on the swarm's line (on it, then
+  above, below, ...), each brick inside its column and the scale.
+- **Bead size** (`fitSw`): `r = min(0.52 w, (half − c) ÷ (2c + 1))`, w the column (r 6.4 at most), c = ⌈(k − 1) ÷ 2⌉ for the tallest column k, plus one
+  where a reading drags. With the peg field the narrowest spread the slider allows sets it (`B.peak`, r 4.15), so halving the error shows the swarm taller;
+  every other step sizes for its own batch (`B.tallest`). Too tall, `B.swarm` shrinks every bead. A K.check walks 60 batches at every setting: no two beads
+  touch, all inside their room, r at least 3.2.
+- **It hugs the beam**: y 232 is the axis; a swarm keeps to y TOPS..227 (TOPS 70 under the field or the bell's brackets, 84 in the offset step, 58 under the
+  ruler, 56 else), its line at `max(TOPS + up, 225 − R)` (213 − R in the offset step), R its reach below or the bell's half height, up its reach above.
+- **The pile a pour lands on** (`B.heap`): the old stack on the beam, earlier readings lower, `per` across a wide column, a reading past an end in that end's
+  pile. It shows only during a pour, before the rise.
+- **Overflow pile** (`B.ends`, 24 wide past a 9-unit gap): a reading past an end is never clipped and never an arrow; it goes into its end's pile, as many
+  across as fit (two at the field's bead size), rows about the line. Each pile has its own short ink axis (`bd-ovax`) and its name under it in the numbers
+  row ("under", "over"); while a pile shows, the scale's end number slides in clear of that name (`drawTicks`). By factors the scale's last number is 800.
+- **Peg field**: twelve rows of r 1.8 pegs one nudge apart (closer for a mean), hung 22 above the swarm and the pile (28 for a pour or resistance, 30 offset). A bead's
+  path is its own nudges added row by row (a mean takes the mean of its readings' paths; by factors, powers add); it strikes each row with a 2-unit jink
+  and the peg it passes swells (`M.hits`, `B.pegHit`).
+- **Rows**: beam y 232 with the **fulcrum** at the mean, numbers 258, dimension row 274, title 295; the colour key under the drawing, outside the SVG.
+  **Ringed bead**: ring r + 2.6, two drag arrows. **Limits** (lesson 3): a reading on a limit is in, so each limit line sits on the *outer* edge of its
+  limit's column (`limX`): every bead past a line is counted out, and every one counted is past a line.
+- **Mean and median**: dashed lines from the beam up through the swarm (`bd-mean` ink, `bd-medl` teal dotted), each value bold over its line ("mean
+  **27.002** V", three decimals; MΩ whole), on its line's outer side when both show, in the lowest row clear of every bead and the ring (`B.clearY`), riding
+  a spring. By factors the median alone. They have no tiles: the drawing sets them (`bd-val`), hidden while Dan answers a check (`:root.k-quiz`).
+- **The bell** (`B.mirror`): the swarm's own outline, read from the beads' places (the reach within ¾ of a column), mirrored above and below the line,
+  relaxing into the normal curve with the batch's mean and SD. Bands (±1, ±2, ±3 SD) fill the mirrored bell's area.
+- **Offset step**: a window as wide as an example meter's accuracy behind the hopper; "result" (mean ± 2 SD ÷ √50) an ink bracket over the swarm, clear of
+  every bead; "most beads" (± 2 SD) under the beam. **Two strings**: stacked strips on one time axis, each its own scale. **Lifetimes**: shelf, units falling
+  into columns of a year on a beam at y 176, years at 202, and under them the failure rate of the units still working (y 228-268, its own scale at the
+  right, 0.1 and 0.3 a year); the clock's hand runs through both. Lifetimes are counts of failures per year, so they keep the stack (`B.stack`).
+
+## The fade, its key and its colours
+- **The rule** (`B.fade`): z, a bead's SDs from the batch's mean on the scale shown (by factors, of the logs: `zOf`). `cat2` below the mean, `cat1` above,
+  the role itself from 2.6 SD out. A bead right on the mean (z = 0) is neither: it takes the neutral faintest mix, ink at 0.6 of the share at the mean. Nearer the mean it is mixed fainter: in light with the page (26% colour at the mean), in dark with a neutral grey (ink 30%
+  on the page; 14% colour at the mean). Deepest 3.3 and 4.4:1 against the page in light, 4.2 and 4.5:1 in dark; faintest 1.35 and 1.4:1 light, 2.5 and 2.6:1
+  dark. A K.check holds the deepest at 3:1 at least, the palest at 1.15:1 at least, and each side deepening outward.
+- **The key** (`bd-key`, under the drawing, wherever beads are coloured): "lower ●●●●●● higher" and "fainter is nearer the mean", its six beads painted by
+  `B.fade` at −2.6, −1.5, −0.5, 0.5, 1.5 and 2.6 SD, so it always matches the beads in both themes.
+- **A deliberate exception to KIT.md** ("cat colours: telling equal things apart, never meaning"): here cat1 and cat2 carry meaning, above or below the
+  mean. Dan asked for this look (26 Oct, his beeswarm reference does it), and the key says it in words. Reviewers: this is not a slip; do not flag it.
+  Nowhere else in the course does a cat colour carry meaning.
+- **Never `warn` in the fade**: out of tolerance is still `warn`, mixed over the bead's fade colour as it shivers.
+- **Taking the colour** (`B.paint`, k 0..1 a bead's way to its colour): the navy body dims to a ghost (k 0.12 to 0.27), then the colour **wells up from the
+  bead's centre** in a disc of itself (`B.blooms`, to k 0.52), then a swell of 8% and back. Never two hues at once, never a ring, and it **never passes
+  through grey**: no mix between the old colour and the new. The glint is fainter on the faintest beads.
+- **Small dots** (r under 3, the time view) take **at least 40% of their colour at the mean** (the prototype: 40% in light; in dark 24%, over the grey that
+  is already ink 30%, against a bead's 14%), so the palest dot still reads (about 1.6:1 in light).
 
 ## Motion (the shared engine, `B.motion`: K.anim only; Infinity is the finished picture, which tests and reduced motion open on)
-- **Pour**, the signature: the old pile sinks; a bead leaves every 0.045 s, the first three slowly, each its number dissolving into the bead. It strikes a peg on each row,
-  falls (1600 units/s²), bounces 4.5 then 1.3 units over 0.24 s and splashes. 4.4 s. **Tap a bead**: its path draws.
-- **Hop** (`M.arc`): a fresh batch or a choice re-sorts the same beads on arcs; labels fade while they fly. **Settle** (`M.settle`: slider, drag, a step's zoom): 0.45 s, 6%
-  overshoot. Leaving mid-pour, `M.finish` lands all within 1.2 s. **Springs** (`M.spring`): the fulcrum (ω 5, ζ 0.42) lags the mean and the beam tilts 5°·tanh(offset ÷
-  1.2 SD), rocking only when the fulcrum arrives; field, scale, labels, brackets, best-fit ends and pointer ride springs too.
-- **Story** (`M.plan`, `M.arrive`): parts arrive 0.4-0.8 s apart by a timetable, squeezed so a step settles within 5 s. Bell: the amber curve traces the skyline (1 s),
-  relaxes (0.8 s); each band blooms with its bracket and its beads ring from the middle as the tile counts to the rule's tick. Tolerance: limits grow, each bead past one
-  shivers 0.4 s, turns `warn` and rings. Insulation resistance turned even: beads re-sort, the fulcrum slides in, the beam rocks to balance right of the median.
-- **Tip and peel** (`M.tip`): pile and bell turn onto the right edge (0.8 s); beads peel off 0.025 s apart on a thread, the mean so far writing itself; a flat amber line at
-  the mean then tilts into the best fit. **Fold** (1.6 s): the time axis becomes one string's scale, pairs merge. **Lifetimes**: the clock runs 2 s, each unit drops
-  (`B.fall`) as it fails. **Leaving a step**, what the next hides fades in place over 0.35 s (`M.enter`, `M.fade`); a part with its own fade carries `data-own`.
+- **Pour**, the signature: the old swarm sinks; a bead leaves every 0.032 s, the first three slowly, each its number dissolving into the bead. It strikes a
+  peg on each row, falls (1600 units/s²), bounces 4.5 then 1.3 units over 0.24 s and splashes on the pile. **Tap a bead**: its path draws.
+- **The rise** (`B.rise`, `B.risen`): the pile holds 0.42 s, then rises into the swarm in a wave from the mean out (the farthest 0.35-0.7 s later), each
+  bead 0.75 s with a 6% overshoot, taking its colour as it goes; a Fresh batch press adds a soft rising chime (`B.chime`). Only a landing on the beam
+  splashes; a bead settling in mid-air sends a faint ripple instead.
+- **Hop** (`M.arc`): a fresh batch or a choice re-sorts the same beads on arcs, straight into the swarm; labels fade while they fly. **Settle** (`M.settle`:
+  slider, drag): 0.45 s, 6% overshoot. Leaving mid-pour, the beads sweep home a column together so none cross, within 0.8 s. During a move each bead's colour
+  eases from its old reading's z to its new one's (`zAt`); a new move restacks the beads, the farthest travellers on top, each with its colour disc (`.f`).
+- **Springs** (`M.spring`): the fulcrum (ω 5, ζ 0.42) lags the mean and the beam tilts 5°·tanh(offset ÷ 1.2 SD), rocking only when the fulcrum arrives; field,
+  labels, the values' row, brackets, best-fit ends and pointer ride springs too.
+- **The mean and median at a pour**: they fade out in place in its first 0.3 s, and **the values arrive only after the beads beneath them settle**: they
+  fade in (0.4 s) once every bead within 46 units of the mean line is 85% through its rise, past its overshoot, and not before 0.6 s from the pour's end
+  (nor later than 0.4 s from it). A re-sort fades them out while beads fly and back once they land.
+- **Story** (`M.plan`, `M.arrive`): parts arrive 0.4-0.8 s apart by a timetable, squeezed so a step settles within 5 s. Bell: the amber outline traces the
+  swarm above and below (1 s), relaxes into the mirrored bell (0.8 s); each band blooms with its bracket and its beads ring from the middle as the tile counts
+  to the rule's tick. Tolerance: limits grow, each bead past one shivers 0.4 s, turns `warn` and rings. Insulation resistance turned even: beads re-sort,
+  the fulcrum slides in, the beam rocks to balance right of the median.
+- **Tip and peel** (`M.tip`, `B.swarmAnchor`): the swarm turns about its line onto a spine at the right edge (0.8 s), its depth squeezed to 48, its outlines
+  left as ghosts; the beads peel off 0.025 s apart onto a thread as small dots (r 2.2, a thinner surface ring), **keeping the fade**, so a drift shows as
+  colour climbing from one end to the other; the mean so far writes itself. The mirrored bell tips with the swarm, then hands the one amber line to the best
+  fit, a flat line at the mean tilting into it. **Fold** (1.6 s): the time axis becomes one string's scale, pairs merge. **Lifetimes**: the clock runs 2 s,
+  each unit drops (`B.fall`) as it fails. **Leaving a step**, what the next hides fades in place over 0.35 s (`M.enter`, `M.fade`); a part with its own fade
+  carries `data-own` (the overflow piles' axes and names among them).
 
 ## Interaction and sound
-- One or two controls under the drawing, plus **Drop a fresh batch** (full width, seed + 1); a choice that re-sorts sits **above** it. Open on a setting the question is
-  not about. **Drag the ringed bead** (`K.drag`, 44 px handle, its slider the keyboard's way). `.say` reads right at both ends of every slider, never a readout's number.
-- Sound: a soft tick per bead as it leaves the hopper (its first peg), pitched by where its reading sits (`B.ticks`): one `K.sound.chord` with `stagger`, from the Fresh
-  batch press only; the documented chord starts at the press, so ticks mark the release, not the landing. The silent first pour stands on its own.
+- One or two controls under the drawing, plus **Drop a fresh batch** (full width, seed + 1); a choice that re-sorts sits **above** the drawing. Open on a
+  setting the question is not about. **Drag the ringed bead** (`K.drag`, 44 px handle, its slider the keyboard's way). `.say` reads right at both ends of
+  every slider, never a readout's number.
+- Sound: a soft tick per bead as it leaves the hopper (its first peg), pitched by where its reading sits (`B.ticks`): one `K.sound.chord` with `stagger`,
+  from the Fresh batch press only, then the rise's chime; the documented chord starts at the press, so ticks mark the release, not the landing. The silent
+  first pour stands on its own.
 
 ## Colour (kit roles only, never `good`, never a colour named in words Dan reads; one amber line per view once still)
 | Element | Role |
 |---|---|
-| beads, ring, drag arrows, pair links and harness, share-bar fill | `accent2` |
-| beam, fulcrum, mean line (dashed 4 3), SD bracket, "mean", "result", the clock's hand, off-scale arrows | `ink` |
-| ticks, numbers, titles, units, thread, the air, true value and MTBF (dashed 5 4), shelf, key words, a `quiet` curve | `muted`; pegs, outlines, edges `strong` |
-| small labels, ruler, stems, brackets, a path, the mean so far, the failure rate; a second string's beads | `accent` |
-| bands under the bell (±1, ±2, ±3 SD at 1, .6, .32), clipped under the curve, behind the beads | `fill1` |
-| the one teaching line of a view (bell, best fit, what the rule expects; on the bathtub the failure rate itself, `bd-hz lead`, the pile's curve `quiet`) | `amber-line` |
-| past the limits: limit lines, warning strips, "too low", "too high", beads out | `warn` |
+| a reading at rest, in the swarm or the time view | the fade: `cat2` below the mean, `cat1` above, fainter nearer it (the exception above) |
+| a bead falling, the pile before the rise, lifetimes' units, ring, drag arrows, pair links and harness, share-bar fill | `accent2` |
+| beam, fulcrum, overflow piles' axes, mean line (dashed 4 3), SD bracket, "mean", "result", the clock's hand, the mean's and median's values | `ink` |
+| ticks, numbers, "under" and "over", titles, units, thread, the air, true value and MTBF (dashed 5 4), shelf, key words, a `quiet` curve, the tipped bell | `muted`; pegs, ghosts, edges `strong` |
+| small labels, the median line (dotted), ruler, stems, brackets, a path, the mean so far, the failure rate; a second string's beads | `accent` |
+| bands inside the mirrored bell (±1, ±2, ±3 SD at 1, .6, .32), behind the beads | `fill1` |
+| the one teaching line of a view (the swarm's bell, best fit, what the rule expects; on the bathtub the failure rate itself, `bd-hz lead`, the pile's curve `quiet`) | `amber-line` |
+| past the limits: limit lines, warning strips, "too low", "too high", beads out (mixed over their fade) | `warn` |
+
+## The bell, drawn true
+- **The bell never runs through a bead.** It lies under the beads (`swCurve` in the `under` layer), so a bead standing taller than it sits over it; where
+  the curve is thinner than a bead it opens round any bead there (`B.mirror`). It is drawn above and below the line, the swarm's own mirrored outline.
+- It traces the beads landed so far, then relaxes into the curve with the batch's own mean and SD: some columns reach past it and some fall short.
 
 ## Numbers, labels and checks
-- Drawing labels name things ("mean", "result"); every number a check could ask for is a `K.readout` tile, so quiz mode hides it; while beads land the tiles give what is
-  drawn now. Units always through `unit` (small, muted) and `prefix` (±), never inside `fmt`; a count reads "34 of 50"; a hint gives the rule ("2 SD ÷ √50").
-- **Every line has a name** (a label or a key entry). Newspaper setting (`B.words`): muted words, bold tabular numbers, 13 units at least. Late labels clear every bead
-  (`B.clearY`, `B.free`, `K.labels`). A paint reads the settings K.update last took in (`cur()`), never ones an animation frame meets first.
-- **Checks**: three to five a lesson, each small: an edge case (a reading on a limit), a shape fact (four averaged halve the SD), one answer from outside (e^−1 at the MTBF).
-  Return `B.facts([[name, fact], …])` so a failure names what broke; a fact about a step change walks the real stepper with `M.dry = true` (the prototype's `dryVisit`).
-  `render.mjs` shoots its end picture 2.5 s after the controls are set, so a longer story (the bathtub, 4.4 s) is still arriving there: judge the finish from the film.
+- Drawing labels name things ("mean", "result"); every number a check could ask for is a `K.readout` tile, except the mean's and median's values, which the
+  drawing sets bold and hides in quiz mode. While beads land the tiles give what is drawn now. Units always through `unit` (small, muted) and `prefix` (±),
+  never inside `fmt`; a count reads "34 of 50"; a hint gives the rule ("2 SD ÷ √50").
+- **Every line has a name** (a label or a key entry); the fade has its key. Newspaper setting (`B.words`): muted words, bold tabular numbers, 13 units at
+  least. Late labels clear every bead (`B.clearY`, `B.free`, `K.labels`). A paint reads the settings K.update last took in (`cur()`), never ones an animation
+  frame meets first.
+- **Checks**: three to five a lesson, each small: an edge case (a reading on a limit), a shape fact (four averaged halve the SD), one answer from outside
+  (e^−1 at the MTBF), and the drawing true (beads apart and inside their room, a reading past the scale in its overflow pile, the fade's contrast, all
+  settled within 5 s). Return `B.facts([[name, fact], …])` so a failure names what broke; a fact about a step change walks the real stepper with
+  `M.dry = true` (the prototype's `dryVisit`). `render.mjs` shoots its end picture 2.5 s after the controls are set, so a longer story (a pour and its rise,
+  the bathtub) is still arriving there: judge the finish from the film.
 
 ## The generator, and "simulated"
-- On screen: *reading = true value (+ offset) + drift × i / 10 + random error × (sum of twelve nudges, each −½ to +½)*, read to the meter's step; twelve nudges sum to SD 1,
-  so the slider's error is the SD and the peg field is that sum. Insulation resistance: *200 MΩ × 10^(0.15 × nudges)*, read to 1 MΩ. A second string takes rows n..2n−1
-  of `B.nudges(seed, 2n)`, never reading i's own. Lifetimes: *t = −ln(u) ÷ λ*; the bathtub is a sketch, said so, a lifetime `B.lifeFrom(H, u, 30)`.
-- Code never sets Dan's controls: a step's own setting belongs to its rule (`spreadOf`: the offset step reads with 0.04 V), so the tolerance step after it still opens at
-  his 0.03 V (a K.check). Seeded (`B.nudges`, `B.uni`), a fresh batch the next seed; pick opening batches with a script like `viz/synth/seeds.mjs` (prototype 544775: a
-  clean bell, one honest reading out at +2.9 SD). **Simulated** in the lead, every axis title and the caption; examples named once as examples.
+- On screen: *reading = true value (+ offset) + drift × i / 10 + random error × (sum of twelve nudges, each −½ to +½)*, read to the meter's step; twelve
+  nudges sum to SD 1, so the slider's error is the SD and the peg field is that sum. Insulation resistance: *200 MΩ × 10^(0.15 × nudges)*, read to 1 MΩ. A
+  second string takes rows n..2n−1 of `B.nudges(seed, 2n)`, never reading i's own. Lifetimes: *t = −ln(u) ÷ λ*; the bathtub is a sketch, said so, a lifetime
+  `B.lifeFrom(H, u, 30)`.
+- Code never sets Dan's controls: a step's own setting belongs to its rule (`spreadOf`: the offset step reads with 0.04 V), so the tolerance step after it
+  still opens at his 0.03 V (a K.check). Seeded (`B.nudges`, `B.uni`), a fresh batch the next seed; pick opening batches with a script like
+  `viz/synth/seeds.mjs` (prototype 544775: a clean bell, one honest reading out at +2.9 SD). **Simulated** in the lead, every axis title and the caption;
+  examples named once as examples.
 
 ## Do and don't
-- Keep the peg field the real generator, only where the rule is a sum of nudges; say "many small causes add up" of the simulation, never of a real meter. Pair the
-  68/95/99.7 rule with the counted share; with limits at ±0.08 V and 0.03 V of error about one batch in five or six has an honest reading out.
-- No second amber thing at rest, full-height band, dual value axis, label on a bead or crossing a moving one, number a readout shows, reading clipped at an end, line
-  without a name, part that pops off, two sets of numbers at once, code that sets Dan's controls, hazard drawn as measured, real rate or boat's figure, `vh`, timers.
+- Keep the peg field the real generator, only where the rule is a sum of nudges; say "many small causes add up" of the simulation, never of a real meter.
+  Pair the 68/95/99.7 rule with the counted share; with limits at ±0.08 V and 0.03 V of error about one batch in five or six has an honest reading out.
+- Every reading about a mean rests in the swarm, coloured by the fade, with its key; every pour lands as a pile and rises into it.
+- No second amber thing at rest, full-height band, dual value axis, label on a bead or crossing a moving one, number both a tile and the drawing show,
+  reading clipped at an end or marked by an arrow instead of its overflow pile, bell through a bead, value arriving before the beads under it settle, colour
+  passing through grey, `warn` in the fade, cat colour carrying meaning outside the fade, line without a name, part that pops off, two sets of numbers at
+  once, code that sets Dan's controls, hazard drawn as measured, real rate or boat's figure, `vh`, timers.
 
 ## The five lessons in this language
-- **1. The middle and spread** (steps 1-3). Fifty repeat readings pour, the first as numbers. Halve the random error: the pile halves in width and nearly doubles in height.
-  Drag the ringed bead, a slipped probe: the beam tips, the mean creeps a fiftieth of the slip, the median barely moves. Then insulation resistance pours by factors into
-  a bell; turned to an even scale it leans into a long high tail and the beam balances at a mean above the median: why the average alone misleads.
-- **2. How far to trust a reading** (steps 4-5). The hopper sits at the true value plus an offset inside the accuracy window; each bead can be the mean of 1, 2 or 4
-  readings, the pegs closing in: repeats tighten the pile round where the meter centres, and the true value can fall outside the result. A coarse meter makes bricks.
-- **3. The normal curve** (steps 6-7). Skyline, bell, bands, counting rings; example limits grow, the honest reading past one shivers to a warning; fresh batches are
-  counted ("Batches with a reading out"), and the ringed bead dragged along the SD ruler: one far out is more likely a slip.
-- **4. Trends over time** (steps 8-9). Tip and peel; Dan sets the drift. Under one SD over the run it hides in the noise and the best fit may miss it; up to 2.5 SD only the
-  order taken shows it; beyond, the side pile widens too. **Same cause**: a pump bearing and a battery's float current, the air between; folded, r about 0.9 though
-  neither drives the other; with the air steady, a round cloud. Periodic insulation resistance runs on `B.logScale`.
-- **5. Reliability** (steps 10-11). Fifty units, λ an example; one by one, in series, in parallel. At the MTBF only about 37% still work; series pairs empty the shelf twice
-  as fast. **The bathtub**: an early heap, a quiet floor and a wear-out hump, and the amber failure rate under them is the bathtub itself.
+- **1. The middle and spread** (steps 1-3). Fifty repeat readings pour, the first as numbers, land as a pile and rise into a honeycomb on the beam, fainter
+  near the mean, the mean dashed with its value. Halve the random error: the swarm halves in width and grows taller. Drag the ringed bead, a slipped probe:
+  the beam tips, the mean creeps a fiftieth of the slip, the median barely moves, and a far slip lands in the pile "over". Then insulation resistance pours
+  by factors and rises into a round swarm about its median; turned to an even scale it leans into a long high tail and the beam balances at a mean right of
+  the median: why the average alone misleads.
+- **2. How far to trust a reading** (steps 4-5). The hopper sits at the true value plus an offset inside the accuracy window; each bead can be the mean of 1,
+  2 or 4 readings, the pegs closing in. Means fall anywhere, yet pack best first into a smooth swarm that tightens round where the meter centres, and the
+  true value can fall outside the result. A coarse meter stacks bricks, centred on the swarm's line, one step wide.
+- **3. The normal curve** (steps 6-7). The amber outline traces the swarm above and below and relaxes into the mirrored bell under the beads; bands, counting
+  rings. Example limits grow, the honest reading past one shivers to a warning over its colour; fresh batches are counted ("Batches with a reading out"), and
+  the ringed reading, riding the top of the swarm, is dragged along the SD ruler: one far out is more likely a slip, and past the scale it sits "over".
+- **4. Trends over time** (steps 8-9). The swarm tips onto its side and peels off as small dots in the order taken, keeping its colours; Dan sets the drift.
+  Under one SD over the run it hides in the noise and the best fit may miss it; up to 2.5 SD only the order taken shows it, early dots on one colour and
+  late on the other; beyond, the side swarm widens too. **Same cause**: a pump bearing and a battery's float current, the air between; folded, r about 0.9
+  though neither drives the other; with the air steady, a round cloud. Periodic insulation resistance runs on `B.logScale`.
+- **5. Reliability** (steps 10-11). Fifty units, λ an example, plain `accent2` beads: no mean to fade about. One by one, in series, in parallel; each drops
+  off the shelf into its year's column. At the MTBF only about 37% still work; series pairs empty the shelf twice as fast. **The bathtub**: an early heap, a
+  quiet floor and a wear-out hump, and the amber failure rate under them is the bathtub itself.
 
 ## Copy this code
-Paste all three blocks unchanged: the look into `<style>`, the language and then the motion into `<script>`. Build as the prototype does: `B.layers`, every element made once;
-`layout(p)` cached; `const M = B.motion({n, r, paint, leaving, unmanaged, capture, tick, busy, done})`, springs from `M.spring`; per step a `planFor` choosing a move
-(`M.pour`, `M.arc`, `M.settle`, `M.finish`, `M.tip`, `M.untip`, or the lesson's own) and a timetable for `M.enter(M.plan(…))`; moves within a step through `M.move`; in
-`paint()` each bead from `M.place(i, target, pile, geo)` and parts by `M.arrive(name)`, ending in `M.fade()`. Check with `tools/eval/render.mjs`, then film the drawing
-alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and a choice with `--eval` clicking it.
+Paste the blocks unchanged: the look into `<style>`, the figure in place of a bare `svg.bd-scene`, and the language, motion and swarm into `<script>`, in
+that order. They are copied word for word from `dataviz.proto.html` (`viz/swarm/guidecheck.mjs` checks it); their banner comments still name `swarm.md`,
+the prototype's earlier home, but this guide is what binds. The swarm's part sets `B.T.dt` to 0.032 and adds `B.T.rise`, `B.GAP` and `B.RING`; the pile
+version's `B.offMark` and `B.anchor` are gone (the overflow pile and `B.swarmAnchor` replace them).
+
+Build as the prototype does: `B.layers`, every element made once; `B.beads` then `B.blooms(beads)`; `layout(p)` cached, giving the swarm (`B.swarm` with
+`fitSw`, moved down to hug the beam), the pile (`B.heap`) and each bead's z (`zOf`); `const M = B.motion({n, r, paint, leaving, unmanaged, capture, tick,
+busy, done})`, `capture` keeping each bead's z (`z0`); springs from `M.spring`; per step a `planFor` choosing a move (`B.rise(M.pour(…))`, `M.arc`,
+`M.settle`, the sweep home, `M.tip`, `M.untip`, or the lesson's own) and a timetable for `M.enter(M.plan(…))`; moves within a step through `M.move`. In
+`tick`, `kStep` moves each bead toward its colour (`kOf`: during a pour, its rise). In `paint()` each bead from `M.place(i, target, pile, geo)`, through
+`B.risen` while a pour rises, drawn with `B.paint(bead, d, warn, floor, zAt(i), k)`; the restack with `.f`; `swCurve` from `B.mirror`; the mean and
+median by the arrival rule above; `ovAx`/`ovLab` and `drawTicks` for the overflow piles; parts by `M.arrive(name)`, ending in `M.fade()`. The key's beads
+(`fkDots`) take `B.fade(z)` in each update; the key hides where nothing is coloured. A Fresh batch press plays `B.ticks` and `B.chime`. Check with
+`tools/eval/render.mjs`, then film the drawing alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and a choice with `--eval`
+clicking it.
 
 ```css
   /* ==== Beads: the shared look (dataviz.md, "Copy this code"). Paste unchanged. ==== */
@@ -106,7 +197,7 @@ alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and 
   .bd-scene .bd-glint { fill: var(--k-bg); fill-opacity: .42; pointer-events: none; } :root[data-theme="dark"] .bd-scene .bd-glint { fill: var(--k-ink); fill-opacity: .5; } .bd-scene .bd-ghost { fill: none; stroke: var(--k-strong); stroke-width: 1.1; }
   .bd-scene .bd-peg { fill: var(--k-strong); } .bd-scene .bd-hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-linecap: round; } .bd-scene .bd-trail { fill: none; stroke: var(--k-accent); stroke-width: 1.7; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
   .bd-scene .bd-win { fill: var(--k-accent); fill-opacity: .16; } .bd-scene .bd-edge { stroke: var(--k-strong); stroke-width: 1.1; stroke-dasharray: 2 3; } .bd-scene .bd-beam { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } .bd-scene .bd-fulcrum { fill: var(--k-ink); } .bd-scene .bd-grid { stroke: var(--k-line); stroke-width: 1; }
-  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; } .bd-scene .bd-off { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.6px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; }
+  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; }
   /* Words: muted names and units, bold numbers, accent small labels, warnings; a halo for a label over a line. */ .bd-scene .bd-tn, .bd-scene .bd-title, .bd-scene .bd-w, .bd-scene .bd-u { fill: var(--k-muted); } .bd-scene .bd-lab, .bd-scene .bd-name { fill: var(--k-ink); } .bd-scene .bd-n, .bd-scene .bd-name { font-weight: 700; }
   .bd-scene .bd-small { font-weight: 600; fill: var(--k-accent); } .bd-scene .bd-wt { font-weight: 600; fill: var(--k-warn); } .bd-scene .bd-halo { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
   /* The ringed reading: its drag handle, ring and arrows; warnings and limits. */ .bd-scene .bd-handle { fill: var(--k-bg); fill-opacity: 0; cursor: grab; } .bd-scene.nodrag .k-drag-hit, .bd-scene.nodrag .bd-handle { pointer-events: none; } .bd-scene .bd-ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.7; pointer-events: none; }
@@ -114,7 +205,7 @@ alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and 
   .bd-scene .bd-pulse { fill: none; stroke: var(--k-warn); stroke-width: 1.4; pointer-events: none; } .bd-scene .bd-zone { fill: var(--k-warn); fill-opacity: .55; } .bd-scene .bd-limit { stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
   /* The statistics: mean, dimension lines, small-label spans and their extension lines, ruler, stems and pointers, range jaws, median, bands, curves, thread, mean so far, true value. */ .bd-scene .bd-mean { stroke: var(--k-ink); stroke-width: 1.7; stroke-dasharray: 4 3; } .bd-scene .bd-dim { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
   .bd-scene .bd-span { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .bd-scene .bd-ext { fill: none; stroke: var(--k-accent); stroke-width: 1; stroke-dasharray: 1.5 2.5; } .bd-scene .bd-ruler { fill: none; stroke: var(--k-accent); stroke-width: 1.3; }
-  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer, .bd-scene .bd-med { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
+  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
   .bd-scene .bd-jaw { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.4; stroke-linejoin: round; } .bd-scene .bd-bell { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
   .bd-scene .bd-curve, .bd-scene .bd-trend { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; } .bd-scene .bd-truth { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
   .bd-scene .bd-thread { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; } .bd-scene .bd-run { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-linejoin: round; }
@@ -124,6 +215,19 @@ alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and 
   .bd-scene .bd-harness { fill: none; stroke: var(--k-accent2); stroke-linecap: round; } .bd-scene .bd-harness.in { stroke: var(--k-bg); } .bd-scene .bd-now { stroke: var(--k-ink); stroke-width: 1.4; } .bd-scene .bd-nowhead { fill: var(--k-ink); }
   .bd-gauge { display: block; position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--k-line); } .bd-gauge i { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--k-accent2); } .bd-gauge b { position: absolute; top: -3px; width: 2px; height: 12px; margin-left: -1px; border-radius: 1px; background: var(--k-amber-line); }
   /* ==== end of the shared look ==== */
+  /* ==== Swarm: the look's additions (swarm.md, "Copy this code"). Paste unchanged, after the shared look. ==== */
+  /* The median's line (the mean keeps .bd-mean); the overflow piles' own short axes; a value the drawing sets bold, which has no tile and hides while Dan answers a check. */
+  .bd-scene .bd-medl { stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 1.5 3; stroke-linecap: round; } .bd-scene .bd-ovax { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } :root.k-quiz .bd-scene .bd-val { visibility: hidden; }
+  /* The colour key under the drawing: a row of beads, deepest to faintest to deepest, between its two words. */ .bd-fig { max-width: 32rem; margin-inline: auto; } .bd-key { justify-content: center; margin: 2px 0 0; } .bd-key svg { display: block; width: 5.4rem; height: auto; }
+  .bd-key .bd-kb { stroke: var(--k-bg); stroke-width: 1.2; } .bd-key > span { white-space: nowrap; }
+  /* ==== end of the swarm's look ==== */
+```
+
+```html
+<div class="bd-fig" id="fig">
+  <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+  <p class="key bd-key" id="fkey"><span>lower <svg viewBox="0 0 86 14" aria-hidden="true" id="fkeyDots"></svg> higher</span><span>fainter is nearer the mean</span></p>
+</div>
 ```
 
 ```js
@@ -160,8 +264,7 @@ alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and 
     /* In the order taken: reading i across from x0 to x1, its value up the page on scale sv. */ B.run = (vs, sv, x0, x1, r) => vs.map((v, i) => ({ x: lerp(x0, x1, vs.length > 1 ? i / (vs.length - 1) : 0.5), y: sv.at(v), r }));
     // A pile place turned u of the way onto its side about (x0, y0) sliding to (x1, y1): value up the page (k), stacks leftwards (kh); at u = 1, level with B.run.
     B.tip = (p, u, A) => { const th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th), k = lerp(1, A.k, u), kh = lerp(1, A.kh, u), dx = p.x - A.x0, dh = A.y0 - p.y;
-      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; }; B.anchor = (st, sc, sv, ref, spine, room) => { let h = 1; st.pos.forEach((p) => { h = Math.max(h, st.base - p.y + p.r); }); const k = Math.abs(sv.w / sc.w);
-      return { x0: sc.at(ref), y0: st.base, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / h) }; };
+      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; };
     // Two strings over time folded into one against the other, u 0..1: a and b are reading i's places in their strips, f the pair's place once folded.
     B.fold = (a, b, f, u) => { const ux = K.ease(c01(2 * u)), uy = K.ease(c01(2 * u - 1)), x = lerp(a.x, f.x, ux), q = { x: lerp(b.x, f.x, ux), y: lerp(b.y, f.y, uy), r: lerp(b.r, f.r, uy) }; return [uy > 0 ? B.hop({ x, y: a.y, r: a.r }, q, uy, 12, (v) => v) : { x, y: a.y, r: a.r }, q]; };
     /* Timings (s) every lesson shares: a pour releases a bead every dt, each jinks `jink` high off every peg; a fresh batch re-sorts one every hop. */ B.T = { dt: 0.045, hop: 0.028, field: 0.5, fly: 0.5, settle: 0.45, bounce: 0.24, peel: 0.025, tip: 0.8, fold: 1.6, g: 1600, jink: 2 };
@@ -219,8 +322,6 @@ alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and 
     const PENTA = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319]; B.ticks = (vs, sc, gap) => { const a = sc.at(sc.lo), w = sc.at(sc.hi) - a || 1; return K.sound.chord(vs.map((v) => PENTA[Math.round(c01((sc.at(v) - a) / w) * 10)]), { dur: 0.07, type: 'triangle', gain: 1, stagger: gap }); };
     /* The bead nearest a tap (pointer to drawing units), or −1 when none is within reach. */ B.pick = (svg, ev, pos, reach) => { const m = svg.getScreenCTM(); if (!m) return -1; const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); let best = -1, bd = (reach || 14) * (reach || 14);
       pos.forEach((p, i) => { const d = (p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y); if (d < bd) { bd = d; best = i; } }); return best; };
-    // A reading past its scale's end: an arrow the way it went, beside the bead, or `lift` above it over a ring. Never clip a reading silently.
-    B.offMark = (d, dir, lift) => { const x = lift == null ? d.x + dir * (d.r + 6.5) : d.x, y = lift == null ? d.y : d.y - d.r - lift - 4.5, f = B.r2; return 'M' + f(x - 4.5 * dir) + ' ' + f(y - 1.4) + 'h' + f(4 * dir) + 'v-2.8l' + f(5 * dir) + ' 4.2l' + f(-5 * dir) + ' 4.2v-2.8h' + f(-4 * dir) + 'z'; };
     /* A check of several named facts: true, or the name of the first that broke (the self-test report shows it). */ B.facts = (list) => { for (const f of list) if (f[1] !== true) return 'broke: ' + f[0]; return true; }; return B; })();
   // ==== end of the shared language ====
 
@@ -262,4 +363,69 @@ alone with `--crop "svg.bd-scene" --every 350`, dark steps a few at a time, and 
       if ((M.Tb !== Infinity && M.Tb < M.sc.end + 0.2) || (M.Ts !== Infinity && M.Ts < M.s0 + M.len * M.sk + 0.1) || !B.still(M.springs) || more) return true; if (M.Tb !== Infinity || M.Ts !== Infinity) { M.Tb = M.Ts = Infinity; o.paint(); } return o.done ? !!o.done() : false; } });
     M.idle = () => M.Tb === Infinity && M.Ts === Infinity && !M.anim.playing(); document.addEventListener('visibilitychange', () => { if (!document.hidden && !M.anim.playing() && (M.Tb !== Infinity || M.Ts !== Infinity)) { M.Tb = M.Ts = Infinity; o.paint(); if (o.done) o.done(); } }); return M; };
   // ==== end of the shared motion ====
+
+  // ==== Swarm: the shared additions (swarm.md, "Copy this code"). Paste unchanged, after the shared motion. ====
+  // Readings as a beeswarm: each bead at its value, packed about one line, coloured by its distance from the mean; past an end, in a pile past a
+  // gap. A pour lands as a pile, then rises into it (0.75 s a bead). Beads sit one unit apart; a ringed one keeps 6 more.
+  (() => { B.T.rise = 0.75; B.T.dt = 0.032; B.GAP = 1; B.RING = 6;
+    // Offsets from the line, best first: each round the bead of ids whose closest free spot is nearest the line takes it (leftmost on a tie); a tie
+    // of sides to the one with fewer neighbours; a bigger, ringed bead only above. ys, on: beads placed already.
+    B.swarmY = (xs, rs, ids, ys, on) => { ys = ys || []; on = on || []; const r0 = Math.min(...rs), dd = (i, j) => rs[i] + rs[j] + B.GAP, sp = {}, left = ids.slice();
+      const find = (i) => { const nb = on.filter((j) => Math.abs(xs[j] - xs[i]) < dd(i, j)), c = [0]; let s = 0;
+        nb.forEach((j) => { const h = Math.sqrt(dd(i, j) ** 2 - (xs[j] - xs[i]) ** 2); c.push(ys[j] - h, ys[j] + h); s += Math.sign(ys[j]); });
+        const up = s ? s > 0 : i % 2 === 0; c.sort((a, b) => { const k = Math.abs(a) - Math.abs(b); return Math.abs(k) > 1e-6 ? k : up ? a - b : b - a; });
+        return c.find((y) => (rs[i] <= r0 || y < 1e-9) && nb.every((j) => (xs[j] - xs[i]) ** 2 + (ys[j] - y) ** 2 >= dd(i, j) ** 2 - 1e-6)); }; left.forEach((i) => { sp[i] = find(i); });
+      while (left.length) { let m = 0; left.forEach((i, k) => { const q = Math.abs(sp[i]) - Math.abs(sp[left[m]]); if (q < -1e-6 || (q < 1e-6 && xs[i] < xs[left[m]])) m = k; });
+        const i = left.splice(m, 1)[0]; ys[i] = sp[i]; on.push(i); left.forEach((j) => { if ((xs[j] - xs[i]) ** 2 + (sp[j] - ys[i]) ** 2 < dd(i, j) ** 2 - 1e-6) sp[j] = find(j); }); } return ys; };
+    // Readings on a meter's marks fall in columns, so they pack as a honeycomb: each column's beads take the places nearest the line, alternately
+    // above and below (an odd one to the side with fewer), every other column half a place up (legal while p <= w / 0.866), whichever way // leaves the tallest reach least. -> ys
+    B.comb = (col, ids, p) => { const by = {}, ys = []; ids.forEach((i) => { (by[col[i]] = by[col[i]] || []).push(i); }); const cs = Object.keys(by).map(Number).sort((a, b) => a - b);
+      const cost = (ph) => Math.max(0, ...cs.map((c) => ((c + ph) % 2 ? Math.ceil(by[c].length / 2) - 0.5 : Math.ceil((by[c].length - 1) / 2)))), ph = cost(1) < cost(0) ? 1 : 0; let bal = 0;
+      cs.forEach((c) => { const h = (c + ph) % 2, sd = bal < 0 ? 1 : bal > 0 ? -1 : c % 2 ? 1 : -1;
+        by[c].forEach((i, j) => { const y = h ? (j % 2 ? -sd : sd) * (Math.floor(j / 2) + 0.5) : (j % 2 ? sd : -sd) * Math.ceil(j / 2); ys[i] = y * p; bal += Math.sign(y); }); }); return ys; };
+    B.alt = (k) => (k % 2 ? -(k + 1) / 2 : k / 2);   // row k of a stack mirrored about a line: 0 on it, then above, below, above...
+    // The overflow piles of a scale: w wide, past a gap at each end. rows(): ids stacked `per` across about x, row j at y(j).
+    B.ends = (sc, w, gap) => ({ lo: { x0: sc.a0 - gap - w, x1: sc.a0 - gap, dir: -1 }, hi: { x0: sc.a1 + gap, x1: sc.a1 + gap + w, dir: 1 }, a0: sc.a0, a1: sc.a1 });
+    const rows = (pos, ids, x, w, p, r, y) => { const per = Math.max(1, Math.floor((w + B.GAP) / p)); ids.forEach((i, j) => { const row = Math.floor(j / per), n = Math.min(per, ids.length - row * per); pos[i] = { x: x + (j % per - (n - 1) / 2) * p, y: y(row), r }; }); };
+    // The swarm of vs on sc about y = line, `half` room each way: on the meter's marks a honeycomb, else best first, the ringed one last; a coarse
+    // meter's wide column in bricks; past an end, in its pile. Too tall, every bead shrinks. -> {r, pitch, line, pos, ext, over, cnt, per}
+    B.swarm = (vs, sc, line, half, fit, ends, ring) => { const w = Math.abs(sc.w), ord = vs.map((v, i) => i).filter((i) => i !== ring).sort((a, b) => sc.at(vs[a]) - sc.at(vs[b]) || a - b).concat(ring >= 0 ? [ring] : []);
+      const lay = (r) => { const p = 2 * r + B.GAP, pos = new Array(vs.length), over = { lo: [], hi: [] }, main = [], cnt = {}, brick = !!sc.col && w + B.GAP >= 2 * p;
+        ord.forEach((i) => { const o = sc.off(vs[i]); (o < 0 ? over.lo : o > 0 ? over.hi : main).push(i); if (!o && sc.col) cnt[sc.col(vs[i])] = (cnt[sc.col(vs[i])] || 0) + 1; });
+        if (brick) { const by = {}; main.forEach((i) => { const c = sc.col(vs[i]); (by[c] = by[c] || []).push(i); });
+          Object.keys(by).forEach((c) => { const m = sc.mid(+c), a = Math.max(m - w / 2, ends.a0), b = Math.min(m + w / 2, ends.a1); rows(pos, by[c], (a + b) / 2, b - a, p, r, (k) => line + B.alt(k) * p); }); }
+        else { const xs = vs.map((v) => sc.at(v)), rs = vs.map((v, i) => (i === ring ? r + B.RING : r)), ids = main.filter((i) => i !== ring), col = vs.map((v) => sc.col(v));
+          const comb = !!sc.col && 0.866 * p <= w + 1e-6 && ids.every((i) => Math.abs(xs[i] - sc.mid(col[i])) < 0.01 * w), on = comb ? ids.slice() : [], ys = comb ? B.comb(col, ids, p) : B.swarmY(xs, rs, ids, [], on);
+          if (main.includes(ring)) B.swarmY(xs, rs, [ring], ys, on); main.forEach((i) => { pos[i] = { x: xs[i], y: line + ys[i], r }; }); }
+        ['lo', 'hi'].forEach((k) => rows(pos, over[k], (ends[k].x0 + ends[k].x1) / 2, ends[k].x1 - ends[k].x0, p, r, (j) => line + B.alt(j) * p)); let ext = 0; pos.forEach((q) => { ext = Math.max(ext, Math.abs(q.y - line) + q.r); });
+        return { r, pitch: p, line, pos, ext, over, cnt, per: brick ? Math.floor((w + B.GAP) / p) : 1 }; };
+      const s = lay(fit.r); if (s.ext <= half + 1e-6) return s; let lo = 1, hi = fit.r; for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; if (lay(m).ext <= half + 1e-6) lo = m; else hi = m; } return lay(lo); };
+    // The pile a pour lands on: B.stack's, a reading past an end in that end's pile.
+    B.heap = (vs, sc, base, top, fit, ends) => { const on = vs.map((v, i) => i).filter((i) => !sc.off(vs[i])), st = B.stack(on.map((i) => vs[i]), sc, base, top, fit), pos = new Array(vs.length); on.forEach((i, j) => { pos[i] = st.pos[j]; });
+      ['lo', 'hi'].forEach((k) => { const e = ends[k]; rows(pos, vs.map((v, i) => i).filter((i) => sc.off(vs[i]) === e.dir), (e.x0 + e.x1) / 2, e.x1 - e.x0, st.pitch, st.r, (j) => base - 1.5 - st.r - j * st.pitch); }); return Object.assign({}, st, { pos }); };
+    // The fade: z SDs from the mean, cat2 below and cat1 above, mixed with the page (26% at the mean) or on the dark page a neutral grey (14%), the
+    // role itself from 2.6 SD; a bead right on the mean, neither, takes ink at 0.6 of that share. lo: another share at the mean (small dots).
+    B.fade = (z, lo) => { const dk = K.theme.dark, base = dk ? 'color-mix(in srgb, var(--k-ink) 30%, var(--k-bg))' : 'var(--k-bg)'; lo = lo == null ? (dk ? 14 : 26) : lo; if (Math.abs(z) < 1e-6) return 'color-mix(in srgb, var(--k-ink) ' + Math.round(0.6 * lo) + '%, ' + base + ')'; return 'color-mix(in srgb, var(--k-' + (z < 0 ? 'cat2' : 'cat1') + ') ' + Math.round(lo + (100 - lo) * Math.min(1, Math.abs(z) / 2.6)) + '%, ' + base + ')'; };
+    // B.blooms: a disc under each glint. B.paint: B.draw, k 0..1 of the way to its colour: the old body dims to a ghost (k 0.12 to 0.27), then the
+    // colour wells up from the centre in a faint wash of itself (to 0.52; never two hues at once), then a swell of 8% and back; a warning mixes in.
+    B.blooms = (bs) => bs.forEach((b) => { b.f = K.svg('circle', { 'pointer-events': 'none' }); b.g.before(b.f); });
+    B.paint = (b, d, warn, floor, z, k) => { const s = k > 0 && k < 1 ? 1 + 0.08 * Math.sin(Math.PI * B.c01((k - 0.6) / 0.4)) : 1, u = B.c01((k - 0.27) / 0.25), on = d && d.a > 0.002 && !d.hollow && k > 0.002;
+      B.draw(b, d && Object.assign({}, d, { r: d.r * s }), warn, floor); const f = B.fade(z, d && d.r < 3 ? (K.theme.dark ? 24 : 40) : null), c = on && (warn > 0 ? 'color-mix(in srgb, var(--k-warn) ' + Math.round(100 * Math.min(1, warn)) + '%, ' + f + ')' : f);
+      if (B.vis(b.f, on && u > 0 && u < 1 ? Math.min(1, d.a) : 0)) { B.set(b.f, { cx: d.x, cy: d.y, r: Math.max(0, d.r * s - 0.6) * K.ease(u) }); b.f.style.fill = c; }
+      if (!on) return; const a = Math.min(1, d.a); if (u > 0) { b.c.style.fill = c; if (u < 1) b.c.style.opacity = (a * (0.15 + 0.85 * u)).toFixed(3); } else b.c.style.opacity = (a * (1 - 0.85 * B.c01((k - 0.12) / 0.15))).toFixed(3); b.g.style.opacity = (a * B.lerp(1, 0.2 + 0.8 * Math.min(1, Math.max(warn, Math.abs(z) / 2.6)), k)).toFixed(3); };
+    // The swarm's outline, mirrored, v0..v1: the reach of the beads within 3/4 of a column, relaxing 0..1 into expect(v) beads; thinner than a bead,
+    // it opens round any bead there (drawn under the beads, so a taller one sits over it). -> {up, dn, area}.
+    B.mirror = (sc, sw, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), w = Math.abs(sc.w), n = Math.max(1, Math.ceil(Math.abs(b - a) / (w / 6))), per = sw.per || 1, U = [], D = [];
+      const on = sw.pos.filter((q) => q && q.x >= Math.min(sc.a0, sc.a1) && q.x <= Math.max(sc.a0, sc.a1)); for (let k = 0; k <= n; k++) { const x = B.lerp(a, b, k / n); let sky = 0, ring = 0;
+        on.forEach((q) => { const dx = Math.abs(q.x - x), dy = Math.abs(q.y - sw.line), c = q.r + 0.8; if (dx < 0.75 * w) sky = Math.max(sky, dy + c); if (dx < c) ring = Math.max(ring, dy + Math.sqrt(c * c - dx * dx)); });
+        const bell = expect(sc.val(x)) / per * sw.pitch / 2, h = B.lerp(sky, Math.max(bell, B.lerp(bell, ring, B.c01(2 - 2 * bell / sw.pitch))), relax); U.push(B.r2(x) + ' ' + B.r2(sw.line - h)); D.push(B.r2(x) + ' ' + B.r2(sw.line + h)); }
+      return { up: 'M' + U.join('L'), dn: 'M' + D.join('L'), area: 'M' + U.join('L') + 'L' + D.reverse().join('L') + 'Z' }; };
+    // The tip's hinge: about the line at ref onto a spine at x1 (value up the page, k), its depth squeezed to `room`.
+    B.swarmAnchor = (sw, sc, sv, ref, spine, room) => { const k = Math.abs(sv.w / sc.w); return { x0: sc.at(ref), y0: sw.line, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / 2 / Math.max(1, sw.ext)) }; };
+    // A pour's pile holds 0.42 s, then rises in a wave from `mid` (the farthest 0.7 s later), 6% overshoot. B.risen -> [bead, k]. B.chime: from a press.
+    B.rise = (scene, heap, mid) => { const t0 = Math.max(...scene.land) + 0.42, wave = Math.max(0.35, Math.min(0.7, 4.9 - B.T.rise - t0)), far = Math.max(1, ...heap.map((q) => Math.abs(q.x - mid))); scene.rise = heap.map((q) => t0 + wave * Math.abs(q.x - mid) / far); scene.end = Math.max(scene.end, Math.max(...scene.rise) + B.T.rise); return scene; };
+    B.risen = (T, scene, i, q, heap, sw) => { const u = scene.rise ? (T - scene.rise[i]) / B.T.rise : 0; return u <= 0 ? [q, 0] : [B.hop(heap[i], sw[i], u, 0, B.backOut), B.c01(u)]; };
+    B.chime = (scene) => K.sound.chord([523, 587, 659, 784, 880, 1047], { at: Math.min(...scene.rise), stagger: 0.14, dur: 0.12, type: 'sine', gain: 0.4 });
+  })();
+  // ==== end of the swarm's additions ====
 ```

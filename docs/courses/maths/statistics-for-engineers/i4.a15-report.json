@@ -1,0 +1,194 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A normal distribution with k = 2 gives an interval with a coverage probability of approximately 95%: with no drift, the lean of a best-fit line from the rule on screen has an SD of about 0.003 V per 10 readings, so 2 SDs is about 0.006 V, and of 1,000 simulated batches about 95% lean by less than that",
+        "ok": true,
+        "source": "https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf"
+      },
+      {
+        "label": "When zero lies in the confidence interval, the true slope may be zero, no effect: the batch whose line leans +0.003 V per 10 readings with no drift has a range of its slope ± 2 standard errors that holds zero; with a drift of 0.010 V per 10 readings that range leaves zero out in most batches",
+        "ok": true,
+        "source": "http://www-stat.wharton.upenn.edu/~stine/stat621/lecture4.621.pdf"
+      },
+      {
+        "label": "What really matters is the trend in readings over a time period, showing lessening resistance: corrected to 20 °C, the opening string of sixteen tests falls along a best-fit line by about 10^−0.02 a test (about 4.5%), and its last seven each read lower than the one before; as measured, its longest run is just 3; and a run down of six or more is common in such strings",
+        "ok": true,
+        "source": "https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf"
+      },
+      {
+        "label": "Worked by hand: six readings come in 6 × 5 × 4 × 3 × 2 × 1 = 720 orders and a given six run one way 1 time in 360; four come in 24 and three coin tosses give 1 in 8; five come in 120; 49 ÷ 10 = 4.9 lots, so 0.008 V per 10 climbs 0.0392 V, about 0.04 V; 300 MΩ at 30 °C is 600 MΩ at 20 °C; the largest drift is 0.001 V a reading. From the rule: the opening batch leans +0.003 V per 10 readings with no drift and its first fresh batch −0.003 V, the other way, its longest run 5; screen 4's batch reads +0.008 V at that drift and climbs 0.04 V; 3 to 5 is the longest run in about 98% of noisy batches, and the largest drift moves the average run by under 0.2; the creeping order has the same fifty values; the two strings line up at +0.91 with the air swinging ±3 °C and about 0 with it steady",
+        "ok": true
+      },
+      {
+        "label": "Drawn true, and each puzzle hidden until answered: settled, the fulcrum sits under the mean and the mean's value clears every bead and the pegs; in 60 batches at every drift no two beads touch, each keeps inside its room, none is under r 3.2, and a reading past the scale sits in its overflow pile; turned onto its side the swarm lies level with the time view, against the right edge, and the best-fit line passes through the mean point, at every drift; the fade deepens outward on each side, its deepest 3:1 against the page and its palest still seen; each puzzle accepts one right answer of three, and before it nothing gives the answer away; a right answer brings each in; every demonstration settles within 5 s, and every answer within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "ir",
+      "view",
+      "drift",
+      "swing"
+    ],
+    "readouts": [
+      "trend",
+      "run",
+      "r"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Fifty readings",
+          "Two orders",
+          "The best-fit line",
+          "How far it climbs",
+          "Noise leans it too",
+          "A lean of +0.003",
+          "Runs",
+          "Four in a row",
+          "Insulation resistance",
+          "Correct to 20 °C",
+          "Same cause",
+          "Show a cause",
+          "Six falling"
+        ],
+        "value": 0
+      },
+      {
+        "id": "ir",
+        "kind": "choice",
+        "label": "Show the tests",
+        "options": [
+          "measured",
+          "corrected"
+        ],
+        "labels": [
+          "As measured",
+          "Corrected to 20 °C"
+        ],
+        "value": "measured",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "view",
+        "kind": "choice",
+        "label": "Show them",
+        "options": [
+          "time",
+          "xy"
+        ],
+        "labels": [
+          "Over time",
+          "One against the other"
+        ],
+        "value": "time",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "drift",
+        "kind": "control",
+        "label": "Drift per 10 readings",
+        "min": 0,
+        "max": 0.01,
+        "step": 0.001,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0,
+          0.008,
+          0.01
+        ]
+      },
+      {
+        "id": "swing",
+        "kind": "control",
+        "label": "How much the air swings",
+        "min": 0,
+        "max": 4,
+        "step": 0.5,
+        "log": false,
+        "value": 3,
+        "shown": false,
+        "snap": [
+          0,
+          3
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Tip the swarm onto its side",
+      "Drop a fresh batch",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Beads"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "K.sound is used but no K.button press played anything: play sound from a K.button's press so the self-test (and Dan) can reach it."
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "ir = \"corrected\"",
+    "view = \"xy\"",
+    "drift = 0.0075",
+    "swing = 2"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-360-light.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-360-light-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-360-light-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-360-dark.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-360-dark-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-1280-light.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-1280-light-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-1280-dark.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i4.a15-1280-dark-end.png"
+  ]
+}
