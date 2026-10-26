@@ -1,0 +1,412 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Statistics for engineers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "The middle and the spread" — Repeat readings pile up round a middle, the mean or median, and the standard deviation measures how far they typically sit from it. [quantity]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 How far to trust a reading — Averaging repeat readings shrinks random scatter but not a meter's steady offset, so a result is a value plus or minus its uncertainty.
+- i3 The normal curve and honest outliers — Readings often pile into a bell, about 95% within two standard deviations of the mean, so counting standard deviations shows how unusual a reading is.
+- i4 Drift or noise: trends over time — Plotted in the order taken, readings show a drift as a steady slope, while noise alone still makes a fitted line lean a little.
+- i5 How often equipment fails: reliability — A steady failure rate sets the share of units still working over time, so only about 37% reach the MTBF, the mean time between failures.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 36 36 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "from every raw data value, subtract the mean, square the results, average them and then take the square root."
+[R2] 1.3.5.1. Measures of Location — https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm
+    "Extreme values in the tails distort the mean. However, these extreme values do not distort the median since the median is based on ranks."
+[R3] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "random - where repeating the measurement gives a randomly different result. If so, the more measurements you make, and then average, the better estimate you generally can expect to get."
+[R4] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "For example: We might say that the length of a certain stick measures 20 centimetres plus or minus 1 centimetre, at the 95 percent confidence level."
+Notes (claims, and the sources that support them):
+- The standard deviation is found by subtracting the mean from every raw value, squaring the results, averaging them and taking the square root. [R1]
+- Extreme values in the tails distort the mean, but they do not distort the median, because the median is based on ranks. [R2]
+- Repeating a measurement can give a randomly different result each time, and averaging more of those readings generally gives a better estimate. [R3]  (whole topic)
+- A measurement result is stated with an interval and a confidence level, such as 20 centimetres plus or minus 1 centimetre at the 95 percent confidence level. [R4]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "The middle and the spread",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the pile shrink to half its width and grow nearly twice as tall while it balances at the same point, when you halve the random error.",
+  "title": "The balancing pile",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on simulated readings drawn as beads. Each bead is one simulated earth fault loop impedance reading, Zs, of one example circuit whose true value is 0.80 Ω. The rule on screen makes each reading: the true value, plus the random error times the sum of twelve small nudges, each between minus a half and plus a half, read to the meter's step of 0.01 Ω. The twelve nudges are drawn as a field of pegs, so each bead jinks left or right twelve times on its way down. Many small causes adding up is what the pegs stand for. Twelve such nudges have a standard deviation of exactly 1, so the random error slider sets how widely the readings scatter. Each bead lands in its column on a beam marked in ohms, and the beam rests on a pivot, the fulcrum, which always sits at the mean of the beads. A small tick under the beam marks the median. Tiles under the picture give the mean, the median and the standard deviation, each with its rule as a hint. The screens. 1, show: fifty readings pour from the hopper, the first three as numbers that turn into beads, and pile up round 0.80 Ω. The fulcrum settles under the pile. Tap a bead and its path through the pegs draws. 2, a puzzle on a small pile of five beads on the same beam: 0.79, 0.80, 0.80, 0.81 and 0.85 Ω. Where does it balance? Offered: 0.81 Ω, the mean; 0.80 Ω, the middle reading; and 0.82 Ω, halfway between the lowest and highest. Hint when wrong: add all five and divide by five. 3, show: drag the ringed bead, a slipped probe, up to 1.80 Ω, off the end of the scale, where an arrow marks it. The beam tips, the fulcrum creeps up a fiftieth of the slip, and the median's tick barely moves. Its finished picture shows the slipped bead at 1.80 Ω. 4, a puzzle: nine readings of a circuit say 0.50 Ω and a tenth, with a slipped probe, says 1.50 Ω. Offered: mean 0.60 Ω and median 0.50 Ω; mean 0.50 Ω and median 0.60 Ω; and both 0.60 Ω. Hint: the slip adds 1.00 Ω to the total, shared over ten. 5, show: predict first, then halve the random error slider from 0.02 Ω to 0.01 Ω. Each bead's twelve jinks through the pegs shrink to half, so the beads hop into a pile half as wide and nearly twice as tall, and the pegs rise to clear it. The fulcrum stays at very nearly 0.80 Ω. Its finished picture shows the narrow pile. 6, a puzzle on two piles of five: A is 0.76, 0.80, 0.80, 0.80 and 0.84 Ω; B is 0.76, 0.76, 0.80, 0.84 and 0.84 Ω. Both have a mean of 0.80 Ω and a range of 0.08 Ω. Which is more spread out? Offered: B, as more readings sit far from 0.80 Ω; neither, as both have the same range; and A, as its middle column is taller. Hint: the range uses only the end readings, so look at where the others sit. 7, show: the standard deviation worked on five beads, 0.77, 0.79, 0.81, 0.81 and 0.82 Ω, mean 0.80 Ω. A bracket from the mean to each bead shows its distance: −0.03, −0.01, +0.01, +0.01 and +0.02 Ω. Worked lines show the squares, 0.0009, 0.0001, 0.0001, 0.0001 and 0.0004, their total 0.0016, that divided by 4 to give 0.0004, and its square root, 0.02 Ω. 8, a puzzle: work out the standard deviation of 0.75, 0.80, 0.81, 0.81 and 0.83 Ω, whose mean is 0.80 Ω. Offered: 0.03 Ω; 0.0009 Ω, the step before the root; and 0.04 Ω, half the range. Hint: square each distance from 0.80, add, divide by 4, then take the root. 9, show: back to the fifty. With the random error at 0.02 Ω the standard deviation tile reads close to 0.02 Ω, and halved it reads close to 0.01 Ω. Drag the ringed bead up to 1.80 Ω again and the tile jumps to about 0.14 Ω. Its finished picture shows the slipped bead and that tile. 10, a puzzle on two piles of ten, each with mean 0.80 Ω. A is bumpy and narrow: three beads at 0.78, four at 0.80 and three at 0.82 Ω. B is flat and wide: one bead in each column from 0.75 to 0.85 Ω, leaving 0.80 empty. Which has the larger standard deviation? Offered: B, the flat wide one; A, as its columns jump up and down; and the same, as both have ten readings round 0.80 Ω. Hint: the standard deviation counts distances from the mean, not how the column heights vary. 11, show: two piles side by side. On the left, ten repeat readings of the one example circuit, a tight pile. On the right, one reading each on ten example circuits: 0.41, 0.48, 0.52, 0.55, 0.60, 0.64, 0.70, 0.73, 0.77 and 0.80 Ω, a wide pile with mean 0.62 Ω and standard deviation about 0.13 Ω. 12, a mixed puzzle: two testers each read one circuit ten times. A gets a mean of 0.80 Ω and a standard deviation of 0.01 Ω. B gets a mean of 0.80 Ω and a standard deviation of 0.04 Ω. What does that say? Offered: B's readings typically sit about four times as far from the middle; B's circuit has the higher impedance; and B's tester reads 0.04 Ω high. 13, a mixed puzzle: you read Zs once at each of twelve sockets on different circuits, with a mean of 0.65 Ω and a standard deviation of 0.18 Ω. What does the 0.18 Ω mostly tell you? Offered: how much the circuits differ from one another; how far to trust each single reading; and how far the meter reads off. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone.",
+  "ignores": "The readings are simulated from the rule on screen, not taken from a real circuit, and 0.80 Ω is an example value, not a limit. Twelve nudges make a scatter that is even on both sides and has no long tails. Real readings can lean to one side, and now and then one lands far out. The beam's tilt is drawn for show, small and steady. A real beam loaded off its pivot would swing until it hit a stop. A pile of five beads is too small to show a shape. It is there to be worked by hand.",
+  "numbers": [
+   {
+    "label": "Example circuit's true Zs, in ohms",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Meter's step, in ohms",
+    "value": 0.01,
+    "kind": "assumed"
+   },
+   {
+    "label": "Number of simulated readings in the big pile",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Number of nudges per reading",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each nudge's largest size either way",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Standard deviation of the sum of twelve nudges",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Random error slider, opening setting, in ohms",
+    "value": 0.02,
+    "kind": "control"
+   },
+   {
+    "label": "Random error slider, halved, in ohms",
+    "value": 0.01,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 2 readings, lowest, in ohms",
+    "value": 0.79,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 readings, highest, in ohms",
+    "value": 0.85,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 total of five readings, in ohms",
+    "value": 4.05,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 mean, 4.05 ÷ 5, in ohms",
+    "value": 0.81,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick, halfway between lowest and highest",
+    "value": 0.82,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 distances below the mean add to, in ohms",
+    "value": 0.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Slipped bead dragged to, in ohms",
+    "value": 1.8,
+    "kind": "control"
+   },
+   {
+    "label": "Size of the slip, in ohms",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Mean's rise from the slip, 1.00 ÷ 50, in ohms",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Median's largest move from the slip, half a step, in ohms",
+    "value": 0.005,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 nine readings, each in ohms",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4 slipped tenth reading, in ohms",
+    "value": 1.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 4 mean, 6.00 ÷ 10, in ohms",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 mean's rise, 1.00 ÷ 10, in ohms",
+    "value": 0.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 pile A lowest, in ohms",
+    "value": 0.76,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 pile A highest, in ohms",
+    "value": 0.84,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 range of both piles, in ohms",
+    "value": 0.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 pile A standard deviation, in ohms",
+    "value": 0.028,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 pile B standard deviation, in ohms",
+    "value": 0.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 readings, lowest, in ohms",
+    "value": 0.77,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 readings, highest, in ohms",
+    "value": 0.82,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 largest distance from the mean, in ohms",
+    "value": -0.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 total of the squares, in ohms squared",
+    "value": 0.0016,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 divisor, one fewer than 5",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 mean of the squares, 0.0016 ÷ 4",
+    "value": 0.0004,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 standard deviation, root of 0.0004, in ohms",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 result dividing by 5 instead, in ohms",
+    "value": 0.018,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 readings, lowest, in ohms",
+    "value": 0.75,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 readings, highest, in ohms",
+    "value": 0.83,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 standard deviation, in ohms",
+    "value": 0.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick, mean of squares before the root",
+    "value": 0.0009,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick, half the range, in ohms",
+    "value": 0.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 standard deviation after the slip, about, in ohms",
+    "value": 0.14,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 pile A standard deviation, in ohms",
+    "value": 0.016,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 pile B standard deviation, in ohms",
+    "value": 0.035,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 pile B lowest, in ohms",
+    "value": 0.75,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 10 pile B highest, in ohms",
+    "value": 0.85,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 ten circuits, lowest reading, in ohms",
+    "value": 0.41,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 ten circuits, mean, in ohms",
+    "value": 0.62,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 ten circuits, standard deviation, about, in ohms",
+    "value": 0.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 tester A standard deviation, in ohms",
+    "value": 0.01,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 tester B standard deviation, in ohms",
+    "value": 0.04,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 sockets read",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 mean, in ohms",
+    "value": 0.65,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 standard deviation, in ohms",
+    "value": 0.18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slipped reading's squared distance, about",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Other forty-nine readings' squared distances together, about",
+    "value": 0.02,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Read the same circuit fifty times and you get fifty slightly different numbers. They pile up round a middle, and the middle and the spread of that pile are what the reading really is. Drop each reading as a bead on a beam at its value. The [[mean]], all the readings added and divided by how many, is where the beam balances. Each bead turns the beam by its distance from the pivot. At the mean, the distances above add to exactly the same as those below. Take 0.79, 0.80, 0.80, 0.81 and 0.85 Ω. They add to 4.05 Ω, so the mean is 0.81 Ω. Below it sit 0.02 + 0.01 + 0.01 = 0.04 Ω of distance, and above it 0.04 Ω, so it balances. Line the readings up in order and the one in the middle is the [[median]], here 0.80 Ω. With an even count it is halfway between the middle two.\n\nThe two part company when a reading goes astray. Say a slipped probe turns one of the fifty into 1.80 Ω, 1.00 Ω too high. The total rises by 1.00 Ω, shared over fifty readings, so the mean rises by 0.02 Ω. The median only counts places in the order. The slipped reading jumps to the top of the order, and every other reading keeps its place. Only one reading has crossed the middle, so the median moves by one place at most. In this pile that is half a meter step, 0.005 Ω, or nothing. Extreme values distort the mean but not the median, because the median is based on ranks.[^1]\n\nThe middle alone cannot tell a steady meter from a jumpy one. Each reading's distance from the true value is the random error times its nudges. Halve the random error and every distance halves. The same fifty beads crowd into about half as many columns, so the pile grows nearly twice as tall. It is only nearly, because the meter's 0.01 Ω step rounds each reading. Yet the pile balances in very nearly the same place. The [[standard deviation]] measures how far readings typically sit from the mean. Take each reading's distance from the mean, square it, average the squares and take the square root.[^2] The squaring is needed because the distances always add to zero, which is the very reason the beam balances. It is the RMS recipe you know from AC, run on the distances. For a handful of readings, textbooks add that you average the squares by dividing by one fewer than the count. The mean was found from those same readings, so they sit a little closer to it than to the true value. The smaller divisor makes up for that. For 0.77, 0.79, 0.81, 0.81 and 0.82 Ω the mean is 0.80 Ω. The distances are −0.03, −0.01, +0.01, +0.01 and +0.02 Ω. Their squares add to 0.0016. Divided by 4 that is 0.0004, and its root is 0.02 Ω. Squaring makes a far reading count heavily. The slipped probe's squared distance is about 1, against about 0.02 for the other forty-nine together. So it lifts the fifty readings' standard deviation from about 0.02 Ω to about 0.14 Ω.\n\nThe range, highest minus lowest, is a quick look, but it uses only the two end readings. So two piles can share a range and still differ in spread. A bumpy pile is not more spread out than a smooth one either. Only the distances from the mean count. Ten repeat readings of one circuit tell you about that circuit, and their spread is the wobble of the reading. One reading each on ten circuits tells you about a typical circuit. Their spread is how the circuits differ, plus a little wobble. Before you call this year's 0.02 Ω rise a change, you need the standard deviation of repeat readings of that circuit to measure it against.\n\n**Repeat readings pile up round a middle. The mean is where the pile balances and the median is its middle reading. The standard deviation, the root of the mean of each reading's squared distance from the mean, measures how far they typically sit from it.[^2]**"
+ },
+ "analogy": {
+  "text": "Think of a DC supply with ripple on it. The mean of the readings is like the DC level, and their spread is like the ripple. The standard deviation is the RMS of the ripple alone, the wobble measured about the DC level rather than about zero.",
+  "breaks": "Ripple is a wave that repeats in a set pattern, while readings are separate numbers in no fixed order, each nudged at random. For readings you also divide by one fewer than the count, so the standard deviation comes out a little bigger than the plain RMS of their distances from the mean."
+ },
+ "practice": {
+  "text": "- Take repeat readings the same way each time: same leads, same points, same instrument.\n- Write every reading down in the order you took it.\n- Find the mean: add them and divide by how many.\n- Find the median: put them in order and take the middle one, or halfway between the middle two.\n- Find the standard deviation: each reading's distance from the mean, squared, added, divided by one fewer than the count, then the square root. On a calculator it is often the key marked s or σn−1.\n- If the mean and the median disagree, look for a stray reading and find its cause before you trust the mean.\n\n**Rule of thumb:** judge spread by how far readings sit from the mean, not by the range or by how bumpy the pile looks.\n\n**Worked example:** five example RCD trip times of 18, 20, 21, 22 and 24 ms. They add to 105 ms, so the mean is 21 ms, and the middle reading, the median, is 21 ms too. The distances are −3, −1, 0, +1 and +3 ms. Their squares, 9, 1, 0, 1 and 9, add to 20. Divided by 4 that is 5, and the root of 5 is about 2.2 ms. So these trip times typically sit about 2.2 ms from 21 ms.\n\n**Common mistakes**\n- Forgetting the square root at the end, which leaves an answer in squared units.\n- Judging spread by the range alone. One stray reading sets it, and it ignores where the rest sit.\n- Averaging in a slipped reading without asking why it is so far out.\n- Mixing repeat readings of one circuit with readings of different circuits, then reading their spread as the meter's wobble."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "1.3.5.1. Measures of Location",
+   "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm",
+   "quote": "Extreme values in the tails distort the mean. However, these extreme values do not distort the median since the median is based on ranks."
+  },
+  {
+   "n": 2,
+   "title": "36 36",
+   "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf",
+   "quote": "from every raw data value, subtract the mean, square the results, average them and then take the square root."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,181 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "the word \"0.01\" is split across two lines in <span.k-hint> (it needs 28px and has 123px) (at step = step 5, and 1 more setting) [at 340 px wide]",
+      "the word \"how\" is split across two lines in <span.k-hint> (it needs 35px and has 123px) (at Text size XL, step = step 3, and 2 more settings) [at 340 px wide]",
+      "the word \"between\" is split across two lines in <span.k-hint> (it needs 72px and has 123px) (at Text size XL, step = step 3, and 1 more setting) [at 340 px wide]",
+      "the word \"added\" is split across two lines in <span.k-hint> (it needs 53px and has 123px) (at Text size XL, step = step 11) [at 340 px wide]",
+      "the word \"many\" is split across two lines in <span.k-hint> (it needs 37px and has 149px) (at step = step 5, and 1 more setting) [at 720 and 1040 px wide]",
+      "the word \"column\" is split across two lines in <span.k-hint> (it needs 49px and has 149px) (at step = step 5, and 1 more setting) [at 720 and 1040 px wide]",
+      "the word \"added\" is split across two lines in <span.k-hint> (it needs 42px and has 149px) (at step = step 9, and 1 more setting) [at 720 and 1040 px wide]",
+      "the word \"25th\" is split across two lines in <span.k-hint> (it needs 38px and has 191px) (at Text size XL, step = step 9) [at 720 px wide]",
+      "the word \"in\" is split across two lines in <span.k-hint> (it needs 15px and has 309px) (at Text size XL, step = step 3, and 1 more setting) [at 1040 px wide]"
+    ],
+    "checks": [
+      {
+        "label": "Extreme values in the tails distort the mean but not the median, since the median is based on ranks: slipping the ringed reading off the top of the scale lifts the mean of the fifty by a fiftieth of the slip and moves the median by half a meter step at most, at every random error",
+        "ok": true,
+        "source": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm"
+      },
+      {
+        "label": "From every raw data value, subtract the mean, square the results, average them over one fewer than the count and then take the square root: every SD worked on screen follows that recipe line by line and agrees with the standard deviation of its readings",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf"
+      },
+      {
+        "label": "Worked by hand: 0.79, 0.80, 0.80, 0.81 and 0.85 Ω add to 4.05 Ω and balance at 0.81 Ω, with 0.04 Ω of distance each side; nine readings of 0.50 Ω and one of 1.50 Ω have a mean of 0.60 Ω and a median of 0.50 Ω; 0.77 to 0.82 Ω give squares adding to 0.0016, then 0.0004 and an SD of 0.02 Ω; 0.75 to 0.83 Ω give 0.0036, 0.0009 and 0.03 Ω; piles A and B both span 0.08 Ω with SDs of 0.028 and 0.040 Ω; the bumpy and flat piles 0.016 and 0.035 Ω; the ten circuits a mean of 0.62 Ω and an SD of 0.13 Ω",
+        "ok": true
+      },
+      {
+        "label": "The rule on screen: twelve nudges of −½ to +½ add to an error of SD 1, within 2% over 20,000 simulated readings; halving the random error from 0.02 to 0.01 Ω takes the fifty from 10 columns to 5 and their tallest stack from 11 to 20 beads, nearly twice, with the mean within 0.002 Ω of 0.80 Ω both times",
+        "ok": true
+      },
+      {
+        "label": "A slipped probe: with the ringed reading at 1.80 Ω, 1.00 Ω too high, the mean of the fifty is exactly 0.02 Ω higher and the SD jumps to about 0.14 Ω, at a random error of 0.02 Ω and of 0.01 Ω; honest, the SD comes out close to the random error",
+        "ok": true
+      },
+      {
+        "label": "Drawn right: settled, the fulcrum sits exactly under the mean and the beam is level at every random error, honest or slipped; a slipped reading past the scale sits on its end column with an arrow, never clipped; no bead of the fifty is drawn smaller than r 3.5; each puzzle's fulcrum lands where its pick puts it",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer, and before an answer nothing in its picture gives it away: no fulcrum where the balance point is asked, no worked rows where the SD is asked, no SD brackets where spreads are compared, no rings on the far beads",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "spread",
+      "probe"
+    ],
+    "readouts": [
+      "mean",
+      "median",
+      "sd",
+      "cols",
+      "tall",
+      "sdA",
+      "mB",
+      "sdB"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Fifty readings",
+          "Where it balances",
+          "A slipped probe",
+          "Mean or median",
+          "Halve the random error",
+          "Same range",
+          "The standard deviation",
+          "Work it out",
+          "Back to the fifty",
+          "Bumpy or flat",
+          "One circuit or ten",
+          "Two testers",
+          "Twelve sockets"
+        ],
+        "value": 0
+      },
+      {
+        "id": "spread",
+        "kind": "control",
+        "label": "Random error",
+        "min": 0.01,
+        "max": 0.03,
+        "step": 0.005,
+        "log": false,
+        "value": 0.02,
+        "shown": false,
+        "snap": [
+          0.01,
+          0.02
+        ]
+      },
+      {
+        "id": "probe",
+        "kind": "control",
+        "label": "Ringed reading",
+        "min": 0.7,
+        "max": 1.8,
+        "step": 0.01,
+        "log": false,
+        "value": 0.8,
+        "shown": false,
+        "snap": [
+          0.8,
+          1.8
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Beads"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "K.sound is used but no K.button press played anything: play sound from a K.button's press so the self-test (and Dan) can reach it."
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "spread = 0.024999999999999998",
+    "probe = 1.525"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-360-light.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-360-light-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-360-light-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-360-dark.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-360-dark-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-1280-light.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-1280-light-end.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-1280-dark.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/statistics-for-engineers/i1.a1-1280-dark-end.png"
+  ]
+}

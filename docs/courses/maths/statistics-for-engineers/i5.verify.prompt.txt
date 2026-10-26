@@ -1,0 +1,484 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Statistics for engineers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "How often equipment fails: reliability" — A steady failure rate sets the share of units still working over time, so only about 37% reach the MTBF, the mean time between failures. [quantity]
+This is the last idea in the course.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 8.1.6.1. Exponential — https://www.itl.nist.gov/div898/handbook/apr/section1/apr161.htm
+    "The exponential distribution is the only distribution to have a constant failure rate."
+[R2] 8.1.2.4. "Bathtub" curve — https://www.itl.nist.gov/div898/handbook/apr/section1/apr124.htm
+    "Next, the failure rate levels off and remains roughly constant for (hopefully) the majority of the useful life of the product."
+[R3] A Closer Look at MTBF, Reliability, and Life Expectancy | Bel — https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy
+    "The inverse of λ, 1/λ, gives the Mean Time To Failure (MTTF), which is more commonly expressed as the Mean Time Between Failures (MTBF), especially in the power industry."
+[R4] A Closer Look at MTBF, Reliability, and Life Expectancy | Bel — https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy
+    "Although the MTBF is 1 million hours, the R(t) = e -λt curve, shown in the graph below, tells us that only 36.7% of units are statistically likely to operate for this long."
+[R5] Emergency Diesel Generator Reliability and Installation Energy Security — https://www.nrel.gov/docs/fy20osti/76553.pdf
+    "In terms of the reliability literature’s “Bathtub Model” (Figure 3), the generator is in its useful life period. During this period, we assume that the failure rate while running, λ, is constant."
+[R6] UKAS LAB 12: The Expression of Uncertainty in Testing — https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf
+    "that the probability distribution can be assumed to be normal and that a value of k = 2 defines an interval having a coverage probability of approximately 95 %."
+[R7] HELM Workbook 36: Descriptive Statistics — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "Knowing that some 99.7% of a normal population lies within 3 standard deviations of the mean, we could treat any value further than say 3.3 standard deviations from the mean as on outlier."
+[R8] HELM Workbook 36: Descriptive Statistics — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "You should always ask why such a value occurred in the first place and work to answer such a question sensibly before considering rejection."
+[R9] 1.3.5.1. Measures of Location — https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm
+    "Extreme values in the tails distort the mean. However, these extreme values do not distort the median since the median is based on ranks."
+[R10] 2.4: The Normal Distribution - Mathematics LibreTexts — https://math.libretexts.org/Bookshelves/Applied_Mathematics/Book%3A_College_Mathematics_for_Everyday_Life_(Inigo_et_al)/02%3A_Statistics_-_Part_2/2.04%3A_The_Normal_Distribution
+    "Approximately 68% of the data is within one standard deviation of the mean. Approximately 95% of the data is within two standard deviations of the mean. Approximately 99.7% of the data is within three standard deviations of the mean."
+[R11] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "random - where repeating the measurement gives a randomly different result. If so, the more measurements you make, and then average, the better estimate you generally can expect to get."
+[R12] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "For example: We might say that the length of a certain stick measures 20 centimetres plus or minus 1 centimetre, at the 95 percent confidence level."
+Notes (claims, and the sources that support them):
+- The exponential distribution is the only distribution with a constant failure rate. [R1]
+- After early failures, the failure rate levels off and stays roughly constant for the majority of a product's useful life. [R2]
+- The inverse of the failure rate, 1/lambda, gives the mean time to failure, more commonly called the MTBF in the power industry. [R3]
+- With an MTBF of 1 million hours, only 36.7 percent of units are statistically likely to operate that long. [R4]
+- A diesel generator in its useful life period is assumed to have a constant failure rate while running. [R5]
+- If the distribution can be assumed normal, an interval of plus or minus 2 standard deviations (k = 2) has a coverage probability of approximately 95 percent. [R6]  (from an idea this one builds on)
+- Some 99.7 percent of a normal population lies within 3 standard deviations of the mean, so a value beyond about 3.3 can be treated as an outlier. [R7]  (from an idea this one builds on)
+- An outlier should not be rejected automatically; ask why such a value occurred and answer that sensibly before considering rejection. [R8]  (from an idea this one builds on)
+- Extreme values distort the mean but not the median, so one odd reading moves the average more than the middle reading. [R9]  (from an idea this one builds on)
+- For data that follow a normal distribution, approximately 68% lie within one standard deviation of the mean, 95% within two and 99.7% within three. [R10]  (from an idea this one builds on)
+- Repeating a measurement can give a randomly different result each time, and averaging more of those readings generally gives a better estimate. [R11]  (whole topic)
+- A measurement result is stated with an interval and a confidence level, such as 20 centimetres plus or minus 1 centimetre at the 95 percent confidence level. [R12]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "How often equipment fails: reliability",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is only about 37% of the fifty units still on the shelf when you drag Years in service to the MTBF of 10 years.",
+  "title": "The shelf of units",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 13,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in fourteen small screens. Simulated units are drawn as beads on a shelf. Each bead is one unit in service, say a pump. Every unit has the same steady failure rate, λ, of 0.1 a year, an example. The rule on screen gives each unit a random lifetime, t = −ln(u) ÷ λ, with u a random number between 0 and 1. That rule gives every unit the same steady rate at every age. A slider, Years in service, runs from 0 to 30 years in steps of 1 year and opens at 5. As it moves, a clock's hand runs, and each unit drops off the shelf when its lifetime runs out. It lands on a beam marked in years, so the fallen units pile up by the year they failed. A curve over the pile shows what the rule expects. A dashed line marks the MTBF, 10 years. Under the years, a strip draws the failure rate of the units still working. Tiles give Still working, counted on the shelf; The rule expects, 50 × e^(−λt); the MTBF; and Failure rate now, per year for each unit still working. A choice, Units, offers One by one, Pairs in series and Pairs in parallel. In pairs, the fifty units make 25 pairs. A pair in series stops at its first failure. A pair in parallel stops at its second, and its failed unit stays on the shelf, held by its partner. A last view, The bathtub, gives each unit a failure rate drawn from a sketch: say an early extra 0.25 a year that fades over about a year, a steady 0.02 a year, and wear-out that climbs steeply near 24 years. Its slider runs the clock from 0 to 30 years and opens at 30. The screens. 1, show: fifty units sit on a shelf. Each drops off when it fails. Drag Years in service, and units drop as the clock runs. The strip below reads flat at 0.1 a year. That is the failure rate: failures each year for each unit still working. Here an old unit is as likely to fail next month as a new one. The shelf empties fastest at first only because more units are there to fail. Its finished picture shows 5 years in service, with the strip flat. 2, a puzzle: at 5 years, say 30 units are still working. About how many fail in the next year? Offered: about 3; about 5; and about 1, as the weak ones have already gone. Hint when wrong: the rate counts failures for each unit still working, and here it does not change with age. 3, show: the share still working is the reliability, R. In each short spell the shelf loses the same fraction of what is left. That gives the decay curve you know from a capacitor: R = e^(−λt). At 5 years, R = e^(−0.5), about 0.61. So the rule expects 30.3 of the fifty, and the shelf counts close to it. The MTBF is 1 ÷ λ, the mean lifetime: 10 years, at the dashed line. Its finished picture shows 5 years in service with the rule's curve over the pile. 4, a puzzle: the MTBF here is 10 years. At 10 years in service, what share of the units still work? Offered: about 37%; about half; and nearly all, as 10 years is their mean life. Hint: put t = 10 into R = e^(−0.1t). 5, show: slide to 10 years. The shelf holds close to the 18.4 the rule expects. That is about 37%, the same 0.37 you meet after one time constant. Most units fail before the mean lifetime. A few long-lived units pull the mean up, as a long high tail did with insulation resistance. Half have failed by about 7 years. So the MTBF is a rate turned over, not a life to count on. Its finished picture shows 10 years in service at the MTBF line. 6, a puzzle: λ is 0.1 a year. What is the chance one unit has failed by 5 years? Offered: about 39%; about 61%; and 50%, as 5 years is half the MTBF. Hint: R is the chance it still works, so the chance it has failed is 1 − R. 7, show: choose Pairs in series. A pair works only while both units work. A share R of first units still works, and R of those have a working partner. So R × R of pairs still work, if each unit fails on its own. That is e^(−2λt), so the rates add to 0.2 a year. The shelf empties twice as fast, and the MTBF halves to 5 years. Working case: both work. Failing case: either fails. Its finished picture shows pairs in series at 10 years, about 13.5% left. 8, a puzzle: a pump and its starter are in series. Each has a 0.9 chance of lasting the year. What is the chance the pair lasts the year? Offered: 0.81; 1.8; and 0.9, the chance of each part. Hint: both must last, so take 0.9 of 0.9. 9, show: choose Pairs in parallel. A pair works while at least one unit works. So work the failing case: both fail with chance (1 − R) × (1 − R). The pair's reliability is 1 − (1 − R)², about 60% at 10 years. The failure rate starts at zero, because one failure leaves a pair working. It climbs towards one unit's 0.1 a year as more pairs run on one unit. The MTBF is 15 years. Its finished picture shows pairs in parallel at 10 years, the rate climbing. 10, a puzzle: two battery chargers run in parallel. Each has a 0.9 chance of lasting the year. What is the chance at least one lasts? Offered: 0.99; 0.81; and 0.18, one working and the other not. Hint: the pair fails only if both fail. Find that chance, then take it from 1. 11, show: real units are rarely steady for life. Units with hidden faults often fail early, so the rate starts high. For most of a useful life it settles low and roughly steady. Then wear-out sets in, and the rate climbs. That shape is the bathtub curve. This one is a sketch, not measured. The steady model fits only its flat middle. Its finished picture shows the clock run to 30 years: an early heap, a quiet floor and a wear-out hump under the sketched rate. 12, a puzzle: say two units sit in the flat middle of their lives. One has run 8 years, the other 3. Which is more likely to fail next year? Offered: the same chance for both; the 8-year unit, as it is older; and the 3-year unit, as the older one has proved itself. Hint: in the flat middle, the rate does not change with age. 13, a mixed puzzle: an example UPS has a rectifier, a battery and an inverter in series. Say their failure rates are 20, 10 and 20 per million hours. What is the UPS's MTBF? Offered: 20,000 hours; 50,000 hours, the weakest part's; and 200,000 hours, the parts' MTBFs added. Hint: in series, any failure stops it, so the failure rates add. Then turn the total over. 14, a mixed puzzle: two UPSs run in parallel from one shared battery bank. Is 1 − (1 − R)² right for the pair? Offered: no, too hopeful, as a battery fault stops both; yes, as parallel pairs always work that way; and no, it should be R × R. Hint: the parallel rule assumes each unit fails on its own. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone the tiles and answers wrap onto more lines, so no word splits.",
+  "ignores": "The units are simulated from the rules on screen, not taken from real equipment. The failure rate of 0.1 a year and the bathtub's shape are examples. The clock runs years in seconds. With only fifty units, the shelf's count wanders a little either side of what the rule expects. Here each unit in a pair fails wholly on its own. Real pairs share a supply, a room and the same wear, which the pair rules leave out. The bathtub is a sketch, not a model fitted to real failures. A failed unit is simply gone here. In real service it is repaired or replaced.",
+  "numbers": [
+   {
+    "label": "Screens in the lesson",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Simulated units on the shelf",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example steady failure rate, per year",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Random number u, lowest",
+    "value": 0,
+    "kind": "assumed"
+   },
+   {
+    "label": "Random number u, highest",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Years in service, opening setting",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Years in service, lowest setting",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Years in service, highest setting",
+    "value": 30,
+    "kind": "control"
+   },
+   {
+    "label": "Years in service, slider step",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "MTBF of one unit, 1 ÷ 0.1, in years",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Pairs made from fifty units",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Bathtub sketch: early extra rate when new, per year",
+    "value": 0.25,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bathtub sketch: years the early rate fades over, about",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bathtub sketch: steady rate, per year",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bathtub sketch: wear-out climbs steeply near, in years",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bathtub view: years in service, opening setting",
+    "value": 30,
+    "kind": "control"
+   },
+   {
+    "label": "Screen 2: units still working at 5 years",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2: failures next year, 30 × 0.1, about",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick: 50 × 0.1",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick: failures if the weak had gone",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "λt at 5 years, 0.1 × 5",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "R at 5 years, e^(−0.5), about",
+    "value": 0.61,
+    "kind": "computed"
+   },
+   {
+    "label": "Units the rule expects at 5 years, 50 × e^(−0.5)",
+    "value": 30.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Share still working at the MTBF, e^(−1), in percent, about",
+    "value": 37,
+    "kind": "computed"
+   },
+   {
+    "label": "Share still working at the MTBF, e^(−1), about",
+    "value": 0.37,
+    "kind": "computed"
+   },
+   {
+    "label": "Units the rule expects at 10 years, 50 × e^(−1)",
+    "value": 18.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Years by which half have failed, ln 2 ÷ 0.1, about",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Chance failed by 5 years, 1 − e^(−0.5), in percent, about",
+    "value": 39,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong pick: R at 5 years, in percent, about",
+    "value": 61,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong pick: half, in percent",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Series pair failure rate, 0.1 + 0.1, per year",
+    "value": 0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Series pair MTBF, 1 ÷ 0.2, in years",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Series pair still working at 10 years, e^(−2), in percent",
+    "value": 13.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Power in the series rule, e^(−2)",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8: each part's chance of lasting the year",
+    "value": 0.9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8: pair in series, 0.9 × 0.9",
+    "value": 0.81,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick: 0.9 + 0.9",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Parallel pair still working at 10 years, 1 − (1 − e^(−1))², in percent, about",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Parallel pair failure rate at the start, per year",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Parallel pair MTBF, 1.5 ÷ 0.1, in years",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: pair in parallel, 1 − 0.1 × 0.1",
+    "value": 0.99,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10: chance both fail, 0.1 × 0.1",
+    "value": 0.01,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 wrong pick: 0.9 × 0.1 + 0.1 × 0.9",
+    "value": 0.18,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12: years run by the older unit",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12: years run by the younger unit",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example UPS rectifier failure rate, per million hours",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example UPS battery failure rate, per million hours",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example UPS inverter failure rate, per million hours",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example UPS total failure rate, per million hours",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Hours in a million",
+    "value": 1000000,
+    "kind": "constant"
+   },
+   {
+    "label": "Example UPS MTBF, 1,000,000 ÷ 50, in hours",
+    "value": 20000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick: weakest part's MTBF, 1,000,000 ÷ 20, in hours",
+    "value": 50000,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 wrong pick: MTBFs added, in hours",
+    "value": 200000,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzles' answers offered",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Hours in a year, 365 × 24",
+    "value": 8760,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: λt for a year, 50 × 8760 ÷ 1,000,000, about",
+    "value": 0.44,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: R for a year, e^(−0.44), about",
+    "value": 0.65,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: chance one fails in a year, about",
+    "value": 0.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: chance both fail, 0.35 × 0.35, about",
+    "value": 0.13,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: parallel pair keeps the load, about",
+    "value": 0.87,
+    "kind": "computed"
+   },
+   {
+    "label": "Share still working at half the MTBF, e^(−0.5), in percent, about",
+    "value": 61,
+    "kind": "computed"
+   },
+   {
+    "label": "Share still working at a tenth of the MTBF, e^(−0.1), in percent, about",
+    "value": 90,
+    "kind": "computed"
+   },
+   {
+    "label": "Rise in this year's Zs reading over last year's, in ohms",
+    "value": 0.02,
+    "kind": "assumed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Units of the same kind do not all fail at the same age. Each fails at its own random time. A [[failure rate]] says how often, as failures each year for each unit still working. For most of a product's useful life, if all goes well, that rate stays roughly steady.[^1] A steady rate sets the share of units still working at any age. It also means far fewer reach the average lifetime than you might expect.\n\nHere is why. Call the rate λ. Over a short spell, every working unit has the same small chance of failing, λ times the spell. So the stock loses the same fraction of what is left in every spell. That gives the decay curve you met with a capacitor discharging. The share still working is the [[reliability]], R = e^(−λt). One over the rate, 1 ÷ λ, is the mean time to failure, usually called the [[MTBF]] in power work.[^2] Put t = 1 ÷ λ into the rule, and R = e^(−1), about 0.37. Lifetimes pile up short, with a long tail of units that last far longer. That tail pulls the mean up, so most units fail before it. At 0.1 a year the MTBF is 10 years, yet half have failed by about 7.\n\nTwo units together follow two rules, if each fails on its own. In series, the pair works only while both work. A share R of first units still works, and a share R of those have a working partner. So the pair's R is R × R. That is e^(−λt) × e^(−λt) = e^(−2λt), so the failure rates add. In parallel, the pair works while at least one works. It fails only if both fail, with chance (1 − R) × (1 − R). So its R is 1 − (1 − R)². A part the two share, such as one supply, can stop both at once. Then the parallel rule promises too much.\n\nReal units are rarely steady for their whole lives. Textbooks add that units with hidden faults often fail early, and that wear-out makes the rate climb late on. That shape is called the bathtub curve, and the steady model fits only its flat middle. There a failure comes by chance, not age, while a climbing rate is wear. It is the same question as a Zs reading 0.02 Ω higher than last year: wear, or chance?\n\n**With a steady failure rate λ, the share of units still working after a time t is e^(−λt), so only about 37% reach the MTBF of 1 ÷ λ.[^3]**"
+ },
+ "analogy": {
+  "text": "Think of a capacitor discharging through a resistor. Its voltage falls by the same fraction in each equal slice of time. After one time constant, RC, about 37% is left. A stock of units with a steady failure rate empties the same way. The MTBF plays the part of RC, so after one MTBF about 37% are still working.",
+  "breaks": "Charge drains smoothly, all of it alike. Units fail one at a time, at random, so fifty units land near 18 left at the MTBF, not exactly 18.4. A capacitor also follows its curve all the way down, while real units keep a steady rate only through the flat middle of their lives."
+ },
+ "practice": {
+  "text": "- Find the failure rate or the MTBF, and note its units: per hour, per million hours or per year.\n- Check that the kit sits in the flat middle of its life. New kit and worn kit often fail faster.\n- Work the share still working at your time with R = e^(−λt). The chance it has failed is 1 − R.\n- For parts in series, add the failure rates, or multiply the R's.\n- For parts in parallel, find the chance they all fail, then take it from 1.\n- Look for anything a parallel pair shares, such as one supply or one switch. A shared part sits in series with the pair.\n- Keep testing standby kit. A figure on paper cannot show that this unit will start today.\n\n**Rules of thumb:** at the MTBF, about 37% are still working. At half the MTBF about 61% are, and at a tenth of it about 90%.\n\n**Worked example:** take the example UPS, with failure rates of 20, 10 and 20 per million hours in series. They add to 50 per million hours, so the MTBF is 20,000 hours. That sounds like more than two years of running. Now run it for one year, 8760 hours. Then λt = 50 × 8760 ÷ 1,000,000, about 0.44. R = e^(−0.44), about 0.65. So about one such unit in three would fail within a year's running. Add a second UPS in parallel, with nothing shared. Both fail with chance 0.35 × 0.35, about 0.13. So the pair keeps the load with a chance of about 0.87.\n\n**Standby kit:** a standby generator in its useful life is usually modelled with a steady failure rate while it runs.[^4] It must also start when called. That is a separate chance, which a running failure rate leaves out.\n\n**Common mistakes**\n- Reading the MTBF as how long each unit lasts.\n- Expecting half the units to reach the MTBF.\n- Adding reliabilities in series instead of multiplying them.\n- Counting only \"one works and the other not\" for a parallel pair.\n- Using the parallel rule on units that share a part.\n- Using a steady rate for brand-new or worn-out kit."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "8.1.2.4. \"Bathtub\" curve",
+   "url": "https://www.itl.nist.gov/div898/handbook/apr/section1/apr124.htm",
+   "quote": "Next, the failure rate levels off and remains roughly constant for (hopefully) the majority of the useful life of the product."
+  },
+  {
+   "n": 2,
+   "title": "A Closer Look at MTBF, Reliability, and Life Expectancy | Bel",
+   "url": "https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy",
+   "quote": "The inverse of λ, 1/λ, gives the Mean Time To Failure (MTTF), which is more commonly expressed as the Mean Time Between Failures (MTBF), especially in the power industry."
+  },
+  {
+   "n": 3,
+   "title": "A Closer Look at MTBF, Reliability, and Life Expectancy | Bel",
+   "url": "https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy",
+   "quote": "Although the MTBF is 1 million hours, the R(t) = e -λt curve, shown in the graph below, tells us that only 36.7% of units are statistically likely to operate for this long."
+  },
+  {
+   "n": 4,
+   "title": "Emergency Diesel Generator Reliability and Installation Energy Security",
+   "url": "https://www.nrel.gov/docs/fy20osti/76553.pdf",
+   "quote": "In terms of the reliability literature’s “Bathtub Model” (Figure 3), the generator is in its useful life period. During this period, we assume that the failure rate while running, λ, is constant."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

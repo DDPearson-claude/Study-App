@@ -1,0 +1,1027 @@
+<!-- kind: quantity -->
+<style>
+  /* ==== Beads: the shared look (dataviz.md, "Copy this code"). Paste unchanged. ==== */
+  [hidden] { display: none !important; } .bd-scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; touch-action: pan-y; font-variant-numeric: tabular-nums; -webkit-user-select: none; user-select: none; } .bd-scene text { font-family: var(--k-font); font-size: 13px; }
+  /* A reading: a bead with a surface ring and a glint (a second string's: .two), its splash and counted ring; its outline in the side pile; the pegs it strikes. */
+  .bd-scene .bd-bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.2; } .bd-scene .bd-bead.two { fill: var(--k-accent); } .bd-scene .bd-splash { fill: none; stroke: var(--k-accent2); stroke-width: 1.2; pointer-events: none; } .bd-scene .bd-splash.two { stroke: var(--k-accent); }
+  .bd-scene .bd-glint { fill: var(--k-bg); fill-opacity: .42; pointer-events: none; } :root[data-theme="dark"] .bd-scene .bd-glint { fill: var(--k-ink); fill-opacity: .5; } .bd-scene .bd-ghost { fill: none; stroke: var(--k-strong); stroke-width: 1.1; }
+  .bd-scene .bd-peg { fill: var(--k-strong); } .bd-scene .bd-hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.8; stroke-linecap: round; } .bd-scene .bd-trail { fill: none; stroke: var(--k-accent); stroke-width: 1.7; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
+  .bd-scene .bd-win { fill: var(--k-accent); fill-opacity: .16; } .bd-scene .bd-edge { stroke: var(--k-strong); stroke-width: 1.1; stroke-dasharray: 2 3; } .bd-scene .bd-beam { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; } .bd-scene .bd-fulcrum { fill: var(--k-ink); } .bd-scene .bd-grid { stroke: var(--k-line); stroke-width: 1; }
+  .bd-scene .bd-tick { stroke: var(--k-strong); stroke-width: 1.2; fill: none; } .bd-scene .bd-tick.major, .bd-scene .bd-axis { stroke: var(--k-muted); } .bd-scene .bd-axis { stroke-width: 1.3; } .bd-scene .bd-off { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.6px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; }
+  /* Words: muted names and units, bold numbers, accent small labels, warnings; a halo for a label over a line. */ .bd-scene .bd-tn, .bd-scene .bd-title, .bd-scene .bd-w, .bd-scene .bd-u { fill: var(--k-muted); } .bd-scene .bd-lab, .bd-scene .bd-name { fill: var(--k-ink); } .bd-scene .bd-n, .bd-scene .bd-name { font-weight: 700; }
+  .bd-scene .bd-small { font-weight: 600; fill: var(--k-accent); } .bd-scene .bd-wt { font-weight: 600; fill: var(--k-warn); } .bd-scene .bd-halo { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  /* The ringed reading: its drag handle, ring and arrows; warnings and limits. */ .bd-scene .bd-handle { fill: var(--k-bg); fill-opacity: 0; cursor: grab; } .bd-scene.nodrag .k-drag-hit, .bd-scene.nodrag .bd-handle { pointer-events: none; } .bd-scene .bd-ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.7; pointer-events: none; }
+  .bd-scene .bd-chev { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.8px; stroke-linejoin: round; paint-order: stroke; pointer-events: none; } .bd-scene .bd-ring.out { stroke: var(--k-warn); } .bd-scene .bd-chev.out { fill: var(--k-warn); }
+  .bd-scene .bd-pulse { fill: none; stroke: var(--k-warn); stroke-width: 1.4; pointer-events: none; } .bd-scene .bd-zone { fill: var(--k-warn); fill-opacity: .55; } .bd-scene .bd-limit { stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  /* The statistics: mean, dimension lines, small-label spans and their extension lines, ruler, stems and pointers, range jaws, median, bands, curves, thread, mean so far, true value. */ .bd-scene .bd-mean { stroke: var(--k-ink); stroke-width: 1.7; stroke-dasharray: 4 3; } .bd-scene .bd-dim { fill: none; stroke: var(--k-ink); stroke-width: 1.6; stroke-linecap: round; }
+  .bd-scene .bd-span { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .bd-scene .bd-ext { fill: none; stroke: var(--k-accent); stroke-width: 1; stroke-dasharray: 1.5 2.5; } .bd-scene .bd-ruler { fill: none; stroke: var(--k-accent); stroke-width: 1.3; }
+  .bd-scene .bd-stem { fill: none; stroke: var(--k-accent); stroke-width: 1.3; stroke-linecap: round; } .bd-scene .bd-pointer, .bd-scene .bd-med { fill: var(--k-accent); } .bd-scene .bd-band { fill: var(--k-fill1); }
+  .bd-scene .bd-jaw { fill: var(--k-bg); stroke: var(--k-accent); stroke-width: 1.4; stroke-linejoin: round; } .bd-scene .bd-bell { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-linejoin: round; }
+  .bd-scene .bd-curve, .bd-scene .bd-trend { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; } .bd-scene .bd-truth { stroke: var(--k-muted); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  .bd-scene .bd-thread { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; } .bd-scene .bd-run { fill: none; stroke: var(--k-accent); stroke-width: 1.8; stroke-linejoin: round; }
+  .bd-scene .bd-air { fill: none; stroke: var(--k-muted); stroke-width: 1.7; stroke-linejoin: round; } .bd-scene .bd-hz { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  /* One amber line a view: .lead hands it to the failure rate (the bathtub), .quiet takes it off a curve. */ .bd-scene .bd-hz.lead { stroke: var(--k-amber-line); stroke-width: 2.6; } .bd-scene .bd-curve.quiet { stroke: var(--k-muted); stroke-width: 1.6; }
+  /* Lifetimes: the shelf, a pair's link (series) or harness (parallel), the clock's hand; and a share bar inside a tile. */ .bd-scene .bd-shelf { stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; } .bd-scene .bd-link { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; stroke-linecap: round; }
+  .bd-scene .bd-harness { fill: none; stroke: var(--k-accent2); stroke-linecap: round; } .bd-scene .bd-harness.in { stroke: var(--k-bg); } .bd-scene .bd-now { stroke: var(--k-ink); stroke-width: 1.4; } .bd-scene .bd-nowhead { fill: var(--k-ink); }
+  .bd-gauge { display: block; position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--k-line); } .bd-gauge i { display: block; height: 6px; width: 0; border-radius: 3px; background: var(--k-accent2); } .bd-gauge b { position: absolute; top: -3px; width: 2px; height: 12px; margin-left: -1px; border-radius: 1px; background: var(--k-amber-line); }
+  /* ==== end of the shared look ==== */
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  /* The tiles' values line up when a label wraps: on a phone every label takes two lines, and each value follows its label. */
+  #outs .k-readout-value { margin-top: 0; }
+  @media (max-width: 480px) { #outs .k-readout-label { min-height: 2.6em; } }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap whole; long ones stack one to a row. */
+  .picks .k-btn { flex: 1 1 6rem; min-height: 52px; font-size: 1.1rem; white-space: nowrap; padding-inline: 8px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead">Each bead is one simulated reading of a UPS's output voltage, taken on rounds. Say the UPS holds its output at 115.0 V.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="bd-scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""></svg>
+    <div class="replay" id="replay"></div>
+    <div class="k-controls" id="ctl"></div>
+    <div class="row" id="fresh"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">Simulated: 115.0 V plus 0.3 V times twelve nudges added, read to the meter's step of 0.1 V.</p>
+
+<script>
+  // ==== Beads: the shared language (dataviz.md, "Copy this code"). Paste unchanged. ====
+  const B = (() => { const B = {}, lerp = (a, b, t) => a + (b - a) * t, c01 = (v) => Math.max(0, Math.min(1, v)); B.lerp = lerp; B.c01 = c01; B.r2 = (v) => Math.round(v * 100) / 100;
+    // The rule. Seeded, so every picture and check is stable; a fresh batch is the next seed.
+    B.rng = (seed) => { let a = (Math.imul(seed | 0, 7919) + 104729) >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+    // n readings × 12 nudges in −½..+½: twelve sum to SD exactly 1, so sd × B.sum(u) is an error of SD sd; B.sum(u, row) is a bead after `row` rows of pegs.
+    // A second string of readings takes rows n..2n−1 of B.nudges(seed, 2n), never reading i's own: two strings share only what the rule gives them both.
+    B.nudges = (seed, n) => { const r = B.rng(seed); return Array.from({ length: n }, () => Array.from({ length: 12 }, () => r() - 0.5)); }; B.sum = (u, upto) => { let s = 0; for (let j = 0; j < (upto == null ? u.length : upto); j++) s += u[j]; return s; };
+    B.uni = (seed, n) => { const r = B.rng(seed); return Array.from({ length: n }, () => 1 - r()); };   // in (0, 1]: a lifetime is −ln(u) / rate
+    B.round = (v, res) => +(Math.round(v / res) * res).toFixed(9); B.stats = (vs) => { const n = vs.length; if (!n) return null; let m = 0, q = 0; vs.forEach((v) => { m += v / n; }); vs.forEach((v) => { q += (v - m) * (v - m); });
+      const s = vs.slice().sort((a, b) => a - b); return { n, m, sd: n > 1 ? Math.sqrt(q / (n - 1)) : 0, med: n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2, lo: s[0], hi: s[n - 1] }; }; B.within = (vs, m, sd, z) => vs.filter((v) => Math.abs(v - m) <= z * sd * (1 + 1e-9)).length;
+    B.fit = (pts) => { const n = pts.length; if (n < 2) return null; let mx = 0, my = 0, sxx = 0, sxy = 0, rr = 0; pts.forEach((p) => { mx += p[0] / n; my += p[1] / n; }); pts.forEach((p) => { sxx += (p[0] - mx) * (p[0] - mx); sxy += (p[0] - mx) * (p[1] - my); }); const b = sxx ? sxy / sxx : 0;
+      pts.forEach((p) => { rr += Math.pow(p[1] - my - b * (p[0] - mx), 2); }); return { b, mx, my, at: (x) => my + b * (x - mx), res: n > 2 ? Math.sqrt(rr / (n - 2)) : 0 }; };
+    /* How closely two strings move together: +1 a rising line, −1 a falling one, 0 no line at all. */ B.corr = (xs, ys) => { const n = xs.length; let mx = 0, my = 0, sxy = 0, sxx = 0, syy = 0; xs.forEach((x, i) => { mx += x / n; my += ys[i] / n; });
+      xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) * (x - mx); syy += (ys[i] - my) * (ys[i] - my); }); return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0; };
+    // A lifetime from a sketched hazard: the t at which the total hazard H(t) reaches −ln u, by halving; Infinity past tmax. A column's expected count from R.
+    B.lifeFrom = (H, u, tmax) => { const goal = -Math.log(u); if (!(H(tmax) >= goal)) return Infinity; let a = 0, b = tmax; for (let k = 0; k < 44; k++) { const m = (a + b) / 2; if (H(m) < goal) a = m; else b = m; } return (a + b) / 2; };
+    B.colExpect = (R, n, bin) => (t) => n * (R(Math.max(0, t - bin / 2)) - R(Math.max(0, t + bin / 2)));
+    // Columns one bin wide: lo, hi the end columns' centres, drawn a0 → a1. col(v) clamps; a value on an edge goes up; off(v) is −1 or +1 past an end.
+    B.scale = (lo, hi, bin, a0, a1) => { const n = Math.round((hi - lo) / bin) + 1, w = (a1 - a0) / n, col = (v) => Math.max(0, Math.min(n - 1, Math.round((v - lo) / bin + 1e-7)));
+      return { lo, hi, bin, n, w, a0, a1, col, mid: (c) => a0 + (c + 0.5) * w, at: (v) => a0 + ((v - lo) / bin + 0.5) * w, val: (x) => lo + ((x - a0) / w - 0.5) * bin, off: (v) => (v < lo - bin / 2 ? -1 : v > hi + bin / 2 ? 1 : 0) }; };
+    // Columns of equal ratio, `steps` to a decade, for readings that spread by a factor (insulation resistance). Takes and gives plain values.
+    B.logScale = (lo, hi, steps, a0, a1) => { const L = Math.log10, s = B.scale(L(lo), L(hi), 1 / steps, a0, a1); return Object.assign({}, s, { lo, hi, log: true, col: (v) => s.col(L(v)), at: (v) => s.at(L(v)), val: (x) => Math.pow(10, s.val(x)), off: (v) => s.off(L(v)) }); };
+    /* A scale with no columns, for a view that zooms or a strip of a time view: v0..v1 drawn a0 → a1; w is one bin's length on it. */ B.lin = (v0, v1, a0, a1, bin) => { const k = (a1 - a0) / (v1 - v0); return { lo: v0, hi: v1, bin, w: k * bin, a0, a1, at: (v) => a0 + (v - v0) * k, val: (x) => v0 + (x - a0) / k }; };
+    // Bead size: B.peak, about the tallest stack of the narrowest pile a slider allows; B.tallest, a batch's own; B.fitPile, the bead for that height and column.
+    B.peak = (n, bin, sd) => { const x = Math.min(2, bin / sd), t = Math.min(n, n * x * 0.3989 * (1 - x * x / 24)); return t + Math.sqrt(t); }; B.tallest = (vs, sc) => { const c = {}; let m = 1; vs.forEach((v) => { const k = sc.col(v); c[k] = (c[k] || 0) + 1; m = Math.max(m, c[k]); }); return m; };
+    B.fitPile = (tall, room, colW, rmax) => { const r = Math.min(rmax, Math.abs(colW) / 2 - 0.6, (room / Math.max(1, tall) - 1) / 2); return { r, pitch: 2 * r + 1 }; };
+    /* The pile on the beam at y base, earlier readings lower, `per` across a wide column; readings past an end on top; a batch too tall shrinks every bead. */ B.stack = (vs, sc, base, top, fit) => { const per = Math.max(1, Math.floor((Math.abs(sc.w) + 1) / fit.pitch)), cnt = {}, idx = [];
+      vs.map((v, i) => i).sort((a, b) => (sc.off(vs[a]) ? 1 : 0) - (sc.off(vs[b]) ? 1 : 0) || a - b).forEach((i) => { const c = sc.col(vs[i]); cnt[c] = (cnt[c] || 0) + 1; idx[i] = cnt[c] - 1; });
+      const tall = Math.max(1, ...Object.values(cnt).map((k) => Math.ceil(k / per))), pitch = Math.min(fit.pitch, (base - 1.5 - top) / tall), r = Math.min(fit.r, (pitch - 1) / 2);
+      return { r, tall, pitch, per, base, cnt, pos: vs.map((v, i) => { const c = sc.col(v), lay = Math.floor(idx[i] / per), row = Math.min(per, cnt[c] - lay * per); return { x: sc.mid(c) + (idx[i] % per - (row - 1) / 2) * pitch, y: base - 1.5 - r - lay * pitch, r }; }) }; };
+    /* In the order taken: reading i across from x0 to x1, its value up the page on scale sv. */ B.run = (vs, sv, x0, x1, r) => vs.map((v, i) => ({ x: lerp(x0, x1, vs.length > 1 ? i / (vs.length - 1) : 0.5), y: sv.at(v), r }));
+    // A pile place turned u of the way onto its side about (x0, y0) sliding to (x1, y1): value up the page (k), stacks leftwards (kh); at u = 1, level with B.run.
+    B.tip = (p, u, A) => { const th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th), k = lerp(1, A.k, u), kh = lerp(1, A.kh, u), dx = p.x - A.x0, dh = A.y0 - p.y;
+      return { x: lerp(A.x0, A.x1, u) + k * dx * c - kh * dh * s, y: lerp(A.y0, A.y1, u) - k * dx * s - kh * dh * c, r: p.r * lerp(1, Math.min(A.k, A.kh), u) }; }; B.anchor = (st, sc, sv, ref, spine, room) => { let h = 1; st.pos.forEach((p) => { h = Math.max(h, st.base - p.y + p.r); }); const k = Math.abs(sv.w / sc.w);
+      return { x0: sc.at(ref), y0: st.base, x1: spine, y1: sv.at(ref), k, kh: Math.min(k, room / h) }; };
+    // Two strings over time folded into one against the other, u 0..1: a and b are reading i's places in their strips, f the pair's place once folded.
+    B.fold = (a, b, f, u) => { const ux = K.ease(c01(2 * u)), uy = K.ease(c01(2 * u - 1)), x = lerp(a.x, f.x, ux), q = { x: lerp(b.x, f.x, ux), y: lerp(b.y, f.y, uy), r: lerp(b.r, f.r, uy) }; return [uy > 0 ? B.hop({ x, y: a.y, r: a.r }, q, uy, 12, (v) => v) : { x, y: a.y, r: a.r }, q]; };
+    /* Timings (s) every lesson shares: a pour releases a bead every dt, each jinks `jink` high off every peg; a fresh batch re-sorts one every hop. */ B.T = { dt: 0.045, hop: 0.028, field: 0.5, fly: 0.5, settle: 0.45, bounce: 0.24, peel: 0.025, tip: 0.8, fold: 1.6, g: 1600, jink: 2 };
+    B.releases = (n, t0, slow) => { const out = []; let t = t0; for (let i = 0; i < n; i++) { out.push(t); t += slow ? Math.max(B.T.dt, 0.32 * Math.pow(0.68, i)) : B.T.dt; } return out; };
+    B.bounce = (tc) => (tc < 0 ? 0 : tc < 0.15 ? 4.5 * Math.sin(Math.PI * tc / 0.15) : tc < B.T.bounce ? 1.3 * Math.sin(Math.PI * (tc - 0.15) / (B.T.bounce - 0.15)) : 0); const fallT = (d, v0) => (-v0 + Math.sqrt(v0 * v0 + 2 * B.T.g * Math.max(2, d))) / B.T.g;
+    /* A bead released at rel strikes a peg on each of the twelve rows (y0..y1), xAt(row) its nudges so far, then falls onto p and bounces twice; tc = s since landing. */ B.pour = (T, rel, xAt, p, y0, y1) => { const tau = T - rel, F = B.T.field, v0 = (y1 - y0) / F; if (tau < 0) return null;
+      if (tau < F) { const f = 12 * tau / F, row = Math.min(11, Math.floor(f)), u = f - row; return { x: lerp(xAt(row), xAt(row + 1), K.ease(u)), y: lerp(y0, y1, tau / F) - (row ? B.T.jink * Math.sin(Math.PI * u) : 0), r: p.r, a: c01(tau / 0.08) }; }
+      const tf = tau - F, tb = fallT(p.y - y1, v0); if (tf < tb) return { x: lerp(xAt(12), p.x, K.ease(tf / tb)), y: Math.min(p.y, y1 + v0 * tf + B.T.g * tf * tf / 2), r: p.r, a: 1 };
+      return { x: p.x, y: p.y - B.bounce(tf - tb), r: p.r, a: 1, tc: tf - tb }; }; B.landed = (rel, p, y0, y1) => rel + B.T.field + fallT(p.y - y1, (y1 - y0) / B.T.field);
+    // Dropped from rest at a onto b (a unit leaving a shelf), tau s after the drop: falls, lands, bounces.
+    B.fall = (a, b, tau) => { const tb = fallT(b.y - a.y, 0); if (tau < tb) return { x: lerp(a.x, b.x, K.ease(tau / tb)), y: Math.min(b.y, a.y + B.T.g * tau * tau / 2), r: lerp(a.r, b.r, tau / tb), a: 1 }; return { x: b.x, y: b.y - B.bounce(tau - tb), r: b.r, a: 1, tc: tau - tb }; };
+    // From a to b, q of the way, on an arc `lift` high (landing with the bounce); ease K.ease to travel, B.backOut to settle with a 6% overshoot.
+    B.backOut = (q) => 1 + 2.25 * Math.pow(q - 1, 3) + 1.25 * Math.pow(q - 1, 2); B.still = (list) => list.every((s) => Math.abs(s.v - s.to) < 0.05 && Math.abs(s.vel) < 0.5); B.hop = (a, b, q, lift, ease, tc) => { const u = c01(q), e = (ease || K.ease)(u), land = lift && q >= 1;
+      return { x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e) - (lift || 0) * Math.sin(Math.PI * u) - (land ? B.bounce(tc) : 0), r: lerp(a.r, b.r, c01(e)), a: lerp(a.a == null ? 1 : a.a, 1, c01(u * 3)), tc: land ? tc : undefined }; };
+    // Springs give the balance point, the spread and the lines their weight: they lag, overshoot a touch and settle. B.toward eases a fade at up / down s.
+    B.spring = (w, z) => ({ v: 0, vel: 0, to: 0, w, z, init: false }); B.aim = (s, to, snap) => { s.to = to; if (!s.init || snap) { s.v = to; s.vel = 0; s.init = true; } };
+    B.springs = (list, dt) => { const n = Math.max(1, Math.ceil(dt / 0.008)), h = dt / n; list.forEach((s) => { for (let j = 0; j < n; j++) { s.vel += (-s.w * s.w * (s.v - s.to) - 2 * s.z * s.w * s.vel) * h; s.v += s.vel * h; } }); };
+    B.toward = (a, to, dt, up, down) => (to > a ? Math.min(to, a + dt / up) : Math.max(to, a - dt / (down || up)));
+    // Drawing: every element is made once and moved. B.vis fades el to a (K.fade) and takes it out of the page at 0.
+    B.add = (g, tag, attrs, text) => g.appendChild(K.svg(tag, attrs || {}, text == null ? undefined : String(text))); B.set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, typeof attrs[k] === 'number' ? B.r2(attrs[k]) : attrs[k]); return el; };
+    B.vis = (el, a, rise) => { if (!(a > 0.002)) { el.setAttribute('display', 'none'); return false; } el.removeAttribute('display'); K.fade(el, a, rise || 0); return true; };
+    // The scene's layers, bottom to top; the beam and the beads sit in `tilt`, which rocks about the fulcrum.
+    B.layers = (svg) => { const L = {}; ['field', 'under', 'ghosts', 'tilt', 'over', 'axes', 'tags'].forEach((k) => { L[k] = B.add(svg, 'g'); }); ['scale', 'beads', 'marks'].forEach((k) => { L[k] = B.add(L.tilt, 'g'); }); return L; };
+    // n beads (splash, bead, glint); cls 'two' for a second string. B.draw puts one at d = {x, y, r, a, tc, ring, hollow}: ring 0..1 sends a counted ring out; hollow a failed unit held; warn 0..1.
+    B.beads = (g, n, cls) => { const k = cls ? ' ' + cls : '', sp = [], bd = []; for (let i = 0; i < n; i++) sp.push(B.add(g, 'ellipse', { class: 'bd-splash' + k }));
+      for (let i = 0; i < n; i++) bd.push([B.add(g, 'circle', { class: 'bd-bead' + k }), B.add(g, 'circle', { class: 'bd-glint' })]); return bd.map((b, i) => ({ c: b[0], g: b[1], s: sp[i] })); };
+    B.draw = (b, d, warn, floor) => { if (!d || !(d.a > 0.002)) { [b.c, b.g, b.s].forEach((e) => e.setAttribute('display', 'none')); return; }
+      b.c.removeAttribute('display'); B.set(b.c, { cx: d.x, cy: d.y, r: d.r }); if (B.vis(b.g, d.hollow ? 0 : 1)) B.set(b.g, { cx: d.x - 0.34 * d.r, cy: d.y - 0.36 * d.r, r: 0.3 * d.r }); b.c.style.opacity = b.g.style.opacity = d.a >= 1 ? '' : d.a.toFixed(3); b.c.style.stroke = d.hollow ? 'var(--k-accent2)' : '';
+      b.c.style.fill = d.hollow ? 'var(--k-bg)' : warn > 0 ? (warn >= 1 ? 'var(--k-warn)' : 'color-mix(in srgb, var(--k-warn) ' + Math.round(warn * 100) + '%, var(--k-accent2))') : '';
+      if (d.ring != null) { const R = d.r + 1.6 + 4.5 * d.ring; if (B.vis(b.s, 0.9 * (1 - d.ring))) B.set(b.s, { cx: d.x, cy: d.y, rx: R, ry: R }); return; }
+      const u = d.tc == null ? 1 : d.tc / 0.3; if (B.vis(b.s, u < 1 ? 0.45 * (1 - u) * (1 - u) : 0)) B.set(b.s, { cx: d.x, cy: (floor == null ? d.y : floor) + d.r * 0.9, rx: d.r * (1 + 1.6 * K.ease(u)), ry: d.r * (0.27 + 0.45 * K.ease(u)) }); };
+    // The peg field: twelve rows one nudge apart, odd rows offset by half, each peg made once. B.pegsAt sets them about the hopper at hx, sp apart, over
+    // rows y0..y0 + h; B.pegHit swells the peg beside each bead that has just struck its row ([{x, row, since}], from M.hits).
+    B.pegs = (g) => { const P = { list: [], at: {}, hot: [], hx: 0, sp: 1 }; for (let row = 1; row <= 12; row++) { const lim = 7.2 * Math.sqrt(row / 12) + 0.6, off = row % 2 ? 0.5 : 0;
+      for (let j = -9; j <= 9; j++) if (Math.abs(j + off) <= lim) { const el = B.add(g, 'circle', { class: 'bd-peg', r: 1.8 }); P.list.push({ el, k: j + off, row }); P.at[row + ':' + (j + off)] = el; } } return P; };
+    B.pegsAt = (P, hx, sp, y0, h) => { P.hx = hx; P.sp = sp; P.list.forEach((q) => B.set(q.el, { cx: hx + q.k * sp, cy: y0 + q.row * h / 12 })); }; B.pegHit = (P, hits) => { P.hot.forEach((el) => el.setAttribute('r', 1.8)); P.hot = [];
+      hits.forEach((q) => { const off = q.row % 2 ? 0.5 : 0, el = P.at[q.row + ':' + (Math.round((q.x - P.hx) / P.sp - off) + off)]; if (el) { el.setAttribute('r', B.r2(1.8 + 1.4 * (1 - q.since / 0.07))); P.hot.push(el); } }); };
+    /* A label set like a newspaper's: [['mean ', 'w'], ['27.01', 'n'], [' V', 'u']] gives muted words and units, a bold number. */ B.words = (t, parts) => { t.textContent = ''; parts.forEach((p) => t.appendChild(K.svg('tspan', { class: p[1] ? 'bd-' + p[1] : null }, p[0]))); return t; };
+    const tws = {}; B.tw = (t) => { const k = t.getAttribute('class') + '|' + t.textContent; if (!tws[k]) { let w = 0; try { w = t.getComputedTextLength(); } catch (e) { w = 0; } if (w > 0) tws[k] = w; } return tws[k] || t.textContent.length * 7.4; };
+    // Is the box clear of every bead {x, y, r} by pad? B.clearY: the lowest baseline at or above y whose letters (10 up, 3 down) clear them. Late labels use these.
+    B.free = (x0, x1, y0, y1, marks, pad) => marks.every((q) => q.x + q.r + pad <= x0 || q.x - q.r - pad >= x1 || q.y + q.r + pad <= y0 || q.y - q.r - pad >= y1);
+    B.clearY = (x0, x1, y, marks, pad) => { let hit = true; for (let k = 0; hit && k <= marks.length; k++) { hit = false; marks.forEach((q) => { if (!B.free(x0, x1, y - 10, y + 3, [q], pad)) { y = q.y - q.r - pad - 3.01; hit = true; } }); } return y; };
+    /* A dimension line x0 to x1 at y, ends ticked `tick`, its words in a gap when they fit, else centred above (`above`, stacked brackets) or beside it. */ B.bracket = (path, text, x0, x1, y, tick, above) => { const w = B.tw(text), m = (x0 + x1) / 2, gap = x1 - x0 >= w + 16, right = x1 + 6 + w < 336, f = B.r2;
+      path.setAttribute('d', 'M' + f(x0) + ' ' + f(y + tick) + 'V' + f(y) + (gap ? 'H' + f(m - w / 2 - 5) + 'M' + f(m + w / 2 + 5) + ' ' + f(y) : '') + 'H' + f(x1) + 'V' + f(y + tick));
+      B.set(text, gap ? { x: m, y: y + 4.5, 'text-anchor': 'middle' } : above ? { x: Math.max(4 + w / 2, Math.min(336 - w / 2, m)), y: y - 5, 'text-anchor': 'middle' } : { x: right ? x1 + 6 : x0 - 6, y: y + 4.5, 'text-anchor': right ? 'start' : 'end' }); };
+    // Over pile st from v0 to v1: the skyline (count(c) in column c) relaxing 0..1 into expect(v), beads expected per column. Works on a log scale too.
+    B.relax = (sc, st, count, expect, v0, v1, relax) => { const a = sc.at(v0), b = sc.at(v1), q = sc.w / 4, n = Math.max(1, Math.ceil(Math.abs(b - a) / Math.abs(q))), pts = [], per = st.per || 1;
+      for (let k = 0; k <= n; k++) { const x = lerp(a, b, k / n), sky = Math.ceil(Math.max(count(sc.col(sc.val(x - q * 0.99))), count(sc.col(sc.val(x + q * 0.99)))) / per);
+        pts.push(B.r2(x) + ' ' + B.r2(st.base - 1.5 - lerp(sky, expect(sc.val(x)) / per, relax) * st.pitch - (1 - relax) * (2 * st.r - st.pitch))); } return 'M' + pts.join('L'); };
+    /* A rule's curve f(t), t from a to b in n pieces, drawn by X and Y; it stops where it leaves the top (y < top) and gives that point as `exit`, for an arrow. */ B.trace = (f, a, b, X, Y, n, top) => { let d = '', exit = null; for (let k = 0; k <= n; k++) { const t = lerp(a, b, k / n), y = Y(f(t));
+      if (y < top) { if (k) { const t0 = lerp(a, b, (k - 1) / n), y0 = Y(f(t0)), q = (y0 - top) / (y0 - y); exit = { x: lerp(X(t0), X(t), q), y: top }; d += 'L' + B.r2(exit.x) + ' ' + B.r2(top); } break; } d += (k ? 'L' : 'M') + B.r2(X(t)) + ' ' + B.r2(y); } return { d: d || 'M0 0', exit }; };
+    // A share bar inside a readout tile (hidden with it during a check): filled to the counted share, a tick at what the rule expects.
+    B.gauge = (ro, rule) => { const f = K.el('i'), t = K.el('b'); t.style.left = (100 * rule).toFixed(1) + '%'; ro.el.appendChild(K.el('span', { class: 'bd-gauge', 'aria-hidden': 'true' }, f, t)); return (share) => { f.style.width = (100 * c01(share)).toFixed(1) + '%'; }; };
+    // One soft tick per bead as it leaves the hopper (its first peg), pitched to where its reading sits on the scale, `gap` s apart. Only from a Fresh batch press.
+    const PENTA = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319]; B.ticks = (vs, sc, gap) => { const a = sc.at(sc.lo), w = sc.at(sc.hi) - a || 1; return K.sound.chord(vs.map((v) => PENTA[Math.round(c01((sc.at(v) - a) / w) * 10)]), { dur: 0.07, type: 'triangle', gain: 1, stagger: gap }); };
+    /* The bead nearest a tap (pointer to drawing units), or −1 when none is within reach. */ B.pick = (svg, ev, pos, reach) => { const m = svg.getScreenCTM(); if (!m) return -1; const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()); let best = -1, bd = (reach || 14) * (reach || 14);
+      pos.forEach((p, i) => { const d = (p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y); if (d < bd) { bd = d; best = i; } }); return best; };
+    // A reading past its scale's end: an arrow the way it went, beside the bead, or `lift` above it over a ring. Never clip a reading silently.
+    B.offMark = (d, dir, lift) => { const x = lift == null ? d.x + dir * (d.r + 6.5) : d.x, y = lift == null ? d.y : d.y - d.r - lift - 4.5, f = B.r2; return 'M' + f(x - 4.5 * dir) + ' ' + f(y - 1.4) + 'h' + f(4 * dir) + 'v-2.8l' + f(5 * dir) + ' 4.2l' + f(-5 * dir) + ' 4.2v-2.8h' + f(-4 * dir) + 'z'; };
+    /* A check of several named facts: true, or the name of the first that broke (the self-test report shows it). */ B.facts = (list) => { for (const f of list) if (f[1] !== true) return 'broke: ' + f[0]; return true; }; return B; })();
+  // ==== end of the shared language ====
+
+  // ==== Beads: the shared motion (dataviz.md, "Copy this code"). Paste unchanged, after the shared language. ====
+  // One engine moves every lesson's beads. Clocks: Tb the beads' move, Ts the step's story, Tl always running; Infinity is the finished picture.
+  // o: {n, r, paint(), leaving() the elements a step change may fade, unmanaged (a group paint never hides), capture() more to snapshot with
+  // each move, tick(dt) before each paint, busy(dt) after it (true while the lesson's own parts move), done() once still (true to go on)}.
+  B.motion = (o) => { const STILL = { kind: 'still', end: 0 }, M = { Tb: Infinity, Ts: Infinity, Tl: 0, sc: STILL, s0: 0, sk: 1, len: 0, times: {}, leave: null, springs: [], dry: false }; M.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    M.instant = () => M.dry || M.reduce || document.documentElement.classList.contains('k-testing');   // tests and reduced motion open every step finished
+    M.drawn = Array.from({ length: o.n }, () => ({ x: 170, y: 224, r: o.r, a: 1 })); M.snap = () => M.drawn.map((d) => ({ x: d.x, y: d.y, r: d.r, a: d.a })); M.live = (kind) => M.Tb !== Infinity && (!kind || M.sc.kind === kind); M.moving = (kind) => M.live(kind) && M.Tb < M.sc.end;
+    M.spring = (w, z) => { const s = B.spring(w, z); M.springs.push(s); return s; }; M.rest = () => M.springs.forEach((s) => { s.v = s.to; s.vel = 0; }); const grab = (s) => Object.assign(s, o.capture ? o.capture() : {});
+    /* Where the beads are now, as the start of a move; leaving a pour early, a bead not yet released starts from its place before the pour. */ M.fromNow = () => { const f = M.snap(); if (M.live('pour')) f.forEach((d, i) => { if (M.Tb < M.sc.rel[i]) Object.assign(d, M.sc.from[i], { a: d.a }); }); return f; };
+    // pour: the old pile sinks while bead i leaves the hopper at rel[i], strikes its way down the field (y0..y1) and lands on pile[i].
+    M.pour = (pile, y0, y1, t0, slow) => { const rel = B.releases(o.n, t0, slow), land = rel.map((r, i) => B.landed(r, pile[i], y0, y1)); return grab({ kind: 'pour', from: M.snap(), rel, land, slow, hold: slow ? 0.2 : 0, end: Math.max(...land) + B.T.bounce }); };
+    // hop: bead i leaves where it is at t[i] for its place, dur s, on an arc `lift` high (landing with a bounce) or eased (B.backOut overshoots 6%).
+    M.hop = (t, dur, lift, ease) => grab({ kind: 'hop', from: M.fromNow(), t, dur, lift, ease: ease || K.ease, end: Math.max(...t) + dur + (lift ? B.T.bounce : 0) }); M.settle = (gap) => M.hop(M.drawn.map((d, i) => (gap || 0) * i), B.T.settle, 0, B.backOut);   // a slider or a drag
+    M.arc = (gap, lift) => M.hop(M.drawn.map((d, i) => 0.03 + gap * i), B.T.fly, lift, K.ease);    // a fresh batch or a choice re-sorts
+    M.finish = () => M.hop(M.drawn.map((d, i) => 0.012 * i), 0.55, 0, K.ease);                    // left mid-pour: every bead home within 1.2 s
+    // tip: from t0 the pile turns onto its side, then the beads peel into the time view one every B.T.peel; untip: back, last first, then it stands.
+    M.tip = (t0) => { const p0 = t0 + B.T.tip + 0.1; return grab({ kind: 'tip', from: M.fromNow(), t0, peel: M.drawn.map((d, i) => p0 + B.T.peel * i), end: p0 + B.T.peel * (o.n - 1) + B.T.fly + B.T.bounce }); };
+    M.untip = () => { const t = M.drawn.map((d, i) => 0.05 + 0.018 * (o.n - 1 - i)), ua = 0.05 + 0.018 * (o.n - 1) + 0.45; return grab({ kind: 'untip', from: M.snap(), t, dur: 0.45, ua, end: ua + B.T.tip }); };
+    // Bead i now, bound for tgt[i]; pile[i] its place in the pile; g.field() the field now {y0, y1, x(i, row)}; g.A, g.rug, g.run the tip's hinge, side pile, time view.
+    M.place = (i, tgt, pile, g) => { const T = M.Tb, s = M.sc; if (T === Infinity || s.kind === 'still') return { x: tgt[i].x, y: tgt[i].y, r: tgt[i].r, a: 1 };
+      if (s.kind === 'pour') { const f = g.field(), q = B.pour(T, s.rel[i], (row) => f.x(i, row), pile[i], f.y0, f.y1); if (q) return q; const h = s.from[i], e = K.ease(B.c01((T - s.hold) / 0.3)); return { x: h.x, y: h.y + 10 * e, r: h.r, a: h.a * (1 - e) }; }
+      if (s.kind === 'hop') { const h = B.hop(s.from[i], tgt[i], (T - s.t[i]) / s.dur, s.lift, s.ease, T - s.t[i] - s.dur); h.a = B.lerp(s.from[i].a == null ? 1 : s.from[i].a, 1, B.c01(T / 0.2)); return h; }
+      if (s.kind === 'tip') { const q = (T - s.peel[i]) / B.T.fly; if (q >= 0) return B.hop(g.rug[i], g.run[i], q, 7, K.ease, T - s.peel[i] - B.T.fly);
+        const side = B.tip(pile[i], K.arrive(T, s.t0, B.T.tip), g.A), w = K.arrive(T, 0, 0.3), f = s.from[i]; return { x: B.lerp(f.x, side.x, w), y: B.lerp(f.y, side.y, w), r: B.lerp(f.r, side.r, w), a: B.lerp(f.a, 1, B.c01(T / 0.2)) }; }
+      if (s.kind === 'untip') { const q = (T - s.t[i]) / s.dur; if (q < 1) return B.hop(s.from[i], g.rug[i], q, 7, K.ease); const b = B.tip(pile[i], 1 - K.arrive(T, s.ua, B.T.tip), g.A); return { x: b.x, y: b.y, r: b.r, a: 1 }; } return null; };   // a lesson's own move (kind 'own', say) places its beads itself
+    // The running statistics count only the beads that have landed. M.hits: the pegs a pouring bead has just struck, for B.pegHit.
+    M.landedAt = (i) => { const s = M.sc; return s.kind === 'pour' ? s.land[i] : s.kind === 'tip' ? s.peel[i] + B.T.fly : s.kind === 'hop' && s.lift ? s.t[i] + s.dur : -Infinity; }; M.counted = (i) => M.Tb === Infinity || M.Tb >= M.landedAt(i);
+    M.hits = (xAt) => { const out = []; if (M.live('pour')) M.sc.rel.forEach((r, i) => { const tau = M.Tb - r, f = 12 * tau / B.T.field, row = Math.floor(f), since = (f - row) * B.T.field / 12; if (tau > 0 && tau < B.T.field && row >= 1 && since < 0.07) out.push({ x: xAt(i, row), row, since }); }); return out; };
+    /* The story: parts arrive by a timetable {name: [start, dur]} after s0, squeezed by sk so a step settles within 5 s. */ M.arrive = (name, extra) => { const t = M.times[name]; return t ? K.arrive(M.Ts, M.s0 + t[0] * M.sk + (extra || 0), t[1] * M.sk) : 1; };
+    M.plan = (scene, start, len, times, squeeze) => { const k = squeeze ? Math.max(0.35, Math.min(1, (4.8 - start) / Math.max(0.01, len))) : 1; return { scene, start, len, times: times || {}, k, end: Math.max(scene.end, start + len * k) }; };
+    /* A new step, or a choice that changes the story: what showed and now hides fades where it stands (0.35 s) while the plan runs. mode 'first' | 'replay'. */ M.enter = (plan, mode) => { M.times = plan.times; M.leave = null; if (mode === 'first' || M.instant()) { M.Tb = M.Ts = Infinity; M.sc = STILL; return false; }
+      if (mode !== 'replay') M.leave = o.leaving().filter((el) => el.getAttribute('display') !== 'none').map((el) => [el, el.style.opacity === '' ? 1 : +el.style.opacity]); Object.assign(M, { sc: plan.scene, Tb: 0, Ts: 0, s0: plan.start, sk: plan.k, len: plan.len }); M.anim.play(); return true; };
+    M.move = (scene) => { if (M.instant()) { M.Tb = Infinity; M.sc = STILL; return false; } M.sc = scene; M.Tb = 0; M.anim.play(); return true; }; M.fade = () => { if (!M.leave) return; const f = M.Ts === Infinity ? 0 : 1 - K.arrive(M.Ts, 0, 0.35);   // the last thing paint() does
+      if (f > 0) M.leave.forEach(([el, a]) => { if (el.getAttribute('display') === 'none') B.vis(el, a * f); }); else { M.leave.forEach(([el]) => { if (el.parentNode === o.unmanaged) el.setAttribute('display', 'none'); }); M.leave = null; } }; M.anim = K.anim({ button: false, label: 'Beads', step: (dt) => {
+      M.Tl += dt; if (M.Tb !== Infinity) M.Tb += dt; if (M.Ts !== Infinity) M.Ts += dt; B.springs(M.springs, dt); if (o.tick) o.tick(dt); o.paint(); const more = o.busy ? o.busy(dt) : false;
+      if ((M.Tb !== Infinity && M.Tb < M.sc.end + 0.2) || (M.Ts !== Infinity && M.Ts < M.s0 + M.len * M.sk + 0.1) || !B.still(M.springs) || more) return true; if (M.Tb !== Infinity || M.Ts !== Infinity) { M.Tb = M.Ts = Infinity; o.paint(); } return o.done ? !!o.done() : false; } });
+    M.idle = () => M.Tb === Infinity && M.Ts === Infinity && !M.anim.playing(); document.addEventListener('visibilitychange', () => { if (!document.hidden && !M.anim.playing() && (M.Tb !== Infinity || M.Ts !== Infinity)) { M.Tb = M.Ts = Infinity; o.paint(); if (o.done) o.done(); } }); return M; };
+  // ==== end of the shared motion ====
+
+  // ---------- the rule and the examples ----------
+  // Reading i = 115.0 V + 0.3 V × the sum of its twelve nudges (each −½ to +½), read to the meter's step of 0.1 V. Twelve such nudges add to
+  // an SD of exactly 1, so 0.3 V is the SD of one reading's scatter. Batch 352711 was picked by script for screen 7: exactly one honest
+  // reading past the example limits (reading 15, at 115.9 V, about 3 SD high); the ringed reading, the fiftieth, at 115.0 V; mean 114.98 V
+  // and SD 0.306 V; 33, 48 and 49 of the 50 within 1, 2 and 3 SD. The other forty-nine give a mean of 114.98 V and an SD of 0.309 V, so a
+  // slip of 0.6 V puts the ringed reading 2.0 SD out and a slip of 1.2 V 4.0 SD out. A fresh batch b is the seed 352711 + b.
+  const N = 50, TRUE = 115.0, SD = 0.3, RES = 0.1, SEED = 352711, RING = 49, FAR = 14, FADE = 0.35, RED_GAP = 0.12, ANSWER = 2.0;
+  const LIM = [114.2, 115.8], LIM2 = [114.4, 115.6], LIMU = [-Infinity, 115.6];   // the example limits; the 2 SD puzzle's; the mixed puzzle's upper limit
+  const IR0 = 200, IR_SD = 0.15, IR_SEED = 7;
+  const SRC_UKAS = 'https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf';
+  const SRC_HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf';
+  const UB = new Map();
+  const nudgesOf = (b) => { let u = UB.get(b); if (!u) { u = B.nudges(SEED + b, N); UB.set(b, u); } return u; };
+  const honest = (b) => nudgesOf(b).map((u) => B.round(TRUE + SD * B.sum(u), RES));
+  const readings = (b, slip) => { const vs = honest(b); if (slip) vs[RING] = B.round(vs[RING] + slip, RES); return vs; };
+  // A reading on a limit is in; past it, out.
+  const isOut = (v, lim) => v < lim[0] - 1e-9 || v > lim[1] + 1e-9;
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+  // The tally: every batch seen, and whether an honest reading of it landed past the example limits.
+  const seen = new Map();
+  const note = (b) => { if (!seen.has(b)) seen.set(b, honest(b).some((v) => isOut(v, LIM))); };
+  note(0);
+  let nextB = 1, tallyN = 1;
+  // Insulation resistance, the batch met earlier: reading i = 200 MΩ × 10^(0.15 × the sum of its twelve nudges), read to 1 MΩ.
+  const IRS = B.nudges(IR_SEED, N).map((u) => B.round(IR0 * Math.pow(10, IR_SD * B.sum(u)), 1));
+  // The normal curve's share within z SD of its mean (erf, Abramowitz and Stegun 7.1.26).
+  const erf = (x) => { const t = 1 / (1 + 0.3275911 * Math.abs(x)), y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
+  const share = (z) => erf(z / Math.SQRT2);
+
+  // ---------- geometry: viewBox 340 × 300, one height for every view ----------
+  // The beam at y 232, its numbers at 258, the key or the limits' names at 274, the title at 295. Stacks stop at y 112, so the band brackets
+  // fit between the pile and the SD ruler at the top (marks at 38-44, the pointer 45-52). One bead size for every slip of the ringed reading.
+  const BASE = 232, TOPP = 112, FH = 56, RN = 258, RD = 274, RT = 295, RMAX = 5.6;
+  const SC = B.scale(113.7, 116.3, RES, 8, 332);       // a column per 0.1 V, ±4.3 SD of one reading
+  const IRE = B.scale(12.5, 712.5, 25, 8, 332);         // insulation resistance on an even scale, 25 MΩ a column
+  const HX = SC.at(TRUE), SLOPE = SD / RES * SC.w;      // the hopper over 115.0 V; across the page per unit of nudge
+  const SLIPS = Array.from({ length: 25 }, (_, k) => (k - 12) / 10);
+  const TALL = Math.max(...SLIPS.map((s) => B.tallest(readings(0, s), SC)));
+  const FIT = B.fitPile(TALL, BASE - 1.5 - TOPP, SC.w, RMAX);
+  const FITI = B.fitPile(B.tallest(IRS, IRE), BASE - 1.5 - TOPP, IRE.w, RMAX);
+  const topOf = (st) => st.pos.reduce((m, q) => Math.min(m, q.y - q.r), BASE);
+  const LAY = new Map();
+  function layout(b, slip) {
+    const key = b + '|' + slip.toFixed(1);
+    let L = LAY.get(key);
+    if (L) return L;
+    const vs = readings(b, slip), st = B.stack(vs, SC, BASE, TOPP, FIT), U = nudgesOf(b), top = topOf(st);
+    L = { vs, sc: SC, st, pile: st.pos, top, s: B.stats(vs), rest: B.stats(vs.filter((v, i) => i !== RING)), fy: Math.max(86, Math.min(150, top - 24)),
+      cum: U.map((u) => Array.from({ length: 13 }, (_, row) => B.sum(u, row))) };
+    LAY.set(key, L);
+    return L;
+  }
+  const LIR = (() => { const st = B.stack(IRS, IRE, BASE, TOPP, FITI); return { vs: IRS, sc: IRE, st, pile: st.pos, top: topOf(st), s: B.stats(IRS), rest: null, fy: 100, cum: null }; })();
+  const VIEWS = {
+    ups: { sc: SC, from: 113.7, to: 116.3, minor: 0.1, major: 0.5, nums: [114, 114.5, 115, 115.5, 116], dec: 1, title: 'UPS output (V), simulated' },
+    ir: { sc: IRE, from: 0, to: 700, minor: 50, major: 100, nums: [0, 200, 400, 600], dec: 0, title: 'Insulation resistance (MΩ), simulated' },
+  };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // field: the pegs and hopper; pour: the opening pour; curve: the normal curve with the pile's own mean and SD; count: the bands bloom and
+  // their beads are counted; bands: all three bands; ruler: the SD ruler; ring, pointer: the ringed reading and the pointer over it; ctls:
+  // the slip slider; limits: example limits (warnOut: readings past them turn to warnings; warnAfter: only after a right answer); next: a
+  // new reading dropped onto the pile; fresh: Drop a fresh batch. key: what a right answer brings in. arr: [start, duration] in seconds.
+  const PICK = 'Tap one of the answers.';
+  const LEAD = 'Each bead is one simulated reading of a UPS\'s output voltage, taken on rounds. Say the UPS holds its output at 115.0 V.';
+  const CAP = 'Simulated: 115.0 V plus 0.3 V times twelve nudges added, read to the meter\'s step of 0.1 V.';
+  const CAPL = 'Simulated as before. The limits are examples, and a reading on a limit is in.';
+  const STEPS = [
+    { show: true, name: 'Fifty readings', field: true, pour: true, curve: true, demo: true,
+      still: () => finishNow(),
+      alt: 'Fifty simulated readings of a UPS output fall from a hopper over 115.0 volts through a field of pegs and pile up on a beam balanced at their mean. A smooth curve traces the tops of the stacks, then relaxes into a bell.',
+      text: 'Fifty readings pour and pile up round 115.0 V. The smooth curve traces the skyline, then relaxes into a bell. Most beads land near the middle and fewer land further out. A bead lands far out only when most of its twelve nudges push the same way. The smooth curve is the *normal curve*, a model of such a pile. Some stacks stand above it and some below, because real counts wobble.',
+      read: 'Fifty readings have piled up round 115.0 V. A smooth curve follows the pile\'s outline: a bell. Most beads land near the middle and fewer land further out. A bead lands far out only when most of its twelve nudges push the same way. The smooth curve is the *normal curve*, a model of such a pile. Some stacks stand above it and some below, because real counts wobble.' },
+    { name: 'How often far out', field: true, curve: true, key: 'path',
+      alt: 'The pile of fifty simulated readings under the peg field, with the bell-shaped normal curve over it. Few beads reach the ends.',
+      altAfter: 'The path of the farthest bead through the pegs is drawn. It drifts the same way row after row.',
+      task: 'Landing 0.9 V high is 3 SD out. A bead needs most of its twelve nudges to push the same way. How often does that happen?',
+      opts: ['Rarely, as most mixes of nudges partly cancel', 'About as often as landing near the middle', 'Never, as the nudges always cancel'], want: 'Rarely, as most mixes of nudges partly cancel',
+      why: 'Each nudge is as likely to push one way as the other. Most mixes of twelve partly cancel, so most beads land near the middle. To land far out, most of them must push the same way. That happens, but rarely. The path now drawn is the farthest bead\'s. It drifts the same way row after row.',
+      hint: 'Not quite. Look how few beads reach the ends of the pile.',
+      hints: { 'Never, as the nudges always cancel': 'Not quite. A few beads do reach the ends. Look how few, though.' } },
+    { show: true, name: 'The bands', curve: true, count: true, demo: true, tiles: ['in1', 'in2', 'in3'],
+      still: () => finishNow(),
+      alt: 'The pile under its normal curve, with shaded bands 1, 2 and 3 standard deviations either side of the mean, bracketed above as 68, 95 and 99.7%.',
+      text: 'The bands bloom one at a time. The beads inside each band ring as its tile counts them. About 68% of readings sit within 1 SD of the mean. About 95% sit within 2, and about 99.7% within 3. A share of the time is a chance. So one honest reading has about a 95% chance of landing within 2 SD. That chance is its *probability*, 0.95 written as a number from 0 to 1. The counts come close to what the curve expects.',
+      read: 'The bands mark 1, 2 and 3 SD either side of the mean, and the tiles count the beads inside each. About 68% of readings sit within 1 SD of the mean. About 95% sit within 2, and about 99.7% within 3. A share of the time is a chance. So one honest reading has about a 95% chance of landing within 2 SD. That chance is its *probability*, 0.95 written as a number from 0 to 1. The counts come close to what the curve expects.' },
+    { name: 'Beyond 2 SD', curve: true, key: 'beyond',
+      alt: 'The pile of fifty simulated readings under its normal curve.',
+      altAfter: 'A shaded band 2 standard deviations either side of the mean is bracketed 95%, and the two beads beyond it send out rings.',
+      task: 'Fifty honest readings pile into a bell. About how many do you expect beyond 2 SD of the mean?',
+      opts: ['About 2 or 3', 'None', 'About 16, the 32% beyond 1 SD'], want: 'About 2 or 3',
+      why: 'About 95% of honest readings land within 2 SD of the mean, so about 5% land beyond. And 5% of 50 is 2.5, so expect about 2 or 3. Here two land beyond the band, and each sends out a ring.',
+      hint: 'Not quite. About 95% land within 2 SD, so about 5% land beyond. And 5% of 50 is 2.5.',
+      hints: { 'About 16, the 32% beyond 1 SD': 'Not quite. That counts the beads beyond 1 SD. About 5% land beyond 2 SD, and 5% of 50 is 2.5.' } },
+    { show: true, name: 'The ruler', ruler: true, ring: true, pointer: true, ctls: true, tiles: ['z'], demo: true, dur: 0.8, arr: { ring: [0, 0.35], ruler: [0.15, 0.4] },
+      still: () => stillAt('The ruler', { slip: 0.6, slipMoved: true }),
+      alt: 'The pile with a ruler above it, marked in standard deviations from the mean of the other forty-nine readings, and a pointer over the ringed reading.',
+      text: 'To count a reading\'s distance from the mean, subtract the mean, then divide by the standard deviation. That count is the reading\'s *z-score*. The ruler over the pile is marked in z-scores. Its zero is the mean of the other forty-nine readings. Each mark is one of their standard deviations. The ringed reading is left out of both. A far-out reading would pull the mean towards it and widen the SD. That would shrink its own count. Slide the ringed reading and the pointer follows it along the ruler.',
+      read: 'To count a reading\'s distance from the mean, subtract the mean, then divide by the standard deviation. That count is the reading\'s *z-score*. The ruler over the pile is marked in z-scores. Its zero is the mean of the other forty-nine readings. Each mark is one of their standard deviations. The ringed reading is left out of both. A far-out reading would pull the mean towards it and widen the SD. That would shrink its own count. Here the ringed reading has slipped 0.6 V high, about 2 SD along the ruler.' },
+    { name: 'Count the SDs', ruler: true, next: 116.0, key: 'pointer', dur: 1.6,
+      alt: 'The pile with the ruler in standard deviations above it, and one more reading ringed at 116.0 volts.',
+      altAfter: 'A pointer over the new reading reads between 3 and 4 on the ruler.',
+      task: 'Readings of the UPS output have a mean of 115.0 V and a standard deviation of 0.3 V. One reads 116.0 V. How many SDs from the mean is it?',
+      opts: ['About 3.3', '1.0', '0.3'], want: 'About 3.3',
+      why: 'Subtract the mean: 116.0 − 115.0 = 1.0 V. Then divide by the SD: 1.0 ÷ 0.3 is about 3.3. So it sits about 3.3 SD above the mean, far out on the ruler.',
+      hint: 'Not quite. Subtract the mean to get 1.0 V, then divide by the SD, 0.3 V.',
+      hints: { '1.0': 'Not quite. 1.0 V is its distance in volts. Divide it by the SD, 0.3 V, to count it in SDs.', '0.3': 'Not quite. 0.3 V is the SD itself. Subtract the mean to get 1.0 V, then divide by 0.3 V.' } },
+    { show: true, name: 'Example limits', limits: LIM, warnOut: true, fresh: true, tiles: ['out', 'tally'], caption: CAPL, demo: true, dur: 2.4,
+      arr: { lines: [0.2, 0.6], zl: [0.6, 0.5], red: [1.1, 0.4] },
+      still: () => finishNow(),
+      alt: 'The pile with dashed example limits at 114.2 and 115.8 volts and warning strips beyond them. One honest reading past the upper limit is marked as a warning.',
+      text: 'Example limits at 114.2 V and 115.8 V grow up from the beam. Each is about 2.7 SD from 115.0 V. In the opening batch, one honest reading lands past the upper limit. The batch is picked for that. The reading shivers and turns to a warning. Nothing is wrong with the UPS. Chance alone puts a reading out now and then. Drop fresh batches, and the tile "Batches with a reading out" keeps count. In this simulation, about one batch in five has a reading out.',
+      read: 'Example limits sit at 114.2 V and 115.8 V. Each is about 2.7 SD from 115.0 V. In the opening batch, one honest reading lands past the upper limit. The batch is picked for that. The reading is marked as a warning. Nothing is wrong with the UPS. Chance alone puts a reading out now and then. As fresh batches drop, the tile "Batches with a reading out" keeps count. In this simulation, about one batch in five has a reading out.' },
+    { name: 'One lands out', curve: true, limits: LIM2, warnOut: true, key: 'band', caption: CAPL,
+      alt: 'The pile under its normal curve with dashed example limits 2 standard deviations either side of the mean. One reading past the upper limit is marked as a warning.',
+      altAfter: 'The band holding 95% fills the space between the limits.',
+      task: 'Example limits sit 2 SD either side of the mean. You take fifty readings on rounds and one lands out. What does that show?',
+      opts: ['Little on its own, as honest readings land beyond 2 SD about one time in twenty', 'The UPS output is drifting', 'The meter is faulty'], want: 'Little on its own, as honest readings land beyond 2 SD about one time in twenty',
+      why: 'About 95% of honest readings land within 2 SD, so about one in twenty lands beyond. In fifty readings, expect 2 or 3 out. So one out is chance at work, and it shows little on its own.',
+      hint: 'Not quite. About 5% of honest readings land beyond 2 SD. And 5% of 50 is 2.5.',
+      hints: { 'The UPS output is drifting': 'Not quite. One reading cannot show a drift. About 5% of honest readings land beyond 2 SD, and 5% of 50 is 2.5.' } },
+    { show: true, name: 'Far out on the ruler', ruler: true, ring: true, pointer: true, ctls: true, limits: LIM, warnOut: true, tiles: ['z', 'out'], caption: CAPL, demo: true, dur: 0.8,
+      arr: { ring: [0, 0.35], ruler: [0.15, 0.4] },
+      still: () => stillAt('Far out on the ruler', { slip: 1.2, slipMoved: true }),
+      alt: 'The pile with the example limits, the ruler in standard deviations, and the pointer over the ringed reading, which can slip up to 1.2 volts either way.',
+      text: 'Slide the ringed reading 1.2 V high, about 4 SD out on the ruler. About 99.7% of honest readings land within 3 SD. So one this far out is more likely a slip or a real change. One common choice calls anything beyond about 3.3 SD an *outlier*. Yet honest readings do reach about 3 SD now and then. The other reading past the upper limit is honest, and about 3 SD out. So ask why before you delete it. Test again and look for a cause.',
+      read: 'The ringed reading has slipped 1.2 V high, past the upper limit and about 4 SD out on the ruler. About 99.7% of honest readings land within 3 SD. So one this far out is more likely a slip or a real change. One common choice calls anything beyond about 3.3 SD an *outlier*. Yet honest readings do reach about 3 SD now and then. The other reading past the upper limit is honest, and about 3 SD out. So ask why before you delete it. Test again and look for a cause.' },
+    { name: 'What do you do', ruler: true, next: 116.2, key: 'pointer', dur: 1.6,
+      alt: 'The pile with the ruler in standard deviations above it, and one more reading ringed at 116.2 volts.',
+      altAfter: 'A pointer over the new reading reads 4 on the ruler.',
+      task: 'On rounds the UPS output reads 116.2 V. Past readings have a mean of 115.0 V and a standard deviation of 0.3 V. What do you do?',
+      opts: ['Test again and look for a cause before deciding', 'Delete it as an outlier', 'Log it as the output rising'], want: 'Test again and look for a cause before deciding',
+      why: '116.2 − 115.0 = 1.2 V, and 1.2 ÷ 0.3 is 4 SD. Honest readings almost never land that far out. So it is more likely a slip, like a loose lead, or a real change. Test again and look for a cause. Then decide.',
+      hint: 'Not quite. 1.2 ÷ 0.3 is 4 SD. That is very rare for an honest reading. Find out why before you trust it or bin it.',
+      hints: { 'Delete it as an outlier': 'Not quite. 4 SD out is very rare for an honest reading, yet it could be a real change. Find out why before you bin it.',
+        'Log it as the output rising': 'Not quite. 4 SD out is very rare for an honest reading. It could be a slip, like a loose lead. Find out why before you trust it.' } },
+    { show: true, name: 'Fresh batches', curve: true, bands: true, ruler: true, ring: true, fresh: true, tiles: ['in1', 'in2', 'in3'], demo: true, dur: 0.8,
+      arr: { ring: [0, 0.35], bands: [0.1, 0.6], ruler: [0.15, 0.4] },
+      still: () => stillAt('Fresh batches', { b: 1 }),
+      alt: 'A pile under its normal curve with its 1, 2 and 3 standard deviation bands, and the ruler in standard deviations above it.',
+      text: 'Drop fresh batches. The band counts wobble from batch to batch round what the curve expects. The ruler\'s marks shift a little as each batch\'s mean and SD change. The rule is an average over many batches, not a promise for each one. It also needs a bell. Some piles lean into a long tail, like the insulation resistance readings you met earlier. Then the far readings sit mostly on the long side.',
+      read: 'Here is a fresh batch with its counts. The band counts wobble from batch to batch round what the curve expects. The ruler\'s marks shift a little as each batch\'s mean and SD change. The rule is an average over many batches, not a promise for each one. It also needs a bell. Some piles lean into a long tail, like the insulation resistance readings you met earlier. Then the far readings sit mostly on the long side.' },
+    { name: 'Above 115.6 V', curve: true, limits: LIMU, warnAfter: true, key: 'band', caption: CAPL,
+      alt: 'The pile under its normal curve with a dashed example upper limit at 115.6 volts.',
+      altAfter: 'The band holding 95% ends at the limit, and the one reading above it is marked as a warning.',
+      task: 'The UPS output has a mean of 115.0 V and a standard deviation of 0.3 V. An example upper limit sits at 115.6 V. About what share of honest readings land above it?',
+      opts: ['About 2.5%', 'About 5%', 'About 32%'], want: 'About 2.5%',
+      why: '115.6 − 115.0 = 0.6 V, which is 2 SD. About 5% of honest readings land beyond 2 SD, half on each side, because the bell is symmetric. So about 2.5% land above 115.6 V. That is about one time in forty.',
+      hint: 'Not quite. 115.6 V is 2 SD above the mean. The bell is symmetric, so the 5% beyond 2 SD splits evenly between the two sides.',
+      hints: { 'About 5%': 'Not quite. 5% land beyond 2 SD on both sides together. The bell is symmetric, so half of that lies above.',
+        'About 32%': 'Not quite. 32% land beyond 1 SD. 115.6 V is 2 SD above the mean, and the 5% beyond 2 SD splits evenly between the two sides.' } },
+    { name: 'A long tail', view: 'ir', key: 'tail', lead: 'Each bead is one simulated insulation resistance reading.', caption: 'Simulated readings that spread by a factor, drawn on an even scale.',
+      alt: 'Fifty simulated insulation resistance readings on an even scale of megohms. The pile leans, with a long tail of high readings, and the beam balances at their mean.',
+      altAfter: 'A normal curve with the pile\'s own mean and standard deviation traces over it and does not fit. A band 2 standard deviations either side of the mean is shaded. The two readings beyond it send out rings, and both sit on the high side.',
+      task: 'Fifty insulation resistance readings lean into a long high tail. About what share land more than 2 SD above their mean?',
+      opts: ['More than the bell\'s 2.5%, out in the long tail', 'About 2.5%, half of the 5% beyond 2 SD', 'Less than 2.5%, as most readings sit low'], want: 'More than the bell\'s 2.5%, out in the long tail',
+      why: 'The 2.5% comes from the bell, which is the same on both sides. This pile leans. Its far readings sit out in the long high tail. Here 2 of the 50 land more than 2 SD above the mean. That is 4%. None land that far below. So a far-high reading is much less rare than the bell says. Check the shape before you lean on the bell\'s shares.',
+      hint: 'Not quite. Half on each side holds only for a bell. Here the long tail runs high.',
+      hints: { 'Less than 2.5%, as most readings sit low': 'Not quite. Most readings do sit low, but close in. The far ones sit out in the long high tail.' } },
+  ];
+  const IX = (name) => STEPS.findIndex((d) => d.name === name);
+  const FINISH = 'Readings that pile into a bell are well modelled by the *normal curve*. About 68% land within 1 SD of the mean, 95% within 2 and 99.7% within 3. To judge a reading, count how many SDs it sits from the mean. One far out is more likely a slip or a real change, so ask why before you delete it.';
+
+  // Each screen's own state: pick and got ('right', 'wrong' or 'empty' once checked) and why for a puzzle; b the batch it shows; slip the
+  // ringed reading's slip, slipMoved once Dan has moved it on this screen.
+  const blank = (i) => Object.assign({ pick: null, got: null, why: false, b: 0, slip: 0, slipMoved: false }, STEPS[i].open || {});
+  let S = STEPS.map((d, i) => blank(i));
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+
+  // ---------- words: *a key term* is highlighted (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g, str = String(s || '');
+    let at0 = 0, m;
+    while ((m = re.exec(str))) {
+      if (m.index > at0) node.appendChild(document.createTextNode(str.slice(at0, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at0 = m.index + m[0].length;
+    }
+    if (at0 < str.length) node.appendChild(document.createTextNode(str.slice(at0)));
+  }
+
+  // ---------- controls and readouts ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const slipCtl = K.control({ id: 'slip', label: 'Slip on the ringed reading', min: -1.2, max: 1.2, step: 0.1, value: 0, snap: [0.6, 1.2], fmt: (v) => K.fmt(v, { decimals: 1, sign: true }) + ' V', into: '#ctl' });
+  const of50 = (v) => (typeof v === 'number' ? v + ' of ' + N : String(v));
+  const R = {
+    in1: K.readout({ id: 'in1', label: 'Within 1 SD', fmt: of50, hint: 'The curve expects 68%', into: '#outs' }),
+    in2: K.readout({ id: 'in2', label: 'Within 2 SD', fmt: of50, hint: 'The curve expects 95%', into: '#outs' }),
+    in3: K.readout({ id: 'in3', label: 'Within 3 SD', fmt: of50, hint: 'The curve expects 99.7%', into: '#outs' }),
+    z: K.readout({ id: 'z', label: 'Ringed reading, in SDs', unit: 'SD', fmt: (v) => K.fmt(v, { decimals: 1, sign: true }), hint: 'Its distance from the others\' mean ÷ their SD', into: '#outs' }),
+    out: K.readout({ id: 'out', label: 'Readings past a limit', fmt: of50, into: '#outs' }),
+    tally: K.readout({ id: 'tally', label: 'Batches with a reading out', fmt: (v) => v + ' of ' + tallyN, hint: 'Honest readings, every batch so far', into: '#outs' }),
+  };
+  const GAUGE = [R.in1, R.in2, R.in3].map((r, j) => B.gauge(r, [0.6827, 0.9545, 0.9973][j]));
+
+  // ---------- the drawing: every element made once, moved in paint() ----------
+  const el = (id) => document.getElementById(id);
+  const svg = el('scene'), G = B.layers(svg), ALL = [];
+  const A = (g, tag, attrs, text) => { const e = B.add(g, tag, attrs, text); ALL.push(e); return e; };
+  // The peg field: twelve rows one nudge apart; a peg a bead strikes swells. The hopper sits over 115.0 V.
+  const pegG = B.add(G.field, 'g'), PEG = B.pegs(pegG);
+  const hopper = A(G.field, 'path', { class: 'bd-hopper' }), trail = A(G.field, 'path', { class: 'bd-trail' });
+  const intro = A(G.field, 'text', { class: 'bd-lab', 'text-anchor': 'end' });
+  const counter = A(G.over, 'text', { class: 'bd-small', x: 14 });
+  const bands = [3, 2, 1].map((z) => A(G.under, 'path', { class: 'bd-band', 'fill-opacity': z === 1 ? 1 : z === 2 ? 0.6 : 0.32 }));
+  const exts = [1, 2, 3].map(() => A(G.under, 'path', { class: 'bd-ext' }));
+  const limits = [0, 1].map(() => A(G.under, 'path', { class: 'bd-limit' }));
+  const hair = A(G.under, 'line', { class: 'bd-stem' });
+  const beam = A(G.scale, 'line', { class: 'bd-beam', x1: 6, x2: 334, y1: BASE, y2: BASE });
+  const minor = A(G.scale, 'path', { class: 'bd-tick' }), major = A(G.scale, 'path', { class: 'bd-tick major' });
+  const zones = [0, 1].map(() => A(G.scale, 'rect', { class: 'bd-zone', height: 4, y: BASE + 1 }));
+  const beads = B.beads(G.beads, N), extra = B.beads(G.beads, 1)[0];
+  const pulses = Array.from({ length: 6 }, () => A(G.marks, 'circle', { class: 'bd-pulse' }));
+  const ring = A(G.marks, 'circle', { class: 'bd-ring' }), chev = A(G.marks, 'path', { class: 'bd-chev' });
+  const handle = A(G.marks, 'circle', { class: 'bd-handle', r: 8 });
+  const fulcrum = A(G.over, 'path', { class: 'bd-fulcrum' });
+  const curve = A(G.over, 'path', { class: 'bd-curve' });
+  const brk = ['68%', '95%', '99.7%'].map((t) => [A(G.over, 'path', { class: 'bd-span' }), A(G.over, 'text', { class: 'bd-small' }, t)]);
+  const zoneLabs = ['too low', 'too high'].map((t) => A(G.over, 'text', { class: 'bd-wt', 'text-anchor': 'middle', y: RD + 2 }, t));
+  const ruler = A(G.over, 'path', { class: 'bd-ruler' }), pointer = A(G.over, 'path', { class: 'bd-pointer' });
+  const ZS = Array.from({ length: 13 }, (_, j) => j - 6);
+  const zLabs = ZS.map((z) => A(G.over, 'text', { class: 'bd-small', 'text-anchor': 'middle', y: 34 }, z > 0 ? '+' + z : z < 0 ? '−' + -z : '0'));
+  const rulerCap = A(G.over, 'text', { class: 'bd-small', x: 14, y: 14 }, 'SDs from the mean of the others');
+  const pathKey = A(G.over, 'g');
+  B.add(pathKey, 'path', { class: 'bd-trail', d: 'M14 10.5H32' }); B.add(pathKey, 'text', { class: 'bd-w', x: 37, y: 15 }, 'path of the farthest bead');
+  const nums = [0, 1, 2, 3, 4].map(() => A(G.axes, 'text', { class: 'bd-tn', 'text-anchor': 'middle', y: RN }));
+  const title = A(G.axes, 'text', { class: 'bd-title', 'text-anchor': 'middle', x: 170, y: RT });
+  const keyBell = A(G.axes, 'g');
+  B.add(keyBell, 'line', { class: 'bd-curve', x1: 118, x2: 134, y1: RD - 4, y2: RD - 4 }); B.add(keyBell, 'text', { class: 'bd-w', x: 139, y: RD }, 'normal curve');
+  const NUMON = [false, false, false, false, false];
+  function tickPaths(Q) {
+    let dm = '', dM = '';
+    const n = Math.round((Q.to - Q.from) / Q.minor);
+    for (let k = 0; k <= n; k++) {
+      const v = +(Q.from + k * Q.minor).toFixed(6), x = B.r2(Q.sc.at(v)), big = Math.abs(v / Q.major - Math.round(v / Q.major)) < 1e-6;
+      if (big) dM += 'M' + x + ' ' + (BASE + 1) + 'v4'; else dm += 'M' + x + ' ' + (BASE + 1) + 'v2.5';
+    }
+    return [dm, dM];
+  }
+  let viewKey = '';
+  function setView(v) {
+    if (viewKey === v) return;
+    viewKey = v;
+    const Q = VIEWS[v], t = tickPaths(Q);
+    B.set(minor, { d: t[0] }); B.set(major, { d: t[1] });
+    nums.forEach((n, k) => { const val = Q.nums[k]; NUMON[k] = val != null; if (val != null) { n.textContent = K.fmt(val, { decimals: Q.dec }); B.set(n, { x: Q.sc.at(val) }); } });
+    title.textContent = Q.title;
+  }
+
+  // ---------- motion: the shared engine (B.motion) moves every bead; this lesson's own parts run on its story clock, M.Ts ----------
+  let finished = false, lastStep = -1, lastDone = false, FORCE = false, LASTRS = null, CUM = null, REC = {}, SEEN = new Set(), ringFlip = -1e9;
+  const FLOOR = new Array(N).fill(BASE);
+  const STILL = { kind: 'still', end: 0 };
+  // The peg field fades by its own rule (in 0.4 s, out 0.3 s).
+  const FA = { field: 0 };
+  const faTo = (i) => (STEPS[i].field ? 1 : 0);
+  function fadeStep(dt, i) { FA.field = B.toward(FA.field, faTo(i), dt, 0.4, 0.3); }
+  const M = B.motion({ n: N, r: FIT.r, paint: () => paint(), leaving: () => [], unmanaged: G.tags,
+    tick: (dt) => fadeStep(dt, at()), busy: () => FA.field !== faTo(at()) || M.Tl < ringFlip + 1.4 });
+  const drawn = M.drawn;
+  drawn.forEach((q) => { q.a = 0; });   // nothing stands on the beam before the first pour
+  // Springs give the balance point its weight: the fulcrum lags the mean, so the beam tips, then levels as it catches up. The bell's
+  // mean and spread, the ruler's zero and SD, and the pointer ride springs too, so they glide to a fresh batch or a slip.
+  const SP = { f: M.spring(6, 0.75), m: M.spring(9, 0.85), sd: M.spring(9, 0.85), r0: M.spring(9, 0.85), ru: M.spring(9, 0.85), zp: M.spring(9, 0.6) };
+  const restIfStill = () => { if (FORCE || (!M.live() && M.Ts === Infinity)) M.rest(); };
+  const FY = { y0: 44, y1: 100 };   // the peg field's top and bottom
+  const fieldX = (k, row) => Math.max(6, Math.min(334, HX + SLOPE * CUM[k][row]));
+  const fieldNow = () => ({ y0: FY.y0, y1: FY.y1, x: fieldX });
+  const story = (dur) => M.enter(M.plan(STILL, 0, dur, {}, false));
+  function halt() { M.anim.pause(); M.Tb = M.Ts = Infinity; M.sc = STILL; M.leave = null; }
+  function enter(id) {
+    if (M.reduce) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+  // A demonstration's part, by its step's timetable; 1 when the step has none or its story is over.
+  const arrive = (d, name) => (d.arr && d.arr[name] ? K.arrive(M.Ts, d.arr[name][0], d.arr[name][1]) : 1);
+  // The counting sweep: each band blooms, then its beads send out a ring one by one from the middle outward.
+  function countPlan(L) {
+    if (L.cp) return L.cp;
+    const m = L.s.m, sd = L.s.sd, t = new Array(N).fill(Infinity), band = new Array(N).fill(0), b = [];
+    let t0 = 0.45;
+    [1, 2, 3].forEach((z) => {
+      b.push(t0);
+      const ids = [];
+      for (let k = 0; k < N; k++) if (!band[k] && Math.abs(L.vs[k] - m) <= z * sd * (1 + 1e-9)) ids.push(k);
+      ids.sort((p, q) => Math.abs(L.vs[p] - m) - Math.abs(L.vs[q] - m) || p - q);
+      const gap = z === 1 ? 0.02 : 0.03;
+      ids.forEach((k, j) => { band[k] = z; t[k] = t0 + 0.15 + j * gap; });
+      t0 += 0.15 + Math.max(0, ids.length - 1) * gap + 0.3;
+    });
+    L.cp = { t, band, b, end: t0 - 0.3 };
+    return L.cp;
+  }
+
+  // ---------- painting ----------
+  const show = (e, a, rise) => { if (B.vis(e, a, rise)) { SEEN.add(e); return true; } return false; };
+  function tilt(theta, fx) {
+    if (Math.abs(theta) > 0.01) G.tilt.setAttribute('transform', 'rotate(' + theta.toFixed(2) + ' ' + B.r2(fx) + ' ' + BASE + ')');
+    else G.tilt.removeAttribute('transform');
+  }
+  const rot = (q, theta, fx) => { if (Math.abs(theta) <= 0.01) return q; const a = theta * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), dx = q.x - fx, dy = q.y - BASE; return { x: fx + dx * c - dy * s, y: BASE + dx * s + dy * c, r: q.r }; };
+  // A label's box, from where it is set and how wide its words are.
+  function boxOf(t) {
+    const x = +t.getAttribute('x'), y = +t.getAttribute('y'), w = B.tw(t), a = t.getAttribute('text-anchor') || 'start';
+    const x0 = a === 'middle' ? x - w / 2 : a === 'end' ? x - w : x;
+    return { x0, x1: x0 + w, y0: y - 10, y1: y + 3 };
+  }
+  // The path bead k takes through the field, f of the way (0..12 rows, then on to `end`, its place in the pile).
+  function trailD(k, f, end) {
+    const X = (row) => fieldX(k, row), Y = (row) => FY.y0 + row * FH / 12, j = Math.min(12, Math.floor(f)), g = Math.min(12, f) - j;
+    let s = 'M' + B.r2(X(0)) + ' ' + B.r2(FY.y0);
+    for (let row = 1; row <= j; row++) s += 'L' + B.r2(X(row)) + ' ' + B.r2(Y(row));
+    if (j < 12 && g > 0) s += 'L' + B.r2(B.lerp(X(j), X(j + 1), g)) + ' ' + B.r2(B.lerp(Y(j), Y(j + 1), g));
+    if (f > 12 && end) { const u = B.c01(f - 12); s += 'L' + B.r2(B.lerp(X(12), end.x, u)) + ' ' + B.r2(B.lerp(Y(12), end.y - end.r - 1.5, u)); }
+    return s;
+  }
+  // The field over the pile: the pegs, the hopper, the first bead's path as it falls (or, after a right answer, the farthest bead's), the
+  // first three readings as numbers turning into beads, and the count.
+  function paintField(d, L, n, pouring, right, T) {
+    const y0 = FY.y0, mv = M.sc;
+    B.pegsAt(PEG, HX, SLOPE / 2.4, y0, FH); B.pegHit(PEG, M.hits(fieldX));
+    show(hopper, 1);
+    B.set(hopper, { d: 'M' + B.r2(HX - 12) + ' ' + B.r2(y0 - 11) + 'L' + B.r2(HX - 4) + ' ' + B.r2(y0 - 3) + 'M' + B.r2(HX + 12) + ' ' + B.r2(y0 - 11) + 'L' + B.r2(HX + 4) + ' ' + B.r2(y0 - 3) });
+    let tr = '', tra = 0;
+    if (pouring && mv.slow) {
+      const tau = M.Tb - mv.rel[0];
+      if (tau > 0) { tr = trailD(0, tau < B.T.field ? 12 * tau / B.T.field : 12 + B.c01((tau - B.T.field) / 0.3), L.pile[0]); tra = 1 - K.arrive(M.Tb, mv.end - 0.7, 0.5); }
+    } else if (d.key === 'path' && right) {
+      tr = trailD(FAR, 13 * (T === Infinity ? 1 : K.arrive(T, 0.15, 1.2)), L.pile[FAR]); tra = 1;
+      show(pathKey, T === Infinity ? 1 : K.arrive(T, 0.3, 0.4));
+      REC.path = true;
+    }
+    if (tr && show(trail, tra)) B.set(trail, { d: tr });
+    let ia = 0;
+    if (pouring && mv.slow) for (let k = 0; k < 3; k++) { const a = K.arrive(M.Tb, mv.rel[k] - 0.3, 0.25) * (1 - K.arrive(M.Tb, mv.rel[k], 0.18)); if (a > 0.002) { ia = a; B.words(intro, [[K.fmt(L.vs[k], { decimals: 1 }), 'n'], [' V', 'u']]); } }
+    if (show(intro, ia)) B.set(intro, { x: HX - 24, y: y0 - 2 });
+    if (d.pour && show(counter, n ? 1 : 0)) { counter.textContent = n === 1 ? '1 reading' : n + ' readings'; B.set(counter, { y: y0 + 14 }); REC.boxes.push(boxOf(counter)); }
+  }
+  // The normal curve with the pile's mean and SD as drawn now (springs): it traces the skyline (ca of the way across) and relaxes (rx) into
+  // the bell; band z blooms out from the mean as g[z − 1] runs 0 to 1, with its bracket above and dotted lines down to the beam.
+  function paintBell(sc, L, BS, inV, ca, rx, g) {
+    const mv = sc.val(SP.m.v), sv = Math.max(1e-6, SP.sd.v / Math.abs(sc.w) * sc.bin), n = BS.n, cnt = {};
+    inV.forEach((v) => { const c = sc.col(v); cnt[c] = (cnt[c] || 0) + 1; });
+    const expect = (v) => n * sc.bin * Math.exp(-0.5 * Math.pow((v - mv) / sv, 2)) / (sv * Math.sqrt(2 * Math.PI));
+    const count = (c) => cnt[c] || 0, v0 = Math.max(sc.lo - sc.bin / 2, mv - 4 * sv), v1 = Math.min(sc.hi + sc.bin / 2, mv + 4 * sv);
+    if (ca > 0.002 && show(curve, 1)) { B.set(curve, { d: B.relax(sc, L.st, count, expect, v0, B.lerp(v0, v1, ca), rx) }); REC.curve = true; }
+    let peak = BASE;
+    for (let v = v0; v <= v1; v += sc.bin / 4) peak = Math.min(peak, L.st.base - 1.5 - expect(v) * L.st.pitch);
+    const yb = Math.max(100, Math.min(peak, L.top) - 14);
+    [1, 2, 3].forEach((z) => {
+      const gz = g[z - 1] || 0;
+      if (!(gz > 0.002)) return;
+      const band = bands[3 - z], ya = yb - 21 * (z - 1), xa = sc.at(mv - z * sv * gz), xb = sc.at(mv + z * sv * gz);
+      const a = Math.max(v0, mv - z * sv * gz), b = Math.min(v1, mv + z * sv * gz);
+      if (show(band, Math.min(1, gz * 2))) B.set(band, { d: B.relax(sc, L.st, count, expect, a, b, 1) + 'V' + (BASE - 1) + 'H' + B.r2(sc.at(a)) + 'Z' });
+      const pb = brk[z - 1];
+      if (show(pb[0], gz) && show(pb[1], gz, 3)) { B.bracket(pb[0], pb[1], xa, xb, ya, 5, true); REC.boxes.push(boxOf(pb[1])); }
+      if (show(exts[z - 1], gz)) B.set(exts[z - 1], { d: 'M' + B.r2(xa) + ' ' + B.r2(ya + 6) + 'V' + (BASE - 2) + 'M' + B.r2(xb) + ' ' + B.r2(ya + 6) + 'V' + (BASE - 2) });
+      REC.bands.push(z);
+    });
+    if (ca > 0.002) show(keyBell, Math.min(1, rx * 1.5));
+    return { mv, sv };
+  }
+  // The SD ruler: its zero at the mean of the others and a mark every one of their SDs (springs), with the pointer over the value pv.
+  function paintRuler(sc, ua, pa, pv, rd, theta, fx) {
+    const x0 = SP.r0.v, u = Math.max(6, SP.ru.v), zr = (sc.at(pv) - x0) / u;
+    const zlo = Math.max(-6, Math.min(-3, Math.floor(zr))), zhi = Math.min(6, Math.max(3, Math.ceil(zr)));
+    let dd = '', xa = null, xb = null;
+    ZS.forEach((z, j) => {
+      const x = x0 + z * u, ok = z >= zlo && z <= zhi && x >= 14 && x <= 326;
+      if (ok) { dd += 'M' + B.r2(x) + ' 38v6'; if (xa == null) xa = x; xb = x; }
+      if (show(zLabs[j], ok ? ua : 0)) { B.set(zLabs[j], { x }); REC.boxes.push(boxOf(zLabs[j])); }
+    });
+    if (xa != null) dd += 'M' + B.r2(xa) + ' 41H' + B.r2(xb);
+    if (show(ruler, ua)) B.set(ruler, { d: dd || 'M0 0' });
+    if (show(rulerCap, ua)) REC.boxes.push(boxOf(rulerCap));
+    REC.ruler = { x0, u };
+    if (pa > 0.002 && rd) {
+      const px = SP.zp.v, rq = rot(rd, theta, fx);
+      if (show(pointer, pa)) B.set(pointer, { d: 'M' + B.r2(px) + ' 45l-4.5 7h9z' });
+      if (show(hair, pa)) B.set(hair, { x1: px, y1: 52, x2: rq.x, y2: Math.max(53, rq.y - rd.r - 4.5) });
+      REC.pointer = { px, z: (px - x0) / u };
+    }
+  }
+  // How far bead k, the j-th past a limit, has turned to a warning (w), its shiver (u) and its ring going out (p).
+  function outPhase(d, k, j, right) {
+    const ph = (tt) => ({ w: B.c01(tt / 0.35), u: B.c01(tt / 0.4), p: B.c01((tt - 0.35) / 0.8) });
+    if (M.live('hop') && M.sc.lift) return ph(M.Tb - M.landedAt(k));                 // a fresh batch: each shivers as it lands
+    if (k === RING && d.ctls) return ph(M.Tl - ringFlip - 0.4);                         // the ringed reading slid past a limit
+    if (d.warnAfter) return right ? ph(M.Ts === Infinity ? 9 : M.Ts - 0.9 - j * RED_GAP) : ph(-1);
+    if (d.arr && d.arr.red && M.Ts !== Infinity) return ph(M.Ts - d.arr.red[0] - j * RED_GAP);
+    return ph(9);
+  }
+
+  // The fifty on the beam, and everything drawn over and under them.
+  function paintPile(i, d, st) {
+    const ir = d.view === 'ir', L = ir ? LIR : layout(st.b, d.ctls ? st.slip : 0), sc = L.sc, T = M.Ts, right = st.got === 'right';
+    const pouring = M.live('pour'), hopping = M.live('hop') && !!M.sc.lift;
+    CUM = L.cum;
+    const inV = [];
+    for (let k = 0; k < N; k++) if (M.counted(k)) inV.push(L.vs[k]);
+    const RS = inV.length ? B.stats(inV) : null;
+    if (RS && RS.n === N && !hopping) LASTRS = RS;
+    // The bell and the balance follow the beads that have landed; while a fresh batch flies they keep the last batch's.
+    const BS = hopping && LASTRS ? LASTRS : RS || (pouring ? null : LASTRS);
+    if (BS) { const xm0 = sc.at(BS.m); B.aim(SP.f, xm0); B.aim(SP.m, xm0); B.aim(SP.sd, Math.abs(sc.at(BS.m + BS.sd) - xm0)); }
+    const RU = d.next != null ? L.s : L.rest, pv = d.next != null ? d.next : L.vs[RING];
+    if (RU) { B.aim(SP.r0, sc.at(RU.m)); B.aim(SP.ru, Math.abs(sc.at(RU.m + RU.sd) - sc.at(RU.m))); B.aim(SP.zp, sc.at(pv)); }
+    restIfStill();
+    FY.y1 = L.fy; FY.y0 = FY.y1 - FH;
+    const geo = { field: fieldNow };
+    for (let k = 0; k < N; k++) { FLOOR[k] = L.pile[k].y; drawn[k] = M.place(k, L.pile, L.pile, geo) || { x: L.pile[k].x, y: L.pile[k].y, r: L.pile[k].r, a: 1 }; }
+    // The fulcrum arrives with the first bead and rides a spring to the mean; the beam tips by how far it lags.
+    const fa = BS ? (pouring ? K.arrive(M.Tb, M.sc.land[0], 0.4) : 1) : 0, fx = SP.f.v, xm = BS ? sc.at(BS.m) : HX;
+    const theta = fa > 0 && BS ? 5 * Math.tanh((xm - fx) / Math.max(6, 1.2 * SP.sd.v)) * fa : 0;
+    tilt(theta, fx);
+    if (show(fulcrum, fa)) B.set(fulcrum, { d: 'M' + B.r2(fx) + ' ' + (BASE + 1) + 'l-7 10h14z' });
+    [beam, minor, major, title].forEach((e) => show(e, 1));
+    nums.forEach((t, k) => { if (NUMON[k]) show(t, 1); });
+    if (!ir && B.vis(G.field, FA.field)) paintField(d, L, inV.length, pouring, right, T); else { B.vis(G.field, 0); B.pegHit(PEG, []); }
+
+    // The normal curve and its bands.
+    const ringPh = new Array(N).fill(null);
+    let cnt3 = null, bell = null;
+    const curveOn = !!BS && BS.n >= 2 && (d.curve || ((d.key === 'normal' || d.key === 'tail') && right));
+    if (curveOn) {
+      let ca = 1, rx = 1;
+      if (d.pour) { ca = arrive(d, 'sky'); rx = arrive(d, 'relax'); }
+      if (d.key === 'normal' || d.key === 'tail') { ca = T === Infinity ? 1 : K.arrive(T, 0.15, 0.8); rx = T === Infinity ? 1 : K.arrive(T, 1.05, 0.6); }
+      const g = [0, 0, 0];
+      if (d.count) {
+        const cp = countPlan(L);
+        cnt3 = [0, 0, 0];
+        [0, 1, 2].forEach((j) => { g[j] = T === Infinity ? 1 : K.arrive(T, cp.b[j], 0.4); });
+        for (let k = 0; k < N; k++) {
+          if (cp.t[k] === Infinity) continue;   // beyond 3 SD: never counted
+          const t = T === Infinity ? 1e9 : T - cp.t[k];
+          if (t >= 0 && t < 0.5) ringPh[k] = t / 0.5;
+          if (t >= 0) for (let z = cp.band[k]; z <= 3; z++) cnt3[z - 1]++;
+        }
+        REC.counting = T !== Infinity && T < cp.end + 0.2;
+      }
+      if (d.bands) { const a = arrive(d, 'bands'); g[0] = g[1] = g[2] = a; }
+      if ((d.key === 'beyond' || d.key === 'band') && right) g[1] = T === Infinity ? 1 : K.arrive(T, 0.15, 0.5);
+      if (d.key === 'tail' && right) g[1] = T === Infinity ? 1 : K.arrive(T, 0.9, 0.4);   // after the curve: the 2 SD band, then its far beads ring
+      bell = paintBell(sc, L, BS, inV, ca, rx, g);
+      if ((d.key === 'beyond' || d.key === 'tail') && right) {
+        let j = 0; const r0 = d.key === 'tail' ? 1.2 : 0.8;
+        for (let k = 0; k < N; k++) {
+          if (Math.abs(L.vs[k] - L.s.m) <= 2 * L.s.sd * (1 + 1e-9)) continue;
+          const t = T === Infinity ? 9 : T - r0 - 0.25 * j;
+          j++;
+          if (t >= 0 && t < 0.5) ringPh[k] = t / 0.5;
+        }
+        REC.beyond = j;
+      }
+    }
+
+    // Example limits: each on the outer edge of its limit's column (a reading on a limit is in), growing up from the beam, with a warning
+    // strip beyond it named under the beam.
+    const lim = d.limits || null;
+    if (lim) {
+      const la = arrive(d, 'lines'), za = arrive(d, 'zl'), lx = [null, null];
+      [0, 1].forEach((j) => {
+        if (!isFinite(lim[j])) return;
+        const x = j ? sc.at(lim[1]) + sc.w / 2 : sc.at(lim[0]) - sc.w / 2, z0 = j ? x : 12, z1 = j ? 328 : x;
+        lx[j] = x;
+        if (show(limits[j], la > 0.01 ? 1 : 0)) B.set(limits[j], { d: 'M' + B.r2(x) + ' ' + (BASE - 1) + 'V' + B.r2(BASE - 1 - (BASE - 67) * la) });
+        if (show(zones[j], za)) B.set(zones[j], { x: z0, width: Math.max(0.1, z1 - z0) });
+        if (show(zoneLabs[j], za, 4)) { B.set(zoneLabs[j], { x: (z0 + z1) / 2 }); REC.boxes.push(boxOf(zoneLabs[j])); }
+        REC.lines.push({ x, y0: BASE - 1 - (BASE - 67) * la, y1: BASE - 1 });
+      });
+      REC.limX = lx;
+    }
+    // Readings past a limit shiver, turn to a warning and send out a ring.
+    const warn = new Array(N).fill(0), shake = new Array(N).fill(0);
+    let outNow = 0, pj = 0;
+    if (lim && (d.warnOut || (d.warnAfter && right))) {
+      let j = 0;
+      for (let k = 0; k < N; k++) {
+        if (!isOut(L.vs[k], lim)) continue;
+        const ph = outPhase(d, k, j++, right);
+        warn[k] = ph.w; if (ph.w >= 0.5) outNow++;
+        shake[k] = ph.u > 0 && ph.u < 1 ? 2.2 * Math.sin(ph.u * Math.PI * 6) * (1 - ph.u) : 0;
+        if (ph.p > 0 && ph.p < 1 && pj < pulses.length) { const c = pulses[pj++]; if (show(c, 1 - ph.p)) B.set(c, { cx: drawn[k].x, cy: drawn[k].y, r: 3 + 12 * ph.p }); }
+      }
+    }
+    REC.out = outNow;
+    for (let k = 0; k < N; k++) B.draw(beads[k], Object.assign({}, drawn[k], { x: drawn[k].x + shake[k], ring: ringPh[k] }), warn[k], FLOOR[k]);
+
+    // The ringed reading: a ring, and on a step with the slider two arrows and a handle to drag it.
+    let rd = null;
+    if (d.ring) {
+      rd = drawn[RING];
+      const ra = arrive(d, 'ring') * B.c01(rd.a == null ? 1 : rd.a), rOut = warn[RING] >= 0.5;
+      if (show(ring, ra)) { B.set(ring, { cx: rd.x + shake[RING], cy: rd.y, r: rd.r + 2.6 }); ring.classList.toggle('out', rOut); }
+      if (d.ctls) {
+        const cx = rd.x + shake[RING], o = rd.r + 5;
+        if (show(chev, ra)) { B.set(chev, { d: 'M' + B.r2(cx - o) + ' ' + B.r2(rd.y - 3.5) + 'v7l-4 -3.5zM' + B.r2(cx + o) + ' ' + B.r2(rd.y - 3.5) + 'v7l4 -3.5z' }); chev.classList.toggle('out', rOut); }
+        show(handle, 1); B.set(handle, { cx: rd.x, cy: rd.y });
+      }
+      REC.ring = true;
+    }
+    svg.classList.toggle('nodrag', !(d.ring && d.ctls));
+    // A new reading dropped onto the top of its column, ringed.
+    if (d.next != null) {
+      const c = sc.col(d.next), h = L.st.cnt[c] || 0, slot = { x: sc.mid(c), y: BASE - 1.5 - L.st.r - h * L.st.pitch, r: L.st.r };
+      let q = null;
+      if (T === Infinity || right) q = { x: slot.x, y: slot.y, r: slot.r, a: 1 };
+      else if (T > 0.45) { q = B.fall({ x: slot.x, y: 64, r: slot.r }, slot, T - 0.45); q.a = B.c01((T - 0.45) / 0.12); }
+      B.draw(extra, q, 0, slot.y); REC.extra = !!q;
+      if (q && show(ring, T === Infinity || right ? 1 : K.arrive(T, 1.0, 0.35))) { B.set(ring, { cx: q.x, cy: q.y, r: q.r + 2.6 }); ring.classList.remove('out'); }
+      rd = q;
+    }
+    // The ruler, and the pointer over the ringed reading or (after a right answer) over the new one.
+    if (d.ruler && RU) {
+      const ua = arrive(d, 'ruler');
+      const pa = d.next != null ? (right ? (T === Infinity ? 1 : K.arrive(T, 0.15, 0.5)) : 0) : d.pointer ? Math.min(ua, arrive(d, 'ring')) : 0;
+      paintRuler(sc, ua, pa, pv, rd, theta, fx);
+    }
+
+    // The tiles give what is drawn now.
+    if (d.tiles) {
+      const t = d.tiles;
+      if (t.indexOf('in1') >= 0) {
+        const c = cnt3 || (bell ? [1, 2, 3].map((z) => B.within(inV, bell.mv, bell.sv, z)) : [0, 0, 0]);
+        [R.in1, R.in2, R.in3].forEach((r, j) => { r.set(c[j]); GAUGE[j](c[j] / N); });
+      }
+      if (t.indexOf('z') >= 0) R.z.set((L.vs[RING] - L.rest.m) / L.rest.sd);
+      if (t.indexOf('out') >= 0) R.out.set(outNow);
+      if (t.indexOf('tally') >= 0) {
+        let k = 0, n = 0;
+        seen.forEach((o, b) => { if (b === st.b && hopping) return; n++; if (o) k++; });
+        tallyN = n; R.tally.set(k);
+      }
+    }
+    let rmin = Infinity;
+    drawn.forEach((q) => { if (q.a > 0.5) rmin = Math.min(rmin, q.r); });
+    Object.assign(REC, { theta, fx, xm, rmin, pouring, hopping, off: L.vs.some((v) => sc.off(v)) });
+  }
+
+  // The line under the picture: what is on screen now, cause then effect, in everyday words.
+  function sayFor(i, d, st) {
+    if (d.name === 'Fifty readings') {
+      if (REC.pouring) return 'Readings are landing, and the fulcrum keeps sliding to the mean of those down so far.';
+      return 'Most of the fifty land near the middle and few reach the ends. The curve has the pile\'s own mean and standard deviation.';
+    }
+    if (d.name === 'The bands') return REC.counting ? 'Each band blooms, and the beads inside it ring as its tile counts them.' : 'Each count sits close to what the curve expects, not exactly on it, because real counts wobble.';
+    if (d.ctls) {
+      const L = layout(st.b, st.slip), z = (L.vs[RING] - L.rest.m) / L.rest.sd, a = Math.round(Math.abs(z) * 10) / 10, side = z > 0 ? 'above' : 'below';
+      const out = d.limits && isOut(L.vs[RING], d.limits) ? ' It is past a limit, yet it could still be honest.' : '';
+      if (!st.slipMoved && a <= 1) return 'The ringed reading sits near the middle of the others. Slide it far out either way and watch the pointer.';
+      if (a <= 1) return 'The ringed reading sits within about 1 SD of the others\' mean, where about 68% of honest readings land.';
+      if (a <= 2) return 'The ringed reading sits within about 2 SD of the others\' mean, where about 95% of honest readings land.';
+      if (a <= 3) return 'The ringed reading sits between 2 and 3 SD ' + side + ' the others\' mean. Honest readings land there only now and then.' + out;
+      return 'The ringed reading sits more than 3 SD ' + side + ' the others\' mean' + (out ? ', past a limit' : '') + '. Honest readings almost never land this far out, so test again and look for a cause.';
+    }
+    if (d.name === 'Example limits') {
+      if (REC.hopping) return 'A fresh batch is landing. Any reading past a limit shivers and turns to a warning.';
+      const k = layout(st.b, 0).vs.filter((v) => isOut(v, LIM)).length;
+      if (!k) return 'Every reading of this batch is inside the limits. Chance alone still puts one out now and then.';
+      return (k === 1 ? 'One honest reading of the 50 lands' : k + ' honest readings of the 50 land') + ' past a limit. Nothing is wrong with the UPS. Chance alone puts one out now and then.';
+    }
+    if (d.name === 'Fresh batches') return 'The counts wobble round what the curve expects. The ruler\'s marks shift a little with each batch\'s mean and SD.';
+    return '';
+  }
+
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    if (FORCE || M.idle()) fadeStep(1e9, i);
+    SEEN = new Set(); REC = { boxes: [], lines: [], bands: [], path: false, curve: false, pointer: null, beyond: 0, extra: false, ring: false, counting: false, limX: null, ruler: null };
+    setView(d.view === 'ir' ? 'ir' : 'ups');
+    paintPile(i, d, st);
+    if (d.next == null) B.draw(extra, null);
+    ALL.forEach((e) => { if (!SEEN.has(e)) e.setAttribute('display', 'none'); });
+    // Does any dashed limit line run through a label? (A check reads this.)
+    REC.clear = REC.lines.every((ln) => REC.boxes.every((b) => ln.x < b.x0 - 1 || ln.x > b.x1 + 1 || ln.y1 < b.y0 || ln.y0 > b.y1));
+    svg.setAttribute('aria-label', d.alt + (st.got === 'right' && d.altAfter ? ' ' + d.altAfter : ''));
+    const sy = el('say'), s = d.show ? sayFor(i, d, st) : '';
+    sy.textContent = s; sy.hidden = !s;
+    M.fade();
+  }
+
+  // ---------- Dan's moves ----------
+  K.drag(handle, { control: 'slip', toValue: (x) => B.round(K.clamp(SC.val(x) - layout(S[at()].b, 0).vs[RING], -1.2, 1.2), RES) });
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.got === 'right') return;
+    const was = st.got === 'wrong';
+    st.pick = d.opts[k]; st.got = null;
+    if (was) halt();
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.got === 'right') return;
+    if (st.pick == null) { st.got = 'empty'; return; }
+    st.got = st.pick === d.want ? 'right' : 'wrong';
+    if (st.got === 'right') story(ANSWER); else halt();   // a right answer brings in its working
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // Drop a fresh batch: the next seed's fifty hop into place, one soft tick each as it leaves (the shared B.ticks).
+  const freshBtn = K.button({ label: 'Drop a fresh batch', secondary: true, into: '#fresh', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.fresh || finished) return;
+    st.b = nextB++; note(st.b);
+    B.ticks(layout(st.b, 0).vs, SC, B.T.hop);
+    M.move(M.arc(B.T.hop, 26));
+    K.refresh();
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || !d.demo || finished) return;
+    startDemo(i);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].got !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; halt();
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // A step's demonstration: the pour and the curve on the first screen, the counting sweep, or its parts arriving on the story clock.
+  function startDemo(i) {
+    const d = STEPS[i], st = S[i];
+    SP.f.init = false;
+    if (d.pour) {
+      const L = layout(st.b, 0), P = M.pour(L.pile, L.fy - FH, L.fy, FADE, true);
+      d.arr = { sky: [P.end - 0.7, 0.8], relax: [P.end + 0.1, 0.55] };
+      M.enter(M.plan(P, 0, P.end + 0.65, {}, false));
+    } else if (d.count) story(countPlan(layout(st.b, 0)).end + 0.4);
+    else story(d.dur);
+    paint(i);
+  }
+  // The slider opens where this screen left it (quietly: this is not Dan moving it).
+  function syncCtl(st) { if (Math.abs(slipCtl.get() - st.slip) > 1e-9) slipCtl.set(st.slip, true); }
+  function enterStep(i) {
+    const d = STEPS[i], st = S[i];
+    lastStep = i; enter('stepbox');
+    syncCtl(st);
+    LASTRS = null; ringFlip = -1e9;
+    M.springs.forEach((s) => { s.init = false; });
+    halt(); fadeStep(1e9, i);
+    if (d.demo || d.dur) startDemo(i);
+  }
+  // The still for the read-through: the step settled in the state its words end on.
+  function finishNow() { halt(); M.rest(); paint(); }
+  function stillAt(name, patch) {
+    const i = IX(name);
+    Object.assign(S[i], patch); if (patch.b) note(patch.b); syncCtl(S[i]); halt(); ringFlip = -1e9;
+    M.springs.forEach((s) => { s.init = false; });
+    K.refresh();
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (i !== lastStep) enterStep(i);
+    else if (d.show && !finished && d.ctls && typeof p.slip === 'number') {
+      const v = Math.round(p.slip * 10) / 10;
+      if (Math.abs(v - st.slip) > 1e-9) {
+        const base = layout(st.b, 0).vs[RING], lim = d.limits;
+        const wasOut = !!lim && isOut(B.round(base + st.slip, RES), lim), nowOut = !!lim && isOut(B.round(base + v, RES), lim);
+        st.slip = v; st.slipMoved = true;
+        if (nowOut && !wasOut) ringFlip = M.instant() ? -1e9 : M.Tl;
+        M.move(M.settle(0));
+      }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.got === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('lead').textContent = d.lead || LEAD;
+    el('cap').textContent = d.caption || CAP;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    replayBtn.el.hidden = !d.show || !d.demo || M.reduce;
+    el('replay').hidden = replayBtn.el.hidden;
+    freshBtn.el.hidden = !d.show || !d.fresh || finished;
+    el('fresh').hidden = freshBtn.el.hidden;
+    slipCtl.el.hidden = finished || !d.show || !d.ctls;
+    el('ctl').hidden = slipCtl.el.hidden;
+    const tiles = d.show && !finished ? d.tiles || [] : [];
+    Object.keys(R).forEach((k) => { R[k].el.hidden = tiles.indexOf(k) < 0; });
+    el('outs').hidden = !tiles.length;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 9));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.got === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.got === 'wrong' ? hintFor(i, st) : st.got === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+    paint(i);
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  // A step painted in the state given, settled: what it draws. Everything a paint moves is put back as it was.
+  function drawnAt(i, patch) {
+    const keepS = S[i], keepTb = M.Tb, keepTs = M.Ts, keepSc = M.sc, keepFA = FA.field, keepL = LASTRS, keepRF = ringFlip;
+    const keepSp = M.springs.map((s) => [s.v, s.vel, s.to, s.init]), keepD = drawn.map((q) => Object.assign({}, q)), keepF = FLOOR.slice();
+    S[i] = Object.assign({}, keepS, { b: 0 }, patch); M.Tb = M.Ts = Infinity; M.sc = STILL; FORCE = true; ringFlip = -1e9; LASTRS = null;
+    try { paint(i); return Object.assign({}, REC); }
+    finally {
+      S[i] = keepS; M.Tb = keepTb; M.Ts = keepTs; M.sc = keepSc; FA.field = keepFA; LASTRS = keepL; ringFlip = keepRF; FORCE = false;
+      M.springs.forEach((s, k) => { [s.v, s.vel, s.to, s.init] = keepSp[k]; });
+      keepD.forEach((q, k) => { drawn[k] = q; FLOOR[k] = keepF[k]; });
+      paint();
+    }
+  }
+  K.check('A normal distribution with k = 2 gives an interval with a coverage probability of approximately 95%: the normal curve holds 95.4% within 2 SD of its mean, and 2,000 readings from the rule on screen land within 2 SD of their batch\'s mean about 95% of the time', () => {
+    let inside = 0, all = 0;
+    for (let b = 1; b <= 40; b++) { const vs = honest(1000 + b), s = B.stats(vs); inside += B.within(vs, s.m, s.sd, 2); all += N; }
+    return B.facts([['the curve holds 95.4%', near(share(2), 0.9545, 0.0005)], ['the readings land about 95%', near(inside / all, 0.95, 0.015)], ['the curve holds 68% within 1 SD', near(share(1), 0.6827, 0.0005)]]);
+  }, { source: SRC_UKAS });
+  K.check('Some 99.7% of a normal population lies within 3 standard deviations of the mean, so a value further than about 3.3 standard deviations from the mean may be treated as an outlier: the normal curve holds 99.7% within 3 SD; slipped 1.2 V the ringed reading sits 4.0 SD from the mean of the others, beyond 3.3, and slipped 0.6 V it sits 2.0 SD out', () => {
+    const z = (s) => { const L = layout(0, s); return (L.vs[RING] - L.rest.m) / L.rest.sd; };
+    return B.facts([['99.7% within 3 SD', near(share(3), 0.9973, 0.0001)], ['1.2 V high is 4.0 SD out', K.fmt(z(1.2), { decimals: 1 }) === '4.0' && z(1.2) > 3.3],
+      ['0.6 V high is 2.0 SD out', K.fmt(z(0.6), { decimals: 1 }) === '2.0'], ['1.2 V low is past 3.3 SD too', z(-1.2) < -3.3]]);
+  }, { source: SRC_HELM });
+  K.check('Worked by hand from the opening batch: mean 114.98 V and SD 0.31 V; 33, 48 and 49 of the 50 within 1, 2 and 3 SD, near the 34, 2 or 3 beyond 2 SD, and 50 the curve expects; one reading past the example limits, at 115.9 V, and one past limits 2 SD out; the limits 0.8 V from 115.0 V, about 2.7 SD; a reading on a limit is in; 116.0 V about 3.3 SD from the mean of the fifty and 116.2 V about 4.0; one reading above 115.6 V; twelve nudges reach at most 6 SD; about one batch in five of fifty honest readings has one past the example limits; the leaning insulation resistance pile has mean 212.5 MΩ and SD 79.4 MΩ, with 2 of its 50 (4%) more than 2 SD above the mean, at 378 and 455 MΩ, and none that far below', () => {
+    const L = layout(0, 0), s = L.s, z5 = (116.0 - s.m) / s.sd, z9 = (116.2 - s.m) / s.sd;
+    return B.facts([
+      ['mean and SD', near(s.m, 114.98, 0.005) && near(s.sd, 0.306, 0.002)],
+      ['33, 48 and 49 within 1, 2 and 3 SD', B.within(L.vs, s.m, s.sd, 1) === 33 && B.within(L.vs, s.m, s.sd, 2) === 48 && B.within(L.vs, s.m, s.sd, 3) === 49],
+      ['68% of 50 is 34; 5% of 50 is 2.5; 2.5% is one in forty', near(0.68 * N, 34, 1e-9) && near(0.05 * N, 2.5, 1e-9) && near(1 / 0.025, 40, 1e-9) && near(1 / 0.05, 20, 1e-9)],
+      ['one reading out, at 115.9 V', L.vs.filter((v) => isOut(v, LIM)).length === 1 && near(L.vs[FAR], 115.9, 1e-9) && isOut(L.vs[FAR], LIM) && L.vs.filter((v) => isOut(v, LIM2)).length === 1],
+      ['the ringed reading honest at 115.0 V', near(L.vs[RING], 115, 1e-9)],
+      ['on a limit is in', !isOut(114.2, LIM) && !isOut(115.8, LIM) && isOut(114.1, LIM) && isOut(115.9, LIM)],
+      ['limits about 2.7 SD out', K.fmt(0.8 / SD, { decimals: 1 }) === '2.7'],
+      ['116.0 V about 3.3 SD, 116.2 V about 4.0', K.fmt(z5, { decimals: 1 }) === '3.3' && K.fmt(z9, { decimals: 1 }) === '4.0' && K.fmt(1.0 / SD, { decimals: 1 }) === '3.3' && near(1.2 / SD, 4, 1e-9)],
+      ['one above 115.6 V, two beyond 2 SD', L.vs.filter((v) => v > 115.6 + 1e-9).length === 1 && N - B.within(L.vs, s.m, s.sd, 2) === 2],
+      ['at most 6 SD', near(12 * 0.5, 6, 1e-12)],
+      ['about one batch in five has a reading out', (() => { let k = 0; for (let q = 1; q <= 1000; q++) if (honest(q).some((v) => isOut(v, LIM))) k++; return k / 1000 >= 0.15 && k / 1000 <= 0.25; })()],
+      ['the leaning pile: 2 of 50 high beyond 2 SD, none low', (() => { const t = B.stats(IRS), hi = IRS.filter((v) => v > t.m + 2 * t.sd), lo = IRS.filter((v) => v < t.m - 2 * t.sd); return near(t.m, 212.5, 0.05) && near(t.sd, 79.4, 0.05) && hi.length === 2 && hi.indexOf(378) >= 0 && hi.indexOf(455) >= 0 && lo.length === 0 && near(2 / N, 0.04, 1e-12); })()],
+    ]);
+  });
+  K.check('Drawn right: settled, the fulcrum sits under the mean and the beam is level at every slip; each limit line sits on the outer edge of its limit\'s column, so every bead past a line is counted out and every one counted is past a line; the pointer sits over the ringed reading at its count of SDs on the ruler; no bead is under r 3.5 over 200 fresh batches, none off the scale; no dashed line runs through a label', () => {
+    const out = [], j = IX('Far out on the ruler');
+    SLIPS.forEach((slip) => {
+      const r = drawnAt(j, { slip, slipMoved: true }), L = layout(0, slip), z = (L.vs[RING] - L.rest.m) / L.rest.sd;
+      out.push(['slip ' + slip, Math.abs(r.theta) < 1e-6 && Math.abs(r.fx - r.xm) < 1e-6 && r.rmin >= 3.5 && !r.off && r.clear && !!r.pointer
+        && near(r.pointer.px, SC.at(L.vs[RING]), 1e-6) && near(r.pointer.z, z, 1e-6) && r.out === L.vs.filter((v) => isOut(v, LIM)).length]);
+    });
+    const r6 = drawnAt(IX('Example limits'), {}), L0 = layout(0, 0);
+    out.push(['limits on the column edges', !!r6.limX && L0.pile.every((q, k) => isOut(L0.vs[k], LIM) === (q.x < r6.limX[0] || q.x > r6.limX[1])) && r6.out === 1 && r6.clear]);
+    STEPS.forEach((d, i) => { const r = drawnAt(i, d.show ? {} : { pick: d.want, got: 'right' }); out.push([d.name, r.rmin >= 3.5 && !r.off && r.clear && Math.abs(r.theta) < 1e-6]); });
+    let rmin = Infinity, off = false;
+    for (let b = 1; b <= 200; b++) { const vs = honest(b); rmin = Math.min(rmin, B.stack(vs, SC, BASE, TOPP, FIT).r); off = off || vs.some((v) => SC.off(v)); }
+    out.push(['200 fresh batches', rmin >= 3.5 && !off]);
+    return B.facts(out);
+  });
+  K.check('Each puzzle accepts only its right answer of three, and before an answer nothing in its picture gives it away: no farthest path, no 2 SD band, no pointer over the new reading, no normal curve or 2 SD band over the leaning pile; a right answer brings each in. Every demonstration settles within 5 s and every answer\'s motion within 2.5 s', () => {
+    const facts = [], shows = { path: (r) => r.path, beyond: (r) => r.bands.indexOf(2) >= 0 && r.beyond === 2, band: (r) => r.bands.indexOf(2) >= 0, pointer: (r) => !!r.pointer, normal: (r) => r.curve, tail: (r) => r.curve && r.bands.indexOf(2) >= 0 && r.beyond === 2 };
+    STEPS.forEach((d, i) => {
+      if (d.show) return;
+      const before = drawnAt(i, { pick: null, got: null }), after = drawnAt(i, { pick: d.want, got: 'right' });
+      facts.push([d.name + ': one right answer of three', d.opts.length === 3 && d.opts.filter((o) => o === d.want).length === 1]);
+      facts.push([d.name + ': hidden before, shown after', !shows[d.key](before) && !!shows[d.key](after)]);
+    });
+    const L = layout(0, 0), P = M.pour(L.pile, L.fy - FH, L.fy, FADE, true);
+    facts.push(['the pour and its curve', P.end + 0.65 <= 5 && P.rel[0] >= FADE]);
+    facts.push(['the count', countPlan(L).end + 0.4 <= 4.5]);
+    STEPS.forEach((d) => { if (d.dur) facts.push([d.name + ' timetable', d.dur <= 4.5 && Object.keys(d.arr || {}).every((k) => d.arr[k][0] + d.arr[k][1] <= d.dur)]); });
+    facts.push(['answers', ANSWER <= 2.5 && 1.05 + 0.6 <= ANSWER && 0.15 + 1.2 <= ANSWER && 0.8 + 0.25 + 0.5 <= ANSWER && 1.2 + 0.25 + 0.5 <= ANSWER && 0.9 + 0.4 <= ANSWER && 0.9 + 0.4 + 0.8 <= ANSWER + 0.2]);
+    return B.facts(facts);
+  });
+
+  K.ready();
+</script>

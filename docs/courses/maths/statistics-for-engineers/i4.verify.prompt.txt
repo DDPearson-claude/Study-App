@@ -1,0 +1,492 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Statistics for engineers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "Drift or noise: trends over time" — Plotted in the order taken, readings show a drift as a steady slope, while noise alone still makes a fitted line lean a little. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 How often equipment fails: reliability — A steady failure rate sets the share of units still working over time, so only about 37% reach the MTBF, the mean time between failures.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] The Complete Guide to Electrical Insulation Testing — https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf
+    "What really matters is the trend in readings over a time period, showing lessening resistance and warning of coming problems."
+[R2] Microsoft Word - lecture4.621 — http://www-stat.wharton.upenn.edu/~stine/stat621/lecture4.621.pdf
+    "When zero lies in the CI, the “true slope” may be zero – no effect."
+[R3] HELM Workbook 36: Descriptive Statistics — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "from every raw data value, subtract the mean, square the results, average them and then take the square root."
+[R4] 1.3.5.1. Measures of Location — https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm
+    "Extreme values in the tails distort the mean. However, these extreme values do not distort the median since the median is based on ranks."
+[R5] 1.3.5.1. Measures of Location — https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm
+    "The mean will be pulled in the direction of the skewness. That is, if the right tail is heavier than the left tail, the mean will be greater than the median."
+[R6] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "random - where repeating the measurement gives a randomly different result. If so, the more measurements you make, and then average, the better estimate you generally can expect to get."
+[R7] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "systematic - where the same influence affects the result for each of the repeated measurements (but you may not be able to tell). In this case, you learn nothing extra just by repeating measurements."
+[R8] Uncertainty of Measurement: A Review of the Rules for Calculating Uncertainty Components through Functional Relationships - PMC — https://pmc.ncbi.nlm.nih.gov/articles/PMC3387884/
+    "This is indeed why the mean is often used for summarising measurements: the mean is better ‘buffered’ against random errors than are any of the individual component measurements."
+[R9] faraday.physics.utoronto.ca — https://faraday.physics.utoronto.ca/PVB/Harrison/ErrorAnalysis/ErrorInMean.html
+    "divided by the square root of the number of times the measurement was repeated."
+[R10] Why Digital Multimeter Accuracy and Precision Matter | Fluke — https://www.fluke.com/en-us/learn/blog/digital-multimeters/accuracy-precision
+    "Accuracy may also include a specified amount of digits (counts) added to the basic accuracy rating. For example, an accuracy of ±(2%+2) means that a reading of 100.0 V on the multimeter can be from 97.8 V to 102.2 V."
+[R11] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "For example: We might say that the length of a certain stick measures 20 centimetres plus or minus 1 centimetre, at the 95 percent confidence level."
+[R12] UKAS LAB 12: The Expression of Uncertainty in Testing — https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf
+    "that the probability distribution can be assumed to be normal and that a value of k = 2 defines an interval having a coverage probability of approximately 95 %."
+[R13] HELM Workbook 36: Descriptive Statistics — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "Knowing that some 99.7% of a normal population lies within 3 standard deviations of the mean, we could treat any value further than say 3.3 standard deviations from the mean as on outlier."
+[R14] HELM Workbook 36: Descriptive Statistics — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "You should always ask why such a value occurred in the first place and work to answer such a question sensibly before considering rejection."
+[R15] 2.4: The Normal Distribution - Mathematics LibreTexts — https://math.libretexts.org/Bookshelves/Applied_Mathematics/Book%3A_College_Mathematics_for_Everyday_Life_(Inigo_et_al)/02%3A_Statistics_-_Part_2/2.04%3A_The_Normal_Distribution
+    "Approximately 68% of the data is within one standard deviation of the mean. Approximately 95% of the data is within two standard deviations of the mean. Approximately 99.7% of the data is within three standard deviations of the mean."
+Notes (claims, and the sources that support them):
+- Insulation resistance readings can differ from day to day on the same machine, and what really matters is the trend over time, showing lessening resistance. [R1]
+- When zero lies inside the confidence interval for a fitted slope, the true slope may be zero, meaning no real trend. [R2]
+- The standard deviation is found by subtracting the mean from every raw value, squaring the results, averaging them and taking the square root. [R3]  (from an idea this one builds on)
+- Extreme values in the tails distort the mean, but they do not distort the median, because the median is based on ranks. [R4]  (from an idea this one builds on)
+- The mean is pulled in the direction of the skewness: when the right tail is heavier than the left, the mean is greater than the median. [R5]  (from an idea this one builds on)
+- When repeating gives a randomly different result, averaging more measurements generally gives a better estimate of the value. [R6]  (from an idea this one builds on)
+- When the same influence affects every repeated measurement, you learn nothing extra just by repeating the measurement. [R7]  (from an idea this one builds on)
+- The standard uncertainty of a mean of uncorrelated measurements is smaller than that of a single one, so the mean is buffered against random errors. [R8]  (from an idea this one builds on)
+- The error in an average of repeated measurements is the error in one measurement divided by the square root of the number of repeats. [R9][R8]  (from an idea this one builds on)
+- A meter accuracy of plus or minus (2% + 2 counts) means a reading of 100.0 V can be anywhere from 97.8 V to 102.2 V. [R10]  (from an idea this one builds on)
+- An uncertainty needs two numbers, the width of an interval and a confidence level, for example 20 centimetres plus or minus 1 centimetre at 95 percent. [R11]  (from an idea this one builds on)
+- If the distribution can be assumed normal, an interval of plus or minus 2 standard deviations (k = 2) has a coverage probability of approximately 95 percent. [R12]  (from an idea this one builds on)
+- Some 99.7 percent of a normal population lies within 3 standard deviations of the mean, so a value beyond about 3.3 can be treated as an outlier. [R13]  (from an idea this one builds on)
+- An outlier should not be rejected automatically; ask why such a value occurred and answer that sensibly before considering rejection. [R14]  (from an idea this one builds on)
+- Extreme values distort the mean but not the median, so one odd reading moves the average more than the middle reading. [R4]  (from an idea this one builds on)
+- For data that follow a normal distribution, approximately 68% lie within one standard deviation of the mean, 95% within two and 99.7% within three. [R15]  (from an idea this one builds on)
+- Repeating a measurement can give a randomly different result each time, and averaging more of those readings generally gives a better estimate. [R6]  (whole topic)
+- A measurement result is stated with an interval and a confidence level, such as 20 centimetres plus or minus 1 centimetre at the 95 percent confidence level. [R11]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "Drift or noise: trends over time",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the best-fit line still lean a little, a different way each time, when you drop fresh batches with no drift set.",
+  "title": "Tip and peel",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Simulated readings are drawn as beads. Each bead is one simulated reading of a battery bank's float voltage, taken on rounds. Say its charger holds it at 27.00 V. The rule on screen makes reading number i, counting from 0. Start at 27.00 V. Add the drift times i ÷ 10. Add the random error times the sum of twelve small nudges, each between minus a half and plus a half. Then read it to the meter's step of 0.01 V. Here the random error is 0.03 V. Fifty readings pour from the hopper through the peg field and pile up on the beam, which balances on its fulcrum at the mean. Then the pile tips onto its side, and the readings peel off in the order taken, along a thread. The mean so far writes itself beside them. A flat line at the mean tilts into the best-fit line, the straight line that sits closest to all fifty. A tile, Trend per 10 readings, gives its slope. A slider, Drift per 10 readings, runs from 0 to 0.010 V in steps of 0.001 V and opens at 0. A tile, Longest run up or down, counts the most readings in a row that each read higher than the last, or each lower. A button, Drop a fresh batch, pours fifty new readings. Two more views come later. The first is sixteen simulated insulation resistance tests on a pump motor's winding, one each quarter for four years, drawn on a scale by factors. Say its resistance at 20 °C starts at 1000 MΩ and falls by a factor of 10 to the power 0.02 each test, about 4.5%. Each test also scatters by a factor of 10 to the power 0.02 times its twelve nudges. Through each year the tests are taken at 20, 30, 20 and 10 °C. Say the resistance halves for every 10 °C warmer, a rough rule of thumb. A choice, As measured or Corrected to 20 °C, doubles a reading for each 10 °C its test sat above 20 °C, and halves it for each 10 °C below. The second view is two strings of readings, taken every 4 hours over the same days: a pump bearing's temperature and a battery's float current. The air temperature swings each day round 25 °C. A slider, How much the air swings, runs from 0 to ±4 °C in steps of 0.5 °C and opens at ±3 °C. Say the bearing reads 40 °C, plus 0.8 °C for each degree the air sits above 25 °C, plus 0.5 °C times its own twelve nudges, read to 0.1 °C. Say the float current reads 0.4 A, plus 0.03 A for each degree the air sits above 25 °C, plus 0.02 A times twelve nudges of its own, read to 0.001 A. This rule is made up to show a shared cause. It claims nothing about real bearings or batteries. A choice, Show them, switches from Over time to One against the other. Folded, each pair becomes one point, the current against the bearing, with a best-fit line. A tile, How closely they line up, runs from +1 for a perfect rising line, through 0 for none, to −1 for a perfect falling line. The screens. 1, show: fifty readings pour and pile up round 27.00 V. A pile hides the order the readings came in. It tips onto its side, and the readings peel off in the order taken. One reading on its own tells you little, because noise moves every reading. What matters is the trend over many. 2, a puzzle: the same fifty readings come in two different orders. In one they creep up steadily. In the other they jumble. What tells the two apart? Offered: plotting them in the order taken; their mean and standard deviation; and the shape of the pile. Hint when wrong: the pile and its numbers keep no record of the order. 3, show: a flat line at the mean tilts into the best-fit line. Its slope is the drift per reading, and the trend tile gives it per 10 readings. The line always passes through the mean point, at the mean reading number and the mean voltage. Slide the drift up, and the readings climb along the line. Its finished picture shows a drift of 0.008 V per 10 readings, with the readings climbing along the line. 4, a puzzle: the trend tile reads +0.008 V per 10 readings. About how far does the line climb from the first reading to the fiftieth? Offered: about 0.04 V; 0.008 V; and 0.4 V. Hint: fifty readings span about five lots of 10. 5, show: set the drift to zero and drop fresh batches. The line still leans a little, a different way each time. Each batch's random errors happen to sit a little higher at one end. The line follows them, because it fits whatever readings it gets. That lean is noise. In this simulation, with no drift, 95 batches in 100 lean by less than about 0.006 V per 10 readings either way. A real drift leans the line the same way, batch after batch. Its finished picture shows a fresh batch with no drift, its line leaning a little. 6, a puzzle: no drift is set. A fresh batch's trend tile reads +0.003 V per 10 readings. What does that show? Offered: nothing on its own, as noise alone leans the line that much now and then; the voltage drifts up 0.003 V per 10 readings; and the meter reads high. Hint: no drift is set, so all of the lean is noise. Drop a few more batches and watch it swing. 7, show: the tile Longest run up or down counts the most readings in a row each higher than the last, or each lower. With pure noise, six readings can come in 720 orders, all equally likely. One climbs all the way and one falls. So a given six run one way about 1 time in 360. Fifty noisy readings here usually give a longest run of 3 to 5. Even the largest drift adds just 0.001 V a reading, against 0.03 V of noise. So runs barely change. 8, a puzzle: pure noise, four readings in a row. What is the chance they climb all the way? Offered: 1 in 24; 1 in 8, as each step up is a coin toss; and 1 in 4. Hint: four readings can come in 4 × 3 × 2 × 1 = 24 orders, and only one climbs. The steps are not separate coin tosses, because each shares a reading with the next. 9, show: now the beads are sixteen insulation resistance tests, on a scale by factors. As measured, they zigzag, because some test days were warmer, and warm insulation reads low. Choose Corrected to 20 °C, and the beads hop to their corrected places. Now a steady fall shows, and the longest run down reaches six or more. The opening batch is picked to show one. Read the line only across the tests you have. Past the last one, it is a guess. Its finished picture shows the corrected string falling, with its best-fit line. 10, a puzzle: a winding tested at 30 °C reads 300 MΩ. Using the rule of thumb, what does it read corrected to 20 °C? Offered: 600 MΩ; 150 MΩ; and 300 MΩ. Hint: at 20 °C the winding is 10 °C cooler, and cooler insulation reads higher. So double it. 11, show: two strings over the same days, a pump bearing's temperature and a battery's float current. The air swings ±3 °C each day, and the rule makes both follow it. Over time they rise and fall together. Choose One against the other, and each pair folds into one point. The points line up closely, near 0.9 on the tile. Yet neither drives the other. The air drives both. Set the air steady, and they make a round cloud. Its finished picture shows the folded pairs lining up along their best-fit line. 12, a mixed puzzle: a winding's insulation resistance and its temperature line up closely in your records. How could you show that warmth lowers the resistance? Offered: test one winding at two temperatures, with everything else kept the same; you cannot, because correlation never shows cause; and gather more records until they line up even more closely. Hint: change one thing yourself and watch. A shared cause cannot explain a change you made. 13, a mixed puzzle: corrected to 20 °C, a motor's last six tests each read lower than the one before. Every reading is still above the example minimum. What do you make of it? Offered: a steady fall, rare by chance, so look into it now; nothing, as every reading passes; and run the line on to find the day it reaches the minimum. Hint: six in a row one way is rare from noise alone. A reading can pass and still be part of a fall. The trend shows where it is heading. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone the tiles and answers wrap onto more lines, so no word splits.",
+  "ignores": "The readings are simulated from the rules on screen, not taken from real equipment. The float voltage, the random error, the drifts, the insulation resistance, the test temperatures and the bearing and current rules are all examples. A real drift is rarely a perfect straight line. It can speed up, level off or jump. Equal readings break a run here, so runs come a little shorter than the count of orders suggests. Real insulation follows the halving rule only roughly. Here correcting removes the temperature exactly, because the same rule made the readings. Real readings taken close together can also share noise, such as one warm week, which makes leans and runs more common than here.",
+  "numbers": [
+   {
+    "label": "Example float voltage the charger holds, in volts",
+    "value": 27,
+    "kind": "assumed"
+   },
+   {
+    "label": "Random error of one reading, its standard deviation, in volts",
+    "value": 0.03,
+    "kind": "assumed"
+   },
+   {
+    "label": "Meter's step, in volts",
+    "value": 0.01,
+    "kind": "assumed"
+   },
+   {
+    "label": "Number of simulated readings in a batch",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Number of nudges per reading",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each nudge's largest size either way",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readings the trend and drift are given per",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Drift per 10 readings, opening setting, in volts",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Drift per 10 readings, highest setting, in volts",
+    "value": 0.01,
+    "kind": "control"
+   },
+   {
+    "label": "Drift per 10 readings, slider step, in volts",
+    "value": 0.001,
+    "kind": "control"
+   },
+   {
+    "label": "Drift shown on screen 3, per 10 readings, in volts",
+    "value": 0.008,
+    "kind": "control"
+   },
+   {
+    "label": "Lots of 10 readings from first to fiftieth, 49 ÷ 10",
+    "value": 4.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Climb across fifty at 0.008 V per 10, 0.008 × 4.9, in volts, about",
+    "value": 0.04,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 wrong pick, fifty lots of 0.008, in volts",
+    "value": 0.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Lean from noise alone, 95 batches in 100, per 10 readings, in volts, about",
+    "value": 0.006,
+    "kind": "computed"
+   },
+   {
+    "label": "Largest drift per reading, 0.010 ÷ 10, in volts",
+    "value": 0.001,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 trend from a fresh batch, per 10 readings, in volts",
+    "value": 0.003,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readings in a run worth a look",
+    "value": 6,
+    "kind": "constant"
+   },
+   {
+    "label": "Readings in a run in some other rules",
+    "value": 7,
+    "kind": "constant"
+   },
+   {
+    "label": "Orders six readings can come in, 6 × 5 × 4 × 3 × 2 × 1",
+    "value": 720,
+    "kind": "computed"
+   },
+   {
+    "label": "A given six run one way, one time in, 720 ÷ 2",
+    "value": 360,
+    "kind": "computed"
+   },
+   {
+    "label": "Longest run in fifty noisy readings, usual lowest",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Longest run in fifty noisy readings, usual highest",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Readings in the screen 8 puzzle",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Orders four readings can come in, 4 × 3 × 2 × 1",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick, three coin tosses, one time in",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Insulation resistance tests in the string",
+    "value": 16,
+    "kind": "assumed"
+   },
+   {
+    "label": "Years the tests span, one a quarter",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example insulation resistance at 20 °C at the first test, in MΩ",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fall per test, as a power of 10",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fall per test, 1 − 10^−0.02, in percent, about",
+    "value": 4.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Scatter per test, power of 10 per nudge sum",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Test temperatures through each year, in °C",
+    "value": "20, 30, 20, 10",
+    "kind": "assumed"
+   },
+   {
+    "label": "Temperature readings are corrected to, in °C",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Rule of thumb: resistance halves for each this many °C warmer",
+    "value": 10,
+    "kind": "constant"
+   },
+   {
+    "label": "Screen 10 reading at 30 °C, in MΩ",
+    "value": 300,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 10 corrected to 20 °C, 300 × 2, in MΩ",
+    "value": 600,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 wrong pick, 300 ÷ 2, in MΩ",
+    "value": 150,
+    "kind": "computed"
+   },
+   {
+    "label": "Hours between readings of the two strings",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Air temperature the day swings round, in °C",
+    "value": 25,
+    "kind": "assumed"
+   },
+   {
+    "label": "How much the air swings, opening setting, in °C",
+    "value": 3,
+    "kind": "control"
+   },
+   {
+    "label": "How much the air swings, highest setting, in °C",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "How much the air swings, lowest setting, in °C",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "How much the air swings, slider step, in °C",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Bearing temperature with the air at 25 °C, in °C",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bearing rise per degree of air, in °C",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bearing's own random error, in °C",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bearing read to, in °C",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Float current with the air at 25 °C, in amps",
+    "value": 0.4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Float current rise per degree of air, in amps",
+    "value": 0.03,
+    "kind": "assumed"
+   },
+   {
+    "label": "Float current's own random error, in amps",
+    "value": 0.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Float current read to, in amps",
+    "value": 0.001,
+    "kind": "assumed"
+   },
+   {
+    "label": "How closely they line up with the air swinging ±3 °C, about",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Correlation of a perfect rising line",
+    "value": 1,
+    "kind": "constant"
+   },
+   {
+    "label": "Correlation of a perfect falling line",
+    "value": -1,
+    "kind": "constant"
+   },
+   {
+    "label": "Share of honest readings within 2 SD of the mean, about, in percent",
+    "value": 95,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Two honest readings can differ by nearly, in SDs",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: last year's Zs, in ohms",
+    "value": 0.8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: this year's Zs, in ohms",
+    "value": 0.82,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: SD of repeat Zs readings, in ohms",
+    "value": 0.01,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example: 2 SD, in ohms",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: five yearly Zs readings, in ohms",
+    "value": "0.80, 0.81, 0.83, 0.84, 0.86",
+    "kind": "assumed"
+   },
+   {
+    "label": "Orders five readings can come in, 5 × 4 × 3 × 2 × 1",
+    "value": 120,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Plot readings in the order you took them, and you can tell a slow change from the wobble every reading has. A [[drift]] is a steady change, so the readings climb or fall along a slope. [[Noise]] is the random scatter you met in the pile. One reading tells you little, because noise moves every reading. With insulation resistance, what really matters is the trend over time, and a fall warns of problems coming.[^2]\n\nThe pile throws the order away. Lay the readings out in turn, and the order comes back. You have laid a line of best fit by eye before. Here the page fits the straight line that sits closest to all the readings at once. Its slope is the drift per reading. Say the line climbs 0.008 V per 10 readings. Across fifty readings it climbs about 0.04 V. Now the surprise. With no drift at all, the line still leans a little. Each batch's random errors happen to sit a little higher at one end. The line follows them, because it fits whatever readings it gets. A fresh batch leans a different way. So a fitted slope has an uncertainty, like any result. When that range includes zero, there may be no drift at all.[^3] A real drift leans the line the same way, batch after batch.\n\nTwo more checks help. First, runs. When each reading's noise is its own, six readings can come in 720 orders, all equally likely. One climbs all the way and one falls. So a given six run one way about 1 time in 360. That makes six in a row one way worth a look. A long record holds many sixes, though, so chance gives one now and then. Textbooks add that some rules use six and some use seven, so the number is a choice. Second, compare like with like. Textbooks add that insulation resistance falls as insulation warms, roughly halving for each 10 °C. So correct every test to one temperature, or a warm test day can look like a fault.\n\nLast, two strings that rise and fall together need not drive each other. How closely they line up is their [[correlation]]. It runs from +1 for a perfect rising line, through 0, to −1 for a perfect falling one. A close line-up can come from a cause, from a shared cause such as the air, or from chance. It does not say which. To show a cause, change one thing yourself and watch the other.\n\n**Judge a trend over many readings in the order taken. Noise alone makes a fitted line lean a little, so trust a drift when it leans the same way batch after batch, or runs one way for longer than chance usually gives.**"
+ },
+ "analogy": {
+  "text": "Think of judging the tide from a harbour wall. Each wave runs up the wall to a different height, so one wave tells you little. Watch the marks for half an hour, though, and their middle creeps up or down. The waves are the noise. The creep is the drift. Watch only three waves, and their marks can seem to climb while the tide stands still.",
+  "breaks": "Waves come in a rough rhythm, and noise in readings has none. The tide also follows a curve on a timetable, so a straight line fits it only for a short stretch. A drift in equipment keeps no timetable, and it can speed up or stop."
+ },
+ "practice": {
+  "text": "- Take each reading the same way each time: the same connections, test voltage and time on test, and the same meter if you can.\n- Note the temperature. Correct insulation resistance to one temperature, such as 20 °C, before you compare.\n- Plot the readings in the order taken. Use a scale by factors for insulation resistance, since it changes by factors.\n- Judge the trend across many readings, not this one against the last.\n- Ask whether a change is bigger than the noise. Find the SD of repeat readings first.\n- Look for runs. Six in a row one way is worth a look.\n- Read a trend line only across the readings you have. Past the last one, wear can speed up, slow or stop.\n- Before you blame one thing for another, look for something that moves both. To test a cause, change one thing and watch.\n\n**Rule of thumb:** when readings pile into a bell, each honest reading lands within 2 SD of the mean about 95% of the time.[^1] So two honest readings can differ by nearly 4 SD with nothing changed.\n\n**Worked example:** last year a circuit's Zs read 0.80 Ω. This year it reads 0.82 Ω. Say repeat readings on it have an SD of 0.01 Ω. Each honest reading lands within 0.02 Ω of the mean about 95% of the time. So two readings 0.02 Ω apart are ordinary noise. Now say five yearly readings, taken the same way at a similar temperature, run 0.80, 0.81, 0.83, 0.84 and 0.86 Ω. Each is higher than the last. Five readings can come in 120 orders, and only one climbs all the way. So pure noise does that about 1 time in 120. That is worth a look at the circuit's joints and connections.\n\n**Common mistakes**\n- Calling a drift from two readings.\n- Reading a lean in a fitted line as a drift without checking fresh readings.\n- Comparing tests taken at different temperatures without correcting them.\n- Running a trend line forward to predict a failure date.\n- Treating six in a row as a law rather than a choice.\n- Reading a close line-up as proof that one thing drives the other.\n- Saying a line-up can never show a cause."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "UKAS LAB 12: The Expression of Uncertainty in Testing",
+   "url": "https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf",
+   "quote": "that the probability distribution can be assumed to be normal and that a value of k = 2 defines an interval having a coverage probability of approximately 95 %."
+  },
+  {
+   "n": 2,
+   "title": "The Complete Guide to Electrical Insulation Testing",
+   "url": "https://www.instrumart.com/assets/Megger-Guide-to-Insulation-Testing.pdf",
+   "quote": "What really matters is the trend in readings over a time period, showing lessening resistance and warning of coming problems."
+  },
+  {
+   "n": 3,
+   "title": "Microsoft Word - lecture4.621",
+   "url": "http://www-stat.wharton.upenn.edu/~stine/stat621/lecture4.621.pdf",
+   "quote": "When zero lies in the CI, the “true slope” may be zero – no effect."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

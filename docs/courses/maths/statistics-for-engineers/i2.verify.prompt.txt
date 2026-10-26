@@ -1,0 +1,492 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Statistics for engineers
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "How far to trust a reading" — Averaging repeat readings shrinks random scatter but not a meter's steady offset, so a result is a value plus or minus its uncertainty. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 The normal curve and honest outliers — Readings often pile into a bell, about 95% within two standard deviations of the mean, so counting standard deviations shows how unusual a reading is.
+- i4 Drift or noise: trends over time — Plotted in the order taken, readings show a drift as a steady slope, while noise alone still makes a fitted line lean a little.
+- i5 How often equipment fails: reliability — A steady failure rate sets the share of units still working over time, so only about 37% reach the MTBF, the mean time between failures.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "random - where repeating the measurement gives a randomly different result. If so, the more measurements you make, and then average, the better estimate you generally can expect to get."
+[R2] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "systematic - where the same influence affects the result for each of the repeated measurements (but you may not be able to tell). In this case, you learn nothing extra just by repeating measurements."
+[R3] Uncertainty of Measurement: A Review of the Rules for Calculating Uncertainty Components through Functional Relationships - PMC — https://pmc.ncbi.nlm.nih.gov/articles/PMC3387884/
+    "This is indeed why the mean is often used for summarising measurements: the mean is better ‘buffered’ against random errors than are any of the individual component measurements."
+[R4] faraday.physics.utoronto.ca — https://faraday.physics.utoronto.ca/PVB/Harrison/ErrorAnalysis/ErrorInMean.html
+    "divided by the square root of the number of times the measurement was repeated."
+[R5] Why Digital Multimeter Accuracy and Precision Matter | Fluke — https://www.fluke.com/en-us/learn/blog/digital-multimeters/accuracy-precision
+    "Accuracy may also include a specified amount of digits (counts) added to the basic accuracy rating. For example, an accuracy of ±(2%+2) means that a reading of 100.0 V on the multimeter can be from 97.8 V to 102.2 V."
+[R6] Good Practice Guide No. 11 — https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf
+    "For example: We might say that the length of a certain stick measures 20 centimetres plus or minus 1 centimetre, at the 95 percent confidence level."
+[R7] 36 36 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf
+    "from every raw data value, subtract the mean, square the results, average them and then take the square root."
+[R8] 1.3.5.1. Measures of Location — https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm
+    "Extreme values in the tails distort the mean. However, these extreme values do not distort the median since the median is based on ranks."
+[R9] 1.3.5.1. Measures of Location — https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm
+    "The mean will be pulled in the direction of the skewness. That is, if the right tail is heavier than the left tail, the mean will be greater than the median."
+Notes (claims, and the sources that support them):
+- When repeating gives a randomly different result, averaging more measurements generally gives a better estimate of the value. [R1]
+- When the same influence affects every repeated measurement, you learn nothing extra just by repeating the measurement. [R2]
+- The standard uncertainty of a mean of uncorrelated measurements is smaller than that of a single one, so the mean is buffered against random errors. [R3]
+- The error in an average of repeated measurements is the error in one measurement divided by the square root of the number of repeats. [R4][R3]
+- A meter accuracy of plus or minus (2% + 2 counts) means a reading of 100.0 V can be anywhere from 97.8 V to 102.2 V. [R5]
+- An uncertainty needs two numbers, the width of an interval and a confidence level, for example 20 centimetres plus or minus 1 centimetre at 95 percent. [R6]
+- The standard deviation is found by subtracting the mean from every raw value, squaring the results, averaging them and taking the square root. [R7]  (from an idea this one builds on)
+- Extreme values in the tails distort the mean, but they do not distort the median, because the median is based on ranks. [R8]  (from an idea this one builds on)
+- The mean is pulled in the direction of the skewness: when the right tail is heavier than the left, the mean is greater than the median. [R9]  (from an idea this one builds on)
+- Repeating a measurement can give a randomly different result each time, and averaging more of those readings generally gives a better estimate. [R1]  (whole topic)
+- A measurement result is stated with an interval and a confidence level, such as 20 centimetres plus or minus 1 centimetre at the 95 percent confidence level. [R6]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "How far to trust a reading",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the pile tighten round where the meter centres, not round the true value, when you make each bead the mean of four readings on a meter that reads high.",
+  "title": "Offset and repeats",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on simulated readings drawn as beads. Each bead is one simulated reading of a battery bank's float voltage. Say its charger holds it at 27.00 V, the true value, drawn as a dashed line. The rule on screen makes each reading: the true value, plus any offset the meter has, plus the random error times the sum of twelve small nudges, each between minus a half and plus a half, read to the meter's step of 0.01 V. Here the random error is 0.04 V, the standard deviation of one reading's scatter. Fifty readings pour from the hopper through the peg field and pile up on the beam, which balances on its fulcrum at the mean. A choice, Each bead is the mean of 1, 2 or 4 readings, averages that many readings into each bead, and the pegs close in. A slider, Meter reads high by, from 0 to 0.03 V in steps of 0.01 V, moves the hopper, so every reading lands that much high. A window behind the hopper is as wide as an example meter's accuracy, ±(0.1% of the reading + 2 digits): 0.1% of 27.00 V is 0.027 V, and two digits of 0.01 V are 0.02 V, so 0.047 V either side. An ink bracket over the pile is the result: the mean of the fifty beads, plus or minus 2 × the beads' standard deviation ÷ √50. A wide bracket under the beam marks where most beads fall, the mean ± 2 standard deviations. Tiles give the mean, the result's ± and the beads' standard deviation, each with its rule as a hint. The screens. 1, show: fifty readings pour and pile up round 27.00 V, most within about 0.08 V either side. A single reading could be any one of these beads. 2, a puzzle: a single reading off this meter says 27.06 V. What can you say about the true voltage? Offered: it is probably within about 0.08 V of 27.06 V; it is 27.06 V; and the charger is set 0.06 V high. Hint when wrong: every bead came from 27.00 V, yet many landed well away from it. 3, show: make each bead the mean of 2, then 4 readings. Their random errors point different ways and partly cancel, so the pile narrows to about seven tenths, then half, of its width, and still centres on 27.00 V. The spread of a mean is the spread of one reading divided by the square root of how many are averaged. Its finished picture shows each bead the mean of four. 4, a puzzle: one reading's random error is 0.04 V. Each bead is the mean of four readings. What is the beads' standard deviation? Offered: 0.02 V; 0.01 V, dividing by four; and 0.04 V, unchanged. Hint: divide by the square root of how many readings each bead averages. 5, show: back to one reading a bead. The result bracket appears over the pile: 2 × 0.04 ÷ √50, with √50 about 7.07, is about 0.011 V either side of the mean. It says how well the mean is pinned down, at about 95% confidence. The wide bracket under the beam shows where most single readings land, about 0.08 V either side. 6, a puzzle: the fifty readings give a result of 27.00 ± 0.011 V. The next single reading says 27.05 V. Is something wrong? Offered: no, single readings scatter much wider than the result; yes, it lies outside the result so it is faulty; and yes, the meter has started reading high. Hint: the result brackets the mean of fifty, not each reading, and single readings land within about 0.08 V. 7, show: a choice, The meter reads to 0.01 V or 0.05 V. On the 0.05 V meter the beads hop into bricks one step wide, and one step of the meter is named over the tallest column. That step is the meter's resolution. Rounding alone can put a reading up to half a step, 0.025 V, from what the meter sensed. The mean of many still lands close to 27.00 V. Accuracy is a separate figure: how far the meter may be out, written as a percentage of the reading plus a few digits, each digit one step of the display. An accuracy of ±(2% + 2) on a reading of 100.0 V allows 97.8 V to 102.2 V. Its finished picture shows the bricks. 8, a puzzle: a meter rated ±(1% + 3 digits) shows 50.0 V, reading to 0.1 V. Where could the true voltage be? Offered: 49.2 V to 50.8 V; 49.5 V to 50.5 V; and 49.9 V to 50.1 V. Hint: take 1% of 50.0 V, then add three steps of the last digit, 0.1 V each. 9, show: the accuracy window appears behind the hopper. Set the meter to read 0.02 V high and the hopper slides inside the window, so the whole pile shifts across. Make each bead the mean of four and the pile tightens round 27.02 V, where the meter centres. The result, 27.02 ± 0.006 V, misses the dashed true value. Its finished picture shows the meter reading 0.02 V high, each bead the mean of four. 10, a puzzle: this meter reads 0.03 V high. You make each bead the mean of four readings instead of one. Where does the result centre now? Offered: near 27.03 V, with a narrower bracket; near 27.00 V, as averaging cancels the error; and near 27.015 V, halfway. Hint: the offset lands on every reading the same way, so it lands on their mean too. 11, show: an example upper limit appears as a dashed line at 27.02 V, each bead the mean of four. Slide the offset. With the opening batch, picked so, the whole result bracket sits below the limit at 0 and 0.01 V. At 0.02 V the bracket overlaps the limit, so the true value could be either side and the result shows neither a pass nor a fail. At 0.03 V the whole bracket sits above, and the readings say fail. Yet the true value is 27.00 V, under the limit, at every setting. The hidden offset alone pushed the result over, so a real bracket must also take in the meter's accuracy. Its finished picture shows the meter reading 0.02 V high and the bracket overlapping the limit. 12, a mixed puzzle: a result is 0.82 ± 0.03 Ω at 95%, against an example maximum of 0.84 Ω. What does it show? Offered: neither a pass nor a fail, as the bracket reaches past 0.84 Ω; a pass, as 0.82 Ω is under 0.84 Ω; and a fail, as part of the bracket is over. Hint: compare the whole bracket, 0.79 to 0.85 Ω, with the limit. 13, a mixed puzzle: your meter reads to 0.05 V and reads 0.02 V high. You switch to one that reads to 0.01 V with the same 0.02 V offset. What gets better? Offered: each reading shows a finer step, but the offset stays; the mean of many readings moves closer to the true value; and both, finer steps and no offset. Hint: a finer display shows smaller steps, but it does not move where the meter centres. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone.",
+  "ignores": "The readings are simulated from the rule on screen, not taken from a real battery, and 27.00 V, the meter's accuracy and the limit are examples. The offset here is set by hand and drawn. A real meter's offset is hidden until you check it against a known reference, and it can change with the range, the temperature and the size of the reading. The real battery voltage would wander a little too, while here it holds still. Twelve nudges make an even scatter with no long tails. The doubled bracket suits fifty readings. For a handful of readings textbooks raise the factor of 2 a little. A full uncertainty also combines the meter's accuracy and every other influence into one figure, an uncertainty budget, which is not shown here.",
+  "numbers": [
+   {
+    "label": "Example battery bank's true float voltage, in volts",
+    "value": 27,
+    "kind": "assumed"
+   },
+   {
+    "label": "Random error of one reading, its standard deviation, in volts",
+    "value": 0.04,
+    "kind": "assumed"
+   },
+   {
+    "label": "Meter's step, in volts",
+    "value": 0.01,
+    "kind": "assumed"
+   },
+   {
+    "label": "Coarse meter's step, in volts",
+    "value": 0.05,
+    "kind": "control"
+   },
+   {
+    "label": "Number of simulated readings in the pile",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Number of nudges per reading",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Each nudge's largest size either way",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readings averaged into each bead, opening setting",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Readings averaged into each bead, middle option",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Readings averaged into each bead, top option",
+    "value": 4,
+    "kind": "control"
+   },
+   {
+    "label": "Meter reads high by, opening setting, in volts",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Meter reads high by, largest setting, in volts",
+    "value": 0.03,
+    "kind": "control"
+   },
+   {
+    "label": "Meter reads high by, the setting shown, in volts",
+    "value": 0.02,
+    "kind": "control"
+   },
+   {
+    "label": "Most beads, 2 standard deviations either side, in volts",
+    "value": 0.08,
+    "kind": "computed"
+   },
+   {
+    "label": "Spread of a mean of two readings, 0.04 ÷ √2, in volts",
+    "value": 0.028,
+    "kind": "computed"
+   },
+   {
+    "label": "Spread of a mean of four readings, 0.04 ÷ √4, in volts",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Square root of 50, about",
+    "value": 7.07,
+    "kind": "computed"
+   },
+   {
+    "label": "Result's ± with one reading a bead, 2 × 0.04 ÷ √50, in volts",
+    "value": 0.011,
+    "kind": "computed"
+   },
+   {
+    "label": "Result's ± with four readings a bead, 2 × 0.02 ÷ √50, in volts",
+    "value": 0.006,
+    "kind": "computed"
+   },
+   {
+    "label": "Confidence of a doubled bracket, in percent",
+    "value": 95,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Example meter's accuracy, percent of reading",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Example meter's accuracy, digits",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "0.1% of 27.00 V, in volts",
+    "value": 0.027,
+    "kind": "computed"
+   },
+   {
+    "label": "Two digits of 0.01 V, in volts",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Example meter's accuracy either side at 27.00 V, in volts",
+    "value": 0.047,
+    "kind": "computed"
+   },
+   {
+    "label": "Half a coarse step, in volts",
+    "value": 0.025,
+    "kind": "computed"
+   },
+   {
+    "label": "Accuracy example, percent of reading",
+    "value": 2,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Accuracy example, reading in volts",
+    "value": 100,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Accuracy example, lowest true value, in volts",
+    "value": 97.8,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Accuracy example, highest true value, in volts",
+    "value": 102.2,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Uncertainty example, length in centimetres",
+    "value": 20,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Uncertainty example, plus or minus in centimetres",
+    "value": 1,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Where the meter centres at 0.02 V high, in volts",
+    "value": 27.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Example upper limit, in volts",
+    "value": 27.02,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 single reading, in volts",
+    "value": 27.06,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 wrong pick, charger set high by, in volts",
+    "value": 0.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 next single reading, in volts",
+    "value": 27.05,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 meter's accuracy, percent of reading",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 meter's accuracy, digits",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 reading, in volts",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 meter's step, in volts",
+    "value": 0.1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 lowest true value, 50.0 − 0.5 − 0.3, in volts",
+    "value": 49.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 highest true value, 50.0 + 0.5 + 0.3, in volts",
+    "value": 50.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick without the digits, lowest, in volts",
+    "value": 49.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 wrong pick, last digit only, lowest, in volts",
+    "value": 49.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 offset, in volts",
+    "value": 0.03,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 10 where the result centres, in volts",
+    "value": 27.03,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 wrong pick, halfway, in volts",
+    "value": 27.015,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 result, in ohms",
+    "value": 0.82,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 result's ±, in ohms",
+    "value": 0.03,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 example maximum, in ohms",
+    "value": 0.84,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 bracket's lower end, in ohms",
+    "value": 0.79,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 bracket's upper end, in ohms",
+    "value": 0.85,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example readings taken",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example mean, in volts",
+    "value": 27.04,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example standard deviation, in volts",
+    "value": 0.03,
+    "kind": "assumed"
+   },
+   {
+    "label": "Square root of 10, about",
+    "value": 3.16,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example random ±, 2 × 0.03 ÷ 3.16, about, in volts",
+    "value": 0.02,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example accuracy, 0.027 + 0.02, in volts",
+    "value": 0.047,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example highest it could be, about, in volts",
+    "value": 27.11,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example lowest it could be, about, in volts",
+    "value": 26.97,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example limit, an example maximum, in volts",
+    "value": 27.15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Readings needed to halve the random bracket, times as many",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Readings below which textbooks raise the factor, about",
+    "value": 30,
+    "kind": "assumed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "No single reading can tell you the true value. A reading can carry two kinds of error, and they behave differently when you repeat. Random error throws each reading a different way, so averaging repeats shrinks it. A steady offset throws every reading the same way, so averaging leaves it exactly where it was. Say a charger holds a battery bank at 27.00 V, and each reading has a random error of 0.04 V, its standard deviation. A single reading can easily land 0.08 V from the true value. Now make each reading the mean of four. Their random errors point different ways, so they partly cancel. They are random, so they never cancel fully. The spread of a mean of n readings is the spread of one reading divided by √n.[^3] Four readings halve it, to 0.02 V. Two readings cut it only to about 0.028 V. So to halve the spread again you need four times as many readings, not twice as many.\n\nThe same rule says how well the mean of fifty readings is pinned down. Divide the 0.04 V spread by √50, about 7.07, and double it. That gives about 0.011 V. Textbooks add that this doubled bracket, the mean ± 2 × the standard deviation ÷ √n, is the usual one. It catches where the meter centres about 95% of the time. A stated [[uncertainty]] needs both parts: a width and how confident you are, such as 20 cm ± 1 cm at 95%.[^1] So fifty readings give a result of 27.00 ± 0.011 V. That bracket is far narrower than the 0.08 V either side where single readings land. The result says how well the mean is known. The scatter says how far one reading wanders.\n\nNow say the meter reads 0.02 V high. The same influence lands on every reading, so the whole pile shifts across. That is a [[systematic error]]. Repeating teaches you nothing extra about it.[^4] Make each bead the mean of four and the pile tightens round 27.02 V, where the meter centres. The result, 27.02 ± 0.006 V, now misses the true 27.00 V. Yet the meter is still within its accuracy, the most its maker allows it to be out. Accuracy is written as a percentage of the reading plus a few digits, each digit one step of the display. An accuracy of ±(2% + 2) on a reading of 100.0 V allows anything from 97.8 V to 102.2 V.[^2] That display step is the meter's [[resolution]], the finest change it can show. A finer step shows more detail, but it does not move where the meter centres. A check against a known reference is what finds the offset.\n\nThis matters most against a limit. The bracket from repeats covers only the random part. A full uncertainty also takes in the meter's accuracy and every other influence. If that whole bracket sits on one side of the limit, the reading shows which side the value is on. If it overlaps the limit, the true value could be on either side. Then the reading shows neither a pass nor a fail. Working out a full uncertainty is called an uncertainty budget, and this simplified picture leaves it out.\n\n**Averaging repeat readings shrinks random scatter by the square root of how many you take, but no number of repeats removes a steady offset.[^4] So a result is a value plus or minus its uncertainty, at a stated confidence.**"
+ },
+ "analogy": {
+  "text": "Think of measuring a cable run with a tape whose hook is bent back 2 mm. Each time you read it, your eye lands a little differently, so the readings scatter. Measure ten times and average, and the eye's wobble mostly cancels. Every reading is still 2 mm long, so the average is too. Only checking the tape against a known length shows the bent hook.",
+  "breaks": "A bent hook adds the same length to every measurement. A meter's offset can grow with the size of the reading, which is why accuracy has a percentage part, and it can shift with the range or the temperature. You can also see a bent hook, while a meter's offset is hidden until you check it."
+ },
+ "practice": {
+  "text": "- Take several readings the same way: same leads, same points, same range.\n- Find their mean and standard deviation.\n- Divide the standard deviation by the square root of how many readings you took, then double it. That is the random part of the result's bracket, at about 95%.\n- Work out the meter's accuracy at that reading: the percentage of the reading, plus the digits times one step of the display.\n- Remember that repeats cannot shrink the accuracy. Check the meter against a known reference to find any offset.\n- Set the whole bracket against the limit. If it overlaps the limit, the reading shows neither a pass nor a fail. Take more readings or use a better meter.\n\n**Rule of thumb:** four times the readings halves the random bracket. No number of readings removes an offset.\n\n**Worked example:** ten readings of a battery bank's float voltage, with an example meter rated ±(0.1% + 2 digits) reading to 0.01 V. Their mean is 27.04 V and their standard deviation 0.03 V. The random part is 2 × 0.03 ÷ √10, and √10 is about 3.16, so about 0.02 V. The accuracy is 0.1% of 27.04 V, 0.027 V, plus two digits, 0.02 V, so 0.047 V. Adding both straight, the true voltage could be anywhere from about 26.97 V to about 27.11 V. Against an example maximum of 27.15 V, the whole bracket is below, so it shows a pass. With fewer than about 30 readings, textbooks raise the factor of 2 a little. Here that would not change the answer.\n\n**Common mistakes**\n- Quoting one reading as the value, with no bracket.\n- Expecting more readings to cancel a meter that reads high.\n- Taking the last digit for the accuracy. The display step is the resolution, and accuracy is usually wider.\n- Dividing by the number of readings instead of its square root.\n- Reading the result's bracket as where single readings land.\n- Calling a pass when the bracket touches the limit.\n- Reading a small rise between two single readings as a real change before setting it against each reading's bracket."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Good Practice Guide No. 11",
+   "url": "https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf",
+   "quote": "For example: We might say that the length of a certain stick measures 20 centimetres plus or minus 1 centimetre, at the 95 percent confidence level."
+  },
+  {
+   "n": 2,
+   "title": "Why Digital Multimeter Accuracy and Precision Matter | Fluke",
+   "url": "https://www.fluke.com/en-us/learn/blog/digital-multimeters/accuracy-precision",
+   "quote": "Accuracy may also include a specified amount of digits (counts) added to the basic accuracy rating. For example, an accuracy of ±(2%+2) means that a reading of 100.0 V on the multimeter can be from 97.8 V to 102.2 V."
+  },
+  {
+   "n": 3,
+   "title": "faraday.physics.utoronto.ca",
+   "url": "https://faraday.physics.utoronto.ca/PVB/Harrison/ErrorAnalysis/ErrorInMean.html",
+   "quote": "divided by the square root of the number of times the measurement was repeated."
+  },
+  {
+   "n": 4,
+   "title": "Good Practice Guide No. 11",
+   "url": "https://eprintspublications.npl.co.uk/1568/1/MGPG11.pdf",
+   "quote": "systematic - where the same influence affects the result for each of the repeated measurements (but you may not be able to tell). In this case, you learn nothing extra just by repeating measurements."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

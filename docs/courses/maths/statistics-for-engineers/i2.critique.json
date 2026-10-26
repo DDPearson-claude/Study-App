@@ -1,0 +1,32 @@
+{
+  "draft": "i2.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: random error shrinks with repeats, a steady offset does not, so a result is a value plus or minus its uncertainty.",
+    "The picture is the brief's offset and repeats: fifty simulated float-voltage readings of an example 27.00 V battery bank, 0.04 V of random error, beads the mean of 1, 2 or 4 readings, the 'Meter reads high by' slider inside an example ±(0.1% + 2 digits) window, the 0.01 V | 0.05 V meter making bricks, and the adapted last screen with an example limit at 27.02 V.",
+    "Worked numbers computed from shown rules: 0.04 ÷ √4 = 0.02 V; 2 × 0.04 ÷ √50 ≈ 0.011 V; 2 × 0.02 ÷ √50 ≈ 0.006 V; 0.027 + 0.02 = 0.047 V; 1% of 50.0 V plus three 0.1 V digits gives 49.2 to 50.8 V; the practice example's 26.97 to 27.11 V against 27.15 V.",
+    "Each brief misconception has a DO with its own hint: one reading is the answer (screen 2), averaging fixes everything (screen 10), precision for accuracy (screens 8 and 13), result read as where readings land (screen 6), dividing by n (screen 4's 0.01 V), a pass called on an overlapping bracket (screen 12).",
+    "Thirteen screens alternate SHOW (1, 3, 5, 7, 9, 11) and DO (2, 4, 6, 8, 10), ending with two mixed puzzles (12, 13).",
+    "Four footnotes, each on a rule or value he might look up; the factor of 2 for about 95% is put as 'textbooks add', since no kept source states it. The overlap rule is reasoned from the bracket, not cited. No source is named in the text.",
+    "Analogy from his own kit: a tape with a bent hook, with where it breaks (a percentage part, hidden offset)."
+  ],
+  "fix": [
+    "Causal step skipped: why the spread falls by √n and not by n. Say the errors are random, so they cancel only partly, never fully.",
+    "False absolute: 'No single reading is the true value.' One reading can land on it by chance. Say no single reading can tell you the true value.",
+    "False absolute: 'Every reading carries two kinds of error.' Say a reading can carry two kinds.",
+    "False absolute: 'A stated uncertainty always needs both parts' and 'Only a check against a known reference finds the offset.' Drop 'always'; say a check against a known reference is what finds it.",
+    "Order of claims in the limit paragraph: it says a bracket wholly one side shows a pass or fail before saying the repeats' bracket is only the random part. True only of a full uncertainty. Put the full uncertainty first, then the rule.",
+    "Screen 11: 'At 0 and 0.01 V the whole result bracket sits below the limit' depends on the batch. Say the opening batch is picked so, and keep the fail case honest: the true value stays under the limit, so the 'fail' at 0.03 V is the offset's doing.",
+    "Practice: link the course's hook. A rise between two single readings means little until it is set against each reading's bracket. Add one common mistake."
+  ],
+  "faults": {
+    "causalStepSkipped": "one place (why √n), fixed above",
+    "falseAbsolutes": "four, fixed above",
+    "briefShowsOnlyEffect": "no: the averaging choice closes the pegs in (cause) and the pile tightens; the offset slider moves the hopper (cause) and the pile shifts",
+    "checksTestRecall": "no: every puzzle needs a rule worked (√n, % plus digits) or a reading judged against a bracket or limit",
+    "thinResearch": "adequate: four quotes carry systematic error, the √n rule, accuracy as % plus digits and the two-part uncertainty; everything else is computed from a shown rule or an assumed example",
+    "unreadableLabels": "none: 'result' and 'most beads' are named brackets, the window is named 'true value ± the meter's accuracy', and numbers sit in tiles",
+    "talksAboutTheIdea": "no"
+  },
+  "shape": "idea in one line, rule in words (÷√n, % plus digits, overlap), worked example with numbers (0.011 V, 0.047 V, the practice float voltage), misconception shown failing (four repeats tighten round 27.02 V and miss 27.00 V), trade analogy with breaks, practice with steps, rule of thumb, worked example and mistakes, bold recap: all present"
+}

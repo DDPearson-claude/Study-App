@@ -1,0 +1,594 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .lead, .caption { max-width: 32rem; }
+  .fig { max-width: 30rem; margin-inline: auto; }
+  .src { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .src .rule { flex: 1 1 14rem; margin: 0; line-height: 1.45; }
+  .src .k-btn { min-height: 44px; white-space: nowrap; }
+  #nav .k-stepper { gap: 8px; }
+  .scene { display: block; width: 100%; height: auto; touch-action: pan-y; font-variant-numeric: tabular-nums; -webkit-user-select: none; user-select: none; }
+  .scene text { font-family: var(--k-font); }
+  /* Axes and grid stay quiet: the readings are the only loud thing. */
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .gl, .scene .rl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .tn { font-size: 13px; fill: var(--k-muted); }
+  .scene .cap { font-size: 13px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }
+  /* A reading: a number in the log, a dot everywhere else; the one being followed wears a ring. */
+  .scene .num { font-size: 15px; font-weight: 500; fill: var(--k-ink); }
+  .scene .dot { stroke: var(--k-bg); stroke-width: 1.2; }
+  .scene .ring { fill: none; stroke: var(--k-amber-line); stroke-width: 2.4; }
+  .scene .hlb { fill: var(--k-hl); }
+  /* What the readings add up to. */
+  .scene .mean { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .fulcrum { fill: var(--k-accent2); }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .band { fill: var(--k-fill1); }
+  .scene .lim { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .trace { fill: none; stroke: var(--k-muted); stroke-width: 1; stroke-linejoin: round; }
+  .scene .trend { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .lab { font-size: 13px; fill: var(--k-ink); }
+  .scene .lab .w, .scene .lab .u { fill: var(--k-muted); }
+  .scene .lab .n { font-weight: 700; }
+  .scene .pct { font-size: 13px; font-weight: 700; fill: var(--k-accent); }
+  .scene .lt { font-size: 13px; fill: var(--k-warn); }
+  .scene .sl { font-size: 13px; font-weight: 650; fill: var(--k-ink); }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+  .scene #art * { pointer-events: none; }
+</style>
+
+<p class="lead">Forty hourly readings of a pump's bearing temperature. Each dot is one reading, and stays that reading in every view.</p>
+
+<div id="nav"></div>
+<div class="fig" id="fig">
+  <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label="">
+    <g id="art">
+      <g id="back"></g>
+      <g id="trace"></g>
+      <g id="dots"></g>
+      <g id="nums" class="k-nohalo"></g>
+      <g id="front"></g>
+      <g id="sel"></g>
+      <g id="sellab"></g>
+    </g>
+    <rect class="hit" id="hit" x="0" y="0" width="340" height="300" tabindex="0" role="button" aria-label="Follow another reading"></rect>
+  </svg>
+</div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="src"><p class="k-label rule" id="rule"></p><div id="batch"></div></div>
+<p class="caption">Simulated readings from a seeded rule; the 56 and 64 °C limits are an example, not a real pump's.</p>
+
+<script>
+  // ---------- the rule that makes the readings ----------
+  // Each reading = 60.0 °C + SD × z + climb × hour, rounded to the meter's 0.1 °C. z is a standard
+  // random error from a seeded generator (batch 1 is seed 33), so every picture and check is stable;
+  // Fresh batch moves to the next seed. Shown on screen in the rule line, labelled simulated.
+  const N = 40, TRUE = 60, LIM = [56, 64], SEED0 = 32;
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  const drawsCache = {};
+  // A batch's random errors z (standard normal, by Box-Muller) and the strip's sideways scatter.
+  function draws(b) {
+    if (drawsCache[b]) return drawsCache[b];
+    const seed = SEED0 + b, r = rng(seed * 7919 + 17), z = [];
+    while (z.length < N) { const u1 = Math.max(r(), 1e-12), u2 = r(), m = Math.sqrt(-2 * Math.log(u1)); z.push(m * Math.cos(2 * Math.PI * u2), m * Math.sin(2 * Math.PI * u2)); }
+    const j = rng(seed * 104729 + 3);
+    return (drawsCache[b] = { z: z.slice(0, N), jit: z.slice(0, N).map(() => j() * 2 - 1) });
+  }
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const readings = (b, sd, climb) => draws(b).z.map((q, i) => r1(TRUE + sd * q + climb / 10 * i));
+
+  // ---------- statistics (pure, so the checks can work them by hand) ----------
+  function stats(v) {
+    const n = v.length, s = v.slice().sort((a, b) => a - b), mean = v.reduce((a, b) => a + b, 0) / n;
+    const median = n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+    const sd = n > 1 ? Math.sqrt(v.reduce((a, b) => a + (b - mean) * (b - mean), 0) / (n - 1)) : 0;
+    return { n, mean, median, sd, min: s[0], max: s[n - 1], range: s[n - 1] - s[0] };
+  }
+  function fit(xs, ys) {
+    const n = xs.length, mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
+    let sxy = 0, sxx = 0;
+    for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) * (xs[i] - mx); }
+    const slope = sxx ? sxy / sxx : 0;
+    return { slope, icpt: my - slope * mx };
+  }
+  const phi = (z) => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+
+  // ---------- the page's geometry (viewBox 340 × 300) ----------
+  const VMIN = 48, VMAX = 72, BASE = 236, BIN = 0.8;
+  const HS = 300 / (VMAX - VMIN), VS = 204 / (VMAX - VMIN), PITCH = BIN * HS, R = 4.4, RT = 3.4, SIDE_X = 326;
+  const X = (v) => 20 + (v - VMIN) * HS;                 // a temperature across the page
+  const TX = (i) => 46 + i * 266 / (N - 1);              // hour i + 1 across the page
+  const YT = (v) => BASE - (v - VMIN) * VS;              // a temperature up the page
+  // The pile's 0.8 °C stacks hold whole tenths 46.1-46.8, 46.9-47.6 …, so no reading sits on an edge.
+  const binOf = (v) => Math.floor((Math.round(v * 10) - 461) / 8);
+  const binMid = (b) => 46.45 + 0.8 * b;
+  // The fitted curve as the pile would stack: N × bin × density dots high, PITCH units a dot.
+  const curveY = (v, m, s) => BASE - 1 - N * BIN * PITCH * phi((v - m) / s) / s;
+  const VIEWS = ['The log', 'On a line', 'Middle and spread', 'The normal curve', 'Over time'];
+
+  // Every view's place for every reading. x, y: centre; r: dot radius (0 = shown as its number);
+  // red: out of limits; op: fill opacity; na: the number's opacity.
+  function layout(v, jit) {
+    const s = stats(v), bins = v.map(binOf), level = new Array(N), height = {};
+    v.map((x, i) => i).sort((a, b) => v[a] - v[b] || a - b).forEach((i) => { const b = bins[i]; level[i] = height[b] || 0; height[b] = level[i] + 1; });
+    const out = v.map((x) => x < LIM[0] || x > LIM[1]);
+    const hours = v.map((x, i) => i + 1), f = fit(hours, v);
+    const pile = v.map((x, i) => ({ x: X(binMid(bins[i])), y: BASE - 1 - PITCH / 2 - level[i] * PITCH, r: R, red: 0, op: 1, na: 0 }));
+    return {
+      v, s, f, bins, level, height, out,
+      views: [
+        v.map((x, i) => ({ x: 30 + 40 * (i % 8), y: 70 + 36 * Math.floor(i / 8), r: 0, red: 0, op: 1, na: 1 })),
+        v.map((x, i) => ({ x: X(x), y: 168 + jit[i] * 42, r: R, red: 0, op: 0.85, na: 0 })),
+        pile,
+        pile.map((p, i) => Object.assign({}, p, { red: out[i] ? 1 : 0 })),
+        v.map((x, i) => ({ x: TX(i), y: YT(x), r: RT, red: out[i] ? 1 : 0, op: 1, na: 0 })),
+      ],
+      top: (i) => BASE - 1 - height[bins[i]] * PITCH,     // the top of reading i's stack
+      pileTop: BASE - 1 - Math.max.apply(null, Object.keys(height).map((b) => height[b])) * PITCH,
+    };
+  }
+
+  // ---------- state ----------
+  let batch = 1, selUser = null;          // the batch drawn, and the reading Dan tapped (null: follow the highest)
+  let view = null, from = null, T = Infinity, P = null, D = null, leftP = null, leftT = Infinity;   // leftP/leftT: the move under way when the last view was left
+  const cur = Array.from({ length: N }, () => ({ x: 170, y: 150, r: 0, red: 0, op: 1, na: 0 }));
+  let snap = cur.map((c) => Object.assign({}, c));
+  const shown = { mean: 60, median: 60, sd: 2, min: 56, max: 64, slope: 0, icpt: 60 };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const sel = () => (selUser != null ? selUser : D.v.indexOf(D.s.max));
+  const f1 = (v) => K.fmt(v, { decimals: 1 });
+
+  // ---------- the timetable of a move between views ----------
+  // Every dot leaves at t[i] and travels for dur; S is when the last has landed. Then the view
+  // being entered tells its story (its lines and labels arrive in order over STORY[b] seconds),
+  // squeezed by k when the dots took long, so every move is done within 5 s, however it arrives.
+  // drop: the pile builds from the axis up, a layer at a time. tip: the pile turns on its side
+  // against the right edge, then the dots peel off in time order (from the log or the line they
+  // gather into the pile first). untip: the same, played back. stay: the dots keep their places.
+  const STORY = [0.5, 1.2, 2.1, 3.6, 1.1], LAST = 4.9;
+  function rankOf(v) { const r = new Array(v.length); v.map((x, i) => i).sort((p, q) => v[p] - v[q] || p - q).forEach((i, k) => { r[i] = k / (v.length - 1); }); return r; }
+  function plan(a, b, L) {
+    const t = new Array(N).fill(0), o = { kind: 'lerp', t, dur: 0.7, rotA: 0, rotD: 0, via: false };
+    const each = (f) => { for (let i = 0; i < N; i++) t[i] = f(i); };
+    if (a == null) { o.kind = 'write'; each((i) => 0.006 * i); o.dur = 0.3; }
+    else if (a === b || (a === 2 && b === 3) || (a === 3 && b === 2)) { o.kind = 'stay'; o.dur = 0.5; }
+    else if (b === 4) {
+      o.kind = 'tip'; o.via = a !== 2 && a !== 3;
+      o.rotA = o.via ? 0.85 : 0.2; o.rotD = o.via ? 0.8 : 1.0;
+      const t0 = o.rotA + o.rotD + 0.1, gap = o.via ? 0.03 : 0.035;
+      each((i) => t0 + gap * i); o.dur = o.via ? 0.65 : 0.75;
+    } else if (a === 4 && (b === 2 || b === 3)) {
+      o.kind = 'untip'; each((i) => 0.1 + 0.02 * (N - 1 - i)); o.dur = 0.6; o.rotA = 0.1 + 0.02 * (N - 1) + 0.65; o.rotD = 0.8;
+    } else if (b === 2 || b === 3) {
+      o.kind = 'drop'; const rank = rankOf(L.v);
+      each((i) => 0.15 + 0.07 * L.level[i] + 0.25 * rank[i]); o.dur = 0.65;
+    } else if (a === 0 && b === 1) { each((i) => 0.15 + 0.02 * i); o.dur = 0.8; }
+    else each((i) => 0.1 + 0.012 * i);
+    o.S = o.kind === 'stay' ? 0 : o.kind === 'untip' ? o.rotA + o.rotD : Math.max.apply(null, t) + o.dur;
+    o.k = Math.max(0, Math.min(1, (LAST - o.S) / STORY[b]));
+    o.redT = o.kind === 'stay' && b === 3 ? 3.0 * o.k : null;   // the curve's story turns the readings outside the limits red
+    o.dotsEnd = o.kind === 'stay' ? (o.redT != null ? o.redT + 0.6 : 0.5) : o.S;
+    o.end = Math.max(o.dotsEnd, o.S + STORY[b] * o.k);
+    return o;
+  }
+  // The pile turned by u (0 upright, 1 on its side against the right edge, temperature up the page).
+  function tipPos(i, u, L) {
+    const p = L.views[2][i], m = L.s.mean, dx = p.x - X(m), dy = p.y - BASE;
+    const k = K.lerp(1, VS / HS, u), th = u * Math.PI / 2, c = Math.cos(th), s = Math.sin(th);
+    const ax = K.lerp(X(m), SIDE_X, u), ay = K.lerp(BASE, YT(m), u);
+    return { x: ax + k * dx * c + dy * s, y: ay - k * dx * s + dy * c };
+  }
+  const lerpP = (a, b, q) => ({ x: K.lerp(a.x, b.x, q), y: K.lerp(a.y, b.y, q) });
+  // Where reading i is drawn at time T of the move.
+  function planned(i) {
+    const s = snap[i], g = D.views[view][i], t0 = P.t[i], q = K.arrive(T, t0, P.dur);
+    const o = { x: g.x, y: g.y, r: g.r, red: g.red, op: g.op, na: g.na };
+    if (P.kind === 'write') { o.na = K.arrive(T, t0, P.dur); return o; }
+    if (P.kind === 'stay') {
+      const w = K.arrive(T, 0, 0.5);
+      Object.assign(o, lerpP(s, g, w), { r: K.lerp(s.r, g.r, w), op: K.lerp(s.op, g.op, w), na: K.lerp(s.na, g.na, w) });
+      o.red = K.lerp(s.red, g.red, P.redT != null ? K.arrive(T, P.redT, 0.6) : w);
+      return o;
+    }
+    if (P.kind === 'tip') {
+      if (P.via && T < P.rotA) {   // first gather into the pile, each number turning into its dot
+        const m = K.arrive(T, 0.05 + 0.005 * i, 0.55);
+        Object.assign(o, lerpP(s, D.views[2][i], m), { r: K.lerp(s.r, R, m), na: s.na * (1 - m), red: K.lerp(s.red, 0, m), op: K.lerp(s.op, 1, m) });
+        return o;
+      }
+      const side = tipPos(i, 1, D), was = P.via ? { red: 0, op: 1 } : s;
+      const p = q > 0 ? lerpP(side, g, q) : tipPos(i, K.arrive(T, P.rotA, P.rotD), D);
+      Object.assign(o, P.via ? p : lerpP(s, p, K.arrive(T, 0, 0.25)), { r: K.lerp(R, g.r, q), red: K.lerp(was.red, g.red, q), op: K.lerp(was.op, g.op, q), na: 0 });
+      return o;
+    }
+    if (P.kind === 'untip') {
+      const p = q < 1 ? lerpP(s, tipPos(i, 1, D), q) : tipPos(i, 1 - K.arrive(T, P.rotA, P.rotD), D);
+      Object.assign(o, p, { r: K.lerp(s.r, g.r, q), red: K.lerp(s.red, g.red, q), op: K.lerp(s.op, g.op, q), na: 0 });
+      return o;
+    }
+    // lerp: a number turns into a dot as it leaves; a dot turns back into its number as it lands.
+    Object.assign(o, lerpP(s, g, q), { red: K.lerp(s.red, g.red, q), op: K.lerp(s.op, g.op, q) });
+    if (s.na > 0.5 && g.na < 0.5) { const m = K.arrive(T, t0, 0.35); o.na = s.na * (1 - m); o.r = K.lerp(s.r, g.r, m); }
+    else if (g.na > 0.5 && s.na < 0.5) { const m = K.arrive(T, t0 + P.dur - 0.3, 0.35); o.na = Math.max(s.na, m); o.r = K.lerp(s.r, 0, m); }
+    else { o.na = K.lerp(s.na, g.na, q); o.r = K.lerp(s.r, g.r, q); }
+    return o;
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), gBack = el('back'), gTrace = el('trace'), gDots = el('dots'), gNums = el('nums'), gFront = el('front'), gSel = el('sel'), gSelLab = el('sellab');
+  const r3 = (v) => Math.round(v * 100) / 100;
+  const dotEls = [], numEls = [];
+  for (let i = 0; i < N; i++) {
+    dotEls.push(gDots.appendChild(K.svg('circle', { class: 'dot', cx: 0, cy: 0, r: 0 })));
+    numEls.push(gNums.appendChild(K.svg('text', { class: 'num', x: 0, y: 0, 'text-anchor': 'middle' }, '')));
+  }
+  const ringEl = gSel.appendChild(K.svg('circle', { class: 'ring', cx: 0, cy: 0, r: 0 }));
+  const hlEl = gNums.insertBefore(K.svg('rect', { class: 'hlb', x: 0, y: 0, width: 40, height: 24, rx: 5 }), gNums.firstChild);
+  let into = gFront;
+  const add = (n) => into.appendChild(n);
+  function part(parent, a, rise, draw) {
+    if (!(a > 0.003)) return;
+    const g = parent.appendChild(K.svg('g'));
+    K.fade(g, a, rise || 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  const rect = (cls, x, y, w, h, op) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), 'fill-opacity': op == null ? null : op }));
+  function text(x, y, s, cls, anchor) { return add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s))); }
+  // A label set like a newspaper's: muted words and units, the number in bold.
+  function label(x, y, parts, anchor, cls) {
+    const t = K.svg('text', { class: cls || 'lab', x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    parts.forEach((p) => t.appendChild(K.svg('tspan', { class: p[1] || null }, p[0])));
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.4;
+  }
+  // A dimension line from x0 to x1 at height y, ends ticked; its words in a gap when they fit.
+  function bracket(x0, x1, y, words, cls, tick) {
+    const w = tw(words, cls), mid = (x0 + x1) / 2, inside = x1 - x0 >= w + 26;
+    const d = (a, b) => 'M' + r3(a) + ' ' + r3(y) + ' L' + r3(b) + ' ' + r3(y);
+    path('brk', 'M' + r3(x0) + ' ' + r3(y + tick) + ' L' + r3(x0) + ' ' + r3(y) + (inside ? '' : ' L' + r3(x1) + ' ' + r3(y)) + (inside ? '' : ' L' + r3(x1) + ' ' + r3(y + tick)));
+    if (inside) { path('brk', d(x0, mid - w / 2 - 5)); path('brk', d(mid + w / 2 + 5, x1) + ' L' + r3(x1) + ' ' + r3(y + tick)); text(mid, y + 4.5, words, cls); return; }
+    if (x1 + 6 + w <= 336) text(x1 + 6, y + 4.5, words, cls, 'start');
+    else text(x0 - 6, y + 4.5, words, cls, 'end');
+  }
+  const has = (v, set) => v != null && set.indexOf(v) >= 0;
+
+  // One view's lines and labels. A(o, d): how far a part due o seconds after the dots land has
+  // arrived. Parts the other view shares stay put (shared: true while both views have them).
+  function drawView(v, A, other, leaving) {
+    const s = shown, m = s.mean, sd = Math.max(s.sd, 0.05);
+    const both = (set) => has(v, set) && has(other, set);
+    const keep = (set) => (leaving ? !both(set) : true);
+    const aS = (set, o) => (both(set) ? 1 : A(o));
+    // The floor every dot view stands on.
+    if (has(v, [1, 2, 3, 4]) && keep([1, 2, 3, 4])) part(gBack, aS([1, 2, 3, 4], -0.9), 0, () => line('ax', 14, BASE, 326, BASE));
+    if (has(v, [1, 2, 3]) && keep([1, 2, 3])) part(gFront, aS([1, 2, 3], -0.9), 0, () => {
+      for (let c = VMIN + 1; c < VMAX; c++) line('tk', X(c), BASE, X(c), BASE + (c % 5 ? 3 : 6));
+      [50, 55, 60, 65, 70].forEach((c) => text(X(c), BASE + 21, c === 70 ? '70 °C' : String(c), 'tn'));
+    });
+    if (v === 0) {
+      part(gBack, A(-0.4), 0, () => {
+        text(10, 34, 'HOURS 1 TO 40, READ ACROSS', 'cap', 'start');
+        for (let r = 0; r < 5; r++) line('rl', 10, 70 + 36 * r + 14, 330, 70 + 36 * r + 14);
+      });
+    }
+    if (v === 1) {
+      const xa = X(s.min), xb = X(s.max), a = A(0, 0.6), y = 266;
+      part(gFront, a, 0, () => {
+        const mid = (xa + xb) / 2, h = (xb - xa) / 2 * a;
+        path('brk', 'M' + r3(mid - h) + ' ' + (y - 5) + ' L' + r3(mid - h) + ' ' + y + ' L' + r3(mid + h) + ' ' + y + ' L' + r3(mid + h) + ' ' + (y - 5));
+      });
+      part(gFront, A(0.3), 3, () => { label(xa - 6, y + 4.5, [[f1(s.min), 'n']], 'end'); label(xb + 6, y + 4.5, [[f1(s.max), 'n']], 'start'); });
+      part(gFront, A(0.6), 3, () => label(K.clamp((xa + xb) / 2, 60, 280), 290, [['range ', 'w'], [f1(s.max - s.min), 'n'], [' °C', 'u']]));
+    }
+    if (v === 2) {
+      // The mean is where the pile would balance: a fulcrum under it, a line up through it.
+      const xm = X(m), g = A(0, 0.6), lt = Math.max(46, D.pileTop - 34), top = K.lerp(BASE, lt, g);
+      part(gFront, A(-0.2), 3, () => path('fulcrum', 'M' + r3(xm) + ' ' + (BASE + 1.5) + ' L' + r3(xm - 6) + ' ' + (BASE + 9) + ' L' + r3(xm + 6) + ' ' + (BASE + 9) + ' Z'));
+      part(gBack, g, 0, () => line('mean', xm, BASE, xm, top));
+      const ml = [['mean ', 'w'], [f1(m), 'n'], [' °C', 'u']], wl = tw('median ' + f1(s.median) + ' °C', 'lab'), left = xm + 6 + wl > 300;
+      part(gFront, A(0.4), 3, () => label(left ? xm - 6 : xm + 6, lt + 6, ml, left ? 'end' : 'start'));
+      part(gFront, A(0.7), 3, () => label(left ? xm - 6 : xm + 6, lt + 24, [['median ', 'w'], [f1(s.median), 'n'], [' °C', 'u']], left ? 'end' : 'start'));
+      const b = A(1.1, 0.6), y = 266, x0 = X(m - sd), x1 = X(m + sd);
+      part(gFront, b, 0, () => {
+        const h = (x1 - x0) / 2 * b;
+        path('brk', 'M' + r3(xm - h) + ' ' + (y - 5) + ' L' + r3(xm - h) + ' ' + y + ' L' + r3(xm + h) + ' ' + y + ' L' + r3(xm + h) + ' ' + (y - 5) + ' M' + r3(xm) + ' ' + y + ' L' + r3(xm) + ' ' + (y - 4));
+      });
+      part(gFront, A(1.5), 3, () => label(K.clamp(xm, 110, 230), 290, [['1 SD = ', 'w'], [f1(s.sd), 'n'], [' °C', 'u'], [' each side of the mean', 'w']]));
+    }
+    if (v === 3) {
+      // The bands: 1, 2 and 3 SD either side of the mean, palest outermost; each with its share.
+      const bandA = [A(1.2), A(1.6), A(2.0)], ops = [0.9, 0.55, 0.28];
+      const st = K.clamp(Math.min(curveY(m, m, sd), D.pileTop) - 16, 66, 190);   // the bands' top, just over the pile
+      for (let k = 2; k >= 0; k--) {
+        part(gBack, bandA[k], 0, () => {
+          const xa = Math.max(14, X(m - (k + 1) * sd)), xb = Math.min(326, X(m + (k + 1) * sd)), xi = X(m - k * sd), xo = X(m + k * sd);
+          if (k === 0) rect('band', xa, st, xb - xa, BASE - st, ops[0]);
+          else { rect('band', xa, st, Math.max(0, xi - xa), BASE - st, ops[k]); rect('band', xo, st, Math.max(0, xb - xo), BASE - st, ops[k]); }
+        });
+        part(gFront, bandA[k], 2, () => bracket(X(m - (k + 1) * sd), X(m + (k + 1) * sd), st - 9 - 17 * k, ['68%', '95%', '99.7%'][k], 'pct', 5));
+      }
+      // The curve, drawn left to right over the pile.
+      const c = A(0.1, 1.2);
+      part(gFront, c > 0 ? 1 : 0, 0, () => {
+        const a = Math.max(VMIN, m - 3.6 * sd), b = Math.min(VMAX, m + 3.6 * sd), e = K.lerp(a, b, c), pts = [];
+        for (let k = 0; k <= 72; k++) { const x = K.lerp(a, e, k / 72); pts.push(r3(X(x)) + ' ' + r3(Math.max(st - 4, curveY(x, m, sd)))); }
+        path('curve', 'M' + pts.join(' L'));
+      });
+      part(gBack, A(2.6), 0, () => LIM.forEach((L) => line('lim', X(L), st, X(L), BASE + 3)));
+      part(gFront, A(2.6), 3, () => LIM.forEach((L) => label(X(L), 274, [['limit ' + L, '']], 'middle', 'lt')));
+    }
+    if (v === 4) {
+      part(gBack, A(-2.4), 0, () => {
+        [50, 55, 60, 65, 70].forEach((c) => { line('gl', 40, YT(c), 318, YT(c)); text(34, YT(c) + 4.5, String(c), 'tn', 'end'); });
+        text(34, YT(70) - 13, '°C', 'tn', 'end');
+      });
+      part(gFront, A(-2.2), 0, () => {
+        [0, 9, 19, 29, 39].forEach((i) => line('tk', TX(i), BASE, TX(i), BASE + 5));
+        text(TX(0) + 4, BASE + 21, 'hour 1', 'tn', 'end');
+        [9, 19, 29, 39].forEach((i) => text(TX(i), BASE + 21, String(i + 1), 'tn'));
+      });
+      part(gBack, A(-1.9), 0, () => LIM.forEach((L) => line('lim', 40, YT(L), 318, YT(L))));
+      // A key along the top: the dashed limits on the left, the trend on the right once it is drawn.
+      part(gFront, A(-1.9), 2, () => { line('lim', 10, 18, 28, 18); label(34, 22.5, [['limits 56 and 64', '']], 'start', 'lt'); });
+      const g = A(0.05, 0.6), f = { slope: s.slope, icpt: s.icpt };
+      part(gFront, g, 0, () => line('trend', TX(0), YT(f.icpt + f.slope * 1), K.lerp(TX(0), TX(39), g), YT(f.icpt + f.slope * K.lerp(1, 40, g))));
+      part(gFront, A(0.5), 2, () => {
+        const words = 'trend ' + K.fmt(s.slope * 10, { decimals: 1, sign: true }) + ' °C per 10 h', w = tw(words, 'lab') + 4;
+        line('trend', 330 - w - 24, 18, 330 - w - 6, 18);
+        label(330, 22.5, [['trend ', 'w'], [K.fmt(s.slope * 10, { decimals: 1, sign: true }), 'n'], [' °C per 10 h', 'u']], 'end');
+      });
+    }
+  }
+  // The thread through the readings in time order, drawn as each one lands.
+  function drawTrace(a) {
+    if (!(a > 0.003)) return;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      if (view === 4 && P && T < P.S && K.arrive(T, P.t[i], P.dur) < 0.999) break;
+      pts.push(r3(cur[i].x) + ' ' + r3(cur[i].y));
+    }
+    if (pts.length < 2) return;
+    const g = gTrace.appendChild(K.svg('g'));
+    K.fade(g, a * 0.7, 0);
+    g.appendChild(K.svg('path', { class: 'trace', d: 'M' + pts.join(' L') }));
+  }
+
+  // The reading being followed: a ring in every dot view, a highlighter behind its number in the log.
+  function selLabelText(v, i) {
+    const val = f1(D.v[i]) + ' °C';
+    if (v === 3) return val + ' · ' + K.fmt((D.v[i] - D.s.mean) / Math.max(D.s.sd, 1e-9), { decimals: 1, sign: true }) + ' SD';
+    return 'hour ' + (i + 1) + ' · ' + val;
+  }
+  function drawSel(labA) {
+    const i = sel(), c = cur[i];
+    hlEl.setAttribute('x', r3(c.x - 21)); hlEl.setAttribute('y', r3(c.y - 12)); hlEl.setAttribute('width', 42); hlEl.setAttribute('height', 23);
+    hlEl.style.opacity = (c.na * (view === 0 ? labA : 1)).toFixed(3);
+    hlEl.style.display = c.na < 0.005 ? 'none' : '';
+    const ra = K.clamp(c.r / (view === 4 ? RT : R), 0, 1);
+    ringEl.setAttribute('cx', r3(c.x)); ringEl.setAttribute('cy', r3(c.y)); ringEl.setAttribute('r', r3(c.r + 3.4));
+    ringEl.style.opacity = ra.toFixed(3);
+    ringEl.style.display = ra < 0.01 ? 'none' : '';
+    gSelLab.textContent = '';
+    if (view === 0 || !(labA > 0.003) || ra < 0.99) return;
+    const right = c.x >= X(D.s.mean), side = view !== 4, y = side ? c.y + 4.5 : c.y - 12;
+    const avoid = Array.from(svg.querySelectorAll('.dot, .ring, .mean, .fulcrum, .lim, .trend, .curve, .brk, .trace'));
+    const x = side ? c.x + (right ? 10 : -10) : K.clamp(c.x, 70, 270);
+    const made = K.labels(gSelLab, [{ x, y, text: selLabelText(view, i), class: 'sl', anchor: side ? (right ? 'start' : 'end') : 'middle' }], { avoid });
+    made.forEach((t) => K.fade(t, labA, 0));
+  }
+
+  function draw() {
+    for (let i = 0; i < N; i++) {
+      const c = cur[i], d = dotEls[i], t = numEls[i];
+      d.setAttribute('cx', r3(c.x)); d.setAttribute('cy', r3(c.y)); d.setAttribute('r', r3(Math.max(0, c.r)));
+      d.style.display = c.r < 0.05 ? 'none' : '';
+      const red = K.clamp(c.red, 0, 1);
+      d.style.fill = red < 0.01 ? 'var(--k-accent2)' : red > 0.99 ? 'var(--k-warn)' : 'color-mix(in srgb, var(--k-warn) ' + Math.round(red * 100) + '%, var(--k-accent2))';
+      d.setAttribute('fill-opacity', r3(c.op));
+      const lg = D.views[0][i];
+      t.setAttribute('x', r3(lg.x)); t.setAttribute('y', r3(lg.y + 5));
+      t.textContent = f1(D.v[i]);
+      t.style.opacity = K.clamp(c.na, 0, 1).toFixed(3);
+      t.style.display = c.na < 0.005 ? 'none' : '';
+    }
+    gBack.textContent = ''; gFront.textContent = ''; gTrace.textContent = '';
+    const S = P ? P.S : 0, k = P ? P.k : 1;
+    const A = (o, d) => K.arrive(T, S + o * k, d == null ? 0.6 : d);
+    // The view being left fades out from wherever its parts had got to.
+    const out = 1 - K.arrive(T, 0, 0.3), had = (o, d) => (leftP ? K.arrive(leftT, leftP.S + o * leftP.k, d == null ? 0.6 : d) : 1);
+    if (from != null && from !== view && out > 0.003) drawView(from, (o, d) => out * had(o, d), view, true);
+    drawView(view, A, from, false);
+    if (view === 4) drawTrace(1);
+    else if (from === 4) drawTrace(out);
+    drawSel(view === 0 ? A(-0.5) : view === 3 ? A(2.3) : A(0.2));   // on the curve, how unusual it is follows the bands
+  }
+
+  // ---------- motion ----------
+  // One animation runs every move and the glide after a slider; while the self-test looks, and with
+  // reduced motion, everything opens finished.
+  function settled() {
+    if (T < (P ? P.end : 0)) return false;
+    for (let i = 0; i < N; i++) { const c = cur[i], g = D.views[view][i]; if (Math.abs(c.x - g.x) + Math.abs(c.y - g.y) + Math.abs(c.r - g.r) + Math.abs(c.red - g.red) + Math.abs(c.na - g.na) > 0.02) return false; }
+    return Object.keys(shown).every((k) => Math.abs(shown[k] - target(k)) < 1e-3);
+  }
+  function target(k) { return k === 'slope' ? D.f.slope : k === 'icpt' ? D.f.icpt : D.s[k]; }
+  function snapAll() {
+    for (let i = 0; i < N; i++) Object.assign(cur[i], D.views[view][i]);
+    Object.keys(shown).forEach((k) => { shown[k] = target(k); });
+  }
+  const anim = K.anim({ button: false, label: 'Move the readings', step: (dt) => {
+    T += dt;
+    const k = 1 - Math.exp(-dt / 0.15);   // a soft glide after a slider: about 0.35 s to settle
+    for (let i = 0; i < N; i++) {
+      if (P && T < P.dotsEnd) { Object.assign(cur[i], planned(i)); continue; }
+      const c = cur[i], g = D.views[view][i];
+      ['x', 'y', 'r', 'red', 'op', 'na'].forEach((f) => { c[f] += (g[f] - c[f]) * k; });
+    }
+    Object.keys(shown).forEach((f) => { shown[f] += (target(f) - shown[f]) * k; });
+    draw();
+    if (settled()) { snapAll(); draw(); return false; }
+    return true;
+  } });
+  function go() {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); snapAll(); draw(); return; }
+    if (!anim.playing()) anim.play();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && D) { T = Infinity; snapAll(); draw(); } });
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'View', steps: VIEWS, value: 0, compact: true, into: '#nav' });
+  const sdCtl = K.control({ id: 'sd', label: 'Scatter of each reading (SD)', min: 1, max: 3, step: 0.1, value: 2, unit: '°C', into: '#controls' });
+  const climbCtl = K.control({ id: 'climb', label: 'Slow climb', min: 0, max: 0.6, step: 0.1, value: 0, fmt: (v) => K.fmt(v, { decimals: 1 }) + ' °C per 10 h', into: '#controls' });
+  K.button({ label: 'Fresh batch', secondary: true, into: '#batch', press: () => { batch = batch % 40 + 1; K.refresh(); } });
+  K.stage('#fig', '#controls');
+
+  // Tap a reading (or use the arrow keys) to follow it through every view.
+  const hit = el('hit');
+  let down = null;
+  function toView(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  }
+  function pick(q) {
+    let best = -1, bd = 26 * 26;
+    for (let i = 0; i < N; i++) { const c = cur[i], dx = c.x - q.x, dy = c.y - q.y, d2 = dx * dx + dy * dy; if (d2 < bd) { bd = d2; best = i; } }
+    if (best < 0) return;
+    selUser = best;
+    K.reveal(); K.refresh();
+  }
+  hit.addEventListener('pointerdown', (e) => { down = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+  hit.addEventListener('pointerup', (e) => {
+    if (!down || down.id !== e.pointerId) return;
+    const far = Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10;
+    down = null;
+    if (far) return;
+    const q = toView(e);
+    if (q) pick(q);
+  });
+  hit.addEventListener('pointercancel', () => { down = null; });
+  hit.addEventListener('keydown', (e) => {
+    const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+    if (!by || !D) return;
+    e.preventDefault();
+    const order = D.v.map((x, i) => i);
+    if (view !== 0 && view !== 4) order.sort((a, b) => D.v[a] - D.v[b] || a - b);
+    const k = order.indexOf(sel());
+    selUser = order[(k + by + N) % N];
+    K.reveal(); K.refresh();
+  });
+
+  // ---------- the model and the page ----------
+  K.model((p) => {
+    const v = readings(batch, p.sd, p.climb), s = stats(v), f = fit(v.map((x, i) => i + 1), v);
+    const within = (k) => v.filter((x) => Math.abs(x - s.mean) <= k * s.sd).length;
+    const i = selUser != null ? selUser : v.indexOf(s.max);
+    return { mean: s.mean, median: s.median, sd: s.sd, lo: s.min, hi: s.max, range: s.range, out: v.filter((x) => x < LIM[0] || x > LIM[1]).length,
+      in1: within(1), in2: within(2), in3: within(3), slope: f.slope * 10, hour: i + 1, value: v[i], z: (v[i] - s.mean) / (s.sd || 1), batch };
+  });
+  const count = (n) => (n === 0 ? 'none' : String(n));
+  function saying(p, o) {
+    const st = Math.round(p.step), h = o.hour, val = f1(o.value) + ' °C';
+    if (st === 0) return 'Forty numbers, one an hour. From the list alone it is hard to say what is typical or how far they wander. ' +
+      (selUser == null ? 'Hour ' + h + ' has the highest reading, ' + val + '. Tap any reading to follow it instead.' : 'You are following hour ' + h + ', ' + val + '.');
+    if (st === 1) return 'On one line the readings run from ' + f1(o.lo) + ' to ' + f1(o.hi) + ' °C, a range of ' + f1(o.range) + ' °C. The range rests on just two readings, the lowest and the highest.';
+    if (st === 2) return 'The mean is ' + f1(o.mean) + ' °C and the median ' + f1(o.median) + ' °C. A typical reading sits about ' + f1(o.sd) + ' °C from the mean: that is the standard deviation, and the mean alone never shows it.';
+    if (st === 3) {
+      const z = Math.abs(o.z), zs = K.fmt(z, { decimals: 1 }) + ' SD ' + (o.z >= 0 ? 'above' : 'below') + ' the mean';
+      const far = z < 2 ? 'an ordinary reading.' : z < 3 ? 'about 1 reading in 20 lands that far out, so one or two in 40 is ordinary scatter.' : 'only about 3 readings in 1,000 land that far out, so it is worth a second look.';
+      return o.in1 + ' of the 40 readings sit within 1 SD of the mean, where the curve expects 68%, and ' + count(o.out) + (o.out === 1 ? ' falls' : ' fall') + ' outside the limits. Hour ' + h + ' is ' + zs + ': ' + far;
+    }
+    const fitted = K.fmt(o.slope, { decimals: 1, sign: true });
+    if (p.climb < 0.05) return 'In time order the trend line still tilts by ' + fitted + ' °C per 10 hours, though the rule adds no climb: a tilt that small is noise.';
+    return 'The rule adds ' + f1(p.climb) + ' °C every 10 hours and the trend line finds ' + fitted + '. In the pile a drift only looks like extra scatter; in time order it shows.';
+  }
+  const ARIA = ['A log of 40 readings in rows of 8.', 'The 40 readings as dots along a temperature line, with their range marked under it.',
+    'The readings stacked into a pile, with the mean, the median and one standard deviation either side marked.',
+    'The pile with its normal curve, bands 1, 2 and 3 standard deviations either side, and the two limits.',
+    'The readings in time order, hour 1 to 40, with the limits and the trend line.'];
+
+  K.update((p, o) => {
+    const st = Math.round(p.step);
+    D = layout(readings(batch, p.sd, p.climb), draws(batch).jit);
+    if (st !== view) {
+      const was = view;
+      snap = cur.map((c) => Object.assign({}, c));
+      leftP = P; leftT = T;
+      from = was; view = st;
+      P = plan(was, st, D);
+      T = 0;
+      if (was == null) { snapAll(); for (let i = 0; i < N; i++) cur[i].na = 0; snap = cur.map((c) => Object.assign({}, c)); }
+    }
+    climbCtl.el.hidden = st !== 4;
+    el('rule').textContent = 'Simulated, batch ' + batch + ': each reading = 60.0\u00a0°C + a random error with SD ' + f1(p.sd) + '\u00a0°C' + (p.climb >= 0.05 ? ' + a climb of ' + f1(p.climb) + '\u00a0°C per 10\u00a0h' : '');
+    el('say').textContent = saying(p, o);
+    svg.setAttribute('aria-label', ARIA[st] + ' The reading followed is hour ' + o.hour + '.');
+    hit.setAttribute('aria-label', 'Following hour ' + o.hour + '. Tap a reading, or use the arrow keys, to follow another.');
+    go();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  // The curve's share of its area within k SD of the mean (Simpson's rule over the drawn curve).
+  function shareWithin(m, s, k) {
+    const area = (a, b) => { const n = 600, h = (b - a) / n; let t = 0; for (let j = 0; j <= n; j++) { const w = j === 0 || j === n ? 1 : j % 2 ? 4 : 2; t += w * (BASE - 1 - curveY(a + j * h, m, s)); } return t * h / 3; };
+    return { part: area(m - k * s, m + k * s), whole: area(m - 9 * s, m + 9 * s) };
+  }
+  K.check('Worked by hand: readings of 58, 60, 62, 64 and 66 °C have mean 62, median 62, range 8 and standard deviation √(40 ÷ 4) = 3.16 °C; three equal readings have no spread at all', () => {
+    const a = stats([58, 60, 62, 64, 66]), b = stats([60, 60, 60]);
+    return K.near(a.mean, 62) && K.near(a.median, 62) && K.near(a.range, 8) && K.near(a.sd, 3.1623, 0.0001) && b.sd === 0 && b.range === 0;
+  });
+  K.check('The curve drawn over the pile holds 68.3%, 95.4% and 99.7% of its area within 1, 2 and 3 SD of the mean (the 68-95-99.7 rule), and its whole area equals the 40 dots\' stacks, at every scatter', () =>
+    [1, 2, 3].every((sd) => {
+      const o = K.at({ sd, climb: 0 }), sh = (k) => shareWithin(o.mean, o.sd, k);
+      return K.near(sh(1).part / sh(1).whole, 0.6827, 0.0005) && K.near(sh(2).part / sh(2).whole, 0.9545, 0.0005) && K.near(sh(3).part / sh(3).whole, 0.9973, 0.0005) &&
+        K.near(sh(1).whole, N * BIN * PITCH, N * BIN * PITCH * 1e-4);
+    }));
+  K.check('Worked by hand: the best straight line through (1, 1), (2, 3) and (3, 2) rises 0.5 a step and meets the axis at 1; and with no climb in the rule, twice the scatter gives twice the standard deviation', () => {
+    const f = fit([1, 2, 3], [1, 3, 2]), a = K.at({ sd: 1, climb: 0 }), b = K.at({ sd: 2, climb: 0 });
+    return K.near(f.slope, 0.5) && K.near(f.icpt, 1) && K.near(b.sd / a.sd, 2, 0.03);
+  });
+  K.check('Every dot sits where its reading says: in the pile each reading is in the 0.8 °C stack that holds it and the stacks hold all 40; on the line and in time order reading n sits at its own temperature, at hour n; a dot is drawn out of limits exactly when its reading is under 56 or over 64 °C', () =>
+    [[1, 0], [2, 0], [3, 0.6]].every(([sd, climb]) => [1, 2, 7].every((b) => {
+      const v = readings(b, sd, climb), L = layout(v, draws(b).jit);
+      const stacks = Object.keys(L.height).reduce((t, k) => t + L.height[k], 0) === N;
+      return stacks && v.every((x, i) => {
+        const pl = L.views[2][i], tm = L.views[4][i], ln = L.views[1][i];
+        const inBin = Math.abs(pl.x - X(x)) <= 0.4 * HS + 1e-9;
+        const lev = K.near(pl.y, BASE - 1 - PITCH / 2 - L.level[i] * PITCH) && L.level[i] < L.height[L.bins[i]];
+        const time = K.near(tm.x, TX(i)) && K.near(tm.y, YT(x)) && K.near(ln.x, X(x));
+        const red = (L.views[3][i].red === 1) === (x < 56 || x > 64) && (tm.red === 1) === (x < 56 || x > 64) && L.views[2][i].red === 0;
+        return inBin && lev && time && red;
+      });
+    })));
+  K.check('Every move between views, forward, back or a jump, has finished within 5 s, and after the first Next every reading is on the line within 3 s', () =>
+    [1, 2, 3].every((sd) => {
+      const L = layout(readings(1, sd, 0), draws(1).jit);
+      let ok = plan(null, 0, L).end <= 5 && plan(0, 1, L).S <= 3;
+      for (let a = 0; a < 5; a++) for (let b = 0; b < 5; b++) if (a !== b) { const q = plan(a, b, L); ok = ok && q.end <= 5 && q.S <= LAST && q.end >= q.S && q.k > 0.6; }
+      return ok;
+    }));
+
+  K.ready();
+</script>

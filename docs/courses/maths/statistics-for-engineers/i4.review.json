@@ -1,0 +1,65 @@
+{
+  "scores": { "lands": 4, "why": 4, "cause": 4, "trade": 5, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screen 13 (Six falling), Why?",
+      "what": "'So six falling in a row is a steady fall, even while every reading passes' states as certain what the lesson elsewhere calls rare by chance, about 1 time in 360, and the explain adds that 'chance gives one now and then'. Say 'So six falling in a row is very likely a real fall, not noise, even while every reading passes.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 11 (Same cause), text and read",
+      "what": "'How closely is their *correlation*.' is a broken sentence, and it sits exactly where the key term is introduced. Write 'How closely they line up is their *correlation*.', as the explain does."
+    },
+    {
+      "severity": "polish",
+      "where": "Trend tile, screens 3, 5 and 7",
+      "what": "The tile shows a bare '+0.011' with no 'V', because K.readout drops `unit` when `fmt` is given (kit.js line 1037). dataviz.md says units always go through `unit`, and screen 4 reads it as '+0.008 V per 10 readings'. Use the kit's decimals and sign options instead of `fmt` so the muted V shows."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 7 (Runs), text and drift slider",
+      "what": "The drift slider cannot change the runs, as the text admits ('So runs barely change'). The screen therefore shows no cause and draws no conclusion, and nothing ties it to screen 9, where runs of six do appear. Add one sentence: a run shows a change that is big beside the noise at each reading, as in the insulation string where the fall per test is about one scatter, while a slow drift shows only in the fitted line over many readings."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 (The best-fit line), text and read",
+      "what": "'The line's slope is the drift per reading' is absolute, yet at the screen's own 0.008 V drift the tile beside it reads +0.011. Say 'The line's slope measures the drift per reading', so screen 5's lesson that noise leans it too does not contradict this one."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 6 (A lean of +0.003), task",
+      "what": "The task says 'No drift is set', so the puzzle answers itself, and in real records the drift is never known. Drop that clause and give the yardstick instead ('Noise alone leans the line by under about 0.006 V per 10 readings in 95 batches in 100'). Then Dan has to compare 0.003 with 0.006, which is the skill the screen teaches."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 3, 5, 7 and 9, text plus the say line under the picture",
+      "what": "These screens carry 82 to 89 words above the picture, and the say line adds 17 to 36 more below it, so each comes to about 105 to 120 words (Dan, 21 Oct: 'too much text after the diagrams'). Cut the say lines that repeat the text word for word. On screen 7 that is 'Even this largest drift adds just 0.001 V a reading, against 0.03 V of noise'. On screen 9 it is 'Past the last test, the line would only be a guess'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9 (Insulation resistance), text and read",
+      "what": "'The opening batch is picked to show one' uses the voltage screens' word: this view has one string of tests and no batches. Say 'This string was picked to show one.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 12 (Show a cause), Why?",
+      "what": "'Here the last winding is tested again the same day' reads as if there were several windings, but the string is one winding's tests. Say 'Here the winding's last test is repeated the same day, 10 °C warmer.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Practice, rule of thumb",
+      "what": "'So two honest readings can differ by nearly 4 SD with nothing changed' stretches ordinary noise. The difference of two readings has an SD of about 1.4 SD, so only about 1 pair in 70 differs by 3.5 SD, and Dan could wave off a real 3.5 SD jump as noise. Say 'So two honest readings 2 SD apart are ordinary', which the worked example then shows."
+    },
+    {
+      "severity": "polish",
+      "where": "Explain, compare like with like; screen 10",
+      "what": "The halving rule is a value Dan would look up on a job, and the brief asks the lesson to call it a rule of thumb. The explain says only 'It roughly halves for each 10 °C' and gives no footnote. Megger's quote is in research-notes.md ('For every 10°C increase in temperature, halve the resistance'), so call it a rule of thumb there and add it as a [^n]."
+    },
+    {
+      "severity": "polish",
+      "where": "Sources, footnote 3",
+      "what": "The source's title shows as 'Microsoft Word - lecture4.621'. Give it a readable title, such as Stine's Wharton Statistics 621 lecture 4 on regression."
+    }
+  ]
+}

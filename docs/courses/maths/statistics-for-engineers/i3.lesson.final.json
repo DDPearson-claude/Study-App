@@ -1,0 +1,346 @@
+{
+  "iid": "i3",
+  "title": "The normal curve and honest outliers",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the pointer run out along the ruler past 3 SD, where honest readings almost never land, when you slide the ringed reading away from the mean.",
+    "title": "The bell and the ruler",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. Simulated readings are drawn as beads. Each bead is one simulated reading of a UPS's output voltage, taken on rounds. Say the UPS holds its output at 115.0 V. The rule on screen makes each reading. Start at 115.0 V. Add the random error times the sum of twelve small nudges, each between minus a half and plus a half. Then read it to the meter's step of 0.1 V. Here the random error is 0.3 V, the standard deviation of one reading's scatter. Fifty readings pour from the hopper through the peg field. They pile up on the beam, which balances on its fulcrum at the mean. A smooth curve traces the pile's skyline. It is the normal curve with the pile's own mean and standard deviation. Bands under it mark 1, 2 and 3 standard deviations either side of the mean. Tiles count the beads within each band, such as 34 of 50. Each tile's hint gives what the curve expects. A ruler over the pile is marked in standard deviations. Its marks come from the mean and standard deviation of the other forty-nine readings. A pointer on the ruler sits over the ringed reading. A slider, Slip on the ringed reading, moves the ringed bead. It runs from −1.2 V to +1.2 V in steps of 0.1 V and opens at 0. The ringed bead is one whose honest reading sits near the middle of the pile. Its tile, Ringed reading, in SDs, gives how many standard deviations out it sits. Two example limits, 114.2 V and 115.8 V, can appear as dashed lines. A reading on a limit is in. A reading past one shivers and turns to a warning. A button, Drop a fresh batch, pours fifty new readings. A tile, Batches with a reading out, keeps count. The screens. 1, show: fifty readings pour and pile up round 115.0 V. The smooth curve traces the skyline, then relaxes into a bell. Most beads land near the middle and fewer land further out. A bead lands far out only when most of its twelve nudges push the same way. The smooth curve is the normal curve, a model of such a pile. Some stacks stand above it and some below, because real counts wobble. 2, a puzzle: landing 0.9 V high is 3 SD out. A bead needs most of its twelve nudges to push the same way. How often does that happen? Offered: rarely, as most mixes of nudges partly cancel; about as often as landing near the middle; and never, as the nudges always cancel. Hint when wrong: look how few beads reach the ends of the pile. 3, show: the bands bloom one at a time. The beads inside each band ring as its tile counts them. About 68% of readings sit within 1 SD of the mean. About 95% sit within 2, and about 99.7% within 3. A share of the time is a chance. So one honest reading has about a 95% chance of landing within 2 SD. That chance is its probability, 0.95 written as a number from 0 to 1. The counts come close to what the curve expects. On a narrow phone the three tiles wrap onto two rows, so no word splits. 4, a puzzle: fifty honest readings pile into a bell. About how many do you expect beyond 2 SD of the mean? Offered: about 2 or 3; none; and about 16, the 32% beyond 1 SD. Hint: about 95% land within 2 SD, so about 5% land beyond. And 5% of 50 is 2.5. 5, show: to count a reading's distance from the mean, subtract the mean, then divide by the standard deviation. That count is the reading's z-score. The ruler over the pile is marked in z-scores. Its zero is the mean of the other forty-nine readings. Each mark is one of their standard deviations. The ringed reading is left out of both. A far-out reading would pull the mean towards it and widen the SD. That would shrink its own count. Slide the ringed reading and the pointer follows it along the ruler. Its finished picture shows the ringed reading slipped 0.6 V high, about 2 SD along the ruler. 6, a puzzle: readings of the UPS output have a mean of 115.0 V and a standard deviation of 0.3 V. One reads 116.0 V. How many SDs from the mean is it? Offered: about 3.3; 1.0; and 0.3. Hint: subtract the mean to get 1.0 V, then divide by the SD, 0.3 V. 7, show: example limits at 114.2 V and 115.8 V grow up from the beam. Each is about 2.7 SD from 115.0 V. In the opening batch, one honest reading lands past the upper limit. The batch is picked for that. The reading shivers and turns to a warning. Nothing is wrong with the UPS. Chance alone puts a reading out now and then. Drop fresh batches, and the tile Batches with a reading out keeps count. In this simulation, about one batch in five has a reading out. Its finished picture shows the opening batch with its one reading out. 8, a puzzle: example limits sit 2 SD either side of the mean. You take fifty readings on rounds and one lands out. What does that show? Offered: little on its own, as honest readings land beyond 2 SD about one time in twenty; the UPS output is drifting; and the meter is faulty. Hint: about 5% of honest readings land beyond 2 SD. And 5% of 50 is 2.5. 9, show: slide the ringed reading 1.2 V high, about 4 SD out on the ruler. About 99.7% of honest readings land within 3 SD. So one this far out is more likely a slip or a real change. One common choice calls anything beyond about 3.3 SD an outlier. Yet honest readings do reach about 3 SD now and then. The other reading past the upper limit is honest, and about 3 SD out. So ask why before you delete it. Test again and look for a cause. Its finished picture shows the ringed reading slipped 1.2 V high, past the upper limit and far out on the ruler. 10, a puzzle: on rounds the UPS output reads 116.2 V. Past readings have a mean of 115.0 V and a standard deviation of 0.3 V. What do you do? Offered: test again and look for a cause before deciding; delete it as an outlier; and log it as the output rising. Hint: 1.2 ÷ 0.3 is 4 SD. That is very rare for an honest reading. Find out why before you trust it or bin it. 11, show: drop fresh batches. The band counts wobble from batch to batch round what the curve expects. The ruler's marks shift a little as each batch's mean and SD change. The rule is an average over many batches, not a promise for each one. It also needs a bell. Some piles lean into a long tail, like the insulation resistance readings you met earlier. Then the far readings sit mostly on the long side. Its finished picture shows a fresh batch with its counts. 12, a mixed puzzle: the UPS output has a mean of 115.0 V and a standard deviation of 0.3 V. An example upper limit sits at 115.6 V. About what share of honest readings land above it? Offered: about 2.5%; about 5%; and about 32%. Hint: 115.6 V is 2 SD above the mean. The bell is symmetric, so the 5% beyond 2 SD splits evenly between the two sides. 13, a mixed puzzle: fifty insulation resistance readings lean into a long high tail. About what share land more than 2 SD above their mean? Offered: more than the bell's 2.5%, out in the long tail; about 2.5%, half of the 5% beyond 2 SD; and less than 2.5%, as most readings sit low. Hint: half on each side holds only for a bell. Here the long tail runs high. A right answer draws the normal curve over the pile and shades the band 2 SD either side of the mean. The two readings beyond it ring, and both sit on the high side: 2 of 50, which is 4%, and none below. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines, so no word splits.",
+    "ignores": "The readings are simulated from the rule on screen, not taken from a real UPS. The output of 115.0 V, the random error, the meter's step and the limits are all examples. A real output wanders a little with its load and temperature. Here it holds still. Twelve nudges make a pile with no long tails. No reading can land more than 6 SD out. The normal curve's tails run on for ever, very thin. A batch of fifty only comes near the curve's shares, never exactly. The ruler uses the mean and SD of forty-nine readings. With only a handful of readings, both are rough. So a count of SDs is rough too. Real far-out readings come from slips, faults and real changes. The slider only imitates them.",
+    "numbers": [
+      {
+        "label": "Example UPS output, held steady, in volts",
+        "value": 115,
+        "kind": "assumed"
+      },
+      {
+        "label": "Random error of one reading, its standard deviation, in volts",
+        "value": 0.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Meter's step, in volts",
+        "value": 0.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Number of simulated readings in the pile",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Number of nudges per reading",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Each nudge's largest size either way",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Readings the ruler is measured from",
+        "value": 49,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip on the ringed reading, opening setting, in volts",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Slip on the ringed reading, lowest setting, in volts",
+        "value": -1.2,
+        "kind": "control"
+      },
+      {
+        "label": "Slip on the ringed reading, highest setting, in volts",
+        "value": 1.2,
+        "kind": "control"
+      },
+      {
+        "label": "Slip on the ringed reading, slider step, in volts",
+        "value": 0.1,
+        "kind": "control"
+      },
+      {
+        "label": "Slip shown on screen 5, in volts",
+        "value": 0.6,
+        "kind": "control"
+      },
+      {
+        "label": "Slip of 0.6 V in SDs, 0.6 ÷ 0.3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip of 1.2 V in SDs, 1.2 ÷ 0.3",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Share within 1 SD, about, in percent",
+        "value": 68,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Share within 2 SD, about, in percent",
+        "value": 95,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Share within 3 SD, about, in percent",
+        "value": 99.7,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "SDs beyond which a reading is often called an outlier, about",
+        "value": 3.3,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Expected within 1 SD of 50, 68% of 50",
+        "value": 34,
+        "kind": "computed"
+      },
+      {
+        "label": "Expected beyond 2 SD of 50, 5% of 50",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Share beyond 2 SD, 100 − 95, in percent",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Beyond 2 SD, one time in",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Share beyond 2 SD on one side, half of 5%, in percent",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Beyond 2 SD on one side, one time in",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 wrong pick, beyond 1 SD, 32% of 50",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Share outside 1 SD, 100 − 68, in percent",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Three SDs of 0.3 V, in volts",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Most SDs twelve nudges can reach",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Example lower limit, in volts",
+        "value": 114.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example upper limit, in volts",
+        "value": 115.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Limits from 115.0 V, in volts",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Limits in SDs, 0.8 ÷ 0.3, about",
+        "value": 2.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 reading, in volts",
+        "value": 116,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 6 distance from the mean, in volts",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 answer, 1.0 ÷ 0.3, about, in SDs",
+        "value": 3.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 reading, in volts",
+        "value": 116.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 10 distance from the mean, in volts",
+        "value": 1.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 example upper limit, in volts",
+        "value": 115.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Explain example reading 2 SD high, in volts",
+        "value": 115.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its distance from the mean, in volts",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy example share high, in percent",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy example volts high",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy example system, in volts",
+        "value": 115,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy example larger system, in volts",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example reading, in volts",
+        "value": 116.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example distance from the mean, in volts",
+        "value": 1.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example, 1.1 ÷ 0.3, about, in SDs",
+        "value": 3.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Honest readings beyond 3 SD, about, per 1,000",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example retest, in volts",
+        "value": 115.1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example retest, 0.1 ÷ 0.3, about, in SDs",
+        "value": 0.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Probability of landing within 2 SD, 95% as a number from 0 to 1",
+        "value": 0.95,
+        "kind": "computed"
+      },
+      {
+        "label": "Batches of fifty honest readings with one past the example limits, in this simulation, about one in",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Honest reading past the upper limit, 115.9 V, from 115.0 V, in SDs, about",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 insulation resistance readings more than 2 SD above the mean, of 50",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 share more than 2 SD above the mean, 2 of 50, in percent",
+        "value": 4,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Repeat readings often pile into a bell. Lots sit near the mean, and fewer and fewer sit further out. That shape lets you judge a reading. Count how many standard deviations it sits from the mean, and you know how unusual it is. Here is why a pile takes that shape. Each simulated reading is the true value plus twelve small random nudges. To land far out, most of its nudges must push the same way. That is rare, because most mixes of pushes partly cancel. So most readings land near the middle. Fewer land the further out you go. Real repeat readings often pile into a similar bell. The smooth curve drawn to fit such a pile is the [[normal curve]]. It is a model, and it does not fit every pile. The insulation resistance readings you met earlier leaned into a long tail.\n\nThe standard deviation sets how wide a normal curve is. Every normal curve has the same shape, only stretched. So the share of readings within 1, 2 or 3 SD of the mean is the same on every normal curve, whatever the units. About 68% sit within 1 SD. About 95% sit within 2 SD.[^1] About 99.7% sit within 3 SD.[^2] A share of the time is also a chance. So one honest reading has about a 95% chance of landing within 2 SD. That chance is its [[probability]], 0.95 written as a number from 0 to 1. In fifty honest readings, expect about 34 within 1 SD. Expect about 2 or 3 beyond 2 SD. Earlier you met the mean ± 2 SD as the bracket that holds most beads. Now you can say how many it holds.\n\nTo judge one reading, measure its distance from the mean in SDs. Subtract the mean, then divide by the SD. That count is the reading's [[z-score]]. Say a UPS output's readings have a mean of 115.0 V and an SD of 0.3 V. A reading of 115.6 V is 0.6 ÷ 0.3 = 2 SD high. That is unusual. Even so, honest readings do it about one time in forty. A reading of 116.0 V is 1.0 ÷ 0.3, about 3.3 SD high. Honest readings land that far out very rarely.\n\nSo a reading far out is more likely a slip or a real change. A slip could be a loose lead. One common choice calls any reading beyond about 3.3 SD an [[outlier]].[^2] That number is a convention. The habit matters more. Ask why the reading happened before you set it aside.[^3] If you delete it without asking, you could throw away the one reading that shows a fault. Honest readings also land past limits now and then. So one reading out does not prove a fault. Test again.\n\n**Count a reading's distance from the mean in standard deviations. In a bell, about 95% of honest readings land within 2. One far beyond 3 is rare, so ask why before you trust it or delete it.**"
+  },
+  "analogy": {
+    "text": "Think of saying a supply is 5% high, instead of giving the volts. Five volts high is a lot on a 115 V system. It is little on a 440 V one. Five per cent means the same share on both. Counting standard deviations does the same job for readings. It divides the distance from the mean by the readings' own scatter. So 2 SD out is just as unusual on any normal curve, in volts, ohms or degrees.",
+    "breaks": "A percentage divides by a fixed rating you choose. The standard deviation comes from the readings' own scatter. So a steady supply and a noisy one give different counts for the same volts. The 68, 95 and 99.7% shares also come from the bell's shape. A percentage knows nothing about that."
+  },
+  "practice": {
+    "text": "- Gather past readings taken the same way. Use the same meter and the same point, and the same load if you can.\n- Find their mean and standard deviation. Leave out the reading you are judging. A far-out reading pulls the mean towards it and widens the SD. That shrinks its own count.\n- Subtract the mean from the new reading, then divide by the SD. That is its z-score.\n- Within 2 SD: an ordinary reading.\n- Between 2 and 3 SD: unusual. Honest readings still land there now and then. Note it and watch the next one.\n- Beyond about 3 SD: rare by chance. Check the leads and the connection. Test again and look for a cause.\n- Set a reading aside only once you know why it is wrong. Keep it in the record either way, with the reason.\n\n**Rule of thumb:** when readings pile into a bell, about 68% land within 1 SD. About 95% land within 2, and 99.7% within 3.\n\n**Worked example:** a UPS output's past readings on rounds have a mean of 115.0 V and an SD of 0.3 V. Today it reads 116.1 V. That is 1.1 ÷ 0.3, about 3.7 SD high. Only about 3 honest readings in 1,000 land beyond 3 SD. So you test again. You remake the leads, and it reads 115.1 V, about 0.3 SD high. The first reading was most likely a poor connection, not the UPS. Log both readings and the reason.\n\n**Common mistakes**\n- Deleting a far-out reading without asking why.\n- Calling a fault on one honest reading past a limit.\n- Measuring a reading's SDs from a mean and SD that include it.\n- Forgetting to divide by the SD, so the distance stays in volts.\n- Using 68, 95 and 99.7% on readings that do not pile into a bell.\n- Expecting every batch of fifty to hit the shares exactly."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "UKAS LAB 12: The Expression of Uncertainty in Testing",
+      "url": "https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf",
+      "quote": "that the probability distribution can be assumed to be normal and that a value of k = 2 defines an interval having a coverage probability of approximately 95 %."
+    },
+    {
+      "n": 2,
+      "title": "HELM Workbook 36: Descriptive Statistics",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf",
+      "quote": "Knowing that some 99.7% of a normal population lies within 3 standard deviations of the mean, we could treat any value further than say 3.3 standard deviations from the mean as on outlier."
+    },
+    {
+      "n": 3,
+      "title": "HELM Workbook 36: Descriptive Statistics",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf",
+      "quote": "You should always ask why such a value occurred in the first place and work to answer such a question sensibly before considering rejection."
+    },
+    {
+      "n": 4,
+      "title": "2.4: The Normal Distribution - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Bookshelves/Applied_Mathematics/Book%3A_College_Mathematics_for_Everyday_Life_(Inigo_et_al)/02%3A_Statistics_-_Part_2/2.04%3A_The_Normal_Distribution",
+      "quote": "Approximately 68% of the data is within one standard deviation of the mean. Approximately 95% of the data is within two standard deviations of the mean. Approximately 99.7% of the data is within three standard deviations of the mean."
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Only 36.7% of units are statistically likely to operate as long as the MTBF: with R(t) = e^(−λt), R at the MTBF of 1 ÷ λ is e^(−1) = 0.368, and of 20,000 lifetimes from the rule on screen at λ = 0.1 a year, about 36.8% outlast 10 years",
+        "ok": true,
+        "source": "https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy"
+      },
+      {
+        "label": "The inverse of λ, 1/λ, gives the mean time to failure, the MTBF: at λ = 0.1 a year that is 10 years, and 20,000 lifetimes from the rule on screen average about 10 years",
+        "ok": true,
+        "source": "https://www.belfuse.com/resource-library/blog/mtbf-reliability-and-life-expectancy"
+      },
+      {
+        "label": "Worked by hand: 30 × 0.1 = 3 and 50 × 0.1 = 5; e^(−0.5) = 0.61, so 50 × e^(−0.5) = 30.3 and 1 − e^(−0.5) = 39%; 50 × e^(−1) = 18.4, 37%; ln 2 ÷ 0.1 = 6.9, about 7 years; in series e^(−2) = 13.5%, 0.1 + 0.1 = 0.2 a year and an MTBF of 5 years; in parallel 1 − (1 − e^(−1))² = 60%, and R added up over all time gives an MTBF of 15 years; 0.9 × 0.9 = 0.81, 1 − 0.1 × 0.1 = 0.99 and 0.9 × 0.1 + 0.1 × 0.9 = 0.18; 20 + 10 + 20 = 50 per million hours, so 1,000,000 ÷ 50 = 20,000 hours, the weakest part alone 50,000 and the MTBFs added 200,000. From the batch shown: 30 of 50 still work at 5 years, 27 at 6, 25 at 7 and 18 at 10; in series 21 of 25 pairs at 1 year and 3 at 10; in parallel all 25 at 1 year and 15 at 10",
+        "ok": true
+      },
+      {
+        "label": "Shapes the rules give: one unit's failure rate is flat at 0.1 a year at every age and a series pair's at 0.2, while a parallel pair's starts at 0 and climbs towards 0.1 without reaching it; a steady rate loses the same share of what is left each year; the bathtub sketch starts high, sits near 0.02 a year in its middle years and climbs past 0.3 with wear-out; its batch fails in an early heap, a quiet floor and a wear-out hump; a lifetime is where the failure rate added up reaches −ln u",
+        "ok": true
+      },
+      {
+        "label": "Drawn right, and each puzzle hidden until answered: every unit stays on the picture at full size; each puzzle accepts one right answer of three, and before it nothing gives the answer away (the clock waits, no dots on the rate, no rates added, no fault); a right answer brings each in; every demonstration settles within 5 s and every answer within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "arr",
+      "years"
+    ],
+    "readouts": [
+      "alive",
+      "expect",
+      "mtbf",
+      "rate"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Fifty units",
+          "The next year",
+          "The share still working",
+          "At 10 years",
+          "At the MTBF",
+          "Failed by 5 years",
+          "Pairs in series",
+          "A pump and its starter",
+          "Pairs in parallel",
+          "Two chargers",
+          "The bathtub",
+          "Two ages",
+          "A UPS in series",
+          "A shared battery"
+        ],
+        "value": 0
+      },
+      {
+        "id": "arr",
+        "kind": "choice",
+        "label": "Units",
+        "options": [
+          "single",
+          "series",
+          "parallel"
+        ],
+        "labels": [
+          "One by one",
+          "Pairs in series",
+          "Pairs in parallel"
+        ],
+        "value": "single",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "years",
+        "kind": "control",
+        "label": "Years in service",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "log": false,
+        "value": 5,
+        "shown": true,
+        "snap": [
+          10
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Beads"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "K.sound is used but no K.button press played anything: play sound from a K.button's press so the self-test (and Dan) can reach it."
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

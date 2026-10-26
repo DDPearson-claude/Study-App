@@ -1,0 +1,398 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Statistics for engineers
+Idea: The middle and the spread (Repeat readings pile up round a middle, the mean or median, and the standard deviation measures how far they typically sit from it.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the pile shrink to half its width and grow nearly twice as tall, still balanced at the same point, when you halve the random error.
+Title (the app shows it above the frame, so do not repeat it): The balancing pile
+The rule (the app shows it just above the frame, under "What you're looking at"): This is a short lesson in thirteen small screens. Simulated readings are drawn as beads. Each bead is one simulated reading of earth fault loop impedance, Zs. All come from one example circuit whose true value is 0.80 Ω. The rule on screen makes each reading. Start from the true value. Add the random error times the sum of twelve small nudges, each between minus a half and plus a half. Then read the result to the meter's step of 0.01 Ω. The twelve nudges are drawn as a field of pegs. So each bead jinks left or right twelve times on its way down. The pegs stand for many small causes adding up. Twelve such nudges have a standard deviation of exactly 1. So the random error slider sets how widely the readings scatter. Each bead lands in its column on a beam marked in ohms. The beam rests on a pivot, the fulcrum. The fulcrum always sits at the mean of the beads. A small tick under the beam marks the median. Tiles under the picture give the mean, the median and the standard deviation, each with its rule as a hint. Here are the screens. 1, show: fifty readings pour from the hopper and pile up round 0.80 Ω. The first three fall as numbers that turn into beads. The fulcrum settles under the pile. Tap a bead and its path through the pegs is drawn. 2, a puzzle: a small pile of five beads sits on the same beam, at 0.79, 0.80, 0.80, 0.81 and 0.85 Ω. Where does it balance? Offered: 0.81 Ω, the mean; 0.80 Ω, the middle reading; and 0.82 Ω, halfway between the lowest and highest. Hint when wrong: add all five and divide by five. 3, show: the ringed bead is a slipped probe. Drag it up to 1.80 Ω, off the end of the scale, where an arrow marks it. The beam tips. The fulcrum creeps up a fiftieth of the slip. The median's tick barely moves. Its finished picture shows the slipped bead at 1.80 Ω. 4, a puzzle: nine readings of a circuit say 0.50 Ω. A tenth, taken with a slipped probe, says 1.50 Ω. Offered: mean 0.60 Ω and median 0.50 Ω; mean 0.50 Ω and median 0.60 Ω; and both 0.60 Ω. Hint: the slip adds 1.00 Ω to the total, shared over ten. 5, show: predict first, then halve the random error slider from 0.02 Ω to 0.01 Ω. Each bead's twelve jinks through the pegs shrink to half. The beads hop into a pile half as wide and nearly twice as tall. The pegs rise to clear it. The fulcrum stays at very nearly 0.80 Ω. Its finished picture shows the narrow pile. 6, a puzzle on two piles of five. A is 0.76, 0.80, 0.80, 0.80 and 0.84 Ω. B is 0.76, 0.76, 0.80, 0.84 and 0.84 Ω. Both have a mean of 0.80 Ω and a range of 0.08 Ω. Which is more spread out? Offered: B, as more readings sit far from 0.80 Ω; neither, as both have the same range; and A, as its middle column is taller. Hint: the range uses only the end readings. Look at where the others sit. 7, show: the standard deviation is worked on five beads, 0.77, 0.79, 0.81, 0.81 and 0.82 Ω. Their mean is 0.80 Ω. A bracket from the mean to each bead shows its distance: −0.03, −0.01, +0.01, +0.01 and +0.02 Ω. Worked lines show the squares: 0.0009, 0.0001, 0.0001, 0.0001 and 0.0004. Their total is 0.0016. That divided by 4 gives 0.0004, and its square root is 0.02 Ω. 8, a puzzle: work out the standard deviation of 0.75, 0.80, 0.81, 0.81 and 0.83 Ω. Their mean is 0.80 Ω. Offered: 0.03 Ω; 0.0009 Ω, the step before the root; and 0.04 Ω, half the range. Hint: square each distance from 0.80, add, divide by 4, then take the root. 9, show: back to the fifty. With the random error at 0.02 Ω, the standard deviation tile reads close to 0.02 Ω. Halve the error and it reads close to 0.01 Ω. Drag the ringed bead up to 1.80 Ω again and the tile jumps to about 0.14 Ω. Its finished picture shows the slipped bead and that tile. 10, a puzzle on two piles of ten, each with mean 0.80 Ω. A is bumpy and narrow: three beads at 0.78, four at 0.80 and three at 0.82 Ω. B is flat and wide: one bead in each column from 0.75 to 0.85 Ω, leaving 0.80 empty. Which has the larger standard deviation? Offered: B, the flat wide one; A, as its columns jump up and down; and the same, as both have ten readings round 0.80 Ω. Hint: the standard deviation counts distances from the mean, not how the column heights vary. 11, show: two piles side by side. On the left are ten repeat readings of the one example circuit, in a tight pile. On the right is one reading each on ten example circuits: 0.41, 0.48, 0.52, 0.55, 0.60, 0.64, 0.70, 0.73, 0.77 and 0.80 Ω. They make a wide pile with mean 0.62 Ω and standard deviation about 0.13 Ω. 12, a mixed puzzle: two testers each read one circuit ten times. A gets a mean of 0.80 Ω and a standard deviation of 0.01 Ω. B gets a mean of 0.80 Ω and a standard deviation of 0.04 Ω. What does that say? Offered: B's readings typically sit about four times as far from the middle; B's circuit has the higher impedance; and B's tester reads 0.04 Ω high. 13, a mixed puzzle: you read Zs once at each of twelve sockets on different circuits. The mean is 0.65 Ω and the standard deviation is 0.18 Ω. What does the 0.18 Ω mostly tell you? Offered: how much the circuits differ from one another; how far to trust each single reading; and how far the meter reads off. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers. They wrap onto more lines on a narrow phone.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The readings are simulated from the rule on screen, not taken from a real circuit. The 0.80 Ω is an example value, not a limit. Twelve nudges make a scatter that is even on both sides and has no long tails. Real readings can lean to one side, and now and then one lands far out. The beam's tilt is drawn for show, small and steady. A real beam loaded off its pivot would swing until it hit a stop. A pile of five beads is too small to show a shape. It is there to be worked by hand.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Example circuit's true Zs, in ohms: 0.8 (assumed)
+- Meter's step, in ohms: 0.01 (assumed)
+- Number of simulated readings in the big pile: 50 (assumed)
+- Number of nudges per reading: 12 (assumed)
+- Each nudge's largest size either way: 0.5 (assumed)
+- Standard deviation of the sum of twelve nudges: 1 (computed)
+- Random error slider, opening setting, in ohms: 0.02 (control)
+- Random error slider, halved, in ohms: 0.01 (control)
+- Screen 2 readings, lowest, in ohms: 0.79 (assumed)
+- Screen 2 readings, highest, in ohms: 0.85 (assumed)
+- Screen 2 total of five readings, in ohms: 4.05 (computed)
+- Screen 2 mean, 4.05 ÷ 5, in ohms: 0.81 (computed)
+- Screen 2 wrong pick, halfway between lowest and highest: 0.82 (computed)
+- Screen 2 distances below the mean add to, in ohms: 0.04 (computed)
+- Slipped bead dragged to, in ohms: 1.8 (control)
+- Size of the slip, in ohms: 1 (computed)
+- Mean's rise from the slip, 1.00 ÷ 50, in ohms: 0.02 (computed)
+- Median's largest move from the slip, half a step, in ohms: 0.005 (computed)
+- Screen 4 nine readings, each in ohms: 0.5 (assumed)
+- Screen 4 slipped tenth reading, in ohms: 1.5 (assumed)
+- Screen 4 mean, 6.00 ÷ 10, in ohms: 0.6 (computed)
+- Screen 4 mean's rise, 1.00 ÷ 10, in ohms: 0.1 (computed)
+- Screen 6 pile A lowest, in ohms: 0.76 (assumed)
+- Screen 6 pile A highest, in ohms: 0.84 (assumed)
+- Screen 6 range of both piles, in ohms: 0.08 (computed)
+- Screen 6 pile A standard deviation, in ohms: 0.028 (computed)
+- Screen 6 pile B standard deviation, in ohms: 0.04 (computed)
+- Screen 7 readings, lowest, in ohms: 0.77 (assumed)
+- Screen 7 readings, highest, in ohms: 0.82 (assumed)
+- Screen 7 largest distance from the mean, in ohms: -0.03 (computed)
+- Screen 7 total of the squares, in ohms squared: 0.0016 (computed)
+- Screen 7 divisor, one fewer than 5: 4 (computed)
+- Screen 7 mean of the squares, 0.0016 ÷ 4: 0.0004 (computed)
+- Screen 7 standard deviation, root of 0.0004, in ohms: 0.02 (computed)
+- Screen 7 result dividing by 5 instead, in ohms: 0.018 (computed)
+- Screen 8 readings, lowest, in ohms: 0.75 (assumed)
+- Screen 8 readings, highest, in ohms: 0.83 (assumed)
+- Screen 8 standard deviation, in ohms: 0.03 (computed)
+- Screen 8 wrong pick, mean of squares before the root: 0.0009 (computed)
+- Screen 8 wrong pick, half the range, in ohms: 0.04 (computed)
+- Screen 9 standard deviation after the slip, about, in ohms: 0.14 (computed)
+- Screen 10 pile A standard deviation, in ohms: 0.016 (computed)
+- Screen 10 pile B standard deviation, in ohms: 0.035 (computed)
+- Screen 10 pile B lowest, in ohms: 0.75 (assumed)
+- Screen 10 pile B highest, in ohms: 0.85 (assumed)
+- Screen 11 ten circuits, lowest reading, in ohms: 0.41 (assumed)
+- Screen 11 ten circuits, mean, in ohms: 0.62 (computed)
+- Screen 11 ten circuits, standard deviation, about, in ohms: 0.13 (computed)
+- Screen 12 tester A standard deviation, in ohms: 0.01 (assumed)
+- Screen 12 tester B standard deviation, in ohms: 0.04 (assumed)
+- Screen 13 sockets read: 12 (assumed)
+- Screen 13 mean, in ohms: 0.65 (assumed)
+- Screen 13 standard deviation, in ohms: 0.18 (assumed)
+- Slipped reading's squared distance, about: 1 (computed)
+- Other forty-nine readings' squared distances together, about: 0.02 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Read the same circuit fifty times and you get fifty slightly different numbers. They pile up round a middle. The middle and the spread of that pile are what the reading really is. Drop each reading as a bead on a beam at its value. The mean is where the beam balances. It is all the readings added up and divided by how many there are. Each bead turns the beam by its distance from the pivot. At the mean, the distances above add to exactly the same as those below. Take 0.79, 0.80, 0.80, 0.81 and 0.85 Ω. They add to 4.05 Ω, so the mean is 0.81 Ω. Below it sit 0.02 + 0.01 + 0.01 = 0.04 Ω of distance. Above it sits 0.04 Ω too, so it balances. Line the readings up in order. The one in the middle is the median, here 0.80 Ω. With an even count it is halfway between the middle two.
+
+The two part company when a reading goes astray. Say a slipped probe turns one of the fifty into 1.80 Ω. That is 1.00 Ω too high. The total rises by 1.00 Ω. Shared over fifty readings, that lifts the mean by 0.02 Ω. The median only counts places in the order. The slipped reading jumps to the top of the order. Every other reading keeps its place. Only one reading has crossed the middle, so the median moves by one place at most. In this pile that is half a meter step, 0.005 Ω, or nothing. Extreme values distort the mean but not the median, because the median is based on ranks.
+
+The middle alone cannot tell a s…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 1.3.5.1. Measures of Location (https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm): "Extreme values in the tails distort the mean. However, these extreme values do not distort the median since the median is based on ranks."
+[2] 36 36 (https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf): "from every raw data value, subtract the mean, square the results, average them and then take the square root."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

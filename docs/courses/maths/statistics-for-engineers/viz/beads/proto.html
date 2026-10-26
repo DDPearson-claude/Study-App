@@ -1,0 +1,740 @@
+<!-- kind: concept -->
+<style>
+  .lead, .caption, #prog { max-width: 34rem; }
+  .scene { display: block; width: 100%; max-width: 32rem; margin-inline: auto; }
+  .scene text { font-family: var(--k-font); }
+  /* The nudge field: rows of pegs a bead jinks through on its way down. */
+  .scene .peg { fill: var(--k-strong); }
+  .scene .hopper { fill: none; stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; }
+  .scene .trail { fill: none; stroke: var(--k-accent); stroke-width: 1.6; stroke-dasharray: 0.1 3.4; stroke-linecap: round; }
+  /* A reading: a bead with a small glint, a surface ring keeps neighbours apart. */
+  .scene .bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.2; }
+  .scene .splash { fill: none; stroke: var(--k-accent2); stroke-width: 1.1; pointer-events: none; }
+  .scene .glint { fill: var(--k-bg); opacity: .42; pointer-events: none; }
+  :root[data-theme="dark"] .scene .glint { fill: var(--k-ink); opacity: .55; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 1.6; pointer-events: none; }
+  .scene .chev { fill: var(--k-accent2); pointer-events: none; }
+  .scene .ring.out { stroke: var(--k-warn); }
+  .scene .chev.out { fill: var(--k-warn); }
+  .scene .offm { fill: var(--k-muted); pointer-events: none; }
+  /* The scale: a beam the pile sits on, ticks and their numbers. */
+  .scene .beam { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 1; fill: none; }
+  .scene .tick.major { stroke: var(--k-muted); }
+  .scene .tickl { font-size: 13px; fill: var(--k-muted); }
+  .scene .title { font-size: 13px; fill: var(--k-muted); }
+  .scene .fulcrum { fill: var(--k-ink); }
+  .scene .meanline { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .lab { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  .scene .tl { font-size: 12px; font-weight: 600; fill: var(--k-accent); }
+  .scene .bracket { stroke: var(--k-ink); stroke-width: 1.5; fill: none; stroke-linecap: round; }
+  .scene .span { stroke: var(--k-accent); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .med { fill: var(--k-accent); }
+  /* The normal curve and its bands. */
+  .scene .band { fill: var(--k-fill1); }
+  .scene .curve { fill: none; stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .halo { fill: none; stroke: var(--k-bg); stroke-width: 4.2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .pct { font-size: 13px; font-weight: 700; fill: var(--k-ink); }
+  /* Tolerance: the zones beyond the limits are warnings. */
+  .scene .zone { fill: var(--k-warn); fill-opacity: .09; }
+  .scene .limit { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .wl { font-size: 12px; font-weight: 600; fill: var(--k-warn); }
+  .scene .ruler { stroke: var(--k-accent); stroke-width: 1.2; fill: none; }
+  /* Over time. */
+  .scene .axis { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .trend { stroke: var(--k-amber-line); stroke-width: 2.6; stroke-linecap: round; }
+  .scene .truth { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .noise { fill: var(--k-fill1); }
+  .scene .keyl { font-size: 12px; fill: var(--k-muted); }
+  #controls .k-btn { width: 100%; }
+  .scene.nodrag .k-drag-hit { pointer-events: none; }
+</style>
+
+<p class="lead">Each bead is one simulated reading of a battery bank's float voltage, which its charger holds at 27.00 V.</p>
+
+<div id="prog"></div>
+
+<svg class="scene" id="scene" viewBox="0 0 340 266" width="100%" role="img" aria-label="">
+  <g id="field"></g>
+  <g id="under"></g>
+  <g id="tilt"><g id="scale"></g><g id="beads"></g><g id="marks"></g></g>
+  <g id="over"></g>
+  <g id="axes"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<p class="caption">Simulated: each reading is 27.00 V plus twelve random nudges, read to 0.01 V. The limits are an example.</p>
+
+<script>
+  // ---------- the rule: a reading is the true value plus twelve small random nudges ----------
+  // Each nudge is anywhere from −½ to +½ (times the random error set on the slider). Twelve of them
+  // add to an error whose SD is exactly the slider's value (12 × 1/12 = 1). The meter shows the
+  // result to 0.01 V, so equal readings stack. The last reading (the ringed bead) can be given a slip.
+  const N = 50, NUD = 12, TRUE = 27.0, RES = 0.01, HALF = 15, LIMIT = 5, FIRST = 3438;
+  const FREQ = [330, 392, 440, 523, 587, 659, 784, 880, 1047, 1175, 1319];   // a pentatonic run: low readings tick low
+  let batch = FIRST;
+  function mulberry(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  const NUDGES = new Map();
+  function nudgesOf(b) {
+    if (!NUDGES.has(b)) {
+      const r = mulberry(7919 * b + 104729);
+      NUDGES.set(b, Array.from({ length: N }, () => Array.from({ length: NUD }, () => r() - 0.5)));
+    }
+    return NUDGES.get(b);
+  }
+  const total = (a, n) => { let s = 0; for (let j = 0; j < (n == null ? a.length : n); j++) s += a[j]; return s; };
+  const clampK = (k) => Math.max(-HALF, Math.min(HALF, k));
+  // Where reading i is, in steps of 0.01 V from 27.00 V, after its first `upto` nudges (no rounding, no slip).
+  const pathSteps = (u, i, p, upto) => (p.drift * i / 10 + p.spread * total(u, upto)) / RES;
+  // Every reading as the meter shows it, in whole steps of 0.01 V from 27.00 V; the last one slipped.
+  function readings(p, b) {
+    return nudgesOf(b == null ? batch : b).map((u, i) => Math.round(pathSteps(u, i, p, NUD)) + (i === N - 1 ? Math.round(p.slip / RES) : 0));
+  }
+  // Mean, sample standard deviation (n − 1), median, lowest and highest, in steps.
+  function stats(ks) {
+    const n = ks.length;
+    if (!n) return null;
+    const m = total(ks) / n;
+    let q = 0;
+    for (const k of ks) q += (k - m) * (k - m);
+    const sd = n > 1 ? Math.sqrt(q / (n - 1)) : 0;
+    const s = ks.slice().sort((a, b) => a - b);
+    const med = n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+    return { n, m, sd, med, lo: s[0], hi: s[n - 1] };
+  }
+  // A line of best fit (least squares) through [x, y] points: slope b, the line's value a at mid, and its scatter.
+  function fit(pts) {
+    const n = pts.length;
+    if (n < 2) return null;
+    let mx = 0, my = 0;
+    for (const q of pts) { mx += q[0]; my += q[1]; }
+    mx /= n; my /= n;
+    let sxx = 0, sxy = 0;
+    for (const q of pts) { sxx += (q[0] - mx) * (q[0] - mx); sxy += (q[0] - mx) * (q[1] - my); }
+    const b = sxx > 0 ? sxy / sxx : 0;
+    let rr = 0;
+    for (const q of pts) { const e = q[1] - (my + b * (q[0] - mx)); rr += e * e; }
+    return { b, mx, my, res: n > 2 ? Math.sqrt(rr / (n - 2)) : 0 };
+  }
+  const V = (k) => TRUE + k * RES;
+
+  // ---------- controls ----------
+  const STEPS = [
+    { title: 'The spread', text: 'Every reading lands near the true value, nudged by chance twelve times on the way down. Fifty of them pile up into a shape.' },
+    { title: 'Mean and standard deviation', text: 'The mean is where the pile balances. The standard deviation is how far a typical reading sits from it. Drag the ringed bead to make one reading slip.' },
+    { title: 'The normal curve', text: 'Random error makes a bell-shaped pile. About 68% of readings sit within 1 SD of the mean, 95% within 2 SD and 99.7% within 3 SD.' },
+    { title: 'Out of tolerance', text: 'Say the limits are 26.95 V and 27.05 V. A reading beyond them is out of tolerance. The ruler counts how many SDs it sits from the rest.' },
+    { title: 'Over time', text: 'The same readings, in the order they were taken. A line of best fit through them shows a slow drift, which the pile could only show as extra spread.' },
+  ];
+  const stepper = K.stepper({ id: 'step', label: 'Readings', steps: STEPS, value: 0, into: '#prog' });
+  const cSpread = K.control({ id: 'spread', label: 'Random error (1 SD)', min: 0.02, max: 0.05, step: 0.005, value: 0.025, fmt: (v) => K.fmt(v, { decimals: 3 }) + ' V', into: '#controls' });
+  const cSlip = K.control({ id: 'slip', label: 'Slip on the ringed reading', min: -0.1, max: 0.1, step: 0.01, value: 0, fmt: (v) => K.fmt(v, { decimals: 2, sign: true }) + ' V', into: '#controls' });
+  const cDrift = K.control({ id: 'drift', label: 'Drift per 10 readings', min: 0, max: 0.01, step: 0.001, value: 0, fmt: (v) => K.fmt(v, { decimals: 3, sign: v > 0 }) + ' V', into: '#controls' });
+  const fresh = K.button({ label: 'Drop a fresh batch', secondary: true, into: '#controls', press: freshBatch });
+  K.stage('#scene', '#controls');
+
+  const OUTS = [
+    K.readout({ id: 'lo', label: 'Lowest', unit: 'V', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'hi', label: 'Highest', unit: 'V', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'range', label: 'Range', unit: 'V', decimals: 2, into: '#outs' }),
+    K.readout({ id: 'mean', label: 'Mean', unit: 'V', decimals: 3, into: '#outs' }),
+    K.readout({ id: 'median', label: 'Median', unit: 'V', decimals: 3, into: '#outs' }),
+    K.readout({ id: 'sd', label: 'Standard deviation', unit: 'V', decimals: 3, into: '#outs' }),
+    K.readout({ id: 'in1', label: 'Within 1 SD', fmt: (v) => v + ' of 50', into: '#outs' }),
+    K.readout({ id: 'in2', label: 'Within 2 SD', fmt: (v) => v + ' of 50', into: '#outs' }),
+    K.readout({ id: 'out', label: 'Out of tolerance', fmt: (v) => v + ' of 50', into: '#outs' }),
+    K.readout({ id: 'zslip', label: 'Ringed reading', fmt: (v) => K.fmt(v, { decimals: 1, sign: true }) + ' SD', into: '#outs' }),
+    K.readout({ id: 'trend', label: 'Trend per 10 readings', fmt: (v) => K.fmt(v, { decimals: 3, sign: true }) + ' V', into: '#outs' }),
+  ];
+  const SHOWN = [['lo', 'hi', 'range'], ['mean', 'median', 'sd'], ['in1', 'in2'], ['out', 'zslip'], ['trend']];
+  const CTRLS = [[cSpread], [cSlip], [cSpread], [cSlip, cSpread], [cDrift]];
+
+  K.model((p) => {
+    const ks = readings(p), s = stats(ks), rest = stats(ks.slice(0, N - 1));
+    const f = fit(ks.map((k, i) => [i, k]));
+    let in1 = 0, in2 = 0, out = 0;
+    for (const k of ks) { const d = Math.abs(k - s.m); if (d <= s.sd) in1++; if (d <= 2 * s.sd) in2++; if (Math.abs(k) > LIMIT) out++; }
+    return {
+      lo: V(s.lo), hi: V(s.hi), range: (s.hi - s.lo) * RES,
+      mean: V(s.m), median: V(s.med), sd: s.sd * RES,
+      in1, in2, out,
+      zslip: rest.sd > 0 ? (ks[N - 1] - rest.m) / rest.sd : 0,
+      trend: f.b * 10 * RES,
+    };
+  });
+
+  // ---------- the drawing's geometry ----------
+  // Pile view: the scale runs 26.85 to 27.15 V, one bead-wide column per 0.01 V, on a beam at YA.
+  // Time view: reading 1 to 50 along the beam, the same 26.85 to 27.15 V stood up the left side.
+  const XC = 170, P = 9.6, R = 4.2, RT = 3.3, YA = 210, PILE_TOP = 80;
+  const FY0 = 8, FDY = 6, FY1 = FY0 + FDY * NUD;
+  const TX0 = 54, TX1 = 326, TY0 = 202, TY1 = 30;
+  const X = (k) => XC + k * P;
+  const TXof = (i) => TX0 + i * (TX1 - TX0) / (N - 1);
+  const TYof = (k) => TY0 - (k + HALF) * (TY0 - TY1) / (2 * HALF);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const backOut = (p) => { const c = 1.25; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+
+  let cacheKey = '', cache = null;
+  function dataNow(p) {
+    const key = [batch, p.spread, p.slip, p.drift].join('|');
+    if (key === cacheKey) return cache;
+    const ks = readings(p), cnt = {}, idx = [];
+    ks.forEach((k, i) => { const c = clampK(k); idx[i] = cnt[c] || 0; cnt[c] = idx[i] + 1; });
+    let tall = 1;
+    for (const c in cnt) tall = Math.max(tall, cnt[c]);
+    const vp = Math.min(P, (YA - 1.5 - PILE_TOP) / tall);
+    const pile = ks.map((k, i) => ({ x: X(clampK(k)), y: YA - 1.5 - R - idx[i] * vp, r: R }));
+    const time = ks.map((k, i) => ({ x: TXof(i), y: TYof(clampK(k)), r: RT }));
+    cacheKey = key;
+    cache = { ks, pile, time, vp, nud: nudgesOf(batch) };
+    return cache;
+  }
+  // x of reading i after `row` nudges, as it falls through the field.
+  const fieldX = (D, i, row, p) => Math.max(6, Math.min(334, X(pathSteps(D.nud[i], i, p, row))));
+
+  // ---------- drawing elements, made once and moved ----------
+  const $ = (id) => document.getElementById(id);
+  const svg = $('scene');
+  const G = { field: $('field'), under: $('under'), tilt: $('tilt'), scale: $('scale'), beads: $('beads'), marks: $('marks'), over: $('over'), axes: $('axes') };
+  const S = (tag, attrs, into, text) => { const e = K.svg(tag, attrs || {}, text == null ? undefined : text); (into || G.over).appendChild(e); return e; };
+  function vis(el, a, rise) {
+    if (!(a > 0.002)) { el.setAttribute('display', 'none'); return false; }
+    el.removeAttribute('display');
+    K.fade(el, a, rise || 0);
+    return true;
+  }
+  // The field: twelve rows of pegs, one nudge per row. Their spacing is the size of a nudge, so more
+  // random error means wider-set pegs; the field widens as the square root of the rows passed,
+  // three SDs of the paths either side, as the nudges add up.
+  const PEG = [];   // [element, position in peg spacings]
+  for (let row = 1; row <= NUD; row++) {
+    const lim = 7.2 * Math.sqrt(row / NUD) + 0.6, off = row % 2 ? 0.5 : 0;
+    for (let j = -9; j <= 9; j++) if (Math.abs(j + off) <= lim) PEG.push([S('circle', { class: 'peg', cy: FY0 + row * FDY, r: 1.2 }, G.field), j + off]);
+  }
+  const hopper = S('path', { class: 'hopper' }, G.field);
+  const trueLab = S('text', { class: 'tl' }, G.field, 'true value');
+  const trail = S('path', { class: 'trail' }, G.field);
+  const counter = S('text', { class: 'tl', 'text-anchor': 'start', x: 14, y: 24 }, G.over);
+  // Under the beads.
+  const bands = [3, 2, 1].map((z) => S('rect', { class: 'band', 'fill-opacity': z === 1 ? 1 : z === 2 ? 0.55 : 0.3 }, G.under));
+  const zones = [0, 1].map(() => S('rect', { class: 'zone' }, G.under));
+  const meanLine = S('line', { class: 'meanline' }, G.under);
+  const noise = S('path', { class: 'noise' }, G.under);
+  const truth = S('line', { class: 'truth' }, G.under);
+  // The scale (it tilts with the beam).
+  const beam = S('line', { class: 'beam' }, G.scale);
+  const minor = S('path', { class: 'tick' }, G.scale);
+  const major = S('path', { class: 'tick major' }, G.scale);
+  const VALS = [-10, -5, 0, 5, 10];
+  const valLabs = VALS.map((k) => S('text', { class: 'tickl', 'text-anchor': 'middle' }, G.scale, K.fmt(V(k), { decimals: 2 })));
+  // The beads.
+  const beads = [], splashes = [];
+  for (let i = 0; i < N; i++) splashes.push(S('ellipse', { class: 'splash' }, G.beads));
+  for (let i = 0; i < N; i++) beads.push({ c: S('circle', { class: 'bead', r: R }, G.beads), g: S('circle', { class: 'glint' }, G.beads) });
+  const rogue = beads[N - 1].c;
+  const ring = S('circle', { class: 'ring' }, G.marks);
+  const chev = S('path', { class: 'chev' }, G.marks);
+  const offm = S('path', { class: 'offm' }, G.marks);
+  // Over the beads.
+  const fulcrum = S('path', { class: 'fulcrum' }, G.over);
+  const span = S('path', { class: 'span' }, G.over);
+  const rangeLab = S('text', { class: 'tl' }, G.over, 'range');
+  const meanLab = S('text', { class: 'lab', 'text-anchor': 'middle' }, G.over, 'mean');
+  const sdBr = S('path', { class: 'bracket' }, G.over);
+  const sdL = S('text', { class: 'tl', 'text-anchor': 'end' }, G.over, '1 SD');
+  const sdR = S('text', { class: 'tl', 'text-anchor': 'start' }, G.over, '1 SD');
+  const medMark = S('path', { class: 'med' }, G.over);
+  const medLab = S('text', { class: 'tl' }, G.over, 'median');
+  const curveHalo = S('path', { class: 'halo' }, G.over);
+  const curve = S('path', { class: 'curve' }, G.over);
+  const pcts = ['68%', '95%', '99.7%'].map((t) => S('text', { class: 'pct', 'text-anchor': 'middle' }, G.over, t));
+  const limits = [0, 1].map(() => S('line', { class: 'limit' }, G.over));
+  const zoneLabs = ['too low', 'too high'].map((t) => S('text', { class: 'wl', 'text-anchor': 'middle' }, G.over, t));
+  const ruler = S('path', { class: 'ruler' }, G.over);
+  const ZS = [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6];
+  const zLabs = ZS.map((z) => S('text', { class: 'tl', 'text-anchor': 'middle' }, G.over, z > 0 ? '+' + z : z < 0 ? '−' + -z : '0'));
+  const rulerCap = S('text', { class: 'tl', 'text-anchor': 'start' }, G.over, 'SDs from the mean of the rest');
+  const trend = S('line', { class: 'trend' }, G.over);
+  // Time-view axes and key.
+  const yAxis = S('line', { class: 'axis' }, G.axes);
+  const yTicks = S('path', { class: 'tick major' }, G.axes);
+  const unitV = S('text', { class: 'title', 'text-anchor': 'middle' }, G.axes, 'V');
+  const NUMS = [1, 10, 20, 30, 40, 50];
+  const numLabs = NUMS.map((n) => S('text', { class: 'tickl', 'text-anchor': 'middle' }, G.axes, String(n)));
+  const pileTitle = S('text', { class: 'title', 'text-anchor': 'middle', x: XC, y: 259 }, G.axes, 'Float voltage (V), simulated');
+  const timeTitle = S('text', { class: 'title', 'text-anchor': 'middle', x: (TX0 + TX1) / 2, y: 259 }, G.axes, 'Reading number, in the order taken');
+  const key = S('g', {}, G.axes);
+  S('line', { class: 'trend', x1: 56, y1: 14, x2: 70, y2: 14 }, key);
+  S('text', { class: 'keyl', x: 75, y: 18 }, key, 'best fit');
+  S('line', { class: 'truth', x1: 128, y1: 14, x2: 146, y2: 14 }, key);
+  S('text', { class: 'keyl', x: 151, y: 18 }, key, 'true value');
+  S('rect', { class: 'noise', x: 214, y: 9, width: 14, height: 10, rx: 2 }, key);
+  S('text', { class: 'keyl', x: 233, y: 18 }, key, '±2 SD of noise');
+  let labW = null;
+  function labWidth(j) {
+    if (!labW) labW = valLabs.map((t) => { let w = 0; try { w = t.getComputedTextLength(); } catch (e) { w = 0; } return w > 0 ? w : 32; });
+    return labW[j];
+  }
+
+  // ---------- motion: one clock for the beads (Tsc), one for the step's labels (Tstep) ----------
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const TA = 0.5, GRAV = 1600, DT_DROP = 0.055, DT_RAIN = 0.028, BOUNCE = 0.24, FADE_OLD = 0.3, RAIN_Y0 = 16, RAIN_V0 = 120, SETTLE = 0.45;
+  // When each step's labels arrive, in seconds after s0: [start, length]. (3: red beads come in one by one.)
+  const OV = {
+    1: { fulc: [0, 0.4], mean: [1.4, 0.5], sd: [1.9, 0.7], sdl: [2.5, 0.5], med: [2.9, 0.5], ring: [3.2, 0.5] },
+    2: { z1: [0, 0.7], z2: [0.35, 0.7], z3: [0.7, 0.7], curve: [1.2, 1.1], relax: [2.4, 0.9], p1: [3.1, 0.4], p2: [3.35, 0.4], p3: [3.6, 0.4] },
+    3: { fulc: [0, 0.4], lines: [0, 0.6], zl: [0.6, 0.5], red: [1.0, 0.35], ruler: [1.8, 0.5], ring: [2.3, 0.5] },
+    4: { band: [2.3, 0.6], key: [2.6, 0.5] },
+  };
+  OV[2].fulc = [0, 0.4];
+  const RED_GAP = 0.12;
+  let Tsc = Infinity, Tstep = Infinity, s0 = 0, scene = { kind: 'still', end: 0 }, prevStep = -1, am = 0, amFrom = 0;
+  const drawn = Array.from({ length: N }, () => ({ x: XC, y: YA - 10, r: R, a: 1 }));
+  const snapshot = () => drawn.map((d) => ({ x: d.x, y: d.y, r: d.r, a: d.a }));
+  const stepNow = () => Math.round(K.params().step);
+  const fallTime = (d, v0) => { d = Math.max(2, d); return (-v0 + Math.sqrt(v0 * v0 + 2 * GRAV * d)) / GRAV; };
+
+  // A drop through the field (kind 'drop') or straight down (kind 'rain'), landing one bead every dt
+  // seconds; old beads sink away first when fadeOld. Times are worked out from where each bead lands.
+  function makeDrop(kind, fadeOld, D, time) {
+    const tgt = time ? D.time : D.pile;
+    const field = kind === 'drop';
+    const y0 = field ? FY1 : RAIN_Y0, v0 = field ? (FY1 - FY0) / TA : RAIN_V0, pre = field ? TA : 0, dt = field ? DT_DROP : DT_RAIN;
+    const tb = tgt.map((t) => fallTime(t.y - y0, v0));
+    const start = (fadeOld ? FADE_OLD : 0) + (field ? 0.15 : 0.1);
+    const L0 = start + pre + Math.max.apply(null, tb);
+    const land = tgt.map((t, i) => L0 + i * dt);
+    return { kind, from: fadeOld ? snapshot() : null, land, rel: land.map((l, i) => l - pre - tb[i]), tb, y0, v0, pre, dt, L0, end: land[N - 1] + BOUNCE };
+  }
+  // Beads travel from where they are to where they belong, one after another, along a soft arc.
+  function makeMove(toTime) {
+    return toTime ? { kind: 'move', toTime: true, from: snapshot(), delay: 0.2, stagger: 0.03, dur: 0.75, lift: 22, ease: K.ease, end: 0.2 + 0.03 * (N - 1) + 0.75 }
+      : { kind: 'move', toTime: false, from: snapshot(), delay: 0.15, stagger: 0.018, dur: 0.65, lift: -18, ease: K.ease, end: 0.15 + 0.018 * (N - 1) + 0.65 };
+  }
+  const makeFinish = () => ({ kind: 'move', toTime: false, from: snapshot(), delay: 0, stagger: 0.012, dur: 0.55, lift: 0, ease: K.ease, end: 0.012 * (N - 1) + 0.55 });
+  const makeSettle = (time) => ({ kind: 'move', toTime: false, from: snapshot(), delay: 0, stagger: time ? 0.004 : 0, dur: SETTLE, lift: 0, ease: backOut, end: SETTLE + (time ? 0.004 * (N - 1) : 0) });
+
+  function dropPos(i, sc, T, tgt, D, p) {
+    const tau = T - sc.rel[i];
+    if (tau < 0) {
+      if (sc.from && T < FADE_OLD) { const e = K.ease(T / FADE_OLD), f = sc.from[i]; return { x: f.x, y: f.y + 10 * e, r: f.r, a: f.a * (1 - e) }; }
+      return null;
+    }
+    const t = tgt[i];
+    if (tau < sc.pre) {   // in the field: one jink per row
+      const rf = NUD * tau / sc.pre, row = Math.min(NUD - 1, Math.floor(rf)), f = rf - row;
+      const xa = fieldX(D, i, row, p), xb = fieldX(D, i, row + 1, p);
+      return { x: xa + (xb - xa) * K.ease(f), y: FY0 + (FY1 - FY0) * tau / sc.pre, r: R, a: Math.min(1, tau / 0.08) };
+    }
+    const tf = tau - sc.pre;
+    if (tf < sc.tb[i]) {   // falling free, sliding into its column
+      const y = sc.y0 + sc.v0 * tf + 0.5 * GRAV * tf * tf, x0 = sc.kind === 'drop' ? fieldX(D, i, NUD, p) : t.x;
+      return { x: x0 + (t.x - x0) * K.ease(tf / sc.tb[i]), y: Math.min(y, t.y), r: t.r, a: sc.kind === 'rain' ? Math.min(1, tf / 0.08) : 1 };
+    }
+    const tc = tf - sc.tb[i];   // two small bounces, then still
+    const h = tc < 0.15 ? 4.5 * Math.sin(Math.PI * tc / 0.15) : tc < BOUNCE ? 1.3 * Math.sin(Math.PI * (tc - 0.15) / (BOUNCE - 0.15)) : 0;
+    return { x: t.x, y: t.y - h, r: t.r, a: 1, tc };
+  }
+  function movePos(i, sc, T, tgt) {
+    const f = sc.from[i], t = tgt[i], q = clamp01((T - sc.delay - i * sc.stagger) / sc.dur), e = sc.ease(q);
+    if (!(f.a > 0)) return { x: t.x, y: lerp(RAIN_Y0, t.y, K.ease(q)), r: t.r, a: clamp01(q * 3) };
+    return { x: lerp(f.x, t.x, e), y: lerp(f.y, t.y, e) - sc.lift * Math.sin(Math.PI * q), r: lerp(f.r, t.r, Math.min(1, e)), a: lerp(f.a, 1, clamp01(q * 2)) };
+  }
+  function counted(i, sc, T) {
+    if (T === Infinity) return true;
+    if (sc.kind === 'drop' || sc.kind === 'rain') return T >= sc.land[i];
+    if (sc.kind === 'move' && sc.toTime) return T >= sc.delay + i * sc.stagger + sc.dur;
+    return true;
+  }
+  // Springs give the balance point, the spread and the trend line their weight: they lag, overshoot a touch and settle.
+  const mk = (w, z) => ({ v: 0, vel: 0, to: 0, w, z, init: false });
+  const SPR = { su: mk(8, 0.7), f: mk(5, 0.42), m: mk(9, 0.85), sd: mk(9, 0.85), lo: mk(10, 0.8), hi: mk(10, 0.8), ta: mk(7, 0.8), tb: mk(7, 0.8), res: mk(7, 0.8) };
+  const aim = (s, to) => { s.to = to; if (!s.init) { s.v = to; s.vel = 0; s.init = true; } };
+  const snapAll = () => { for (const k in SPR) { SPR[k].v = SPR[k].to; SPR[k].vel = 0; } };
+  function springStep(dt) {
+    for (const k in SPR) {
+      const s = SPR[k], n = Math.max(1, Math.ceil(dt / 0.008)), h = dt / n;
+      for (let j = 0; j < n; j++) { s.vel += (-s.w * s.w * (s.v - s.to) - 2 * s.z * s.w * s.vel) * h; s.v += s.vel * h; }
+    }
+  }
+  const springsQuiet = () => Object.keys(SPR).every((k) => Math.abs(SPR[k].v - SPR[k].to) < 0.004 && Math.abs(SPR[k].vel) < 0.02);
+  // How long a step's labels take after s0 (for the anim's end and the timing check).
+  function ovEnd(st, nOut) {
+    if (st === 0) return 0;
+    if (st === 3) return Math.max(2.8, OV[3].red[0] + RED_GAP * Math.max(0, nOut - 1) + OV[3].red[1] + 0.35);
+    const o = OV[st];
+    return Math.max.apply(null, Object.keys(o).map((k) => o[k][0] + o[k][1]));
+  }
+  const arr = (st, name) => { const o = OV[st] && OV[st][name]; return o ? K.arrive(Tstep, s0 + o[0], o[1]) : 1; };
+
+  const anim = K.anim({ button: false, label: 'Beads', step: (dt) => {
+    if (Tsc !== Infinity) Tsc += dt;
+    if (Tstep !== Infinity) Tstep += dt;
+    springStep(dt);
+    paint();
+    const st = stepNow(), busy = (Tsc !== Infinity && Tsc < scene.end + 0.6) || (Tstep !== Infinity && Tstep < s0 + ovEnd(st, nOutNow)) || !springsQuiet();
+    if (!busy) { Tsc = Infinity; Tstep = Infinity; paint(); }
+    return busy;
+  } });
+  function go() {
+    if (REDUCE || testing()) { Tsc = Infinity; Tstep = Infinity; anim.pause(); return; }
+    anim.play();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && (Tsc !== Infinity || Tstep !== Infinity)) { Tsc = Tstep = Infinity; paint(); } });
+
+  function enterStep(st, was) {
+    prevStep = was;
+    amFrom = am;
+    const D = dataNow(K.params());
+    if (was < 0 || REDUCE || testing()) { Tsc = Tstep = Infinity; scene = { kind: 'still', end: 0 }; return; }
+    Tstep = 0;
+    const toTime = st === 4, fromTime = was === 4;
+    if (st === 0) { scene = makeDrop('drop', true, D, false); Tsc = 0; s0 = 0; }
+    else if (toTime !== fromTime) { scene = makeMove(toTime); Tsc = 0; s0 = toTime ? 0 : 1.3; }
+    else if (Tsc !== Infinity && (scene.kind === 'drop' || scene.kind === 'rain') && Tsc < scene.end) { scene = makeFinish(); Tsc = 0; s0 = 0.9; }
+    else s0 = 0.3;
+    // The fulcrum slides in from the left end of the pile when it was not there before.
+    if (st >= 1 && st <= 3 && !(was >= 1 && was <= 3)) { const s = stats(D.ks); SPR.f.v = s.lo - 4; SPR.f.vel = 0; SPR.f.init = true; }
+    go();
+  }
+  function settle() {
+    if (REDUCE || testing()) { Tsc = Infinity; return; }
+    scene = makeSettle(stepNow() === 4);
+    Tsc = 0;
+    go();
+  }
+  function freshBatch() {
+    batch += 1;
+    const p = K.params(), st = Math.round(p.step), D = dataNow(p);
+    lastKey = keyOf(p);
+    // Each bead ticks as it lands, higher readings higher.
+    const sc = makeDrop(st === 0 ? 'drop' : 'rain', true, D, st === 4);
+    D.ks.forEach((k, i) => K.sound.tone(FREQ[Math.max(0, Math.min(10, Math.round((clampK(k) + HALF) / (2 * HALF) * 10)))], { dur: 0.07, type: 'triangle', gain: 0.45, at: sc.L0 + i * sc.dt }));
+    if (REDUCE || testing()) { Tsc = Infinity; scene = { kind: 'still', end: 0 }; return; }
+    scene = sc;
+    Tsc = 0;
+    go();
+  }
+
+  // ---------- painting ----------
+  let nOutNow = 0;
+  function paint() {
+    const p = K.params(), st = Math.round(p.step), time = st === 4, D = dataNow(p), tgt = time ? D.time : D.pile;
+    const sc = scene, T = Tsc, live = T !== Infinity && sc.kind !== 'still', still = Tsc === Infinity && Tstep === Infinity;
+    const inK = [], inI = [];
+    for (let i = 0; i < N; i++) {
+      let q = tgt[i];
+      if (live) q = sc.kind === 'move' ? movePos(i, sc, T, tgt) : dropPos(i, sc, T, tgt, D, p);
+      drawn[i] = q ? { x: q.x, y: q.y, r: q.r, a: q.a == null ? 1 : q.a, tc: q.tc } : { x: tgt[i].x, y: tgt[i].y, r: tgt[i].r, a: 0 };
+      if (!live || counted(i, sc, T)) { inK.push(D.ks[i]); inI.push(i); }
+    }
+    const RS = stats(inK), REST = stats(inK.length && inI[inI.length - 1] === N - 1 ? inK.slice(0, -1) : inK);
+    const FIT = fit(inI.map((i, j) => [i, inK[j]]));
+    aim(SPR.su, p.spread / RES * P);
+    if (RS) { aim(SPR.f, RS.m); aim(SPR.m, RS.m); aim(SPR.sd, RS.sd); aim(SPR.lo, RS.lo); aim(SPR.hi, RS.hi); }
+    if (FIT) { aim(SPR.ta, FIT.my + FIT.b * (24.5 - FIT.mx)); aim(SPR.tb, FIT.b); aim(SPR.res, FIT.res); }
+    if (still) snapAll();
+    // The axes stand up (am: 0 pile, 1 time).
+    const amTo = time ? 1 : 0;
+    am = Tstep === Infinity ? amTo : lerp(amFrom, amTo, K.ease(clamp01((Tstep - 0.15) / 1.2)));
+
+    // Tilt: the beam rocks about the fulcrum until the fulcrum sits under the balance point.
+    const fa = st >= 1 && st <= 3 ? arr(st, 'fulc') : 0;
+    const fx = X(SPR.f.v);
+    const theta = fa > 0 && RS ? 5 * Math.tanh((RS.m - SPR.f.v) / Math.max(1.5, 1.2 * RS.sd)) * fa : 0;
+    if (Math.abs(theta) > 0.01) G.tilt.setAttribute('transform', 'rotate(' + theta.toFixed(2) + ' ' + fx.toFixed(2) + ' ' + YA + ')');
+    else G.tilt.removeAttribute('transform');
+
+    // Out of tolerance (step 3): beyond the limits a bead turns to the warning colour, with a shiver.
+    const outIdx = [];
+    for (let i = 0; i < N; i++) if (Math.abs(D.ks[i]) > LIMIT) outIdx.push(i);
+    nOutNow = outIdx.length;
+    const redOf = new Array(N).fill(0), shake = new Array(N).fill(0);
+    if (st === 3) outIdx.forEach((i, j) => {
+      const t0 = s0 + OV[3].red[0] + j * RED_GAP, a = K.arrive(Tstep, t0, OV[3].red[1]);
+      redOf[i] = a;
+      const u = Tstep === Infinity ? 1 : clamp01((Tstep - t0) / 0.4);
+      shake[i] = u > 0 && u < 1 ? 2.2 * Math.sin(u * Math.PI * 6) * (1 - u) : 0;
+    });
+
+    // Beads.
+    for (let i = 0; i < N; i++) {
+      const d = drawn[i], b = beads[i];
+      if (!(d.a > 0.002)) { b.c.setAttribute('display', 'none'); b.g.setAttribute('display', 'none'); continue; }
+      const x = d.x + shake[i];
+      b.c.removeAttribute('display'); b.g.removeAttribute('display');
+      b.c.setAttribute('cx', r2(x)); b.c.setAttribute('cy', r2(d.y)); b.c.setAttribute('r', r2(d.r));
+      b.g.setAttribute('cx', r2(x - 0.34 * d.r)); b.g.setAttribute('cy', r2(d.y - 0.36 * d.r)); b.g.setAttribute('r', r2(0.3 * d.r));
+      const op = d.a >= 1 ? '' : d.a.toFixed(3);
+      b.c.style.opacity = op; b.g.style.opacity = op ? (0.45 * d.a).toFixed(3) : '';
+      b.c.style.fill = redOf[i] > 0 ? (redOf[i] >= 1 ? 'var(--k-warn)' : 'color-mix(in srgb, var(--k-warn) ' + Math.round(redOf[i] * 100) + '%, var(--k-accent2))') : '';
+    }
+    // A small splash spreads from where each bead lands.
+    for (let i = 0; i < N; i++) {
+      const d = drawn[i], u = d.tc == null ? 1 : d.tc / 0.3;
+      if (vis(splashes[i], u < 1 ? 0.45 * (1 - u) * (1 - u) : 0)) {
+        splashes[i].setAttribute('cx', r2(d.x)); splashes[i].setAttribute('cy', r2(tgt[i].y + d.r * 0.9));
+        splashes[i].setAttribute('rx', r2(d.r + 9 * K.ease(u))); splashes[i].setAttribute('ry', r2(1.5 + 2.5 * K.ease(u)));
+      }
+    }
+    // Beads past the end of the scale sit at its end with a small arrow.
+    let om = '';
+    D.ks.forEach((k, i) => {
+      if (Math.abs(k) <= HALF || !(drawn[i].a > 0.5)) return;
+      const d = drawn[i], s = Math.sign(k);
+      om += time ? 'M' + r2(d.x - 3) + ' ' + r2(d.y - s * 6) + 'h6l-3 ' + (-s * 4) + 'z' : 'M' + r2(d.x + s * 6) + ' ' + r2(d.y - 3) + 'v6l' + s * 4 + ' -3z';
+    });
+    offm.setAttribute('d', om || 'M0 0');
+    vis(offm, om ? 1 : 0);
+
+    // The ringed reading (steps 1 and 3): a ring and two arrows say it can be dragged.
+    const ra = st === 1 || st === 3 ? arr(st, 'ring') : 0, rd = drawn[N - 1], rOut = st === 3 && redOf[N - 1] >= 0.5;
+    svg.classList.toggle('nodrag', !(st === 1 || st === 3));
+    rogue.style.pointerEvents = st === 1 || st === 3 ? '' : 'none';
+    if (vis(ring, ra * rd.a)) { ring.setAttribute('cx', r2(rd.x + shake[N - 1])); ring.setAttribute('cy', r2(rd.y)); ring.setAttribute('r', r2(rd.r + 2.6)); ring.classList.toggle('out', rOut); }
+    if (vis(chev, ra * rd.a)) {
+      const cx = rd.x + shake[N - 1], cy = rd.y, o = rd.r + 5;
+      chev.setAttribute('d', 'M' + r2(cx - o) + ' ' + r2(cy - 3.5) + 'v7l-4 -3.5z M' + r2(cx + o) + ' ' + r2(cy - 3.5) + 'v7l4 -3.5z');
+      chev.classList.toggle('out', rOut);
+    }
+
+    // The scale: the beam, its ticks and numbers, standing up into the time view's axes.
+    const pa = 1 - am;
+    beam.setAttribute('x1', r2(lerp(14, TX0 - 8, am))); beam.setAttribute('x2', r2(lerp(326, 332, am)));
+    beam.setAttribute('y1', YA); beam.setAttribute('y2', YA);
+    let dm = '', dM = '';
+    for (let k = -HALF; k <= HALF; k++) { if (k % 5) dm += 'M' + r2(X(k)) + ' ' + (YA + 1) + 'v2.5'; else dM += 'M' + r2(X(k)) + ' ' + (YA + 1) + 'v3.5'; }
+    minor.setAttribute('d', dm); major.setAttribute('d', dM);
+    vis(minor, pa); vis(major, pa);
+    valLabs.forEach((t, j) => {
+      const k = VALS[j], w = labWidth(j);
+      t.setAttribute('x', r2(lerp(X(k), TX0 - 15 - w / 2, am)));
+      t.setAttribute('y', r2(lerp(241, TYof(k) + 4.5, am) - 14 * Math.sin(Math.PI * am)));
+    });
+    vis(yAxis, am); yAxis.setAttribute('x1', TX0 - 8); yAxis.setAttribute('x2', TX0 - 8); yAxis.setAttribute('y1', YA); yAxis.setAttribute('y2', r2(YA - am * (YA - 24)));
+    let dy = '';
+    VALS.forEach((k) => { dy += 'M' + (TX0 - 12) + ' ' + r2(TYof(k)) + 'h4'; });
+    yTicks.setAttribute('d', dy); vis(yTicks, am); vis(unitV, am); unitV.setAttribute('x', TX0 - 26); unitV.setAttribute('y', 22);
+    numLabs.forEach((t, j) => { t.setAttribute('x', r2(TXof(NUMS[j] - 1))); t.setAttribute('y', 241); vis(t, K.arrive(am, 0.6, 0.4)); });
+    vis(pileTitle, 1 - K.arrive(am, 0, 0.4)); vis(timeTitle, K.arrive(am, 0.6, 0.4));
+
+    // Step 0: the field, the hopper over the true value, one bead's path, and the range under the scale.
+    const field0 = st === 0 ? (Tstep === Infinity ? 1 : K.arrive(Tstep, 0, 0.3)) : prevStep === 0 && Tstep !== Infinity ? 1 - K.arrive(Tstep, 0, 0.4) : 0;
+    vis(G.field, field0);
+    if (field0 > 0) {
+      const sp = SPR.su.v / 2.4;
+      PEG.forEach((q) => q[0].setAttribute('cx', r2(XC + q[1] * sp)));
+      let iRel = N - 1;
+      if (live && sc.kind === 'drop') { iRel = 0; for (let i = 0; i < N; i++) if (T >= sc.rel[i]) iRel = i; }
+      const hx = Math.max(20, Math.min(320, X(p.drift * iRel / 10 / RES)));
+      hopper.setAttribute('d', 'M' + r2(hx - 12) + ' 2L' + r2(hx - 4) + ' 8M' + r2(hx + 12) + ' 2L' + r2(hx + 4) + ' 8');
+      const right = hx + 16 + 58 < 334;
+      trueLab.setAttribute('x', r2(right ? hx + 16 : hx - 16)); trueLab.setAttribute('y', 12.5); trueLab.setAttribute('text-anchor', right ? 'start' : 'end');
+      let dt = 'M' + r2(fieldX(D, N - 1, 0, p)) + ' ' + FY0;
+      for (let row = 1; row <= NUD; row++) dt += 'L' + r2(fieldX(D, N - 1, row, p)) + ' ' + (FY0 + row * FDY);
+      dt += 'L' + r2(D.pile[N - 1].x) + ' ' + r2(D.pile[N - 1].y - R - 1.5);
+      trail.setAttribute('d', dt);
+      vis(trail, live && sc.kind === 'drop' ? K.arrive(T, sc.land[N - 1] + 0.2, 0.5) : 1);
+    }
+    if (vis(counter, st === 0 && inK.length ? 1 : 0)) counter.textContent = inK.length === 1 ? '1 reading' : inK.length + ' readings';
+    const spanA = st === 0 && RS && RS.n >= 2 ? (live && (sc.kind === 'drop' || sc.kind === 'rain') ? K.arrive(T, sc.land[1], 0.3) : 1) : 0;
+    if (vis(span, spanA)) {
+      const xl = X(clampK(SPR.lo.v)), xh = X(clampK(SPR.hi.v));
+      span.setAttribute('d', 'M' + r2(xl) + ' ' + (YA + 2) + 'V' + (YA + 8) + 'H' + r2(xh) + 'V' + (YA + 2));
+      const right = xh + 6 + 34 < 336;
+      rangeLab.setAttribute('x', r2(right ? xh + 6 : xl - 6)); rangeLab.setAttribute('y', YA + 14); rangeLab.setAttribute('text-anchor', right ? 'start' : 'end');
+    }
+    vis(rangeLab, st === 0 ? (live && (sc.kind === 'drop' || sc.kind === 'rain') ? K.arrive(T, sc.end, 0.5) : 1) * (spanA > 0 ? 1 : 0) : 0);
+
+    // Steps 1 to 3: the fulcrum under the beam.
+    if (vis(fulcrum, fa)) fulcrum.setAttribute('d', 'M' + r2(fx) + ' ' + (YA + 1) + 'L' + r2(fx - 7) + ' ' + (YA + 11) + 'L' + r2(fx + 7) + ' ' + (YA + 11) + 'Z');
+    const m = SPR.m.v, s = Math.max(0.5, SPR.sd.v), xm = X(m);
+    // Step 1: the mean, one SD each side, the median.
+    const ma = st === 1 && RS ? arr(1, 'mean') : 0;
+    if (vis(meanLine, ma)) { meanLine.setAttribute('x1', r2(xm)); meanLine.setAttribute('x2', r2(xm)); meanLine.setAttribute('y1', 32); meanLine.setAttribute('y2', YA - 1); }
+    if (vis(meanLab, ma, 4)) { meanLab.setAttribute('x', r2(Math.max(26, Math.min(314, xm)))); meanLab.setAttribute('y', 27); }
+    const sa = st === 1 && RS ? arr(1, 'sd') : 0;
+    if (vis(sdBr, Math.min(1, sa * 3))) {
+      const hw = s * P * sa;
+      sdBr.setAttribute('d', 'M' + r2(xm - hw) + ' 47V57M' + r2(xm - hw) + ' 52H' + r2(xm + hw) + 'M' + r2(xm + hw) + ' 47V57');
+    }
+    const sl = st === 1 && RS ? arr(1, 'sdl') : 0;
+    if (vis(sdL, sl)) { sdL.setAttribute('x', r2(xm - s * P - 5)); sdL.setAttribute('y', 56); }
+    if (vis(sdR, sl)) { sdR.setAttribute('x', r2(xm + s * P + 5)); sdR.setAttribute('y', 56); }
+    const mda = st === 1 && RS ? arr(1, 'med') : 0;
+    if (vis(medMark, mda, 4) && RS) {
+      const xd = X(clampK(RS.med));
+      medMark.setAttribute('d', 'M' + r2(xd - 4.5) + ' 64L' + r2(xd + 4.5) + ' 64L' + r2(xd) + ' 71Z');
+      const left = RS.med < RS.m - 0.05;
+      medLab.setAttribute('x', r2(left ? xd - 7 : xd + 7)); medLab.setAttribute('y', 71); medLab.setAttribute('text-anchor', left ? 'end' : 'start');
+    }
+    vis(medLab, mda, 4);
+
+    // Step 2: three bands bloom out from the mean, then the curve traces over the stacks.
+    const TOPS = [76, 62, 48];
+    [3, 2, 1].forEach((z, j) => {
+      const g = st === 2 && RS ? arr(2, 'z' + z) : 0;
+      if (vis(bands[j], Math.min(1, g * 2))) {
+        const hw = z * s * P * g;
+        bands[j].setAttribute('x', r2(xm - hw)); bands[j].setAttribute('width', r2(2 * hw));
+        bands[j].setAttribute('y', TOPS[j]); bands[j].setAttribute('height', YA - 1 - TOPS[j]);
+      }
+    });
+    const ca = st === 2 && RS && RS.n >= 2 ? arr(2, 'curve') : 0;
+    if (ca > 0) {
+      // First the skyline of the stacks as they are, traced left to right; then it relaxes into the bell.
+      const k0 = Math.max(-16, m - 4 * s), k1 = Math.min(16, m + 4 * s), kEnd = k0 + (k1 - k0) * ca, rx = st === 2 ? arr(2, 'relax') : 1, col = {};
+      for (let j = 0; j < inK.length; j++) { const c = clampK(inK[j]); col[c] = (col[c] || 0) + 1; }
+      let d = '';
+      for (let k = k0; k <= kEnd + 1e-9; k += 0.25) {
+        const z = (k - m) / s, bell = RS.n * Math.exp(-0.5 * z * z) / (s * Math.sqrt(2 * Math.PI));
+        const c0 = Math.round(k - 0.25), c1 = Math.round(k + 0.25), sky = Math.max(col[c0] || 0, col[c1] || 0);
+        d += (d ? 'L' : 'M') + r2(X(k)) + ' ' + r2(YA - 1.5 - lerp(sky, bell, rx) * D.vp - (1 - rx) * (D.vp - 2 * R));
+      }
+      curve.setAttribute('d', d || 'M0 0'); curveHalo.setAttribute('d', d || 'M0 0');
+    }
+    vis(curve, ca > 0 ? 1 : 0); vis(curveHalo, ca > 0 ? 1 : 0);
+    const PX = [0, 1.5, 2.5], PY = [42, 56, 70];
+    pcts.forEach((t, j) => {
+      if (vis(t, st === 2 && RS ? arr(2, 'p' + (j + 1)) : 0, 4)) {
+        t.setAttribute('x', r2(Math.max(22, Math.min(318, xm + (j === 1 ? -1 : 1) * PX[j] * s * P)))); t.setAttribute('y', PY[j]);
+      }
+    });
+
+    // Step 3: limits, zones, the red beads and the SD ruler (from the mean and SD of the other readings).
+    const la = st === 3 ? arr(3, 'lines') : 0;
+    const xL = X(-LIMIT - 0.5), xH = X(LIMIT + 0.5);
+    [[12, xL], [xH, 328]].forEach((z, j) => {
+      if (vis(zones[j], la)) { zones[j].setAttribute('x', r2(z[0])); zones[j].setAttribute('width', r2(z[1] - z[0])); zones[j].setAttribute('y', 66); zones[j].setAttribute('height', YA - 1 - 66); }
+      if (vis(limits[j], la > 0 ? 1 : 0)) {
+        const x = j ? xH : xL;
+        limits[j].setAttribute('x1', r2(x)); limits[j].setAttribute('x2', r2(x)); limits[j].setAttribute('y1', 66); limits[j].setAttribute('y2', r2(66 + (YA - 1 - 66) * la));
+      }
+      if (vis(zoneLabs[j], st === 3 ? arr(3, 'zl') : 0, 4)) { zoneLabs[j].setAttribute('x', r2((z[0] + z[1]) / 2)); zoneLabs[j].setAttribute('y', 60); }
+    });
+    const ua = st === 3 && REST && REST.sd > 0 ? arr(3, 'ruler') : 0;
+    if (vis(ruler, ua) && REST) {
+      const rs = REST.sd, rm = REST.m, zr = rd.a > 0 ? (D.ks[N - 1] - rm) / rs : 0;
+      const zlo = Math.max(-6, Math.min(-3, Math.floor(zr))), zhi = Math.min(6, Math.max(3, Math.ceil(zr)));
+      let d = '', x0 = null, x1 = null;
+      ZS.forEach((z, j) => {
+        const x = X(rm + z * rs), ok = z >= zlo && z <= zhi && x >= 14 && x <= 326;
+        if (ok) { d += 'M' + r2(x) + ' 37v7'; if (x0 == null) x0 = x; x1 = x; }
+        if (vis(zLabs[j], ok ? ua : 0)) { zLabs[j].setAttribute('x', r2(x)); zLabs[j].setAttribute('y', 33); }
+      });
+      if (x0 != null) d += 'M' + r2(x0) + ' 40.5H' + r2(x1);
+      ruler.setAttribute('d', d || 'M0 0');
+    } else zLabs.forEach((t) => vis(t, 0));
+    if (vis(rulerCap, ua)) { rulerCap.setAttribute('x', 14); rulerCap.setAttribute('y', 16); }
+
+    // Step 4: the readings in order, the line of best fit growing as they arrive, the noise band and the true value.
+    const lineA = time && FIT && inI.length >= 2 ? 1 : 0;
+    const iEnd = inI.length ? inI[inI.length - 1] : 0;
+    const yAt = (i) => TYof(clampK(SPR.ta.v + SPR.tb.v * (i - 24.5)));
+    if (vis(trend, lineA)) { trend.setAttribute('x1', r2(TXof(0))); trend.setAttribute('y1', r2(yAt(0))); trend.setAttribute('x2', r2(TXof(iEnd))); trend.setAttribute('y2', r2(yAt(iEnd))); }
+    const ba = time ? arr(4, 'band') : 0;
+    if (vis(noise, ba)) {
+      const w = 2 * SPR.res.v, up = (i) => TYof(clampK(SPR.ta.v + SPR.tb.v * (i - 24.5) + w)), dn = (i) => TYof(clampK(SPR.ta.v + SPR.tb.v * (i - 24.5) - w));
+      noise.setAttribute('d', 'M' + r2(TXof(0)) + ' ' + r2(up(0)) + 'L' + r2(TXof(N - 1)) + ' ' + r2(up(N - 1)) + 'L' + r2(TXof(N - 1)) + ' ' + r2(dn(N - 1)) + 'L' + r2(TXof(0)) + ' ' + r2(dn(0)) + 'Z');
+    }
+    if (vis(truth, ba)) {
+      truth.setAttribute('x1', r2(TXof(0))); truth.setAttribute('y1', r2(TYof(0)));
+      truth.setAttribute('x2', r2(TXof(N - 1))); truth.setAttribute('y2', r2(TYof(clampK(p.drift * (N - 1) / 10 / RES))));
+    }
+    vis(key, time ? arr(4, 'key') : 0);
+
+    svg.setAttribute('aria-label', ARIA[st]);
+  }
+  const ARIA = [
+    'Fifty simulated readings fall through twelve rows of pegs and pile up by value along a scale from 26.85 to 27.15 V, most near 27.00 V.',
+    'The pile of readings sits on a beam balanced on a fulcrum at the mean, with a bracket one standard deviation each side and the median marked.',
+    'The pile with three bands around the mean, one, two and three standard deviations wide, and a bell curve along the tops of the stacks.',
+    'The pile with the limits at 26.92 and 27.08 V, readings beyond them marked as warnings, and a ruler in standard deviations above.',
+    'The fifty readings in the order taken, with a line of best fit, a band two standard deviations either side and the true value as a dashed line.',
+  ];
+
+  // ---------- each change ----------
+  const keyOf = (p) => [batch, p.spread, p.slip, p.drift].join('|');
+  let lastStep = -1, lastKey = '';
+  // The ringed bead drags along the scale; the slip slider follows (the keyboard's way in).
+  K.drag(rogue, { control: 'slip', toValue: (x) => {
+    const p = K.params();
+    const base = Math.round(pathSteps(nudgesOf(batch)[N - 1], N - 1, p, NUD));
+    return (Math.round((x - XC) / P) - base) * RES;
+  } });
+
+  const sayEl = $('say');
+  K.update((p, o) => {
+    const st = Math.round(p.step);
+    if (st !== lastStep) { const was = lastStep; lastStep = st; lastKey = keyOf(p); enterStep(st, was); }
+    else if (keyOf(p) !== lastKey) { lastKey = keyOf(p); settle(); }
+    [cSpread, cSlip, cDrift].forEach((c) => { c.el.hidden = CTRLS[st].indexOf(c) < 0; });
+    OUTS.forEach((r) => { r.el.hidden = SHOWN[st].indexOf(r.id) < 0; });
+    sayEl.textContent = sayFor(st, p, o);
+    paint();
+  });
+
+  function sayFor(st, p, o) {
+    const r = p.spread / 0.025;
+    if (st === 0) {
+      if (!K.moved) return 'Predict first: give every reading twice the random error. Will the pile grow twice as wide, or twice as tall?';
+      if (r > 1.1) return 'More random error, a wider and flatter pile. The same fifty beads cover more of the scale, so the stacks sink.';
+      if (r < 0.9) return 'Less random error, a narrower and taller pile. The beads crowd in close to 27.00 V.';
+      return 'Twelve small nudges push each bead a little left or right. Most nudges cancel out, so most beads land near 27.00 V and only a few reach the sides.';
+    }
+    if (st === 1) {
+      if (!p.slip) return 'The beam balances at the mean, the pile\'s balance point. About two in three beads sit within one standard deviation of it.';
+      return 'The slipped reading tips the beam until the fulcrum finds the new balance. The mean moves a fiftieth of the slip; the median, the middle bead, hardly moves.';
+    }
+    if (st === 2) return 'This curve has the pile\'s own mean and standard deviation, and it runs along the tops of the stacks. Its bands hold about 68%, 95% and 99.7% of readings, however wide the spread.';
+    if (st === 3) {
+      const ks = readings(p), rogueOut = Math.abs(ks[N - 1]) > LIMIT, others = ks.slice(0, N - 1).filter((k) => Math.abs(k) > LIMIT).length;
+      if (rogueOut && Math.abs(o.zslip) >= 3) return 'The ringed reading is out of tolerance and far out on the ruler. A reading that unusual is more likely a slip than a real change, so check it before you trust it.';
+      if (rogueOut) return 'The ringed reading is out of tolerance, though not far from the rest. With this much spread, take it again before deciding anything.';
+      if (others && Math.abs(p.spread - 0.025) < 1e-9) return 'Some honest readings land beyond the limits. They sit 2 SD of random error from 27.00 V, so about 1 reading in 20 lands outside by chance alone.';
+      if (others) return 'With this much random error, honest readings land beyond the limits. That is spread, not a fault in the battery.';
+      return 'Every reading is inside the limits. Slip the ringed reading past one, or turn up the random error, and see what lands outside.';
+    }
+    if (!p.drift) return 'In the order taken, the readings wander but do not climb. The best-fit line still leans a little: that lean is noise.';
+    const close = Math.abs(o.trend - p.drift) <= 0.25 * p.drift;
+    return 'A drift of ' + K.fmt(p.drift, { decimals: 3 }) + ' V per 10 readings lifts the whole band of readings. ' + (close ? 'The best-fit line finds it through the noise, close to the dashed true value.'
+      : 'The best-fit line finds it, though the noise pulls it off the dashed true value a little. More readings, or less random error, pin it down better.');
+  }
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Four readings of 26.98, 27.00, 27.02 and 27.04 V have a mean of 27.01 V, a median of 27.01 V and a standard deviation of 0.0258 V (deviations ±0.01 and ±0.03 V: 0.0020 / 3 = 0.000667, whose root is 0.0258)', () => {
+    const s = stats([-2, 0, 2, 4]);
+    return K.near(V(s.m), 27.01, 1e-9) && K.near(V(s.med), 27.01, 1e-9) && K.near(s.sd * RES, Math.sqrt(0.002 / 3), 1e-9) && K.near(s.sd * RES, 0.0258, 1e-4);
+  });
+  K.check('A slip of +0.06 V on one of the 50 readings moves the mean by exactly 0.06 / 50 = 0.0012 V, and the median by no more than one 0.01 V step', () => {
+    const a = K.at({ slip: 0 }), b = K.at({ slip: 0.06 }), c = K.at({ slip: -0.1 });
+    return K.near(b.mean - a.mean, 0.0012, 1e-9) && K.near(c.mean - a.mean, -0.002, 1e-9) && Math.abs(b.median - a.median) <= 0.01 + 1e-9 && Math.abs(c.median - a.median) <= 0.01 + 1e-9;
+  });
+  K.check('Twelve nudges, each anywhere from −½ to +½, add to an error with an SD of 1 (12 × 1/12): over 20,000 simulated readings at 0.025 V the SD comes out within 2% of 0.025 V, and 68.3%, 95.4% and 99.7% fall within 1, 2 and 3 SD (within a point)', () => {
+    const r = mulberry(12345), n = 20000, e = [];
+    for (let j = 0; j < n; j++) { let s = 0; for (let q = 0; q < NUD; q++) s += r() - 0.5; e.push(0.025 * s); }
+    const m = total(e) / n, sd = Math.sqrt(e.reduce((a, v) => a + (v - m) * (v - m), 0) / (n - 1));
+    const share = (z) => e.filter((v) => Math.abs(v - m) <= z * sd).length / n;
+    return Math.abs(sd / 0.025 - 1) < 0.02 && Math.abs(share(1) - 0.683) < 0.01 && Math.abs(share(2) - 0.954) < 0.01 && Math.abs(share(3) - 0.997) < 0.005;
+  });
+  K.check('A line of best fit through readings rising exactly 0.001 V per reading, with no random error, has a trend of 0.010 V per 10 readings; through flat readings, 0', () => {
+    const rise = fit(Array.from({ length: N }, (z, i) => [i, 0.1 * i])), flat = fit(Array.from({ length: N }, (z, i) => [i, 3]));
+    return K.near(rise.b * 10 * RES, 0.01, 1e-12) && K.near(flat.b, 0, 1e-12);
+  });
+  K.check('Every step\'s motion settles in 3 to 5 s, a fresh batch lands within 5 s, and moving a slider settles the beads within half a second', () => {
+    const D = dataNow(K.params()), ok = (t) => t >= 3 && t <= 5;
+    const drop = makeDrop('drop', true, D, false).end + 0.3, rain = makeDrop('rain', true, D, false).end, rainT = makeDrop('rain', true, D, true).end;
+    const into4 = Math.max(makeMove(true).end, ovEnd(4, 0)), back = 1.3 + ovEnd(3, 0);
+    return ok(drop) && rain <= 5 && rainT <= 5 && ok(0.3 + ovEnd(1)) && ok(0.3 + ovEnd(2)) && ok(0.3 + ovEnd(3, 0)) && ok(into4) && ok(back) && SETTLE <= 0.5;
+  });
+  K.ready();
+</script>

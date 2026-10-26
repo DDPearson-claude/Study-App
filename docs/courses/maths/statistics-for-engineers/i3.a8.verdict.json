@@ -1,0 +1,128 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A normal distribution with k = 2 gives an interval with a coverage probability of approximately 95%: the normal curve holds 95.4% within 2 SD of its mean, and 2,000 readings from the rule on screen land within 2 SD of their batch's mean about 95% of the time",
+        "ok": true,
+        "source": "https://www.ukas.com/wp-content/uploads/schedule_uploads/759162/LAB-12-The-Expression-of-Uncertainty-in-Testing.pdf"
+      },
+      {
+        "label": "Some 99.7% of a normal population lies within 3 standard deviations of the mean, so a value further than about 3.3 standard deviations from the mean may be treated as an outlier: the normal curve holds 99.7% within 3 SD; slipped 1.2 V the ringed reading sits 4.0 SD from the mean of the others, beyond 3.3, and slipped 0.6 V it sits 2.0 SD out",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2036%20Descriptive%20Statistics.pdf"
+      },
+      {
+        "label": "Worked by hand from the opening batch: mean 114.98 V and SD 0.31 V; 33, 48 and 49 of the 50 within 1, 2 and 3 SD, near the 34, 2 or 3 beyond 2 SD, and 50 the curve expects; one reading past the example limits, at 115.9 V, and one past limits 2 SD out; the limits 0.8 V from 115.0 V, about 2.7 SD; a reading on a limit is in; 116.0 V about 3.3 SD from the mean of the fifty and 116.2 V about 4.0; one reading above 115.6 V; twelve nudges reach at most 6 SD; about one batch in five of fifty honest readings has one past the example limits; the leaning insulation resistance pile has mean 212.5 MΩ and SD 79.4 MΩ, with 2 of its 50 (4%) more than 2 SD above the mean, at 378 and 455 MΩ, and none that far below",
+        "ok": true
+      },
+      {
+        "label": "Drawn right: settled, the fulcrum sits under the mean and the beam is level at every slip; each limit line sits on the outer edge of its limit's column, so every bead past a line is counted out and every one counted is past a line; the pointer sits over the ringed reading at its count of SDs on the ruler; no bead is under r 3.5 over 200 fresh batches, none off the scale; no dashed line runs through a label",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its right answer of three, and before an answer nothing in its picture gives it away: no farthest path, no 2 SD band, no pointer over the new reading, no normal curve or 2 SD band over the leaning pile; a right answer brings each in. Every demonstration settles within 5 s and every answer's motion within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "slip"
+    ],
+    "readouts": [
+      "in1",
+      "in2",
+      "in3",
+      "z",
+      "out",
+      "tally"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Fifty readings",
+          "How often far out",
+          "The bands",
+          "Beyond 2 SD",
+          "The ruler",
+          "Count the SDs",
+          "Example limits",
+          "One lands out",
+          "Far out on the ruler",
+          "What do you do",
+          "Fresh batches",
+          "Above 115.6 V",
+          "A long tail"
+        ],
+        "value": 0
+      },
+      {
+        "id": "slip",
+        "kind": "control",
+        "label": "Slip on the ringed reading",
+        "min": -1.2,
+        "max": 1.2,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0.6,
+          1.2
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Drop a fresh batch",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Beads"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "K.sound is used but no K.button press played anything: play sound from a K.button's press so the self-test (and Dan) can reach it."
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

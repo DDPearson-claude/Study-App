@@ -457,12 +457,12 @@ for (const iid of ideas) {
       if (got && got.input === 'typed') asked = { input: 'typed', unit: got.unit || undefined };
       if (got && got.input === 'pick' && got.options.length >= 2 && got.options.length <= 8 && got.options.includes(got.text) && new Set(got.options).size === got.options.length) asked = { input: 'pick', options: got.options };
       if (pressed && !answer) answer = pressed;
-      // Only a picture the lesson itself marked right (S[i].res): an answer that needed more than a
+      // Only a picture the lesson itself marked right (S[i].res, or S[i].got in the statistics lessons): an answer that needed more than a
       // button (colouring first, say) stays an example in words.
       if (pressed) {
         await app.page.waitForTimeout(500);
         // null: the page keeps no S (a refresher's typed answers): its own check stands.
-        const right = await f.evaluate((k) => { try { return typeof S === 'undefined' ? null : !!(S[k] && S[k].res === 'right'); } catch (e) { return null; } }, i);
+        const right = await f.evaluate((k) => { try { return typeof S === 'undefined' ? null : !!(S[k] && (S[k].res === 'right' || S[k].got === 'right')); } catch (e) { return null; } }, i);
         if (right === false) asked = null;
         if (right && !onlyAnswers) snap = await f.evaluate(SNAP);
       }

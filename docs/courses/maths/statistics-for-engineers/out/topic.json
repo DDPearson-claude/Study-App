@@ -1,0 +1,160 @@
+{
+ "id": "statistics-for-engineers-ddatz",
+ "title": "Statistics for engineers",
+ "query": "Statistics for engineers",
+ "createdAt": "2026-10-26T08:11:20.339Z",
+ "updatedAt": "2026-10-26T08:11:20.339Z",
+ "plannedAt": "2026-10-26T08:11:20.339Z",
+ "status": "ready",
+ "error": null,
+ "hook": "This year's loop impedance reading on a circuit is 0.02 Ω higher than last year's. Is the circuit getting worse, or is that just the wobble every reading has?",
+ "oneBreath": "Repeat readings of the same thing rarely all agree, and statistics is how you work with that wobble. The middle and the spread of repeat readings tell you what a reading really is, how far to trust it and when one is unusual. Readings in the order taken help show whether a change is wear or just noise, and a steady failure rate tells you roughly what share of equipment should still be working after a given time.",
+ "level": "some",
+ "hue": 107,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand statistics for engineers and how to work with it",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand statistics for engineers and how to work with it"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "The middle and the spread",
+   "oneLine": "Repeat readings pile up round a middle, the mean or median, and the standard deviation measures how far they typically sit from it.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i2",
+   "title": "How far to trust a reading",
+   "oneLine": "Averaging repeat readings shrinks random scatter but not a meter's steady offset, so a result is a value plus or minus its uncertainty.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i3",
+   "title": "The normal curve and honest outliers",
+   "oneLine": "Readings often pile into a bell, about 95% within two standard deviations of the mean, so counting standard deviations shows how unusual a reading is.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "Drift or noise: trends over time",
+   "oneLine": "Plotted in the order taken, readings show a drift as a steady slope, while noise alone still makes a fitted line lean a little.",
+   "deps": [
+    "i1",
+    "i2",
+    "i3"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i5",
+   "title": "How often equipment fails: reliability",
+   "oneLine": "A steady failure rate sets the share of units still working over time, so only about 37% reach the MTBF, the mean time between failures.",
+   "deps": [
+    "i3"
+   ],
+   "kind": "quantity"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "Nine repeat readings of a circuit say 0.80 Ω and a tenth, taken with a slipped probe, says 1.80 Ω. Which shifts more: the average, or the middle reading?",
+   "options": [
+    "The middle reading",
+    "The average",
+    "Both shift by the same amount"
+   ],
+   "answer": 1,
+   "why": "The average takes in how far the odd reading is, so it rises by a tenth of the 1.00 Ω slip, to 0.90 Ω. The middle reading only counts places, so it stays at 0.80 Ω. That is also why they do not shift the same."
+  },
+  {
+   "id": "c2",
+   "iid": "i2",
+   "q": "A digital meter shows 230.0 V. How close to the true voltage can you be sure that reading is?",
+   "options": [
+    "Within 0.1 V, the last digit",
+    "Within 0.05 V, half the last digit",
+    "Only within the meter's stated accuracy, which can be much wider"
+   ],
+   "answer": 2,
+   "why": "The last digit is how finely the meter shows a reading, not how true it is. Accuracy is a separate figure, often a percentage of the reading plus a few digits: ±(2% + 2) on 100.0 V allows 97.8 V to 102.2 V. So neither 0.1 V nor 0.05 V is promised."
+  }
+ ],
+ "readyMade": {
+  "shelf": "maths",
+  "course": "statistics-for-engineers"
+ },
+ "overviewChecked": true,
+ "guideV": 3,
+ "research": {
+  "status": "done",
+  "at": "2026-10-26T08:11:20.339Z",
+  "sources": 21,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}

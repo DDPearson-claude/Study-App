@@ -1,0 +1,60 @@
+{
+  "scores": { "lands": 5, "why": 4, "cause": 5, "trade": 5, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screens 1, 3, 5, 7 and 9 (SHOW), the say line under the Years slider (sayFor)",
+      "what": "With the say line added, these screens run to about 92 to 99 words (screen 7: 76 + 23; screen 9: 73 + 25; screen 1: 73 + 23), over the 90-word cap and all of it text after the diagram. Several say lines just repeat the screen: screen 1's says 'The shelf empties fastest at first only because more units are there to fail' twice, word for word. Screen 5 at 10 years repeats 'A few long-lived units pull the mean up', and screen 7's repeats 'R × R'. Cut each say line to a few words that are new, or drop it where it repeats the text."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 11 (The bathtub), lead (LEAD_TUB)",
+      "what": "'Say its failure rate starts with an extra 0.25 a year that fades over about a year, sits at a steady 0.02 a year, then climbs with wear-out near 24 years' is a 31-word sentence chaining three clauses. It breaks the one-idea, under-20-words rule. Split it: 'Say its failure rate starts 0.25 a year higher. That extra fades over about a year. The rate then sits at a steady 0.02 a year. Wear-out makes it climb near 24 years.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 3 (The share still working) text, and explain paragraph 2",
+      "what": "'The MTBF is 1 ÷ λ, the mean lifetime' is stated with no reason, so the why skips a step. One sentence closes it: 'A unit fails 0.1 times for each year it runs, so on average it runs 10 years to a failure.' Neither the screen nor the explain spells out MTBF either. Expand it once as 'mean time between failures' where the term first appears, so the jargon is explained."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 9 (Pairs in parallel) text, and the MTBF tile hint '1.5 ÷ λ for a pair'",
+      "what": "'The MTBF is 15 years' comes from a 1.5 that is never explained, while the series screen earns its 5 years. Two short sentences derive it from what the lesson already holds. 'Two units share the work, so the first failure comes after 5 years on average. The survivor then runs another 10 on average.' Make room by cutting the say line on this screen."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2 (The next year), Why?",
+      "what": "'So 30 × 0.1 = 3 fail in the next year' states an expected count as a certainty, and the picked batch then drops exactly 3. That can teach the wrong lesson in a lesson about chance. The true expectation is 30 × (1 − e^(−0.1)) ≈ 2.85. Write 'So about 30 × 0.1 = 3 are expected to fail. A few either side is normal.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 14 (A shared battery), Why? and the right answer 'a battery fault stops both'",
+      "what": "'One battery fault stops both UPSs at once' is absolute. An electrician knows a double-conversion UPS normally runs from its rectifier, so a battery fault takes both down only when it brings down the shared DC bus or the mains is off. The explain's own 'can stop both at once' is the honest form. Use 'can stop both' on the screen too, or name the shared part as the output bus from the research example."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 5, 6, 8, 10 and 12, entering the step (film sheets s4, s5, s7, s9, s11, first frames)",
+      "what": "When a screen opens on an earlier clock than the last one, the clock runs backwards and failed units fly up off the pile onto the shelf. Units coming back can read as repair, which the model leaves out ('a failed unit is simply gone'). Fade the pile out and the shelf in for a reset, and keep the forward fall for time running on."
+    },
+    {
+      "severity": "polish",
+      "where": "Every DO screen, Why? pressed before Check",
+      "what": "Each why ends by describing the answer's motion, as in 'Here the clock runs on to 6 years, and 3 of the 30 drop.' That motion plays only after a right answer, so Why? pressed first describes a picture that has not moved. Either run the answer's motion when Why? opens, or reword it as 'A right answer runs the clock on to 6 years.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 11 (The bathtub), 'Failure rate now' tile at the opening 30 years",
+      "what": "The tile reads '1.61 a year, for each unit still working' next to 'Still working 0 of 50'. The strip it belongs to tops out at 0.3 and shows only an arrow. A rate for the units still working, when none are left, puzzles more than it teaches. On the bathtub, make the hint 'The sketch's rate at this age', or open at about 26 years with a few units still on the shelf."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 14 (A shared battery) question at 360 px (i5.a1-360-light-end.png)",
+      "what": "The formula breaks across lines as 'Is 1 –' / '(1 – R)² right for the pair?'. Join its parts with no-break spaces so 1 − (1 − R)² always wraps whole."
+    },
+    {
+      "severity": "polish",
+      "where": "Explain, end of paragraph 4",
+      "what": "'A Zs reading 0.02 Ω higher than last year raises the same question: wear, or chance?' uses 'chance' in two senses. Here it means a failure arriving at random; for a Zs reading it means measurement scatter. A reader can blur the two. Drop the sentence, or make the link plain: 'A rising Zs asks the same of a reading: real wear, or scatter?'"
+    }
+  ]
+}

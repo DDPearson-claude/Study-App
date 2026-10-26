@@ -1,0 +1,635 @@
+<!-- kind: concept · viz language: INSTRUMENT AND CHART RECORDER (prototype) -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { line-height: 1.6; margin-top: 4px; }
+  .scene { display: block; width: 100%; max-width: 30rem; margin-inline: auto; touch-action: pan-y; }
+  /* The chart: paper on the left that scrolls under the pen, the stack's tray on the right. */
+  .scene .paper { fill: var(--k-panel); }
+  .scene .tray { fill: var(--k-sunk); }
+  .scene .edge { fill: none; stroke: var(--k-line); stroke-width: 1; }
+  .scene .gmin { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gmaj { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .gv { stroke: var(--k-line); stroke-width: 1; }
+  .scene .hole { fill: var(--k-line); }
+  .scene .rail { stroke: var(--k-strong); stroke-width: 1.5; }
+  /* Readings: the pen's trace, a dot per reading, a bead per reading in the stack. */
+  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .bead { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.3; }
+  .scene .dot.out, .scene .bead.out { fill: var(--k-warn); }
+  .scene .off, .scene .bead.offb { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .needle { fill: var(--k-accent2); }
+  .scene .wet { stroke: var(--k-accent2); stroke-width: 3.6; stroke-linecap: round; }
+  .scene .glow { fill: var(--k-accent2); }
+  .scene .nib { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.2; }
+  .scene .hold { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.3; stroke-linejoin: round; }
+  .scene .span { stroke: var(--k-accent2); stroke-width: 3.5; stroke-linecap: round; }
+  /* What the statistics draw. */
+  .scene .mean { fill: none; stroke: var(--k-amber-line); stroke-width: 2.2; stroke-linecap: round; }
+  .scene .run { fill: none; stroke: var(--k-amber-line); stroke-width: 1.6; stroke-linejoin: round; }
+  .scene .head { fill: var(--k-amber-line); stroke: var(--k-bg); stroke-width: 1.2; }
+  .scene .dev { stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .band1 { fill: var(--k-fill1); }
+  .scene .bandn { fill: var(--k-fill3); }
+  .scene .bell { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linejoin: round; }
+  .scene .lim { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .zone { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 1.5; }
+  .scene .fit { stroke: var(--k-amber-line); stroke-width: 2.4; stroke-linecap: round; }
+  /* Instrument windows across the top. */
+  .scene .win { fill: var(--k-sunk); }
+  .scene .wl { font: 700 12px var(--k-font); fill: var(--k-accent); letter-spacing: .05em; }
+  .scene .wv { font: 700 17px var(--k-mono); fill: var(--k-ink); }
+  .scene .wv.none { fill: var(--k-muted); }
+  .scene .ws { font: 400 12px var(--k-font); fill: var(--k-muted); }
+  .scene .gtrack { fill: var(--k-line); }
+  .scene .gfill { fill: var(--k-accent2); }
+  .scene .gtick { stroke: var(--k-amber-line); stroke-width: 2.4; stroke-linecap: round; }
+  /* Labels: scale numbers, teal annotations, words on the paper with a paper-coloured halo. */
+  .scene .tk { font: 400 12.5px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 700 12px var(--k-font); fill: var(--k-accent); letter-spacing: .05em; }
+  .scene .ann { font: 600 13px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-panel); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .ann.t { stroke: var(--k-sunk); }
+  .scene .key { font: 400 12.5px var(--k-font); fill: var(--k-muted); }
+  .scene .kl { stroke-width: 2.2; stroke-linecap: round; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  #task.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #task.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #task.enter { animation: none; } }
+</style>
+
+<p class="lead">A chart recorder for 40 simulated readings of a 440&nbsp;V supply. The pen draws them in time order, and each one also drops into the stack beside it. The limits, 436&nbsp;V and 444&nbsp;V, are an example.</p>
+
+<div class="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <p class="task" id="task"></p>
+</div>
+<svg class="scene" id="scene" viewBox="0 0 340 340" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="row nav" id="nav"></div>
+<p class="caption">Simulated: 440&nbsp;V plus a random error from a seeded generator, its spread set by the slider.</p>
+
+<script>
+  // ---------- the rule that makes every reading (simulated, and labelled so) ----------
+  // reading i = 440 V + spread × z_i, where z_i are standard normal numbers drawn from a seeded
+  // generator (batch b uses seed SEED0 + (b − 1) × 7919). On the drift step: 438 V + 0.1 V × i + spread × z_i.
+  const N = 40, MU = 440, LIM = [436, 444], START = 438, CREEP = 0.1, SEED0 = 72811;
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function normals(seed) {
+    const r = rng(seed), out = [];
+    while (out.length < N) {
+      const u = Math.max(r(), 1e-12), v = r(), m = Math.sqrt(-2 * Math.log(u));
+      out.push(m * Math.cos(2 * Math.PI * v));
+      if (out.length < N) out.push(m * Math.sin(2 * Math.PI * v));
+    }
+    return out;
+  }
+  const seedOf = (b) => (SEED0 + (b - 1) * 7919) >>> 0;
+  const rule = (z, spread, creep) => z.map((e, i) => (creep ? START + creep * i : MU) + spread * e);
+
+  // ---------- statistics (pure, so the checks can test them) ----------
+  function stats(v) {
+    const n = v.length, s = v.slice().sort((a, b) => a - b), mean = v.reduce((a, b) => a + b, 0) / n;
+    const median = n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+    const sd = n > 1 ? Math.sqrt(v.reduce((a, x) => a + (x - mean) * (x - mean), 0) / (n - 1)) : 0;   // sample SD, n − 1
+    return { n, mean, median, sd, lo: s[0], hi: s[n - 1], range: s[n - 1] - s[0] };
+  }
+  const within = (v, m, sd, k) => v.filter((x) => Math.abs(x - m) <= k * sd + 1e-9).length;
+  const outside = (v) => v.filter((x) => x < LIM[0] || x > LIM[1]).length;
+  function fit(v) {   // least squares against the reading number
+    const n = v.length, tb = (n - 1) / 2, m = v.reduce((a, b) => a + b, 0) / n;
+    let sxy = 0, sxx = 0;
+    v.forEach((y, i) => { sxy += (i - tb) * (y - m); sxx += (i - tb) * (i - tb); });
+    const slope = sxx ? sxy / sxx : 0;
+    return { slope, at: (i) => m + slope * (i - tb) };
+  }
+  const pdf = (z) => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+  function cdf(z) {   // Abramowitz and Stegun 7.1.26, error under 1.5e-7
+    const x = Math.abs(z) / Math.SQRT2, t = 1 / (1 + 0.3275911 * x);
+    const e = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return z >= 0 ? (1 + e) / 2 : (1 - e) / 2;
+  }
+  const expectOut = (m, sd) => (sd > 0 ? N * (cdf((LIM[0] - m) / sd) + 1 - cdf((LIM[1] - m) / sd)) : 0);
+  function simpson(f, a, b, n) { const h = (b - a) / n; let s = f(a) + f(b); for (let k = 1; k < n; k++) s += f(a + k * h) * (k % 2 ? 4 : 2); return s * h / 3; }
+
+  // ---------- geometry (viewBox units) ----------
+  const X0 = 34, RAIL = 228, XR = 338, PT = 72, PB = 294;   // paper left, the pen's rail, the tray's right; paper top and bottom
+  const VLO = 432, VHI = 448, YT = 83, YB = 283, PX = (YB - YT) / (VHI - VLO);
+  const yOf = (v) => YB - (K.clamp(v, VLO, VHI) - VLO) * PX;
+  const DX = (RAIL - 40) / (N - 1);
+  const BX0 = 247, BXMAX = 333, PMAX = 9.6, BR = 4.3;
+  const binOf = (v) => K.clamp(Math.floor(v), VLO, VHI - 1) + 0.5;   // 1 V cells from one whole volt to the next; off-scale readings pin to an end cell
+  function beadsOf(v) {
+    const cnt = {}, slot = [];
+    v.forEach((x, i) => { const b = binOf(x); slot[i] = cnt[b] || 0; cnt[b] = slot[i] + 1; });
+    const maxC = Math.max(1, ...Object.keys(cnt).map((k) => cnt[k]));
+    const pitch = Math.min(PMAX, (BXMAX - BX0) / Math.max(1, maxC - 1));
+    return { bx: slot.map((s) => BX0 + s * pitch), by: v.map((x) => yOf(binOf(x))), p: [pitch], cnt, slot };
+  }
+
+  // ---------- timing ----------
+  const FADE = 0.35, TR0 = 0.6, DT = 0.09, BEAD = 0.45, DRAG = 0.25;   // the trace: first reading at 0.6 s, one every 0.09 s
+  const TL = [
+    { dur: TR0 + (N - 1) * DT + BEAD + 0.1 },
+    { run: [0.4, 1.8], line: [2.3, 0.7], med: 2.3, range: [3.0, 0.6], dur: 3.7 },
+    { mean: 0.4, dev: [0.4, 1.0], band: [1.6, 0.9], cnt: 2.6, dur: 3.3 },
+    { bell: [0.4, 1.4], bands: [2.0, 2.5, 3.0], dur: 3.7 },
+    { bell: 0.4, lim: [0.4, 0.8], zone: 1.3, out: [1.6, 0.8], call: 2.5, dur: 3.2 },
+    { morph: [0.4, 1.2], mean: 0.4, tilt: [1.8, 0.8], dur: 3.0 },
+  ];
+  const STEPS = [
+    { name: 'Readings arrive', text: 'A chart recorder\'s pen draws each reading as it comes. Each reading also drops into the stack on the right, at the same height. So the wiggle in time builds a hump by value.' },
+    { name: 'The middle', text: 'The *mean* is all the readings added up, divided by how many there are. Watch it wander at first, then settle as readings add up. The *median* is the middle reading in order, and the *range* is highest minus lowest.' },
+    { name: 'The spread', text: 'The *standard deviation*, SD for short, is the typical distance of a reading from the mean. About two thirds of readings lie within 1 SD of it.' },
+    { name: 'The normal curve', text: 'Many small random errors pile readings into a bell, the *normal curve*. About 68% of readings lie within 1 SD of the mean, 95% within 2 SD and 99.7% within 3 SD.' },
+    { name: 'Out of tolerance', text: 'A reading outside the limits is *out of tolerance*. Its distance from the mean, counted in SDs, says how unusual it is. Far out is rare, but in a big batch rare readings do turn up.' },
+    { name: 'A drift', text: 'Now the simulated supply creeps up 0.1 V a reading. Stacked by value, that only looks like more spread. In time order the pen shows the climb, and a *best-fit line* measures it.' },
+  ];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const still = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+
+  // ---------- state ----------
+  let batch = 1, Z = normals(seedOf(1));
+  let T = Infinity, clock = 0, lastStep = -1, lastBatch = 1, lastSpread = null;
+  const cur = { v: [], bx: [], by: [], p: [PMAX] };   // what is drawn now: values, bead positions, bead pitch
+  let tw = null;                                       // a glide from one set of targets to the next
+  const targetOf = (i, spread) => { const v = rule(Z, spread, i === 5 ? CREEP : 0), b = beadsOf(v); return { v, bx: b.bx, by: b.by, p: b.p }; };
+  const KEYS = ['v', 'bx', 'by', 'p'];
+  const easeOut = (p) => 1 - Math.pow(1 - K.clamp(p, 0, 1), 3);
+  function setNow(to) { KEYS.forEach((k) => { cur[k] = to[k].slice(); }); tw = null; }
+  function sample() {
+    if (!tw) return;
+    const p = tw.dur > 0 ? K.clamp((clock - tw.t0) / tw.dur, 0, 1) : 1, e = tw.ease(p);
+    KEYS.forEach((k) => { cur[k] = tw.to[k].map((b, i) => tw.from[k][i] + (b - tw.from[k][i]) * e); });
+    if (p >= 1) tw = null;
+  }
+  function retarget(to, dur, delay, ease) {
+    sample();
+    if (still()) { setNow(to); return; }
+    tw = { from: { v: cur.v.slice(), bx: cur.bx.slice(), by: cur.by.slice(), p: cur.p.slice() }, to, t0: clock + (delay || 0), dur, ease };
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((s) => s.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const spreadCtl = K.control({ id: 'spread', label: 'Spread of the random error', min: 0.5, max: 2.5, step: 0.1, value: 1.5, unit: 'V', snap: [1.5], into: '#controls' });
+  K.button({ label: 'Fresh batch', secondary: true, into: '#controls', press: () => {
+    batch += 1; Z = normals(seedOf(batch));
+    // On the first step the pen draws the new batch, ticking once a reading, higher for a higher reading.
+    if (at() === 0 && !REDUCE) {
+      const v = rule(Z, spreadCtl.get(), 0);
+      K.sound.chord(v.map((x) => K.clamp(620 + (x - MU) * 45, 300, 1000)), { dur: 0.05, type: 'triangle', gain: 1, stagger: DT, at: 0.05 });
+    }
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => stepper.set(Math.max(0, at() - 1)) });
+  const nextBtn = K.button({ label: 'Next', into: '#nav', press: () => stepper.set(Math.min(STEPS.length - 1, at() + 1)) });
+  K.stage('#scene', '#controls');
+
+  // One animation runs every demonstration and every glide; reduced motion (and the self-test) opens finished.
+  let demoEnd = 0;
+  const anim = K.anim({ button: false, label: 'Recorder', step: (dt) => {
+    clock += dt;
+    if (T !== Infinity) T += dt;
+    sample();
+    const busy = (T !== Infinity && T < demoEnd) || tw != null;
+    if (!busy) T = Infinity;
+    paint();
+    return busy;
+  } });
+  function startDemo(i, t0) {
+    if (still()) { T = Infinity; sample(); tw = null; return; }
+    T = t0 || 0; demoEnd = TL[i].dur; anim.play();
+  }
+  function kick() { if (still()) { tw = null; return; } if (!anim.playing()) anim.play(); }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, latest = 0, earliest = Infinity;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function arr(t0, d) {   // how far a part due at t0 has arrived; notes the timetable for the timing check
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }
+  const rect = (cls, x, y, w, h, rx, op) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0, style: op != null ? 'opacity:' + op.toFixed(3) : null }));
+  const line = (cls, x1, y1, x2, y2, op) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2), style: op != null ? 'opacity:' + op.toFixed(3) : null }));
+  const circle = (cls, cx, cy, r, op) => add(K.svg('circle', { class: cls, cx: r2(cx), cy: r2(cy), r: r2(r), style: op != null ? 'opacity:' + op.toFixed(3) : null }));
+  const path = (cls, d, op) => add(K.svg('path', { class: cls, d, style: op != null ? 'opacity:' + op.toFixed(3) : null }));
+  const poly = (pts) => 'M' + pts.map((p) => r2(p[0]) + ' ' + r2(p[1])).join(' L');
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'start' }, String(s)));
+  const widths = {};
+  function tw2(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 7.5;
+  }
+  const V1 = (v) => K.fmt(v, { decimals: 1 }) + ' V';
+  const V2 = (v) => K.fmt(v, { decimals: 2 }) + ' V';
+  const DASH = '– – –';
+
+  // An instrument window: a label, a value in mono digits and an optional small note after it.
+  // gauge: {share, rule} draws a bar graph under the digits, filled to the share, with a tick at the rule's share.
+  function win(k, label, value, sub, a, gauge) {
+    part(a, 3, () => {
+      const x = k * 116;
+      rect('win', x, 0, 108, 52, 8);
+      text(x + 9, 18, label, 'wl');
+      text(x + 9, 38, value, 'wv' + (value === DASH ? ' none' : ''));
+      if (sub) text(x + 16 + tw2(value, 'wv'), 38, sub, 'ws');
+      if (gauge) {
+        const g0 = x + 9, gw = 90;
+        rect('gtrack', g0, 43, gw, 4, 2);
+        rect('gfill', g0, 43, gw * K.clamp(gauge.share, 0, 1), 4, 2);
+        line('gtick', g0 + gw * gauge.rule, 40, g0 + gw * gauge.rule, 50);
+      }
+    });
+  }
+  // A key under the chart: swatches and their words, laid out from the left.
+  function keyRow(items, y) {
+    let x = X0;
+    items.forEach((it) => {
+      const sw = 18;
+      const g = add(K.svg('g'));
+      const keep = into; into = g;
+      if (it[0] === 'dot') { line('trace', x, y - 4, x + 14, y - 4); circle('dot', x + 7, y - 4, 2.4); }
+      else if (it[0] === 'needle') path('needle', 'M' + x + ' ' + (y - 4) + ' l11 -6 v12 Z');
+      else if (it[0] === 'hold') path('hold', 'M' + x + ' ' + (y - 4) + ' l10 -5.5 v11 Z');
+      else if (it[0] === 'span') line('span', x + 7, y - 10, x + 7, y + 2);
+      else if (it[0] === 'mean') line('mean kl', x, y - 4, x + 14, y - 4);
+      else if (it[0] === 'fit') line('fit kl', x, y - 1, x + 14, y - 8);
+      else if (it[0] === 'band') rect('band1', x, y - 10, 14, 12, 2);
+      else if (it[0] === 'bands') { rect('bandn', x, y - 10, 14, 12, 2, 0.95); rect('bandn', x + 3.5, y - 10, 7, 12, 0, 1); }
+      else if (it[0] === 'dev') { line('dev', x + 4, y - 11, x + 4, y + 1, 0.75); line('dev', x + 10, y - 7, x + 10, y + 1, 0.75); }
+      else if (it[0] === 'bell') path('bell', 'M' + x + ' ' + (y + 1) + ' C' + (x + 6) + ' ' + (y + 1) + ' ' + (x + 5) + ' ' + (y - 10) + ' ' + (x + 7) + ' ' + (y - 10) + ' S' + (x + 9) + ' ' + (y + 1) + ' ' + (x + 14) + ' ' + (y + 1));
+      else if (it[0] === 'lim') line('lim', x, y - 4, x + 15, y - 4);
+      else if (it[0] === 'out') circle('dot out', x + 7, y - 4, 3.2);
+      else if (it[0] === 'tick') { rect('gtrack', x, y - 6, 14, 4, 2); rect('gfill', x, y - 6, 8, 4, 2); line('gtick', x + 10, y - 10, x + 10, y); }
+      text(x + sw + 2, y, it[1], 'key');
+      into = keep;
+      x += sw + 2 + tw2(it[1], 'key') + 16;
+    });
+  }
+
+  // ---------- the chart ----------
+  // h: the reading the pen is on (fractional while it moves); before 0 the paper is blank.
+  function drawPaper(h) {
+    rect('paper', X0, PT, RAIL - X0, PB - PT);
+    add(K.svg('path', { class: 'tray', d: 'M' + RAIL + ' ' + PT + ' H' + (XR - 6) + ' Q' + XR + ' ' + PT + ' ' + XR + ' ' + (PT + 6) + ' V' + (PB - 6) + ' Q' + XR + ' ' + PB + ' ' + (XR - 6) + ' ' + PB + ' H' + RAIL + ' Z' }));
+    for (let v = VLO; v <= VHI; v++) line(v % 5 ? 'gmin' : 'gmaj', X0, yOf(v), XR, yOf(v), v % 5 ? 0.9 : 0.55);
+    const hx = (k) => RAIL - (h - k) * DX;   // where reading k sits on the paper
+    for (let k = Math.floor(h) - 60; k <= Math.ceil(h); k++) {
+      const x = hx(k);
+      if (x < X0 + 1 || x > RAIL - 1) continue;
+      if ((k + 1) % 5 === 0) line('gv', x, PT + 9, x, PB - 9, (k + 1) % 10 === 0 ? 1 : 0.6);
+      if (k % 2 === 0 && x > X0 + 3 && x < RAIL - 3) { circle('hole', x, PT + 4.5, 1.7); circle('hole', x, PB - 4.5, 1.7); }
+    }
+    line('rail', RAIL, PT, RAIL, PB);
+    [435, 440, 445].forEach((v) => text(X0 - 5, yOf(v) + 4.5, v, 'tk', 'end'));
+    [0, 9, 19, 29, 39].forEach((k) => { const x = hx(k); if (k <= h + 1e-9 && x >= X0 + 6) { line('gmaj', x, PB, x, PB + 4, 1); text(x, PB + 17, k + 1, 'tk', 'middle'); } });
+    text(X0, 65, 'SIMULATED VOLTS · BATCH ' + batch, 'lab');
+    text(XR, 65, 'BY VALUE', 'lab', 'end');
+  }
+  // The pen's trace up to reading h, a dot on each reading (out-of-tolerance ones marked when asked).
+  function drawTrace(v, h, outs) {
+    const hx = (k) => RAIL - (h - k) * DX, k1 = Math.floor(h), pts = [];
+    for (let k = 0; k <= Math.min(k1, N - 1); k++) pts.push([hx(k), yOf(v[k])]);
+    if (h > k1 && k1 + 1 < N && k1 >= 0) { const f = h - k1; pts.push([RAIL, yOf(v[k1] + (v[k1 + 1] - v[k1]) * f)]); }
+    if (pts.length > 1) path('trace', poly(pts));
+    for (let k = 0; k <= Math.min(k1, N - 1); k++) {
+      const x = hx(k), y = yOf(v[k]), o = outs && outs[k];
+      if (v[k] >= VHI || v[k] < VLO) circle('off', x, y, 2.6);
+      else circle(o ? 'dot out' : 'dot', x, y, o ? 2.8 : 1.7);
+    }
+  }
+  function penY(v, h) {
+    if (h <= 0) return yOf(v[0]);
+    const k1 = Math.min(Math.floor(h), N - 1);
+    if (k1 >= N - 1) return yOf(v[N - 1]);
+    return yOf(v[k1] + (v[k1 + 1] - v[k1]) * (h - k1));
+  }
+  // The pen: a needle on the rail with its nib on the paper; two hollow pointers it has pushed to the lowest and highest readings.
+  function drawPen(y, lo, hi) {
+    if (lo != null) { path('hold', 'M' + (RAIL + 1) + ' ' + r2(yOf(hi)) + ' l10 -5.5 v11 Z'); path('hold', 'M' + (RAIL + 1) + ' ' + r2(yOf(lo)) + ' l10 -5.5 v11 Z'); }
+    path('needle', 'M' + RAIL + ' ' + r2(y) + ' l12 -6.5 v13 Z');
+    circle('nib', RAIL, y, 2.8);
+  }
+  // Beads: one per reading, each in its 1 V row. On the first step each rides off the needle as the pen reaches it.
+  function drawBeads(outs, tracing) {
+    for (let k = 0; k < N; k++) {
+      let x = cur.bx[k], y = cur.by[k], r = BR, op = null;
+      if (tracing) {
+        const t0 = TR0 + k * DT;
+        if (T < t0) continue;
+        const q = arr(t0, BEAD), y0 = yOf(cur.v[k]);
+        x = K.lerp(RAIL + 7, x, q); y = K.lerp(y0, y, q); r = K.lerp(1.6, BR, Math.min(1, q * 2)); op = Math.min(1, q * 4);
+      }
+      const off = cur.v[k] >= VHI || cur.v[k] < VLO;
+      circle(off ? 'bead offb' : outs && outs[k] ? 'bead out' : 'bead', x, y, r, op);
+    }
+  }
+  // The normal curve for mean m and SD s, lying on its side over the stack, scaled to the dots: the
+  // number of readings each 1 V row expects is N × (1 V ÷ s) × φ(z). q: how much of it is drawn, from the bottom.
+  const bellX = (v, m, s) => Math.min(XR - 2, BX0 - cur.p[0] / 2 + N * pdf((v - m) / s) / s * cur.p[0]);
+  function bellPts(m, s, a, b) {
+    a = Math.max(a, VLO, m - 3.6 * s); b = Math.min(b, VHI, m + 3.6 * s);
+    const pts = [], n = Math.max(2, Math.ceil((b - a) / 0.08));
+    for (let k = 0; k <= n; k++) { const v = a + (b - a) * k / n; pts.push([bellX(v, m, s), yOf(v)]); }
+    return pts;
+  }
+  function bellFill(cls, m, s, a, b, op) {
+    a = Math.max(a, VLO, m - 3.6 * s); b = Math.min(b, VHI, m + 3.6 * s);
+    if (b <= a) return;
+    const pts = bellPts(m, s, a, b).concat([[BX0 - cur.p[0] / 2, yOf(b)], [BX0 - cur.p[0] / 2, yOf(a)]]);
+    path(cls, poly(pts) + ' Z', op);
+  }
+
+  // ---------- one paint (the animation calls it every frame) ----------
+  let REC = null;
+  function paint() {
+    const i = at(), t = TL[i], v = cur.v;
+    art.textContent = ''; into = null; latest = 0; earliest = Infinity;
+    const S = stats(v), F = fit(v), m = S.mean, sd = S.sd;
+    REC = { step: i, beads: cur.by.map((y, k) => ({ x: cur.bx[k], y })), lines: [] };
+    let said = '';
+    if (i === 0) {
+      const h = T === Infinity ? N - 1 : K.clamp((T - TR0) / DT, -1, N - 1), k1 = Math.floor(h);
+      const seen = k1 >= 0 ? v.slice(0, k1 + 1) : [];
+      const lo = seen.length ? Math.min(...seen) : null, hi = seen.length ? Math.max(...seen) : null;
+      drawPaper(h);
+      drawTrace(v, h, null);
+      arr(TR0 + (N - 1) * DT, BEAD);   // the last bead's landing, on the timetable
+      // Wet ink: while the pen writes, the newest few segments are wider and dry as the paper moves on.
+      if (T !== Infinity && h > 0) {
+        const hx = (k) => RAIL - (h - k) * DX;
+        for (let k = Math.max(0, k1 - 5); k <= k1 && k < N - 1; k++) {
+          const xb = Math.min(RAIL, hx(k + 1)), yb = xb >= RAIL ? penY(v, h) : yOf(v[k + 1]), age = h - (k + 1);
+          if (xb > hx(k)) line('wet', hx(k), yOf(v[k]), xb, yb, 0.32 * K.clamp(1 - age / 5, 0, 1));
+        }
+      }
+      drawBeads(null, T !== Infinity);
+      if (T !== Infinity && h >= 0 && h < N - 1) circle('glow', RAIL, penY(v, h), 7, 0.18);
+      drawPen(penY(v, h), lo, hi);
+      const aw = arr(0.4);
+      win(0, 'LATEST', seen.length ? V1(seen[seen.length - 1]) : DASH, '', aw);
+      win(1, 'LOWEST', lo != null ? V1(lo) : DASH, '', aw);
+      win(2, 'HIGHEST', hi != null ? V1(hi) : DASH, '', aw);
+      keyRow([['dot', 'a reading'], ['needle', 'the pen'], ['hold', 'lowest, highest']], 331);
+      said = seen.length + ' simulated readings drawn in time order, and stacked by value on the right' + (lo != null ? ', from ' + V1(lo) + ' to ' + V1(hi) : '') + '.';
+    } else if (i === 1) {
+      drawPaper(N - 1);
+      drawTrace(v, N - 1, null);
+      drawBeads(null, false);
+      // The running mean: the mean of the first k readings, drawn as the pen would, wandering then settling.
+      const run = []; let sum = 0;
+      v.forEach((x, k) => { sum += x; run.push(sum / (k + 1)); });
+      const pr = arr(t.run[0], t.run[1]), hk = pr * (N - 1), kk = Math.floor(hk), pts = [];
+      for (let k = 0; k <= kk; k++) pts.push([RAIL - (N - 1 - k) * DX, yOf(run[k])]);
+      let mNow = run[kk];
+      if (kk < N - 1 && hk > kk) { mNow = run[kk] + (run[kk + 1] - run[kk]) * (hk - kk); pts.push([RAIL - (N - 1 - hk) * DX, yOf(mNow)]); }
+      const ql = arr(t.line[0], t.line[1]);
+      if (pr > 0) part(Math.min(1, pr * 6), 0, () => { if (pts.length > 1) path('run', poly(pts), 1 - 0.55 * ql); if (ql < 1) circle('head', pts[pts.length - 1][0], pts[pts.length - 1][1], 3.4); });
+      if (ql > 0) {
+        const ym = yOf(m);
+        line('mean', RAIL - (RAIL - X0) * ql, ym, RAIL + (XR - RAIL) * ql, ym);
+        REC.lines.push({ kind: 'mean', y: ym });
+      }
+      const qr = arr(t.range[0], t.range[1]);
+      if (qr > 0) {
+        const yh = yOf(S.hi), yl = yOf(S.lo), yc = (yh + yl) / 2;
+        line('span', RAIL, yc + (yh - yc) * qr, RAIL, yc + (yl - yc) * qr);
+      }
+      drawPen(yOf(v[N - 1]), S.lo, S.hi);
+      win(0, 'MEAN', pr > 0 ? V1(pr < 1 ? mNow : m) : DASH, '', arr(0.4));
+      win(1, 'MEDIAN', V1(S.median), '', arr(t.med));
+      win(2, 'RANGE', V1(S.range), '', arr(t.range[0]));
+      keyRow([['dot', 'a reading'], ['mean', 'mean'], ['span', 'range']], 331);
+      said = 'Mean ' + V1(m) + ', median ' + V1(S.median) + ', range ' + V1(S.range) + ', from ' + V1(S.lo) + ' to ' + V1(S.hi) + '.';
+    } else if (i === 2) {
+      drawPaper(N - 1);
+      const qb = arr(t.band[0], t.band[1]), hs = sd * qb, ym = yOf(m);
+      if (qb > 0) { rect('band1', X0, yOf(m + hs), RAIL - X0, yOf(m - hs) - yOf(m + hs), 0, 0.85); rect('band1', RAIL, yOf(m + hs), XR - RAIL, yOf(m - hs) - yOf(m + hs), 0, 0.85); }
+      // Each reading's distance from the mean, a thin stick, sweeping in from the left.
+      for (let k = 0; k < N; k++) {
+        const q = arr(t.dev[0] + t.dev[1] * k / (N - 1), 0.3);
+        if (q <= 0) continue;
+        const x = RAIL - (N - 1 - k) * DX;
+        line('dev', x, ym, x, ym + (yOf(v[k]) - ym) * q, 0.75 - 0.35 * qb);
+      }
+      drawTrace(v, N - 1, null);
+      drawBeads(null, false);
+      part(arr(t.mean), 0, () => line('mean', X0, ym, XR, ym));
+      REC.lines.push({ kind: 'mean', y: ym }, { kind: 'band', y0: yOf(m + sd), y1: yOf(m - sd) });
+      drawPen(yOf(v[N - 1]), S.lo, S.hi);
+      const w1 = within(v, m, sd, 1);
+      win(0, 'MEAN', V1(m), '', arr(t.mean));
+      win(1, 'SD', V2(hs), '', arr(t.band[0]));
+      win(2, 'WITHIN 1 SD', w1 + ' of ' + N, '', arr(t.cnt));
+      keyRow([['mean', 'mean'], ['band', 'within 1 SD'], ['dev', 'distance to mean']], 331);
+      said = 'Mean ' + V1(m) + ', standard deviation ' + V2(sd) + '; ' + w1 + ' of ' + N + ' readings lie within 1 SD of the mean.';
+    } else if (i === 3) {
+      drawPaper(N - 1);
+      const qb = arr(t.bell[0], t.bell[1]);
+      const OPS = [0.95, 0.6, 0.32];
+      // The 1, 2 and 3 SD bands: under the bell in the tray, and faintly across the paper.
+      [1, 2, 3].forEach((k) => {
+        const a = arr(t.bands[k - 1], 0.5);
+        if (a <= 0) return;
+        part(a, 0, () => {
+          [[m - k * sd, m - (k - 1) * sd], [m + (k - 1) * sd, m + k * sd]].forEach((b) => {
+            const y0 = yOf(b[1]), y1 = yOf(b[0]);
+            rect('bandn', X0, y0, RAIL - X0, y1 - y0, 0, OPS[k - 1] * 0.75);
+            bellFill('bandn', m, sd, b[0], b[1], OPS[k - 1]);
+          });
+        });
+      });
+      drawTrace(v, N - 1, null);
+      drawBeads(null, false);
+      if (qb > 0 && sd > 0) {
+        const all = bellPts(m, sd, VLO, VHI), n = Math.max(2, Math.round(all.length * qb));
+        path('bell', poly(all.slice(0, n)));
+        REC.lines.push({ kind: 'bell', pts: all.length });
+      }
+      line('mean', X0, yOf(m), XR, yOf(m), 0.55);
+      drawPen(yOf(v[N - 1]), S.lo, S.hi);
+      const ws = [1, 2, 3].map((k) => within(v, m, sd, k)), RULE = [0.6827, 0.9545, 0.9973];
+      ws.forEach((w, k) => { const a = arr(t.bands[k]); win(k, 'WITHIN ' + (k + 1) + ' SD', Math.round(100 * w / N) + '%', '', a, { share: w / N * K.ease(K.clamp(a * 1.6 - 0.3, 0, 1)), rule: RULE[k] }); });
+      keyRow([['bell', 'normal curve'], ['bands', '1, 2 and 3 SD'], ['tick', 'the rule']], 331);
+      said = 'The normal curve for mean ' + V1(m) + ' and SD ' + V2(sd) + '; ' + ws.join(', ') + ' of ' + N + ' readings lie within 1, 2 and 3 SD.';
+    } else if (i === 4) {
+      drawPaper(N - 1);
+      const ql = arr(t.lim[0], t.lim[1]), qz = arr(t.zone), qo = arr(t.out[0], t.out[1]);
+      const yU = K.lerp(PT, yOf(LIM[1]), ql), yL = K.lerp(PB, yOf(LIM[0]), ql);
+      if (qz > 0) { rect('zone', X0, PT, XR - X0, yOf(LIM[1]) - PT, 0, 0.06 * qz); rect('zone', X0, yOf(LIM[0]), XR - X0, PB - yOf(LIM[0]), 0, 0.06 * qz); }
+      const outs = v.map((x) => qo > 0 && (x < LIM[0] || x > LIM[1]));
+      drawTrace(v, N - 1, outs);
+      part(arr(t.bell), 0, () => {
+        if (sd > 0) { path('bell', poly(bellPts(m, sd, VLO, VHI)), 0.9); bellFill('zone', m, sd, VLO, LIM[0], 0.35 * qz); bellFill('zone', m, sd, LIM[1], VHI, 0.35 * qz); }
+      });
+      drawBeads(outs, false);
+      if (ql > 0) {
+        line('lim', X0, yU, XR, yU, ql); line('lim', X0, yL, XR, yL, ql);
+        REC.lines.push({ kind: 'lim', y: yOf(LIM[1]) }, { kind: 'lim', y: yOf(LIM[0]) });
+        part(ql, 0, () => { text(X0 + 5, yU - 6, 'limit ' + LIM[1] + ' V', 'ann'); text(X0 + 5, yL + 15, 'limit ' + LIM[0] + ' V', 'ann'); });
+      }
+      // A ring pulses out from each reading out of tolerance, then stays as a quiet ring.
+      v.forEach((x, k) => {
+        if (!outs[k]) return;
+        const cx = RAIL - (N - 1 - k) * DX, cy = yOf(x), p = arr(t.out[0], t.out[1]);
+        if (p < 1) circle('ring', cx, cy, 3 + 12 * p, 1 - p);
+        circle('ring', cx, cy, 6, arr(t.out[0] + t.out[1] * 0.6, 0.4));
+      });
+      // The reading furthest from the mean, with its distance in SDs.
+      let fk = 0;
+      v.forEach((x, k) => { if (Math.abs(x - m) > Math.abs(v[fk] - m)) fk = k; });
+      const zf = sd > 0 ? Math.abs(v[fk] - m) / sd : 0, fx = RAIL - (N - 1 - fk) * DX, fy = yOf(v[fk]), up = v[fk] > m;
+      const callTxt = K.fmt(zf, { decimals: 1 }) + ' SD out', cw = tw2(callTxt, 'ann');
+      part(arr(t.call), 3, () => text(K.clamp(fx, X0 + cw / 2 + 2, RAIL - cw / 2 - 4), up ? Math.max(PT + 14, fy - 11) : Math.min(PB - 6, fy + 21), callTxt, 'ann', 'middle'));
+      drawPen(yOf(v[N - 1]), S.lo, S.hi);
+      const no = outside(v), ex = expectOut(m, sd);
+      win(0, 'OUTSIDE', no + ' of ' + N, '', arr(t.out[0]));
+      win(1, 'FURTHEST', K.fmt(zf, { decimals: 1 }) + ' SD', '', arr(t.call));
+      win(2, 'BELL EXPECTS', K.fmt(ex, { decimals: 1 }), '', arr(t.call));
+      REC.outs = outs.filter(Boolean).length; REC.z = zf;
+      keyRow([['lim', 'example limit'], ['out', 'outside the limits'], ['bell', 'bell']], 331);
+      said = no + ' of ' + N + ' readings outside the limits of ' + LIM[0] + ' and ' + LIM[1] + ' V; the furthest is ' + K.fmt(zf, { decimals: 1 }) + ' SD from the mean.';
+    } else {
+      drawPaper(N - 1);
+      arr(t.morph[0], t.morph[1]);   // the glide to the drifting batch (run by the shared glide), on the timetable
+      drawTrace(v, N - 1, null);
+      drawBeads(null, false);
+      // The flat mean line tilts into the best-fit line, pivoting on the middle of the batch.
+      const qt = arr(t.tilt[0], t.tilt[1]), sl = F.slope * qt, tb = (N - 1) / 2, kL = -(RAIL - (N - 1) * DX - X0) / DX;
+      const yA = yOf(m + sl * (kL - tb)), yB = yOf(m + sl * (N - 1 - tb));
+      part(arr(t.mean), 0, () => line('fit', X0, yA, RAIL, yB));
+      REC.lines.push({ kind: 'fit', slope: F.slope });
+      drawPen(yOf(v[N - 1]), S.lo, S.hi);
+      win(0, 'TRUE CREEP', K.fmt(CREEP, { decimals: 2, sign: true }) + ' V', '', arr(t.mean));
+      win(1, 'SD', V2(sd), '', arr(t.mean));
+      win(2, 'FIT SLOPE', K.fmt(sl, { decimals: 2, sign: true }) + ' V', '', arr(t.tilt[0]));
+      keyRow([['fit', 'best-fit line'], ['dot', 'a reading']], 331);
+      said = 'Readings creeping up ' + K.fmt(CREEP, { decimals: 2 }) + ' V each plus random error; the best-fit line climbs ' + K.fmt(F.slope, { decimals: 2 }) + ' V a reading, and the SD is ' + V2(sd) + '.';
+    }
+    svg.setAttribute('aria-label', 'A chart recorder. ' + said);
+  }
+
+  // ---------- text with key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let a0 = 0, mm;
+    while ((mm = re.exec(s))) {
+      if (mm.index > a0) node.appendChild(document.createTextNode(s.slice(a0, mm.index)));
+      node.appendChild(K.el('span', { class: 'term' }, mm[1]));
+      a0 = mm.index + mm[0].length;
+    }
+    if (a0 < s.length) node.appendChild(document.createTextNode(s.slice(a0)));
+  }
+  function enter(id) { if (REDUCE) return; const b = el(id); b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter'); }
+
+  // ---------- the model: the batch's numbers for the step and spread ----------
+  K.model((p) => {
+    const i = Math.round(p.step), v = rule(Z, p.spread, i === 5 ? CREEP : 0), s = stats(v);
+    return { mean: s.mean, sd: s.sd, median: s.median, range: s.range, within1: within(v, s.mean, s.sd, 1), outside: outside(v), slope: fit(v).slope };
+  });
+
+  // The sentence under the chart: what is on screen now, from the targets (the numbers the glide settles on).
+  function sayOf(i, p, o) {
+    const v = rule(Z, p.spread, i === 5 ? CREEP : 0), s = stats(v);
+    if (i === 0) return N + ' simulated readings, from ' + V1(s.lo) + ' to ' + V1(s.hi) + '. In time order they zigzag; stacked by value they pile up near 440 V and thin out either side.';
+    if (i === 1) return 'The mean is ' + V1(s.mean) + ' and the median ' + V1(s.median) + '. The range, ' + V1(s.range) + ', rests on just two readings, the highest and the lowest.';
+    if (i === 2) return 'A typical reading sits about ' + V2(s.sd) + ' from the mean, the standard deviation. ' + o.within1 + ' of the ' + N + ' readings lie within 1 SD of it.';
+    if (i === 3) {
+      const ws = [1, 2, 3].map((k) => within(v, s.mean, s.sd, k));
+      const say = (w) => (w === N ? 'all ' + N : String(w));
+      return say(ws[0]) + ' readings lie within 1 SD, ' + say(ws[1]) + ' within 2 SD and ' + say(ws[2]) + ' within 3 SD. The normal curve\'s rule says 68%, 95% and 99.7%.';
+    }
+    if (i === 4) {
+      let fk = 0;
+      v.forEach((x, k) => { if (Math.abs(x - s.mean) > Math.abs(v[fk] - s.mean)) fk = k; });
+      const z = K.fmt(s.sd > 0 ? Math.abs(v[fk] - s.mean) / s.sd : 0, { decimals: 1 }), ex = K.fmt(expectOut(s.mean, s.sd), { decimals: 1 });
+      const n = o.outside;
+      const head = n === 0 ? 'None of the ' + N + ' readings is outside the limits; the furthest is ' + z + ' SD from the mean.'
+        : (n === 1 ? '1 of the ' + N + ' readings is' : n + ' of the ' + N + ' readings are') + ' outside the limits; the furthest is ' + z + ' SD from the mean.';
+      return head + ' For this mean and SD, the bell expects ' + ex + ' of ' + N + ' outside.';
+    }
+    return 'Stacked by value, the readings just look more spread out, with an SD of ' + V2(s.sd) + '. In time order the best-fit line climbs ' + K.fmt(o.slope, { decimals: 2 }) + ' V a reading, against the ' + K.fmt(CREEP, { decimals: 2 }) + ' V the simulation adds.';
+  }
+
+  K.update((p, o) => {
+    const i = Math.round(p.step), to = targetOf(i, p.spread);
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (lastStep < 0) { setNow(to); startDemo(i, 0); }
+    else if (i !== lastStep) {
+      const creep = (i === 5) !== (lastStep === 5);
+      if (i === 0) setNow(to);
+      else if (creep && i === 5) retarget(to, TL[5].morph[1], TL[5].morph[0], K.ease);
+      else retarget(to, creep ? 0.6 : DRAG, 0, creep ? K.ease : easeOut);
+      startDemo(i, 0);
+      enter('task');
+    } else if (batch !== lastBatch) {
+      if (i === 0) { setNow(to); startDemo(0, TR0 - 0.05); } else { retarget(to, 0.7, 0, K.ease); kick(); }
+    } else if (p.spread !== lastSpread) {
+      if (i === 0) T = Infinity;
+      retarget(to, DRAG, 0, easeOut); kick();
+    }
+    lastStep = i; lastBatch = batch; lastSpread = p.spread;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + STEPS[i].name;
+    write(el('task'), STEPS[i].text);
+    el('say').textContent = sayOf(i, p, o);
+    backBtn.el.disabled = i === 0;
+    nextBtn.el.disabled = i === STEPS.length - 1;
+    sample();
+    paint();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Worked by hand: readings of 438, 439, 440, 441 and 442 V have mean 440 V, median 440 V, range 4 V and standard deviation √(10 ÷ 4) = 1.58 V', () => {
+    const s = stats([438, 439, 440, 441, 442]);
+    return K.near(s.mean, 440) && K.near(s.median, 440) && K.near(s.range, 4) && K.near(s.sd, 1.5811388, 1e-6);
+  });
+  K.check('The same batch at twice the spread has exactly twice the standard deviation; with no spread every reading is 440 V, all 40 dots share one row of the stack and none is outside the limits; every dot sits in the row of its own reading', () => {
+    const a = stats(rule(Z, 1.5, 0)), b = stats(rule(Z, 3, 0)), z0 = rule(Z, 0, 0), b0 = beadsOf(z0);
+    const rows = targetOf(2, 1.5);
+    return K.near(b.sd / a.sd, 2, 1e-9) && K.near(K.at({ spread: 3, step: 2 }).sd / K.at({ spread: 1.5, step: 2 }).sd, 2, 1e-9) &&
+      z0.every((x) => x === 440) && b0.cnt[440.5] === N && Object.keys(b0.cnt).length === 1 && outside(z0) === 0 && stats(z0).sd === 0 &&
+      rows.v.every((x, k) => K.near(rows.by[k], yOf(Math.floor(x) + 0.5), 1e-9) && x >= Math.floor(x) && x < Math.floor(x) + 1);
+  });
+  K.check('The normal curve the stack wears holds 68.3%, 95.4% and 99.7% of its area within 1, 2 and 3 SD of its middle, and all of it in total', () =>
+    K.near(simpson(pdf, -1, 1, 400), 0.6827, 0.0005) && K.near(simpson(pdf, -2, 2, 400), 0.9545, 0.0005) &&
+    K.near(simpson(pdf, -3, 3, 400), 0.9973, 0.0005) && K.near(simpson(pdf, -9, 9, 900), 1, 1e-6) && K.near(cdf(1) - cdf(-1), 0.6827, 0.0005));
+  K.check('A best-fit line through readings 1, 3, 2 and 4 climbs 0.8 a reading (4 ÷ 5, worked by hand); with no scatter it finds the simulated creep exactly, 0.1 V a reading, and a flat batch gives none', () =>
+    K.near(fit([1, 3, 2, 4]).slope, 0.8) && K.near(fit(rule(Z, 0, CREEP)).slope, CREEP, 1e-9) && K.near(fit(rule(Z, 0, 0)).slope, 0, 1e-12));
+  K.check('Every step\'s demonstration has fully arrived within 5 s and none starts before the 0.35 s screen fade; a spread change settles within 0.5 s', () => {
+    const keepT = T, keepS = stepper.get();
+    let ok = DRAG <= 0.5;
+    for (let i = 0; i < STEPS.length; i++) {
+      stepper.set(i, true); T = Infinity; paint();
+      ok = ok && latest <= 5 && earliest >= FADE && TL[i].dur <= 5 && TL[i].dur >= latest;
+    }
+    stepper.set(keepS, true); T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
