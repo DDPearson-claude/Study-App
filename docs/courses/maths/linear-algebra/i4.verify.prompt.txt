@@ -1,0 +1,327 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Linear algebra, from arrows to vibration modes
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i4 "What a matrix reaches and what it flattens: rank and null space" — A matrix's column space is everything it can reach and its null space everything it crushes to zero, and their sizes decide how many answers Ax = b has. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i5 Directions that only stretch: eigenvalues and eigenvectors — An eigenvector is a direction a matrix only stretches, by a factor called its eigenvalue, found by solving det(A − λI) = 0 and then (A − λI)v = 0.
+- i6 Diagonalising: the same step, again and again — A matrix with enough eigenvectors is a plain stretch on their grid, P⁻¹AP = D, so n repeated steps are just Aⁿ = PDⁿP⁻¹.
+- i7 Coupled change: two tanks and two masses — Linked rates written as x′ = Ax split along the eigenvectors into separate motions, so two tanks or two masses on springs move as a sum of modes.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Lecture 10: The four fundamental subspaces — https://ocw.mit.edu/courses/18-06sc-linear-algebra-fall-2011/62a9db9eeab190694d40afe4734068ca_MIT18_06SCF11_Ses1.10sum.pdf
+    "all combinations of the columns of A and is a vector space in R m . Nullspace, N ( A ) This consists of all solutions x of the equation A x = 0 and lies in R n"
+[R2] The Four Fundamental Subspaces and Least Squares — https://ocw.mit.edu/courses/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/mitres_18_010_f24_slides01.pdf
+    "The nullspace N ( A ) contains all solution vectors x to the m equations Ax = 0"
+[R3] The Four Fundamental Subspaces and Least Squares — https://ocw.mit.edu/courses/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/mitres_18_010_f24_slides01.pdf
+    "Column Rank = Row Rank = “Dimension” of C ( A ) and C ( A T ) Number of independent columns = r = Number of independent rows = Rank of A"
+[R4] - Sections 7.5, 7.8 & 8.1 — https://math.arizona.edu/~glickenstein/math322s08/M322/linear/Linear_Algebra_5_8_1_Handout_1x2.pdf
+    "If B is not in the column space of A, then the system AX = B has no solution."
+[R5] - Sections 7.5, 7.8 & 8.1 — https://math.arizona.edu/~glickenstein/math322s08/M322/linear/Linear_Algebra_5_8_1_Handout_1x2.pdf
+    "If the null space of A is non-trivial, then the system AX = B has more than one solution."
+[R6] Solvability: Existence & Uniqueness | Learn Math Class — https://www.learnmathclass.com/linear-algebra/linear-systems/solvability
+    "The solution set is infinite — a translated copy of the null space, which has dimension n − rank ( A ) ."
+[R7] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the "span" of those two vectors"
+[R8] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+[R9] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The technical definition for the "basis" of a space is a set of linearly independent vectors that span that space"
+[R10] Lines and Planes — https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf
+    "The key idea related to equations of lines is you always need to have a vector, say x 0 , from the origin to a point of the line and a vector, say v , parallel to the line"
+[R11] Lines and Planes — https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf
+    "Every plane has a vector orthogonal (perpendicular) to it, called a normal vector and usually denoted by the letter n"
+[R12] Spectra HL700 Laser Receiver - Advanced Elevation Readout — https://www.spectraprecision.com/hl700
+    "The readout is displayed on the large front and rear LCD’s and shows exactly how far the elevation is from on-grade."
+[R13] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "Together they are called the "basis" of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale"
+Notes (claims, and the sources that support them):
+- The column space is all combinations of the columns of A, and the null space is all solutions x of Ax = 0. [R1][R2]
+- The rank of A is the number of independent columns, which equals the number of independent rows. [R3]
+- If b is not in the column space of A, Ax = b has no solution; if the null space holds more than the zero arrow, a solution that exists is not alone. [R4][R5]
+- When rank(A) is less than the number of unknowns n and a solution exists, the solutions form a shifted copy of the null space of dimension n minus the rank. [R6]
+- The span of a pair of arrows is every arrow reachable by scaling and adding them; most pairs in 2D reach the whole plane, but arrows lying along one line reach only that line. [R7]  (from an idea this one builds on)
+- A third arrow lying in the span of the first two adds no new arrows to the span, so it is not independent of them. [R8]  (from an idea this one builds on)
+- A basis of a space is a set of linearly independent arrows that span that space. [R9]  (from an idea this one builds on)
+- A line needs an arrow from the origin to a point on it and an arrow parallel to it; a plane has a normal arrow perpendicular to it. [R10][R11]  (from an idea this one builds on)
+- A rotating laser's receiver shows by its arrows whether it is above or below the beam, and digital-readout models show how far from on-grade it is (i3 analogy). [R12]  (from an idea this one builds on)
+- A basis is a set of independent arrows that span the space, and any numbers describing an arrow depend on the basis chosen. [R9][R13]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i4",
+ "title": "What a matrix reaches and what it flattens",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the output dot standing still, so a whole line of inputs lands on one target, when you slide the input along the dashed null space line.",
+  "title": "What goes in, what comes out",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Each one has two panels. The left panel is the input, an arrow x drawn as a dot. The right panel is the output, the dot Ax. A matrix card sits between them. Drag the input dot and the output dot follows. The output is x's first number times column 1, plus its second number times column 2. So the output is always a mix of the columns. The column space is shaded on the right: every output the matrix can reach. The null space is a dashed line on the left: every input that lands on zero. Slide along moves the input on a line parallel to the dashed one. The output dot stays perfectly still, because each step adds an arrow the matrix crushes to zero. A target b can be placed on the right. On the shaded set, every input that lands on it lights up as a dashed line through one answer. Off it, nothing lights, and working lines below end in 0 = 1. A label under the card gives the rank. The 3 by 3 screens draw both panels in 3-D. Drag the background to turn the view. The screens. 1, show: A = [1 2; 2 4]. The input (1, 1) lands on (3, 6). The words ask you to drag the input. Wherever it goes, the output stays on the shaded line through (1, 2), because column 2 is 2 lots of column 1. The finished picture shows (1, 1) landing on (3, 6). 2, a puzzle: which target can A reach? It offers (−1, −2), (2, 1) and (1, 3). 3, show: the input (2, −1) lands on (0, 0). The dashed line holds every amount of (2, −1). From (1, 1), slide along steps the input by (2, −1) to (3, 0). The output stays at (3, 6). The finished picture shows the input at (3, 0), still landing on (3, 6). 4, a puzzle: (1, 1) lands on (3, 6). Which other input lands there too? It offers (3, 0), (2, 3) and (3, 6). 5, show: the target b = (3, 6) sits on the shaded line. The line (1, 1) + t(2, −1) lights, and each point on it lands on b. Then b moves to (3, 7). Nothing lights. The working lines show x + 2y = 3 and 2x + 4y = 7. Taking 2 lots of the first row from the second leaves 0 = 1. The finished picture shows b back at (3, 6), lit. 6, a puzzle: how many answers does Ax = (2, 5) have? It offers none, exactly one and a whole line. 7, show: the card's 4 steps up to 5, giving [1 2; 2 5]. Its columns no longer line up. The shading fills the whole output panel, and the dashed line shrinks to the origin. The rank label turns from 1 to 2. b = (3, 7) now lights just one input, (1, 1). The finished picture shows that one answer. 8, a puzzle: could a matrix's column space be the plane z = 1, which misses the origin? It offers no, it must hold the origin; yes, if its columns lie in that plane; and only for a 3 by 3 matrix. 9, show: A = [1 1 1; 1 2 3; 2 3 4], in 3-D. Its third row is the sum of the first two. So the shaded plane on the right is z = x + y, with its normal (−1, −1, 1) drawn from the origin. The dashed line on the left runs along (1, −2, 1). From (1, 2, 3), slide along keeps the output at (6, 14, 20). The finished picture shows the input moved to (2, 0, 4), still landing on (6, 14, 20). 10, a puzzle: A(1, −2, 1) = (0, 0, 0). Which says the same thing about A's columns? It offers 1 lot of column 1, −2 lots of column 2 and 1 of column 3 add to zero; 1 lot of row 1, −2 lots of row 2 and 1 of row 3 add to zero; and A crushes every input to zero. 11, show: b = (6, 14, 20) sits on the plane, as 6 + 14 = 20. The line (1, 2, 3) + t(1, −2, 1) lights, and each point on it lands on b. Then b moves to (6, 14, 21), off the plane. Nothing lights, and the working lines end in 0 = 1. The finished picture shows b back at (6, 14, 20), lit. 12, a mixed puzzle: for the same A, how many answers does Ax = (2, 3, 5) have? It offers none, exactly one and a whole line. The right answer lights the line (1, 1, 0) + t(1, −2, 1). 13, a mixed puzzle: a matrix has 4 columns and rank 2. What does it crush to zero? It offers a plane of inputs, a line of inputs and only the zero arrow. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines.",
+  "ignores": "The panels have edges, but the shaded line and plane go on for ever. The dots sit on whole numbers so you can read them off the grid. Points in between work the same way. The 3-D view is a flat drawing, so turn it to judge depth. When b is off the column space, there is still a nearest output the matrix can reach. These screens do not show it.",
+  "numbers": [
+   {
+    "label": "Matrix A, top row (1, 2), right entry",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Matrix A, bottom row (2, 4), right entry",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 input (1, 1), each part",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 output (3, 6), second part",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 answer (−1, −2), second part",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip (2, 1), first part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 slip (1, 3), second part",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Crushed input (2, −1), second part",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 answer (3, 0), first part",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip (2, 3), the input plus column 1, second part",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 target off the line (3, 7), second part",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 5 last working line, 7 − 2 × 3",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 target (2, 5), second part",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 7 new bottom-right entry",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Determinant of [1 2; 2 5], 5 − 4",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Rank of [1 2; 2 4]",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Rank of [1 2; 2 5]",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 plane height z",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "3 by 3 matrix, bottom row (2, 3, 4), right entry",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Column space normal (−1, −1, 1), last part",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Crushed input (1, −2, 1), middle part",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Rank of the 3 by 3 matrix",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 9 input (1, 2, 3), last part",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 9 moved input (2, 0, 4), last part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Target (6, 14, 20), last part, 6 + 14",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Target off the plane (6, 14, 21), last part",
+    "value": 21,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 target (2, 3, 5), last part",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 answer (1, 1, 0), first part",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 number of columns",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 rank",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 crushed directions, 4 − 2",
+    "value": 2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A matrix takes an input arrow x and gives an output Ax. Everything it can reach is its [[column space]].[^1] Everything it crushes to the zero arrow is its [[null space]]. Each direction it crushes is one fewer direction it can reach. And when Ax = b has an answer, the crushed directions turn that one answer into a whole line or plane of them.\n\nRemember that Ax is a mix of the columns. x's first number says how much of column 1, and its second how much of column 2. So every output is a mix of the columns, and the column space is their span. Take A = [1 2; 2 4]. Its columns are (1, 2) and (2, 4). The second is 2 lots of the first. So an input (x, y) gives x lots of (1, 2) plus 2y lots of (1, 2). That is (x + 2y) lots of (1, 2). Every output lands on the line through (1, 2). The input (1, 1) lands on (3, 6). No input reaches (2, 1).\n\nNow find what it crushes. The input (2, −1) gives 2 lots of (1, 2) and −1 lot of (2, 4). That is (2, 4) − (2, 4), the zero arrow. Any amount of (2, −1) is crushed too. So the null space is the line through (2, −1). Add a step of (2, −1) to any input and x + 2y stays the same, since 2 + 2 × (−1) = 0. The output does not move. So (1, 1) and (3, 0) both land on (3, 6), and so does every point on (1, 1) + t(2, −1). Every answer is one answer plus a step along the null space.[^2]\n\nA target off the column space has no answer at all.[^3] Try b = (3, 7). The rows say x + 2y = 3 and 2x + 4y = 7. Take 2 lots of the first row from the second. The left side goes to 0, and the right side to 7 − 6 = 1. So 0 = 1, which no input can make true. You met this ending in elimination. Its cause is that the second row always gives exactly 2 lots of the first row's total, and 7 is not 2 lots of 3.\n\nThe [[rank]] of a matrix is its number of independent columns.[^4] It is how many directions the column space has. Here the columns line up, so the rank is 1. Change the 4 to a 5, giving [1 2; 2 5]. Now the columns do not line up, and the rank is 2. Its determinant is 1 × 5 − 2 × 2 = 1, not 0. Only the zero arrow is crushed. The outputs fill the whole plane, and every target has exactly one answer. b = (3, 7) now comes from (1, 1) alone.\n\nGo through the columns in order. Each one either adds a new direction or is a mix of the ones before it. A new direction adds 1 to the rank. A column that is a mix of earlier ones gives one crushed direction, because that mix minus the column lands on zero. So the rank plus the null space's number of directions is the number of columns.[^2]\n\nThe same holds in space. Take A = [1 1 1; 1 2 3; 2 3 4]. Its third row is the sum of the first two. So each output's third part is the sum of its first two, and the column space is the plane z = x + y. The cross product of the first two columns, (−1, −1, 1), is its normal. The third column is 2 lots of column 2 minus column 1. So the rank is 2, and 1 lot of column 1, −2 of column 2 and 1 of column 3 add to zero. The null space is the line through (1, −2, 1). 2 + 1 = 3 columns. The target (6, 14, 20) is on the plane, as 6 + 14 = 20. x = (1, 2, 3) lands on it, and so does every point on (1, 2, 3) + t(1, −2, 1). The target (6, 14, 21) is off the plane, and elimination ends in 0 = 1.\n\n**The column space is every output a matrix can reach, and the null space is every input it crushes to zero. Ax = b has an answer only when b is in the column space, and then every answer is one answer plus anything in the null space.**"
+ },
+ "analogy": {
+  "text": "An RCD's core responds to the line current minus the neutral current. Its input is a pair of currents, and its output is one number. A load's current goes out on line and back on neutral, so it adds the same to both. That is a step along the crushed line, and the reading does not move. So the reading alone cannot tell you the load. A whole line of current pairs gives the same reading. Only current that leaves by another path, such as a leak to earth, moves it.",
+  "breaks": "The currents are a.c., so they are phasors, not plain numbers. The RCD's output is one number, so every reading is reachable and no target is off its reach. A matrix with a two-part output, like [1 2; 2 4], can miss a target. A four-pole RCD compares four conductors. That is four inputs and one reading, so three directions are crushed."
+ },
+ "practice": {
+  "text": "- Write the system as a grid, with b as the last column, and eliminate.\n- A row that ends 0 = a number other than 0 means b is off the column space. There is no answer.\n- Otherwise, count the rows left with a leading number. That count is the rank.\n- An unknown with no leading number in its column is free. Each free unknown gives one direction of the null space.\n- No free unknowns means exactly one answer. Free unknowns mean one answer plus any amount along each null space direction.\n- Check by multiplying. Each answer must land on b, and each null space arrow on zero.\n\n**Rule of thumb:** a square matrix whose determinant is not 0 crushes only the zero arrow and reaches everything. A determinant of 0 means it crushes a whole line or more. Then each target has no answer or a whole line or plane of them.\n\n**Worked example:** Solve Ax = (6, 14, 20) with A = [1 1 1; 1 2 3; 2 3 4]. Row 2 minus row 1 gives y + 2z = 8. Row 3 minus 2 lots of row 1 also gives y + 2z = 8. Taking one from the other leaves 0 = 0, so the target is reachable. Two rows keep a leading number, so the rank is 2. z is free. Call it t. Then y = 8 − 2t, and x = 6 − y − z = −2 + t. So x = (−2, 8, 0) + t(1, −2, 1). Check t = 0: A(−2, 8, 0) = (−2 + 8, −2 + 16, −4 + 24) = (6, 14, 20). t = 3 gives (1, 2, 3), the same line through another point. With b = (6, 14, 21), row 3 gives y + 2z = 9 instead. Taking away y + 2z = 8 leaves 0 = 1, so there is no answer.\n\n**Common mistakes**\n- Stopping at one answer when a free unknown is left. A whole line of answers is the full answer.\n- Reading 0 = 0 as no answer. It only means one row was a mix of the others.\n- Giving the null space as the answer to Ax = b. The null space answers Ax = 0. The answers to Ax = b are that set moved over by one answer.\n- Taking a plane that misses the origin for a column space. Zero lots of every column give the zero arrow, so a column space always holds the origin.\n- Reading x only as a point that moves. It is also the amounts of each column. A(1, −2, 1) = 0 says 1 lot of column 1, −2 of column 2 and 1 of column 3 add to zero."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Lecture 10: The four fundamental subspaces",
+   "url": "https://ocw.mit.edu/courses/18-06sc-linear-algebra-fall-2011/62a9db9eeab190694d40afe4734068ca_MIT18_06SCF11_Ses1.10sum.pdf",
+   "quote": "all combinations of the columns of A and is a vector space in R m . Nullspace, N ( A ) This consists of all solutions x of the equation A x = 0 and lies in R n"
+  },
+  {
+   "n": 2,
+   "title": "Solvability: Existence & Uniqueness | Learn Math Class",
+   "url": "https://www.learnmathclass.com/linear-algebra/linear-systems/solvability",
+   "quote": "The solution set is infinite — a translated copy of the null space, which has dimension n − rank ( A ) ."
+  },
+  {
+   "n": 3,
+   "title": "- Sections 7.5, 7.8 & 8.1",
+   "url": "https://math.arizona.edu/~glickenstein/math322s08/M322/linear/Linear_Algebra_5_8_1_Handout_1x2.pdf",
+   "quote": "If B is not in the column space of A, then the system AX = B has no solution."
+  },
+  {
+   "n": 4,
+   "title": "The Four Fundamental Subspaces and Least Squares",
+   "url": "https://ocw.mit.edu/courses/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/mitres_18_010_f24_slides01.pdf",
+   "quote": "Column Rank = Row Rank = “Dimension” of C ( A ) and C ( A T ) Number of independent columns = r = Number of independent rows = Rank of A"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

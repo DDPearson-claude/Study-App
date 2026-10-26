@@ -1,0 +1,500 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Linear algebra, from arrows to vibration modes
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i6 "Diagonalising: the same step, again and again" — A matrix with enough eigenvectors is a plain stretch on their grid, P⁻¹AP = D, so n repeated steps are just Aⁿ = PDⁿP⁻¹. [process]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i7 Coupled change: two tanks and two masses — Linked rates written as x′ = Ax split along the eigenvectors into separate motions, so two tanks or two masses on springs move as a sum of modes.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Eigenvectors and eigenvalues | 3Blue1Brown — https://www.3blue1brown.com/lessons/eigenvalues
+    "Since all one of these matrices does is scale each basis vector by some eigenvalue, applying that matrix, say, 100 times will just correspond to scaling each basis vector by the 100th power of the corresponding eigenvalue"
+[R2] 22 22 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf
+    "An n × n matrix with repeated eigenvalues can be diagonalized provided we can obtain n linearly independent eigenvectors"
+[R3] Eigenvectors and eigenvalues | 3Blue1Brown — https://www.3blue1brown.com/lessons/eigenvalues
+    "A shear, for example, doesn't have enough eigenvectors to span all of space"
+[R4] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the "span" of those two vectors"
+[R5] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+[R6] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The technical definition for the "basis" of a space is a set of linearly independent vectors that span that space"
+[R7] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "Together they are called the "basis" of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale"
+[R8] Alternate basis transformation matrix example (video) | Khan Academy — https://www.khanacademy.org/math/linear-algebra/alternate-bases/change-of-basis/v/lin-alg-alternate-basis-tranformation-matrix-example
+    "Different coordinate systems are just different ways of representing the same vector"
+[R9] Change of basis | 3Blue1Brown — https://www.3blue1brown.com/lessons/change-of-basis
+    "It's matrix-vector multiplication, with a matrix whose columns represent Jennifer's basis vectors"
+[R10] Clarke And Park Transforms — https://www.mathworks.com/discovery/clarke-and-park-transforms.html
+    "The Clarke transform converts the time domain components of a three-phase system (in abc frame) to two components in an orthogonal stationary frame"
+[R11] Eigenvectors and eigenvalues | 3Blue1Brown — https://www.3blue1brown.com/lessons/eigenvalues
+    "These special vectors are called the "eigenvectors" of the transformation, and each eigenvector has associated with it what's called an "eigenvalue", which is the factor by which it's stretched or squished during the transformation"
+[R12] 22 22 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf
+    "non-trivial solutions for X will exist if det ( A − λI ) = 0"
+[R13] 22 22 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf
+    "sum of eigenvalues = sum of diagonal terms of A (called the trace of A )"
+[R14] 15 Matrix approach to normal modes. — https://www.sfu.ca/phys/255/063/lec/P255OutlineL15.pdf
+    "We say here that a 1 = 1 1 is an eigenvector associated with eigenvalue k/m , and a 2 = − 1 1 is an eigenvector associated with eigenvalue 3 k/m"
+Notes (claims, and the sources that support them):
+- In a basis of eigenvectors, a matrix just scales each basis arrow by its eigenvalue, so applying it 100 times scales each by the 100th power of its eigenvalue. [R1]
+- A matrix can be diagonalised when it has n linearly independent eigenvectors; a shear does not have enough eigenvectors to span all of space. [R2][R3]
+- The span of a pair of arrows is every arrow reachable by scaling and adding them; most pairs in 2D reach the whole plane, but arrows lying along one line reach only that line. [R4]  (from an idea this one builds on)
+- A third arrow lying in the span of the first two adds no new arrows to the span, so it is not independent of them. [R5]  (from an idea this one builds on)
+- A basis of a space is a set of linearly independent arrows that span that space. [R6]  (from an idea this one builds on)
+- The numbers of an arrow are the amounts the basis arrows are scaled by, so the same arrow gets different numbers in a different basis. [R7]  (from an idea this one builds on)
+- Different coordinate systems are different ways of representing the same arrow. [R8]  (from an idea this one builds on)
+- Converting from a second grid to the first is matrix-vector multiplication by a matrix whose columns are the second grid's basis arrows. [R9]  (from an idea this one builds on)
+- For i2: the Clarke transform, used in three-phase work, is a change of basis that rewrites the three phase quantities as two components at right angles in a stationary frame. [R10]  (from an idea this one builds on)
+- An eigenvector is a direction a transformation only stretches or squishes, and its eigenvalue is the factor by which it is stretched. [R11]  (from an idea this one builds on)
+- Non-trivial eigenvectors exist exactly when det(A − λI) = 0. [R12]  (from an idea this one builds on)
+- The eigenvalues of a square matrix add up to the sum of its diagonal entries, the trace, which gives a check on the answer. [R13]  (from an idea this one builds on)
+- For i5: two masses coupled by springs have the eigenvectors (1, 1) and (−1, 1), each with its own eigenvalue; these are the system's simple ways to move, its normal modes. [R14]  (from an idea this one builds on)
+- A basis is a set of independent arrows that span the space, and any numbers describing an arrow depend on the basis chosen. [R6][R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i6",
+ "title": "Diagonalising: the same step, again and again",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is each tap only stretching the flag by 3 along (1, 0) and 2 along (−1, 1), so Dⁿ reads out as plain powers, when you switch to the eigenvector grid and step A again.",
+  "title": "Step it again",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Most show the F-shaped flag from Matrices on the plane, moved by A = [3 1; 0 2], the matrix from Directions that only stretch. A Step button applies A once more each tap. A counter n says how many steps have been taken, and Back and Reset take it down again. A matrix card shows Aⁿ for the current n. The view zooms out by itself as the flag grows, so it stays in sight, and a note gives the zoom. A grid switch swaps the square grid for the eigenvector grid. That grid's lines run along A's two eigenvectors, (1, 0) with eigenvalue 3 and (−1, 1) with eigenvalue 2. On it the flag is read as amounts of each. Each tap multiplies the first amount by 3 and the second by 2, because an eigenvector is only stretched. A second card then reads Dⁿ, the eigenvalues down its diagonal with their powers worked out. Three presets load the stretch [3 1; 0 2], the pumps [0.8 0.3; 0.2 0.7] and the shear [1 1; 0 1]. The pumps open a tanks view. Two tanks hold 1000 L between them, as bars with their litres read out. Each tap is one hour of pumping. The shear draws only one eigenvector line. Its grid switch is greyed out, with the reason beside it: there is no second line to make a grid from. The screens. 1, show: the stretch on the square grid. Three taps take the flag from n = 0 to n = 3. Each time it leans further and grows. The card reads A = [3 1; 0 2], then A² = [9 5; 0 4], then A³ = [27 19; 0 8]. Each power is one more full multiplication. The finished picture shows the flag at n = 3. 2, a puzzle: (1, 0) is an eigenvector of A with eigenvalue 3. Where is it after four steps? It offers (81, 0), (12, 0) and (3, 0). (81, 0) is right, because each step multiplies by 3 again. Tapping four times checks it. 3, show: the grid switch on. Three taps again. Each one stretches the flag 3 times along (1, 0) and 2 times along (−1, 1). The second card reads D = [3 0; 0 2], then D² = [9 0; 0 4], then D³ = [27 0; 0 8]. After three steps the first amount has grown 27 times and the second only 8 times. So the flag lines up along (1, 0). The finished picture shows the flag at n = 3 on the eigenvector grid. 4, a puzzle: the arrow (1, 1) is 2 lots of (1, 0) plus 1 lot of (−1, 1), so its amounts are (2, 1). What are they after three steps? It offers (54, 8), (6, 2) and (18, 6). (54, 8) is right, 2 × 27 and 1 × 8. Back on the square grid that is 54(1, 0) + 8(−1, 1) = (46, 8). 5, show: P = [1 −1; 0 1], with the eigenvectors as its columns. P turns amounts on the eigenvector grid into your numbers. P⁻¹ = [1 1; 0 1] turns your numbers into amounts. Three panels follow (1, 1) through A = PDP⁻¹, right to left. P⁻¹ gives the amounts (2, 1). D stretches them to (6, 2). P turns that back into (4, 2), which is A(1, 1). The finished picture shows all three panels. 6, a puzzle: P's columns are taken the other way round, (−1, 1) first and (1, 0) second. What is D now? It offers [2 0; 0 3], [3 0; 0 2] and [3 1; 0 2]. [2 0; 0 3] is right, because each eigenvalue sits in the column of its own eigenvector. 7, show: Aⁿ = PDⁿP⁻¹. A³ is PDP⁻¹ three times over. Each P⁻¹P in the middle is I, so it drops out, leaving PD³P⁻¹. Worked out, [1 −1; 0 1][27 0; 0 8][1 1; 0 1] = [27 19; 0 8], the same as screen 1. In general Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]. The step counter runs on to n = 10, and the card reads A¹⁰ = [59049 58025; 0 1024]. The finished picture shows n = 10. 8, a puzzle: someone works out A³ as PDP⁻¹ and gets [3 1; 0 2]. What went wrong? It offers: D was not cubed; P and P⁻¹ should swap places; nothing, it is right. The first is right. PDP⁻¹ is A itself, one step. 9, show: the pumps in the tanks view. All 1000 L start in tank 1. Each hour the pump moves 20% of tank 1's water to tank 2 and 30% of tank 2's water to tank 1, so A = [0.8 0.3; 0.2 0.7]. Its eigenvalues are 1, with (3, 2), and 0.5, with (1, −1). The start, (1000, 0), is 200 lots of (3, 2) plus 400 lots of (1, −1). Each hour the first part stays as it is and the second halves. Four taps give tank 1 800, 700, 650 and 625 L. It heads for 600 L, a 60 : 40 split. A readout shows the part above 600 L, 400, 200, 100, 50 and 25. The finished picture shows n = 4, with 625 L and 375 L. 10, a puzzle: how much is in tank 1 after five hours? It offers 612.5 L, 600 L and 625 L. 612.5 L is right, 600 + 400 × 0.5⁵ = 600 + 12.5. 600 L is where it heads but never quite reaches. 625 L is after four hours. 11, show: the shear [1 1; 0 1]. det(A − λI) = (1 − λ)², so λ = 1 twice. But A − I = [0 1; 0 0] crushes only the line through (1, 0). One line cannot make a grid, so there is no P to invert. The grid switch is greyed out with that reason. Each tap pushes the flag further sideways, and the card reads Aⁿ = [1 n; 0 1]. 2I, which also has its eigenvalue twice, has every line as an eigenvector line. The finished picture shows the shear at n = 3 with its one line. 12, a mixed puzzle: [2 1; 0 2] has the eigenvalue 2 twice. Can it be written as PDP⁻¹? It offers: no, it has only one eigenvector line; yes, it has two eigenvalues; yes, every 2 by 2 can. The first is right. A − 2I = [0 1; 0 0] crushes only the line through (1, 0). 13, a mixed puzzle: M = [0.7 0.2; 0.2 0.7] stretches (1, 1) by 0.9 and (1, −1) by 0.5. Start at (1, 0), which is half of each, and take 20 steps. Which line is the arrow nearly on? It offers the line through (1, 1), the line through (1, −1), and still the line through (1, 0). The first is right. After 20 steps the (1, 1) part is 0.5 × 0.9²⁰, about 0.06. The (1, −1) part is 0.5 × 0.5²⁰, less than a millionth. The picture shows the arrow shrinking onto the line through (1, 1). Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone the answers and the readouts wrap onto more lines.",
+  "ignores": "The view zooms out as the flag grows, so after many steps the flag is drawn far smaller than it really is. The tanks are pumped in whole-hour jumps to keep the sums plain. A real pump moves water all the time. After several hours the bars look level at 600 L and 400 L, but the readout shows the small part still left. Each eigenvector line goes on for ever, past the panel's edge. The matrices and tank figures are example values.",
+  "numbers": [
+   {
+    "label": "Matrix A, top row (3, 1), left entry",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Matrix A, bottom row (0, 2), right entry",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Eigenvalue of A along (1, 0)",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Eigenvalue of A along (−1, 1)",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 1 steps tapped",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "A² = [9 5; 0 4], top right entry",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "A³ = [27 19; 0 8], top right entry",
+    "value": 19,
+    "kind": "computed"
+   },
+   {
+    "label": "A³ top left entry, 3³",
+    "value": 27,
+    "kind": "computed"
+   },
+   {
+    "label": "A³ bottom right entry, 2³",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 steps",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 answer (81, 0), first part",
+    "value": 81,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip (12, 0), 3 × 4, first part",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Amounts of (1, 1) on the eigenvector grid, first",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Amounts of (1, 1) on the eigenvector grid, second",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Amounts after three steps (54, 8), first",
+    "value": 54,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip (18, 6), 2 × 3 × 3, first",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 4 slip (18, 6), 1 × 2 × 3, second",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "A³(1, 1) = (46, 8), first part",
+    "value": 46,
+    "kind": "computed"
+   },
+   {
+    "label": "P = [1 −1; 0 1], top right entry",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "P⁻¹ = [1 1; 0 1], top right entry",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 5 amounts after one step (6, 2), first",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "A(1, 1) = (4, 2), first part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 7 highest n",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "A¹⁰ top left entry, 3¹⁰",
+    "value": 59049,
+    "kind": "computed"
+   },
+   {
+    "label": "A¹⁰ top right entry, 3¹⁰ − 2¹⁰",
+    "value": 58025,
+    "kind": "computed"
+   },
+   {
+    "label": "A¹⁰ bottom right entry, 2¹⁰",
+    "value": 1024,
+    "kind": "computed"
+   },
+   {
+    "label": "Water in the two tanks, litres",
+    "value": 1000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Share of tank 1's water pumped to tank 2 each hour, %",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Share of tank 2's water pumped to tank 1 each hour, %",
+    "value": 30,
+    "kind": "assumed"
+   },
+   {
+    "label": "Pump matrix, top left entry, 1 − 0.2",
+    "value": 0.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump matrix, bottom right entry, 1 − 0.3",
+    "value": 0.7,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump eigenvalue along (3, 2)",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump eigenvalue along (1, −1)",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Start (1000, 0): lots of (3, 2)",
+    "value": 200,
+    "kind": "computed"
+   },
+   {
+    "label": "Start (1000, 0): lots of (1, −1)",
+    "value": 400,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 1 after 1 hour, litres",
+    "value": 800,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 1 after 2 hours, litres",
+    "value": 700,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 1 after 3 hours, litres",
+    "value": 650,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 1 after 4 hours, litres",
+    "value": 625,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 2 after 4 hours, litres",
+    "value": 375,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 1 in the long run, litres",
+    "value": 600,
+    "kind": "computed"
+   },
+   {
+    "label": "Long-run split, tank 1 share, %",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Long-run split, tank 2 share, %",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Part above 600 L after 4 hours, litres",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 1 after 5 hours, litres",
+    "value": 612.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Part above 600 L after 5 hours, litres",
+    "value": 12.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Shear [1 1; 0 1], top right entry",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Shear eigenvalue, counted twice",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "2I's eigenvalue, counted twice",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 matrix [2 1; 0 2], eigenvalue counted twice",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 matrix M, diagonal entries",
+    "value": 0.7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 matrix M, other entries",
+    "value": 0.2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 eigenvalue along (1, 1), 0.7 + 0.2",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 eigenvalue along (1, −1), 0.7 − 0.2",
+    "value": 0.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 steps",
+    "value": 20,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 13 (1, 1) part after 20 steps, 0.5 × 0.9²⁰, about",
+    "value": 0.06,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump P = [3 1; 2 −1], determinant",
+    "value": -5,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump P⁻¹ = [0.2 0.2; 0.4 −0.6], bottom right entry",
+    "value": -0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump D³, bottom right entry, 0.5³",
+    "value": 0.125,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump A³ top left entry",
+    "value": 0.65,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump A³ top right entry",
+    "value": 0.525,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump A³ bottom left entry",
+    "value": 0.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump A³ bottom right entry",
+    "value": 0.475,
+    "kind": "computed"
+   },
+   {
+    "label": "Tank 2 after 3 hours, litres",
+    "value": 350,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump Aⁿ in the long run, top row entries",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Pump Aⁿ in the long run, bottom row entries",
+    "value": 0.4,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Some changes repeat: a pump that runs for an hour, every hour. Doing a matrix step n times means working out Aⁿ. Multiplying out powers is slow, and it hides where the steps are heading. The fix is to measure along the matrix's eigenvectors. On their grid each step only stretches each direction by its own eigenvalue. So n steps just raise each eigenvalue to the power n.[^1]\n\nTake A = [3 1; 0 2] again. Its eigenvectors are (1, 0), with eigenvalue 3, and (−1, 1), with eigenvalue 2. Use those two arrows as your basis. A basis made of eigenvectors is an [[eigenbasis]]. The arrow (1, 1) is 2 lots of (1, 0) plus 1 lot of (−1, 1), so on this grid its amounts are (2, 1). A matrix acts on a mix part by part. So one step turns 2 lots of (1, 0) into 2 lots of A(1, 0), and 1 lot of (−1, 1) into 1 lot of A(−1, 1). Each eigenvector is only stretched, so the first amount is multiplied by 3 and the second by 2. So on this grid A acts as D = [3 0; 0 2]. That has the eigenvalues down its diagonal and zeros everywhere else, a [[diagonal matrix]]. Three steps give the amounts 2 × 27 and 1 × 8, which is (54, 8). Back on your grid that is 54(1, 0) + 8(−1, 1) = (46, 8).\n\nRemember One arrow, two grids? Put the eigenvectors in as the columns of P = [1 −1; 0 1]. P turns amounts on the eigenvector grid into your numbers, and P⁻¹ = [1 1; 0 1] turns your numbers into amounts. So A seen on the eigenvector grid is P⁻¹AP = D. Turned round, A = PDP⁻¹. Read it right to left: into the eigenvector grid, stretch, back out. To [[diagonalise]] A is to find this P and D. Each eigenvalue sits in the column of its own eigenvector, so swapping P's columns swaps D's entries.\n\nNow repeat it. A³ is PDP⁻¹ PDP⁻¹ PDP⁻¹. Each P⁻¹P in the middle is I, which changes nothing, so A³ = PD³P⁻¹. In general Aⁿ = PDⁿP⁻¹, and Dⁿ just raises each diagonal entry to the power n. Leave that power off and you get A itself, one step. Here Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]. So A³ = [27 19; 0 8], and A¹⁰ = [59049 58025; 0 1024], with no long multiplying.\n\nThe powers also show where the steps head. Each part is multiplied by its own eigenvalue every step. So when one eigenvalue is bigger in size than the rest, its part takes over, as long as the start has some of it. Say a pump moves 20% of tank 1's water to tank 2 each hour, and 30% of tank 2's back. That is A = [0.8 0.3; 0.2 0.7], with eigenvalue 1 along (3, 2) and 0.5 along (1, −1). Start with 1000 L, all in tank 1. That is 200 lots of (3, 2) plus 400 lots of (1, −1). Each hour the first part stays and the second halves. So tank 1 holds 800, 700, 650, then 625 L. It closes in on 600 L, a 60 : 40 split, without ever quite reaching it.\n\nNot every matrix can be diagonalised. The grid needs as many independent eigenvectors as the matrix has columns. A shear such as [1 1; 0 1] has too few.[^2] Its eigenvalue 1 comes twice, but A − I = [0 1; 0 0] crushes only the line through (1, 0). One line makes no grid, so there is no P to invert. A repeated eigenvalue is not the trouble in itself. It is fine whenever you can still find enough independent eigenvectors.[^3] 2I has 2 twice, and every nonzero arrow is one of its eigenvectors.\n\n**A matrix with enough independent eigenvectors is a plain stretch on their grid, P⁻¹AP = D, so n steps are Aⁿ = PDⁿP⁻¹, with each eigenvalue raised to the power n.**[^1]"
+ },
+ "analogy": {
+  "text": "Picture two equal capacitors joined through a resistor, and look at them once a second. Charge only moves from one to the other, so the total never changes. That is the direction (1, 1), with eigenvalue 1. The difference between their charges shrinks by the same fraction every second. That is the direction (1, −1), with an eigenvalue below 1. Any start splits into a total part and a difference part. After n seconds the total is as it was, and the difference has been multiplied by that fraction n times.",
+  "breaks": "Real capacitors leak a little, so the total slowly falls too. And charge flows all the time, not in jumps once a second. Smooth change has its own form of this rule, with e^(λt) in place of λⁿ."
+ },
+ "practice": {
+  "text": "- Find the eigenvalues from det(A − λI) = 0, and an eigenvector for each.\n- Check you have as many independent eigenvectors as A has columns. If not, A cannot be diagonalised, so multiply out the powers instead.\n- Put the eigenvectors in as the columns of P. Put each eigenvalue in D, in the same column as its eigenvector.\n- Find P⁻¹. For a 2 by 2, swap the two diagonal entries, change the signs of the other two, and divide by the determinant.\n- Check that AP = PD. Each column of AP should be its eigenvalue times that column of P.\n- For n steps, raise each entry of D to the power n. Then work out PDⁿP⁻¹.\n\n**Rules of thumb:** read PDP⁻¹ right to left: into the eigenvector grid, stretch, back out. When one eigenvalue is bigger in size than the rest, its part takes over in the end, if the start has some of it. If every eigenvalue is smaller than 1 in size, every part dies away, and Aⁿ heads for zero. An eigenvalue of exactly 1 gives a part that never changes, a steady state. A negative eigenvalue flips its part every step.\n\n**Worked example:** the pumped tanks, A = [0.8 0.3; 0.2 0.7]. The eigenvectors are (3, 2) with 1 and (1, −1) with 0.5. So P = [3 1; 2 −1] and D = [1 0; 0 0.5]. det P = −3 − 2 = −5, so P⁻¹ = [0.2 0.2; 0.4 −0.6]. For three hours, D³ = [1 0; 0 0.125]. Then PD³ = [3 0.125; 2 −0.125], and PD³P⁻¹ = [0.65 0.525; 0.35 0.475]. So from 1000 L in tank 1, three hours later tank 1 holds 650 L and tank 2 holds 350 L. Over many hours 0.5ⁿ heads for 0, so Aⁿ heads for [0.6 0.6; 0.4 0.4]. Whatever the start, the water heads for a 60 : 40 share.\n\n**Where you meet it:** any rule of the form \"next = A × now\", stepped again and again. Textbooks add that symmetrical components, used to work out unbalanced faults on three-phase systems, rest on the same move. A change of basis turns a balanced system's matrix into a diagonal one, so each sequence can be worked on its own.\n\n**Common mistakes**\n- Leaving the power off D. PDP⁻¹ is A itself, one step.\n- Getting the order wrong, as in PAP⁻¹ or P⁻¹DP. A = PDP⁻¹, with P⁻¹ on the right, acting first.\n- Putting D's eigenvalues in a different order from P's columns.\n- Thinking a repeated eigenvalue always gives two eigenvectors. Count the independent lines, as with the shear.\n- Thinking a repeated eigenvalue always rules it out. 2I has 2 twice and is diagonal already.\n- Expecting the tanks to reach 60 : 40 exactly. The part left over halves every hour but never reaches zero."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Eigenvectors and eigenvalues | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/eigenvalues",
+   "quote": "Since all one of these matrices does is scale each basis vector by some eigenvalue, applying that matrix, say, 100 times will just correspond to scaling each basis vector by the 100th power of the corresponding eigenvalue"
+  },
+  {
+   "n": 2,
+   "title": "Eigenvectors and eigenvalues | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/eigenvalues",
+   "quote": "A shear, for example, doesn't have enough eigenvectors to span all of space"
+  },
+  {
+   "n": 3,
+   "title": "22 22",
+   "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf",
+   "quote": "An n × n matrix with repeated eigenvalues can be diagonalized provided we can obtain n linearly independent eigenvectors"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

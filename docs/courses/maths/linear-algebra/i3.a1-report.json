@@ -1,0 +1,217 @@
+{
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"midpoint\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 1 more setting)",
+      "SVG text \"B − A\" has a line through it (<line.ln>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 1 more setting) [at 340 px wide]",
+      "SVG text \"r − p\" has a line through it (<line.ztick>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting) [at 340 px wide]",
+      "SVG text \"r − p\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)",
+      "SVG text \"r\" has a line through it (<circle.grip>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)",
+      "SVG text \"n\" has a line through it (<circle.grip>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5, and 1 more setting)",
+      "SVG text \"distance 3\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 7, and 1 more setting)",
+      "SVG text \"r\" has a line through it (<circle.grip>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 7, and 1 more setting)",
+      "SVG text \"(1, 2, 0)\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 8, and 1 more setting)",
+      "SVG text \"(1, 0, 0)\" has a line through it (<line.axis>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 12, and 1 more setting)",
+      "SVG text \"v\" has a line through it (<line.ztick>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 13, and 2 more settings)",
+      "SVG text \"B − A\" has a line through it (<line.ln>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3) [at 720 and 1040 px wide]",
+      "SVG text \"r − p\" has a line through it (<line.ztick>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 5) [at 720 and 1040 px wide]",
+      "SVG text \"meets the tile\" has a line through it (<line.ln>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 11, and 1 more setting) [at 720 and 1040 px wide]"
+    ],
+    "checks": [
+      {
+        "label": "You always need an arrow from the origin to a point of the line and an arrow parallel to the line: on every line screen, the line is drawn through its start along its direction, and for every setting of t the dot sits at the start plus t lots of the direction",
+        "ok": true,
+        "source": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf"
+      },
+      {
+        "label": "Every plane has a vector orthogonal to it, its normal: wherever the tip of n is dragged, the tile turns with it, so both edges of the tile stay square to n and every corner reads 0",
+        "ok": true,
+        "source": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf"
+      },
+      {
+        "label": "The reading n · (r − p) is 0 exactly when the test point lies in the plane, above 0 on the side n points to and below 0 on the other, wherever r is dragged, and the readout shows that value",
+        "ok": true
+      },
+      {
+        "label": "Every worked number is right: (2, 5, 0) at t = 2; (3, 7, 0) at t = 3, with 3v = (3, 6, 0) and 3p + v = (1, 5, 0); B − A = (2, 4, −2) and the midpoint (2, 2, 1); (3, 2, 0) and A + B = (7, 4, 2); the step (1, 0, −1) reads 0, p + n reads 9 and the origin −9; n · p = 9, |n| = 3, 9 ÷ 3 = 3, foot (2, 1, 2); (1, 3, 2) gives 9; d = 1 for (1, 2, 0) and (3, −1, 2); u × w = (2, 1, 2); (1, 1, 0) × (0, 1, 1) = (1, −1, 1); −8, n · v = 4, t = 2; (1, 2, 2) and t = 2.5; n · n = 9; the two planes meet along (1, 1, 3) + t(2, 2, −3); the worked example 6x + 3y + 2z = 6, |n| = 7, about 0.86",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle's answer comes from the rule, and each wrong answer offered is the slip its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends where the lesson says: t = 2 with the dot at (2, 5, 0); t = ½ with the dot at the midpoint (2, 2, 1); the test point back at (2, 1, 2) reading 0; the origin reading −9, 3 from the tile at (2, 1, 2); the paint on every point the dot reaches, with u × w = (2, 1, 2) and the dot reading 0; t = 2 with the dot touching the tile at (2, 5, 0)",
+        "ok": true
+      },
+      {
+        "label": "While each demonstration plays, the rule holds at every moment: the dot stays on its line, the test point reads n · (r − p) with the sign of its side, the painted dot always reads 0, and the meeting dot's reading climbs by n · v = 4 for each unit of t",
+        "ok": true
+      },
+      {
+        "label": "In span mode, every setting of s and t puts the dot on the plane, reading 0, and u × w is square to both u and w",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "t",
+      "ta",
+      "su",
+      "tw"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "A start and a direction",
+          "Where at t = 3?",
+          "Through two points",
+          "Which direction?",
+          "A plane and its normal",
+          "Which point is on it?",
+          "Its equation",
+          "Which equation?",
+          "Two directions",
+          "Which normal?",
+          "Where they meet",
+          "Mixed: where it meets",
+          "Mixed: how it meets"
+        ],
+        "value": 0
+      },
+      {
+        "id": "t",
+        "kind": "control",
+        "label": "t",
+        "min": -2,
+        "max": 3,
+        "step": 0.25,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "ta",
+        "kind": "control",
+        "label": "t",
+        "min": -1,
+        "max": 2,
+        "step": 0.25,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          0.5
+        ]
+      },
+      {
+        "id": "su",
+        "kind": "control",
+        "label": "s",
+        "min": -2,
+        "max": 2,
+        "step": 0.5,
+        "log": false,
+        "value": 0,
+        "shown": false
+      },
+      {
+        "id": "tw",
+        "kind": "control",
+        "label": "t",
+        "min": -2,
+        "max": 2,
+        "step": 0.5,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Play again",
+      "Clear paint",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"v\" and \"z\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 56 more settings) [at 340 px wide]",
+      "SVG labels \"v\" and \"z\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 2, and 2 more settings) [at 340 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "t = 1.75",
+    "ta = 1.25",
+    "su = 1",
+    "tw = 1",
+    "pressed \"Play again\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-360-light.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-360-light-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-360-light-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-360-dark.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-360-dark-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-1280-light.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-1280-light-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-1280-dark.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i3.a1-1280-dark-end.png"
+  ]
+}

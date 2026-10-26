@@ -1,0 +1,1304 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }
+  .ctl { max-width: 24rem; margin-inline: auto; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* The squared grid, the slanted grid, the paint, one cell. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .sl { stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1; }
+  .scene .sl.kg { stroke-width: 2.4; }
+  .scene .paint { fill: var(--k-fill1); fill-opacity: .75; stroke: var(--k-fill1); stroke-width: 8; stroke-linejoin: round; }
+  .scene .paint.bad { fill: var(--k-warn); fill-opacity: .14; stroke: var(--k-warn); stroke-opacity: .4; }
+  .scene .paintsw { fill: var(--k-fill1); fill-opacity: .75; stroke: none; }
+  .scene .cell { fill: var(--k-fill2); fill-opacity: .9; stroke: var(--k-amber-line); stroke-width: 1.6; stroke-linejoin: round; }
+  .scene .badseg { stroke: var(--k-warn); stroke-opacity: .35; stroke-width: 11; stroke-linecap: round; }
+  .scene .badpoly { fill: var(--k-warn); fill-opacity: .16; stroke: var(--k-warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
+  /* The 3-D view: the axes, the sheet, the box. */
+  .scene .ax3 { stroke: var(--k-muted); stroke-width: 1.3; stroke-dasharray: 2 3; }
+  .scene .sheet { fill: var(--k-fill1); fill-opacity: .6; stroke: var(--k-accent2); stroke-opacity: .35; stroke-width: 1; }
+  .scene .ed { stroke: var(--k-accent2); stroke-width: 1.8; stroke-linecap: round; }
+  .scene .eh { stroke: var(--k-accent2); stroke-opacity: .5; stroke-width: 1.3; stroke-dasharray: 5 4; }
+  .scene .face { fill: var(--k-fill2); fill-opacity: .6; stroke: none; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  /* Arrows: u blue, v orange, w ink, copies in a mix thinner, a wrong pick red. */
+  .scene .arr .sh { fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  .scene .arr.base .sh { stroke-width: 3.8; }
+  .scene .c1 .sh { stroke: var(--k-cat1); }
+  .scene .c1 .hd { fill: var(--k-cat1); }
+  .scene .c2 .sh { stroke: var(--k-cat2); }
+  .scene .c2 .hd { fill: var(--k-cat2); }
+  .scene .c3 .sh { stroke: var(--k-ink); }
+  .scene .c3 .hd { fill: var(--k-ink); }
+  .scene .arr.bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; }
+  .scene .arr.bad .hd { fill: var(--k-warn); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .dot.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .ring.ok { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ring.bad { stroke: var(--k-warn); stroke-width: 3; }
+  /* Words and numbers. */
+  .scene .en { font: 600 16px var(--k-font); fill: var(--k-ink); }
+  .scene .q { font: 600 16px var(--k-font); fill: var(--k-muted); }
+  .scene .big { font: 600 22px var(--k-font); fill: var(--k-ink); }
+  .scene .big.q { fill: var(--k-muted); }
+  .scene .big.ok { fill: var(--k-accent2); }
+  .scene .big.bad { fill: var(--k-warn); }
+  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ln.sm2 { font-size: 13px; }
+  .scene .ln.sm3 { font-size: 12px; }
+  .scene .ln.ok { fill: var(--k-accent2); }
+  .scene .ln.bad { fill: var(--k-warn); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag.ok { fill: var(--k-accent2); font-weight: 600; }
+  .scene .tag.bad { fill: var(--k-warn); font-weight: 600; }
+  .scene .ttl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .nm { font: italic 700 16px var(--k-font); fill: var(--k-accent); }
+  .scene .nm.s13 { font-size: 13px; }
+  .scene .hh { stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke fill; }
+  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.s13 { font-size: 13px; }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .lb.ok { fill: var(--k-accent2); }
+  .scene .lb.mu { fill: var(--k-muted); font-weight: 600; }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene tspan.v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .turn { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: ew-resize; touch-action: pan-y; }
+  .scene .turn:focus { outline: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: var(--k-accent2); stroke-opacity: .5; stroke-width: 1.5; stroke-dasharray: 4 3; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1.05rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Most screens show two arrows from the origin of a squared grid, and the slanted grid they draw. Three screens show arrows in space.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 400" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <p class="act" id="act"></p>
+    <div class="ctl" id="abox"></div>
+    <div class="ctl" id="hbox"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Whole amounts land on the corners of the slanted grid. The determinant is each cell's area.</p>
+
+<script>
+  // ---------- numbers and words (pure, so the checks can test them) ----------
+  const MINUS = '−', NB = ' ';
+  function num(v, dp) { const f = Math.pow(10, dp == null ? 2 : dp); let r = Math.round(v * f) / f; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }
+  const pt = (v, dp) => '(' + v.map((x) => num(x, dp)).join(', ') + ')';
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/−/g, ' minus ').replace(/×/g, ' times ')
+    .replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- the rule ----------
+  // A mix of arrows lays so many of each nose to tail. Two arrows u = (p, q) and v = (r, s) make
+  // cells of area p s − q r. Not 0: the cells tile the plane and the mixes reach all of it. 0: the
+  // arrows lie on one line, the mixes reach only that line, and a mix that is not all zeros lands on 0.
+  const add = (p, q) => p.map((x, k) => x + q[k]);
+  const sub = (p, q) => p.map((x, k) => x - q[k]);
+  const scl = (p, s) => p.map((x) => x * s);
+  const dot = (p, q) => p.reduce((s, x, k) => s + x * q[k], 0);
+  const crossP = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const triple = (a, b, c) => dot(a, crossP(b, c));
+  const det2 = (u, v) => u[0] * v[1] - u[1] * v[0];
+  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);
+  const samePt = (a, b) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k]));
+  const lerpV = (p, q, e) => (e >= 1 ? q.slice() : e <= 0 ? p.slice() : p.map((x, k) => x + (q[k] - x) * e));
+  const isZero = (p) => p.every((x) => Math.abs(x) < 1e-9);
+  const mix2 = (a, b, u, v) => add(scl(u, a), scl(v, b));
+  function mixText(cs, names) { return cs.map((c, k) => (k === 0 ? num(c) : (c < 0 ? ' − ' : ' + ') + num(Math.abs(c))) + names[k]).join(''); }
+  const UV = ['u', 'v'], UVW = ['u', 'v', 'w'];
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a; };
+  // A mix that is not all zeros landing on (0, 0), when there is one. Tips sit on whole points, so
+  // v = (n/d) u for whole n and d, and then −n u + d v = 0.
+  function zeroMix(u, v) {
+    if (!near(det2(u, v), 0)) return null;
+    if (isZero(v)) return [0, 1];
+    if (isZero(u)) return [1, 0];
+    let n, d;
+    if (Math.abs(u[0]) > 1e-9) { n = v[0]; d = u[0]; } else { n = v[1]; d = u[1]; }
+    if (d < 0) { n = -n; d = -d; }
+    n = Math.round(n); d = Math.round(d);
+    const g = gcd(n, d) || 1;
+    return [(n === 0 ? 0 : -n / g), d / g];
+  }
+  const spanOf = (u, v) => (isZero(u) && isZero(v) ? 'just (0, 0)' : near(det2(u, v), 0) ? 'one line' : 'the whole plane');
+  // Every mix with amounts from −L to L: the parallelogram with these corners.
+  const paintCorners = (u, v, L) => [add(scl(u, L), scl(v, L)), sub(scl(u, L), scl(v, L)), scl(add(u, v), -L), sub(scl(v, L), scl(u, L))];
+  // The amounts of u and v that give t (Cramer's rule), when the cells have real area.
+  const amountsOf = (t, u, v) => { const D = det2(u, v); return [det2(t, v) / D, det2(u, t) / D]; };
+  // One arrow as so many lots of another, for two on one line.
+  function lotsText(p, q) {
+    if (!isZero(q)) { const k = Math.abs(q[0]) > 1e-9 ? p[0] / q[0] : p[1] / q[1]; return pt(p) + ' is ' + num(k) + ' lots of ' + pt(q); }
+    const k = Math.abs(p[0]) > 1e-9 ? q[0] / p[0] : q[1] / p[1]; return pt(q) + ' is ' + num(k) + ' lots of ' + pt(p);
+  }
+  const parsePts = (s) => (String(s).match(/\(([^)]+)\)/g) || []).map((m) => m.replace(/[()]/g, '').split(',').map((t) => +t.trim().replace(MINUS, '-')));
+  // Back up a staircase whose last letter is free: set it, then work up the rows.
+  function backSub(M, c) {
+    const b = -(M[1][2] * c) / M[1][1], a = -(M[0][1] * b + M[0][2] * c) / M[0][0];
+    return [a, b, c];
+  }
+
+  // ---------- the lesson's values ----------
+  const U0 = [2, 1], V0 = [1, 3], VLINE = [-4, -2], TGT = [-1, 2], I2 = [1, 0], J2 = [0, 1];
+  const U3 = [1, 0, -1], V3 = [0, 2, -1], wOf = (h) => [1, 2, -2 + h];
+  const A3 = [[1, 0, 0], [1, 1, 0], [1, 1, 1]];
+  const STAIR10 = [[1, 0, 1, 0], [0, 2, 2, 0], [0, 0, 0, 0]], STAIR12 = [[1, 1, 1, 0], [0, 1, 1, 0], [0, 0, 1, 0]];
+  const AMT = { 'a = 1, b = −1': [1, -1], 'a = −1, b = 1': [-1, 1], 'a = −1, b = 2': [-1, 2] };
+  const landsOn = (am) => mixText(am, UV) + ' lands on ' + pt(mix2(am[0], am[1], U0, V0)) + ', not ' + pt(TGT);
+  // Where the tips may be dragged.
+  const DX = [-5, 6], DY = [-2, 6];
+  const SHEET = [[-0.6, -0.6], [1.6, -0.6], [1.6, 1.6], [-0.6, 1.6]].map((c) => add(scl(U3, c[0]), scl(V3, c[1])));
+  const AX_SHEET = [[2, 0, 0], [0, 3, 0], [0, 0, 1.5]], AX_CUBE = [[1.9, 0, 0], [0, 1.9, 0], [0, 0, 1.7]];
+  const boxPts = (cols) => { const a = cols[0], b = cols[1], c = cols[2]; return [[0, 0, 0], a, b, c, add(a, b), add(a, c), add(b, c), add(add(a, b), c)]; };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // two: the squared grid; panels: two small grids side by side; three: a 3-D view. rows: worked lines
+  // above the picture. dur: a SHOW step's demonstration. act: what he can do with the picture, under it.
+  // ab, hCtl: the sliders it shows; drag: the tips move; paintBtn: the Paint button. A puzzle: task,
+  // opts, want, hints (one per wrong answer), slips (the red line drawn for each), why, fb (seconds of
+  // motion after a right and a wrong answer).
+  const PICK = 'Tap one of the answers.';
+  const TURN = 'Drag the picture sideways to turn it.';
+  const DRAG = 'Drag either arrow\'s tip to a whole point. Slide a and b to change the mix.';
+  const O_ARROWS = 'Only the points on the two arrows', O_PARA = 'Only the parallelogram between them', O_PLANE = 'Every point in the plane';
+  const S9 = ['Independent, as the bottom row is all zeros', 'Dependent, as c is free, so a mix that is not all zeros gives zero', 'Independent, as a = b = c = 0 is an answer'];
+  const S11 = ['Dependent, as c can be any number', 'Independent, as the system is inconsistent', 'Independent, as only a = b = c = 0 works'];
+  const B12 = ['(3, 1) and (1, 1)', '(2, 1) and (−4, −2)', '(2, 1), (1, 3) and (1, 0)'];
+  const P8 = ['(3, 6) and (1, 2)', '(1, 2) and (2, 1)', '(2, −1) and (−6, 3)'];
+  const flatText = (pr) => lotsText(pr[0], pr[1]) + ', so the cells are flat';
+  const amB = amountsOf([1, 0], U0, V0);
+  const STEPS = [
+    { show: true, key: 'mix', name: 'A mix of two arrows', dur: 3.8, two: true, rows: 3, ab: true, paintBtn: true, act: 'Slide a and b to change the amounts. Paint shades every point a mix reaches.',
+      text: 'Here are two arrows, `u = (2, 1)` and `v = (1, 3)`. A mix lays so many of each nose to tail. Two lots of u and one of v land on `(5, 5)`. The faint slanted grid has a line for every whole amount of u and of v. So whole amounts land on its corners.' },
+    { kind: 'pick', key: 'reach', name: 'Land on a point', two: true, rows: 2, fb: [1.9, 1.6],
+      task: 'Which amounts of u and v land on `(−1, 2)`?',
+      opts: Object.keys(AMT), want: 'a = −1, b = 1',
+      hints: { 'a = 1, b = −1': 'Not quite. That turns v round instead of u. It lands on (1, −2).', 'a = −1, b = 2': 'Not quite. Two lots of v go too high. That lands on (0, 5).' },
+      slips: { 'a = 1, b = −1': landsOn([1, -1]), 'a = −1, b = 2': landsOn([-1, 2]) },
+      why: 'A negative amount turns an arrow round. So −1 lot of u is `(−2, −1)`. One v on the end adds `(1, 3)`. That lands on `(−1, 2)`.' },
+    { show: true, key: 'paint', name: 'The span', dur: 3.7, two: true, rows: 4, ab: true, drag: true, paintBtn: true, act: DRAG,
+      text: 'Every point a mix can reach is the arrows\' *span*. The paint shades it, for amounts from −5 to 5. Each cell of the slanted grid is a parallelogram with u and v as its sides. Its area is the determinant, `2 × 3 − 1 × 1 = 5`. Amounts in between reach the points inside each cell. Cells with real area tile the plane with no gaps. So the paint covers it all.' },
+    { kind: 'pick', key: 'span', name: 'Name the span', two: true, rows: 2, fb: [1.6, 1.4],
+      task: 'What is the span of u and v?',
+      opts: [O_ARROWS, O_PARA, O_PLANE], want: O_PLANE,
+      hints: { [O_ARROWS]: 'Not quite. The amounts can be any size, and negative too. −1u + 1v lands on (−1, 2), off both arrows.',
+        [O_PARA]: 'Not quite. The amounts can go past 1. 2u + 1v lands on (5, 5), outside it.' },
+      slips: { [O_ARROWS]: mixText([-1, 1], UV) + ' reaches ' + pt(TGT) + ', off both arrows', [O_PARA]: mixText([2, 1], UV) + ' reaches ' + pt(mix2(2, 1, U0, V0)) + ', outside it' },
+      why: 'The span is every point any mix reaches. Cells with real area tile the whole plane. Amounts in between fill each cell. So every point is some mix of u and v.' },
+    { show: true, key: 'collapse', name: 'Line them up', dur: 3.8, two: true, rows: 4, ab: true, drag: true, paintBtn: true, act: DRAG,
+      text: 'Now v swings round onto u\'s line, to `(−4, −2)`. That arrow is −2 lots of u. So any mix of the two is just some amount of u. The cells thin to nothing. Their area is `2 × (−2) − 1 × (−4) = 0`. The reach collapses to a line, because v adds no new direction. And `2u + 1v` lands on `(0, 0)`.' },
+    { kind: 'pick', key: 'online', name: 'One line only', two: true, rows: 1, fb: [1.6, 1.4],
+      task: 'Which point can a mix of `(2, 1)` and `(−4, −2)` reach?',
+      opts: ['(6, 3)', '(3, 6)', '(1, 3)'], want: '(6, 3)',
+      hints: { '(3, 6)': 'Not quite. That swaps the parts. Every mix keeps 2 across for each 1 up.', '(1, 3)': 'Not quite. Every mix is some amount of (2, 1). So it keeps 2 across for each 1 up.' },
+      slips: { '(3, 6)': '(3, 6) is off the line through (2, 1)', '(1, 3)': '(1, 3) is off the line through (2, 1)' },
+      why: '`(−4, −2)` is −2 lots of `(2, 1)`. So every mix is just some amount of `(2, 1)`. Three lots give `(6, 3)`. The others are off that line.' },
+    { show: true, key: 'compare', name: 'Independent or not', dur: 3.8, panels: true, rows: 0,
+      text: 'Here are the two pairs side by side. u and v make cells of area 5. Only `0u + 0v` lands on zero. They are *linearly independent*. Each adds a direction the other cannot reach. u and `(−4, −2)` make cells of area 0. `2u + (−4, −2)` lands on zero. They are dependent, the opposite of independent.' },
+    { kind: 'pick', key: 'indep', name: 'Spot the independent pair', two: true, rows: 1, fb: [1.8, 1.6],
+      task: 'Which pair is independent?',
+      opts: P8, want: P8[1],
+      hints: { [P8[0]]: 'Not quite. (3, 6) is 3 lots of (1, 2). Their area is 3 × 2 − 6 × 1 = 0.',
+        [P8[2]]: 'Not quite. (−6, 3) is −3 lots of (2, −1). Their area is 2 × 3 − (−1) × (−6) = 0.' },
+      slips: { [P8[0]]: flatText(parsePts(P8[0])), [P8[2]]: flatText(parsePts(P8[2])) },
+      why: 'For `(1, 2)` and `(2, 1)` the determinant is `1 × 1 − 2 × 2 = −3`. That is not 0, so the cells have real area. Neither arrow is a mix of the other.' },
+    { show: true, key: 'sheet', name: 'A third arrow', dur: 3.9, three: true, rows: 2, hCtl: true, axes: AX_SHEET, act: 'Slide h to raise or lower w. ' + TURN,
+      pts: SHEET.concat(boxPts([U3, V3, wOf(0)]), boxPts([U3, V3, wOf(2)]), AX_SHEET, [[0, 0, 0]]),
+      text: 'In space, `u = (1, 0, −1)` and `v = (0, 2, −1)` span a flat sheet through the origin. A third arrow, w, makes a box with them. At `w = (1, 2, −1)` it sits off the sheet. The box has volume 2, and the three reach all of space. As w sinks to `(1, 2, −2)`, the box flattens to volume 0. That w is `u + v`. It adds no new points, so the span stays that sheet.' },
+    { kind: 'pick', key: 'stair', name: 'Read the staircase', three: true, stair: STAIR10, rows: 2, axes: AX_SHEET, act: TURN, fb: [1.8, 0.6],
+      pts: SHEET.concat(boxPts([U3, V3, wOf(0)]), AX_SHEET, [[0, 0, 0]]),
+      task: 'Elimination of `a u + b v + c w = 0` for u, v and `w = (1, 2, −2)` ends in this staircase. What does it say about the arrows?',
+      opts: S9, want: S9[1],
+      hints: { [S9[0]]: 'Not quite. A row of zeros leaves c free. That is the mark of dependence.', [S9[2]]: 'Not quite. a = b = c = 0 always works. The question is whether anything else does.' },
+      slips: { [S9[0]]: 'A row of zeros leaves c free', [S9[2]]: 'a = b = c = 0 always works, so it proves nothing' },
+      why: 'Row 2 says `2b + 2c = 0`, and row 1 says `a + c = 0`. So c is free. Set `c = −1`. Then `a = 1` and `b = 1`. So `u + v − w` lands on zero, and the three are dependent.' },
+    { show: true, key: 'basis', name: 'A basis', dur: 3.8, two: true, rows: 2,
+      text: 'A *basis* is a set of independent arrows that spans a space. i and j are one basis for the plane. `u = (2, 1)` and `v = (1, 3)` are another. Each pair makes cells with real area, and its paint covers the plane. Any third arrow in the plane is a mix of two independent ones. So three arrows in a plane are always dependent.' },
+    { kind: 'pick', key: 'stair3', name: 'Mixed: three in space', three: true, stair: STAIR12, rows: 1, axes: AX_CUBE, act: TURN, fb: [1.8, 0.6],
+      pts: boxPts(A3).concat(AX_CUBE),
+      task: 'Take `(1, 0, 0)`, `(1, 1, 0)` and `(1, 1, 1)`. Their `a u + b v + c w = 0` is already this staircase. What does it say?',
+      opts: S11, want: S11[2],
+      hints: { [S11[0]]: 'Not quite. Row 3 says c = 0. No letter is left free.', [S11[1]]: 'Not quite. With zeros on the right, a = b = c = 0 always works. So it can never be inconsistent.' },
+      slips: { [S11[0]]: 'Row 3 says c = 0, so c is not free', [S11[1]]: 'Zeros on the right can never be inconsistent' },
+      why: 'Row 3 says `c = 0`. Then row 2 gives `b = 0`, and row 1 gives `a = 0`. Only all zeros works. The box they make has volume 1, not 0.' },
+    { kind: 'pick', key: 'basis2', name: 'Mixed: a basis', two: true, rows: 1, fb: [1.9, 1.8],
+      task: 'Which set is a basis for the plane?',
+      opts: B12, want: B12[0],
+      hints: { [B12[1]]: 'Not quite. (−4, −2) is −2 lots of (2, 1). They reach only one line.',
+        [B12[2]]: 'Not quite. They span the plane, but three arrows in a plane are dependent. (1, 0) is 0.6 lots of (2, 1) less 0.2 lots of (1, 3).' },
+      slips: { [B12[1]]: lotsText([-4, -2], [2, 1]) + ', so they reach one line', [B12[2]]: '(1, 0) = ' + num(amB[0]) + ' × (2, 1) − ' + num(-amB[1]) + ' × (1, 3)' },
+      why: '`(3, 1)` and `(1, 1)` have determinant `3 × 1 − 1 × 1 = 2`. That is not 0, so they are independent. Their cells tile the plane, so they span it. Independent and spanning makes a basis.' },
+  ];
+  const FINISH = 'The span is every point the mixes reach. Arrows are independent when none is a mix of the others. Then their cells or boxes have real area or volume. A dependent set crushes them to 0.';
+  // Sources the checks restate (the lesson's own).
+  const TBB = 'https://www.3blue1brown.com/lessons/span';
+  const FADE = 0.35, GROW = 1.4;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- the 3-D view: a true view (never mirrored), turned by al, tipped by BE ----------
+  const RAD = Math.PI / 180, BE = 24, AL3 = 340, SWING = 30, UMAX = 70, PH3 = 250, AW = 280, AH = PH3 - 64;
+  function viewOf(al) { const a = al * RAD, b = BE * RAD; return { sa: Math.sin(a), ca: Math.cos(a), sb: Math.sin(b), cb: Math.cos(b) }; }
+  const prj = (V, w) => [-V.sa * w[0] + V.ca * w[1], V.sb * V.ca * w[0] + V.sb * V.sa * w[1] - V.cb * w[2]];
+  const towards = (V) => [V.ca * V.cb, V.sa * V.cb, V.sb];
+  function fitOf(pts, al0) {
+    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    pts.forEach((p) => p.forEach((x, k) => { lo[k] = Math.min(lo[k], x); hi[k] = Math.max(hi[k], x); }));
+    const C = lo.map((x, k) => (x + hi[k]) / 2);
+    let u = UMAX;
+    [-SWING, -SWING / 2, 0, SWING / 2, SWING].forEach((da) => {
+      const V = viewOf(al0 + da);
+      let mx = 1e-6, my = 1e-6;
+      pts.forEach((p) => { const q = prj(V, sub(p, C)); mx = Math.max(mx, Math.abs(q[0])); my = Math.max(my, Math.abs(q[1])); });
+      u = Math.min(u, AW / 2 / mx, AH / 2 / my);
+    });
+    return { C, u };
+  }
+  function hull(pts) {
+    const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    p.forEach((q) => { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+    for (let k = p.length - 1; k >= 0; k--) { const q = p[k]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+    up.pop(); lo.pop();
+    return lo.concat(up);
+  }
+  STEPS.forEach((d) => { if (d.three) d.fit = fitOf(d.pts, AL3); });
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. live: he has moved
+  // something, so the demonstration is over. ab: his amounts; u, v: where he put the tips; paint: his
+  // Paint button (null: the step's own); h: his height for w; al: how far he has turned the view.
+  function blank() { return { pick: null, res: null, why: false, live: false, ab: null, u: null, v: null, paint: null, h: null, al: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, PG = Infinity, motionEnd = 0, checking = false;
+  let REC = null, GEO = null, GEO2 = null, clipN = 0;
+  const shown = { a: 2, b: 1, h: 1 };
+  const el = (id) => document.getElementById(id);
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[uvwij](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);
+        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) italics(node, seg.slice(at0), false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const aCtl = K.control({ id: 'a', label: 'a, how many lots of u', min: -3, max: 3, step: 0.5, value: 2, snap: [-1, 2], fmt: (v) => num(v), into: '#abox' });
+  const bCtl = K.control({ id: 'b', label: 'b, how many lots of v', min: -3, max: 3, step: 0.5, value: 1, snap: [1, 2], fmt: (v) => num(v), into: '#abox' });
+  const hCtl = K.control({ id: 'h', label: 'h, how high w sits', min: 0, max: 2, step: 0.1, value: 1, snap: [0, 1], fmt: (v) => num(v), into: '#hbox' });
+  function openControls() { aCtl.set(2, true); bCtl.set(1, true); hCtl.set(1, true); shown.a = aCtl.get(); shown.b = bCtl.get(); shown.h = hCtl.get(); }
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const paintOn = (d, st) => (st.paint != null ? st.paint : d.key === 'paint' || d.key === 'collapse');
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank(); openControls();
+    play(d.dur);
+  } });
+  const paintBtn = K.button({ label: 'Paint', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.paintBtn || finished) return;
+    const on = paintOn(d, st);
+    st.live = true; T = Infinity;
+    st.paint = !on;
+    if (st.paint && !REDUCE && !testing()) { PG = 0; motionEnd = 0; anim.play(); } else { PG = Infinity; anim.pause(); paint(); }
+    K.reveal();
+  } });
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the paint spreading, and the motion after an answer;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt; PG += dt;
+    paint();
+    return T < motionEnd || PG < GROW;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && (T !== Infinity || PG !== Infinity)) { T = Infinity; PG = Infinity; paint(); } });
+  function play(dur) {
+    PG = Infinity;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function goLive(st) { st.live = true; if (anim.playing()) anim.pause(); T = Infinity; PG = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, placed = [];
+  const put = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  const growE = () => (PG === Infinity ? 1 : K.ease(K.clamp(PG / GROW, 0, 1)));
+  const paintL = (st, demo) => (st.paint === true ? 5 * growE() : st.paint === false ? 0 : demo);
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = put(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx0) => put(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx0 || 0) }));
+  const line = (cls, x1, y1, x2, y2) => put(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => put(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  const pathEl = (cls, d) => put(K.svg('path', { class: cls, d }));
+  const polyD = (ps) => 'M' + ps.map((p) => r3(p[0]) + ' ' + r3(p[1])).join(' L') + ' Z';
+  const nb = (s) => String(s).replace(/ /g, NB);
+  function text(x, y, s, cls, anchor) {
+    const plain = /^(en|q|big)\b/.test(cls);
+    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    REC.texts.push(String(s));
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  function fitText(x, y, s, cls) {
+    if (tw(s, cls) <= 322) return text(x, y, s, cls);
+    if (tw(s, cls + ' sm2') <= 322) return text(x, y, s, cls + ' sm2');
+    return text(x, y, s, cls + ' sm3');
+  }
+  function arrow(a, b, cls) {
+    const g = put(K.svg('g', { class: 'arr ' + cls }));
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    if (L < 1) return g;
+    const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.5), hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  function drawKey(y, items) {
+    const gap = 16, glyph = 22, ws = items.map((it) => tw(it[1], 'key'));
+    const total = ws.reduce((a, w) => a + glyph + w, 0) + gap * (items.length - 1);
+    let x = Math.max(6, (340 - total) / 2);
+    items.forEach((it, k) => {
+      if (it[0] === 'sl') line('sl kg', x, y - 5, x + 16, y - 5);
+      else rect(it[0], x, y - 11, 16, 11, 2);
+      text(x + glyph, y, it[1], 'key', 'start');
+      x += glyph + ws[k] + gap;
+    });
+  }
+
+  // ---------- labels in a picture, clear of the lines, the edges and each other ----------
+  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  function segHits(b, s) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  const DIRS = [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]];
+  function placeLabel(lb, area, segs, pts) {
+    const s = lb.s, cls = lb.cls, w = tw(s, cls), px = lb.p[0], py = lb.p[1];
+    const cands = [];
+    if (lb.center) cands.push([px, py, 0]);
+    [1, 2].forEach((far) => DIRS.forEach((c) => cands.push([px + (c[0] ? c[0] * (8 + 6 * far + w / 2) : 0),
+      py + (c[1] ? c[1] * (c[0] ? 6 + 7 * far : 9 + 8 * far) : 0), far === 2 ? 5 : 0])));
+    let best = null, bestBad = Infinity;
+    cands.forEach((cd) => {
+      const b = { x: cd[0] - w / 2 - 3, y: cd[1] - 9, w: w + 6, h: 18 };
+      let bad = cd[2];
+      if (b.x < area.x0 || b.x + b.w > area.x1 || b.y < area.y0 || b.y + b.h > area.y1) bad += 100;
+      placed.forEach((q) => { if (boxesMeet(b, q)) bad += 60; });
+      segs.forEach((sg) => { if (segHits(b, sg)) bad += 14; });
+      pts.forEach((p) => { if (Math.hypot(p[0] - px, p[1] - py) < 0.5) return; if (p[0] > b.x - 6 && p[0] < b.x + b.w + 6 && p[1] > b.y - 6 && p[1] < b.y + b.h + 6) bad += 10; });
+      if (bad < bestBad) { bestBad = bad; best = { cx: cd[0], cy: cd[1], b }; }
+    });
+    placed.push(best.b);
+    return text(best.cx, best.cy + 5, s, cls + ' hh');
+  }
+  function placeAll(labels, area, segs, pts) {
+    labels.sort((a, b) => a.prio - b.prio).forEach((lb) => part(lb.a, 0, () => placeLabel(lb, area, segs, pts)));
+  }
+
+  // ---------- the 2-D picture ----------
+  const G2 = 24, WX = [-6, 7], WY = [-3, 7], LEFT2 = 14, PH2 = (WY[1] - WY[0]) * G2;
+  const PANEL = { x0: -5, x1: 5, y0: -3, y1: 4, G: 14 }, PANEL_H = 24 + (PANEL.y1 - PANEL.y0) * PANEL.G + 40, STAIR_H = 116, RXC = 252;
+  const view2 = (top) => ({ x0: WX[0], x1: WX[1], y0: WY[0], y1: WY[1], G: G2, left: LEFT2, top });
+  const toPx = (vw, p) => [vw.left + vw.G * (p[0] - vw.x0), vw.top + vw.G * (vw.y1 - p[1])];
+  function clipLine(vw, p, d) {
+    let t0 = -Infinity, t1 = Infinity;
+    const lim = [[d[0], p[0], vw.x0, vw.x1], [d[1], p[1], vw.y0, vw.y1]];
+    for (let k = 0; k < 2; k++) {
+      const dk = lim[k][0], pk = lim[k][1], lo = lim[k][2], hi = lim[k][3];
+      if (Math.abs(dk) < 1e-12) { if (pk < lo || pk > hi) return null; continue; }
+      let a = (lo - pk) / dk, b = (hi - pk) / dk;
+      if (a > b) { const t = a; a = b; b = t; }
+      t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+    }
+    if (!(t1 > t0 + 1e-9)) return null;
+    return [add(p, scl(d, t0)), add(p, scl(d, t1))];
+  }
+  // The slanted grid: a line along v through every whole amount of u, and along u through every whole amount of v.
+  function slanted(vw, P, u, v) {
+    const drawLine = (p0, dir) => { const seg = clipLine(vw, p0, dir); if (seg) { const p = P(seg[0]), q = P(seg[1]); line('sl', p[0], p[1], q[0], q[1]); } };
+    if (isZero(u) && isZero(v)) return;
+    if (near(det2(u, v), 0)) { drawLine([0, 0], isZero(u) ? v : u); return; }
+    for (let k = -40; k <= 40; k++) { drawLine(scl(u, k), v); drawLine(scl(v, k), u); }
+  }
+  function chainPieces(u, a, from) {
+    const out = [], n = Math.floor(Math.abs(a) + 1e-9), sg = a < 0 ? -1 : 1;
+    let at0 = from;
+    for (let k = 0; k < n; k++) { const nx = add(at0, scl(u, sg)); out.push([at0, nx]); at0 = nx; }
+    const rest = Math.abs(a) - n;
+    if (rest > 1e-6) { const nx = add(at0, scl(u, sg * rest)); out.push([at0, nx]); at0 = nx; }
+    return { out, end: at0 };
+  }
+  function std2(u, v, o) {
+    o = o || {};
+    const aA = o.aA == null ? 1 : o.aA;
+    const s = { arrows: [], chains: [], dots: [], rings: [], tags: [], paints: [], badSegs: [], badPolys: [] };
+    if (o.gA != null) s.grid = { u, v, a: o.gA };
+    if (o.cA != null) s.cell = { u, v, a: o.cA };
+    if (o.L != null && o.L > 0) s.paints.push({ u, v, L: o.L, a: o.pA == null ? 1 : o.pA, bad: !!o.badPaint });
+    s.arrows.push({ to: u, cls: o.clsU || 'c1', name: o.nameU || 'u', a: aA });
+    s.arrows.push({ to: v, cls: o.clsV || 'c2', name: o.nameV || 'v', a: aA });
+    if (o.chain && o.chain.al > 0) { s.chains.push({ u, v, a: o.chain.a, b: o.chain.b, al: o.chain.al }); s.dots.push({ p: mix2(o.chain.a, o.chain.b, u, v), a: o.chain.al }); }
+    return s;
+  }
+  function scene2(vw, s) {
+    const P = (p) => toPx(vw, p);
+    const W = vw.G * (vw.x1 - vw.x0), H = vw.G * (vw.y1 - vw.y0), small = vw.G < 20;
+    const area = { x0: vw.left, x1: vw.left + W, y0: vw.top, y1: vw.top + H };
+    const segs = [], pts = [], labels = [];
+    const lab = (p, str, cls, a, prio, center) => labels.push({ p, s: str, cls: cls + (small ? ' s13' : ''), a: a == null ? 1 : a, prio: prio || 0, center });
+    const id = 'pc' + (clipN++);
+    put(K.svg('clipPath', { id }, K.svg('rect', { x: area.x0, y: area.y0, width: W, height: H })));
+    const cg = put(K.svg('g', { 'clip-path': 'url(#' + id + ')' }));
+    const keep = into; into = cg;
+    try {
+      for (let x = vw.x0; x <= vw.x1; x++) if (x) { const p = P([x, vw.y0]), q = P([x, vw.y1]); line('gl', p[0], p[1], q[0], q[1]); }
+      for (let y = vw.y0; y <= vw.y1; y++) if (y) { const p = P([vw.x0, y]), q = P([vw.x1, y]); line('gl', p[0], p[1], q[0], q[1]); }
+      { const p = P([0, vw.y0]), q = P([0, vw.y1]); line('ax', p[0], p[1], q[0], q[1]); }
+      { const p = P([vw.x0, 0]), q = P([vw.x1, 0]); line('ax', p[0], p[1], q[0], q[1]); }
+      (s.paints || []).forEach((pn) => {
+        if (!(pn.a > 0) || !(pn.L > 1e-6) || (isZero(pn.u) && isZero(pn.v))) return;
+        part(pn.a, 0, () => pathEl('paint' + (pn.bad ? ' bad' : ''), polyD(paintCorners(pn.u, pn.v, pn.L).map(P))));
+        if (pn.a >= 0.5) { REC.paints.push({ u: pn.u.slice(), v: pn.v.slice(), L: pn.L, bad: !!pn.bad }); if (pn.bad) REC.bad++; }
+      });
+      (s.badPolys || []).forEach((b) => { part(b.a, 0, () => pathEl('badpoly', polyD(b.ps.map(P)))); if (b.a >= 0.5) REC.bad++; });
+      (s.badSegs || []).forEach((b) => { part(b.a, 0, () => { const p = P(b.p), q = P(b.q); line('badseg', p[0], p[1], q[0], q[1]); }); if (b.a >= 0.5) REC.bad++; });
+      if (s.grid && s.grid.a > 0) part(s.grid.a, 0, () => slanted(vw, P, s.grid.u, s.grid.v));
+      if (s.cell && s.cell.a > 0) {
+        const u = s.cell.u, v = s.cell.v, D = det2(u, v);
+        part(s.cell.a, 0, () => pathEl('cell', polyD([[0, 0], u, add(u, v), v].map(P))));
+        lab(P(scl(add(u, v), 0.5)), 'area ' + num(D, 1), 'lb', s.cell.a, 2, true);
+        if (s.cell.a >= 0.5) REC.areas.push(D);
+      }
+    } finally { into = keep; }
+    (s.chains || []).forEach((c) => {
+      if (!(c.al > 0)) return;
+      const A = chainPieces(c.u, c.a, [0, 0]), B = chainPieces(c.v, c.b, A.end);
+      part(c.al, 0, () => {
+        A.out.forEach((pq) => { const a2 = P(pq[0]), b2 = P(pq[1]); arrow(a2, b2, c.bad ? 'bad' : 'c1'); segs.push([a2[0], a2[1], b2[0], b2[1]]); });
+        B.out.forEach((pq) => { const a2 = P(pq[0]), b2 = P(pq[1]); arrow(a2, b2, c.bad ? 'bad' : 'c2'); segs.push([a2[0], a2[1], b2[0], b2[1]]); });
+      });
+      if (c.al >= 0.5) { REC.chains.push({ a: c.a, b: c.b, end: B.end }); if (c.bad) REC.bad++; }
+    });
+    (s.arrows || []).forEach((ar) => {
+      const a = ar.a == null ? 1 : ar.a;
+      if (!(a > 0)) return;
+      const p = P(ar.from || [0, 0]), q = P(ar.to);
+      if (Math.hypot(q[0] - p[0], q[1] - p[1]) >= 1) part(a, 0, () => arrow(p, q, 'base ' + ar.cls));
+      segs.push([p[0], p[1], q[0], q[1]]); pts.push(q);
+      const names = Array.isArray(ar.name) ? ar.name : ar.name ? [[ar.name, 1]] : [];
+      names.forEach((nm) => lab(q, nm[0], /^\(/.test(nm[0]) ? (/bad/.test(ar.cls) ? 'lb bad' : 'lb') : 'nm', Math.min(a, nm[1]), 0));
+      if (a >= 0.5) { REC.arrows.push(ar.to.slice()); if (/bad/.test(ar.cls)) REC.bad++; }
+    });
+    (s.dots || []).forEach((dt) => {
+      if (!(dt.a > 0)) return;
+      const q = P(dt.p);
+      part(dt.a, 0, () => circle('dot' + (dt.bad ? ' bad' : ''), q[0], q[1], 5.5));
+      pts.push(q);
+      if (dt.a >= 0.5) REC.dots.push(dt.p.slice());
+    });
+    (s.rings || []).forEach((rg) => {
+      if (!(rg.a > 0)) return;
+      const q = P(rg.p);
+      part(rg.a, 0, () => circle('ring' + (rg.cls ? ' ' + rg.cls : ''), q[0], q[1], 8));
+      pts.push(q);
+      if (rg.s) lab(q, rg.s, 'lb' + (rg.cls ? ' ' + rg.cls : ''), rg.la == null ? rg.a : rg.la, 1);
+      if (rg.a >= 0.5) { REC.rings.push({ p: rg.p.slice(), cls: rg.cls || '' }); if (rg.cls === 'bad') REC.bad++; }
+    });
+    (s.tags || []).forEach((tg) => lab(P(tg.p), tg.s, 'lb' + (tg.cls ? ' ' + tg.cls : ''), tg.a, 1));
+    placeAll(labels, area, segs, pts);
+    return { P, area };
+  }
+
+  // ---------- the 3-D picture ----------
+  const FACE_KEYS = [[['o', 'a', 'ab', 'b'], 0, -1], [['c', 'ac', 'abc', 'bc'], 0, 1], [['o', 'b', 'bc', 'c'], 1, -1],
+    [['a', 'ab', 'abc', 'ac'], 1, 1], [['o', 'c', 'ac', 'a'], 2, -1], [['b', 'bc', 'abc', 'ab'], 2, 1]];
+  const EDGE_KEYS = [['o', 'a'], ['o', 'b'], ['o', 'c'], ['a', 'ab'], ['a', 'ac'], ['b', 'ab'], ['b', 'bc'], ['c', 'ac'], ['c', 'bc'], ['ab', 'abc'], ['ac', 'abc'], ['bc', 'abc']];
+  function boxDraw(ctx, cols) {
+    const a = cols[0], b = cols[1], c = cols[2], Dv = triple(a, b, c);
+    const W = { o: [0, 0, 0], a, b, c, ab: add(a, b), ac: add(a, c), bc: add(b, c), abc: add(add(a, b), c) };
+    const S2 = {};
+    Object.keys(W).forEach((k) => { S2[k] = ctx.P(W[k]); });
+    const size = Math.max(1e-9, Math.hypot(a[0], a[1], a[2]) * Math.hypot(b[0], b[1], b[2]) * Math.hypot(c[0], c[1], c[2]));
+    const flat = Math.abs(Dv) < 1e-6 * size, view = towards(ctx.V), sg = Dv >= 0 ? 1 : -1;
+    const N = [crossP(a, b), crossP(b, c), crossP(c, a)];
+    const vis = FACE_KEYS.map((f) => !flat && dot(N[f[1]], view) * f[2] * sg > 1e-9);
+    const edgeVis = (e) => flat || FACE_KEYS.some((f, k) => vis[k] && f[0].indexOf(e[0]) >= 0 && f[0].indexOf(e[1]) >= 0);
+    EDGE_KEYS.forEach((e) => { if (!edgeVis(e)) ctx.sg(S2[e[0]], S2[e[1]], 'eh'); });
+    if (flat) pathEl('face', polyD(hull(Object.keys(S2).map((k) => S2[k]))));
+    else FACE_KEYS.forEach((f, k) => { if (vis[k]) pathEl('face', polyD(f[0].map((q) => S2[q]))); });
+    EDGE_KEYS.forEach((e) => { if (edgeVis(e)) ctx.sg(S2[e[0]], S2[e[1]], 'ed'); });
+  }
+  function scene3(d, st, t, Ly) {
+    const al = st.al != null ? st.al : AL3, V = viewOf(al);
+    const O = [170, Ly.ptop + PH3 / 2], u = d.fit.u, C = d.fit.C;
+    const P = (w) => { const q = prj(V, sub(w, C)); return [O[0] + u * q[0], O[1] + u * q[1]]; };
+    const ctx = { V, P, area: { x0: 4, x1: 336, y0: Ly.ptop + 2, y1: Ly.ptop + PH3 - 2 }, segs: [], pts: [] };
+    ctx.sg = (p, q, cls) => { line(cls, p[0], p[1], q[0], q[1]); ctx.segs.push([p[0], p[1], q[0], q[1]]); };
+    GEO = ctx;
+    const labels = [];
+    const lab = (p, s, cls, a, prio, center) => labels.push({ p, s, cls, a: a == null ? 1 : a, prio, center });
+    const O3 = P([0, 0, 0]);
+    (d.axes || []).forEach((e, k) => { const q = P(e); ctx.sg(O3, q, 'ax3'); lab(q, 'xyz'[k], 'lb mu', 1, 3); });
+    if (t.sheet) { pathEl('sheet', polyD(SHEET.map(P))); REC.sheet = true; }
+    if (t.box && t.boxA > 0) {
+      part(t.boxA, 0, () => boxDraw(ctx, t.box));
+      const Dv = triple(t.box[0], t.box[1], t.box[2]);
+      const c = scl(boxPts(t.box).reduce((s, p) => add(s, p), [0, 0, 0]), 1 / 8);
+      lab(P(c), 'volume ' + num(Dv, 1), 'lb', t.boxA, 2, true);
+      if (t.boxA >= 0.5) REC.vol = Dv;
+    }
+    (t.chains || []).forEach((c) => {
+      if (!(c.a > 0)) return;
+      const p = P(c.from), q = P(c.to);
+      part(c.a, 0, () => arrow(p, q, c.cls));
+      ctx.segs.push([p[0], p[1], q[0], q[1]]);
+      if (c.a >= 0.5) REC.chains.push({ end: c.to.slice() });
+    });
+    (t.arrows || []).forEach((ar) => {
+      const a = ar.a == null ? 1 : ar.a;
+      if (!(a > 0)) return;
+      const q = P(ar.to);
+      part(a, 0, () => arrow(O3, q, 'base ' + ar.cls));
+      ctx.segs.push([O3[0], O3[1], q[0], q[1]]); ctx.pts.push(q);
+      if (ar.name) lab(q, ar.name, 'nm', a, 0);
+      if (a >= 0.5) REC.arrows.push(ar.to.slice());
+    });
+    placeAll(labels, ctx.area, ctx.segs, ctx.pts);
+  }
+
+  // ---------- the band: the staircase and the verdict on the arrows ----------
+  function drawStair(M) {
+    const px = 30, py = 22, x0 = 30, y0 = 58;
+    const cx = (j) => x0 + 6 + px * j + px / 2 + (j === 3 ? 8 : 0), xr = cx(3) + px / 2 + 6;
+    const top = y0 - py / 2 - 2, bot = y0 + py * 2 + py / 2 + 2;
+    text((x0 + xr) / 2, 15, 'the staircase', 'sm');
+    ['a', 'b', 'c'].forEach((s, j) => text(cx(j), 36, s, 'tag'));
+    put(K.svg('path', { class: 'brk', d: 'M' + (x0 + 6) + ' ' + top + ' H' + x0 + ' V' + bot + ' H' + (x0 + 6) }));
+    put(K.svg('path', { class: 'brk', d: 'M' + (xr - 6) + ' ' + top + ' H' + xr + ' V' + bot + ' H' + (xr - 6) }));
+    const bx = cx(3) - px / 2 - 2;
+    line('brk', bx, top + 3, bx, bot - 3);
+    M.forEach((r, i) => r.forEach((v, j) => text(cx(j), y0 + py * i + 6, num(v), 'en')));
+    REC.stair = M;
+  }
+  function drawRead(r) {
+    text(RXC, 15, r.label, 'sm');
+    r.vals.forEach((vv) => {
+      const a = vv.a == null ? 1 : vv.a;
+      part(a, 0, () => text(RXC, 66, vv.s, 'big' + (vv.cls ? ' ' + vv.cls : '')));
+      if (a >= 0.5) { REC.reads.push(vv.s); if (/bad/.test(vv.cls || '')) REC.bad++; }
+    });
+    if (r.tag) {
+      const ta = r.tag.a == null ? 1 : r.tag.a;
+      part(ta, 0, () => text(RXC, 92, r.tag.s, 'tag' + (r.tag.cls ? ' ' + r.tag.cls : '')));
+      if (ta >= 0.5) REC.reads.push(r.tag.s);
+    }
+  }
+
+  // ---------- the layout: worked lines, then the picture, then its key ----------
+  function lay(d) {
+    const rows = d.rows || 0, top = d.stair ? STAIR_H : 0, ly = [];
+    for (let k = 0; k < rows; k++) ly.push(top + 18 + k * 21);
+    const ptop = rows ? ly[rows - 1] + 10 : top + 6;
+    const ph = d.three ? PH3 : d.panels ? PANEL_H : PH2;
+    const ky = ptop + ph + 20;
+    return { ly, ptop, ph, ky, h: ky + 8 };
+  }
+  const coords = (u, v, nu, nv) => (nu || 'u') + ' = ' + pt(u) + ' and ' + (nv || 'v') + ' = ' + pt(v);
+  const mixLine = (am, u, v) => mixText(am, UV) + ' = ' + pt(mix2(am[0], am[1], u, v));
+
+  // ---------- one screen ----------
+  function drawStep(d, st, Ly, i) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, live = st.live;
+    const rows = [];
+    const row = (r, s, cls, a) => rows.push({ r, s, cls: cls || 'ln', a: a == null ? 1 : a });
+    const slip = (r) => row(r || 0, d.slips[st.pick], 'ln bad', arr(0.1, 0.3));
+    const reveal = (a) => { if (a > 0) REC.reveal++; };
+    const spanRow = (r, u, v, L) => { if (L > 0) row(r, 'The span is ' + spanOf(u, v), 'ln ok', K.clamp(L / 2.5, 0, 1)); };
+    const zeroRow = (r, u, v, a) => { const z = zeroMix(u, v); if (z) { row(r, mixText(z, UV) + ' lands on (0, 0)', 'ln ok', a); if (a >= 0.5) REC.zero = z; } };
+    let pic = null, three = null, read = null, panels = null, keyItems = [['cell', 'a cell'], ['paintsw', 'the span'], ['sl', 'slanted grid']];
+    switch (d.key) {
+      case 'mix': {
+        const am = st.ab || [2, 1];
+        const aA = live ? 1 : arr(0.4), gA = live ? 1 : arr(0.8), cA = live ? 1 : arr(1.2);
+        const ca = live ? am[0] : am[0] * go(1.7, 1.0), cb = live ? am[1] : am[1] * go(2.8, 0.6), chA = live ? 1 : arr(1.7, 0.3);
+        const L = paintL(st, 0);
+        pic = std2(U0, V0, { aA, gA, cA, L, chain: { a: ca, b: cb, al: chA } });
+        row(0, coords(U0, V0), 'ln', aA);
+        row(1, mixLine(am, U0, V0), 'ln', live ? 1 : arr(3.4, 0.4));
+        spanRow(2, U0, V0, L);
+        REC.u = U0; REC.v = V0;
+        break;
+      }
+      case 'paint': {
+        const u = st.u || U0, v = st.v || V0, am = st.ab || [2, 1];
+        const aA = live ? 1 : arr(0.4), gA = live ? 1 : arr(0.8), cA = live ? 1 : arr(1.2);
+        const L = paintL(st, live ? 5 : 5 * go(1.7, 1.5));
+        pic = std2(u, v, { aA, gA, cA, L, chain: { a: am[0], b: am[1], al: aA } });
+        row(0, coords(u, v), 'ln', aA);
+        row(1, mixLine(am, u, v), 'ln', aA);
+        spanRow(2, u, v, L);
+        zeroRow(3, u, v, 1);
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'collapse': {
+        const u = st.u || U0, v = st.v || lerpV(V0, VLINE, go(1.2, 2.0)), am = st.ab || [2, 1];
+        const aA = live ? 1 : arr(0.4), gA = live ? 1 : arr(0.6), cA = live ? 1 : arr(0.8);
+        const L = paintL(st, live ? 5 : 5 * arr(0.6, 0.6));
+        pic = std2(u, v, { aA, gA, cA, L, chain: { a: am[0], b: am[1], al: aA } });
+        row(0, coords(u, v), 'ln', aA);
+        row(1, mixLine(am, u, v), 'ln', aA);
+        if (live) spanRow(2, u, v, L);
+        else if (!near(det2(u, v), 0)) row(2, 'The span is the whole plane', 'ln ok', Math.min(K.clamp(L / 2.5, 0, 1), 1 - arr(2.4, 0.6)));
+        else row(2, 'The span is one line', 'ln ok', arr(3.3, 0.4));
+        zeroRow(3, u, v, live ? 1 : arr(3.3, 0.4));
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'compare': {
+        panels = [{ u: U0, v: V0, t0: 0.4, title: 'independent', cap: ['only ' + mixText([0, 0], UV), 'lands on zero'] },
+          { u: U0, v: VLINE, t0: 1.9, title: 'dependent', nameV: pt(VLINE), cap: [num(zeroMix(U0, VLINE)[0]) + 'u + ' + pt(VLINE), 'lands on zero'] }];
+        break;
+      }
+      case 'basis': {
+        const e = go(1.6, 1.6), u = lerpV(I2, U0, e), v = lerpV(J2, V0, e);
+        const aA = arr(0.4), gA = arr(0.6), cA = arr(0.8), L = 5 * arr(1.0, 0.5), ijA = 1 - arr(1.4, 0.3), uvA = arr(3.2, 0.4);
+        pic = std2(u, v, { aA, gA, cA, L, nameU: [['i', ijA], ['u', uvA]], nameV: [['j', ijA], ['v', uvA]] });
+        row(0, coords(I2, J2, 'i', 'j'), 'ln', Math.min(aA, ijA));
+        row(0, coords(U0, V0), 'ln', uvA);
+        row(1, 'Each pair is a basis for the plane', 'ln ok', arr(3.2, 0.4));
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'reach': {
+        pic = std2(U0, V0, { gA: 1, cA: 1 });
+        pic.rings.push({ p: TGT, s: pt(TGT), a: 1 });
+        row(0, coords(U0, V0));
+        if (right) {
+          const e1 = go(0.1, 0.6), e2 = go(0.7, 0.6), pa = arr(1.4, 0.4);
+          pic.chains.push({ u: U0, v: V0, a: -1 * e1, b: e2, al: 1 });
+          pic.dots.push({ p: mix2(-e1, e2, U0, V0), a: 1 });
+          pic.rings[0].cls = 'ok';
+          row(1, mixLine([-1, 1], U0, V0), 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const am = AMT[st.pick], e1 = go(0.1, 0.5), e2 = go(0.6, 0.5), la = arr(1.1, 0.4), land = mix2(am[0], am[1], U0, V0);
+          pic.chains.push({ u: U0, v: V0, a: am[0] * e1, b: am[1] * e2, al: 1, bad: true });
+          pic.dots.push({ p: mix2(am[0] * e1, am[1] * e2, U0, V0), a: 1, bad: true });
+          pic.rings.push({ p: land, s: pt(land), a: la, cls: 'bad' });
+          slip(1);
+        }
+        break;
+      }
+      case 'span': {
+        pic = std2(U0, V0, { gA: 1, cA: 1 });
+        row(0, coords(U0, V0));
+        if (right) {
+          const L = 5 * go(0.1, 1.2), pa = arr(1.2, 0.4);
+          pic.paints.push({ u: U0, v: V0, L, a: 1 });
+          row(1, 'The span is ' + spanOf(U0, V0), 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.4), ca = arr(0.5, 0.5), la = arr(0.9, 0.4);
+          const am = st.pick === O_ARROWS ? [-1, 1] : [2, 1], land = mix2(am[0], am[1], U0, V0);
+          if (st.pick === O_ARROWS) pic.badSegs.push({ p: [0, 0], q: U0, a: wa }, { p: [0, 0], q: V0, a: wa });
+          else pic.badPolys.push({ ps: [[0, 0], U0, add(U0, V0), V0], a: wa });
+          pic.chains.push({ u: U0, v: V0, a: am[0], b: am[1], al: ca });
+          pic.dots.push({ p: land, a: ca });
+          pic.tags.push({ p: land, s: pt(land), a: la });
+          slip(1);
+        }
+        break;
+      }
+      case 'online': {
+        pic = std2(U0, VLINE, { gA: 1, cA: 1, nameU: pt(U0), nameV: pt(VLINE) });
+        const P0 = st.pick ? parsePts(st.pick)[0] : null;
+        if (right) {
+          const L = 5 * go(0.1, 1.0), ca = go(0.3, 0.9), pa = arr(1.0, 0.4);
+          pic.paints.push({ u: U0, v: VLINE, L, a: 1 });
+          pic.chains.push({ u: U0, v: VLINE, a: 3 * ca, b: 0, al: 1 });
+          pic.rings.push({ p: P0, s: pt(P0), a: pa, cls: 'ok' });
+          row(0, '3 lots of ' + pt(U0) + ' land on ' + pt(scl(U0, 3)), 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const L = 5 * go(0.1, 1.0);
+          pic.paints.push({ u: U0, v: VLINE, L, a: 1 });
+          pic.rings.push({ p: P0, s: pt(P0), a: 1, cls: 'bad' });
+          slip(0);
+        } else if (P0) pic.rings.push({ p: P0, s: pt(P0), a: 1 });
+        break;
+      }
+      case 'indep': {
+        const pr = st.pick ? parsePts(st.pick) : null;
+        pic = { arrows: [], chains: [], dots: [], rings: [], tags: [], paints: [], badSegs: [], badPolys: [] };
+        if (pr) {
+          pic = std2(pr[0], pr[1], { nameU: pt(pr[0]), nameV: pt(pr[1]) });
+          if (right) {
+            const gA = arr(0.1, 0.4), cA = arr(0.4, 0.4), L = 5 * go(0.6, 1.0), pa = arr(1.2, 0.4);
+            pic.grid = { u: pr[0], v: pr[1], a: gA }; pic.cell = { u: pr[0], v: pr[1], a: cA };
+            pic.paints.push({ u: pr[0], v: pr[1], L, a: 1 });
+            row(0, 'The area is not 0, so they are independent', 'ln ok', pa);
+            reveal(pa);
+          } else if (wrong) {
+            const L = 5 * go(0.1, 1.0);
+            pic.grid = { u: pr[0], v: pr[1], a: 1 }; pic.cell = { u: pr[0], v: pr[1], a: 1 };
+            pic.paints.push({ u: pr[0], v: pr[1], L, a: 1, bad: true });
+            slip(0);
+          }
+        }
+        break;
+      }
+      case 'basis2': {
+        const ps = st.pick ? parsePts(st.pick) : null;
+        pic = { arrows: [], chains: [], dots: [], rings: [], tags: [], paints: [], badSegs: [], badPolys: [] };
+        if (ps) {
+          pic = std2(ps[0], ps[1], { nameU: pt(ps[0]), nameV: pt(ps[1]) });
+          if (ps[2]) pic.arrows.push({ to: ps[2], cls: wrong ? 'bad' : 'c3', name: pt(ps[2]), a: 1 });
+          if (right) {
+            const gA = arr(0.1, 0.4), cA = arr(0.4, 0.4), L = 5 * go(0.6, 1.0), pa = arr(1.3, 0.4);
+            pic.grid = { u: ps[0], v: ps[1], a: gA }; pic.cell = { u: ps[0], v: ps[1], a: cA };
+            pic.paints.push({ u: ps[0], v: ps[1], L, a: 1 });
+            row(0, 'Independent, and the paint covers the plane', 'ln ok', pa);
+            reveal(pa);
+          } else if (wrong && !ps[2]) {
+            const L = 5 * go(0.1, 1.0);
+            pic.grid = { u: ps[0], v: ps[1], a: 1 }; pic.cell = { u: ps[0], v: ps[1], a: 1 };
+            pic.paints.push({ u: ps[0], v: ps[1], L, a: 1, bad: true });
+            slip(0);
+          } else if (wrong) {
+            const L = 5 * go(0.1, 0.8), ca = arr(0.6, 0.5), am = amountsOf(ps[2], ps[0], ps[1]);
+            pic.grid = { u: ps[0], v: ps[1], a: 1 };
+            pic.paints.push({ u: ps[0], v: ps[1], L, a: 1 });
+            pic.chains.push({ u: ps[0], v: ps[1], a: am[0], b: am[1], al: ca, bad: true });
+            slip(0);
+          }
+        }
+        break;
+      }
+      case 'sheet': {
+        const h = st.h != null ? st.h : 1 - go(1.6, 1.8), w = wOf(h), vol = triple(U3, V3, w);
+        const sA = live ? 1 : arr(0.4), wA = live ? 1 : arr(0.9), bA = live ? 1 : arr(1.2);
+        const flat = near(vol, 0), chA = flat ? (live ? 1 : arr(3.4, 0.4)) : 0;
+        three = { sheet: true, box: [U3, V3, w], boxA: bA,
+          arrows: [{ to: U3, cls: 'c1', name: 'u', a: sA }, { to: V3, cls: 'c2', name: 'v', a: sA }, { to: w, cls: 'c3', name: 'w', a: wA }],
+          chains: chA > 0 ? [{ from: U3, to: add(U3, V3), cls: 'c2', a: chA }] : [] };
+        row(0, 'w = ' + pt(w, 1), 'ln', wA);
+        if (flat) row(1, 'w = 1u + 1v, so the box is flat', 'ln ok', chA);
+        REC.w = w; REC.h = h;
+        if (!checking && i === at() && !live) { hCtl.set(Math.round(h * 10) / 10, true); shown.h = hCtl.get(); }
+        keyItems = [['sheet', 'the sheet'], ['face', 'the box']];
+        break;
+      }
+      case 'stair': {
+        const w = wOf(0);
+        three = { sheet: true, chains: [],
+          arrows: [{ to: U3, cls: 'c1', name: 'u' }, { to: V3, cls: 'c2', name: 'v' }, { to: w, cls: 'c3', name: 'w' }] };
+        read = { label: 'the three arrows', vals: [{ s: '?', cls: 'q' }] };
+        if (right) {
+          const ca = go(0.1, 0.8), pa = arr(0.9, 0.4), abc = backSub(STAIR10, -1);
+          if (ca > 0.02) three.chains.push({ from: U3, to: add(U3, scl(V3, ca)), cls: 'c2', a: 1 });
+          read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: 'dependent', cls: 'ok', a: pa }];
+          read.tag = { s: 'c is free', cls: 'ok', a: pa };
+          row(0, 'c = ' + num(abc[2]) + ' gives a = ' + num(abc[0]) + ' and b = ' + num(abc[1]), 'ln ok', pa);
+          row(1, mixText(abc, UVW) + ' = ' + pt(add(add(scl(U3, abc[0]), scl(V3, abc[1])), scl(w, abc[2]))), 'ln ok', arr(1.2, 0.4));
+          reveal(pa);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.3);
+          read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: 'independent', cls: 'bad', a: wa }];
+          slip(0);
+        }
+        keyItems = [['sheet', 'the sheet']];
+        break;
+      }
+      case 'stair3': {
+        three = { arrows: [{ to: A3[0], cls: 'c1', name: 'u' }, { to: A3[1], cls: 'c2', name: 'v' }, { to: A3[2], cls: 'c3', name: 'w' }] };
+        read = { label: 'the three arrows', vals: [{ s: '?', cls: 'q' }] };
+        if (right) {
+          const ba = arr(0.1, 0.6), pa = arr(0.7, 0.4);
+          three.box = A3; three.boxA = ba;
+          read.vals = [{ s: '?', cls: 'q', a: 1 - pa }, { s: 'independent', cls: 'ok', a: pa }];
+          read.tag = { s: 'only all zeros works', cls: 'ok', a: pa };
+          row(0, 'c = 0, then b = 0, then a = 0', 'ln ok', arr(0.9, 0.4));
+          reveal(pa);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.3);
+          read.vals = [{ s: '?', cls: 'q', a: 1 - wa }, { s: /^Dependent/.test(st.pick) ? 'dependent' : 'independent', cls: 'bad', a: wa }];
+          slip(0);
+        }
+        keyItems = [['face', 'the box']];
+        break;
+      }
+      default: break;
+    }
+    // The band, the worked lines, the picture, the key.
+    if (d.stair) drawStair(d.stair);
+    if (read) drawRead(read);
+    rows.forEach((ln) => {
+      part(ln.a, 0, () => fitText(170, Ly.ly[ln.r], ln.s, ln.cls));
+      if (ln.a >= 0.5) { REC.rows.push({ s: ln.s, cls: ln.cls }); if (/bad/.test(ln.cls)) REC.bad++; }
+    });
+    const said = [];
+    if (pic) {
+      const vw = view2(Ly.ptop);
+      scene2(vw, pic);
+      GEO2 = vw;
+      if (d.drag && REC.u && REC.v) { REC.tipU = toPx(vw, REC.u); REC.tipV = toPx(vw, REC.v); }
+      said.push('A squared grid with arrows from the origin to ' + REC.arrows.map((p) => say(pt(p))).join(' and ') + '.');
+    }
+    if (panels) {
+      panels.forEach((pn, k) => {
+        const vw = Object.assign({}, PANEL, { left: k ? 186 : 14, top: Ly.ptop + 24 }), w = (PANEL.x1 - PANEL.x0) * PANEL.G, xc = vw.left + w / 2;
+        const t0 = pn.t0, aA = arr(t0), gA = arr(t0 + 0.3), cA = arr(t0 + 0.6), L = 5 * arr(t0 + 0.9), ta = arr(t0 + 1.2, 0.4);
+        part(ta, 0, () => text(xc, Ly.ptop + 14, pn.title, 'ttl'));
+        scene2(vw, std2(pn.u, pn.v, { aA, gA, cA, L, nameV: pn.nameV }));
+        const yb = vw.top + (PANEL.y1 - PANEL.y0) * PANEL.G;
+        pn.cap.forEach((c, j) => part(ta, 0, () => text(xc, yb + 18 + 17 * j, c, 'tag')));
+        if (ta >= 0.5) REC.panels.push({ title: pn.title, cap: pn.cap.join(' ') });
+      });
+      said.push('Two small grids side by side. Left, u and v, independent. Right, u and ' + say(pt(VLINE)) + ', dependent.');
+    }
+    if (three) {
+      scene3(d, st, three, Ly);
+      said.push('A 3-D view of arrows from the origin to ' + REC.arrows.map((p) => say(pt(p))).join(', ') + '.');
+    }
+    drawKey(Ly.ky, keyItems);
+    REC.rows.forEach((r) => said.push(say(r.s) + '.'));
+    if (REC.areas.length) said.push('Cell area ' + say(num(REC.areas[REC.areas.length - 1], 1)) + '.');
+    if (REC.vol != null) said.push('Box volume ' + say(num(REC.vol, 1)) + '.');
+    REC.reads.forEach((r) => said.push(say(r) + '.'));
+    return said.join(' ');
+  }
+
+  // ---------- the drags: the tips on screens 3 and 5, and turning the 3-D view ----------
+  const turnGrip = ui.appendChild(K.svg('rect', { class: 'turn', x: 0, y: 0, width: 340, height: 1, tabindex: -1, role: 'button', 'aria-label': 'The 3-D view: drag it sideways, or use the left and right arrow keys, to turn it' }));
+  const grips = ['u', 'v'].map((nm) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 20, tabindex: -1, role: 'button', 'aria-label': 'The tip of ' + nm + ': drag it, or use the arrow keys, to move it to another whole point' })));
+  function placeGrips(d) {
+    const on3 = !finished && !!d.three && !!GEO;
+    turnGrip.style.display = on3 ? '' : 'none';
+    turnGrip.setAttribute('tabindex', on3 ? '0' : '-1');
+    if (on3) { turnGrip.setAttribute('y', r3(GEO.area.y0)); turnGrip.setAttribute('height', r3(GEO.area.y1 - GEO.area.y0)); }
+    const on2 = !finished && !!d.drag && !!REC && !!REC.tipU;
+    grips.forEach((g, k) => {
+      g.style.display = on2 ? '' : 'none';
+      g.setAttribute('tabindex', on2 ? '0' : '-1');
+      if (on2) { const q = k ? REC.tipV : REC.tipU; g.setAttribute('cx', r3(q[0])); g.setAttribute('cy', r3(q[1])); }
+    });
+  }
+  function setTip(k, x, y) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.drag || finished) return;
+    const p = [K.clamp(Math.round(x), DX[0], DX[1]), K.clamp(Math.round(y), DY[0], DY[1])];
+    const now = k ? (st.v || (d.key === 'collapse' ? VLINE : V0)) : (st.u || U0);
+    if (st.live && now && samePt(now, p)) return;
+    if (!st.u) st.u = U0.slice();
+    if (!st.v) st.v = (d.key === 'collapse' ? VLINE : V0).slice();
+    if (k) st.v = p; else st.u = p;
+    goLive(st);
+    K.reveal();
+    K.refresh();
+  }
+  function svgAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [q.x, q.y];
+  }
+  const worldAt = (q) => (GEO2 ? [GEO2.x0 + (q[0] - GEO2.left) / GEO2.G, GEO2.y1 - (q[1] - GEO2.top) / GEO2.G] : null);
+  let held = null;
+  grips.forEach((g, k) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      const q = svgAt(e);
+      if (!q) return;
+      held = { id: e.pointerId, k };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      e.stopPropagation();
+      const w = worldAt(q);
+      if (w) setTip(k, w[0], w[1]);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.k !== k) return;
+      const q = svgAt(e), w = q ? worldAt(q) : null;
+      if (w) setTip(k, w[0], w[1]);
+    });
+    const letGo = (e) => { if (held && (!e || held.id === e.pointerId)) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => letGo(null));
+    g.addEventListener('keydown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const st = S[at()], now = k ? (st.v || (STEPS[at()].key === 'collapse' ? VLINE : V0)) : (st.u || U0);
+      setTip(k, now[0] + by[0], now[1] + by[1]);
+    });
+  });
+  let turnHeld = null;
+  const turnOn = () => !finished && !!STEPS[at()].three;
+  const alNow = () => { const st = S[at()]; return st.al != null ? st.al : AL3; };
+  function setAl(a) {
+    const st = S[at()], v = K.clamp(Math.round(a), AL3 - SWING, AL3 + SWING);
+    if (st.al === v) return;
+    st.al = v;
+    if (!anim.playing()) K.refresh();
+  }
+  turnGrip.addEventListener('pointerdown', (e) => {
+    if (!turnOn()) return;
+    turnHeld = { id: e.pointerId, x: e.clientX, al: alNow() };
+    try { turnGrip.setPointerCapture(e.pointerId); } catch (err) { /* the turn still follows while the pointer stays on the picture */ }
+  });
+  turnGrip.addEventListener('pointermove', (e) => { if (turnHeld && turnHeld.id === e.pointerId && turnOn()) setAl(turnHeld.al - (e.clientX - turnHeld.x) * 0.4); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ty) => turnGrip.addEventListener(ty, () => { turnHeld = null; }));
+  turnGrip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: 5, ArrowRight: -5 }[e.key];
+    if (!by || !turnOn()) return;
+    e.preventDefault();
+    setAl(alNow() + by);
+  });
+
+  // ---------- the scene for a step (the animations call this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null; placed = []; clipN = 0; GEO = null; GEO2 = null;
+    REC = { texts: [], rows: [], areas: [], paints: [], dots: [], rings: [], chains: [], arrows: [], panels: [], reads: [], zero: null, vol: null,
+      w: null, h: null, u: null, v: null, tipU: null, tipV: null, stair: null, sheet: false, bad: 0, reveal: 0 };
+    const Ly = lay(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(Ly.h));
+    svg.setAttribute('aria-label', drawStep(d, st, Ly, i) || '');
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update(() => {
+    const i = Math.round(stepper.get()), d = STEPS[i];
+    if (!anim.playing()) { T = Infinity; PG = Infinity; }
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(); openControls(); play(d.dur); } else { anim.pause(); T = Infinity; PG = Infinity; }
+    }
+    const st = S[i];
+    // His own moves of a, b and h, on the screens that show them.
+    const av = aCtl.get(), bv = bCtl.get(), hv = hCtl.get();
+    if (av !== shown.a || bv !== shown.b) { shown.a = av; shown.b = bv; if (d.ab && !finished) { st.ab = [av, bv]; goLive(st); } }
+    if (hv !== shown.h) { shown.h = hv; if (d.hCtl && !finished) { st.h = hv; goLive(st); } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    const act = el('act');
+    write(act, d.act || '');
+    act.hidden = finished || !d.act;
+    el('abox').hidden = finished || !d.ab;
+    el('hbox').hidden = finished || !d.hCtl;
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    paintBtn.el.hidden = !d.paintBtn;
+    paintBtn.setLabel(paintOn(d, st) ? 'Clear paint' : 'Paint');
+    el('replay').hidden = replayBtn.el.hidden && paintBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (k) => STEPS.findIndex((d) => d.key === k);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (o) => Object.assign(blank(), { live: true }, o);
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawnRaw(i, st, t) {
+    const keepS = S[i], keepT = T, keepP = PG;
+    S[i] = st; T = t == null ? Infinity : t; PG = Infinity; checking = true;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; PG = keepP; checking = false; }
+  }
+  function drawn(i, st, t) { const r = drawnRaw(i, st, t); paint(); return r; }
+  const okRows = (r) => r.rows.filter((x) => /ok/.test(x.cls)).map((x) => x.s);
+
+  K.check('The set of all points you can reach with mixes of a pair of arrows is their span: every whole point in view is some mix of u and v, the paint on the span screen covers the whole view, and once v lies on u\'s line the paint lies on that line', () => {
+    let ok = true;
+    for (let x = WX[0]; x <= WX[1]; x++) for (let y = WY[0]; y <= WY[1]; y++) { const am = amountsOf([x, y], U0, V0); ok = ok && samePt(mix2(am[0], am[1], U0, V0), [x, y]); }
+    const corners = [[WX[0], WY[0]], [WX[1], WY[0]], [WX[0], WY[1]], [WX[1], WY[1]]].every((c) => { const am = amountsOf(c, U0, V0); return Math.abs(am[0]) <= 5 && Math.abs(am[1]) <= 5; });
+    const p = drawnRaw(idx('paint'), blank()), c = drawnRaw(idx('collapse'), blank());
+    const pp = p.paints[0], cp = c.paints[0];
+    paint();
+    return ok && corners && !!pp && pp.L === 5 && !near(det2(pp.u, pp.v), 0) && !!cp && near(det2(cp.u, cp.v), 0) && samePt(cp.v, VLINE) &&
+      okRows(p).indexOf('The span is the whole plane') >= 0 && okRows(c).indexOf('The span is one line') >= 0;
+  }, { source: TBB });
+  K.check('If a third arrow sits on the span of the first two, the span does not change: with w lowered into the sheet it is a mix of u and v, the box drawn is flat, and the sheet drawn is the same one', () => {
+    const r = drawn(idx('sheet'), blank());
+    return samePt(r.w, add(U3, V3)) && r.vol === 0 && r.sheet && okRows(r).some((s) => /flat/.test(s)) && r.chains.length === 1 && samePt(r.chains[0].end, r.w);
+  }, { source: TBB });
+  K.check('A basis is a set of independent arrows that span the space: on the basis screen both pairs make cells of real area and paint the view, the puzzle\'s basis does too, and the set of three arrows in the plane is dependent', () => {
+    const b0 = drawnRaw(idx('basis'), blank(), 1.55), b1 = drawnRaw(idx('basis'), blank()), s = drawnRaw(idx('basis2'), solvedSt(idx('basis2')));
+    paint();
+    const three = parsePts(B12[2]), am = amountsOf(three[2], three[0], three[1]);
+    return near(b0.areas[0], 1) && near(b1.areas[0], 5) && b0.paints[0].L === 5 && b1.paints[0].L === 5 && near(s.areas[0], 2) && s.paints[0].L === 5 &&
+      samePt(mix2(am[0], am[1], three[0], three[1]), three[2]) && near(am[0], 0.6) && near(am[1], -0.2);
+  }, { source: TBB });
+  K.check('Each cell\'s area is p s − q r wherever either tip is dragged, and a mix that is not all zeros landing on (0, 0) is shown exactly when that area is 0', () => {
+    const i = idx('collapse');
+    let ok = true;
+    for (let x = DX[0]; x <= DX[1]; x++) for (let y = DY[0]; y <= DY[1]; y++) {
+      [[U0, [x, y]], [[x, y], V0]].forEach((uv) => {
+        const u = uv[0], v = uv[1], r = drawnRaw(i, liveSt({ u, v })), D = u[0] * v[1] - u[0 + 1] * v[0];
+        const z = r.zero, zOk = near(D, 0) ? (!!z && !(z[0] === 0 && z[1] === 0) && isZero(mix2(z[0], z[1], u, v))) : z === null;
+        ok = ok && near(r.areas[0], D) && zOk;
+      });
+    }
+    paint();
+    return ok;
+  });
+  K.check('The box\'s volume is the 3 by 3 determinant of u, v and w, which is 2h, for every h the slider sets: 2 at h = 1, and 0 only at h = 0', () => {
+    const i = idx('sheet');
+    let ok = true;
+    for (let k = 0; k <= 20; k++) {
+      const h = k / 10, r = drawnRaw(i, liveSt({ h }));
+      ok = ok && near(r.vol, 2 * h) && near(r.vol, triple(U3, V3, wOf(h))) && (k === 0 ? r.vol === 0 : r.vol > 0);
+    }
+    paint();
+    return ok;
+  });
+  K.check('Every worked number is right: 2u + 1v = (5, 5) and the cell area 5; −1u + 1v = (−1, 2), 1u − 1v = (1, −2), −1u + 2v = (0, 5); (−4, −2) = −2u with area 0 and 2u + 1v = 0; 3u = (6, 3); pairs 0, −3 and 0; volume 2 at h = 1 and w = u + v at h = 0; the staircases; volume 1; (3, 1) and (1, 1) give 2; (1, 0) = 0.6u − 0.2v; the worked example and three phasors 120° apart', () => {
+    const M10 = [[1, 0, 1], [0, 2, 2], [-1, -1, -2]], r3b = add(add(M10[2], M10[0]), scl(M10[1], 0.5));
+    const ph = [0, 120, 240].map((a) => [Math.cos(a * RAD), Math.sin(a * RAD)]), phSum = add(add(ph[0], ph[1]), ph[2]);
+    return samePt(mix2(2, 1, U0, V0), [5, 5]) && det2(U0, V0) === 5 && samePt(mix2(-1, 1, U0, V0), TGT) && samePt(mix2(1, -1, U0, V0), [1, -2]) &&
+      samePt(mix2(-1, 2, U0, V0), [0, 5]) && samePt(VLINE, scl(U0, -2)) && det2(U0, VLINE) === 0 && samePt(zeroMix(U0, VLINE), [2, 1]) &&
+      samePt(scl(U0, 3), [6, 3]) && det2([3, 6], [1, 2]) === 0 && det2([2, -1], [-6, 3]) === 0 && det2([1, 2], [2, 1]) === -3 &&
+      triple(U3, V3, wOf(1)) === 2 && samePt(wOf(0), add(U3, V3)) && triple(U3, V3, wOf(0)) === 0 &&
+      samePt(M10[0], [U3[0], V3[0], wOf(0)[0]]) && samePt(M10[2], [U3[2], V3[2], wOf(0)[2]]) && isZero(r3b) && samePt(backSub(STAIR10, -1), [1, 1, -1]) &&
+      triple(A3[0], A3[1], A3[2]) === 1 &&
+      STAIR12.every((r, k) => samePt(r.slice(0, 3), [A3[0][k], A3[1][k], A3[2][k]])) && det2([3, 1], [1, 1]) === 2 &&
+      near(amB[0], 0.6) && near(amB[1], -0.2) && samePt(add(scl([1, 2, 0], 2), [0, 1, 1]), [2, 5, 1]) && isZero(phSum.map((x) => (Math.abs(x) < 1e-12 ? 0 : x)));
+  });
+  K.check('Each puzzle\'s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {
+    const g = (k) => STEPS[idx(k)];
+    const reach = g('reach'), online = g('online'), indep = g('indep'), b2 = g('basis2');
+    const onLine = (p) => near(det2(p, U0), 0);
+    return samePt(mix2(AMT[reach.want][0], AMT[reach.want][1], U0, V0), TGT) && reach.opts.filter((o) => o !== reach.want).every((o) => !samePt(mix2(AMT[o][0], AMT[o][1], U0, V0), TGT)) &&
+      spanOf(U0, V0) === 'the whole plane' && g('span').want === O_PLANE &&
+      onLine(parsePts(online.want)[0]) && online.opts.filter((o) => o !== online.want).every((o) => !onLine(parsePts(o)[0])) &&
+      indep.opts.every((o) => { const p = parsePts(o); return (o === indep.want) === !near(det2(p[0], p[1]), 0); }) &&
+      /^Dependent/.test(g('stair').want) && STAIR10[2].every((x) => x === 0) &&
+      /only a = b = c = 0/.test(g('stair3').want) && STAIR12.every((r, k) => r[k] !== 0) &&
+      b2.opts.every((o) => { const p = parsePts(o); return (o === b2.want) === (p.length === 2 && !near(det2(p[0], p[1]), 0)); });
+  });
+  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () => {
+    const ok = DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (drawnRaw(i, solvedSt(i)).bad !== 0) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawnRaw(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);
+    });
+    paint();
+    return ok;
+  });
+  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () => {
+    const ok = DO.every((i) => {
+      const b = drawnRaw(i, blank()), s = drawnRaw(i, solvedSt(i));
+      return b.reveal === 0 && s.reveal > 0 && okRows(b).length === 0 && b.paints.length === 0;
+    });
+    paint();
+    return ok;
+  });
+  K.check('Each demonstration ends where the lesson says: the mix on (5, 5); the paint over the plane with area 5; v on (−4, −2) with area 0, the paint on one line and 2u + 1v on zero; the pairs side by side with areas 5 and 0; w on (1, 2, −2) with volume 0; the basis ending on u and v', () => {
+    const m = drawnRaw(idx('mix'), blank()), p = drawnRaw(idx('paint'), blank()), c = drawnRaw(idx('collapse'), blank()), cm = drawnRaw(idx('compare'), blank());
+    const s = drawnRaw(idx('sheet'), blank()), b = drawnRaw(idx('basis'), blank()), mid = drawnRaw(idx('collapse'), blank(), 2.2);
+    paint();
+    return samePt(m.dots[0], [5, 5]) && m.rows.some((x) => x.s === '2u + 1v = (5, 5)') && p.paints[0].L === 5 && near(p.areas[0], 5) &&
+      samePt(c.v, VLINE) && c.areas[0] === 0 && near(det2(c.paints[0].u, c.paints[0].v), 0) && samePt(c.zero, [2, 1]) && okRows(c).indexOf('2u + 1v lands on (0, 0)') >= 0 &&
+      mid.areas[0] > 0 && mid.areas[0] < 5 && near(cm.areas[0], 5) && cm.areas[1] === 0 && cm.panels.length === 2 &&
+      samePt(s.w, [1, 2, -2]) && s.vol === 0 && samePt(b.u, U0) && samePt(b.v, V0) && near(b.areas[0], 5);
+  });
+  K.check('Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const timed = (i, st, limit) => { latest = 0; earliest = Infinity; drawnRaw(i, st); return latest <= limit + 1e-9; };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

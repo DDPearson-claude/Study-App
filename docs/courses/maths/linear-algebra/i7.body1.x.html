@@ -1,0 +1,1360 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz { max-width: 46rem; margin-inline: auto; }
+  .pz > *, #stepbox > * { max-width: 30rem; margin-inline: auto; }
+  #stepbox { max-width: none; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's screen control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }
+  .scene { display: block; width: 100%; }
+  #stepbox > .scene.wide { max-width: 46rem; }
+  /* Readouts: tiles that wrap, three to a row on a phone at the usual text size. */
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 8px; }
+  #outs .k-readout { padding: 6px 10px 8px; min-width: 0; }
+  #outs .k-readout-value { font-size: 1.15rem; }
+  #sysbox .k-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+  #sysbox .k-seg button { white-space: nowrap; }
+  /* The picture: a card on top, the real thing, the state plane, then the key and working lines. */
+  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .pane { fill: var(--k-panel); }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gsq { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }
+  /* An eigenvector line is ink made bolder (a broad, soft ink band), not a new colour. */
+  .scene .litln { stroke: var(--k-ink); stroke-opacity: .25; stroke-width: 7; stroke-linecap: round; }
+  .scene .trail { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .par { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .dbox { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-dasharray: 2 3; }
+  .scene .fdot { fill: none; stroke: var(--k-accent); stroke-width: 2.4; }
+  .scene .rdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .sdia { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 1.6; }
+  .scene .handle { fill: transparent; stroke: none; cursor: grab; touch-action: none; }
+  .scene .mk { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tank { fill: none; stroke: var(--k-strong); stroke-width: 2.2; stroke-linejoin: round; }
+  .scene .salt { fill: var(--k-fill1); }
+  .scene .arr .sh { fill: none; stroke-linecap: round; }
+  .scene .pipe .sh { stroke: var(--k-muted); stroke-width: 2.2; }
+  .scene .pipe .hd { fill: var(--k-muted); }
+  .scene .disp .sh { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .disp .hd { fill: var(--k-accent2); }
+  .scene .rate .sh { stroke: var(--k-ink); stroke-width: 2.6; }
+  .scene .rate .hd { fill: var(--k-ink); }
+  .scene .wall { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .spring { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }
+  .scene .mass { fill: var(--k-panel); stroke: var(--k-accent2); stroke-width: 2.2; }
+  .scene .rest { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .scene .guess { fill: none; stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; }
+  .scene .bring { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  /* Words. */
+  .scene .eq { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .mx { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .mx.s { font-size: 14px; }
+  .scene .en { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .en.s { font-size: 13px; }
+  .scene .nm { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .fl { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .sm { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lbad { font: 700 14px var(--k-font); fill: var(--k-warn); }
+  .scene .rw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .rw.rok { fill: var(--k-accent2); }
+  .scene .rw.rbad { fill: var(--k-warn); }
+  .scene .rw.sm2 { font-size: 13px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .runrow .k-btn { flex: 1 1 6rem; min-height: 44px; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1.05rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Two 100 L tanks of brine joined by pipes, then two masses on three springs, each beside its state plane.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 400" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row runrow" id="runrow"></div>
+    <p class="act" id="act"></p>
+    <div id="sysbox"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Tank flows and k/m are example values. Every dot, line and number comes from the card’s matrix.</p>
+
+<script>
+  // ---------- numbers and words (pure, so the checks can test them) ----------
+  const MINUS = '−', NB = ' ';
+  function num(v, dp) { const f = Math.pow(10, dp == null ? 2 : dp); let r = Math.round(v * f) / f; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }
+  function fixed(v, dp) { const f = Math.pow(10, dp); let r = Math.round(v * f) / f; if (Math.abs(r) < 0.5 / f) r = 0; return (r < 0 ? MINUS : '') + Math.abs(r).toFixed(dp); }
+  const pt = (v, dp) => '(' + v.map((x) => num(x, dp)).join(', ') + ')';
+  const say = (s) => String(s).replace(/ /g, ' ').replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/=/g, ' equals ').replace(/≈/g, ' about ').replace(/\s+/g, ' ').trim();
+  // One term of a rate: "0.2x₁", or " − 0.2x₂" after the first.
+  function term(c, v, first) { const a = num(Math.abs(c)) + v; return first ? (c < 0 ? MINUS : '') + a : (c < 0 ? ' − ' : ' + ') + a; }
+  const rateStr = (r) => term(r[0], 'x₁', true) + term(r[1], 'x₂', false);
+
+  // ---------- vectors and matrices ----------
+  const add = (a, b) => a.map((x, k) => x + b[k]);
+  const sub = (a, b) => a.map((x, k) => x - b[k]);
+  const scl = (a, s) => a.map((x) => x * s);
+  const dot = (a, b) => a.reduce((s, x, k) => s + x * b[k], 0);
+  const len = (a) => Math.sqrt(dot(a, a));
+  const unit = (a) => scl(a, 1 / (len(a) || 1));
+  const cross2 = (a, b) => a[0] * b[1] - a[1] * b[0];
+  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);
+  const same = (a, b, t) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k], t || 1e-7));
+  const sameR = (a, b) => !!a && !!b && a.length === b.length && a.every((x, k) => Math.abs(x - b[k]) <= 1e-9 * (1 + Math.abs(b[k])));
+  const sameM = (P, Q) => P.length === Q.length && P.every((r, i) => same(r, Q[i]));
+  const lerpV = (a, b, e) => (e >= 1 ? b.slice() : e <= 0 ? a.slice() : a.map((x, k) => x + (b[k] - x) * e));
+  const mul = (M, x) => M.map((r) => dot(r, x));
+  const det2 = (M) => M[0][0] * M[1][1] - M[0][1] * M[1][0];
+  const inv2 = (M) => { const d = det2(M); return [[M[1][1] / d, -M[0][1] / d], [-M[1][0] / d, M[0][0] / d]]; };
+  const fromCols = (a, b) => [[a[0], b[0]], [a[1], b[1]]];
+  const minusI = (M, l) => M.map((r, i) => r.map((x, j) => (i === j ? x - l : x)));
+  const sameLine = (a, b) => len(a) > 1e-9 && len(b) > 1e-9 && Math.abs(cross2(unit(a), unit(b))) < 1e-7;
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a; }
+  // A direction in whole numbers where it can be, its first part that is not 0 made positive.
+  function tidy(v) {
+    const k = v.findIndex((x) => Math.abs(x) > 1e-9);
+    if (k < 0) return v.map(() => 0);
+    let w = v[k] < 0 ? scl(v, -1) : v.slice();
+    const m = Math.min(...w.filter((x) => Math.abs(x) > 1e-9).map(Math.abs));
+    w = scl(w, 1 / m);
+    for (let q = 1; q <= 12; q++) {
+      const u = scl(w, q);
+      if (u.every((x) => Math.abs(x - Math.round(x)) < 1e-7)) { const r = u.map(Math.round), g = r.reduce((s, x) => gcd(s, x), 0) || 1; return r.map((x) => x / g + 0); }
+    }
+    return unit(w);
+  }
+  // The direction a 2 by 2 crushes, from its bigger row (p, q): p v1 + q v2 = 0 along (−q, p).
+  function crushed(N) {
+    const n0 = Math.hypot(N[0][0], N[0][1]), n1 = Math.hypot(N[1][0], N[1][1]);
+    if (n0 < 1e-9 && n1 < 1e-9) return null;
+    const row = n0 >= n1 ? N[0] : N[1];
+    return tidy([-row[1], row[0]]);
+  }
+  // Every real eigenvalue and its line: the roots of λ² − (a + d)λ + (ad − bc) = 0, then (A − λI)v = 0.
+  function eig2(M) {
+    const a = M[0][0], b = M[0][1], c = M[1][0], d = M[1][1], tr = a + d, dt = a * d - b * c, disc = tr * tr - 4 * dt;
+    const res = { tr, dt, disc, roots: [], lines: [] };
+    if (disc < -1e-12) return res;
+    const sq = Math.sqrt(Math.max(0, disc));
+    res.roots = [(tr + sq) / 2, (tr - sq) / 2];
+    (sq < 1e-9 ? [tr / 2] : res.roots).forEach((r) => {
+      const dir = crushed(minusI(M, r));
+      if (dir) res.lines.push({ dir, lam: Math.round(r * 1e9) / 1e9 });
+    });
+    return res;
+  }
+  // Any arrow w: on its own line when Aw is a number times w; then λ is that number.
+  function lamOf(M, w) {
+    const av = mul(M, w);
+    if (Math.abs(cross2(w, av)) > 1e-7 * (1 + len(av))) return null;
+    return Math.round(dot(av, w) / dot(w, w) * 1e9) / 1e9;
+  }
+  // Where a line through p along d crosses a box: its range of t, or null.
+  function clipLine(p, d, bx) {
+    let t0 = -Infinity, t1 = Infinity;
+    for (let k = 0; k < p.length; k++) {
+      if (Math.abs(d[k]) < 1e-12) { if (p[k] < bx[k][0] - 1e-9 || p[k] > bx[k][1] + 1e-9) return null; continue; }
+      let a = (bx[k][0] - p[k]) / d[k], b = (bx[k][1] - p[k]) / d[k];
+      if (a > b) { const s = a; a = b; b = s; }
+      t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+    }
+    return t1 >= t0 - 1e-9 ? [t0, Math.max(t0, t1)] : null;
+  }
+  const inBox = (q, bx) => q[0] >= bx[0][0] - 1e-9 && q[0] <= bx[0][1] + 1e-9 && q[1] >= bx[1][0] - 1e-9 && q[1] <= bx[1][1] + 1e-9;
+
+  // ---------- the three systems ----------
+  // Open tanks: 100 L each. Fresh water into tank 1, a pump from 1 to 2, some back, the rest down tank 2's drain.
+  const V = 100, FRESH = 15, PUMP = 20, BACK = 5, DRAIN = PUMP - BACK;   // tank 2: 20 L/min in, 5 back, so 15 drains
+  // Each flow carries salt at its tank's strength, grams ÷ 100 L: what leaves is minus, what arrives is plus.
+  const A_OPEN = [[-PUMP / V, BACK / V], [PUMP / V, -(BACK + DRAIN) / V]];
+  // Closed tanks: inlet and drain shut, the pumps move 20 L/min each way.
+  const CPUMP = 20;
+  const A_SHUT = [[-CPUMP / V, CPUMP / V], [CPUMP / V, -CPUMP / V]];
+  // Two equal masses between three equal springs: mass 1 feels −kx₁ + k(x₂ − x₁), mass 2 the mirror image.
+  const KM = 100, KS = [1, 1, 1];
+  const BMAT = [[KS[0] + KS[1], -KS[1]], [-KS[1], KS[1] + KS[2]]];
+  // A system: its matrix, its eigenvectors as the lesson writes them, their eigenvalues (worked out), the drag square,
+  // and the box the plane shows: the square's corners, their two parts, and the origin.
+  function mkSys(o) {
+    o.P = fromCols(o.E[0], o.E[1]); o.PI = inv2(o.P);
+    o.lam = o.E.map((e) => lamOf(o.M, e));
+    if (o.kind === 'mass') o.om = o.lam.map((l) => Math.sqrt(KM * l));
+    const pts = [[0, 0]];
+    [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(([i, j]) => {
+      const c = [o.range[0][i], o.range[1][j]], am = mul(o.PI, c);
+      pts.push(c, scl(o.E[0], am[0]), scl(o.E[1], am[1]));
+    });
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), m = o.margin;
+    o.box = [[Math.min(...xs) - m, Math.max(...xs) + m], [Math.min(...ys) - m, Math.max(...ys) + m]];
+    return o;
+  }
+  const SYS = {
+    open: mkSys({ key: 'open', name: 'Open tanks', kind: 'tank', M: A_OPEN, E: [[1, 2], [1, -2]], range: [[0, 40], [0, 40]], start: [30, 0], ux: 'g', ut: 'min', pace: 2, tMax: 30, grid: 10, snap: 1, margin: 3 }),
+    shut: mkSys({ key: 'shut', name: 'Closed tanks', kind: 'tank', M: A_SHUT, E: [[1, 1], [1, -1]], range: [[0, 40], [0, 40]], start: [30, 0], ux: 'g', ut: 'min', pace: 2, tMax: 30, grid: 10, snap: 1, margin: 3 }),
+    mass: mkSys({ key: 'mass', name: 'Two masses', kind: 'mass', M: BMAT, E: [[1, 1], [-1, 1]], range: [[-3, 3], [-3, 3]], start: [0, 2], ux: 'cm', ut: 's', pace: 0.1, tMax: 2, grid: 1, snap: 0.1, margin: 0.35 }),
+  };
+  const OPEN = SYS.open, SHUT = SYS.shut, MASS = SYS.mass;
+  const SYSKEY = {};
+  Object.keys(SYS).forEach((k) => { SYSKEY[SYS[k].name] = k; });
+
+  // The rule: split the start along the eigenvectors; each amount changes on its own, by e^(λt) for the tanks and
+  // cos(ωt) for the masses let go from rest; the dot is the parts added back.
+  function posAt(sys, x0, t) {
+    const c = mul(sys.PI, x0);
+    const f = sys.kind === 'mass' ? sys.om.map((w) => Math.cos(w * t)) : sys.lam.map((l) => Math.exp(l * t));
+    return add(scl(sys.E[0], c[0] * f[0]), scl(sys.E[1], c[1] * f[1]));
+  }
+  // The two parts of any point: its amount of each eigenvector, times that eigenvector.
+  function partsAt(sys, x) { const am = mul(sys.PI, x); return [scl(sys.E[0], am[0]), scl(sys.E[1], am[1])]; }
+
+  // ---------- the lesson's values ----------
+  const START = OPEN.start, ON_LINE = [10, 20], T5 = 5, T6 = 10;
+  // Tank 2 is fullest when its two parts' rates cancel: e^((λ₁ − λ₂)t) = λ₂ / λ₁.
+  const TSTAR = Math.log(OPEN.lam[1] / OPEN.lam[0]) / (OPEN.lam[0] - OPEN.lam[1]);
+  const AM0 = mul(OPEN.PI, START);                      // 15 lots of each
+  const B10 = AM0[1] * Math.exp(OPEN.lam[1] * T6);      // b after 10 minutes
+  const PER = MASS.om.map((w) => 2 * Math.PI / w);      // one full swing of each mode, in seconds
+  const M9 = [scl(MASS.E[0], 2), scl(MASS.E[1], 2)];    // (2, 2) and (−2, 2)
+  const S12 = [3, 1], AM12 = mul(MASS.PI, S12);
+  const SHUTAM = mul(SHUT.PI, SHUT.start), SHUTEND = scl(SHUT.E[0], SHUTAM[0]);
+  const RATE_MIN = 5;                                   // the rate arrow shows 5 minutes' worth
+  const SRC = ['https://www.karlin.mff.cuni.cz/~slavik/papers/mixing-problems.pdf', 'https://www.sfu.ca/phys/255/063/lec/P255OutlineL15.pdf',
+    'https://ocw.mit.edu/courses/8-03sc-physics-iii-vibrations-and-waves-fall-2016/eaf7cfc65a8415677214ecea99c10457_MIT8_03SCF16_Text_Ch3.pdf'];
+
+  // ---------- the puzzles' answers, worked out from the rule ----------
+  const O2 = [rateStr([A_OPEN[0][0], -A_OPEN[0][1]]), rateStr(scl(A_OPEN[0], -1)), rateStr(A_OPEN[0])];
+  const O4 = ['Straight along the line to the origin', 'Curving off the line', 'Round onto the ' + pt(OPEN.E[1]) + ' line'];
+  const O6 = ['About ' + num(AM0[1] * Math.exp(OPEN.lam[0] * T6), 1), 'About ' + num(B10, 2), '0'];
+  const O8 = ['The x₁ axis', 'The ' + pt(OPEN.E[1]) + ' line', 'The ' + pt(OPEN.E[0]) + ' line'];
+  const O10 = ['About ' + num(MASS.om[1], 1) + ' rad/s', num(KM * MASS.lam[1]) + ' rad/s', num(3 * MASS.om[0]) + ' rad/s'];
+  const modeMix = (a, b) => num(a) + ' of ' + pt(MASS.E[0]) + ' and ' + num(b) + ' of ' + pt(MASS.E[1]);
+  const O12 = [modeMix(S12[0], S12[1]), modeMix(AM12[0], AM12[1]), modeMix(AM12[0], Math.abs(AM12[1]))];
+  const O13 = [pt([0, 0]), pt(SHUT.start), pt(SHUTEND)];
+  const combo = (a, b) => num(a) + pt(MASS.E[0]) + (b < 0 ? ' − ' : ' + ') + num(Math.abs(b)) + pt(MASS.E[1]);
+  const comboAt = (a, b) => add(scl(MASS.E[0], a), scl(MASS.E[1], b));
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // sys: the system drawn; plane: the state plane beside it; faint: the two parts ('always', or 'after' a right answer);
+  // drag: the start dot can be dragged; sysPick: the System choice shows; runs: each run's start, its end time in the
+  // demonstration (tEnd) and on Go (goEnd), and how long the demonstration or the answer's motion takes it (dur, s).
+  const STEPS = [
+    { show: true, key: 'tanks1', name: 'Two linked tanks', sys: 'open', plane: false, faint: false, lead: 1.2,
+      runs: [{ x0: START, tEnd: TSTAR, goEnd: OPEN.tMax, dur: TSTAR / OPEN.pace }],
+      act: 'Tap Go to run it at 2 minutes a second, up to 30 minutes.',
+      text: 'Two 100 L tanks of brine are joined by pipes. x₁ and x₂ are the grams of salt in tanks 1 and 2, starting at 30 g and none. Each flow carries salt at its tank’s strength, the grams divided by 100 L. So each tank’s rate depends on the salt in both. The two are linked. Tank 2 gains `0.2x₁` grams a minute from the 20 L/min that arrives. It loses `0.2x₂` with the 20 L/min that leaves. So `x₂′ = 0.2x₁ − 0.2x₂`. Tank 2’s salt rises, then falls.' },
+    { key: 'rate1', name: 'Tank 1’s rate', sys: 'open', plane: false, faint: false, rows: 3, fb: [1.3, 0.6],
+      runs: [{ x0: START, tEnd: 0, goEnd: 0, dur: 0 }],
+      task: 'What is tank 1’s rate, x₁′?',
+      opts: O2, want: O2[2], secret: 'carries ' + num(PUMP / V) + 'x₁',
+      hints: { [O2[0]]: 'Not quite. The 5 L/min from tank 2 arrives, so it is plus.', [O2[1]]: 'Not quite. What leaves is minus and what arrives is plus.' },
+      slips: { [O2[0]]: 'the 5 L/min from tank 2 arrives, so it adds', [O2[1]]: 'these signs are swapped: the 20 L/min leaves' },
+      why: '20 L/min leaves tank 1, carrying `0.2x₁` grams a minute. 5 L/min arrives from tank 2, carrying `0.05x₂`. The fresh water brings no salt. So `x₁′ = −0.2x₁ + 0.05x₂`.' },
+    { show: true, key: 'plane', name: 'The state plane', sys: 'open', plane: true, faint: false, drag: true, sysPick: true, lead: 0.5,
+      runs: [{ x0: START, tEnd: OPEN.tMax, goEnd: OPEN.tMax, dur: 3.4 }],
+      act: 'Drag the dot to choose a start, then tap Go.',
+      text: 'The *state plane* shows both tanks at once. One dot stands for the pair, at `(x₁, x₂)`. It is also called the phase plane. The card puts both rates together as `x′ = Ax`. The two lines are A’s eigenvectors, `(1, 2)` with eigenvalue −0.1 and `(1, −2)` with −0.3. From `(30, 0)` the dot draws a curved trail in to the origin. The tanks move to match.' },
+    { key: 'online', name: 'A start on a line', sys: 'open', plane: true, faint: 'after', faintAt: 0.1, goAfter: true, rows: 1, fb: [2.4, 0.6], fbLead: 0.35,
+      runs: [{ x0: ON_LINE, tEnd: OPEN.tMax, goEnd: OPEN.tMax, dur: 1.9 }],
+      actAfter: 'Tap Go to check it at 2 minutes a second.',
+      task: 'The dot starts at `(10, 20)`, on the `(1, 2)` line. Where does it go?',
+      opts: O4, want: O4[0], secret: num(OPEN.lam[0]) + ' × ' + pt(ON_LINE),
+      hints: { [O4[1]]: 'Not quite. Work out A times (10, 20) and compare it with (10, 20).', [O4[2]]: 'Not quite. Work out A times (10, 20) and compare it with (10, 20).' },
+      slips: { [O4[1]]: 'a curve needs a rate that points off the line', [O4[2]]: 'to reach that line it would have to curve' },
+      why: '`A(10, 20) = (−1, −2)`. That is −0.1 times `(10, 20)`. So the rate points straight back along the line. The dot never leaves it. It shrinks as `10e^(−0.1t)` lots of `(1, 2)`.' },
+    { show: true, key: 'faint', name: 'Two parts, two rules', sys: 'open', plane: true, faint: 'always', faintIn: 0.4, drag: true, sysPick: true, lead: 1.0, rows: 1,
+      runs: [{ x0: START, tEnd: T5, goEnd: OPEN.tMax, dur: T5 / OPEN.pace }],
+      act: 'Drag the dot off the lines, then tap Go.',
+      text: 'Start again at `(30, 0)`. It is 15 lots of `(1, 2)` plus 15 lots of `(1, −2)`. Call the amounts a and b. Then `a′ = −0.1a` and `b′ = −0.3b`. Each amount follows its own rule and ignores the other. Equations like these are *decoupled*. So `a = 15e^(−0.1t)` and `b = 15e^(−0.3t)`. The faint dots slide in along their lines. The real dot is their sum. No real start sits on the `(1, −2)` line except the origin. There one tank would hold less than no salt.' },
+    { key: 'bleft', name: 'What is left of b', sys: 'open', plane: true, faint: 'always', goAfter: true, rows: 1, fb: [2.1, 0.6], fbLead: 0,
+      runs: [{ x0: START, tEnd: T6, goEnd: T6, dur: 1.6 }],
+      actAfter: 'Tap Go to run it again.',
+      task: 'From `(30, 0)`, how much of b is left after 10 minutes?',
+      opts: O6, want: O6[1], secret: num(AM0[1]) + 'e^(' + num(OPEN.lam[1] * T6) + ')',
+      hints: { [O6[0]]: 'Not quite. Each amount uses its own line’s eigenvalue.', [O6[2]]: 'Not quite. A decay shrinks by the same fraction each minute, so it never reaches 0.' },
+      slips: { [O6[0]]: num(AM0[1]) + 'e^(' + num(OPEN.lam[0]) + ' × ' + T6 + ') ≈ 5.5 uses a’s rate', [O6[2]]: 'a decay never quite reaches 0' },
+      why: 'b follows its own rule, `b = 15e^(−0.3t)`. After 10 minutes that is `15e^(−0.3 × 10) = 15e^(−3)`, about 0.75. About 5.5 is `15e^(−1)`, which uses the `(1, 2)` line’s rate. 0 is wrong, because a decay never quite reaches zero.' },
+    { show: true, key: 'sum', name: 'Add the parts back', sys: 'open', plane: true, faint: 'always', drag: true, sysPick: true, lead: 0.5,
+      runs: [{ x0: START, tEnd: OPEN.tMax, goEnd: OPEN.tMax, dur: 3.4 }],
+      act: 'Tap Go to watch it at 2 minutes a second.',
+      text: 'Add the parts back. `x₁ = 15e^(−0.1t) + 15e^(−0.3t)` and `x₂ = 30e^(−0.1t) − 30e^(−0.3t)` grams. Tank 2 is fullest after about 5.5 minutes, at about 11.5 g. Then the two tanks match. The fast part dies first, so the trail bends onto the `(1, 2)` line. When you applied a matrix step after step, the eigenvalue biggest in size took over. With `e^(λt)`, the larger eigenvalue takes over instead. Here that is −0.1.' },
+    { key: 'line30', name: 'After 30 minutes', sys: 'open', plane: true, faint: 'always', zoom: true, goAfter: true, rows: 2, fb: [2.4, 0.6], fbLead: 0,
+      runs: [{ x0: START, tEnd: OPEN.tMax, goEnd: OPEN.tMax, dur: 2.0 }],
+      actAfter: 'Tap Go to run it again. The view zooms in as the dot shrinks.',
+      task: 'At 30 minutes, the dot is nearly on which line?',
+      opts: O8, want: O8[2], secret: num(AM0[1]) + 'e^(' + num(OPEN.lam[1] * OPEN.tMax) + ')',
+      hints: { [O8[0]]: 'Not quite. Which amount dies faster?', [O8[1]]: 'Not quite. Which amount dies faster?' },
+      slips: { [O8[0]]: 'the x₁ axis is not an eigenvector line', [O8[1]]: 'the (1, −2) part dies faster, at −0.3' },
+      why: 'The slow amount is `15e^(−0.1 × 30) = 15e^(−3)`, about 0.75. The fast one is `15e^(−9)`, under 0.01. So only the `(1, 2)` part is left. Tank 2 holds about twice tank 1, about 1.49 g to 0.75 g.' },
+    { show: true, key: 'modes', name: 'Two masses, two swings', sys: 'mass', plane: true, faint: 'always', drag: true, sysPick: true, lead: 0.4,
+      runs: [{ x0: M9[0], tEnd: PER[0], goEnd: PER[0], dur: 3 * PER[0] }, { x0: M9[1], tEnd: PER[1], goEnd: PER[1], dur: 3 * PER[1] }],
+      act: 'Tap Go to swing each mode once, 10 times slower than real.',
+      text: 'Now two equal masses sit between three equal springs. x₁ and x₂ are how far each sits right of its rest point. The card’s B has eigenvalue 1 along `(1, 1)` and 3 along `(−1, 1)`. From `(2, 2)` cm both swing together along the `(1, 1)` line. The middle spring keeps its length, so only the outer springs pull. Then `ω² = k/m`, so ω = 10 rad/s. This is a *normal mode*. From `(−2, 2)` they swing opposite ways. The middle spring stretches by up to 4 cm, so `ω² = 3k/m`.' },
+    { key: 'omega', name: 'How fast is the opposite swing?', sys: 'mass', plane: true, faint: 'always', goAfter: true, rows: 1, fb: [2.2, 0.6], fbLead: 0,
+      runs: [{ x0: M9[1], tEnd: PER[1], goEnd: MASS.tMax, dur: 1.5 }],
+      actAfter: 'Tap Go to swing it, 10 times slower than real.',
+      task: 'With `k/m = 100` per second squared, how fast does the opposite mode swing?',
+      opts: O10, want: O10[0], secret: '√' + num(KM * MASS.lam[1]),
+      hints: { [O10[1]]: 'Not quite. The eigenvalue is ω², not ω.', [O10[2]]: 'Not quite. The 3 multiplies ω², not ω.' },
+      slips: { [O10[1]]: num(KM * MASS.lam[1]) + ' is ω², not ω', [O10[2]]: '3 × 10 triples ω, but the 3 multiplies ω²' },
+      why: 'Along `(−1, 1)`, the eigenvalue of `(k/m)B` is `3k/m = 300`. That is ω², so `ω = √300 ≈ 17.3` rad/s. 300 rad/s takes ω as the eigenvalue itself. 30 rad/s is `3 × 10`.' },
+    { show: true, key: 'weave', name: 'Any start is a sum', sys: 'mass', plane: true, faint: 'always', drag: true, sysPick: true, lead: 0.5,
+      runs: [{ x0: [0, 2], tEnd: MASS.tMax, goEnd: MASS.tMax, dur: 4.0 }],
+      act: 'Drag the dot to any start, then tap Go. It swings 10 times slower than real.',
+      text: 'Pull mass 2 by 2 cm and let go, at `(0, 2)`. That is 1 lot of `(1, 1)` plus 1 lot of `(−1, 1)`. The faint dots swing along their lines, one at 10 rad/s and one at about 17.3 rad/s. The real dot is their sum, so its trail weaves across a diamond-shaped box. The middle spring now stretches and squashes. The lines are at right angles, because `(1, 1) · (−1, 1) = 0`. So the shudder is two simple swings, one together and one opposite.' },
+    { key: 'split', name: 'Mixed: split a start', sys: 'mass', plane: true, faint: 'after', faintAt: 0.1, goAfter: true, rows: 1, fb: [1.1, 0.6], fbLead: 0,
+      runs: [{ x0: S12, tEnd: 0, goEnd: MASS.tMax, dur: 0 }],
+      actAfter: 'Tap Go to swing it, 10 times slower than real.',
+      task: 'The masses start at `(3, 1)` cm. How much of each mode is that?',
+      opts: O12, want: O12[1], secret: combo(AM12[0], AM12[1]),
+      hints: { [O12[0]]: 'Not quite. Solve a − b = 3 and a + b = 1.', [O12[2]]: 'Not quite. Solve a − b = 3 and a + b = 1.' },
+      slips: { [O12[0]]: combo(S12[0], S12[1]) + ' = ' + pt(comboAt(S12[0], S12[1])) + ', not ' + pt(S12),
+        [O12[2]]: combo(AM12[0], Math.abs(AM12[1])) + ' = ' + pt(comboAt(AM12[0], Math.abs(AM12[1]))) + ', not ' + pt(S12) },
+      why: 'Write the start as a lots of `(1, 1)` plus b lots of `(−1, 1)`. Then `a − b = 3` and `a + b = 1`, so a = 2 and b = −1. Check it: `2(1, 1) − 1(−1, 1) = (3, 1)`. 3 and 1 just copies the start’s numbers. 2 and 1 gives `(1, 3)`.' },
+    { key: 'closed', name: 'Mixed: closed tanks', sys: 'shut', plane: true, faint: 'after', faintAt: 0, goAfter: true, rows: 1, fb: [2.5, 0.6], fbLead: 0.4,
+      runs: [{ x0: SHUT.start, tEnd: SHUT.tMax, goEnd: SHUT.tMax, dur: 1.8 }],
+      actAfter: 'Tap Go to run it again.',
+      task: 'Shut the inlet and the drain, and pump 20 L/min each way. Tank 1 starts with 30 g. Where does the dot head?',
+      opts: O13, want: O13[2], secret: num(SHUTAM[0]) + pt(SHUT.E[0]) + ' stays',
+      hints: { [O13[0]]: 'Not quite. What does e^(0t) equal?', [O13[1]]: 'Not quite. The pumps carry salt both ways.' },
+      slips: { [O13[0]]: 'no salt can leave, so the total stays ' + num(SHUT.start[0] + SHUT.start[1]) + ' g', [O13[1]]: 'the pumps carry salt to tank 2' },
+      why: 'The start is 15 lots of `(1, 1)` plus 15 lots of `(1, −1)`. The `(1, 1)` amount has eigenvalue 0. Since `e^(0t) = 1`, it stays at 15. The `(1, −1)` amount dies as `e^(−0.4t)`. So the dot runs straight to `(15, 15)`. No salt can leave, so the total stays 30 g.' },
+  ];
+  const FINISH = 'When A has a full set of eigenvectors, linked change comes apart along them. The system moves as a sum of simple modes, each at the rate its own eigenvalue sets.';
+  const FADE = 0.35, GLIDE = 0.5, SNAPPX = 8;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // mode: 'demo' (the screen's demonstration), 'fb' (the motion after a right answer), 'go' (his run, at the lesson's
+  // pace) or 'idle' (standing at the start); start: the start he dragged to; sys: the system he chose.
+  function blank(i) { return { pick: null, res: null, why: false, mode: STEPS[i].show ? 'demo' : 'idle', start: null, sys: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };
+  function doCheck(i, st) { st.res = st.pick === STEPS[i].want ? 'right' : 'wrong'; if (st.res === 'right') st.mode = 'fb'; return st; }
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, sysSet = null, lastWide = null;
+  let REC = null, PAN = null, LASTP = null, PROBE = false, CURSYS = OPEN;
+  const el = (id) => document.getElementById(id);
+  const sysOf = (i, st) => SYS[st.sys || STEPS[i].sys];
+
+  // ---------- timing ----------
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? 0.5 : d; note(t0, d); return K.arrive(T, t0, d); }
+  // What a right answer or a demonstration brings in fades in with the motion; on Go or at rest it is simply there.
+  const fa = (st, t0, d) => (st.mode === 'demo' || st.mode === 'fb' ? arr(t0, d) : 1);
+  const r3 = (v) => Math.round(v * 100) / 100;
+
+  // ---------- the runs and where the dot is at time T ----------
+  function runsOf(i, st) {
+    const d = STEPS[i], sys = sysOf(i, st);
+    if (st.start) return [{ x0: st.start, tEnd: sys.tMax, goEnd: sys.tMax, dur: 0 }];
+    if (sys.key !== d.sys) return [{ x0: sys.start, tEnd: sys.tMax, goEnd: sys.tMax, dur: 0 }];
+    return d.runs;
+  }
+  function sched(i, st) {
+    const d = STEPS[i], sys = sysOf(i, st), runs = runsOf(i, st), m = st.mode;
+    const lead = m === 'demo' ? d.lead || 0 : m === 'fb' ? d.fbLead || 0 : 0.15;
+    const durs = runs.map((r) => (m === 'go' ? r.goEnd / sys.pace : r.dur));
+    const ends = runs.map((r) => (m === 'go' ? r.goEnd : r.tEnd));
+    let total = lead;
+    durs.forEach((x, k) => { total += x + (k ? GLIDE : 0); });
+    return { sys, runs, lead, durs, ends, total };
+  }
+  // k: the run under way; t: its time (min or s); x: the dot; glide: moving between two runs' starts.
+  function frameAt(i, st, Tn) {
+    const sc = sched(i, st), sys = sc.sys, R = sc.runs, n = R.length;
+    const start = { k: 0, t: 0, x: R[0].x0.slice(), glide: false, sc };
+    if (st.mode === 'idle') return start;
+    note(sc.lead, Math.max(0, sc.total - sc.lead));
+    const endF = () => { const k = n - 1; return { k, t: sc.ends[k], x: posAt(sys, R[k].x0, sc.ends[k]), glide: false, sc, over: true }; };
+    if (Tn === Infinity || Tn >= sc.total) return endF();
+    let c = sc.lead;
+    if (Tn < c) return start;
+    for (let k = 0; k < n; k++) {
+      if (k) {
+        if (Tn < c + GLIDE) { const from = posAt(sys, R[k - 1].x0, sc.ends[k - 1]); return { k, t: 0, x: lerpV(from, R[k].x0, K.ease((Tn - c) / GLIDE)), glide: true, sc }; }
+        c += GLIDE;
+      }
+      if (Tn < c + sc.durs[k]) { const t = sc.durs[k] > 0 ? sc.ends[k] * (Tn - c) / sc.durs[k] : sc.ends[k]; return { k, t, x: posAt(sys, R[k].x0, t), glide: false, sc }; }
+      c += sc.durs[k];
+    }
+    return endF();
+  }
+
+  // ---------- dragging the start: onto a line when close to it, else onto the square's grid ----------
+  const clean = (x) => Math.round(x * 1e6) / 1e6 + 0;
+  function snapStart(sys, q, s) {
+    const R = sys.range, st = sys.snap;
+    const inR = (p) => p[0] >= R[0][0] - 1e-9 && p[0] <= R[0][1] + 1e-9 && p[1] >= R[1][0] - 1e-9 && p[1] <= R[1][1] + 1e-9;
+    let best = null;
+    sys.E.forEach((e) => { const dist = Math.abs(cross2(unit(e), q)) * s; if (dist < SNAPPX && (!best || dist < best.dist)) best = { e, dist }; });
+    if (best) {
+      const e = best.e;
+      let k = Math.round(dot(q, e) / dot(e, e) / st), p = scl(e, k * st).map(clean);
+      for (let j = 0; j < 2000 && !inR(p) && k !== 0; j++) { k += k > 0 ? -1 : 1; p = scl(e, k * st).map(clean); }
+      if (inR(p)) return p;
+    }
+    return [0, 1].map((j) => clean(K.clamp(Math.round(q[j] / st) * st, R[j][0], R[j][1])));
+  }
+
+  // ---------- drawing primitives ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, LAB = [], W = 340;
+  const put = (node) => (into || art).appendChild(node);
+  // Something that fades in (0 < a < 1) is drawn into its own faded group.
+  function part(a, fn) {
+    if (!(a > 0)) return;
+    if (a >= 1) { fn(); return; }
+    const keep = into, g = put(K.svg('g'));
+    K.fade(g, a);
+    into = g;
+    try { fn(); } finally { into = keep; }
+  }
+  function seg2(cls, a, b, keep) {
+    if (keep !== false) REC.segs.push([a[0], a[1], b[0], b[1]]);
+    return put(K.svg('line', { class: cls, x1: r3(a[0]), y1: r3(a[1]), x2: r3(b[0]), y2: r3(b[1]) }));
+  }
+  function arrow2(cls, a, b, head) {
+    const g = put(K.svg('g', { class: 'arr ' + cls }));
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    if (L < 0.5) return g;
+    const ux = dx / L, uy = dy / L, hl = Math.min(head, L * 0.5), hw = hl * 0.55, bx = b[0] - ux * hl, by = b[1] - uy * hl;
+    if (L - hl > 0.5) {
+      g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));
+      REC.segs.push([a[0], a[1], bx, by]);
+    }
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    REC.dots.push([b[0] - ux * hl * 0.5, b[1] - uy * hl * 0.5, hl * 0.8]);
+    return g;
+  }
+  const nb = (s) => String(s).replace(/ /g, NB);
+  function text2(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = nb(s);
+    REC.texts.push(String(s));
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  function fitText(x, y, s, cls) { return text2(x, y, s, tw(s, cls) <= W - 18 ? cls : cls + ' sm2'); }
+  function row(s, cls, a) { REC.rows.push({ s, cls: cls || 'rw', a: a == null ? 1 : a }); if (/rbad/.test(cls || '')) REC.bad++; }
+  function keyAdd(k, s, a) {
+    a = a == null ? 1 : a;
+    const f = REC.key.find((x) => x.k === k);
+    if (f) { f.a = Math.max(f.a, a); f.s = s; } else REC.key.push({ k, s, a });
+  }
+
+  // ---------- labels clear of the lines, the points, the edges and each other ----------
+  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  function segHits(b, s) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  const DIRS = [[1, 0], [-1, 0], [0, -1], [0, 1], [0.75, -0.66], [-0.75, -0.66], [0.75, 0.66], [-0.75, 0.66]];
+  const RADII = [9, 15, 22, 30, 40];
+  // Each label takes the nearest spot inside its own pane that is clear of the other labels, the points and the
+  // lines; a label with no spot inside its pane is left out.
+  function placeLabels() {
+    const taken = [], dots = REC.dots.map((d) => ({ x: d[0] - d[2], y: d[1] - d[2], w: 2 * d[2], h: 2 * d[2] }));
+    LAB.forEach((L) => {
+      if (!(L.a > 0)) return;
+      const q = L.q, w = tw(L.s, L.cls) + 2, h = 15, Ar = L.area;
+      let best = null, bc = Infinity;
+      RADII.forEach((R, ri) => DIRS.forEach(([ux, uy], di) => {
+        const cx = q[0] + ux * R + (Math.abs(ux) > 0.3 ? Math.sign(ux) * w / 2 : 0), cy = q[1] + uy * R + (Math.abs(uy) > 0.3 ? Math.sign(uy) * 6 : 0);
+        const b = { x: cx - w / 2, y: cy - 8, w, h };
+        let c = ri * 20 + di * 2, n = 0;
+        if (b.x < Ar.x0 || b.x + b.w > Ar.x1 || b.y < Ar.y0 || b.y + b.h > Ar.y1) c += 9000;
+        taken.forEach((o) => { if (boxesMeet(b, o)) c += 4000; });
+        dots.forEach((o) => { if (boxesMeet(b, o)) c += 3500; });
+        REC.segs.forEach((sg) => { if (segHits(b, sg)) n++; });
+        c += n * 1000;
+        if (c < bc) { bc = c; best = { cx, cy, b }; }
+      }));
+      if (bc >= 9000 || (L.opt && bc >= 1000)) return;
+      taken.push(best.b);
+      part(L.a, () => text2(best.cx, best.cy + 5, L.s, L.cls, 'middle'));
+    });
+  }
+
+  // ---------- the plane's pane: the system's box fitted to it, or zoomed in about the origin ----------
+  const PADP = 6;
+  function paneFor(sys, R, z) {
+    const bb = sys.box, s0 = Math.min((R.w - 2 * PADP) / (bb[0][1] - bb[0][0]), (R.h - 2 * PADP) / (bb[1][1] - bb[1][0]));
+    const cx = (bb[0][0] + bb[0][1]) / 2, cy = (bb[1][0] + bb[1][1]) / 2;
+    const ox = R.x + R.w / 2 - cx * s0, oy = R.y + R.h / 2 + cy * s0, s = s0 * (z || 1);
+    const p = { s, s0, ox, oy, rect: R, area: { x0: R.x + 3, y0: R.y + 3, x1: R.x + R.w - 3, y1: R.y + R.h - 3 } };
+    p.map = (q) => [ox + q[0] * s, oy - q[1] * s];
+    p.inv = (px, py) => [(px - ox) / s, (oy - py) / s];
+    p.bx = [[(R.x - ox) / s, (R.x + R.w - ox) / s], [(oy - R.y - R.h) / s, (oy - R.y) / s]];
+    return p;
+  }
+  // How far the view can zoom about the origin with every point still well inside the pane.
+  function zfit(p, pts) {
+    const R = p.rect, m = PADP + 6;
+    const room = { r: (R.x + R.w - m - p.ox) / p.s, l: (p.ox - R.x - m) / p.s, u: (p.oy - R.y - m) / p.s, d: (R.y + R.h - m - p.oy) / p.s };
+    let z = Infinity;
+    pts.forEach((q) => {
+      if (q[0] > 1e-12) z = Math.min(z, room.r / q[0]); else if (q[0] < -1e-12) z = Math.min(z, room.l / -q[0]);
+      if (q[1] > 1e-12) z = Math.min(z, room.u / q[1]); else if (q[1] < -1e-12) z = Math.min(z, room.d / -q[1]);
+    });
+    return 0.85 * z;
+  }
+  // Grid spacings, each dividing the next, so finer lines fade in as the view zooms in.
+  const G = [0.1, 0.5, 1, 5, 10, 50, 100];
+  function levels(s, minG) {
+    let k = G.findIndex((g) => g >= minG * (1 - 1e-9) && g * s >= 20);
+    if (k < 0) k = G.length - 1;
+    const f = k > 0 && G[k - 1] >= minG * (1 - 1e-9) ? { g: G[k - 1], a: K.clamp((G[k - 1] * s - 14) / 6, 0, 1) } : null;
+    return { g: G[k], fine: f && f.a > 0 ? f : null };
+  }
+  const M2 = (p) => PAN.map(p);
+  const line2 = (cls, a, b, keep) => seg2(cls, M2(a), M2(b), keep);
+  function arrowD(cls, a, b, head) { return arrow2(cls, M2(a), M2(b), head); }
+  function dotD(cls, p, r) { const q = M2(p); put(K.svg('circle', { class: cls, cx: r3(q[0]), cy: r3(q[1]), r })); REC.dots.push([q[0], q[1], r + 1]); }
+  function labD(p, s, cls, a, opt) { LAB.push({ q: M2(p), s, cls: cls || 'nm', a: a == null ? 1 : a, area: PAN.area, opt }); }
+  // A segment cut to the pane.
+  function segW(cls, a, b) {
+    const dv = sub(b, a), r = clipLine(a, dv, PAN.bx);
+    if (!r) return;
+    const t0 = Math.max(0, r[0]), t1 = Math.min(1, r[1]);
+    if (t1 - t0 < 1e-9) return;
+    line2(cls, add(a, scl(dv, t0)), add(a, scl(dv, t1)));
+  }
+  // A path through data points, cut to the pane; every few points count as lines for the labels.
+  function pathW(cls, pts) {
+    const out = [];
+    let cur = null;
+    for (let j = 1; j < pts.length; j++) {
+      const a = pts[j - 1], b = pts[j], dv = sub(b, a), r = clipLine(a, dv, PAN.bx);
+      if (!r || r[1] < 0 || r[0] > 1) { cur = null; continue; }
+      const t0 = Math.max(0, r[0]), t1 = Math.min(1, r[1]);
+      if (!cur || t0 > 0) { cur = [add(a, scl(dv, t0))]; out.push(cur); }
+      cur.push(add(a, scl(dv, t1)));
+      if (t1 < 1) cur = null;
+    }
+    out.forEach((pl) => {
+      const px = pl.map(M2);
+      put(K.svg('path', { class: cls, d: px.map((q, j) => (j ? 'L' : 'M') + r3(q[0]) + ' ' + r3(q[1])).join(' ') }));
+      const step = Math.max(1, Math.floor(px.length / 24));
+      for (let j = step; j < px.length; j += step) REC.segs.push([px[j - step][0], px[j - step][1], px[j][0], px[j][1]]);
+      if ((px.length - 1) % step) { const a = px[px.length - 1 - ((px.length - 1) % step)], b = px[px.length - 1]; REC.segs.push([a[0], a[1], b[0], b[1]]); }
+    });
+  }
+  // The lines parallel to b through each multiple of g along a, across the pane (finer ones faded).
+  function gridFam(a, b, lv) {
+    const bx = PAN.bx, Bi = inv2(fromCols(a, b));
+    const cs = [[bx[0][0], bx[1][0]], [bx[0][1], bx[1][0]], [bx[0][0], bx[1][1]], [bx[0][1], bx[1][1]]].map((c) => mul(Bi, c)[0]);
+    const lo = Math.min(...cs), hi = Math.max(...cs);
+    const draw = (g, skipG) => {
+      const k0 = Math.ceil(lo / g - 1e-9), k1 = Math.floor(hi / g + 1e-9);
+      if (k1 - k0 > 300) return;
+      for (let k = k0; k <= k1; k++) {
+        if (k === 0) continue;
+        if (skipG && near(k * g / skipG, Math.round(k * g / skipG), 1e-6)) continue;
+        const P0 = scl(a, k * g), r = clipLine(P0, b, bx);
+        if (r && r[1] - r[0] > 1e-12) line2('grid', add(P0, scl(b, r[0])), add(P0, scl(b, r[1])), false);
+      }
+    };
+    draw(lv.g, 0);
+    if (lv.fine) part(lv.fine.a, () => draw(lv.fine.g, lv.g));
+  }
+  // An eigenvector line through the origin along u, across the pane, with its label near the far end.
+  function litLine(u, lab, labA, labB) {
+    const r = clipLine([0, 0], u, PAN.bx);
+    if (!r) return;
+    line2('litln', scl(u, r[0]), scl(u, r[1]));
+    const q = scl(u, r[1] * 0.78);
+    if (lab) labD(q, lab, 'tag', labA == null ? 1 : labA);
+    if (labB) labD(q, labB.s, 'tag', labB.a);
+  }
+
+  // ---------- the card: the rule in symbols ----------
+  function cardW(label, Es, sm, post) {
+    const cls = sm ? 'en s' : 'en', n = Es[0].length, cw = [];
+    for (let j = 0; j < n; j++) cw.push(Math.max(...Es.map((r) => tw(r[j], cls))) + (sm ? 11 : 14));
+    const wM = cw.reduce((s, x) => s + x, 0) + 6, lw = label ? tw(label, sm ? 'mx s' : 'mx') + 8 : 0, pw = post ? tw(post, sm ? 'mx s' : 'mx') + 12 : 0;
+    return { cw, wM, lw, pw, w: lw + wM + pw };
+  }
+  function cardAt(x0, cy, label, Es, wd, sm, post) {
+    const rg = sm ? 18 : 20, m = Es.length, xb = x0 + wd.lw;
+    if (label) text2(x0, cy + 6, label, sm ? 'mx s' : 'mx', 'start');
+    const top = cy - m * rg / 2 - 3, bot = cy + m * rg / 2 + 3;
+    put(K.svg('path', { class: 'brk', d: 'M' + r3(xb + 6) + ' ' + r3(top) + ' H' + r3(xb) + ' V' + r3(bot) + ' H' + r3(xb + 6) }));
+    put(K.svg('path', { class: 'brk', d: 'M' + r3(xb + wd.wM - 6) + ' ' + r3(top) + ' H' + r3(xb + wd.wM) + ' V' + r3(bot) + ' H' + r3(xb + wd.wM - 6) }));
+    Es.forEach((r, i) => r.forEach((s, j) => {
+      const x = xb + 3 + wd.cw.slice(0, j).reduce((a, b) => a + b, 0) + wd.cw[j] / 2, y = cy + (i - (m - 1) / 2) * rg + 5;
+      text2(x, y, s, sm ? 'en s' : 'en');
+    }));
+    if (post) text2(xb + wd.wM + 12, cy + 6, post, sm ? 'mx s' : 'mx', 'start');
+  }
+  function card(label, M, post) {
+    const Es = M.map((r) => r.map((x) => num(x)));
+    let sm = false, wd = cardW(label, Es, false, post);
+    if (wd.w > W - 14) { sm = true; wd = cardW(label, Es, true, post); }
+    cardAt(W / 2 - wd.w / 2, 28, label, Es, wd, sm, post);
+    REC.cards.push({ label, Es });
+  }
+  // A line of words in pieces, each fading in on its own, centred.
+  function eqLine(y, toks) {
+    const ws = toks.map(([s]) => tw(s, 'eq'));
+    let x = W / 2 - ws.reduce((a, b) => a + b, 0) / 2;
+    toks.forEach(([s, a], k) => { const x0 = x; part(a, () => text2(x0, y, s, 'eq', 'start')); x += ws[k]; });
+    REC.cards.push({ label: toks.map(([s]) => s).join(''), Es: null });
+  }
+  function drawCard(d, st, sys) {
+    if (d.key === 'tanks1') {
+      eqLine(36, [['x₂′ = ', 1], [term(A_OPEN[1][0], 'x₁', true), fa(st, 0.35, 0.5)], [term(A_OPEN[1][1], 'x₂', false), fa(st, 0.75, 0.5)]]);
+    } else if (d.key === 'rate1') {
+      const right = st.res === 'right';
+      eqLine(22, right ? [['x₁′ = ', 1], [term(A_OPEN[0][0], 'x₁', true), fa(st, 0.1, 0.4)], [term(A_OPEN[0][1], 'x₂', false), fa(st, 0.4, 0.4)]] : [['x₁′ = ', 1], ['?', 1]]);
+      eqLine(48, [['x₂′ = ' + rateStr(A_OPEN[1]), 1]]);
+    } else if (sys.kind === 'mass') card('x″ = −(k/m)Bx,  B =', sys.M, 'k/m = ' + num(KM));
+    else card('x′ = Ax,  A =', sys.M);
+  }
+
+  // ---------- the real thing ----------
+  const TK = [[48, 118], [196, 266]];   // each tank's walls, across the panel
+  function tanksDraw(sys, x, R) {
+    const top = R.y + 30, bot = R.y + 100, H = bot - top, full = sys.range[0][1], open = sys.key === 'open';
+    [0, 1].forEach((j) => {
+      const a = R.x + TK[j][0], b = R.x + TK[j][1], lv = bot - H * K.clamp(x[j] / full, 0, 1);
+      if (bot - lv > 0.05) put(K.svg('rect', { class: 'salt', x: a, y: r3(lv), width: b - a, height: r3(bot - lv) }));
+      put(K.svg('path', { class: 'tank', d: 'M' + a + ' ' + top + ' V' + bot + ' H' + b + ' V' + top }));
+      text2((a + b) / 2, K.clamp(lv - 6, top + 16, bot - 4), j ? 'x₂' : 'x₁', 'tag');
+      text2((a + b) / 2, bot + 18, 'Tank ' + (j + 1), 'ttl');
+    });
+    const c1 = R.x + (TK[0][0] + TK[0][1]) / 2, e1 = R.x + TK[0][1], s2 = R.x + TK[1][0], e2 = R.x + TK[1][1], mid = (e1 + s2) / 2;
+    const low = R.y + 90, high = R.y + 54;
+    arrow2('pipe', [e1, low], [s2, low], 9);
+    text2(mid, low - 7, num(open ? PUMP : CPUMP) + ' L/min', 'fl');
+    arrow2('pipe', [s2, high], [e1, high], 9);
+    text2(mid, high - 7, num(open ? BACK : CPUMP) + ' L/min', 'fl');
+    if (open) {
+      arrow2('pipe', [c1, R.y + 6], [c1, top + 2], 9);
+      text2(c1 + 9, R.y + 17, 'fresh water ' + num(FRESH) + ' L/min', 'fl', 'start');
+      arrow2('pipe', [e2, R.y + 94], [R.x + R.w - 6, R.y + 94], 9);
+      text2((e2 + R.x + R.w - 6) / 2 + 2, R.y + 113, num(DRAIN) + ' L/min', 'fl');
+    }
+    keyAdd('salt', 'salt, full = ' + num(full) + ' g');
+    REC.said.push('Two 100 L tanks of brine joined by pipes' + (open ? ', with fresh water in, a pump across, a flow back and a drain.' : ', with the inlet and drain shut and a pump each way.') + ' Each tank’s salt is drawn as a shaded level.');
+  }
+  // A spring drawn as a zigzag from x1 to x2 at height y.
+  function spring(x1, x2, y) {
+    const n = 10, amp = 6, L = x2 - x1, ld = Math.min(6, L * 0.15);
+    let d = 'M' + r3(x1) + ' ' + y + ' H' + r3(x1 + ld);
+    for (let k = 0; k < n; k++) d += ' L' + r3(x1 + ld + (L - 2 * ld) * (k + 0.5) / n) + ' ' + r3(y + (k % 2 ? amp : -amp));
+    d += ' L' + r3(x2 - ld) + ' ' + y + ' H' + r3(x2);
+    put(K.svg('path', { class: 'spring', d }));
+  }
+  const PXC = 9;   // drawing units per centimetre
+  function massesDraw(x, R) {
+    const ym = R.y + 52, L0 = R.x + 14, R0 = R.x + R.w - 14, gap = (R0 - L0) / 3, h = 16;
+    put(K.svg('rect', { class: 'wall', x: L0 - 8, y: ym - 26, width: 8, height: 52 }));
+    put(K.svg('rect', { class: 'wall', x: R0, y: ym - 26, width: 8, height: 52 }));
+    const rest = [L0 + gap, L0 + 2 * gap], c = [rest[0] + PXC * x[0], rest[1] + PXC * x[1]];
+    spring(L0, c[0] - h, ym); spring(c[0] + h, c[1] - h, ym); spring(c[1] + h, R0, ym);
+    [0, 1].forEach((j) => {
+      put(K.svg('rect', { class: 'mass', x: r3(c[j] - h), y: ym - h, width: 2 * h, height: 2 * h, rx: 4 }));
+      text2(c[j], ym + 5, String(j + 1), 'nm');
+      put(K.svg('line', { class: 'rest', x1: r3(rest[j]), y1: ym + h + 3, x2: r3(rest[j]), y2: ym + h + 18 }));
+      if (Math.abs(c[j] - rest[j]) > 7) arrow2('disp', [rest[j], ym + h + 10], [c[j], ym + h + 10], 7);
+      text2((rest[j] + c[j]) / 2, ym + h + 32, j ? 'x₂' : 'x₁', 'tag');
+    });
+    const sv = x[1] - x[0];
+    text2((c[0] + c[1]) / 2, ym - h - 10, 'stretch ' + num(sv, 1) + ' cm', 'nm');
+    REC.stretch = sv;
+    keyAdd('rest', 'rest point');
+    REC.said.push('Two equal masses between three equal springs and two walls. The middle spring’s stretch is ' + num(sv, 1) + ' cm.');
+  }
+  function realDraw(sys, x, R) {
+    put(K.svg('rect', { class: 'pane', x: R.x, y: R.y, width: R.w, height: R.h, rx: 8 }));
+    if (sys.kind === 'tank') tanksDraw(sys, x, R); else massesDraw(x, R);
+  }
+
+  // ---------- the state plane ----------
+  const faintOn = (d, st) => d.faint === 'always' || (d.faint === 'after' && st.res === 'right');
+  function faintA(d, st) {
+    if (d.faintIn != null && st.mode === 'demo') return arr(d.faintIn, 0.5);
+    if (d.faint === 'after') return fa(st, d.faintAt || 0, 0.4);
+    return 1;
+  }
+  function lineLab(d, st, sys, k) {
+    const e = pt(sys.E[k]);
+    if (sys.kind !== 'mass') return { s: e + ', λ = ' + num(sys.lam[k]) };
+    const w = sys.om[k], full = e + ', ω ' + (near(w, Math.round(w), 1e-9) ? '= ' : '≈ ') + num(w, 1) + ' rad/s';
+    if (k === 1 && sys.key === d.sys && d.key === 'modes') return { s: e + ', ω² = ' + num(sys.lam[k]) + 'k/m' };
+    if (k === 1 && sys.key === d.sys && d.key === 'omega') { const a = st.res === 'right' ? fa(st, 0.1, 0.4) : 0; return { s: e, a: 1 - a, more: { s: full, a } }; }
+    return { s: full };
+  }
+  function trailPts(sys, x0, t) {
+    const n = sys.kind === 'mass' ? Math.max(8, Math.ceil(300 * t / sys.tMax)) : 100, out = [];
+    for (let j = 0; j <= n; j++) out.push(posAt(sys, x0, t * j / n));
+    return out;
+  }
+  function planeDraw(d, st, i, sys, F, R) {
+    const run = F.sc.runs[F.k], showF = faintOn(d, st), fA = showF ? faintA(d, st) : 0, parts = partsAt(sys, F.x);
+    const base = paneFor(sys, R, 1);
+    let z = 1;
+    if (d.zoom && st.res === 'right' && !st.start && sys.key === d.sys) {
+      const z0 = zfit(base, [run.x0].concat(partsAt(sys, run.x0))), z1 = zfit(base, [F.x].concat(parts));
+      z = K.clamp(z1 / Math.max(1, z0), 1, 80);
+    }
+    const p = z === 1 ? base : paneFor(sys, R, z);
+    PAN = p; REC.box = p.bx; REC.z = z;
+    put(K.svg('rect', { class: 'pane', x: R.x, y: R.y, width: R.w, height: R.h, rx: 8 }));
+    const lv = levels(p.s, d.zoom ? 0.1 : sys.grid);
+    gridFam([1, 0], [0, 1], lv); gridFam([0, 1], [1, 0], lv);
+    REC.gridTxt = '1 square = ' + num(lv.g) + ' ' + sys.ux;
+    [[1, 0], [0, 1]].forEach((u) => { const r = clipLine([0, 0], u, p.bx); if (r) line2('axis', scl(u, r[0]), scl(u, r[1])); });
+    sys.E.forEach((e, k) => {
+      const lb = lineLab(d, st, sys, k);
+      litLine(unit(e), lb.s, lb.a, lb.more);
+      REC.lines.push({ e, s: lb.s, a: lb.a == null ? 1 : lb.a });
+      if (lb.more) REC.lines.push({ e, s: lb.more.s, a: lb.more.a });
+    });
+    labD([p.bx[0][1] - 14 / p.s, 0], 'x₁ (' + sys.ux + ')', 'ttl', 1, true);
+    labD([0, p.bx[1][1] - 12 / p.s], 'x₂ (' + sys.ux + ')', 'ttl', 1, true);
+    // The masses' box: a start with some of both swings stays inside ±(each part).
+    const c0 = mul(sys.PI, run.x0);
+    if (sys.kind === 'mass' && showF && Math.abs(c0[0]) > 1e-9 && Math.abs(c0[1]) > 1e-9) {
+      const A0 = scl(sys.E[0], c0[0]), B0 = scl(sys.E[1], c0[1]);
+      part(fA, () => pathW('dbox', [add(A0, B0), sub(A0, B0), scl(add(A0, B0), -1), sub(B0, A0), add(A0, B0)]));
+      keyAdd('dbox', 'the box it stays in', fA);
+    }
+    // Trails: each finished run's, then this one's so far.
+    REC.trails = [];
+    F.sc.runs.forEach((r, j) => {
+      if (j >= F.k) return;
+      const pts = trailPts(sys, r.x0, F.sc.ends[j]);
+      pathW('trail', pts); REC.trails.push(pts);
+    });
+    REC.trail = F.glide ? [] : trailPts(sys, run.x0, F.t);
+    if (REC.trail.length && F.t > 0) pathW('trail', REC.trail);
+    keyAdd('trail', 'trail');
+    // Where each run started.
+    F.sc.runs.forEach((r, j) => {
+      if (j > F.k || !inBox(r.x0, p.bx)) return;
+      const q = M2(r.x0), sz = 5;
+      put(K.svg('path', { class: 'sdia', d: 'M' + r3(q[0]) + ' ' + r3(q[1] - sz) + ' L' + r3(q[0] + sz) + ' ' + r3(q[1]) + ' L' + r3(q[0]) + ' ' + r3(q[1] + sz) + ' L' + r3(q[0] - sz) + ' ' + r3(q[1]) + ' Z' }));
+      REC.dots.push([q[0], q[1], sz + 1]);
+    });
+    keyAdd('sdia', 'start');
+    // The two parts, each on its own line, and the dot at the corner of their parallelogram.
+    REC.faint = null;
+    if (showF) {
+      REC.faint = parts;
+      const labs = (d.faintLab && d.faintLab(st, F)) || ['a', 'b'];
+      part(fA, () => {
+        parts.forEach((q, k) => { if (len(q) * p.s > 2 && len(parts[1 - k]) * p.s > 2) segW('par', q, F.x); });
+        parts.forEach((q) => { if (inBox(q, p.bx)) dotD('fdot', q, 7.5); });
+      });
+      parts.forEach((q, k) => { if (inBox(q, p.bx)) labD(q, labs[k], 'sm', fA); });
+      keyAdd('fdot', 'parts a and b', fA);
+      if (parts.every((q) => len(q) * p.s > 2)) keyAdd('par', 'a + b', fA);
+    }
+    if (inBox(F.x, p.bx)) {
+      dotD('rdot', F.x, 5.5);
+      if (d.drag) { const q = M2(F.x); put(K.svg('circle', { class: 'handle', cx: r3(q[0]), cy: r3(q[1]), r: 22 })); }
+    }
+    keyAdd('rdot', 'the dot (x₁, x₂)');
+    keyAdd('litln', 'eigenvector line');
+    keyAdd('grid', REC.gridTxt);
+    REC.said.push('The state plane: one dot for the pair (x₁, x₂), with the eigenvector lines ' + sys.E.map((e, k) => lineLab(d, st, sys, k).s).join(' and ') + '.' +
+      (showF ? ' Two faint dots ride the lines, and the dot is their sum.' : '') + (F.t > 0 ? ' The dot has left a trail.' : ''));
+  }
+
+  // ---------- what each step adds: rows of working, marks, and wrong answers drawn in red ----------
+  function slip(d, st) { row(d.slips[st.pick], 'rw rbad', arr(0, 0.5)); }
+  function ring(p, lab) { const a = arr(0, 0.5); part(a, () => dotD('bring', p, 8)); labD(p, lab, 'lbad', a); REC.bad++; }
+  function guess(pts) { const a = arr(0, 0.5); part(a, () => pathW('guess', pts)); REC.bad++; }
+  const bez = (a, c, b) => K.linspace(0, 1, 30).map((t) => add(add(scl(a, (1 - t) * (1 - t)), scl(c, 2 * t * (1 - t))), scl(b, t * t)));
+  const EXTRA = {
+    rate1: (d, st) => {
+      if (st.res === 'right') {
+        const a = [fa(st, 0.5, 0.4), fa(st, 0.7, 0.4), fa(st, 0.9, 0.4)];
+        row('out: ' + PUMP + ' L/min carries ' + num(PUMP / V) + 'x₁ g/min', 'rw rok', a[0]);
+        row('in: ' + BACK + ' L/min carries ' + num(BACK / V) + 'x₂ g/min', 'rw rok', a[1]);
+        row('fresh water: ' + FRESH + ' L/min carries no salt', 'rw rok', a[2]);
+        if (a[0] > 0) REC.reveal++;
+      } else if (st.res === 'wrong') slip(d, st);
+    },
+    online: (d, st, i, sys) => {
+      if (st.res === 'right') {
+        const a = fa(st, 0.1, 0.3), r = mul(sys.M, ON_LINE);
+        part(a, () => arrowD('rate', ON_LINE, add(ON_LINE, scl(r, RATE_MIN)), 10));
+        labD(add(ON_LINE, scl(r, RATE_MIN * 0.5)), 'rate', 'nm', a, true);
+        row('A' + pt(ON_LINE) + ' = ' + pt(r) + ' = ' + num(sys.lam[0]) + ' × ' + pt(ON_LINE), 'rw rok', a);
+        if (a > 0) REC.reveal++;
+      } else if (st.res === 'wrong') {
+        guess(st.pick === O4[1] ? bez(ON_LINE, [24, 14], [16, 2]) : bez(ON_LINE, [22, 2], scl(OPEN.E[1], 8)));
+        slip(d, st);
+      }
+    },
+    faint: (d, st, i, sys, F) => {
+      const x0 = F.sc.runs[0].x0, am = mul(sys.PI, x0);
+      if (sys.kind !== 'tank' || sys.key !== d.sys) return;
+      row(num(am[0]) + pt(sys.E[0]) + (am[1] < 0 ? ' − ' : ' + ') + num(Math.abs(am[1])) + pt(sys.E[1]) + ' = ' + pt(x0), 'rw', st.mode === 'demo' ? arr(0.4, 0.5) : 1);
+    },
+    bleft: (d, st) => {
+      if (st.res === 'right') {
+        const a = fa(st, 1.6, 0.4);
+        row(num(AM0[1]) + 'e^(' + num(OPEN.lam[1]) + ' × ' + T6 + ') = ' + num(AM0[1]) + 'e^(' + num(OPEN.lam[1] * T6) + ') ≈ ' + num(B10, 2), 'rw rok', a);
+        if (a > 0) REC.reveal++;
+      } else if (st.res === 'wrong') {
+        if (st.pick === O6[0]) { const q = scl(OPEN.E[1], AM0[1] * Math.exp(OPEN.lam[0] * T6)); ring(q, num(len(q) / len(OPEN.E[1]), 1)); }
+        else ring([0, 0], '0');
+        slip(d, st);
+      }
+    },
+    sum: (d, st, i, sys, F) => {
+      if (sys.key !== d.sys || st.start || F.k !== 0 || F.t < TSTAR) return;
+      const q = posAt(OPEN, START, TSTAR), a = K.clamp((F.t - TSTAR) / 4, 0, 1);
+      part(a, () => dotD('mk', q, 4.5));
+      labD(q, 'tank 2 fullest, ' + num(TSTAR, 1) + ' min', 'nm', a);
+      REC.mark = a > 0;
+    },
+    line30: (d, st) => {
+      if (st.res === 'right') {
+        const a = fa(st, 2.0, 0.4), slow = AM0[0] * Math.exp(OPEN.lam[0] * OPEN.tMax), fast = AM0[1] * Math.exp(OPEN.lam[1] * OPEN.tMax);
+        row('slow part ' + num(AM0[0]) + 'e^(' + num(OPEN.lam[0] * OPEN.tMax) + ') ≈ ' + num(slow, 2), 'rw rok', a);
+        row('fast part ' + num(AM0[1]) + 'e^(' + num(OPEN.lam[1] * OPEN.tMax) + ') ' + (fast < 0.01 ? '< 0.01' : '≈ ' + num(fast, 2)), 'rw rok', a);
+        if (a > 0) REC.reveal++;
+      } else if (st.res === 'wrong') {
+        const u = st.pick === O8[0] ? [1, 0] : unit(OPEN.E[1]), a = arr(0, 0.5);
+        part(a, () => segW('guess', scl(u, -500), scl(u, 500)));
+        REC.bad++;
+        slip(d, st);
+      }
+    },
+    omega: (d, st) => {
+      if (st.res === 'right') {
+        const a = fa(st, 1.5, 0.4), w2 = KM * MASS.lam[1];
+        row('ω² = ' + num(MASS.lam[1]) + 'k/m = ' + num(w2) + ', so ω = √' + num(w2) + ' ≈ ' + num(MASS.om[1], 1) + ' rad/s', 'rw rok', a);
+        if (a > 0) REC.reveal++;
+      } else if (st.res === 'wrong') slip(d, st);
+    },
+    split: (d, st) => {
+      if (st.res === 'right') {
+        const a = fa(st, 0.5, 0.4);
+        row(combo(AM12[0], AM12[1]) + ' = ' + pt(S12), 'rw rok', a);
+        if (a > 0) REC.reveal++;
+      } else if (st.res === 'wrong') {
+        if (st.pick === O12[2]) { const q = comboAt(AM12[0], Math.abs(AM12[1])); if (inBox(q, PAN.bx)) ring(q, pt(q)); }
+        slip(d, st);
+      }
+    },
+    closed: (d, st) => {
+      if (st.res === 'right') {
+        const a = fa(st, 2.2, 0.3);
+        row(num(SHUTAM[0]) + pt(SHUT.E[0]) + ' stays, ' + num(SHUTAM[1]) + 'e^(' + num(SHUT.lam[1]) + 't)' + pt(SHUT.E[1]) + ' dies away', 'rw rok', a);
+        if (a > 0) REC.reveal++;
+      } else if (st.res === 'wrong') {
+        if (st.pick === O13[0]) ring([0, 0], pt([0, 0]));
+        slip(d, st);
+      }
+    },
+  };
+  STEPS[STEPS.findIndex((d) => d.key === 'bleft')].faintLab = (st, F) => (st.res === 'right' && F.t >= T6 - 1e-9 ? ['a', 'b ≈ ' + num(B10, 2)] : null);
+  STEPS[STEPS.findIndex((d) => d.key === 'split')].faintLab = (st) => (st.res === 'right' ? ['a = ' + num(AM12[0]), 'b = ' + num(AM12[1])] : null);
+
+  // ---------- the key under the picture (it wraps onto more lines when it must) ----------
+  function keyLines(list, maxW) {
+    const lines = [];
+    let cur = [], w = 0;
+    list.forEach((it) => {
+      if (!(it.a >= 0)) return;
+      const iw = 28 + tw(it.s, 'ttl');
+      if (cur.length && w + 16 + iw > maxW) { lines.push(cur); cur = []; w = 0; }
+      w += (cur.length ? 16 : 0) + iw;
+      cur.push({ k: it.k, s: it.s, w: iw, a: it.a });
+    });
+    if (cur.length) lines.push(cur);
+    return lines;
+  }
+  function swatch(k, x, y) {
+    if (k === 'salt') put(K.svg('rect', { class: 'salt', x: r3(x + 3), y: y - 12, width: 16, height: 13, rx: 2 }));
+    else if (k === 'rdot') put(K.svg('circle', { class: 'rdot', cx: r3(x + 11), cy: y - 5, r: 5 }));
+    else if (k === 'fdot') put(K.svg('circle', { class: 'fdot', cx: r3(x + 11), cy: y - 5, r: 6 }));
+    else if (k === 'sdia') put(K.svg('path', { class: 'sdia', d: 'M' + r3(x + 11) + ' ' + (y - 10) + ' l5 5 l-5 5 l-5 -5 Z' }));
+    else if (k === 'grid') put(K.svg('rect', { class: 'gsq', x: r3(x + 4), y: y - 12, width: 13, height: 13 }));
+    else put(K.svg('line', { class: k, x1: r3(x + 2), y1: y - 5, x2: r3(x + 20), y2: y - 5 }));
+  }
+  function drawKey(lines, y) {
+    lines.forEach((ln, r) => {
+      const yy = y + r * 22;
+      let seen = 0;
+      const gaps = ln.map((it) => { const g = 16 * it.a * Math.min(1, seen); seen += it.a; return g; });
+      let x = W / 2 - ln.reduce((s, it, j) => s + it.w * it.a + gaps[j], 0) / 2;
+      ln.forEach((it, j) => {
+        x += gaps[j];
+        const x0 = x;
+        part(it.a, () => { swatch(it.k, x0, yy); text2(x0 + 28, yy, it.s, 'ttl', 'start'); });
+        x += it.w * it.a;
+      });
+    });
+  }
+
+  // ---------- each step's layout: the card on top, the real thing, the plane beside or below it ----------
+  const CARDH = 58, PH = 256, GAPY = 8;
+  const wideNow = () => { const p = el('pz'); return !!p && p.clientWidth >= 640; };
+  function layoutOf(d, sys, wide) {
+    const RH = sys.kind === 'mass' ? 112 : 124;
+    if (!d.plane) return { W: 340, real: { x: 4, y: CARDH, w: 332, h: RH }, plane: null, bottom: CARDH + RH };
+    if (wide) return { W: 680, real: { x: 4, y: CARDH + (PH - RH) / 2, w: 332, h: RH }, plane: { x: 344, y: CARDH, w: 332, h: PH }, bottom: CARDH + PH };
+    return { W: 340, real: { x: 4, y: CARDH, w: 332, h: RH }, plane: { x: 4, y: CARDH + RH + GAPY, w: 332, h: PH }, bottom: CARDH + RH + GAPY + PH };
+  }
+
+  // ---------- the picture for a step (the animation calls this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], sys = sysOf(i, st), wide = !!d.plane && wideNow(), L = layoutOf(d, sys, wide);
+    W = L.W;
+    art.textContent = '';
+    into = null; LAB = []; PAN = null;
+    REC = { texts: [], rows: [], segs: [], dots: [], bad: 0, reveal: 0, cards: [], said: [], key: [], lines: [], sys: sys.key, x: null, t: 0, k: 0,
+      faint: null, trail: [], trails: [], box: null, z: 1, mark: false, stretch: null, gridTxt: '' };
+    const F = frameAt(i, st, T);
+    REC.x = F.x; REC.t = F.t; REC.k = F.k; REC.glide = F.glide;
+    drawCard(d, st, sys);
+    realDraw(sys, F.x, L.real);
+    if (L.plane) planeDraw(d, st, i, sys, F, L.plane);
+    if (EXTRA[d.key]) EXTRA[d.key](d, st, i, sys, F);
+    placeLabels();
+    const kl = keyLines(REC.key, W - 14), y0 = L.bottom + 26;
+    drawKey(kl, y0);
+    const ry = y0 + 22 * Math.max(0, kl.length - 1) + 30, nRows = Math.max(REC.rows.length, d.rows || 0);
+    REC.rows.forEach((r, k) => part(r.a, () => fitText(W / 2, ry + k * 22, r.s, r.cls)));
+    const H = (nRows ? ry + (nRows - 1) * 22 : y0 + 22 * Math.max(0, kl.length - 1)) + 12;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + r3(H));
+    svg.classList.toggle('wide', wide);
+    const said = REC.said.slice();
+    REC.rows.forEach((r) => { if (r.a > 0) said.push(r.s + '.'); });
+    svg.setAttribute('aria-label', say(said.join(' ')));
+    if (!PROBE) {
+      LASTP = PAN; CURSYS = sys; lastWide = wide;
+      outs.x1.set(F.x[0]); outs.x2.set(F.x[1]); outs.t.set(F.t);
+    }
+    return REC;
+  }
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { node.appendChild(K.el('span', { class: seg.length <= 16 ? 'nw' : '' }, seg)); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+  const sysCtl = K.choice({ id: 'system', label: 'System', options: Object.keys(SYS).map((k) => SYS[k].name), value: 0, into: '#sysbox' });
+  const goOn = (i) => !finished && (!!STEPS[i].show || (!!STEPS[i].goAfter && S[i].res === 'right'));
+  const sysOn = (i) => !finished && !!STEPS[i].sysPick;
+  const dragOn = (i) => !finished && !!STEPS[i].drag;
+  const outs = {
+    x1: K.readout({ id: 'x1Out', label: 'x₁', fmt: (v) => fixed(v, 2) + NB + CURSYS.ux, into: '#outs' }),
+    x2: K.readout({ id: 'x2Out', label: 'x₂', fmt: (v) => fixed(v, 2) + NB + CURSYS.ux, into: '#outs' }),
+    t: K.readout({ id: 'clock', label: 'Time', fmt: (v) => fixed(v, 1) + NB + CURSYS.ut, into: '#outs' }),
+  };
+  K.model(() => { const i = at(), F = frameAt(i, S[i], T); return { x1Out: F.x[0], x2Out: F.x[1], clock: F.t }; });
+  K.button({ label: 'Go', into: '#runrow', press: () => {
+    const i = at();
+    if (!goOn(i)) return;
+    const st = S[i];
+    st.mode = 'go';
+    K.reveal();
+    play(sched(i, st).total);
+  } });
+  K.button({ label: 'Reset', secondary: true, into: '#runrow', press: () => {
+    const i = at();
+    if (!goOn(i)) return;
+    S[i].mode = 'idle';
+    anim.pause(); T = Infinity;
+  } });
+  // Dragging the dot sets a new start; Go runs it.
+  let dragging = false;
+  function dragTo(ev) {
+    const i = at(), st = S[i], sys = sysOf(i, st), m = svg.getScreenCTM();
+    if (!m || !LASTP) return;
+    const pp = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse());
+    st.start = snapStart(sys, LASTP.inv(pp.x, pp.y), LASTP.s);
+    st.mode = 'idle';
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal();
+    K.refresh();
+  }
+  svg.addEventListener('pointerdown', (ev) => {
+    const t = ev.target;
+    if (!t || !t.classList || !t.classList.contains('handle') || !dragOn(at())) return;
+    dragging = true;
+    try { svg.setPointerCapture(ev.pointerId); } catch (e) { /* not every pointer can be captured */ }
+    ev.preventDefault();
+    dragTo(ev);
+  });
+  svg.addEventListener('pointermove', (ev) => { if (dragging) { ev.preventDefault(); dragTo(ev); } });
+  const endDrag = () => { dragging = false; };
+  svg.addEventListener('pointerup', endDrag);
+  svg.addEventListener('pointercancel', endDrag);
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    doCheck(i, st);
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } }).el;
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  const nav = el('nav');
+
+  // One animation plays each demonstration, each run and the motion after an answer; with reduced motion (and while
+  // the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Run', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  window.addEventListener('resize', () => { if (wideNow() !== lastWide && STEPS[at()].plane) K.refresh(); });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter');
+    void b.offsetWidth;
+    b.classList.add('enter');
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(i); play(sched(i, S[i]).total); } else { anim.pause(); T = Infinity; }
+      sysSet = SYS[d.sys].name;
+      if (sysCtl.get() !== sysSet) sysCtl.set(sysSet, true);
+    } else if (p.system !== sysSet) {
+      sysSet = p.system;
+      if (sysOn(i) && SYSKEY[p.system]) {
+        const st = S[i];
+        st.sys = SYSKEY[p.system]; st.start = null; st.mode = 'idle';
+        anim.pause(); T = Infinity; enter('scene');
+      }
+    }
+    const st = S[i];
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    el('runrow').hidden = !goOn(i);
+    el('sysbox').hidden = !sysOn(i);
+    const actTxt = d.show ? d.act || '' : right ? d.actAfter || '' : '';
+    const act = el('act');
+    write(act, actTxt);
+    act.hidden = finished || !actTxt;
+    el('outs').hidden = finished;
+
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.hidden = right;
+    // Why? gives the answer away, so it shows only once an answer has been checked.
+    const checked = st.res === 'right' || st.res === 'wrong';
+    whyBtn.el.hidden = !checked;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why || !checked;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (k) => STEPS.findIndex((d) => d.key === k);
+  const solvedSt = (i) => doCheck(i, Object.assign(blank(i), { pick: STEPS[i].want }));
+  const wrongSt = (i, o) => doCheck(i, Object.assign(blank(i), { pick: o }));
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawnRaw(i, st, t) {
+    const keepS = S[i], keepT = T;
+    PROBE = true; S[i] = st; T = t == null ? Infinity : t;
+    try { return paint(i); } finally { S[i] = keepS; T = keepT; PROBE = false; }
+  }
+
+  K.check('Linked tanks lead to a linear system of differential equations, solved with the eigenvalues and eigenvectors of its matrix: for the open and the closed tanks, the eigenvector parts added up obey the rates x′ = Ax at every moment, from every corner of the drag square and from the lesson’s starts', () => {
+    let ok = true;
+    [OPEN, SHUT].forEach((sy) => {
+      const e = eig2(sy.M);
+      ok = ok && e.lines.length === 2 && sy.E.every((v, k) => e.lines.some((l) => sameLine(l.dir, v) && near(l.lam, sy.lam[k], 1e-9)));
+      [[0, 0], [40, 0], [0, 40], [40, 40], [30, 0], [10, 20], [7, 33]].forEach((x0) => [0, 0.5, 1, 5, 10, 30].forEach((t) => {
+        const h = 1e-4, dx = scl(sub(posAt(sy, x0, t + h), posAt(sy, x0, t - h)), 1 / (2 * h)), ax = mul(sy.M, posAt(sy, x0, t));
+        ok = ok && dx.every((v, k) => Math.abs(v - ax[k]) <= 1e-6 * (1 + Math.abs(ax[k])));
+      }));
+      ok = ok && same(posAt(sy, [7, 33], 0), [7, 33], 1e-9);
+    });
+    return ok;
+  }, { source: SRC[0] });
+  K.check('(1, 1) is an eigenvector of the masses’ matrix with eigenvalue k/m, and (−1, 1) one with eigenvalue 3k/m', () => {
+    const KB = BMAT.map((r) => r.map((x) => KM * x));
+    return same(mul(KB, [1, 1]), scl([1, 1], KM)) && same(mul(KB, [-1, 1]), scl([-1, 1], 3 * KM)) && near(MASS.lam[0], 1) && near(MASS.lam[1], 3) &&
+      near(MASS.om[0], Math.sqrt(KM)) && near(MASS.om[1], Math.sqrt(3 * KM));
+  }, { source: SRC[1] });
+  K.check('The most general motion of the masses is a sum of the simple swings, the normal modes: from starts all over the drag square, each faint dot alone obeys x″ = −(k/m)Bx, and the dot drawn is always their sum', () => {
+    const KB = BMAT.map((r) => r.map((x) => KM * x)), i = idx('weave');
+    let ok = true;
+    [[-3, -3], [-3, 1.5], [0, 2], [1.3, -0.4], [3, 1], [2.2, 3]].forEach((x0) => {
+      [0, 0.1, 0.37, 1, 2].forEach((t) => {
+        const h = 1e-3, P = (s) => partsAt(MASS, posAt(MASS, x0, s));
+        const p0 = P(t), pm = P(t - h), pp = P(t + h);
+        [0, 1].forEach((k) => {
+          const acc = scl(add(sub(pp[k], scl(p0[k], 2)), pm[k]), 1 / (h * h)), want = scl(mul(KB, p0[k]), -1);
+          ok = ok && acc.every((v, j) => Math.abs(v - want[j]) <= 1e-4 * (1 + Math.abs(want[j])) + 1e-3);
+        });
+      });
+      [0.4, 7.7].forEach((Tn) => {
+        const r = drawnRaw(i, Object.assign(blank(i), { start: x0, mode: 'go' }), Tn);
+        ok = ok && !!r.faint && same(add(r.faint[0], r.faint[1]), r.x, 1e-9) && same(r.x, posAt(MASS, x0, r.t), 1e-9);
+      });
+    });
+    paint();
+    return ok;
+  }, { source: SRC[2] });
+  K.check('Every worked number is right: A = [−0.2 0.05; 0.2 −0.2] from the flows, with the drain at 15 L/min; trace −0.4, determinant 0.03, eigenvalues −0.1 and −0.3; (30, 0) = 15(1, 2) + 15(1, −2); tank 2 fullest at 5 ln 3 ≈ 5.5 min with about 11.5 g, level with tank 1; b ≈ 0.75 after 10 minutes and 15e^(−1) ≈ 5.5; (0.75, 1.49) at 30 minutes with the fast part under 0.01; A(10, 20) = (−1, −2); the closed tanks’ 0 and −0.4, heading for (15, 15) with 30 g in all; B = [2 −1; −1 2], ω = 10 and about 17.3 rad/s; (0, 2) and (3, 1) split as (1, 1) and (2, −1); the together swing never stretches the middle spring and the opposite one stretches it by up to 4 cm', () => {
+    const e = eig2(A_OPEN), xs = posAt(OPEN, START, TSTAR), x30 = posAt(OPEN, START, 30);
+    let ok = DRAIN === 15 && FRESH + BACK === PUMP && PUMP === BACK + DRAIN && sameM(A_OPEN, [[-0.2, 0.05], [0.2, -0.2]]) && near(e.tr, -0.4) && near(e.dt, 0.03) &&
+      near(OPEN.lam[0], -0.1) && near(OPEN.lam[1], -0.3) && same(AM0, [15, 15]) && same(add(scl(OPEN.E[0], 15), scl(OPEN.E[1], 15)), [30, 0]) &&
+      near(TSTAR, 5 * Math.log(3), 1e-9) && num(TSTAR, 1) === '5.5' && num(TSTAR, 2) === '5.49';
+    ok = ok && near(xs[0], xs[1], 1e-9) && num(xs[1], 1) === '11.5' && [TSTAR - 0.5, TSTAR + 0.5].every((t) => posAt(OPEN, START, t)[1] < xs[1]);
+    ok = ok && num(B10, 2) === '0.75' && num(15 * Math.exp(-1), 1) === '5.5' && num(x30[0], 2) === '0.75' && num(x30[1], 2) === '1.49' && 15 * Math.exp(-9) < 0.01 &&
+      same(mul(A_OPEN, ON_LINE), [-1, -2]);
+    ok = ok && sameM(A_SHUT, [[-0.2, 0.2], [0.2, -0.2]]) && near(SHUT.lam[0], 0) && near(SHUT.lam[1], -0.4) && same(SHUTEND, [15, 15]) &&
+      [0, 3, 10, 30].every((t) => { const q = posAt(SHUT, SHUT.start, t); return near(q[0] + q[1], 30, 1e-9); });
+    ok = ok && sameM(BMAT, [[2, -1], [-1, 2]]) && near(MASS.om[0], 10) && num(MASS.om[1], 1) === '17.3' && same(mul(MASS.PI, [0, 2]), [1, 1]) && same(AM12, [2, -1]) &&
+      [0, 0.1, 0.33, 1, 2].every((t) => { const q = posAt(MASS, M9[0], t); return near(q[1] - q[0], 0, 1e-9); }) &&
+      near(Math.max(...K.linspace(0, PER[1], 200).map((t) => { const q = posAt(MASS, M9[1], t); return Math.abs(q[1] - q[0]); })), 4, 1e-3);
+    return ok;
+  });
+  K.check('Each puzzle’s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {
+    const g = (k) => STEPS[idx(k)];
+    let ok = g('rate1').want === rateStr([-PUMP / V, BACK / V]) && O2[1] === rateStr(scl(A_OPEN[0], -1)) && O2[0] === rateStr([A_OPEN[0][0], -A_OPEN[0][1]]);
+    ok = ok && g('online').want === O4[0] && near(cross2(mul(A_OPEN, ON_LINE), ON_LINE), 0) && [0, 1, 5, 12, 30].every((t) => Math.abs(cross2(posAt(OPEN, ON_LINE, t), OPEN.E[0])) < 1e-9) &&
+      len(posAt(OPEN, ON_LINE, 30)) < len(ON_LINE) * 0.06;
+    ok = ok && g('bleft').want === 'About ' + num(B10, 2) && near(mul(OPEN.PI, posAt(OPEN, START, T6))[1], B10, 1e-9) && O6[0] === 'About ' + num(AM0[1] * Math.exp(OPEN.lam[0] * T6), 1) && B10 > 0;
+    const x30 = posAt(OPEN, START, OPEN.tMax), ang = (u) => Math.abs(cross2(unit(x30), unit(u)));
+    ok = ok && g('line30').want === O8[2] && ang(OPEN.E[0]) < 0.01 && ang(OPEN.E[1]) > 0.5 && ang([1, 0]) > 0.5;
+    ok = ok && g('omega').want === O10[0] && near(parseFloat(O10[0].replace('About ', '')), MASS.om[1], 0.05) && O10[1] === num(KM * MASS.lam[1]) + ' rad/s' && O10[2] === num(3 * MASS.om[0]) + ' rad/s';
+    ok = ok && g('split').want === O12[1] && same(comboAt(AM12[0], AM12[1]), S12) && !same(comboAt(S12[0], S12[1]), S12) && same(comboAt(2, 1), [1, 3]);
+    const lim = posAt(SHUT, SHUT.start, 1e4);
+    ok = ok && same(lim, [15, 15], 1e-9) && g('closed').want === O13[2] && O13[2] === pt(lim);
+    return ok;
+  });
+  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () => {
+    const ok = DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (!d.opts.every((o) => (wrongSt(i, o).res === 'right') === (o === d.want))) return false;
+      if (drawnRaw(i, solvedSt(i)).bad !== 0) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawnRaw(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);
+    });
+    paint();
+    return ok;
+  });
+  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () => {
+    const ok = DO.every((i) => {
+      const d = STEPS[i], b = drawnRaw(i, blank(i)), s = drawnRaw(i, solvedSt(i));
+      return b.reveal === 0 && s.reveal > 0 && b.rows.length === 0 && !b.texts.some((x) => x.indexOf(d.secret) >= 0) && s.texts.some((x) => x.indexOf(d.secret) >= 0);
+    });
+    paint();
+    return ok;
+  });
+  K.check('Each demonstration ends where the lesson says: the tanks level at about 11.5 g after about 5.5 minutes; a curved trail from (30, 0) in to the origin; the parts 15e^(−0.5)(1, 2) and 15e^(−1.5)(1, −2) at 5 minutes, adding to the dot; at 30 minutes the dot on the (1, 2) line, with tank 2’s fullest moment marked; one trail on each mode’s line, the second start stretching the middle spring by 4 cm; after 2 s from (0, 2), a trail that weaves inside its box', () => {
+    const r1 = drawnRaw(idx('tanks1'), blank(idx('tanks1'))), r3_ = drawnRaw(idx('plane'), blank(idx('plane'))), r5 = drawnRaw(idx('faint'), blank(idx('faint')));
+    const r7 = drawnRaw(idx('sum'), blank(idx('sum'))), r9 = drawnRaw(idx('modes'), blank(idx('modes'))), r11 = drawnRaw(idx('weave'), blank(idx('weave')));
+    paint();
+    const am5 = [AM0[0] * Math.exp(-0.5), AM0[1] * Math.exp(-1.5)];
+    const curved = r3_.trail.some((q) => Math.abs(cross2(unit(q.map((v) => v + 1e-12)), unit(START))) > 0.1);
+    return near(r1.t, TSTAR, 1e-9) && near(r1.x[0], r1.x[1], 1e-9) && num(r1.x[1], 1) === '11.5' &&
+      r3_.t === 30 && len(r3_.x) < 2 && r3_.trail.length > 10 && curved && !r3_.faint &&
+      r5.t === 5 && !!r5.faint && same(r5.faint[0], scl(OPEN.E[0], am5[0]), 1e-9) && same(r5.faint[1], scl(OPEN.E[1], am5[1]), 1e-9) && same(add(r5.faint[0], r5.faint[1]), r5.x, 1e-9) &&
+      r7.t === 30 && Math.abs(cross2(unit(r7.x), unit(OPEN.E[0]))) < 0.01 && r7.mark &&
+      r9.trails.length === 1 && r9.trail.length > 5 && r9.trails[0].every((q) => Math.abs(cross2(q, MASS.E[0])) < 1e-9) && r9.trail.every((q) => Math.abs(cross2(q, MASS.E[1])) < 1e-9) && near(r9.stretch, 4, 1e-6) &&
+      r11.t === 2 && r11.trail.every((q) => { const c = mul(MASS.PI, q); return Math.abs(c[0]) <= 1 + 1e-9 && Math.abs(c[1]) <= 1 + 1e-9; }) &&
+      r11.trail.some((q) => Math.abs(cross2(q, MASS.E[0])) > 0.5 && Math.abs(cross2(q, MASS.E[1])) > 0.5);
+  });
+  K.check('While each demonstration plays, the rule holds at every moment: the dot is where the rule puts it, each part is on its own line and changes only by its own e^(λt) or cos(ωt), the parts add up to the dot, and no tank holds less than nothing or more than 40 g', () => {
+    let ok = true;
+    STEPS.forEach((d, i) => {
+      if (!d.show) return;
+      const st = blank(i), sys = sysOf(i, st);
+      for (let q = 0; q <= 100; q++) {
+        const F = frameAt(i, st, q * 0.05), r = F.sc.runs[F.k], pr = partsAt(sys, F.x);
+        ok = ok && sameR(add(pr[0], pr[1]), F.x) && pr.every((v, k) => Math.abs(cross2(v, sys.E[k])) < 1e-9 * (1 + len(v)));
+        if (sys.kind === 'tank') ok = ok && F.x.every((v) => v >= -1e-9 && v <= sys.range[0][1] + 1e-9);
+        if (!F.glide) {
+          const c = mul(sys.PI, r.x0), cp = mul(sys.PI, F.x);
+          ok = ok && sameR(F.x, posAt(sys, r.x0, F.t)) && cp.every((v, k) => near(v, c[k] * (sys.kind === 'mass' ? Math.cos(sys.om[k] * F.t) : Math.exp(sys.lam[k] * F.t)), 1e-9));
+        }
+      }
+      if (d.plane) [0.3, 1.2, 2.1, 3.0, 9].forEach((t) => {
+        const r = drawnRaw(i, blank(i), t);
+        if (r.faint) ok = ok && same(add(r.faint[0], r.faint[1]), r.x, 1e-9);
+        ok = ok && same(r.x, frameAt(i, blank(i), t).x, 1e-12);
+      });
+    });
+    paint();
+    return ok;
+  });
+  K.check('Dragging the start: near an eigenvector line it lands exactly on it, so the other part sits at the origin and the dot runs straight along the line; anywhere else it stays inside the drag square', () => {
+    const sOf = (sy) => paneFor(sy, { x: 4, y: 0, w: 332, h: PH }, 1).s;
+    const a = snapStart(OPEN, [12, 24.5], sOf(OPEN)), b = snapStart(MASS, [-1.52, 1.49], sOf(MASS)), c = snapStart(SHUT, [20.3, 19.6], sOf(SHUT));
+    const far = snapStart(OPEN, [-5, 50], sOf(OPEN)), far2 = snapStart(MASS, [5, -0.43], sOf(MASS));
+    let ok = same(a, [12, 24], 1e-12) && cross2(a, OPEN.E[0]) === 0 && same(b, [-1.5, 1.5], 1e-12) && cross2(b, MASS.E[1]) === 0 && same(c, [20, 20], 1e-12) &&
+      same(far, [0, 40], 1e-12) && same(far2, [3, -0.4], 1e-12);
+    ok = ok && near(partsAt(OPEN, a)[1][0], 0, 1e-12) && near(partsAt(MASS, b)[0][0], 0, 1e-12) && near(partsAt(SHUT, c)[1][0], 0, 1e-12);
+    const i = idx('faint');
+    [1, 3, 8].forEach((Tn) => {
+      const r = drawnRaw(i, Object.assign(blank(i), { start: a, mode: 'go' }), Tn);
+      ok = ok && r.trail.every((q) => Math.abs(cross2(q, OPEN.E[0])) < 1e-9) && !!r.faint && len(r.faint[1]) < 1e-9;
+    });
+    paint();
+    return ok;
+  });
+  K.check('After a right answer on the 30-minute puzzle, the view zooms in by itself so the dot and both parts stay in sight as they shrink, and the key names the grid spacing drawn', () => {
+    const i = idx('line30'), st = solvedSt(i);
+    let ok = true, zEnd = 1;
+    for (let q = 0; q <= 25; q++) {
+      const r = drawnRaw(i, st, q * 0.1);
+      ok = ok && inBox(r.x, r.box) && !!r.faint && r.faint.every((p) => inBox(p, r.box)) && r.z >= 1 && /^1 square = [0-9.]+ g$/.test(r.gridTxt);
+      zEnd = r.z;
+    }
+    paint();
+    return ok && zEnd > 5;
+  });
+  K.check('Every demonstration has finished arriving within 5 s, none starting before the 0.35 s screen fade ends; every answer’s motion, right or wrong, within 2.5 s', () => {
+    const timed = (i, st, limit) => { latest = 0; earliest = Infinity; drawnRaw(i, st); return latest <= limit + 1e-9; };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(i), 5); return r && earliest >= FADE - 1e-9; }
+      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

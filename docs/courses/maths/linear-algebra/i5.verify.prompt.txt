@@ -1,0 +1,346 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Linear algebra, from arrows to vibration modes
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i5 "Directions that only stretch: eigenvalues and eigenvectors" — An eigenvector is a direction a matrix only stretches, by a factor called its eigenvalue, found by solving det(A − λI) = 0 and then (A − λI)v = 0. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i6 Diagonalising: the same step, again and again — A matrix with enough eigenvectors is a plain stretch on their grid, P⁻¹AP = D, so n repeated steps are just Aⁿ = PDⁿP⁻¹.
+- i7 Coupled change: two tanks and two masses — Linked rates written as x′ = Ax split along the eigenvectors into separate motions, so two tanks or two masses on springs move as a sum of modes.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Eigenvectors and eigenvalues | 3Blue1Brown — https://www.3blue1brown.com/lessons/eigenvalues
+    "These special vectors are called the "eigenvectors" of the transformation, and each eigenvector has associated with it what's called an "eigenvalue", which is the factor by which it's stretched or squished during the transformation"
+[R2] 22 22 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf
+    "non-trivial solutions for X will exist if det ( A − λI ) = 0"
+[R3] 22 22 — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf
+    "sum of eigenvalues = sum of diagonal terms of A (called the trace of A )"
+[R4] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the "span" of those two vectors"
+[R5] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+[R6] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The technical definition for the "basis" of a space is a set of linearly independent vectors that span that space"
+[R7] Lecture 10: The four fundamental subspaces — https://ocw.mit.edu/courses/18-06sc-linear-algebra-fall-2011/62a9db9eeab190694d40afe4734068ca_MIT18_06SCF11_Ses1.10sum.pdf
+    "all combinations of the columns of A and is a vector space in R m . Nullspace, N ( A ) This consists of all solutions x of the equation A x = 0 and lies in R n"
+[R8] The Four Fundamental Subspaces and Least Squares — https://ocw.mit.edu/courses/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/mitres_18_010_f24_slides01.pdf
+    "The nullspace N ( A ) contains all solution vectors x to the m equations Ax = 0"
+[R9] The Four Fundamental Subspaces and Least Squares — https://ocw.mit.edu/courses/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/mitres_18_010_f24_slides01.pdf
+    "Column Rank = Row Rank = “Dimension” of C ( A ) and C ( A T ) Number of independent columns = r = Number of independent rows = Rank of A"
+[R10] - Sections 7.5, 7.8 & 8.1 — https://math.arizona.edu/~glickenstein/math322s08/M322/linear/Linear_Algebra_5_8_1_Handout_1x2.pdf
+    "If B is not in the column space of A, then the system AX = B has no solution."
+[R11] - Sections 7.5, 7.8 & 8.1 — https://math.arizona.edu/~glickenstein/math322s08/M322/linear/Linear_Algebra_5_8_1_Handout_1x2.pdf
+    "If the null space of A is non-trivial, then the system AX = B has more than one solution."
+[R12] Solvability: Existence & Uniqueness | Learn Math Class — https://www.learnmathclass.com/linear-algebra/linear-systems/solvability
+    "The solution set is infinite — a translated copy of the null space, which has dimension n − rank ( A ) ."
+[R13] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "Together they are called the "basis" of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale"
+Notes (claims, and the sources that support them):
+- An eigenvector is a direction a transformation only stretches or squishes, and its eigenvalue is the factor by which it is stretched. [R1]
+- Non-trivial eigenvectors exist exactly when det(A − λI) = 0. [R2]
+- The eigenvalues of a square matrix add up to the sum of its diagonal entries, the trace, which gives a check on the answer. [R3]
+- The span of a pair of arrows is every arrow reachable by scaling and adding them; most pairs in 2D reach the whole plane, but arrows lying along one line reach only that line. [R4]  (from an idea this one builds on)
+- A third arrow lying in the span of the first two adds no new arrows to the span, so it is not independent of them. [R5]  (from an idea this one builds on)
+- A basis of a space is a set of linearly independent arrows that span that space. [R6]  (from an idea this one builds on)
+- The column space is all combinations of the columns of A, and the null space is all solutions x of Ax = 0. [R7][R8]  (from an idea this one builds on)
+- The rank of A is the number of independent columns, which equals the number of independent rows. [R9]  (from an idea this one builds on)
+- If b is not in the column space of A, Ax = b has no solution; if the null space holds more than the zero arrow, a solution that exists is not alone. [R10][R11]  (from an idea this one builds on)
+- When rank(A) is less than the number of unknowns n and a solution exists, the solutions form a shifted copy of the null space of dimension n minus the rank. [R12]  (from an idea this one builds on)
+- A basis is a set of independent arrows that span the space, and any numbers describing an arrow depend on the basis chosen. [R6][R13]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i5",
+ "title": "Directions that only stretch",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is v's line lighting and λ reading out the moment Av lands on that line, when you sweep the probe arrow v round the origin.",
+  "title": "The stretch finder",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Each one shows the stretch finder. A probe arrow v, one unit long, starts at the origin. Drag its tip round the circle. A second arrow, Av, is drawn from the origin in a heavier line. It is v's first number times column 1, plus its second number times column 2. A ring traces where Av's tip goes as v goes round. Most of the time Av points away from v's line. When Av lies along v's line, that whole line lights. Near a lit line, v snaps onto it. A readout then gives λ, Av's length over v's length. It carries a minus sign when Av points the opposite way. A matrix card shows the matrix. Drag where (1, 0) and (0, 1) land to change it, or tap a preset: stretch [3 1; 0 2], mirror [0 1; 1 0], shear [1 1; 0 1] or quarter turn [0 −1; 1 0]. A λ slider runs from −2 to 6 in halves. It draws the grid of A − λI, which is A with λ taken off each diagonal entry. A readout gives its determinant, the area scale. At an eigenvalue the grid lies flat on one line and the determinant reads 0. The line it crushes is drawn dashed, and it is the lit line. The screens. 1, show: A = [3 1; 0 2]. v starts at (0, 1), and Av = (1, 2) points off its line. v sweeps round. At (1, 0), Av = (3, 0), the line lights and λ reads 3. Along (−1, 1), Av is twice v, and λ reads 2. The finished picture shows v on the line through (−1, 1), lit, with λ = 2. 2, a puzzle: for the same A, which arrow stays on its own line? It offers (−2, 2), (1, 1) and (0, 1). The right answer is (−2, 2), on the line already lit. 3, show: the mirror [0 1; 1 0] swaps an arrow's two numbers. Along (1, 1), Av = v, and λ reads 1. Along (1, −1), Av points the opposite way on the same line, and λ reads −1. The finished picture shows v on the line through (1, −1), lit, with λ = −1. 4, a puzzle: which preset has no lit line at all? It offers the quarter turn, the shear and the mirror. Sweep each to check. The quarter turn is right. The shear lights once, along (1, 0). 5, show: A = [3 1; 0 2] again. Av = λv is written (A − λI)v = 0. The λ slider moves up from 0. The grid of A − λI shrinks, and at λ = 2 it lies flat on one line, with determinant (3 − 2)(2 − 2) = 0. The dashed line is the line through (−1, 1), lit as before. At λ = 3 it goes flat again and crushes the line through (1, 0). The finished picture shows λ = 2, flat. 6, a puzzle: why write (A − λI)v = 0 and not (A − λ)v = 0? It offers: a matrix minus a number means nothing; λI keeps λ a whole number; and I stops v being zero. 7, show: B = [2 −1; −1 2]. Its trace is 4 and its determinant 3, so λ² − 4λ + 3 = 0, which is (λ − 1)(λ − 3) = 0. The grid goes flat at λ = 1 and at λ = 3. The finished picture shows λ = 3, flat, with the line through (1, −1) dashed and lit. 8, a puzzle: [4 1; 2 3] has one eigenvalue 5. What is the other? It offers 2, 7 and −5. The right answer, 2, lights the line through (1, −2). 5 lights the line through (1, 1). 9, show: back to B. For λ = 1, B − I = [1 −1; −1 1]. Both rows say v₁ − v₂ = 0, so v = (1, 1), or any multiple. For λ = 3, B − 3I = [−1 −1; −1 −1]. Both rows say v₁ + v₂ = 0, so v = (1, −1). The finished picture shows both lines lit, (1, 1) labelled 1 and (1, −1) labelled 3. 10, a puzzle: for A = [3 1; 0 2] and λ = 3, someone's working ends at v = (0, 0). What does that tell them? It offers: there is a slip in the working; (0, 0) is the eigenvector; and 3 is not an eigenvalue. The first is right. A − 3I = [0 1; 0 −1] crushes the whole line through (1, 0). 11, show: a 3-D view of C = [1 1 0; 1 2 1; 0 1 1]. Drag the background to turn it. Its equation is −λ³ + 4λ² − 3λ = 0. It has no plain number term, so λ = 0 is a root, and the rest is λ² − 4λ + 3 = 0. Three lines light: (1, −1, 1) with 0, (1, 0, −1) with 1 and (1, 2, 1) with 3. The line for 0 is also dashed, because it is C's null space. The finished picture shows all three lines lit. 12, a mixed puzzle: what are the eigenvalues of [5 2; 2 2]? It offers 1 and 6; 5 and 2; and 3 and 4. 13, a mixed puzzle: [5 2; 2 2] has eigenvalues 1 and 6. Which pairing is right? It offers 6 with (2, 1) and 1 with (1, −2); 6 with (1, −2) and 1 with (2, 1); and 6 with (2, 1) and 1 with (0, 0). The right answer lights both lines with their λ. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines.",
+  "ignores": "The probe snaps onto a lit line when it comes within 3° of it, so you can find each line by hand. The lines themselves can point at any angle. The panel has edges, but each lit line goes on for ever in both directions. The quarter turn's eigenvalues are complex numbers, and so are its eigenvectors. A flat picture cannot draw them. The 3-D screen is a flat drawing too, so turn it to judge depth.",
+  "numbers": [
+   {
+    "label": "Probe arrow v, length",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Snap distance to a lit line, degrees",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "λ slider, lowest",
+    "value": -2,
+    "kind": "assumed"
+   },
+   {
+    "label": "λ slider, highest",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "λ slider, step",
+    "value": 0.5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Matrix A, top row (3, 1), left entry",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Matrix A, bottom row (0, 2), right entry",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 1 output A(0, 1) = (1, 2), second part",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Eigenvalue of A along (1, 0)",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Eigenvalue of A along (−1, 1)",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 answer (−2, 2), second part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "A(−2, 2) = (−4, 4), second part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 slip (1, 1) lands on (4, 2), first part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Mirror [0 1; 1 0], top right entry",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Mirror eigenvalue along (1, −1)",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarter turn, degrees",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Shear [1 1; 0 1], top right entry",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "det(A − 2I) = (3 − 2)(2 − 2)",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Matrix B, off-diagonal entries",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Trace of B, 2 + 2",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of B, 4 − 1",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Eigenvalue of B along (1, 1)",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Eigenvalue of B along (1, −1)",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 matrix [4 1; 2 3], top left entry",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 given eigenvalue",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 trace, 4 + 3",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 other eigenvalue, 7 − 5",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 determinant, 12 − 2",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "Matrix C, middle entry",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Eigenvalues of C, the largest",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Trace of C, 1 + 2 + 1",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 matrix [5 2; 2 2], top left entry",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 trace",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 determinant, 10 − 4",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 eigenvalues, the larger",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 eigenvalues, the smaller",
+    "value": 1,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A matrix usually knocks an arrow off its own line. Along a few directions it only stretches. An arrow along one of them comes out as a number times itself, Av = λv. That arrow is an [[eigenvector]], and the number λ is its [[eigenvalue]], the factor it is stretched by.[^1] You find the numbers first, from det(A − λI) = 0. Then you find each direction, from (A − λI)v = 0.\n\nTake A = [3 1; 0 2]. Remember that Av is v's first number times column 1, plus its second number times column 2. The arrow (0, 1) gives column 2, which is (1, 2). That points somewhere else, so (0, 1) is knocked off its line. The arrow (1, 0) gives column 1, which is (3, 0). That is 3 lots of (1, 0), so λ = 3. The arrow (−1, 1) gives −(3, 0) + (1, 2) = (−2, 2). That is 2 lots of (−1, 1), so λ = 2. Any multiple works too. A(−2, 2) = (−4, 4), still 2 lots. So each eigenvector is really a whole line of them. The zero arrow is left out, because A0 = λ0 for every λ and tells you nothing. A negative λ flips an arrow but keeps it on its line. The mirror [0 1; 1 0] keeps (1, 1) as it is, so λ = 1. It turns (1, −1) into (−1, 1), so λ = −1.\n\nTo find them without hunting, move everything to one side. Av = λv becomes Av − λv = 0. You cannot take a number from a matrix. So write λv as λIv, where I is the matrix that leaves every arrow alone. Then (A − λI)v = 0. So v is a nonzero arrow that A − λI crushes to zero. It lies in the null space of A − λI. A square matrix crushes a nonzero arrow only when it flattens, and a flat result has area scale 0. So the eigenvalues are the values of λ that make det(A − λI) = 0.[^2] Here A − λI = [3 − λ 1; 0 2 − λ]. Its determinant is (3 − λ)(2 − λ), which is 0 at λ = 3 and λ = 2.\n\nFor any 2 by 2 matrix [a b; c d], det(A − λI) = (a − λ)(d − λ) − bc. Multiplied out, that is λ² − (a + d)λ + (ad − bc). The sum of the diagonal, a + d, is the [[trace]]. ad − bc is the determinant. If the two roots are p and q, the same quadratic is (λ − p)(λ − q) = λ² − (p + q)λ + pq. So the eigenvalues add up to the trace.[^3] They multiply to the determinant. Take B = [2 −1; −1 2]. Its trace is 4 and its determinant 3, so λ² − 4λ + 3 = 0, and λ = 1 or 3.\n\nThen put each λ back. For λ = 1, B − I = [1 −1; −1 1]. Both rows say v₁ − v₂ = 0, so v = (1, 1) or any multiple. For λ = 3, B − 3I = [−1 −1; −1 −1], so v₁ + v₂ = 0 and v = (1, −1). In a 2 by 2, a zero determinant means one row is a multiple of the other, so one nonzero row is enough. Check: B(1, −1) = (2 + 1, −1 − 2) = (3, −3), which is 3 lots of (1, −1).\n\nSome matrices have fewer lines. The quarter turn [0 −1; 1 0] turns every arrow through 90°. So Av is always square to v, never on its line. Its equation is λ² + 1 = 0, so λ = ±j. In a 2 by 2, complex roots mean no real line stays put. The shear [1 1; 0 1] gives (1 − λ)² = 0, so λ = 1 twice. But A − I = [0 1; 0 0] crushes only the line through (1, 0), so the shear has one line. A 3 by 3 matrix works the same way, with a cubic in place of the quadratic.\n\n**An eigenvector is a nonzero arrow that a matrix only stretches, Av = λv, and its eigenvalue λ is a root of det(A − λI) = 0.**[^2]"
+ },
+ "analogy": {
+  "text": "A common-mode choke has two equal windings on one core. Each winding has self-inductance L, and each links the other by mutual inductance M. So the pair acts like the matrix [L M; M L] on how fast the two currents change. Count each current positive the way that adds flux. Equal currents, (1, 1), add in the core and see L + M. Line out and neutral back, (1, −1), cancel in the core and see L − M. Those are the choke's two eigenvectors, and L + M and L − M are their eigenvalues. Any other pair of currents splits into those two parts, and each part sees its own inductance.",
+  "breaks": "Real windings are not exactly equal, so the two directions sit a little off (1, 1) and (1, −1). The matrix acts on the rates of change of the currents, through v = L di/dt, not on the currents themselves. And the choke's matrix is symmetric, so its two directions are square to each other. A's are not: (1, 0) and (−1, 1) meet at 135°."
+ },
+ "practice": {
+  "text": "- Write A − λI by taking λ off each diagonal entry.\n- Set its determinant to 0. For a 2 by 2 [a b; c d], that is λ² − (a + d)λ + (ad − bc) = 0.\n- Solve for λ. Check that the roots add up to the trace and multiply to the determinant.\n- For each λ, solve (A − λI)v = 0. In a 2 by 2, one nonzero row is enough, because the other is a multiple of it.\n- Write each eigenvector beside its own λ. Any nonzero multiple of it is just as right.\n- Check by multiplying. Av must come out as λ lots of v.\n\n**Rules of thumb:** when every entry below the diagonal is 0, the eigenvalues are the diagonal entries. A matrix [a b; b a] has (1, 1) with a + b and (1, −1) with a − b. In a 2 by 2, complex roots mean no real line stays put, as with a quarter turn. A root that comes twice may give only one line, as with the shear [1 1; 0 1].\n\n**Worked example:** take C = [1 1 0; 1 2 1; 0 1 1]. Expand det(C − λI) along the top row. You get (1 − λ)[(2 − λ)(1 − λ) − 1] − 1 × (1 − λ). That is (1 − λ)[(2 − λ)(1 − λ) − 2] = (1 − λ)(λ² − 3λ) = λ(1 − λ)(λ − 3). So λ = 0, 1 or 3. They add to 4, and the diagonal 1 + 2 + 1 = 4 too. For λ = 0, the rows say v₁ + v₂ = 0 and v₂ + v₃ = 0, so v = (1, −1, 1). That line is C's null space. For λ = 1, C − I = [0 1 0; 1 1 1; 0 1 0], so v₂ = 0 and v₁ + v₃ = 0, giving (1, 0, −1). For λ = 3, the top row of C − 3I says −2v₁ + v₂ = 0 and the bottom row says v₂ − 2v₃ = 0, giving (1, 2, 1). Check: C(1, 2, 1) = (3, 6, 3), which is 3 lots of (1, 2, 1).\n\n**Common mistakes**\n- Writing A − λ for A − λI. You can only take a matrix from a matrix.\n- Reading the eigenvalues off the diagonal of a 2 by 2 with entries both above and below it. [5 2; 2 2] has eigenvalues 1 and 6, not 5 and 2.\n- Giving v = 0. Every matrix crushes the zero arrow, so it never counts as an eigenvector. Getting it means a slip, often in λ.\n- Thinking an eigenvector is one arrow. (1, 1) and (2, 2) are both eigenvectors, on one line.\n- Swapping the pairs. Each eigenvector goes with the λ you put in to find it.\n- Working out a second eigenvalue from scratch when you know one. In a 2 by 2, the trace minus the one you know gives the other."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Eigenvectors and eigenvalues | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/eigenvalues",
+   "quote": "These special vectors are called the \"eigenvectors\" of the transformation, and each eigenvector has associated with it what's called an \"eigenvalue\", which is the factor by which it's stretched or squished during the transformation"
+  },
+  {
+   "n": 2,
+   "title": "22 22",
+   "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf",
+   "quote": "non-trivial solutions for X will exist if det ( A − λI ) = 0"
+  },
+  {
+   "n": 3,
+   "title": "22 22",
+   "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf",
+   "quote": "sum of eigenvalues = sum of diagonal terms of A (called the trace of A )"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

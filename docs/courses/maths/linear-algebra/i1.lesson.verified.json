@@ -1,0 +1,276 @@
+{
+  "iid": "i1",
+  "title": "Which points two arrows reach: span and independence",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the slanted grid's cells thinning to area 0 and the painted reach collapsing from the whole plane onto one line when you drag arrow v onto arrow u's line.",
+    "title": "The reach of two arrows",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. It shows two arrows, u and v, drawn from the origin of a squared grid. Their own slanted grid runs through the plane in faint lines. There is one line for every whole amount of u and of v. Two sliders set the amounts a and b. Each runs from −3 to 3 in halves. The mix a u + b v is drawn nose to tail, the way you add arrows. A dot marks its tip. A caption under the flat screens says whole amounts land on the corners of the slanted grid. Each cell of that grid is a parallelogram with u and v as its sides. A readout gives its area. That area is the determinant from Matrices. For u = (p, q) and v = (r, s) it is p s − q r. A Paint button shades every point a mix reaches with amounts from −5 to 5. For the opening arrows that covers the view. Arrows dragged nearly into line paint a narrower patch. On screens 3 and 5, drag either arrow's tip to a whole point. The grid, the area and the paint follow it. When the area reads 0, a readout shows a mix that is not all zeros landing on the zero arrow. With v at k lots of u it reads −k u + v = (0, 0). So v at the origin gives 0u + 1v = (0, 0). With u at the origin it reads 1u + 0v = (0, 0). Screens 9, 10 and 12 add a third part, in a 3-D view. Then u = (1, 0, −1) and v = (0, 2, −1) span a flat sheet through the origin, shown shaded. A slider h from 0 to 2 sets a third arrow w = (1, 2, −2 + h). The box with u, v and w as its edges is drawn with its volume. That volume is the 3 by 3 determinant, which works out at 2h. Drag the background to turn the view. The screens. 1, show: u = (2, 1) and v = (1, 3) with a = 2 and b = 1. The mix lands on (5, 5). Its finished picture shows the chain and the dot at (5, 5). 2, a puzzle: which amounts reach (−1, 2)? It offers a = −1, b = 1; a = 1, b = −1; and a = −1, b = 2. 3, show: Paint is pressed. The plane is shaded, and the cell area is 5. 4, a puzzle: what is the span of u and v? It offers every point in the plane, only the points on the two arrows, and only the parallelogram between them. 5, show: v is dragged round to (−4, −2), on u's line. The cells thin and the area falls to 0. The paint lies on one line, and the mix line turns to 2u + 1v = (0, 0). Its finished picture shows v at (−4, −2) and the paint on the line. 6, a puzzle: which point can a mix of (2, 1) and (−4, −2) reach? It offers (6, 3), (3, 6) and (1, 3). 7, show: the two pairs side by side. u and v have area 5, and only 0u + 0v gives zero. u and (−4, −2) have area 0, and 2u + (−4, −2) gives zero, so (−4, −2) = −2u. 8, a puzzle: which pair is independent? Its grid and key appear once a pair is picked. It offers (3, 6) and (1, 2); (1, 2) and (2, 1); and (2, −1) and (−6, 3). 9, show: the view turns 3-D. h goes from 1 down to 0. w sinks into the sheet, and the box flattens to volume 0. Its finished picture shows w = (1, 2, −2) in the sheet and volume 0. Its words teach the hand test: arrows as columns, solve a u + b v + c w = 0, and a free letter means dependent. 10, a puzzle: elimination of a u + b v + c w = 0 for these three has ended in the staircase rows 1 0 1 | 0, 0 2 2 | 0 and 0 0 0 | 0. What does it say about the arrows? One offer is dependent, as c is free, so a mix that is not all zeros gives zero. Another is independent, as the bottom row is all zeros. The last is independent, as a = b = c = 0 is an answer. 11, show: a basis. First i and j, then u = (2, 1) and v = (1, 3). Each pair is independent and spans the plane. The paint starts wider while i and j show. The words add the three-phase phasors, L1 + L2 + L3 = 0. 12, a mixed puzzle: take the arrows (1, 0, 0), (1, 1, 0) and (1, 1, 1). Their a u + b v + c w = 0 is already the staircase 1 1 1 | 0, 0 1 1 | 0 and 0 0 1 | 0. What does it say? One offer is independent, as only a = b = c = 0 works. Another is independent, as the system is inconsistent. The last is dependent, as c can be any number. 13, a mixed puzzle: which set is a basis for the plane? It offers (3, 1) and (1, 1); (2, 1) and (−4, −2); and (2, 1), (1, 3) and (1, 0). Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone.",
+    "ignores": "The paint stops at amounts of 5 either way, and the view stops at its edge. The span itself goes on for ever. The paint is drawn as a solid shade. Really it stands for points, the tips of the mixes. The faint grid lines sit at whole amounts only. Amounts in between reach every point between them. The pictures stop at three parts, because more cannot be drawn. Span and independence work the same way for arrows with any number of parts.",
+    "numbers": [
+      {
+        "label": "Arrow u, across part, 2-D screens",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arrow u, up part, 2-D screens",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arrow v, across part, 2-D screens",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arrow v, up part, 2-D screens",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sliders a and b, lowest amount",
+        "value": -3,
+        "kind": "control"
+      },
+      {
+        "label": "Sliders a and b, highest amount",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Slider step for a and b",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Opening amount a, screen 1",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Opening amount b, screen 1",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Mix 2u + v, each part",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Paint's largest amount either way",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cell area of u and v, 2 × 3 − 1 × 1",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 target, across part",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 target, up part",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 answer, amount a",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 answer, amount b",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 wrong pick a = 1, b = −1 lands on (1, −2)",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 wrong pick a = −1, b = 2 lands on (0, 5)",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Arrow v dragged onto u's line, across part",
+        "value": -4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Arrow v dragged onto u's line, up part",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cell area of (2, 1) and (−4, −2)",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Amount of u in the mix giving zero",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 right point (6, 3), as 3 lots of u",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 wrong point (3, 6), up part",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 pair (3, 6) and (1, 2), determinant",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 pair (2, −1) and (−6, 3), determinant",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 pair (1, 2) and (2, 1), determinant",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "3-D arrow u = (1, 0, −1), last part",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "3-D arrow v = (0, 2, −1), middle part",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider h, lowest",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Slider h, highest",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Slider h, opening value",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Box volume at h = 1, which is 2h",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Box volume at h = 0, w = u + v",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Third arrow at h = 0, last part, −2",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 mix giving zero: a, b, c",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 box volume of the three arrows",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 pair (3, 1) and (1, 1), determinant",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 (1, 0) as 0.6u − 0.2v, amount of u",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 (1, 0) as 0.6u − 0.2v, amount of v",
+        "value": -0.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example third arrow (2, 5, 1), middle part",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example, amount of the first arrow in the zero mix",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Angle between phase phasors of a three-phase supply, degrees",
+        "value": 120,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Lay some arrows nose to tail, so many of each, and see where you can land. That is a mix of the arrows. Every point a mix can reach is the arrows' [[span]].[^1] The span is a set of points, the tips of all those mixes. It is not the arrows themselves. Arrows are [[linearly independent]] when each one adds a direction the others cannot reach.\n\nTake u = (2, 1) and v = (1, 3). Two lots of u and one of v land on (5, 5). A negative amount turns an arrow round. So −1 lot of u is (−2, −1). One v on the end then lands on (−1, 2). Whole amounts land on the corners of a slanted grid. Each cell of that grid is a parallelogram with u and v as its sides. Its area is the determinant, 2 × 3 − 1 × 1 = 5. Cells with real area tile the whole plane with no gaps. Amounts in between reach the points inside each cell. So every point in the plane is some mix of u and v. Their span is the whole plane.\n\nNow swing v round onto u's line, to (−4, −2). That arrow is −2 lots of u. So any mix of the two is just some amount of u. It lands on the line through (2, 1). The cells thin to nothing. The determinant is 2 × (−2) − 1 × (−4) = 0. The reach collapses to a line, because the second arrow added no new direction. The two arrows are dependent, the opposite of independent. A mix shows it too. 2u plus (−4, −2) is the zero arrow. That gives a test, and it works both ways. Say one arrow is a mix of the others. Move it across, and you get a mix that is not all zeros landing on zero. Now go the other way. 2u + (−4, −2) = 0 says (−4, −2) = −2u. Any such mix lets you write one arrow from the others. Pick an arrow whose amount is not 0, and divide by that amount. For u and v, only 0u + 0v lands on zero.\n\nSpace works the same way, with one more arrow. u = (1, 0, −1) and v = (0, 2, −1) span a flat sheet through the origin. Add a third arrow off the sheet, such as (1, 2, −1). The three make a box of volume 2, and they reach all of space. Lower it into the sheet, to w = (1, 2, −2). That is u + v, and the box flattens to volume 0. A third arrow lying in the sheet adds no new points. The span stays that sheet.[^2] To test by hand, solve a u + b v + c w = 0 by elimination. a = b = c = 0 always works. So this system can never be inconsistent. The question is whether anything else works. Here c is free. a = 1, b = 1, c = −1 lands on zero, so the three are dependent.\n\nA set of independent arrows that spans a space is a [[basis]] for it.[^3] i and j are one basis for the plane. u = (2, 1) and v = (1, 3) are another. Any third arrow in the plane is a mix of two independent ones. So three arrows in a plane are always dependent. This matters later, for two masses joined by springs. Each of their simple swings becomes one arrow of a basis. Any motion of the pair is then a mix of those swings.\n\n**The span is every point the mixes reach. Arrows are independent when none is a mix of the others. Then their cells or boxes have real area or volume. A dependent set crushes them to 0.**"
+  },
+  "analogy": {
+    "text": "Think of the phasors of a balanced three-phase supply. Two of them, L1 and L2, sit 120° apart. Mix them in any amounts and you reach every phasor in the plane. So they span it. L3 adds nothing new. L1 + L2 + L3 is zero. That is a mix that is not all zeros landing on zero, so the three are dependent.",
+    "breaks": "Here the amounts are plain numbers. Phasors are also complex numbers. Multiplying by a complex amount turns as well as stretches. So with complex amounts, one phasor alone could reach the whole plane. Phasors also turn with time. These arrows stand still."
+  },
+  "practice": {
+    "text": "- Two arrows in the plane: work out the determinant. For (p, q) and (r, s) it is p s − q r. Not 0 means independent, and they span the plane. 0 means they lie on one line.\n- Three arrows in space: work out the 3 by 3 determinant. Not 0 means independent, and they span all of space. 0 means they lie in one flat sheet through the origin, or less.\n- Or use elimination. Put the arrows in as columns, with zeros on the right. Run it to a staircase. A free letter means dependent. No free letter means only all zeros works, so they are independent.\n- To find the mix that lands on zero, set the free letter to 1 or −1. Then work back up.\n\n**Rule of thumb:** More arrows than each arrow has parts means they are dependent. Three arrows in a plane always are. A set holding the zero arrow is dependent too.\n\n**Worked example:** Are (1, 2, 0), (0, 1, 1) and (2, 5, 1) independent? No two are multiples of each other, so look harder. As columns they give the rows 1 0 2, 2 1 5 and 0 1 1. Take 2 lots of row 1 from row 2. That gives 0 1 1. Take that from row 3, giving 0 0 0. So c is free. Set c = −1. Row 2 says b + c = 0, so b = 1. Row 1 says a + 2c = 0, so a = 2. Check: 2 lots of (1, 2, 0) plus (0, 1, 1) is (2, 5, 1), the third arrow. So the three are dependent. They span only a flat sheet.\n\n**Common mistakes**\n- Misreading the working, as in \"inconsistent, so independent\". The zeros on the right mean a = b = c = 0 always works. Ask whether anything else does.\n- Taking the span to be the arrows themselves, or the parallelogram between them. The span is every point any mix reaches. The amounts can be any size, negative too.\n- Checking only whether two of three arrows line up. In the worked example no two do. Yet the third is a mix of the other two.\n- Reading a determinant of 0 as \"no reach\". The arrows still reach a line or a sheet. They just do not reach everything."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+      "url": "https://www.3blue1brown.com/lessons/span",
+      "quote": "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the \"span\" of those two vectors"
+    },
+    {
+      "n": 2,
+      "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+      "url": "https://www.3blue1brown.com/lessons/span",
+      "quote": "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+    },
+    {
+      "n": 3,
+      "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+      "url": "https://www.3blue1brown.com/lessons/span",
+      "quote": "The technical definition for the \"basis\" of a space is a set of linearly independent vectors that span that space"
+    }
+  ]
+}

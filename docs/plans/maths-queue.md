@@ -14,7 +14,7 @@ Order (one course at a time, each published when it passes; about 6 to 8M tokens
 1. Vectors (live 25 Oct, about 8.2M tokens)
 2. Differential equations (live 25 Oct, about 9.2M tokens; the most useful foundation after Vectors: anything that changes over time)
 3. Matrices (live 25 Oct, about 8.5M tokens)
-4. Linear algebra (building, started 25 Oct)
+4. Linear algebra (live 26 Oct, about 8.9M tokens)
 4a. Statistics for engineers: measurements, trends and reliability (next, after Linear algebra; 5 lessons; maths shelf,
     first in the data folder; instead of the 7-course data folder, which stays unbuilt)
     Its data pictures come from a design contest first (Dan, 25 Oct: "Make sure on the data section an agent comes up

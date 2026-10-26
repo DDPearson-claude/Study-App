@@ -1,0 +1,545 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T02:05:17.410Z",
+ "startedAt": "2026-10-26T02:05:17.410Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Lines and planes in space",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is n · (r − p) reading 0 while the test point's step from p lies in the tile, and turning plus on n's side and minus on the other, when you drag the test point.",
+   "title": "Point, direction, normal",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in fourteen small screens. Each one is a 3-D view with x, y and z axes. Drag the background to turn the view. A line is drawn as a start point p and a direction arrow v. A slider t runs a dot to p + t v. It goes from −2 to 3 in quarters. Marks show t = 0 at the start and t = 1 one arrow along. Each unit of t adds one more v, so the dot moves in a straight line. A plane is drawn as a square tile through its start point p. Its normal n stands up from p. Drag the normal's tip and the tile tilts to stay square to it. A test point r can be dragged too. A thin arrow shows its step from p, r − p. A readout gives n · (r − p), the dot product from Vectors. It reads 0 when the step lies in the tile, because arrows square to each other have a dot product of 0. It reads above 0 on the side n points to. It reads below 0 on the other side. Span mode paints the same plane as p + s u + t w. Its sliders s and t run from −2 to 2 in halves. It draws u × w standing up from p. Meet mode draws a line through a plane. Its t slider runs the dot until it touches the tile. The screens. 1, show: the line (0, 1, 0) + t(1, 2, 0). t runs the dot along it. The finished picture shows t = 2, with the dot at (2, 5, 0). 2, a puzzle: where is the dot at t = 3? It offers (3, 7, 0), (3, 6, 0) and (1, 5, 0). 3, show: the line through A = (1, 0, 2) and B = (3, 4, 0). Its direction is B − A = (2, 4, −2). The finished picture shows t = ½, with the dot at the midpoint, (2, 2, 1). 4, a puzzle: a line runs through A = (2, 1, 1) and B = (5, 3, 1). Which arrow is a direction for it? It offers (3, 2, 0), (7, 4, 2) and (5, 3, 1). 5, show: the plane through p = (1, 1, 3) with normal n = (2, 1, 2). The test point sits at (2, 1, 2). Its step from p is (1, 0, −1). That step lies in the tile, so the readout is 0. The words ask you to drag the test point off the tile. Off the tile, the readout changes. Above the tile, on n's side, it turns positive. Below the tile, it turns negative. The finished picture shows the test point back at (2, 1, 2), reading 0. 6, a puzzle: which point lies on that plane? It offers (1, 3, 2), (3, 2, 5) and the origin, (0, 0, 0). 7, show: working lines appear one at a time. r − p = (x − 1, y − 1, z − 3) is dotted with n. 2(x − 1) + 1(y − 1) + 2(z − 3) = 0 becomes 2x + y + 2z = 9. Then the test point moves to the origin and reads −9. A dashed line runs along the normal from the origin to the tile at (2, 1, 2). It is 3 long, as 9 ÷ 3 = 3 and |n| = 3. 8, a puzzle: a plane passes through (1, 2, 0) with normal (3, −1, 2). Which is its equation? It offers 3x − y + 2z = 1, 3x − y + 2z = 0 and x + 2y = 1. 9, show: span mode. u = (1, 0, −1) and w = (0, 2, −1) start from p = (1, 1, 3). Sliders s and t move a dot to p + s u + t w. Paint shades every point the dot reaches. The paint fills the same tile. u × w = (2, 1, 2) stands up from p. The finished picture shows the paint on. 10, a puzzle: a plane holds the directions (1, 1, 0) and (0, 1, 1). Which arrow is a normal to it? It offers (1, −1, 1), (1, 2, 1) and (0, 1, 0). 11, show: meet mode. The line (0, 1, 0) + t(1, 2, 0) runs towards the plane 2x + y + 2z = 9. At t = 0 the readout is −8. Each unit of t adds n · v = 4. At t = 2 it reads 0, and the dot touches the tile at (2, 5, 0). The finished picture shows t = 2. 12, a mixed puzzle: where does the line (1, 0, 0) + t(0, 1, 1) meet the plane x + y + z = 5? It offers (1, 2, 2), (1, 2.5, 2.5) and (0, 2, 2). 13, a mixed puzzle: a line runs along (2, 1, 2). How does it meet the plane 2x + y + 2z = 9? It offers straight through, square on; alongside, never meeting it; and lying in the plane. 14, a mixed puzzle: the planes x + y + z = 5 and x − y = 0 meet in a line. Which way does it run? It offers (2, 0, 1), (1, 1, −2) and (1, 1, 1). The right answer draws the line through (1, 1, 3), on both tiles. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines.",
+   "ignores": "The tile and the line are drawn with ends. A real plane and line go on for ever. The view is a flat drawing of 3-D, so turn it to judge depth. Two points can look level when they are not. The readout n · (r − p) becomes a distance only once you divide by |n|. The named points here have whole or half parts, so you can read them off the axes. Points in between work the same way. Two lines in space can also miss each other without being parallel. These screens do not show that.",
+   "numbers": [
+    {
+     "label": "Line start (0, 1, 0), up part",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Line direction (1, 2, 0), up part",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider t, lowest",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider t, highest",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slider t, step",
+     "value": 0.25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 1, t = 2 puts the dot at (2, 5, 0), up part",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2, t asked for",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 answer (3, 7, 0), up part",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 slip t v alone, (3, 6, 0), up part",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 slip 3p + v, (1, 5, 0), up part",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3, point B = (3, 4, 0), up part",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3, B − A = (2, 4, −2), z part",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 3, midpoint at t = ½",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 3 midpoint (2, 2, 1), z part",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4, point B = (5, 3, 1), across part",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 4 answer B − A = (3, 2, 0), across part",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 slip A + B = (7, 4, 2), across part",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Plane start p = (1, 1, 3), z part",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Normal n = (2, 1, 2), x part",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Test point (2, 1, 2): step (1, 0, −1), readout",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Point p + n = (3, 2, 5), readout n · n",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "The origin's readout, −n · p",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "Plane equation constant, n · p = 2 + 1 + 6",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Size of n, √(4 + 1 + 4)",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Origin's distance to the plane, 9 ÷ 3",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 6 answer (1, 3, 2), 2 + 3 + 4",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 normal (3, −1, 2), y part",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 8 constant, 3 − 2 + 0",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 8 slip constant, as if through the origin",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Span arrow u = (1, 0, −1), z part",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Span arrow w = (0, 2, −1), y part",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sliders s and t in span mode, lowest",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sliders s and t in span mode, highest",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "u × w = (2, 1, 2), y part",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 normal (1, −1, 1), y part",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 10 slip, the sum (1, 2, 1), y part",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 readout at t = 0",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 readout gain per unit of t, n · v",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 11 meeting value of t",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 plane constant",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 answer (1, 2, 2), t",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 12 slip with the start left out, t",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13, n · (2, 1, 2), not 0",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Two planes' line direction (2, 2, −3), z part",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example normal (6, 3, 2), x part",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example, size of n, √(36 + 9 + 4)",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example, origin's distance, 6 ÷ 7",
+     "value": 0.86,
+     "kind": "computed"
+    },
+    {
+     "label": "Planes' normals dotted with (2, 2, −3)",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 second plane's normal (1, −1, 0), y part",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 14 answer (1, 1, −2), the cross of the normals, z part",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 slip, the normals' sum (2, 0, 1), x part",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 14 point on both planes (1, 1, 3), z part",
+     "value": 3,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A line in space is a start point plus any amount of one direction.[^1] A plane is a start point plus one arrow that stands square to it. Square means at right angles to every line in the plane. That arrow is the plane's [[normal]].[^2] The plane is every point whose step from the start is square to the normal. That one fact gives its equation: ax + by + cz = d.\n\nWrite the start as p and the direction as v. A point on the line is r = p + t v, where t is any number. At t = 0 you are at the start. Each extra unit of t adds one more v. So the dot moves in a straight line at a steady pace. Take p = (0, 1, 0) and v = (1, 2, 0). At t = 2 the dot is at (0, 1, 0) + (2, 4, 0) = (2, 5, 0).\n\nThe two parts do different jobs. p is a place: an arrow from the origin. v has no place of its own. It only says which way. Swap them and you get another line. (1, 2, 0) + t(0, 1, 0) runs parallel to the y-axis. It never reaches (0, 1, 0).\n\nFor the line through two points A and B, the direction is the step between them: B − A. B − A is the whole step from A to B. So for t from 0 to 1, A + t(B − A) is a fraction t of the way along. t = ½ gives the midpoint.\n\nA plane needs a different kind of arrow. Take the start p = (1, 1, 3) and the normal n = (2, 1, 2). From p, any point r on the plane is reached by a step r − p that lies flat in the plane. A step flat in the plane is square to n. Arrows square to each other have a dot product of 0. So n · (r − p) = 0 for every point on the plane.\n\nOff the plane, the step has a part along n. So the dot product is not 0, and its sign says which side. It is positive when the step leans the way n points. It is negative when the step leans away.\n\nA plane's equation has the normal's parts in front of x, y and z. Write r = (x, y, z). Then r − p = (x − 1, y − 1, z − 3). Dot that with n = (2, 1, 2) and set it to 0. 2(x − 1) + 1(y − 1) + 2(z − 3) = 0 becomes 2x + y + 2z = 9. The 9 is n · p. Check a point. (2, 1, 2) gives 4 + 1 + 4 = 9, so it is on the plane. The point (3, 2, 5) is not. It is p + n, a whole step along the normal, and it reads 9.\n\nThe dot product is |n| times the part of the step along n. Sliding within the plane leaves the reading unchanged. So the straight route to the plane runs along n, and that part is the distance. Here |n| = √(4 + 1 + 4) = 3. The origin reads −9. So the origin is 9 ÷ 3 = 3 from the plane, on the side away from n.\n\nThe same plane can come from two directions that lie in it. Remember span? Take two arrows u and w that do not line up. All the mixes s u + t w fill a plane through the origin. Add p, and that plane slides to the start: r = p + s u + t w. Its normal must be square to both u and w. The cross product u × w is square to both, so it is a normal. u = (1, 0, −1) and w = (0, 2, −1) give (2, 1, 2), the same normal as before.\n\nTo find where a line meets a plane, write the line's point in terms of t. For (0, 1, 0) + t(1, 2, 0) it is (t, 1 + 2t, 0). Put it into the equation and solve for t. 2t + (1 + 2t) + 0 = 9. So 4t = 8 and t = 2. They meet at (2, 5, 0). Each unit of t changes the reading n · (r − p) by n · v, here 4. If n · v is 0, the line runs parallel to the plane. Then it either misses the plane or lies in it.\n\nTwo planes that are not parallel meet in a line. That line's direction lies in both planes. So it is square to both normals. Take 2x + y + 2z = 9 and x − y = 0. Their normals are (2, 1, 2) and (1, −1, 0). The cross product of the normals is (2, 2, −3). Check it. It dots with (2, 1, 2) to 4 + 2 − 6 = 0. It dots with (1, −1, 0) to 2 − 2 + 0 = 0. (1, 1, 3) is on both planes. So they meet along (1, 1, 3) + t(2, 2, −3).\n\n**A line is r = p + t v: a start plus any amount of one direction. A plane is n · (r − p) = 0: every point whose step from the start is square to the normal. It multiplies out to ax + by + cz = d, with n = (a, b, c).**"
+  },
+  "analogy": {
+   "text": "A rotating laser level spins its beam round an upright axis through its head. The head is the start point. Each spot the beam marks on the walls is a step from the head. Each of those steps is square to the axis. So the marks all lie in one plane, and the axis is its normal. Tilt the axis, and the marked plane tilts with it.",
+   "breaks": "The beam marks only where it lands, and it makes a band with some width. A plane has no thickness and goes on for ever. The beam alone cannot tell you which side a point is on, or how far away it is. A receiver on a staff can. Its arrows show whether it sits above or below the beam. That is the sign of n · (r − p). Many receivers also read how far off the beam they sit.[^3]"
+  },
+  "practice": {
+   "text": "- A line: pick a start point p and a direction v. Write r = p + t v. Through two points A and B, use v = B − A.\n- A plane from a point and a normal: n · (r − p) = 0. Multiply it out to ax + by + cz = d. Here (a, b, c) = n and d = n · p.\n- A plane from two directions u and w that do not line up: its normal is u × w. For three points not on one line, take the steps from one point to the other two. Use them as u and w.\n- Where a line meets a plane: write the line's x, y and z in terms of t. Put them into the plane's equation and solve for t. Put t back into the line to get the point.\n- Check every answer by putting the point back in. A point on the plane makes ax + by + cz come out at exactly d.\n\n**Rule of thumb:** a line's direction runs along it. A plane's normal stands square to it. Suppose a line's direction dotted with the normal gives 0. Then the line never crosses the plane. It runs alongside it or lies in it.\n\n**Worked example:** Find the plane through (1, 0, 0), (0, 2, 0) and (0, 0, 3). The steps from the first point are u = (−1, 2, 0) and w = (−1, 0, 3). Their cross product is n = (6 − 0, 0 + 3, 0 + 2) = (6, 3, 2). Then d = n · (1, 0, 0) = 6. So the plane is 6x + 3y + 2z = 6. Check: (0, 2, 0) gives 6, and (0, 0, 3) gives 6. |n| = √(36 + 9 + 4) = 7. So the origin is 6 ÷ 7 from the plane, about 0.86.\n\n**Common mistakes**\n- Swapping the start and the direction. (1, 2, 0) + t(0, 1, 0) is a different line from (0, 1, 0) + t(1, 2, 0).\n- Using a point as a direction. The line through A and B runs along B − A, not along B.\n- Using a line's direction where a normal is needed. A normal is square to every direction in the plane.\n- Leaving out the d. A plane through (1, 2, 0) with normal (3, −1, 2) is 3x − y + 2z = 1, not 3x − y + 2z = 0. Only a plane through the origin has d = 0.\n- Leaving out the start when a line meets a plane. The whole point p + t v goes into the equation."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Lines and Planes",
+    "url": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf",
+    "quote": "The key idea related to equations of lines is you always need to have a vector, say x 0 , from the origin to a point of the line and a vector, say v , parallel to the line"
+   },
+   {
+    "n": 2,
+    "title": "Lines and Planes",
+    "url": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf",
+    "quote": "Every plane has a vector orthogonal (perpendicular) to it, called a normal vector and usually denoted by the letter n"
+   },
+   {
+    "n": 3,
+    "title": "Spectra HL700 Laser Receiver - Advanced Elevation Readout",
+    "url": "https://www.spectraprecision.com/hl700",
+    "quote": "The readout is displayed on the large front and rear LCD’s and shows exactly how far the elevation is from on-grade."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }\n  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  /* Readouts under the picture: tiles that wrap, two to a row on a phone. */\n  .reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; max-width: 26rem; margin-inline: auto; }\n  .rd { background: var(--k-sunk); border-radius: var(--k-r); padding: 6px 10px; min-width: 0; }\n  .rd .rl { display: block; font-size: .85rem; color: var(--k-accent); }\n  .rd .rv { display: block; font-size: 1.05rem; font-weight: 700; white-space: nowrap; color: var(--k-ink); }\n  .sliders > * + * { margin-top: 10px; }\n  /* The 3-D view: a floor grid, the axes, a tile for a plane, arrows and points. */\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .axis { stroke: var(--k-muted); stroke-width: 1.4; }\n  .scene .ztick { stroke: var(--k-muted); stroke-width: 1.2; }\n  .scene .tick { stroke: var(--k-ink); stroke-width: 1.4; }\n  .scene .ln { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }\n  .scene .tile { fill: var(--k-fill1); fill-opacity: .6; stroke: var(--k-accent2); stroke-opacity: .55; stroke-width: 1.5; stroke-linejoin: round; }\n  .scene .badtile { fill: none; stroke: var(--k-warn); stroke-width: 1.8; stroke-dasharray: 6 4; stroke-linejoin: round; }\n  .scene .paint { opacity: .6; }\n  .scene .paint polygon { fill: var(--k-fill3); }\n  .scene .arr .sh { fill: none; stroke-width: 2.6; stroke-linecap: round; }\n  .scene .c1 .sh { stroke: var(--k-cat1); }\n  .scene .c1 .hd { fill: var(--k-cat1); }\n  .scene .c2 .sh { stroke: var(--k-cat2); }\n  .scene .c2 .hd { fill: var(--k-cat2); }\n  .scene .c3 .sh { stroke: var(--k-cat3); }\n  .scene .c3 .hd { fill: var(--k-cat3); }\n  .scene .nrm .sh { stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .nrm .hd { fill: var(--k-accent2); }\n  .scene .stp .sh { stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .stp .hd { fill: var(--k-ink); }\n  .scene .bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; }\n  .scene .bad .hd { fill: var(--k-warn); }\n  .scene .dist { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 5 4; }\n  .scene .badln { stroke: var(--k-warn); stroke-width: 2.2; stroke-dasharray: 6 4; }\n  .scene .ra { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .pt { fill: var(--k-ink); }\n  .scene .foot { fill: var(--k-ink); }\n  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .rpt { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .okpt { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; }\n  .scene .badpt { fill: none; stroke: var(--k-warn); stroke-width: 2.6; }\n  /* Words. */\n  .scene .nm { font: italic 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .axl { font: italic 600 14px var(--k-font); fill: var(--k-muted); }\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ok { font: 700 14px var(--k-font); fill: var(--k-accent2); }\n  .scene .bad { font: 700 14px var(--k-font); fill: var(--k-warn); }\n  .scene .rw { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .rw.ok { fill: var(--k-accent2); }\n  .scene .rw.bad { fill: var(--k-warn); }\n  .scene .rw.sm2 { font-size: 13px; }\n  .scene .rw.sm3 { font-size: 12px; }\n  .scene tspan.v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .bg { fill: var(--k-bg); fill-opacity: 0; cursor: grab; touch-action: pan-y; }\n  .scene .bg:focus { outline: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .55; stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .pill { fill: var(--k-bg); }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1.05rem; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Lines and planes in a 3-D view with x, y and z axes, each built from a start point and one arrow.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 280\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"reads\" id=\"reads\"></div>\n    <p class=\"act\" id=\"act\"></p>\n    <div class=\"sliders\" id=\"ctl\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every number on the picture is worked from the start points, directions and normals it shows.</p>\n\n<script>\n  // ---------- numbers and words (pure, so the checks can test them) ----------\n  const MINUS = '−', NB = ' ';\n  function num(v, dp) { const f = Math.pow(10, dp == null ? 2 : dp); let r = Math.round(v * f) / f; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }\n  // Whole numbers and short decimals as they are; thirds and the like as fractions, exactly.\n  function fr(v) {\n    if (Math.abs(v * 100 - Math.round(v * 100)) < 1e-7) return num(v, 2);\n    for (let q = 3; q <= 12; q++) { const p = v * q; if (Math.abs(p - Math.round(p)) < 1e-7) { const n = Math.round(p); return (n < 0 ? MINUS : '') + Math.abs(n) + '/' + q; } }\n    return num(v, 2);\n  }\n  const pt = (v, dp) => '(' + v.map((x) => num(x, dp)).join(', ') + ')';\n  const P3 = (s) => { const m = String(s).match(/\\(([^)]+)\\)/); return m ? m[1].split(',').map((x) => +x.trim().replace(MINUS, '-')) : null; };\n  // A slider's quarter or half value: 2, ½, −1¾.\n  const QS = ['', '¼', '½', '¾'];\n  function tf(v) { const q = Math.round(Math.abs(v) * 4), w = Math.floor(q / 4), f = q % 4; return (v < 0 && q ? MINUS : '') + ((w || !f ? String(w) : '') + QS[f]); }\n  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/·/g, ' dot ').replace(/×/g, ' cross ').replace(/÷/g, ' divided by ')\n    .replace(/√/g, ' root ').replace(/\\|n\\|/g, 'the size of n').replace(/−/g, ' minus ').replace(/=/g, ' equals ').replace(/[½]/g, ' a half').replace(/[¼]/g, ' a quarter').replace(/[¾]/g, ' three quarters').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the rule ----------\n  // A line is r = p + t v. A plane is every point whose step from its start is square to its\n  // normal: n · (r − p) = 0, which multiplies out to ax + by + cz = d with (a, b, c) = n and d = n · p.\n  const add = (a, b) => a.map((x, k) => x + b[k]);\n  const sub = (a, b) => a.map((x, k) => x - b[k]);\n  const scl = (a, s) => a.map((x) => x * s);\n  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];\n  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];\n  const len = (a) => Math.sqrt(dot(a, a));\n  const unit = (a) => scl(a, 1 / len(a));\n  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);\n  const same = (a, b) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k]));\n  const clean = (a) => a.map((x) => { const r = Math.round(x * 1e9) / 1e9; return Math.abs(r) < 1e-12 ? 0 : r; });\n  const lerp3 = (a, b, e) => (e >= 1 ? b.slice() : e <= 0 ? a.slice() : a.map((x, k) => x + (b[k] - x) * e));\n  const onLine = (p, v, t) => clean(add(p, scl(v, t)));\n  const reading = (n, p, r) => dot(n, sub(r, p));\n  const meetT = (n, d, p, v) => { const nv = dot(n, v); return near(nv, 0) ? null : (d - dot(n, p)) / nv; };\n  // A square tile in the plane: one edge level (square to z), the other up the slope.\n  function axesOf(n) { let e1 = cross(n, [0, 0, 1]); if (len(e1) < 1e-9) e1 = [1, 0, 0]; e1 = unit(e1); return [e1, unit(cross(n, e1))]; }\n  function tileOf(c, n, h) {\n    const [e1, e2] = axesOf(n);\n    return { c, n, h, e1, e2, d: dot(n, c), corners: [[1, 1], [1, -1], [-1, -1], [-1, 1]].map(([a, b]) => add(c, add(scl(e1, a * h), scl(e2, b * h)))) };\n  }\n  function eqT(n, d) {\n    let s = '';\n    n.forEach((a, k) => {\n      if (near(a, 0)) return;\n      const m = Math.abs(a);\n      s += (s ? (a < 0 ? ' − ' : ' + ') : (a < 0 ? MINUS : '')) + (near(m, 1) ? '' : num(m)) + 'xyz'[k];\n    });\n    return (s || '0') + ' = ' + num(d);\n  }\n  const factT = (n, p) => n.map((a, k) => (k ? (a < 0 ? ' − ' : ' + ') : (a < 0 ? MINUS : '')) + num(Math.abs(a)) + '(' + 'xyz'[k] + (p[k] < 0 ? ' + ' : ' − ') + num(Math.abs(p[k])) + ')').join('') + ' = 0';\n  const dotT = (a, b) => pt(a) + ' · ' + pt(b) + ' = ' + num(dot(a, b));\n\n  // ---------- the lesson's values ----------\n  const O = [0, 0, 0];\n  const L0 = { p: [0, 1, 0], v: [1, 2, 0] };\n  const TR = [-2, 3], TA = [-1, 2], SR = [-2, 2];\n  const A2 = [1, 0, 2], B2 = [3, 4, 0];\n  const A4 = [2, 1, 1], B4 = [5, 3, 1];\n  const P = [1, 1, 3], N0 = [2, 1, 2], R0 = [2, 1, 2], D0 = dot(N0, P);\n  const ON5 = [1, 3, 2];\n  const Q7 = [1, 2, 0], N7 = [3, -1, 2], D7 = dot(N7, Q7);\n  const U8 = [1, 0, -1], W8 = [0, 2, -1], UW = cross(U8, W8);\n  const DA = [1, 1, 0], DB = [0, 1, 1], NN = cross(DA, DB);\n  const CM = [1.5, 3, 1.5];\n  const L11 = { p: [1, 0, 0], v: [0, 1, 1] }, N11 = [1, 1, 1], D11 = 5, C11 = [2, 1, 2];\n  const S12 = [-2, -1, -2], E12 = [1, -2, 0];\n  const M13 = [1, -1, 0], Q13 = [1, 1, 3], L13 = cross(N11, M13);\n  // Where a dragged test point and a dragged normal may go.\n  const RX = [[-1, 4], [-2, 4], [-1, 6]], NX = [-3, 3];\n  const W = 340, PH = 22 * Math.PI / 180, TH0 = -52;\n  let H3 = 280;\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // scene: what the picture draws; dur: a SHOW step's demonstration; act: what he can do with the picture,\n  // under it; sliders, dragR (the test point r), dragN (the tip of n); th: the view's turn; fit: every point\n  // the step may draw, so the view's scale never jumps. A puzzle: task, opts, want, hints (one per wrong\n  // answer), slips (the red line drawn for each), why, fb (seconds of motion after a right and a wrong answer).\n  const PICK = 'Tap one of the answers.';\n  const TURN = 'Drag the background to turn the view.';\n  const box = (lo, hi) => { const o = []; for (let k = 0; k < 8; k++) o.push([k & 1 ? hi[0] : lo[0], k & 2 ? hi[1] : lo[1], k & 4 ? hi[2] : lo[2]]); return o; };\n  const lineFit = () => [onLine(L0.p, L0.v, TR[0] - 0.4), onLine(L0.p, L0.v, TR[1] + 0.4)];\n  const planeFit = () => box([-2, -2, -1], [4, 4, 6]);\n  const O12 = ['Straight through, square on', 'Alongside, never meeting it', 'Lying in the plane'];\n  const STEPS = [\n    { show: true, key: 'line', scene: 'line', name: 'A start and a direction', dur: 3.4, sliders: ['t'], ph: 40,\n      act: 'Move t to run the dot along the line. ' + TURN, fit: lineFit,\n      text: 'A line in space is a start point plus any amount of one direction. Write the start as p and the direction as v. A point on the line is `r = p + t v`, where t is any number. At `t = 0` you are at the start. Each extra unit of t adds one more v. Take `p = (0, 1, 0)` and `v = (1, 2, 0)`. At `t = 2` the dot is at `(0, 1, 0)` + `(2, 4, 0)` = `(2, 5, 0)`.' },\n    { kind: 'pick', key: 'at3', scene: 'at3', name: 'Where at t = 3?', rows: 1, fb: [1.6, 0.6], act: TURN, ph: 40,\n      fit: () => lineFit().concat([[3, 6, 0], [1, 5, 0]]),\n      task: 'The line is `(0, 1, 0) + t(1, 2, 0)`. Where is the dot at `t = 3`?',\n      opts: ['(3, 6, 0)', '(3, 7, 0)', '(1, 5, 0)'], want: '(3, 7, 0)',\n      hints: { '(3, 6, 0)': 'Not quite. That is 3v alone, from the origin. Start from p, then add 3v.',\n        '(1, 5, 0)': 'Not quite. That takes 3 lots of p and one v. Take one p and 3 lots of v.' },\n      slips: { '(3, 6, 0)': '3v alone starts at the origin, not at p', '(1, 5, 0)': '3p + v = (1, 5, 0) is off the line' },\n      why: 'A point on the line is `p + t v`. At `t = 3` that is `(0, 1, 0)` + `(3, 6, 0)` = `(3, 7, 0)`.' },\n    { show: true, key: 'two', scene: 'two', name: 'Through two points', dur: 3.4, sliders: ['ta'],\n      act: 'Move t to slide the dot along. ' + TURN,\n      fit: () => [onLine(A2, sub(B2, A2), TA[0] - 0.3), onLine(A2, sub(B2, A2), TA[1] + 0.3)],\n      text: 'For the line through two points A and B, the direction is the step between them, B − A. Here `A = (1, 0, 2)` and `B = (3, 4, 0)`, so `B − A = (2, 4, −2)`. B − A is the whole step from A to B. So for t from 0 to 1, `A + t(B − A)` is a fraction t of the way along. `t = ½` gives the midpoint, `(2, 2, 1)`.' },\n    { kind: 'pick', key: 'dir', scene: 'dir', name: 'Which direction?', rows: 1, fb: [1.5, 1.5], act: TURN,\n      fit: () => [A4, B4, add(A4, [7, 4, 2]), add(A4, B4), onLine(A4, sub(B4, A4), -0.6), onLine(A4, sub(B4, A4), 1.6)],\n      task: 'A line runs through `A = (2, 1, 1)` and `B = (5, 3, 1)`. Which arrow is a direction for it?',\n      opts: ['(7, 4, 2)', '(5, 3, 1)', '(3, 2, 0)'], want: '(3, 2, 0)',\n      hints: { '(7, 4, 2)': 'Not quite. That adds A and B. The direction is the step from A to B.',\n        '(5, 3, 1)': 'Not quite. That is B itself, a place. The direction is the step from A to B.' },\n      slips: { '(7, 4, 2)': 'A + B points off the line', '(5, 3, 1)': 'B used as an arrow points off the line' },\n      why: 'The direction is the step between the points. `B − A` = `(5 − 2, 3 − 1, 1 − 1)` = `(3, 2, 0)`.' },\n    { show: true, key: 'plane', scene: 'plane', name: 'A plane and its normal', dur: 4.3, dragR: true, dragN: true,\n      act: 'Drag the test point r off the tile and back, or drag the tip of n to tilt the tile. ' + TURN, fit: planeFit,\n      text: 'A plane has a start point p and one arrow n square to it, its *normal*. Square means at right angles to every line in the plane. The plane is every point whose step from p is square to n. Take `p = (1, 1, 3)` and `n = (2, 1, 2)`. The test point `r = (2, 1, 2)` is a step of `(1, 0, −1)` from p. So `n · (r − p) = 2 + 0 − 2 = 0`. Off the plane, the reading is plus on n’s side and minus on the other.' },\n    { kind: 'pick', key: 'on', scene: 'on', name: 'Which point is on it?', rows: 1, fb: [1.5, 1.0], act: TURN, fit: planeFit,\n      task: 'The plane runs through `p = (1, 1, 3)` with normal `n = (2, 1, 2)`. Which point lies on it?',\n      opts: ['(1, 3, 2)', '(3, 2, 5)', '(0, 0, 0)'], want: '(1, 3, 2)',\n      hints: { '(3, 2, 5)': 'Not quite. Its step from p is n itself, and n · n = 9, not 0.',\n        '(0, 0, 0)': 'Not quite. Its step from p is (−1, −1, −3), so n · (r − p) = −9, not 0.' },\n      slips: { '(3, 2, 5)': 'n · (2, 1, 2) = 4 + 1 + 4 = 9, not 0', '(0, 0, 0)': 'n · (−1, −1, −3) = −2 − 1 − 6 = −9' },\n      why: 'A point is on the plane when its step from p is square to n. For `(1, 3, 2)` the step is `(0, 2, −1)`. Then `n · (0, 2, −1)` = `0 + 2 − 2` = `0`. In `2x + y + 2z = 9` it gives `2 + 3 + 4 = 9`.' },\n    { show: true, key: 'eq', scene: 'eq', name: 'Its equation', dur: 4.1, rows: 5, dragR: true,\n      act: 'Drag the test point r anywhere. The dashed line shows how far it is from the plane. ' + TURN, fit: planeFit,\n      text: 'A plane’s equation has the normal’s parts in front of x, y and z. Write `r = (x, y, z)`, so r − p = (x − 1, y − 1, z − 3). Dot that with n and set it to 0. That gives `2x + y + 2z = 9`, where 9 is `n · p`. Sliding within the plane leaves the reading unchanged. So the straight route to the plane runs along n, and the reading is |n| times its length. `|n| = 3` and the origin reads −9. So the origin is `9 ÷ 3 = 3` from the plane.' },\n    { kind: 'pick', key: 'eq7', scene: 'eq7', name: 'Which equation?', rows: 1, fb: [0.8, 1.2], act: TURN, th: -135,\n      fit: () => tileOf(Q7, N7, 2).corners.concat(tileOf(O, N7, 2).corners, [add(Q7, N7), add(Q7, [1, 2, 0])]),\n      task: 'A plane passes through `(1, 2, 0)` with normal `(3, −1, 2)`. Which is its equation?',\n      opts: ['3x − y + 2z = 0', 'x + 2y = 1', '3x − y + 2z = 1'], want: '3x − y + 2z = 1',\n      hints: { '3x − y + 2z = 0': 'Not quite. Put (1, 2, 0) in. 3 − 2 + 0 = 1, not 0. Only a plane through the origin has d = 0.',\n        'x + 2y = 1': 'Not quite. Those are the point’s parts. The normal’s parts go in front of x, y and z.' },\n      slips: { '3x − y + 2z = 0': '3x − y + 2z = 0 runs through the origin instead', 'x + 2y = 1': '(1, 2, 0) is the point, not the normal' },\n      why: 'The normal’s parts go in front of x, y and z. So the plane is `3x − y + 2z = d`. The point `(1, 2, 0)` gives `d = 3 − 2 + 0 = 1`.' },\n    { show: true, key: 'span', scene: 'span', name: 'Two directions', dur: 3.8, sliders: ['su', 'tw'], clear: true,\n      act: 'Move s and t to move the dot. Clear paint wipes the plane, so you can paint it again.',\n      fit: () => [[1, 1], [1, -1], [-1, -1], [-1, 1]].map(([a, b]) => add(P, add(scl(U8, 2.3 * a), scl(W8, 2.3 * b)))).concat([add(P, UW)]),\n      text: 'The same plane can come from two directions that lie in it. Take `u = (1, 0, −1)` and `w = (0, 2, −1)`. All the mixes s u + t w fill a plane through the origin. Add p, and that plane slides to the start, `r = p + s u + t w`. The paint marks each point the dot reaches. The cross product `u × w` is square to both u and w, so it is a normal. Here it is `(2, 1, 2)`, the same normal as before.' },\n    { kind: 'pick', key: 'nrm', scene: 'nrm', name: 'Which normal?', rows: 2, fb: [1.5, 1.5], act: TURN, th: -109,\n      fit: () => tileOf(O, NN, 2).corners.concat([DA, DB, NN, add(DA, DB), [0, 1, 0]]),\n      task: 'A plane holds the directions `(1, 1, 0)` and `(0, 1, 1)`. Which arrow is a normal to it?',\n      opts: ['(1, 2, 1)', '(1, −1, 1)', '(0, 1, 0)'], want: '(1, −1, 1)',\n      hints: { '(1, 2, 1)': 'Not quite. That is their sum, which lies in the plane. Look for an arrow square to both.',\n        '(0, 1, 0)': 'Not quite. (0, 1, 0) · (1, 1, 0) = 1, not 0. Try the cross product.' },\n      slips: { '(1, 2, 1)': 'the sum lies in the plane', '(0, 1, 0)': 'not square to (1, 1, 0)' },\n      why: 'A normal must be square to both directions. The cross product gives one. `(1, 1, 0) × (0, 1, 1)` = `(1, −1, 1)`. Check it. Its dot product with each direction is 0.' },\n    { show: true, key: 'meet', scene: 'meet', name: 'Where they meet', dur: 3.6, sliders: ['t'],\n      act: 'Move t to run the dot. ' + TURN,\n      fit: () => lineFit().concat(tileOf(CM, N0, 2.4).corners, [add(P, N0)]),\n      text: 'To find where a line meets a plane, put the line’s point into the equation and solve for t. On `(0, 1, 0) + t(1, 2, 0)` the point is `(t, 1 + 2t, 0)`. In `2x + y + 2z = 9` that gives `2t + (1 + 2t) + 0 = 9`. So `t = 2`, and they meet at `(2, 5, 0)`. Each unit of t changes the reading `n · (r − p)` by `n · v`, here 4. If `n · v` is 0, the line runs parallel to the plane.' },\n    { kind: 'pick', key: 'mix1', scene: 'mix1', name: 'Mixed: where it meets', rows: 1, fb: [1.7, 0.6], act: TURN, th: -71,\n      fit: () => tileOf(C11, N11, 2).corners.concat([add(C11, N11), onLine(L11.p, L11.v, -1), onLine(L11.p, L11.v, 4.2), [1, 2.5, 2.5], [0, 2, 2]]),\n      task: 'Where does the line `(1, 0, 0) + t(0, 1, 1)` meet the plane `x + y + z = 5`?',\n      opts: ['(1, 2.5, 2.5)', '(1, 2, 2)', '(0, 2, 2)'], want: '(1, 2, 2)',\n      hints: { '(1, 2.5, 2.5)': 'Not quite. That t leaves the start out of the equation. Put the whole point (1, t, t) in.',\n        '(0, 2, 2)': 'Not quite. That is t v alone. Add the start, (1, 0, 0).' },\n      slips: { '(1, 2.5, 2.5)': '1 + 2.5 + 2.5 = 6, not 5', '(0, 2, 2)': 't v alone is off the line' },\n      why: 'The line’s point is `(1, t, t)`. Put it in. `1 + t + t = 5`, so `2t = 4` and `t = 2`. The point is `(1, 2, 2)`. Check it. `1 + 2 + 2 = 5`.' },\n    { kind: 'pick', key: 'mix2', scene: 'mix2', name: 'Mixed: how it meets', rows: 1, fb: [1.8, 0.8], act: TURN,\n      fit: () => tileOf(P, N0, 2).corners.concat([add(P, N0), S12, onLine(S12, N0, 2), onLine(S12, E12, -1.2), onLine(S12, E12, 1.6), onLine(R0, E12, -0.9), onLine(R0, E12, 0.9)]),\n      task: 'A line runs along `(2, 1, 2)`. How does it meet the plane `2x + y + 2z = 9`?',\n      opts: O12, want: O12[0],\n      hints: { [O12[1]]: 'Not quite. A line alongside the plane needs n · v = 0. Here n · v = 9.',\n        [O12[2]]: 'Not quite. A line lying in the plane also needs n · v = 0. Here n · v = 9.' },\n      slips: { [O12[1]]: 'alongside would need n · v = 0', [O12[2]]: 'lying in it would need n · v = 0' },\n      why: 'The line runs along `(2, 1, 2)`, which is n itself. `n · v = 4 + 1 + 4 = 9`, not 0, so the line crosses the plane. It runs along the normal, so it goes straight through, square on.' },\n    { kind: 'pick', key: 'cut', scene: 'cut', name: 'Mixed: two planes', rows: 2, fb: [1.5, 1.5], act: TURN,\n      fit: () => tileOf(Q13, N11, 1.8).corners.concat(tileOf(Q13, M13, 1.8).corners, [add(Q13, N11), add(Q13, M13), onLine(Q13, L13, -1.2), onLine(Q13, L13, 1.2), add(Q13, [2, 0, 1])]),\n      task: 'The planes `x + y + z = 5` and `x − y = 0` meet in a line. Which way does it run?',\n      opts: ['(2, 0, 1)', '(1, 1, −2)', '(1, 1, 1)'], want: '(1, 1, −2)',\n      hints: { '(2, 0, 1)': 'Not quite. That adds the normals. The line lies in both planes, so it is square to both normals. Try their cross product.',\n        '(1, 1, 1)': 'Not quite. That is the first plane’s normal. It stands square to that plane, so no line in the plane runs that way.' },\n      slips: { '(2, 0, 1)': 'the sum of the normals', '(1, 1, 1)': 'a normal stands square to its plane' },\n      why: 'The line lies in both planes. So its direction is square to both normals. The cross product gives such an arrow. `(1, 1, 1) × (1, −1, 0)` = `(1, 1, −2)`. Check it. `1 + 1 − 2 = 0` and `1 − 1 + 0 = 0`.' },\n  ];\n  const FINISH = 'A line is r = p + t v, a start plus any amount of one direction. A plane is n · (r − p) = 0, every point whose step from the start is square to the normal. It multiplies out to ax + by + cz = d, with n = (a, b, c).';\n  // The lesson's own source, which two checks restate.\n  const SRC = 'https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf';\n  const FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's view: a fixed centre and scale, so turning it never jumps ----------\n  const VIEWS = STEPS.map((d) => {\n    const pts = d.fit().concat([O]);\n    const lo = [0, 1, 2].map((k) => Math.min(0, ...pts.map((p) => p[k]))), hi = [0, 1, 2].map((k) => Math.max(0, ...pts.map((p) => p[k])));\n    const ax = [0, 1, 2].map((k) => [Math.min(0, Math.floor(lo[k] + 1e-9)), Math.max(1, Math.ceil(hi[k] - 1e-9)) + 1]);\n    const g = [0, 1].map((k) => [Math.floor(lo[k] + 1e-9), Math.ceil(hi[k] - 1e-9)]);\n    const all = pts.concat(ax.map((a, k) => { const e = [0, 0, 0]; e[k] = a[1] + 0.4; return e; }), ax.map((a, k) => { const e = [0, 0, 0]; e[k] = a[0]; return e; }));\n    const l2 = [0, 1, 2].map((k) => Math.min(...all.map((p) => p[k]))), h2 = [0, 1, 2].map((k) => Math.max(...all.map((p) => p[k])));\n    const c = l2.map((x, k) => (x + h2[k]) / 2);\n    // However the view is turned about z, a point stays within its distance across of the centre, and\n    // within its height times cos 22° plus that distance times sin 22° up or down: fit both, and size\n    // the picture's height to what it needs.\n    let hw = 1, vh = 1;\n    const ph = (d.ph || 22) * Math.PI / 180;\n    all.forEach((p) => { const q = sub(p, c), r = Math.hypot(q[0], q[1]); hw = Math.max(hw, r); vh = Math.max(vh, Math.abs(q[2]) * Math.cos(ph) + r * Math.sin(ph)); });\n    const S = Math.min(36, (W / 2 - 18) / hw, (170 - 18) / vh);\n    return { c, S, H: Math.max(200, Math.ceil(2 * (vh * S + 18))), ax, g, ph };\n  });\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. live: he has moved something,\n  // so the demonstration is over. t, ta, su, tw: his slider settings; r, n: where he dragged the test point\n  // and the tip of n; paint: the cells his dot has painted; th: how far he has turned the view.\n  function blank() { return { pick: null, res: null, why: false, live: false, t: 0, ta: 0, su: 0, tw: 0, r: null, n: null, paint: null, th: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;\n  let REC = null, CAM = null, CUR = {}, PROBE = false, PI = 0;\n  const el = (id) => document.getElementById(id);\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z'’])[pvnrtsuw](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);\n        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) italics(node, seg.slice(at0), false);\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const SL = {\n    t: K.control({ id: 't', label: 't', hint: 'How many lots of v from the start', min: TR[0], max: TR[1], step: 0.25, value: 0, fmt: tf, snap: [2, 3], into: '#ctl' }),\n    ta: K.control({ id: 'ta', label: 't', hint: 'The fraction of the way from A to B', min: TA[0], max: TA[1], step: 0.25, value: 0, fmt: tf, snap: [0.5], into: '#ctl' }),\n    su: K.control({ id: 'su', label: 's', hint: 'How many lots of u', min: SR[0], max: SR[1], step: 0.5, value: 0, fmt: tf, into: '#ctl' }),\n    tw: K.control({ id: 'tw', label: 't', hint: 'How many lots of w', min: SR[0], max: SR[1], step: 0.5, value: 0, fmt: tf, into: '#ctl' }),\n  };\n  const STEP_OF = { t: 0.25, ta: 0.25, su: 0.5, tw: 0.5 };\n  const shown = { t: 0, ta: 0, su: 0, tw: 0 };\n  const snapTo = (v, q) => Math.round(v / q) * q;\n  // The page puts a value on a slider (the demonstration drives it) without that counting as his move.\n  function slide(id, v) {\n    if (PROBE || PI !== at()) return;\n    const q = snapTo(v, STEP_OF[id]);\n    shown[id] = q;\n    SL[id].set(q, true);\n  }\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    const th = S[i].th;\n    S[i] = blank(); S[i].th = th;\n    play(d.dur);\n  } });\n  const clearBtn = K.button({ label: 'Clear paint', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.clear || finished) return;\n    const st = goLive(i);\n    st.paint = new Set([cellKey(st.su, st.tw)]);\n  } });\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  const nav = el('nav');\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion (and\n  // while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  // His first move ends the demonstration where it stands, and the picture is his from then on.\n  function goLive(i) {\n    const st = S[i], d = STEPS[i];\n    if (!st.live) {\n      (d.sliders || []).forEach((id) => { st[id] = shown[id]; });\n      if (d.dragR) st.r = (CUR.r || R0).slice();\n      if (d.dragN) st.n = (CUR.n || N0).slice();\n      if (d.clear) st.paint = new Set(CUR.cells || []);\n      st.live = true;\n    }\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    return st;\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter');\n    void b.offsetWidth;\n    b.classList.add('enter');\n  }\n\n  // ---------- the view: turn about z by th, look down by 22° ----------\n  function camOf(i, thDeg) {\n    const v = VIEWS[i], th = thDeg * Math.PI / 180;\n    return { c: v.c, S: v.S, th: thDeg, ct: Math.cos(th), st: Math.sin(th), cp: Math.cos(v.ph), sp: Math.sin(v.ph) };\n  }\n  function P2(X) {\n    const q = sub(X, CAM.c), a = q[0] * CAM.ct - q[1] * CAM.st, b = q[0] * CAM.st + q[1] * CAM.ct;\n    return [W / 2 + CAM.S * a, H3 / 2 - CAM.S * (q[2] * CAM.cp + b * CAM.sp)];\n  }\n  const toViewer = () => [-CAM.st * CAM.cp, -CAM.ct * CAM.cp, CAM.sp];\n  const screenRight = () => [CAM.ct, -CAM.st, 0];\n  const screenUp = () => [CAM.st * CAM.sp, CAM.ct * CAM.sp, CAM.cp];\n\n  // ---------- drawing: three layers, so what lies behind the tile is drawn under it ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null, LAY = null, LAB = [], TILE = null, SIG = 1;\n  const put = (node) => (into || art).appendChild(node);\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? 0.5 : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }\n  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }\n  const moving = () => T !== Infinity;\n  const dp = () => (moving() ? 1 : 2);\n  const r3 = (v) => Math.round(v * 100) / 100;\n  function later(behind, fn, a, first) { const it = { fn, a: a == null ? 1 : a }; const L = behind ? LAY.under : LAY.over; if (first) L.unshift(it); else L.push(it); }\n  function sideOf(X) { return TILE ? SIG * (dot(TILE.n, X) - TILE.d) : 0; }\n  // A segment split where it passes through the tile's plane: [from, to, behind?].\n  function cut(A, B) {\n    const fa = sideOf(A), fb = sideOf(B);\n    if (!TILE || fa * fb >= 0) return [[A, B, fa + fb < -1e-9]];\n    const k = fa / (fa - fb), M = lerp3(A, B, k);\n    return [[A, M, fa < 0], [M, B, fb < 0]];\n  }\n  function setTile(c, n, h) {\n    TILE = tileOf(c, n, h);\n    SIG = dot(n, toViewer()) >= 0 ? 1 : -1;\n    REC.tile = TILE;\n  }\n  function seg2(cls, a, b, keep) {\n    if (keep !== false) REC.segs.push([a[0], a[1], b[0], b[1]]);\n    return put(K.svg('line', { class: cls, x1: r3(a[0]), y1: r3(a[1]), x2: r3(b[0]), y2: r3(b[1]) }));\n  }\n  function arrow2(cls, a, b, head) {\n    const g = put(K.svg('g', { class: 'arr ' + cls }));\n    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);\n    if (L < 0.5) return g;\n    const ux = dx / L, uy = dy / L, hl = head ? Math.min(10, L * 0.5) : 0, hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;\n    if (L - hl > 0.5) {\n      g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + (head ? ux : 0)), y2: r3(by + (head ? uy : 0)) }));\n      REC.segs.push([a[0], a[1], bx, by]);\n    }\n    if (head) {\n      g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n      REC.dots.push([b[0] - ux * hl * 0.5, b[1] - uy * hl * 0.5, 7]);\n    }\n    return g;\n  }\n  function seg3(cls, A, B, a, first) { cut(A, B).forEach(([p, q, bh]) => later(bh, () => seg2(cls, P2(p), P2(q)), a, first)); }\n  function arrow3(cls, A, B, a) {\n    const ps = cut(A, B);\n    ps.forEach(([p, q, bh], k) => later(bh, () => arrow2(cls, P2(p), P2(q), k === ps.length - 1), a));\n    if (cls.indexOf('bad') >= 0) REC.bad++;\n    REC.arrows.push({ cls, from: A, to: B });\n  }\n  function dot3(cls, X, rad, a) {\n    later(sideOf(X) < -1e-9, () => {\n      const q = P2(X);\n      put(K.svg('circle', { class: cls, cx: r3(q[0]), cy: r3(q[1]), r: rad || 5 }));\n      REC.dots.push([q[0], q[1], (rad || 5) + 1]);\n    }, a);\n  }\n  function poly3(cls, pts, a, behind) {\n    later(!!behind, () => { put(K.svg('polyline', { class: cls, points: pts.map(P2).map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') })); }, a);\n  }\n  // A right-angle mark where n stands on the tile.\n  function rightMark(F, a, b, a0) { const k = 0.7; poly3('ra', [add(F, scl(a, k)), add(F, add(scl(a, k), scl(b, k))), add(F, scl(b, k))], a0, sideOf(add(F, scl(b, k))) < -1e-9); }\n  function tick3(X, v) {\n    later(sideOf(X) < -1e-9, () => {\n      const q = P2(X), q2 = P2(add(X, v)), L = Math.hypot(q2[0] - q[0], q2[1] - q[1]) || 1, nx = -(q2[1] - q[1]) / L * 5, ny = (q2[0] - q[0]) / L * 5;\n      seg2('tick', [q[0] - nx, q[1] - ny], [q[0] + nx, q[1] + ny], false);\n    });\n  }\n  function lab3(X, s, cls, a) { LAB.push({ X, s, cls: cls || 'nm', a: a == null ? 1 : a }); }\n  function row(s, cls, a) { REC.rows.push({ s, cls: cls || 'rw', a: a == null ? 1 : a }); }\n  const nb = (s) => String(s).replace(/ /g, NB);\n  function text2(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    italics(t, nb(s), true);\n    REC.texts.push(String(s));\n    return put(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8.5;\n  }\n  function fitText(x, y, s, cls) {\n    if (tw(s, cls) <= 322) return text2(x, y, s, cls);\n    if (tw(s, cls + ' sm2') <= 322) return text2(x, y, s, cls + ' sm2');\n    return text2(x, y, s, cls + ' sm3');\n  }\n\n  // ---------- labels clear of the lines, the points, the edges and each other ----------\n  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;\n  function segHits(b, s) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];\n    for (let k = 0; k < 4; k++) {\n      if (p[k] === 0) { if (q[k] < 0) return false; continue; }\n      const r = q[k] / p[k];\n      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  // Candidate spots round the anchor: four distances, eight directions, nearest first.\n  const DIRS = [[1, 0], [-1, 0], [0, -1], [0, 1], [0.75, -0.66], [-0.75, -0.66], [0.75, 0.66], [-0.75, 0.66]];\n  const RADII = [10, 17, 26, 36];\n  function ringHits(cx, cy, R, b) {\n    const nx = K.clamp(cx, b.x, b.x + b.w), ny = K.clamp(cy, b.y, b.y + b.h);\n    const fx = Math.max(Math.abs(cx - b.x), Math.abs(cx - b.x - b.w)), fy = Math.max(Math.abs(cy - b.y), Math.abs(cy - b.y - b.h));\n    return Math.hypot(nx - cx, ny - cy) <= R && Math.hypot(fx, fy) >= R;\n  }\n  // Each label takes the nearest spot clear of the edges, the other labels, the points, the drag rings\n  // and the lines; where every spot crosses a line, it gets a small backing in the page colour.\n  function placeLabels() {\n    const taken = [], dots = REC.dots.map((d) => ({ x: d[0] - d[2], y: d[1] - d[2], w: 2 * d[2], h: 2 * d[2] }));\n    LAB.forEach((L) => {\n      if (!(L.a > 0)) return;\n      const q = P2(L.X), w = tw(L.s, L.cls) + 2, h = 15;\n      let best = null, bc = Infinity;\n      RADII.forEach((R, ri) => DIRS.forEach(([ux, uy], di) => {\n        const cx = q[0] + ux * R + (Math.abs(ux) > 0.3 ? Math.sign(ux) * w / 2 : 0), cy = q[1] + uy * R + (Math.abs(uy) > 0.3 ? Math.sign(uy) * 6 : 0);\n        const b = { x: cx - w / 2, y: cy - 8, w, h };\n        let c = ri * 20 + di * 2, n = 0;\n        if (b.x < 2 || b.x + b.w > W - 2 || b.y < 2 || b.y + b.h > H3 - 2) c += 9000;\n        taken.forEach((o) => { if (boxesMeet(b, o)) c += 4000; });\n        dots.forEach((o) => { if (boxesMeet(b, o)) c += 3500; });\n        REC.rings.forEach(([x, y, r]) => { if (ringHits(x, y, r + 1.5, b)) c += 2500; });\n        REC.segs.forEach((sg) => { if (segHits(b, sg)) n++; });\n        c += n * 1000;\n        if (c < bc) { bc = c; best = { cx, cy, b, n }; }\n      }));\n      if (bc >= 9000 || (L.opt && bc >= 1000)) return;\n      taken.push(best.b);\n      const keep = into;\n      if (L.a < 1) { into = put(K.svg('g')); K.fade(into, L.a); }\n      if (best.n) put(K.svg('rect', { class: 'pill', x: r3(best.b.x - 2), y: r3(best.b.y - 1), width: r3(best.b.w + 4), height: r3(best.b.h + 2), rx: 3 }));\n      text2(best.cx, best.cy + 5, L.s, L.cls, 'middle');\n      into = keep;\n    });\n  }\n  function run(list) {\n    list.forEach((it) => {\n      if (!(it.a > 0)) return;\n      if (it.a >= 1) { it.fn(); return; }\n      const keep = into, g = put(K.svg('g'));\n      K.fade(g, it.a);\n      into = g;\n      try { it.fn(); } finally { into = keep; }\n    });\n  }\n\n  // ---------- the parts every picture shares ----------\n  function floorGrid(i) {\n    const g = VIEWS[i].g;\n    for (let x = g[0][0]; x <= g[0][1]; x++) seg2('grid', P2([x, g[1][0], 0]), P2([x, g[1][1], 0]), false);\n    for (let y = g[1][0]; y <= g[1][1]; y++) seg2('grid', P2([g[0][0], y, 0]), P2([g[0][1], y, 0]), false);\n  }\n  function axes3(i) {\n    const ax = VIEWS[i].ax;\n    ['x', 'y', 'z'].forEach((nm, k) => {\n      const a = [0, 0, 0], b = [0, 0, 0], e = [0, 0, 0];\n      a[k] = ax[k][0]; b[k] = ax[k][1]; e[k] = ax[k][1] + 0.35;\n      seg3('axis', a, b, 1, true);\n      lab3(e, nm, 'axl');\n    });\n    for (let z = ax[2][0]; z < ax[2][1]; z++) {\n      if (!z) continue;\n      const X = [0, 0, z];\n      later(sideOf(X) < -1e-9, () => { const q = P2(X); seg2('ztick', [q[0] - 4, q[1]], [q[0] + 4, q[1]]); }, 1, true);\n    }\n  }\n  function tileLabel(s, cls, a) {\n    const tip = P2(add(TILE.c, TILE.n));\n    let best = TILE.corners[0], bd = -1;\n    TILE.corners.forEach((c) => { const q = P2(c), dd = Math.hypot(q[0] - tip[0], q[1] - tip[1]); if (dd > bd) { bd = dd; best = c; } });\n    lab3(lerp3(best, TILE.c, 0.12), s, cls, a);\n  }\n  function normal(p, n, foot) {\n    arrow3('nrm', p, add(p, n));\n    lab3(add(p, scl(n, 0.8)), 'n', 'nm');\n    rightMark(p, TILE.e1, unit(n));\n    dot3('pt', p, 4.5);\n    if (foot) lab3(p, foot, foot === 'p' ? 'nm' : 'sm');\n    REC.n = n;\n  }\n  // The test point r, its step r − p, and which side it is on.\n  function testPoint(p, n, r) {\n    const s = sub(r, p), rd = dot(n, s), on = Math.abs(rd) < 1e-9;\n    if (len(s) > 0.15) { arrow3('stp', p, r); if (len(s) > 0.9) LAB.push({ X: lerp3(p, r, 0.5), s: 'r − p', cls: 'sm', a: 1, opt: true }); }\n    dot3('rpt', r, 6);\n    lab3(r, 'r', 'nm');\n    lab3(r, on ? 'on the plane' : rd > 0 ? 'n’s side' : 'other side', on ? 'ok' : 'tag');\n    REC.r = r; REC.read = rd; REC.side = on ? 'on' : rd > 0 ? 'plus' : 'minus';\n    return rd;\n  }\n  function baseLine(p, v, rg) {\n    seg3('ln', onLine(p, v, rg[0] - 0.4), onLine(p, v, rg[1] + 0.4));\n    for (let k = Math.ceil(rg[0]); k <= rg[1]; k++) tick3(onLine(p, v, k), v);\n    dot3('pt', p, 4.5);\n    lab3(p, 'p', 'nm'); lab3(p, 't = 0', 'sm'); lab3(onLine(p, v, 1), 't = 1', 'sm');\n    REC.line = { p, v };\n  }\n  // v, then one more v for each extra unit of t, nose to tail from the start to the dot.\n  function copies(p, v, t) {\n    arrow3('c2', p, add(p, v));\n    lab3(onLine(p, v, 0.5), 'v', 'nm');\n    if (t > 1) for (let k = 1; k < t - 1e-9; k++) arrow3('c2', onLine(p, v, k), onLine(p, v, Math.min(k + 1, t)));\n    if (t < 0) for (let k = 0; k > t + 1e-9; k--) arrow3('c2', onLine(p, v, k), onLine(p, v, Math.max(k - 1, t)));\n  }\n  function badAt(X, s, a) { dot3('badpt', X, 7, a); lab3(X, s, 'bad', a); REC.bad++; }\n  function okAt(X, s, a) { dot3('okpt', X, 9, a); lab3(X, s, 'ok', a); REC.reveal++; }\n\n  // ---------- the scenes ----------\n  const SC = {};\n  SC.line = (d, st) => {\n    const p = L0.p, v = L0.v, t = st.live ? st.t : 2 * go(0.4, 2.7), tq = snapTo(t, 0.25);\n    baseLine(p, v, TR);\n    copies(p, v, t);\n    const r = onLine(p, v, t);\n    dot3('dot', r, 6); if (Math.abs(t) > 0.3) lab3(r, 'r', 'nm');\n    REC.dot = r; REC.t = t;\n    REC.reads = [['t v', pt(clean(scl(v, tq)))], ['Dot r', pt(onLine(p, v, tq))]];\n    slide('t', t);\n  };\n  SC.at3 = (d, st) => {\n    const p = L0.p, v = L0.v;\n    baseLine(p, v, TR);\n    if (st.res === 'right') {\n      const t = 3 * go(0, 1.3), a = arr(1.2, 0.4), r = onLine(p, v, t);\n      copies(p, v, t);\n      dot3('dot', r, 6);\n      if (a > 0) { okAt(onLine(p, v, 3), '(3, 7, 0)', a); row('(0, 1, 0) + (3, 6, 0) = (3, 7, 0)', 'rw ok', a); }\n      REC.dot = r;\n    } else {\n      copies(p, v, 1);\n      if (st.res === 'wrong') {\n        const X = P3(st.pick), a = arr(0, 0.5);\n        if (same(X, scl(v, 3))) arrow3('bad', O, X, a);\n        badAt(X, st.pick, a);\n        row(d.slips[st.pick], 'rw bad', a);\n      }\n    }\n  };\n  SC.two = (d, st) => {\n    const A = A2, B = B2, v = sub(B, A), g = st.live ? 1 : go(0.4, 1.0), t = st.live ? st.ta : 0.5 * go(1.6, 1.2), tq = snapTo(t, 0.25);\n    seg3('ln', onLine(A, v, TA[0] - 0.3), onLine(A, v, TA[1] + 0.3));\n    if (g > 0.02) arrow3('c2', A, onLine(A, v, g));\n    lab3(onLine(A, v, 0.8), 'B − A', 'nm', st.live ? 1 : arr(1.2, 0.5));\n    dot3('pt', A, 4.5); lab3(A, 'A', 'nm'); dot3('pt', B, 4.5); lab3(B, 'B', 'nm');\n    const r = onLine(A, v, t);\n    dot3('dot', r, 6); lab3(r, 'r', 'nm');\n    if (near(t, 0.5)) lab3(r, 'midpoint', 'sm', st.live ? 1 : arr(2.8, 0.5));\n    REC.line = { p: A, v }; REC.dot = r; REC.t = t;\n    REC.reads = [['B − A', pt(v)], ['Dot r', pt(onLine(A, v, tq))]];\n    slide('ta', t);\n  };\n  SC.dir = (d, st) => {\n    const A = A4, B = B4, v = sub(B, A);\n    seg3('ln', onLine(A, v, -0.6), onLine(A, v, 1.6));\n    dot3('pt', A, 4.5); lab3(A, 'A', 'nm'); dot3('pt', B, 4.5); lab3(B, 'B', 'nm');\n    if (st.res === 'right') {\n      const g = go(0, 1.0), a = arr(0.9, 0.5);\n      arrow3('c2', A, onLine(A, v, g));\n      if (a > 0) { lab3(onLine(A, v, 0.5), 'B − A', 'ok', a); row('(5 − 2, 3 − 1, 1 − 1) = (3, 2, 0)', 'rw ok', a); REC.reveal++; }\n    } else if (st.res === 'wrong') {\n      const X = P3(st.pick), g = go(0, 1.0), a = arr(0.9, 0.5);\n      arrow3('bad', A, lerp3(A, add(A, X), g));\n      lab3(add(A, X), st.pick, 'bad', a);\n      row(d.slips[st.pick], 'rw bad', arr(0, 0.5));\n    }\n  };\n  SC.plane = (d, st) => {\n    const n = st.live && st.n ? st.n : N0;\n    setTile(P, n, 2);\n    normal(P, n, 'p');\n    const r = st.live ? (st.r || R0) : [2, 1, 2 + go(0.6, 0.8) - 2 * go(1.8, 1.2) + go(3.4, 0.7)];\n    const rd = testPoint(P, n, r);\n    // While it moves, the readouts show r to one place and work the step and reading from that.\n    const rq = moving() ? r.map((x) => Math.round(x * 10) / 10) : r, sq = sub(rq, P);\n    REC.reads = [['r', pt(rq, dp())], ['r − p', pt(sq, dp())], ['n · (r − p)', num(dot(n, sq), dp())], ['n', pt(n)]];\n  };\n  SC.on = (d, st) => {\n    setTile(P, N0, 2);\n    normal(P, N0, 'p');\n    if (st.res === 'right') {\n      const g = go(0, 0.9), a = arr(0.8, 0.5);\n      arrow3('stp', P, lerp3(P, ON5, g));\n      if (a > 0) { okAt(ON5, 'on the plane', a); dot3('rpt', ON5, 6, a); row('n · (0, 2, −1) = 0 + 2 − 2 = 0', 'rw ok', a); }\n    } else if (st.res === 'wrong') {\n      const X = P3(st.pick), g = go(0, 0.9), a = arr(0, 0.5);\n      arrow3('bad', P, lerp3(P, X, g));\n      badAt(X, st.pick, a);\n      row(d.slips[st.pick], 'rw bad', a);\n    }\n  };\n  SC.eq = (d, st) => {\n    setTile(P, N0, 2);\n    normal(P, N0, 'p');\n    const L = st.live, a = [0.4, 0.8, 1.2, 1.6, 3.4].map((t0) => (L ? 1 : arr(t0, 0.5))), nn = len(N0);\n    const r = L ? (st.r || O) : lerp3(R0, O, go(2.0, 1.2));\n    tileLabel(eqT(N0, D0), 'sm', a[2]);\n    const rd = testPoint(P, N0, r);\n    if (Math.abs(rd) > 1e-9) {\n      const F = clean(sub(r, scl(N0, rd / (nn * nn)))), dist = Math.abs(rd) / nn, aD = L ? 1 : arr(3.2, 0.5);\n      seg3('dist', r, F, aD);\n      dot3('foot', F, 3, aD);\n      lab3(lerp3(r, F, 0.5), 'distance ' + fr(dist), 'ok', aD);\n      REC.foot = F; REC.dist = dist;\n    }\n    const r0 = reading(N0, P, O);\n    row('r − p = (' + P.map((x, k) => 'xyz'[k] + (x < 0 ? ' + ' : ' − ') + num(Math.abs(x))).join(', ') + ')', 'rw', a[0]);\n    row(factT(N0, P), 'rw', a[1]);\n    row(eqT(N0, D0) + ', as n · p = ' + num(D0), 'rw', a[2]);\n    row('|n| = √(' + N0.map((x) => num(x * x)).join(' + ') + ') = ' + num(nn), 'rw', a[3]);\n    row('The origin reads ' + num(r0) + '. ' + num(-r0) + ' ÷ ' + num(nn) + ' = ' + num(-r0 / nn), 'rw ok', a[4]);\n    // While it glides, the readouts show whole numbers, so each fits its tile and adds up by hand.\n    const rq = moving() ? r.map((x) => Math.round(x)) : r, sq = sub(rq, P);\n    REC.reads = [['r', pt(rq)], ['r − p', pt(sq)], ['n · (r − p)', num(dot(N0, sq))]];\n  };\n  SC.eq7 = (d, st) => {\n    setTile(Q7, N7, 2);\n    normal(Q7, N7, '(1, 2, 0)');\n    if (st.res === 'right') {\n      const a = arr(0.2, 0.5);\n      if (a > 0) { tileLabel(eqT(N7, D7), 'ok', a); row('n · (1, 2, 0) = 3 − 2 + 0 = 1', 'rw ok', a); REC.reveal++; }\n    } else if (st.res === 'wrong') {\n      const a = arr(0, 0.6);\n      if (st.pick === '3x − y + 2z = 0') {\n        const t0 = tileOf(O, N7, 2);\n        poly3('badtile', t0.corners.concat([t0.corners[0]]), a);\n        lab3(t0.corners[2], st.pick, 'bad', a);\n        REC.bad++;\n      } else {\n        arrow3('bad', Q7, add(Q7, [1, 2, 0]), a);\n        lab3(add(Q7, [1, 2, 0]), '(1, 2, 0)', 'bad', a);\n      }\n      row(d.slips[st.pick], 'rw bad', a);\n    }\n  };\n  // The span demonstration: the dot visits every half step of s and t, row by row, painting as it goes.\n  const cellKey = (s, t) => Math.round((s + 2) * 2) + ',' + Math.round((t + 2) * 2);\n  function raster(u) {\n    const x = u * 9, j = Math.min(8, Math.floor(x)), f = x >= 9 ? 1 : x - j, c = Math.min(8, Math.floor(f * 9));\n    const cells = new Set();\n    for (let jj = 0; jj <= j; jj++) {\n      const upto = jj < j ? 8 : c;\n      for (let k = 0; k <= upto; k++) cells.add((jj % 2 ? 8 - k : k) + ',' + jj);\n    }\n    const si = j % 2 ? 8 - c : c;\n    return { s: -2 + 0.5 * si, t: -2 + 0.5 * j, cells };\n  }\n  SC.span = (d, st) => {\n    setTile(P, UW, 2);\n    let s, t, cells;\n    if (st.live) { s = st.su; t = st.tw; cells = st.paint || new Set(); } else { const R = raster(lin(0.4, 3.2)); s = R.s; t = R.t; cells = R.cells; }\n    LAY.paint.push({ a: 1, fn: () => {\n      const g = put(K.svg('g', { class: 'paint' }));\n      cells.forEach((key) => {\n        const [si, ti] = key.split(',').map(Number), s0 = -2 + 0.5 * si, t0 = -2 + 0.5 * ti;\n        const cs = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => P2(add(P, add(scl(U8, s0 + a * 0.27), scl(W8, t0 + b * 0.27)))));\n        g.appendChild(K.svg('polygon', { points: cs.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') }));\n      });\n    } });\n    arrow3('c1', P, add(P, U8)); lab3(add(P, scl(U8, 0.6)), 'u', 'nm');\n    arrow3('c3', P, add(P, W8)); lab3(add(P, scl(W8, 0.6)), 'w', 'nm');\n    arrow3('nrm', P, add(P, UW)); lab3(add(P, scl(UW, 0.85)), 'u × w', 'nm');\n    rightMark(P, unit(U8), unit(UW));\n    dot3('pt', P, 4.5); lab3(P, 'p', 'nm');\n    const r = clean(add(P, add(scl(U8, s), scl(W8, t)))), rd = reading(UW, P, r);\n    dot3('dot', r, 6); lab3(r, 'r', 'nm');\n    REC.dot = r; REC.read = rd; REC.n = UW; REC.cells = cells.size; REC.cellSet = cells;\n    REC.reads = [['r', pt(r)], ['u × w', pt(UW)], ['n · (r − p)', num(rd)]];\n    slide('su', s); slide('tw', t);\n  };\n  SC.nrm = (d, st) => {\n    setTile(O, NN, 2);\n    arrow3('c1', O, DA); lab3(DA, '(1, 1, 0)', 'sm');\n    arrow3('c3', O, DB); lab3(DB, '(0, 1, 1)', 'sm');\n    if (st.res === 'right') {\n      const g = go(0, 1.0), a = arr(0.9, 0.5);\n      arrow3('nrm', O, lerp3(O, NN, g));\n      if (a > 0) {\n        rightMark(O, unit(DA), unit(NN), a);\n        lab3(NN, '(1, −1, 1)', 'ok', a);\n        row(dotT(NN, DA), 'rw ok', a); row(dotT(NN, DB), 'rw ok', a);\n        REC.reveal++;\n      }\n    } else if (st.res === 'wrong') {\n      const X = P3(st.pick), g = go(0, 1.0), a = arr(0.9, 0.5);\n      arrow3('bad', O, lerp3(O, X, g));\n      lab3(X, st.pick, 'bad', a);\n      [DA, DB].forEach((D) => row(dotT(X, D) + (near(dot(X, D), 0) ? '' : ', not 0'), near(dot(X, D), 0) ? 'rw' : 'rw bad', a));\n    }\n  };\n  SC.meet = (d, st) => {\n    setTile(CM, N0, 2.4);\n    normal(P, N0, 'p');\n    tileLabel(eqT(N0, D0), 'sm');\n    const p = L0.p, v = L0.v, t = st.live ? st.t : 2 * go(0.4, 2.6), tq = snapTo(t, 0.25);\n    seg3('ln', onLine(p, v, TR[0] - 0.4), onLine(p, v, TR[1] + 0.4));\n    arrow3('c2', p, add(p, v)); lab3(onLine(p, v, 0.5), 'v', 'nm');\n    dot3('pt', p, 4.5); lab3(p, 't = 0', 'sm');\n    const r = onLine(p, v, t), rd = dot(N0, r) - D0;\n    dot3('dot', r, 6); lab3(r, 'r', 'nm');\n    if (near(rd, 0)) lab3(r, 'meets the tile', 'ok', st.live ? 1 : arr(3.0, 0.5));\n    REC.line = { p, v }; REC.dot = r; REC.t = t; REC.read = rd;\n    REC.reads = [['Dot r', pt(onLine(p, v, tq))], ['n · (r − p)', num(dot(N0, onLine(p, v, tq)) - D0)], ['n · v', num(dot(N0, v))]];\n    slide('t', t);\n  };\n  SC.mix1 = (d, st) => {\n    setTile(C11, N11, 2);\n    normal(C11, N11);\n    tileLabel(eqT(N11, D11), 'sm');\n    const p = L11.p, v = L11.v;\n    seg3('ln', onLine(p, v, -1), onLine(p, v, 4.2));\n    arrow3('c2', p, add(p, v)); lab3(onLine(p, v, 0.5), 'v', 'nm');\n    dot3('pt', p, 4.5); lab3(p, '(1, 0, 0)', 'sm');\n    if (st.res === 'right') {\n      const t = 2 * go(0, 1.3), a = arr(1.2, 0.4), r = onLine(p, v, t);\n      dot3('dot', r, 6);\n      if (a > 0) { okAt(onLine(p, v, 2), '(1, 2, 2)', a); row('1 + t + t = 5, so t = 2', 'rw ok', a); }\n      REC.dot = r;\n    } else if (st.res === 'wrong') {\n      const X = P3(st.pick), a = arr(0, 0.5);\n      badAt(X, st.pick, a);\n      row(d.slips[st.pick], 'rw bad', a);\n    }\n  };\n  SC.mix2 = (d, st) => {\n    setTile(P, N0, 2);\n    normal(P, N0, 'p');\n    const v = N0;\n    dot3('pt', S12, 4.5); lab3(S12, 't = 0', 'sm');\n    arrow3('c2', S12, add(S12, v)); lab3(onLine(S12, v, 0.5), 'v', 'nm');\n    if (st.res === 'right') {\n      const t = 2 * go(0, 1.4), a = arr(1.3, 0.5), r = onLine(S12, v, t);\n      if (t > 1.02) seg3('ln', add(S12, v), r);\n      dot3('dot', r, 6);\n      if (a > 0) {\n        rightMark(R0, TILE.e1, unit(N0), a);\n        okAt(R0, 'square on', a);\n        row('n · v = 4 + 1 + 4 = 9, not 0', 'rw ok', a);\n      }\n      REC.dot = r;\n    } else if (st.res === 'wrong') {\n      const a = arr(0, 0.6), along = st.pick === O12[1];\n      const A = along ? onLine(S12, E12, -1.2) : onLine(R0, E12, -0.9), B = along ? onLine(S12, E12, 1.6) : onLine(R0, E12, 0.9);\n      seg3('badln', A, B, a);\n      lab3(B, along ? 'alongside' : 'in the plane', 'bad', a);\n      REC.bad++;\n      row(d.slips[st.pick], 'rw bad', a);\n    }\n  };\n\n  // The part of a flat polygon on one side of the tile's plane, so a second tile can pass through the first.\n  function clipSide(pts, behind) {\n    const o = [], f = (X) => (behind ? -1 : 1) * sideOf(X);\n    pts.forEach((A, k) => {\n      const B = pts[(k + 1) % pts.length], fa = f(A), fb = f(B);\n      if (fa >= 0) o.push(A);\n      if (fa * fb < 0) o.push(lerp3(A, B, fa / (fa - fb)));\n    });\n    return o;\n  }\n  SC.cut = (d, st) => {\n    setTile(Q13, N11, 1.8);\n    const T2 = tileOf(Q13, M13, 1.8);\n    [false, true].forEach((bh) => {\n      const ps = clipSide(T2.corners, bh);\n      if (ps.length > 2) later(bh, () => { put(K.svg('polygon', { class: 'tile', points: ps.map(P2).map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') })); }, 1, true);\n    });\n    tileLabel(eqT(N11, D11), 'sm');\n    const top = T2.corners.reduce((m, c) => (c[2] > m[2] ? c : m));\n    lab3(lerp3(top, Q13, 0.12), eqT(M13, 0), 'sm');\n    const asN = st.res === 'wrong' && st.pick === pt(N11);\n    arrow3('nrm', Q13, add(Q13, N11)); if (!asN) lab3(add(Q13, N11), pt(N11), 'sm');\n    arrow3('c1', Q13, add(Q13, M13)); lab3(add(Q13, M13), pt(M13), 'sm');\n    dot3('pt', Q13, 4.5);\n    if (st.res === 'right') {\n      const g = go(0, 1.0), a = arr(0.9, 0.5);\n      if (g > 0.02) seg3('ln', onLine(Q13, L13, -1.2 * g), onLine(Q13, L13, 1.2 * g));\n      arrow3('c2', Q13, onLine(Q13, L13, g));\n      if (a > 0) { lab3(add(Q13, L13), pt(L13), 'ok', a); row(dotT(N11, L13), 'rw ok', a); row(dotT(M13, L13), 'rw ok', a); REC.reveal++; }\n    } else if (st.res === 'wrong') {\n      const X = P3(st.pick), g = go(0, 1.0), a = arr(0.9, 0.5);\n      arrow3('bad', Q13, lerp3(Q13, add(Q13, X), g));\n      lab3(add(Q13, X), st.pick, 'bad', a);\n      [N11, M13].forEach((D) => row(dotT(X, D) + (near(dot(X, D), 0) ? '' : ', not 0'), near(dot(X, D), 0) ? 'rw' : 'rw bad', a));\n    }\n  };\n\n  // ---------- the scene for a step (the animation calls this every frame) ----------\n  const readsEl = el('reads'), tiles = [];\n  function showReads(list) {\n    readsEl.hidden = !list || !list.length;\n    (list || []).forEach(([l, v], k) => {\n      if (!tiles[k]) {\n        const t = readsEl.appendChild(K.el('div', { class: 'rd' }));\n        tiles[k] = { el: t, l: t.appendChild(K.el('span', { class: 'rl' })), v: t.appendChild(K.el('span', { class: 'rv' })), ls: null, vs: null };\n      }\n      const T0 = tiles[k];\n      T0.el.hidden = false;\n      if (T0.ls !== l) { T0.ls = l; T0.l.textContent = ''; italics(T0.l, l, false); }\n      if (T0.vs !== v) { T0.vs = v; T0.v.textContent = v; }\n    });\n    for (let k = (list || []).length; k < tiles.length; k++) tiles[k].el.hidden = true;\n  }\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null; TILE = null; SIG = 1; LAB = []; PI = i;\n    LAY = { under: [], over: [], paint: [] };\n    REC = { texts: [], rows: [], segs: [], dots: [], rings: [], arrows: [], bad: 0, reveal: 0, reads: null, tile: null, line: null, dot: null, t: null, r: null, n: null, read: null, side: null, foot: null, dist: null, cells: 0, cellSet: null };\n    H3 = VIEWS[i].H;\n    const rows = d.rows || 0, H = H3 + (rows ? rows * 22 + 10 : 0);\n    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);\n    CAM = camOf(i, st.th != null ? st.th : (d.th != null ? d.th : TH0));\n    SC[d.scene](d, st, i);\n    axes3(i);\n    floorGrid(i);\n    run(LAY.under);\n    if (TILE) {\n      const cs = TILE.corners.map(P2);\n      put(K.svg('polygon', { class: 'tile', points: cs.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') }));\n      cs.forEach((q, k) => { const q2 = cs[(k + 1) % 4]; REC.segs.push([q[0], q[1], q2[0], q2[1]]); });\n    }\n    run(LAY.paint);\n    run(LAY.over);\n    // Dashed rings round what he can drag.\n    if (!finished) [[d.dragR && REC.r], [d.dragN && REC.n && add(P, REC.n)]].forEach(([X]) => {\n      if (!X) return;\n      const q = P2(X);\n      put(K.svg('circle', { class: 'ring', cx: r3(q[0]), cy: r3(q[1]), r: 15 }));\n      REC.rings.push([q[0], q[1], 15]);\n    });\n    placeLabels();\n    REC.rows.forEach((r, k) => {\n      if (!(r.a > 0)) return;\n      const keep = into;\n      if (r.a < 1) { into = put(K.svg('g')); K.fade(into, r.a); }\n      fitText(W / 2, H3 + 20 + k * 22, r.s, r.cls);\n      into = keep;\n    });\n    const said = ['A 3-D view with x, y and z axes.'];\n    if (REC.reads) REC.reads.forEach(([l, v]) => said.push(l + ' is ' + v + '.'));\n    REC.rows.forEach((r) => { if (r.a > 0) said.push(r.s + '.'); });\n    svg.setAttribute('aria-label', say(said.join(' ')));\n    if (!PROBE) {\n      CUR = { r: REC.r, n: REC.n, cells: REC.cellSet ? Array.from(REC.cellSet) : null };\n      showReads(finished ? null : REC.reads);\n      bg.setAttribute('height', H3);\n      placeGrips(d);\n    }\n    return REC;\n  }\n\n  // ---------- the drags: the test point, the tip of n, and the background to turn the view ----------\n  const bg = ui.appendChild(K.svg('rect', { class: 'bg', x: 0, y: 0, width: W, height: H3, tabindex: 0, role: 'button', 'aria-label': 'The 3-D view: drag sideways, or use the left and right arrow keys, to turn it' }));\n  const grips = ['the test point r', 'the tip of n'].map((nm) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Drag ' + say(nm) + ', or use the arrow keys, to move it to another whole point' })));\n  function placeGrips(d) {\n    const on = [!finished && !!d.dragR && !!REC.r, !finished && !!d.dragN && !!REC.n];\n    grips.forEach((g, k) => {\n      g.style.display = on[k] ? '' : 'none';\n      g.setAttribute('tabindex', on[k] ? '0' : '-1');\n      if (on[k]) { const q = P2(k ? add(P, REC.n) : REC.r); g.setAttribute('cx', r3(q[0])); g.setAttribute('cy', r3(q[1])); }\n    });\n  }\n  function svgAt(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());\n    return [q.x, q.y];\n  }\n  // Move the test point (k = 0) or the tip of n (k = 1) to the whole point nearest X.\n  function setGrip(k, X) {\n    const i = at(), d = STEPS[i];\n    if (finished || !(k ? d.dragN : d.dragR)) return;\n    const st = goLive(i);\n    if (!k) {\n      const r = X.map((x, j) => K.clamp(Math.round(x), RX[j][0], RX[j][1]));\n      if (same(r, st.r)) return;\n      st.r = r;\n    } else {\n      const n = sub(X, P).map((x) => K.clamp(Math.round(x), NX[0], NX[1]));\n      if (n.every((x) => x === 0) || same(n, st.n)) return;\n      st.n = n;\n    }\n    K.reveal();\n    K.refresh();\n  }\n  let held = null;\n  grips.forEach((g, k) => {\n    g.addEventListener('pointerdown', (e) => {\n      const q = svgAt(e);\n      if (!q || finished) return;\n      const W0 = k ? add(P, REC.n || N0) : (REC.r || R0).slice();\n      held = { id: e.pointerId, k, q0: q, W0 };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n      e.preventDefault();\n      e.stopPropagation();\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || held.k !== k) return;\n      const q = svgAt(e);\n      if (!q) return;\n      const dx = (q[0] - held.q0[0]) / CAM.S, dy = -(q[1] - held.q0[1]) / CAM.S;\n      setGrip(k, add(held.W0, add(scl(screenRight(), dx), scl(screenUp(), dy))));\n    });\n    const letGo = (e) => { if (held && (!e || held.id === e.pointerId)) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', () => letGo(null));\n    g.addEventListener('keydown', (e) => {\n      const R = screenRight(), j = Math.abs(R[0]) >= Math.abs(R[1]) ? 0 : 1, sg = R[j] >= 0 ? 1 : -1;\n      const by = { ArrowUp: [2, 1], ArrowDown: [2, -1], ArrowRight: [j, sg], ArrowLeft: [j, -sg] }[e.key];\n      if (!by) return;\n      e.preventDefault();\n      const now = k ? add(P, REC.n || N0) : (REC.r || R0).slice();\n      now[by[0]] += by[1];\n      setGrip(k, now);\n    });\n  });\n  let spin = null;\n  function turnTo(th) { const st = S[at()]; st.th = ((th + 540) % 360) - 180; if (!anim.playing()) paint(); }\n  bg.addEventListener('pointerdown', (e) => {\n    const q = svgAt(e);\n    if (!q || finished) return;\n    spin = { id: e.pointerId, x0: q[0], th0: CAM.th };\n    try { bg.setPointerCapture(e.pointerId); } catch (err) { /* turning still follows while the pointer stays on the picture */ }\n  });\n  bg.addEventListener('pointermove', (e) => {\n    if (!spin || spin.id !== e.pointerId) return;\n    const q = svgAt(e);\n    if (q) turnTo(spin.th0 + (q[0] - spin.x0) * 0.6);\n  });\n  const stopSpin = (e) => { if (spin && (!e || spin.id === e.pointerId)) spin = null; };\n  bg.addEventListener('pointerup', stopSpin);\n  bg.addEventListener('pointercancel', stopSpin);\n  bg.addEventListener('lostpointercapture', () => stopSpin(null));\n  bg.addEventListener('keydown', (e) => {\n    const by = { ArrowLeft: -10, ArrowRight: 10 }[e.key];\n    if (!by || finished) return;\n    e.preventDefault();\n    turnTo(CAM.th + by);\n  });\n\n  // ---------- his slider moves ----------\n  function sliderMoves(i, d) {\n    (d.sliders || []).forEach((id) => {\n      const v = SL[id].get();\n      if (near(v, shown[id], 1e-9)) return;\n      const st = goLive(i);\n      st[id] = v;\n      if (d.clear) st.paint.add(cellKey(st.su, st.tw));\n      K.reveal();\n    });\n  }\n\n  write(el('finish'), FINISH);\n  K.update(() => {\n    const i = at(), d = STEPS[i];\n    if (!anim.playing()) T = Infinity;\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { S[i] = blank(); play(d.dur); } else { anim.pause(); T = Infinity; }\n    } else if (!finished) sliderMoves(i, d);\n    const st = S[i];\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    Object.keys(SL).forEach((id) => { SL[id].el.hidden = finished || (d.sliders || []).indexOf(id) < 0; });\n    el('ctl').hidden = finished || !(d.sliders || []).length;\n    paint(i);\n    const act = el('act');\n    write(act, d.act || '');\n    act.hidden = finished || !d.act;\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    clearBtn.el.hidden = !d.clear;\n    el('replay').hidden = replayBtn.el.hidden && clearBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (k) => STEPS.findIndex((d) => d.key === k);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = (o) => Object.assign(blank(), { live: true }, o);\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawnRaw(i, st, t) {\n    const keepS = S[i], keepT = T;\n    PROBE = true; S[i] = st; T = t == null ? Infinity : t;\n    try { return paint(i); } finally { S[i] = keepS; T = keepT; PROBE = false; }\n  }\n  const rangeOf = (rg, q) => { const o = []; for (let x = rg[0]; x <= rg[1] + 1e-9; x += q) o.push(Math.round(x / q) * q); return o; };\n\n  K.check('You always need an arrow from the origin to a point of the line and an arrow parallel to the line: on every line screen, the line is drawn through its start along its direction, and for every setting of t the dot sits at the start plus t lots of the direction', () => {\n    let ok = true;\n    [['line', 't', L0.p, L0.v, TR], ['meet', 't', L0.p, L0.v, TR], ['two', 'ta', A2, sub(B2, A2), TA]].forEach(([k, id, p, v, rg]) => {\n      rangeOf(rg, 0.25).forEach((x) => {\n        const r = drawnRaw(idx(k), liveSt({ [id]: x }));\n        ok = ok && same(r.line.p, p) && same(r.line.v, v) && same(r.dot, add(p, scl(v, x))) && same(cross(sub(r.dot, p), v), O);\n      });\n    });\n    paint();\n    return ok;\n  }, { source: SRC });\n  K.check('Every plane has a vector orthogonal to it, its normal: wherever the tip of n is dragged, the tile turns with it, so both edges of the tile stay square to n and every corner reads 0', () => {\n    let ok = true;\n    const i = idx('plane');\n    for (let a = NX[0]; a <= NX[1]; a++) for (let b = NX[0]; b <= NX[1]; b++) for (let c = NX[0]; c <= NX[1]; c++) {\n      if (!a && !b && !c) continue;\n      const n = [a, b, c], r = drawnRaw(i, liveSt({ n, r: R0 })), T0 = r.tile;\n      ok = ok && same(r.n, n) && same(T0.n, n) && near(dot(T0.e1, n), 0, 1e-9) && near(dot(T0.e2, n), 0, 1e-9) &&\n        T0.corners.every((q) => near(reading(n, P, q), 0, 1e-9)) && near(r.read, dot(n, sub(R0, P)));\n    }\n    paint();\n    return ok;\n  }, { source: SRC });\n  K.check('The reading n · (r − p) is 0 exactly when the test point lies in the plane, above 0 on the side n points to and below 0 on the other, wherever r is dragged, and the readout shows that value', () => {\n    let ok = true;\n    const i = idx('plane');\n    for (let x = RX[0][0]; x <= RX[0][1]; x++) for (let y = RX[1][0]; y <= RX[1][1]; y++) for (let z = RX[2][0]; z <= RX[2][1]; z++) {\n      const R = [x, y, z], r = drawnRaw(i, liveSt({ r: R })), rd = dot(N0, sub(R, P));\n      const want = rd === 0 ? 'on' : rd > 0 ? 'plus' : 'minus';\n      const ahead = dot(sub(R, P), N0) > 0;\n      ok = ok && r.read === rd && r.side === want && (rd > 0) === ahead && r.reads[2][1] === num(rd);\n    }\n    paint();\n    return ok;\n  });\n  K.check('Every worked number is right: (2, 5, 0) at t = 2; (3, 7, 0) at t = 3, with 3v = (3, 6, 0) and 3p + v = (1, 5, 0); B − A = (2, 4, −2) and the midpoint (2, 2, 1); (3, 2, 0) and A + B = (7, 4, 2); the step (1, 0, −1) reads 0, p + n reads 9 and the origin −9; n · p = 9, |n| = 3, 9 ÷ 3 = 3, foot (2, 1, 2); (1, 3, 2) gives 9; d = 1 for (1, 2, 0) and (3, −1, 2); u × w = (2, 1, 2); (1, 1, 0) × (0, 1, 1) = (1, −1, 1); −8, n · v = 4, t = 2; (1, 2, 2) and t = 2.5; n · n = 9; the two planes meet along (1, 1, 3) + t(2, 2, −3); the worked example 6x + 3y + 2z = 6, |n| = 7, about 0.86', () => {\n    const nr = [1, -1, 0], wu = [-1, 2, 0], ww = [-1, 0, 3], wn = cross(wu, ww);\n    return same(onLine(L0.p, L0.v, 2), [2, 5, 0]) && same(scl(L0.v, 2), [2, 4, 0]) && same(onLine(L0.p, L0.v, 3), [3, 7, 0]) &&\n      same(scl(L0.v, 3), [3, 6, 0]) && same(add(scl(L0.p, 3), L0.v), [1, 5, 0]) &&\n      same(sub(B2, A2), [2, 4, -2]) && same(onLine(A2, sub(B2, A2), 0.5), [2, 2, 1]) && same(scl(add(A2, B2), 0.5), [2, 2, 1]) &&\n      same(sub(B4, A4), [3, 2, 0]) && same(add(A4, B4), [7, 4, 2]) &&\n      same(sub(R0, P), [1, 0, -1]) && reading(N0, P, R0) === 0 && same(add(P, N0), [3, 2, 5]) && reading(N0, P, add(P, N0)) === 9 &&\n      reading(N0, P, O) === -9 && D0 === 2 + 1 + 6 && D0 === 9 && len(N0) === 3 && 9 / 3 === 3 && same(sub(O, scl(N0, -9 / 9)), R0) &&\n      dot(N0, ON5) === 2 + 3 + 4 && reading(N0, P, ON5) === 0 && D7 === 1 && eqT(N7, D7) === '3x − y + 2z = 1' &&\n      same(UW, [2, 1, 2]) && same(NN, [1, -1, 1]) && same(add(DA, DB), [1, 2, 1]) &&\n      dot(N0, L0.p) - D0 === -8 && dot(N0, L0.v) === 4 && meetT(N0, D0, L0.p, L0.v) === 2 &&\n      meetT(N11, D11, L11.p, L11.v) === 2 && same(onLine(L11.p, L11.v, 2), [1, 2, 2]) && D11 / dot(N11, L11.v) === 2.5 && same(onLine(L11.p, L11.v, 2.5), [1, 2.5, 2.5]) &&\n      dot(N0, N0) === 9 && same(cross(N0, nr), [2, 2, -3]) && dot([2, 2, -3], N0) === 0 && dot([2, 2, -3], nr) === 0 && dot(N0, [1, 1, 3]) === 9 && dot(nr, [1, 1, 3]) === 0 &&\n      same(wn, [6, 3, 2]) && dot(wn, [1, 0, 0]) === 6 && dot(wn, [0, 2, 0]) === 6 && dot(wn, [0, 0, 3]) === 6 && len(wn) === 7 && num(6 / 7) === '0.86' &&\n      eqT(N0, D0) === '2x + y + 2z = 9' && factT(N0, P) === '2(x − 1) + 1(y − 1) + 2(z − 3) = 0';\n  });\n  K.check('Each puzzle\\'s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {\n    const g = (k) => STEPS[idx(k)];\n    const only = (k, f) => g(k).opts.every((o) => f(o) === (o === g(k).want));\n    return only('at3', (o) => same(P3(o), onLine(L0.p, L0.v, 3))) && g('at3').opts.indexOf(pt(scl(L0.v, 3))) >= 0 && g('at3').opts.indexOf(pt(add(scl(L0.p, 3), L0.v))) >= 0 &&\n      only('dir', (o) => same(P3(o), sub(B4, A4))) && g('dir').opts.indexOf(pt(add(A4, B4))) >= 0 && g('dir').opts.indexOf(pt(B4)) >= 0 &&\n      only('on', (o) => reading(N0, P, P3(o)) === 0) && g('on').opts.indexOf(pt(add(P, N0))) >= 0 && g('on').opts.indexOf(pt(O)) >= 0 &&\n      only('eq7', (o) => o === eqT(N7, dot(N7, Q7))) && g('eq7').opts.indexOf(eqT(N7, 0)) >= 0 && g('eq7').opts.indexOf(eqT(Q7, 1)) >= 0 &&\n      only('nrm', (o) => dot(P3(o), DA) === 0 && dot(P3(o), DB) === 0) && g('nrm').want === pt(cross(DA, DB)) && g('nrm').opts.indexOf(pt(add(DA, DB))) >= 0 &&\n      only('mix1', (o) => same(P3(o), onLine(L11.p, L11.v, meetT(N11, D11, L11.p, L11.v)))) &&\n      g('mix1').opts.indexOf(pt(onLine(L11.p, L11.v, D11 / dot(N11, L11.v)))) >= 0 && g('mix1').opts.indexOf(pt(scl(L11.v, 2))) >= 0 &&\n      g('mix2').want === O12[0] && dot(N0, N0) !== 0 && same(cross(N0, N0), O) && near(dot(E12, N0), 0) &&\n      only('cut', (o) => dot(P3(o), N11) === 0 && dot(P3(o), M13) === 0) && g('cut').want === pt(L13) && g('cut').opts.indexOf(pt(add(N11, M13))) >= 0 && g('cut').opts.indexOf(pt(N11)) >= 0 &&\n      dot(N11, Q13) === D11 && dot(M13, Q13) === 0;\n  });\n  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () => {\n    const ok = DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;\n      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;\n      if (drawnRaw(i, solvedSt(i)).bad !== 0) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawnRaw(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);\n    });\n    paint();\n    return ok;\n  });\n  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () => {\n    const ok = DO.every((i) => {\n      const d = STEPS[i], b = drawnRaw(i, blank()), s = drawnRaw(i, solvedSt(i));\n      return b.reveal === 0 && s.reveal > 0 && b.rows.length === 0 && !b.texts.some((x) => x.indexOf(d.want) >= 0);\n    });\n    paint();\n    return ok;\n  });\n  K.check('Each demonstration ends where the lesson says: t = 2 with the dot at (2, 5, 0); t = ½ with the dot at the midpoint (2, 2, 1); the test point back at (2, 1, 2) reading 0; the origin reading −9, 3 from the tile at (2, 1, 2); the paint on every point the dot reaches, with u × w = (2, 1, 2) and the dot reading 0; t = 2 with the dot touching the tile at (2, 5, 0)', () => {\n    const a = drawnRaw(idx('line'), blank()), b = drawnRaw(idx('two'), blank()), c = drawnRaw(idx('plane'), blank()), e = drawnRaw(idx('eq'), blank());\n    const f = drawnRaw(idx('span'), blank()), g = drawnRaw(idx('meet'), blank());\n    paint();\n    return near(a.t, 2) && same(a.dot, [2, 5, 0]) && a.reads[1][1] === '(2, 5, 0)' && near(b.t, 0.5) && same(b.dot, [2, 2, 1]) && b.reads[1][1] === '(2, 2, 1)' &&\n      same(c.r, R0) && c.read === 0 && c.side === 'on' && same(e.r, O) && e.read === -9 && same(e.foot, R0) && near(e.dist, 3) &&\n      e.rows.map((x) => x.s).join(' | ') === 'r − p = (x − 1, y − 1, z − 3) | 2(x − 1) + 1(y − 1) + 2(z − 3) = 0 | 2x + y + 2z = 9, as n · p = 9 | |n| = √(4 + 1 + 4) = 3 | The origin reads −9. 9 ÷ 3 = 3' &&\n      f.cells === 81 && same(f.n, [2, 1, 2]) && f.read === 0 && near(g.t, 2) && same(g.dot, [2, 5, 0]) && g.read === 0 && g.reads[1][1] === '0' && g.reads[2][1] === '4';\n  });\n  K.check('While each demonstration plays, the rule holds at every moment: the dot stays on its line, the test point reads n · (r − p) with the sign of its side, the painted dot always reads 0, and the meeting dot\\'s reading climbs by n · v = 4 for each unit of t', () => {\n    let ok = true;\n    for (let k = 0; k <= 45; k++) {\n      const t = k / 10;\n      const a = drawnRaw(idx('line'), blank(), t), b = drawnRaw(idx('two'), blank(), t), c = drawnRaw(idx('plane'), blank(), t);\n      const f = drawnRaw(idx('span'), blank(), t), g = drawnRaw(idx('meet'), blank(), t);\n      const flat = (u) => u.every((x) => Math.abs(x) < 1e-6);\n      ok = ok && flat(cross(sub(a.dot, L0.p), L0.v)) && flat(cross(sub(b.dot, A2), sub(B2, A2))) &&\n        near(c.read, dot(N0, sub(c.r, P))) && c.side === (Math.abs(c.read) < 1e-9 ? 'on' : c.read > 0 ? 'plus' : 'minus') &&\n        near(f.read, 0) && near(g.read, -8 + 4 * g.t, 1e-6);\n    }\n    paint();\n    return ok;\n  });\n  K.check('In span mode, every setting of s and t puts the dot on the plane, reading 0, and u × w is square to both u and w', () => {\n    let ok = dot(UW, U8) === 0 && dot(UW, W8) === 0;\n    const i = idx('span');\n    rangeOf(SR, 0.5).forEach((s) => rangeOf(SR, 0.5).forEach((t) => {\n      const r = drawnRaw(i, liveSt({ su: s, tw: t, paint: new Set([cellKey(s, t)]) }));\n      ok = ok && same(r.dot, add(P, add(scl(U8, s), scl(W8, t)))) && near(r.read, 0) && r.cells === 1;\n    }));\n    paint();\n    return ok;\n  });\n  K.check('Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2.5 s', () => {\n    const timed = (i, st, limit) => { latest = 0; earliest = Infinity; drawnRaw(i, st); return latest <= limit + 1e-9; };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);\n    });\n    paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Point, direction, normal",
+  "brief": "The one thing you should see is n · (r − p) reading 0 while the test point's step from p lies in the tile, and turning plus on n's side and minus on the other, when you drag the test point.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "You always need an arrow from the origin to a point of the line and an arrow parallel to the line: on every line screen, the line is drawn through its start along its direction, and for every setting of t the dot sits at the start plus t lots of the direction",
+     "ok": true,
+     "source": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf"
+    },
+    {
+     "label": "Every plane has a vector orthogonal to it, its normal: wherever the tip of n is dragged, the tile turns with it, so both edges of the tile stay square to n and every corner reads 0",
+     "ok": true,
+     "source": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf"
+    },
+    {
+     "label": "The reading n · (r − p) is 0 exactly when the test point lies in the plane, above 0 on the side n points to and below 0 on the other, wherever r is dragged, and the readout shows that value",
+     "ok": true
+    },
+    {
+     "label": "Every worked number is right: (2, 5, 0) at t = 2; (3, 7, 0) at t = 3, with 3v = (3, 6, 0) and 3p + v = (1, 5, 0); B − A = (2, 4, −2) and the midpoint (2, 2, 1); (3, 2, 0) and A + B = (7, 4, 2); the step (1, 0, −1) reads 0, p + n reads 9 and the origin −9; n · p = 9, |n| = 3, 9 ÷ 3 = 3, foot (2, 1, 2); (1, 3, 2) gives 9; d = 1 for (1, 2, 0) and (3, −1, 2); u × w = (2, 1, 2); (1, 1, 0) × (0, 1, 1) = (1, −1, 1); −8, n · v = 4, t = 2; (1, 2, 2) and t = 2.5; n · n = 9; the two planes meet along (1, 1, 3) + t(2, 2, −3); the worked example 6x + 3y + 2z = 6, |n| = 7, about 0.86",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle's answer comes from the rule, and each wrong answer offered is the slip its hint names",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends where the lesson says: t = 2 with the dot at (2, 5, 0); t = ½ with the dot at the midpoint (2, 2, 1); the test point back at (2, 1, 2) reading 0; the origin reading −9, 3 from the tile at (2, 1, 2); the paint on every point the dot reaches, with u × w = (2, 1, 2) and the dot reading 0; t = 2 with the dot touching the tile at (2, 5, 0)",
+     "ok": true
+    },
+    {
+     "label": "While each demonstration plays, the rule holds at every moment: the dot stays on its line, the test point reads n · (r − p) with the sign of its side, the painted dot always reads 0, and the meeting dot's reading climbs by n · v = 4 for each unit of t",
+     "ok": true
+    },
+    {
+     "label": "In span mode, every setting of s and t puts the dot on the plane, reading 0, and u × w is square to both u and w",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "t",
+    "ta",
+    "su",
+    "tw"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "A start and a direction",
+      "Where at t = 3?",
+      "Through two points",
+      "Which direction?",
+      "A plane and its normal",
+      "Which point is on it?",
+      "Its equation",
+      "Which equation?",
+      "Two directions",
+      "Which normal?",
+      "Where they meet",
+      "Mixed: where it meets",
+      "Mixed: how it meets",
+      "Mixed: two planes"
+     ],
+     "value": 0
+    },
+    {
+     "id": "t",
+     "kind": "control",
+     "label": "t",
+     "min": -2,
+     "max": 3,
+     "step": 0.25,
+     "log": false,
+     "value": 0,
+     "shown": true,
+     "snap": [
+      2,
+      3
+     ]
+    },
+    {
+     "id": "ta",
+     "kind": "control",
+     "label": "t",
+     "min": -1,
+     "max": 2,
+     "step": 0.25,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      0.5
+     ]
+    },
+    {
+     "id": "su",
+     "kind": "control",
+     "label": "s",
+     "min": -2,
+     "max": 2,
+     "step": 0.5,
+     "log": false,
+     "value": 0,
+     "shown": false
+    },
+    {
+     "id": "tw",
+     "kind": "control",
+     "label": "t",
+     "min": -2,
+     "max": 2,
+     "step": 0.5,
+     "log": false,
+     "value": 0,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Play again",
+    "Clear paint",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"p\" and \"r\" are only 2 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at t = ½, and 1 more setting) [at 340 px wide]",
+    "SVG labels \"p\" and \"r\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at t = ½) [at 720 and 1040 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T02:05:17.410Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "u × w is a normal only when u and w do not line up, and three points give a plane only when they are not on one line; otherwise u × w is the zero arrow, so the steps as written fail for those cases."
+   },
+   {
+    "path": "explain.text",
+    "problem": "A + t(B − A) is a fraction t of the way from A to B only for t from 0 to 1; other values of t run past B or back behind A, so the sentence as a general rule is too wide."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The t slider moves in quarters, so the dot can sit at points such as (0.25, 1.5, 0); only the named points on the screens have whole or half parts."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

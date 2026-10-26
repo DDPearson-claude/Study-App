@@ -1,0 +1,321 @@
+{
+  "iid": "i3",
+  "title": "Lines and planes in space",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is n · (r − p) reading 0 while the test point's step from p lies in the tile, and turning plus on n's side and minus on the other, when you drag the test point.",
+    "title": "Point, direction, normal",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in fourteen small screens. Each one is a 3-D view with x, y and z axes. Drag the background to turn the view. A line is drawn as a start point p and a direction arrow v. A slider t runs a dot to p + t v. It goes from −2 to 3 in quarters. Marks show t = 0 at the start and t = 1 one arrow along. Each unit of t adds one more v, so the dot moves in a straight line. A plane is drawn as a square tile through its start point p. Its normal n stands up from p. Drag the normal's tip and the tile tilts to stay square to it. A test point r can be dragged too. A thin arrow shows its step from p, r − p. A readout gives n · (r − p), the dot product from Vectors. It reads 0 when the step lies in the tile, because arrows square to each other have a dot product of 0. It reads above 0 on the side n points to. It reads below 0 on the other side. Span mode paints the same plane as p + s u + t w. Its sliders s and t run from −2 to 2 in halves. It draws u × w standing up from p. Meet mode draws a line through a plane. Its t slider runs the dot until it touches the tile. The screens. 1, show: the line (0, 1, 0) + t(1, 2, 0). t runs the dot along it. The finished picture shows t = 2, with the dot at (2, 5, 0). 2, a puzzle: where is the dot at t = 3? It offers (3, 7, 0), (3, 6, 0) and (1, 5, 0). 3, show: the line through A = (1, 0, 2) and B = (3, 4, 0). Its direction is B − A = (2, 4, −2). The finished picture shows t = ½, with the dot at the midpoint, (2, 2, 1). 4, a puzzle: a line runs through A = (2, 1, 1) and B = (5, 3, 1). Which arrow is a direction for it? It offers (3, 2, 0), (7, 4, 2) and (5, 3, 1). 5, show: the plane through p = (1, 1, 3) with normal n = (2, 1, 2). The test point sits at (2, 1, 2). Its step from p is (1, 0, −1). That step lies in the tile, so the readout is 0. The words ask you to drag the test point off the tile. Off the tile, the readout changes. Above the tile, on n's side, it turns positive. Below the tile, it turns negative. The finished picture shows the test point back at (2, 1, 2), reading 0. 6, a puzzle: which point lies on that plane? It offers (1, 3, 2), (3, 2, 5) and the origin, (0, 0, 0). 7, show: working lines appear one at a time. r − p = (x − 1, y − 1, z − 3) is dotted with n. 2(x − 1) + 1(y − 1) + 2(z − 3) = 0 becomes 2x + y + 2z = 9. Then the test point moves to the origin and reads −9. A dashed line runs along the normal from the origin to the tile at (2, 1, 2). It is 3 long, as 9 ÷ 3 = 3 and |n| = 3. 8, a puzzle: a plane passes through (1, 2, 0) with normal (3, −1, 2). Which is its equation? It offers 3x − y + 2z = 1, 3x − y + 2z = 0 and x + 2y = 1. 9, show: span mode. u = (1, 0, −1) and w = (0, 2, −1) start from p = (1, 1, 3). Sliders s and t move a dot to p + s u + t w. Paint shades every point the dot reaches. The paint fills the same tile. u × w = (2, 1, 2) stands up from p. The finished picture shows the paint on. 10, a puzzle: a plane holds the directions (1, 1, 0) and (0, 1, 1). Which arrow is a normal to it? It offers (1, −1, 1), (1, 2, 1) and (0, 1, 0). 11, show: meet mode. The line (0, 1, 0) + t(1, 2, 0) runs towards the plane 2x + y + 2z = 9. At t = 0 the readout is −8. Each unit of t adds n · v = 4. At t = 2 it reads 0, and the dot touches the tile at (2, 5, 0). The finished picture shows t = 2. 12, a mixed puzzle: where does the line (1, 0, 0) + t(0, 1, 1) meet the plane x + y + z = 5? It offers (1, 2, 2), (1, 2.5, 2.5) and (0, 2, 2). 13, a mixed puzzle: a line runs along (2, 1, 2). How does it meet the plane 2x + y + 2z = 9? It offers straight through, square on; alongside, never meeting it; and lying in the plane. 14, a mixed puzzle: the planes x + y + z = 5 and x − y = 0 meet in a line. Which way does it run? It offers (2, 0, 1), (1, 1, −2) and (1, 1, 1). The right answer draws the line through (1, 1, 3), on both tiles. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines.",
+    "ignores": "The tile and the line are drawn with ends. A real plane and line go on for ever. The view is a flat drawing of 3-D, so turn it to judge depth. Two points can look level when they are not. The readout n · (r − p) becomes a distance only once you divide by |n|. The named points here have whole or half parts, so you can read them off the axes. Points in between work the same way. Two lines in space can also miss each other without being parallel. These screens do not show that.",
+    "numbers": [
+      {
+        "label": "Line start (0, 1, 0), up part",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Line direction (1, 2, 0), up part",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider t, lowest",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider t, highest",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slider t, step",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1, t = 2 puts the dot at (2, 5, 0), up part",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2, t asked for",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 answer (3, 7, 0), up part",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 slip t v alone, (3, 6, 0), up part",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 slip 3p + v, (1, 5, 0), up part",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3, point B = (3, 4, 0), up part",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3, B − A = (2, 4, −2), z part",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 3, midpoint at t = ½",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 3 midpoint (2, 2, 1), z part",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4, point B = (5, 3, 1), across part",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 4 answer B − A = (3, 2, 0), across part",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 slip A + B = (7, 4, 2), across part",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Plane start p = (1, 1, 3), z part",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Normal n = (2, 1, 2), x part",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Test point (2, 1, 2): step (1, 0, −1), readout",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Point p + n = (3, 2, 5), readout n · n",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "The origin's readout, −n · p",
+        "value": -9,
+        "kind": "computed"
+      },
+      {
+        "label": "Plane equation constant, n · p = 2 + 1 + 6",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Size of n, √(4 + 1 + 4)",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Origin's distance to the plane, 9 ÷ 3",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 answer (1, 3, 2), 2 + 3 + 4",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 normal (3, −1, 2), y part",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 8 constant, 3 − 2 + 0",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 slip constant, as if through the origin",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Span arrow u = (1, 0, −1), z part",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Span arrow w = (0, 2, −1), y part",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sliders s and t in span mode, lowest",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sliders s and t in span mode, highest",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "u × w = (2, 1, 2), y part",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 normal (1, −1, 1), y part",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 10 slip, the sum (1, 2, 1), y part",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 readout at t = 0",
+        "value": -8,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 readout gain per unit of t, n · v",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 11 meeting value of t",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 plane constant",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 answer (1, 2, 2), t",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 12 slip with the start left out, t",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13, n · (2, 1, 2), not 0",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Two planes' line direction (2, 2, −3), z part",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example normal (6, 3, 2), x part",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example, size of n, √(36 + 9 + 4)",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example, origin's distance, 6 ÷ 7",
+        "value": 0.86,
+        "kind": "computed"
+      },
+      {
+        "label": "Planes' normals dotted with (2, 2, −3)",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 second plane's normal (1, −1, 0), y part",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 14 answer (1, 1, −2), the cross of the normals, z part",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 slip, the normals' sum (2, 0, 1), x part",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 14 point on both planes (1, 1, 3), z part",
+        "value": 3,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A line in space is a start point plus any amount of one direction.[^1] A plane is a start point plus one arrow that stands square to it. Square means at right angles to every line in the plane. That arrow is the plane's [[normal]].[^2] The plane is every point whose step from the start is square to the normal. That one fact gives its equation: ax + by + cz = d.\n\nWrite the start as p and the direction as v. A point on the line is r = p + t v, where t is any number. At t = 0 you are at the start. Each extra unit of t adds one more v. So the dot moves in a straight line at a steady pace. Take p = (0, 1, 0) and v = (1, 2, 0). At t = 2 the dot is at (0, 1, 0) + (2, 4, 0) = (2, 5, 0).\n\nThe two parts do different jobs. p is a place: an arrow from the origin. v has no place of its own. It only says which way. Swap them and you get another line. (1, 2, 0) + t(0, 1, 0) runs parallel to the y-axis. It never reaches (0, 1, 0).\n\nFor the line through two points A and B, the direction is the step between them: B − A. B − A is the whole step from A to B. So for t from 0 to 1, A + t(B − A) is a fraction t of the way along. t = ½ gives the midpoint.\n\nA plane needs a different kind of arrow. Take the start p = (1, 1, 3) and the normal n = (2, 1, 2). From p, any point r on the plane is reached by a step r − p that lies flat in the plane. A step flat in the plane is square to n. Arrows square to each other have a dot product of 0. So n · (r − p) = 0 for every point on the plane.\n\nOff the plane, the step has a part along n. So the dot product is not 0, and its sign says which side. It is positive when the step leans the way n points. It is negative when the step leans away.\n\nA plane's equation has the normal's parts in front of x, y and z. Write r = (x, y, z). Then r − p = (x − 1, y − 1, z − 3). Dot that with n = (2, 1, 2) and set it to 0. 2(x − 1) + 1(y − 1) + 2(z − 3) = 0 becomes 2x + y + 2z = 9. The 9 is n · p. Check a point. (2, 1, 2) gives 4 + 1 + 4 = 9, so it is on the plane. The point (3, 2, 5) is not. It is p + n, a whole step along the normal, and it reads 9.\n\nThe dot product is |n| times the part of the step along n. Sliding within the plane leaves the reading unchanged. So the straight route to the plane runs along n, and that part is the distance. Here |n| = √(4 + 1 + 4) = 3. The origin reads −9. So the origin is 9 ÷ 3 = 3 from the plane, on the side away from n.\n\nThe same plane can come from two directions that lie in it. Remember span? Take two arrows u and w that do not line up. All the mixes s u + t w fill a plane through the origin. Add p, and that plane slides to the start: r = p + s u + t w. Its normal must be square to both u and w. The cross product u × w is square to both, so it is a normal. u = (1, 0, −1) and w = (0, 2, −1) give (2, 1, 2), the same normal as before.\n\nTo find where a line meets a plane, write the line's point in terms of t. For (0, 1, 0) + t(1, 2, 0) it is (t, 1 + 2t, 0). Put it into the equation and solve for t. 2t + (1 + 2t) + 0 = 9. So 4t = 8 and t = 2. They meet at (2, 5, 0). Each unit of t changes the reading n · (r − p) by n · v, here 4. If n · v is 0, the line runs parallel to the plane. Then it either misses the plane or lies in it.\n\nTwo planes that are not parallel meet in a line. That line's direction lies in both planes. So it is square to both normals. Take 2x + y + 2z = 9 and x − y = 0. Their normals are (2, 1, 2) and (1, −1, 0). The cross product of the normals is (2, 2, −3). Check it. It dots with (2, 1, 2) to 4 + 2 − 6 = 0. It dots with (1, −1, 0) to 2 − 2 + 0 = 0. (1, 1, 3) is on both planes. So they meet along (1, 1, 3) + t(2, 2, −3).\n\n**A line is r = p + t v: a start plus any amount of one direction. A plane is n · (r − p) = 0: every point whose step from the start is square to the normal. It multiplies out to ax + by + cz = d, with n = (a, b, c).**"
+  },
+  "analogy": {
+    "text": "A rotating laser level spins its beam round an upright axis through its head. The head is the start point. Each spot the beam marks on the walls is a step from the head. Each of those steps is square to the axis. So the marks all lie in one plane, and the axis is its normal. Tilt the axis, and the marked plane tilts with it.",
+    "breaks": "The beam marks only where it lands, and it makes a band with some width. A plane has no thickness and goes on for ever. The beam alone cannot tell you which side a point is on, or how far away it is. A receiver on a staff can. Its arrows show whether it sits above or below the beam. That is the sign of n · (r − p). Many receivers also read how far off the beam they sit.[^3]"
+  },
+  "practice": {
+    "text": "- A line: pick a start point p and a direction v. Write r = p + t v. Through two points A and B, use v = B − A.\n- A plane from a point and a normal: n · (r − p) = 0. Multiply it out to ax + by + cz = d. Here (a, b, c) = n and d = n · p.\n- A plane from two directions u and w that do not line up: its normal is u × w. For three points not on one line, take the steps from one point to the other two. Use them as u and w.\n- Where a line meets a plane: write the line's x, y and z in terms of t. Put them into the plane's equation and solve for t. Put t back into the line to get the point.\n- Check every answer by putting the point back in. A point on the plane makes ax + by + cz come out at exactly d.\n\n**Rule of thumb:** a line's direction runs along it. A plane's normal stands square to it. Suppose a line's direction dotted with the normal gives 0. Then the line never crosses the plane. It runs alongside it or lies in it.\n\n**Worked example:** Find the plane through (1, 0, 0), (0, 2, 0) and (0, 0, 3). The steps from the first point are u = (−1, 2, 0) and w = (−1, 0, 3). Their cross product is n = (6 − 0, 0 + 3, 0 + 2) = (6, 3, 2). Then d = n · (1, 0, 0) = 6. So the plane is 6x + 3y + 2z = 6. Check: (0, 2, 0) gives 6, and (0, 0, 3) gives 6. |n| = √(36 + 9 + 4) = 7. So the origin is 6 ÷ 7 from the plane, about 0.86.\n\n**Common mistakes**\n- Swapping the start and the direction. (1, 2, 0) + t(0, 1, 0) is a different line from (0, 1, 0) + t(1, 2, 0).\n- Using a point as a direction. The line through A and B runs along B − A, not along B.\n- Using a line's direction where a normal is needed. A normal is square to every direction in the plane.\n- Leaving out the d. A plane through (1, 2, 0) with normal (3, −1, 2) is 3x − y + 2z = 1, not 3x − y + 2z = 0. Only a plane through the origin has d = 0.\n- Leaving out the start when a line meets a plane. The whole point p + t v goes into the equation."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Lines and Planes",
+      "url": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf",
+      "quote": "The key idea related to equations of lines is you always need to have a vector, say x 0 , from the origin to a point of the line and a vector, say v , parallel to the line"
+    },
+    {
+      "n": 2,
+      "title": "Lines and Planes",
+      "url": "https://www2.math.uconn.edu/~stein/virtual/Notes/Calculus/vectors.pdf",
+      "quote": "Every plane has a vector orthogonal (perpendicular) to it, called a normal vector and usually denoted by the letter n"
+    },
+    {
+      "n": 3,
+      "title": "Spectra HL700 Laser Receiver - Advanced Elevation Readout",
+      "url": "https://www.spectraprecision.com/hl700",
+      "quote": "The readout is displayed on the large front and rear LCD’s and shows exactly how far the elevation is from on-grade."
+    }
+  ]
+}

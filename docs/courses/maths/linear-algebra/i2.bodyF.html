@@ -1,0 +1,1282 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  /* Your squared grid, her slanted grid, one cell. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gl.kg { stroke-width: 4; }
+  .scene .ax { stroke: var(--k-muted); stroke-width: 1.4; }
+  .scene .sl { stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1; }
+  .scene .sl.kg { stroke-width: 2.4; }
+  .scene .cell { fill: var(--k-fill2); fill-opacity: .9; stroke: var(--k-amber-line); stroke-width: 1.6; stroke-linejoin: round; }
+  /* Arrows: b1 blue, b2 orange, the arrow ink, a ghost dashed, a wrong one red. */
+  .scene .arr .sh { fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  .scene .arr.base .sh { stroke-width: 3.8; }
+  .scene .c1 .sh { stroke: var(--k-cat1); }
+  .scene .c1 .hd { fill: var(--k-cat1); }
+  .scene .c2 .sh { stroke: var(--k-cat2); }
+  .scene .c2 .hd { fill: var(--k-cat2); }
+  .scene .c3 .sh { stroke: var(--k-ink); }
+  .scene .c3 .hd { fill: var(--k-ink); }
+  .scene .arr.mu .sh { stroke: var(--k-muted); }
+  .scene .arr.mu .hd { fill: var(--k-muted); }
+  .scene .arr.gh .sh { stroke: var(--k-muted); stroke-dasharray: 6 4; stroke-linecap: butt; }
+  .scene .arr.gh .hd { fill: var(--k-muted); }
+  .scene .arr.bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; }
+  .scene .arr.bad .hd { fill: var(--k-warn); }
+  .scene .arr.op .sh { stroke: var(--k-muted); stroke-width: 1.8; }
+  .scene .arr.op .hd { fill: var(--k-muted); }
+  .scene .arr.op.bad .sh { stroke: var(--k-warn); stroke-dasharray: none; }
+  .scene .arr.op.bad .hd { fill: var(--k-warn); }
+  .scene .bar1 { stroke: var(--k-cat1); stroke-width: 4; stroke-linecap: round; }
+  .scene .bar2 { stroke: var(--k-cat2); stroke-width: 4; stroke-linecap: round; }
+  .scene .ring { fill: none; stroke: var(--k-ink); stroke-width: 2.2; }
+  .scene .ring.ok { stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ring.bad { stroke: var(--k-warn); stroke-width: 3; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }
+  .scene .brk.q { stroke: var(--k-muted); }
+  .scene .brk.bad { stroke: var(--k-warn); }
+  /* Words and numbers. */
+  .scene .en { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .en.q, .scene .q { font: 600 15px var(--k-font); fill: var(--k-muted); }
+  .scene .en.ok { fill: var(--k-accent2); }
+  .scene .en.bad { fill: var(--k-warn); }
+  .scene .mx { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 600 22px var(--k-font); fill: var(--k-ink); }
+  .scene .big.q { fill: var(--k-muted); }
+  .scene .big.ok { fill: var(--k-accent2); }
+  .scene .big.bad { fill: var(--k-warn); }
+  .scene .ln { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ln.sm2 { font-size: 13px; }
+  .scene .ln.sm3 { font-size: 12px; }
+  .scene .ln.ok { fill: var(--k-accent2); }
+  .scene .ln.bad { fill: var(--k-warn); }
+  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .nm { font: italic 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .hh { stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; paint-order: stroke fill; }
+  .scene .lb { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lb.bad { fill: var(--k-warn); }
+  .scene .lb.ok { fill: var(--k-accent2); }
+  .scene .lb.mu { fill: var(--k-muted); font-weight: 600; }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene tspan.v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: var(--k-accent2); stroke-opacity: .5; stroke-width: 1.5; stroke-dasharray: 4 3; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1.05rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">One arrow, read on your square grid and on a slanted grid over it.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 420" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <p class="act" id="act"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+
+<script>
+  // ---------- numbers and words (pure, so the checks can test them) ----------
+  const MINUS = '−', NB = ' ';
+  function num(v, dp) { const f = Math.pow(10, dp == null ? 2 : dp); let r = Math.round(v * f) / f; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }
+  // Whole numbers and short decimals as they are; thirds, sixths and the like as fractions, exactly.
+  function fr(v) {
+    if (Math.abs(v * 100 - Math.round(v * 100)) < 1e-7) return num(v, 2);
+    for (let q = 3; q <= 12; q++) { const p = v * q; if (Math.abs(p - Math.round(p)) < 1e-7) { const n = Math.round(p); return (n < 0 ? MINUS : '') + Math.abs(n) + '/' + q; } }
+    return num(v, 2);
+  }
+  const pt = (v) => '(' + v.map(fr).join(', ') + ')';
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/⁻¹/g, ' inverse ').replace(/₁/g, ' 1').replace(/₂/g, ' 2')
+    .replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+  const SUB = ['₁', '₂'];
+  function mixT(cs) { return cs.map((c, k) => (k === 0 ? fr(c) : (c < 0 ? ' − ' : ' + ') + fr(Math.abs(c))) + 'b' + SUB[k]).join(''); }
+  function mixP(cs, u, v) { return fr(cs[0]) + ' × ' + pt(u) + (cs[1] < 0 ? ' − ' : ' + ') + fr(Math.abs(cs[1])) + ' × ' + pt(v); }
+  const coordsT = (u, v) => 'b₁ = ' + pt(u) + ' and b₂ = ' + pt(v);
+  const parsePts = (s) => (String(s).match(/\(([^)]+)\)/g) || []).map((m) => m.replace(/[()]/g, '').split(',').map((t) => +t.trim().replace(MINUS, '-')));
+
+  // ---------- the rule ----------
+  // An arrow's numbers on a grid are the amounts of that grid's two basis arrows, laid nose to tail,
+  // that reach its tip. P has her arrows as its columns: P times her numbers gives yours, and P⁻¹
+  // (swap the diagonal, change the signs of the other two, divide by the determinant) goes back.
+  const add = (p, q) => p.map((x, k) => x + q[k]);
+  const scl = (p, s) => p.map((x) => x * s);
+  const det2 = (u, v) => u[0] * v[1] - u[1] * v[0];
+  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);
+  const samePt = (a, b) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k]));
+  const lerpV = (p, q, e) => (e >= 1 ? q.slice() : e <= 0 ? p.slice() : p.map((x, k) => x + (q[k] - x) * e));
+  const isZero = (p) => p.every((x) => Math.abs(x) < 1e-9);
+  const clean = (p) => p.map((x) => (Math.abs(x - Math.round(x)) < 1e-9 ? Math.round(x) : x) || 0);
+  const mix2 = (a, b, u, v) => clean(add(scl(u, a), scl(v, b)));
+  const cols = (u, v) => [[u[0], v[0]], [u[1], v[1]]];
+  const colOf = (M, k) => [M[0][k], M[1][k]];
+  const mulMV = (M, x) => clean([M[0][0] * x[0] + M[0][1] * x[1], M[1][0] * x[0] + M[1][1] * x[1]]);
+  const mulMM = (A, B) => [0, 1].map((i) => [0, 1].map((j) => A[i][0] * B[0][j] + A[i][1] * B[1][j]));
+  const detM = (M) => M[0][0] * M[1][1] - M[0][1] * M[1][0];
+  const adjM = (M) => [[M[1][1], -M[0][1]], [-M[1][0], M[0][0]]];
+  const invM = (M) => { const D = detM(M); return near(D, 0) ? null : adjM(M).map((r) => r.map((x) => x / D)); };
+  const sameM = (A, B) => !!A && !!B && A.every((r, i) => r.every((x, j) => near(x, B[i][j])));
+  const transpose = (M) => [[M[0][0], M[1][0]], [M[0][1], M[1][1]]];
+  // Her amounts for the tip t (Cramer's rule), while her arrows make cells with real area.
+  const amountsOf = (t, u, v) => { const D = det2(u, v); return clean([det2(t, v) / D, det2(u, t) / D]); };
+  const onLine = (t, u, v) => near(det2(isZero(u) ? v : u, t), 0);
+  const rotD = (p, deg) => { const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; };
+  const len = (p) => Math.hypot(p[0], p[1]);
+
+  // ---------- the lesson's values ----------
+  const I2 = [1, 0], J2 = [0, 1];
+  const B1 = [2, 1], B2 = [-1, 1], TIP = [3, 3], B1N = [1, 1];
+  const P0 = cols(B1, B2), PI0 = invM(P0), HERS = mulMV(PI0, TIP);
+  const MT = [[0, -1], [1, 0]], TURNED = mulMV(MT, TIP), HERS_T = mulMV(PI0, TURNED);
+  const C1 = [1, 0], C2 = [-1, 1], MS = [[3, 1], [0, 2]], PS = cols(C1, C2), DS = mulMM(invM(PS), mulMM(MS, PS)).map((r) => clean(r));
+  const H1 = [1, 2];
+  const Q1 = [1, 2], Q2 = [1, -1];
+  const Y8 = [1, -1];
+  const G1 = [1, 1], G2 = [1, -1], T12 = [4, 2];
+  const L1 = [2, 1], L2 = [4, 2];
+  const LINE_WARN = 'b₁ and b₂ lie on one line';
+  const herNums = (u, v) => (near(det2(u, v), 0) ? null : amountsOf(TIP, u, v));
+  const noneText = (u, v) => (onLine(TIP, u, v) ? 'many' : 'none');
+  // Where the tips may be dragged.
+  const DX = [-5, 6], DY = [-1, 6];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // band: the readouts or the strip above the picture; rows: worked lines; card: the matrix card under
+  // it. dur: a SHOW step's demonstration; act: what he can do with the picture, under it; drag: the tips
+  // of b1 and b2 move (u0, v0 where they rest); how: the How button. A puzzle: task, opts, want, hints
+  // (one per wrong answer), slips (the red line drawn for each), why, fb (seconds of motion after a
+  // right and a wrong answer).
+  const PICK = 'Tap one of the answers.';
+  const O3 = ['The arrow itself', 'Nothing at all', 'Only her numbers for it'];
+  const O5 = ['[1 1; 2 −1]', '[1 2; 1 −1]', '[2 −1; 1 1]'];
+  const MATS = { [O5[0]]: cols(Q1, Q2), [O5[1]]: transpose(cols(Q1, Q2)), [O5[2]]: P0 };
+  const O9 = ['PMP⁻¹', 'P⁻¹MP', 'M alone'];
+  const PRODS = { 'P⁻¹MP': mulMM(PI0, mulMM(MT, P0)), 'PMP⁻¹': mulMM(P0, mulMM(MT, PI0)), 'M alone': MT };
+  const O12 = ['Most arrows get no numbers on that grid', 'Nothing goes wrong', 'Its numbers are yours halved'];
+  const HALF = scl(TIP, 0.5);
+  const landsB = (am, u, v, t) => mixT(am) + ' = ' + pt(mix2(am[0], am[1], u, v)) + ', not ' + pt(t);
+  const landsP = (am, u, v) => mixP(am, u, v) + ' = ' + pt(mix2(am[0], am[1], u, v));
+  const colsSlip = (o) => { const M = MATS[o]; return 'Its columns, ' + pt(colOf(M, 0)) + ' and ' + pt(colOf(M, 1)) + ', are not the arrows'; };
+  const prodSlip = (o) => { const r = mulMV(PRODS[o], HERS); return o + ' gives ' + pt(r) + '. It lands on ' + pt(mix2(r[0], r[1], B1, B2)); };
+  const DRAG = 'Drag the tip of b₁ or b₂ to a whole point. The How button lays her amounts again, nose to tail.';
+  const STEPS = [
+    { show: true, key: 'meet', name: 'One arrow, two grids', dur: 3.2, band: 'read', rows: 2, drag: true, how: true, u0: B1, v0: B2, act: DRAG,
+      text: 'Your square grid is built from i, one step across, and j, one step up. The arrow to `(3, 3)` means 3 lots of i and 3 of j. Suppose Jennifer measures with her own two arrows, `b₁ = (2, 1)` and `b₂ = (−1, 1)`, written in your numbers. They make her slanted grid. Two lots of b₁ reach `(4, 2)`. One b₂ on the end reaches `(3, 3)`. So to her, the same arrow is `(2, 1)`. Her numbers mean nothing until you know her arrows.' },
+    { kind: 'pick', key: 'toYours', name: 'Her numbers to yours', band: 'read', rows: 2, fb: [1.6, 0.6],
+      task: 'Her numbers are `(1, 2)`. Where does the arrow end on your grid?',
+      opts: ['(1, 2)', '(0, 3)', '(4, 1)'], want: '(0, 3)',
+      hints: { '(1, 2)': 'Not quite. Those are her amounts, not your numbers. Lay 1 lot of b₁, then 2 lots of b₂.',
+        '(4, 1)': 'Not quite. That builds arrows from the across parts, (2, −1), and the up parts, (1, 1). Lay 1 lot of b₁, then 2 lots of b₂.' },
+      slips: { '(1, 2)': '(1, 2) reads her amounts as your numbers', '(4, 1)': '(4, 1) uses (2, −1) and (1, 1), not b₁ and b₂' },
+      why: 'Her numbers are amounts. One lot of b₁ is `(2, 1)`. Two lots of b₂ are `(−2, 2)`. Nose to tail they reach `(0, 3)`.' },
+    { show: true, key: 'move', name: 'Move b₁', dur: 4.2, band: 'read', rows: 2, drag: true, how: true, u0: B1N, v0: B2, act: DRAG,
+      text: 'Now b₁ moves to `(1, 1)`, and her grid swings with it. The arrow is now 3 lots of the new b₁ and none of b₂. Her numbers read `(3, 0)`. The arrow has not moved. Only b₁ moved, yet both numbers changed. Each number depends on the whole basis.' },
+    { kind: 'pick', key: 'changed', name: 'What changed?', band: 'read', rows: 2, fb: [1.6, 1.2],
+      task: 'b₁ has moved from `(2, 1)` to `(1, 1)`. What changed for the arrow to `(3, 3)`?',
+      opts: O3, want: O3[2],
+      hints: { [O3[0]]: 'Not quite. Look at the tip. It still sits on (3, 3).',
+        [O3[1]]: 'Not quite. Lay 2 lots of the new b₁ and 1 of b₂. They miss the tip.' },
+      slips: { [O3[0]]: 'The tip still sits on ' + pt(TIP), [O3[1]]: landsB(HERS, B1N, B2, TIP) },
+      why: 'The arrow still ends at `(3, 3)`. It is now 3 lots of the new b₁ and none of b₂. So her numbers went from `(2, 1)` to `(3, 0)`. Numbers belong to a grid. The arrow belongs to none.' },
+    { show: true, key: 'P', name: 'The matrix P', dur: 3.8, band: 'read', rows: 2, card: true, drag: true, how: true, u0: B1, v0: B2,
+      act: 'Drag the tip of b₁ or b₂. P\'s columns follow them.',
+      text: 'To turn her numbers into yours, take 2 lots of b₁ and add 1 of b₂. You land on `(3, 3)`. A matrix times a column is exactly that sum. It is a mix of the matrix\'s columns. So put her arrows in as columns. `P = [2 −1; 1 1]`, and P times `(2, 1)` is `(3, 3)`. This is the *change-of-basis matrix*. Its columns are her arrows written in your numbers.' },
+    { kind: 'pick', key: 'pickP', name: 'Build a P', rows: 1, card: true, fb: [1.4, 1.0],
+      task: 'A grid is made of `(1, 2)` and `(1, −1)`. Which matrix takes its numbers to yours?',
+      opts: O5, want: O5[0],
+      hints: { [O5[1]]: 'Not quite. That puts the arrows in as rows. They go in as columns.', [O5[2]]: 'Not quite. That is Jennifer\'s P. This grid has other arrows.' },
+      slips: { [O5[1]]: colsSlip(O5[1]), [O5[2]]: colsSlip(O5[2]) },
+      why: 'P has the grid\'s arrows as its columns. The first column is `(1, 2)`, and the second is `(1, −1)`. So `P = [1 1; 2 −1]`. Then P times any numbers on that grid gives yours.' },
+    { show: true, key: 'back', name: 'The way back', dur: 3.2, band: 'read', rows: 1, card: true, drag: true, how: true, u0: B1, v0: B2,
+      act: 'Drag the tip of b₁ or b₂. The cell and P⁻¹ follow them.',
+      text: 'To go from your numbers to hers, undo P with its inverse. P\'s determinant is `2 × 1 − (−1) × 1 = 3`. That is also the area of one cell of her grid. The area is not 0, so P has an inverse. It is `P⁻¹ = [1 1; −1 2] ÷ 3`. P⁻¹ times `(3, 3)` is `(6, 3) ÷ 3 = (2, 1)`. Multiply back with P to check.' },
+    { kind: 'pick', key: 'toHers', name: 'Yours to hers', band: 'read', rows: 2, fb: [1.6, 1.6],
+      task: 'Your arrow is `(1, −1)`. Where does it sit on her grid?',
+      opts: ['(3, 0)', '(1, −1)', '(0, −1)'], want: '(0, −1)',
+      hints: { '(3, 0)': 'Not quite. That is P times (1, −1). Going from yours to hers needs P⁻¹.', '(1, −1)': 'Not quite. Those are your numbers. Her arrows are not i and j.' },
+      slips: { '(3, 0)': landsB([3, 0], B1, B2, Y8), '(1, −1)': landsB([1, -1], B1, B2, Y8) },
+      why: 'Use `P⁻¹ = [1 1; −1 2] ÷ 3`. It takes `(1, −1)` to `(0, −3) ÷ 3 = (0, −1)`. Check with P. Zero lots of b₁ and −1 lot of b₂ give `(1, −1)`.' },
+    { show: true, key: 'strip', name: 'A move in her numbers', dur: 4.3, band: 'strip', rows: 0,
+      text: 'A quarter turn anticlockwise is `M = [0 −1; 1 0]` in your numbers. She wants one matrix that takes her numbers in and gives her numbers out. Follow her `(2, 1)` along the strip. P rewrites it as your `(3, 3)`. M turns that to `(−3, 3)`. P⁻¹ brings it back to her numbers, `(0, 3)`. Three lots of b₂ do reach `(−3, 3)`. The first step goes on the right. So the turn, in her numbers, is P⁻¹MP.' },
+    { kind: 'pick', key: 'order', name: 'Which order?', band: 'strip', rows: 1, fb: [1.9, 1.6],
+      task: 'Which product gives the quarter turn in her numbers?',
+      opts: O9, want: 'P⁻¹MP',
+      hints: { 'PMP⁻¹': 'Not quite. The step on the right goes first. It must turn her numbers into yours.', 'M alone': 'Not quite. M is written in your numbers. It cannot act on hers directly.' },
+      slips: { 'PMP⁻¹': prodSlip('PMP⁻¹'), 'M alone': prodSlip('M alone') },
+      why: 'M works in your numbers. So her numbers must become yours first, with P. That step goes on the right. Then M turns the arrow, and P⁻¹ brings it back. So the turn in her numbers is P⁻¹MP.' },
+    { show: true, key: 'stretch', name: 'A simpler move', dur: 4.2, rows: 1, card: true,
+      text: 'Take `M = [3 1; 0 2]` and a new grid, `b₁ = (1, 0)` and `b₂ = (−1, 1)`. In the new grid\'s numbers, b₁ is `(1, 0)`. M stretches it to 3b₁, `(3, 0)`. b₂ is `(0, 1)`, and M stretches it to 2b₂, `(0, 2)`. Those are the columns, so `P⁻¹MP = [3 0; 0 2]`. This *change of basis* turns the move into two plain stretches. Lesson 6 finds such grids. Three-phase work uses one too. The Clarke transform turns three phase quantities into two parts at right angles.' },
+    { kind: 'pick', key: 'mixed1', name: 'Mixed: new numbers', band: 'read', rows: 1, fb: [1.6, 1.6],
+      task: 'A new grid is made of `(1, 1)` and `(1, −1)`. Your arrow is `(4, 2)`. What are its numbers on that grid?',
+      opts: ['(6, 2)', '(3, 1)', '(4, 2)'], want: '(3, 1)',
+      hints: { '(6, 2)': 'Not quite. That is P times (4, 2). Going from yours to the new grid needs P⁻¹.', '(4, 2)': 'Not quite. Those are your numbers. Its arrows are not i and j.' },
+      slips: { '(6, 2)': landsP([6, 2], G1, G2), '(4, 2)': landsP([4, 2], G1, G2) },
+      why: 'Here `P = [1 1; 1 −1]`, with determinant `1 × (−1) − 1 × 1 = −2`. So `P⁻¹ = [−1 −1; −1 1] ÷ (−2)`. It takes `(4, 2)` to `(−6, −2) ÷ (−2) = (3, 1)`. Check it. Three lots of `(1, 1)` plus one of `(1, −1)` is `(4, 2)`.' },
+    { kind: 'pick', key: 'mixed2', name: 'Mixed: one line', band: 'read', rows: 1, fb: [1.6, 1.4],
+      task: 'A new grid uses the arrows `(2, 1)` and `(4, 2)`. What goes wrong?',
+      opts: O12, want: O12[0],
+      hints: { [O12[1]]: 'Not quite. (4, 2) is twice (2, 1). Can any mix of them leave that line?',
+        [O12[2]]: 'Not quite. Halve (3, 3) and lay 1.5 of each arrow. You end far from (3, 3).' },
+      slips: { [O12[1]]: 'No mix of ' + pt(L1) + ' and ' + pt(L2) + ' reaches ' + pt(TIP), [O12[2]]: landsP(HALF, L1, L2) },
+      why: '`(4, 2)` is twice `(2, 1)`. Both lie on one line, so every mix stays on it. The cell area is `2 × 2 − 1 × 4 = 0`, so P has no inverse. Most arrows, like `(3, 3)`, get no numbers at all.' },
+  ];
+  const FINISH = 'An arrow\'s numbers are the amounts of each basis arrow. P has the new basis arrows as its columns. It turns new numbers into old, and P⁻¹ turns them back.';
+  // Sources the checks restate (the lesson's own).
+  const TBB_SPAN = 'https://www.3blue1brown.com/lessons/span';
+  const TBB_COB = 'https://www.3blue1brown.com/lessons/change-of-basis';
+  const FADE = 0.35, CHD = 1.3;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. live: he has moved something,
+  // so the demonstration is over. u, v: where he put the tips of b1 and b2.
+  function blank() { return { pick: null, res: null, why: false, live: false, u: null, v: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, CH = Infinity, motionEnd = 0;
+  let REC = null, GEO2 = null, clipN = 0;
+  const el = (id) => document.getElementById(id);
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])(?:b[₁₂]|[ij])(?![A-Za-z₁₂]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) italics(node, seg.slice(at0, m.index), false);
+        italics(node.appendChild(K.el('span', { class: 'term' })), m[1], false);
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) italics(node, seg.slice(at0), false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank();
+    play(d.dur);
+  } });
+  // How: lays her amounts again, nose to tail, along her arrows as they are now.
+  const howBtn = K.button({ label: 'How', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.how || finished) return;
+    if (!st.u) st.u = d.u0.slice();
+    if (!st.v) st.v = d.v0.slice();
+    st.live = true; T = Infinity;
+    if (REDUCE || testing()) { CH = Infinity; anim.pause(); paint(); } else { CH = 0; motionEnd = 0; anim.play(); }
+    K.reveal();
+  } });
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? d.fb[0] : d.fb[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the How chain and the motion after an answer;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt; CH += dt;
+    paint();
+    return T < motionEnd || CH < CHD;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && (T !== Infinity || CH !== Infinity)) { T = Infinity; CH = Infinity; paint(); } });
+  function play(dur) {
+    CH = Infinity;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function goLive(st) { st.live = true; if (anim.playing()) anim.pause(); T = Infinity; CH = Infinity; }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null, placed = [];
+  const put = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }
+  // The How chain: her first amount grows, then her second.
+  const howE = () => (CH === Infinity ? [1, 1] : [K.ease(K.clamp(CH / 0.7, 0, 1)), K.ease(K.clamp((CH - 0.7) / 0.6, 0, 1))]);
+  const labA = (he) => (he[0] >= 1 && he[1] >= 1 ? 1 : 0);
+  function part(a, rise, draw) {
+    if (!(a > 0)) return;
+    const g = put(K.svg('g'));
+    K.fade(g, Math.min(1, a), rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx0) => put(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx0 || 0) }));
+  const line = (cls, x1, y1, x2, y2) => put(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, x, y, r) => put(K.svg('circle', { class: cls, cx: r3(x), cy: r3(y), r }));
+  const pathEl = (cls, d) => put(K.svg('path', { class: cls, d }));
+  const polyD = (ps) => 'M' + ps.map((p) => r3(p[0]) + ' ' + r3(p[1])).join(' L') + ' Z';
+  const nb = (s) => String(s).replace(/ /g, NB);
+  function text(x, y, s, cls, anchor) {
+    const plain = /^(en|q|big|mx)\b/.test(cls);
+    const t = K.svg('text', { class: cls + (plain ? ' k-nohalo' : ''), x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    REC.texts.push(String(s));
+    return put(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 8.5;
+  }
+  function fitText(x, y, s, cls) {
+    if (tw(s, cls) <= 322) return text(x, y, s, cls);
+    if (tw(s, cls + ' sm2') <= 322) return text(x, y, s, cls + ' sm2');
+    return text(x, y, s, cls + ' sm3');
+  }
+  function arrow(a, b, cls) {
+    const g = put(K.svg('g', { class: 'arr ' + cls }));
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    if (L < 1) return g;
+    const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.5), hw = hl * 0.52, bx = b[0] - ux * hl, by = b[1] - uy * hl;
+    if (L - hl > 0.5) g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));
+    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));
+    return g;
+  }
+  function drawKey(y, items) {
+    const gap = 16, glyph = 22, ws = items.map((it) => tw(it[1], 'key'));
+    const total = ws.reduce((a, w) => a + glyph + w, 0) + gap * (items.length - 1);
+    let x = Math.max(6, (340 - total) / 2);
+    items.forEach((it, k) => {
+      if (it[0] === 'sl' || it[0] === 'gl') line(it[0] + ' kg', x, y - 5, x + 16, y - 5);
+      else rect(it[0], x, y - 11, 16, 11, 2);
+      text(x + glyph, y, it[1], 'key', 'start');
+      x += glyph + ws[k] + gap;
+    });
+  }
+
+  // ---------- labels in a picture, clear of the lines, the edges and each other ----------
+  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  function segHits(b, s) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];
+    for (let k = 0; k < 4; k++) {
+      if (p[k] === 0) { if (q[k] < 0) return false; continue; }
+      const r = q[k] / p[k];
+      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  const DIRS = [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]];
+  function placeLabel(lb, area, segs, pts, circs) {
+    const s = lb.s, cls = lb.cls, w = tw(s, cls), px = lb.p[0], py = lb.p[1];
+    const cands = [];
+    if (lb.center) cands.push([px, py, 0]);
+    (circs.length ? [1, 2, 3] : [1, 2]).forEach((far) => DIRS.forEach((c) => cands.push([px + (c[0] ? c[0] * (8 + 6 * far + w / 2) : 0),
+      py + (c[1] ? c[1] * (c[0] ? 6 + 7 * far : 9 + 8 * far) : 0), far === 1 ? 0 : far === 2 ? 5 : 8])));
+    let best = null, bestBad = Infinity;
+    cands.forEach((cd) => {
+      const b = { x: cd[0] - w / 2 - 3, y: cd[1] - 9, w: w + 6, h: 18 };
+      let bad = cd[2];
+      if (b.x < area.x0 || b.x + b.w > area.x1 || b.y < area.y0 || b.y + b.h > area.y1) bad += 100;
+      placed.forEach((q) => { if (boxesMeet(b, q)) bad += 60; });
+      segs.forEach((sg) => { if (segHits(b, sg)) bad += 14; });
+      // The dashed drag rings (r 20) at the tips of b1 and b2: a label keeps clear of them.
+      circs.forEach((c) => { const dx = Math.max(b.x - c[0], 0, c[0] - b.x - b.w), dy = Math.max(b.y - c[1], 0, c[1] - b.y - b.h); if (Math.hypot(dx, dy) < 22) bad += 40; });
+      pts.forEach((p) => { if (Math.hypot(p[0] - px, p[1] - py) < 0.5) return; if (p[0] > b.x - 6 && p[0] < b.x + b.w + 6 && p[1] > b.y - 6 && p[1] < b.y + b.h + 6) bad += 10; });
+      if (bad < bestBad) { bestBad = bad; best = { cx: cd[0], cy: cd[1], b }; }
+    });
+    placed.push(best.b);
+    return text(best.cx, best.cy + 5, s, cls + ' hh');
+  }
+  function placeAll(labels, area, segs, pts, circs) {
+    labels.sort((a, b) => a.prio - b.prio).forEach((lb) => part(lb.a, 0, () => placeLabel(lb, area, segs, pts, circs || [])));
+  }
+
+  // ---------- the picture: your squared grid, her slanted grid, the arrows ----------
+  const UNIT = 24, WX = [-6, 7], WY = [-2, 7], LEFT2 = 14, PH2 = (WY[1] - WY[0]) * UNIT;
+  const view2 = (top) => ({ x0: WX[0], x1: WX[1], y0: WY[0], y1: WY[1], G: UNIT, left: LEFT2, top });
+  const toPx = (vw, p) => [vw.left + vw.G * (p[0] - vw.x0), vw.top + vw.G * (vw.y1 - p[1])];
+  function clipLine(vw, p, d) {
+    let t0 = -Infinity, t1 = Infinity;
+    const lim = [[d[0], p[0], vw.x0, vw.x1], [d[1], p[1], vw.y0, vw.y1]];
+    for (let k = 0; k < 2; k++) {
+      const dk = lim[k][0], pk = lim[k][1], lo = lim[k][2], hi = lim[k][3];
+      if (Math.abs(dk) < 1e-12) { if (pk < lo || pk > hi) return null; continue; }
+      let a = (lo - pk) / dk, b = (hi - pk) / dk;
+      if (a > b) { const t = a; a = b; b = t; }
+      t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+    }
+    if (!(t1 > t0 + 1e-9)) return null;
+    return [add(p, scl(d, t0)), add(p, scl(d, t1))];
+  }
+  // Her grid: a line along b2 through every whole amount of b1, and along b1 through every whole amount of b2.
+  function slanted(vw, P, u, v) {
+    const drawLine = (p0, dir) => { const seg = clipLine(vw, p0, dir); if (seg) { const p = P(seg[0]), q = P(seg[1]); line('sl', p[0], p[1], q[0], q[1]); } };
+    if (isZero(u) && isZero(v)) return;
+    if (near(det2(u, v), 0)) { drawLine([0, 0], isZero(u) ? v : u); return; }
+    for (let k = -40; k <= 40; k++) { drawLine(scl(u, k), v); drawLine(scl(v, k), u); }
+  }
+  function chainPieces(u, a, from) {
+    const out = [], n = Math.floor(Math.abs(a) + 1e-9), sg = a < 0 ? -1 : 1;
+    let at0 = from;
+    for (let k = 0; k < n; k++) { const nx = add(at0, scl(u, sg)); out.push([at0, nx]); at0 = nx; }
+    const rest = Math.abs(a) - n;
+    if (rest > 1e-6) { const nx = add(at0, scl(u, sg * rest)); out.push([at0, nx]); at0 = nx; }
+    return { out, end: at0 };
+  }
+  function pic0() { return { grid: null, cell: null, arrows: [], main: null, chains: [], rings: [], tags: [] }; }
+  function basePic(u, v, o) {
+    o = o || {};
+    const s = pic0(), bA = o.bA == null ? 1 : o.bA;
+    s.grid = { u, v, a: o.gA == null ? 1 : o.gA };
+    s.arrows.push({ to: u, cls: 'c1', name: o.n1 || 'b₁', a: bA });
+    s.arrows.push({ to: v, cls: 'c2', name: o.n2 || 'b₂', a: bA });
+    return s;
+  }
+  function scene2(vw, s) {
+    const P = (p) => toPx(vw, p);
+    const W = vw.G * (vw.x1 - vw.x0), H = vw.G * (vw.y1 - vw.y0);
+    const area = { x0: vw.left, x1: vw.left + W, y0: vw.top, y1: vw.top + H };
+    const inView = (p) => p[0] >= vw.x0 - 1e-9 && p[0] <= vw.x1 + 1e-9 && p[1] >= vw.y0 - 1e-9 && p[1] <= vw.y1 + 1e-9;
+    const segs = [], pts = [], labels = [];
+    const lab = (p, str, cls, a, prio, center) => labels.push({ p, s: str, cls, a: a == null ? 1 : a, prio: prio || 0, center });
+    const id = 'pc' + (clipN++);
+    put(K.svg('clipPath', { id }, K.svg('rect', { x: area.x0, y: area.y0, width: W, height: H })));
+    const cg = put(K.svg('g', { 'clip-path': 'url(#' + id + ')' }));
+    const keep = into; into = cg;
+    try {
+      for (let x = vw.x0; x <= vw.x1; x++) if (x) { const p = P([x, vw.y0]), q = P([x, vw.y1]); line('gl', p[0], p[1], q[0], q[1]); }
+      for (let y = vw.y0; y <= vw.y1; y++) if (y) { const p = P([vw.x0, y]), q = P([vw.x1, y]); line('gl', p[0], p[1], q[0], q[1]); }
+      { const p = P([0, vw.y0]), q = P([0, vw.y1]); line('ax', p[0], p[1], q[0], q[1]); }
+      { const p = P([vw.x0, 0]), q = P([vw.x1, 0]); line('ax', p[0], p[1], q[0], q[1]); }
+      if (s.cell && s.cell.a > 0) {
+        const u = s.cell.u, v = s.cell.v, D = det2(u, v);
+        part(s.cell.a, 0, () => pathEl('cell', polyD([[0, 0], u, add(u, v), v].map(P))));
+        lab(P(scl(add(u, v), 0.5)), 'area ' + fr(D), 'lb', s.cell.a, 2, true);
+        if (s.cell.a >= 0.5) REC.areas.push(D);
+      }
+      if (s.grid && s.grid.a > 0) part(s.grid.a, 0, () => slanted(vw, P, s.grid.u, s.grid.v));
+      // Her grid flattened to one line: labels keep clear of it.
+      if (s.grid && !(isZero(s.grid.u) && isZero(s.grid.v)) && near(det2(s.grid.u, s.grid.v), 0)) {
+        const seg = clipLine(vw, [0, 0], isZero(s.grid.u) ? s.grid.v : s.grid.u);
+        if (seg) { const p = P(seg[0]), q = P(seg[1]); segs.push([p[0], p[1], q[0], q[1]]); }
+      }
+      s.chains.forEach((c) => {
+        if (!(c.al > 0)) return;
+        const A = chainPieces(c.u, c.a, [0, 0]), B = chainPieces(c.v, c.b, A.end);
+        part(c.al, 0, () => {
+          A.out.forEach((pq) => { const a2 = P(pq[0]), b2 = P(pq[1]); arrow(a2, b2, c.bad ? 'bad' : 'c1'); segs.push([a2[0], a2[1], b2[0], b2[1]]); });
+          B.out.forEach((pq) => { const a2 = P(pq[0]), b2 = P(pq[1]); arrow(a2, b2, c.bad ? 'bad' : 'c2'); segs.push([a2[0], a2[1], b2[0], b2[1]]); });
+        });
+        if (c.lam && c.la > 0) {
+          const la = Math.min(c.al, c.la), mA = scl(c.u, c.lam[0] * 0.75), endA = scl(c.u, c.lam[0]), mB = add(endA, scl(c.v, c.lam[1] * 0.5));
+          if (Math.abs(c.lam[0]) > 1e-9 && inView(mA)) lab(P(mA), fr(c.lam[0]) + 'b₁', 'lb', la, 1);
+          if (Math.abs(c.lam[1]) > 1e-9 && inView(mB)) lab(P(mB), fr(c.lam[1]) + 'b₂', 'lb', la, 1);
+        }
+        if (c.al >= 0.5) { REC.chains.push({ a: c.a, b: c.b, end: B.end, bad: !!c.bad }); if (c.bad) REC.bad++; }
+      });
+    } finally { into = keep; }
+    const all = s.arrows.slice();
+    if (s.main) all.push({ to: s.main.to, cls: 'c3', a: s.main.a, main: true });
+    all.forEach((ar) => {
+      const a = ar.a == null ? 1 : ar.a;
+      if (!(a > 0)) return;
+      const p = P([0, 0]), q = P(ar.to), base = /^c[123]$/.test(ar.cls) ? 'base ' : '';
+      if (Math.hypot(q[0] - p[0], q[1] - p[1]) >= 1) part(a, 0, () => arrow(p, q, base + ar.cls));
+      segs.push([p[0], p[1], q[0], q[1]]); pts.push(q);
+      const names = Array.isArray(ar.name) ? ar.name : ar.name ? [[ar.name, 1]] : [];
+      names.forEach((nm) => lab(q, nm[0], /^\(/.test(nm[0]) ? (ar.cls === 'bad' ? 'lb bad' : 'lb') : (ar.cls === 'gh' || ar.cls === 'mu' ? 'lb mu' : 'nm'), Math.min(a, nm[1]), 0));
+      if (a >= 0.5) { REC.arrows.push({ to: ar.to.slice(), cls: ar.cls }); if (ar.main) REC.main = ar.to.slice(); if (ar.cls === 'bad') REC.bad++; }
+    });
+    s.rings.forEach((rg) => {
+      if (!(rg.a > 0) || !inView(rg.p)) return;
+      const q = P(rg.p);
+      part(rg.a, 0, () => circle('ring' + (rg.cls ? ' ' + rg.cls : ''), q[0], q[1], 9));
+      pts.push(q);
+      if (rg.s) lab(q, rg.s, 'lb' + (rg.cls ? ' ' + rg.cls : ''), rg.a, 1);
+      if (rg.a >= 0.5) { REC.rings.push({ p: rg.p.slice(), cls: rg.cls || '' }); if (rg.cls === 'bad') REC.bad++; }
+    });
+    s.tags.forEach((tg) => lab(P(tg.p), tg.s, 'lb' + (tg.cls ? ' ' + tg.cls : ''), tg.a, 1));
+    placeAll(labels, area, segs, pts, (s.grips || []).map(P));
+    return { P, area };
+  }
+
+  // ---------- the band: two readouts, or the three-stage strip ----------
+  const RX = [88, 252];
+  function drawRead(r) {
+    REC.reads = [null, null];
+    ['on your grid', r.hn || 'on her grid'].forEach((lb, k) => text(RX[k], 18, lb, 'sm'));
+    REC.hn = r.hn ? r.hn.replace(/^on /, '') : 'her grid';
+    [r.yours, r.hers].forEach((vals, k) => vals.forEach((vv) => {
+      const a = vv.a == null ? 1 : vv.a;
+      part(a, 0, () => text(RX[k], 50, vv.s, 'big' + (vv.cls ? ' ' + vv.cls : '')));
+      if (a >= 0.5) { REC.reads[k] = vv.s; if (/bad/.test(vv.cls || '')) REC.bad++; }
+    }));
+    (r.tags || []).forEach((tg) => part(tg.a == null ? 1 : tg.a, 0, () => text(RX[tg.k], 72, tg.s, 'tag')));
+  }
+  const NX = [40, 127, 214, 301], NTAG = ['hers', 'yours', 'yours', 'hers'], PROD = ['P⁻¹', 'M', 'P'];
+  const list = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
+  function drawStrip(sp) {
+    REC.strip = { nodes: [null, null, null, null], ops: [null, null, null], prod: [0, 0, 0], long: null };
+    sp.nodes.forEach((n, k) => {
+      const vals = list(n);
+      if (!vals.length) return;
+      const tA = Math.max.apply(null, vals.map((vv) => (vv.a == null ? 1 : vv.a)));
+      vals.forEach((vv) => {
+        const a = vv.a == null ? 1 : vv.a;
+        part(a, 0, () => text(NX[k], 50, vv.s, 'en' + (vv.cls ? ' ' + vv.cls : '')));
+        if (a >= 0.5) { REC.strip.nodes[k] = vv.s; if (/bad/.test(vv.cls || '')) REC.bad++; }
+      });
+      part(tA, 0, () => text(NX[k], 70, NTAG[k], 'tag'));
+    });
+    sp.ops.forEach((o, k) => {
+      if (!o) return;
+      const a = o.a == null ? 1 : o.a;
+      part(a, 0, () => { arrow([NX[k] + 29, 45], [NX[k + 1] - 29, 45], 'op'); text((NX[k] + NX[k + 1]) / 2, 31, o.s, 'lb'); });
+      if (a >= 0.5) REC.strip.ops[k] = o.s;
+    });
+    list(sp.long).forEach((lg) => {
+      const a = lg.a == null ? 1 : lg.a, bad = /bad/.test(lg.cls || '');
+      part(a, 0, () => { arrow([NX[0] + 30, 45], [NX[3] - 30, 45], 'op' + (bad ? ' bad' : '')); text(170, 31, lg.s, 'lb' + (bad ? ' bad' : lg.cls === 'q' ? ' mu' : '')); });
+      if (a >= 0.5) { REC.strip.long = lg.s; if (bad) REC.bad++; }
+    });
+    // The product, written right to left as its steps happen.
+    const ws = PROD.map((s) => tw(s, 'big')), gap = 3, total = ws[0] + ws[1] + ws[2] + 2 * gap;
+    let x = 170 - total / 2;
+    PROD.forEach((s, k) => {
+      const a = sp.prod[k] || 0;
+      if (a > 0) part(a, 0, () => text(x, 104, s, 'big', 'start'));
+      REC.strip.prod[k] = a;
+      x += ws[k] + gap;
+    });
+    if (sp.tagA > 0) part(sp.tagA, 0, () => text(170, 122, 'the first step goes on the right', 'tag'));
+  }
+
+  // ---------- the card under the picture: matrices with brackets ----------
+  function brackets(cx, cy, half, cls) {
+    const top = cy - 21, bot = cy + 22, x0 = cx - half, x1 = cx + half;
+    put(K.svg('path', { class: 'brk' + (cls ? ' ' + cls : ''), d: 'M' + (x0 + 6) + ' ' + top + ' H' + x0 + ' V' + bot + ' H' + (x0 + 6) }));
+    put(K.svg('path', { class: 'brk' + (cls ? ' ' + cls : ''), d: 'M' + (x1 - 6) + ' ' + top + ' H' + x1 + ' V' + bot + ' H' + (x1 - 6) }));
+  }
+  const brkCls = (cls) => (/bad/.test(cls) ? 'bad' : /q/.test(cls) ? 'q' : '');
+  function mat(cx, cy, E, cls) {
+    brackets(cx, cy, 33, brkCls(cls));
+    E.forEach((r, i) => r.forEach((s, j) => text(cx + (j ? 16 : -16), cy + (i ? 16 : -5), s, cls)));
+  }
+  function vec(cx, cy, E, cls) {
+    brackets(cx, cy, 19, brkCls(cls));
+    E.forEach((s, i) => text(cx, cy + (i ? 16 : -5), s, cls));
+  }
+  const matS = (M) => M.map((r) => r.map(fr));
+  function bars(cx, cy) { line('bar1', cx - 24, cy + 30, cx - 8, cy + 30); line('bar2', cx + 8, cy + 30, cx + 24, cy + 30); }
+  function drawCard(top, c) {
+    const cy = top + 32;
+    REC.card = { kind: c.kind };
+    if (c.kind === 'P') {
+      const okv = !!c.inV;
+      part(c.pA, 0, () => { text(60, cy + 6, 'P', 'mx'); text(82, cy + 6, '=', 'en'); mat(134, cy, matS(c.M), 'en'); bars(134, cy); text(118, cy + 50, 'b₁', 'tag'); text(150, cy + 50, 'b₂', 'tag'); });
+      part(c.xA, 0, () => { text(185, cy + 6, '×', 'en'); vec(218, cy, okv ? c.inV.map(fr) : ['?', '?'], okv ? 'en' : 'en q'); text(218, cy + 50, 'hers', 'tag'); });
+      part(c.eA, 0, () => { text(252, cy + 6, '=', 'en'); vec(286, cy, c.outV.map(fr), 'en'); text(286, cy + 50, 'yours', 'tag'); });
+      if (c.pA >= 0.5) REC.card.M = c.M;
+      if (c.xA >= 0.5) REC.card.inV = c.inV;
+      if (c.eA >= 0.5) REC.card.outV = c.outV;
+    } else if (c.kind === 'inv') {
+      const D = detM(c.M);
+      if (near(D, 0)) {
+        part(1, 0, () => { text(170, cy + 6, 'P has no inverse', 'ln bad'); text(170, top + 80, 'Her cells have area 0', 'ln bad'); });
+        REC.bad++; REC.card.det = 0; REC.card.adj = null;
+      } else {
+        const adj = adjM(c.M), dT = D < 0 ? '(' + fr(D) + ')' : fr(D), am = mulMV(invM(c.M), TIP);
+        part(c.a1, 0, () => { text(102, cy + 6, 'P⁻¹', 'mx'); text(132, cy + 6, '=', 'en'); mat(184, cy, matS(adj), 'en'); text(226, cy + 6, '÷ ' + dT, 'en', 'start'); });
+        part(c.a2, 0, () => fitText(170, top + 80, 'P⁻¹ × ' + pt(TIP) + ' = ' + pt(mulMV(adj, TIP)) + ' ÷ ' + dT + ' = ' + pt(am), 'ln'));
+        if (c.a1 >= 0.5) { REC.card.adj = adj; REC.card.det = D; }
+        if (c.a2 >= 0.5) REC.card.out = am;
+      }
+    } else if (c.kind === 'pick') {
+      const cls = c.M ? 'en' + (c.cls === 'bad' ? ' bad' : c.cls === 'ok' ? ' ok' : '') : 'en q';
+      text(124, cy + 6, 'P', 'mx'); text(146, cy + 6, '=', 'en');
+      if (!c.M) mat(200, cy, [['?', '?'], ['?', '?']], cls);
+      else {
+        part(1 - c.a, 0, () => mat(200, cy, [['?', '?'], ['?', '?']], 'en q'));
+        part(c.a, 0, () => { mat(200, cy, matS(c.M), cls); if (c.cls === 'ok') bars(200, cy); });
+        if (c.a >= 0.5) { REC.card.M = c.M; if (c.cls === 'bad') REC.bad++; }
+      }
+    } else if (c.kind === 'stretch') {
+      part(c.mA, 0, () => { text(40, cy + 6, 'M', 'mx'); text(62, cy + 6, '=', 'en'); mat(112, cy, matS(MS), 'en'); });
+      part(c.dA, 0, () => { text(196, cy + 6, 'P⁻¹MP', 'mx'); text(236, cy + 6, '=', 'en'); mat(286, cy, matS(DS), 'en ok'); });
+      part(c.tA, 0, () => fitText(170, top + 80, 'On the new grid, M only stretches b₁ and b₂', 'ln ok'));
+      if (c.dA >= 0.5) REC.card.D = DS;
+    }
+  }
+
+  // ---------- the layout: the band, worked lines, the picture, the card, its key ----------
+  const READ_H = 80, STRIP_H = 128, CARD_H = 90;
+  function lay(d) {
+    const top = d.band === 'read' ? READ_H : d.band === 'strip' ? STRIP_H : 0;
+    const rows = d.rows || 0, ly = [];
+    for (let k = 0; k < rows; k++) ly.push(top + 16 + k * 21);
+    const ptop = rows ? ly[rows - 1] + 10 : top + 6;
+    const ctop = ptop + PH2 + 8;
+    const ky = (d.card ? ctop + CARD_H : ptop + PH2) + 20;
+    return { ly, ptop, ctop, ky, h: ky + 8 };
+  }
+
+  // ---------- one screen ----------
+  function drawStep(d, st, Ly, i) {
+    const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null, live = st.live;
+    const rows = [];
+    const row = (r, s, cls, a) => rows.push({ r, s, cls: cls || 'ln', a: a == null ? 1 : a });
+    const slip = (r) => row(r || 0, d.slips[st.pick], 'ln bad', arr(0.1, 0.3));
+    const reveal = (a) => { if (a > 0) REC.reveal++; };
+    let pic = null, read = null, card = null, strip = null, keyItems = [['gl', 'your grid'], ['sl', 'her grid']];
+    const hersLive = (u, v, am, a) => (am ? { s: pt(am), a } : { s: noneText(u, v), cls: 'bad' });
+    switch (d.key) {
+      case 'meet': {
+        const u = st.u || B1, v = st.v || B2, am = herNums(u, v);
+        const gA = 1, bA = 1, tA = 1;
+        const he = live ? howE() : [go(0.5, 1.0), go(1.6, 0.7)], hA = live ? 1 : arr(2.4, 0.5);
+        pic = basePic(u, v, { gA, bA });
+        if (am) pic.chains.push({ u, v, a: am[0] * he[0], b: am[1] * he[1], al: tA, lam: am, la: live ? labA(he) : hA });
+        pic.main = { to: TIP, a: tA };
+        read = { yours: [{ s: pt(TIP), a: tA }], hers: [hersLive(u, v, am, hA)] };
+        row(0, coordsT(u, v), 'ln', bA);
+        if (am) row(1, mixT(am) + ' = ' + pt(TIP), 'ln', hA); else row(1, LINE_WARN, 'ln bad');
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'move': {
+        const v = st.v || B2, em = live ? 1 : go(1.0, 1.6);
+        const u = st.u || (live ? B1N : lerpV(B1, B1N, em)), am = herNums(u, v), amEnd = herNums(B1N, B2);
+        const ghA = live ? 1 : arr(1.0, 0.4), oldA = live ? 0 : 1 - arr(0.9, 0.3), newA = live ? 1 : arr(2.7, 0.4), stayA = live ? 1 : arr(2.9);
+        const he = live ? howE() : [1, 1];
+        pic = basePic(u, v);
+        pic.arrows.unshift({ to: B1, cls: 'gh', name: 'old b₁', a: ghA });
+        if (am) pic.chains.push({ u, v, a: am[0] * he[0], b: am[1] * he[1], al: 1, lam: live ? am : (oldA > 0 ? HERS : amEnd), la: live ? labA(he) : Math.max(oldA, newA) });
+        pic.main = { to: TIP, a: 1 };
+        pic.tags.push({ p: TIP, s: 'stays put', a: stayA, cls: 'mu' });
+        if (live) {
+          read = { yours: [{ s: pt(TIP) }], hers: [hersLive(u, v, am, 1)] };
+          row(0, coordsT(u, v));
+          if (am) row(1, mixT(am) + ' = ' + pt(TIP)); else row(1, LINE_WARN, 'ln bad');
+        } else {
+          read = { yours: [{ s: pt(TIP) }], hers: [{ s: pt(HERS), a: oldA }, { s: pt(amEnd), a: newA }] };
+          row(0, coordsT(B1, B2), 'ln', oldA); row(0, coordsT(B1N, B2), 'ln', newA);
+          row(1, mixT(HERS) + ' = ' + pt(TIP), 'ln', oldA); row(1, mixT(amEnd) + ' = ' + pt(TIP), 'ln', newA);
+        }
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'P': {
+        const u = st.u || B1, v = st.v || B2, am = herNums(u, v);
+        const gA = 1, he = live ? howE() : [go(0.5, 0.8), go(1.3, 0.6)], la = live ? labA(he) : arr(1.9, 0.4);
+        const pA = live ? 1 : arr(2.0), xA = live ? 1 : arr(2.5), eA = live ? 1 : arr(3.0, 0.5);
+        pic = basePic(u, v, { gA, bA: gA });
+        if (am) pic.chains.push({ u, v, a: am[0] * he[0], b: am[1] * he[1], al: gA, lam: am, la });
+        pic.main = { to: TIP, a: gA };
+        read = { yours: [{ s: pt(TIP), a: gA }], hers: [hersLive(u, v, am, gA)] };
+        row(0, coordsT(u, v), 'ln', gA);
+        if (am) row(1, mixT(am) + ' = ' + pt(TIP), 'ln', la); else row(1, LINE_WARN, 'ln bad');
+        card = { kind: 'P', M: cols(u, v), inV: am, outV: TIP, pA, xA, eA };
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'back': {
+        const u = st.u || B1, v = st.v || B2, am = herNums(u, v);
+        const gA = 1, cA = live ? 1 : arr(0.6), a1 = live ? 1 : arr(1.4), a2 = live ? 1 : arr(2.2);
+        const he = live ? howE() : [1, 1];
+        pic = basePic(u, v, { gA, bA: gA });
+        if (am) pic.cell = { u, v, a: cA };
+        if (am) pic.chains.push({ u, v, a: am[0] * he[0], b: am[1] * he[1], al: gA, lam: am, la: live ? labA(he) : gA });
+        pic.main = { to: TIP, a: gA };
+        read = { yours: [{ s: pt(TIP), a: gA }], hers: [hersLive(u, v, am, gA)] };
+        row(0, coordsT(u, v), 'ln', gA);
+        card = { kind: 'inv', M: cols(u, v), a1, a2 };
+        keyItems = keyItems.concat([['cell', 'one cell']]);
+        REC.u = u; REC.v = v;
+        break;
+      }
+      case 'strip': {
+        const gA = 1, n0 = arr(0.6), s1 = arr(1.2), te = go(1.8, 1.0), s2 = arr(2.4), oldC = 1 - arr(1.8, 0.4), ne = go(2.9, 0.7), s3 = arr(3.5, 0.5), ghA = arr(1.8, 0.4);
+        const turned = te >= 1 ? TURNED : rotD(TIP, 90 * te);
+        pic = basePic(B1, B2, { gA, bA: gA });
+        pic.chains.push({ u: B1, v: B2, a: HERS[0], b: HERS[1], al: Math.min(n0, oldC), lam: HERS, la: Math.min(n0, oldC) });
+        if (ne > 0) pic.chains.push({ u: B1, v: B2, a: HERS_T[0] * ne, b: HERS_T[1] * ne, al: 1, lam: HERS_T, la: s3 });
+        pic.arrows.push({ to: TIP, cls: 'gh', name: 'before', a: ghA });
+        pic.main = { to: turned, a: s1 };
+        strip = { nodes: [{ s: pt(HERS), a: n0 }, { s: pt(mulMV(P0, HERS)), a: s1 }, { s: pt(TURNED), a: s2 }, { s: pt(HERS_T), a: s3 }],
+          ops: [{ s: 'P', a: s1 }, { s: 'M', a: s2 }, { s: 'P⁻¹', a: s3 }], prod: [s3, s2, s1], tagA: s3 };
+        break;
+      }
+      case 'stretch': {
+        const e = go(1.2, 1.8), Me = [[1 + e * (MS[0][0] - 1), e * MS[0][1]], [e * MS[1][0], 1 + e * (MS[1][1] - 1)]];
+        const u = e >= 1 ? mulMV(MS, C1) : mulMV(Me, C1), v = e >= 1 ? mulMV(MS, C2) : mulMV(Me, C2), j = e >= 1 ? mulMV(MS, J2) : mulMV(Me, J2);
+        const gA = 1, jA = 1, nOld = 1 - arr(3.0, 0.3), nNew = arr(3.1, 0.4);
+        const k1 = mulMV(MS, C1)[0] / C1[0], k2 = mulMV(MS, C2)[1] / C2[1];
+        pic = basePic(u, v, { gA, bA: gA, n1: [['b₁', nOld], [fr(k1) + 'b₁', nNew]], n2: [['b₂', nOld], [fr(k2) + 'b₂', nNew]] });
+        pic.arrows.push({ to: j, cls: 'mu', name: 'j', a: jA });
+        row(0, coordsT(C1, C2), 'ln', Math.min(gA, nOld));
+        row(0, 'Mb₁ = ' + fr(k1) + 'b₁ and Mb₂ = ' + fr(k2) + 'b₂', 'ln ok', nNew);
+        keyItems = [['gl', 'your grid'], ['sl', 'the new grid']];
+        card = { kind: 'stretch', mA: arr(0.6), dA: arr(3.1), tA: arr(3.4) };
+        REC.u = u; REC.v = v; REC.j = j;
+        break;
+      }
+      case 'toYours': {
+        const ans = mulMV(P0, H1);
+        pic = basePic(B1, B2);
+        read = { yours: [{ s: '?', cls: 'q' }], hers: [{ s: pt(H1) }] };
+        row(0, coordsT(B1, B2));
+        if (right) {
+          const e1 = go(0.1, 0.5), e2 = go(0.6, 0.6), pa = arr(1.0, 0.4);
+          pic.chains.push({ u: B1, v: B2, a: H1[0] * e1, b: H1[1] * e2, al: 1, lam: H1, la: pa });
+          pic.main = { to: ans, a: pa };
+          pic.rings.push({ p: ans, a: pa, cls: 'ok' });
+          read.yours = [{ s: '?', cls: 'q', a: 1 - pa }, { s: pt(ans), cls: 'ok', a: pa }];
+          row(1, mixT(H1) + ' = ' + pt(ans), 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const p = parsePts(st.pick)[0], wa = arr(0.1, 0.4);
+          pic.rings.push({ p, s: pt(p), a: wa, cls: 'bad' });
+          read.yours = [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(p), cls: 'bad', a: wa }];
+          slip(1);
+        }
+        break;
+      }
+      case 'changed': {
+        const amN = herNums(B1N, B2);
+        pic = basePic(B1N, B2);
+        pic.arrows.unshift({ to: B1, cls: 'gh', name: 'old b₁', a: 1 });
+        pic.main = { to: TIP, a: 1 };
+        read = { yours: [{ s: pt(TIP) }], hers: [{ s: '?', cls: 'q' }], tags: [{ k: 1, s: 'was ' + pt(HERS) }] };
+        row(0, coordsT(B1N, B2));
+        if (right) {
+          const e = go(0.1, 0.8), pa = arr(0.9, 0.4);
+          pic.chains.push({ u: B1N, v: B2, a: amN[0] * e, b: amN[1] * e, al: 1, lam: amN, la: pa });
+          pic.rings.push({ p: TIP, a: pa, cls: 'ok' });
+          read.hers = [{ s: '?', cls: 'q', a: 1 - pa }, { s: pt(amN), cls: 'ok', a: pa }];
+          row(1, 'Only her numbers changed', 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.4);
+          if (st.pick === O3[0]) pic.rings.push({ p: TIP, a: wa, cls: 'bad' });
+          else {
+            const land = mix2(HERS[0], HERS[1], B1N, B2), ca = go(0.1, 0.6);
+            pic.chains.push({ u: B1N, v: B2, a: HERS[0] * ca, b: HERS[1] * ca, al: 1, bad: true });
+            pic.rings.push({ p: land, s: pt(land), a: arr(0.6, 0.4), cls: 'bad' });
+            read.hers = [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(HERS), cls: 'bad', a: wa }];
+          }
+          slip(1);
+        }
+        break;
+      }
+      case 'pickP': {
+        pic = basePic(Q1, Q2, { n1: pt(Q1), n2: pt(Q2) });
+        card = { kind: 'pick', M: null };
+        keyItems = [['gl', 'your grid'], ['sl', 'the new grid']];
+        if (right) {
+          const pa = arr(0.1, 0.5);
+          card = { kind: 'pick', M: MATS[st.pick], cls: 'ok', a: pa };
+          row(0, 'Its columns are ' + pt(Q1) + ' and ' + pt(Q2), 'ln ok', arr(0.5, 0.4));
+          reveal(pa);
+        } else if (wrong) {
+          const M = MATS[st.pick], wa = arr(0.1, 0.4), ca = arr(0.4, 0.5);
+          card = { kind: 'pick', M, cls: 'bad', a: wa };
+          [colOf(M, 0), colOf(M, 1)].forEach((c) => { if (!samePt(c, Q1) && !samePt(c, Q2)) pic.arrows.push({ to: c, cls: 'bad', name: pt(c), a: ca }); });
+          slip(0);
+        }
+        break;
+      }
+      case 'toHers': {
+        const ans = mulMV(PI0, Y8);
+        pic = basePic(B1, B2);
+        pic.main = { to: Y8, a: 1 };
+        read = { yours: [{ s: pt(Y8) }], hers: [{ s: '?', cls: 'q' }] };
+        row(0, coordsT(B1, B2));
+        if (right) {
+          const e1 = go(0.1, 0.5), e2 = go(0.6, 0.5), pa = arr(1.1, 0.4);
+          pic.chains.push({ u: B1, v: B2, a: ans[0] * e1, b: ans[1] * e2, al: 1, lam: ans, la: pa });
+          pic.rings.push({ p: Y8, a: pa, cls: 'ok' });
+          read.hers = [{ s: '?', cls: 'q', a: 1 - pa }, { s: pt(ans), cls: 'ok', a: pa }];
+          row(1, mixT(ans) + ' = ' + pt(Y8), 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const am = parsePts(st.pick)[0], land = mix2(am[0], am[1], B1, B2), e1 = go(0.1, 0.5), e2 = go(0.6, 0.5), wa = arr(0.1, 0.4);
+          pic.chains.push({ u: B1, v: B2, a: am[0] * e1, b: am[1] * e2, al: 1, bad: true });
+          pic.rings.push({ p: land, s: pt(land), a: arr(1.1, 0.4), cls: 'bad' });
+          read.hers = [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(am), cls: 'bad', a: wa }];
+          slip(1);
+        }
+        break;
+      }
+      case 'order': {
+        pic = basePic(B1, B2);
+        pic.arrows.push({ to: TIP, cls: 'gh', name: 'before', a: 1 });
+        pic.main = { to: TURNED, a: 1 };
+        pic.tags.push({ p: TURNED, s: 'turned', a: 1, cls: 'mu' });
+        strip = { nodes: [{ s: pt(HERS) }, null, null, { s: '?', cls: 'q' }], ops: [null, null, null], long: { s: '?', cls: 'q', a: 1 }, prod: [0, 0, 0], tagA: 0 };
+        let oldA = 1;
+        if (right) {
+          const s1 = arr(0.1, 0.4), s2 = arr(0.5, 0.4), s3 = arr(0.9, 0.4), ne = go(0.6, 0.7), ra = arr(1.3, 0.4);
+          oldA = 1 - s2;
+          strip.long = { s: '?', cls: 'q', a: 1 - s1 };
+          strip.nodes = [{ s: pt(HERS) }, { s: pt(TIP), a: s1 }, { s: pt(TURNED), a: s2 }, [{ s: '?', cls: 'q', a: 1 - s3 }, { s: pt(HERS_T), cls: 'ok', a: s3 }]];
+          strip.ops = [{ s: 'P', a: s1 }, { s: 'M', a: s2 }, { s: 'P⁻¹', a: s3 }];
+          strip.prod = [s3, s2, s1]; strip.tagA = s3;
+          pic.chains.push({ u: B1, v: B2, a: HERS_T[0] * ne, b: HERS_T[1] * ne, al: 1, lam: HERS_T, la: ra });
+          pic.rings.push({ p: TURNED, a: ra, cls: 'ok' });
+          row(0, 'P⁻¹MP takes ' + pt(HERS) + ' to ' + pt(HERS_T), 'ln ok', s3);
+          reveal(s3);
+        } else if (wrong) {
+          const res = mulMV(PRODS[st.pick], HERS), land = mix2(res[0], res[1], B1, B2), wa = arr(0.1, 0.4), ce = go(0.4, 0.7);
+          strip.long = [{ s: '?', cls: 'q', a: 1 - wa }, { s: st.pick, cls: 'bad', a: wa }];
+          strip.nodes[3] = [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(res), cls: 'bad', a: wa }];
+          pic.chains.push({ u: B1, v: B2, a: res[0] * ce, b: res[1] * ce, al: 1, bad: true });
+          pic.rings.push({ p: land, s: pt(land), a: arr(1.1, 0.4), cls: 'bad' });
+          slip(0);
+        }
+        pic.chains.unshift({ u: B1, v: B2, a: HERS[0], b: HERS[1], al: oldA, lam: HERS, la: oldA });
+        break;
+      }
+      case 'mixed1': {
+        const ans = mulMV(invM(cols(G1, G2)), T12);
+        pic = basePic(G1, G2, { n1: pt(G1), n2: pt(G2) });
+        pic.main = { to: T12, a: 1 };
+        read = { yours: [{ s: pt(T12) }], hers: [{ s: '?', cls: 'q' }], hn: 'on the new grid' };
+        keyItems = [['gl', 'your grid'], ['sl', 'the new grid']];
+        if (right) {
+          const e1 = go(0.1, 0.6), e2 = go(0.7, 0.4), pa = arr(1.1, 0.4);
+          pic.chains.push({ u: G1, v: G2, a: ans[0] * e1, b: ans[1] * e2, al: 1 });
+          pic.rings.push({ p: T12, a: pa, cls: 'ok' });
+          read.hers = [{ s: '?', cls: 'q', a: 1 - pa }, { s: pt(ans), cls: 'ok', a: pa }];
+          row(0, mixP(ans, G1, G2) + ' = ' + pt(T12), 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const am = parsePts(st.pick)[0], land = mix2(am[0], am[1], G1, G2), e1 = go(0.1, 0.6), e2 = go(0.7, 0.4), wa = arr(0.1, 0.4);
+          pic.chains.push({ u: G1, v: G2, a: am[0] * e1, b: am[1] * e2, al: 1, bad: true });
+          pic.rings.push({ p: land, s: pt(land), a: arr(1.1, 0.4), cls: 'bad' });
+          read.hers = [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(am), cls: 'bad', a: wa }];
+          slip(0);
+        }
+        break;
+      }
+      case 'mixed2': {
+        pic = pic0();
+        pic.grid = { u: L1, v: L2, a: 1 };
+        pic.arrows.push({ to: L2, cls: 'c2', name: pt(L2) }, { to: L1, cls: 'c1', name: pt(L1) });
+        pic.main = { to: TIP, a: 1 };
+        read = { yours: [{ s: pt(TIP) }], hers: [{ s: '?', cls: 'q' }], hn: 'on the new grid' };
+        keyItems = [['gl', 'your grid'], ['sl', 'the new grid']];
+        if (right) {
+          const pa = arr(0.1, 0.5), ra = arr(0.4, 0.4);
+          pic.rings.push({ p: TIP, a: ra, cls: 'ok' });
+          read.hers = [{ s: '?', cls: 'q', a: 1 - pa }, { s: noneText(L1, L2), cls: 'ok', a: pa }];
+          row(0, 'Every mix stays on one line, so P has no inverse', 'ln ok', pa);
+          reveal(pa);
+        } else if (wrong) {
+          const wa = arr(0.1, 0.4);
+          if (st.pick === O12[1]) pic.rings.push({ p: TIP, a: wa, cls: 'bad' });
+          else {
+            const ce = go(0.2, 0.8);
+            pic.chains.push({ u: L1, v: L2, a: HALF[0] * ce, b: HALF[1] * ce, al: 1, bad: true });
+            read.hers = [{ s: '?', cls: 'q', a: 1 - wa }, { s: pt(HALF), cls: 'bad', a: wa }];
+          }
+          slip(0);
+        }
+        break;
+      }
+      default: break;
+    }
+    // The band, the worked lines, the picture, the card, the key.
+    if (read) drawRead(read);
+    if (strip) drawStrip(strip);
+    rows.forEach((ln) => {
+      part(ln.a, 0, () => fitText(170, Ly.ly[ln.r], ln.s, ln.cls));
+      if (ln.a >= 0.5) { REC.rows.push({ s: ln.s, cls: ln.cls }); if (/bad/.test(ln.cls)) REC.bad++; }
+    });
+    const vw = view2(Ly.ptop);
+    if (d.drag && REC.u && REC.v && !finished) pic.grips = [REC.u, REC.v];
+    scene2(vw, pic);
+    GEO2 = vw;
+    if (d.drag && REC.u && REC.v) { REC.tipU = toPx(vw, REC.u); REC.tipV = toPx(vw, REC.v); }
+    if (card) drawCard(Ly.ctop, card);
+    drawKey(Ly.ky, keyItems);
+    const said = ['Your squared grid, with a slanted grid over it. Arrows from the origin to ' + REC.arrows.map((a) => say(pt(a.to))).join(', ') + '.'];
+    if (REC.reads) said.push('On your grid, ' + say(REC.reads[0] || 'unknown') + '. On ' + REC.hn + ', ' + say(REC.reads[1] || 'unknown') + '.');
+    if (REC.strip) said.push('A strip: ' + REC.strip.nodes.filter((n) => n).map(say).join(', then ') + '.');
+    REC.rows.forEach((r) => said.push(say(r.s) + '.'));
+    if (REC.areas.length) said.push('One cell has area ' + say(fr(REC.areas[REC.areas.length - 1])) + '.');
+    return said.join(' ');
+  }
+
+  // ---------- the drags: the tips of b1 and b2 ----------
+  const grips = ['b₁', 'b₂'].map((nm) => ui.appendChild(K.svg('circle', { class: 'grip', cx: -60, cy: -60, r: 20, tabindex: -1, role: 'button', 'aria-label': 'The tip of ' + say(nm) + ': drag it, or use the arrow keys, to move it to another whole point' })));
+  function placeGrips(d) {
+    const on2 = !finished && !!d.drag && !!REC && !!REC.tipU;
+    grips.forEach((g, k) => {
+      g.style.display = on2 ? '' : 'none';
+      g.setAttribute('tabindex', on2 ? '0' : '-1');
+      if (on2) { const q = k ? REC.tipV : REC.tipU; g.setAttribute('cx', r3(q[0])); g.setAttribute('cy', r3(q[1])); }
+    });
+  }
+  function setTip(k, x, y) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.drag || finished) return;
+    const p = [K.clamp(Math.round(x), DX[0], DX[1]), K.clamp(Math.round(y), DY[0], DY[1])];
+    if (p[0] === 0 && p[1] === 0) return;
+    const u0 = st.u || d.u0, v0 = st.v || d.v0;
+    if (st.live && samePt(k ? v0 : u0, p)) return;
+    st.u = (k ? u0 : p).slice(); st.v = (k ? p : v0).slice();
+    goLive(st);
+    K.reveal();
+    K.refresh();
+  }
+  function svgAt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return [q.x, q.y];
+  }
+  const worldAt = (q) => (GEO2 ? [GEO2.x0 + (q[0] - GEO2.left) / GEO2.G, GEO2.y1 - (q[1] - GEO2.top) / GEO2.G] : null);
+  let held = null;
+  grips.forEach((g, k) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      const q = svgAt(e);
+      if (!q) return;
+      held = { id: e.pointerId, k };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+      e.preventDefault();
+      e.stopPropagation();
+      const w = worldAt(q);
+      if (w) setTip(k, w[0], w[1]);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId || held.k !== k) return;
+      const q = svgAt(e), w = q ? worldAt(q) : null;
+      if (w) setTip(k, w[0], w[1]);
+    });
+    const letGo = (e) => { if (held && (!e || held.id === e.pointerId)) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => letGo(null));
+    g.addEventListener('keydown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (!by) return;
+      e.preventDefault();
+      const d = STEPS[at()], st = S[at()], now = k ? (st.v || d.v0) : (st.u || d.u0);
+      setTip(k, now[0] + by[0], now[1] + by[1]);
+    });
+  });
+
+  // ---------- the scene for a step (the animations call this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null; placed = []; clipN = 0; GEO2 = null;
+    REC = { texts: [], rows: [], areas: [], rings: [], chains: [], arrows: [], main: null, reads: null, strip: null, card: null,
+      u: null, v: null, j: null, tipU: null, tipV: null, bad: 0, reveal: 0 };
+    const Ly = lay(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(Ly.h));
+    svg.setAttribute('aria-label', drawStep(d, st, Ly, i) || '');
+    placeGrips(d);
+  }
+
+  write(el('finish'), FINISH);
+  K.update(() => {
+    const i = Math.round(stepper.get()), d = STEPS[i];
+    if (!anim.playing()) { T = Infinity; CH = Infinity; }
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(); play(d.dur); } else { anim.pause(); T = Infinity; CH = Infinity; }
+    }
+    const st = S[i];
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    const act = el('act');
+    write(act, d.act || '');
+    act.hidden = finished || !d.act;
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    howBtn.el.hidden = !d.how;
+    el('replay').hidden = replayBtn.el.hidden && howBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (k) => STEPS.findIndex((d) => d.key === k);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (o) => Object.assign(blank(), { live: true }, o);
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawnRaw(i, st, t) {
+    const keepS = S[i], keepT = T, keepC = CH;
+    S[i] = st; T = t == null ? Infinity : t; CH = Infinity;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; CH = keepC; }
+  }
+  function drawn(i, st, t) { const r = drawnRaw(i, st, t); paint(); return r; }
+  const okRows = (r) => r.rows.filter((x) => /ok/.test(x.cls)).map((x) => x.s);
+  function sweep(fn) {
+    let ok = true;
+    for (let x = DX[0]; x <= DX[1]; x++) for (let y = DY[0]; y <= DY[1]; y++) {
+      if (x === 0 && y === 0) continue;
+      ok = ok && fn([x, y], B2) && fn(B1, [x, y]);
+    }
+    paint();
+    return ok;
+  }
+
+  K.check('When you think of coordinates as scalars, the basis arrows are what those scalars actually scale: on the first screen her numbers scale her two arrows, nose to tail, to the same tip that your numbers reach with i and j', () => {
+    const r = drawn(idx('meet'), blank());
+    return r.chains.length === 1 && samePt([r.chains[0].a, r.chains[0].b], HERS) && samePt(r.chains[0].end, TIP) &&
+      samePt(mix2(TIP[0], TIP[1], I2, J2), TIP) && samePt(r.main, TIP) && r.reads[0] === pt(TIP) && r.reads[1] === pt(HERS);
+  }, { source: TBB_SPAN });
+  K.check('The numbers belong to a grid, the arrow to none: wherever either of her arrows is dragged, the arrow drawn keeps its tip, her How chain still ends on it, and only her numbers change', () => {
+    const i = idx('meet');
+    let changed = false;
+    const ok = sweep((u, v) => {
+      const r = drawnRaw(i, liveSt({ u, v })), am = herNums(u, v);
+      if (!(samePt(r.main, TIP) && r.reads[0] === pt(TIP))) return false;
+      if (!am) return r.chains.length === 0 && r.reads[1] === noneText(u, v);
+      if (r.reads[1] !== pt(HERS)) changed = true;
+      return r.chains.length === 1 && samePt(r.chains[0].end, TIP) && r.reads[1] === pt(am) && samePt(mix2(am[0], am[1], u, v), TIP);
+    });
+    return ok && changed;
+  });
+  K.check('Going from her numbers to yours is matrix-vector multiplication, with a matrix whose columns represent Jennifer\'s basis vectors: the card shows P with her two arrows as its columns wherever they are dragged, and P times her numbers gives yours', () => {
+    const i = idx('P');
+    return sweep((u, v) => {
+      const r = drawnRaw(i, liveSt({ u, v })), am = herNums(u, v);
+      if (!sameM(r.card.M, cols(u, v))) return false;
+      if (!am) return r.card.inV === null;
+      return samePt(r.card.inV, am) && samePt(r.card.outV, TIP) && samePt(mulMV(r.card.M, r.card.inV), r.card.outV);
+    });
+  }, { source: TBB_COB });
+  K.check('Every worked number is right: P(2, 1) = (3, 3) and 2b₁ = (4, 2); determinant 3, and P⁻¹ = [1 1; −1 2] ÷ 3 takes (3, 3) to (6, 3) ÷ 3 = (2, 1); P(3, 3) = (3, 6) and 3b₁ + 6b₂ = (0, 9); (1, 2) lands on (0, 3), rows for columns on (4, 1); b₁ = (1, 1) gives (3, 0); (1, −1) is (0, −1) and P(1, −1) = (3, 0); the turn takes (3, 3) to (−3, 3) and her (2, 1) to (0, 3); P⁻¹MP = [3 0; 0 2]; (4, 2) is (3, 1) and P(4, 2) = (6, 2); area 0 for (2, 1) and (4, 2); 12 m is 4 lengths of 3 m; the worked example gives (1, 2) with determinant 5', () => {
+    const PG = cols(G1, G2), PW = [[3, 1], [1, 2]];
+    return samePt(mulMV(P0, HERS), TIP) && samePt(HERS, [2, 1]) && samePt(scl(B1, 2), [4, 2]) && detM(P0) === 3 &&
+      sameM(adjM(P0), [[1, 1], [-1, 2]]) && samePt(mulMV(adjM(P0), TIP), [6, 3]) && samePt(mulMV(P0, TIP), [3, 6]) && samePt(mix2(3, 6, B1, B2), [0, 9]) &&
+      samePt(mulMV(P0, H1), [0, 3]) && samePt(mulMV(transpose(P0), H1), [4, 1]) && samePt(amountsOf(TIP, B1N, B2), [3, 0]) &&
+      samePt(mulMV(PI0, Y8), [0, -1]) && samePt(mulMV(adjM(P0), Y8), [0, -3]) && samePt(mulMV(P0, Y8), [3, 0]) &&
+      samePt(TURNED, [-3, 3]) && samePt(HERS_T, [0, 3]) && samePt(mix2(0, 3, B1, B2), TURNED) && samePt(rotD(TIP, 90), TURNED) &&
+      sameM(DS, [[3, 0], [0, 2]]) && samePt(mulMV(MS, C1), [3, 0]) && samePt(mulMV(MS, C2), [-2, 2]) && samePt(mulMV(MS, J2), [1, 2]) &&
+      samePt(mulMV(invM(PG), T12), [3, 1]) && detM(PG) === -2 && samePt(mulMV(PG, T12), [6, 2]) &&
+      det2(L1, L2) === 0 && samePt(L2, scl(L1, 2)) && 12 / 3 === 4 &&
+      detM(PW) === 5 && sameM(adjM(PW), [[2, -1], [-1, 3]]) && samePt(mulMV(invM(PW), [5, 5]), [1, 2]) && samePt(mix2(1, 2, [3, 1], [1, 2]), [5, 5]);
+  });
+  K.check('Each puzzle\'s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {
+    const g = (k) => STEPS[idx(k)];
+    const ptOk = (k, f) => { const d = g(k); return d.opts.every((o) => samePt(parsePts(o)[0], f) === (o === d.want)); };
+    const PG = cols(G1, G2);
+    return ptOk('toYours', mulMV(P0, H1)) && g('toYours').opts.indexOf(pt(H1)) >= 0 && g('toYours').opts.indexOf(pt(mulMV(transpose(P0), H1))) >= 0 &&
+      g('changed').want === 'Only her numbers for it' && !samePt(amountsOf(TIP, B1N, B2), HERS) && !samePt(mix2(HERS[0], HERS[1], B1N, B2), TIP) &&
+      O5.every((o) => sameM(MATS[o], cols(Q1, Q2)) === (o === g('pickP').want)) && O5.every((o) => o === '[' + matS(MATS[o])[0].join(' ') + '; ' + matS(MATS[o])[1].join(' ') + ']') &&
+      ptOk('toHers', mulMV(PI0, Y8)) && g('toHers').opts.indexOf(pt(mulMV(P0, Y8))) >= 0 &&
+      O9.every((o) => samePt(mix2.apply(null, mulMV(PRODS[o], HERS).concat([B1, B2])), TURNED) === (o === g('order').want)) &&
+      ptOk('mixed1', mulMV(invM(PG), T12)) && g('mixed1').opts.indexOf(pt(mulMV(PG, T12))) >= 0 &&
+      g('mixed2').want === O12[0] && near(det2(L1, L2), 0) && !onLine(TIP, L1, L2) && !samePt(mix2(HALF[0], HALF[1], L1, L2), TIP);
+  });
+  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () => {
+    const ok = DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;
+      if (!d.opts.every((o) => isRight(i, Object.assign(blank(), { pick: o })) === (o === d.want))) return false;
+      if (drawnRaw(i, solvedSt(i)).bad !== 0) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => drawnRaw(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);
+    });
+    paint();
+    return ok;
+  });
+  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () => {
+    const ok = DO.every((i) => {
+      const d = STEPS[i], b = drawnRaw(i, blank()), s = drawnRaw(i, solvedSt(i));
+      return b.reveal === 0 && s.reveal > 0 && okRows(b).length === 0 && !b.texts.some((x) => x.indexOf(d.want) >= 0);
+    });
+    paint();
+    return ok;
+  });
+  K.check('Each demonstration ends where the lesson says: the arrow (3, 3) read as (2, 1); b₁ on (1, 1) with her numbers (3, 0) and the arrow unmoved; P = [2 −1; 1 1] taking (2, 1) to (3, 3); a cell of area 3 and P⁻¹ = [1 1; −1 2] ÷ 3; the strip (2, 1), (3, 3), (−3, 3), (0, 3); the stretches to (3, 0) and (−2, 2) with P⁻¹MP = [3 0; 0 2]', () => {
+    const m = drawnRaw(idx('meet'), blank()), mv = drawnRaw(idx('move'), blank()), p = drawnRaw(idx('P'), blank()), bk = drawnRaw(idx('back'), blank());
+    const sp = drawnRaw(idx('strip'), blank()), sr = drawnRaw(idx('stretch'), blank());
+    paint();
+    const turnChain = sp.chains.find((c) => near(c.a, 0) && near(c.b, 3));
+    return m.reads[0] === '(3, 3)' && m.reads[1] === '(2, 1)' && samePt(m.chains[0].end, TIP) &&
+      samePt(mv.u, B1N) && mv.reads[1] === '(3, 0)' && samePt(mv.main, TIP) && samePt([mv.chains[0].a, mv.chains[0].b], [3, 0]) && samePt(mv.chains[0].end, TIP) &&
+      sameM(p.card.M, P0) && samePt(p.card.inV, HERS) && samePt(p.card.outV, TIP) &&
+      near(bk.areas[0], 3) && sameM(bk.card.adj, [[1, 1], [-1, 2]]) && bk.card.det === 3 && samePt(bk.card.out, HERS) && bk.reads[1] === '(2, 1)' &&
+      sp.strip.nodes.join(' ') === '(2, 1) (3, 3) (−3, 3) (0, 3)' && sp.strip.ops.join(' ') === 'P M P⁻¹' && sp.strip.prod.every((a) => a === 1) &&
+      samePt(sp.main, TURNED) && !!turnChain && samePt(turnChain.end, TURNED) &&
+      sameM(sr.card.D, [[3, 0], [0, 2]]) && samePt(sr.u, [3, 0]) && samePt(sr.v, [-2, 2]) && samePt(sr.j, [1, 2]);
+  });
+  K.check('While b₁ swings to (1, 1), the How chain re-lays along it and ends on the arrow\'s tip at every moment; while the arrow turns, its length stays the same; the product is written right to left, P first and P⁻¹ last', () => {
+    const mi = idx('move'), si = idx('strip');
+    let ok = true;
+    const first = [Infinity, Infinity, Infinity];
+    for (let k = 0; k <= 45; k++) {
+      const t = k / 10, r = drawnRaw(mi, blank(), t);
+      ok = ok && samePt(r.main, TIP) && r.chains.length === 1 && samePt(r.chains[0].end, TIP);
+      const s = drawnRaw(si, blank(), t);
+      if (s.main) ok = ok && near(len(s.main), len(TIP), 1e-9);
+      s.strip.prod.forEach((a, j) => { if (a >= 0.5 && t < first[j]) first[j] = t; });
+    }
+    paint();
+    return ok && first[2] < first[1] && first[1] < first[0] && first[0] < Infinity;
+  });
+  K.check('With her two arrows on one line, the cells have area 0: there is no How chain, her numbers read none (or many, when the arrow lies on that line), and P has no inverse', () => {
+    const i = idx('back'), a = drawnRaw(i, liveSt({ u: [2, 1], v: [4, 2] })), b = drawnRaw(i, liveSt({ u: [1, 1], v: [2, 2] }));
+    paint();
+    return a.chains.length === 0 && a.reads[1] === 'none' && a.card.det === 0 && a.card.adj === null && b.reads[1] === 'many' && b.card.det === 0;
+  });
+  K.check('Every demonstration has finished arriving within its 3 to 4.5 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const timed = (i, st, limit) => { latest = 0; earliest = Infinity; drawnRaw(i, st); return latest <= limit + 1e-9; };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);
+    });
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

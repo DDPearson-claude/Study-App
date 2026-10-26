@@ -1,0 +1,601 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T02:05:17.410Z",
+ "startedAt": "2026-10-26T02:05:17.410Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Diagonalising: the same step, again and again",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is Dⁿ reading out as plain powers, with each tap only stretching the flag by 3 along (1, 0) and 2 along (−1, 1), when you step A again on the eigenvector grid.",
+   "title": "Step it again",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. Most show the F-shaped flag you have seen before. A = [3 1; 0 2] moves it, the same matrix whose eigenvectors you found. A Step button applies A once more each tap. A counter n says how many steps have been taken. Back and Reset take it down again. A matrix card shows Aⁿ for the current n. The view zooms out by itself as the flag grows, so it stays in sight. A note gives the zoom. A grid switch swaps the square grid for the eigenvector grid. That grid's lines run along A's two eigenvectors, (1, 0) with eigenvalue 3 and (−1, 1) with eigenvalue 2. On it the flag is read as amounts of each. Each tap multiplies the first amount by 3 and the second by 2, because an eigenvector is only stretched. A second card then reads Dⁿ. It has the eigenvalues down its diagonal, with their powers worked out. Three presets load three matrices. They are the stretch [3 1; 0 2], the pumps [0.8 0.3; 0.2 0.7] and the shear [1 1; 0 1]. The pumps open a tanks view. Two tanks hold 1000 L between them, drawn as bars with their litres read out. Each tap is one hour of pumping. The shear draws only one eigenvector line. Its grid switch is greyed out, and the reason sits beside it. There is no second line to make a grid from. The screens. Screen 1 shows the stretch on the square grid. Three taps take the flag from n = 0 to n = 3. At n = 0 nothing has moved, so the card reads A⁰ = [1 0; 0 1]. Each time it leans further and grows. The card reads A = [3 1; 0 2], then A² = [9 5; 0 4], then A³ = [27 19; 0 8]. Each power is one more full multiplication. The finished picture shows the flag at n = 3. Screen 2 is a puzzle. (1, 0) is an eigenvector of A with eigenvalue 3. Where is it after four steps? It offers (81, 0), (12, 0) and (3, 0). (81, 0) is right, because each step multiplies by 3 again. Tapping four times checks it. Screen 3 turns the grid switch on. Three taps again. Each one stretches the flag 3 times along (1, 0) and 2 times along (−1, 1). A acts on each part separately, so A(a(1, 0) + b(−1, 1)) = 3a(1, 0) + 2b(−1, 1). The second card reads D⁰ = [1 0; 0 1], then D = [3 0; 0 2], then D² = [9 0; 0 4], then D³ = [27 0; 0 8]. After three steps the first amount has grown 27 times. The second has grown only 8 times. So the flag is drawn out more along (1, 0) than along (−1, 1). The finished picture shows the flag at n = 3 on the eigenvector grid. Screen 4 is a puzzle. The arrow (1, 1) is 2 lots of (1, 0) plus 1 lot of (−1, 1). So its amounts are (2, 1). What are they after three steps? It offers (54, 8), (6, 2) and (18, 6). (54, 8) is right, 2 × 27 and 1 × 8. Back on the square grid that is 54(1, 0) + 8(−1, 1) = (46, 8). Screen 5 shows P = [1 −1; 0 1], with the eigenvectors as its columns. P turns amounts on the eigenvector grid into your numbers. P⁻¹ = [1 1; 0 1] turns your numbers into amounts. Three panels follow (1, 1) through A = PDP⁻¹, right to left. P⁻¹ gives the amounts (2, 1). D stretches them to (6, 2). P turns that back into (4, 2), which is A(1, 1). The middle panel's axes are marked lots of (1, 0) and lots of (−1, 1). Unbalanced three-phase faults are worked out with the same move, called symmetrical components. The finished picture shows all three panels. Screen 6 is a puzzle. P's columns are taken the other way round, (−1, 1) first and (1, 0) second. What is D now? It offers [2 0; 0 3], [3 0; 0 2] and [3 1; 0 2]. [2 0; 0 3] is right, because each eigenvalue sits in the column of its own eigenvector. Screen 7 shows Aⁿ = PDⁿP⁻¹. A³ is PDP⁻¹ three times over. Each P⁻¹P in the middle is I, so it drops out. That leaves PD³P⁻¹. Worked out, [1 −1; 0 1][27 0; 0 8][1 1; 0 1] = [27 19; 0 8], the same as screen 1. In general PDⁿ = [3ⁿ −2ⁿ; 0 2ⁿ]. Multiplying by P⁻¹ = [1 1; 0 1] gives Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]. The step counter runs on to n = 10. The card reads A¹⁰ = [59049 58025; 0 1024]. The finished picture shows n = 10. Screen 8 is a puzzle. Someone works out A³ as PDP⁻¹ and gets [3 1; 0 2]. What went wrong? The first choice says D was not cubed. The second says P and P⁻¹ should swap places. The third says nothing is wrong. The first is right. PDP⁻¹ is A itself, one step. With D cubed, PD³ = [27 −8; 0 8], and times P⁻¹ that is [27 19; 0 8]. Screen 9 shows the pumps in the tanks view. All 1000 L start in tank 1. Each hour the pump moves 20% of tank 1's water to tank 2. It also moves 30% of tank 2's water to tank 1. So A = [0.8 0.3; 0.2 0.7]. A(3, 2) = (3, 2) and A(1, −1) = (0.5, −0.5). So its eigenvalues are 1, with (3, 2), and 0.5, with (1, −1). The start, (1000, 0), is 200 lots of (3, 2) plus 400 lots of (1, −1). Each hour the first part stays as it is and the second halves. Four taps give tank 1 800, 700, 650 and 625 L. It heads for 200(3, 2) = (600, 400), a 60 : 40 split. A readout shows the part above 600 L. It reads 400, 200, 100, 50 and 25. The finished picture shows n = 4, with 625 L and 375 L. Screen 10 is a puzzle. How much is in tank 1 after five hours? It offers 612.5 L, 600 L and 625 L. 612.5 L is right, 600 + 400 × 0.5⁵ = 600 + 12.5. 600 L is where it heads, but it never quite gets there. 625 L is after four hours. Screen 11 shows the shear [1 1; 0 1]. det(A − λI) = (1 − λ)², so λ = 1 twice. But A − I = [0 1; 0 0] crushes only the line through (1, 0). One line cannot make a grid, so there is no P to invert. So λ = 1 has algebraic multiplicity 2 but geometric multiplicity 1. The grid switch is greyed out with that reason. Each tap pushes the flag further sideways. The card reads Aⁿ = [1 n; 0 1]. 2I also has its eigenvalue twice. Yet for 2I every line is an eigenvector line. The finished picture shows the shear at n = 3 with its one line. Screen 12 is a mixed puzzle. [2 1; 0 2] has the eigenvalue 2 twice. Can it be written as PDP⁻¹? The first choice says no, because it has only one eigenvector line. The second says yes, because it has two eigenvalues. The third says yes, because every 2 by 2 can. The first is right. A − 2I = [0 1; 0 0] crushes only the line through (1, 0). To be written as PDP⁻¹, a 2 by 2 needs two independent eigenvector lines. Screen 13 is a mixed puzzle. M = [0.7 0.2; 0.2 0.7] stretches (1, 1) by 0.9 and (1, −1) by 0.5. Start at (1, 0), which is half of each, and take 20 steps. Which line is the arrow nearly on? It offers the line through (1, 1), the line through (1, −1), and still the line through (1, 0). The first is right. After 20 steps the (1, 1) part is 0.5 × 0.9²⁰, about 0.06. The (1, −1) part is 0.5 × 0.5²⁰, less than a millionth. The picture shows the arrow shrinking onto the line through (1, 1). Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone the answers and the readouts wrap onto more lines.",
+   "ignores": "The view zooms out as the flag grows. So after many steps the flag is drawn far smaller than it really is. The tanks are pumped in whole-hour jumps to keep the sums plain. A real pump moves water all the time. After several hours the bars seem to settle at 600 L and 400 L. The readout still shows the small part left over. Each eigenvector line goes on for ever, past the panel's edge. The matrices and tank figures are example values.",
+   "numbers": [
+    {
+     "label": "Matrix A, top row (3, 1), left entry",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Matrix A, bottom row (0, 2), right entry",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Eigenvalue of A along (1, 0)",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Eigenvalue of A along (−1, 1)",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 1 steps tapped",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "A² = [9 5; 0 4], top right entry",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "A³ = [27 19; 0 8], top right entry",
+     "value": 19,
+     "kind": "computed"
+    },
+    {
+     "label": "A³ top left entry, 3³",
+     "value": 27,
+     "kind": "computed"
+    },
+    {
+     "label": "A³ bottom right entry, 2³",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 steps",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 2 answer (81, 0), first part",
+     "value": 81,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 2 slip (12, 0), 3 × 4, first part",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Amounts of (1, 1) on the eigenvector grid, first",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Amounts of (1, 1) on the eigenvector grid, second",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Amounts after three steps (54, 8), first",
+     "value": 54,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 slip (18, 6), 2 × 3 × 3, first",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 4 slip (18, 6), 1 × 2 × 3, second",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "A³(1, 1) = (46, 8), first part",
+     "value": 46,
+     "kind": "computed"
+    },
+    {
+     "label": "P = [1 −1; 0 1], top right entry",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "P⁻¹ = [1 1; 0 1], top right entry",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 5 amounts after one step (6, 2), first",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "A(1, 1) = (4, 2), first part",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 7 highest n",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "A¹⁰ top left entry, 3¹⁰",
+     "value": 59049,
+     "kind": "computed"
+    },
+    {
+     "label": "A¹⁰ top right entry, 3¹⁰ − 2¹⁰",
+     "value": 58025,
+     "kind": "computed"
+    },
+    {
+     "label": "A¹⁰ bottom right entry, 2¹⁰",
+     "value": 1024,
+     "kind": "computed"
+    },
+    {
+     "label": "Water in the two tanks, litres",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Share of tank 1's water pumped to tank 2 each hour, %",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Share of tank 2's water pumped to tank 1 each hour, %",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pump matrix, top left entry, 1 − 0.2",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump matrix, bottom right entry, 1 − 0.3",
+     "value": 0.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump eigenvalue along (3, 2)",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump eigenvalue along (1, −1)",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Start (1000, 0): lots of (3, 2)",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Start (1000, 0): lots of (1, −1)",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 1 after 1 hour, litres",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 1 after 2 hours, litres",
+     "value": 700,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 1 after 3 hours, litres",
+     "value": 650,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 1 after 4 hours, litres",
+     "value": 625,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 2 after 4 hours, litres",
+     "value": 375,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 1 in the long run, litres",
+     "value": 600,
+     "kind": "computed"
+    },
+    {
+     "label": "Long-run split, tank 1 share, %",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Long-run split, tank 2 share, %",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Part above 600 L after 4 hours, litres",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 1 after 5 hours, litres",
+     "value": 612.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Part above 600 L after 5 hours, litres",
+     "value": 12.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Shear [1 1; 0 1], top right entry",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Shear eigenvalue, counted twice",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "2I's eigenvalue, counted twice",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 12 matrix [2 1; 0 2], eigenvalue counted twice",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 matrix M, diagonal entries",
+     "value": 0.7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 matrix M, other entries",
+     "value": 0.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 eigenvalue along (1, 1), 0.7 + 0.2",
+     "value": 0.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 eigenvalue along (1, −1), 0.7 − 0.2",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Screen 13 steps",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Screen 13 (1, 1) part after 20 steps, 0.5 × 0.9²⁰, about",
+     "value": 0.06,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump P = [3 1; 2 −1], determinant",
+     "value": -5,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump P⁻¹ = [0.2 0.2; 0.4 −0.6], bottom right entry",
+     "value": -0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump D³, bottom right entry, 0.5³",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump A³ top left entry",
+     "value": 0.65,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump A³ top right entry",
+     "value": 0.525,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump A³ bottom left entry",
+     "value": 0.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump A³ bottom right entry",
+     "value": 0.475,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 2 after 3 hours, litres",
+     "value": 350,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump Aⁿ in the long run, top row entries",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump Aⁿ in the long run, bottom row entries",
+     "value": 0.4,
+     "kind": "computed"
+    },
+    {
+     "label": "PD³ = [27 −8; 0 8], top right entry, −2³",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "A(1, −1) = (0.5, −0.5), second part",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank 2 in the long run, 200 × 2, litres",
+     "value": 400,
+     "kind": "computed"
+    },
+    {
+     "label": "Shear eigenvalue 1, algebraic multiplicity",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Shear eigenvalue 1, geometric multiplicity",
+     "value": 1,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Some changes repeat. Think of a pump that runs for an hour, every hour. Doing a matrix step n times means working out Aⁿ. Multiplying out powers is slow. It also hides where the steps are heading. The fix is to measure along the matrix's eigenvectors. On their grid each step only stretches each direction by its own eigenvalue. So n steps just raise each eigenvalue to the power n.[^1]\n\nTake A = [3 1; 0 2] again. Its eigenvectors are (1, 0) with eigenvalue 3, and (−1, 1) with eigenvalue 2. Use those two arrows as your basis. A basis made of eigenvectors is an [[eigenbasis]]. The arrow (1, 1) is 2 lots of (1, 0) plus 1 lot of (−1, 1). So on this grid its amounts are (2, 1). A matrix acts on a mix part by part. So one step turns 2 lots of (1, 0) into 2 lots of A(1, 0). It turns 1 lot of (−1, 1) into 1 lot of A(−1, 1). Each eigenvector is only stretched. So the first amount is multiplied by 3, and the second by 2. So on this grid A acts as D = [3 0; 0 2]. D has the eigenvalues down its diagonal and zeros everywhere else. That makes it a [[diagonal matrix]]. Three steps give the amounts 2 × 27 and 1 × 8, which is (54, 8). Back on your grid that is 54(1, 0) + 8(−1, 1) = (46, 8).\n\nRemember that one arrow can be read on two grids? Put the eigenvectors in as the columns of P = [1 −1; 0 1]. P turns amounts on the eigenvector grid into your numbers. P⁻¹ = [1 1; 0 1] turns your numbers into amounts. So A seen on the eigenvector grid is P⁻¹AP = D. Turned round, A = PDP⁻¹. Read it right to left. Go into the eigenvector grid, stretch, then come back out. To [[diagonalise]] A is to find this P and D. Each eigenvalue sits in the column of its own eigenvector. So swapping P's columns swaps D's entries.\n\nNow repeat it. A³ is PDP⁻¹ PDP⁻¹ PDP⁻¹. Each P⁻¹P in the middle is I, which changes nothing. So A³ = PD³P⁻¹. In general Aⁿ = PDⁿP⁻¹. Dⁿ just raises each diagonal entry to the power n. Leave that power off and you get A itself, one step. Here Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]. So A³ = [27 19; 0 8]. And A¹⁰ = [59049 58025; 0 1024], with no long multiplying.\n\nThe powers also show where the steps head. Each part is multiplied by its own eigenvalue every step. Say one eigenvalue is bigger in size than the rest. Then its part takes over, as long as the start has some of it. Take a pump that moves 20% of tank 1's water to tank 2 each hour. It also moves 30% of tank 2's water back. That is A = [0.8 0.3; 0.2 0.7]. Its eigenvalue is 1 along (3, 2) and 0.5 along (1, −1). Start with 1000 L, all in tank 1. That is 200 lots of (3, 2) plus 400 lots of (1, −1). Each hour the first part stays and the second halves. So tank 1 holds 800, 700, 650, then 625 L. It closes in on 600 L, a 60 : 40 split. It never quite gets there.\n\nNot every matrix can be diagonalised. The grid needs as many independent eigenvectors as the matrix has columns. A shear such as [1 1; 0 1] has too few.[^2] Its eigenvalue 1 comes twice. But A − I = [0 1; 0 0] crushes only the line through (1, 0). One line makes no grid. So there is no P to invert. A repeated eigenvalue is not the trouble in itself. It is fine whenever you can still find enough independent eigenvectors.[^3] Take 2I. It has the eigenvalue 2 twice, and every nonzero arrow is one of its eigenvectors.\n\n**Give a matrix enough independent eigenvectors and it is a plain stretch on their grid, P⁻¹AP = D. Then n steps are Aⁿ = PDⁿP⁻¹, with each eigenvalue raised to the power n.**[^1]"
+  },
+  "analogy": {
+   "text": "Picture two equal capacitors joined through a resistor. Look at them once a second. Charge only moves from one to the other. So the total never changes. That is the direction (1, 1), with eigenvalue 1. The difference between their charges shrinks by the same fraction every second. That is the direction (1, −1), with an eigenvalue below 1. Any start splits into a total part and a difference part. After n seconds the total is as it was. The difference has been multiplied by that fraction n times.",
+   "breaks": "Real capacitors leak a little. So the total slowly falls too. And the rule only says where the charge is at each look. It says nothing about what happens between looks. Smooth change has its own form of this rule. There each eigenvalue is a rate, and e^(λt) takes the place of λⁿ."
+  },
+  "practice": {
+   "text": "- Find the eigenvalues from det(A − λI) = 0. Then find an eigenvector for each.\n- Check you have as many independent eigenvectors as A has columns. If not, A cannot be diagonalised. Multiply out the powers instead.\n- Put the eigenvectors in as the columns of P. Put each eigenvalue in D, in the same column as its eigenvector.\n- Find P⁻¹. For a 2 by 2, swap the two diagonal entries, change the signs of the other two, and divide by the determinant.\n- Check that AP = PD. Each column of AP should be its eigenvalue times that column of P.\n- For n steps, raise each entry of D to the power n. Then work out PDⁿP⁻¹.\n\n**Rules of thumb:** read PDP⁻¹ right to left. Go into the eigenvector grid, stretch, then come back out. When one eigenvalue is bigger in size than the rest, its part takes over in the end. That needs the start to have some of it. If every eigenvalue is smaller than 1 in size, every part dies away. Then Aⁿ heads for zero. An eigenvalue of exactly 1 gives a part that never changes, a steady state. A negative eigenvalue flips its part every step.\n\n**Worked example:** the pumped tanks, A = [0.8 0.3; 0.2 0.7]. The eigenvectors are (3, 2) with eigenvalue 1, and (1, −1) with eigenvalue 0.5. So P = [3 1; 2 −1] and D = [1 0; 0 0.5]. det P = −3 − 2 = −5. So P⁻¹ = [0.2 0.2; 0.4 −0.6]. For three hours, D³ = [1 0; 0 0.125]. Then PD³ = [3 0.125; 2 −0.125]. And PD³P⁻¹ = [0.65 0.525; 0.35 0.475]. Start with 1000 L in tank 1. Three hours later tank 1 holds 650 L and tank 2 holds 350 L. Over many hours 0.5ⁿ heads for 0. So Aⁿ heads for [0.6 0.6; 0.4 0.4]. Whatever the start, the water heads for a 60 : 40 share.\n\n**Where you meet it:** any rule of the form \"next = A × now\", stepped again and again. Symmetrical components rest on the same move. Engineers use them to work out unbalanced faults on three-phase systems. A change of basis turns a balanced system's matrix into a diagonal one.[^4] The new parts are called the positive, negative and zero sequences. Each part can then be worked on its own.\n\n**Common mistakes**\n- Leaving the power off D. PDP⁻¹ is A itself, one step.\n- Getting the order wrong, as in PAP⁻¹ or P⁻¹DP. A = PDP⁻¹. P⁻¹ sits on the right, so it acts first.\n- Putting D's eigenvalues in a different order from P's columns.\n- Thinking a repeated eigenvalue always gives two eigenvectors. Count the independent lines, as with the shear.\n- Thinking a repeated eigenvalue always rules it out. 2I has the eigenvalue 2 twice, and it is diagonal already.\n- Expecting the tanks to reach 60 : 40 exactly. The part left over halves every hour. It never reaches zero."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Eigenvectors and eigenvalues | 3Blue1Brown",
+    "url": "https://www.3blue1brown.com/lessons/eigenvalues",
+    "quote": "Since all one of these matrices does is scale each basis vector by some eigenvalue, applying that matrix, say, 100 times will just correspond to scaling each basis vector by the 100th power of the corresponding eigenvalue"
+   },
+   {
+    "n": 2,
+    "title": "Eigenvectors and eigenvalues | 3Blue1Brown",
+    "url": "https://www.3blue1brown.com/lessons/eigenvalues",
+    "quote": "A shear, for example, doesn't have enough eigenvectors to span all of space"
+   },
+   {
+    "n": 3,
+    "title": "22 22",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf",
+    "quote": "An n × n matrix with repeated eigenvalues can be diagonalized provided we can obtain n linearly independent eigenvectors"
+   },
+   {
+    "n": 4,
+    "title": "100 Years of Symmetrical Components | MDPI",
+    "url": "https://www.mdpi.com/1996-1073/12/3/450",
+    "quote": "The fundamental property that has ensured the great success of the Fortescue transformation in electrical engineering studies is the diagonalisation of a matrix with circular symmetry"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: process -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's screen control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .act { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px !important; }\n  .scene { display: block; width: 100%; max-width: 30rem; margin-inline: auto; }\n  #swrow, #taps, #presets { max-width: 30rem; margin-inline: auto; }\n  #swwhy { color: var(--k-muted); font-size: .95rem; line-height: 1.5; margin-top: 6px; }\n  .k-toggle:disabled { cursor: not-allowed; }\n  .k-toggle:disabled .k-switch { opacity: .45; }\n  /* Readouts under the picture: tiles that wrap, two to a row on a phone. */\n  .reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 8px; max-width: 30rem; margin-inline: auto; }\n  .rd { background: var(--k-sunk); border-radius: var(--k-r); padding: 6px 10px; min-width: 0; }\n  .rd .rl { display: block; font-size: .85rem; color: var(--k-accent); }\n  .rd .rv { display: block; font-size: 1.05rem; font-weight: 700; white-space: nowrap; color: var(--k-ink); }\n  /* The picture: the matrix cards on top, a pane below them, the key and working lines under that. */\n  .scene text { paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene .pane { fill: var(--k-panel); }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .eg { stroke: var(--k-accent2); stroke-opacity: .32; stroke-width: 1; }\n  .scene .axis { stroke: var(--k-muted); stroke-width: 1.3; }\n  /* An eigenvector line is ink made bolder (a broad, soft ink band), not a new colour. */\n  .scene .litln { stroke: var(--k-ink); stroke-opacity: .3; stroke-width: 7; stroke-linecap: round; }\n  .scene .flag { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.8; stroke-linejoin: round; }\n  .scene .ghost { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; stroke-linejoin: round; }\n  .scene .leg { stroke: var(--k-accent); stroke-width: 2.6; stroke-linecap: round; }\n  .scene .cdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .trail { fill: var(--k-accent); }\n  .scene .tank { fill: none; stroke: var(--k-strong); stroke-width: 2.2; stroke-linejoin: round; }\n  .scene .water { fill: var(--k-fill1); }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .scene .gl { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .arr .sh { fill: none; stroke-linecap: round; }\n  .scene .pv .sh { stroke: var(--k-accent2); stroke-width: 2.6; }\n  .scene .pv .hd { fill: var(--k-accent2); }\n  .scene .av .sh { stroke: var(--k-ink); stroke-width: 4; }\n  .scene .av .hd { fill: var(--k-ink); }\n  .scene .gh .sh { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: butt; }\n  .scene .gh .hd { fill: var(--k-muted); }\n  .scene .arr.bad .sh { stroke: var(--k-warn); stroke-dasharray: 6 4; stroke-linecap: butt; }\n  .scene .arr.bad .hd { fill: var(--k-warn); }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .scene .hlc { fill: var(--k-fill2); }\n  /* Words. */\n  .scene .nm { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .mx { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .scene .mx.s { font-size: 14px; }\n  .scene .en { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .en.s { font-size: 13px; }\n  .scene .ttl { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  .scene .sm { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tag { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lbad { font: 700 14px var(--k-font); fill: var(--k-warn); }\n  .scene .rw { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .rw.rok { fill: var(--k-accent2); }\n  .scene .rw.rbad { fill: var(--k-warn); }\n  .scene .rw.sm2 { font-size: 13px; }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .taps .k-btn, .presets .k-btn { flex: 1 1 6rem; min-height: 44px; white-space: nowrap; }\n  .presets .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* Short answers share a row and wrap when they must; longer ones stack one to a row. */\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 5rem; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; font-size: 1.05rem; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A flag on a grid, moved by the same matrix again and again, and two tanks of water pumped hour by hour.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 320\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"row taps\" id=\"taps\"></div>\n    <div id=\"swrow\"><div id=\"sw\"></div><p id=\"swwhy\"></p></div>\n    <div class=\"row presets\" id=\"presets\"></div>\n    <div class=\"reads\" id=\"reads\"></div>\n    <p class=\"act\" id=\"act\"></p>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every flag, card, amount and litre here is worked out from the matrix on the card.</p>\n\n<script>\n  // ---------- numbers and words (pure, so the checks can test them) ----------\n  const MINUS = '−', NB = ' ';\n  function num(v, dp) { const f = Math.pow(10, dp == null ? 2 : dp); let r = Math.round(v * f) / f; if (Math.abs(r) < 1e-9) r = 0; return (r < 0 ? MINUS : '') + String(Math.abs(r)); }\n  const pt = (v, dp) => '(' + v.map((x) => num(x, dp)).join(', ') + ')';\n  const mstr = (M, dp) => '[' + M.map((r) => r.map((x) => num(x, dp)).join(' ')).join('; ') + ']';\n  const parsePt = (s) => { const m = String(s).match(/\\(([^)]+)\\)/); return m ? m[1].split(',').map((x) => +x.trim().replace(MINUS, '-')) : null; };\n  const parseM = (s) => { const m = String(s).match(/\\[([^\\]]+)\\]/); return m ? m[1].split(';').map((r) => r.trim().split(/\\s+/).map((x) => +x.replace(MINUS, '-'))) : null; };\n  const say = (s) => String(s).replace(/ /g, ' ').replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/=/g, ' equals ').replace(/≈/g, ' about ').replace(/\\s+/g, ' ').trim();\n  const SUPS = '⁰¹²³⁴⁵⁶⁷⁸⁹';\n  const sup = (n) => String(n).replace(/\\d/g, (c) => SUPS[+c]);\n  const pw = (nm, n) => nm + (n === 1 ? '' : sup(n));\n\n  // ---------- vectors and matrices ----------\n  const add = (a, b) => a.map((x, k) => x + b[k]);\n  const sub = (a, b) => a.map((x, k) => x - b[k]);\n  const scl = (a, s) => a.map((x) => x * s);\n  const dot = (a, b) => a.reduce((s, x, k) => s + x * b[k], 0);\n  const len = (a) => Math.sqrt(dot(a, a));\n  const unit = (a) => scl(a, 1 / (len(a) || 1));\n  const cross2 = (a, b) => a[0] * b[1] - a[1] * b[0];\n  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);\n  const same = (a, b, t) => !!a && !!b && a.length === b.length && a.every((x, k) => near(x, b[k], t || 1e-7));\n  const sameR = (a, b) => !!a && !!b && a.length === b.length && a.every((x, k) => Math.abs(x - b[k]) <= 1e-9 * (1 + Math.abs(b[k])));\n  const sameM = (P, Q) => P.length === Q.length && P.every((r, i) => same(r, Q[i]));\n  const lerpV = (a, b, e) => (e >= 1 ? b.slice() : e <= 0 ? a.slice() : a.map((x, k) => x + (b[k] - x) * e));\n  const mul = (M, x) => M.map((r) => dot(r, x));\n  const mm = (P, Q) => P.map((r) => Q[0].map((_, j) => r.reduce((s, x, k) => s + x * Q[k][j], 0)));\n  const I2 = [[1, 0], [0, 1]];\n  function mpow(M, n) { let R = I2; for (let k = 0; k < n; k++) R = mm(R, M); return R; }\n  const lerpM = (P, Q, e) => P.map((r, i) => r.map((x, j) => x + (Q[i][j] - x) * e));\n  // Part-way through a step, the picture moves straight from one whole power to the next.\n  function mpowF(M, x) { const k = Math.max(0, Math.floor(x + 1e-9)), f = x - k; return f < 1e-9 ? mpow(M, k) : lerpM(mpow(M, k), mpow(M, k + 1), f); }\n  const det2 = (M) => M[0][0] * M[1][1] - M[0][1] * M[1][0];\n  const inv2 = (M) => { const d = det2(M); return [[M[1][1] / d, -M[0][1] / d], [-M[1][0] / d, M[0][0] / d]]; };\n  const diag = (a, b) => [[a, 0], [0, b]];\n  const fromCols = (a, b) => [[a[0], b[0]], [a[1], b[1]]];\n  const minusI = (M, l) => M.map((r, i) => r.map((x, j) => (i === j ? x - l : x)));\n  const sameLine = (a, b) => len(a) > 1e-9 && len(b) > 1e-9 && Math.abs(cross2(unit(a), unit(b))) < 1e-7;\n  const stepBy = (M, q, k) => { let v = q; for (let j = 0; j < k; j++) v = mul(M, v); return v; };\n  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a; }\n  // A direction in whole numbers where it can be, its first part that is not 0 made positive.\n  function tidy(v) {\n    const k = v.findIndex((x) => Math.abs(x) > 1e-9);\n    if (k < 0) return v.map(() => 0);\n    let w = v[k] < 0 ? scl(v, -1) : v.slice();\n    const m = Math.min(...w.filter((x) => Math.abs(x) > 1e-9).map(Math.abs));\n    w = scl(w, 1 / m);\n    for (let q = 1; q <= 12; q++) {\n      const u = scl(w, q);\n      if (u.every((x) => Math.abs(x - Math.round(x)) < 1e-7)) { const r = u.map(Math.round), g = r.reduce((s, x) => gcd(s, x), 0) || 1; return r.map((x) => x / g + 0); }\n    }\n    return unit(w);\n  }\n  // The direction a 2 by 2 crushes, from its bigger row (p, q): p v1 + q v2 = 0 along (−q, p).\n  function crushed(N) {\n    const n0 = Math.hypot(N[0][0], N[0][1]), n1 = Math.hypot(N[1][0], N[1][1]);\n    if (n0 < 1e-9 && n1 < 1e-9) return null;\n    const row = n0 >= n1 ? N[0] : N[1];\n    return tidy([-row[1], row[0]]);\n  }\n  // Every real eigenvalue and its line: the roots of λ² − (a + d)λ + (ad − bc) = 0, then (A − λI)v = 0.\n  function eig2(M) {\n    const a = M[0][0], b = M[0][1], c = M[1][0], d = M[1][1], tr = a + d, dt = a * d - b * c, disc = tr * tr - 4 * dt;\n    const res = { tr, dt, disc, roots: [], lines: [], all: false, lam: null };\n    if (disc < -1e-12) return res;\n    const sq = Math.sqrt(Math.max(0, disc));\n    res.roots = [(tr + sq) / 2, (tr - sq) / 2];\n    (sq < 1e-9 ? [tr / 2] : res.roots).forEach((r) => {\n      const dir = crushed(minusI(M, r));\n      if (!dir) { res.all = true; res.lam = r; return; }\n      res.lines.push({ dir, u: unit(dir), lam: Math.round(r * 1e9) / 1e9 });\n    });\n    return res;\n  }\n  // Any arrow w: on its own line when Aw is a number times w; then λ is that number.\n  function onLine(M, w) {\n    if (len(w) < 1e-9) return null;\n    const av = mul(M, w);\n    if (Math.abs(cross2(w, av)) > 1e-7 * (1 + len(av))) return null;\n    return { u: unit(w), lam: dot(av, w) / dot(w, w) };\n  }\n  const lamOf = (M, v) => { const l = onLine(M, v); return l ? Math.round(l.lam * 1e9) / 1e9 : null; };\n  // Where a line through p along d crosses a box: its range of t, or null.\n  function clipLine(p, d, bx) {\n    let t0 = -Infinity, t1 = Infinity;\n    for (let k = 0; k < p.length; k++) {\n      if (Math.abs(d[k]) < 1e-12) { if (p[k] < bx[k][0] - 1e-9 || p[k] > bx[k][1] + 1e-9) return null; continue; }\n      let a = (bx[k][0] - p[k]) / d[k], b = (bx[k][1] - p[k]) / d[k];\n      if (a > b) { const s = a; a = b; b = s; }\n      t0 = Math.max(t0, a); t1 = Math.min(t1, b);\n    }\n    return t1 >= t0 - 1e-9 ? [t0, Math.max(t0, t1)] : null;\n  }\n  // A polygon cut to a box (each edge in turn).\n  function clipPoly(poly, bx) {\n    let out = poly;\n    [[0, bx[0][0], 1], [0, bx[0][1], -1], [1, bx[1][0], 1], [1, bx[1][1], -1]].forEach(([k, v, sg]) => {\n      const inp = out; out = [];\n      const inside = (q) => sg * (q[k] - v) >= -1e-12;\n      for (let j = 0; j < inp.length; j++) {\n        const P0 = inp[j], Q0 = inp[(j + 1) % inp.length], pi = inside(P0), qi = inside(Q0);\n        if (pi) out.push(P0);\n        if (pi !== qi) out.push(lerpV(P0, Q0, (v - P0[k]) / (Q0[k] - P0[k])));\n      }\n    });\n    return out;\n  }\n\n  // ---------- the lesson's values ----------\n  const A = [[3, 1], [0, 2]], SHR = [[1, 1], [0, 1]], JOR = [[2, 1], [0, 2]], M13 = [[0.7, 0.2], [0.2, 0.7]], TWO_I = [[2, 0], [0, 2]];\n  const E1 = [1, 0], E2 = [-1, 1];                       // A's eigenvectors, as the lesson writes them\n  const P = fromCols(E1, E2), PI = inv2(P), D = diag(lamOf(A, E1), lamOf(A, E2));\n  const PS = fromCols(E2, E1), DS = diag(lamOf(A, E2), lamOf(A, E1));   // P's columns the other way round\n  const V1 = [1, 1], AM1 = mul(PI, V1);                  // (1, 1) is 2 lots of (1, 0) plus 1 lot of (−1, 1)\n  const NMAX = 10, N1 = 3, N2 = 4, N7 = 10, N9 = 4, N10 = 5, N13 = 20;\n  const AM3 = mul(mpow(D, N1), AM1);\n  // The pumped tanks: each hour 20% of tank 1 goes to tank 2 and 30% of tank 2 comes back.\n  const LITRES = 1000, OUT1 = 0.2, OUT2 = 0.3;\n  const PUMP = [[1 - OUT1, OUT2], [OUT1, 1 - OUT2]];\n  const START = [LITRES, 0], PE1 = [3, 2], PE2 = [1, -1];\n  const PP = fromCols(PE1, PE2), PPI = inv2(PP), PDg = diag(lamOf(PUMP, PE1), lamOf(PUMP, PE2));\n  const PART = mul(PPI, START), STEADY = scl(PE1, PART[0]);   // 200 lots of (3, 2), 400 of (1, −1); heads for (600, 400)\n  const tanks = (x) => mul(mpowF(PUMP, x), START);\n  // The last puzzle's matrix and its two lines.\n  const SE1 = [1, 1], SE2 = [1, -1], START13 = [1, 0];\n  const L13a = lamOf(M13, SE1), L13b = lamOf(M13, SE2), PART13 = mul(inv2(fromCols(SE1, SE2)), START13);\n  // The flag: an F, its pole up the y axis. The dot marks the top of the pole, 1 lot of each eigenvector.\n  const FLAG = [[0, 0], [0.2, 0], [0.2, 0.45], [0.45, 0.45], [0.45, 0.62], [0.2, 0.62], [0.2, 0.82], [0.6, 0.82], [0.6, 1], [0, 1]];\n  const CORNER = [0, 1];\n  const PRESETS = [['Stretch', A], ['Pumps', PUMP], ['Shear', SHR]];\n  const basisOf = (M) => (sameM(M, A) ? [E1, E2] : null);\n  const SW_WHY = 'There is no second eigenvector line to make a grid from.';\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // M: the matrix in view; taps: the Step buttons show (true, or 'after' a right answer); sw: the grid switch shows;\n  // presets: the three preset matrices show; views: which pictures the step can draw (for its key); rows: lines of\n  // working under the picture. A demonstration's demo() gives n and the grid's mix (0 square, 1 eigenvector) at time T.\n  // A puzzle: task, opts, want, secret (what only a right answer shows), hints, slips (the red line drawn for each\n  // wrong answer), why, fb (seconds of motion after a right and a wrong answer).\n  const PICK = 'Tap one of the answers.';\n  const O2s = [pt(scl(E1, lamOf(A, E1) * N2)), pt(stepBy(A, E1, N2)), pt(mul(A, E1))];\n  const O4s = [pt(AM3), pt(mul(D, AM1)), pt([AM1[0] * D[0][0] * N1, AM1[1] * D[1][1] * N1])];\n  const O6s = [mstr(D), mstr(A), mstr(DS)];\n  const O8s = ['P and P⁻¹ should swap places', 'Nothing is wrong', 'D was not cubed'];\n  const O10s = [num(tanks(N10)[0], 1) + ' L', num(tanks(N9)[0], 1) + ' L', num(STEADY[0]) + ' L'];\n  const O12s = ['Yes, it has two eigenvalues', 'No, it has only one eigenvector line', 'Yes, every 2 by 2 can'];\n  const O13s = ['Still the line through ' + pt(START13), 'The line through ' + pt(SE2), 'The line through ' + pt(SE1)];\n  const SWAPROW = 'A' + pt(E2) + ' = ' + num(DS[0][0]) + pt(E2) + ' and A' + pt(E1) + ' = ' + num(DS[1][1]) + pt(E1);\n  const STEPS = [\n    { show: true, key: 'square', name: 'The same step, again', M: A, taps: true, sw: true, views: ['flag'], dur: 3.6,\n      demo: () => ({ n: taps(0.5, N1, 1.05, 0.85), mix: 0 }),\n      act: 'Tap Step to apply A once more.',\n      text: 'Some changes repeat, like a pump that runs every hour. Doing a matrix step n times means working out `Aⁿ`. With no steps nothing moves, so the card starts at `A⁰ = [1 0; 0 1]`. Each step moves the flag by `A = [3 1; 0 2]`, so it leans and grows. The card reads `A² = [9 5; 0 4]`, then `A³ = [27 19; 0 8]`. Each is a full multiplication, which is slow and hides where the steps head.' },\n    { key: 'four', name: 'Four steps along (1, 0)', M: A, taps: 'after', views: ['four'], rows: 1, fb: [2.1, 0.9],\n      act: 'Tap Step or Back a step to check it one step at a time.',\n      task: '`(1, 0)` is an eigenvector of A with eigenvalue 3. Where is it after four steps?',\n      opts: O2s, want: O2s[1], secret: O2s[1],\n      hints: { [O2s[0]]: 'Not quite. Each step multiplies by 3 again, so the 3s multiply rather than add.',\n        [O2s[2]]: 'Not quite. (3, 0) is where it is after one step. Take three more.' },\n      slips: { [O2s[0]]: '3 × ' + N2 + ' = ' + num(3 * N2) + ' adds the steps up', [O2s[2]]: 'A(1, 0) = ' + pt(mul(A, E1)) + ' is only one step' },\n      why: 'An eigenvector is only stretched. Each step multiplies `(1, 0)` by 3 again. So four steps multiply it by `3 × 3 × 3 × 3 = 81`. That gives `(81, 0)`, still on the same line.' },\n    { show: true, key: 'eig', name: 'Measure along the eigenvectors', M: A, taps: true, sw: true, views: ['flag'], dur: 4.3,\n      demo: () => ({ n: taps(1.4, N1, 0.95, 0.8), mix: go(0.45, 0.7) }),\n      act: 'Tap Step, or flip the switch.',\n      text: 'The eigenvector grid runs along `(1, 0)`, with eigenvalue 3, and `(−1, 1)`, with eigenvalue 2. A basis of eigenvectors, an *eigenbasis*, reads the flag as amounts of each. A acts on each part separately, so `A(a(1, 0) + b(−1, 1))` `= 3a(1, 0) + 2b(−1, 1)`. So each step multiplies the first amount by 3 and the second by 2. The second card climbs from `D⁰ = [1 0; 0 1]` to `D³ = [27 0; 0 8]`. D is a *diagonal matrix*.' },\n    { key: 'amts', name: 'Amounts after three steps', M: A, views: ['amts'], rows: 1, fb: [1.9, 0.9],\n      task: 'The arrow `(1, 1)` is 2 lots of `(1, 0)` plus 1 lot of `(−1, 1)`. So its amounts are `(2, 1)`. What are they after three steps?',\n      opts: O4s, want: O4s[0], secret: O4s[0],\n      hints: { [O4s[1]]: 'Not quite. (6, 2) is after one step. Take two more.',\n        [O4s[2]]: 'Not quite. Three steps multiply each amount by its λ three times, so by λ³, not 3λ.' },\n      slips: { [O4s[1]]: 'D' + pt(AM1) + ' = ' + O4s[1] + ' is only one step', [O4s[2]]: O4s[2] + ' multiplies by 3λ, not by λ³' },\n      why: 'Each step multiplies the first amount by 3 and the second by 2. Three steps multiply them by `3³ = 27` and `2³ = 8`. So the amounts are `2 × 27 = 54` and `1 × 8 = 8`. Back on the square grid that is `54(1, 0) + 8(−1, 1)`, which is `(46, 8)`.' },\n    { show: true, key: 'pdp', name: 'Into the grid and out again', views: ['pdp'], dur: 4.3,\n      text: 'Put the eigenvectors in as the columns of `P = [1 −1; 0 1]`. P turns amounts on the eigenvector grid into your numbers. `P⁻¹ = [1 1; 0 1]` turns your numbers into amounts. So `A = PDP⁻¹`. Read it right to left. P⁻¹ turns `(1, 1)` into the amounts `(2, 1)`. D stretches them to `(6, 2)`. P turns that back into `(4, 2)`, which is `A(1, 1)`. To *diagonalise* A is to find this P and D. Three-phase fault studies use the same move, called symmetrical components.' },\n    { key: 'swap', name: 'Swap P’s columns', views: ['swap'], rows: 1, fb: [1.1, 0.6],\n      task: 'Take P’s columns the other way round, `(−1, 1)` first and `(1, 0)` second. What is D now?',\n      opts: O6s, want: O6s[2], secret: SWAPROW,\n      hints: { [O6s[0]]: 'Not quite. Column 1 is now (−1, 1), and A only doubles it.',\n        [O6s[1]]: 'Not quite. That is A itself. D has zeros off its diagonal.' },\n      slips: { [O6s[0]]: 'A' + pt(E2) + ' = ' + pt(mul(A, E2)) + ', 2 lots, not 3', [O6s[1]]: O6s[1] + ' is A, not diagonal' },\n      why: 'Each eigenvalue sits in the column of its own eigenvector. Column 1 is now `(−1, 1)`, which A stretches by 2. Column 2 is `(1, 0)`, which A stretches by 3. So `D = [2 0; 0 3]`. Swapping P’s columns swaps D’s entries.' },\n    { show: true, key: 'power', name: 'Many steps at once', M: A, taps: true, sw: true, views: ['flag'], rows: 1, dur: 4.0,\n      demo: () => ({ n: taps(0.45, N7, 0.34, 0.32), mix: 1 }),\n      rowFn: (k) => { const Dk = mpow(D, k); return num(D[0][0]) + sup(k) + ' − ' + num(D[1][1]) + sup(k) + ' = ' + num(Dk[0][0]) + ' − ' + num(Dk[1][1]) + ' = ' + num(Dk[0][0] - Dk[1][1]); },\n      act: 'Tap Back a step or Reset to run the powers down again.',\n      text: 'Now repeat it. `A³` is `PDP⁻¹` three times over. Each `P⁻¹P` in the middle is I, which changes nothing. So `A³ = PD³P⁻¹`. In general `Aⁿ = PDⁿP⁻¹`. Dⁿ just raises each diagonal entry to the power n. Here `PDⁿ = [3ⁿ −2ⁿ; 0 2ⁿ]`. Multiplying by `P⁻¹ = [1 1; 0 1]` gives `Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]`. So `A¹⁰ =` `[59049 58025; 0 1024]`, with no long multiplying.' },\n    { key: 'cubed', name: 'A slip in A³', M: A, views: ['flag'], rows: 1, fb: [1.8, 0.6],\n      task: 'Someone works out `A³` as `PDP⁻¹` and gets `[3 1; 0 2]`. What went wrong?',\n      opts: O8s, want: O8s[2], secret: 'PD³P⁻¹',\n      hints: { [O8s[0]]: 'Not quite. A = PDP⁻¹ is the right order. P⁻¹ acts first.',\n        [O8s[1]]: 'Not quite. [3 1; 0 2] is A itself, which is only one step.' },\n      slips: { [O8s[0]]: 'P⁻¹DP = ' + mstr(mm(mm(PI, D), P)) + ', not even A', [O8s[1]]: mstr(A) + ' moves the flag one step, not three' },\n      why: '`PDP⁻¹` is A itself, one step. For three steps the middle must be `D³ = [27 0; 0 8]`. Then `PD³ = [27 −8; 0 8]`. Multiplying by `P⁻¹ = [1 1; 0 1]` gives `[27 19; 0 8]`, which is `A³`. Leaving the power off D is an easy slip.' },\n    { show: true, key: 'tanks', name: 'Where the steps head', M: PUMP, taps: true, sw: true, presets: true, views: ['tanks', 'flag'], rows: 1, dur: 4.1,\n      demo: () => ({ n: taps(0.5, N9, 0.9, 0.75), mix: 0 }),\n      act: 'Tap Step for one more hour.',\n      text: 'Each hour a pump moves 20% of tank 1’s water to tank 2, and 30% of tank 2’s back. So `A = [0.8 0.3; 0.2 0.7]`. `A(3, 2) = (3, 2)` and `A(1, −1) = (0.5, −0.5)`, so its eigenvalues are 1 and 0.5. The start `(1000, 0)` is `200(3, 2) + 400(1, −1)`. Each hour the first part stays and the second halves. So the water heads for `200(3, 2) = (600, 400)`, a 60 : 40 split.' },\n    { key: 'five', name: 'After five hours', M: PUMP, views: ['tanks'], rows: 1, fb: [1.3, 0.6],\n      task: 'How much is in tank 1 after five hours?',\n      opts: O10s, want: O10s[0], secret: num(tanks(N10)[0], 1),\n      hints: { [O10s[1]]: 'Not quite. 625 L is after four hours. Halve the part above 600 L once more.',\n        [O10s[2]]: 'Not quite. 600 L is where it heads. The part above it halves each hour but never reaches zero.' },\n      slips: { [O10s[1]]: O10s[1] + ' is after four hours', [O10s[2]]: O10s[2] + ' is where it heads, not where it is' },\n      why: 'The part above 600 L starts at 400 L and halves each hour. After five hours it is `400 × 0.5⁵ = 12.5` L. So tank 1 holds `600 + 12.5 = 612.5` L. It never quite reaches 600 L.' },\n    { show: true, key: 'shear', name: 'Too few eigenvectors', M: SHR, taps: true, sw: true, presets: true, views: ['flag', 'tanks'], rows: 1, dur: 3.5,\n      demo: () => ({ n: taps(0.5, N1, 1.0, 0.8), mix: 0 }),\n      act: 'Tap Step to shear it again.',\n      text: 'Not every matrix can be diagonalised. It needs one independent eigenvector for each column. The shear `[1 1; 0 1]` has `det(A − λI) = (1 − λ)²`, so λ = 1 twice. But `A − I = [0 1; 0 0]` crushes only the line through `(1, 0)`. One line makes no grid, so there is no P. λ = 1 has *algebraic multiplicity* 2 but *geometric multiplicity* 1. `2I` has λ = 2 twice, yet every line is an eigenvector line.' },\n    { key: 'jordan', name: 'Mixed: a repeated eigenvalue', M: JOR, views: ['flag'], rows: 1, fb: [0.9, 0.6],\n      task: '`[2 1; 0 2]` has the eigenvalue 2 twice. Can it be written as `PDP⁻¹`?',\n      opts: O12s, want: O12s[1], secret: 'the only line',\n      hints: { [O12s[0]]: 'Not quite. It is the same eigenvalue twice. Count its eigenvector lines.',\n        [O12s[2]]: 'Not quite. The shear [1 1; 0 1] cannot.' },\n      slips: { [O12s[0]]: 'λ = 2 is one value, counted twice', [O12s[2]]: 'The shear ' + mstr(SHR) + ' cannot' },\n      why: '`A − 2I = [0 1; 0 0]` crushes only the line through `(1, 0)`. One line makes no grid, so there is no P. To be written as `PDP⁻¹`, a 2 by 2 needs two independent eigenvector lines. This one has only one.' },\n    { key: 'settle', name: 'Mixed: twenty steps', M: M13, views: ['settle'], rows: 1, fb: [2.2, 0.6],\n      task: '`M = [0.7 0.2; 0.2 0.7]` stretches `(1, 1)` by 0.9 and `(1, −1)` by 0.5. Start at `(1, 0)`, which is half of each, and take 20 steps. Which line is the arrow nearly on?',\n      opts: O13s, want: O13s[2], secret: '≈ 0.06',\n      hints: { [O13s[0]]: 'Not quite. One step already gives M(1, 0) = (0.7, 0.2), off that line.',\n        [O13s[1]]: 'Not quite. The (1, −1) part shrinks by 0.5 each step, much faster than 0.9.' },\n      slips: { [O13s[0]]: 'M' + pt(START13) + ' = ' + pt(mul(M13, START13)) + ', already off it', [O13s[1]]: '0.5²⁰ shrinks far faster than 0.9²⁰' },\n      why: 'Each part is multiplied by its own eigenvalue every step. After 20 steps the `(1, 1)` part is `0.5 × 0.9²⁰`, about 0.06. The `(1, −1)` part is `0.5 × 0.5²⁰`, less than a millionth. So the part with the bigger eigenvalue takes over.' },\n  ];\n  const FINISH = 'Give a matrix enough independent eigenvectors and it is a plain stretch on their grid, P⁻¹AP = D. Then n steps are Aⁿ = PDⁿP⁻¹, with each eigenvalue raised to the power n.';\n  // The lesson's own sources, which three checks restate.\n  const SRC = ['https://www.3blue1brown.com/lessons/eigenvalues', 'https://www.3blue1brown.com/lessons/eigenvalues',\n    'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf'];\n  const FADE = 0.35, TAP = 0.8;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's. live: he has tapped or switched, so the\n  // demonstration is over. n: the whole number of steps taken; from, mixFrom: where the picture was when his last tap\n  // or flip started (it moves from there); grid: the eigenvector grid is on; M: the preset he chose.\n  function blank() { return { pick: null, res: null, why: false, live: false, n: 0, from: null, mixFrom: null, grid: false, M: null }; }\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || 'Not quite. Try another answer.'; };\n  function doCheck(i, st) { st.res = st.pick === STEPS[i].want ? 'right' : 'wrong'; return st; }\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0, gridSet = null;\n  let REC = null, PAN = null, CUR = {}, PROBE = false, PIX = 0;\n  const el = (id) => document.getElementById(id);\n  const viewM = (i) => S[i].M || STEPS[i].M || A;   // the panels and the swapped columns are about A too\n\n  // ---------- timing ----------\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? 0.5 : d; note(t0, d); return K.arrive(T, t0, d); }\n  function go(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1)); }\n  // Taps in a demonstration: one every gapT seconds from t0, each taking dd seconds.\n  function taps(t0, count, gapT, dd) { let n = 0; for (let k = 0; k < count; k++) n += go(t0 + k * gapT, dd); return n; }\n  const moving = () => T !== Infinity;\n  const r3 = (v) => Math.round(v * 100) / 100;\n  // A number label fades out half-way through each step and back in with its new value.\n  const labA = (n) => { const f = n - Math.floor(n); return f < 1e-6 || f > 1 - 1e-6 ? 1 : K.clamp(Math.abs(f - 0.5) * 2, 0, 1); };\n  const liveN = (st) => (st.from == null ? st.n : st.from + (st.n - st.from) * go(0, TAP));\n  function liveMix(st, B) { const g = st.grid && B ? 1 : 0; return st.mixFrom == null ? g : st.mixFrom + (g - st.mixFrom) * go(0, TAP); }\n\n  // ---------- drawing primitives ----------\n  const svg = el('scene'), art = el('art');\n  let into = null, LAB = [];\n  const put = (node) => (into || art).appendChild(node);\n  // Something that fades in (0 < a < 1) is drawn into its own faded group.\n  function part(a, fn) {\n    if (!(a > 0)) return;\n    if (a >= 1) { fn(); return; }\n    const keep = into, g = put(K.svg('g'));\n    K.fade(g, a);\n    into = g;\n    try { fn(); } finally { into = keep; }\n  }\n  function seg2(cls, a, b, keep) {\n    if (keep !== false) REC.segs.push([a[0], a[1], b[0], b[1]]);\n    return put(K.svg('line', { class: cls, x1: r3(a[0]), y1: r3(a[1]), x2: r3(b[0]), y2: r3(b[1]) }));\n  }\n  function arrow2(cls, a, b, head) {\n    const g = put(K.svg('g', { class: 'arr ' + cls }));\n    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);\n    if (L < 0.5) return g;\n    const ux = dx / L, uy = dy / L, hl = Math.min(head, L * 0.5), hw = hl * 0.55, bx = b[0] - ux * hl, by = b[1] - uy * hl;\n    if (L - hl > 0.5) {\n      g.appendChild(K.svg('line', { class: 'sh', x1: r3(a[0]), y1: r3(a[1]), x2: r3(bx + ux), y2: r3(by + uy) }));\n      REC.segs.push([a[0], a[1], bx, by]);\n    }\n    g.appendChild(K.svg('path', { class: 'hd', d: 'M' + r3(b[0]) + ' ' + r3(b[1]) + ' L' + r3(bx - uy * hw) + ' ' + r3(by + ux * hw) + ' L' + r3(bx + uy * hw) + ' ' + r3(by - ux * hw) + ' Z' }));\n    REC.dots.push([b[0] - ux * hl * 0.5, b[1] - uy * hl * 0.5, hl * 0.8]);\n    return g;\n  }\n  const nb = (s) => String(s).replace(/ /g, NB);\n  function text2(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    t.textContent = nb(s);\n    REC.texts.push(String(s));\n    return put(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 8.5;\n  }\n  function fitText(x, y, s, cls) { return text2(x, y, s, tw(s, cls) <= 322 ? cls : cls + ' sm2'); }\n  function row(s, cls, a) { REC.rows.push({ s, cls: cls || 'rw', a: a == null ? 1 : a }); if (/rbad/.test(cls || '')) REC.bad++; }\n\n  // ---------- labels clear of the lines, the points, the edges and each other ----------\n  const boxesMeet = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;\n  function segHits(b, s) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1], p = [-dx, dx, -dy, dy], q = [s[0] - b.x, b.x + b.w - s[0], s[1] - b.y, b.y + b.h - s[1]];\n    for (let k = 0; k < 4; k++) {\n      if (p[k] === 0) { if (q[k] < 0) return false; continue; }\n      const r = q[k] / p[k];\n      if (p[k] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  const DIRS = [[1, 0], [-1, 0], [0, -1], [0, 1], [0.75, -0.66], [-0.75, -0.66], [0.75, 0.66], [-0.75, 0.66]];\n  const RADII = [9, 15, 22, 30, 40];\n  // Each label takes the nearest spot inside its own pane that is clear of the other labels, the points and the\n  // lines; a label with no spot inside its pane is left out.\n  function placeLabels() {\n    const taken = [], dots = REC.dots.map((d) => ({ x: d[0] - d[2], y: d[1] - d[2], w: 2 * d[2], h: 2 * d[2] }));\n    LAB.forEach((L) => {\n      if (!(L.a > 0)) return;\n      const q = L.q, w = tw(L.s, L.cls) + 2, h = 15, Ar = L.area;\n      let best = null, bc = Infinity;\n      RADII.forEach((R, ri) => DIRS.forEach(([ux, uy], di) => {\n        const cx = q[0] + ux * R + (Math.abs(ux) > 0.3 ? Math.sign(ux) * w / 2 : 0), cy = q[1] + uy * R + (Math.abs(uy) > 0.3 ? Math.sign(uy) * 6 : 0);\n        const b = { x: cx - w / 2, y: cy - 8, w, h };\n        let c = ri * 20 + di * 2, n = 0;\n        if (b.x < Ar.x0 || b.x + b.w > Ar.x1 || b.y < Ar.y0 || b.y + b.h > Ar.y1) c += 9000;\n        taken.forEach((o) => { if (boxesMeet(b, o)) c += 4000; });\n        dots.forEach((o) => { if (boxesMeet(b, o)) c += 3500; });\n        REC.segs.forEach((sg) => { if (segHits(b, sg)) n++; });\n        c += n * 1000;\n        if (c < bc) { bc = c; best = { cx, cy, b }; }\n      }));\n      if (bc >= 9000 || (L.opt && bc >= 1000)) return;\n      taken.push(best.b);\n      part(L.a, () => text2(best.cx, best.cy + 5, L.s, L.cls, 'middle'));\n    });\n  }\n\n  // ---------- the plane: a pane that zooms to keep what it is given in sight ----------\n  const W = 340, PW = 332, PX0 = 4, PHP = 210, PANH = 96;\n  // Grid spacings, each dividing the next, so finer lines fade out as the view zooms out.\n  const G = [0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000];\n  function levels(s, minG) {\n    let k = G.findIndex((g) => g >= minG * (1 - 1e-9) && g * s >= 16);\n    if (k < 0) k = G.length - 1;\n    const f = k > 0 && G[k - 1] >= minG * (1 - 1e-9) ? { g: G[k - 1], a: K.clamp((G[k - 1] * s - 8) / 10, 0, 1) } : null;\n    return { g: G[k], fine: f && f.a > 0 ? f : null };\n  }\n  const M2 = (p) => PAN.map(p);\n  const line2 = (cls, a, b, keep) => seg2(cls, M2(a), M2(b), keep);\n  function arrowD(cls, a, b, head) { if (/bad/.test(cls)) REC.bad++; return arrow2(cls, M2(a), M2(b), head); }\n  function dotD(cls, p, r) { const q = M2(p); put(K.svg('circle', { class: cls, cx: r3(q[0]), cy: r3(q[1]), r })); REC.dots.push([q[0], q[1], r + 1]); }\n  function labD(p, s, cls, a, opt) { LAB.push({ q: M2(p), s, cls: cls || 'nm', a: a == null ? 1 : a, area: PAN.area, opt }); }\n  const inBox = (q, bx) => q[0] >= bx[0][0] && q[0] <= bx[0][1] && q[1] >= bx[1][0] && q[1] <= bx[1][1];\n  // A segment cut to the pane.\n  function segW(cls, a, b) {\n    const dv = sub(b, a), r = clipLine(a, dv, PAN.bx);\n    if (!r) return;\n    const t0 = Math.max(0, r[0]), t1 = Math.min(1, r[1]);\n    if (t1 - t0 < 1e-9) return;\n    line2(cls, add(a, scl(dv, t0)), add(a, scl(dv, t1)));\n  }\n  // A polygon cut to the pane; its edges count as lines for the labels.\n  function poly(cls, Qw) {\n    const c = clipPoly(Qw, PAN.bx);\n    if (c.length < 3) return;\n    const sc = c.map((q) => PAN.map(q));\n    put(K.svg('polygon', { class: cls, points: sc.map((q) => r3(q[0]) + ',' + r3(q[1])).join(' ') }));\n    for (let j = 0; j < sc.length; j++) { const a = sc[j], b = sc[(j + 1) % sc.length]; REC.segs.push([a[0], a[1], b[0], b[1]]); }\n  }\n  // The lines parallel to b through each multiple of g along a, across the pane (finer ones faded).\n  function gridFam(a, b, lv, cls) {\n    const bx = PAN.bx, Bi = inv2(fromCols(a, b));\n    const cs = [[bx[0][0], bx[1][0]], [bx[0][1], bx[1][0]], [bx[0][0], bx[1][1]], [bx[0][1], bx[1][1]]].map((c) => mul(Bi, c)[0]);\n    const lo = Math.min(...cs), hi = Math.max(...cs);\n    const draw = (g, skipG) => {\n      const k0 = Math.ceil(lo / g - 1e-9), k1 = Math.floor(hi / g + 1e-9);\n      if (k1 - k0 > 400) return;\n      for (let k = k0; k <= k1; k++) {\n        if (k === 0) continue;\n        if (skipG && near(k * g / skipG, Math.round(k * g / skipG), 1e-6)) continue;\n        const P0 = scl(a, k * g), r = clipLine(P0, b, bx);\n        if (r && r[1] - r[0] > 1e-12) line2(cls, add(P0, scl(b, r[0])), add(P0, scl(b, r[1])), false);\n      }\n    };\n    draw(lv.g, 0);\n    if (lv.fine) part(lv.fine.a, () => draw(lv.fine.g, lv.g));\n  }\n  // An eigenvector line through the origin along u, across the pane, with its label near the far end.\n  function litLine(u, a, lab, labCls) {\n    const r = clipLine([0, 0], u, PAN.bx);\n    if (!r) return;\n    part(a, () => line2('litln', scl(u, r[0]), scl(u, r[1])));\n    if (lab) labD(scl(u, r[1] * 0.8), lab, labCls || 'tag', a);\n  }\n  // pts: what must stay in sight (the origin always does). o: smax (the closest zoom), minG (the finest grid),\n  // basis (the eigenvectors, for the eigenvector grid), mix (0 square grid, 1 eigenvector grid), lit (lines to light).\n  function planePane(L, pts, o) {\n    o = o || {};\n    let x0 = 0, x1 = 0, y0 = 0, y1 = 0;\n    pts.forEach((q) => { if (!q) return; x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });\n    const m = 26, w = Math.max(x1 - x0, 1e-12), h = Math.max(y1 - y0, 1e-12);\n    const s = Math.min(o.smax || 60, (PW - 2 * m) / w, (L.PH - 2 * m) / h);\n    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, hw = PW / 2 / s, hh = L.PH / 2 / s;\n    const bx = [[cx - hw, cx + hw], [cy - hh, cy + hh]];\n    const p = { bx, s, area: { x0: PX0 + 3, y0: L.top + 3, x1: PX0 + PW - 3, y1: L.top + L.PH - 3 } };\n    p.map = (q) => [PX0 + (q[0] - bx[0][0]) * s, L.top + (bx[1][1] - q[1]) * s];\n    put(K.svg('rect', { class: 'pane', x: PX0, y: L.top, width: PW, height: L.PH, rx: 8 }));\n    PAN = p;\n    const B = o.basis, mix = B ? o.mix || 0 : 0, lv = levels(s, o.minG == null ? 1 : o.minG), sqA = 1 - mix;\n    if (sqA > 0) part(sqA, () => { gridFam([1, 0], [0, 1], lv, 'grid'); gridFam([0, 1], [1, 0], lv, 'grid'); });\n    if (B && mix > 0) part(mix, () => { gridFam(B[0], B[1], lv, 'eg'); gridFam(B[1], B[0], lv, 'eg'); });\n    if (sqA > 0) part(sqA, () => [[1, 0], [0, 1]].forEach((u) => { const r = clipLine([0, 0], u, bx); if (r) line2('axis', scl(u, r[0]), scl(u, r[1])); }));\n    (o.lit || []).forEach((l) => { if (l.a > 0) { litLine(unit(l.u), l.a, l.lab); REC.lit.push({ u: l.u, a: l.a, lab: l.lab }); } });\n    REC.box = bx; REC.s = s; REC.g = lv.g;\n    return p;\n  }\n\n  // ---------- the cards: matrices with brackets, in one row ----------\n  function cardW(label, Es, sm) {\n    const cls = sm ? 'en s' : 'en', n = Es[0].length, cw = [];\n    for (let j = 0; j < n; j++) cw.push(Math.max(...Es.map((r) => tw(r[j], cls))) + (sm ? 11 : 14));\n    const wM = cw.reduce((s, x) => s + x, 0) + 6, lw = label ? tw(label, sm ? 'mx s' : 'mx') + 8 : 0;\n    return { cw, wM, lw, w: lw + wM };\n  }\n  function cardAt(x0, cy, label, Es, wd, sm, hlA) {\n    const rg = sm ? 18 : 20, m = Es.length, xb = x0 + wd.lw;\n    if (label) text2(x0, cy + 6, label, sm ? 'mx s' : 'mx', 'start');\n    if (hlA > 0) part(hlA, () => put(K.svg('rect', { class: 'hlc', x: r3(xb - 2), y: r3(cy - m * rg / 2 - 6), width: r3(wd.wM + 4), height: r3(m * rg + 12), rx: 6 })));\n    const top = cy - m * rg / 2 - 3, bot = cy + m * rg / 2 + 3;\n    put(K.svg('path', { class: 'brk', d: 'M' + r3(xb + 6) + ' ' + r3(top) + ' H' + r3(xb) + ' V' + r3(bot) + ' H' + r3(xb + 6) }));\n    put(K.svg('path', { class: 'brk', d: 'M' + r3(xb + wd.wM - 6) + ' ' + r3(top) + ' H' + r3(xb + wd.wM) + ' V' + r3(bot) + ' H' + r3(xb + wd.wM - 6) }));\n    Es.forEach((r, i) => r.forEach((s, j) => {\n      const x = xb + 3 + wd.cw.slice(0, j).reduce((a, b) => a + b, 0) + wd.cw[j] / 2, y = cy + (i - (m - 1) / 2) * rg + 5;\n      text2(x, y, s, sm ? 'en s' : 'en');\n    }));\n  }\n  // A card that fades in (a < 1) takes its room as it arrives, so the others slide over smoothly.\n  function cards(list, cy) {\n    cy = cy || 30;\n    const full = (sm) => list.map((c) => cardW(c.label, c.Es, sm));\n    let sm = false, ws = full(false), gap = 18;\n    if (ws.reduce((s, w) => s + w.w, 0) + gap * (list.length - 1) > 326) { sm = true; ws = full(true); gap = 12; }\n    const al = list.map((c) => (c.a == null ? 1 : c.a));\n    const tot = ws.reduce((s, w, k) => s + w.w * al[k], 0) + list.reduce((s, c, k) => s + (k ? gap * al[k] : 0), 0);\n    let x = W / 2 - tot / 2;\n    list.forEach((c, k) => {\n      if (k) x += gap * al[k];\n      const x0 = x;\n      part(al[k], () => cardAt(x0, cy, c.label, c.Es, ws[k], sm, 0));\n      REC.cards.push({ label: c.label, Es: c.Es, a: al[k] });\n      x += ws[k].w * al[k];\n    });\n  }\n  const ents = (M, dp) => M.map((r) => r.map((x) => num(x, dp)));\n\n  // ---------- the key under each picture (it wraps onto a second line when it must) ----------\n  const KEYS = { flag: [['flag', 'the flag'], ['ghost', 'a step before'], ['litln', 'eigenvector line'], ['leg', 'the dot’s amounts']],\n    tanks: [['water', 'water'], ['ref', 'where it heads']], four: [['litln', 'eigenvector line']],\n    amts: [['litln', 'eigenvector line'], ['leg', 'amounts']], swap: [['litln', 'eigenvector line']],\n    pdp: [['leg', 'amounts'], ['gl', 'before D']], settle: [['litln', 'eigenvector line'], ['trail', 'each step']] };\n  function keyLines(list) {\n    const lines = [];\n    let cur = [], w = 0;\n    list.forEach(([k, s]) => {\n      const iw = 28 + tw(s, 'ttl');\n      if (cur.length && w + 16 + iw > 326) { lines.push(cur); cur = []; w = 0; }\n      w += (cur.length ? 16 : 0) + iw;\n      cur.push({ k, s, w: iw });\n    });\n    if (cur.length) lines.push(cur);\n    return lines;\n  }\n  function swatch(k, x, y) {\n    if (k === 'flag' || k === 'ghost' || k === 'water') put(K.svg('rect', { class: k, x: r3(x + 3), y: y - 12, width: 16, height: 13, rx: 2 }));\n    else if (k === 'trail') put(K.svg('circle', { class: 'trail', cx: r3(x + 11), cy: y - 5, r: 3 }));\n    else put(K.svg('line', { class: k, x1: r3(x + 2), y1: y - 5, x2: r3(x + 20), y2: y - 5 }));\n  }\n  function drawKey(list, A0, y) {\n    // A hidden item takes no room (one fading in takes its room as it arrives), so what shows stays centred.\n    keyLines(list).forEach((ln, r) => {\n      const yy = y + r * 22, al = ln.map((it) => (A0[it.k] == null ? 1 : A0[it.k]));\n      let seen = 0;\n      const gaps = al.map((a) => { const g = 16 * a * Math.min(1, seen); seen += a; return g; });\n      let x = W / 2 - ln.reduce((s, it, j) => s + it.w * al[j] + gaps[j], 0) / 2;\n      ln.forEach((it, j) => {\n        x += gaps[j];\n        const a = al[j], x0 = x;\n        part(a, () => { swatch(it.k, x0, yy); text2(x0 + 28, yy, it.s, 'ttl', 'start'); });\n        x += it.w * a;\n      });\n    });\n  }\n\n  // ---------- the flag after n steps of M (n may be part-way through a step) ----------\n  // mix: 0 the square grid, 1 the eigenvector grid (only for a matrix with two eigenvector lines).\n  function flagScene(L, M, n, mix, o) {\n    o = o || {};\n    const B = basisOf(M), k = Math.round(n), Mn = mpowF(M, n), Q = FLAG.map((q) => mul(Mn, q));\n    const c = Math.ceil(n - 1e-9), Qg = c >= 1 ? FLAG.map((q) => mul(mpow(M, c - 1), q)) : null;\n    mix = B ? mix : 0;\n    if (!o.noCards) {\n      const list = [{ label: pw(o.nm || 'A', k) + ' =', Es: ents(mpow(M, k)) }];\n      if (B) list.push({ label: pw('D', k) + ' =', Es: ents(mpow(diag(lamOf(M, B[0]), lamOf(M, B[1])), k)), a: mix });\n      cards(list);\n    }\n    let lit = B ? B.map((u) => ({ u, a: mix, lab: 'λ = ' + num(lamOf(M, u)) })) : [];\n    if (o.oneLine) { const e = eig2(M); if (!e.all && e.lines.length === 1) lit.push({ u: e.lines[0].u, a: 1, lab: 'λ = ' + num(e.lines[0].lam) }); }\n    lit = lit.concat(o.lit || []);\n    planePane(L, Q.concat(o.fit || []), { smax: 60, minG: 1, mix, basis: B, lit });\n    if (Qg) poly('ghost', Qg);\n    poly('flag', Q);\n    const Cw = mul(Mn, CORNER), Ck = mul(mpow(M, k), CORNER), la = labA(n);\n    let amk = null, am = null;\n    if (B) {\n      const Bi = inv2(fromCols(B[0], B[1]));\n      am = mul(Bi, Cw); amk = mul(Bi, Ck);\n      if (mix > 0) part(mix, () => { segW('leg', [0, 0], scl(B[0], am[0])); segW('leg', scl(B[0], am[0]), Cw); });\n    }\n    dotD('cdot', Cw, 4.5);\n    const onEig = !!B && mix >= 0.5, cornerTxt = onEig ? 'amounts ' + pt(amk) : pt(Ck);\n    labD(Cw, cornerTxt, 'nm', la);\n    Object.assign(REC, { view: 'flag', n, k, mix, M, Mn, flag: Q, ghost: Qg, corner: Cw, amounts: am, amountsK: amk, cornerK: Ck });\n    REC.keyA = { ghost: K.clamp(n, 0, 1), litln: REC.lit.reduce((m0, l) => Math.max(m0, l.a), 0), leg: B ? mix : 0 };\n    REC.reads = [['Steps taken, n', String(k)], ['Zoom', (onEig ? '1 cell = ' : '1 square = ') + num(REC.g)]];\n    REC.said.push('The flag after ' + k + (k === 1 ? ' step' : ' steps') + ' on the ' + (onEig ? 'eigenvector' : 'square') + ' grid, its dot at ' + cornerTxt + '.');\n    REC.cards.forEach((cd) => { if (cd.a >= 0.5) REC.said.push('The card reads ' + cd.label + ' ' + '[' + cd.Es.map((r) => r.join(' ')).join('; ') + '].'); });\n  }\n\n  // ---------- the tanks after n hours: water as bars, the 600 L and 400 L they head for, and the part above ----------\n  const TX = [[62, 132], [250, 320]];\n  function tanksScene(L, n, o) {\n    o = o || {};\n    const v = tanks(n), k = Math.round(n), vk = tanks(k), la = labA(n), top = L.top;\n    cards([{ label: 'A =', Es: ents(PUMP) }]);\n    put(K.svg('rect', { class: 'pane', x: PX0, y: top, width: PW, height: L.PH, rx: 8 }));\n    PAN = { area: { x0: PX0 + 3, y0: top + 3, x1: PX0 + PW - 3, y1: top + L.PH - 3 } };\n    const base = top + L.PH - 32, Ht = L.PH - 66, yOf = (l) => base - (l / LITRES) * Ht;\n    [0, 1].forEach((j) => {\n      const [a, b] = TX[j], lv = yOf(v[j]);\n      if (base - lv > 0.05) put(K.svg('rect', { class: 'water', x: a, y: r3(lv), width: b - a, height: r3(base - lv) }));\n      put(K.svg('path', { class: 'tank', d: 'M' + a + ' ' + r3(base - Ht) + ' V' + r3(base) + ' H' + b + ' V' + r3(base - Ht) }));\n      REC.segs.push([a, base - Ht, a, base], [a, base, b, base], [b, base, b, base - Ht]);\n      const yr = yOf(STEADY[j]);\n      seg2('ref', [a - 4, yr], [b + 4, yr]);\n      part(la, () => text2((a + b) / 2, base - Ht - 9, num(vk[j], 1) + ' L', 'nm'));\n      text2((a + b) / 2, base + 20, 'Tank ' + (j + 1), 'ttl');\n      text2(a - 8, yr + 5, num(STEADY[j]) + ' L', 'sm', 'end');\n    });\n    // The part above 600 L: its lots of (1, −1), read from the eigenvector split.\n    const gk = mul(PPI, vk)[1], y6 = yOf(STEADY[0]), yw = yOf(v[0]), bx0 = TX[0][1] + 9;\n    if (y6 - yw > 1) put(K.svg('path', { class: 'brk', d: 'M' + (bx0 - 4) + ' ' + r3(yw) + ' H' + bx0 + ' V' + r3(y6) + ' H' + (bx0 - 4) }));\n    part(la, () => text2(bx0 + 6, (y6 + yw) / 2 + 5, num(gk, 1) + ' L above', 'tag', 'start'));\n    if (o.row) row(pt(vk, 1) + ' = ' + num(PART[0]) + pt(PE1) + ' + ' + num(gk, 1) + pt(PE2), 'rw');\n    Object.assign(REC, { view: 'tanks', n, k, M: PUMP, tanks: v, tanksK: vk, gapK: gk });\n    REC.reads = [['Hours, n', String(k)]];\n    REC.said.push('Two tanks after ' + k + (k === 1 ? ' hour' : ' hours') + '. Tank 1 holds ' + num(vk[0], 1) + ' L and tank 2 holds ' + num(vk[1], 1) + ' L. Tank 1 is ' + num(gk, 1) + ' L above 600 L.');\n  }\n\n  // ---------- the scenes ----------\n  const SC = {};\n  // A demonstration: the flag (or the tanks) stepping, until he taps or switches; then the picture is his.\n  function showScene(d, st, i, L) {\n    const M = st.M || d.M, B = basisOf(M);\n    let n, mix;\n    if (st.live) { n = liveN(st); mix = liveMix(st, B); } else { const o = d.demo(); n = o.n; mix = B ? o.mix : 0; }\n    if (sameM(M, PUMP)) tanksScene(L, n, { row: true });\n    else {\n      flagScene(L, M, n, mix, { oneLine: !B });\n      if (d.rowFn) row(d.rowFn(REC.k), 'rw');\n    }\n    REC.gridOn = st.live ? !!(st.grid && B) : mix >= 0.5;\n  }\n  SC.square = SC.eig = SC.power = SC.tanks = SC.shear = showScene;\n\n  // (1, 0) on its eigenvector line; a right answer steps it four times.\n  SC.four = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong';\n    const n = st.live ? liveN(st) : right ? taps(0, N2, 0.42, 0.4) : 0, k = Math.round(n);\n    const bad = wrong ? lerpV(E1, parsePt(st.pick), go(0, 0.6)) : null, tip = mul(mpowF(A, n), E1);\n    cards([{ label: 'A =', Es: ents(A) }]);\n    planePane(L, [tip, [0, 1], [0, -0.4]].concat(bad ? [bad] : []), { smax: 60, lit: [{ u: E1, a: 1, lab: 'λ = ' + num(lamOf(A, E1)) }] });\n    if (bad) { arrowD('pv bad', [0, 0], bad, 10); labD(bad, st.pick, 'lbad'); }\n    arrowD('pv', [0, 0], tip, 10);\n    labD(tip, pt(stepBy(A, E1, k)), 'nm', labA(n));\n    Object.assign(REC, { view: 'four', n, k, M: A, tip });\n    REC.reads = [['Steps taken, n', String(k)], ['Zoom', '1 square = ' + num(REC.g)]];\n    REC.said.push('The arrow (1, 0) after ' + k + ' steps of A is ' + pt(stepBy(A, E1, k)) + ', on its eigenvector line.');\n    if (right) {\n      const a = st.live ? 1 : arr(1.66, 0.4), l = lamOf(A, E1);\n      row(num(l) + sup(N2) + ' = ' + num(Math.pow(l, N2)) + ', so it lands on ' + pt(stepBy(A, E1, N2)), 'rw rok', a);\n      if (a > 0 && k >= N2) REC.reveal++;\n    } else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0.3, 0.5));\n  };\n  // (1, 1) on the eigenvector grid, read as amounts; a right answer steps it three times.\n  SC.amts = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong';\n    const n = right ? taps(0, N1, 0.5, 0.45) : 0, k = Math.round(n);\n    const badAm = wrong ? parsePt(st.pick) : null, bad = badAm ? lerpV(V1, mul(P, badAm), go(0, 0.6)) : null;\n    const tip = mul(mpowF(A, n), V1), am = mul(PI, tip);\n    cards([{ label: 'A =', Es: ents(A) }, { label: 'D =', Es: ents(D) }]);\n    planePane(L, [tip, scl(E1, am[0]), [0, 1.2], [-1, 0]].concat(bad ? [bad] : []), { smax: 60, mix: 1, basis: [E1, E2],\n      lit: [E1, E2].map((u) => ({ u, a: 1, lab: 'λ = ' + num(lamOf(A, u)) })) });\n    segW('leg', [0, 0], scl(E1, am[0])); segW('leg', scl(E1, am[0]), tip);\n    if (bad) { arrowD('pv bad', [0, 0], bad, 10); labD(bad, 'amounts ' + st.pick, 'lbad'); }\n    arrowD('pv', [0, 0], tip, 10);\n    const amk = mul(PI, stepBy(A, V1, k));\n    labD(tip, 'amounts ' + pt(amk), 'nm', labA(n));\n    Object.assign(REC, { view: 'amts', n, k, M: A, tip, amountsK: amk });\n    REC.keyA = { litln: 1, leg: 1 };\n    REC.reads = [['Steps taken, n', String(k)], ['Zoom', '1 cell = ' + num(REC.g)]];\n    REC.said.push('The arrow ' + pt(stepBy(A, V1, k)) + ' on the eigenvector grid, with amounts ' + pt(amk) + '.');\n    if (right) {\n      const a = arr(1.45, 0.4);\n      row(pt(AM3) + ' means ' + num(AM3[0]) + pt(E1) + ' + ' + num(AM3[1]) + pt(E2) + ' = ' + pt(mul(P, AM3)), 'rw rok', a);\n      if (a > 0) REC.reveal++;\n    } else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0.3, 0.5));\n  };\n  // P's columns swapped: column 1 is (−1, 1), column 2 is (1, 0); a right answer shows what A does to each.\n  SC.swap = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong', a = right ? arr(0, 0.6) : 0;\n    cards([{ label: 'P =', Es: ents(PS) }, { label: 'D =', Es: ents(DS), a }]);\n    planePane(L, [[-3, 3], [3, 0], [0, -0.5]], { smax: 60, lit: [E2, E1].map((u) => ({ u, a: 1 })) });\n    [[E2, 'column 1'], [E1, 'column 2']].forEach(([u, nm]) => {\n      if (right) part(a, () => arrowD('av', [0, 0], mul(A, u), 11));\n      arrowD('pv', [0, 0], u, 9);\n      labD(u, nm, 'sm');\n      if (right) labD(mul(A, u), num(lamOf(A, u)) + ' lots', 'nm', a);\n    });\n    if (wrong && st.pick === O6s[0]) {\n      const w = scl(E2, lamOf(A, E1)), b = arr(0, 0.5);\n      part(b, () => arrowD('av bad', [0, 0], w, 11));\n      labD(w, num(lamOf(A, E1)) + ' lots', 'lbad', b);\n    }\n    Object.assign(REC, { view: 'swap', M: A });\n    REC.said.push('P’s columns: column 1 is ' + pt(E2) + ' and column 2 is ' + pt(E1) + ', each on its eigenvector line.');\n    if (right) { const b = arr(0.5, 0.5); row(SWAPROW, 'rw rok', b); if (b > 0) REC.reveal++; }\n    else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0, 0.5));\n  };\n  // PDP⁻¹ worked out without the power: one step. A right answer cubes D and takes the flag on to three steps.\n  SC.cubed = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong';\n    const n = right ? 1 + taps(0.2, 2, 0.6, 0.5) : 1;\n    cards([right ? { label: 'PD' + sup(3) + 'P⁻¹ =', Es: ents(mm(mm(P, mpow(D, 3)), PI)) } : { label: 'PDP⁻¹ =', Es: ents(mm(mm(P, D), PI)) }]);\n    flagScene(L, A, n, 0, { noCards: true });\n    if (right) { const a = arr(1.3, 0.4); row('PD' + sup(3) + 'P⁻¹ = A' + sup(3) + ', three steps of A', 'rw rok', a); if (a > 0) REC.reveal++; }\n    else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0, 0.5));\n  };\n  // The tanks after four hours; a right answer runs one more hour.\n  SC.five = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong';\n    tanksScene(L, right ? N9 + go(0, 0.8) : N9, { row: false });\n    if (right) {\n      const a = arr(0.8, 0.4);\n      row(num(STEADY[0]) + ' + ' + num(PART[1]) + ' × ' + num(PDg[1][1]) + sup(N10) + ' = ' + num(tanks(N10)[0], 1), 'rw rok', a);\n      if (a > 0) REC.reveal++;\n    } else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0, 0.5));\n  };\n  // [2 1; 0 2] one step on; a right answer lights its only eigenvector line.\n  SC.jordan = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong', a = right ? arr(0, 0.5) : 0, l = eig2(JOR).lines[0];\n    cards([{ label: 'A =', Es: ents(JOR) }]);\n    flagScene(L, JOR, 1, 0, { noCards: true, lit: right ? [{ u: l.u, a, lab: 'λ = ' + num(l.lam) + ', the only line' }] : [] });\n    if (right) { const b = arr(0.3, 0.5); row('A − ' + num(l.lam) + 'I = ' + mstr(minusI(JOR, l.lam)) + ', so ' + pt(l.dir) + ' gives the only line', 'rw rok', b); if (a > 0) REC.reveal++; }\n    else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0, 0.5));\n  };\n  // (1, 0) under M; a right answer takes 20 steps, the view zooming in as the arrow shrinks onto (1, 1)'s line.\n  SC.settle = (d, st, i, L) => {\n    const right = st.res === 'right', wrong = st.res === 'wrong';\n    const n = right ? N13 * go(0, 1.7) : 0, k = Math.round(n), tip = mul(mpowF(M13, n), START13), r = len(tip) * 0.95;\n    cards([{ label: 'M =', Es: ents(M13) }]);\n    planePane(L, [tip, scl(unit(SE1), r), scl(unit(SE2), r), scl(unit(SE2), -r), [1.8 * r, 0]], { smax: 1e6, minG: 0.01,\n      lit: [[SE1, L13a], [SE2, L13b]].map(([u, l]) => ({ u, a: 1, lab: pt(u) + ', λ = ' + num(l) })) });\n    if (right) for (let j = 1; j <= Math.floor(n + 1e-9); j++) {\n      const q = stepBy(M13, START13, j);\n      if (inBox(q, REC.box)) part(K.clamp((n - j + 0.25) * 4, 0, 1), () => dotD('trail', q, 2.6));\n    }\n    arrowD('pv', [0, 0], tip, 10);\n    const a0 = right ? 1 - arr(0, 0.3) : 1, a1 = right ? arr(1.7, 0.3) : 0;\n    labD(tip, 'start ' + pt(START13), 'nm', a0);\n    labD(tip, 'after ' + N13 + ' steps', 'nm', a1);\n    Object.assign(REC, { view: 'settle', n, k, M: M13, tip });\n    REC.keyA = { litln: 1, trail: right ? K.clamp(n, 0, 1) : 0 };\n    REC.reads = [['Steps taken, n', String(k)], ['Zoom', '1 square = ' + num(REC.g)]];\n    REC.said.push('The arrow ' + pt(tip) + ' after ' + k + ' steps of M, with the lines through (1, 1) and (1, −1).');\n    if (right) {\n      const a = arr(1.7, 0.4), c1 = PART13[0] * Math.pow(L13a, N13);\n      row('the (1, 1) part is ' + num(PART13[0]) + ' × ' + num(L13a) + sup(N13) + ' ≈ ' + num(c1, 2), 'rw rok', a);\n      if (a > 0) REC.reveal++;\n    } else if (wrong) row(d.slips[st.pick], 'rw rbad', arr(0, 0.5));\n  };\n\n  // ---------- A = PDP⁻¹ in three panels: into amounts, stretch, back out ----------\n  const PBOX = [[-0.6, 6.4], [-0.45, 2.45]];\n  function miniPane(L, k) {\n    const y0 = L.top + k * (PANH + 6), s = Math.min(196 / (PBOX[0][1] - PBOX[0][0]), (PANH - 12) / (PBOX[1][1] - PBOX[1][0]));\n    const w = (PBOX[0][1] - PBOX[0][0]) * s, h = (PBOX[1][1] - PBOX[1][0]) * s, left = 8 + (196 - w) / 2, top = y0 + (PANH - h) / 2;\n    put(K.svg('rect', { class: 'pane', x: PX0, y: y0, width: PW, height: PANH, rx: 8 }));\n    const p = { bx: PBOX, s, y0, area: { x0: 8, y0: y0 + 3, x1: 206, y1: y0 + PANH - 3 } };\n    p.map = (q) => [left + (q[0] - PBOX[0][0]) * s, top + (PBOX[1][1] - q[1]) * s];\n    PAN = p;\n    for (let x = Math.ceil(PBOX[0][0]); x <= PBOX[0][1]; x++) if (x) line2('grid', [x, PBOX[1][0]], [x, PBOX[1][1]], false);\n    for (let y = Math.ceil(PBOX[1][0]); y <= PBOX[1][1]; y++) if (y) line2('grid', [PBOX[0][0], y], [PBOX[0][1], y], false);\n    line2('axis', [0, PBOX[1][0]], [0, PBOX[1][1]]);\n    line2('axis', [PBOX[0][0], 0], [PBOX[0][1], 0]);\n    return p;\n  }\n  function pdpCard(hl) {\n    const mats = [['P', P], ['D', D], ['P⁻¹', PI]].map(([t, M]) => ({ t, Es: ents(M) }));\n    const ws = mats.map((m) => cardW('', m.Es, false)), lw = tw('A =', 'mx') + 8, gap = 6;\n    let x = W / 2 - (lw + ws.reduce((s, w) => s + w.wM, 0) + gap * 2) / 2;\n    text2(x, 36, 'A =', 'mx', 'start');\n    x += lw;\n    mats.forEach((m, k) => {\n      cardAt(x, 30, '', m.Es, ws[k], false, hl[k]);\n      text2(x + ws[k].wM / 2, 72, m.t, 'sm');\n      REC.cards.push({ label: m.t, Es: m.Es, a: 1 });\n      x += ws[k].wM + gap;\n    });\n  }\n  SC.pdp = (d, st, i, L) => {\n    const a = [arr(0.4, 0.5), arr(1.6, 0.5), arr(2.9, 0.5)], grow = go(1.9, 0.8);\n    // The highlight moves right to left along the card: P⁻¹ first, then D, then P.\n    pdpCard([arr(2.9, 0.3) * (1 - arr(3.9, 0.3)), arr(1.6, 0.3) * (1 - arr(2.9, 0.3)), arr(0.4, 0.3) * (1 - arr(1.6, 0.3))]);\n    const am = mul(PI, V1), st2 = mul(D, am), back = mul(P, st2), cur = lerpV(am, st2, grow);\n    const legs = (q, B0, B1) => { const c = mul(inv2(fromCols(B0, B1)), q); segW('leg', [0, 0], scl(B0, c[0])); segW('leg', scl(B0, c[0]), q); };\n    const TXT = [['1. P⁻¹', pt(V1) + ' → ' + pt(am), 'into amounts'], ['2. D', pt(am) + ' → ' + pt(st2), '×' + num(D[0][0]) + ' and ×' + num(D[1][1])],\n      ['3. P', pt(st2) + ' → ' + pt(back), 'back to your grid']];\n    const FROMTO = [[V1, am], [am, cur], [st2, back]];\n    [0, 1, 2].forEach((k) => {\n      const p = miniPane(L, k);\n      part(a[k], () => {\n        if (k === 0) { legs(V1, E1, E2); arrowD('pv', [0, 0], V1, 9); }\n        else if (k === 1) { arrowD('gh', [0, 0], am, 9); legs(cur, [1, 0], [0, 1]); arrowD('pv', [0, 0], cur, 9); }\n        else { legs(back, E1, E2); arrowD('av', [0, 0], back, 10); }\n        text2(216, p.y0 + 28, TXT[k][0], 'mx', 'start');\n        text2(216, p.y0 + 54, TXT[k][1], 'en', 'start');\n        text2(216, p.y0 + 78, TXT[k][2], 'ttl', 'start');\n      });\n      if (k === 1) { labD([PBOX[0][1] - 0.4, 0], 'lots of ' + pt(E1), 'sm', a[k], true); labD([0, PBOX[1][1] - 0.3], 'lots of ' + pt(E2), 'sm', a[k], true); }\n      REC.panels.push({ from: FROMTO[k][0], to: FROMTO[k][1], a: a[k] });\n    });\n    Object.assign(REC, { view: 'pdp' });\n    REC.keyA = { leg: a[0], gl: a[1] };\n    REC.said.push('Three panels follow (1, 1) through A = PDP⁻¹. P⁻¹ turns it into the amounts ' + pt(am) + '. D stretches them to ' + pt(st2) + '. P turns that back into ' + pt(back) + ', which is A(1, 1).');\n  };\n\n  // ---------- each step's layout: cards on top, the picture, the key, then working lines ----------\n  const LAYOUT = STEPS.map((d) => ({ top: d.key === 'pdp' ? 84 : 62, PH: d.key === 'pdp' ? 3 * PANH + 12 : PHP, rows: d.rows || 0,\n    keyRows: Math.max(...d.views.map((v) => keyLines(KEYS[v]).length)) }));\n\n  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => stepper.get();\n  const tapsOn = (i) => !finished && (STEPS[i].taps === true || (STEPS[i].taps === 'after' && S[i].res === 'right'));\n  const swOn = (i) => !finished && !!STEPS[i].sw && !!basisOf(viewM(i));\n  // His first tap or flip ends the demonstration where it stands, and the picture is his.\n  function goLive(i) {\n    const st = S[i];\n    if (!st.live) {\n      st.live = true;\n      st.n = Math.round(CUR.n != null ? CUR.n : 0);\n      st.grid = !!CUR.gridOn;\n      st.M = st.M || CUR.M || STEPS[i].M;\n    }\n    st.from = CUR.n != null ? CUR.n : st.n;\n    st.mixFrom = CUR.mix != null ? CUR.mix : st.grid ? 1 : 0;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    return st;\n  }\n  function tap(dir) {\n    const i = at();\n    if (!tapsOn(i)) return;\n    const st = goLive(i);\n    st.n = dir === 0 ? 0 : K.clamp(st.n + dir, 0, NMAX);\n    K.reveal();\n    play(TAP);\n  }\n  [['Step', 1, false], ['Back a step', -1, true], ['Reset', 0, true]].forEach(([label, dir, sec]) => K.button({ label, secondary: sec, into: '#taps', press: () => tap(dir) }));\n  const gridCtl = K.toggle({ id: 'grid', label: 'Eigenvector grid', value: false, into: '#sw' });\n  const gridBtn = gridCtl.el.querySelector('button');\n  el('swwhy').textContent = SW_WHY;\n  function syncGrid() { const v = !!REC.gridOn; if (gridCtl.get() !== v) gridCtl.set(v, true); gridSet = v; }\n  const presetBtns = PRESETS.map(([name, M]) => K.button({ label: name, secondary: true, into: '#presets', press: () => {\n    const i = at();\n    if (!STEPS[i].presets || finished) return;\n    const st = goLive(i);\n    st.M = M; st.n = 0; st.from = null; st.mixFrom = null; st.grid = false;\n    K.reveal();\n  } }));\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    S[i] = blank();\n    play(d.dur);\n  } });\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one shows itself on the picture, a wrong one is drawn in red.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    doCheck(i, st);\n    play(st.res === 'right' ? d.fb[0] : d.fb[1]);\n  } }).el;\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  const nav = el('nav');\n\n  // One animation plays each demonstration, each tap and the motion after an answer; with reduced motion (and while\n  // the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter');\n    void b.offsetWidth;\n    b.classList.add('enter');\n  }\n\n  // ---------- the picture for a step (the animation calls this every frame) ----------\n  const readsEl = el('reads'), tiles = [];\n  function showReads(list) {\n    readsEl.hidden = !list || !list.length;\n    (list || []).forEach(([l, v], k) => {\n      if (!tiles[k]) {\n        const t = readsEl.appendChild(K.el('div', { class: 'rd' }));\n        tiles[k] = { el: t, l: t.appendChild(K.el('span', { class: 'rl' })), v: t.appendChild(K.el('span', { class: 'rv' })), ls: null, vs: null };\n      }\n      const T0 = tiles[k];\n      T0.el.hidden = false;\n      if (T0.ls !== l) { T0.ls = l; T0.l.textContent = l; }\n      if (T0.vs !== v) { T0.vs = v; T0.v.textContent = v; }\n    });\n    for (let k = (list || []).length; k < tiles.length; k++) tiles[k].el.hidden = true;\n  }\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], L = LAYOUT[i];\n    art.textContent = '';\n    into = null; LAB = []; PIX = i; PAN = null;\n    REC = { texts: [], rows: [], segs: [], dots: [], bad: 0, reveal: 0, reads: null, cards: [], lit: [], panels: [], said: [], keyA: {}, view: d.views[0],\n      gridOn: false, n: null, k: null, mix: 0, M: null, Mn: null, flag: null, ghost: null, corner: null, amounts: null, amountsK: null, cornerK: null,\n      tanks: null, tanksK: null, gapK: null, box: null, s: null, g: null, tip: null };\n    const rowsH = L.rows ? L.rows * 22 + 8 : 0, y0 = L.top + L.PH, H = y0 + rowsH + 14 + 22 * L.keyRows;\n    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);\n    SC[d.key](d, st, i, L);\n    placeLabels();\n    REC.rows.forEach((r, k) => part(r.a, () => fitText(W / 2, y0 + 22 * L.keyRows + 28 + k * 22, r.s, r.cls)));\n    drawKey(KEYS[REC.view] || [], REC.keyA, y0 + 26);\n    const said = REC.said.slice();\n    REC.rows.forEach((r) => { if (r.a > 0) said.push(r.s + '.'); });\n    svg.setAttribute('aria-label', say(said.join(' ')));\n    if (!PROBE) {\n      CUR = { n: REC.n, mix: REC.mix, gridOn: REC.gridOn, M: REC.M };\n      showReads(finished ? null : REC.reads);\n      syncGrid();\n    }\n    return REC;\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = at(), d = STEPS[i];\n    if (!anim.playing()) T = Infinity;\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { S[i] = blank(); play(d.dur); } else { anim.pause(); T = Infinity; }\n      gridSet = null;\n    } else if (gridSet !== null && !!p.grid !== gridSet && swOn(i)) {\n      const st = goLive(i);\n      st.grid = !!p.grid;\n      play(TAP);\n    }\n    const st = S[i];\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Screen ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    const M = viewM(i), tv = tapsOn(i), swVis = !finished && !!d.sw && !sameM(M, PUMP), canSw = !!basisOf(M);\n    el('taps').hidden = !tv;\n    el('swrow').hidden = !swVis;\n    gridBtn.disabled = !canSw;\n    gridBtn.setAttribute('aria-disabled', canSw ? 'false' : 'true');\n    el('swwhy').hidden = !swVis || canSw;\n    el('presets').hidden = finished || !d.presets;\n    presetBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', d.presets && sameM(M, PRESETS[k][1]) ? 'true' : 'false'));\n    const act = el('act');\n    write(act, d.act || '');\n    act.hidden = finished || !d.act || (!d.show && !tv);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = finished || replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 8));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.hidden = right;\n    // Why? gives the answer away, so it shows only once an answer has been checked.\n    const checked = st.res === 'right' || st.res === 'wrong';\n    whyBtn.el.hidden = !checked;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why || !checked;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (k) => STEPS.findIndex((d) => d.key === k);\n  const solvedSt = (i) => doCheck(i, Object.assign(blank(), { pick: STEPS[i].want }));\n  const wrongSt = (i, o) => doCheck(i, Object.assign(blank(), { pick: o }));\n  const liveSt = (o) => Object.assign(blank(), { live: true }, o);\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawnRaw(i, st, t) {\n    const keepS = S[i], keepT = T;\n    PROBE = true; S[i] = st; T = t == null ? Infinity : t;\n    try { return paint(i); } finally { S[i] = keepS; T = keepT; PROBE = false; }\n  }\n  const sameE = (Es, M, dp) => JSON.stringify(Es) === JSON.stringify(ents(M, dp));\n  const relM = (X, Y) => X.every((r, i) => r.every((x, j) => Math.abs(x - Y[i][j]) <= 1e-9 * (1 + Math.abs(Y[i][j]))));\n  const powA = (n) => [[Math.pow(3, n), Math.pow(3, n) - Math.pow(2, n)], [0, Math.pow(2, n)]];\n\n  K.check('Applying a matrix that only scales each basis vector, say 100 times, scales each one by the 100th power of its eigenvalue: on the eigenvector grid every step multiplies the dot’s amounts by 3 and 2, the D card has 3ⁿ and 2ⁿ down its diagonal, and PDⁿP⁻¹ = Aⁿ for every n from 0 to 10 and for n = 100', () => {\n    let ok = true;\n    const k = idx('eig');\n    for (let n = 0; n <= NMAX; n++) {\n      const r = drawnRaw(k, liveSt({ n, grid: true }));\n      ok = ok && r.k === n && r.mix === 1 && same(r.amountsK, [Math.pow(3, n), Math.pow(2, n)]) && sameE(r.cards[0].Es, powA(n)) &&\n        sameE(r.cards[1].Es, diag(Math.pow(3, n), Math.pow(2, n))) && relM(mm(mm(P, mpow(D, n)), PI), mpow(A, n));\n    }\n    paint();\n    return ok && relM(mm(mm(P, mpow(D, 100)), PI), mpow(A, 100));\n  }, { source: SRC[0] });\n  K.check('A shear does not have enough eigenvectors to span all of space: the shear screen draws one eigenvector line, its grid switch shows greyed out with the reason beside it, and [2 1; 0 2] also has only one line', () => {\n    const k = idx('shear'), r = drawnRaw(k, blank());\n    paint();\n    return eig2(SHR).lines.length === 1 && !eig2(SHR).all && eig2(JOR).lines.length === 1 && !eig2(JOR).all && !basisOf(SHR) && !basisOf(JOR) &&\n      r.lit.length === 1 && sameLine(r.lit[0].u, [1, 0]) && STEPS[k].sw === true && !STEPS[k].show === false && SW_WHY.length > 0;\n  }, { source: SRC[1] });\n  K.check('A matrix with a repeated eigenvalue can be diagonalised provided it has as many independent eigenvectors as columns: 2I has 2 twice and every arrow is an eigenvector, so it is diagonal already, while the shear and [2 1; 0 2] have their eigenvalue twice and only one line', () => {\n    const t = eig2(TWO_I), s = eig2(SHR), j = eig2(JOR);\n    return near(t.disc, 0) && t.all && near(t.lam, 2) && [[1, 0], [0, 1], [1, 1], [3, -2]].every((v) => same(mul(TWO_I, v), scl(v, 2))) &&\n      near(s.disc, 0) && s.lines.length === 1 && near(s.roots[0], 1) && near(j.disc, 0) && j.lines.length === 1 && near(j.roots[0], 2);\n  }, { source: SRC[2] });\n  K.check('Every worked number is right: A² = [9 5; 0 4], A³ = [27 19; 0 8], A¹⁰ = [59049 58025; 0 1024] and Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]; 3⁴ = 81; (1, 1) has amounts (2, 1), then (54, 8), which is (46, 8); P = [1 −1; 0 1], P⁻¹ = [1 1; 0 1], PDP⁻¹ = A, and (1, 1) goes to (2, 1), (6, 2), (4, 2); the pumps have 1 along (3, 2) and 0.5 along (1, −1), 200 and 400 lots, tank 1 at 800, 700, 650, 625 and 612.5 L, heading for 600 L and 400 L; det P = −5, P⁻¹ = [0.2 0.2; 0.4 −0.6], A³ = [0.65 0.525; 0.35 0.475]; the shear’s Aⁿ = [1 n; 0 1]; M stretches (1, 1) by 0.9 and (1, −1) by 0.5, and 0.5 × 0.9²⁰ is about 0.06', () => {\n    let ok = sameM(mpow(A, 2), [[9, 5], [0, 4]]) && sameM(mpow(A, 3), [[27, 19], [0, 8]]) && sameM(mpow(A, 10), [[59049, 58025], [0, 1024]]);\n    for (let n = 0; n <= 12; n++) ok = ok && sameM(mpow(A, n), powA(n));\n    ok = ok && same(stepBy(A, E1, 4), [81, 0]) && same(AM1, [2, 1]) && same(AM3, [54, 8]) && same(mul(P, AM3), [46, 8]) && same(stepBy(A, V1, 3), [46, 8]) &&\n      sameM(P, [[1, -1], [0, 1]]) && sameM(PI, [[1, 1], [0, 1]]) && sameM(mm(mm(P, D), PI), A) && same(mul(D, AM1), [6, 2]) && same(mul(P, [6, 2]), [4, 2]) && same(mul(A, V1), [4, 2]) &&\n      near(PDg[0][0], 1) && near(PDg[1][1], 0.5) && same(PART, [200, 400]) && [800, 700, 650, 625, 612.5].every((v, k) => near(stepBy(PUMP, START, k + 1)[0], v, 1e-6)) &&\n      same(STEADY, [600, 400]) && near(det2(PP), -5) && sameM(PPI, [[0.2, 0.2], [0.4, -0.6]]) && sameM(mpow(PUMP, 3), [[0.65, 0.525], [0.35, 0.475]]) &&\n      near(stepBy(PUMP, START, 3)[1], 350, 1e-6) && sameM(mpow(PUMP, 60), [[0.6, 0.6], [0.4, 0.4]]) &&\n      [0, 1, 2, 3, 7].every((n) => sameM(mpow(SHR, n), [[1, n], [0, 1]])) && near(L13a, 0.9) && near(L13b, 0.5) && same(PART13, [0.5, 0.5]) &&\n      near(PART13[0] * Math.pow(L13a, 20), 0.06, 0.005) && PART13[1] * Math.pow(L13b, 20) < 1e-6;\n    return ok;\n  });\n  K.check('Each puzzle’s answer comes from the rule, and each wrong answer offered is the slip its hint names', () => {\n    const g = (k) => STEPS[idx(k)];\n    const only = (k, f) => g(k).opts.every((o) => f(o) === (o === g(k).want));\n    return only('four', (o) => same(parsePt(o), stepBy(A, E1, N2))) && O2s[0] === pt([3 * N2, 0]) && O2s[2] === pt(stepBy(A, E1, 1)) &&\n      only('amts', (o) => same(mul(P, parsePt(o)), stepBy(A, V1, N1))) && same(parsePt(O4s[1]), mul(PI, stepBy(A, V1, 1))) && same(parsePt(O4s[2]), [2 * 3 * 3, 1 * 2 * 3]) &&\n      only('swap', (o) => { const Dm = parseM(o); return !!Dm && near(Dm[0][1], 0) && near(Dm[1][0], 0) && sameM(mm(A, PS), mm(PS, Dm)); }) &&\n      g('cubed').want === O8s[2] && sameM(mm(mm(P, D), PI), A) && !sameM(A, mpow(A, 3)) && sameM(mm(mm(P, mpow(D, 3)), PI), mpow(A, 3)) && !sameM(mm(mm(PI, D), P), A) &&\n      only('five', (o) => near(parseFloat(o), stepBy(PUMP, START, N10)[0], 1e-6)) && near(parseFloat(O10s[1]), stepBy(PUMP, START, N9)[0], 1e-6) &&\n      g('jordan').want === O12s[1] && eig2(JOR).lines.length === 1 && near(eig2(JOR).disc, 0) &&\n      only('settle', (o) => { const v = parsePt(o), w = stepBy(M13, START13, N13); return Math.abs(cross2(unit(v), unit(w))) < 1e-4; });\n  });\n  K.check('Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour', () => {\n    const ok = DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || new Set(d.opts).size !== 3 || d.opts.indexOf(d.want) < 0) return false;\n      if (!d.opts.every((o) => (wrongSt(i, o).res === 'right') === (o === d.want))) return false;\n      if (drawnRaw(i, solvedSt(i)).bad !== 0) return false;\n      return d.opts.filter((o) => o !== d.want).every((o) => drawnRaw(i, wrongSt(i, o)).bad > 0 && !!d.hints[o] && !!d.slips[o]);\n    });\n    paint();\n    return ok;\n  });\n  K.check('Before Check, no puzzle shows its answer; after a right answer, it does', () => {\n    const ok = DO.every((i) => {\n      const d = STEPS[i], b = drawnRaw(i, blank()), s = drawnRaw(i, solvedSt(i));\n      return b.reveal === 0 && s.reveal > 0 && b.rows.length === 0 && !b.texts.some((x) => x.indexOf(d.secret) >= 0) && s.texts.some((x) => x.indexOf(d.secret) >= 0);\n    });\n    paint();\n    return ok;\n  });\n  K.check('Each demonstration ends where the lesson says: the flag at n = 3 with A³ = [27 19; 0 8]; at n = 3 on the eigenvector grid with D³ = [27 0; 0 8] and the dot’s amounts (27, 8); (1, 1) to the amounts (2, 1), stretched to (6, 2), back to (4, 2) = A(1, 1); n = 10 with A¹⁰ = [59049 58025; 0 1024]; tank 1 at 625 L and tank 2 at 375 L after 4 hours, 25 L above 600 L; the shear at n = 3 with one line and [1 3; 0 1]', () => {\n    const r1 = drawnRaw(idx('square'), blank()), r2 = drawnRaw(idx('eig'), blank()), rp = drawnRaw(idx('pdp'), blank()), r4 = drawnRaw(idx('power'), blank());\n    const r5 = drawnRaw(idx('tanks'), blank()), r6 = drawnRaw(idx('shear'), blank()), s0 = drawnRaw(idx('square'), blank(), 0.3), e0 = drawnRaw(idx('eig'), blank(), 0.3);\n    paint();\n    const pn = rp.panels;\n    return r1.k === 3 && r1.mix === 0 && r1.cards[0].label === 'A³ =' && sameE(r1.cards[0].Es, [[27, 19], [0, 8]]) && s0.k === 0 &&\n      r2.k === 3 && r2.mix === 1 && same(r2.amountsK, [27, 8]) && r2.cards[1].label === 'D³ =' && sameE(r2.cards[1].Es, [[27, 0], [0, 8]]) && e0.mix === 0 && e0.k === 0 &&\n      pn.length === 3 && pn.every((x) => x.a === 1) && same(pn[0].from, [1, 1]) && same(pn[0].to, [2, 1]) && same(pn[1].to, [6, 2]) && same(pn[2].to, [4, 2]) && same(pn[2].to, mul(A, [1, 1])) &&\n      r4.k === 10 && sameE(r4.cards[0].Es, [[59049, 58025], [0, 1024]]) &&\n      r5.view === 'tanks' && r5.k === 4 && same(r5.tanksK, [625, 375], 1e-6) && near(r5.gapK, 25, 1e-6) &&\n      r6.k === 3 && r6.lit.length === 1 && sameE(r6.cards[0].Es, [[1, 3], [0, 1]]) && !basisOf(r6.M);\n  });\n  K.check('While each demonstration plays, the rule holds at every moment: n only grows; the flag drawn moves straight from Aᵏ to Aᵏ⁺¹ times the flag; the cards read the powers for the nearest whole step; the tanks always hold 1000 L between them', () => {\n    let ok = true;\n    const prev = {};\n    for (let q = 0; q <= 50; q++) {\n      const t = q / 10;\n      ['square', 'eig', 'power', 'shear'].forEach((key) => {\n        const M = STEPS[idx(key)].M, r = drawnRaw(idx(key), blank(), t), j = Math.floor(r.n + 1e-9), f = r.n - j;\n        const lo = mpow(M, j), hi = mpow(M, j + 1);\n        ok = ok && r.n >= (prev[key] || 0) - 1e-9 && r.n <= NMAX && FLAG.every((p0, m) => sameR(r.flag[m], add(scl(mul(lo, p0), 1 - f), scl(mul(hi, p0), f)))) &&\n          sameE(r.cards[0].Es, mpow(M, r.k)) && r.k === Math.round(r.n);\n        prev[key] = r.n;\n      });\n      const r = drawnRaw(idx('tanks'), blank(), t);\n      ok = ok && near(r.tanks[0] + r.tanks[1], LITRES, 1e-6) && r.tanks.every((x) => x >= -1e-9) && r.tanks[0] >= STEADY[0] - 1e-9;\n    }\n    paint();\n    return ok;\n  });\n  K.check('The view zooms out by itself so the whole flag stays in sight: at every n from 0 to 10, for the stretch on both grids and for the shear, every corner of the flag is inside the pane, the zoom note names the grid spacing drawn, and the flag is the same on either grid', () => {\n    let ok = true;\n    [['square', false], ['eig', true], ['shear', false]].forEach(([key, g]) => {\n      const M = STEPS[idx(key)].M;\n      for (let n = 0; n <= NMAX; n++) {\n        const r = drawnRaw(idx(key), liveSt({ n, grid: g })), bx = r.box;\n        ok = ok && FLAG.every((p0) => inBox(stepBy(M, p0, n), bx)) && r.reads[1][1].endsWith('= ' + num(r.g)) && r.g * r.s >= 16 - 1e-9;\n        if (g) { const o = drawnRaw(idx(key), liveSt({ n, grid: false })); ok = ok && o.flag.every((p0, m) => sameR(p0, r.flag[m])) && o.mix === 0 && r.mix === 1; }\n      }\n    });\n    paint();\n    return ok;\n  });\n  K.check('Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer’s motion, right or wrong, within 2.5 s', () => {\n    const timed = (i, st, limit) => { latest = 0; earliest = Infinity; drawnRaw(i, st); return latest <= limit + 1e-9; };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), d.fb[0]) && d.fb[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), d.fb[1]) && d.fb[1] <= 2.5);\n    });\n    paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Step it again",
+  "brief": "The one thing you should see is Dⁿ reading out as plain powers, with each tap only stretching the flag by 3 along (1, 0) and 2 along (−1, 1), when you step A again on the eigenvector grid.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Applying a matrix that only scales each basis vector, say 100 times, scales each one by the 100th power of its eigenvalue: on the eigenvector grid every step multiplies the dot’s amounts by 3 and 2, the D card has 3ⁿ and 2ⁿ down its diagonal, and PDⁿP⁻¹ = Aⁿ for every n from 0 to 10 and for n = 100",
+     "ok": true,
+     "source": "https://www.3blue1brown.com/lessons/eigenvalues"
+    },
+    {
+     "label": "A shear does not have enough eigenvectors to span all of space: the shear screen draws one eigenvector line, its grid switch shows greyed out with the reason beside it, and [2 1; 0 2] also has only one line",
+     "ok": true,
+     "source": "https://www.3blue1brown.com/lessons/eigenvalues"
+    },
+    {
+     "label": "A matrix with a repeated eigenvalue can be diagonalised provided it has as many independent eigenvectors as columns: 2I has 2 twice and every arrow is an eigenvector, so it is diagonal already, while the shear and [2 1; 0 2] have their eigenvalue twice and only one line",
+     "ok": true,
+     "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf"
+    },
+    {
+     "label": "Every worked number is right: A² = [9 5; 0 4], A³ = [27 19; 0 8], A¹⁰ = [59049 58025; 0 1024] and Aⁿ = [3ⁿ 3ⁿ − 2ⁿ; 0 2ⁿ]; 3⁴ = 81; (1, 1) has amounts (2, 1), then (54, 8), which is (46, 8); P = [1 −1; 0 1], P⁻¹ = [1 1; 0 1], PDP⁻¹ = A, and (1, 1) goes to (2, 1), (6, 2), (4, 2); the pumps have 1 along (3, 2) and 0.5 along (1, −1), 200 and 400 lots, tank 1 at 800, 700, 650, 625 and 612.5 L, heading for 600 L and 400 L; det P = −5, P⁻¹ = [0.2 0.2; 0.4 −0.6], A³ = [0.65 0.525; 0.35 0.475]; the shear’s Aⁿ = [1 n; 0 1]; M stretches (1, 1) by 0.9 and (1, −1) by 0.5, and 0.5 × 0.9²⁰ is about 0.06",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle’s answer comes from the rule, and each wrong answer offered is the slip its hint names",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+     "ok": true
+    },
+    {
+     "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends where the lesson says: the flag at n = 3 with A³ = [27 19; 0 8]; at n = 3 on the eigenvector grid with D³ = [27 0; 0 8] and the dot’s amounts (27, 8); (1, 1) to the amounts (2, 1), stretched to (6, 2), back to (4, 2) = A(1, 1); n = 10 with A¹⁰ = [59049 58025; 0 1024]; tank 1 at 625 L and tank 2 at 375 L after 4 hours, 25 L above 600 L; the shear at n = 3 with one line and [1 3; 0 1]",
+     "ok": true
+    },
+    {
+     "label": "While each demonstration plays, the rule holds at every moment: n only grows; the flag drawn moves straight from Aᵏ to Aᵏ⁺¹ times the flag; the cards read the powers for the nearest whole step; the tanks always hold 1000 L between them",
+     "ok": true
+    },
+    {
+     "label": "The view zooms out by itself so the whole flag stays in sight: at every n from 0 to 10, for the stretch on both grids and for the shear, every corner of the flag is inside the pane, the zoom note names the grid spacing drawn, and the flag is the same on either grid",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer’s motion, right or wrong, within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "grid"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The same step, again",
+      "Four steps along (1, 0)",
+      "Measure along the eigenvectors",
+      "Amounts after three steps",
+      "Into the grid and out again",
+      "Swap P’s columns",
+      "Many steps at once",
+      "A slip in A³",
+      "Where the steps head",
+      "After five hours",
+      "Too few eigenvectors",
+      "Mixed: a repeated eigenvalue",
+      "Mixed: twenty steps"
+     ],
+     "value": 0
+    },
+    {
+     "id": "grid",
+     "kind": "toggle",
+     "label": "Eigenvector grid",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": true
+    }
+   ],
+   "actions": [
+    "Step",
+    "Back a step",
+    "Reset",
+    "Stretch",
+    "Pumps",
+    "Shear",
+    "Play again",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T02:05:17.410Z",
+  "applied": [
+   {
+    "path": "analogy.breaks",
+    "problem": "Read with the same λ as the step eigenvalues, e^(λt) is wrong: the total part has step eigenvalue 1, and e^(1·t) would grow. In the smooth form the eigenvalues are rates (0 and a negative rate here), as i7 will teach."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "After three steps the amounts have grown 27 and 8 times, so the flag is stretched more along (1, 0) but is not yet lined up along it; the sentence overstates what screen 3 shows at n = 3."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

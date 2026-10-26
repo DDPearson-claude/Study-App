@@ -1,0 +1,342 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Linear algebra, from arrows to vibration modes
+Idea: Coupled change: two tanks and two masses (Linked rates written as x′ = Ax split along the eigenvectors into separate motions, so two tanks or two masses on springs move as a sum of modes.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the real dot staying the sum of two faint dots when you drag the start dot and press Go. Each faint dot rides its own eigenvector line at its own rate.
+Title (the app shows it above the frame, so do not repeat it): The state plane
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in thirteen small screens. On the left is the real thing. On the right is the state plane. It is a square of axes with one dot, whose two numbers are x₁ and x₂. A System choice picks one of three. Open tanks are two 100 L tanks of brine. Fresh water runs into tank 1 at 15 L/min. A pump sends 20 L/min from tank 1 to tank 2. Another 5 L/min runs back. The other 15 L/min drains out of tank 2, so each tank stays at 100 L. Arrows show the flows. Each tank's salt is drawn as a shaded level with its grams beside it. x₁ and x₂ are the grams of salt in tanks 1 and 2. Each flow carries salt at its tank's strength. That strength is the tank's grams divided by 100 L. What leaves a tank is minus and what arrives is plus. So x₁′ = −0.2x₁ + 0.05x₂ and x₂′ = 0.2x₁ − 0.2x₂, in grams a minute. That is x′ = Ax with A = [−0.2 0.05; 0.2 −0.2]. A card shows it. Closed tanks shut the inlet and the drain. The pumps move 20 L/min each way. So there A = [−0.2 0.2; 0.2 −0.2]. Two masses means two equal masses between three equal springs. A fixed wall holds each end. x₁ and x₂ are how far each mass sits to the right of its rest point, in centimetres. Mass 1 feels its own spring and the middle one. So its force is −kx₁ + k(x₂ − x₁). Mass 2's force is the mirror image. So x″ = −(k/m)[2 −1; −1 2]x, with k/m = 100 per second squared. The middle spring carries a label with its stretch, x₂ − x₁, in centimetres. The state plane draws two eigenvector lines through the origin, each labelled with its eigenvalue. For open tanks they are (1, 2) with −0.1 and (1, −2) with −0.3. For closed tanks they are (1, 1) with 0 and (1, −1) with −0.4. For the masses they are (1, 1) and (−1, 1). Along (1, 1), ω² = k/m and ω = 10 rad/s. Along (−1, 1), ω² = 3k/m and ω ≈ 17.3 rad/s. Dragging the dot sets the start. For tanks it stays where each tank holds between 0 and 40 g. For masses it stays within 3 cm each way. Go starts the clock. The dot leaves a trail, and the left side moves to match. For tanks the clock runs 2 minutes each second, up to 30 minutes. For masses the motion is drawn 10 times slower than real. Each mass is let go from rest. Two faint dots ride the two lines. Each is the start's amount along its line, changing by its own rule. A acts on a mix part by part. It only stretches each eigenvector. That is why each amount can follow a rule of its own. For tanks the rule is a₀e^(λt). So each faint dot slides in towards the origin at its own rate. A faint dot whose eigenvalue is 0 stays put. For masses the rule is a₀cos(ωt). So each faint dot slides to and fro at its own speed. The real dot is always the sum of the two faint dots. It is drawn as the corner of their parallelogram. Start on a line, and the other faint dot sits at the origin. So the real dot moves straight along that line. Start anywhere else, and its trail curves. The closed tanks are the exception. There the trail runs straight, because the (1, 1) amount never changes. Readouts show x₁, x₂ and the time. Reset puts the dot back at its start. On a phone the real thing sits above the state plane. Here are the screens. Screen 1 shows the open tanks, with 30 g of salt in tank 1 and none in tank 2. Each tank's rate depends on the salt in both. So the two are linked. A card builds tank 2's rate from its flows. 20 L/min arrives from tank 1, carrying 0.2x₁ grams a minute. 20 L/min leaves, carrying 0.2x₂. So x₂′ = 0.2x₁ − 0.2x₂. Go plays it. Tank 1's salt falls. Tank 2's rises, then falls. The finished picture shows the tanks at about 5.5 minutes, both near 11.5 g. Screen 2 is a puzzle. What is tank 1's rate, x₁′? It offers −0.2x₁ + 0.05x₂, 0.2x₁ − 0.05x₂ and −0.2x₁ − 0.05x₂. The first is right. 20 L/min leaves tank 1, carrying 0.2x₁ grams a minute. 5 L/min arrives from tank 2, carrying 0.05x₂. The fresh water brings no salt. The hint says what leaves is minus and what arrives is plus. Screen 3 adds the state plane beside the tanks. One dot stands for both tanks at once, at (x₁, x₂). It is also called the phase plane. It draws the two eigenvector lines, (1, 2) with −0.1 and (1, −2) with −0.3. From (30, 0), Go draws a curved trail in to the origin. The finished picture shows the whole trail. Screen 4 is a puzzle. The dot starts at (10, 20), on the (1, 2) line. Where does it go? It offers straight along the line to the origin, curving off the line, and round onto the (1, −2) line. The first is right. A(10, 20) = (−1, −2). That is −0.1 times (10, 20). So the rate points straight back along the line. The dot never leaves it. It shrinks as 10e^(−0.1t) lots of (1, 2). Go checks it. The hint says to work out A times (10, 20) and compare it with (10, 20). Screen 5 shows the faint dots, back at the start (30, 0). That start is 15 lots of (1, 2) plus 15 lots of (1, −2). Check it: 15(1, 2) + 15(1, −2) = (30, 0). Call the amounts a and b. Then a′ = −0.1a and b′ = −0.3b. Each amount follows its own rule and ignores the other. So the equations are called decoupled. Each is the plain decay rule from differential equations. So a = 15e^(−0.1t) and b = 15e^(−0.3t). Go plays it. The faint dots slide in along their lines. The real dot is their sum. The (1, −2) line runs where one tank would hold less than no salt. So no real start sits on it except the origin. The finished picture shows all three dots at 5 minutes. Screen 6 is a puzzle. From (30, 0), how much of b is left after 10 minutes? It offers about 0.75, about 5.5 and 0. About 0.75 is right. 15e^(−0.3 × 10) = 15e^(−3) ≈ 0.75. About 5.5 is 15e^(−1). It uses the (1, 2) line's rate. 0 is wrong, because a decay never quite reaches zero. The hint says each amount uses its own line's eigenvalue. Screen 7 adds the parts back. x₁ = 15e^(−0.1t) + 15e^(−0.3t) and x₂ = 30e^(−0.1t) − 30e^(−0.3t) grams. Tank 2 is fullest after about 5.5 minutes, at about 11.5 g. Then the two tanks match. The fast part dies first. So the trail bends onto the (1, 2) line. When you applied a matrix step after step, the eigenvalue biggest in size took over. With e^(λt), the larger eigenvalue takes over instead. Here that is −0.1. The finished picture shows the trail at 30 minutes, lying along the (1, 2) line. Screen 8 is a puzzle. At 30 minutes the dot is nearly on which line? It offers the (1, 2) line, the (1, −2) line and the x₁ axis. The first is right. The slow amount is 15e^(−3) ≈ 0.75. The fast one is 15e^(−9), under 0.01. So tank 2 holds about twice tank 1, about 1.49 g to 0.75 g. The hint asks which amount dies faster. Screen 9 switches to the two masses. A card shows x″ = −(k/m)[2 −1; −1 2]x. That is the matrix B whose eigenvectors you found. Its eigenvalue is 1 along (1, 1) and 3 along (−1, 1). From (2, 2) cm, Go swings both masses together. The dot slides to and fro along the (1, 1) line. The middle spring's stretch reads 0 the whole time. So only the outer springs pull. Then ω² = k/m = 100, so ω = 10 rad/s. A swing like this is called a normal mode. Then from (−2, 2) cm they swing opposite ways along the (−1, 1) line. The middle spring stretches and squashes by up to 4 cm, twice each mass's shift. So each mass feels k from its outer spring and 2k from the middle one. That makes ω² = 3k/m. The finished picture shows both trails on their lines. Screen 10 is a puzzle. With k/m = 100 per second squared, how fast does the opposite mode swing? It offers about 17.3 rad/s, 300 rad/s and 30 rad/s. About 17.3 rad/s is right. Along (−1, 1), the eigenvalue of (k/m)B is 3k/m = 300. That is ω², so ω = √300 ≈ 17.3. 300 rad/s takes ω as the eigenvalue itself. 30 rad/s is 3 × 10. The hint says the eigenvalue is ω², not ω. Screen 11 shows a start off both lines. Mass 2 is pulled 2 cm and let go, at (0, 2). That is 1 lot of (1, 1) plus 1 lot of (−1, 1). The faint dots swing along their lines, one at 10 rad/s and one at about 17.3 rad/s. The real dot is their sum. So its trail weaves to and fro across a diamond-shaped box. The middle spring now stretches and squashes. The two lines are at right angles, because (1, 1) · (−1, 1) = 0. So the masses' shudder is two simple swings, one together and one opposite. Each eigenvalue sets its swing's speed. The finished picture shows the trail after 2 seconds of real time. Screen 12 is a mixed puzzle. The masses start at (3, 1) cm. How much of each mode is that? It offers 2 of (1, 1) and −1 of (−1, 1), 3 of (1, 1) and 1 of (−1, 1), and 2 of (1, 1) and 1 of (−1, 1). The first is right, since 2(1, 1) − 1(−1, 1) = (3, 1). 3 and 1 just copies the start's numbers. 2 and 1 gives (1, 3). The hint says to solve a − b = 3 and a + b = 1. Go then shows the faint dots starting at (2, 2) and (1, −1). Screen 13 is a mixed puzzle on the closed tanks. Tank 1 starts with 30 g. Where does the dot head? It offers (15, 15), (0, 0) and (30, 0). (15, 15) is right. The start is 15 lots of (1, 1) plus 15 lots of (1, −1). The (1, 1) amount has eigenvalue 0. Since e^(0t) = 1, it stays at 15. The (1, −1) amount dies as e^(−0.4t). No salt can leave, so the total stays 30 g. The hint asks what e^(0t) equals. Go checks it. Some screens show an idea. The rest ask you to try it. Each idea screen's words stay within about 90 words. Each puzzle offers three answers. On a narrow phone the answers and the readouts wrap onto more lines.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): In the open tanks, each tank's salt is drawn shrinking towards nothing. It never quite gets there. Each fading part only falls by the same fraction each minute. The tank clock is sped up to 2 minutes a second. The masses are slowed 10 times. Each tank is taken as perfectly mixed, so every drop leaving it has the tank's strength. Real tanks take time to mix. The springs are ideal and nothing rubs, so the masses swing for ever. Real swings die away as friction takes their energy. The plane shows the masses' positions only, so each start is let go from rest. A start with a push needs their two speeds as well. The eigenvector lines run on past the edge of the plane. The tank figures and k/m are example values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "system": System, named options in this order: "Open tanks" / "Closed tanks" / "Two masses", opening on "Open tanks" (K.choice; K.stepper when they are stages in order)
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "x1Out": x₁, in g or cm, decimals: 2
+- id "x2Out": x₂, in g or cm, decimals: 2
+- id "clock": Time, in min or s, decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Each tank's volume, litres: 100 (assumed)
+- Fresh water into tank 1, L/min: 15 (assumed)
+- Pumped from tank 1 to tank 2, L/min: 20 (assumed)
+- Running back from tank 2 to tank 1, L/min: 5 (assumed)
+- Drained from tank 2 to keep 100 L, L/min: 15 (computed)
+- A, top left entry, −20 ÷ 100 per minute: -0.2 (computed)
+- A, top right entry, 5 ÷ 100 per minute: 0.05 (computed)
+- A, bottom left entry, 20 ÷ 100 per minute: 0.2 (computed)
+- Trace of A: -0.4 (computed)
+- Determinant of A: 0.03 (computed)
+- Slow eigenvalue of A, per minute: -0.1 (computed)
+- Fast eigenvalue of A, per minute: -0.3 (computed)
+- Slow eigenvector (1, 2), second part: 2 (computed)
+- Fast eigenvector (1, −2), second part: -2 (computed)
+- Salt at the start in tank 1, grams: 30 (assumed)
+- Start (30, 0): lots of each eigenvector: 15 (computed)
+- x₂'s second term, 2 × 15, grams: 30 (computed)
+- Tank 2 at its fullest, grams: 11.5 (computed)
+- Time tank 2 is fullest, minutes: 5.5 (computed)
+- Most salt allowed when dragging a tank start, grams: 40 (assumed)
+- Tank clock, minutes per second: 2 (assumed)
+- Longest tank run, minutes: 30 (assumed)
+- Screen 4 start, tank 1, grams: 10 (assumed)
+- Screen 4 start, tank 2, grams: 20 (assumed)
+- A(10, 20), first part: -1 (computed)
+- A(10, 20), second part: -2 (computed)
+- Screen 5 finished picture, minutes: 5 (assumed)
+- Screen 6 time, minutes: 10 (assumed)
+- Screen 6 amount b left, 15e^(−3): 0.75 (computed)
+- Screen 6 slip, 15e^(−1): 5.5 (computed)
+- Exponent at 30 minutes, fast part: -9 (computed)
+- Fast amount at 30 minutes, under: 0.01 (computed)
+- Tank 2 at 30 minutes, grams: 1.49 (computed)
+- Tank 1 at 30 minutes, grams: 0.75 (computed)
+- Closed tanks, each pump, L/min: 20 (assumed)
+- Closed tanks, eigenvalue along (1, 1): 0 (computed)
+- Closed tanks, eigenvalue along (1, −1), per minute: -0.4 (computed)
+- Closed tanks, where the dot heads, each tank, grams: 15 (computed)
+- k/m, per second squared: 100 (assumed)
+- Spring matrix B, diagonal entry: 2 (computed)
+- Spring matrix B, off-diagonal entry: -1 (computed)
+- Eigenvalue of B along (1, 1): 1 (computed)
+- Eigenvalue of B along (−1, 1): 3 (computed)
+- Opposite mode ω², 3k/m, per second squared: 300 (computed)
+- Together mode ω, rad/s: 10 (computed)
+- Opposite mode ω, rad/s: 17.3 (computed)
+- Screen 10 slip, 3 × 10, rad/s: 30 (computed)
+- Masses slowed, times: 10 (assumed)
+- Largest drag of a mass start, cm: 3 (assumed)
+- Screen 9 start, each mass, cm: 2 (assumed)
+- Screen 9 opposite start, mass 1, cm: -2 (assumed)
+- Opposite mode, most middle-spring stretch, cm: 4 (computed)
+- Screen 11 start, mass 2, cm: 2 (assumed)
+- Screen 11 run shown, seconds of real time: 2 (assumed)
+- Screen 12 start, mass 1, cm: 3 (assumed)
+- Screen 12 start, mass 2, cm: 1 (assumed)
+- Screen 12 amount of (1, 1): 2 (computed)
+- Screen 12 amount of (−1, 1): -1 (computed)
+- Time tank 2 is fullest, 5 ln 3, minutes: 5.49 (computed)
+- Number of screens: 13 (assumed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Error: Screen 1's card reads "x₂′ =0.2x₁− 0.2x₂" and screen 2's reads "x₁′ =?": the SVG drops each piece's leading and trailing spaces, so the terms run together; lay the pieces out with an explicit gap instead of spaces.
+- Missing output "x1Out": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).
+- Missing output "x2Out": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).
+- Missing output "clock": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Mixing Problems with Many Tanks (https://www.karlin.mff.cuni.cz/~slavik/papers/mixing-problems.pdf): "The problem then leads to a linear system of differential equations for the unknown concentrations, which is solved by calculating the eigenvalues and eigen- vectors of the corresponding matrix"
+[2] 15 Matrix approach to normal modes. (https://www.sfu.ca/phys/255/063/lec/P255OutlineL15.pdf): "We say here that a 1 = 1 1 is an eigenvector associated with eigenvalue k/m , and a 2 = − 1 1 is an eigenvector associated with eigenvalue 3 k/m"
+[3] MIT 8.03SC Fall 2016 Textbook Chapter 3 (https://ocw.mit.edu/courses/8-03sc-physics-iii-vibrations-and-waves-fall-2016/eaf7cfc65a8415677214ecea99c10457_MIT8_03SCF16_Text_Ch3.pdf): "These simple solutions are called “normal modes.” The displacements for the most general motion can be written as sums of the simple solutions."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (build/maths/linear-algebra/i7.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

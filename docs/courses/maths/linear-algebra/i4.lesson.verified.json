@@ -1,0 +1,210 @@
+{
+  "iid": "i4",
+  "title": "What a matrix reaches and what it crushes",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the output dot standing still, so a whole line of inputs lands on one target, when you slide the input along the dashed null space line.",
+    "title": "What goes in, what comes out",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "This lesson runs over thirteen small screens. Each one has two panels. The left panel shows the input. It is an arrow x, drawn as a dot. The right panel shows the output, the dot Ax. A matrix card sits between them. When you drag the input dot, the output dot follows. The output is x's first number times column 1, plus its second number times column 2. So the output is always a mix of the columns. The column space is shaded on the right. It holds every output the matrix can reach. The null space is a dashed line on the left. It holds every input that lands on zero. Slide along moves the input along a line parallel to the dashed one. The output dot stays perfectly still. Each step adds an arrow the matrix crushes to zero. You can place a target b on the right. When b is on the shaded set, every input that lands on it lights up. They form a dashed line through one answer, or one point when only zero is crushed. When b is off the shaded set, nothing lights. The working lines below end in 0 = 1. A label under the card gives the rank. The 3 by 3 screens draw both panels in 3-D. Dragging the background turns the view. Here are the screens. Screen 1 shows A = [1 2; 2 4]. The input (1, 1) lands on (3, 6). The words ask you to drag the input. Wherever it goes, the output stays on the shaded line through (1, 2). That is because column 2 is 2 lots of column 1. The finished picture shows (1, 1) landing on (3, 6). Screen 2 is a puzzle. Which target can A reach? It offers (−1, −2), (2, 1) and (1, 3). Screen 3 shows the input (2, −1) landing on (0, 0). The dashed line holds every amount of (2, −1). Slide along steps the input from (1, 1) by (2, −1) to (3, 0). The output stays at (3, 6). The finished picture shows the input at (3, 0), still landing on (3, 6). Screen 4 is a puzzle. The input (1, 1) lands on (3, 6). Which other input lands there too? It offers (3, 0), (2, 3) and (3, 6). Screen 5 shows the target b = (3, 6) on the shaded line. The line (1, 1) + t(2, −1) lights up. Each point on it lands on b. Then b moves to (3, 7). Nothing lights. The working lines show x + 2y = 3 and 2x + 4y = 7. Taking 2 lots of the first row from the second leaves 0 = 1. The finished picture shows b back at (3, 6), lit. Screen 6 is a puzzle. How many answers does Ax = (2, 5) have? It offers none, exactly one and a whole line. On screen 7, the card's 4 steps up to 5. That gives [1 2; 2 5]. Its columns no longer line up. The shading fills the whole output panel. The dashed line shrinks to the origin. The rank label turns from 1 to 2. Now b = (3, 7) lights just one input, (1, 1). The finished picture shows that one answer. Screen 8 is a puzzle. The plane z = 1 misses the origin. Could it be a matrix's column space? One choice says no, it must hold the origin. One says yes, if its columns lie in that plane. One says only for a 3 by 3 matrix. Screen 9 shows A = [1 1 1; 1 2 3; 2 3 4] in 3-D. Its third row is the sum of the first two. So the shaded plane on the right is z = x + y. The dashed line on the left runs along (1, −2, 1). Slide along moves the input from (1, 2, 3), and the output stays at (6, 14, 20). The finished picture shows the input moved to (2, 0, 4), still landing on (6, 14, 20). Screen 10 is a puzzle. A(1, −2, 1) = (0, 0, 0). Which choice says the same thing about A's columns? One says 1 lot of column 1, −2 lots of column 2 and 1 of column 3 add to zero. One says 1 lot of row 1, −2 lots of row 2 and 1 of row 3 add to zero. One says A crushes every input to zero. Screen 11 shows b = (6, 14, 20) on the plane, since 6 + 14 = 20. The line (1, 2, 3) + t(1, −2, 1) lights up. Each point on it lands on b. Then b moves to (6, 14, 21), off the plane. Nothing lights. The working lines end in 0 = 1. The finished picture shows b back at (6, 14, 20), lit. Screen 12 is a mixed puzzle. For the same A, how many answers does Ax = (2, 3, 5) have? It offers none, exactly one and a whole line. The right answer lights the line (1, 1, 0) + t(1, −2, 1). Screen 13 is a mixed puzzle. A matrix has 4 columns and rank 2. What does it crush to zero? Before you answer, a brace under columns 3 and 4 asks about them. It offers a plane of inputs, a line of inputs and only the zero arrow. Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers. On a narrow phone they wrap onto more lines.",
+    "ignores": "The panels have edges. The shaded line and plane go on for ever. The dots sit on whole numbers, so you can read them off the grid. Points in between work the same way. The 3-D view is a flat drawing. Turn it to judge depth. Even when b is off the column space, the matrix still has a nearest output it can reach. These screens do not show it.",
+    "numbers": [
+      {
+        "label": "Matrix A, top row (1, 2), right entry",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Matrix A, bottom row (2, 4), right entry",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 input (1, 1), each part",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 1 output (3, 6), second part",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 answer (−1, −2), second part",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 2 slip (2, 1), first part",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 2 slip (1, 3), second part",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Crushed input (2, −1), second part",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 answer (3, 0), first part",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 4 slip (2, 3), the input plus column 1, second part",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 5 target off the line (3, 7), second part",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 5 last working line, 7 − 2 × 3",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 6 target (2, 5), second part",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 7 new bottom-right entry",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Determinant of [1 2; 2 5], 5 − 4",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Rank of [1 2; 2 4]",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Rank of [1 2; 2 5]",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 8 plane height z",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "3 by 3 matrix, bottom row (2, 3, 4), right entry",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Column space normal (−1, −1, 1), last part",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Crushed input (1, −2, 1), middle part",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Rank of the 3 by 3 matrix",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 9 input (1, 2, 3), last part",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 9 moved input (2, 0, 4), last part",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Target (6, 14, 20), last part, 6 + 14",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Target off the plane (6, 14, 21), last part",
+        "value": 21,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 target (2, 3, 5), last part",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 12 answer (1, 1, 0), first part",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Screen 13 number of columns",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 rank",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Screen 13 crushed directions, 4 − 2",
+        "value": 2,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A matrix takes an input arrow x and gives an output Ax. Everything it can reach is its [[column space]]. Everything it crushes to the zero arrow is its [[null space]]. It starts with one direction per column. Each direction it crushes is one fewer direction it can reach. When Ax = b has an answer, the crushed directions spread that answer out. One answer becomes a whole line, plane or more of them.\n\nEvery output is a mix of the columns. x's first number says how much of column 1. Its second says how much of column 2. So the column space is the span of the columns. Take A = [1 2; 2 4]. Its columns are (1, 2) and (2, 4). The second is 2 lots of the first. So an input (x, y) gives x lots of (1, 2) plus 2y lots of (1, 2). That is (x + 2y) lots of (1, 2). So every output lands on the line through (1, 2). The input (1, 1) lands on (3, 6). No input reaches (2, 1).\n\nNow find what it crushes. The input (2, −1) gives 2 lots of (1, 2) and −1 lot of (2, 4). That is (2, 4) − (2, 4), the zero arrow. Any amount of (2, −1) is crushed too. So the null space is the line through (2, −1). Adding a step of (2, −1) to any input leaves x + 2y the same. That is because 2 + 2 × (−1) = 0. So the output does not move. Both (1, 1) and (3, 0) land on (3, 6). So does every point on (1, 1) + t(2, −1). Every answer is one answer plus a step along the null space.[^1]\n\nA target off the column space has no answer at all. Try b = (3, 7). The rows say x + 2y = 3 and 2x + 4y = 7. Take 2 lots of the first row from the second. The left side goes to 0. The right side goes to 7 − 6 = 1. That leaves 0 = 1, and no input can make that true. You have seen this ending before, in elimination. Here is its cause. The second row always gives exactly 2 lots of the first row's total. And 7 is not 2 lots of 3.\n\nThe [[rank]] of a matrix is its number of independent columns.[^2] It tells you how many directions the column space has. Here the columns line up, so the rank is 1. Now change the 4 to a 5. That gives [1 2; 2 5]. Its columns no longer line up, so its rank is 2. Its determinant is 1 × 5 − 2 × 2 = 1, not 0. Only the zero arrow is crushed. The outputs fill the whole plane. Every target has exactly one answer. The target b = (3, 7) now comes from (1, 1) alone.\n\nThe rank plus the number of crushed directions is always the number of columns. To see why, go through the columns in order. Each one either adds a new direction or is a mix of the ones before it. A new direction adds 1 to the rank. A column that is a mix of earlier ones gives one crushed direction. That mix minus the column lands on zero. So the rank plus the null space's number of directions is the number of columns.[^1]\n\nThe same holds in space. Take A = [1 1 1; 1 2 3; 2 3 4]. Its third row is the sum of the first two. So each output's third part is the sum of its first two. That puts every output on the plane z = x + y. Its normal is (−1, −1, 1), the cross product of the first two columns. The third column is 2 lots of column 2 minus column 1. So the rank is 2, and the columns reach the whole plane. It also means 1 lot of column 1, −2 of column 2 and 1 of column 3 add to zero. The null space is the line through (1, −2, 1). The count checks out, as 2 + 1 = 3 columns. The target (6, 14, 20) is on the plane, since 6 + 14 = 20. The input x = (1, 2, 3) lands on it. So does every point on (1, 2, 3) + t(1, −2, 1). The target (6, 14, 21) is off the plane. Elimination on it ends in 0 = 1.\n\n**The column space is every output a matrix can reach. The null space is every input it crushes to zero. Ax = b has an answer only when b is in the column space. Then every answer is one answer plus anything in the null space.**"
+  },
+  "analogy": {
+    "text": "An RCD's core responds to the line current minus the neutral current. Its input is a pair of currents. Its output is one number. A load's current goes out on line and back on neutral. So it adds the same to both. That is a step along the crushed line, and the reading does not move. So the reading alone cannot tell you the load. A whole line of current pairs gives the same reading. Only current that does not go out and back on that pair moves it. A leak to earth is one example. A four-pole RCD compares four conductors. That gives four inputs and one reading. So three directions are crushed.",
+    "breaks": "The currents are a.c., so they are phasors, not plain numbers. The RCD's output is one number. So every reading is reachable, and no target is out of its reach. A matrix with a two-part output can miss a target, as [1 2; 2 4] does."
+  },
+  "practice": {
+    "text": "- Write the system as a grid with b as the last column. Then eliminate.\n- Look for a row that ends 0 = a number other than 0. It means b is off the column space, so there is no answer.\n- Otherwise, count the rows left with a leading number. That count is the rank.\n- An unknown with no leading number in its column is free. Each free unknown gives one direction of the null space.\n- With no free unknowns, there is exactly one answer. With free unknowns, there is one answer plus any amount along each null space direction.\n- Check by multiplying. Each answer must land on b. Each null space arrow must land on zero.\n\n**Rule of thumb:** a square matrix whose determinant is not 0 crushes only the zero arrow. It reaches everything. A determinant of 0 means it crushes a whole line or more. Then each target has either no answer or a whole line, plane or more of them.\n\n**Worked example:** Solve Ax = (6, 14, 20) with A = [1 1 1; 1 2 3; 2 3 4]. Row 2 minus row 1 gives y + 2z = 8. Row 3 minus 2 lots of row 1 also gives y + 2z = 8. Taking one from the other leaves 0 = 0. So the target is reachable. Two rows keep a leading number, so the rank is 2. z is free. Call it t. Then y = 8 − 2t. And x = 6 − y − z = −2 + t. So x = (−2, 8, 0) + t(1, −2, 1). Check with t = 0. A(−2, 8, 0) = (−2 + 8, −2 + 16, −4 + 24) = (6, 14, 20). Setting t = 3 gives (1, 2, 3). So this is the same line as before, through a different point. Now try b = (6, 14, 21). Row 3 gives y + 2z = 9 instead. Taking away y + 2z = 8 leaves 0 = 1. So there is no answer.\n\n**Common mistakes**\n- Stopping at one answer when a free unknown is left. A whole line of answers is the full answer.\n- Reading 0 = 0 as no answer. It only means one row was a mix of the others.\n- Giving the null space as the answer to Ax = b. The null space answers Ax = 0. The answers to Ax = b are that set moved over by one answer.\n- Taking a plane that misses the origin for a column space. Zero lots of every column give the zero arrow. So a column space always holds the origin.\n- Reading x only as a point that moves. It also gives the amount of each column. A(1, −2, 1) = 0 says 1 lot of column 1, −2 of column 2 and 1 of column 3 add to zero."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Solvability: Existence & Uniqueness | Learn Math Class",
+      "url": "https://www.learnmathclass.com/linear-algebra/linear-systems/solvability",
+      "quote": "The solution set is infinite — a translated copy of the null space, which has dimension n − rank ( A ) ."
+    },
+    {
+      "n": 2,
+      "title": "The Four Fundamental Subspaces and Least Squares",
+      "url": "https://ocw.mit.edu/courses/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/mitres_18_010_f24_slides01.pdf",
+      "quote": "Column Rank = Row Rank = “Dimension” of C ( A ) and C ( A T ) Number of independent columns = r = Number of independent rows = Rank of A"
+    }
+  ]
+}

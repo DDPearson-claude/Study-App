@@ -1,0 +1,346 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Linear algebra, from arrows to vibration modes
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "One arrow, two grids: change of basis" — An arrow's numbers are the amounts of each basis arrow, and a matrix whose columns are the new basis arrows converts between two grids. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 Lines and planes in space — A line in space is a point plus any amount of one direction, and a plane is a point plus a normal arrow, giving ax + by + cz = d.
+- i4 What a matrix reaches and what it flattens: rank and null space — A matrix's column space is everything it can reach and its null space everything it crushes to zero, and their sizes decide how many answers Ax = b has.
+- i5 Directions that only stretch: eigenvalues and eigenvectors — An eigenvector is a direction a matrix only stretches, by a factor called its eigenvalue, found by solving det(A − λI) = 0 and then (A − λI)v = 0.
+- i6 Diagonalising: the same step, again and again — A matrix with enough eigenvectors is a plain stretch on their grid, P⁻¹AP = D, so n repeated steps are just Aⁿ = PDⁿP⁻¹.
+- i7 Coupled change: two tanks and two masses — Linked rates written as x′ = Ax split along the eigenvectors into separate motions, so two tanks or two masses on springs move as a sum of modes.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "Together they are called the "basis" of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale"
+[R2] Alternate basis transformation matrix example (video) | Khan Academy — https://www.khanacademy.org/math/linear-algebra/alternate-bases/change-of-basis/v/lin-alg-alternate-basis-tranformation-matrix-example
+    "Different coordinate systems are just different ways of representing the same vector"
+[R3] Change of basis | 3Blue1Brown — https://www.3blue1brown.com/lessons/change-of-basis
+    "It's matrix-vector multiplication, with a matrix whose columns represent Jennifer's basis vectors"
+[R4] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the "span" of those two vectors"
+[R5] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+[R6] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The technical definition for the "basis" of a space is a set of linearly independent vectors that span that space"
+Notes (claims, and the sources that support them):
+- The numbers of an arrow are the amounts the basis arrows are scaled by, so the same arrow gets different numbers in a different basis. [R1]
+- Different coordinate systems are different ways of representing the same arrow. [R2]
+- Converting from a second grid to the first is matrix-vector multiplication by a matrix whose columns are the second grid's basis arrows. [R3]
+- The span of a pair of arrows is every arrow reachable by scaling and adding them; most pairs in 2D reach the whole plane, but arrows lying along one line reach only that line. [R4]  (from an idea this one builds on)
+- A third arrow lying in the span of the first two adds no new arrows to the span, so it is not independent of them. [R5]  (from an idea this one builds on)
+- A basis of a space is a set of linearly independent arrows that span that space. [R6]  (from an idea this one builds on)
+- A basis is a set of independent arrows that span the space, and any numbers describing an arrow depend on the basis chosen. [R6][R1]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "One arrow, two grids: change of basis",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is Jennifer's numbers for the arrow changing, and her How chain re-laying along her new arrows, while the arrow itself stays put, when you drag her basis arrow b₁.",
+  "title": "Two grids, one arrow",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Your square grid is drawn in faint lines, with i and j. Over it sits Jennifer's slanted grid, set by her two basis arrows b₁ = (2, 1) and b₂ = (−1, 1), written in your numbers. One arrow runs from the origin to (3, 3). It reads out twice. On your grid it is (3, 3). On hers it is (2, 1), because 2 lots of b₁ plus 1 of b₂ is (3, 3). A How button lays her amounts nose to tail along her grid lines. Drag the tip of b₁ or b₂ to a whole point and her grid redraws. Her numbers are worked out again from the new arrows, and the How chain re-lays along them, but the arrow itself does not move. Under the picture, P is shown with b₁ and b₂ as its columns. P times her numbers gives yours. The screens. 1, show: the arrow, both readouts and the How chain. 2, a puzzle: her numbers are (1, 2). Where does the arrow end on your grid? It offers (0, 3), (1, 2) and (4, 1). 3, show: b₁ is dragged to (1, 1). Her numbers become (3, 0), and the arrow stays at (3, 3). Its finished picture shows b₁ at (1, 1). 4, a puzzle: what changed? It offers only the numbers, the arrow itself, and nothing at all. 5, show: P = [2 −1; 1 1] and the mix of its columns, 2 lots of (2, 1) plus 1 of (−1, 1), giving (3, 3). 6, a puzzle: a grid made of (1, 2) and (1, −1). Which matrix takes its numbers to yours? It offers [1 1; 2 −1], [1 2; 1 −1] and [2 −1; 1 1]. 7, show: the way back. P⁻¹ = [1 1; −1 2] ÷ 3 takes (3, 3) to (2, 1). The cell area of her grid, 3, is P's determinant. 8, a puzzle: your arrow (1, −1) on her grid. It offers (0, −1), (3, 0) and (1, −1). 9, show: a quarter turn, M = [0 −1; 1 0]. A strip of three stages takes her (2, 1) to your (3, 3) with P, turns it to (−3, 3) with M, and brings it back to her (0, 3) with P⁻¹. The labels build up right to left, P⁻¹MP. 10, a puzzle: which product does the turn in her numbers? It offers P⁻¹MP, PMP⁻¹ and M alone. 11, show: M = [3 1; 0 2] on the grid of (1, 0) and (−1, 1). There P⁻¹MP = [3 0; 0 2], and the move only stretches each of her arrows. 12, a mixed puzzle: her grid is (1, 1) and (1, −1), and your arrow is (4, 2). What are her numbers? It offers (3, 1), (6, 2) and (4, 2). 13, a mixed puzzle: her arrows are (2, 1) and (4, 2). What goes wrong? It offers that most arrows get no numbers on her grid, that nothing does, and that her numbers are yours halved. Some screens show an idea, and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone.",
+  "ignores": "The grids are drawn only inside the view, and only at whole amounts. Both go on for ever, and amounts in between reach every point between the lines. Jennifer's grid keeps your origin. A map grid that also moves the zero point is a shift as well as a change of basis. The pictures stay flat. In space the same rules hold, with three basis arrows and 3 by 3 matrices.",
+  "numbers": [
+   {
+    "label": "Basis arrow b₁, across part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Basis arrow b₁, up part",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Basis arrow b₂, across part",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Basis arrow b₂, up part",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "The arrow on your grid, each part",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "The arrow on her grid, amount of b₁",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "The arrow on her grid, amount of b₂",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Two lots of b₁, across part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Determinant of P, 2 × 1 − (−1) × 1",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip P(3, 3) = (3, 6), up part",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Multiplying back the slip lands on (0, 9), up part",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2, her numbers (1, 2), amount of b₂",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 answer (0, 3), up part",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 rows-for-columns slip (4, 1), across part",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3, b₁ dragged to (1, 1), each part",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 3, her new amount of b₁",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 3, her new amount of b₂",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 grid arrow (1, 2), up part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 6 grid arrow (1, −1), up part",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 arrow (1, −1) on your grid, up part",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 answer (0, −1), amount of b₂",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 slip P(1, −1) = (3, 0), across part",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Quarter turn, degrees",
+    "value": 90,
+    "kind": "assumed"
+   },
+   {
+    "label": "Turned arrow (−3, 3), across part",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Turned arrow on her grid (0, 3), amount of b₂",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 11 move M, top left entry",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 move M, bottom right entry",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 grid arrow (−1, 1), across part",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 11 P⁻¹MP, off-diagonal entries",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 arrow (4, 2) on your grid, across part",
+    "value": 4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 12 answer (3, 1), amount of the first arrow",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 slip P(4, 2) = (6, 2), across part",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 arrow (4, 2), twice (2, 1)",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Tray length in the analogy, metres",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable run in the analogy, metres",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cable run in tray lengths",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example arrow (5, 5) on your grid, each part",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example, determinant 3 × 2 − 1 × 1",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example, her amount of the second arrow",
+    "value": 2,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "An arrow's numbers are not the arrow. They are the amounts of each basis arrow you lay nose to tail to reach its tip.[^1] Choose a different basis and the same arrow gets different numbers.[^2] A matrix whose columns are the new basis arrows turns one set of numbers into the other.\n\nYour grid uses i and j. So the arrow to (3, 3) means 3 lots of i and 3 of j. Now meet Jennifer. Her basis is b₁ = (2, 1) and b₂ = (−1, 1), written in your numbers. Two lots of b₁ reach (4, 2). One b₂ on the end reaches (3, 3). So to her, the same arrow is (2, 1). Her numbers mean nothing until you know her arrows. Now move b₁ to (1, 1). The arrow is 3 lots of the new b₁ and none of b₂. Her numbers read (3, 0), yet the arrow has not moved. Both numbers changed, though only b₁ moved. Each number depends on the whole basis.\n\nTo turn her numbers into yours, do what the How button does. Take 2 lots of b₁, add 1 of b₂, and you land on (3, 3). A matrix times a column is exactly that sum, a mix of its columns. So put her arrows in as columns. P = [2 −1; 1 1], and P times (2, 1) is (3, 3).[^3] This is the [[change-of-basis matrix]]. Its columns are her arrows written in your numbers. To go the other way, undo P with its inverse. Its determinant is 2 × 1 − (−1) × 1 = 3. That is also the area of one cell of her grid. So P⁻¹ = [1 1; −1 2] ÷ 3, and P⁻¹ times (3, 3) is (6, 3) ÷ 3 = (2, 1). Use P by mistake and (3, 3) goes to (3, 6). Multiply back to check. 3 lots of b₁ plus 6 of b₂ lands on (0, 9), not (3, 3). The area is not 0 because b₁ and b₂ are independent. If her arrows lay on one line, they would reach only that line. P would have no inverse, and most arrows would have no numbers on her grid at all.\n\nA move can be rewritten for her grid too. A quarter turn anticlockwise is M = [0 −1; 1 0] in your numbers. Jennifer wants it in hers. Start from her (2, 1). P turns it into your (3, 3). M turns that to (−3, 3). P⁻¹ brings it back to hers, (0, 3). Check: 3 lots of b₂ is (−3, 3). M is written in your numbers, so her numbers must become yours before M can act. That puts P first. The first step goes on the right, as in any product of moves. So the turn, in her numbers, is P⁻¹MP. This [[change of basis]] can make a move far simpler. Take M = [3 1; 0 2] and the grid (1, 0) and (−1, 1). There P⁻¹MP = [3 0; 0 2]. On that grid the move only stretches each basis arrow. Finding such a grid is how two masses joined by springs come apart into two simple swings.\n\n**An arrow's numbers are the amounts of each basis arrow. P, with the new basis arrows as its columns, turns new numbers into old, and P⁻¹ turns them back.**"
+ },
+ "analogy": {
+  "text": "Say a 12 m cable run goes in 3 m lengths of tray. To the fitter it is 4 lengths. To the drawing it is 12 m. One run, two numbers. To turn lengths into metres, multiply by what one length is in metres, 3. To go back, divide by 3. P does the first job, and P⁻¹ the second. Its columns hold what each of Jennifer's arrows is in your units.",
+  "breaks": "A tray run has one direction, so each number depends on one unit only. In the plane, each of her numbers depends on both her arrows. Move b₁ alone and both numbers can change, as (2, 1) became (3, 0). Her arrows can also slant away from yours, which a length of tray cannot."
+ },
+ "practice": {
+  "text": "- Write the new basis arrows in your numbers. Put them in as the columns of P.\n- New numbers to yours: multiply by P. That is the mix of the columns.\n- Yours to new numbers: multiply by P⁻¹. For 2 by 2, swap the diagonal, change the signs of the other two, and divide by the determinant.\n- Check by multiplying back with P. You should land on the arrow you started with.\n- A move M written in your numbers is P⁻¹MP in the new ones. Read it right to left: into yours, move, back out.\n\n**Rule of thumb:** P goes from the new grid to the old one. If P's determinant is 0, the new arrows are not a basis.\n\n**Worked example:** A grid is made of (3, 1) and (1, 2). What are the arrow (5, 5)'s numbers on it? P = [3 1; 1 2]. Its determinant is 3 × 2 − 1 × 1 = 5. So P⁻¹ = [2 −1; −1 3] ÷ 5. P⁻¹ times (5, 5) is (5, 10) ÷ 5 = (1, 2). Check: 1 lot of (3, 1) plus 2 of (1, 2) is (5, 5).\n\n**Common mistakes**\n- Using P where P⁻¹ is needed. P takes the new numbers to yours, not the other way.\n- Writing the basis arrows in as rows. They go in as columns.\n- Writing PMP⁻¹ for the move in the new grid. The step on the right goes first, and it must turn the new numbers into yours.\n- Treating the numbers as the arrow. Change the basis and the numbers change, but the arrow stays where it is."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/span",
+   "quote": "Together they are called the \"basis\" of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale"
+  },
+  {
+   "n": 2,
+   "title": "Alternate basis transformation matrix example (video) | Khan Academy",
+   "url": "https://www.khanacademy.org/math/linear-algebra/alternate-bases/change-of-basis/v/lin-alg-alternate-basis-tranformation-matrix-example",
+   "quote": "Different coordinate systems are just different ways of representing the same vector"
+  },
+  {
+   "n": 3,
+   "title": "Change of basis | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/change-of-basis",
+   "quote": "It's matrix-vector multiplication, with a matrix whose columns represent Jennifer's basis vectors"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

@@ -1,0 +1,176 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Linked tanks lead to a linear system of differential equations, solved with the eigenvalues and eigenvectors of its matrix: for the open and the closed tanks, the eigenvector parts added up obey the rates x′ = Ax at every moment, from every corner of the drag square and from the lesson’s starts",
+        "ok": true,
+        "source": "https://www.karlin.mff.cuni.cz/~slavik/papers/mixing-problems.pdf"
+      },
+      {
+        "label": "(1, 1) is an eigenvector of the masses’ matrix with eigenvalue k/m, and (−1, 1) one with eigenvalue 3k/m",
+        "ok": true,
+        "source": "https://www.sfu.ca/phys/255/063/lec/P255OutlineL15.pdf"
+      },
+      {
+        "label": "The most general motion of the masses is a sum of the simple swings, the normal modes: from starts all over the drag square, each faint dot alone obeys x″ = −(k/m)Bx, and the dot drawn is always their sum",
+        "ok": true,
+        "source": "https://ocw.mit.edu/courses/8-03sc-physics-iii-vibrations-and-waves-fall-2016/eaf7cfc65a8415677214ecea99c10457_MIT8_03SCF16_Text_Ch3.pdf"
+      },
+      {
+        "label": "Every worked number is right: A = [−0.2 0.05; 0.2 −0.2] from the flows, with the drain at 15 L/min; trace −0.4, determinant 0.03, eigenvalues −0.1 and −0.3; (30, 0) = 15(1, 2) + 15(1, −2); tank 2 fullest at 5 ln 3 ≈ 5.5 min with about 11.5 g, level with tank 1; b ≈ 0.75 after 10 minutes and 15e^(−1) ≈ 5.5; (0.75, 1.49) at 30 minutes with the fast part under 0.01; A(10, 20) = (−1, −2); the closed tanks’ 0 and −0.4, heading for (15, 15) with 30 g in all; B = [2 −1; −1 2], ω = 10 and about 17.3 rad/s; (0, 2) and (3, 1) split as (1, 1) and (2, −1); the together swing never stretches the middle spring and the opposite one stretches it by up to 4 cm",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle’s answer comes from the rule, and each wrong answer offered is the slip its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends where the lesson says: the tanks level at about 11.5 g after about 5.5 minutes; a curved trail from (30, 0) in to the origin; the parts 15e^(−0.5)(1, 2) and 15e^(−1.5)(1, −2) at 5 minutes, adding to the dot; at 30 minutes the dot on the (1, 2) line, with tank 2’s fullest moment marked; one trail on each mode’s line, the second start stretching the middle spring by 4 cm; after 2 s from (0, 2), a trail that weaves inside its box",
+        "ok": true
+      },
+      {
+        "label": "While each demonstration plays, the rule holds at every moment: the dot is where the rule puts it, each part is on its own line and changes only by its own e^(λt) or cos(ωt), the parts add up to the dot, and no tank holds less than nothing or more than 40 g",
+        "ok": true
+      },
+      {
+        "label": "Dragging the start: near an eigenvector line it lands exactly on it, so the other part sits at the origin and the dot runs straight along the line; anywhere else it stays inside the drag square",
+        "ok": true
+      },
+      {
+        "label": "After a right answer on the 30-minute puzzle, the view zooms in by itself so the dot and both parts stay in sight as they shrink, and the key names the grid spacing drawn",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 5 s, none starting before the 0.35 s screen fade ends; every answer’s motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "system"
+    ],
+    "readouts": [
+      "x1Out",
+      "x2Out",
+      "clock"
+    ],
+    "outputs": [
+      "x1Out",
+      "x2Out",
+      "clock"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Two linked tanks",
+          "Tank 1’s rate",
+          "The state plane",
+          "A start on a line",
+          "Two parts, two rules",
+          "What is left of b",
+          "Add the parts back",
+          "After 30 minutes",
+          "Two masses, two swings",
+          "How fast is the opposite swing?",
+          "Any start is a sum",
+          "Mixed: split a start",
+          "Mixed: closed tanks"
+        ],
+        "value": 0
+      },
+      {
+        "id": "system",
+        "kind": "choice",
+        "label": "System",
+        "options": [
+          "Open tanks",
+          "Closed tanks",
+          "Two masses"
+        ],
+        "labels": [
+          "Open tanks",
+          "Closed tanks",
+          "Two masses"
+        ],
+        "value": "Open tanks",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Go",
+      "Reset",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Run"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"x₂′ =\" and \"0.2x₁\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 25 more settings) [at 340 px wide]",
+      "SVG labels \"0.2x₁\" and \"− 0.2x₂\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 22 more settings)",
+      "SVG labels \"x₂′ =\" and \"0.2x₁\" are only 0 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 25 more settings) [at 720 and 1040 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "system = \"Closed tanks\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-360-light.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-360-light-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-360-light-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-360-dark.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-360-dark-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-1280-light.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-1280-light-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-1280-dark.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i7.a1-1280-dark-end.png"
+  ]
+}

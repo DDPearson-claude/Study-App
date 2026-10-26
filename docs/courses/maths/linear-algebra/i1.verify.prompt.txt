@@ -1,0 +1,360 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Linear algebra, from arrows to vibration modes
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "Which points two arrows reach: span and independence" — The span of some arrows is every point their mixes can reach, and they are independent when each one adds a direction the others cannot. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 One arrow, two grids: change of basis — An arrow's numbers are the amounts of each basis arrow, and a matrix whose columns are the new basis arrows converts between two grids.
+- i3 Lines and planes in space — A line in space is a point plus any amount of one direction, and a plane is a point plus a normal arrow, giving ax + by + cz = d.
+- i4 What a matrix reaches and what it flattens: rank and null space — A matrix's column space is everything it can reach and its null space everything it crushes to zero, and their sizes decide how many answers Ax = b has.
+- i5 Directions that only stretch: eigenvalues and eigenvectors — An eigenvector is a direction a matrix only stretches, by a factor called its eigenvalue, found by solving det(A − λI) = 0 and then (A − λI)v = 0.
+- i6 Diagonalising: the same step, again and again — A matrix with enough eigenvectors is a plain stretch on their grid, P⁻¹AP = D, so n repeated steps are just Aⁿ = PDⁿP⁻¹.
+- i7 Coupled change: two tanks and two masses — Linked rates written as x′ = Ax split along the eigenvectors into separate motions, so two tanks or two masses on springs move as a sum of modes.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the "span" of those two vectors"
+[R2] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+[R3] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "The technical definition for the "basis" of a space is a set of linearly independent vectors that span that space"
+[R4] Linear combinations, span, and basis vectors | 3Blue1Brown — https://www.3blue1brown.com/lessons/span
+    "Together they are called the "basis" of the coordinate system. What this means is that when you think about coordinates as scalars, the basis vectors are what those scalars actually scale"
+Notes (claims, and the sources that support them):
+- The span of a pair of arrows is every arrow reachable by scaling and adding them; most pairs in 2D reach the whole plane, but arrows lying along one line reach only that line. [R1]
+- A third arrow lying in the span of the first two adds no new arrows to the span, so it is not independent of them. [R2]
+- A basis of a space is a set of linearly independent arrows that span that space. [R3]
+- A basis is a set of independent arrows that span the space, and any numbers describing an arrow depend on the basis chosen. [R3][R4]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "Which points two arrows reach: span and independence",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the slanted grid's cells thin to area 0 and the painted reach collapse from the whole plane onto one line, when you drag arrow v onto arrow u's line.",
+  "title": "The reach of two arrows",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on two arrows, u and v, drawn from the origin of a squared grid. Their own slanted grid is drawn through the plane in faint lines, one line for every whole amount of u and of v. Two sliders set the amounts a and b, from −3 to 3 in halves. The mix a u + b v is drawn nose to tail, as you add arrows, and a dot marks its tip. Whole amounts land on the corners of the slanted grid. Each cell of that grid is a parallelogram with u and v as its sides, and a readout gives its area, the determinant from Matrices: for u = (p, q) and v = (r, s) it is p s − q r. A Paint button shades every point a mix reaches with amounts from −5 to 5, which covers the view. Drag either arrow's tip to a whole point and the grid, the area and the paint follow it. When the area reads 0, a readout shows a mix that is not all zeros landing on the zero arrow. With v at k lots of u it reads k u − v = (0, 0), and with v at the origin it reads 0u + 1v = (0, 0). A 3-D switch draws a third part. u = (1, 0, −1) and v = (0, 2, −1) span a flat sheet through the origin, shaded. A third arrow w = (1, 2, −2 + h) is set by a slider h from 0 to 2, and the box with u, v and w as its edges is drawn, with its volume, the 3 by 3 determinant, which works out at 2h. Drag the background to turn the view. The screens. 1, show: u = (2, 1) and v = (1, 3) with a = 2 and b = 1, landing on (5, 5). Its finished picture shows the chain and the dot at (5, 5). 2, a puzzle: which amounts reach (−1, 2), with a = −1, b = 1; a = 1, b = −1; and a = −1, b = 2 offered. 3, show: Paint pressed, the plane shaded, cell area 5. 4, a puzzle: what is the span of u and v, with every point in the plane, only the points on the two arrows, and only the parallelogram between them offered. 5, show: v dragged round to (−4, −2), on u's line. The cells thin, the area falls to 0, and the paint lies on one line, with 2u + v = (0, 0) shown. Its finished picture shows v at (−4, −2) and the paint on the line. 6, a puzzle: which point a mix of (2, 1) and (−4, −2) can reach, with (6, 3), (3, 6) and (1, 3) offered. 7, show: the two pairs side by side, u and v with area 5 and only 0u + 0v giving zero, then u and (−4, −2) with area 0 and 2u + (−4, −2) giving zero. 8, a puzzle: which pair is independent, with (3, 6) and (1, 2); (1, 2) and (2, 1); and (2, −1) and (−6, 3) offered. 9, show: the 3-D switch on, h going from 1 down to 0, w sinking into the sheet and the box flattening to volume 0. Its finished picture shows w = (1, 2, −2) in the sheet and volume 0. 10, a puzzle: elimination of a u + b v + c w = 0 for these three has ended in the staircase rows 1 0 1 | 0, 0 2 2 | 0 and 0 0 0 | 0. What does it say about the arrows? Offered: dependent, as c is free, so a mix that is not all zeros gives zero; independent, as the bottom row is all zeros; and independent, as a = b = c = 0 is an answer. 11, show: a basis. i and j, then u = (2, 1) and v = (1, 3), each a pair that is independent and spans the plane. 12, a mixed puzzle: the arrows (1, 0, 0), (1, 1, 0) and (1, 1, 1), whose a u + b v + c w = 0 is already the staircase 1 1 1 | 0, 0 1 1 | 0 and 0 0 1 | 0. What does it say? Offered: independent, as only a = b = c = 0 works; independent, as the system is inconsistent; and dependent, as c can be any number. 13, a mixed puzzle: which set is a basis for the plane, with (3, 1) and (1, 1); (2, 1) and (−4, −2); and (2, 1), (1, 3) and (1, 0) offered. Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, which wrap onto more lines on a narrow phone.",
+  "ignores": "The paint stops at amounts of 5 either way and the view stops at its edge, but the span goes on for ever. The paint is drawn as a solid shade, though it stands for points, the tips of the mixes. The faint grid lines sit at whole amounts only. Fractions reach every point between them. The pictures stop at three parts, because more cannot be drawn. Span and independence work the same way for arrows with any number of parts.",
+  "numbers": [
+   {
+    "label": "Arrow u, across part, 2-D screens",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow u, up part, 2-D screens",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow v, across part, 2-D screens",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow v, up part, 2-D screens",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sliders a and b, lowest amount",
+    "value": -3,
+    "kind": "control"
+   },
+   {
+    "label": "Sliders a and b, highest amount",
+    "value": 3,
+    "kind": "control"
+   },
+   {
+    "label": "Slider step for a and b",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "Opening amount a, screen 1",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Opening amount b, screen 1",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Mix 2u + v, each part",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Paint's largest amount either way",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell area of u and v, 2 × 3 − 1 × 1",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 target, across part",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 target, up part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 2 answer, amount a",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 answer, amount b",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick a = 1, b = −1 lands on (1, −2)",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 2 wrong pick a = −1, b = 2 lands on (0, 5)",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Arrow v dragged onto u's line, across part",
+    "value": -4,
+    "kind": "assumed"
+   },
+   {
+    "label": "Arrow v dragged onto u's line, up part",
+    "value": -2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Cell area of (2, 1) and (−4, −2)",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Amount of u in the mix giving zero",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 right point (6, 3), as 3 lots of u",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 6 wrong point (3, 6), up part",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "Screen 8 pair (3, 6) and (1, 2), determinant",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 pair (2, −1) and (−6, 3), determinant",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 8 pair (1, 2) and (2, 1), determinant",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "3-D arrow u = (1, 0, −1), last part",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "3-D arrow v = (0, 2, −1), middle part",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Slider h, lowest",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Slider h, highest",
+    "value": 2,
+    "kind": "control"
+   },
+   {
+    "label": "Slider h, opening value",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Box volume at h = 1, which is 2h",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Box volume at h = 0, w = u + v",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Third arrow at h = 0, last part, −2",
+    "value": -2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 10 mix giving zero: a, b, c",
+    "value": -1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 12 box volume of the three arrows",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 pair (3, 1) and (1, 1), determinant",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 (1, 0) as 0.6u − 0.2v, amount of u",
+    "value": 0.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Screen 13 (1, 0) as 0.6u − 0.2v, amount of v",
+    "value": -0.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example third arrow (2, 5, 1), middle part",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example, amount of the first arrow in the zero mix",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Angle between phase phasors of a three-phase supply, degrees",
+    "value": 120,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Mix some arrows, so many of each laid nose to tail, and see where you can land. Every point you can reach that way is the arrows' [[span]].[^1] The span is a set of points, the tips of all those mixes, not the arrows themselves. Arrows are [[linearly independent]] when each one adds a direction the others cannot reach.\n\nTake u = (2, 1) and v = (1, 3). Two lots of u and one of v land on (5, 5). A negative amount turns an arrow round. So −1 lot of u is (−2, −1), and one v on the end lands on (−1, 2). Whole amounts land on the corners of a slanted grid. Each cell of that grid is a parallelogram with u and v as its sides. Its area is the determinant, 2 × 3 − 1 × 1 = 5. Cells with real area tile the whole plane with no gaps. Fractions reach the points inside each cell. So every point in the plane is some mix of u and v, and their span is the whole plane.\n\nNow swing v round onto u's line, to (−4, −2). That arrow is −2 lots of u. So any mix of the two is just some amount of u, and it lands on the line through (2, 1). The cells thin to nothing, and the determinant is 2 × (−2) − 1 × (−4) = 0. The reach collapses to a line, because the second arrow added no new direction. The two arrows are dependent, the opposite of independent. It shows in a mix as well: 2u plus (−4, −2) is the zero arrow. That gives a test that works both ways. If one arrow is a mix of the others, moving it across gives a mix that is not all zeros landing on zero. Turn it round and 2u + (−4, −2) = 0 says (−4, −2) = −2u. Any such mix lets you write one arrow from the others, by dividing by its amount. For u and v, only 0u + 0v lands on zero.\n\nIn space it works the same with one more arrow. u = (1, 0, −1) and v = (0, 2, −1) span a flat sheet through the origin. A third arrow off the sheet, such as (1, 2, −1), makes a box of volume 2, and the three reach all of space. Lower it into the sheet, to w = (1, 2, −2), which is u + v, and the box flattens to volume 0. A third arrow lying in the sheet adds no new points, so the span stays that sheet.[^2] To test by hand, solve a u + b v + c w = 0 by elimination. a = b = c = 0 always works, so this system can never be inconsistent. The question is whether anything else works. Here c is free, and a = 1, b = 1, c = −1 lands on zero, so the three are dependent.\n\nA set of independent arrows that spans a space is a [[basis]] for it.[^3] i and j are one basis for the plane, and u = (2, 1) and v = (1, 3) are another. Any third arrow in the plane is a mix of two independent ones, so three arrows in a plane are always dependent. The two masses on springs will need this. Each of their simple swings becomes one arrow of a basis, and every shudder a mix of them.\n\n**The span is every point the mixes reach, and arrows are independent when none is a mix of the others, so their cells or boxes have real area or volume, while a dependent set crushes them to 0.**"
+ },
+ "analogy": {
+  "text": "Think of the phasors of a balanced three-phase supply. Two of them, L1 and L2, sit 120° apart. Mix them in any amounts and you reach every phasor in the plane, so they span it. L3 adds nothing new. L1 + L2 + L3 is zero, a mix that is not all zeros landing on zero, so the three are dependent.",
+  "breaks": "Here the amounts are plain numbers. Phasors are also complex numbers, and multiplying by a complex amount turns as well as stretches, so one phasor alone could then reach the whole plane. Phasors also turn with time, and these arrows stand still."
+ },
+ "practice": {
+  "text": "- Two arrows in the plane: work out the determinant, p s − q r for (p, q) and (r, s). Not 0 means independent, and they span the plane. 0 means they lie on one line.\n- Three arrows in space: work out the 3 by 3 determinant. Not 0 means independent, and they span all of space. 0 means they lie in one flat sheet through the origin, or less.\n- Or use elimination. Put the arrows in as columns with zeros on the right, and run it to a staircase. A free letter means dependent. No free letter means only all zeros works, so they are independent.\n- To find the mix that lands on zero, set the free letter to 1 or −1 and work back up.\n\n**Rule of thumb:** If you have more arrows than each arrow has parts, they are dependent. Three arrows in a plane always are. A set holding the zero arrow is dependent too.\n\n**Worked example:** Are (1, 2, 0), (0, 1, 1) and (2, 5, 1) independent? No two are multiples of each other, so look harder. As columns they give the rows 1 0 2, 2 1 5 and 0 1 1. Take 2 lots of row 1 from row 2, giving 0 1 1. Take that from row 3, giving 0 0 0. So c is free. Set c = −1. Row 2 says b + c = 0, so b = 1. Row 1 says a + 2c = 0, so a = 2. Check: 2 lots of (1, 2, 0) plus (0, 1, 1) is (2, 5, 1), the third arrow. So the three are dependent and span only a flat sheet.\n\n**Common mistakes**\n- Reading the working wrongly, as in \"inconsistent, so independent\". The zeros on the right mean a = b = c = 0 always works. Ask whether anything else does.\n- Taking the span to be the arrows themselves, or the parallelogram between them. It is every point any mix reaches, with amounts of any size, negative too.\n- Checking only whether two of three arrows line up. In the worked example no two do, yet the third is a mix of the other two.\n- Reading a determinant of 0 as \"no reach\". The arrows still reach a line or a sheet, just not everything."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/span",
+   "quote": "The set of all possible vectors you can reach with linear combinations of a given pair of vectors is called the \"span\" of those two vectors"
+  },
+  {
+   "n": 2,
+   "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/span",
+   "quote": "If your third vector happens to be sitting on the span of the first two, then the span doesn't change, you're sort of trapped on that same flat sheet"
+  },
+  {
+   "n": 3,
+   "title": "Linear combinations, span, and basis vectors | 3Blue1Brown",
+   "url": "https://www.3blue1brown.com/lessons/span",
+   "quote": "The technical definition for the \"basis\" of a space is a set of linearly independent vectors that span that space"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

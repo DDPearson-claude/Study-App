@@ -1,0 +1,31 @@
+{
+  "draft": "i7.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: linked rates are a matrix times the amounts, x′ = Ax, and measured along A's eigenvectors each part changes on its own, so the motion is their sum.",
+    "The picture is the brief's state plane: the real system on the left (open tanks A = [−0.2 0.05; 0.2 −0.2], closed tanks, two masses on three springs), one dot (x₁, x₂) on the right with the eigenvector lines labelled, a draggable start and Go, two faint dots riding the lines with the real dot their sum, and the middle spring's stretch reading 0 for a together start.",
+    "One worked example runs from the rule with real numbers: A from the flows, eigenvalues −0.1 with (1, 2) and −0.3 with (1, −2) checked by trace and determinant, 30 g split as 15 of each, x₂ = 30e^(−0.1t) − 30e^(−0.3t), the peak of about 11.5 g at 5 ln 3 ≈ 5.49 minutes when the tanks match, and the 1 : 2 share at 30 minutes. The masses use lesson 5's B = [2 −1; −1 2] with k/m = 100, giving 10 and about 17.3 rad/s.",
+    "The brief's misconceptions each get a DO screen with its own hint: the tank sign slip (2), each e^(λt) paired with its own eigenvector (6), ω taken as the eigenvalue (10), and the start's numbers read as mode amounts (12). The decoupled equation seen as the decay rule is screen 5's faint dots.",
+    "Thirteen screens alternate SHOW (1, 3, 5, 7, 9, 11) and DO (2, 4, 6, 8, 10), ending with two mixed puzzles (12, 13). Three footnotes, each on a result he might look up, none naming a source. The two rooms sharing a wall is a new analogy with the same average and difference modes, and it says where it breaks."
+  ],
+  "fix": [
+    "Causal step skipped for the masses: 'work the same way' does not say why their equations come apart. Say that along an eigenvector B only stretches, so each amount obeys a″ = −(k/m)λa, the spring rule from differential equations.",
+    "Causal step skipped for the opposite swing: 'the middle spring pulls too, so it is faster' leaves out how much. The middle spring stretches by twice each mass's shift, so each mass feels k from its outer spring and 2k from the middle one, 3k in all.",
+    "Causal step skipped on the state plane: 'start on a line and it runs straight along it' needs its reason in explain. The other amount starts at zero, and zero times e^(λt) stays zero.",
+    "False absolute: 'With e^(λt), the larger eigenvalue takes over' needs 'as long as the start has some of it', as practice says.",
+    "Overstated in practice: 'Mixing tanks, heat passing between rooms and masses on springs all work this way' holds for their linear models only. Say they can all be written this way.",
+    "Muddled number: screen 10 calls 300 'its eigenvalue' while screen 9 says B's eigenvalue is 3. Say the eigenvalue of (k/m)B is 3k/m = 300, and that is ω².",
+    "Phone layout and picture wording: say the real thing sits above the state plane on a phone; screen 11's trail fills a diamond-shaped box, not just 'a box'; the tank drag wording 'less than no salt' is clumsy there; and each idea screen's words should be held to about 90 words.",
+    "Misconception shown failing in explain: add one sentence that 300 rad/s, the eigenvalue itself, is the slip, since ω is its square root."
+  ],
+  "recommended_shape": {
+    "idea_up_front": "yes, first paragraph",
+    "rule_in_words": "yes: each flow carries salt at its tank's strength, what leaves is minus and what arrives is plus; along an eigenvector A only stretches",
+    "worked_example": "yes, the tanks from the flows to the peak; practice repeats it with the calculus for the peak",
+    "misconception_failing": "on DO screens 2, 6, 10 and 12; one line added to explain for ω",
+    "trade_analogy_with_break": "two rooms sharing a wall, breaking for real rooms and unequal rooms",
+    "put_it_into_practice": "steps, rules of thumb, worked example, where you meet it, common mistakes",
+    "recap": "the bold closing takeaway"
+  },
+  "verdict": "rewrite as draft 2 with the eight fixes"
+}

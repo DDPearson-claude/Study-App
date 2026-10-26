@@ -1,0 +1,156 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each eigenvector has an eigenvalue, the factor by which it is stretched or squished: for every flat matrix on the page and each of its lit lines, Av is exactly λ lots of v, λ is Av’s length over v’s length, and λ is negative only when Av points the opposite way; the same holds for C’s three lines in space",
+        "ok": true,
+        "source": "https://www.3blue1brown.com/lessons/eigenvalues"
+      },
+      {
+        "label": "Non-trivial solutions exist if det(A − λI) = 0: on both λ slider screens, at every λ from −2 to 6, a nonzero crushed line is drawn exactly when det(A − λI) = 0, and A − λI sends it to zero",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf"
+      },
+      {
+        "label": "The sum of the eigenvalues is the sum of the diagonal terms, the trace: for every matrix on the page with real eigenvalues, its eigenvalues add up to its diagonal, C’s three included",
+        "ok": true,
+        "source": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%2022%20Eigenvalues%20and%20Eigenvectors.pdf"
+      },
+      {
+        "label": "Every worked number is right: A(0, 1) = (1, 2), A(1, 0) = (3, 0), A(−1, 1) = (−2, 2), A(−2, 2) = (−4, 4), A(1, 1) = (4, 2); the mirror keeps (1, 1) and sends (1, −1) to (−1, 1); (3 − 2)(2 − 2) = 0; B has trace 4, determinant 3, eigenvalues 1 and 3, B − I = [1 −1; −1 1], B − 3I all −1, B(1, −1) = (3, −3); [4 1; 2 3] has trace 7, determinant 10, 5 along (1, 1) and 2 along (1, −2); A − 3I = [0 1; 0 −1] crushes (1, 0); C has trace 4, equation −λ³ + 4λ² − 3λ and C(1, 2, 1) = (3, 6, 3); [5 2; 2 2] has trace 7, determinant 6, 6 along (2, 1) and 1 along (1, −2); the shear has one line and the quarter turn none",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle’s answer comes from the rule, and each wrong answer offered is the slip its hint names",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three different answers, accepts only the right one, and draws every wrong one in the warning colour",
+        "ok": true
+      },
+      {
+        "label": "Before Check, no puzzle shows its answer; after a right answer, it does",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration passes and ends where the lesson says: v at (0, 1) with Av = (1, 2), then at (1, 0) with λ = 3, ending on the line through (−1, 1) with λ = 2; the mirror lighting (1, 1) with λ = 1, ending on (1, −1) with λ = −1; A − λI flat at λ = 2 crushing (−1, 1), at λ = 3 crushing (1, 0), ending at 2; B − λI flat at 1 crushing (1, 1), ending at 3 crushing (1, −1); B’s lines (1, 1) with 1 and (1, −1) with 3; C’s three lines with 0 (dashed), 1 and 3",
+        "ok": true
+      },
+      {
+        "label": "While each demonstration plays, the rule holds at every moment: Av is always A times v; a line is lit only while Av lies along v’s line, with Av = λv; the grid drawn is always A − λI, and a crushed line appears only while its area scale is 0 and is sent to zero",
+        "ok": true
+      },
+      {
+        "label": "The probe snaps onto a lit line within 3° and lights only there: for every matrix on the page at every half degree, the line lights exactly when v is within 3° of one, and then Av = λv; the quarter turn never lights, the shear lights one line and the mirror two",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends; every answer’s motion, right or wrong, within 2.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "lam"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Arrows that keep their line",
+          "Which keeps its line?",
+          "A flip keeps the line",
+          "A matrix with no lit line",
+          "The grid goes flat",
+          "Why λI?",
+          "Trace and determinant",
+          "The other eigenvalue",
+          "Each direction",
+          "A zero answer",
+          "Three lines in space",
+          "Mixed: the eigenvalues",
+          "Mixed: the pairs"
+        ],
+        "value": 0
+      },
+      {
+        "id": "lam",
+        "kind": "control",
+        "label": "λ",
+        "min": -2,
+        "max": 6,
+        "step": 0.5,
+        "log": false,
+        "value": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Stretch",
+      "Mirror",
+      "Shear",
+      "Quarter turn",
+      "Play again",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 4 (the first step that shows a control)",
+    "lam = 4"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-360-light.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-360-light-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-360-light-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-360-dark.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-360-dark-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-1280-light.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-1280-light-end.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-1280-dark.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/maths/linear-algebra/i5.a8-1280-dark-end.png"
+  ]
+}
