@@ -1,0 +1,80 @@
+{
+  "scores": { "lands": 4, "why": 4, "cause": 4, "trade": 5, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Screens 12 and 13 (Dead time, A longer gap): the dashed 'average over a cycle' line in the voltage plot and the 'Average at the cursor' readout",
+      "what": "Both come from the ideal rule avgAt() with no dead-time loss, so they stay a perfect sine at 162 V (the s11 film holds 162 V from 0 to 20 µs). Meanwhile the caption says the winding loses about 22 V (108 V at 100 µs) and the current plot flattens, so the voltage plot shows no cause for the flattening and contradicts the words. Draw the dashed average and the readout with the loss against the current, or label them 'average asked for' on these two screens."
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 11 (200 V at 25 Hz) Why, last sentence, and the ignores text",
+      "what": "'Real drives shape their references to get nearer the full 400 V' has no source in research.json: there is no quote on third-harmonic injection or space-vector modulation. Either add a sourced quote, or cut the sentence and keep only the fact the screen shows, that plain sine-triangle tops out at 331 V from this link."
+    },
+    {
+      "severity": "fix",
+      "where": "Screens 2 to 13, explain.text and practice: the word 'depth'",
+      "what": "Depth is defined only in the slider label ('Depth, the reference's height') and in whatAmILookingAt, never in a sentence. Yet screen 6 ('the depth times 540 V'), screen 10, the finish line, explain ('Its depth sets the duty cycles') and practice ('Depth needed = ...') all rely on it, so the read-through and the Book never say what it is. Add one sentence on screen 4, such as 'How tall the reference is, as a share of the triangle, is its depth.'"
+    },
+    {
+      "severity": "fix",
+      "where": "Screen 10 (Three legs, two knobs), fourth sentence",
+      "what": "'Each motor line sits between two legs' is wrong as worded: each line joins one leg's output, and it is the line voltage that sits between two legs. The screen also skips the step from each leg's 270 V swing to the 468 V line peak (√3 × 270). Replace the sentence with 'The voltage between two lines is the difference of two legs: √3 × 270 = 468 V peak.'"
+    },
+    {
+      "severity": "fix",
+      "where": "SHOW screens 2, 12, 6, 8, 4 and 10: the text plus the caption under the picture",
+      "what": "With the finished caption counted, screen 2 carries about 108 words (85 + 23), screen 12 about 104, screen 6 about 103, screen 8 about 102, screen 4 about 99 and screen 10 about 95, all over the 90-word limit. Trim the captions that repeat the readouts (screen 2's D range and ends, screen 6's 324 V and 229 V, screen 4's restated 80%), and cut one sentence from each text, such as screen 2's 'The point between them is the output', which the picture already labels."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 12 and 13 (dead time)",
+      "what": "The 20 µs and 100 µs gaps and the 5 µs turn-off lag are drawn much longer than in a real drive, and only whatAmILookingAt and ignores say so. Add a few words on screen 12 saying the gap is drawn long here so it shows, so the 22 V and 108 V losses are not taken as real-drive figures."
+    },
+    {
+      "severity": "polish",
+      "where": "Screens 2 to 13 (PWM is never named), and screen 11's Why",
+      "what": "Pulse width modulation (PWM) is named only in explain, never on a screen, though Dan will meet the term on every drive. Screen 11's Why also says 'plain sine-triangle' as if it were a named method. Name it once on screen 4, for example 'This is pulse width modulation, PWM', in place of a caption sentence."
+    },
+    {
+      "severity": "polish",
+      "where": "Readout 'Output voltage, rms' (screens 6 to 13) and whatAmILookingAt",
+      "what": "It shows the rms of the averaged sine. The H-bridge's ±540 V pulses themselves have an rms of 540 V at any depth, and the brief lists 'the inverter's output voltage as a sine' as a misconception. Label it 'Output sine, rms' to match screen 6's careful 'Their average is a sine ..., 229 V rms'."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 2 caption and readouts at depth 75% (360 light and dark moved shots)",
+      "what": "Half-up rounding gives 'D swings between 13% and 88%' and 'from 68 V to 473 V'. These neither add to 100% nor sit evenly about 270 V, which a careful reader will notice. Show 12.5% and 87.5% (67.5 V and 472.5 V) when the value ends in .5, or work out both ends from one rounded swing."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 8 (The winding smooths it), seventh sentence",
+      "what": "'The motor filters the pulses into a sine current' drops the 'near-' that the sentence before it used, while the picture shows a sawtooth on the current. Say 'a near-sine current'."
+    },
+    {
+      "severity": "polish",
+      "where": "Close-up of one switching cycle (screens 2 to 7), 360 px",
+      "what": "The close-up's carrier triangle is only about 25 px tall. In the depth-75%, cursor-270° moved state, the reference sits a few pixels above the triangle's tip, so the two crossings that make the 13% pulse can hardly be told apart. Give the triangle more of the close-up's height."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1 (Volts per hertz), the picture",
+      "what": "The opening is alive, but it shows the full three-leg inverter, with three references, line pulses and current, before a single leg has been explained. That is a lot to face with a recall question. Consider opening on One leg, or dimming the plots until screen 2."
+    },
+    {
+      "severity": "polish",
+      "where": "Screen 1 Why, last sentence",
+      "what": "'So the switching must set both' leaves Dan to work out what 'both' means. Say 'So the switching must set both the voltage and the frequency.'"
+    },
+    {
+      "severity": "polish",
+      "where": "Practice, second bullet",
+      "what": "'0.612 × the link' arrives with no working. Add that it is √3 × half the link ÷ √2, the same 331 ÷ 540 that screen 10 and explain reach."
+    },
+    {
+      "severity": "polish",
+      "where": "explain.text and practice.text footnotes",
+      "what": "Seven markers are more than a few: [^4] twice, plus [^2], [^5], [^6], [^1] and [^7]. [^2] (the motor filters the pulses) and [^5] (what dead time is) sit on plain description, not on a value he would look up. Keep [^1], [^4] once and [^7]."
+    }
+  ]
+}

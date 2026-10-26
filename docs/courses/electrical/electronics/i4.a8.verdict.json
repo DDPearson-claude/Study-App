@@ -1,0 +1,264 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Fully on, 2 V across the switch meets (600 − 2) ÷ 30 = 19.9 A, about 40 W. Fully off, the whole 600 V meets no current, so no heat",
+        "ok": true
+      },
+      {
+        "label": "Half on, the switch takes 300 V and passes 10 A at once: 3000 W, the top of the hump, V² ÷ (4R) = 600² ÷ 120",
+        "ok": true
+      },
+      {
+        "label": "The heat rises all the way from off to half on, and the hump is the same either side of half on",
+        "ok": true
+      },
+      {
+        "label": "At 90% the switch takes 60 V and passes 18 A: 60 × 18 = 1080 W, about five times the 220 W the heat sink can shed",
+        "ok": true
+      },
+      {
+        "label": "The junction reads 40 + 0.5 × the heat: 60 °C fully on, while 3000 W would lift it 1500 °C. A rise of 150 − 40 = 110 °C lets the sink shed 110 ÷ 0.5 = 220 W",
+        "ok": true
+      },
+      {
+        "label": "The switching losses are the product of switching energies and the switching frequency: 2 mJ a cycle makes 20 W at 10 kHz and 40 W at 20 kHz",
+        "ok": true,
+        "source": "https://www.infineon.com/assets/row/public/documents/faq/igbt-power-losses-calculation-using-the-data-sheet-parameters.pdf"
+      },
+      {
+        "label": "An edge sweeps straight through the hump, which averages a sixth of 600 V × 20 A = 2000 W, so 0.5 µs costs 1 mJ",
+        "ok": true
+      },
+      {
+        "label": "Switching at 10 kHz: 20 W on and 20 W in the edges, 40 W in all, with the junction at 60 °C. At 20 kHz: 60 W in all and 70 °C",
+        "ok": true
+      },
+      {
+        "label": "The IGBT should not be operated in linear mode, as this causes excessive conduction losses: held half on it makes 3000 W, about 75 times the 40 W it makes switching at 10 kHz",
+        "ok": true,
+        "source": "https://www.infineon.com/assets/row/public/documents/24/42/infineon-an2011-05-igbt-modules-explanation-applicationnotes-en.pdf"
+      },
+      {
+        "label": "Silicon diodes have a forward voltage of approximately 0.7 volts, so with the freewheeling diode the open switch sees 600 + 0.7, about 601 V",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+      },
+      {
+        "label": "Round the diode, the coil's current dies away with a time constant of L ÷ R = 10 mH ÷ 30 Ω, about 0.33 ms",
+        "ok": true
+      },
+      {
+        "label": "With no diode, opening the switch on the coil sends its voltage off the top of the 1000 V scale. With the diode, or with a resistor, it does not",
+        "ok": true
+      },
+      {
+        "label": "A BJT, a MOSFET and an IGBT each make 3000 W half on. Only the symbol and the name of the control lead change",
+        "ok": true
+      },
+      {
+        "label": "The thermometer reads 60 °C fully on. Half on it passes 150 °C and runs off the top, and so does the heat bar",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and the picture keeps the answer hidden until a right Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      },
+      {
+        "label": "For a power BJT with a β of 20 to conduct 100 A, there must be at least 5 A of base current: 100 ÷ 20 = 5",
+        "ok": true
+      },
+      {
+        "label": "Every number in the words comes from the rule: 20, 19.9, 40, 300, 10, 3000, 120, 60, 1500, 110, 220, 55, 1 and 2 mJ, 20, 40, 60, 70, 75, 601, 0.33, 18 and 1080",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "dev",
+      "mode",
+      "load",
+      "gate",
+      "f",
+      "diode"
+    ],
+    "readouts": [
+      "vSwitch",
+      "current",
+      "heat"
+    ],
+    "outputs": [
+      "vSwitch",
+      "current",
+      "heat"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "The switch",
+          "Off",
+          "Half on",
+          "The hottest setting",
+          "Heat into temperature",
+          "What the sink can shed",
+          "Three devices, one job",
+          "Swap the device",
+          "The edges",
+          "Twice the frequency",
+          "The coil kicks back",
+          "No diode",
+          "The coolest way",
+          "Nearly on"
+        ],
+        "value": 0
+      },
+      {
+        "id": "dev",
+        "kind": "choice",
+        "label": "Transistor",
+        "options": [
+          "bjt",
+          "mosfet",
+          "igbt"
+        ],
+        "labels": [
+          "BJT",
+          "MOSFET",
+          "IGBT"
+        ],
+        "value": "igbt",
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Mode",
+        "options": [
+          "steady",
+          "switch"
+        ],
+        "labels": [
+          "Steady",
+          "Switching"
+        ],
+        "value": "steady",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "load",
+        "kind": "choice",
+        "label": "Load",
+        "options": [
+          "res",
+          "coil"
+        ],
+        "labels": [
+          "Resistor",
+          "Coil"
+        ],
+        "value": "res",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "gate",
+        "kind": "control",
+        "label": "Gate",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": true,
+        "snap": [
+          0,
+          50,
+          90,
+          100
+        ]
+      },
+      {
+        "id": "f",
+        "kind": "control",
+        "label": "Frequency",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "log": false,
+        "value": 10,
+        "shown": false,
+        "snap": [
+          10,
+          20
+        ]
+      },
+      {
+        "id": "diode",
+        "kind": "toggle",
+        "label": "Freewheeling diode",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Open",
+      "Play",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

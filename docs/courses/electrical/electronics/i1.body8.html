@@ -1,0 +1,745 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .task .ask { display: block; font-weight: 700; margin-bottom: 8px; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .swap { justify-content: center; }
+  .swap .k-btn { flex: 0 1 14rem; min-height: 44px; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* The junction: holes are rings, free electrons dots; the charge left behind is drawn as − and + signs. */
+  .fig .blk { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .zone { fill: var(--k-bg); }
+  .fig .zone.bd { fill: var(--k-warn); fill-opacity: .16; }
+  .fig .zedge { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .fig .zedge.bd, .fig .brk.bd { stroke: var(--k-warn); }
+  .fig .flash { fill: var(--k-fill2); }
+  .fig .el { fill: var(--k-cat1); }
+  .fig .ho { fill: var(--k-bg); stroke: var(--k-cat2); stroke-width: 2; }
+  .fig .ion { stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; }
+  .fig .ion.bd { stroke: var(--k-warn); }
+  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; }
+  .fig .sym { fill: var(--k-ink); }
+  .fig .symline { stroke: var(--k-ink); stroke-width: 2.5; }
+  .fig .plate { stroke: var(--k-ink); stroke-width: 3; }
+  .fig .res, .fig .vm, .fig .lamp { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .ring { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2; }
+  .fig .meter { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .fig .lcd { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .sock { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .lead1 { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .fig .lead2 { fill: none; stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .fig .glow { fill: var(--k-fill2); }
+  .fig .heat { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }
+  .fig .arrow { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .fig .head { fill: var(--k-accent2); }
+  .fig .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }
+  .fig .curve.bd { stroke: var(--k-warn); }
+  .fig .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .cross { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .big { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .fig .lcdt { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .fig .grab { fill: var(--k-bg); fill-opacity: 0; cursor: grab; }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="fig" id="scene" viewBox="0 0 340 232" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="row swap" id="swap"></div>
+    <div class="k-controls" id="ctl"></div>
+    <div id="gl">
+      <svg class="fig" id="glsvg" viewBox="0 0 340 190" width="100%" role="img" aria-label=""><g id="glart"></g><g id="glui"><rect class="grab" id="grab" x="0" y="0" width="340" height="190"/></g></svg>
+      <p class="gnote">Current against voltage for an example silicon diode. It is a sketch, not a measured part. Right of 0 is forward, left is reverse, each on its own scale.</p>
+    </div>
+    <div id="gs">
+      <svg class="fig" id="gssvg" viewBox="0 0 340 190" width="100%" role="img" aria-label=""><g id="gsart"></g></svg>
+      <p class="gnote">Current against voltage for an example silicon diode. It is a sketch, not a measured part. Right of 0 is forward, left is reverse, each on its own scale.</p>
+    </div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- the example diode and its loop (the lesson's rule) ----------
+  // Forward, I = 10⁻¹² A × (e^(V ÷ 0.026) − 1); reverse it sits on zero until the 50 V PIV, then
+  // drops straight down. The loop: supply = the diode's voltage + the current × 10 Ω.
+  const IS = 1e-12, VT = 0.026, R = 10, PIV = 50, VF = 0.7;
+  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/';
+  const METER = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/';
+  const Id = (v) => (v > 0 ? IS * (Math.exp(v / VT) - 1) : 0);
+  const vAt = (i) => VT * Math.log(i / IS + 1);
+  function solve(vs) {
+    vs = +vs || 0;
+    if (vs < -PIV) { const i = (vs + PIV) / R; return { vs, vd: -PIV, i, vr: i * R }; }
+    if (vs <= 0) return { vs, vd: vs + 0, i: 0, vr: 0 };
+    let lo = 0, hi = vs;
+    for (let k = 0; k < 80; k++) { const m = (lo + hi) / 2; if (m + R * Id(m) > vs) hi = m; else lo = m; }
+    const vd = (lo + hi) / 2, i = Id(vd);
+    return { vs, vd, i, vr: i * R };
+  }
+  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');
+  const C5 = solve(5), C10 = solve(10), C20 = solve(-20), C60 = solve(-60), VM = vAt(1e-3);
+  // Every number the words show, worked out from the rule (a check compares them with the lesson's).
+  const N = {
+    vd5: fx(C5.vd, 2), vr5: fx(C5.vr, 2), i5: fx(C5.i, 2), p5: fx(C5.vd * C5.i, 2),
+    vd10: fx(C10.vd, 2), i10: fx(C10.i, 2), p10: fx(C10.vd * C10.i, 2), vm: fx(VM, 2),
+    v20: fx(-C20.vd, 0), vb: fx(-C60.vd, 0), ib: fx(-C60.i, 2), pb: fx(C60.vd * C60.i, 0),
+    lamp: fx(12 - VF, 1), ch: fx(VF * 20, 0), one: fx(VF * 1, 1),
+  };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // pic: the drawing ('block', 'loop', 'meter', 'readings', 'lamp', 'charger'); supply: 'live' (the
+  // slider) or the screen's own; graph: 'live' (draggable), 'claim' or 'meter'; dur: a demonstration.
+  const STEPS = [
+    { show: true, name: 'Inside the diode', pic: 'block', form: true, dur: 4.4,
+      text: `A diode is a one-way valve for current. Here is one way to see why. Inside is one piece of silicon, treated so its two halves differ. The N side has spare free electrons. The P side is short of electrons. Each gap is a *hole*, and it acts like a positive charge. Where the halves meet, electrons cross and fill holes. That leaves a thin empty zone with no free carriers. It also leaves charge behind, minus on the P side and plus on the N side.` },
+    { kind: 'pick', name: 'Why the crossing stops', pic: 'block',
+      task: `Why does the crossing stop, leaving most holes and electrons where they were?`,
+      opts: [`The N side runs out of free electrons`, `The charge left behind pushes the next carriers back`, `The empty zone is a layer of insulation built in`],
+      want: `The charge left behind pushes the next carriers back`,
+      hints: { 'The N side runs out of free electrons': `The N side still has plenty. Look at the charge left at the edges of the zone.`,
+        'The empty zone is a layer of insulation built in': `The crossing itself makes the zone. Look at what it leaves behind.` },
+      why: `Each electron that crosses leaves a plus behind on the N side and a minus on the P side. That charge pushes back on the next electrons and holes. The crossing stops once that push balances their spreading.`, flash: true },
+    { show: true, name: 'Forward', pic: 'loop', supply: 'live', graph: 'live', reveal: (p) => p.supply > 0,
+      ask: `Predict: will the zone thin or widen? Then drag the supply up to 5 V.`,
+      text: `Plus on the P side and minus on the N side push both carriers towards the junction. That push works against the charge left there. So the empty zone thins. On this example curve, almost nothing crosses below 0.5 V. By 0.6 V the push wins and carriers stream across. The diode then holds about 0.7 V.`,
+      read: `With the supply at 5 V, the zone is thin and carriers stream across. The diode holds ${N.vd5} V, the resistor ${N.vr5} V, and ${N.i5} A flows. The dot sits on the steep part of the curve.`,
+      still: { supply: 5 } },
+    { kind: 'pick', name: 'Across the diode', pic: 'loop', supply: 5, meter: 'volt', vread: `${N.vd5} V`,
+      task: `The supply is at 5 V and the diode conducts ${N.i5} A. What does a voltmeter across the diode read?`,
+      opts: [`About 0.7 V`, `0 V, as it is a closed switch`, `5 V, the whole supply`], want: `About 0.7 V`,
+      hints: { '0 V, as it is a closed switch': `A conducting diode still needs about 0.7 V to keep carriers crossing the zone.`,
+        '5 V, the whole supply': `That is a blocking diode. This one conducts, so the resistor takes most of the supply.` },
+      why: `Carriers stream across only while the zone is held thin. That takes about 0.7 V. The other ${N.vr5} V of the 5 V sits across the resistor and drives ${N.i5} A.`,
+      shows: [`${N.vd5} V`] },
+    { show: true, name: 'Reverse', pic: 'loop', supply: 'live', graph: 'live',
+      ask: `Drag the supply below zero, to −20 V, then on to −60 V.`,
+      text: `Below zero the N side is positive. That pulls the carriers away, so the zone widens. Almost no current flows, so the diode holds the whole supply. This example diode's *peak inverse voltage*, or PIV, is 50 V. That is the most reverse voltage it can take. Past it, the zone breaks down and current rushes backwards. That usually destroys an ordinary diode.`,
+      read: `At −20 V the zone is wide. Almost no current flows, and the diode holds all ${N.v20} V. At −60 V, past the 50 V PIV, the diode has broken down. It holds ${N.vb} V while ${N.ib} A flows backwards. So it turns ${N.pb} W into heat, shown in red.`,
+      still: { supply: -60 } },
+    { kind: 'pick', name: 'A test record', graph: 'claim',
+      task: `A test record says a silicon diode carried 0.5 A forward with 0.1 V across it. Can that be right?`,
+      opts: [`Yes: forward, a diode is a closed switch`, `Yes: more current means less drop`, `No: at 0.1 V the curve gives almost no current`],
+      want: `No: at 0.1 V the curve gives almost no current`,
+      hints: { 'Yes: forward, a diode is a closed switch': `Find 0.1 V on the curve and read the current there.`,
+        'Yes: more current means less drop': `Follow the curve up. More current needs a little more voltage, not less.` },
+      why: `At 0.1 V the zone is still wide enough to hold the carriers back. So the curve sits on zero. 0.5 A needs about 0.7 V. So the record is wrong, or the part is not a working diode.`, cross: true },
+    { show: true, name: 'Nothing used up', pic: 'loop', supply: 5, meter: 'amp', dur: 2.4,
+      text: `Put an ammeter each side of the diode. Both read ${N.i5} A. Current is a flow of charge. Charge is not used up on the way through. What the diode takes is voltage, about 0.7 V of push. It turns that into heat at voltage × current. That is the P = V × I you already use. Here that is ${N.vd5} × ${N.i5} = ${N.p5} W. The drop barely changes with current. So the heat grows almost in step with the current.` },
+    { kind: 'pick', name: 'Charge in, charge out', pic: 'loop', supply: 10, meter: 'amp',
+      task: `Now the supply is at 10 V. The ammeter before the diode reads ${N.i10} A. What does the one after it read?`,
+      opts: [`A little less, as the diode uses some`, `${N.i10} A`, `0 A, as it all turns to heat`], want: `${N.i10} A`,
+      hints: { 'A little less, as the diode uses some': `The diode takes voltage, not current. Charge in equals charge out.`,
+        '0 A, as it all turns to heat': `The heat comes from the drop times the current. The current itself flows on.` },
+      why: `Every bit of charge that enters the diode leaves the other end. The diode takes ${N.vd10} V of push. It turns that into ${N.vd10} × ${N.i10} = ${N.p10} W of heat. All ${N.i10} A flows on to the resistor.`,
+      shows: [`${N.p10} W of heat`], count: [`${N.i10} A`, 1, 2] },
+    { show: true, name: 'The meter', pic: 'meter', graph: 'meter', dur: 2.1,
+      text: `A meter's diode range pushes a small current through the diode and shows the voltage across it. That current is tiny. So the dot sits low on the curve. A good silicon diode typically reads under 0.7 V. This example meter pushes 1 mA and reads ${N.vm} V. Swap the leads and the diode blocks. The meter cannot push its current through, so it shows over range.`,
+      read: `One way round, the meter pushes 1 mA and reads ${N.vm} V. The dot sits low on the curve's knee. The other way round, the diode blocks and the meter shows over range.`,
+      still: () => { leadsRev = false; K.refresh(); } },
+    { kind: 'pick', name: 'Good or not?', pic: 'readings',
+      task: `A meter on its diode range reads 0.55 V across a silicon diode one way, and over range the other way. Is the diode good?`,
+      opts: [`Yes: a drop one way, blocking the other`, `No: a good one would read 0.7 V`, `No: a good one would read the same both ways`],
+      want: `Yes: a drop one way, blocking the other`,
+      hints: { 'No: a good one would read 0.7 V': `The meter's current is tiny. So the dot sits lower on the curve than 0.7 V.`,
+        'No: a good one would read the same both ways': `A one-way valve should never give the same reading both ways.` },
+      why: `The meter pushes only a tiny current. So a good silicon diode typically reads under 0.7 V. Over range the other way means it blocks. A drop one way and a block the other is a good diode.` },
+    { kind: 'pick', name: 'Where the 20 V sit', pic: 'loop', supply: -20, meter: 'volt', vread: `${N.v20} V`,
+      task: `The supply is set to −20 V, well inside the diode's 50 V PIV. Where do the 20 V sit?`,
+      opts: [`Almost all across the 10 Ω resistor`, `Half across each`, `Almost all across the diode`], want: `Almost all across the diode`,
+      hints: { 'Almost all across the 10 Ω resistor': `With almost no current, the resistor drops almost nothing. V = I × R.`,
+        'Half across each': `Only a current makes a drop across the resistor, and almost none flows.` },
+      why: `The wide zone lets almost no current through. With almost no current, the resistor drops almost nothing. So the diode holds the whole supply. That is why its PIV must be above it.`,
+      shows: [`${N.v20} V`, '10 Ω: almost 0 V'] },
+    { kind: 'pick', name: 'A lamp through a diode', pic: 'lamp',
+      task: `A 12 V battery lights a lamp through a silicon diode fitted forward. About what voltage reaches the lamp?`,
+      opts: [`12 V`, `About ${N.lamp} V`, `0 V`], want: `About ${N.lamp} V`,
+      hints: { '12 V': `The diode keeps about 0.7 V of the supply for itself.`, '0 V': `That would be the diode fitted backwards.` },
+      why: `A conducting silicon diode holds about 0.7 V. The lamp gets the rest, 12 − 0.7 = ${N.lamp} V.`,
+      shows: [`${N.lamp} V`, `${N.one} V`] },
+    { kind: 'pick', name: 'Heat in a charger', pic: 'charger',
+      task: `A silicon diode in a battery charger carries 20 A with about 0.7 V across it. How much heat does it make?`,
+      opts: [`None, as it is fully on`, `About ${N.one} W`, `About ${N.ch} W`], want: `About ${N.ch} W`,
+      hints: { 'None, as it is fully on': `Fully on still means about 0.7 V across it. Volts × amps is heat.`, [`About ${N.one} W`]: `That is the heat at 1 A. This one carries 20 A.` },
+      why: `Heat = voltage × current = 0.7 × 20 = ${N.ch} W. A real diode's drop creeps up at high current, as the curve does. So it makes more.`,
+      shows: [`${N.ch} W of heat`] },
+  ];
+  const FINISH = 'A silicon diode conducts one way for a drop of about 0.7 V, and blocks the other way up to its peak inverse voltage.';
+  const NB = ' ', FADE = 0.35, ANS = 1.4;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false, seen: false });
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  let S = STEPS.map(() => blank());
+  let leadsRev = false, finished = false, lastStep = -1, lastDone = false;
+  let T = Infinity, motionEnd = 0, PH = 0.3, WPH = 0;     // T: seconds into the screen's motion; PH, WPH: the carriers' flow
+  let REC = null;                                          // what the last drawing showed, for the checks
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  K.control({ id: 'supply', label: 'Supply', min: -60, max: 10, step: 0.1, value: 0, fmt: (v) => fx(v, 1) + NB + 'V',
+    snap: [-60, -20, 5, 10], hint: 'Or drag along the curve', into: '#ctl' });
+  K.readout({ id: 'diodeVolts', label: 'Across the diode', unit: 'V', decimals: 2, into: '#outs' });
+  K.readout({ id: 'current', label: 'Current', unit: 'A', decimals: 2, into: '#outs' });
+  K.readout({ id: 'resistorVolts', label: 'Across the resistor', unit: 'V', decimals: 2, into: '#outs' });
+  K.model((p) => { const c = solve(p.supply); return { diodeVolts: c.vd, current: c.i, resistorVolts: c.vr }; });
+
+  const swapBtn = K.button({ label: 'Swap leads', secondary: true, into: '#swap', press: () => { if (STEPS[at()].pic === 'meter' && !finished) leadsRev = !leadsRev; } });
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res === 'right') startMotion(ANS);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; leadsRev = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: each screen's demonstration, an answer's motion, and the carriers' flow ----------
+  const circ = (i, p) => { const s = STEPS[i].supply; return solve(s === 'live' ? (p ? p.supply : 0) : s == null ? 0 : s); };
+  const frac = (v) => v - Math.floor(v);
+  const gOf = (i) => K.clamp(Math.log10(Math.max(Math.abs(i), 1e-9) / 1e-4) / 4, 0, 1);   // 0.1 mA -> 0, 1 A -> 1
+  const nOf = (i) => (Math.abs(i) < 1e-4 ? 0 : 1 + Math.round(4 * gOf(i)));
+  const flowOn = () => !REDUCE && !finished && STEPS[at()].pic === 'loop' && Math.abs(circ(at(), K.params()).i) >= 1e-4;
+  const anim = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    const c = circ(at(), K.params()), g = gOf(c.i);
+    if (Math.abs(c.i) >= 1e-4) { PH = frac(PH + dt * (0.25 + 0.9 * g)); WPH = frac(WPH + dt * (0.4 + 1.4 * g) * Math.sign(c.i)); }
+    paint();
+    return T < motionEnd || flowOn();
+  } });
+  function startMotion(dur) {
+    if (REDUCE || testing()) { T = Infinity; return; }
+    T = 0; motionEnd = dur;
+    if (!anim.playing()) anim.play();
+  }
+  function kick() { if (flowOn() && !testing() && !anim.playing()) anim.play(); }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), glsvg = el('glsvg'), glart = el('glart'), gssvg = el('gssvg'), gsart = el('gsart');
+  let into = null, latest = 0, earliest = Infinity;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }
+  function tx(x, y, s, cls, anchor) { REC.texts.push(s); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s)); }
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.4;
+  }
+  function sign(x, y, side, cls) { ln(x - 3.5, y, x + 3.5, y, cls); if (side > 0) ln(x, y - 3.5, x, y + 3.5, cls); }
+  const carrier = (x, y, side) => (side < 0 ? ci(x, y, 4, 'ho') : ci(x, y, 3.6, 'el'));
+  function symbol() { ln(138, 17, 160, 17, 'wire'); pa('M160 7 L160 27 L180 17 Z', 'sym'); ln(182, 7, 182, 27, 'symline'); ln(182, 17, 204, 17, 'wire'); }
+  // The key, inside the drawing.
+  function key(y) {
+    const items = [['ho', 'hole', 14], ['el', 'free electron', 14], ['ion', 'charge left behind', 22]];
+    const ws = items.map((it) => tw(it[1], 'lab m'));
+    const total = items.reduce((t, it, k) => t + it[2] + ws[k] + 16, -16);
+    let x = Math.max(4, (340 - total) / 2);
+    items.forEach((it, k) => {
+      if (it[0] === 'ho') ci(x + 5, y - 4.5, 4, 'ho');
+      else if (it[0] === 'el') ci(x + 5, y - 4.5, 3.6, 'el');
+      else { sign(x + 4, y - 4.5, -1, 'ion'); sign(x + 14, y - 4.5, 1, 'ion'); }
+      tx(x + it[2], y, it[1], 'lab m', 'start');
+      x += it[2] + ws[k] + 16;
+    });
+  }
+
+  // ---------- the junction ----------
+  const CX = 170, BX0 = 46, BX1 = 294, BY0 = 38, BY1 = 122, G = 13, ROWS = [52, 66, 80, 94, 108], NCOL = 9;
+  const jit = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s) - 0.5; };
+  const site = (side, c, r) => ({ x: CX + side * (c + 0.5) * G + 3 * jit(side * 10 + c, r), y: ROWS[r] + 3 * jit(r + 7, side * 5 + c) });
+  // The empty zone's drawn width: thinner as the diode's voltage rises, wider as it falls, widest at the PIV.
+  const VBI = 0.75, W0 = 26, WMAX = 150, UMAX = Math.sqrt(1 + PIV / VBI);
+  function zoneW(vd) { const u = Math.sqrt(Math.max(0, 1 - vd / VBI)); return vd >= 0 ? W0 * u : W0 + (WMAX - W0) * (u - 1) / (UMAX - 1); }
+  // Screen 1: one electron in each row crosses into a hole; both are gone, and their charge stays.
+  const FORM = { t0: 1.0, gap: 0.45, move: 0.8, zone: 3.7 };
+  function drawBlock(o) {
+    const w = zoneW(o.vd), bd = o.vd <= -PIV && o.i < 0, B = bd ? ' bd' : '', zl = CX - w / 2, zr = CX + w / 2;
+    REC.zoneW = w; REC.bd = bd;
+    box(BX0, BY0, BX1 - BX0, BY1 - BY0, 'blk', 6);
+    part(o.form ? vis(FORM.zone) : 1, 0, () => {
+      box(zl, BY0 + 1, w, BY1 - BY0 - 2, 'zone' + B);
+      ln(zl, BY0 + 1, zl, BY1 - 1, 'zedge' + B); ln(zr, BY0 + 1, zr, BY1 - 1, 'zedge' + B);
+    });
+    if (o.flash) part(o.flash, 0, () => { box(zl - 4, BY0 + 3, w + 8, BY1 - BY0 - 6, 'flash', 4); REC.flash = true; });
+    for (const side of [-1, 1]) for (let c = 0; c < NCOL; c++) for (let r = 0; r < ROWS.length; r++) {
+      if (o.form && c === 0) continue;
+      const s = site(side, c, r);
+      // A charge sign is drawn only clear of the zone's dashed edge, which would turn a − into a +.
+      if ((c + 0.5) * G < w / 2) { if (Math.abs(s.x - CX) + 5 <= w / 2) sign(s.x, s.y, side, 'ion' + B); } else carrier(s.x, s.y, side);
+    }
+    if (o.form) for (let r = 0; r < ROWS.length; r++) {
+      const t0 = FORM.t0 + FORM.gap * r, mv = arr(t0, FORM.move), gone = arr(t0 + FORM.move, 0.3), sp = site(-1, 0, r), sn = site(1, 0, r);
+      part(gone, 0, () => { sign(sp.x, sp.y, -1, 'ion'); sign(sn.x, sn.y, 1, 'ion'); });
+      part(1 - gone, 0, () => { carrier(sp.x, sp.y, -1); carrier(K.lerp(sn.x, sp.x, mv), K.lerp(sn.y, sp.y, mv), 1); });
+    }
+    // Carriers crossing: forward, electrons cross to the P side and holes to the N side; in
+    // breakdown, pairs torn loose in the zone are swept out, electrons to the N side.
+    const n = o.flow ? nOf(o.i) : 0;
+    for (let k = 0; k < n; k++) {
+      const ph = frac(PH + k / n), a = Math.sin(Math.PI * ph).toFixed(2), ye = ROWS[(2 * k) % 5] + 6.5, yh = ROWS[(2 * k + 1) % 5] + 6.5;
+      let ex, hx;
+      if (!bd) { ex = zr + 16 - ph * (w + 32); hx = zl - 16 + ph * (w + 32); }
+      else { const x0 = zl + w * frac(0.618 * k + 0.3); ex = x0 + ph * (zr + 14 - x0); hx = x0 - ph * (x0 - zl + 14); }
+      carrier(ex, ye, 1).setAttribute('opacity', a);
+      carrier(hx, yh, -1).setAttribute('opacity', a);
+    }
+    REC.crossing = n;
+  }
+  // Under the block: its two sides, and the zone with its name.
+  function underBlock(o) {
+    tx(BX0, 136, 'P side', 'lab', 'start'); tx(BX1, 136, 'N side', 'lab', 'end');
+    const w = REC.zoneW, zl = CX - w / 2, zr = CX + w / 2, bd = REC.bd;
+    part(o.form ? vis(FORM.zone) : 1, 4, () => {
+      if (w >= 8) pa('M' + r2(zl + 1) + ' 126 V131 H' + r2(zr - 1) + ' V126', 'brk' + (bd ? ' bd' : ''));
+      tx(CX, 150, bd ? o.bdText : 'empty zone', bd ? 'lab w' : 'lab');
+    });
+  }
+  function zoneWords(c) {
+    if (c.vd <= -PIV && c.i < 0) return ' The zone has broken down, and current rushes backwards.';
+    if (c.vs < 0) return ' The empty zone is wide, and almost nothing crosses.';
+    if (c.vd >= 0.5) return ' The empty zone is thin, and carriers stream across.';
+    return c.vs > 0 ? ' The empty zone has thinned, but almost nothing crosses yet.' : ' The empty zone sits at its resting width.';
+  }
+
+  // ---------- each screen's picture (returns its height and the picture in words) ----------
+  function sceneBlock(d, st) {
+    part(d.form ? vis(0.4) : 1, d.form ? 6 : 0, () => {
+      symbol();
+      drawBlock({ vd: 0, i: 0, form: !!d.form, flash: d.flash && st.res === 'right' ? vis(0.1) : 0 });
+      underBlock({ form: !!d.form });
+      key(174);
+    });
+    return { H: 184, said: 'A diode drawn as a block of silicon: rings for holes on its P side, dots for free electrons on its N side. Between them, a thin empty zone, with minus charges on its P edge and plus charges on its N edge.' };
+  }
+  // The loop: wires, the supply, the resistor; a voltmeter or two ammeters on some screens.
+  const LOOP = [[BX0, 80], [24, 80], [24, 178], [316, 178], [316, 80], [BX1, 80]];
+  const SEG = []; { let s = 0; for (let k = 0; k < LOOP.length - 1; k++) { const a = LOOP[k], b = LOOP[k + 1], len = Math.hypot(b[0] - a[0], b[1] - a[1]); SEG.push({ a, b, s, len }); s += len; } }
+  const LOOPLEN = SEG.reduce((t, g) => t + g.len, 0);
+  function wireDots(am) {
+    for (let s = frac(WPH) * 22; s < LOOPLEN; s += 22) {
+      const g = SEG.find((q) => s >= q.s && s < q.s + q.len);
+      if (!g) continue;
+      const t = (s - g.s) / g.len, x = g.a[0] + t * (g.b[0] - g.a[0]), y = g.a[1] + t * (g.b[1] - g.a[1]);
+      if (y > 170 && ((x > 80 && x < 108) || (x > 210 && x < 270))) continue;
+      if (am && (x < 30 || x > 310) && y > 134 && y < 166) continue;
+      ci(x, y, 2.6, 'el');
+    }
+  }
+  function sceneLoop(d, st, c) {
+    const right = st.res === 'right', fwd = c.vs >= 0, am = d.meter === 'amp';
+    const P = c.vd * c.i, bdText = 'breakdown, ' + fx(P, P < 10 ? 1 : 0) + ' W of heat';
+    if (d.meter === 'volt') {
+      pa('M158 17 H110 V38', 'wire'); pa('M182 17 H230 V38', 'wire');
+      ci(170, 17, 12, 'vm'); tx(170, 22, 'V', 'big');
+      if (right) part(vis(0.1), 0, () => { const w = tw(d.vread, 'big'); box(104 - w - 5, 7, w + 9, 21, 'ring', 6); });
+      tx(104, 22, right ? d.vread : '?', 'big', 'end');
+    } else symbol();
+    drawBlock({ vd: c.vd, i: c.i, flow: true });
+    underBlock({ bdText });
+    ln(BX0, 80, 24, 80, 'wire'); ln(BX1, 80, 316, 80, 'wire');
+    if (am) { ln(24, 80, 24, 139, 'wire'); ln(24, 161, 24, 178, 'wire'); ln(316, 80, 316, 139, 'wire'); ln(316, 161, 316, 178, 'wire'); }
+    else { ln(24, 80, 24, 178, 'wire'); ln(316, 80, 316, 178, 'wire'); }
+    ln(24, 178, 88, 178, 'wire'); ln(100, 178, 216, 178, 'wire'); ln(264, 178, 316, 178, 'wire');
+    // The supply: its long plate (+) faces the P side when it is forward; the block's ends carry its + and −.
+    const xl = fwd ? 88 : 100, xs = fwd ? 100 : 88;
+    ln(xl, 164, xl, 192, 'plate'); ln(xs, 170, xs, 186, 'plate');
+    if (c.vs !== 0) { tx(35, 73, fwd ? '+' : '−', 'lab'); tx(305, 73, fwd ? '−' : '+', 'lab'); }
+    tx(94, 208, 'supply ' + fx(c.vs, 1) + ' V', 'lab');
+    box(216, 170, 48, 16, 'res', 2);
+    if (d.shows && d.shows.indexOf('10 Ω: almost 0 V') >= 0 && right) part(vis(0.6), 0, () => tx(240, 208, '10 Ω: almost 0 V', 'lab'));
+    else tx(240, 208, '10 Ω', 'lab');
+    wireDots(am);
+    if (am) {
+      ci(24, 150, 11, 'vm'); tx(24, 155, 'A', 'big'); ci(316, 150, 11, 'vm'); tx(316, 155, 'A', 'big');
+      const amps = fx(c.i, 2) + ' A';
+      if (d.show) {
+        part(vis(0.5), 0, () => tx(40, 155, amps, 'lab', 'start'));
+        part(vis(1.1), 0, () => tx(300, 155, amps, 'lab', 'end'));
+        part(vis(1.7), 0, () => tx(212, 22, fx(P, 2) + ' W of heat', 'lab', 'start'));
+      } else {
+        tx(40, 155, amps, 'lab', 'start');
+        if (right) {
+          part(vis(0.1), 0, () => tx(300, 155, amps, 'lab', 'end'));
+          part(vis(0.6), 0, () => tx(212, 22, fx(P, 2) + ' W of heat', 'lab', 'start'));
+        } else tx(300, 155, '?', 'lab', 'end');
+      }
+    }
+    key(226);
+    const said = 'A diode drawn as a block, in a loop with a 10 ohm resistor and a supply of ' + fx(c.vs, 1) + ' volts' +
+      (c.vs > 0 ? ', positive on the P side.' : c.vs < 0 ? ', positive on the N side.' : '.') + zoneWords(c) +
+      (am ? ' An ammeter sits each side of the diode.' : d.meter === 'volt' ? ' A voltmeter sits across the diode.' : '');
+    return { H: 232, said };
+  }
+  // A multimeter on its diode range, its leads on the diode.
+  function sceneMeter() {
+    const rev = leadsRev;
+    box(16, 10, 120, 156, 'meter', 12);
+    box(26, 22, 100, 40, 'lcd', 6);
+    part(vis(0.5), 0, () => tx(76, 50, rev ? 'OL' : N.vm + ' V', 'lcdt'));
+    if (rev) tx(76, 80, 'over range', 'lab');
+    tx(76, 104, 'diode range', 'lab m');
+    pa('M68 112 L68 126 L80 119 Z', 'sym'); ln(82, 112, 82, 126, 'symline');
+    tx(112, 125, '+', 'big', 'end'); ci(124, 120, 6, 'sock');
+    tx(112, 153, 'COM', 'lab', 'end'); ci(124, 148, 6, 'sock');
+    ln(196, 86, 240, 86, 'wire'); pa('M240 74 L240 98 L262 86 Z', 'sym'); ln(264, 74, 264, 98, 'symline'); ln(264, 86, 312, 86, 'wire');
+    tx(200, 72, 'P', 'lab'); tx(308, 72, 'N', 'lab');
+    if (!rev) {
+      pa('M130 120 C165 120 170 86 196 86', 'lead1'); pa('M130 148 C330 152 330 86 312 86', 'lead2');
+      part(vis(1.0), 0, () => { ln(222, 58, 250, 58, 'arrow'); pa('M258 58 l-10 -6 v12 z', 'head'); tx(240, 50, '1 mA', 'lab'); });
+    } else { pa('M130 120 C330 124 330 86 312 86', 'lead1'); pa('M130 148 C170 148 175 86 196 86', 'lead2'); }
+    return { H: 176, said: 'A multimeter on its diode range, its plus lead on the ' + (rev ? 'N' : 'P') + ' side of a diode and its COM lead on the ' + (rev ? 'P' : 'N') +
+      ' side. ' + (rev ? 'It shows OL, over range.' : 'It pushes 1 milliamp and reads ' + N.vm + ' volts.') };
+  }
+  function sceneReadings() {
+    tx(90, 18, 'one way', 'lab'); box(30, 28, 120, 44, 'lcd', 6); tx(90, 58, '0.55 V', 'lcdt');
+    tx(250, 18, 'leads swapped', 'lab'); box(190, 28, 120, 44, 'lcd', 6); tx(250, 58, 'OL', 'lcdt'); tx(250, 94, 'over range', 'lab m');
+    return { H: 104, said: 'Two diode-range readings of one silicon diode: 0.55 volts one way, and OL, over range, with the leads swapped.' };
+  }
+  function sceneLamp(st) {
+    const right = st.res === 'right';
+    ln(40, 44, 156, 44, 'wire'); pa('M156 32 L156 56 L180 44 Z', 'sym'); ln(182, 32, 182, 56, 'symline'); ln(182, 44, 300, 44, 'wire');
+    ln(300, 44, 300, 81, 'wire'); ln(300, 113, 300, 150, 'wire'); ln(40, 150, 300, 150, 'wire');
+    ln(40, 44, 40, 91, 'wire'); ln(40, 101, 40, 150, 'wire');
+    ln(24, 91, 56, 91, 'plate'); ln(32, 101, 48, 101, 'plate');
+    tx(18, 96, '+', 'lab', 'end'); tx(64, 101, '12 V', 'lab', 'start'); tx(169, 24, 'diode', 'lab m');
+    ci(300, 97, 20, 'glow'); ci(300, 97, 16, 'lamp'); ln(289, 86, 311, 108, 'symline'); ln(311, 86, 289, 108, 'symline');
+    tx(276, 90, 'lamp', 'lab', 'end');
+    if (right) {
+      part(vis(0.1), 4, () => { pa('M156 62 V66 H182 V62', 'brk'); tx(169, 84, N.one + ' V', 'lab'); });
+      part(vis(0.6), 4, () => tx(276, 110, N.lamp + ' V', 'lab', 'end'));
+    } else tx(276, 110, '?', 'lab', 'end');
+    return { H: 164, said: 'A 12 volt battery, a silicon diode fitted forward and a lit lamp in a loop.' };
+  }
+  function sceneCharger(st) {
+    const right = st.res === 'right';
+    ln(20, 70, 150, 70, 'wire'); pa('M150 56 L150 84 L178 70 Z', 'sym'); ln(180, 56, 180, 84, 'symline'); ln(180, 70, 320, 70, 'wire');
+    ln(40, 48, 96, 48, 'arrow'); pa('M104 48 l-10 -6 v12 z', 'head'); tx(70, 40, '20 A', 'lab');
+    pa('M150 92 V96 H180 V92', 'brk'); tx(165, 114, 'about ' + fx(VF, 1) + ' V', 'lab');
+    if (right) {
+      part(vis(0.1), 4, () => [152, 165, 178].forEach((x) => pa('M' + x + ' 50 q-5 -4 0 -8 q5 -4 0 -8 q-5 -4 0 -8', 'heat')));
+      part(vis(0.5), 0, () => tx(196, 36, N.ch + ' W of heat', 'lab', 'start'));
+    }
+    return { H: 124, said: 'A silicon diode in a battery charger, carrying 20 amps with about 0.7 volts across it.' };
+  }
+
+  // ---------- the curve: the diode's current against its voltage ----------
+  const X0 = 196, SXF = 134, SXR = 176 / 60, Y0 = 98, SY = 74, ITOP = 1.1;
+  const gx = (v) => (v >= 0 ? X0 + v * SXF : X0 + v * SXR), gy = (i) => Y0 - i * SY;
+  const CURVE = (() => {
+    const pts = [], i0 = Id(0.6);
+    for (let k = 0; k <= 30; k++) { const v = 0.6 * k / 30; pts.push([v, Id(v)]); }
+    for (let k = 1; k <= 30; k++) { const i = i0 * Math.pow(ITOP / i0, k / 30); pts.push([vAt(i), i]); }
+    return { fwd: 'M' + pts.map((q) => r2(gx(q[0])) + ' ' + r2(gy(q[1]))).join(' L'),
+      rev: 'M' + r2(gx(0)) + ' ' + Y0 + ' H' + r2(gx(-PIV)), bd: 'M' + r2(gx(-PIV)) + ' ' + Y0 + ' V' + r2(gy(-ITOP)) };
+  })();
+  function drawGraph(o) {
+    ln(16, Y0, 334, Y0, 'ax'); ln(X0, 10, X0, 184, 'ax');
+    const fticks = o.mode === 'claim' ? [0.1, 0.5, 0.7] : [0.5, 0.7];
+    fticks.forEach((v) => { ln(gx(v), Y0, gx(v), Y0 + 5, 'ax'); tx(gx(v), 114, fx(v, 1), 'lab m'); });
+    [-20, -PIV].forEach((v) => { ln(gx(v), Y0 - 5, gx(v), Y0, 'ax'); tx(gx(v), 90, fx(v, 0) + ' V', 'lab m'); });
+    [1, -1].forEach((i) => { ln(X0 - 5, gy(i), X0, gy(i), 'ax'); tx(X0 - 8, gy(i) + 4, fx(i, 0) + ' A', 'lab m', 'end'); });
+    tx(X0 + 6, 18, 'current (A)', 'lab m', 'start');
+    tx(334, 132, 'diode voltage (V)', 'lab m', 'end');
+    pa(CURVE.rev, 'curve'); pa(CURVE.fwd, 'curve'); pa(CURVE.bd, 'curve bd');
+    tx(gx(-PIV) + 8, 150, 'breakdown', 'lab w', 'start');
+    if (o.mode === 'claim' && o.right) {
+      const x = gx(0.1), y = gy(0.5);
+      part(vis(0.1), 0, () => { ln(x - 6, y - 6, x + 6, y + 6, 'cross'); ln(x - 6, y + 6, x + 6, y - 6, 'cross'); REC.cross = true; });
+      part(vis(0.4), 0, () => tx(x + 10, y - 3, 'claimed', 'lab w', 'start'));
+    }
+    if (o.mode === 'meter' && o.rev) tx(110, 66, 'blocks: no current', 'lab t');
+    if (o.dot) part(o.dotA == null ? 1 : o.dotA, 0, () => {
+      const x = gx(o.dot.vd), y = gy(o.dot.i);
+      ci(x, y, 6, 'dot'); REC.dot = { x, y };
+      if (o.mode === 'meter') tx(x, 84, '1 mA', 'lab');
+    });
+  }
+  const GSAID = 'An example silicon diode\'s current against its voltage: flat on zero in reverse until 50 volts, where it drops straight down, and climbing steeply forward near 0.7 volts.';
+
+  // ---------- one screen drawn in its state (the animation calls this every frame) ----------
+  function render(i, p, st) {
+    const d = STEPS[i], c = circ(i, p);
+    REC = { texts: [], zoneW: null, dot: null, cross: false, flash: false, bd: false, crossing: 0 };
+    latest = 0; earliest = Infinity; into = null;
+    art.textContent = ''; glart.textContent = ''; gsart.textContent = '';
+    let out = null;
+    if (d.pic === 'block') out = sceneBlock(d, st);
+    else if (d.pic === 'loop') out = sceneLoop(d, st, c);
+    else if (d.pic === 'meter') out = sceneMeter();
+    else if (d.pic === 'readings') out = sceneReadings();
+    else if (d.pic === 'lamp') out = sceneLamp(st);
+    else if (d.pic === 'charger') out = sceneCharger(st);
+    if (out) { svg.setAttribute('viewBox', '0 0 340 ' + out.H); svg.setAttribute('aria-label', out.said); }
+    if (d.graph === 'live') {
+      into = glart; drawGraph({ mode: 'live', dot: c }); into = null;
+      glsvg.setAttribute('aria-label', GSAID + ' A dot shows where the circuit sits now.');
+    } else if (d.graph) {
+      into = gsart;
+      if (d.graph === 'claim') drawGraph({ mode: 'claim', right: st.res === 'right' });
+      else drawGraph({ mode: 'meter', rev: leadsRev, dot: leadsRev ? null : { vd: VM, i: 1e-3 }, dotA: vis(1.4) });
+      into = null;
+      gssvg.setAttribute('aria-label', GSAID + (d.graph === 'meter' ? (leadsRev ? ' The meter pushes no current.' : ' A dot sits low on the knee, at the meter\'s 1 milliamp.') : ''));
+    }
+    return REC;
+  }
+  function paint() { render(at(), K.params(), S[at()]); }
+
+  // Dan drags the dot along the curve: forward, along its voltage or up its steep part; reverse,
+  // along the flat or down the breakdown line. The supply that puts the circuit there moves the slider.
+  const VD10 = C10.vd;
+  function toSupply(x, y) {
+    if (!isFinite(x) || !isFinite(y)) return 0;
+    if (x >= X0) {
+      let vd = K.clamp((x - X0) / SXF, 0, VD10);
+      const iy = (Y0 - y) / SY;
+      if (iy > Id(vd)) vd = Math.min(VD10, vAt(iy));
+      return K.clamp(vd + R * Id(vd), 0, 10);
+    }
+    const vx = (x - X0) / SXR;
+    if (vx <= -PIV + 3 && y > Y0 + 6) return -PIV + K.clamp((Y0 - y) / SY, -1, 0) * R;
+    return K.clamp(vx, -PIV, 0);
+  }
+  K.drag('#grab', { control: 'supply', toValue: toSupply });
+
+  // ---------- what Dan reads under the picture ----------
+  function sayFor(c) {
+    const sup = fx(Math.abs(c.vs), 1) + ' V';
+    if (c.vs === 0) return 'No supply. The zone keeps its resting width, and nothing crosses.';
+    if (c.vs > 0 && c.vd < 0.5) return 'The zone has thinned. Almost nothing crosses yet.';
+    if (c.vs > 0 && c.vd < 0.65) return 'The zone is thin now. Carriers start to cross, and the current climbs.';
+    if (c.vs > 0) return 'Carriers stream across. The diode keeps ' + fx(c.vd, 2) + ' V. The resistor takes the other ' + fx(c.vr, 2) + ' V.';
+    if (c.i === 0) return 'The zone widens. Almost no current flows. The diode holds all ' + sup + '.';
+    const P = c.vd * c.i;
+    return 'The zone has broken down. ' + fx(-c.i, 2) + ' A rushes backwards, making ' + fx(P, P < 10 ? 1 : 0) + ' W of heat.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right', live = d.supply === 'live';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    task.textContent = '';
+    if (d.ask) task.appendChild(K.el('span', { class: 'ask' }, d.ask));
+    // A predict screen keeps its explaining words back until Dan has moved the supply the way it asks.
+    if (d.reveal && d.reveal(p)) st.seen = true;
+    task.appendChild(write(K.el('span', {}), d.show ? (d.reveal && !st.seen ? '' : d.text) : d.task));
+    el('scene').hidden = !d.pic;
+    el('swap').hidden = d.pic !== 'meter';
+    swapBtn.setLabel(leadsRev ? 'Swap the leads back' : 'Swap leads');
+    el('ctl').hidden = !live; el('outs').hidden = !live; el('say').hidden = !live;
+    el('say').textContent = live ? sayFor(solve(p.supply)) : '';
+    el('gl').hidden = d.graph !== 'live';
+    el('gs').hidden = !d.graph || d.graph === 'live';
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;    // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show && d.dur) startMotion(d.dur); else T = Infinity;
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p);
+    render(i, p, st);
+    kick();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawn(i, st, supply) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try { return render(i, Object.assign({}, K.params(), { supply: supply == null ? 0 : supply }), st); }
+    finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('At a 5 V supply the example diode holds 0.70 V, the 10 Ω resistor 4.30 V, and 0.43 A flows', () => {
+    const o = K.at({ supply: 5 });
+    return fx(o.diodeVolts, 2) === '0.70' && fx(o.resistorVolts, 2) === '4.30' && fx(o.current, 2) === '0.43';
+  });
+  K.check('At 10 V the diode holds 0.72 V while 0.93 A flows, so it turns 0.72 × 0.93 = 0.67 W into heat', () => {
+    const o = K.at({ supply: 10 });
+    return fx(o.diodeVolts, 2) === '0.72' && fx(o.current, 2) === '0.93' && fx(o.diodeVolts * o.current, 2) === '0.67';
+  });
+  K.check('Reverse at −20 V no current flows, so the resistor drops 0 V and the diode holds all 20 V; at −60 V, past the 50 V PIV, it holds 50 V while (60 − 50) ÷ 10 = 1.00 A flows backwards, turning 50 W into heat', () => {
+    const a = K.at({ supply: -20 }), b = K.at({ supply: -60 });
+    return a.current === 0 && a.resistorVolts === 0 && a.diodeVolts === -20 && b.diodeVolts === -50 && K.near(b.current, -1, 1e-9) && K.near(b.diodeVolts * b.current, 50, 1e-9);
+  });
+  K.check('At every supply setting from −60 V to 10 V the supply equals the diode\'s voltage plus the resistor\'s (the current × 10 Ω), and the current never falls as the supply rises', () => {
+    let prev = -Infinity;
+    for (let k = -600; k <= 100; k++) {
+      const s = k / 10, o = K.at({ supply: s });
+      if (Math.abs(o.diodeVolts + o.resistorVolts - s) > 1e-6 || Math.abs(o.resistorVolts - o.current * R) > 1e-9 || o.current < prev - 1e-12) return false;
+      prev = o.current;
+    }
+    return true;
+  });
+  K.check('The sketch curve: under 1 mA below 0.5 V, near 10 mA at 0.6 V, and a 1 mA meter current gives 0.54 V', () =>
+    Id(0.5) < 1e-3 && K.near(Id(0.6), 0.01, 0.002) && N.vm === '0.54');
+  K.check('Silicon diodes have a forward voltage of approximately 0.7 volts: conducting from 0.1 A to 0.93 A, the example diode holds between 0.65 and 0.75 V', () => {
+    const a = vAt(0.1), b = solve(10);
+    return a > 0.65 && a < 0.75 && b.vd > 0.65 && b.vd < 0.75 && b.i > 0.9;
+  }, { source: AAC });
+  K.check('A meter\'s diode range typically reads less than the normal drop of 0.7 volts for silicon, because its current is tiny: at its 1 mA the example diode reads under 0.7 V', () =>
+    VM < 0.7 && VM < solve(5).vd, { source: METER });
+  K.check('The maximum reverse voltage a diode can withstand without breaking down is its peak inverse voltage, or PIV: up to its PIV the example diode passes no current, and just past it current flows backwards', () =>
+    K.at({ supply: -PIV }).current === 0 && K.at({ supply: -PIV + 0.1 }).current === 0 && K.at({ supply: -PIV - 0.1 }).current < 0, { source: AAC });
+  K.check('A diode acts as a one-way valve for current: every forward supply drives current one way, and every reverse supply inside the PIV drives none', () =>
+    [0.8, 1, 5, 10].every((s) => K.at({ supply: s }).current > 0) && [-0.1, -5, -20, -49.9].every((s) => K.at({ supply: s }).current === 0), { source: AAC });
+  K.check('The empty zone is drawn thinner as the supply rises and wider as it falls, and the dot sits on the curve where the circuit is, at once', () => {
+    const sup = [-60, -50, -20, -7.5, 0, 0.5, 1, 5, 10], w = sup.map((s) => drawn(2, blank(), s).zoneW);
+    const mono = w.every((v, k) => k === 0 || v <= w[k - 1] + 1e-9) && w[2] > w[4] && w[4] > w[7];
+    const dots = [5, -20, -60].every((s) => { const r = drawn(2, blank(), s), c = solve(s); return r.dot && Math.abs(r.dot.x - gx(c.vd)) < 0.01 && Math.abs(r.dot.y - gy(c.i)) < 0.01; });
+    const flow = drawn(2, blank(), 5).crossing > 0 && drawn(2, blank(), -20).crossing === 0 && drawn(2, blank(), -60).bd;
+    return mono && dots && flow;
+  });
+  K.check('Every number in the words comes from the rule: 0.70, 4.30, 0.43 and 0.30 at 5 V; 0.72, 0.93 and 0.67 at 10 V; 0.54 V at 1 mA; 20 V at −20 V; 50 V, 1.00 A and 50 W at −60 V; 12 − 0.7 = 11.3 V; 0.7 × 20 = 14 W', () =>
+    N.vd5 === '0.70' && N.vr5 === '4.30' && N.i5 === '0.43' && N.p5 === '0.30' && N.vd10 === '0.72' && N.i10 === '0.93' && N.p10 === '0.67' &&
+    N.vm === '0.54' && N.v20 === '20' && N.vb === '50' && N.ib === '1.00' && N.pb === '50' && N.lamp === '11.3' && N.ch === '14' && N.one === '0.7');
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      const before = drawn(i, blank(), 0), after = drawn(i, solved(i), 0);
+      const shows = (d.shows || []).every((s) => before.texts.indexOf(s) < 0 && after.texts.indexOf(s) >= 0);
+      const count = !d.count || (before.texts.filter((s) => s === d.count[0]).length === d.count[1] && after.texts.filter((s) => s === d.count[0]).length === d.count[2]);
+      return shows && count && (!d.cross || (!before.cross && after.cross)) && (!d.flash || (!before.flash && after.flash));
+    }));
+  K.check('Each demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, and each right answer\'s motion within 1.5 s', () => {
+    const keepT = T;
+    let ok = true;
+    STEPS.forEach((d, i) => {
+      const keepS = S[i];
+      T = Infinity; S[i] = d.show ? blank() : solved(i);
+      try {
+        render(i, Object.assign({}, K.params(), { supply: 5 }), S[i]);
+        if (d.show) ok = ok && (d.dur ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && earliest >= FADE : latest === 0);
+        else ok = ok && latest <= ANS + 1e-9 && ANS <= 1.5;
+      } finally { S[i] = keepS; }
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

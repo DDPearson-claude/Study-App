@@ -1,0 +1,261 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "One thyristor averages (325 ÷ 2π)(1 + cos α): 104 V fired at 0°, 78 V at 60° and 52 V at 90°",
+        "ok": true
+      },
+      {
+        "label": "The bridge averages twice as much, (325 ÷ π)(1 + cos α): 207 V at 0°, 155 V at 60°, 104 V at 90° and 52 V at 120°",
+        "ok": true
+      },
+      {
+        "label": "Each readout is the drawn bold line worked out over the cycle: its mean gives the average, and its square over 23 Ω the heater power, at every 15°",
+        "ok": true
+      },
+      {
+        "label": "The area under a sine from α to 180° is 1 + cos α: 2 for a whole hump, 1.5 from 60° and 0.5 from 120°",
+        "ok": true
+      },
+      {
+        "label": "The triac heater takes 2300 W fired at 0°. Fired at 90° it takes 1150 W at about 163 V rms, not 115 V",
+        "ok": true
+      },
+      {
+        "label": "A triac behaves like two conventional thyristors in inverse parallel (back to back): each half gets the same slice, the negative one turned over",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/power/triac.html"
+      },
+      {
+        "label": "SCRs are turned off by anode current falling below the holding current, not by the gate: fired at 90°, the drawn thyristor is still on at 120° and 175°, and off from 180°",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/"
+      },
+      {
+        "label": "An extra pulse changes nothing while the thyristor is on or reverse biased. One at 45°, before it fires at 90°, fires it there",
+        "ok": true
+      },
+      {
+        "label": "Fired at 90°, one thyristor shades 90° to 180° only, with one gate mark. The bridge shades both halves above the line, with marks at 90° and 270°",
+        "ok": true
+      },
+      {
+        "label": "On the puzzle with the cursor at 120°, the slice is drawn only to 120° with no average line. After a right Check it runs to 180°",
+        "ok": true
+      },
+      {
+        "label": "The charger averages 207 × cos α: 207 V at 0°, 179 V at 30°, 104 V at 60° and 0 V at 90°",
+        "ok": true
+      },
+      {
+        "label": "So when α < 90° the average DC voltage is positive",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/power/single-phase-rectification.html"
+      },
+      {
+        "label": "For a smaller DC voltage the trigger pulse is delayed, and the trigger angle shifts the input current, which reduces the power factor: 0.90, 0.78 and 0.45 at 0°, 30° and 60°",
+        "ok": true,
+        "source": "https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge"
+      },
+      {
+        "label": "Even fired at 0°, a block of current gives a power factor of 2√2 ÷ π, about 0.9, below 1",
+        "ok": true
+      },
+      {
+        "label": "The heater is 230² ÷ 2300 = 23 Ω, and the peak is 230 × √2, about 325 V",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden readouts appear only after a right Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every number in the words comes from the rule: 104, 78, 52, 69, 207, 155, 104, 52, 1150, 163, 115, 179, 104, 0.90, 0.78, 0.45 and 0.9",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mode",
+      "alpha",
+      "alphaC",
+      "time"
+    ],
+    "readouts": [
+      "volts",
+      "heaterPower",
+      "powerFactor"
+    ],
+    "outputs": [
+      "volts",
+      "heaterPower",
+      "powerFactor"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Starting a motor",
+          "A diode with a gate",
+          "After the pulse",
+          "The firing angle",
+          "Fire at 60°",
+          "A controlled bridge",
+          "Fire at 120°",
+          "The triac",
+          "A fan on a dimmer",
+          "The charger",
+          "Half the output",
+          "The soft starter",
+          "Gate stuck on"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Circuit",
+        "options": [
+          "one",
+          "bridge",
+          "triac",
+          "charger"
+        ],
+        "labels": [
+          "One thyristor",
+          "Bridge",
+          "Triac",
+          "Charger"
+        ],
+        "value": "one",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "alpha",
+        "kind": "control",
+        "label": "Firing angle α",
+        "min": 0,
+        "max": 180,
+        "step": 5,
+        "log": false,
+        "value": 90,
+        "shown": false,
+        "snap": [
+          0,
+          60,
+          90,
+          120,
+          150,
+          180
+        ]
+      },
+      {
+        "id": "alphaC",
+        "kind": "control",
+        "label": "Firing angle α",
+        "min": 0,
+        "max": 90,
+        "step": 5,
+        "log": false,
+        "value": 90,
+        "shown": false,
+        "snap": [
+          0,
+          30,
+          60,
+          90
+        ]
+      },
+      {
+        "id": "time",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 360,
+        "step": 5,
+        "log": false,
+        "value": 360,
+        "shown": false,
+        "snap": [
+          0,
+          90,
+          120,
+          135,
+          180,
+          270,
+          360
+        ]
+      }
+    ],
+    "actions": [
+      "Play",
+      "Pulse the gate",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "mode = \"bridge\"",
+    "alpha = 135",
+    "alphaC = 67.5",
+    "time = 270"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-360-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-360-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-360-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-1280-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-1280-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i5.a3-1280-dark-end.png"
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "ok": false,
+  "reachChecked": true,
+  "problems": [
+    "While sweeping the controls: output \"avgSoFar\" has a readout, and the text \"The bridge turns the negative half into…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)",
+    "While sweeping the controls: output \"outNow\" has a readout, and the text \"566 V\" (<text.lab>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)",
+    "Text cut off: SVG text \"D2\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 7 more settings)",
+    "Text cut off: SVG text \"D4\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 7 more settings)",
+    "Text cut off: SVG text \"D2\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 7 more settings)",
+    "Text cut off: SVG text \"D4\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 7 more settings)",
+    "Text cut off: SVG text \"D2\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 6, and 3 more settings)",
+    "Text cut off: SVG text \"D3\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 7 more settings) [at 720 and 1040 px wide]",
+    "Text cut off: SVG text \"D3\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 5 more settings) [at 720 and 1040 px wide]"
+  ],
+  "report": {
+    "ok": false,
+    "errors": [],
+    "overflow": false,
+    "clipped": [
+      "SVG text \"D2\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 7 more settings)",
+      "SVG text \"D4\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 7 more settings)",
+      "SVG text \"D2\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 7 more settings)",
+      "SVG text \"D4\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 7 more settings)",
+      "SVG text \"D2\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 6, and 3 more settings)",
+      "SVG text \"D3\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 3, and 7 more settings) [at 720 and 1040 px wide]",
+      "SVG text \"D3\" has a line through it (<path>): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it (at step = step 4, and 5 more settings) [at 720 and 1040 px wide]"
+    ],
+    "checks": [
+      {
+        "label": "On 230 V the supply peaks at 230 × √2 = 325 V. The half-wave averages 207 V over its hump, and 325 ÷ π = 104 V over the whole cycle, 0.318 of the peak",
+        "ok": true
+      },
+      {
+        "label": "The full-wave average is 2 × 0.318 = 0.637 of the peak voltage, assuming no diode losses: the bridge averages 207 V on 230 V, twice the half-wave",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+      },
+      {
+        "label": "Regardless of the polarity of the input, the current flows in the same direction through the load: D1 and D2 carry the positive half, D3 and D4 the negative, and the output never goes below zero",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/"
+      },
+      {
+        "label": "The ripple frequency is twice the supply frequency: the bridge output has two humps a cycle, 100 a second on a 50 Hz supply",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+      },
+      {
+        "label": "The probe on D1 reads 0 while D1 conducts, and peaks at 270°: 325 V in a 230 V bridge, and 115 × √2 = 163 V in a 115 V one",
+        "ok": true
+      },
+      {
+        "label": "Six-pulse on 400 V: the output dips to cos 30° × 566 = 490 V and averages 3√2 ÷ π × 400 = 540 V; on 440 V it averages 594 V under 622 V tops",
+        "ok": true
+      },
+      {
+        "label": "In the six-pulse the output is the largest line-to-line voltage, the conducting pair changes six times a cycle (every 60°), and the probe on L1's upper diode peaks at the 566 V line-to-line peak",
+        "ok": true
+      },
+      {
+        "label": "With D3 open the bridge works as a half-wave: nothing in the negative half, and a 104 V average",
+        "ok": true
+      },
+      {
+        "label": "Silicon diodes have a forward voltage of approximately 0.7 volts: two in the current's path take 1.4 V, about 12% of a 12 V output and under 1% of 207 V",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+      },
+      {
+        "label": "Every number in the words comes from the rule: 325, 104, 207, 0.318, 0.637, 163, 566, 622, 0.866, 490, 283, 0.955, 1.35, 540, 594, 100 Hz and 300 Hz",
+        "ok": true
+      },
+      {
+        "label": "The drawing makes the conducting diodes bold and draws the arrow through the load, pointing down, only while current flows",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration sweep ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": false,
+      "problems": [
+        "output \"avgSoFar\" has a readout, and the text \"The bridge turns the negative half into…\" (<p#task.task>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)",
+        "output \"outNow\" has a readout, and the text \"566 V\" (<text.lab>) prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)"
+      ]
+    },
+    "controls": [
+      "step",
+      "kind",
+      "line",
+      "cursor"
+    ],
+    "readouts": [
+      "outNow",
+      "avgSoFar",
+      "probe"
+    ],
+    "outputs": [
+      "outNow",
+      "avgSoFar",
+      "probe"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "One diode",
+          "The average at the end",
+          "Four diodes",
+          "Which way now?",
+          "Twice the average",
+          "What the diodes take",
+          "The probe",
+          "A 115 V bridge",
+          "Six diodes",
+          "How low it dips",
+          "Where 1.35 comes from",
+          "One diode fails",
+          "Six-pulse on 440 V"
+        ],
+        "value": 0
+      },
+      {
+        "id": "kind",
+        "kind": "choice",
+        "label": "Rectifier",
+        "options": [
+          "half",
+          "bridge",
+          "six"
+        ],
+        "labels": [
+          "Half-wave",
+          "Bridge",
+          "Six-pulse"
+        ],
+        "value": "half",
+        "index": 0,
+        "shown": true
+      },
+      {
+        "id": "line",
+        "kind": "choice",
+        "label": "Line voltage",
+        "options": [
+          400,
+          440
+        ],
+        "labels": [
+          "400 V",
+          "440 V"
+        ],
+        "value": 400,
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "cursor",
+        "kind": "control",
+        "label": "Time cursor",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": true,
+        "snap": [
+          180,
+          270,
+          360
+        ]
+      }
+    ],
+    "actions": [
+      "Play",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "The page height keeps growing with the frame (avoid vh units and height:100%). [at 340 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": false
+      },
+      {
+        "width": 720,
+        "ok": false
+      },
+      {
+        "width": 1040,
+        "ok": false
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

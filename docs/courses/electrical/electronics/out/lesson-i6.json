@@ -1,0 +1,705 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Chopping DC: buck and boost",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the output voltage move until the inductor's two shaded areas are equal, settling at D × 48 V, when you drag the duty cycle.",
+   "title": "The balancing inductor",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "volts",
+     "label": "Output voltage",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "ripple",
+     "label": "Ripple",
+     "unit": "%",
+     "decimals": 0
+    },
+    {
+     "id": "batteryCurrent",
+     "label": "Battery current",
+     "unit": "A",
+     "decimals": 1
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. Most show one picture, the balancing inductor. A 48 V battery, chosen for the example, feeds a load that draws a steady 10 A, also chosen. A picker above chooses the circuit: Buck or Boost. The circuit is drawn small at the top. First comes the switch, a transistor with its gate. Then come the diode, the inductor, the capacitor and the load. The inductor is 100 µH, chosen. While the switch is on, it and its current path are drawn bold. While it is off, the diode and its path are bold. In Buck the switch runs from the battery to the inductor, and the diode from 0 V to the same point. In Boost the inductor runs from the battery to the switch. The switch goes to 0 V. The diode runs from that same point to the output. A duty cycle slider sets D from 10% to 90%, in steps of 5%. In Boost it stops at 75%. A frequency slider sets the switching frequency from 10 kHz to 100 kHz, in steps of 5 kHz. Each screen sets where they open.\n\nBelow the circuit, two plots share a time axis that shows three switching cycles, slowed down. The upper plot is the voltage across the inductor. While the switch is on it sits above the zero line, and while it is off it sits below. In each cycle the area above the line is shaded and labelled on. The area below is shaded and labelled off. In Buck the on height is Vin − Vout and the off depth is Vout. In Boost the on height is Vin and the off depth is Vout − Vin. Each area is its height times its time. The time is D × T on and (1 − D) × T off. T is one cycle, 1 ÷ f. At 50 kHz, T is 20 µs. The lower plot is the inductor's current. It ramps up while the voltage is above the line. It ramps down while the voltage is below. The coil's current changes at its voltage ÷ L amps a second, from v = L di/dt. A dashed line marks the inductor's average current. A Play button runs a cursor along the cycles, and a time slider drags it.\n\nWhen D or the circuit changes, the output does not jump. It moves towards its new value over about two seconds of the slowed picture, a sketch of the settling. While it moves, the two areas differ. If the on area is bigger, the current ends each cycle a little higher than it began. The extra charges the capacitor, so the output rises. If the off area is bigger, the current drifts down, and the output falls. The output stops where the areas are equal. In Buck that is Vout = D × Vin: 24 V at 50%, 12 V at 25%. In Boost it is Vout = Vin ÷ (1 − D): 96 V at 50%, 192 V at 75%. A screen can stop the picture partway, with the output at a stated voltage.\n\nUp to three readouts sit under the plots. They wrap onto two lines on a narrow phone. Ripple and its band appear from screen 8 on. Screens 6 and 10 leave out the battery current. Output voltage is Vout. Ripple is the current's rise in each cycle as a share of the inductor's average current. The rise is the on height × D ÷ (f × L). In Buck the average current is the load's 10 A. So 48 V to 24 V at 50 kHz rises 24 V × 10 µs ÷ 100 µH = 2.4 A. That is 24%. In Boost the average current is 10 A ÷ (1 − D), 20 A at 50%. The rise is 48 V × 10 µs ÷ 100 µH = 4.8 A, also 24%. In Buck a band beside the ripple readout marks 20% to 40%, the usual choice for a buck's ripple. Battery current is the average current from the battery. It is the load's power, Vout × 10 A, over 48 V. That is 5 A at 50% in Buck, and 20 A at 50% in Boost.\n\nThe screens.\n\n1, a puzzle: the picture shows the Buck circuit at rest, D at 50%, with the plots and readouts hidden. “You need 24 V at 10 A from a 48 V battery. A transistor held part on drops the other 24 V. How much heat does it make?” Offered: “About 240 W”; “Next to nothing, as it is a transistor”; “About 480 W”. Hint for next to nothing: “Part on, it has 24 V across it and 10 A through it.” Hint for 480 W: “Only half the battery's voltage is across the transistor.” Why: “About 240 W, as much as the load gets. Part on, the transistor has 24 V across it and 10 A through it. A switch kept fully on or fully off wastes little heat.[^1] So chop the battery instead, and smooth what comes out.” A right Check shows the plots and the readouts.\n\n2, show: Chop it. Buck, D at 50%, Play running. The words: “A buck converter is a switching transistor followed by a diode, an inductor and a capacitor.[^2] Here a 48 V battery feeds a load that draws 10 A. While the switch is on, current flows from the battery through the inductor to the load. When the switch opens, the inductor keeps its current going through the diode.[^3] That is the freewheeling diode again. The share of each cycle the switch is on is the duty cycle, D. Play it at D = 50%.” Read: with D at 50%, the switch carries the current for the first half of each cycle. The diode carries it for the second half. The inductor's current keeps flowing all through the cycle. Still: Buck, D 50%, 50 kHz, settled, cursor three quarters of the way through a cycle.\n\n3, a puzzle: Buck, D at 50%, settled at 24 V, the cursor in an on-time. “The switch is on. The battery is 48 V and the output 24 V. What voltage is across the inductor?” Offered: “24 V, the difference”; “48 V, the whole battery”; “0 V, as current flows freely”. Hint for 48 V: “The inductor's far end sits at the output, not at 0 V.” Hint for 0 V: “Its current is climbing. A coil's current changes only with a voltage across it.” Why: “24 V. One end sees the battery's 48 V through the switch. The other end sits at the output's 24 V. That 24 V across it makes its current climb steadily, as v = L di/dt says.” A right Check lights the on part of the voltage plot, 24 V above the line.\n\n4, show: Two areas. Buck, D at 50%, settled at 24 V. The words: “The upper plot is the inductor's voltage. While the switch is on, it is the battery less the output, and the current climbs. While it is off, the diode holds the inductor's input end near 0 V. The inductor now sees the output the other way round, and the current falls. Each shaded area is a voltage times a time. Divide it by L to get how far the current climbs or falls. The current ends each cycle where it began. So the two areas must be equal. Its average voltage is zero.[^4]” Read: with D at 50%, the output sits at 24 V. The area above the line is 24 V for half the cycle. It equals the area below, 24 V for the other half. The current ramps up and back down to where it started. Still: Buck, D 50%, 50 kHz, settled, cursor 360°.\n\n5, a puzzle: Buck, D at 50%, the picture stopped with the output at 20 V on its way up. “The output has reached only 20 V, with D at 50%. What happens next?” Offered: “The area above is bigger, so the current climbs and the output rises”; “The area below is bigger, so the output falls”; “Nothing, as the areas already balance”. Hint for falls: “Above the line: 48 − 20 = 28 V for half the cycle. Below: 20 V for half. Which is bigger?” Hint for balance: “Compare 28 V and 20 V, each for half the cycle.” Why: “The area above is bigger, 28 V against 20 V, each for half the cycle. So the current climbs a little more each cycle than it falls. The extra current charges the capacitor, and the output rises. That shrinks the area above and grows the one below. It stops at 24 V, where they balance.” A right Check lets the picture run on. The output settles at 24 V.\n\n6, show: The rule. Buck, D from 50% to 25%, the battery current hidden. The words: “Equal areas give the rule. The area above is (Vin − Vout) × D × T, where T is one cycle. The area below is Vout × (1 − D) × T.[^5] Set them equal, and T cancels. Multiply out, and the Vout × D on each side cancels too. That leaves Vout = D × Vin. So 50% of 48 V gives 24 V, and 25% gives 12 V. Drag D, and the output moves until the areas match again.” Read: with D at 25%, the output has settled at 12 V. The area above is 36 V for a quarter of the cycle. It matches the area below, 12 V for three quarters. Still: Buck, D 25%, 50 kHz, settled, cursor 360°.\n\n7, a puzzle: Buck, D at 25%, the output at 12 V, the battery current hidden. “The load still draws 10 A. What average current does the 48 V battery supply?” Offered: “About 2.5 A”; “About 10 A, the same as the load”; “About 40 A”. Hint for 10 A: “That is what a series resistor would take. When does the battery give current here?” Hint for 40 A: “A buck lowers the voltage. Does the battery need more current than the load, or less?” Why: “About 2.5 A. The battery gives current only while the switch is on, 10 A for a quarter of each cycle. That averages 2.5 A, or 120 W from 48 V. The load gets 12 V × 10 A, also 120 W. A series resistor would take the full 10 A and burn 360 W.” A right Check shows the battery current, 2.5 A.\n\n8, show: Ripple. Buck, D at 50%, the frequency from 50 kHz to 100 kHz. The words: “The lower plot is the inductor's current. It ramps up and down around the load's 10 A. Each cycle it climbs (Vin − Vout) × D ÷ (f × L). Here 24 V across 100 µH for 10 µs gives 2.4 A, 24% of 10 A. The ripple is usually chosen to be 20% to 40% of the output current.[^6] The capacitor takes the ripple, so the load sees near-steady DC. Raise the frequency, and the ripple shrinks. But every switch-over wastes a little heat, so the switch runs hotter.” Read: at 100 kHz the current climbs 1.2 A and falls 1.2 A each cycle. The ripple reads 12%. The output stays at 24 V. Still: Buck, D 50%, 100 kHz, settled, cursor 360°.\n\n9, a puzzle: Buck, D at 50%, 50 kHz, the ripple reading 24%. “The switching frequency drops to 25 kHz. What is the ripple now?” Offered: “4.8 A, 48% of the load”; “1.2 A, 12% of the load”; “2.4 A, as the frequency does not matter”. Hint for 1.2 A: “At a lower frequency each on-time is longer. Does the current climb further, or less far?” Hint for 2.4 A: “The on-time is now 20 µs, not 10 µs.” Why: “4.8 A. At 25 kHz each cycle lasts 40 µs, so the switch is on for 20 µs. 24 V across 100 µH for twice as long climbs twice as far. That is 48% of 10 A, above the 20% to 40% guide. A bigger inductor brings it back. So does a higher frequency, at the cost of more switching heat.” A right Check sets 25 kHz. The ripple reads 48%, and the output stays at 24 V.\n\n10, show: Boost. Boost, D at 50%, the battery current hidden. The words: “The picker now shows Boost. The same parts are rearranged. The inductor comes straight off the battery. The switch shorts its far end to 0 V. While on, the inductor sees the whole 48 V and stores energy.[^7] When off, it drives its current through the diode into an output above the battery.[^8] The areas still balance: Vin × D = (Vout − Vin) × (1 − D). The Vin × D terms cancel, leaving Vin = Vout × (1 − D). So Vout = Vin ÷ (1 − D), 96 V at 50%.” Read: in Boost at 50%, the area above is 48 V for half the cycle. It matches the area below, 48 V for the other half. The output reads 96 V. Still: Boost, D 50%, 50 kHz, settled, cursor 360°.\n\n11, a puzzle: Boost, D at 50%, the output at 96 V, the battery current hidden. “This boost gives 96 V to a load drawing 10 A. What average current does the 48 V battery supply?” Offered: “About 20 A”; “About 10 A, the same as the load”; “About 5 A, as in the buck”. Hint for 10 A: “Compare the power: 96 V × 10 A out, but 48 V × 10 A in.” Hint for 5 A: “A boost raises the voltage. Where must the extra power come from?” Why: “About 20 A. The load takes 96 V × 10 A = 960 W. With little lost, the battery must supply that too. 960 W ÷ 48 V = 20 A. A boost trades current for voltage. It does not make energy.” A right Check shows the battery current, 20 A.\n\n12, a mixed puzzle: Boost, D at 50%, the output at 96 V. “The boost must give 192 V from the 48 V battery. What duty cycle?” Offered: “75%”; “25%”; “None, as no chopper gives four times its input”. Hint for 25%: “That is the buck way round. In a boost, 1 − D = Vin ÷ Vout.” Hint for none: “In the ideal rule, Vout = Vin ÷ (1 − D). What 1 − D gives four times?” Why: “75%. Four times the battery needs 1 − D = ¼, so D = 0.75. Check the areas at 50 kHz. Above the line is 48 V × 15 µs. Below is 144 V × 5 µs. Both come to 720 V·µs. The battery current is now 40 A for the load's 10 A.” A right Check sets D to 75%. The output settles at 192 V, and the battery current reads 40 A.\n\n13, a mixed puzzle: Buck, D at 50%, the output at 24 V. The picture keeps its 48 V battery. The question is about a battery that has run down. “The battery runs down from 48 V to 40 V. The buck must still give 24 V. What duty cycle holds it?” Offered: “60%”; “50%, unchanged”; “40%”. Hint for 50%: “50% of 40 V is only 20 V.” Hint for 40%: “A smaller battery needs a bigger share of it, not a smaller one.” Why: “60%. D = Vout ÷ Vin = 24 ÷ 40 = 0.6. A controller can do this as it runs. It moves D to hold the output as the battery voltage changes. On a ship's DC network, power sources can join the DC bus through converters like these.[^9]” A right Check keeps the picture as it is.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked. Each can wrap onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains the answer. Continue moves on. The finish words sum up the lesson and end: “Make D follow a sine in a bridge of switches, and the output's average follows that sine. That is how an inverter builds AC.”",
+   "ignores": "The switch and diode are drawn ideal. A real switch and diode each drop a little voltage and waste a little power. So a real buck needs a slightly larger D. The inductor is drawn with no resistance. The capacitor is drawn big enough that the output's own ripple is too small to see. The load draws a steady 10 A at any voltage. A real load's current would change with its voltage. The inductor's current never falls to zero here. At a very light load it can, and then the rules change. The settling is a sketch. A real output can overshoot before it settles. A controller manages that. Time is slowed down. At 50 kHz one cycle lasts 20 µs.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Battery voltage, chosen, V",
+     "value": 48,
+     "kind": "assumed"
+    },
+    {
+     "label": "Load current, chosen, A",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Inductor, chosen, µH",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "Duty cycle slider, lowest, %",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Duty cycle slider, highest, %",
+     "value": 90,
+     "kind": "control"
+    },
+    {
+     "label": "Duty cycle slider step, %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Duty cycle slider top in Boost, %",
+     "value": 75,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider, lowest, kHz",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider, highest, kHz",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider step, kHz",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Opening duty cycle, %",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Opening frequency, kHz",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Cycles drawn on the time axis",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Settling time in the slowed picture, about, s",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Output stop in screen 5, V",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "One cycle at 50 kHz, µs",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "On-time at 50% and 50 kHz, µs",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "One cycle at 25 kHz, µs",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "On-time at 50% and 25 kHz, µs",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck output at 50%, V",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck output at 25%, V",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck on height at 25%, 48 − 12, V",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "On height with the output at 20 V, 48 − 20, V",
+     "value": 28,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat in a transistor part on, 24 V × 10 A, W",
+     "value": 240,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, 48 V × 10 A, W",
+     "value": 480,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck battery current at 50%, A",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck battery current at 25%, A",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, four times the load, A",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Power at 12 V and 10 A, W",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Series resistor burn, 36 V × 10 A, W",
+     "value": 360,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck ripple at 50% and 50 kHz, A",
+     "value": 2.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck ripple share at 50 kHz, %",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck ripple at 100 kHz, A",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck ripple share at 100 kHz, %",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck ripple at 25 kHz, A",
+     "value": 4.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Buck ripple share at 25 kHz, %",
+     "value": 48,
+     "kind": "computed"
+    },
+    {
+     "label": "Ripple guide, lowest, % of output current",
+     "value": 20,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Ripple guide, highest, % of output current",
+     "value": 40,
+     "kind": "constant",
+     "source": 6
+    },
+    {
+     "label": "Boost output at 50%, V",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost output at 75%, V",
+     "value": 192,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost off depth at 75%, 192 − 48, V",
+     "value": 144,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost on-time at 75% and 50 kHz, µs",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost off-time at 75% and 50 kHz, µs",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Each area at 75% in Boost at 50 kHz, V·µs",
+     "value": 720,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost inductor and battery current at 50%, A",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost ripple at 50% and 50 kHz, A",
+     "value": 4.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost load power at 96 V, W",
+     "value": 960,
+     "kind": "computed"
+    },
+    {
+     "label": "Boost battery current at 75%, A",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, boost duty for four times, buck way round, %",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Run-down battery, chosen, V",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Duty cycle to hold 24 V from 40 V, %",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, 50% of 40 V, V",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, duty cycle, %",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example duty cycle",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example ripple, A",
+     "value": 1.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example ripple share, %",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example duty cycle at 40 V, %",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example frequency, Hz",
+     "value": 50000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example inductor, H",
+     "value": 0.0001,
+     "kind": "assumed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Switch a battery on and off fast, and smooth the pulses with an inductor and a capacitor. You get a steady lower DC. It is the battery voltage times the share of time the switch is on. Rearrange the same parts, and you get a steady higher DC instead.\n\nA [[buck converter]] is a switching transistor followed by a diode, an inductor and a capacitor. The share of each cycle the switch is on is the [[duty cycle]], D. While the switch is on, the inductor has the battery at one end and the output at the other. So it sees Vin − Vout, and its current climbs, as v = L di/dt says. When the switch opens, the inductor keeps its current going through the diode. The diode holds that end near 0 V. So the inductor now sees Vout the other way round, and its current falls.\n\nDraw the voltage across the inductor against time. Each area is a voltage times a time. Divided by L, it is how far the current climbs or falls, as v = L di/dt says. In steady running the current must end each cycle where it began. So the area above the line must equal the area below. The voltage across the inductor averages zero.[^4] That gives (Vin − Vout) × D = Vout × (1 − D). Multiply out, and Vout × D cancels from both sides. That leaves Vout = D × Vin. So 48 V at 50% gives 24 V, and at 25% gives 12 V. If the output is too low, the area above is bigger. So the current gains a little each cycle. That extra current charges the capacitor until the areas balance. The switch is fully on or fully off, so it wastes little heat. The battery gives current only while the switch is on. At 50% that is 5 A on average for a 10 A load. So power in matches power out, less small losses. That is why switching supplies are more efficient than a transistor held part on. The current ripples by (Vin − Vout) × D ÷ (f × L) each cycle. That ripple is usually chosen to be 20% to 40% of the output current.[^6]\n\nA [[boost converter]] puts the inductor straight off the battery. Its switch runs from the inductor's far end to 0 V. While on, the inductor sees the whole of Vin and stores energy. When off, it drives its current through the diode into an output above the battery. The same balance holds: Vin × D = (Vout − Vin) × (1 − D). That gives Vout = Vin ÷ (1 − D). So 48 V at 50% gives 96 V. The battery then supplies more current than the load takes, 20 A for 10 A. A converter does not make energy. A bridge of switches can reverse the output. Make D follow a sine in such a bridge, and the average follows that sine. That is how a drive builds AC. This is a simplified picture. The switch and diode are ideal, and the inductor current never falls to zero. **Chop DC through an inductor and a capacitor, and the inductor's zero average voltage sets the output: D × Vin for a buck, Vin ÷ (1 − D) for a boost.**"
+  },
+  "analogy": {
+   "text": "A buck works like a moving-coil meter on chopped DC. Feed it 48 V pulses, on half the time, and it reads about 24 V. Its needle is too heavy to follow each pulse. So it settles where its spring balances the average push. Change the share of on-time, and the needle moves to a new average, D × 48 V.",
+   "breaks": "A meter only shows the average. A buck's inductor carries the load's whole current and passes on the battery's energy. So the load gets the average as real power. And a meter can never read above its pulses. A boost's output sits above its battery."
+  },
+  "practice": {
+   "text": "Isolate and prove dead on both sides before you work on a converter. Its capacitors can hold charge, as a DC link does. A boost's output also sits above its battery.\n\n- Find the input voltage, the output you need and the load current.\n- Buck: D = Vout ÷ Vin. Boost: D = 1 − Vin ÷ Vout.\n- Battery current, near enough: a buck's is D × the load current. A boost's is the load current ÷ (1 − D).\n- Buck ripple: (Vin − Vout) × D ÷ (f × L). Compare it with 20% to 40% of the output current.[^6]\n\n**Rules of thumb:** a higher frequency or a bigger inductor gives less ripple. The frequency sets the ripple, not the output voltage. That holds while the inductor's current never falls to zero. As the battery voltage changes, D must change to hold the output.\n\n**Worked example:** a 48 V battery must feed a 12 V load drawing 10 A, switching at 50 kHz through 100 µH. D = 12 ÷ 48 = 0.25, so 25%. The battery supplies about 0.25 × 10 = 2.5 A, or 120 W. That matches the load's 12 V × 10 A. The ripple is 36 × 0.25 ÷ (50,000 × 0.0001) = 1.8 A, 18% of 10 A. That is a little under the 20% to 40% guide. So this inductor is on the large side. If the battery runs down to 40 V, D must rise to 12 ÷ 40 = 30%.\n\n**Common mistakes**\n- Thinking a buck burns off the difference like a resistor. A resistor dropping 48 V to 12 V for 10 A burns 360 W.\n- Expecting a boost to make energy. Its battery current is more than its load current.\n- Using the buck rule on a boost. At 50%, a buck gives 24 V from 48 V, and a boost gives 96 V.\n- Thinking the frequency sets the voltage. In normal running it sets the ripple.\n- Reading D as on-time over off-time. It is on-time over the whole cycle."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Rectifier Circuits | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/",
+    "quote": "Since the controlling device (the diode, in this case) is either fully conducting or fully nonconducting at any given time, it dissipates little heat energy while controlling load power, making this method of power control very energy-efficient."
+   },
+   {
+    "n": 2,
+    "title": "Buck Converters",
+    "url": "https://learnabout-electronics.org/PSU/psu31.php",
+    "quote": "3.1.1 the buck Converter circuit consists of the switching transistor, together with the flywheel circuit (Dl, L1 and C1)."
+   },
+   {
+    "n": 3,
+    "title": "DC to DC Buck Converter Tutorial & Diagram | Analog Devices",
+    "url": "https://www.analog.com/en/resources/technical-articles/dc-to-dc-buck-converter-tutorial.html",
+    "quote": "When the switch opens again, the inductor current continues to flow into the rectification diode to charge the output."
+   },
+   {
+    "n": 4,
+    "title": "How to Calculate Buck Converter Duty Cycle",
+    "url": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle",
+    "quote": "In a steady state, the average voltage across the inductor is zero. According to the principle of volt-second balance:"
+   },
+   {
+    "n": 5,
+    "title": "How to Calculate Buck Converter Duty Cycle",
+    "url": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle",
+    "quote": "The volt-second balance equation is: (Vin - Vo) \\* Ton = Vo \\* Toff"
+   },
+   {
+    "n": 6,
+    "title": "Basic Calculation of a Buck Converter's Power Stage (Rev. B)",
+    "url": "https://www.ti.com/lit/an/slva477b/slva477b.pdf?ts=1786269682384",
+    "quote": "A good estimation for the inductor ripple current is 20% to 40% of the output current."
+   },
+   {
+    "n": 7,
+    "title": "Under the Hood of a DC/DC Boost Converter",
+    "url": "https://www.ti.com/download/trng/docs/seminar/Topic_3_Lynch.pdf",
+    "quote": "When switch Q1 turns ON, the voltage across the inductor increases to approximately the input voltage, and energy is stored in the inductor."
+   },
+   {
+    "n": 8,
+    "title": "Working with Boost Converters",
+    "url": "https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/3678.snva731.pdf",
+    "quote": "The boost converter is used to \"step-up\" an input voltage to some higher level, required by a load. This unique capability is achieved by storing energy in an inductor and releasing it to the load at a higher voltage."
+   },
+   {
+    "n": 9,
+    "title": "Requirements for Direct Current (DC) Power Distribution Systems for Marine and Offshore Applications",
+    "url": "https://ww2.eagle.org/content/dam/eagle/rules-and-guides/current/other/293-requirements-for-direct-current-(dc)-power-distribution-systems-for-marine-and-offshore-applications/293-dc-power-reqts-july22.pdf",
+    "quote": "The electric power sources are to be connected to the DC bus directly or through power electronic converters (such as AC/DC rectifiers, DC/DC converters)."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 34rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  #stepbox > .fig + .fig { margin-top: 6px; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #sw .k-seg, #sw .k-seg.stack { display: flex; flex-wrap: wrap; }\n  #sw .k-seg button, #sw .k-seg.stack button { flex: 1 1 6rem; text-align: center; padding-left: 12px; }\n  #ctl2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }\n  #ctl2 > .k-btn { flex: 1 1 8rem; min-height: 48px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .gauge { grid-column: 1 / -1; }\n  .gauge .track { position: relative; height: 14px; border-radius: 7px; background: var(--k-sunk); margin-top: 6px; }\n  .gauge .band { position: absolute; top: 0; bottom: 0; background: var(--k-fill3); }\n  .gauge .mark { position: absolute; top: -4px; width: 6px; height: 22px; margin-left: -3px; border-radius: 3px; background: var(--k-accent2); transition: left .2s ease; }\n  .gauge .gk { position: relative; height: 1.5em; margin-top: 4px; font-size: .85rem; color: var(--k-muted); }\n  .gauge .gk span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #outs.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter { animation: none; }\n  html.k-testing .gauge .mark { transition: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter { animation: none; } .gauge .mark { transition: none; } }\n  /* The circuit: thin wires, the path the current takes drawn bold. */\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }\n  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 3.5; }\n  .fig .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .plate.s { stroke-width: 4.5; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.4; }\n  .fig .coil.on { stroke: var(--k-accent2); stroke-width: 3.4; }\n  .fig .tr .lead, .fig .tr .ch, .fig .tr .gp { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }\n  .fig .tr .ch { stroke-width: 3.2; }\n  .fig .tr.on .lead, .fig .tr.on .ch { stroke: var(--k-accent2); stroke-width: 3.6; }\n  .fig .tr .gl { fill: none; stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .tr .gt { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .tr .gl.fl { stroke: var(--k-accent); stroke-width: 3; }\n  .fig .tr .gt.fl { fill: var(--k-accent); stroke: var(--k-accent); }\n  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); }\n  .fig .node { fill: var(--k-ink); }\n  .fig .flowdot { fill: var(--k-bg); }\n  /* The plots: three cycles, the inductor's voltage above, its current below. */\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .zero { stroke: var(--k-muted); stroke-width: 1.2; }\n  .fig .sh { fill: var(--k-fill1); }\n  .fig .shn { fill: var(--k-fill3); }\n  .fig .lit { fill: var(--k-fill2); }\n  .fig .vl, .fig .il { fill: none; stroke: var(--k-accent2); stroke-width: 2.4; stroke-linejoin: round; }\n  .fig .avg { stroke: var(--k-ink); stroke-width: 1.6; stroke-dasharray: 6 4; }\n  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .cdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.n { fill: var(--k-accent2); }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count say\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"k-controls\" id=\"sw\"></div>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 134\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"dots\"></g><g id=\"clabs\"></g></svg>\n    <svg class=\"fig\" id=\"wave\" viewBox=\"0 0 340 306\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><clipPath id=\"iclip\"><rect x=\"52\" y=\"198\" width=\"252\" height=\"80\"></rect></clipPath></defs><g id=\"wart\"></g><g id=\"wlabs\"></g></svg>\n    <p class=\"gnote say\" id=\"setting\"></p>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div id=\"ctl2\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule ----------\n  // A 48 V battery feeds a load that draws a steady 10 A through a 100 µH inductor. The switch is on for\n  // D of each cycle T = 1 ÷ f. While on, the inductor sees its on height (Buck: Vin − Vout, Boost: Vin)\n  // and its current climbs at that ÷ L. While off, it sees its off depth (Buck: Vout, Boost: Vout − Vin)\n  // the other way round, and its current falls. The output settles where the two areas match:\n  // (Vin − Vout) × D = Vout × (1 − D) in Buck, Vin × D = (Vout − Vin) × (1 − D) in Boost.\n  const VIN = 48, IL = 10, LUH = 100, VRUN = 40, HOLD = 20, DBMAX = 75, GMAX = 80;\n  const GUIDE = [20, 40];\n  const TAU = 0.4, EPS = 0.05;\n  const ALLPCB = 'https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle';\n  const TIBUCK = 'https://www.ti.com/lit/an/slva477b/slva477b.pdf?ts=1786269682384';\n  const TIBOOST = 'https://www.ti.com/download/trng/docs/seminar/Topic_3_Lynch.pdf';\n  const TISTEP = 'https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/3678.snva731.pdf';\n  const ADI = 'https://www.analog.com/en/resources/technical-articles/dc-to-dc-buck-converter-tutorial.html';\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const f1 = (v) => { const r = Math.round(v * 10) / 10; return Math.abs(r - Math.round(r)) < 1e-9 ? fx(r, 0) : fx(r, 1); };\n  const MODES = ['buck', 'boost'];\n  const MODEN = { buck: 'Buck', boost: 'Boost' };\n  const vBuck = (d) => VIN * d / 100;\n  const vBoost = (d) => VIN / (1 - d / 100);\n  const vT = (m, d) => (m === 'boost' ? vBoost(d) : vBuck(d));\n  const hOnOf = (m, v) => (m === 'boost' ? VIN : VIN - v);\n  const hOffOf = (m, v) => (m === 'boost' ? v - VIN : v);\n  const Tus = (f) => 1000 / f;\n  const riseOf = (m, d, f, v) => hOnOf(m, v) * (d / 100) * Tus(f) / LUH;\n  const fallOf = (m, d, f, v) => hOffOf(m, v) * (1 - d / 100) * Tus(f) / LUH;\n  const iAvgOf = (m, v) => (m === 'boost' ? v * IL / VIN : IL);\n  const iBatOf = (v) => v * IL / VIN;\n  const rippleOf = (m, d, f, v) => 100 * riseOf(m, d, f, v) / iAvgOf(m, v);\n  // Three cycles of the inductor's current, starting where its mean over them is the average current.\n  function wave(m, d, f, v) {\n    const D = d / 100, rise = riseOf(m, d, f, v), fall = fallOf(m, d, f, v), net = rise - fall, iav = iAvgOf(m, v);\n    const meanC = D * rise / 2 + (1 - D) * (rise - fall / 2);\n    return { m, d, D, f, v, hOn: hOnOf(m, v), hOff: hOffOf(m, v), rise, fall, net, iav, i0: iav - net - meanC };\n  }\n  function iAt(w, u) {\n    const k = Math.max(0, Math.min(2, Math.floor(u))), ph = u - k, b = w.i0 + k * w.net;\n    return ph <= w.D ? b + w.rise * ph / w.D : b + w.rise - w.fall * (ph - w.D) / (1 - w.D);\n  }\n  const vAt = (w, u) => { const ph = u - Math.max(0, Math.min(2, Math.floor(u))); return ph < w.D ? w.hOn : -w.hOff; };\n\n  // Every number the words show, worked out from the rule (a check compares them with the lesson's).\n  const N = {\n    b50: fx(vBuck(50), 0), b25: fx(vBuck(25), 0), drop: fx(VIN - vBuck(50), 0), on25: fx(VIN - vBuck(25), 0), on20: fx(VIN - HOLD, 0), hold: fx(HOLD, 0),\n    heat: fx((VIN - vBuck(50)) * IL, 0), heatAll: fx(VIN * IL, 0),\n    ib50: fx(iBatOf(vBuck(50)), 0), ib25: fx(iBatOf(vBuck(25)), 1), x4: fx(IL * VIN / vBuck(25), 0), p25: fx(vBuck(25) * IL, 0), res: fx((VIN - vBuck(25)) * IL, 0),\n    on50t: f1(Tus(50) * 0.5), T25: f1(Tus(25)), on25t: f1(Tus(25) * 0.5),\n    r50: fx(riseOf('buck', 50, 50, vBuck(50)), 1), rp50: fx(rippleOf('buck', 50, 50, vBuck(50)), 0),\n    r100: fx(riseOf('buck', 50, 100, vBuck(50)), 1), rp100: fx(rippleOf('buck', 50, 100, vBuck(50)), 0),\n    r25: fx(riseOf('buck', 50, 25, vBuck(50)), 1), rp25: fx(rippleOf('buck', 50, 25, vBuck(50)), 0),\n    u50: fx(vBoost(50), 0), off50: fx(vBoost(50) - VIN, 0), u75: fx(vBoost(75), 0), x4V: fx(4 * VIN, 0), off75: fx(vBoost(75) - VIN, 0),\n    area75: fx(VIN * 0.75 * Tus(50), 0), area75b: fx((vBoost(75) - VIN) * 0.25 * Tus(50), 0), on75t: f1(Tus(50) * 0.75), off75t: f1(Tus(50) * 0.25),\n    iu50: fx(iBatOf(vBoost(50)), 0), pu50: fx(vBoost(50) * IL, 0), iu75: fx(iBatOf(vBoost(75)), 0),\n    ru50: fx(riseOf('boost', 50, 50, vBoost(50)), 1), rpu50: fx(rippleOf('boost', 50, 50, vBoost(50)), 0),\n    dB: fx(100 * (1 - VIN / (4 * VIN)), 0), dWrong: fx(100 * VIN / (4 * VIN), 0),\n    d40: fx(100 * vBuck(50) / VRUN, 0), d40f: fx(vBuck(50) / VRUN, 1), half40: fx(VRUN * 0.5, 0), dw: fx(100 - 100 * vBuck(50) / VRUN, 0),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // set: where the picture opens (d is the duty cycle in %, f the frequency in kHz, time the cursor in\n  // hundredths of a cycle, 300 = the end; hold stops the output there until a right Check). ctl: what a\n  // demonstration lets Dan move; play: its motion as the screen opens. outs 'after' hides the readouts\n  // until a right Check; hideB hides the battery current; ans: what a right Check changes.\n  const STEPS = [\n    { name: 'Heat in a transistor', set: { mode: 'buck', d: 50 }, outs: 'after', plots: 'after', ans: {},\n      task: `You need ${N.b50} V at ${IL} A from a ${VIN} V battery. A transistor held part on drops the other ${N.drop} V. How much heat does it make?`,\n      opts: ['Next to nothing, as it is a transistor', `About ${N.heat} W`, `About ${N.heatAll} W`],\n      want: `About ${N.heat} W`,\n      hints: { 'Next to nothing, as it is a transistor': `Part on, it has ${N.drop} V across it and ${IL} A through it.`,\n        [`About ${N.heatAll} W`]: 'Only half the battery\\'s voltage is across the transistor.' },\n      why: `About ${N.heat} W, as much as the load gets. Part on, the transistor has ${N.drop} V across it and ${IL} A through it. A switch kept fully on or fully off wastes little heat. So chop the battery instead, and smooth what comes out.` },\n    { show: true, name: 'Chop it', set: { mode: 'buck', d: 50 }, ctl: ['time', 'play'], play: 'cursor',\n      text: `A *buck converter* is a switching transistor followed by a diode, an inductor and a capacitor. Here a ${VIN} V battery feeds a load that draws ${IL} A. While the switch is on, current flows from the battery through the inductor to the load. When the switch opens, the inductor keeps its current going through the diode. That is the freewheeling diode again. The share of each cycle the switch is on is the *duty cycle*, D. Play it at D = 50%.`,\n      read: 'With D at 50%, the switch carries the current for the first half of each cycle. The diode carries it for the second half. The inductor\\'s current keeps flowing all through the cycle.',\n      still: { mode: 'buck', duty: 50, freq: 50, time: 175 } },\n    { name: 'Across the inductor', set: { mode: 'buck', d: 50, time: 125 }, ans: { lit: true },\n      task: `The switch is on. The battery is ${VIN} V and the output ${N.b50} V. What voltage is across the inductor?`,\n      opts: [`${VIN} V, the whole battery`, '0 V, as current flows freely', `${N.drop} V, the difference`],\n      want: `${N.drop} V, the difference`,\n      hints: { [`${VIN} V, the whole battery`]: 'The inductor\\'s far end sits at the output, not at 0 V.',\n        '0 V, as current flows freely': 'Its current is climbing. A coil\\'s current changes only with a voltage across it.' },\n      why: `${N.drop} V. One end sees the battery's ${VIN} V through the switch. The other end sits at the output's ${N.b50} V. That ${N.drop} V across it makes its current climb steadily, as v = L di/dt says.` },\n    { show: true, name: 'Two areas', set: { mode: 'buck', d: 50 }, ctl: ['time', 'play'], play: 'cursor',\n      text: 'The upper plot is the inductor\\'s voltage. While the switch is on, it is the battery less the output, and the current climbs. While it is off, the diode holds the inductor\\'s input end near 0 V. The inductor now sees the output the other way round, and the current falls. Each shaded area is a voltage times a time. Divide it by L to get how far the current climbs or falls. The current ends each cycle where it began. So the two areas must be equal. Its average voltage is zero.',\n      read: `With D at 50%, the output sits at ${N.b50} V. The area above the line is ${N.drop} V for half the cycle. It equals the area below, ${N.b50} V for the other half. The current ramps up and back down to where it started.`,\n      still: { mode: 'buck', duty: 50, freq: 50, time: 300 } },\n    { name: 'Too low', set: { mode: 'buck', d: 50, hold: HOLD }, ans: { release: true },\n      task: `The output has reached only ${N.hold} V, with D at 50%. What happens next?`,\n      opts: ['The area below is bigger, so the output falls', 'The area above is bigger, so the current climbs and the output rises', 'Nothing, as the areas already balance'],\n      want: 'The area above is bigger, so the current climbs and the output rises',\n      hints: { 'The area below is bigger, so the output falls': `Above the line: ${VIN} − ${N.hold} = ${N.on20} V for half the cycle. Below: ${N.hold} V for half. Which is bigger?`,\n        'Nothing, as the areas already balance': `Compare ${N.on20} V and ${N.hold} V, each for half the cycle.` },\n      why: `The area above is bigger, ${N.on20} V against ${N.hold} V, each for half the cycle. So the current climbs a little more each cycle than it falls. The extra current charges the capacitor, and the output rises. That shrinks the area above and grows the one below. It stops at ${N.b50} V, where they balance.` },\n    { show: true, name: 'The rule', set: { mode: 'buck', d: 50 }, noB: true, ctl: ['duty'], play: { id: 'duty', from: 50, to: 25, dur: 1.4 },\n      text: `Equal areas give the rule. The area above is (Vin − Vout) × D × T, where T is one cycle. The area below is Vout × (1 − D) × T. Set them equal, and T cancels. Multiply out, and the Vout × D on each side cancels too. That leaves Vout = D × Vin. So 50% of ${VIN} V gives ${N.b50} V, and 25% gives ${N.b25} V. Drag D, and the output moves until the areas match again.`,\n      read: `With D at 25%, the output has settled at ${N.b25} V. The area above is ${N.on25} V for a quarter of the cycle. It matches the area below, ${N.b25} V for three quarters.`,\n      still: { mode: 'buck', duty: 25, freq: 50, time: 300 } },\n    { name: 'From the battery', set: { mode: 'buck', d: 25 }, hideB: true, ans: {},\n      task: `The load still draws ${IL} A. What average current does the ${VIN} V battery supply?`,\n      opts: [`About ${IL} A, the same as the load`, `About ${N.x4} A`, `About ${N.ib25} A`],\n      want: `About ${N.ib25} A`,\n      hints: { [`About ${IL} A, the same as the load`]: 'That is what a series resistor would take. When does the battery give current here?',\n        [`About ${N.x4} A`]: 'A buck lowers the voltage. Does the battery need more current than the load, or less?' },\n      why: `About ${N.ib25} A. The battery gives current only while the switch is on, ${IL} A for a quarter of each cycle. That averages ${N.ib25} A, or ${N.p25} W from ${VIN} V. The load gets ${N.b25} V × ${IL} A, also ${N.p25} W. A series resistor would take the full ${IL} A and burn ${N.res} W.` },\n    { show: true, name: 'Ripple', set: { mode: 'buck', d: 50, f: 50 }, ctl: ['freq'], play: { id: 'freq', from: 50, to: 100, dur: 3 },\n      text: `The lower plot is the inductor's current. It ramps up and down around the load's ${IL} A. Each cycle it climbs (Vin − Vout) × D ÷ (f × L). Here ${N.drop} V across ${LUH} µH for ${N.on50t} µs gives ${N.r50} A, ${N.rp50}% of ${IL} A. The ripple is usually chosen to be ${GUIDE[0]}% to ${GUIDE[1]}% of the output current. The capacitor takes the ripple, so the load sees near-steady DC. Raise the frequency, and the ripple shrinks. But every switch-over wastes a little heat, so the switch runs hotter.`,\n      read: `At 100 kHz the current climbs ${N.r100} A and falls ${N.r100} A each cycle. The ripple reads ${N.rp100}%. The output stays at ${N.b50} V.`,\n      still: { mode: 'buck', duty: 50, freq: 100, time: 300 } },\n    { name: 'Slower switching', set: { mode: 'buck', d: 50, f: 50 }, ans: { sweep: { id: 'freq', from: 50, to: 25 }, set: { f: 25 } },\n      task: 'The switching frequency drops to 25 kHz. What is the ripple now?',\n      opts: [`${N.r100} A, ${N.rp100}% of the load`, `${N.r25} A, ${N.rp25}% of the load`, `${N.r50} A, as the frequency does not matter`],\n      want: `${N.r25} A, ${N.rp25}% of the load`,\n      hints: { [`${N.r100} A, ${N.rp100}% of the load`]: 'At a lower frequency each on-time is longer. Does the current climb further, or less far?',\n        [`${N.r50} A, as the frequency does not matter`]: `The on-time is now ${N.on25t} µs, not ${N.on50t} µs.` },\n      why: `${N.r25} A. At 25 kHz each cycle lasts ${N.T25} µs, so the switch is on for ${N.on25t} µs. ${N.drop} V across ${LUH} µH for twice as long climbs twice as far. That is ${N.rp25}% of ${IL} A, above the ${GUIDE[0]}% to ${GUIDE[1]}% guide. A bigger inductor brings it back. So does a higher frequency, at the cost of more switching heat.` },\n    { show: true, name: 'Boost', set: { mode: 'boost', d: 50 }, noB: true, ctl: ['mode', 'duty'], play: { vo: VIN },\n      text: `The picker now shows Boost. The same parts are rearranged. The inductor comes straight off the battery. The switch shorts its far end to 0 V. While on, the inductor sees the whole ${VIN} V and stores energy. When off, it drives its current through the diode into an output above the battery. The areas still balance: Vin × D = (Vout − Vin) × (1 − D). The Vin × D terms cancel, leaving Vin = Vout × (1 − D). So Vout = Vin ÷ (1 − D), ${N.u50} V at 50%.`,\n      read: `In Boost at 50%, the area above is ${VIN} V for half the cycle. It matches the area below, ${N.off50} V for the other half. The output reads ${N.u50} V.`,\n      still: { mode: 'boost', dutyB: 50, freq: 50, time: 300 } },\n    { name: 'Boost from the battery', set: { mode: 'boost', d: 50 }, hideB: true, hideI: true, ans: {},\n      task: `This boost gives ${N.u50} V to a load drawing ${IL} A. What average current does the ${VIN} V battery supply?`,\n      opts: [`About ${N.ib50} A, as in the buck`, `About ${IL} A, the same as the load`, `About ${N.iu50} A`],\n      want: `About ${N.iu50} A`,\n      hints: { [`About ${IL} A, the same as the load`]: `Compare the power: ${N.u50} V × ${IL} A out, but ${VIN} V × ${IL} A in.`,\n        [`About ${N.ib50} A, as in the buck`]: 'A boost raises the voltage. Where must the extra power come from?' },\n      why: `About ${N.iu50} A. The load takes ${N.u50} V × ${IL} A = ${N.pu50} W. With little lost, the battery must supply that too. ${N.pu50} W ÷ ${VIN} V = ${N.iu50} A. A boost trades current for voltage. It does not make energy.` },\n    { name: 'Four times', set: { mode: 'boost', d: 50 }, ans: { set: { d: 75 } },\n      task: `The boost must give ${N.x4V} V from the ${VIN} V battery. What duty cycle?`,\n      opts: [`${N.dWrong}%`, `${N.dB}%`, 'None, as no chopper gives four times its input'],\n      want: `${N.dB}%`,\n      hints: { [`${N.dWrong}%`]: 'That is the buck way round. In a boost, 1 − D = Vin ÷ Vout.',\n        'None, as no chopper gives four times its input': 'In the ideal rule, Vout = Vin ÷ (1 − D). What 1 − D gives four times?' },\n      why: `${N.dB}%. Four times the battery needs 1 − D = ¼, so D = 0.75. Check the areas at 50 kHz. Above the line is ${VIN} V × ${N.on75t} µs. Below is ${N.off75} V × ${N.off75t} µs. Both come to ${N.area75} V·µs. The battery current is now ${N.iu75} A for the load's ${IL} A.` },\n    { name: 'A run-down battery', set: { mode: 'buck', d: 50 }, note: `the picture keeps its ${VIN} V battery`, ans: {},\n      task: `The battery runs down from ${VIN} V to ${VRUN} V. The buck must still give ${N.b50} V. What duty cycle holds it?`,\n      opts: [`${N.d40}%`, '50%, unchanged', `${N.dw}%`],\n      want: `${N.d40}%`,\n      hints: { '50%, unchanged': `50% of ${VRUN} V is only ${N.half40} V.`,\n        [`${N.dw}%`]: 'A smaller battery needs a bigger share of it, not a smaller one.' },\n      why: `${N.d40}%. D = Vout ÷ Vin = ${N.b50} ÷ ${VRUN} = ${N.d40f}. A controller can do this as it runs. It moves D to hold the output as the battery voltage changes. On a ship\\'s DC network, power sources can join the DC bus through converters like these.` },\n  ];\n  const FINISH = 'Switch a battery on and off fast, and smooth the pulses with an inductor and a capacitor. You get a steady lower DC. It is the battery voltage times the share of time the switch is on. Rearrange the same parts, and you get a steady higher DC instead. Make D follow a sine in a bridge of switches, and the output\\'s average follows that sine. That is how an inverter builds AC.';\n  const DEMO = 3.9, FADE = 0.35, ANS_SW = 1.2;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, pinning = false, lastMode = 'buck';\n  let CS = null, SW = null, PHS = 0, FLOW = null, REC = null;\n  let VO = vBuck(50), VW = 0;   // the output as it is now, and a short wait before it moves\n  const IDS = ['mode', 'duty', 'dutyB', 'freq', 'time'];\n  const BASE = { mode: 'buck', d: 50, f: 50, time: 300 };\n  const modeOf = (p) => (MODES.indexOf(p.mode) >= 0 ? p.mode : 'buck');\n  const r5 = (v) => Math.round((+v || 0) / 5) * 5;\n  const dutyOf = (p) => (modeOf(p) === 'boost' ? K.clamp(r5(p.dutyB), 10, DBMAX) : K.clamp(r5(p.duty), 10, 90));\n  const freqOf = (p) => K.clamp(r5(p.freq) || 50, 10, 100);\n  const aId = (mode) => (mode === 'boost' ? 'dutyB' : 'duty');\n  function setupOf(i, right) {\n    const d = STEPS[i], q = Object.assign({}, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {});\n    return { step: i, mode: q.mode, duty: q.d, dutyB: Math.min(q.d, DBMAX), freq: q.f, time: q.time };\n  }\n  const holdOf = (i) => (STEPS[i].set && STEPS[i].set.hold != null && S[i].res !== 'right' ? STEPS[i].set.hold : null);\n  function visIds(d, p) {\n    if (!d.show) return [];\n    return (d.ctl || []).map((c) => (c === 'duty' ? aId(modeOf(p)) : c));\n  }\n  const nb = (t) => t.replace(/(\\d) (?=(?:V|A|W|µs|µH|kHz)(?![A-Za-z]))/g, '$1\\u00a0');\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const modeCtl = K.choice({ id: 'mode', label: 'Circuit', options: MODES.map((m) => ({ value: m, label: MODEN[m] })), value: 'buck', into: '#sw' });\n  const dutyCtl = K.control({ id: 'duty', label: 'Duty cycle D', min: 10, max: 90, step: 5, value: 50, fmt: (v) => fx(v, 0) + '%', snap: [25, 50, 75], into: '#ctl' });\n  const dutyBCtl = K.control({ id: 'dutyB', label: 'Duty cycle D', min: 10, max: DBMAX, step: 5, value: 50, fmt: (v) => fx(v, 0) + '%', snap: [50, 75], into: '#ctl' });\n  const freqCtl = K.control({ id: 'freq', label: 'Switching frequency f', min: 10, max: 100, step: 5, value: 50, fmt: (v) => fx(v, 0) + ' kHz', snap: [25, 50, 100], into: '#ctl' });\n  const timeCtl = K.control({ id: 'time', label: 'Time', min: 0, max: 300, step: 5, value: 300, fmt: (v) => f1(v / 100 * Tus(freqOf({ freq: freqCtl.get() }))) + ' µs', snap: [0, 100, 125, 175, 200, 300], into: '#ctl' });\n  const RIP = STEPS.findIndex((d) => d.name === 'Ripple');\n  const CTL = { mode: modeCtl, duty: dutyCtl, dutyB: dutyBCtl, freq: freqCtl, time: timeCtl };\n  const playBtn = K.button({ label: 'Play', into: '#ctl2', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || (d.ctl || []).indexOf('play') < 0) return;\n    const th = +K.params().time, from = th >= 300 ? 0 : th;\n    startCursor(from, 300, DEMO * (300 - from) / 300, 0);\n  } });\n  const rV = K.readout({ id: 'volts', label: 'Output voltage', decimals: 0, fmt: (v) => fx(v, 0) + ' V', into: '#outs' });\n  const rR = K.readout({ id: 'ripple', label: 'Ripple', decimals: 0, fmt: (v) => fx(v, 0) + '%', into: '#outs' });\n  const rB = K.readout({ id: 'batteryCurrent', label: 'Battery current', decimals: 1, fmt: (v) => fx(v, 1) + ' A', into: '#outs' });\n  // The buck's ripple guide, a band beside the ripple readout.\n  el('outs').appendChild(K.el('div', { class: 'gauge', id: 'gauge' },\n    K.el('span', { class: 'k-label' }, 'Ripple guide for a buck'),\n    K.el('div', { class: 'track', id: 'gtrack', role: 'img', 'aria-label': '' },\n      K.el('i', { class: 'band', id: 'gband', style: 'left:' + (100 * GUIDE[0] / GMAX) + '%;width:' + (100 * (GUIDE[1] - GUIDE[0]) / GMAX) + '%' }),\n      K.el('i', { class: 'mark', id: 'gmark' })),\n    K.el('div', { class: 'gk' },\n      K.el('span', { style: 'left:0;transform:none' }, '0%'),\n      K.el('span', { style: 'left:' + (100 * GUIDE[0] / GMAX) + '%' }, GUIDE[0] + '%'),\n      K.el('span', { style: 'left:' + (100 * GUIDE[1] / GMAX) + '%' }, GUIDE[1] + '%'),\n      K.el('span', { style: 'left:100%;transform:translateX(-100%)' }, GMAX + '%'))));\n  // The readouts' rule, settled: the output where the areas balance, the ripple and the battery current there.\n  K.model((p) => {\n    const m = modeOf(p), d = dutyOf(p), f = freqOf(p), v = vT(m, d);\n    return { volts: v, ripple: rippleOf(m, d, f, v), batteryCurrent: iBatOf(v) };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const a = d.ans || {};\n    if (a.sweep) startSweep(a.sweep.id, a.sweep.from, a.sweep.to, ANS_SW, 0.1);\n    if (a.release && !calm()) VW = 0.1;\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; FLOW = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: the cursor along the cycles, a slider sweep, the output settling, flowing current ----------\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    let busy = false, redraw = false;\n    if (CS) {\n      const c = CS;\n      c.t += dt;\n      const fr = K.clamp(c.t / c.dur, 0, 1);\n      c.cur = K.lerp(c.from, c.to, fr);\n      const r = K.clamp(Math.floor(c.cur / 5) * 5, 0, 300);\n      if (r !== c.last) { c.last = r; timeCtl.set(r); }\n      redraw = true;\n      if (CS === c) { if (fr >= 1) { CS = null; timeCtl.set(c.to); } else busy = true; }\n    }\n    if (SW) {\n      const s = SW;\n      s.t += dt;\n      const fr = K.clamp(s.t / s.dur, 0, 1), val = r5(K.lerp(s.from, s.to, K.ease(fr)));\n      if (val !== s.last) { s.last = val; CTL[s.id].set(val); }\n      if (SW === s) { if (fr >= 1) SW = null; else busy = true; }\n    }\n    // The output moves at a rate set by how far the two areas differ, and stops where they match.\n    if (holdOf(at()) == null) {\n      if (VW > 0) { VW -= dt; busy = true; }\n      else {\n        const p = K.params(), vt = vT(modeOf(p), dutyOf(p));\n        if (Math.abs(vt - VO) > EPS) {\n          VO += (vt - VO) * (1 - Math.exp(-dt / TAU));\n          if (Math.abs(vt - VO) <= EPS) VO = vt;\n          redraw = true; busy = true;\n        }\n      }\n    }\n    PHS += dt;\n    if (redraw) paint();\n    dots();\n    return busy || flowOn();\n  } });\n  function play() { if (!motion.playing()) motion.play(); }\n  function startCursor(from, to, dur, delay) {\n    if (calm()) { CS = null; timeCtl.set(to, true); return; }\n    CS = { t: -(delay || 0), dur: Math.max(0.3, dur), from, to, cur: from, last: r5(from) };\n    timeCtl.set(r5(from), true); play();\n  }\n  function startSweep(id, from, to, dur, delay) {\n    if (calm()) { CTL[id].set(to, true); SW = null; return; }\n    CTL[id].set(from, true);\n    SW = { id, from, to, last: from, t: -(delay || 0), dur }; play();\n  }\n  function settle() {\n    if (CS) { timeCtl.set(CS.to, true); CS = null; }\n    if (SW) { CTL[SW.id].set(SW.to, true); SW = null; }\n  }\n  function syncVO(i, p) {\n    const h = holdOf(i);\n    if (h != null) { VO = h; VW = 0; return; }\n    const vt = vT(modeOf(p), dutyOf(p));\n    if (calm()) { VO = vt; VW = 0; return; }\n    if (Math.abs(VO - vt) > EPS) play();\n  }\n  const flowOn = () => !REDUCE && !finished && !!FLOW;\n  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  // Every label lives in its own slot group, made afresh each frame in a fixed order.\n  const svg = el('scene'), art = el('art'), dotsG = el('dots'), wsvg = el('wave'), wart = el('wart');\n  const SL = {\n    clabs: ['sw', 'gate', 'dio', 'ind', 'L', 'cap', 'load', 'amps', 'vout', 'vin', 'v48', 'zero'],\n    wlabs: ['vt', 'k1', 'k2', 'it', 'k3', 'k4', 'y0', 'y1', 'y2', 'y3', 'y4', 'i0', 'i1', 'i2', 'i3', 'tt', 't0', 't1', 't2', 't3', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'hl'],\n  };\n  let SLOT = {}, into = null;\n  function slots(g, list) { g.textContent = ''; list.forEach((n) => { SLOT[n] = g.appendChild(K.svg('g')); }); }\n  const add = (n) => into.appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function tx(slot, x, y, s, cls, anchor) {\n    REC.texts.push(s);\n    return SLOT[slot].appendChild(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));\n  }\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = wsvg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    wsvg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 7.4;\n  }\n  // A transistor drawn on its wire: drain and source leads, the channel, the gate plate and its lead.\n  function transistor(cx, cy, ang, on) {\n    const g = add(K.svg('g', { class: 'tr' + (on ? ' on' : ''), transform: 'translate(' + cx + ' ' + cy + ') rotate(' + ang + ')' }));\n    g.appendChild(K.svg('path', { class: 'lead', d: 'M-12 0 V10 M12 0 V10' }));\n    g.appendChild(K.svg('line', { class: 'ch', x1: -16, y1: 10, x2: 16, y2: 10 }));\n    g.appendChild(K.svg('line', { class: 'gp', x1: -14, y1: 16, x2: 14, y2: 16 }));\n    g.appendChild(K.svg('path', { class: 'gl' + (on ? ' fl' : ''), d: 'M0 16 V24' }));\n    g.appendChild(K.svg('circle', { class: 'gt' + (on ? ' fl' : ''), cx: 0, cy: 27, r: 2.6 }));\n  }\n  // A diode: the triangle points the way it lets current through, to the bar.\n  function diode(x, y, ang, on) {\n    const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ')' }));\n    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));\n    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));\n  }\n\n  // ---------- the circuit ----------\n  // Top wire y 34, the 0 V wire y 114. Battery at x 28, capacitor at 240, load at 300.\n  const WK = { bat1: 'M28 34 V64', bat2: 'M28 84 V114', t1: 'M28 34 H80', t2: 'M104 34 H140', t3: 'M140 34 H156', t4: 'M212 34 H240',\n    t5: 'M240 34 H300 V52', l2: 'M300 96 V114', b3: 'M300 114 H240', b2: 'M240 114 H140', b1: 'M140 114 H28', d1: 'M140 34 V68', d2: 'M140 84 V114',\n    c1: 'M240 34 V70', c2: 'M240 78 V114' };\n  const WB = { bat1: 'M28 34 V64', bat2: 'M28 84 V114', t1: 'M28 34 H60', t2: 'M116 34 H140', s1: 'M140 34 V62', s2: 'M140 86 V114',\n    t3: 'M140 34 H170', t4: 'M186 34 H240', t5: 'M240 34 H300 V52', l2: 'M300 96 V114', b3: 'M300 114 H240', b2: 'M240 114 H140', b1: 'M140 114 H28',\n    c1: 'M240 34 V70', c2: 'M240 78 V114' };\n  const BOLD = {\n    buck: { sw: ['bat1', 't1', 'sw', 't2', 't3', 'coil', 't4', 't5', 'load', 'l2', 'b3', 'b2', 'b1', 'bat2'],\n      dio: ['d1', 'dio', 'd2', 't3', 'coil', 't4', 't5', 'load', 'l2', 'b3', 'b2'] },\n    boost: { sw: ['bat1', 't1', 'coil', 't2', 's1', 'sw', 's2', 'b1', 'bat2'],\n      dio: ['bat1', 't1', 'coil', 't2', 't3', 'dio', 't4', 't5', 'load', 'l2', 'b3', 'b2', 'b1', 'bat2'] },\n  };\n  const FLOWS = {\n    buck: { sw: [[28, 64], [28, 34], [300, 34], [300, 114], [28, 114], [28, 84]], dio: [[140, 114], [140, 34], [300, 34], [300, 114], [140, 114]] },\n    boost: { sw: [[28, 64], [28, 34], [140, 34], [140, 114], [28, 114], [28, 84]], dio: [[28, 64], [28, 34], [300, 34], [300, 114], [28, 114], [28, 84]] },\n  };\n  const SKIP = {\n    buck: (x, y) => (Math.abs(y - 34) < 1 && ((x > 74 && x < 110) || (x > 152 && x < 216))) || (Math.abs(x - 300) < 1 && y > 48 && y < 100) || (Math.abs(x - 140) < 1 && y > 64 && y < 88),\n    boost: (x, y) => (Math.abs(y - 34) < 1 && ((x > 56 && x < 120) || (x > 166 && x < 190))) || (Math.abs(x - 300) < 1 && y > 48 && y < 100) || (Math.abs(x - 140) < 1 && y > 58 && y < 90),\n  };\n  function mk(pts, speed, skip) {\n    const lens = [0];\n    for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));\n    return { pts, lens, len: lens[lens.length - 1], speed, skip };\n  }\n  function drawCircuit(v) {\n    into = art;\n    const boost = v.mode === 'boost', S2 = v.on ? BOLD[v.mode][v.on] : [], lit = (id) => S2.indexOf(id) >= 0, W = boost ? WB : WK;\n    Object.keys(W).forEach((id) => pa(W[id], lit(id) ? 'wire on' : 'wire'));\n    ln(16, 64, 40, 64, 'plate'); ln(22, 70, 34, 70, 'plate s'); ln(16, 78, 40, 78, 'plate'); ln(22, 84, 34, 84, 'plate s');\n    pa('M' + (boost ? 60 : 156) + ' 34' + ' a7 7 0 0 1 14 0'.repeat(4), lit('coil') ? 'coil on' : 'coil');\n    ln(228, 70, 252, 70, 'plate'); ln(228, 78, 252, 78, 'plate');\n    box(290, 52, 20, 44, lit('load') ? 'res on' : 'res', 3);\n    ci(240, 34, 3, 'node');\n    tx('cap', 226, 98, 'capacitor', 'lab m', 'end');\n    tx('load', 284, 70, 'load', 'lab', 'end'); tx('amps', 284, 86, IL + ' A', 'lab m', 'end');\n    tx('vout', 270, 26, 'Vout', 'lab n');\n    tx('vin', 44, 70, 'Vin', 'lab n', 'start'); tx('v48', 44, 86, VIN + ' V', 'lab m', 'start');\n    tx('zero', 184, 128, '0 V', 'lab m');\n    if (boost) {\n      transistor(140, 74, 90, lit('sw'));\n      diode(178, 34, 0, lit('dio'));\n      tx('ind', 88, 18, 'inductor', 'lab'); tx('L', 88, 54, 'L = ' + LUH + ' µH', 'lab m');\n      tx('gate', 113, 100, 'gate', 'lab t'); tx('sw', 152, 70, 'switch', 'lab', 'start'); tx('dio', 178, 16, 'diode', 'lab');\n    } else {\n      transistor(92, 34, 0, lit('sw'));\n      diode(140, 76, -90, lit('dio'));\n      tx('ind', 184, 18, 'inductor', 'lab'); tx('L', 184, 54, 'L = ' + LUH + ' µH', 'lab m');\n      tx('gate', 100, 66, 'gate', 'lab t', 'start'); tx('sw', 92, 20, 'switch', 'lab'); tx('dio', 126, 86, 'diode', 'lab', 'end');\n    }\n    const parts = boost ? 'an inductor straight off the battery, a switch to 0 V, a diode to the output, a capacitor and the load'\n      : 'a switch, a diode to 0 V, an inductor, a capacitor and the load';\n    svg.setAttribute('aria-label', 'A ' + VIN + ' V battery feeds a load drawing ' + IL + ' A through ' + parts + '.' +\n      (v.on === 'sw' ? ' The switch conducts now.' : v.on === 'dio' ? ' The diode conducts now.' : ''));\n    REC.on = v.on;\n    FLOW = v.show && !finished && v.on ? [mk(FLOWS[v.mode][v.on], 26, SKIP[v.mode])] : null;\n  }\n  function dots() {\n    dotsG.textContent = '';\n    if (!FLOW || REDUCE) return;\n    FLOW.forEach((f) => {\n      for (let s = (PHS * f.speed) % 22; s < f.len; s += 22) {\n        let k = 1;\n        while (k < f.lens.length - 1 && f.lens[k] < s) k++;\n        const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);\n        const x = K.lerp(a[0], b[0], u), y = K.lerp(a[1], b[1], u);\n        if (f.skip(x, y)) continue;\n        dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(x), cy: r2(y), r: 2.2 }));\n      }\n    });\n  }\n\n  // ---------- the plots: three cycles across, the voltage above, the current below ----------\n  const X0 = 52, X1 = 304, CW = (X1 - X0) / 3;\n  const VTOP = 46, VBOT = 146, CTOP = 200, CBOT = 276, TAX = 282, TLAB = 298;\n  const VSC = { buck: [48, 48, [48, 0, -48]], boost: [48, 144, [48, 0, -48, -96, -144]] };\n  const ISC = { buck: [4, 16, [5, 10, 15]], boost: [0, 60, [0, 20, 40, 60]] };\n  const gx = (u) => X0 + u * CW;\n  const yv = (m, v) => VTOP + (VSC[m][0] - v) * (VBOT - VTOP) / (VSC[m][0] + VSC[m][1]);\n  const yi = (m, a) => CBOT - (a - ISC[m][0]) * (CBOT - CTOP) / (ISC[m][1] - ISC[m][0]);\n  function keyRow(y, items) {\n    const ws = items.map((it) => tw(it[2], 'lab'));\n    const total = items.reduce((t, it, k) => t + 22 + ws[k] + (k ? 14 : 0), 0);\n    let x = Math.max(4, (340 - total) / 2);\n    items.forEach((it, k) => {\n      if (it[0] === 'line') ln(x, y - 4.5, x + 16, y - 4.5, it[1]);\n      else if (it[0] === 'brk') pa('M' + r2(x + 5) + ' ' + (y - 11) + ' h6 v12 h-6', it[1]);\n      else box(x + 2, y - 10, 12, 11, it[1], 2);\n      tx(it[3], x + 22, y, it[2], 'lab', 'start');\n      x += 22 + ws[k] + 14;\n    });\n  }\n  // A polyline cut at the cursor u (in cycles).\n  function cut(pts, uc) {\n    const out = [pts[0]];\n    for (let j = 1; j < pts.length; j++) {\n      const a = pts[j - 1], b = pts[j];\n      if (b[0] <= uc + 1e-9) { out.push(b); continue; }\n      if (b[0] > a[0]) out.push([uc, a[1] + (b[1] - a[1]) * (uc - a[0]) / (b[0] - a[0])]);\n      break;\n    }\n    return out;\n  }\n  const poly = (pts, fy) => pts.map((q, k) => (k ? 'L' : 'M') + r2(gx(q[0])) + ' ' + r2(fy(q[1]))).join('');\n  function drawWave(v) {\n    into = wart;\n    const w = v.w, m = v.mode, uc = v.uc, Z = yv(m, 0), D = w.D;\n    REC.w = w; REC.rects = []; REC.lit = v.lit;\n    // Titles and keys.\n    tx('vt', 4, 14, 'Voltage across the inductor, v', 'lab t', 'start');\n    keyRow(32, m === 'boost' ? [['box', v.lit ? 'lit' : 'sh', 'on: Vin', 'k1'], ['box', 'shn', 'off: Vout − Vin', 'k2']]\n      : [['box', v.lit ? 'lit' : 'sh', 'on: Vin − Vout', 'k1'], ['box', 'shn', 'off: Vout', 'k2']]);\n    tx('it', 4, 170, 'Current in the inductor, i', 'lab t', 'start');\n    keyRow(188, [['line', 'avg', 'average', 'k3'], ['brk', 'brk', 'rise each cycle', 'k4']]);\n    // Axes and ticks.\n    ln(X0, VTOP - 4, X0, VBOT, 'ax');\n    const vt = VSC[m][2];\n    vt.forEach((t, k) => { ln(X0 - 4, yv(m, t), X0, yv(m, t), 'ax'); tx('y' + k, X0 - 6, yv(m, t) + 4.5, t === 0 ? '0' : fx(t, 0) + (k === 0 || k === vt.length - 1 ? ' V' : ''), 'lab m', 'end'); });\n    ln(X0, CTOP - 4, X0, CBOT, 'ax'); ln(X0, TAX, X1, TAX, 'ax');\n    const it = ISC[m][2];\n    it.forEach((t, k) => { ln(X0 - 4, yi(m, t), X0, yi(m, t), 'ax'); if (!v.hideI) tx('i' + k, X0 - 6, yi(m, t) + 4.5, fx(t, 0) + (k === it.length - 1 ? ' A' : ''), 'lab m', 'end'); });\n    [0, 1, 2, 3].forEach((k) => { ln(gx(k), TAX, gx(k), TAX + 4, 'ax'); tx('t' + k, gx(k), TLAB, k ? f1(k * Tus(w.f)) + ' µs' : '0', 'lab m'); });\n    tx('tt', 4, TLAB, 'time t', 'lab m', 'start');\n    // The two areas of each cycle, up to the cursor.\n    const yTop = yv(m, w.hOn), yBot = yv(m, -w.hOff);\n    for (let k = 0; k < 3; k++) {\n      if (uc > k) { const e = Math.min(k + D, uc); box(gx(k), yTop, gx(e) - gx(k), Z - yTop, v.lit ? 'lit' : 'sh'); REC.rects.push(['on', k, e - k, w.hOn]); }\n      if (uc > k + D) { const e = Math.min(k + 1, uc); box(gx(k + D), Z, gx(e) - gx(k + D), yBot - Z, 'shn'); REC.rects.push(['off', k, e - k - D, w.hOff]); }\n    }\n    ln(X0, Z, X1, Z, 'zero');\n    // The voltage across the inductor, and the current in it, drawn up to the cursor.\n    const vp = [[0, w.hOn]];\n    for (let k = 0; k < 3; k++) { vp.push([k + D, w.hOn], [k + D, -w.hOff], [k + 1, -w.hOff]); if (k < 2) vp.push([k + 1, w.hOn]); }\n    pa(poly(cut(vp, uc), (x) => yv(m, x)), 'vl');\n    const cg = add(K.svg('g', { 'clip-path': 'url(#iclip)' }));\n    const iy = (a) => yi(m, a);\n    cg.appendChild(K.svg('line', { class: 'avg', x1: X0, y1: r2(iy(w.iav)), x2: X1, y2: r2(iy(w.iav)) }));\n    const ip = [0, D, 1, 1 + D, 2, 2 + D, 3].map((u) => [u, iAt(w, u)]);\n    cg.appendChild(K.svg('path', { class: 'il', d: poly(cut(ip, uc), iy) }));\n    // The rise in one cycle, bracketed beside the last one.\n    if (uc >= 3) {\n      const s = w.i0 + 2 * w.net, ya = K.clamp(iy(s), CTOP, CBOT), yb = K.clamp(iy(s + w.rise), CTOP, CBOT), x = X1 + 8;\n      pa('M' + (x - 4) + ' ' + r2(ya) + ' H' + x + ' V' + r2(yb) + ' H' + (x - 4), 'brk');\n    }\n    // Area labels: inside each finished area when it fits, else beside the first one.\n    const hT = Z - yTop, hB = yBot - Z;\n    for (let k = 0; k < 3; k++) {\n      const onW = D * CW, offW = (1 - D) * CW, wOn = tw('on', 'lab'), wOff = tw('off', 'lab');\n      if (uc >= k + D - 1e-9) {\n        if (onW >= wOn + 8 && hT >= 18) tx('a' + 2 * k, gx(k + D / 2), (yTop + Z) / 2 + 4.5, 'on', 'lab');\n        else if (k === 0 && !v.lit) {\n          if (hT < 18) tx('a0', gx(D / 2), yTop - 5, 'on', 'lab');\n          else if (offW >= wOn + 10) tx('a0', gx(D) + 4, yTop + 14, 'on', 'lab', 'start');\n        }\n      }\n      if (uc >= k + 1 - 1e-9) {\n        if (offW >= wOff + 8 && hB >= 18) tx('a' + (2 * k + 1), gx(k + D + (1 - D) / 2), (yBot + Z) / 2 + 4.5, 'off', 'lab');\n        else if (k === 0) {\n          if (hB < 18) tx('a1', gx(D + (1 - D) / 2), yBot + 15, 'off', 'lab');\n          else if (onW >= wOff + 10) tx('a1', gx(D) - 4, yBot - 4, 'off', 'lab', 'end');\n        }\n      }\n    }\n    // A right Check on screen 3 marks the height of the area above the line.\n    if (v.lit && uc >= D) tx('hl', gx(D) + 4, yTop + 14, fx(w.hOn, 0) + ' V', 'lab', 'start');\n    // The cursor: a dot on each line.\n    if (v.cursorOn) {\n      ci(gx(uc), yv(m, vAt(w, uc)), 4, 'cdot');\n      ci(gx(uc), K.clamp(iy(iAt(w, uc)), CTOP, CBOT), 4, 'cdot');\n    }\n    const st = Math.abs(v.gap) >= 0.5 ? (v.gap > 0 ? ' The area above is bigger, so the output is rising.' : ' The area below is bigger, so the output is falling.') : ' The two areas are equal.';\n    wsvg.setAttribute('aria-label', 'Two plots over three switching cycles. Above, the voltage across the inductor, shaded above the line while the switch is on and below it while it is off.' + st +\n      ' Below, the current in the inductor, ramping up while the switch is on and down while it is off, with its average dashed.');\n  }\n\n  // ---------- one screen drawn in its state ----------\n  function view(i, p, st, vo) {\n    const d = STEPS[i], right = st.res === 'right', show = !!d.show, mode = modeOf(p), du = dutyOf(p), f = freqOf(p);\n    const u = CS ? K.clamp(CS.cur, 0, 300) / 100 : K.clamp(+p.time || 0, 0, 300) / 100;\n    const cursorOn = u < 3 || !!CS, w = wave(mode, du, f, vo);\n    const ph = u - Math.max(0, Math.min(2, Math.floor(u)));\n    return { i, d, right, show, mode, du, f, vo, w, uc: cursorOn ? u : 3, cursorOn, on: cursorOn ? (ph < w.D ? 'sw' : 'dio') : '',\n      gap: vT(mode, du) - vo, lit: !!(d.ans && d.ans.lit && right), hideI: !!d.hideI && !right, hideB: !!d.hideB && !right };\n  }\n  function render(i, p, st, vo) {\n    REC = { texts: [], v: null, rects: [], lit: false, on: '', w: null };\n    const v = view(i, p, st, vo);\n    REC.v = v;\n    art.textContent = ''; slots(el('clabs'), SL.clabs);\n    wart.textContent = ''; slots(el('wlabs'), SL.wlabs);\n    drawCircuit(v); drawWave(v);\n    into = null;\n    return REC;\n  }\n  function outsNow(v) {\n    const rip = rippleOf(v.mode, v.du, v.f, v.vo);\n    rV.set(v.vo); rR.set(rip); rB.set(iBatOf(v.vo));\n    if (v.hideB) {\n      const val = rB.el.querySelector('.k-readout-value');\n      if (val) { val.textContent = '?'; val.classList.add('k-wait'); }\n    }\n    // Ripple and its guide wait for the Ripple screen; a demonstration ending on the next puzzle's answer hides the battery current.\n    const ripOn = v.i >= RIP;\n    rR.el.hidden = !ripOn; rB.el.hidden = !!v.d.noB;\n    const buck = v.mode === 'buck';\n    el('gauge').hidden = !buck || !ripOn;\n    if (buck) {\n      const r = Math.round(rip);\n      el('gmark').style.left = r2(K.clamp(rip, 0, GMAX) / GMAX * 100) + '%';\n      el('gtrack').setAttribute('aria-label', r < GUIDE[0] ? 'The ripple marker sits below the guide band.' : r > GUIDE[1] ? 'The ripple marker sits above the guide band.' : 'The ripple marker sits inside the guide band.');\n    }\n  }\n  function paint() {\n    const i = at(), p = K.params();\n    const R = render(i, p, S[i], VO);\n    if (STEPS[i].show && !finished) el('say').textContent = nb(sayFor(R.v));\n    outsNow(R.v);\n  }\n\n  // ---------- what Dan reads under the picture ----------\n  const hv = (x) => (Math.abs(x - Math.round(x)) < 0.05 ? '' : 'about ') + fx(x, 0);\n  function sayFor(v) {\n    const m = v.mode, w = v.w;\n    if (v.cursorOn) {\n      const t = f1(v.uc * Tus(v.f));\n      if (v.on === 'sw') return m === 'buck' ? `At ${t} µs, the switch is on. Current flows from the battery through the inductor, so its current climbs.`\n        : `At ${t} µs, the switch is on. The inductor takes the whole ${VIN} V, so its current climbs.`;\n      return m === 'buck' ? `At ${t} µs, the switch is off. The inductor keeps its current going through the diode, and it falls.`\n        : `At ${t} µs, the switch is off. The inductor drives its current through the diode into the output, and it falls.`;\n    }\n    const V = fx(v.vo, 0);\n    if (Math.abs(v.gap) >= 0.5) return v.gap > 0 ? `The output is ${V} V and rising. The area above the line is bigger, so the current gains a little each cycle.`\n      : `The output is ${V} V and falling. The area below the line is bigger, so the current loses a little each cycle.`;\n    if (v.d.name === 'Ripple') return `At ${v.f} kHz, each on-time lasts ${f1(w.D * Tus(v.f))} µs. The current climbs ${fx(w.rise, 1)} A in it, ${fx(rippleOf(m, v.du, v.f, v.vo), 0)}% of the load's ${IL} A.`;\n    return `With D at ${v.du}%, the output holds at ${V} V. The area above, ${hv(w.hOn)} V for ${v.du}% of each cycle, balances ${hv(w.hOff)} V below for the other ${100 - v.du}%.`;\n  }\n  function settingFor(v) {\n    const parts = [MODEN[v.mode], 'D = ' + v.du + '%', 'f = ' + v.f + ' kHz'];\n    if (holdOf(v.i) != null) parts.push('output stopped at ' + fx(v.vo, 0) + ' V');\n    if (v.cursorOn) parts.push('cursor at ' + f1(v.uc * Tus(v.f)) + ' µs, switch ' + (v.on === 'sw' ? 'on' : 'off'));\n    if (v.d.note) parts.push(v.d.note);\n    return parts.join(' · ');\n  }\n  function showEl(id, on) { const e = el(id); if (e.hidden && on) enter(id); e.hidden = !on; }\n  const outsShown = (d, right) => !!d.show || d.outs !== 'after' || right;\n  function layout(i, d, st, p, v) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, nb(d.show ? d.text : d.task));\n    const vis = visIds(d, p), has = (id) => vis.indexOf(id) >= 0;\n    modeCtl.el.hidden = !has('mode'); el('sw').hidden = !has('mode');\n    dutyCtl.el.hidden = !has('duty'); dutyBCtl.el.hidden = !has('dutyB'); freqCtl.el.hidden = !has('freq'); timeCtl.el.hidden = !has('time');\n    el('ctl').hidden = !(has('duty') || has('dutyB') || has('freq') || has('time'));\n    playBtn.el.hidden = !has('play'); el('ctl2').hidden = !has('play');\n    el('wave').toggleAttribute('hidden', d.plots === 'after' && !right);   // an svg has no .hidden property\n    showEl('outs', outsShown(d, right));\n    const outs = el('outs');\n    if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }\n    else if (el('say').nextElementSibling !== outs) el('say').after(outs);\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? nb(sayFor(v)) : '';\n    el('setting').hidden = !!d.show;\n    el('setting').textContent = d.show ? '' : nb(settingFor(v));\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, nb(d.why));\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  write(el('finish'), FINISH);\n\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); CS = null; SW = null; VW = 0;\n    const d = STEPS[i], right = S[i].res === 'right', q = setupOf(i, right);\n    IDS.forEach((id) => CTL[id].set(q[id], true));\n    lastMode = q.mode;\n    const h = holdOf(i);\n    VO = h != null ? h : vT(q.mode, q.mode === 'boost' ? q.dutyB : q.duty);\n    if (d.show && d.play && !calm()) {\n      if (d.play === 'cursor') startCursor(0, 300, DEMO, FADE);\n      else if (d.play.vo != null) { VO = d.play.vo; VW = FADE; play(); }\n      else startSweep(d.play.id, d.play.from, d.play.to, d.play.dur, FADE);\n    }\n  }\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    if (!motion.playing() && (CS || SW)) { settle(); K.refresh(); return; }\n    if (SW && +p[SW.id] !== SW.last) SW = null;               // Dan took hold of the slider\n    if (CS && +p.time !== CS.last) CS = null;\n    if (p.mode !== lastMode) {\n      lastMode = p.mode;\n      if (d.show && visIds(d, p).indexOf('mode') >= 0) {\n        // The duty cycle carries across (Boost stops at 75%). The output starts where the new circuit can hold it.\n        if (p.mode === 'boost') dutyBCtl.set(Math.min(r5(p.duty), DBMAX), true); else dutyCtl.set(r5(p.dutyB), true);\n        VO = p.mode === 'boost' ? Math.max(VO, VIN) : Math.min(VO, VIN);\n        VW = 0; SW = null; K.refresh(); return;\n      }\n    }\n    if (!pinning) {\n      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.\n      const q = setupOf(i, st.res === 'right'), vis = visIds(d, p);\n      let fix = false;\n      IDS.forEach((id) => {\n        if (vis.indexOf(id) >= 0 || (SW && SW.id === id) || (CS && id === 'time')) return;\n        if (String(p[id]) !== String(q[id])) { CTL[id].set(q[id], true); fix = true; }\n      });\n      if (fix) { pinning = true; K.refresh(); pinning = false; return; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    syncVO(i, p);\n    const R = render(i, p, st, VO);\n    layout(i, d, st, p, R.v);\n    outsNow(R.v);\n    dots();\n    kick();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, over, right) {\n    const keep = [CS, SW, VO, VW];\n    CS = null; SW = null;\n    try {\n      const q = Object.assign({}, K.params(), setupOf(i, !!right), over || {});\n      const h = !right && STEPS[i].set.hold != null ? STEPS[i].set.hold : null;\n      const vo = over && over.vo != null ? over.vo : h != null ? h : vT(modeOf(q), dutyOf(q));\n      return render(i, q, right ? solved(i) : blank(), vo);\n    } finally { CS = keep[0]; SW = keep[1]; VO = keep[2]; VW = keep[3]; paint(); }\n  }\n  const atM = (m, d, f) => K.at(m === 'boost' ? { mode: m, dutyB: d, freq: f || 50 } : { mode: m, duty: d, freq: f || 50 });\n  const dList = (m) => { const a = []; for (let d = 10; d <= (m === 'boost' ? DBMAX : 90); d += 5) a.push(d); return a; };\n  const areas = (w) => [w.hOn * w.D, w.hOff * (1 - w.D)];\n  // The output following its target as a slider sweeps it, at 60 frames a second: seconds until it is within EPS.\n  function settleTime(m, from, to, dur, v0) {\n    let v = v0 == null ? vT(m, from) : v0, t = 0;\n    const dt = 1 / 60;\n    while (t < 20) {\n      t += dt;\n      const d = r5(K.lerp(from, to, K.ease(K.clamp(t / (dur || 1e-9), 0, 1)))), vt = vT(m, d);\n      v += (vt - v) * (1 - Math.exp(-dt / TAU));\n      if (t >= (dur || 0) && Math.abs(vt - v) <= EPS) return t;\n    }\n    return t;\n  }\n\n  K.check('A buck settles where its two areas balance, at Vout = D × Vin: 24 V at 50%, 12 V at 25% and 36 V at 75%', () => {\n    if (!(fx(atM('buck', 50).volts, 0) === '24' && fx(atM('buck', 25).volts, 0) === '12' && fx(atM('buck', 75).volts, 0) === '36')) return false;\n    return dList('buck').every((d) => { const a = areas(wave('buck', d, 50, vT('buck', d))); return K.near(a[0], a[1], 1e-9); });\n  });\n  K.check('A boost settles at Vin ÷ (1 − D): 96 V at 50% and 192 V at 75%. There 48 V for three quarters of a cycle and 144 V for a quarter both come to 36', () => {\n    const w = wave('boost', 75, 50, vBoost(75)), a = areas(w);\n    return fx(atM('boost', 50).volts, 0) === '96' && fx(atM('boost', 75).volts, 0) === '192' && K.near(a[0], 36, 1e-9) && K.near(a[1], 36, 1e-9) && w.hOff === 144 &&\n      dList('boost').every((d) => { const b = areas(wave('boost', d, 50, vT('boost', d))); return K.near(b[0], b[1], 1e-9); });\n  });\n  K.check('In a steady state, the average voltage across the inductor is zero: the drawn voltage averages zero over a cycle at every duty cycle, in both circuits', () => {\n    for (const m of MODES) for (const d of dList(m)) {\n      const w = wave(m, d, 50, vT(m, d));\n      let s = 0;\n      const n = 4000;\n      for (let k = 0; k < n; k++) s += vAt(w, (k + 0.5) / n);\n      if (Math.abs(s / n) > 0.05) return false;\n    }\n    return true;\n  }, { source: ALLPCB });\n  K.check('The volt-second balance equation is (Vin − Vo) × Ton = Vo × Toff: it holds in Buck once settled, at every duty cycle and frequency', () => {\n    for (const d of dList('buck')) for (let f = 10; f <= 100; f += 15) {\n      const T = Tus(f), v = vT('buck', d);\n      if (!K.near((VIN - v) * T * d / 100, v * T * (1 - d / 100), 1e-9)) return false;\n    }\n    return true;\n  }, { source: ALLPCB });\n  K.check('Below the balance the current gains each cycle: with D at 50% and the output at 20 V, it climbs 2.8 A and falls 2.0 A, ending each cycle 0.8 A higher. Above it, it loses', () => {\n    const w = wave('buck', 50, 50, HOLD), up = wave('buck', 50, 50, 28), r = drawnAt(4);\n    return K.near(w.rise, 2.8, 1e-9) && K.near(w.fall, 2.0, 1e-9) && K.near(w.net, 0.8, 1e-9) && up.net < 0 && K.near(r.w.net, 0.8, 1e-9) && r.v.vo === HOLD;\n  });\n  K.check('The output moves the way the bigger area says, at a rate that follows the difference: within 1% of a new setting in about 2 s of the slowed picture', () => {\n    for (const m of MODES) for (const d of dList(m)) for (const v of [vT(m, d) * 0.8, vT(m, d) * 1.1]) {\n      const w = wave(m, d, 50, v), a = areas(w);\n      if (Math.sign(a[0] - a[1]) !== Math.sign(vT(m, d) - v)) return false;\n    }\n    return Math.exp(-2 / TAU) < 0.01 && Math.exp(-1.5 / TAU) > 0.01;\n  });\n  K.check('In Buck at 50%, the current rises 2.4 A a cycle at 50 kHz, 24% of 10 A; 1.2 A at 100 kHz, 12%; and 4.8 A at 25 kHz, 48%. The boost\\'s 4.8 A on its 20 A average is also 24%', () =>\n    fx(atM('buck', 50, 50).ripple, 0) === '24' && fx(atM('buck', 50, 100).ripple, 0) === '12' && fx(atM('buck', 50, 25).ripple, 0) === '48' &&\n    N.r50 === '2.4' && N.r100 === '1.2' && N.r25 === '4.8' && N.ru50 === '4.8' && N.rpu50 === '24' && fx(atM('boost', 50, 50).ripple, 0) === '24');\n  K.check('A good estimation for the inductor ripple current is 20% to 40% of the output current: the band beside the ripple readout runs from 20% to 40%', () => {\n    const b = el('gband');\n    return GUIDE[0] === 20 && GUIDE[1] === 40 && b.style.left === '25%' && b.style.width === '25%';\n  }, { source: TIBUCK });\n  K.check('The battery current is the load\\'s power over 48 V: 5.0 A at 50% and 2.5 A at 25% in Buck, 20.0 A at 50% and 40.0 A at 75% in Boost', () =>\n    fx(atM('buck', 50).batteryCurrent, 1) === '5.0' && fx(atM('buck', 25).batteryCurrent, 1) === '2.5' && fx(atM('boost', 50).batteryCurrent, 1) === '20.0' &&\n    fx(atM('boost', 75).batteryCurrent, 1) === '40.0' && MODES.every((m) => dList(m).every((d) => K.near(atM(m, d).batteryCurrent * VIN, atM(m, d).volts * IL, 1e-9))));\n  K.check('When the switch turns on in Boost, the voltage across the inductor increases to approximately the input voltage, and the current in it climbs', () =>\n    dList('boost').every((d) => { const w = wave('boost', d, 50, vT('boost', d)); return w.hOn === VIN && iAt(w, w.D) > iAt(w, 0); }) &&\n    BOLD.boost.sw.indexOf('dio') < 0 && BOLD.boost.sw.indexOf('coil') >= 0, { source: TIBOOST });\n  K.check('The boost converter is used to step up an input voltage to some higher level: its output sits above the battery at every duty cycle', () =>\n    dList('boost').every((d) => atM('boost', d).volts > VIN), { source: TISTEP });\n  K.check('When the switch opens again, the inductor current continues to flow into the diode: the off path in Buck runs through the diode, and the current never falls to zero', () => {\n    for (const m of MODES) for (const d of dList(m)) for (let f = 10; f <= 100; f += 5) {\n      const w = wave(m, d, f, vT(m, d));\n      if (!(iAt(w, 1) > 0 && iAt(w, 0) > 0)) return false;\n    }\n    return BOLD.buck.dio.indexOf('dio') >= 0 && BOLD.buck.dio.indexOf('coil') >= 0 && BOLD.buck.dio.indexOf('sw') < 0;\n  }, { source: ADI });\n  K.check('Settled at 50%, the Buck picture shades 24 V above the line and 24 V below, each for half of every cycle, and the current ends each cycle where it began', () => {\n    const r = drawnAt(3), w = r.w;\n    return r.rects.length === 6 && r.rects.every((q) => K.near(q[2], 0.5, 1e-9) && K.near(q[3], 24, 1e-9)) && K.near(w.net, 0, 1e-9) &&\n      K.near(iAt(w, 3), iAt(w, 0), 1e-9) && !r.v.cursorOn;\n  });\n  K.check('Screen 3 lights the area above the line, marked 24 V, only after a right Check, with the cursor in an on-time', () => {\n    const b = drawnAt(2, null, false), a = drawnAt(2, null, true);\n    return !b.lit && b.texts.indexOf('24 V') < 0 && a.lit && a.texts.indexOf('24 V') >= 0 && b.on === 'sw' && a.on === 'sw';\n  });\n  K.check('A transistor held part on with 24 V across it and 10 A through it makes 240 W. A series resistor dropping 36 V burns 360 W, while the buck takes 120 W for the load\\'s 120 W', () =>\n    N.heat === '240' && N.heatAll === '480' && N.res === '360' && N.p25 === '120' && K.near(atM('buck', 25).batteryCurrent * VIN, 120, 1e-9));\n  K.check('Every number in the words comes from the rule: 24, 12, 36, 28, 2.5, 40, 10, 40, 20, 2.4, 24, 1.2, 12, 4.8, 48, 96, 48, 192, 144, 15, 5, 720, 20, 960, 40, 75, 25, 60, 0.6, 20 and 40', () =>\n    N.b50 === '24' && N.drop === '24' && N.b25 === '12' && N.on25 === '36' && N.on20 === '28' && N.hold === '20' && N.ib25 === '2.5' && N.ib50 === '5' && N.x4 === '40' &&\n    N.on50t === '10' && N.T25 === '40' && N.on25t === '20' && N.rp50 === '24' && N.rp100 === '12' && N.rp25 === '48' && N.u50 === '96' && N.off50 === '48' &&\n    N.u75 === '192' && N.x4V === '192' && N.off75 === '144' && N.area75 === '720' && N.area75b === '720' && N.on75t === '15' && N.off75t === '5' && N.iu50 === '20' && N.pu50 === '960' && N.iu75 === '40' &&\n    N.dB === '75' && N.dWrong === '25' && N.d40 === '60' && N.d40f === '0.6' && N.half40 === '20' && N.dw === '40');\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden numbers appear only after a right Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      if (d.outs === 'after' && !(!outsShown(d, false) && outsShown(d, true))) return false;\n      if (d.hideB) { const a = view(i, setupOf(i, false), blank(), 24), b = view(i, setupOf(i, true), solved(i), 24); if (!(a.hideB && !b.hideB)) return false; }\n      return true;\n    }));\n  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () => {\n    const d6 = settleTime('buck', 50, 25, 1.4), d10 = settleTime('boost', 50, 50, 0, VIN);\n    const a5 = 0.1 + TAU * Math.log((vBuck(50) - HOLD) / 0.5), a12 = TAU * Math.log((vBoost(75) - vBoost(50)) / 0.5);\n    return FADE + DEMO <= 4.5 && FADE + d6 <= 4.5 && FADE + d10 <= 4.5 && FADE + 3 <= 4.5 && a5 <= 3 && a12 <= 3 && ANS_SW + 0.1 <= 3;\n  });\n\n  K.ready();\n</script>",
+  "title": "The balancing inductor",
+  "brief": "The one thing you should see is the output voltage move until the inductor's two shaded areas are equal, settling at D × 48 V, when you drag the duty cycle.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A buck settles where its two areas balance, at Vout = D × Vin: 24 V at 50%, 12 V at 25% and 36 V at 75%",
+     "ok": true
+    },
+    {
+     "label": "A boost settles at Vin ÷ (1 − D): 96 V at 50% and 192 V at 75%. There 48 V for three quarters of a cycle and 144 V for a quarter both come to 36",
+     "ok": true
+    },
+    {
+     "label": "In a steady state, the average voltage across the inductor is zero: the drawn voltage averages zero over a cycle at every duty cycle, in both circuits",
+     "ok": true,
+     "source": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle"
+    },
+    {
+     "label": "The volt-second balance equation is (Vin − Vo) × Ton = Vo × Toff: it holds in Buck once settled, at every duty cycle and frequency",
+     "ok": true,
+     "source": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle"
+    },
+    {
+     "label": "Below the balance the current gains each cycle: with D at 50% and the output at 20 V, it climbs 2.8 A and falls 2.0 A, ending each cycle 0.8 A higher. Above it, it loses",
+     "ok": true
+    },
+    {
+     "label": "The output moves the way the bigger area says, at a rate that follows the difference: within 1% of a new setting in about 2 s of the slowed picture",
+     "ok": true
+    },
+    {
+     "label": "In Buck at 50%, the current rises 2.4 A a cycle at 50 kHz, 24% of 10 A; 1.2 A at 100 kHz, 12%; and 4.8 A at 25 kHz, 48%. The boost's 4.8 A on its 20 A average is also 24%",
+     "ok": true
+    },
+    {
+     "label": "A good estimation for the inductor ripple current is 20% to 40% of the output current: the band beside the ripple readout runs from 20% to 40%",
+     "ok": true,
+     "source": "https://www.ti.com/lit/an/slva477b/slva477b.pdf?ts=1786269682384"
+    },
+    {
+     "label": "The battery current is the load's power over 48 V: 5.0 A at 50% and 2.5 A at 25% in Buck, 20.0 A at 50% and 40.0 A at 75% in Boost",
+     "ok": true
+    },
+    {
+     "label": "When the switch turns on in Boost, the voltage across the inductor increases to approximately the input voltage, and the current in it climbs",
+     "ok": true,
+     "source": "https://www.ti.com/download/trng/docs/seminar/Topic_3_Lynch.pdf"
+    },
+    {
+     "label": "The boost converter is used to step up an input voltage to some higher level: its output sits above the battery at every duty cycle",
+     "ok": true,
+     "source": "https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/3678.snva731.pdf"
+    },
+    {
+     "label": "When the switch opens again, the inductor current continues to flow into the diode: the off path in Buck runs through the diode, and the current never falls to zero",
+     "ok": true,
+     "source": "https://www.analog.com/en/resources/technical-articles/dc-to-dc-buck-converter-tutorial.html"
+    },
+    {
+     "label": "Settled at 50%, the Buck picture shades 24 V above the line and 24 V below, each for half of every cycle, and the current ends each cycle where it began",
+     "ok": true
+    },
+    {
+     "label": "Screen 3 lights the area above the line, marked 24 V, only after a right Check, with the cursor in an on-time",
+     "ok": true
+    },
+    {
+     "label": "A transistor held part on with 24 V across it and 10 A through it makes 240 W. A series resistor dropping 36 V burns 360 W, while the buck takes 120 W for the load's 120 W",
+     "ok": true
+    },
+    {
+     "label": "Every number in the words comes from the rule: 24, 12, 36, 28, 2.5, 40, 10, 40, 20, 2.4, 24, 1.2, 12, 4.8, 48, 96, 48, 192, 144, 15, 5, 720, 20, 960, 40, 75, 25, 60, 0.6, 20 and 40",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden numbers appear only after a right Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "mode",
+    "duty",
+    "dutyB",
+    "freq",
+    "time"
+   ],
+   "readouts": [
+    "volts",
+    "ripple",
+    "batteryCurrent"
+   ],
+   "outputs": [
+    "volts",
+    "ripple",
+    "batteryCurrent"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Heat in a transistor",
+      "Chop it",
+      "Across the inductor",
+      "Two areas",
+      "Too low",
+      "The rule",
+      "From the battery",
+      "Ripple",
+      "Slower switching",
+      "Boost",
+      "Boost from the battery",
+      "Four times",
+      "A run-down battery"
+     ],
+     "value": 0
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "Circuit",
+     "options": [
+      "buck",
+      "boost"
+     ],
+     "labels": [
+      "Buck",
+      "Boost"
+     ],
+     "value": "buck",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "duty",
+     "kind": "control",
+     "label": "Duty cycle D",
+     "min": 10,
+     "max": 90,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "shown": false,
+     "snap": [
+      25,
+      50,
+      75
+     ]
+    },
+    {
+     "id": "dutyB",
+     "kind": "control",
+     "label": "Duty cycle D",
+     "min": 10,
+     "max": 75,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "shown": false,
+     "snap": [
+      50,
+      75
+     ]
+    },
+    {
+     "id": "freq",
+     "kind": "control",
+     "label": "Switching frequency f",
+     "min": 10,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "shown": false,
+     "snap": [
+      25,
+      50,
+      100
+     ]
+    },
+    {
+     "id": "time",
+     "kind": "control",
+     "label": "Time",
+     "min": 0,
+     "max": 300,
+     "step": 5,
+     "log": false,
+     "value": 300,
+     "shown": false,
+     "snap": [
+      0,
+      100,
+      125,
+      175,
+      200,
+      300
+     ]
+    }
+   ],
+   "actions": [
+    "Play",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "A buck with D following a sine gives a sine riding on DC that never reverses, not AC; a drive needs a bridge (i7). And a real converter's input capacitor draws battery current in the off-time too; only the switch's current stops."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"The frequency sets the ripple, not the output voltage\" holds only while the inductor current stays continuous; at light load, when it falls to zero each cycle, the output depends on frequency too. Both lines are read alone in the dossier."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

@@ -1,0 +1,227 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "On 230 V the humps peak at 230 × √2 = 325 V. With no capacitor they average 0.637 × 325 = 207 V",
+        "ok": true
+      },
+      {
+        "label": "The smoothing capacitor converts the full-wave rippled output of the rectifier into a more smooth DC output voltage: at 2 A on 1000 µF the bus swings about 18 V, where the humps swing through the whole 325 V",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+      },
+      {
+        "label": "The ripple frequency is twice the supply frequency, 100 Hz for a 50 Hz supply: the humps repeat every 10 ms",
+        "ok": true,
+        "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+      },
+      {
+        "label": "With no load the bus sits flat at the peak, 325 V on 230 V and 566 V on 400 V, and the supply gives no current",
+        "ok": true
+      },
+      {
+        "label": "The rule I ÷ (f × C): 2 A on 1000 µF gives 20 V, 4 A gives 40 V, 2000 µF gives 10 V, and 4 A on 4000 µF gives 10 V again",
+        "ok": true
+      },
+      {
+        "label": "The rule's ripple is a straight line through zero in the load current: each 0.5 A adds the same amount",
+        "ok": true
+      },
+      {
+        "label": "Twice the load makes the drawn fall twice as steep and the dip nearly twice as deep, 18 V to 34 V, each a little under the rule",
+        "ok": true
+      },
+      {
+        "label": "The bus average falls as the load grows: 325 V at 0 A, about 317 V at 2 A and 309 V at 4 A, always above the 207 V of the humps alone",
+        "ok": true
+      },
+      {
+        "label": "Each gulp puts back the charge the load took since the last one, 2 A × 10 ms = 0.02 C, and the gulp peaks at about 35 A",
+        "ok": true
+      },
+      {
+        "label": "Six-pulse on 400 V: the ripple frequency is 6 × 50 = 300 Hz, so 5 A on 1000 µF gives 5 ÷ (300 × 0.001) = 17 V by the rule, a third of a bridge's 50 V",
+        "ok": true
+      },
+      {
+        "label": "The DC bus voltage ramps to approximately 1.35 × the line voltage (rectified DC): the six-pulse humps average 3√2 ÷ π × 400 = 540 V",
+        "ok": true,
+        "source": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design"
+      },
+      {
+        "label": "An uncharged capacitive circuit is seen as a short circuit when line voltage is first applied: at switch-on the bus holds 0 V, so the whole 325 V drives 325 A through 1 Ω, gone within 5 ms",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/motor-control/literature/applications/eaton-sc9000-soft-mag-pre-charge-system-application-paper-ap02004en.pdf"
+      },
+      {
+        "label": "Precharge through 100 Ω: the first current is about 3 A, R × C = 0.1 s, and after five time constants the bus is 99.3% full with about 2 V left, which drives a blip of about 2 A through 1 Ω",
+        "ok": true
+      },
+      {
+        "label": "The picture shows the diodes conducting and the capacitor filling only while the hump is above the bus, and the capacitor draining through the load otherwise",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every number in the words comes from the rule: 325, 207, 2 V a millisecond, 20, 18, 10, 40, 317, 309, 566, 1.35, 540, 325 A, 5 ms, 0.1 s, 0.5 s, 63%, 99.3%, 3 A, 2 V, 2 A, 4000 µF and 17 V",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "supply",
+      "C",
+      "I",
+      "pre"
+    ],
+    "readouts": [
+      "ripple",
+      "busAvg",
+      "supplyPeak"
+    ],
+    "outputs": [
+      "ripple",
+      "busAvg",
+      "supplyPeak"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "The reservoir",
+          "No load",
+          "The drain",
+          "How far it falls",
+          "The ripple rule",
+          "Double the load",
+          "Light load, heavy load",
+          "An idle drive",
+          "Switch on",
+          "Five time constants",
+          "Precharge",
+          "Keep the ripple",
+          "Six-pulse ripple"
+        ],
+        "value": 0
+      },
+      {
+        "id": "supply",
+        "kind": "choice",
+        "label": "Supply",
+        "options": [
+          230,
+          400
+        ],
+        "labels": [
+          "230 V, 1-phase",
+          "400 V, 3-phase"
+        ],
+        "value": 230,
+        "index": 0,
+        "shown": true
+      },
+      {
+        "id": "C",
+        "kind": "control",
+        "label": "Capacitance, C",
+        "min": 500,
+        "max": 4000,
+        "step": 100,
+        "log": false,
+        "value": 1000,
+        "shown": true,
+        "snap": [
+          1000,
+          2000,
+          4000
+        ]
+      },
+      {
+        "id": "I",
+        "kind": "control",
+        "label": "Load current, I",
+        "min": 0,
+        "max": 5,
+        "step": 0.5,
+        "log": false,
+        "value": 2,
+        "shown": true,
+        "snap": [
+          0,
+          2,
+          4,
+          5
+        ]
+      },
+      {
+        "id": "pre",
+        "kind": "toggle",
+        "label": "Precharge",
+        "options": [
+          false,
+          true
+        ],
+        "value": false,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Play",
+      "Switch on",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "The page height keeps growing with the frame (avoid vh units and height:100%). [at 1040 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

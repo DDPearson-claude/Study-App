@@ -1,0 +1,743 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "The transistor as a switch",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the heat in the switch climb from 40 W to a 3000 W peak when you drag the gate from fully on to half on, where 300 V meets 10 A at once.",
+   "title": "The switch and its heat",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "vSwitch",
+     "label": "Across the switch",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "current",
+     "label": "Current",
+     "unit": "A",
+     "decimals": 1
+    },
+    {
+     "id": "heat",
+     "label": "Heat in the switch",
+     "unit": "W",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in fourteen small screens. Most show one picture, the switch and its heat. A 600 V DC supply feeds a 30 Ω load through a power transistor, the switch. Both values are chosen for the example. A picker chooses BJT, MOSFET or IGBT, and its buttons wrap onto two lines on a narrow phone. The symbol and the control lead's name, base or gate, follow the pick. A gate slider runs from 0% to 100% in steps of 5%. Screen 1 shows only the slider. A small arrow on the control lead shows its current. A BJT takes a steady current into its base while on. A MOSFET's or an IGBT's gate takes a brief pulse only while the setting changes, in as it rises and out as it falls.\n\nBetween off and on, the switch acts like a resistor in series with the load. At a setting s, as a fraction, it takes 600 × (1 − s) volts, but never less than its 2 V drop, a value chosen for the example. The current is (600 − the switch's voltage) ÷ 30. The heat in the switch is its voltage times its current. Three readouts show these, wrapping onto two lines on a narrow phone, and a heat bar fills with the heat. From screen 3, a plot shows the heat against the gate setting. It is a hump: zero off, 3000 W at half on and 40 W fully on. The peak is V² ÷ (4R), here 600² ÷ 120 = 3000 W.\n\nFrom screen 5, a junction thermometer stands by the bar. The junction is the silicon inside. A heat sink of 0.5 °C per watt carries the heat to air at 40 °C, both chosen for the example. So the junction reads 40 + 0.5 × the heat. A line marks a rating of 150 °C, chosen too. Above it the thermometer turns red, and past 200 °C it runs off the top.\n\nIn switching mode, the switch flips fully on and off, on half the time. A frequency slider runs from 1 to 20 kHz in steps of 1 kHz. A strip shows a few cycles of the switch's voltage and current, slowed down. Each edge is a straight sweep through the hump, taking 0.5 µs, chosen for the example. A red flash marks each edge, drawn far wider than 0.5 µs so it shows, as a note on the strip says. The heat readout shows the average: half of 40 W while on, plus 2 mJ a cycle times the frequency. The heat bar splits into its on part and its edges part.\n\nA load switch picks Resistor or Coil. The coil has the same 30 Ω and 10 mH, chosen for the example. A tick box adds a freewheeling diode across it. An Open button turns the switch off while the coil carries 19.9 A. With no diode, the switch's voltage jumps in a red spike off the top of its 1000 V scale. With the diode, it steps to 600 V plus the diode's 0.7 V, about 601 V. The coil's current then dies away round the diode, with a time constant of L ÷ R = 10 mH ÷ 30 Ω, about 0.33 ms.\n\nThe screens.\n\n1, show: The switch. IGBT, steady, resistor, gate at 100%. Only the gate slider shows. The words: “A transistor is a switch you work with a small signal on a third lead. Its heat is the voltage across it times the current through it. Here it feeds a 30 Ω load from 600 V DC. That is close to a 440 V drive's DC link. Fully off, the whole 600 V sits across it, but almost no current flows. Fully on, about 20 A flows with only 2 V across it. That makes 2 × 20 = 40 W.” Read: fully on, the readouts show 2 V across the switch, a current of 19.9 A and 40 W of heat. Still: IGBT, steady, resistor, gate 100%.\n\n2, a puzzle: the gate stands at 0%, and the readouts are hidden. “The gate is off, and 600 V sits across the switch. How much heat does it make?” Offered: “Almost none, as almost no current flows”; “The most of any setting, from the full 600 V”; “About 40 W, the same as fully on”. Hint for the most: “Heat is volts times amps. How many amps flow when it is off?” Hint for 40 W: “Fully on, 2 V meets 20 A. What current meets the 600 V when it is off?” Why: “Almost none. Heat is the voltage times the current. Off, only a tiny leakage current flows. So 600 V times almost nothing is almost nothing. The picture draws that leakage as zero.” A right Check shows the readouts: 600 V, 0.0 A and 0 W.\n\n3, show: Half on. Steady, resistor, the gate from 100% to 50%. The words: “Between off and on, the transistor acts like a resistor in series with the load. Drag the gate to half on, 50%. The switch now takes half the supply, 300 V. Half the current flows, 10 A. Both are large at once. So the switch makes 300 × 10 = 3000 W. The plot shows the heat against the gate setting. It is a hump. At each end, the voltage or the current is near zero. In the middle, neither is.” Read: at half on, the readouts show 300 V, 10.0 A and 3000 W. The plot's dot sits on top of the hump. Still: gate 50%.\n\n4, a puzzle: the gate at 100%, the plot hidden. “Which gate setting makes the switch hottest?” Offered: “Half on”; “Fully on, with the most current”; “Fully off, with the most voltage”. Hint for fully on: “Fully on, how much voltage is across the switch?” Hint for fully off: “Fully off, how much current flows?” Why: “Half on. There 300 V meets 10 A, which is 3000 W. Fully on, 20 A meets only 2 V. Fully off, 600 V meets almost no current. So half on is no safe middle. It is the hottest place to leave this switch. Held part on on purpose, with small signals, a transistor is an amplifier. That different job is taught in Instrumentation and control.” A right Check draws the plot with its hump.\n\n5, show: Heat into temperature. The thermometer appears, the gate at 100% and then 50%. The words: “The heat has to leave through a heat sink. Its thermal resistance says how far the junction, the silicon inside, rises above the air for each watt. Say 0.5 °C per watt, with the air at 40 °C. Fully on, 40 W lifts the junction 40 × 0.5 = 20 °C, to 60 °C. Half on, 3000 W would lift it 1500 °C. Say this transistor is rated to 150 °C. It fails long before that.” Read: fully on, the thermometer reads 60 °C. At half on, it runs off the top in red. Still: gate 50%.\n\n6, a puzzle: the gate at 100%, the thermometer at 60 °C. “The junction may reach 150 °C. The air is at 40 °C. Each watt lifts the junction 0.5 °C. How much heat can this heat sink shed?” Offered: “About 220 W”; “About 300 W”; “About 55 W”. Hint for 300 W: “Count the rise from the air at 40 °C, not from zero.” Hint for 55 W: “Each watt adds 0.5 °C. So divide the rise by 0.5. Don't multiply.” Why: “About 220 W. The junction may rise 150 − 40 = 110 °C. Each watt lifts it 0.5 °C. So 110 ÷ 0.5 = 220 W. Fully on, 40 W is well inside that. Half on, 3000 W is more than thirteen times too much.” A right Check marks 220 W on the heat bar.\n\n7, show: Three devices, one job. The gate at 50%, the picker from BJT to MOSFET to IGBT. The words: “Three kinds of power transistor do this job. A BJT needs a steady current into its base to stay on. A big one may need 5 A there to pass 100 A. That is a heavy load for its control circuit. A MOSFET turns on with a voltage on its gate. Its gate draws almost no current except while it changes over. An IGBT puts a MOSFET's gate in charge of a bipolar output. It handles high voltages and currents, but turns off more slowly. Pick each one at half on. The heat stays at 3000 W.” Read: at half on, the heat reads 3000 W with each device picked. Only the symbol, the name of its control lead and the base current arrow change. Still: IGBT, gate 50%.\n\n8, a puzzle: the IGBT at half on. “You swap the IGBT for a MOSFET and leave it half on. What happens to the heat?” Offered: “It stays at about 3000 W”; “It falls a long way, as the gate takes no steady current”; “It falls to nothing, as a MOSFET is a better switch”. Hint for falls a long way: “The gate's current is tiny either way. Which voltage and current make the heat?” Hint for nothing: “Half on, any of these switches takes 300 V and passes 10 A here.” Why: “It stays at about 3000 W. Half on, the switch still takes 300 V and passes 10 A. That is 300 × 10 = 3000 W, whatever the device. The gate drive changes what the control circuit must supply. It does not change the heat in the switch's main path.” A right Check picks MOSFET, and the heat reads 3000 W.\n\n9, show: The edges. Switching mode at 10 kHz, the gate slider hidden. The words: “Flipping it fully on and off makes far less heat. On half the time, the load still averages about 300 V. But each edge takes time, say 0.5 µs, sweeping through the hump. A straight sweep averages a sixth of 600 V × 20 A, which is 2000 W. So each edge costs 2000 W × 0.5 µs = 1 mJ. This switching loss is the energy per switching times the frequency.[^1] At 10 kHz, two edges a cycle make 20 W. The on half adds 20 W, so 40 W in all.” Read: in switching mode at 10 kHz, the heat bar splits into 20 W on and 20 W in the edges. The heat reads 40 W, and the thermometer 60 °C. Still: switching, 10 kHz.\n\n10, a puzzle: switching mode at 10 kHz, the edges making 20 W. “You raise the frequency to 20 kHz. What do the edges make now?” Offered: “About 40 W”; “About 20 W, as each edge costs the same”; “About 10 W, as each cycle is shorter”. Hint for 20 W: “Each edge costs the same. How many edges come each second now?” Hint for 10 W: “A shorter cycle means more edges each second, not fewer.” Why: “About 40 W. Each cycle costs about 2 mJ, 1 mJ an edge. At 20,000 cycles a second, that is 2 mJ × 20,000 = 40 W. The on part stays at 20 W. So the switch makes 60 W in all. The junction reaches 70 °C.” A right Check sets 20 kHz, and the heat reads 60 W.\n\n11, show: The coil kicks back. Coil, steady, fully on. The switch opens with no diode. Then the diode is ticked, and it opens again. The words: “A coil keeps its current going, as v = L di/dt says. Contactors and motor windings are coils. Open the switch with no diode, and the coil's current has nowhere to go. The switch tries to stop it in about 0.5 µs. So di/dt is huge, and the switch takes a spike far above the supply. A freewheeling diode across the coil gives it a path round. It points so the supply cannot push current through it. Tick the diode and open it again. Now the coil sees only the diode's drop, about 0.7 V.[^2]” Read: with no diode, opening the switch sends its voltage up in a red spike off the top of the scale. With the diode ticked, opening it again steps the switch's voltage to about 601 V. The coil's current then dies away round the diode. Still: coil, diode ticked, after Open.\n\n12, a puzzle: the coil, no diode, fully on. “The switch opens on the coil with no diode. What voltage does the switch see?” Offered: “A spike far above 600 V”; “600 V, the supply”; “Zero, as the current stops”. Hint for 600 V: “The coil's current can't stop at once on its own. What does v = L di/dt give for a sudden stop?” Hint for zero: “A sudden stop in a coil's current is what makes its voltage jump.” Why: “A spike far above 600 V. The switch tries to force the coil's current from 19.9 A to zero in about 0.5 µs. So di/dt is huge, and so is L di/dt. That voltage adds to the supply across the switch. It can break the switch down. With the diode, the switch sees only about 601 V.” A right Check presses Open, and the red spike runs off the top.\n\n13, a mixed puzzle: steady, resistor, IGBT. “You want the load to average 300 V from the 600 V supply. Which way keeps the IGBT coolest?” Offered: “Flip it fully on and off, on half the time”; “Hold the gate at half on”; “Either way, as the load gets 300 V both ways”. Hint for half on: “Half on, the IGBT takes 300 V and passes 10 A. What heat is that?” Hint for either way: “The load's average is the same. Compare the heat in the switch.” Why: “Flip it. At 10 kHz, it makes about 40 W: 20 W on and 20 W in its edges. Held half on, it makes 3000 W. The load averages about 300 V both ways. But the switch's heat differs by about 75 times.” A right Check sets switching mode at 10 kHz, and the heat reads 40 W.\n\n14, a mixed puzzle: steady, resistor, the gate at 90%, the readouts hidden. “The gate stands at 90%, nearly on. Can the 220 W heat sink cope?” Offered: “No, the switch makes about 1080 W”; “Yes, nearly on is close to the 40 W of fully on”; “No, it makes the 3000 W of half on”. Hint for yes: “At 90%, the switch still takes a tenth of 600 V. What current meets it?” Hint for 3000 W: “At 90%, the voltage is lower than at half on. Work out V × I.” Why: “No. At 90%, the switch takes 60 V and passes 18 A. That is 60 × 18 = 1080 W. It is about five times what the heat sink can shed. Fully on, its voltage falls to about 2 V and the heat to 40 W.” A right Check shows the readouts: 60 V, 18.0 A and 1080 W, and the thermometer runs off the top.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked so each wraps onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains, and Continue moves on.",
+   "ignores": "The picture gives all three devices the same 2 V drop fully on. Real ones differ. A MOSFET's drop grows with its current. Off, the leakage current is drawn as zero. Real leakage is tiny but not nil. The thermometer settles at once. A real heat sink takes time to warm up. Its one thermal resistance stands for a chain, from junction to case, case to sink and sink to air. Each edge is drawn as a straight sweep through a resistive load's hump. With a coil load, a real edge holds nearly the full current while the voltage swings. So it costs more. The power the gate drive uses is left out. The switching strip is slowed down. A cycle at 10 kHz lasts only 0.1 ms.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "DC supply, chosen, V",
+     "value": 600,
+     "kind": "assumed"
+    },
+    {
+     "label": "Load resistance, chosen, Ω",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Drive supply whose DC link is near 600 V, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Gate slider, lowest, %",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Gate slider, highest, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Gate slider step, %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Gate at half on, %",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Gate nearly on in screen 14, %",
+     "value": 90,
+     "kind": "control"
+    },
+    {
+     "label": "Drop fully on, chosen, V",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Full current with no drop, 600 ÷ 30, A",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Current fully on, (600 − 2) ÷ 30, A",
+     "value": 19.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat fully on, 2 × 19.9, about, W",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Current fully off, as drawn, A",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Switch voltage half on, V",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Current half on, A",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat half on, 300 × 10, W",
+     "value": 3000,
+     "kind": "computed"
+    },
+    {
+     "label": "4 × the load in V² ÷ (4R), Ω",
+     "value": 120,
+     "kind": "computed"
+    },
+    {
+     "label": "Factor in the peak rule V² ÷ (4R)",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Thermal resistance, chosen, °C per watt",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Air temperature, chosen, °C",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Junction rating, chosen, °C",
+     "value": 150,
+     "kind": "assumed"
+    },
+    {
+     "label": "Thermometer top, °C",
+     "value": 200,
+     "kind": "assumed"
+    },
+    {
+     "label": "Junction rise fully on, 40 × 0.5, °C",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Junction fully on, 40 + 20, °C",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Junction rise half on, 3000 × 0.5, °C",
+     "value": 1500,
+     "kind": "computed"
+    },
+    {
+     "label": "Allowed rise, 150 − 40, °C",
+     "value": 110,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat the sink can shed, 110 ÷ 0.5, W",
+     "value": 220,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-on heat over 220 W, more than, times",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, 110 × 0.5, W",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Frequency slider, lowest, kHz",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider, highest, kHz",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency slider step, kHz",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Frequency, opening setting, kHz",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Edge time, chosen, µs",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Average heat over an edge, 12000 ÷ 6, W",
+     "value": 2000,
+     "kind": "computed"
+    },
+    {
+     "label": "Energy per edge, 2000 × 0.5 µs, mJ",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Energy per cycle, two edges, mJ",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Edge heat at 10 kHz, 2 mJ × 10,000, W",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "On-state heat, on half the time, W",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Total heat switching at 10 kHz, W",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Cycles a second at 20 kHz",
+     "value": 20000,
+     "kind": "computed"
+    },
+    {
+     "label": "Edge heat at 20 kHz, W",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Total heat switching at 20 kHz, W",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Junction at 20 kHz, 40 + 0.5 × 60, °C",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Load average voltage, on half the time, about, V",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-on heat over switching heat, about, times",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Cycle time at 10 kHz, ms",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil inductance, chosen, mH",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Silicon diode forward voltage, about, V",
+     "value": 0.7,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Switch voltage with the diode, 600 + 0.7, V",
+     "value": 601,
+     "kind": "computed"
+    },
+    {
+     "label": "Coil time constant, 10 mH ÷ 30 Ω, ms",
+     "value": 0.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Switch voltage scale top, V",
+     "value": 1000,
+     "kind": "assumed"
+    },
+    {
+     "label": "Switch voltage at 90%, V",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Current at 90%, A",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat at 90%, 60 × 18, W",
+     "value": 1080,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat at 90% over 220 W, about, times",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Big BJT collector current in the example, A",
+     "value": 100,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Base current it needs, at least, A",
+     "value": 5,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Worked example DC supply, V",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example load, Ω",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example current fully on, (400 − 2) ÷ 10, about, A",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example heat while on, 2 × 40, W",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example on-state heat, half the time, W",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example energy per cycle, chosen, mJ",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example frequency, chosen, kHz",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example cycles a second",
+     "value": 5000,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example switching loss, 3 mJ × 5000, W",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example total heat, W",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example thermal resistance, chosen, °C per watt",
+     "value": 0.4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example junction rise, 0.4 × 55, °C",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example junction, 40 + 22, °C",
+     "value": 62,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example held half on, 400² ÷ (4 × 10), W",
+     "value": 4000,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A power transistor is a switch you work with a small signal on its control lead. In a converter, it is kept fully on or fully off. That way it controls the load while making little heat. Held half on, it would turn far more of the power into heat.\n\nThe heat in any switch is the voltage across it times the current through it. Take 600 V DC feeding a 30 Ω load. That is close to a 440 V drive's DC link. Fully off, the whole 600 V sits across the switch. Only a tiny leakage current flows. So the heat is tiny. Fully on, about 20 A flows. A real transistor still keeps a small drop, say 2 V. So it makes about 2 × 20 = 40 W.\n\nHalf on, it acts like a resistor in series with the load. It takes half the supply, 300 V, and passes half the current, 10 A. Now both are large at once. So it makes 300 × 10 = 3000 W. The heat peaks at half on, because at each end one of them is near zero. For a resistive load, that peak is V² ÷ (4R), where V is the supply and R the load. Here that is 600² ÷ 120 = 3000 W. A transistor held part on on purpose, with small signals, is an amplifier. That different job is taught in Instrumentation and control.\n\nHeat becomes temperature through the heat sink. Its [[thermal resistance]] says how far the junction, the silicon inside, rises above the air for each watt. Say 0.5 °C per watt, with the air at 40 °C. Fully on, 40 W lifts the junction 20 °C, to 60 °C. Half on, 3000 W would lift it 1500 °C. Say the transistor is rated to 150 °C. It fails long before that. This is why an IGBT should not be run half on.\n\nSwitching has its own cost. No switch changes over instantly. During each edge, it sweeps through half on. So each edge makes a burst of heat. This [[switching loss]] is the energy per switching times the switching frequency.[^1] Say each edge takes 0.5 µs. A straight sweep through the hump averages a sixth of 600 V × 20 A, which is 2000 W. So each edge costs 2000 W × 0.5 µs = 1 mJ, or 2 mJ a cycle. At 10 kHz, the edges make 20 W. At 20 kHz, they make 40 W. On half the time, the on-state heat averages 20 W. So switching makes about 40 W at 10 kHz. Held half on, it makes 3000 W. Both give the load about 300 V on average.\n\nThree kinds of power transistor share the job. A BJT, a bipolar transistor, turns on with a current into its base. That current must flow all the time it is on. For a big one, that is a burden. To pass 100 A, it may need 5 A of base current.[^3] A MOSFET turns on with a voltage on its gate. Its gate draws almost no current except while it changes over. An IGBT puts a MOSFET's gate in charge of a bipolar output. It suits high voltages and currents. Its cost is a slower turn-off than a BJT. The heat rule is the same for all three.\n\nCoils add a danger of their own. A coil keeps its current going, as v = L di/dt says. Open its switch, and the current has no other path. The switch tries to stop it in about 0.5 µs, the edge time. So di/dt is huge. The coil can throw a spike across the switch, far above the supply. A [[freewheeling diode]] across the coil gives the current a path round. It points so the supply cannot push current through it. The current flows on through the diode. So the coil sees only the diode's drop, about 0.7 V.[^2] The switch then sees the supply plus that drop, about 601 V. This picture is simplified. It uses one fixed on drop and straight edges. Real devices differ in both. Coil loads also make each edge cost more. **A power transistor in a converter is kept fully on or fully off. Half on, its voltage times its current makes far more heat.**"
+  },
+  "analogy": {
+   "text": "A transistor held half on works like a series resistance that cuts a load's power. An old resistance starter is one. It controls the current by burning the difference as heat. A series resistance equal to the load takes half the supply at half the full current. That is the same 3000 W peak. A transistor kept fully on or fully off works like a contactor. Closed, it drops almost nothing. Open, it passes nothing. Either way, it stays cool.",
+   "breaks": "A contactor switches now and then. Its contacts drop almost nothing. A transistor in a drive switches thousands of times a second. It keeps a volt or two when fully on. So its edges and its on-state drop both make heat. A contactor's make far less."
+  },
+  "practice": {
+   "text": "An off transistor is not isolation. A little current still leaks through it. Its control circuit can also turn it back on. Isolate and prove dead, as for any other circuit.\n\n- To find a switch's heat, find the voltage across it and the current through it in each state.\n- Fully on, the heat is its on-state drop times the load current.\n- Fully off, it is the supply times a tiny leakage current, close to nothing.\n- Half on is the worst case. With a resistive load, it peaks at V² ÷ (4R), where V is the supply and R the load.\n- Add the switching loss, the energy per switching times the frequency.\n- The junction's rise is the total heat times the thermal resistance in °C per watt.\n- Add the air temperature and compare the result with the device's rating.\n- Fit a freewheeling diode across a DC coil that a transistor switches. Point it so the supply cannot push current through it. Many devices already carry one, so check before adding another.\n\n**Rule of thumb:** in a converter, keep a power transistor fully on or fully off. Its heat lives in the half-on middle and in every pass through it.\n\n**Worked example:** an IGBT switches 400 V DC into a 10 Ω load. Say it drops 2 V fully on. It passes about 40 A. So it makes about 2 × 40 = 80 W while on. On half the time, that averages 40 W. Say each cycle costs 3 mJ, and it switches at 5 kHz. The switching loss is 3 mJ × 5000 = 15 W. The total is about 55 W. Through 0.4 °C per watt, the junction rises about 22 °C. With air at 40 °C, it runs near 62 °C. Held half on instead, it would make 400² ÷ (4 × 10) = 4000 W.\n\n**Common mistakes**\n- Thinking half on is a safe middle. With a resistive load, it is the hottest setting.\n- Thinking the full voltage across an off switch heats it. With almost no current, it makes almost no heat.\n- Thinking nearly on is good enough. At 90% on, the switch on 600 V and 30 Ω makes 1080 W.\n- Thinking a different device cures half on. The circuit sets the voltage and the current.\n- Forgetting the edges. Switching loss climbs with frequency.\n- Switching a coil with no freewheeling diode. The spike can break the switch down."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "IGBT_Power_Losses_Calculation_using_the_Data_Sheet_Parameters",
+    "url": "https://www.infineon.com/assets/row/public/documents/faq/igbt-power-losses-calculation-using-the-data-sheet-parameters.pdf",
+    "quote": "The switching losses in the IGBT and the diode are the product of switching energies and the switching frequency (fsw)"
+   },
+   {
+    "n": 2,
+    "title": "Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/",
+    "quote": "Silicon diodes have a forward voltage of approximately 0.7 volts."
+   },
+   {
+    "n": 3,
+    "title": "IGBTs | Insulated-gate Field-effect Transistors | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-6/igbts/",
+    "quote": "for a power BJT with a β of 20 to conduct a collector current of 100 Amps, there must be at least 5 Amps of base current, a substantial amount of current in itself for miniature discrete or integrated control circuitry to handle:"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #sw .k-seg, #sw .k-seg.stack { display: flex; flex-wrap: wrap; }\n  #sw .k-seg button, #sw .k-seg.stack button { flex: 1 1 6.5rem; text-align: center; padding-left: 12px; }\n  #ctl2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }\n  #ctl2 > .k-btn { flex: 1 1 8rem; min-height: 48px; }\n  #ctl2 > .k-field, #ctl2 > .k-toggle { flex: 1 1 12rem; margin: 0; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  #hbox .k-label { margin-bottom: 6px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #outs.enter, #hbox.enter, #stripbox.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter, html.k-testing #hbox.enter, html.k-testing #stripbox.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter, #hbox.enter, #stripbox.enter { animation: none; } }\n  /* The circuit: thin wires, the path the current takes drawn bold. */\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }\n  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 3.5; }\n  .fig .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .plate.s { stroke-width: 4.5; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.4; }\n  .fig .coil.on { stroke: var(--k-accent2); stroke-width: 3.2; }\n  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); }\n  .fig .tr { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }\n  .fig .tr.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .tr.hot { stroke: var(--k-warn); stroke-width: 3; }\n  .fig .trb { stroke: var(--k-ink); stroke-width: 4; }\n  .fig .trb.on { stroke: var(--k-accent2); }\n  .fig .trb.hot { stroke: var(--k-warn); }\n  .fig .trg { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }\n  .fig .trh { fill: var(--k-ink); }\n  .fig .trh.on { fill: var(--k-accent2); }\n  .fig .trh.hot { fill: var(--k-warn); }\n  .fig .drv { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .lvl { fill: var(--k-accent2); fill-opacity: .55; }\n  .fig .sq { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linejoin: round; }\n  .fig .sinkp { fill: var(--k-muted); }\n  .fig .fin { stroke: var(--k-muted); stroke-width: 2.4; stroke-linecap: round; }\n  .fig .jdot { fill: var(--k-ink); }\n  .fig .flowdot { fill: var(--k-bg); }\n  /* The heat bar and the junction thermometer share one height scale through the heat sink. */\n  .fig .gbox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .hb { fill: var(--k-accent2); }\n  .fig .hbe { fill: var(--k-warn); fill-opacity: .7; }\n  .fig .tcol { fill: var(--k-accent2); }\n  .fig .tcol.hot { fill: var(--k-warn); }\n  .fig .headw { fill: var(--k-warn); }\n  .fig .m150 { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .fig .m220 { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 3; }\n  /* The strip: the switch's voltage above, the current below, on one time axis. */\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .fig .vtr { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }\n  .fig .itr { fill: none; stroke: var(--k-accent); stroke-width: 2.2; stroke-linejoin: round; }\n  .fig .spk { stroke: var(--k-warn); stroke-width: 3; }\n  .fig .mark { stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .fig .cur { stroke: var(--k-ink); stroke-width: 1.2; }\n  .fig .flash { fill: var(--k-warn); }\n  .fig .gcur { fill: var(--k-accent); }\n  .fig .odot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .pdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .lab.n { fill: var(--k-accent2); }\n  .fig .lab.q { font-size: 15px; }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count say\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"k-controls\" id=\"sw\"></div>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 222\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"circ\"><g id=\"art\"></g><g id=\"dots\"></g><g id=\"clabs\"></g></g><g id=\"gauge\"><g id=\"gart\"></g><g id=\"glabs\"></g></g></svg>\n    <div id=\"stripbox\"><svg class=\"fig\" id=\"strip\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"sart\"></g><g id=\"slabs\"></g></svg></div>\n    <p class=\"gnote say\" id=\"setting\"></p>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div id=\"ctl2\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div id=\"hbox\"><p class=\"k-label\" id=\"hlab\">Heat against the gate setting</p><div id=\"hplot\"></div></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule ----------\n  // Between off and on the switch acts like a resistor in series with the load: at a setting s it\n  // takes 600 × (1 − s) volts, never below its 2 V drop fully on. The current is the rest of the\n  // supply over the load, and the heat in the switch is its voltage times its current.\n  const BETA = 20, IBIG = 100;                 // a big BJT's gain, and the current it is asked to pass\n  const VS = 600, R = 30, VON = 2, RTH = 0.5, TAIR = 40, TJMAX = 150, TTOP = 200, TE = 0.5e-6, LH = 10e-3, VF = 0.7, VTOP = 1000;\n  const PTOP = (TTOP - TAIR) / RTH;            // the heat that takes the junction to the top of the thermometer\n  const SHED = (TJMAX - TAIR) / RTH;           // what the heat sink can shed\n  const INF1 = 'https://www.infineon.com/assets/row/public/documents/faq/igbt-power-losses-calculation-using-the-data-sheet-parameters.pdf';\n  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/';\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const vsw = (s) => Math.max(VON, VS * (1 - s));\n  const amps = (s) => (VS - vsw(s)) / R;\n  const watts = (s) => vsw(s) * amps(s);\n  const ION = amps(1);\n  // Each edge sweeps straight through the hump, which averages a sixth of 600 V × 20 A.\n  const EEDGE = VS * (VS / R) / 6 * TE;        // joules per edge\n  const P_ON = 0.5 * VON * ION;                // on half the time\n  const pEdges = (fk) => 2 * EEDGE * fk * 1000;\n  const pSwitch = (fk) => P_ON + pEdges(fk);\n  const tj = (P) => TAIR + RTH * P;\n  const TAU = LH / R;                          // seconds\n  // The coil's current round the diode after opening (t in seconds), with the diode's drop.\n  const coilI = (t) => Math.max(0, (ION + VF / R) * Math.exp(-t / TAU) - VF / R);\n  const DEVN = { bjt: 'BJT', mosfet: 'MOSFET', igbt: 'IGBT' };\n  const DEVA = { bjt: 'a BJT', mosfet: 'a MOSFET', igbt: 'an IGBT' };\n  const LEAD = { bjt: 'base', mosfet: 'gate', igbt: 'gate' };\n  const LEADC = { bjt: 'Base', mosfet: 'Gate', igbt: 'Gate' };\n\n  // Every number the words show, worked out from the rule (a check compares them with the lesson's).\n  const N = {\n    vs: String(VS), r: String(R), on2: fx(VON, 0), i20: fx(VS / R, 0), ion: fx(ION, 1), p40: fx(watts(1), 0),\n    vh: fx(vsw(0.5), 0), ih: fx(amps(0.5), 0), ih1: fx(amps(0.5), 1), ph: fx(watts(0.5), 0), r4: fx(4 * R, 0),\n    rise40: fx(RTH * watts(1), 0), tj40: fx(tj(watts(1)), 0), rise3k: fx(RTH * watts(0.5), 0),\n    room: fx(TJMAX - TAIR, 0), shed: fx(SHED, 0), wrong55: fx((TJMAX - TAIR) * RTH, 0), wrong300: fx(TJMAX / RTH, 0),\n    x13: Math.floor(watts(0.5) / SHED), hump: fx(VS * (VS / R) / 6, 0),\n    e1: fx(EEDGE * 1000, 0), e2: fx(2 * EEDGE * 1000, 0), pe10: fx(pEdges(10), 0), pon: fx(P_ON, 0), pt10: fx(pSwitch(10), 0),\n    tj10: fx(tj(pSwitch(10)), 0), pe20: fx(pEdges(20), 0), pt20: fx(pSwitch(20), 0), tj20: fx(tj(pSwitch(20)), 0), pe5: fx(pEdges(5), 0),\n    vavg: fx(Math.round(0.5 * (VS - VON) / 10) * 10, 0), ratio: fx(watts(0.5) / pSwitch(10), 0),\n    vd: fx(VS + VF, 0), tau: fx(TAU * 1000, 2),\n    base5: fx(IBIG / BETA, 0), big100: String(IBIG),\n    v90: fx(vsw(0.9), 0), i90: fx(amps(0.9), 0), p90: fx(watts(0.9), 0), x5: fx(watts(0.9) / SHED, 0),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // set: where the controls open; play: the demonstration as the screen opens; coil: the coil screens;\n  // ans.set: what a right Check moves the controls to; shows: labels that appear only after a right Check.\n  const STEPS = [\n    { show: true, name: 'The switch', set: { dev: 'igbt', mode: 'steady', gate: 100 }, ctl: ['gate'],\n      text: `A transistor is a switch you work with a small signal on a third lead. Its heat is the voltage across it times the current through it. Here it feeds a ${N.r} Ω load from ${N.vs} V DC. That is close to a 440 V drive's DC link. Fully off, the whole ${N.vs} V sits across it, but almost no current flows. Fully on, about ${N.i20} A flows with only ${N.on2} V across it. That makes ${N.on2} × ${N.i20} = ${N.p40} W.`,\n      read: `Fully on, the readouts show ${N.on2} V across the switch, a current of ${N.ion} A and ${N.p40} W of heat.`,\n      still: { dev: 'igbt', gate: 100 } },\n    { name: 'Off', set: { gate: 0 }, outs: 'after', hideGauge: true, hidePlot: true, ans: {},\n      task: `The gate is off, and ${N.vs} V sits across the switch. How much heat does it make?`,\n      opts: [`The most of any setting, from the full ${N.vs} V`, 'Almost none, as almost no current flows', `About ${N.p40} W, the same as fully on`],\n      want: 'Almost none, as almost no current flows',\n      hints: { [`The most of any setting, from the full ${N.vs} V`]: 'Heat is volts times amps. How many amps flow when it is off?',\n        [`About ${N.p40} W, the same as fully on`]: `Fully on, ${N.on2} V meets ${N.i20} A. What current meets the ${N.vs} V when it is off?` },\n      why: `Almost none. Heat is the voltage times the current. Off, only a tiny leakage current flows. So ${N.vs} V times almost nothing is almost nothing. The picture draws that leakage as zero.` },\n    { show: true, name: 'Half on', set: { gate: 100 }, play: { id: 'gate', from: 100, to: 50 },\n      text: `Between off and on, the transistor acts like a resistor in series with the load. Drag the gate to half on, 50%. The switch now takes half the supply, ${N.vh} V. Half the current flows, ${N.ih} A. Both are large at once. So the switch makes ${N.vh} × ${N.ih} = ${N.ph} W. The plot shows the heat against the gate setting. It is a hump. At each end, the voltage or the current is near zero. In the middle, neither is.`,\n      read: `At half on, across the switch reads ${N.vh} V, the current ${N.ih1} A and the heat ${N.ph} W. The plot's dot sits on top of the hump. The hump falls to ${N.p40} W fully on and to zero off.`,\n      still: { gate: 50 } },\n    { name: 'The hottest setting', set: { gate: 100 }, outs: 'before', hidePlot: true, ans: {},\n      task: 'Which gate setting makes the switch hottest?',\n      opts: ['Fully on, with the most current', 'Fully off, with the most voltage', 'Half on'],\n      want: 'Half on',\n      hints: { 'Fully on, with the most current': 'Fully on, how much voltage is across the switch?',\n        'Fully off, with the most voltage': 'Fully off, how much current flows?' },\n      why: `Half on. There ${N.vh} V meets ${N.ih} A, which is ${N.ph} W. Fully on, ${N.i20} A meets only ${N.on2} V. Fully off, ${N.vs} V meets almost no current. So half on is no safe middle. It is the hottest place to leave this switch. Held part on on purpose, with small signals, a transistor is an amplifier. That different job is taught in Instrumentation and control.` },\n    { show: true, name: 'Heat into temperature', set: { gate: 100 }, play: { id: 'gate', from: 100, to: 50 },\n      text: `The heat has to leave through a heat sink. Its *thermal resistance* says how far the *junction*, the silicon inside, rises above the air for each watt. Say ${RTH} °C per watt, with the air at ${TAIR} °C. Fully on, ${N.p40} W lifts the junction ${N.p40} × ${RTH} = ${N.rise40} °C, to ${N.tj40} °C. Half on, ${N.ph} W would lift it ${N.rise3k} °C. Say this transistor is rated to ${TJMAX} °C. It fails long before that.`,\n      read: `Fully on, the thermometer reads ${N.tj40} °C. At half on, it runs off the top in red.`,\n      still: { gate: 50 } },\n    { name: 'What the sink can shed', set: { gate: 100 }, outs: 'before', ans: {}, shows: [`${N.shed} W`],\n      task: `The junction may reach ${TJMAX} °C. The air is at ${TAIR} °C. Each watt lifts the junction ${RTH} °C. How much heat can this heat sink shed?`,\n      opts: [`About ${N.shed} W`, `About ${N.wrong300} W`, `About ${N.wrong55} W`],\n      want: `About ${N.shed} W`,\n      hints: { [`About ${N.wrong300} W`]: `Count the rise from the air at ${TAIR} °C, not from zero.`,\n        [`About ${N.wrong55} W`]: `Each watt adds ${RTH} °C. So divide the rise by ${RTH}. Don't multiply.` },\n      why: `About ${N.shed} W. The junction may rise ${TJMAX} − ${TAIR} = ${N.room} °C. Each watt lifts it ${RTH} °C. So ${N.room} ÷ ${RTH} = ${N.shed} W. Fully on, ${N.p40} W is well inside that. Half on, ${N.ph} W is more than thirteen times too much.` },\n    { show: true, name: 'Three devices, one job', set: { dev: 'bjt', gate: 50 }, play: 'devs',\n      text: `Three kinds of power transistor do this job. A *BJT* needs a steady current into its base to stay on. A big one may need ${N.base5} A there to pass ${N.big100} A. That is a heavy load for its control circuit. A *MOSFET* turns on with a voltage on its gate. Its gate draws almost no current except while it changes over. An *IGBT* puts a MOSFET's gate in charge of a bipolar output. It handles high voltages and currents, but turns off more slowly. Pick each one at half on. The heat stays at ${N.ph} W.`,\n      read: `At half on, the heat reads ${N.ph} W with each device picked. Only the symbol, the name of its control lead and the base current arrow change.`,\n      still: { dev: 'igbt', gate: 50 } },\n    { name: 'Swap the device', set: { dev: 'igbt', gate: 50 }, outs: 'before', ans: { set: { dev: 'mosfet' } }, shows: ['MOSFET'],\n      task: 'You swap the IGBT for a MOSFET and leave it half on. What happens to the heat?',\n      opts: ['It falls a long way, as the gate takes no steady current', `It stays at about ${N.ph} W`, 'It falls to nothing, as a MOSFET is a better switch'],\n      want: `It stays at about ${N.ph} W`,\n      hints: { 'It falls a long way, as the gate takes no steady current': 'The gate\\'s current is tiny either way. Which voltage and current make the heat?',\n        'It falls to nothing, as a MOSFET is a better switch': `Half on, any of these switches takes ${N.vh} V and passes ${N.ih} A here.` },\n      why: `It stays at about ${N.ph} W. Half on, the switch still takes ${N.vh} V and passes ${N.ih} A. That is ${N.vh} × ${N.ih} = ${N.ph} W, whatever the device. The gate drive changes what the control circuit must supply. It does not change the heat in the switch's main path.` },\n    { show: true, name: 'The edges', set: { mode: 'switch', f: 10 }, play: 'cursor',\n      text: `Flipping it fully on and off makes far less heat. On half the time, the load still averages about ${N.vavg} V. But each edge takes time, say 0.5 µs, sweeping through the hump. A straight sweep averages a sixth of ${N.vs} V × ${N.i20} A, which is ${N.hump} W. So each edge costs ${N.hump} W × 0.5 µs = ${N.e1} mJ. This *switching loss* is the energy per switching times the frequency. At 10 kHz, two edges a cycle make ${N.pe10} W. The on half adds ${N.pon} W, so ${N.pt10} W in all.`,\n      read: `In switching mode at 10 kHz, the heat bar splits into ${N.pon} W on and ${N.pe10} W in the edges. The heat reads ${N.pt10} W, and the thermometer ${N.tj10} °C.`,\n      still: { mode: 'switch', f: 10 } },\n    { name: 'Twice the frequency', set: { mode: 'switch', f: 10 }, outs: 'before', ans: { set: { f: 20 } }, shows: [`edges ${N.pe20} W`],\n      task: 'You raise the frequency to 20 kHz. What do the edges make now?',\n      opts: [`About ${N.pe10} W, as each edge costs the same`, `About ${N.pe5} W, as each cycle is shorter`, `About ${N.pe20} W`],\n      want: `About ${N.pe20} W`,\n      hints: { [`About ${N.pe10} W, as each edge costs the same`]: 'Each edge costs the same. How many edges come each second now?',\n        [`About ${N.pe5} W, as each cycle is shorter`]: 'A shorter cycle means more edges each second, not fewer.' },\n      why: `About ${N.pe20} W. Each cycle costs about ${N.e2} mJ, ${N.e1} mJ an edge. At 20,000 cycles a second, that is ${N.e2} mJ × 20,000 = ${N.pe20} W. The on part stays at ${N.pon} W. So the switch makes ${N.pt20} W in all. The junction reaches ${N.tj20} °C.` },\n    { show: true, name: 'The coil kicks back', coil: true, set: { load: 'coil', diode: false, gate: 100 }, play: 'open2',\n      text: `A coil keeps its current going, as v = L di/dt says. Contactors and motor windings are coils. Open the switch with no diode, and the coil's current has nowhere to go. The switch tries to stop it in about 0.5 µs. So di/dt is huge, and the switch takes a spike far above the supply. A *freewheeling diode* across the coil gives it a path round. It points so the supply cannot push current through it. Tick the diode and open it again. Now the coil sees only the diode's drop, about ${VF} V.`,\n      read: `With no diode, opening the switch sends its voltage up in a red spike off the top of the scale. With the diode ticked, opening it again steps the switch's voltage to about ${N.vd} V. The coil's current then dies away round the diode.`,\n      still: () => finishOpen(true) },\n    { name: 'No diode', coil: true, set: { load: 'coil', diode: false, gate: 100 }, ans: { open: true }, shows: ['spike'],\n      task: 'The switch opens on the coil with no diode. What voltage does the switch see?',\n      opts: [`A spike far above ${N.vs} V`, `${N.vs} V, the supply`, 'Zero, as the current stops'],\n      want: `A spike far above ${N.vs} V`,\n      hints: { [`${N.vs} V, the supply`]: 'The coil\\'s current can\\'t stop at once on its own. What does v = L di/dt give for a sudden stop?',\n        'Zero, as the current stops': 'A sudden stop in a coil\\'s current is what makes its voltage jump.' },\n      why: `A spike far above ${N.vs} V. The switch tries to force the coil's current from ${N.ion} A to zero in about 0.5 µs. So di/dt is huge, and so is L di/dt. That voltage adds to the supply across the switch. It can break the switch down. With the diode, the switch sees only about ${N.vd} V.` },\n    { name: 'The coolest way', set: { dev: 'igbt', mode: 'steady', gate: 50 }, outs: 'after', hideGauge: true, hidePlot: true,\n      ans: { set: { mode: 'switch', f: 10 }, cursor: true }, shows: [`edges ${N.pe10} W`],\n      task: `You want the load to average ${N.vavg} V from the ${N.vs} V supply. Which way keeps the IGBT coolest?`,\n      opts: ['Hold the gate at half on', `Either way, as the load gets ${N.vavg} V both ways`, 'Flip it fully on and off, on half the time'],\n      want: 'Flip it fully on and off, on half the time',\n      hints: { 'Hold the gate at half on': `Half on, the IGBT takes ${N.vh} V and passes ${N.ih} A. What heat is that?`,\n        [`Either way, as the load gets ${N.vavg} V both ways`]: 'The load\\'s average is the same. Compare the heat in the switch.' },\n      why: `Flip it. At 10 kHz, it makes about ${N.pt10} W: ${N.pon} W on and ${N.pe10} W in its edges. Held half on, it makes ${N.ph} W. The load averages about ${N.vavg} V both ways. But the switch's heat differs by about ${N.ratio} times.` },\n    { name: 'Nearly on', set: { gate: 90 }, outs: 'after', hideGauge: true, hidePlot: true, ans: {},\n      task: `The gate stands at 90%, nearly on. Can the ${N.shed} W heat sink cope?`,\n      opts: [`Yes, nearly on is close to the ${N.p40} W of fully on`, `No, the switch makes about ${N.p90} W`, `No, it makes the ${N.ph} W of half on`],\n      want: `No, the switch makes about ${N.p90} W`,\n      hints: { [`Yes, nearly on is close to the ${N.p40} W of fully on`]: `At 90%, the switch still takes a tenth of ${N.vs} V. What current meets it?`,\n        [`No, it makes the ${N.ph} W of half on`]: 'At 90%, the voltage is lower than at half on. Work out V × I.' },\n      why: `No. At 90%, the switch takes ${N.v90} V and passes ${N.i90} A. That is ${N.v90} × ${N.i90} = ${N.p90} W. It is about five times what the heat sink can shed. Fully on, its voltage falls to about ${N.on2} V and the heat to ${N.p40} W.` },\n  ];\n  const FINISH = 'A power transistor is kept fully on or fully off, because half on, its voltage times its current makes the most heat.';\n  const DEMO = 3.6, FADE = 0.35, ANS = 2.2, OPEN2 = 1.8, GAP2 = 0.3;\n  const TWS = 0.3, TWC = 2, TO = 0.4;          // strip windows (ms) and the moment the switch opens\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- the model ----------\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  const gateOf = (p) => K.clamp(Math.round((+p.gate || 0) / 5) * 5, 0, 100) / 100;\n  const fOf = (p) => K.clamp(Math.round(+p.f) || 10, 1, 20);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, pinning = false, lastDiode = false, lastLoad = 'res';\n  let GP = null, GPT = 0, lastG = null;\n  let T = Infinity, motionEnd = 0, CUR = 1, SOF = 0, CS = null, OS = null, SW = null, DS = null, PH = 0, FLOW = null, REC = null;\n  const IDS = ['dev', 'mode', 'load', 'gate', 'f', 'diode'];\n  const BASE = { dev: 'igbt', mode: 'steady', load: 'res', gate: 100, f: 10, diode: false };\n  const setupOf = (i, right) => { const d = STEPS[i]; return Object.assign({ step: i }, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {}); };\n  function visIds(d, p) {\n    if (!d.show) return [];\n    if (d.ctl) return d.ctl;\n    if (d.coil) return p.load === 'coil' ? ['load', 'diode'] : ['load'];\n    if (d.set && d.set.mode === 'switch') return ['mode', p.mode === 'switch' ? 'f' : 'gate'];\n    return ['dev', 'gate'];\n  }\n\n  const nb = (t) => t.replace(/(\\d) (?=(?:W|V|A|°C|kHz|mJ|µs|ms|Ω)(?![A-Za-z]))/g, '$1\\u00a0');\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const devCtl = K.choice({ id: 'dev', label: 'Transistor', options: [{ value: 'bjt', label: 'BJT' }, { value: 'mosfet', label: 'MOSFET' }, { value: 'igbt', label: 'IGBT' }], value: 'igbt', into: '#sw' });\n  const modeCtl = K.choice({ id: 'mode', label: 'Mode', options: [{ value: 'steady', label: 'Steady' }, { value: 'switch', label: 'Switching' }], value: 'steady', into: '#sw' });\n  const loadCtl = K.choice({ id: 'load', label: 'Load', options: [{ value: 'res', label: 'Resistor' }, { value: 'coil', label: 'Coil' }], value: 'res', into: '#sw' });\n  const gateCtl = K.control({ id: 'gate', label: 'Gate', min: 0, max: 100, step: 5, value: 100, fmt: (v) => fx(v, 0) + '%', snap: [0, 50, 90, 100], into: '#ctl' });\n  const fCtl = K.control({ id: 'f', label: 'Frequency', min: 1, max: 20, step: 1, value: 10, fmt: (v) => fx(v, 0) + ' kHz', snap: [10, 20], into: '#ctl' });\n  const diodeCtl = K.toggle({ id: 'diode', label: 'Freewheeling diode', value: false, into: '#ctl2' });\n  const openBtn = K.button({ label: 'Open', into: '#ctl2', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !d.coil) return;\n    startOpen(0);\n  } });\n  const playBtn = K.button({ label: 'Play', secondary: true, into: '#ctl2', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || d.coil || K.params().mode !== 'switch') return;\n    startCursor(0);\n  } });\n  const CTL = { dev: devCtl, mode: modeCtl, load: loadCtl, gate: gateCtl, f: fCtl, diode: diodeCtl };\n  const snapV = (id, v) => (id === 'gate' ? Math.round(v / 5) * 5 : Math.round(v));\n  const rV = K.readout({ id: 'vSwitch', label: 'Across the switch', unit: 'V', decimals: 0, into: '#outs' });\n  const rI = K.readout({ id: 'current', label: 'Current', unit: 'A', decimals: 1, into: '#outs' });\n  const rP = K.readout({ id: 'heat', label: 'Heat in the switch', unit: 'W', decimals: 0, fmt: (v) => fx(v, 0) + ' W', into: '#outs' });\n  K.model((p) => {\n    if (p.mode === 'switch') return { vSwitch: (VS + VON) / 2, current: ION / 2, heat: pSwitch(fOf(p)) };\n    const s = gateOf(p);\n    return { vSwitch: vsw(s), current: amps(s), heat: watts(s) };\n  });\n  const hplot = K.plot('#hplot', {\n    x: { min: 0, max: 100, label: 'Gate setting (%)' }, y: { min: 0, max: 3200, label: 'Heat in the switch (W)', fmt: (n) => fx(n, 0) }, height: 150,\n    label: 'The heat in the switch against the gate setting: none off, a hump that peaks at half on, and low again fully on. The dot is the setting.',\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    T = calm() ? Infinity : 0; motionEnd = ANS + K.SOFT;\n    const a = d.ans || {};\n    if (a.set) startSweep(a.set, ANS - 0.4, 0.1);\n    if (a.open) startOpen(0.1, ANS - 0.1);\n    if (a.cursor) startCursor(0.2, ANS - 0.2);\n    if (!calm()) play();\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; FLOW = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: a slider sweep, the device parade, the strip's cursor, the opening, a right answer's reveal, flowing current ----------\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    let busy = false, redraw = false;\n    if (CS) { CS.t += dt; const f = K.clamp(CS.t / CS.dur, 0, 1); CUR = f; redraw = true; if (f >= 1) CS = null; else busy = true; }\n    if (OS) {\n      OS.t += dt;\n      // The first opening holds its spike a moment, then the diode is ticked and the switch opens again.\n      if (OS.then && OS.t >= OS.dur + GAP2) { lastDiode = true; diodeCtl.set(true, true); OS = { t: OS.t - OS.dur - GAP2, dur: OPEN2 }; }\n      const f = K.clamp(OS.t / OS.dur, 0, 1); SOF = f; redraw = true;\n      if (!OS.then && f >= 1) OS = null; else busy = true;\n    }\n    if (SW) {\n      const w = SW;\n      w.t += dt;\n      const f = K.clamp(w.t / w.dur, 0, 1);\n      Object.keys(w.to).forEach((id) => {\n        const val = snapV(id, K.lerp(w.from[id], w.to[id], K.ease(f)));\n        if (SW === w && val !== w.last[id]) { w.last[id] = val; CTL[id].set(val); }\n      });\n      if (SW === w) { if (f >= 1) SW = null; else busy = true; }\n    }\n    if (DS) {\n      const q = DS;\n      q.t += dt;\n      let cur = q.list[0][0];\n      q.list.forEach((x) => { if (q.t >= x[1]) cur = x[0]; });\n      if (cur !== q.last) { q.last = cur; devCtl.set(cur); }\n      if (DS === q) { if (q.t >= q.list[q.list.length - 1][1] + 0.6) DS = null; else busy = true; }\n    }\n    PH += dt;\n    if (redraw || T < motionEnd + 0.1) paint();\n    dots();\n    return busy || T < motionEnd + 0.1 || flowOn();\n  } });\n  function play() { if (!motion.playing()) motion.play(); }\n  function startCursor(delay, dur) {\n    if (calm()) { CUR = 1; CS = null; return; }\n    CUR = 0; CS = { t: -(delay || 0), dur: dur || DEMO }; play();\n  }\n  function startOpen(delay, dur) {\n    if (calm()) { SOF = 1; OS = null; return; }\n    SOF = 0; OS = { t: -(delay || 0), dur: dur || DEMO }; play();\n  }\n  function startOpen2(delay) {\n    if (calm()) { diodeCtl.set(true, true); lastDiode = true; SOF = 1; OS = null; return; }\n    SOF = 0; OS = { t: -(delay || 0), dur: OPEN2, then: true }; play();\n  }\n  function startDevs(delay) {\n    if (calm()) { devCtl.set('igbt', true); DS = null; return; }\n    devCtl.set('bjt', true);\n    DS = { t: -(delay || 0), list: [['bjt', 0], ['mosfet', 1.2], ['igbt', 2.4]], last: 'bjt' };\n    play();\n  }\n  function startSweep(to, dur, delay, from) {\n    const p = K.params(), num = {};\n    Object.keys(to).forEach((id) => { if (typeof to[id] === 'number') num[id] = to[id]; else CTL[id].set(to[id], true); });\n    if (calm()) { Object.keys(num).forEach((id) => CTL[id].set(num[id], true)); SW = null; return; }\n    if (!Object.keys(num).length) { SW = null; return; }\n    const f = {};\n    Object.keys(num).forEach((id) => { f[id] = from && from[id] != null ? from[id] : +p[id]; CTL[id].set(f[id], true); });\n    SW = { to: num, from: f, last: Object.assign({}, f), t: -(delay || 0), dur };\n    play();\n  }\n  function finishOpen(withDiode) {\n    loadCtl.set('coil', true); diodeCtl.set(withDiode, true); lastDiode = withDiode; lastLoad = 'coil';\n    OS = null; SOF = 1; K.refresh();\n  }\n  function noteGate(p) {\n    const d = STEPS[at()], s = gateOf(p);\n    if (!calm() && lastG != null && s !== lastG && d.show && !d.coil && p.mode !== 'switch') {\n      GP = { dir: s > lastG ? 1 : -1 };\n      clearTimeout(GPT); GPT = setTimeout(() => { GP = null; if (!finished) paint(); }, 500);\n    }\n    lastG = s;\n  }\n  function settle() { T = Infinity; if (CS) { CUR = 1; CS = null; } if (OS) { if (OS.then) { diodeCtl.set(true, true); lastDiode = true; } SOF = 1; OS = null; } SW = null; DS = null; }\n  const flowOn = () => !REDUCE && !finished && !!FLOW;\n  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  // Every label lives in its own slot group, made afresh each frame in a fixed order.\n  const svg = el('scene'), circ = el('circ'), art = el('art'), dotsG = el('dots'), gart = el('gart'), ssvg = el('strip'), sart = el('sart');\n  const SL = {\n    clabs: ['sup', 'dc', 'load', 'diode', 'dev', 'drive', 'sink'],\n    glabs: ['qbar', 'qth', 'heat', 'junction', 'air', 'r150', 'r220', 'reading', 'kon', 'kedge'],\n    slabs: ['k1', 'k2', 'k3', 'wide', 'v1000', 'v600', 'v0', 'i20', 'i0', 't0', 't1', 't2', 't3', 't4', 'open', 'spike', 'v601', 'tau'],\n  };\n  let SLOT = {}, into = null, latest = 0, earliest = Infinity;\n  function slots(g, list) { g.textContent = ''; list.forEach((n) => { SLOT[n] = g.appendChild(K.svg('g')); }); }\n  const add = (n) => into.appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t));\n  function tx(slot, x, y, s, cls, anchor) {\n    REC.texts.push(s);\n    return SLOT[slot].appendChild(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));\n  }\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  function head(x, y, dx, dy, s, cls) {\n    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x - ux * s, by = y - uy * s, w = s * 0.55;\n    return pa('M' + r2(x) + ' ' + r2(y) + 'L' + r2(bx - uy * w) + ' ' + r2(by + ux * w) + 'L' + r2(bx + uy * w) + ' ' + r2(by - ux * w) + 'Z', cls);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 7.4;\n  }\n  // A diode pointing along its current: triangle (anode side) and bar (cathode side).\n  function diode(x, y, ang, cls) {\n    const g = add(K.svg('g', { class: 'dio' + (cls ? ' ' + cls : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ')' }));\n    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));\n    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));\n    return g;\n  }\n\n  // ---------- the moment on the strip ----------\n  const edgeW = (Tp) => Math.min(0.006, Tp / 10);     // ms: an edge drawn slowed down\n  // On from a quarter to three quarters of each cycle; each edge a straight sweep between 600 V and 2 V.\n  function swV(t, Tp) {\n    const ED = edgeW(Tp), h = ED / 2, a = Tp / 4, b = 3 * Tp / 4, ph = ((t % Tp) + Tp) % Tp;\n    if (ph < a - h) return VS;\n    if (ph < a + h) return VS + (VON - VS) * (ph - (a - h)) / ED;\n    if (ph < b - h) return VON;\n    if (ph < b + h) return VON + (VS - VON) * (ph - (b - h)) / ED;\n    return VS;\n  }\n  function swEdges(Tp, span) {\n    const out = [];\n    for (let k = 0; k * Tp < span; k++) [0.25, 0.75].forEach((q) => { const c = (k + q) * Tp; if (c > 0 && c < span) out.push(c); });\n    return out;\n  }\n  function swBreaks(Tp, span) {\n    const ED = edgeW(Tp), out = [0, span];\n    swEdges(Tp, span + Tp).forEach((c) => [c - ED / 2, c + ED / 2].forEach((t) => { if (t > 0 && t < span) out.push(t); }));\n    return out.sort((a, b) => a - b);\n  }\n\n  function view(i, p, st) {\n    const d = STEPS[i], right = st.res === 'right', show = !!d.show, coil = !!d.coil;\n    const sw = !coil && p.mode === 'switch', dev = DEVN[p.dev] ? p.dev : 'igbt';\n    const s = gateOf(p), fk = fOf(p), load = coil && p.load === 'coil' ? 'coil' : 'res', diode = load === 'coil' && !!p.diode;\n    const v = { i, d, right, show, coil, sw, dev, s, fk, load, diode, therm: i >= 4 && !coil };\n    if (sw) { v.parts = [{ P: P_ON, cls: 'hb' }, { P: pEdges(fk), cls: 'hbe' }]; v.P = pSwitch(fk); }\n    else { v.parts = [{ P: watts(s), cls: 'hb' }]; v.P = watts(s); }\n    v.Tj = tj(v.P);\n    v.gauges = coil ? 'none' : d.hideGauge && !right ? 'hidden' : 'shown';\n    v.gReveal = d.hideGauge && right ? vis(0.1) : 1;\n    v.mark220 = !coil && (i > 5 || (i === 5 && right));\n    v.mReveal = i === 5 ? vis(0.1) : 1;\n    v.plot = !coil && !sw && i >= 2 && (show || !d.hidePlot || right);\n    v.plotK = d.hidePlot && right ? K.ease(K.clamp((T - 0.1) / (ANS - 0.1), 0, 1)) : 1;\n    v.level = s; v.hotSwitch = false; v.flowDiode = false; v.Icoil = 0;\n    if (sw) {\n      v.Tp = 1 / fk; v.tc = K.clamp(CUR, 0, 1) * TWS;\n      v.Inow = (VS - swV(v.tc, v.Tp)) / R;\n    } else if (coil) {\n      v.started = show || right;\n      v.tnow = v.started ? TO + SOF * (TWC - TO) : TO;\n      v.opened = v.started && SOF > 0;\n      const dt = (v.tnow - TO) / 1000;\n      v.Icoil = !v.opened ? ION : diode ? coilI(dt) : 0;\n      v.Inow = v.opened ? 0 : ION;\n      v.level = v.opened ? 0 : 1;\n      v.flowDiode = v.opened && diode && v.Icoil > 0.05;\n      v.hotSwitch = v.opened && load === 'coil' && !diode && dt < 0.25e-3;\n    } else v.Inow = amps(s);\n    v.flowMain = v.Inow > 0.05;\n    v.flowLoad = v.flowMain || v.flowDiode;\n    return v;\n  }\n\n  // ---------- the circuit: supply left, load on top, the transistor and its heat sink on the right ----------\n  function drawDevice(dev, st) {\n    const m = 'tr' + (st ? ' ' + st : ''), h = 'trh' + (st ? ' ' + st : '');\n    if (dev === 'mosfet') {\n      ln(124, 110, 134, 110, 'trg'); ln(134, 97, 134, 123, 'trg');\n      ln(140, 95, 140, 101, m); ln(140, 107, 140, 113, m); ln(140, 119, 140, 125, m);\n      pa('M150 88 V98 H140', m); pa('M140 122 H150 V132', m);\n      pa('M150 110 V122', m); ln(150, 110, 147, 110, m); head(141, 110, -1, 0, 7, h);\n      return;\n    }\n    const bar = dev === 'bjt' ? 142 : 140;\n    if (dev === 'bjt') ln(124, 110, bar, 110, 'trg');\n    else { ln(124, 110, 133, 110, 'trg'); ln(133, 97, 133, 123, 'trg'); }\n    ln(bar, 96, bar, 124, 'trb' + (st ? ' ' + st : ''));\n    pa('M150 88 V94 L' + bar + ' 102', m);\n    pa('M' + bar + ' 118 L150 126 V132', m);\n    head(bar + 0.85 * (150 - bar), 118 + 0.85 * 8, 150 - bar, 8, 7, h);\n  }\n  const MAINP = [[20, 100], [20, 30], [150, 30], [150, 190], [20, 190], [20, 124]];\n  const DIODEP = [[62, 30], [106, 30], [118, 30], [118, 10], [50, 10], [50, 30], [62, 30]];\n  const skipMain = (x, y) => (Math.abs(y - 30) < 1 && x > 58 && x < 110) || (Math.abs(x - 150) < 1 && y > 84 && y < 136);\n  const skipDiode = (x, y) => (Math.abs(y - 30) < 1 && x > 58 && x < 110) || (Math.abs(y - 10) < 1 && x > 72 && x < 96);\n  function mk(pts, speed, skip) {\n    const lens = [0];\n    for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));\n    return { pts, lens, len: lens[lens.length - 1], speed, skip };\n  }\n  function drawCircuit(v) {\n    into = art;\n    circ.setAttribute('transform', v.coil ? 'translate(60 0)' : 'translate(0 0)');\n    const wc = v.flowMain ? 'wire on' : 'wire';\n    ln(8, 100, 32, 100, 'plate'); ln(14, 108, 26, 108, 'plate s'); ln(8, 116, 32, 116, 'plate'); ln(14, 124, 26, 124, 'plate s');\n    pa('M20 100 V30 H62', wc); pa('M106 30 H150 V88', wc); pa('M150 132 V190 H20 V124', wc);\n    if (v.load === 'coil') pa('M62 30' + ' a5.5 5.5 0 0 1 11 0'.repeat(4), v.flowLoad ? 'coil on' : 'coil');\n    else box(62, 22, 44, 16, v.flowLoad ? 'res on' : 'res', 3);\n    if (v.diode) {\n      const on = v.flowDiode;\n      pa('M50 30 V10 H118 V30', on ? 'wire on' : 'wire');\n      if (on) { pa('M50 30 H62', 'wire on'); pa('M106 30 H118', 'wire on'); }\n      diode(84, 10, 180, on ? 'on' : '');\n      ci(50, 30, 2.6, 'jdot'); ci(118, 30, 2.6, 'jdot');\n    }\n    box(154, 96, 4, 34, 'sinkp', 1);\n    for (let k = 0; k < 6; k++) ln(158, 99 + 6 * k, 174, 99 + 6 * k, 'fin');\n    drawDevice(v.dev, v.hotSwitch ? 'hot' : v.flowMain ? 'on' : '');\n    box(96, 98, 28, 24, 'drv', 3);\n    if (v.sw) pa('M100 116 h4 v-12 h6 v12 h6 v-12 h4', 'sq');\n    else if (v.level > 0) box(99, 119 - 18 * v.level, 22, 18 * v.level, 'lvl', 1);\n    let lead = '';\n    if (!v.sw && !v.coil) {\n      if (v.dev === 'bjt' && v.s > 0) { head(141, 110, 1, 0, 7, 'gcur'); lead = ' A steady current flows into its base.'; }\n      else if (v.dev !== 'bjt' && GP) { head(GP.dir > 0 ? 132 : 125, 110, GP.dir, 0, 7, 'gcur'); lead = GP.dir > 0 ? ' A pulse of current fills the gate.' : ' A pulse of current empties the gate.'; }\n    }\n    pa('M118 122 V166 H150', 'wire'); ci(150, 166, 2.6, 'jdot');\n    tx('sup', 38, 108, VS + ' V', 'lab', 'start'); tx('dc', 38, 124, 'DC', 'lab m', 'start');\n    tx('load', 84, 54, v.load === 'coil' ? R + ' Ω, 10 mH' : R + ' Ω', 'lab');\n    if (v.diode) tx('diode', 124, 14, 'diode', 'lab', 'start');\n    tx('dev', 158, 84, DEVN[v.dev], 'lab', 'start');\n    tx('drive', 114, 140, LEAD[v.dev] + ' drive', 'lab m', 'end');\n    tx('sink', 156, 146, 'heat sink', 'lab m', 'start');\n    const state = v.coil ? (v.opened ? ' The switch is open.' : ' The switch is fully on.') : v.sw ? ' The switch flips fully on and off.'\n      : v.s <= 0 ? ' The switch is off.' : v.s >= 1 ? ' The switch is fully on.' : ' The switch is part on.';\n    svg.setAttribute('aria-label', 'A DC supply feeds a ' + (v.load === 'coil' ? 'coil' : 'resistor') + ' through ' + DEVA[v.dev] + ', worked by its ' + LEAD[v.dev] + ' drive, with a heat sink.' + state +\n      lead + (v.gauges === 'shown' ? ' A heat bar' + (v.therm ? ' and a junction thermometer stand' : ' stands') + ' beside it.' : ''));\n    FLOW = null;\n    if (v.show && !finished) {\n      if (v.flowMain) FLOW = [mk(MAINP, 12 + 3 * v.Inow, skipMain)];\n      else if (v.flowDiode) FLOW = [mk(DIODEP, 2 + 3.2 * v.Icoil, skipDiode)];\n    }\n  }\n  function dots() {\n    dotsG.textContent = '';\n    if (!FLOW || REDUCE) return;\n    FLOW.forEach((f) => {\n      for (let s = (PH * f.speed) % 22; s < f.len; s += 22) {\n        let k = 1;\n        while (k < f.lens.length - 1 && f.lens[k] < s) k++;\n        const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);\n        const x = K.lerp(a[0], b[0], u), y = K.lerp(a[1], b[1], u);\n        if (f.skip(x, y)) continue;\n        dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(x), cy: r2(y), r: 2.2 }));\n      }\n    });\n  }\n\n  // ---------- the heat bar and the junction thermometer: 0 W at the air's 40 °C, 320 W at 200 °C ----------\n  const BX = 220, BW = 14, GT = 26, GB = 176, GH = GB - GT, TXc = 305, BULBY = 188;\n  const yP = (P) => GB - Math.min(Math.max(P, 0), PTOP) / PTOP * GH;\n  const yT = (t) => GB - (K.clamp(t, TAIR, TTOP) - TAIR) / (TTOP - TAIR) * GH;\n  const Y150 = yT(TJMAX);\n  function drawGauges(v) {\n    into = gart; gart.textContent = ''; slots(el('glabs'), SL.glabs);\n    if (v.gauges === 'none') return;\n    const bx = BX + BW / 2;\n    box(BX, GT, BW, GH, 'gbox', 3);\n    tx('heat', bx, 214, 'heat', 'lab m');\n    if (v.therm) { box(TXc - 5, GT - 4, 10, BULBY - GT, 'gbox', 5); ci(TXc, BULBY, 10, 'gbox'); tx('junction', TXc, 214, 'junction', 'lab m'); }\n    if (v.gauges === 'hidden') {\n      tx('qbar', bx, GT + GH / 2 + 5, '?', 'lab q');\n      if (v.therm) tx('qth', TXc, BULBY + 5, '?', 'lab q');\n      return;\n    }\n    const g = add(K.svg('g'));\n    K.fade(g, v.gReveal, 0);\n    into = g;\n    let used = 0;\n    v.parts.forEach((pt) => {\n      const take = Math.max(0, Math.min(pt.P, PTOP - used));\n      if (take > 1e-6) box(BX + 2, yP(used + take), BW - 4, take / PTOP * GH, pt.cls, 1);\n      used += take;\n    });\n    if (v.P > PTOP) { head(bx, GT - 14, 0, -1, 9, 'headw'); REC.barOff = true; }\n    if (v.therm) {\n      const hot = v.Tj > TJMAX, cls = hot ? 'tcol hot' : 'tcol', yt = yT(v.Tj);\n      ci(TXc, BULBY, 7, cls); box(TXc - 3, yt, 6, BULBY - yt, cls, 0);\n      if (v.Tj > TTOP) { head(TXc, GT - 14, 0, -1, 9, 'headw'); REC.thermOff = true; }\n      REC.thermHot = hot;\n    }\n    into = gart;\n    if (v.therm) {\n      ln(TXc - 11, Y150, TXc + 11, Y150, 'm150');\n      tx('r150', TXc - 9, Y150 + 16, TJMAX + ' °C', 'lab m', 'end');\n      tx('air', TXc - 13, BULBY + 4, TAIR + ' °C', 'lab m', 'end');\n      if (v.Tj >= TAIR + 5 && v.Tj <= TTOP) K.fade(tx('reading', TXc - 9, yT(v.Tj) + 4, fx(v.Tj, 0) + ' °C', 'lab', 'end'), v.gReveal, 0);\n    }\n    if (v.mark220) {\n      const g2 = add(K.svg('g'));\n      K.fade(g2, v.mReveal, 0);\n      g2.appendChild(K.svg('line', { class: 'm220', x1: BX - 4, y1: r2(Y150), x2: v.therm ? TXc - 11 : BX + BW + 4, y2: r2(Y150) }));\n      K.fade(tx('r220', BX + BW + 4, Y150 - 5, fx(SHED, 0) + ' W', 'lab n', 'start'), v.mReveal, 0);\n      REC.mark = true;\n    }\n    if (v.sw) {\n      // The bar's two parts, keyed under the circuit.\n      const a = 'on ' + fx(P_ON, 0) + ' W', b = 'edges ' + fx(pEdges(v.fk), 0) + ' W', x2 = 22 + tw(a, 'lab') + 14;\n      box(4, 204, 12, 11, 'hb', 2); tx('kon', 22, 214, a, 'lab', 'start');\n      box(x2, 204, 12, 11, 'hbe', 2); tx('kedge', x2 + 18, 214, b, 'lab', 'start');\n    }\n  }\n\n  // ---------- the strip: the switch's voltage and the current, slowed down ----------\n  const SX0 = 48, SX1 = 330, VT = 36, VZ = 112, IT = 140, IZ = 178;\n  const yV = (x) => VZ - K.clamp(x, 0, VTOP) / VTOP * (VZ - VT);\n  const yI = (a) => IZ - K.clamp(a, 0, 20) / 20 * (IZ - IT);\n  function keyRow(y, items) {\n    const ws = items.map((it) => tw(it[2], 'lab'));\n    const total = items.reduce((t, it, k) => t + 22 + ws[k], 0) + 14 * (items.length - 1);\n    let x = Math.max(4, (340 - total) / 2);\n    items.forEach((it, k) => {\n      if (it[0] === 'line') ln(x, y - 4.5, x + 16, y - 4.5, it[1]);\n      else add(K.svg('rect', { class: it[1], x: r2(x + 2), y: y - 10, width: 12, height: 11, rx: 2, 'fill-opacity': '0.45' }));\n      tx(it[3], x + 22, y, it[2], 'lab', 'start');\n      x += 22 + ws[k] + 14;\n    });\n  }\n  function drawStrip(v) {\n    into = sart; sart.textContent = ''; slots(el('slabs'), SL.slabs);\n    if (!v.sw && !v.coil) { ssvg.setAttribute('aria-label', 'Not in use on this screen.'); return; }\n    const span = v.sw ? TWS : TWC, gx = (t) => SX0 + t / span * (SX1 - SX0);\n    const items = [['line', 'vtr', 'across the switch', 'k1'], ['line', 'itr', v.coil && v.load === 'coil' ? 'coil current' : 'current', 'k2']];\n    if (v.sw) items.push(['box', 'flash', 'edge heat', 'k3']);\n    keyRow(14, items);\n    ln(SX0, VT - 4, SX0, VZ, 'ax'); ln(SX0, VZ, SX1, VZ, 'ax'); ln(SX0, IT - 4, SX0, IZ, 'ax'); ln(SX0, IZ, SX1, IZ, 'ax');\n    ln(SX0, yV(VS), SX1, yV(VS), 'ref');\n    tx('v1000', 44, VT + 4, VTOP + ' V', 'lab m', 'end'); tx('v600', 44, yV(VS) + 4, VS + ' V', 'lab m', 'end'); tx('v0', 44, VZ + 4, '0', 'lab m', 'end');\n    tx('i20', 44, IT + 4, fx(VS / R, 0) + ' A', 'lab m', 'end'); tx('i0', 44, IZ + 4, '0', 'lab m', 'end');\n    const ticks = v.sw ? [0, 0.1, 0.2, 0.3] : [0, 0.5, 1, 1.5, 2];\n    ticks.forEach((t, k) => {\n      const x = gx(t), last = k === ticks.length - 1;\n      ln(x, IZ, x, IZ + 4, 'ax');\n      tx('t' + k, x, IZ + 18, fx(t, Math.abs(t - Math.round(t)) > 1e-9 ? 1 : 0) + (last ? ' ms' : ''), 'lab m', last ? 'end' : 'middle');\n    });\n    if (v.sw) {\n      const Tp = v.Tp, wE = edgeW(Tp) / span * (SX1 - SX0);\n      swEdges(Tp, span).forEach((c) => {\n        const near = v.show && CS ? Math.max(0, 1 - Math.abs(v.tc - c) / (0.04 * span)) : 0;\n        add(K.svg('rect', { class: 'flash', x: r2(gx(c) - wE / 2 - 3), y: VT - 2, width: r2(wE + 6), height: IZ - VT + 2, 'fill-opacity': (0.2 + 0.45 * near).toFixed(2) }));\n      });\n      tx('wide', SX1, 131, 'edges drawn wider than 0.5 µs', 'lab m', 'end');\n      const ts = swBreaks(Tp, span);\n      pa('M' + ts.map((t) => r2(gx(t)) + ' ' + r2(yV(swV(t, Tp)))).join('L'), 'vtr');\n      pa('M' + ts.map((t) => r2(gx(t)) + ' ' + r2(yI((VS - swV(t, Tp)) / R))).join('L'), 'itr');\n      if (v.show && CS) {\n        const xc = gx(v.tc), V = swV(v.tc, Tp);\n        ln(xc, VT - 4, xc, IZ, 'cur'); ci(xc, yV(V), 4.5, 'odot'); ci(xc, yI((VS - V) / R), 4, 'pdot');\n      }\n      ssvg.setAttribute('aria-label', 'The voltage across the switch and the current over a few cycles, slowed down. The switch flips between fully off and fully on, and each edge sweeps through half on, marked by a flash of heat. The edges are drawn far wider than their real 0.5 µs.');\n      return;\n    }\n    const xo = gx(TO), tn = v.tnow;\n    ln(xo, VT - 4, xo, IZ, 'mark'); tx('open', xo - 5, 131, 'open', 'lab t', 'end');\n    let vd = 'M' + r2(gx(0)) + ' ' + r2(yV(VON)) + 'L' + r2(xo) + ' ' + r2(yV(VON));\n    let id = 'M' + r2(gx(0)) + ' ' + r2(yI(ION)) + 'L' + r2(xo) + ' ' + r2(yI(ION));\n    let words = ' The switch is still fully on.';\n    if (v.opened) {\n      const xe = r2(gx(tn));\n      if (v.load === 'res') {\n        vd += 'L' + r2(xo) + ' ' + r2(yV(VS)) + 'L' + xe + ' ' + r2(yV(VS));\n        id += 'L' + r2(xo) + ' ' + r2(yI(0)) + 'L' + xe + ' ' + r2(yI(0));\n        words = ' After opening, the current stops and the switch holds the supply, with no spike.';\n      } else if (!v.diode) {\n        pa('M' + r2(xo) + ' ' + r2(yV(VON)) + 'V' + (VT - 3), 'spk');\n        head(xo, VT - 13, 0, -1, 9, 'headw');\n        tx('spike', xo + 8, VT + 8, 'spike', 'lab w', 'start');\n        REC.spike = true;\n        pa(vd, 'vtr');\n        vd = 'M' + r2(xo + 2) + ' ' + r2(yV(VS)) + 'L' + xe + ' ' + r2(yV(VS));\n        id += 'L' + r2(xo) + ' ' + r2(yI(0)) + 'L' + xe + ' ' + r2(yI(0));\n        words = ' After opening with no diode, the voltage spikes off the top of the scale.';\n      } else {\n        vd += 'L' + r2(xo) + ' ' + r2(yV(VS + VF)) + 'L' + xe + ' ' + r2(yV(VS + VF));\n        for (let k = 1; k <= 60; k++) { const t = TO + (tn - TO) * k / 60; id += 'L' + r2(gx(t)) + ' ' + r2(yI(coilI((t - TO) / 1000))); }\n        tx('v601', SX1, yV(VS + VF) - 7, N.vd + ' V', 'lab n', 'end');\n        const tt = TO + TAU * 1000;\n        if (tn >= tt) {\n          const x2 = gx(tt);\n          ln(xo, 128, x2, 128, 'brk'); ln(xo, 124, xo, 132, 'brk'); ln(x2, 124, x2, 132, 'brk');\n          tx('tau', x2 + 5, 132, 'L ÷ R = ' + N.tau + ' ms', 'lab', 'start');\n        }\n        words = ' After opening with the diode, the voltage steps just above the supply and the coil current dies away round the diode.';\n      }\n    }\n    pa(vd, 'vtr'); pa(id, 'itr');\n    ssvg.setAttribute('aria-label', 'The voltage across the switch and the ' + (v.load === 'coil' ? 'coil' : 'load') + ' current, before and after the switch opens.' + words);\n  }\n\n  // ---------- one screen drawn in its state ----------\n  function render(i, p, st) {\n    REC = { texts: [], v: null, spike: false, thermHot: false, thermOff: false, barOff: false, mark: false };\n    latest = 0; earliest = Infinity;\n    const v = view(i, p, st);\n    REC.v = v;\n    art.textContent = ''; slots(el('clabs'), SL.clabs);\n    drawCircuit(v); drawGauges(v); drawStrip(v);\n    into = null;\n    return REC;\n  }\n  function drawPlot(v) {\n    if (!v.plot) return;\n    const top = 100 * v.plotK, pts = [];\n    for (let g = 0; g < top; g += 1) pts.push([g, watts(g / 100)]);\n    pts.push([top, watts(top / 100)]);\n    if (pts.length < 2) pts.push([top + 0.5, watts((top + 0.5) / 100)]);\n    hplot.draw({\n      x: { min: 0, max: 100, label: LEADC[v.dev] + ' setting (%)' }, y: { min: 0, max: 3200, label: 'Heat in the switch (W)', fmt: (n) => fx(n, 0) },\n      series: [{ points: pts }], marks: v.plotK >= 1 ? [{ x: v.s * 100, y: watts(v.s) }] : [],\n    });\n  }\n  function paint() {\n    const i = at(), p = K.params();\n    noteGate(p);\n    const R = render(i, p, S[i]);\n    drawPlot(R.v);\n    if (STEPS[i].show && !finished) el('say').textContent = sayFor(R.v);\n  }\n\n  // ---------- what Dan reads under the picture ----------\n  function junctionSay(t) {\n    if (t > TTOP) return ' Junction past ' + TTOP + ' °C.';\n    if (t > TJMAX) return ' Junction ' + fx(t, 0) + ' °C, over its rating.';\n    return ' Junction ' + fx(t, 0) + ' °C.';\n  }\n  function sayFor(v) {\n    if (v.coil) {\n      if (!v.opened) return 'Fully on: ' + N.ion + ' A.';\n      if (v.load === 'res') return 'Opened on a resistor: ' + VS + ' V, no spike.';\n      if (!v.diode) return 'Opened with no diode: a spike far above ' + VS + ' V.';\n      return 'Opened with the diode: about ' + N.vd + ' V.';\n    }\n    const jt = v.therm ? junctionSay(v.Tj) : '';\n    if (v.sw) return 'At ' + v.fk + ' kHz: ' + fx(v.P, 0) + ' W in all.' + jt;\n    return LEADC[v.dev] + ' at ' + Math.round(v.s * 100) + '%: ' + fx(v.P, 0) + ' W of heat.' + jt;\n  }\n  function settingFor(v) {\n    const parts = [DEVN[v.dev]];\n    if (v.coil) parts.push(v.load === 'coil' ? R + ' Ω, 10 mH coil' : R + ' Ω resistor', v.diode ? 'diode fitted' : 'no diode', v.opened ? 'opened' : 'fully on');\n    else if (v.sw) parts.push('switching at ' + v.fk + ' kHz', R + ' Ω resistor');\n    else parts.push(LEAD[v.dev] + ' ' + Math.round(v.s * 100) + '%', R + ' Ω resistor');\n    return parts.join(' · ');\n  }\n  function showEl(id, on) { const e = el(id); if (e.hidden && on) enter(id); e.hidden = !on; }\n  function layout(i, d, st, p, v) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    const vs = visIds(d, p), has = (id) => vs.indexOf(id) >= 0;\n    devCtl.el.hidden = !has('dev'); modeCtl.el.hidden = !has('mode'); loadCtl.el.hidden = !has('load');\n    el('sw').hidden = !(has('dev') || has('mode') || has('load'));\n    gateCtl.el.hidden = !has('gate'); fCtl.el.hidden = !has('f');\n    el('ctl').hidden = !(has('gate') || has('f'));\n    diodeCtl.el.hidden = !has('diode'); openBtn.el.hidden = !(d.show && d.coil); playBtn.el.hidden = !(d.show && v.sw);\n    el('ctl2').hidden = diodeCtl.el.hidden && openBtn.el.hidden && playBtn.el.hidden;\n    const lab = gateCtl.el.querySelector('.k-field-label');\n    if (lab) lab.textContent = LEADC[v.dev];\n    showEl('stripbox', v.sw || v.coil);\n    showEl('hbox', v.plot);\n    el('hlab').textContent = 'Heat against the ' + LEAD[v.dev] + ' setting';\n    showEl('outs', !v.coil && (d.show || d.outs === 'before' || right));\n    rV.el.hidden = v.sw; rI.el.hidden = v.sw; rP.el.hidden = false;\n    const outs = el('outs');\n    if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }\n    else if (el('hbox').previousElementSibling !== outs) el('hbox').before(outs);\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? sayFor(v) : '';\n    el('setting').hidden = !!d.show;\n    el('setting').textContent = d.show ? '' : settingFor(v);\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? d.rightFb || 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  write(el('finish'), FINISH);\n\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); CS = null; OS = null; SW = null; DS = null; T = Infinity;\n    const d = STEPS[i], right = S[i].res === 'right', q = setupOf(i, right);\n    IDS.forEach((id) => CTL[id].set(q[id], true));\n    CUR = 1; SOF = d.coil && (d.show || right) ? 1 : 0; lastDiode = !!q.diode; lastLoad = q.load; lastG = gateOf(q); GP = null;\n    if (d.show && d.play) {\n      if (d.play === 'cursor') startCursor(FADE);\n      else if (d.play === 'open') startOpen(FADE);\n      else if (d.play === 'open2') startOpen2(FADE);\n      else if (d.play === 'devs') startDevs(FADE);\n      else startSweep({ [d.play.id]: d.play.to }, DEMO, FADE, { [d.play.id]: d.play.from });\n    }\n  }\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!motion.playing()) settle();\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    if (SW) { for (const id of Object.keys(SW.to)) if (+p[id] !== SW.last[id]) { SW = null; break; } }   // Dan took hold of the slider\n    if (DS && p.dev !== DS.last) DS = null;\n    if (!pinning) {\n      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.\n      const q = setupOf(i, st.res === 'right'), vs = visIds(d, p);\n      let fix = false;\n      IDS.forEach((id) => {\n        if (vs.indexOf(id) >= 0 || (SW && SW.to[id] != null) || (DS && id === 'dev')) return;\n        if (String(p[id]) !== String(q[id])) { CTL[id].set(q[id], true); fix = true; }\n      });\n      if (fix) { pinning = true; K.refresh(); pinning = false; return; }\n    }\n    if (d.coil && d.show && (!!p.diode !== lastDiode || p.load !== lastLoad)) { lastDiode = !!p.diode; lastLoad = p.load; startOpen(0); }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    noteGate(p);\n    const R = render(i, p, st);\n    layout(i, d, st, p, R.v);\n    drawPlot(R.v);\n    dots();\n    kick();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, over, right) {\n    const keep = [T, CUR, SOF];\n    T = Infinity; CUR = 1;\n    SOF = STEPS[i].coil && (right || STEPS[i].show) ? 1 : 0;\n    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }\n    finally { T = keep[0]; CUR = keep[1]; SOF = keep[2]; paint(); }\n  }\n  K.check('Fully on, 2 V across the switch meets (600 − 2) ÷ 30 = 19.9 A, about 40 W. Fully off, the whole 600 V meets no current, so no heat', () => {\n    const a = K.at({ mode: 'steady', gate: 100 }), b = K.at({ mode: 'steady', gate: 0 });\n    return fx(a.vSwitch, 0) === '2' && fx(a.current, 1) === '19.9' && fx(a.heat, 0) === '40' && b.vSwitch === VS && b.current === 0 && b.heat === 0;\n  });\n  K.check('Half on, the switch takes 300 V and passes 10 A at once: 3000 W, the top of the hump, V² ÷ (4R) = 600² ÷ 120', () => {\n    const h = K.at({ mode: 'steady', gate: 50 });\n    if (!(K.near(h.vSwitch, 300, 1e-9) && K.near(h.current, 10, 1e-9) && K.near(h.heat, VS * VS / (4 * R), 1e-6) && N.ph === '3000' && N.r4 === '120')) return false;\n    for (let g = 0; g <= 100; g += 5) if (g !== 50 && !(K.at({ mode: 'steady', gate: g }).heat < h.heat)) return false;\n    return true;\n  });\n  K.check('The heat rises all the way from off to half on, and the hump is the same either side of half on', () => {\n    for (let g = 5; g <= 50; g += 5) if (!(watts(g / 100) > watts((g - 5) / 100))) return false;\n    for (let g = 5; g < 50; g += 5) if (!K.near(watts(g / 100), watts(1 - g / 100), 1e-6)) return false;\n    return true;\n  });\n  K.check('At 90% the switch takes 60 V and passes 18 A: 60 × 18 = 1080 W, about five times the 220 W the heat sink can shed', () => {\n    const a = K.at({ mode: 'steady', gate: 90 });\n    return fx(a.vSwitch, 0) === '60' && fx(a.current, 1) === '18.0' && fx(a.heat, 0) === '1080' && N.x5 === '5' && N.shed === '220';\n  });\n  K.check('The junction reads 40 + 0.5 × the heat: 60 °C fully on, while 3000 W would lift it 1500 °C. A rise of 150 − 40 = 110 °C lets the sink shed 110 ÷ 0.5 = 220 W', () =>\n    N.tj40 === '60' && N.rise40 === '20' && N.rise3k === '1500' && N.room === '110' && K.near(SHED, 220, 1e-9) && K.near(tj(SHED), TJMAX, 1e-9) && N.x13 === 13);\n  K.check('The switching losses are the product of switching energies and the switching frequency: 2 mJ a cycle makes 20 W at 10 kHz and 40 W at 20 kHz', () =>\n    K.near(pEdges(10), 20, 1e-9) && K.near(pEdges(20), 40, 1e-9) && K.near(2 * EEDGE, 2e-3, 1e-15) &&\n    K.near(K.at({ mode: 'switch', f: 20 }).heat - K.at({ mode: 'switch', f: 10 }).heat, 20, 1e-9), { source: INF1 });\n  K.check('An edge sweeps straight through the hump, which averages a sixth of 600 V × 20 A = 2000 W, so 0.5 µs costs 1 mJ', () => {\n    let a = 0;\n    const n = 6000;\n    for (let j = 0; j < n; j++) { const x = VS * (j + 0.5) / n; a += x * (VS - x) / R / n; }\n    return K.near(a, 2000, 0.01) && K.near(EEDGE, 1e-3, 1e-12) && N.hump === '2000' && N.e1 === '1' && N.e2 === '2';\n  });\n  K.check('Switching at 10 kHz: 20 W on and 20 W in the edges, 40 W in all, with the junction at 60 °C. At 20 kHz: 60 W in all and 70 °C', () =>\n    fx(K.at({ mode: 'switch', f: 10 }).heat, 0) === '40' && N.pon === '20' && N.pe10 === '20' && N.tj10 === '60' &&\n    fx(K.at({ mode: 'switch', f: 20 }).heat, 0) === '60' && N.pt20 === '60' && N.tj20 === '70');\n  K.check('Held half on it makes 3000 W, about 75 times the 40 W it makes switching at 10 kHz', () =>\n    K.near(K.at({ dev: 'igbt', mode: 'steady', gate: 50 }).heat / K.at({ dev: 'igbt', mode: 'switch', f: 10 }).heat, 75, 0.5) && N.ratio === '75');\n  K.check('Silicon diodes have a forward voltage of approximately 0.7 volts, so with the freewheeling diode the open switch sees 600 + 0.7, about 601 V', () =>\n    N.vd === '601' && drawnAt(10, { load: 'coil', diode: true }, false).texts.indexOf('601 V') >= 0, { source: AAC });\n  K.check('Round the diode, the coil\\'s current dies away with a time constant of L ÷ R = 10 mH ÷ 30 Ω, about 0.33 ms', () => {\n    const r = coilI(TAU) / coilI(0);\n    return N.tau === '0.33' && K.near(coilI(0), ION, 1e-9) && r > 0.36 && r < 0.37 && coilI(0.01) === 0;\n  });\n  K.check('With no diode, opening the switch on the coil sends its voltage off the top of the 1000 V scale. With the diode, or with a resistor, it does not', () =>\n    drawnAt(10, { load: 'coil', diode: false }).spike && !drawnAt(10, { load: 'coil', diode: true }).spike && !drawnAt(10, { load: 'res' }).spike);\n  K.check('A BJT, a MOSFET and an IGBT each make 3000 W half on. Only the symbol and the name of the control lead change', () =>\n    ['bjt', 'mosfet', 'igbt'].every((x) => K.near(K.at({ dev: x, mode: 'steady', gate: 50 }).heat, 3000, 1e-6)) &&\n    drawnAt(6, { dev: 'bjt' }).texts.indexOf('base drive') >= 0 && drawnAt(6, { dev: 'mosfet' }).texts.indexOf('gate drive') >= 0);\n  K.check('The thermometer reads 60 °C fully on. Half on it passes 150 °C and runs off the top, and so does the heat bar', () => {\n    const a = drawnAt(4, { gate: 100 }), b = drawnAt(4, { gate: 50 });\n    return a.texts.indexOf(N.tj40 + ' °C') >= 0 && !a.thermHot && !a.thermOff && !a.barOff && b.thermHot && b.thermOff && b.barOff;\n  });\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and the picture keeps the answer hidden until a right Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      const b = drawnAt(i, null, false), bt = b.texts.slice(), bv = b.v;\n      const a = drawnAt(i, null, true), av = a.v;\n      const shows = (d.shows || []).every((s) => bt.indexOf(s) < 0 && a.texts.indexOf(s) >= 0);\n      const gauge = !d.hideGauge || (bv.gauges === 'hidden' && av.gauges === 'shown');\n      return shows && gauge && (!d.hidePlot || !bv.plot);\n    }));\n  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () =>\n    DEMO + FADE <= 4.5 && FADE + 2 * OPEN2 + GAP2 <= 4.5 && ANS + K.SOFT <= 3);\n  K.check('For a power BJT with a β of 20 to conduct 100 A, there must be at least 5 A of base current: 100 ÷ 20 = 5', () =>\n    N.base5 === '5' && N.big100 === '100');\n  K.check('Every number in the words comes from the rule: 20, 19.9, 40, 300, 10, 3000, 120, 60, 1500, 110, 220, 55, 1 and 2 mJ, 20, 40, 60, 70, 75, 601, 0.33, 18 and 1080', () =>\n    N.i20 === '20' && N.ion === '19.9' && N.p40 === '40' && N.vh === '300' && N.ih === '10' && N.ih1 === '10.0' && N.ph === '3000' && N.r4 === '120' &&\n    N.tj40 === '60' && N.rise3k === '1500' && N.room === '110' && N.shed === '220' && N.wrong55 === '55' && N.wrong300 === '300' && N.e1 === '1' &&\n    N.e2 === '2' && N.pe10 === '20' && N.pon === '20' && N.pt10 === '40' && N.pe20 === '40' && N.pt20 === '60' && N.tj20 === '70' && N.pe5 === '10' &&\n    N.vavg === '300' && N.ratio === '75' && N.vd === '601' && N.tau === '0.33' && N.v90 === '60' && N.i90 === '18' && N.p90 === '1080');\n\n  K.ready();\n</script>",
+  "title": "The switch and its heat",
+  "brief": "The one thing you should see is the heat in the switch climb from 40 W to a 3000 W peak when you drag the gate from fully on to half on, where 300 V meets 10 A at once.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Fully on, 2 V across the switch meets (600 − 2) ÷ 30 = 19.9 A, about 40 W. Fully off, the whole 600 V meets no current, so no heat",
+     "ok": true
+    },
+    {
+     "label": "Half on, the switch takes 300 V and passes 10 A at once: 3000 W, the top of the hump, V² ÷ (4R) = 600² ÷ 120",
+     "ok": true
+    },
+    {
+     "label": "The heat rises all the way from off to half on, and the hump is the same either side of half on",
+     "ok": true
+    },
+    {
+     "label": "At 90% the switch takes 60 V and passes 18 A: 60 × 18 = 1080 W, about five times the 220 W the heat sink can shed",
+     "ok": true
+    },
+    {
+     "label": "The junction reads 40 + 0.5 × the heat: 60 °C fully on, while 3000 W would lift it 1500 °C. A rise of 150 − 40 = 110 °C lets the sink shed 110 ÷ 0.5 = 220 W",
+     "ok": true
+    },
+    {
+     "label": "The switching losses are the product of switching energies and the switching frequency: 2 mJ a cycle makes 20 W at 10 kHz and 40 W at 20 kHz",
+     "ok": true,
+     "source": "https://www.infineon.com/assets/row/public/documents/faq/igbt-power-losses-calculation-using-the-data-sheet-parameters.pdf"
+    },
+    {
+     "label": "An edge sweeps straight through the hump, which averages a sixth of 600 V × 20 A = 2000 W, so 0.5 µs costs 1 mJ",
+     "ok": true
+    },
+    {
+     "label": "Switching at 10 kHz: 20 W on and 20 W in the edges, 40 W in all, with the junction at 60 °C. At 20 kHz: 60 W in all and 70 °C",
+     "ok": true
+    },
+    {
+     "label": "Held half on it makes 3000 W, about 75 times the 40 W it makes switching at 10 kHz",
+     "ok": true
+    },
+    {
+     "label": "Silicon diodes have a forward voltage of approximately 0.7 volts, so with the freewheeling diode the open switch sees 600 + 0.7, about 601 V",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+    },
+    {
+     "label": "Round the diode, the coil's current dies away with a time constant of L ÷ R = 10 mH ÷ 30 Ω, about 0.33 ms",
+     "ok": true
+    },
+    {
+     "label": "With no diode, opening the switch on the coil sends its voltage off the top of the 1000 V scale. With the diode, or with a resistor, it does not",
+     "ok": true
+    },
+    {
+     "label": "A BJT, a MOSFET and an IGBT each make 3000 W half on. Only the symbol and the name of the control lead change",
+     "ok": true
+    },
+    {
+     "label": "The thermometer reads 60 °C fully on. Half on it passes 150 °C and runs off the top, and so does the heat bar",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and the picture keeps the answer hidden until a right Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+     "ok": true
+    },
+    {
+     "label": "For a power BJT with a β of 20 to conduct 100 A, there must be at least 5 A of base current: 100 ÷ 20 = 5",
+     "ok": true
+    },
+    {
+     "label": "Every number in the words comes from the rule: 20, 19.9, 40, 300, 10, 3000, 120, 60, 1500, 110, 220, 55, 1 and 2 mJ, 20, 40, 60, 70, 75, 601, 0.33, 18 and 1080",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "dev",
+    "mode",
+    "load",
+    "gate",
+    "f",
+    "diode"
+   ],
+   "readouts": [
+    "vSwitch",
+    "current",
+    "heat"
+   ],
+   "outputs": [
+    "vSwitch",
+    "current",
+    "heat"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "The switch",
+      "Off",
+      "Half on",
+      "The hottest setting",
+      "Heat into temperature",
+      "What the sink can shed",
+      "Three devices, one job",
+      "Swap the device",
+      "The edges",
+      "Twice the frequency",
+      "The coil kicks back",
+      "No diode",
+      "The coolest way",
+      "Nearly on"
+     ],
+     "value": 0
+    },
+    {
+     "id": "dev",
+     "kind": "choice",
+     "label": "Transistor",
+     "options": [
+      "bjt",
+      "mosfet",
+      "igbt"
+     ],
+     "labels": [
+      "BJT",
+      "MOSFET",
+      "IGBT"
+     ],
+     "value": "igbt",
+     "index": 2,
+     "shown": false
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "Mode",
+     "options": [
+      "steady",
+      "switch"
+     ],
+     "labels": [
+      "Steady",
+      "Switching"
+     ],
+     "value": "steady",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "load",
+     "kind": "choice",
+     "label": "Load",
+     "options": [
+      "res",
+      "coil"
+     ],
+     "labels": [
+      "Resistor",
+      "Coil"
+     ],
+     "value": "res",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "gate",
+     "kind": "control",
+     "label": "Gate",
+     "min": 0,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 100,
+     "shown": true,
+     "snap": [
+      0,
+      50,
+      90,
+      100
+     ]
+    },
+    {
+     "id": "f",
+     "kind": "control",
+     "label": "Frequency",
+     "min": 1,
+     "max": 20,
+     "step": 1,
+     "log": false,
+     "value": 10,
+     "shown": false,
+     "snap": [
+      10,
+      20
+     ]
+    },
+    {
+     "id": "diode",
+     "kind": "toggle",
+     "label": "Freewheeling diode",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Open",
+    "Play",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   "explain.text: \"Kept fully on or fully off\" and \"more heat than it can shed\" are stated of every power transistor, but linear regulators and amplifiers run them half on by design; the current is not \"forced to stop\" (the switch tries, then breaks down); a MOSFET gate leaks a little; a reversed freewheeling diode …",
+   "practice.text: The freewheeling-diode step does not say which way round: fitted the other way it shorts the supply each time the switch turns on. The rule of thumb is more general than the narrowed explanation, as linear regulators and amplifiers run power transistors half on.",
+   "interactive.whatAmILookingAt: Screen 7 says a MOSFET gate draws current \"only\" while changing over (it leaks a tiny amount); screens 11 and 12 say the coil current \"is forced\" to zero in 0.5 µs, but with no diode the switch only tries to, and breaks down as its voltage soars."
+  ],
+  "notes": [
+   "explain.text: \"Both give the load about 300 V on average\" is true, but into a resistor half-time chopping delivers about twice the power of half on (about 6 kW against 3 kW). At equal load power, about 25% on, switching still makes only about 30 W at 10 kHz, so the point stands; the frozen 75-times figure rests …",
+   "sources[1]: The 0.7 V freewheeling drop is the sourced small-signal silicon value; a power diode carrying about 20 A usually drops nearer 1 to 1.5 V. It only moves the 601 V figure by a volt or so, and the course uses 0.7 V throughout."
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

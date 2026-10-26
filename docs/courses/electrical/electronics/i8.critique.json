@@ -1,0 +1,25 @@
+{
+ "draft": "i8.lesson.draft1.txt",
+ "validator": "draft 1 passes with no problems, soft problems or warnings. whatAmILookingAt is 12905 characters, so it is tightened anyway.",
+ "research": "Research top-up, as for i4 to i7: 18 quotes from section 4.8 and 4.3 of the research notes (IEEE's 6, 12 and 18-pulse current THD, the fifth and seventh, the THD definition, THDI and THDV, the 1/h rule of thumb, the reactor, LR's regular measurements, Vacon's 15 minutes, Danfoss's dark LED, Schneider's DC offset, Type A's limits, Regulation 531.3.3, the 3.5 mA touch current, TDK's first fault, Siemens's and ABB's insulation monitors, the start-up alarm, Doepke's leaky filters) were checked with sources.mjs --quotes against the saved tool results (19 of 19 ok, plus the IEEE quote in a clean form, 3 of 3 ok) and added to research.json as sources 68 to 85 under i8. The prompt was regenerated, so they are [7] to [24] in it.",
+ "keep": [
+  "The idea is named up front: a converter draws harmonics, holds charge after isolation and leaks current to earth.",
+  "The picture is the brief's: ideal 120-degree blocks built by adding the fundamental, 5th, 7th and higher at 1/h, a spectrum with the 6n +/- 1 gaps, THD rising to 31% (computed), IEEE's cited 6, 12 and 18-pulse ranges beside it, a 50/60 Hz switch, and a leakage card for earthed and insulated supplies with the filter marked Disconnect.",
+  "Every number is computed from a shown rule: 1/h heights, THD as the root of the squares (0, 20, 25, 26, 27, 28, 28, 31%), X_C = 31.8 kOhm and 7.2 mA, two currents 120 degrees apart adding to one, 12.6 mA each and 21.8 mA through an insulated fault, RC = 59 s and 178 s, 100 V after 5 minutes on drive B.",
+  "The stored-charge card is added because the brief says lesson 8 shows why the wait is the drive's own (its R and C set the curve). The chosen R and C reproduce the two makers' waits, 5 and 15 minutes.",
+  "The insulated case shows the cause of 'disconnect the filter': with L1 faulted, the filter gives the fault a 21.8 mA return path that the insulated supply was meant not to have.",
+  "Misconceptions each get a DO screen with their own hints: harmonics at the wrong frequency or size (2), a triplen or even harmonic from a six-pulse bridge (4), THD added straight (6), a dark display as a dead link and one wait for all (8), leakage that stays cancelled with a phase lost (10), the filter left in on an insulated supply (12), the wrong RCD (13).",
+  "Thirteen screens, alternating SHOW and DO, ending with two mixed puzzles. SHOW words 88, 76, 61, 79, 73 and 76."
+ ],
+ "fix": [
+  "Causal step skipped in explain: why harmonics add as squares (sines of different frequencies multiply to an average of zero), why a lost phase does not cancel (two equal currents 120 degrees apart add to one of the same size), and why Type A fails (it detects only sinusoidal AC and pulsating DC). Add each in one sentence.",
+  "False absolute: 'Nothing can return from earth to the supply' (screen 11) and 'nothing flows to earth' (screen 9). Real cables have capacitance to earth. Say 'No wire joins earth back to the supply' and 'almost nothing'.",
+  "False absolute: 'Even ones cannot' and 'Multiples of 3 cannot'. True of a balanced bridge's ideal blocks. Say so once.",
+  "Overreach on a source: 'Makers allow only Type B' and 'that is Type B' rest on one maker's instruction. Say a drive's maker may allow only Type B for shock protection.",
+  "Overreach on a source: 'catch a failing harmonic filter early' adds 'filter' to a quote about an incipient failure. 'A line reactor' narrows 'a reactor'. 'Cheap filters can leak more than an installation allows' hardens 'may not be compatible'. The 3.5 mA rule names the protective earth conductor's minimum size, not 'arrangements'. Match each to its quote.",
+  "Talking about the idea: 'Each one follows from something you already know.' Cut.",
+  "Plain writing: split 'Lose a phase, and they no longer cancel, so current flows ...', 'A fault inside a drive can send current with DC in it to earth, which is why ...' and the 22-word puzzle sentence into short sentences.",
+  "Real drives 'come close' to the 1/h rule overstates a rough rule of thumb. Say they roughly follow it.",
+  "Length: tighten whatAmILookingAt below 12000 characters without losing a number."
+ ]
+}

@@ -1,0 +1,175 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "At a 5 V supply the example diode holds 0.70 V, the 10 Ω resistor 4.30 V, and 0.43 A flows",
+        "ok": true
+      },
+      {
+        "label": "At 10 V the diode holds 0.72 V while 0.93 A flows, so it turns 0.72 × 0.93 = 0.67 W into heat",
+        "ok": true
+      },
+      {
+        "label": "Reverse at −20 V no current flows, so the resistor drops 0 V and the diode holds all 20 V; at −60 V, past the 50 V PIV, it holds 50 V while (60 − 50) ÷ 10 = 1.00 A flows backwards, turning 50 W into heat",
+        "ok": true
+      },
+      {
+        "label": "At every supply setting from −60 V to 10 V the supply equals the diode's voltage plus the resistor's (the current × 10 Ω), and the current never falls as the supply rises",
+        "ok": true
+      },
+      {
+        "label": "The sketch curve: under 1 mA below 0.5 V, near 10 mA at 0.6 V, and a 1 mA meter current gives 0.54 V",
+        "ok": true
+      },
+      {
+        "label": "Silicon diodes have a forward voltage of approximately 0.7 volts: conducting from 0.1 A to 0.93 A, the example diode holds between 0.65 and 0.75 V",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+      },
+      {
+        "label": "A meter's diode range typically reads less than the normal drop of 0.7 volts for silicon, because its current is tiny: at its 1 mA the example diode reads under 0.7 V",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/"
+      },
+      {
+        "label": "The maximum reverse voltage a diode can withstand without breaking down is its peak inverse voltage, or PIV: up to its PIV the example diode passes no current, and just past it current flows backwards",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+      },
+      {
+        "label": "A diode acts as a one-way valve for current: every forward supply drives current one way, and every reverse supply inside the PIV drives none",
+        "ok": true,
+        "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+      },
+      {
+        "label": "The empty zone is drawn thinner as the supply rises and wider as it falls, and the dot sits on the curve where the circuit is, at once",
+        "ok": true
+      },
+      {
+        "label": "Every number in the words comes from the rule: 0.70, 4.30, 0.43 and 0.30 at 5 V; 0.72, 0.93 and 0.67 at 10 V; 0.54 V at 1 mA; 20 V at −20 V; 50 V, 1.00 A and 50 W at −60 V; 12 − 0.7 = 11.3 V; 0.7 × 20 = 14 W",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, and each right answer's motion within 1.5 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "supply"
+    ],
+    "readouts": [
+      "diodeVolts",
+      "current",
+      "resistorVolts"
+    ],
+    "outputs": [
+      "diodeVolts",
+      "current",
+      "resistorVolts"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Inside the diode",
+          "Why the crossing stops",
+          "Forward",
+          "Across the diode",
+          "Reverse",
+          "A test record",
+          "Nothing used up",
+          "Charge in, charge out",
+          "The meter",
+          "Good or not?",
+          "Where the 20 V sit",
+          "A lamp through a diode",
+          "Heat in a charger"
+        ],
+        "value": 0
+      },
+      {
+        "id": "supply",
+        "kind": "control",
+        "label": "Supply",
+        "min": -60,
+        "max": 10,
+        "step": 0.1,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          -60,
+          -20,
+          5,
+          10
+        ]
+      }
+    ],
+    "actions": [
+      "Swap leads",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 2 (the first step that shows a control)",
+    "supply = -7.5"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i1.a8-1280-dark-end.png"
+  ]
+}

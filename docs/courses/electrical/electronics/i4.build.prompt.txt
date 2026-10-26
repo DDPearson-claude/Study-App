@@ -1,0 +1,465 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Electronics and power electronics, from diode to drive
+Idea: The transistor as a switch (A power transistor is kept fully on or fully off, because half on, its voltage times its current makes the most heat.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the heat in the switch climb from 40 W to a 3000 W peak when you drag the gate from fully on to half on, where 300 V meets 10 A at once.
+Title (the app shows it above the frame, so do not repeat it): The switch and its heat
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in fourteen small screens. Most show one picture, the switch and its heat. A 600 V DC supply feeds a 30 Ω load through a power transistor, which acts as the switch. Both values are chosen for the example. A picker above chooses the transistor: BJT, MOSFET or IGBT. Its three buttons wrap onto two lines on a narrow phone. The symbol changes with the pick. So does the name of its control lead, base or gate. A gate slider runs from 0% to 100%, off to fully on, in steps of 5%. Its label follows the pick: Base for a BJT, Gate for the others. Each screen sets its own starting point.
+
+The rule at each setting is simple. Between off and on, the switch acts like a resistor in series with the load. At a setting s, as a fraction, it takes 600 × (1 − s) volts. Fully on, it keeps a drop of 2 V, a value chosen for the example. So it never falls below 2 V. The current is the rest of the supply over the load, (600 − the switch's voltage) ÷ 30. The heat in the switch is its voltage times its current. Three readouts sit under the circuit: across the switch, the current and the heat in the switch. They wrap onto two lines on a narrow phone. A heat bar beside them fills with the heat. Below, a small plot shows the heat against the gate setting, from 0 to 100%. It is a hump, with a dot at the setting. It reads zero off, 3000 W at half on and 40 W fully on. At half on the switch takes 300 V and passes 10 A. The peak is V² ÷ (4R), where V is the supply and R the load. Here that is 600² ÷ 120 = 3000 W.
+
+From screen 5, a junction thermometer stands by the heat bar. The junction is the silicon inside the transistor. A heat sink with a thermal resistance of 0.5 °C per watt carries the heat to air at 40 °C. Both are chosen for the example. So the junction reads 40 + 0.5 × the heat. A line marks 150 °C, the rating chosen for this example. Above it, the thermometer turns red. Past 200 °C, it runs off the top.
+
+A mode switch picks Steady or Switching. In switching mode, the switch flips between fully off and fully on. It is on half the time. A frequency slider runs from 1 to 20 kHz in steps of 1 kHz. A strip shows a few cycles of the switch's voltage and current, slowed down. Each edge is drawn as a straight sweep through the hump. It takes 0.5 µs, a value chosen for the example. Over a full sweep, the hump averages a sixth of 600 V × 20 A, which is 2000 W. So each edge costs 2000 W × 0.5 µs = 1 mJ. A cycle's two edges cost 2 mJ. A small red flash marks each edge. The heat readout then shows the average. Half the on-state 40 W gives 20 W. The edges give 2 mJ × the frequency, 20 W at 10 kHz. The heat bar splits into its on part and its edges part.
+
+A load switch picks Resistor or Coil. The coil has the same 30 Ω and an inductance of 10 mH, chosen for the example. A tick box adds a freewheeling diode across the coil. An Open button turns the switch off while the coil carries 19.9 A. With no diode, the switch's voltage trace jumps in a red spike that runs off the top of its 1000 V scale. With the diode, the switch's voltage steps to 600 V plus the diode's 0.7 V, about 601 V. The coil's current then dies away round the diode. Its time constant is L ÷ R = 10 mH ÷ 30 Ω, about 0.33 ms.
+
+The screens.
+
+1, show: The switch. IGBT, steady, resistor, gate at 100%. The words: “A transistor is a switch you work with a small signal on a third lead. The heat in a switch is the voltage across it times the current through it. Here one feeds a 30 Ω load from 600 V DC. That is close to a 440 V drive's DC link. Fully off, the whole 600 V sits across it. But almost no current flows. Fully on, about 20 A flows, with only about 2 V across it. So fully on, it makes about 2 × 20 = 40 W.” Read: fully on, the readouts show 2 V across the switch, a current of 19.9 A and 40 W of heat. Still: IGBT, steady, resistor, gate 100%.
+
+2, a puzzle: the gate stands at 0%, and the readouts are hidden. “The gate is off, and 600 V sits across the switch. How much heat does it make?” Offered: “Almost none, as almost no current flows”; “The most of any setting, from the full 600 V”; “About 40 W, the same as fully on”. Hint for the most: “Heat is volts times amps. How many amps flow when it is off?” Hint for 40 W: “Fully on, 2 V meets 20 A. What current meets the 600 V when it is off?” Why: “Almost none. Heat is the voltage times the current. Off, only a tiny leakage current flows. So 600 V times almost nothing is almost nothing. The picture draws that leakage as zero.” A right Check shows the readouts: 600 V, 0.0 A and 0 W.
+
+3, show: Half on. Steady, resistor, the gate from 100% to 50%. The words: “Between off and on, the transistor acts like a resistor in series with the load. Drag the gate to half on, 50%. The switch now takes half the supply, 300 V. Half the current flows, 10 A. Both are large at once. So the switch makes 300 × 10 = 3000 W. The plot shows the heat against the gate setting. It is a hump. At each end, the voltage or the current is near zero. In the middle, neither is.” Read: at half on, across the switch reads 300 V, the current 10.0 A and the heat 3000 W. The plot's dot sits on top of the hump. The hump falls to 40 W fully on and to zero off. Still: gate 50%.
+
+4, a puzzle: the gate at 100%, the plot hidden. “Which gate setting makes the switch hottest?” Offered: “Half on”; “Fully on, with the most current”; “Fully off, with the most voltage”. Hint for fully on: “Fully on, how much voltage is across the switch?” Hint for fully off: “Fully off, how much current flows?” Why: “Half on. There 300 V meets 10 A, which is 3000 W. Fully on, 20 A meets only 2 V. Fully off, 600 V meets almost no current. So half on is no safe middle. It is the hottest place to leave this switch.” A right Check draws the plot with its hump.
+
+5, show: Heat into temperature. The thermometer appears, the gate at 100% and then 50%. The words: “The heat has to leave through a heat sink. Its thermal resistance says how far the junction, the silicon inside, rises above the air for each watt. Say 0.5 °C per watt, with the air at 40 °C. Fully on, 40 W lifts the junction 40 × 0.5 = 20 °C, to 60 °C. Half on, 3000 W would lift it 1500 °C. Say this transistor is rated to 150 °C. It fails long before that.” Read: fully on, the thermometer reads 60 °C. At half on, it runs off the top in red. Still: gate 50%.
+
+6, a puzzle: the gate at 100%, the thermometer at 60 °C. “The junction may reach 150 °C. The air is at 40 °C. How much heat can this heat sink shed?” Offered: “About 220 W”; “About 300 W”; “About 55 W”. Hint for 300 W: “Count the rise from the air at 40 °C, not from zero.” Hint for 55 W: “Each watt adds 0.5 °C. So divide the rise by 0.5. Don't multiply.” Why: “About 220 W. The junction may rise 150 − 40 = 110 °C. Each watt lifts it 0.5 °C. So 110 ÷ 0.5 = 220 W. Fully on, 40 W is well inside that. Half on, 3000 W is more than thirteen times too much.” A right Check marks 220 W on the heat bar.
+
+7, show: Three devices, one job. The gate at 50%, the picker from BJT to MOSFET to IGBT. The words: “Three kinds of power transistor do this job. A BJT, a bipolar transistor, needs a steady current into its base to stay on. A MOSFET turns on with a voltage on its gate. Its gate draws almost no current except while it changes over. An IGBT puts a MOSFET's gate in charge of a bipolar output. It suits high voltages and currents. Pick each one at half on. The heat stays at 3000 W. The circuit sets the voltage and the current. The device does not.” Read: at half on, the heat reads 3000 W with each device picked. Only the symbol and the name of its control lead change. Still: IGBT, gate 50%.
+
+8, a puzzle: the IGBT at half on. “You swap the IGBT for a MOSFET and leave it half on. What happens to the heat?” Offered: “It stays at about 3000 W”; “It falls a long way, as the gate takes no steady current”; “It falls to nothing, as a MOSFET is a better switch”. Hint for falls a long way: “The gate's current is tiny either way. Which voltage and current make the heat?” Hint for nothing: “Half on, any of these switches takes 300 V and passes 10 A here.” Why: “It stays at about 3000 W. Half on, the switch still takes 300 V and passes 10 A. That is 300 × 10 = 3000 W, whatever the device. The gate drive changes what the control circuit must supply. It does not change the heat in the switch's main path.” A right Check picks MOSFET, and the heat reads 3000 W.
+
+9, show: The edges. Switching mode at 10 kHz, the gate slider hidden. The words: “Flipping the switch fully on and off makes far less heat. It is on half the time. The load still averages about 300 V. No switch changes over instantly. Say each edge takes 0.5 µs. During it, the switch sweeps through half on. So each edge costs a burst of heat, about 1 mJ. This switching loss is the energy per switching times the frequency.[^1] Two edges a cycle at 10 kHz make 20 W. The on half adds 20 W. The total is about 40 W, not 3000 W.” Read: in switching mode at 10 kHz, the heat bar splits into 20 W on and 20 W in the edges. The heat reads 40 W, and the thermometer 60 °C. Still: switching, 10 kHz.
+
+10, a puzzle: switching mode at 10 kHz, the edges making 20 W. “You raise the frequency to 20 kHz. What do the edges make now?” Offered: “About 40 W”; “About 20 W, as each edge costs the same”; “About 10 W, as each cycle is shorter”. Hint for 20 W: “Each edge costs the same. How many edges come each second now?” Hint for 10 W: “A shorter cycle means more edges each second, not fewer.” Why: “About 40 W. Each cycle costs about 2 mJ, 1 mJ an edge. At 20,000 cycles a second, that is 2 mJ × 20,000 = 40 W. The on part stays at 20 W. So the switch makes 60 W in all. The junction reaches 70 °C.” A right Check sets 20 kHz, and the heat reads 60 W.
+
+11, show: The coil kicks back. Coil, steady, fully on, then Open. The words: “A coil keeps its current going, as v = L di/dt says. Many loads are coils, such as contactors and motor windings. Open the switch, and the coil's current has nowhere to go. The switch tries to stop it in about 0.5 µs. So di/dt is huge. The coil's voltage spikes far above the supply, across the switch. A diode across the coil gives the current a path round. It is fitted to block the supply. Through this freewheeling diode, the coil sees only its drop, about 0.7 V.[^2]” Read: with no diode, opening the switch sends its voltage up in a red spike off the top of the scale. With the diode ticked, the switch's voltage steps to about 601 V. The coil's current then dies away round the diode. Still: coil, diode ticked, after Open.
+
+12, a puzzle: the coil, no diode, fully on. “The switch opens on the coil with no diode. What voltage does the switch see?” Offered: “A spike far above 600 V”; “600 V, the supply”; “Zero, as the current stops”. Hint for 600 V: “The coil's current can't stop at once on its own. What does v = L di/dt give for a sudden stop?” Hint for zero: “A sudden stop in a coil's current is what makes its voltage jump.” Why: “A spike far above 600 V. The switch tries to force the coil's current from 19.9 A to zero in about 0.5 µs. So di/dt is huge, and so is L di/dt. That voltage adds to the supply across the switch. It can break the switch down. With the diode, the switch sees only about 601 V.” A right Check presses Open, and the red spike runs off the top.
+
+13, a mixed puzzle: steady, resistor, IGBT. “You want the load to average 300 V from the 600 V supply. Which way keeps the IGBT coolest?” Offered: “Flip it fully on and off, on half the time”; “Hold the gate at half on”; “Either way, as the load gets 300 V both ways”. Hint for half on: “Half on, the IGBT takes 300 V and passes 10 A. What heat is that?” Hint for either way: “The load's average is the same. Compare the heat in the switch.” Why: “Flip it. At 10 kHz, it makes about 40 W: 20 W on and 20 W in its edges. Held half on, it makes 3000 W. The load averages about 300 V both ways. But the switch's heat differs by about 75 times.” A right Check sets switching mode at 10 kHz, and the heat reads 40 W.
+
+14, a mixed puzzle: steady, resistor, the gate at 90%, the readouts hidden. “The gate stands at 90%, nearly on. Can the 220 W heat sink cope?” Offered: “No, the switch makes about 1080 W”; “Yes, nearly on is close to the 40 W of fully on”; “No, it makes the 3000 W of half on”. Hint for yes: “At 90%, the switch still takes a tenth of 600 V. What current meets it?” Hint for 3000 W: “At 90%, the voltage is lower than at half on. Work out V × I.” Why: “No. At 90%, the switch takes 60 V and passes 18 A. That is 60 × 18 = 1080 W. It is about five times what the heat sink can shed. Fully on, its voltage falls to about 2 V and the heat to 40 W.” A right Check shows the readouts: 60 V, 18.0 A and 1080 W, and the thermometer runs off the top.
+
+Some screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked. Each can wrap onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains the answer. Continue moves on.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The picture gives all three devices the same 2 V drop fully on. Real ones differ. A MOSFET's drop grows with its current. Off, the leakage current is drawn as zero. Real leakage is tiny but not nil. The thermometer settles at once. A real heat sink takes time to warm up. Its one thermal resistance stands for a chain, from junction to case, case to sink and sink to air. Each edge is drawn as a straight sweep through a resistive load's hump. With a coil load, a real edge holds nearly the full current while the voltage swings. So it costs more. The power the gate drive uses is left out. The switching strip is slowed down. A cycle at 10 kHz lasts only 0.1 ms.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 13 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "vSwitch": Across the switch (V), decimals: 0
+- id "current": Current (A), decimals: 1
+- id "heat": Heat in the switch (W), decimals: 0
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 14 (the stepper): 0 (control)
+- DC supply, chosen, V: 600 (assumed)
+- Load resistance, chosen, Ω: 30 (assumed)
+- Drive supply whose DC link is near 600 V, V: 440 (assumed)
+- Gate slider, lowest, %: 0 (control)
+- Gate slider, highest, %: 100 (control)
+- Gate slider step, %: 5 (control)
+- Gate at half on, %: 50 (control)
+- Gate nearly on in screen 14, %: 90 (control)
+- Drop fully on, chosen, V: 2 (assumed)
+- Full current with no drop, 600 ÷ 30, A: 20 (computed)
+- Current fully on, (600 − 2) ÷ 30, A: 19.9 (computed)
+- Heat fully on, 2 × 19.9, about, W: 40 (computed)
+- Current fully off, as drawn, A: 0 (computed)
+- Switch voltage half on, V: 300 (computed)
+- Current half on, A: 10 (computed)
+- Heat half on, 300 × 10, W: 3000 (computed)
+- 4 × the load in V² ÷ (4R), Ω: 120 (computed)
+- Factor in the peak rule V² ÷ (4R): 4 (computed)
+- Thermal resistance, chosen, °C per watt: 0.5 (assumed)
+- Air temperature, chosen, °C: 40 (assumed)
+- Junction rating, chosen, °C: 150 (assumed)
+- Thermometer top, °C: 200 (assumed)
+- Junction rise fully on, 40 × 0.5, °C: 20 (computed)
+- Junction fully on, 40 + 20, °C: 60 (computed)
+- Junction rise half on, 3000 × 0.5, °C: 1500 (computed)
+- Allowed rise, 150 − 40, °C: 110 (computed)
+- Heat the sink can shed, 110 ÷ 0.5, W: 220 (computed)
+- Half-on heat over 220 W, more than, times: 13 (computed)
+- Wrong answer, 110 × 0.5, W: 55 (computed)
+- Frequency slider, lowest, kHz: 1 (control)
+- Frequency slider, highest, kHz: 20 (control)
+- Frequency slider step, kHz: 1 (control)
+- Frequency, opening setting, kHz: 10 (control)
+- Edge time, chosen, µs: 0.5 (assumed)
+- Average heat over an edge, 12000 ÷ 6, W: 2000 (computed)
+- Energy per edge, 2000 × 0.5 µs, mJ: 1 (computed)
+- Energy per cycle, two edges, mJ: 2 (computed)
+- Edge heat at 10 kHz, 2 mJ × 10,000, W: 20 (computed)
+- On-state heat, on half the time, W: 20 (computed)
+- Total heat switching at 10 kHz, W: 40 (computed)
+- Cycles a second at 20 kHz: 20000 (computed)
+- Edge heat at 20 kHz, W: 40 (computed)
+- Total heat switching at 20 kHz, W: 60 (computed)
+- Junction at 20 kHz, 40 + 0.5 × 60, °C: 70 (computed)
+- Load average voltage, on half the time, about, V: 300 (computed)
+- Half-on heat over switching heat, about, times: 75 (computed)
+- Cycle time at 10 kHz, ms: 0.1 (computed)
+- Coil inductance, chosen, mH: 10 (assumed)
+- Silicon diode forward voltage, about, V: 0.7 (constant, source [2])
+- Switch voltage with the diode, 600 + 0.7, V: 601 (computed)
+- Coil time constant, 10 mH ÷ 30 Ω, ms: 0.33 (computed)
+- Switch voltage scale top, V: 1000 (assumed)
+- Switch voltage at 90%, V: 60 (computed)
+- Current at 90%, A: 18 (computed)
+- Heat at 90%, 60 × 18, W: 1080 (computed)
+- Heat at 90% over 220 W, about, times: 5 (computed)
+- Small transistor partly on, mW: 600 (constant, source [3])
+- Same transistor as a switch, fully on, mW: 24 (constant, source [4])
+- Worked example DC supply, V: 400 (assumed)
+- Worked example load, Ω: 10 (assumed)
+- Worked example current fully on, (400 − 2) ÷ 10, about, A: 40 (computed)
+- Worked example heat while on, 2 × 40, W: 80 (computed)
+- Worked example on-state heat, half the time, W: 40 (computed)
+- Worked example energy per cycle, chosen, mJ: 3 (assumed)
+- Worked example frequency, chosen, kHz: 5 (assumed)
+- Worked example cycles a second: 5000 (computed)
+- Worked example switching loss, 3 mJ × 5000, W: 15 (computed)
+- Worked example total heat, W: 55 (computed)
+- Worked example thermal resistance, chosen, °C per watt: 0.4 (assumed)
+- Worked example junction rise, 0.4 × 55, °C: 22 (computed)
+- Worked example junction, 40 + 22, °C: 62 (computed)
+- Worked example held half on, 400² ÷ (4 × 10), W: 4000 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A power transistor is a switch you work with a small signal on its control lead. In a converter, it is kept fully on or fully off. That way it controls the load while making little heat. Held half on, it would turn far more of the power into heat.
+
+The heat in any switch is the voltage across it times the current through it. Take 600 V DC feeding a 30 Ω load. That is close to a 440 V drive's DC link. Fully off, the whole 600 V sits across the switch. Only a tiny leakage current flows. So the heat is tiny. Fully on, about 20 A flows. A real transistor still keeps a small drop, say 2 V. So it makes about 2 × 20 = 40 W.
+
+Half on, it acts like a resistor in series with the load. It takes half the supply, 300 V, and passes half the current, 10 A. Now both are large at once. So it makes 300 × 10 = 3000 W. The heat peaks at half on, because at each end one of them is near zero. For a resistive load, that peak is V² ÷ (4R), where V is the supply and R the load. Here that is 600² ÷ 120 = 3000 W. Small transistors behave the same way. Partly on, a small one might make 600 mW. As a switch, the same part makes about 24 mW fully on.
+
+Heat becomes temperature through the heat sink. Its thermal resistance says how far the junction, the silicon inside, rises above the air for each watt. Say 0.5 °C per watt, with the air at 40 °C. Fully on, 40 W lifts the junction 20 °C, to 60 °C. Half on, 300…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] IGBT_Power_Losses_Calculation_using_the_Data_Sheet_Parameters (https://www.infineon.com/assets/row/public/documents/faq/igbt-power-losses-calculation-using-the-data-sheet-parameters.pdf): "The switching losses in the IGBT and the diode are the product of switching energies and the switching frequency (fsw)"
+[2] Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook (https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/): "Silicon diodes have a forward voltage of approximately 0.7 volts."
+[3] Transistor Basics: (https://www.physics.unlv.edu/~bill/PHYS483/transbas.pdf): "In the linear range this could be something like 6V@100mA = 600mW (a lot for a little transistor)."
+[4] Transistor Basics: (https://www.physics.unlv.edu/~bill/PHYS483/transbas.pdf): "But when used as a switch very little power is dissipated in the on or off state (0.2V@118mA = 24mW, 12V@50nA = 0.6uW)."
+[5] Rectifier Circuits | Diodes and Rectifiers | Electronics Textbook (https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/): "Since the controlling device (the diode, in this case) is either fully conducting or fully nonconducting at any given time, it dissipates little heat energy while controlling load power, making this method of power control very energy-effi…"
+[6] Industrial IGBT Modules:Explanation of Technical Information (https://www.infineon.com/assets/row/public/documents/24/42/infineon-an2011-05-igbt-modules-explanation-applicationnotes-en.pdf): "The IGBT should not be operated in linear mode, as this causes excessive conduction losses."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,191 @@
+{
+ "id": "electronics-and-power-electronics-wy3ns",
+ "title": "Electronics and power electronics, from diode to drive",
+ "query": "Electronics and power electronics",
+ "createdAt": "2026-10-26T17:48:11.436Z",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "plannedAt": "2026-10-26T17:48:11.436Z",
+ "status": "ready",
+ "error": null,
+ "hook": "A drive runs a motor at the speed you choose using switches that are kept fully on or fully off. How can on-off switches give a motor a smooth AC current at the frequency it needs?",
+ "oneBreath": "A diode lets current through one way only, so a few of them turn AC into DC that pulses, and a capacitor stores that DC and smooths it. Transistors and thyristors are switches you can control, kept fully on or fully off so they waste little heat: chop DC with them through a coil and you get a lower or higher DC, and time the chopping to follow a sine and you get AC at the voltage and frequency you choose, which is what sits inside a drive, a battery charger or a UPS. Living with them means allowing for the uneven current they draw, the charge they keep after isolation and the current they leak to earth.",
+ "level": "some",
+ "hue": 117,
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand electronics and power electronics and how to work with them",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand electronics and power electronics and how to work with them"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ },
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "The diode: a one-way valve",
+   "oneLine": "A silicon diode's junction passes current one way for a drop of about 0.7 V, and blocks the other way up to a rated voltage.",
+   "deps": [],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i2",
+   "title": "Rectifiers: AC in, DC out",
+   "oneLine": "Diodes in a bridge steer both halves of the AC the same way through the load, so the output is DC that pulses.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i3",
+   "title": "Smoothing and the DC link",
+   "oneLine": "A capacitor fills near each peak of the rectified wave and feeds the load between them, the store of DC inside a drive.",
+   "deps": [
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i4",
+   "title": "The transistor as a switch",
+   "oneLine": "A power transistor is kept fully on or fully off, because half on, its voltage times its current makes the most heat.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i5",
+   "title": "The thyristor and phase control",
+   "oneLine": "A thyristor is a diode that waits for a pulse on its gate, its control lead, so firing it later each half cycle gives less DC.",
+   "deps": [
+    "i1",
+    "i2"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i6",
+   "title": "Chopping DC: buck and boost",
+   "oneLine": "Chopping DC through a coil and capacitor gives a steady lower voltage, the input times the share of time on, or rearranged, a higher one.",
+   "deps": [
+    "i3",
+    "i4"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i7",
+   "title": "Inverting: building AC from DC",
+   "oneLine": "Switching a bridge so its share of on-time follows a chosen sine gives pulses whose average, and a motor's current, follow that sine.",
+   "deps": [
+    "i3",
+    "i4",
+    "i6"
+   ],
+   "kind": "mechanism"
+  },
+  {
+   "id": "i8",
+   "title": "Living with power electronics",
+   "oneLine": "Converters bring extra frequencies in the current they draw, charge they hold after isolation and current their filters leak to earth.",
+   "deps": [
+    "i2",
+    "i3",
+    "i7"
+   ],
+   "kind": "mechanism"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "Your meter's diode range reads 0.55 V across a silicon diode one way, and over range the other way. What does that tell you?",
+   "options": [
+    "Faulty, because a good silicon diode always reads about 0.7 V",
+    "Healthy: it conducts one way and blocks the other",
+    "Faulty, because over range one way means it is open"
+   ],
+   "answer": 1,
+   "why": "Healthy. The diode range pushes only a small current, so a good silicon diode reads less than its usual 0.7 V drop. Over range reversed is the diode blocking; an open diode reads over range both ways."
+  },
+  {
+   "id": "c2",
+   "iid": "i3",
+   "q": "A capacitor smooths a rectifier's output, and the voltage dips a little between peaks. If the load then draws twice the current, what happens to the dip?",
+   "options": [
+    "It stays the same: only the capacitor's size sets it",
+    "It disappears: the capacitor holds the voltage at the peak",
+    "It roughly doubles"
+   ],
+   "answer": 2,
+   "why": "Between peaks the capacitor alone feeds the load, so it drains at a rate set by current over capacitance. Twice the current drains it twice as fast, so the dip roughly doubles. The capacitor's size matters, but so do the load and the frequency."
+  }
+ ],
+ "readyMade": {
+  "shelf": "electrical",
+  "course": "electronics"
+ },
+ "overviewChecked": true,
+ "guideV": 3,
+ "research": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "sources": 87,
+  "dropped": 0,
+  "error": null,
+  "reason": null,
+  "tries": 0
+ }
+}

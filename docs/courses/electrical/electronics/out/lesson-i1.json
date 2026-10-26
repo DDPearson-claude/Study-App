@@ -1,0 +1,507 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "The diode: a one-way valve",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the empty zone squeeze thin so carriers stream across near 0.7 V, and widen so almost none cross, when you drag the supply forward and then into reverse.",
+   "title": "The junction and the meter",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "diodeVolts",
+     "label": "Across the diode",
+     "unit": "V",
+     "decimals": 2
+    },
+    {
+     "id": "current",
+     "label": "Current",
+     "unit": "A",
+     "decimals": 2
+    },
+    {
+     "id": "resistorVolts",
+     "label": "Across the resistor",
+     "unit": "V",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. Most of them show one picture, the junction. A silicon diode is drawn as a block. Its left half, the P side, holds hole circles. Its right half, the N side, holds electron dots. Between them is a thin empty zone with no carriers in it. Small minus signs line its P edge, and plus signs its N edge. The diode's symbol sits above the block, its arrow pointing from the P side to the N side. The block sits in a loop with a 10 Ω example resistor and a supply. You drag the supply from −60 V to +10 V in steps of 0.1 V. It opens at 0 V. Three readouts sit under it: across the diode, the current and across the resistor. They wrap onto two lines on a narrow phone. Below the block is a graph of the diode's current against its voltage. It is a sketch of an example silicon diode, and it is labelled as one. Forward, its current is 10⁻¹² A × (e^(V ÷ 0.026) − 1). So the current is tiny below about 0.5 V, near 10 mA at 0.6 V and climbing steeply by 0.7 V. Reverse, it sits on zero until the example diode's 50 V PIV. There it drops straight down, drawn in red. A dot rides the curve as you drag. The circuit's rule is simple. The supply equals the diode's voltage plus the resistor's. The resistor's voltage is the current × 10 Ω. So the dot sits where the curve meets that line. As the current rises, carriers stream across the zone faster. They are drawn as dots and circles crossing. Forward, the zone narrows as the supply rises to 0.7 V. Reverse, it widens as the supply falls. Past −50 V the zone breaks open in red. A line of short sentences under the picture says what is happening at each setting.\n\nThe screens.\n\n1, show: Inside the diode. The block alone, no supply. As it opens, a few electrons cross the middle and drop into holes. The empty zone forms, with its plus and minus charges. The words: “A diode is a one-way valve for current.[^1] Here is one way to see why. Inside is one piece of silicon, treated so its two halves differ. The N side has spare free electrons. The P side is short of electrons. Each gap is a hole, and it acts like a positive charge. Where the halves meet, electrons cross and fill holes. That leaves a thin empty zone with no free carriers. It also leaves charge behind, minus on the P side and plus on the N side.”\n\n2, a puzzle: “Why does the crossing stop, leaving most holes and electrons where they were?” Offered: “The charge left behind pushes the next carriers back”; “The N side runs out of free electrons”; “The empty zone is a layer of insulation built in”. Hint for the second: “The N side still has plenty. Look at the charge left at the edges of the zone.” Hint for the third: “The crossing itself makes the zone. Look at what it leaves behind.” Why: “Each electron that crosses leaves a plus behind on the N side and a minus on the P side. That charge pushes back on the next electrons and holes. The crossing stops once that push balances their spreading.” A right Check flashes the plus and minus charges.\n\n3, show: Forward. The prompt: “Predict: will the zone thin or widen? Then drag the supply up to 5 V.” Once you move the supply up, the words appear: “Plus on the P side and minus on the N side push both carriers towards the junction. That push works against the charge left there. So the empty zone thins. On this example curve, almost nothing crosses below 0.5 V. By 0.6 V the push wins and carriers stream across. The diode then holds about 0.7 V.[^2]” Read: with the supply at 5 V, the zone is thin and carriers stream across. The diode holds 0.70 V, the resistor 4.30 V, and 0.43 A flows. The dot sits on the steep part of the curve. Still: supply 5 V.\n\n4, a puzzle: “The supply is at 5 V and the diode conducts 0.43 A. What does a voltmeter across the diode read?” Offered: “About 0.7 V”; “0 V, as it is a closed switch”; “5 V, the whole supply”. Hint for 0 V: “A conducting diode still needs about 0.7 V to keep carriers crossing the zone.” Hint for 5 V: “That is a blocking diode. This one conducts, so the resistor takes most of the supply.” Why: “Carriers stream across only while the zone is held thin. That takes about 0.7 V. The other 4.30 V of the 5 V sits across the resistor and drives 0.43 A.” A right Check rings the diode's readout.\n\n5, show: Reverse. The prompt: “Drag the supply below zero, to −20 V, then on to −60 V.” The words: “Below zero the N side is positive. That pulls the carriers away, so the zone widens. Almost no current flows, so the diode holds the whole supply. This example diode's peak inverse voltage, or PIV, is 50 V. That is the most reverse voltage it can take.[^3] Past it, the zone breaks down and current rushes backwards. That usually destroys an ordinary diode.[^5]” Read: at −20 V the zone is wide. Almost no current flows, and the diode holds all 20 V. At −60 V, past the 50 V PIV, the diode has broken down. It holds 50 V while 1.00 A flows backwards. So it turns 50 W into heat, shown in red. Still: supply −60 V.\n\n6, a puzzle on the curve: “A test record says a silicon diode carried 0.5 A forward with 0.1 V across it. Can that be right?” Offered: “No: at 0.1 V the curve gives almost no current”; “Yes: forward, a diode is a closed switch”; “Yes: more current means less drop”. Hint for the second: “Find 0.1 V on the curve and read the current there.” Hint for the third: “Follow the curve up. More current needs a little more voltage, not less.” Why: “At 0.1 V the zone is still wide enough to hold the carriers back. So the curve sits on zero. 0.5 A needs about 0.7 V. So the record is wrong, or the part is not a working diode.” A right Check marks the claimed point with a red cross, far off the curve.\n\n7, show: Nothing used up. Back to the supply at 5 V, with an ammeter drawn each side of the diode. Both read 0.43 A. The words: “Put an ammeter each side of the diode. Both read 0.43 A. Current is a flow of charge. Charge is not used up on the way through. What the diode takes is voltage, about 0.7 V of push. It turns that into heat at voltage × current. That is the P = V × I you already use. Here that is 0.70 × 0.43 = 0.30 W. The drop barely changes with current. So the heat grows almost in step with the current.”\n\n8, a puzzle: “Now the supply is at 10 V. The ammeter before the diode reads 0.93 A. What does the one after it read?” Offered: “0.93 A”; “A little less, as the diode uses some”; “0 A, as it all turns to heat”. Hint for the second: “The diode takes voltage, not current. Charge in equals charge out.” Hint for the third: “The heat comes from the drop times the current. The current itself flows on.” Why: “Every bit of charge that enters the diode leaves the other end. The diode takes 0.72 V of push. It turns that into 0.72 × 0.93 = 0.67 W of heat. All 0.93 A flows on to the resistor.” A right Check sets the supply to 10 V and lights both ammeters.\n\n9, show: The meter. A second view shows a multimeter on its diode range, with its leads on the diode. It has a Swap leads button. The curve stays beside it, with the dot at the meter's current. The words: “A meter's diode range pushes a small current through the diode and shows the voltage across it. That current is tiny. So the dot sits low on the curve. A good silicon diode typically reads under 0.7 V.[^4] This example meter pushes 1 mA and reads 0.54 V. Swap the leads and the diode blocks. The meter cannot push its current through, so it shows over range.” Read: one way round, the meter pushes 1 mA and reads 0.54 V. The dot sits low on the curve's knee. The other way round, the diode blocks and the meter shows over range. Still: the leads the forward way.\n\n10, a puzzle: “A meter on its diode range reads 0.55 V across a silicon diode one way, and over range the other way. Is the diode good?” Offered: “Yes: a drop one way, blocking the other”; “No: a good one would read 0.7 V”; “No: a good one would read the same both ways”. Hint for the second: “The meter's current is tiny. So the dot sits lower on the curve than 0.7 V.” Hint for the third: “A one-way valve should never give the same reading both ways.” Why: “The meter pushes only a tiny current. So a good silicon diode typically reads under 0.7 V.[^4] Over range the other way means it blocks. A drop one way and a block the other is a good diode.”\n\n11, a mixed puzzle: “The supply is set to −20 V, well inside the diode's 50 V PIV. Where do the 20 V sit?” Offered: “Almost all across the diode”; “Almost all across the 10 Ω resistor”; “Half across each”. Hint for the second: “With almost no current, the resistor drops almost nothing. V = I × R.” Hint for the third: “Only a current makes a drop across the resistor, and almost none flows.” Why: “The wide zone lets almost no current through. With almost no current, the resistor drops almost nothing. So the diode holds the whole supply. That is why its PIV must be above it.”\n\n12, a mixed puzzle, drawn as a battery, the diode and a lamp in a loop: “A 12 V battery lights a lamp through a silicon diode fitted forward. About what voltage reaches the lamp?” Offered: “About 11.3 V”; “12 V”; “0 V”. Hint for 12 V: “The diode keeps about 0.7 V of the supply for itself.” Hint for 0 V: “That would be the diode fitted backwards.” Why: “A conducting silicon diode holds about 0.7 V.[^2] The lamp gets the rest, 12 − 0.7 = 11.3 V.”\n\n13, a mixed puzzle: “A silicon diode in a battery charger carries 20 A with about 0.7 V across it. How much heat does it make?” Offered: “About 14 W”; “None, as it is fully on”; “About 0.7 W”. Hint for none: “Fully on still means about 0.7 V across it. Volts × amps is heat.” Hint for 0.7 W: “That is the heat at 1 A. This one carries 20 A.” Why: “Heat = voltage × current = 0.7 × 20 = 14 W. A real diode's drop creeps up at high current, as the curve does. So it makes more.”\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked so each wraps onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains, and Continue moves on.",
+   "ignores": "The picture draws a few dozen carriers. A real diode holds vast numbers, and its empty zone is far thinner than drawn. Holes are drawn as things that move. What really moves is electrons hopping into them. The curve is a sketch of a silicon diode, not a measured part. A real diode leaks a tiny current backwards, more when hot. The picture shows it as zero. Its forward drop also falls a little as it warms. Breakdown is drawn sharp at exactly 50 V. A real diode usually breaks down somewhere above its rated PIV. Some diodes are built to work in breakdown, as voltage references. This one is a rectifier diode. Germanium and some other kinds of diode drop less than silicon.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Supply, V, opening setting",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Supply slider, lowest, V",
+     "value": -60,
+     "kind": "control"
+    },
+    {
+     "label": "Supply slider, highest, V",
+     "value": 10,
+     "kind": "control"
+    },
+    {
+     "label": "Supply slider step, V",
+     "value": 0.1,
+     "kind": "control"
+    },
+    {
+     "label": "Example series resistor, ohms",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example diode's PIV, V",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch curve's scale current, A",
+     "value": 1e-12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sketch curve's slope voltage, V",
+     "value": 0.026,
+     "kind": "assumed"
+    },
+    {
+     "label": "Silicon diode forward voltage, about, V",
+     "value": 0.7,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Sketch: current tiny below about, V",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Sketch: current starts to climb near, V",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Sketch: current at 0.6 V, near, mA",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Example supply in screens 3, 4 and 7, V",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "At 5 V supply: across the diode, V",
+     "value": 0.7,
+     "kind": "computed"
+    },
+    {
+     "label": "At 5 V supply: across the resistor, V",
+     "value": 4.3,
+     "kind": "computed"
+    },
+    {
+     "label": "At 5 V supply: current, A",
+     "value": 0.43,
+     "kind": "computed"
+    },
+    {
+     "label": "At 5 V supply: diode heat 0.70 × 0.43, W",
+     "value": 0.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example supply in screen 8, V",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "At 10 V supply: across the diode, V",
+     "value": 0.72,
+     "kind": "computed"
+    },
+    {
+     "label": "At 10 V supply: current, A",
+     "value": 0.93,
+     "kind": "computed"
+    },
+    {
+     "label": "At 10 V supply: diode heat 0.72 × 0.93, W",
+     "value": 0.67,
+     "kind": "computed"
+    },
+    {
+     "label": "Example reverse supply, V",
+     "value": -20,
+     "kind": "assumed"
+    },
+    {
+     "label": "At −20 V supply: across the diode, V",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Example supply past the PIV, V",
+     "value": -60,
+     "kind": "assumed"
+    },
+    {
+     "label": "At −60 V supply: across the diode in breakdown, V",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "At −60 V supply: backward current (60 − 50) ÷ 10, A",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "At −60 V supply: heat in breakdown 50 × 1.00, W",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Test record's claimed current, A",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Test record's claimed voltage, V",
+     "value": 0.1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example meter's test current, mA",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example meter's reading at 1 mA on the sketch, V",
+     "value": 0.54,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle meter reading, V",
+     "value": 0.55,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example battery in screen 12, V",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage reaching the lamp, 12 − 0.7, V",
+     "value": 11.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example charger diode current, A",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Charger diode heat, 0.7 × 20, W",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat at 1 A with a 0.7 V drop, W",
+     "value": 0.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Example battery in the worked example, V",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example lamp current in the worked example, A",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage reaching the lamp, 24 − 0.7, V",
+     "value": 23.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Diode heat in the worked example, 0.7 × 2, W",
+     "value": 1.4,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A diode lets current through one way and blocks it the other. Forward, a silicon diode needs about 0.7 V across it before much current flows.[^2] It then holds near that drop as the current rises. Backwards it blocks, up to a rated voltage.\n\nHere is one way to picture it. The diode is one piece of silicon, treated so its two halves differ. The N side has spare free electrons. The P side is short of electrons. Each gap is a [[hole]], and it acts like a positive charge. A hole moves when a neighbouring electron hops into it. So holes drift one way as electrons hop the other. Where the halves meet, electrons cross and fill holes. That leaves a thin empty zone with no free carriers. The crossing also leaves charge behind, minus on the P side and plus on the N side. That charge pushes back on the next carriers. So the crossing soon stops.\n\nPut the P side positive, and both kinds of carrier are pushed towards the junction. The empty zone thins. Once the voltage across the diode overcomes the charge holding the zone open, carriers stream across. The current climbs steeply. For silicon that happens near 0.6 to 0.7 V. So a conducting diode holds about 0.7 V, its [[forward voltage]]. A little more voltage on the diode then lets far more current through. So the rest of the circuit sets the current. Any extra supply lands across it. The current rises while the diode's drop barely moves. Put the N side positive instead, and the carriers are pulled away from the junction. The zone widens and almost no current flows. The whole supply sits across the diode. Every diode has a limit there, its [[peak inverse voltage]], or PIV. That is the most reverse voltage it can take without breaking down.[^3] Far enough past it, the push across the zone tears electrons loose. Each one frees more as it speeds across. Current then rushes backwards, limited only by the rest of the circuit. That usually destroys an ordinary rectifier diode.\n\nThe drop does not go away. Each amp through a silicon diode turns about 0.7 W into heat. Yet every bit of charge that goes in comes out the other end. A meter's diode range pushes only a tiny current. So on a good silicon diode it typically reads less than 0.7 V.[^4] This is a simplified picture. A real diode leaks a tiny current backwards, and its drop shifts with temperature. Point a few diodes the right ways and they steer AC one way through a load. That is the first step from the mains to the DC inside a drive. **A silicon diode conducts one way for a drop of about 0.7 V, and blocks the other way up to its peak inverse voltage.**"
+  },
+  "analogy": {
+   "text": "A diode works like a non-return valve in a pipe. Pressure the right way cracks it open against its spring. Then it passes flow, and its pressure loss rises as the flow grows. Pressure the wrong way seats it shut, and the full pressure sits across it. Too much pressure the wrong way and it fails.",
+   "breaks": "A valve's cracking pressure comes from a spring. A diode's 0.7 V comes from the charge left at the junction. A valve's pressure loss still climbs as the flow grows. A diode's drop barely rises with current. And a seated valve can be tight. A blocking diode still leaks a tiny current."
+  },
+  "practice": {
+   "text": "Test a diode only on a dead circuit.\n\n- Isolate, lock off, let any capacitors discharge, and prove dead.\n- If the diode sits in a circuit, lift one leg. Then nothing else gives the meter a path round it.\n- Set the meter to its diode range. Use that range for semiconductors, and the resistance range for anything else.[^6] A resistance range may push too little voltage to show the drop.[^7]\n- Read it one way, then swap the leads and read it again.\n- A good silicon diode typically shows a drop under 0.7 V one way, and over range the other.[^4]\n- On an ordinary silicon diode, a reading near 0 V both ways means no drop at all. The diode is shorted.\n- Over range both ways means no current passes either way. The diode is open.\n\n**Rule of thumb:** a conducting silicon diode drops about 0.7 V. A blocking diode holds the whole supply across it.\n\n**Worked example:** a 24 V battery feeds a lamp through a silicon diode fitted forward. The current is 2 A. The lamp gets about 24 − 0.7 = 23.3 V. The diode turns about 0.7 × 2 = 1.4 W into heat. Fit the diode backwards and the lamp stays dark. The diode then holds the full 24 V. So its PIV must be above 24 V.\n\n**Common mistakes**\n- Treating a conducting diode as a closed switch with no drop. It holds about 0.7 V, and that drop makes heat.\n- Calling a good diode faulty because the meter shows less than 0.7 V. The meter's current is tiny. So its reading typically sits lower.\n- Expecting current to be used up in the diode. What goes in comes out.\n- Thinking a blocking diode sees no voltage. It holds the whole supply.\n- Trusting a reading the curve rules out, such as amps flowing forward with 0.1 V across the diode."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/",
+    "quote": "is an electrical component acting as a one-way valve for current."
+   },
+   {
+    "n": 2,
+    "title": "Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/",
+    "quote": "Silicon diodes have a forward voltage of approximately 0.7 volts."
+   },
+   {
+    "n": 3,
+    "title": "Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/",
+    "quote": "The maximum reverse-bias voltage that a diode can withstand without “breaking down” is called the _Peak Inverse Voltage_ , or _PIV"
+   },
+   {
+    "n": 4,
+    "title": "Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/",
+    "quote": "The forward voltage reading obtained with such a meter will typically be less than the “normal” drop of 0.7 volts for silicon and 0.3 volts for germanium because the current provided by the meter is of trivial proportions."
+   },
+   {
+    "n": 5,
+    "title": "Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/",
+    "quote": "Reverse voltage strength of a diode is not as easily tested because exceeding a normal diode’s PIV usually results in destruction of the diode."
+   },
+   {
+    "n": 6,
+    "title": "Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/",
+    "quote": "The philosophy here is that the “diode check” function is to be used for testing semiconductor devices, and the “resistance” function for anything else."
+   },
+   {
+    "n": 7,
+    "title": "Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/",
+    "quote": "may output a very low test voltage (less than 0.3 volts) when set to the regular “resistance” (Ω) function: too low to fully collapse the depletion region of a PN junction."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .task .ask { display: block; font-weight: 700; margin-bottom: 8px; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .swap { justify-content: center; }\n  .swap .k-btn { flex: 0 1 14rem; min-height: 44px; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n  /* The junction: holes are rings, free electrons dots; the charge left behind is drawn as − and + signs. */\n  .fig .blk { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .zone { fill: var(--k-bg); }\n  .fig .zone.bd { fill: var(--k-warn); fill-opacity: .16; }\n  .fig .zedge { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .fig .zedge.bd, .fig .brk.bd { stroke: var(--k-warn); }\n  .fig .flash { fill: var(--k-fill2); }\n  .fig .el { fill: var(--k-cat1); }\n  .fig .ho { fill: var(--k-bg); stroke: var(--k-cat2); stroke-width: 2; }\n  .fig .ion { stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; }\n  .fig .ion.bd { stroke: var(--k-warn); }\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; }\n  .fig .sym { fill: var(--k-ink); }\n  .fig .symline { stroke: var(--k-ink); stroke-width: 2.5; }\n  .fig .plate { stroke: var(--k-ink); stroke-width: 3; }\n  .fig .res, .fig .vm, .fig .lamp { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .ring { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2; }\n  .fig .meter { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }\n  .fig .lcd { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .sock { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .lead1 { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }\n  .fig .lead2 { fill: none; stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }\n  .fig .glow { fill: var(--k-fill2); }\n  .fig .heat { fill: none; stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .arrow { stroke: var(--k-accent2); stroke-width: 2.5; }\n  .fig .head { fill: var(--k-accent2); }\n  .fig .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; }\n  .fig .curve.bd { stroke: var(--k-warn); }\n  .fig .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .cross { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .big { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .fig .lcdt { font: 700 20px var(--k-font); fill: var(--k-ink); }\n  .fig .grab { fill: var(--k-bg); fill-opacity: 0; cursor: grab; }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 232\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g></svg>\n    <div class=\"row swap\" id=\"swap\"></div>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div id=\"gl\">\n      <svg class=\"fig\" id=\"glsvg\" viewBox=\"0 0 340 190\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"glart\"></g><g id=\"glui\"><rect class=\"grab\" id=\"grab\" x=\"0\" y=\"0\" width=\"340\" height=\"190\"/></g></svg>\n      <p class=\"gnote\">Current against voltage for an example silicon diode. It is a sketch, not a measured part. Right of 0 is forward, left is reverse, each on its own scale.</p>\n    </div>\n    <div id=\"gs\">\n      <svg class=\"fig\" id=\"gssvg\" viewBox=\"0 0 340 190\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"gsart\"></g></svg>\n      <p class=\"gnote\">Current against voltage for an example silicon diode. It is a sketch, not a measured part. Right of 0 is forward, left is reverse, each on its own scale.</p>\n    </div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the example diode and its loop (the lesson's rule) ----------\n  // Forward, I = 10⁻¹² A × (e^(V ÷ 0.026) − 1); reverse it sits on zero until the 50 V PIV, then\n  // drops straight down. The loop: supply = the diode's voltage + the current × 10 Ω.\n  const IS = 1e-12, VT = 0.026, R = 10, PIV = 50, VF = 0.7;\n  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/';\n  const METER = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/';\n  const Id = (v) => (v > 0 ? IS * (Math.exp(v / VT) - 1) : 0);\n  const vAt = (i) => VT * Math.log(i / IS + 1);\n  function solve(vs) {\n    vs = +vs || 0;\n    if (vs < -PIV) { const i = (vs + PIV) / R; return { vs, vd: -PIV, i, vr: i * R }; }\n    if (vs <= 0) return { vs, vd: vs + 0, i: 0, vr: 0 };\n    let lo = 0, hi = vs;\n    for (let k = 0; k < 80; k++) { const m = (lo + hi) / 2; if (m + R * Id(m) > vs) hi = m; else lo = m; }\n    const vd = (lo + hi) / 2, i = Id(vd);\n    return { vs, vd, i, vr: i * R };\n  }\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const C5 = solve(5), C10 = solve(10), C20 = solve(-20), C60 = solve(-60), VM = vAt(1e-3);\n  // Every number the words show, worked out from the rule (a check compares them with the lesson's).\n  const N = {\n    vd5: fx(C5.vd, 2), vr5: fx(C5.vr, 2), i5: fx(C5.i, 2), p5: fx(C5.vd * C5.i, 2),\n    vd10: fx(C10.vd, 2), i10: fx(C10.i, 2), p10: fx(C10.vd * C10.i, 2), vm: fx(VM, 2),\n    v20: fx(-C20.vd, 0), vb: fx(-C60.vd, 0), ib: fx(-C60.i, 2), pb: fx(C60.vd * C60.i, 0),\n    lamp: fx(12 - VF, 1), ch: fx(VF * 20, 0), one: fx(VF * 1, 1),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // pic: the drawing ('block', 'loop', 'meter', 'readings', 'lamp', 'charger'); supply: 'live' (the\n  // slider) or the screen's own; graph: 'live' (draggable), 'claim' or 'meter'; dur: a demonstration.\n  const STEPS = [\n    { show: true, name: 'Inside the diode', pic: 'block', form: true, dur: 4.4,\n      text: `A diode is a one-way valve for current. Here is one way to see why. Inside is one piece of silicon, treated so its two halves differ. The N side has spare free electrons. The P side is short of electrons. Each gap is a *hole*, and it acts like a positive charge. Where the halves meet, electrons cross and fill holes. That leaves a thin empty zone with no free carriers. It also leaves charge behind, minus on the P side and plus on the N side.` },\n    { kind: 'pick', name: 'Why the crossing stops', pic: 'block',\n      task: `Why does the crossing stop, leaving most holes and electrons where they were?`,\n      opts: [`The N side runs out of free electrons`, `The charge left behind pushes the next carriers back`, `The empty zone is a layer of insulation built in`],\n      want: `The charge left behind pushes the next carriers back`,\n      hints: { 'The N side runs out of free electrons': `The N side still has plenty. Look at the charge left at the edges of the zone.`,\n        'The empty zone is a layer of insulation built in': `The crossing itself makes the zone. Look at what it leaves behind.` },\n      why: `Each electron that crosses leaves a plus behind on the N side and a minus on the P side. That charge pushes back on the next electrons and holes. The crossing stops once that push balances their spreading.`, flash: true },\n    { show: true, name: 'Forward', pic: 'loop', supply: 'live', graph: 'live', reveal: (p) => p.supply > 0,\n      ask: `Predict: will the zone thin or widen? Then drag the supply up to 5 V.`,\n      text: `Plus on the P side and minus on the N side push both carriers towards the junction. That push works against the charge left there. So the empty zone thins. On this example curve, almost nothing crosses below 0.5 V. By 0.6 V the push wins and carriers stream across. The diode then holds about 0.7 V.`,\n      read: `With the supply at 5 V, the zone is thin and carriers stream across. The diode holds ${N.vd5} V, the resistor ${N.vr5} V, and ${N.i5} A flows. The dot sits on the steep part of the curve.`,\n      still: { supply: 5 } },\n    { kind: 'pick', name: 'Across the diode', pic: 'loop', supply: 5, meter: 'volt', vread: `${N.vd5} V`,\n      task: `The supply is at 5 V and the diode conducts ${N.i5} A. What does a voltmeter across the diode read?`,\n      opts: [`About 0.7 V`, `0 V, as it is a closed switch`, `5 V, the whole supply`], want: `About 0.7 V`,\n      hints: { '0 V, as it is a closed switch': `A conducting diode still needs about 0.7 V to keep carriers crossing the zone.`,\n        '5 V, the whole supply': `That is a blocking diode. This one conducts, so the resistor takes most of the supply.` },\n      why: `Carriers stream across only while the zone is held thin. That takes about 0.7 V. The other ${N.vr5} V of the 5 V sits across the resistor and drives ${N.i5} A.`,\n      shows: [`${N.vd5} V`] },\n    { show: true, name: 'Reverse', pic: 'loop', supply: 'live', graph: 'live',\n      ask: `Drag the supply below zero, to −20 V, then on to −60 V.`,\n      text: `Below zero the N side is positive. That pulls the carriers away, so the zone widens. Almost no current flows, so the diode holds the whole supply. This example diode's *peak inverse voltage*, or PIV, is 50 V. That is the most reverse voltage it can take. Past it, the zone breaks down and current rushes backwards. That usually destroys an ordinary diode.`,\n      read: `At −20 V the zone is wide. Almost no current flows, and the diode holds all ${N.v20} V. At −60 V, past the 50 V PIV, the diode has broken down. It holds ${N.vb} V while ${N.ib} A flows backwards. So it turns ${N.pb} W into heat, shown in red.`,\n      still: { supply: -60 } },\n    { kind: 'pick', name: 'A test record', graph: 'claim',\n      task: `A test record says a silicon diode carried 0.5 A forward with 0.1 V across it. Can that be right?`,\n      opts: [`Yes: forward, a diode is a closed switch`, `Yes: more current means less drop`, `No: at 0.1 V the curve gives almost no current`],\n      want: `No: at 0.1 V the curve gives almost no current`,\n      hints: { 'Yes: forward, a diode is a closed switch': `Find 0.1 V on the curve and read the current there.`,\n        'Yes: more current means less drop': `Follow the curve up. More current needs a little more voltage, not less.` },\n      why: `At 0.1 V the zone is still wide enough to hold the carriers back. So the curve sits on zero. 0.5 A needs about 0.7 V. So the record is wrong, or the part is not a working diode.`, cross: true },\n    { show: true, name: 'Nothing used up', pic: 'loop', supply: 5, meter: 'amp', dur: 2.4,\n      text: `Put an ammeter each side of the diode. Both read ${N.i5} A. Current is a flow of charge. Charge is not used up on the way through. What the diode takes is voltage, about 0.7 V of push. It turns that into heat at voltage × current. That is the P = V × I you already use. Here that is ${N.vd5} × ${N.i5} = ${N.p5} W. The drop barely changes with current. So the heat grows almost in step with the current.` },\n    { kind: 'pick', name: 'Charge in, charge out', pic: 'loop', supply: 10, meter: 'amp',\n      task: `Now the supply is at 10 V. The ammeter before the diode reads ${N.i10} A. What does the one after it read?`,\n      opts: [`A little less, as the diode uses some`, `${N.i10} A`, `0 A, as it all turns to heat`], want: `${N.i10} A`,\n      hints: { 'A little less, as the diode uses some': `The diode takes voltage, not current. Charge in equals charge out.`,\n        '0 A, as it all turns to heat': `The heat comes from the drop times the current. The current itself flows on.` },\n      why: `Every bit of charge that enters the diode leaves the other end. The diode takes ${N.vd10} V of push. It turns that into ${N.vd10} × ${N.i10} = ${N.p10} W of heat. All ${N.i10} A flows on to the resistor.`,\n      shows: [`${N.p10} W of heat`], count: [`${N.i10} A`, 1, 2] },\n    { show: true, name: 'The meter', pic: 'meter', graph: 'meter', dur: 2.1,\n      text: `A meter's diode range pushes a small current through the diode and shows the voltage across it. That current is tiny. So the dot sits low on the curve. A good silicon diode typically reads under 0.7 V. This example meter pushes 1 mA and reads ${N.vm} V. Swap the leads and the diode blocks. The meter cannot push its current through, so it shows over range.`,\n      read: `One way round, the meter pushes 1 mA and reads ${N.vm} V. The dot sits low on the curve's knee. The other way round, the diode blocks and the meter shows over range.`,\n      still: () => { leadsRev = false; K.refresh(); } },\n    { kind: 'pick', name: 'Good or not?', pic: 'readings',\n      task: `A meter on its diode range reads 0.55 V across a silicon diode one way, and over range the other way. Is the diode good?`,\n      opts: [`Yes: a drop one way, blocking the other`, `No: a good one would read 0.7 V`, `No: a good one would read the same both ways`],\n      want: `Yes: a drop one way, blocking the other`,\n      hints: { 'No: a good one would read 0.7 V': `The meter's current is tiny. So the dot sits lower on the curve than 0.7 V.`,\n        'No: a good one would read the same both ways': `A one-way valve should never give the same reading both ways.` },\n      why: `The meter pushes only a tiny current. So a good silicon diode typically reads under 0.7 V. Over range the other way means it blocks. A drop one way and a block the other is a good diode.` },\n    { kind: 'pick', name: 'Where the 20 V sit', pic: 'loop', supply: -20, meter: 'volt', vread: `${N.v20} V`,\n      task: `The supply is set to −20 V, well inside the diode's 50 V PIV. Where do the 20 V sit?`,\n      opts: [`Almost all across the 10 Ω resistor`, `Half across each`, `Almost all across the diode`], want: `Almost all across the diode`,\n      hints: { 'Almost all across the 10 Ω resistor': `With almost no current, the resistor drops almost nothing. V = I × R.`,\n        'Half across each': `Only a current makes a drop across the resistor, and almost none flows.` },\n      why: `The wide zone lets almost no current through. With almost no current, the resistor drops almost nothing. So the diode holds the whole supply. That is why its PIV must be above it.`,\n      shows: [`${N.v20} V`, '10 Ω: almost 0 V'] },\n    { kind: 'pick', name: 'A lamp through a diode', pic: 'lamp',\n      task: `A 12 V battery lights a lamp through a silicon diode fitted forward. About what voltage reaches the lamp?`,\n      opts: [`12 V`, `About ${N.lamp} V`, `0 V`], want: `About ${N.lamp} V`,\n      hints: { '12 V': `The diode keeps about 0.7 V of the supply for itself.`, '0 V': `That would be the diode fitted backwards.` },\n      why: `A conducting silicon diode holds about 0.7 V. The lamp gets the rest, 12 − 0.7 = ${N.lamp} V.`,\n      shows: [`${N.lamp} V`, `${N.one} V`] },\n    { kind: 'pick', name: 'Heat in a charger', pic: 'charger',\n      task: `A silicon diode in a battery charger carries 20 A with about 0.7 V across it. How much heat does it make?`,\n      opts: [`None, as it is fully on`, `About ${N.one} W`, `About ${N.ch} W`], want: `About ${N.ch} W`,\n      hints: { 'None, as it is fully on': `Fully on still means about 0.7 V across it. Volts × amps is heat.`, [`About ${N.one} W`]: `That is the heat at 1 A. This one carries 20 A.` },\n      why: `Heat = voltage × current = 0.7 × 20 = ${N.ch} W. A real diode's drop creeps up at high current, as the curve does. So it makes more.`,\n      shows: [`${N.ch} W of heat`] },\n  ];\n  const FINISH = 'A silicon diode conducts one way for a drop of about 0.7 V, and blocks the other way up to its peak inverse voltage.';\n  const NB = ' ', FADE = 0.35, ANS = 1.4;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false, seen: false });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  let S = STEPS.map(() => blank());\n  let leadsRev = false, finished = false, lastStep = -1, lastDone = false;\n  let T = Infinity, motionEnd = 0, PH = 0.3, WPH = 0;     // T: seconds into the screen's motion; PH, WPH: the carriers' flow\n  let REC = null;                                          // what the last drawing showed, for the checks\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  K.control({ id: 'supply', label: 'Supply', min: -60, max: 10, step: 0.1, value: 0, fmt: (v) => fx(v, 1) + NB + 'V',\n    snap: [-60, -20, 5, 10], hint: 'Or drag along the curve', into: '#ctl' });\n  K.readout({ id: 'diodeVolts', label: 'Across the diode', unit: 'V', decimals: 2, into: '#outs' });\n  K.readout({ id: 'current', label: 'Current', unit: 'A', decimals: 2, into: '#outs' });\n  K.readout({ id: 'resistorVolts', label: 'Across the resistor', unit: 'V', decimals: 2, into: '#outs' });\n  K.model((p) => { const c = solve(p.supply); return { diodeVolts: c.vd, current: c.i, resistorVolts: c.vr }; });\n\n  const swapBtn = K.button({ label: 'Swap leads', secondary: true, into: '#swap', press: () => { if (STEPS[at()].pic === 'meter' && !finished) leadsRev = !leadsRev; } });\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right') startMotion(ANS);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; leadsRev = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: each screen's demonstration, an answer's motion, and the carriers' flow ----------\n  const circ = (i, p) => { const s = STEPS[i].supply; return solve(s === 'live' ? (p ? p.supply : 0) : s == null ? 0 : s); };\n  const frac = (v) => v - Math.floor(v);\n  const gOf = (i) => K.clamp(Math.log10(Math.max(Math.abs(i), 1e-9) / 1e-4) / 4, 0, 1);   // 0.1 mA -> 0, 1 A -> 1\n  const nOf = (i) => (Math.abs(i) < 1e-4 ? 0 : 1 + Math.round(4 * gOf(i)));\n  const flowOn = () => !REDUCE && !finished && STEPS[at()].pic === 'loop' && Math.abs(circ(at(), K.params()).i) >= 1e-4;\n  const anim = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    const c = circ(at(), K.params()), g = gOf(c.i);\n    if (Math.abs(c.i) >= 1e-4) { PH = frac(PH + dt * (0.25 + 0.9 * g)); WPH = frac(WPH + dt * (0.4 + 1.4 * g) * Math.sign(c.i)); }\n    paint();\n    return T < motionEnd || flowOn();\n  } });\n  function startMotion(dur) {\n    if (REDUCE || testing()) { T = Infinity; return; }\n    T = 0; motionEnd = dur;\n    if (!anim.playing()) anim.play();\n  }\n  function kick() { if (flowOn() && !testing() && !anim.playing()) anim.play(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter'); void box.offsetWidth; box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), glsvg = el('glsvg'), glart = el('glart'), gssvg = el('gssvg'), gsart = el('gsart');\n  let into = null, latest = 0, earliest = Infinity;\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t));\n  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }\n  function tx(x, y, s, cls, anchor) { REC.texts.push(s); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s)); }\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 7.4;\n  }\n  function sign(x, y, side, cls) { ln(x - 3.5, y, x + 3.5, y, cls); if (side > 0) ln(x, y - 3.5, x, y + 3.5, cls); }\n  const carrier = (x, y, side) => (side < 0 ? ci(x, y, 4, 'ho') : ci(x, y, 3.6, 'el'));\n  function symbol() { ln(138, 17, 160, 17, 'wire'); pa('M160 7 L160 27 L180 17 Z', 'sym'); ln(182, 7, 182, 27, 'symline'); ln(182, 17, 204, 17, 'wire'); }\n  // The key, inside the drawing.\n  function key(y) {\n    const items = [['ho', 'hole', 14], ['el', 'free electron', 14], ['ion', 'charge left behind', 22]];\n    const ws = items.map((it) => tw(it[1], 'lab m'));\n    const total = items.reduce((t, it, k) => t + it[2] + ws[k] + 16, -16);\n    let x = Math.max(4, (340 - total) / 2);\n    items.forEach((it, k) => {\n      if (it[0] === 'ho') ci(x + 5, y - 4.5, 4, 'ho');\n      else if (it[0] === 'el') ci(x + 5, y - 4.5, 3.6, 'el');\n      else { sign(x + 4, y - 4.5, -1, 'ion'); sign(x + 14, y - 4.5, 1, 'ion'); }\n      tx(x + it[2], y, it[1], 'lab m', 'start');\n      x += it[2] + ws[k] + 16;\n    });\n  }\n\n  // ---------- the junction ----------\n  const CX = 170, BX0 = 46, BX1 = 294, BY0 = 38, BY1 = 122, G = 13, ROWS = [52, 66, 80, 94, 108], NCOL = 9;\n  const jit = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s) - 0.5; };\n  const site = (side, c, r) => ({ x: CX + side * (c + 0.5) * G + 3 * jit(side * 10 + c, r), y: ROWS[r] + 3 * jit(r + 7, side * 5 + c) });\n  // The empty zone's drawn width: thinner as the diode's voltage rises, wider as it falls, widest at the PIV.\n  const VBI = 0.75, W0 = 26, WMAX = 150, UMAX = Math.sqrt(1 + PIV / VBI);\n  function zoneW(vd) { const u = Math.sqrt(Math.max(0, 1 - vd / VBI)); return vd >= 0 ? W0 * u : W0 + (WMAX - W0) * (u - 1) / (UMAX - 1); }\n  // Screen 1: one electron in each row crosses into a hole; both are gone, and their charge stays.\n  const FORM = { t0: 1.0, gap: 0.45, move: 0.8, zone: 3.7 };\n  function drawBlock(o) {\n    const w = zoneW(o.vd), bd = o.vd <= -PIV && o.i < 0, B = bd ? ' bd' : '', zl = CX - w / 2, zr = CX + w / 2;\n    REC.zoneW = w; REC.bd = bd;\n    box(BX0, BY0, BX1 - BX0, BY1 - BY0, 'blk', 6);\n    part(o.form ? vis(FORM.zone) : 1, 0, () => {\n      box(zl, BY0 + 1, w, BY1 - BY0 - 2, 'zone' + B);\n      ln(zl, BY0 + 1, zl, BY1 - 1, 'zedge' + B); ln(zr, BY0 + 1, zr, BY1 - 1, 'zedge' + B);\n    });\n    if (o.flash) part(o.flash, 0, () => { box(zl - 4, BY0 + 3, w + 8, BY1 - BY0 - 6, 'flash', 4); REC.flash = true; });\n    for (const side of [-1, 1]) for (let c = 0; c < NCOL; c++) for (let r = 0; r < ROWS.length; r++) {\n      if (o.form && c === 0) continue;\n      const s = site(side, c, r);\n      // A charge sign is drawn only clear of the zone's dashed edge, which would turn a − into a +.\n      if ((c + 0.5) * G < w / 2) { if (Math.abs(s.x - CX) + 5 <= w / 2) sign(s.x, s.y, side, 'ion' + B); } else carrier(s.x, s.y, side);\n    }\n    if (o.form) for (let r = 0; r < ROWS.length; r++) {\n      const t0 = FORM.t0 + FORM.gap * r, mv = arr(t0, FORM.move), gone = arr(t0 + FORM.move, 0.3), sp = site(-1, 0, r), sn = site(1, 0, r);\n      part(gone, 0, () => { sign(sp.x, sp.y, -1, 'ion'); sign(sn.x, sn.y, 1, 'ion'); });\n      part(1 - gone, 0, () => { carrier(sp.x, sp.y, -1); carrier(K.lerp(sn.x, sp.x, mv), K.lerp(sn.y, sp.y, mv), 1); });\n    }\n    // Carriers crossing: forward, electrons cross to the P side and holes to the N side; in\n    // breakdown, pairs torn loose in the zone are swept out, electrons to the N side.\n    const n = o.flow ? nOf(o.i) : 0;\n    for (let k = 0; k < n; k++) {\n      const ph = frac(PH + k / n), a = Math.sin(Math.PI * ph).toFixed(2), ye = ROWS[(2 * k) % 5] + 6.5, yh = ROWS[(2 * k + 1) % 5] + 6.5;\n      let ex, hx;\n      if (!bd) { ex = zr + 16 - ph * (w + 32); hx = zl - 16 + ph * (w + 32); }\n      else { const x0 = zl + w * frac(0.618 * k + 0.3); ex = x0 + ph * (zr + 14 - x0); hx = x0 - ph * (x0 - zl + 14); }\n      carrier(ex, ye, 1).setAttribute('opacity', a);\n      carrier(hx, yh, -1).setAttribute('opacity', a);\n    }\n    REC.crossing = n;\n  }\n  // Under the block: its two sides, and the zone with its name.\n  function underBlock(o) {\n    tx(BX0, 136, 'P side', 'lab', 'start'); tx(BX1, 136, 'N side', 'lab', 'end');\n    const w = REC.zoneW, zl = CX - w / 2, zr = CX + w / 2, bd = REC.bd;\n    part(o.form ? vis(FORM.zone) : 1, 4, () => {\n      if (w >= 8) pa('M' + r2(zl + 1) + ' 126 V131 H' + r2(zr - 1) + ' V126', 'brk' + (bd ? ' bd' : ''));\n      tx(CX, 150, bd ? o.bdText : 'empty zone', bd ? 'lab w' : 'lab');\n    });\n  }\n  function zoneWords(c) {\n    if (c.vd <= -PIV && c.i < 0) return ' The zone has broken down, and current rushes backwards.';\n    if (c.vs < 0) return ' The empty zone is wide, and almost nothing crosses.';\n    if (c.vd >= 0.5) return ' The empty zone is thin, and carriers stream across.';\n    return c.vs > 0 ? ' The empty zone has thinned, but almost nothing crosses yet.' : ' The empty zone sits at its resting width.';\n  }\n\n  // ---------- each screen's picture (returns its height and the picture in words) ----------\n  function sceneBlock(d, st) {\n    part(d.form ? vis(0.4) : 1, d.form ? 6 : 0, () => {\n      symbol();\n      drawBlock({ vd: 0, i: 0, form: !!d.form, flash: d.flash && st.res === 'right' ? vis(0.1) : 0 });\n      underBlock({ form: !!d.form });\n      key(174);\n    });\n    return { H: 184, said: 'A diode drawn as a block of silicon: rings for holes on its P side, dots for free electrons on its N side. Between them, a thin empty zone, with minus charges on its P edge and plus charges on its N edge.' };\n  }\n  // The loop: wires, the supply, the resistor; a voltmeter or two ammeters on some screens.\n  const LOOP = [[BX0, 80], [24, 80], [24, 178], [316, 178], [316, 80], [BX1, 80]];\n  const SEG = []; { let s = 0; for (let k = 0; k < LOOP.length - 1; k++) { const a = LOOP[k], b = LOOP[k + 1], len = Math.hypot(b[0] - a[0], b[1] - a[1]); SEG.push({ a, b, s, len }); s += len; } }\n  const LOOPLEN = SEG.reduce((t, g) => t + g.len, 0);\n  function wireDots(am) {\n    for (let s = frac(WPH) * 22; s < LOOPLEN; s += 22) {\n      const g = SEG.find((q) => s >= q.s && s < q.s + q.len);\n      if (!g) continue;\n      const t = (s - g.s) / g.len, x = g.a[0] + t * (g.b[0] - g.a[0]), y = g.a[1] + t * (g.b[1] - g.a[1]);\n      if (y > 170 && ((x > 80 && x < 108) || (x > 210 && x < 270))) continue;\n      if (am && (x < 30 || x > 310) && y > 134 && y < 166) continue;\n      ci(x, y, 2.6, 'el');\n    }\n  }\n  function sceneLoop(d, st, c) {\n    const right = st.res === 'right', fwd = c.vs >= 0, am = d.meter === 'amp';\n    const P = c.vd * c.i, bdText = 'breakdown, ' + fx(P, P < 10 ? 1 : 0) + ' W of heat';\n    if (d.meter === 'volt') {\n      pa('M158 17 H110 V38', 'wire'); pa('M182 17 H230 V38', 'wire');\n      ci(170, 17, 12, 'vm'); tx(170, 22, 'V', 'big');\n      if (right) part(vis(0.1), 0, () => { const w = tw(d.vread, 'big'); box(104 - w - 5, 7, w + 9, 21, 'ring', 6); });\n      tx(104, 22, right ? d.vread : '?', 'big', 'end');\n    } else symbol();\n    drawBlock({ vd: c.vd, i: c.i, flow: true });\n    underBlock({ bdText });\n    ln(BX0, 80, 24, 80, 'wire'); ln(BX1, 80, 316, 80, 'wire');\n    if (am) { ln(24, 80, 24, 139, 'wire'); ln(24, 161, 24, 178, 'wire'); ln(316, 80, 316, 139, 'wire'); ln(316, 161, 316, 178, 'wire'); }\n    else { ln(24, 80, 24, 178, 'wire'); ln(316, 80, 316, 178, 'wire'); }\n    ln(24, 178, 88, 178, 'wire'); ln(100, 178, 216, 178, 'wire'); ln(264, 178, 316, 178, 'wire');\n    // The supply: its long plate (+) faces the P side when it is forward; the block's ends carry its + and −.\n    const xl = fwd ? 88 : 100, xs = fwd ? 100 : 88;\n    ln(xl, 164, xl, 192, 'plate'); ln(xs, 170, xs, 186, 'plate');\n    if (c.vs !== 0) { tx(35, 73, fwd ? '+' : '−', 'lab'); tx(305, 73, fwd ? '−' : '+', 'lab'); }\n    tx(94, 208, 'supply ' + fx(c.vs, 1) + ' V', 'lab');\n    box(216, 170, 48, 16, 'res', 2);\n    if (d.shows && d.shows.indexOf('10 Ω: almost 0 V') >= 0 && right) part(vis(0.6), 0, () => tx(240, 208, '10 Ω: almost 0 V', 'lab'));\n    else tx(240, 208, '10 Ω', 'lab');\n    wireDots(am);\n    if (am) {\n      ci(24, 150, 11, 'vm'); tx(24, 155, 'A', 'big'); ci(316, 150, 11, 'vm'); tx(316, 155, 'A', 'big');\n      const amps = fx(c.i, 2) + ' A';\n      if (d.show) {\n        part(vis(0.5), 0, () => tx(40, 155, amps, 'lab', 'start'));\n        part(vis(1.1), 0, () => tx(300, 155, amps, 'lab', 'end'));\n        part(vis(1.7), 0, () => tx(212, 22, fx(P, 2) + ' W of heat', 'lab', 'start'));\n      } else {\n        tx(40, 155, amps, 'lab', 'start');\n        if (right) {\n          part(vis(0.1), 0, () => tx(300, 155, amps, 'lab', 'end'));\n          part(vis(0.6), 0, () => tx(212, 22, fx(P, 2) + ' W of heat', 'lab', 'start'));\n        } else tx(300, 155, '?', 'lab', 'end');\n      }\n    }\n    key(226);\n    const said = 'A diode drawn as a block, in a loop with a 10 ohm resistor and a supply of ' + fx(c.vs, 1) + ' volts' +\n      (c.vs > 0 ? ', positive on the P side.' : c.vs < 0 ? ', positive on the N side.' : '.') + zoneWords(c) +\n      (am ? ' An ammeter sits each side of the diode.' : d.meter === 'volt' ? ' A voltmeter sits across the diode.' : '');\n    return { H: 232, said };\n  }\n  // A multimeter on its diode range, its leads on the diode.\n  function sceneMeter() {\n    const rev = leadsRev;\n    box(16, 10, 120, 156, 'meter', 12);\n    box(26, 22, 100, 40, 'lcd', 6);\n    part(vis(0.5), 0, () => tx(76, 50, rev ? 'OL' : N.vm + ' V', 'lcdt'));\n    if (rev) tx(76, 80, 'over range', 'lab');\n    tx(76, 104, 'diode range', 'lab m');\n    pa('M68 112 L68 126 L80 119 Z', 'sym'); ln(82, 112, 82, 126, 'symline');\n    tx(112, 125, '+', 'big', 'end'); ci(124, 120, 6, 'sock');\n    tx(112, 153, 'COM', 'lab', 'end'); ci(124, 148, 6, 'sock');\n    ln(196, 86, 240, 86, 'wire'); pa('M240 74 L240 98 L262 86 Z', 'sym'); ln(264, 74, 264, 98, 'symline'); ln(264, 86, 312, 86, 'wire');\n    tx(200, 72, 'P', 'lab'); tx(308, 72, 'N', 'lab');\n    if (!rev) {\n      pa('M130 120 C165 120 170 86 196 86', 'lead1'); pa('M130 148 C330 152 330 86 312 86', 'lead2');\n      part(vis(1.0), 0, () => { ln(222, 58, 250, 58, 'arrow'); pa('M258 58 l-10 -6 v12 z', 'head'); tx(240, 50, '1 mA', 'lab'); });\n    } else { pa('M130 120 C330 124 330 86 312 86', 'lead1'); pa('M130 148 C170 148 175 86 196 86', 'lead2'); }\n    return { H: 176, said: 'A multimeter on its diode range, its plus lead on the ' + (rev ? 'N' : 'P') + ' side of a diode and its COM lead on the ' + (rev ? 'P' : 'N') +\n      ' side. ' + (rev ? 'It shows OL, over range.' : 'It pushes 1 milliamp and reads ' + N.vm + ' volts.') };\n  }\n  function sceneReadings() {\n    tx(90, 18, 'one way', 'lab'); box(30, 28, 120, 44, 'lcd', 6); tx(90, 58, '0.55 V', 'lcdt');\n    tx(250, 18, 'leads swapped', 'lab'); box(190, 28, 120, 44, 'lcd', 6); tx(250, 58, 'OL', 'lcdt'); tx(250, 94, 'over range', 'lab m');\n    return { H: 104, said: 'Two diode-range readings of one silicon diode: 0.55 volts one way, and OL, over range, with the leads swapped.' };\n  }\n  function sceneLamp(st) {\n    const right = st.res === 'right';\n    ln(40, 44, 156, 44, 'wire'); pa('M156 32 L156 56 L180 44 Z', 'sym'); ln(182, 32, 182, 56, 'symline'); ln(182, 44, 300, 44, 'wire');\n    ln(300, 44, 300, 81, 'wire'); ln(300, 113, 300, 150, 'wire'); ln(40, 150, 300, 150, 'wire');\n    ln(40, 44, 40, 91, 'wire'); ln(40, 101, 40, 150, 'wire');\n    ln(24, 91, 56, 91, 'plate'); ln(32, 101, 48, 101, 'plate');\n    tx(18, 96, '+', 'lab', 'end'); tx(64, 101, '12 V', 'lab', 'start'); tx(169, 24, 'diode', 'lab m');\n    ci(300, 97, 20, 'glow'); ci(300, 97, 16, 'lamp'); ln(289, 86, 311, 108, 'symline'); ln(311, 86, 289, 108, 'symline');\n    tx(276, 90, 'lamp', 'lab', 'end');\n    if (right) {\n      part(vis(0.1), 4, () => { pa('M156 62 V66 H182 V62', 'brk'); tx(169, 84, N.one + ' V', 'lab'); });\n      part(vis(0.6), 4, () => tx(276, 110, N.lamp + ' V', 'lab', 'end'));\n    } else tx(276, 110, '?', 'lab', 'end');\n    return { H: 164, said: 'A 12 volt battery, a silicon diode fitted forward and a lit lamp in a loop.' };\n  }\n  function sceneCharger(st) {\n    const right = st.res === 'right';\n    ln(20, 70, 150, 70, 'wire'); pa('M150 56 L150 84 L178 70 Z', 'sym'); ln(180, 56, 180, 84, 'symline'); ln(180, 70, 320, 70, 'wire');\n    ln(40, 48, 96, 48, 'arrow'); pa('M104 48 l-10 -6 v12 z', 'head'); tx(70, 40, '20 A', 'lab');\n    pa('M150 92 V96 H180 V92', 'brk'); tx(165, 114, 'about ' + fx(VF, 1) + ' V', 'lab');\n    if (right) {\n      part(vis(0.1), 4, () => [152, 165, 178].forEach((x) => pa('M' + x + ' 50 q-5 -4 0 -8 q5 -4 0 -8 q-5 -4 0 -8', 'heat')));\n      part(vis(0.5), 0, () => tx(196, 36, N.ch + ' W of heat', 'lab', 'start'));\n    }\n    return { H: 124, said: 'A silicon diode in a battery charger, carrying 20 amps with about 0.7 volts across it.' };\n  }\n\n  // ---------- the curve: the diode's current against its voltage ----------\n  const X0 = 196, SXF = 134, SXR = 176 / 60, Y0 = 98, SY = 74, ITOP = 1.1;\n  const gx = (v) => (v >= 0 ? X0 + v * SXF : X0 + v * SXR), gy = (i) => Y0 - i * SY;\n  const CURVE = (() => {\n    const pts = [], i0 = Id(0.6);\n    for (let k = 0; k <= 30; k++) { const v = 0.6 * k / 30; pts.push([v, Id(v)]); }\n    for (let k = 1; k <= 30; k++) { const i = i0 * Math.pow(ITOP / i0, k / 30); pts.push([vAt(i), i]); }\n    return { fwd: 'M' + pts.map((q) => r2(gx(q[0])) + ' ' + r2(gy(q[1]))).join(' L'),\n      rev: 'M' + r2(gx(0)) + ' ' + Y0 + ' H' + r2(gx(-PIV)), bd: 'M' + r2(gx(-PIV)) + ' ' + Y0 + ' V' + r2(gy(-ITOP)) };\n  })();\n  function drawGraph(o) {\n    ln(16, Y0, 334, Y0, 'ax'); ln(X0, 10, X0, 184, 'ax');\n    const fticks = o.mode === 'claim' ? [0.1, 0.5, 0.7] : [0.5, 0.7];\n    fticks.forEach((v) => { ln(gx(v), Y0, gx(v), Y0 + 5, 'ax'); tx(gx(v), 114, fx(v, 1), 'lab m'); });\n    [-20, -PIV].forEach((v) => { ln(gx(v), Y0 - 5, gx(v), Y0, 'ax'); tx(gx(v), 90, fx(v, 0) + ' V', 'lab m'); });\n    [1, -1].forEach((i) => { ln(X0 - 5, gy(i), X0, gy(i), 'ax'); tx(X0 - 8, gy(i) + 4, fx(i, 0) + ' A', 'lab m', 'end'); });\n    tx(X0 + 6, 18, 'current (A)', 'lab m', 'start');\n    tx(334, 132, 'diode voltage (V)', 'lab m', 'end');\n    pa(CURVE.rev, 'curve'); pa(CURVE.fwd, 'curve'); pa(CURVE.bd, 'curve bd');\n    tx(gx(-PIV) + 8, 150, 'breakdown', 'lab w', 'start');\n    if (o.mode === 'claim' && o.right) {\n      const x = gx(0.1), y = gy(0.5);\n      part(vis(0.1), 0, () => { ln(x - 6, y - 6, x + 6, y + 6, 'cross'); ln(x - 6, y + 6, x + 6, y - 6, 'cross'); REC.cross = true; });\n      part(vis(0.4), 0, () => tx(x + 10, y - 3, 'claimed', 'lab w', 'start'));\n    }\n    if (o.mode === 'meter' && o.rev) tx(110, 66, 'blocks: no current', 'lab t');\n    if (o.dot) part(o.dotA == null ? 1 : o.dotA, 0, () => {\n      const x = gx(o.dot.vd), y = gy(o.dot.i);\n      ci(x, y, 6, 'dot'); REC.dot = { x, y };\n      if (o.mode === 'meter') tx(x, 84, '1 mA', 'lab');\n    });\n  }\n  const GSAID = 'An example silicon diode\\'s current against its voltage: flat on zero in reverse until 50 volts, where it drops straight down, and climbing steeply forward near 0.7 volts.';\n\n  // ---------- one screen drawn in its state (the animation calls this every frame) ----------\n  function render(i, p, st) {\n    const d = STEPS[i], c = circ(i, p);\n    REC = { texts: [], zoneW: null, dot: null, cross: false, flash: false, bd: false, crossing: 0 };\n    latest = 0; earliest = Infinity; into = null;\n    art.textContent = ''; glart.textContent = ''; gsart.textContent = '';\n    let out = null;\n    if (d.pic === 'block') out = sceneBlock(d, st);\n    else if (d.pic === 'loop') out = sceneLoop(d, st, c);\n    else if (d.pic === 'meter') out = sceneMeter();\n    else if (d.pic === 'readings') out = sceneReadings();\n    else if (d.pic === 'lamp') out = sceneLamp(st);\n    else if (d.pic === 'charger') out = sceneCharger(st);\n    if (out) { svg.setAttribute('viewBox', '0 0 340 ' + out.H); svg.setAttribute('aria-label', out.said); }\n    if (d.graph === 'live') {\n      into = glart; drawGraph({ mode: 'live', dot: c }); into = null;\n      glsvg.setAttribute('aria-label', GSAID + ' A dot shows where the circuit sits now.');\n    } else if (d.graph) {\n      into = gsart;\n      if (d.graph === 'claim') drawGraph({ mode: 'claim', right: st.res === 'right' });\n      else drawGraph({ mode: 'meter', rev: leadsRev, dot: leadsRev ? null : { vd: VM, i: 1e-3 }, dotA: vis(1.4) });\n      into = null;\n      gssvg.setAttribute('aria-label', GSAID + (d.graph === 'meter' ? (leadsRev ? ' The meter pushes no current.' : ' A dot sits low on the knee, at the meter\\'s 1 milliamp.') : ''));\n    }\n    return REC;\n  }\n  function paint() { render(at(), K.params(), S[at()]); }\n\n  // Dan drags the dot along the curve: forward, along its voltage or up its steep part; reverse,\n  // along the flat or down the breakdown line. The supply that puts the circuit there moves the slider.\n  const VD10 = C10.vd;\n  function toSupply(x, y) {\n    if (!isFinite(x) || !isFinite(y)) return 0;\n    if (x >= X0) {\n      let vd = K.clamp((x - X0) / SXF, 0, VD10);\n      const iy = (Y0 - y) / SY;\n      if (iy > Id(vd)) vd = Math.min(VD10, vAt(iy));\n      return K.clamp(vd + R * Id(vd), 0, 10);\n    }\n    const vx = (x - X0) / SXR;\n    if (vx <= -PIV + 3 && y > Y0 + 6) return -PIV + K.clamp((Y0 - y) / SY, -1, 0) * R;\n    return K.clamp(vx, -PIV, 0);\n  }\n  K.drag('#grab', { control: 'supply', toValue: toSupply });\n\n  // ---------- what Dan reads under the picture ----------\n  function sayFor(c) {\n    const sup = fx(Math.abs(c.vs), 1) + ' V';\n    if (c.vs === 0) return 'No supply. The zone keeps its resting width, and nothing crosses.';\n    if (c.vs > 0 && c.vd < 0.5) return 'The zone has thinned. Almost nothing crosses yet.';\n    if (c.vs > 0 && c.vd < 0.65) return 'The zone is thin now. Carriers start to cross, and the current climbs.';\n    if (c.vs > 0) return 'Carriers stream across. The diode keeps ' + fx(c.vd, 2) + ' V. The resistor takes the other ' + fx(c.vr, 2) + ' V.';\n    if (c.i === 0) return 'The zone widens. Almost no current flows. The diode holds all ' + sup + '.';\n    const P = c.vd * c.i;\n    return 'The zone has broken down. ' + fx(-c.i, 2) + ' A rushes backwards, making ' + fx(P, P < 10 ? 1 : 0) + ' W of heat.';\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right', live = d.supply === 'live';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    task.textContent = '';\n    if (d.ask) task.appendChild(K.el('span', { class: 'ask' }, d.ask));\n    // A predict screen keeps its explaining words back until Dan has moved the supply the way it asks.\n    if (d.reveal && d.reveal(p)) st.seen = true;\n    task.appendChild(write(K.el('span', {}), d.show ? (d.reveal && !st.seen ? '' : d.text) : d.task));\n    el('scene').hidden = !d.pic;\n    el('swap').hidden = d.pic !== 'meter';\n    swapBtn.setLabel(leadsRev ? 'Swap the leads back' : 'Swap leads');\n    el('ctl').hidden = !live; el('outs').hidden = !live; el('say').hidden = !live;\n    el('say').textContent = live ? sayFor(solve(p.supply)) : '';\n    el('gl').hidden = d.graph !== 'live';\n    el('gs').hidden = !d.graph || d.graph === 'live';\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;    // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show && d.dur) startMotion(d.dur); else T = Infinity;\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st, p);\n    render(i, p, st);\n    kick();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawn(i, st, supply) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity;\n    try { return render(i, Object.assign({}, K.params(), { supply: supply == null ? 0 : supply }), st); }\n    finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  K.check('At a 5 V supply the example diode holds 0.70 V, the 10 Ω resistor 4.30 V, and 0.43 A flows', () => {\n    const o = K.at({ supply: 5 });\n    return fx(o.diodeVolts, 2) === '0.70' && fx(o.resistorVolts, 2) === '4.30' && fx(o.current, 2) === '0.43';\n  });\n  K.check('At 10 V the diode holds 0.72 V while 0.93 A flows, so it turns 0.72 × 0.93 = 0.67 W into heat', () => {\n    const o = K.at({ supply: 10 });\n    return fx(o.diodeVolts, 2) === '0.72' && fx(o.current, 2) === '0.93' && fx(o.diodeVolts * o.current, 2) === '0.67';\n  });\n  K.check('Reverse at −20 V no current flows, so the resistor drops 0 V and the diode holds all 20 V; at −60 V, past the 50 V PIV, it holds 50 V while (60 − 50) ÷ 10 = 1.00 A flows backwards, turning 50 W into heat', () => {\n    const a = K.at({ supply: -20 }), b = K.at({ supply: -60 });\n    return a.current === 0 && a.resistorVolts === 0 && a.diodeVolts === -20 && b.diodeVolts === -50 && K.near(b.current, -1, 1e-9) && K.near(b.diodeVolts * b.current, 50, 1e-9);\n  });\n  K.check('At every supply setting from −60 V to 10 V the supply equals the diode\\'s voltage plus the resistor\\'s (the current × 10 Ω), and the current never falls as the supply rises', () => {\n    let prev = -Infinity;\n    for (let k = -600; k <= 100; k++) {\n      const s = k / 10, o = K.at({ supply: s });\n      if (Math.abs(o.diodeVolts + o.resistorVolts - s) > 1e-6 || Math.abs(o.resistorVolts - o.current * R) > 1e-9 || o.current < prev - 1e-12) return false;\n      prev = o.current;\n    }\n    return true;\n  });\n  K.check('The sketch curve: under 1 mA below 0.5 V, near 10 mA at 0.6 V, and a 1 mA meter current gives 0.54 V', () =>\n    Id(0.5) < 1e-3 && K.near(Id(0.6), 0.01, 0.002) && N.vm === '0.54');\n  K.check('Silicon diodes have a forward voltage of approximately 0.7 volts: conducting from 0.1 A to 0.93 A, the example diode holds between 0.65 and 0.75 V', () => {\n    const a = vAt(0.1), b = solve(10);\n    return a > 0.65 && a < 0.75 && b.vd > 0.65 && b.vd < 0.75 && b.i > 0.9;\n  }, { source: AAC });\n  K.check('A meter\\'s diode range typically reads less than the normal drop of 0.7 volts for silicon, because its current is tiny: at its 1 mA the example diode reads under 0.7 V', () =>\n    VM < 0.7 && VM < solve(5).vd, { source: METER });\n  K.check('The maximum reverse voltage a diode can withstand without breaking down is its peak inverse voltage, or PIV: up to its PIV the example diode passes no current, and just past it current flows backwards', () =>\n    K.at({ supply: -PIV }).current === 0 && K.at({ supply: -PIV + 0.1 }).current === 0 && K.at({ supply: -PIV - 0.1 }).current < 0, { source: AAC });\n  K.check('A diode acts as a one-way valve for current: every forward supply drives current one way, and every reverse supply inside the PIV drives none', () =>\n    [0.8, 1, 5, 10].every((s) => K.at({ supply: s }).current > 0) && [-0.1, -5, -20, -49.9].every((s) => K.at({ supply: s }).current === 0), { source: AAC });\n  K.check('The empty zone is drawn thinner as the supply rises and wider as it falls, and the dot sits on the curve where the circuit is, at once', () => {\n    const sup = [-60, -50, -20, -7.5, 0, 0.5, 1, 5, 10], w = sup.map((s) => drawn(2, blank(), s).zoneW);\n    const mono = w.every((v, k) => k === 0 || v <= w[k - 1] + 1e-9) && w[2] > w[4] && w[4] > w[7];\n    const dots = [5, -20, -60].every((s) => { const r = drawn(2, blank(), s), c = solve(s); return r.dot && Math.abs(r.dot.x - gx(c.vd)) < 0.01 && Math.abs(r.dot.y - gy(c.i)) < 0.01; });\n    const flow = drawn(2, blank(), 5).crossing > 0 && drawn(2, blank(), -20).crossing === 0 && drawn(2, blank(), -60).bd;\n    return mono && dots && flow;\n  });\n  K.check('Every number in the words comes from the rule: 0.70, 4.30, 0.43 and 0.30 at 5 V; 0.72, 0.93 and 0.67 at 10 V; 0.54 V at 1 mA; 20 V at −20 V; 50 V, 1.00 A and 50 W at −60 V; 12 − 0.7 = 11.3 V; 0.7 × 20 = 14 W', () =>\n    N.vd5 === '0.70' && N.vr5 === '4.30' && N.i5 === '0.43' && N.p5 === '0.30' && N.vd10 === '0.72' && N.i10 === '0.93' && N.p10 === '0.67' &&\n    N.vm === '0.54' && N.v20 === '20' && N.vb === '50' && N.ib === '1.00' && N.pb === '50' && N.lamp === '11.3' && N.ch === '14' && N.one === '0.7');\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      const before = drawn(i, blank(), 0), after = drawn(i, solved(i), 0);\n      const shows = (d.shows || []).every((s) => before.texts.indexOf(s) < 0 && after.texts.indexOf(s) >= 0);\n      const count = !d.count || (before.texts.filter((s) => s === d.count[0]).length === d.count[1] && after.texts.filter((s) => s === d.count[0]).length === d.count[2]);\n      return shows && count && (!d.cross || (!before.cross && after.cross)) && (!d.flash || (!before.flash && after.flash));\n    }));\n  K.check('Each demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, and each right answer\\'s motion within 1.5 s', () => {\n    const keepT = T;\n    let ok = true;\n    STEPS.forEach((d, i) => {\n      const keepS = S[i];\n      T = Infinity; S[i] = d.show ? blank() : solved(i);\n      try {\n        render(i, Object.assign({}, K.params(), { supply: 5 }), S[i]);\n        if (d.show) ok = ok && (d.dur ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && earliest >= FADE : latest === 0);\n        else ok = ok && latest <= ANS + 1e-9 && ANS <= 1.5;\n      } finally { S[i] = keepS; }\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The junction and the meter",
+  "brief": "The one thing you should see is the empty zone squeeze thin so carriers stream across near 0.7 V, and widen so almost none cross, when you drag the supply forward and then into reverse.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "At a 5 V supply the example diode holds 0.70 V, the 10 Ω resistor 4.30 V, and 0.43 A flows",
+     "ok": true
+    },
+    {
+     "label": "At 10 V the diode holds 0.72 V while 0.93 A flows, so it turns 0.72 × 0.93 = 0.67 W into heat",
+     "ok": true
+    },
+    {
+     "label": "Reverse at −20 V no current flows, so the resistor drops 0 V and the diode holds all 20 V; at −60 V, past the 50 V PIV, it holds 50 V while (60 − 50) ÷ 10 = 1.00 A flows backwards, turning 50 W into heat",
+     "ok": true
+    },
+    {
+     "label": "At every supply setting from −60 V to 10 V the supply equals the diode's voltage plus the resistor's (the current × 10 Ω), and the current never falls as the supply rises",
+     "ok": true
+    },
+    {
+     "label": "The sketch curve: under 1 mA below 0.5 V, near 10 mA at 0.6 V, and a 1 mA meter current gives 0.54 V",
+     "ok": true
+    },
+    {
+     "label": "Silicon diodes have a forward voltage of approximately 0.7 volts: conducting from 0.1 A to 0.93 A, the example diode holds between 0.65 and 0.75 V",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+    },
+    {
+     "label": "A meter's diode range typically reads less than the normal drop of 0.7 volts for silicon, because its current is tiny: at its 1 mA the example diode reads under 0.7 V",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/"
+    },
+    {
+     "label": "The maximum reverse voltage a diode can withstand without breaking down is its peak inverse voltage, or PIV: up to its PIV the example diode passes no current, and just past it current flows backwards",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+    },
+    {
+     "label": "A diode acts as a one-way valve for current: every forward supply drives current one way, and every reverse supply inside the PIV drives none",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+    },
+    {
+     "label": "The empty zone is drawn thinner as the supply rises and wider as it falls, and the dot sits on the curve where the circuit is, at once",
+     "ok": true
+    },
+    {
+     "label": "Every number in the words comes from the rule: 0.70, 4.30, 0.43 and 0.30 at 5 V; 0.72, 0.93 and 0.67 at 10 V; 0.54 V at 1 mA; 20 V at −20 V; 50 V, 1.00 A and 50 W at −60 V; 12 − 0.7 = 11.3 V; 0.7 × 20 = 14 W",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, and each right answer's motion within 1.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "supply"
+   ],
+   "readouts": [
+    "diodeVolts",
+    "current",
+    "resistorVolts"
+   ],
+   "outputs": [
+    "diodeVolts",
+    "current",
+    "resistorVolts"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Inside the diode",
+      "Why the crossing stops",
+      "Forward",
+      "Across the diode",
+      "Reverse",
+      "A test record",
+      "Nothing used up",
+      "Charge in, charge out",
+      "The meter",
+      "Good or not?",
+      "Where the 20 V sit",
+      "A lamp through a diode",
+      "Heat in a charger"
+     ],
+     "value": 0
+    },
+    {
+     "id": "supply",
+     "kind": "control",
+     "label": "Supply",
+     "min": -60,
+     "max": 10,
+     "step": 0.1,
+     "log": false,
+     "value": 0,
+     "shown": false,
+     "snap": [
+      -60,
+      -20,
+      5,
+      10
+     ]
+    }
+   ],
+   "actions": [
+    "Swap leads",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   "explain.text: The threshold is the voltage across the diode, not the supply (a series resistance needs more supply); and a real diode does not break down just past its PIV, which is a rating set below breakdown, as the ignores panel itself says.",
+   "practice.text: Diodes worth testing sit in rectifiers, drives and chargers whose capacitors hold a dangerous charge after isolation (a later idea, i8, and one maker asks for 5 minutes); the safe-isolation step should allow for that before proving dead.",
+   "analogy.breaks: It said a valve’s pressure loss grows quickly with flow, contradicting the analogy’s own \"small, fairly steady pressure loss\"; reworded to \"still climbs as the flow grows\".",
+   "interactive.whatAmILookingAt: Screen 13 said a real diode makes \"a little more\" than 14 W at 20 A; even the sketch curve gives about 0.80 V there (16 W), and a real rectifier at that current often drops nearer 1 V, so now \"makes more\"."
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

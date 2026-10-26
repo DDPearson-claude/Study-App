@@ -1,0 +1,421 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Electronics and power electronics, from diode to drive
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "Rectifiers: AC in, DC out" — Diodes in a bridge steer both halves of the AC the same way through the load, so the output is DC that pulses. [mechanism]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 Smoothing and the DC link — A capacitor fills near each peak of the rectified wave and feeds the load between them, the store of DC inside a drive.
+- i4 The transistor as a switch — A power transistor is kept fully on or fully off, because half on, its voltage times its current makes the most heat.
+- i5 The thyristor and phase control — A thyristor is a diode that waits for a pulse on its gate, its control lead, so firing it later each half cycle gives less DC.
+- i6 Chopping DC: buck and boost — Chopping DC through a coil and capacitor gives a steady lower voltage, the input times the share of time on, or rearranged, a higher one.
+- i7 Inverting: building AC from DC — Switching a bridge so its share of on-time follows a chosen sine gives pulses whose average, and a motor's current, follow that sine.
+- i8 Living with power electronics — Converters bring extra frequencies in the current they draw, charge they hold after isolation and current their filters leak to earth.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Rectifier Circuits | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/
+    "Note that regardless of the polarity of the input, the current flows in the same direction through the load."
+[R2] Full Wave Rectifier and Bridge Rectifier Theory — https://www.electronics-tutorials.ws/diode/diode_6.html
+    "the average output voltage for the full-wave circuit will be: 2 x 0.318V max = 0.637V max of the peak voltage. Assuming no diode losses."
+[R3] Full Wave Rectifier and Bridge Rectifier Theory — https://www.electronics-tutorials.ws/diode/diode_6.html
+    "The ripple frequency is now twice the supply frequency (e.g. 100Hz for a 50Hz supply or 120Hz for a 60Hz supply.)"
+[R4] Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/
+    "is an electrical component acting as a one-way valve for current."
+[R5] Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/
+    "Silicon diodes have a forward voltage of approximately 0.7 volts."
+[R6] Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/
+    "The maximum reverse-bias voltage that a diode can withstand without “breaking down” is called the _Peak Inverse Voltage_ , or _PIV"
+[R7] Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/
+    "The forward voltage reading obtained with such a meter will typically be less than the “normal” drop of 0.7 volts for silicon and 0.3 volts for germanium because the current provided by the meter is of trivial proportions."
+[R8] Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/
+    "Reverse voltage strength of a diode is not as easily tested because exceeding a normal diode’s PIV usually results in destruction of the diode."
+[R9] Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/
+    "The philosophy here is that the “diode check” function is to be used for testing semiconductor devices, and the “resistance” function for anything else."
+[R10] Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook — https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/
+    "may output a very low test voltage (less than 0.3 volts) when set to the regular “resistance” (Ω) function: too low to fully collapse the depletion region of a PN junction."
+[R11] DC-Link Capacitor Selection & Ripple Current — https://schematicshub.com/articles/dc-link-capacitor-selection
+    "The DC-link capacitor is the energy reservoir and filter between rectifier and inverter"
+Notes (claims, and the sources that support them):
+- In a bridge rectifier the current flows in the same direction through the load whatever the polarity of the input. [R1]
+- The full-wave average output is 0.637 of the peak, twice the half-wave value, assuming no diode losses. [R2]
+- A full-wave bridge has a ripple frequency twice the supply frequency, for example 100 Hz from a 50 Hz supply. [R3]
+- A diode is an electrical component acting as a one-way valve for current. [R4]  (from an idea this one builds on)
+- Silicon diodes have a forward voltage of approximately 0.7 volts. [R5]  (from an idea this one builds on)
+- A diode has a maximum reverse-bias voltage it can withstand without breaking down, called the peak inverse voltage. [R6]  (from an idea this one builds on)
+- A meter on its diode range gives a forward reading typically below 0.7 volts for silicon, because the meter supplies only a trivial current. [R7]  (from an idea this one builds on)
+- Exceeding a normal diode’s PIV usually destroys the diode. [R8]  (from an idea this one builds on)
+- Use a meter’s diode check function for semiconductor devices and its resistance function for anything else. [R9]  (from an idea this one builds on)
+- On its resistance function a meter may output too low a test voltage to forward-bias a PN junction. [R10]  (from an idea this one builds on)
+- A silicon diode has a forward voltage of approximately 0.7 volts, the drop used throughout the course. [R5]  (whole topic)
+- In a drive, the rectifier feeds a DC-link capacitor that acts as the energy reservoir and filter between the rectifier and the inverter. [R11]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i2",
+ "title": "Rectifiers: AC in, DC out",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the conducting pair swap while the arrow through the load keeps pointing down, when you drag the time cursor through the supply's negative half.",
+  "title": "The rectifier bench",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "outNow",
+    "label": "Output now",
+    "unit": "V",
+    "decimals": 0
+   },
+   {
+    "id": "avgSoFar",
+    "label": "Average so far",
+    "unit": "V",
+    "decimals": 0
+   },
+   {
+    "id": "probe",
+    "label": "Probe on the diode",
+    "unit": "V",
+    "decimals": 0
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Most show one picture, the rectifier bench. On the left is an AC supply. In the middle is the rectifier. On the right is a resistor load, drawn upright with its positive end at the top. A switch above picks the rectifier: Half-wave, Bridge or Six-pulse. Its three buttons wrap onto two lines on a narrow phone. Half-wave and bridge run from 230 V, 50 Hz single-phase. Six-pulse runs from three-phase, with a second switch for a 400 V or 440 V line voltage. The half-wave is one diode in series with the load. The bridge is four diodes in a diamond. D1 joins supply wire A to the positive rail, and D2 joins the negative rail to wire B. D3 joins wire B to the positive rail, and D4 joins the negative rail to wire A. The six-pulse has three lines, L1, L2 and L3. Each has an upper diode to the positive rail and a lower diode from the negative rail.\n\nBelow the circuit is a graph of one supply cycle, from 0° to 360°. A time cursor stands on it. You drag it in steps of 1°, or press Play to sweep it through the cycle. It opens at 0°. The supply wave is drawn pale. For six-pulse, the six line-to-line waves are drawn pale instead. The rule at each moment is simple. A diode conducts while the circuit pushes it forward, and blocks while it is pushed backwards. Here the diodes are treated as ideal, with no drop. So the half-wave's output is the supply in the positive half, and zero in the negative half. The bridge's output is the size of the supply, so the negative half is flipped up. In the six-pulse, each upper diode conducts while its line is the highest, and each lower diode while its line is the lowest. So its output is the largest line-to-line voltage of that moment.\n\nThe conducting diodes are drawn bold. The current's path is traced through them, with an arrow through the load. The output builds under the cursor, and an average line builds with it. The average is the area under the output so far ÷ the time so far. One hump of a sine has an area of 2 × its peak, in volts × radians, and a cycle is 2π long. So over a whole cycle the half-wave averages the peak ÷ π, 0.318 of it. The bridge has two humps, so it averages 0.637 of the peak. A six-pulse top is a cosine slice 60° wide. So it averages 3 ÷ π of its peak, which is 1.35 × the line voltage. The average line is labelled with that multiple. A probe can be clipped across D1, or across L1's upper diode for six-pulse. Its trace shows the voltage across that diode the wrong way round, which is what it holds while it blocks. Three readouts sit under the graph: the output now, the average so far and the probe. They wrap onto two lines on a narrow phone.\n\nThe screens.\n\n1, show: One diode. The picture opens on the half-wave, with the cursor at 0°. The words: “Start with one diode in series with a resistor load on 230 V. The supply peaks at 325 V. Drag the time cursor through one cycle. In the positive half the diode conducts, and the load gets the hump. In the negative half the diode blocks. The load gets nothing, and the diode holds the supply. A circuit that turns AC into current that flows one way is a rectifier. This one is a half-wave rectifier. It throws half of every cycle away.” Read: with the cursor at the end of the cycle, the output shows one hump in the positive half and a flat line in the negative half. The arrow through the load shows only during the hump. Still: half-wave, cursor at 360°.\n\n2, a puzzle: the cursor sits at 180°, the end of the hump, and the average so far reads 207 V. “What will the average read at 360°, the end of the cycle?” Offered: “About 104 V”; “207 V, as nothing is added”; “0 V, as the second half is empty”. Hint for 207 V: “The average is area ÷ length. The flat half adds length.” Hint for 0 V: “The hump's area is still there. Only the length grows.” Why: “The flat half adds no area but doubles the length. So the average halves, to about 104 V. That is 0.318 of the 325 V peak, the peak ÷ π.” A right Check runs the cursor to 360°, and the average line settles at 104 V.\n\n3, show: Four diodes. The switch moves to Bridge. The words: “Now use four diodes in a diamond, a bridge. The supply joins two opposite corners, and the load joins the other two. Drag through the positive half. D1 and D2 conduct, and current flows down through the load. Now drag through the negative half. The supply's other wire is the high one now. D3 and D4 conduct, while D1 and D2 block. Watch the arrow through the load. Whatever the polarity of the input, the current through the load flows the same way.[^1]” Read: in the positive half, D1 and D2 are bold. In the negative half, D3 and D4 are bold. Both times the arrow through the load points down. Still: bridge, cursor at 270°.\n\n4, a puzzle: the bridge, with the cursor at 270°, the middle of the negative half, and the path hidden. “Which way does current flow through the load now?” Offered: “Down, the same way as in the positive half”; “Up, as the supply has reversed”; “None, as only D1 and D2 ever conduct”. Hint for up: “The supply has reversed, but D3 and D4 now carry it. Follow them to the top of the load.” Hint for none: “D1 and D2 block in this half. Look at the other pair.” Why: “In the negative half, the supply's other wire is the high one. D3 takes the current to the top of the load, and D4 returns it from the bottom. So it flows down, as before. Each pair conducts while the other blocks.” A right Check draws D3 and D4 bold and the arrow pointing down.\n\n5, show: Twice the average. The bridge, swept through a whole cycle. The words: “The bridge turns the negative half into a second hump. The length of a cycle stays the same, but the area doubles. So the average doubles too. With no diode losses it is 0.637 of the peak.[^2] That is the half-cycle average you already know. On 230 V it is about 207 V. The humps now come twice a cycle. So the output rises and falls 100 times a second on a 50 Hz supply.[^3] That rise and fall is called ripple.” Read: over a whole cycle the bridge shows two humps. Its average line settles at 207 V, twice the half-wave's 104 V. Still: bridge, cursor at 360°.\n\n6, a puzzle: “A bridge feeds a battery charger whose output is about 12 V. How much voltage do its diodes take?” Offered: “About 1.4 V, near 12% of the output”; “About 0.7 V”; “None, as conducting diodes are closed switches”. Hint for 0.7 V: “Count the bold diodes in the current's path at any moment.” Hint for none: “A conducting silicon diode still holds about 0.7 V.” Why: “At every moment the current passes through two diodes in series. Each holds about 0.7 V.[^4] So the bridge takes about 1.4 V. On a 207 V output that is under 1%. On 12 V it is about 12%.” A right Check rings the two bold diodes in the path.\n\n7, show: The probe. The bridge, with a probe clipped across D1. The words: “While D1 conducts, the probe reads almost nothing. In the negative half, D3 and D4 conduct. They join D1 straight across the supply. So D1 holds the whole supply voltage, the wrong way round. Drag through the negative half and watch the probe's trace. It peaks at 325 V at 270°. So every diode in a 230 V bridge needs a peak inverse voltage above 325 V, not above 230 V.” Read: the probe's trace sits on zero while D1 conducts. In the negative half it climbs to 325 V at 270° and falls back to zero at 360°. Still: bridge, probe on, cursor at 360°.\n\n8, a puzzle: “A bridge runs from a 115 V single-phase supply. What reverse voltage must each diode withstand?” Offered: “About 163 V, the supply's peak”; “115 V, the supply's rms”; “None, as a blocked diode carries no current”. Hint for 115 V: “The supply passes 115 V on its way up. Work out its peak.” Hint for none: “No current flows through it. But the conducting pair joins it straight across the supply.” Why: “While a diode blocks, the conducting pair joins it straight across the supply. So it holds the whole supply the wrong way round. At the peak that is 115 × √2 = 163 V. Its peak inverse voltage must be above that.” A right Check runs the probe's trace on the bench up to the supply's peak.\n\n9, show: Six diodes. The switch moves to Six-pulse, on 400 V. The words: “Three-phase uses six diodes. Each line has an upper diode to the positive rail and a lower diode from the negative rail. The positive rail can sit no lower than the highest line. So that line's upper diode conducts, and the others are pushed backwards. Likewise the lowest line holds the negative rail. So the load gets the largest line-to-line voltage of that moment. Drag the cursor. The largest changes every 60°. So each pair conducts for 60°, and the output has six pulses a cycle.” Read: the six line-to-line waves are drawn pale. The output rides their tops, and the bold pair changes every 60°. The arrow through the load points down throughout. Still: six-pulse, 400 V, cursor at 360°.\n\n10, a puzzle: “On 400 V the line-to-line peak is 566 V. Each top of the output runs from 30° before a peak to 30° after it. How low does the output dip?” Offered: “About 490 V”; “0 V, between pulses”; “About 283 V, half the peak”. Hint for 0 V: “The next top takes over before this one falls far. Look where the pale waves cross.” Hint for 283 V: “The handover comes only 30° from the peak. What is cos 30°?” Why: “Each top is a slice of a cosine, from −30° to +30°. At its edges it has fallen to cos 30° = 0.866 of the peak. So the output dips only to 0.866 × 566 = 490 V.” A right Check marks the dips at 490 V.\n\n11, show: Where 1.35 comes from. The six-pulse, swept through a whole cycle. The words: “Take area ÷ length over one 60° top. In volts times radians, the area under that cosine slice is the peak × 2 sin 30°. That is just the peak. The length is 60°, or π ÷ 3. So the average is 3 ÷ π of the peak, about 0.955. The peak is √2 times the line voltage. So the average is 3√2 ÷ π, about 1.35 times the line voltage. On 400 V that is 540 V. Six pulses a cycle make 300 Hz ripple on 50 Hz.” Read: on 400 V the average line settles at 540 V, close under the 566 V tops. Still: six-pulse, 400 V, cursor at 360°.\n\n12, a mixed puzzle: “One diode in a 230 V, 50 Hz bridge fails open. What does the load get now?” Offered: “Half-wave: about 104 V average, 50 humps a second”; “The same 207 V, as three diodes remain”; “Nothing at all”. Hint for 207 V: “Follow the half whose pair has lost a diode. Can current get through?” Hint for nothing: “The other pair is still whole. Its half still gets through.” Why: “The pair with the open diode can no longer carry its half. The other pair still carries its half. So the bridge works as a half-wave rectifier. The average falls to about 104 V, and the humps come 50 times a second.” A right Check moves the switch to Half-wave.\n\n13, a mixed puzzle: “A six-pulse rectifier runs from 440 V into a resistor. What average DC does the load get?” Offered: “About 594 V”; “About 622 V”; “440 V”. Hint for 622 V: “That is the peak of the tops. The output dips between them, so the average sits a little lower.” Hint for 440 V: “The output rides the tops, and they sit well above the line voltage.” Why: “The average is 1.35 times the line voltage, and 1.35 × 440 = 594 V. The tops reach 440 × √2 = 622 V. The dips between them pull the average a little below that.” A right Check moves the supply to 440 V, and the average line settles at 594 V.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked so each wraps onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains, and Continue moves on.",
+  "ignores": "The diodes are drawn ideal, with no drop. A real silicon diode holds about 0.7 V while it conducts. So a real bridge or six-pulse output sits about 1.4 V lower, and a half-wave about 0.7 V lower. A real blocked diode also leaks a tiny current. Each handover between diodes is drawn instant. A real supply has some inductance, so the handover takes a little time, and under load the six-pulse average sits a little below 1.35 times. The supply is drawn as a perfect sine that the load does not pull down. One cycle is stretched across the screen, though at 50 Hz it lasts 20 ms. The load is a plain resistor with no capacitor across it. A capacitor would change the output and the diode current a great deal.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Time cursor, opening setting, degrees",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Time cursor, lowest, degrees",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Time cursor, highest, degrees",
+    "value": 360,
+    "kind": "control"
+   },
+   {
+    "label": "Time cursor step, degrees",
+    "value": 1,
+    "kind": "control"
+   },
+   {
+    "label": "Single-phase supply, rms, V",
+    "value": 230,
+    "kind": "assumed"
+   },
+   {
+    "label": "Supply frequency, Hz",
+    "value": 50,
+    "kind": "assumed"
+   },
+   {
+    "label": "Three-phase line voltage, first option, V",
+    "value": 400,
+    "kind": "control"
+   },
+   {
+    "label": "Three-phase line voltage, second option, V",
+    "value": 440,
+    "kind": "control"
+   },
+   {
+    "label": "Peak of 230 V, 230 × √2, V",
+    "value": 325,
+    "kind": "computed"
+   },
+   {
+    "label": "Area of one sine hump, × the peak, volts × radians",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Half-wave average, peak ÷ π, share of the peak",
+    "value": 0.318,
+    "kind": "computed"
+   },
+   {
+    "label": "Half-wave average on 230 V, V",
+    "value": 104,
+    "kind": "computed"
+   },
+   {
+    "label": "Half-wave average so far at 180°, V",
+    "value": 207,
+    "kind": "computed"
+   },
+   {
+    "label": "Bridge average, share of the peak, no diode losses",
+    "value": 0.637,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Bridge average on 230 V, V",
+    "value": 207,
+    "kind": "computed"
+   },
+   {
+    "label": "Bridge ripple on a 50 Hz supply, Hz",
+    "value": 100,
+    "kind": "constant",
+    "source": 3
+   },
+   {
+    "label": "Half-wave humps a second on 50 Hz",
+    "value": 50,
+    "kind": "computed"
+   },
+   {
+    "label": "Silicon diode forward voltage, about, V",
+    "value": 0.7,
+    "kind": "constant",
+    "source": 4
+   },
+   {
+    "label": "Bridge drop, two diodes, V",
+    "value": 1.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Example charger output, V",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "Bridge drop as a share of 12 V, about, %",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Bridge drop as a share of 207 V, under, %",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Cursor at the middle of the negative half, degrees",
+    "value": 270,
+    "kind": "computed"
+   },
+   {
+    "label": "End of the positive half, degrees",
+    "value": 180,
+    "kind": "computed"
+   },
+   {
+    "label": "Bridge blocked diode reverse peak on 230 V, V",
+    "value": 325,
+    "kind": "computed"
+   },
+   {
+    "label": "Example single-phase supply in screen 8, rms, V",
+    "value": 115,
+    "kind": "assumed"
+   },
+   {
+    "label": "Peak of 115 V, 115 × √2, V",
+    "value": 163,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse: angle each pair conducts, degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse: top runs this far either side of a peak, degrees",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak of 400 V line voltage, 400 × √2, V",
+    "value": 566,
+    "kind": "computed"
+   },
+   {
+    "label": "Peak of 440 V line voltage, 440 × √2, V",
+    "value": 622,
+    "kind": "computed"
+   },
+   {
+    "label": "cos 30°, the dip as a share of the peak",
+    "value": 0.866,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse dip on 400 V, 0.866 × 566, V",
+    "value": 490,
+    "kind": "computed"
+   },
+   {
+    "label": "Half the 400 V peak, a wrong option, V",
+    "value": 283,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse average, 3 ÷ π, share of the peak",
+    "value": 0.955,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse average, 3√2 ÷ π, times the line voltage",
+    "value": 1.35,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse average on 400 V, V",
+    "value": 540,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse average on 440 V, V",
+    "value": 594,
+    "kind": "computed"
+   },
+   {
+    "label": "Six-pulse ripple on 50 Hz, 6 × 50, Hz",
+    "value": 300,
+    "kind": "computed"
+   },
+   {
+    "label": "Half-wave average as a share of the rms, about",
+    "value": 0.45,
+    "kind": "computed"
+   },
+   {
+    "label": "Bridge average as a share of the rms",
+    "value": 0.9,
+    "kind": "computed"
+   },
+   {
+    "label": "Bridge drop as a share of 594 V, under, %",
+    "value": 0.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Length of one supply cycle at 50 Hz, ms",
+    "value": 20,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A diode lets current through one way only. Point a few of them the right ways, and both halves of the AC push current the same way through a load. That is a [[rectifier]]: AC in, DC out. The DC still pulses, because it follows the humps of the supply's wave.\n\nStart with one diode in series with a resistor load on 230 V. The supply peaks at 325 V. In the positive half the diode conducts, and the load gets the hump. In the negative half the diode blocks. The load gets nothing, and the diode holds the supply. So half of every cycle is wasted. Now use four diodes in a diamond, a [[bridge rectifier]]. The supply joins two opposite corners, and the load joins the other two. In the positive half, supply wire A is the high one. D1 carries current from wire A to the top of the load. D2 returns it from the bottom to wire B. In the negative half, wire B is the high one. Now D3 carries the current to the top of the load, and D4 returns it to wire A. Each pair conducts while the other pair blocks. So whatever the polarity of the input, the current through the load flows the same way.[^1] The negative half is flipped up, not thrown away. The blocked pair is not idle, though. The conducting pair joins each blocked diode straight across the supply. So a blocked diode holds the whole supply the wrong way round, up to its 325 V peak.\n\nThe DC level is the average, area ÷ length over a cycle. One hump of a sine has an area of twice the peak, in volts times radians. The half-wave has one hump in a cycle 2π long. So it averages the peak ÷ π, 0.318 of the peak. On 230 V that is about 104 V. The bridge fills the gap with a second hump. With no diode losses it averages 0.637 of the peak,[^2] about 207 V. Its output rises and falls twice a cycle, 100 times a second on a 50 Hz supply.[^3] That rise and fall is the [[ripple]]. The current always passes through two diodes in series, so a bridge takes about 1.4 V. That is under 1% of 207 V, but about 12% of a 12 V charger's output.\n\nThree-phase uses six diodes. Each line has an upper diode to the positive rail and a lower diode from the negative rail. The positive rail can sit no lower than the highest line. So that line's upper diode conducts, and every other upper diode is pushed backwards and blocks. Likewise the lowest line holds the negative rail through its lower diode. So the load gets the largest line-to-line voltage of that moment. The largest changes every 60°, so each pair conducts for 60°, and there are six pulses a cycle. Each top is a slice of a cosine from 30° before its peak to 30° after it. So the output only dips to cos 30°, 0.866 of the peak. Area ÷ length over one top gives 3 ÷ π of the peak. The peak is √2 times the line voltage. So with a resistor load the average is 3√2 ÷ π, about 1.35 times the line voltage. That gives 540 V on 400 V and 594 V on 440 V. This is a simplified picture, with ideal diodes into a plain resistor. Real diodes take their drops, and a real supply hands over from one diode to the next a little less sharply. **Diodes in a bridge steer both halves of the AC the same way through the load, so the output is DC that pulses.**[^1]"
+ },
+ "analogy": {
+  "text": "A bridge works like an intermediate switch that throws itself at every zero crossing. An intermediate switch connects two pairs of wires either straight or crossed. A bridge goes straight in the positive half and crossed in the negative half. So the top of the load always meets whichever supply wire is high, and the load always sees the same polarity.",
+  "breaks": "An intermediate switch is thrown by hand and stays put. A bridge has no moving parts. The supply's own polarity picks the pair that conducts. And a closed switch holds no voltage. Each conducting diode holds about 0.7 V, and each blocked one holds the supply."
+ },
+ "practice": {
+  "text": "Work on a rectifier only once it is isolated and proved dead. Many rectifiers feed a capacitor, and it can hold its charge after isolation.\n\n- Isolate, lock off, let any capacitors discharge, and prove dead.\n- Disconnect the rectifier's leads. Then nothing else gives the meter a path round it.\n- Set the meter to its diode range. Test each diode both ways. A good one shows a drop one way and over range the other.\n- Across a bridge's two AC terminals, a good bridge reads over range both ways. Each way, the path meets a blocked diode.\n- With the meter's positive lead on the bridge's negative terminal, and its negative lead on the positive terminal, it reads two drops in series. The other way round it reads over range.\n- On an ordinary silicon diode, near 0 V both ways means it is shorted. Over range both ways means it is open.\n\n**Rule of thumb:** with a resistor load and no capacitor, a half-wave rectifier gives 0.318 of the peak, about 0.45 × the rms. A bridge gives 0.637 of the peak, 0.9 × the rms. A six-pulse rectifier gives 1.35 × the line voltage. The ripple is one, two or six times the supply frequency. A blocked diode holds up to the supply's peak, or the line-to-line peak on three-phase.\n\n**Worked example:** a six-pulse rectifier runs from 440 V, 50 Hz into a resistor. The tops reach 440 × √2 = 622 V. The average is 1.35 × 440 = 594 V. The ripple is 6 × 50 = 300 Hz. Each blocked diode holds up to 622 V. Past its peak inverse voltage a diode is usually destroyed.[^5] So its rating must sit above 622 V. Textbooks add a margin on top for spikes on the supply. The two diode drops take about 1.4 V, under 0.3% of 594 V.\n\n**Common mistakes**\n- Thinking the load current reverses in the negative half. The other pair steers it the same way.\n- Thinking a blocked diode sees nothing. It holds the supply, up to its peak.\n- Rating diodes on the rms, 230 V, rather than the peak, 325 V.\n- Expecting the peak on a meter's DC range across an unsmoothed output. It shows the average.\n- Forgetting a bridge's 1.4 V on a low-voltage charger.\n- Blaming the supply when a bridge gives half its usual DC. One open diode makes it a half-wave rectifier."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "simplified",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Rectifier Circuits | Diodes and Rectifiers | Electronics Textbook",
+   "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/",
+   "quote": "Note that regardless of the polarity of the input, the current flows in the same direction through the load."
+  },
+  {
+   "n": 2,
+   "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+   "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+   "quote": "the average output voltage for the full-wave circuit will be: 2 x 0.318V max = 0.637V max of the peak voltage. Assuming no diode losses."
+  },
+  {
+   "n": 3,
+   "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+   "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+   "quote": "The ripple frequency is now twice the supply frequency (e.g. 100Hz for a 50Hz supply or 120Hz for a 60Hz supply.)"
+  },
+  {
+   "n": 4,
+   "title": "Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook",
+   "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/",
+   "quote": "Silicon diodes have a forward voltage of approximately 0.7 volts."
+  },
+  {
+   "n": 5,
+   "title": "Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook",
+   "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/",
+   "quote": "Reverse voltage strength of a diode is not as easily tested because exceeding a normal diode’s PIV usually results in destruction of the diode."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

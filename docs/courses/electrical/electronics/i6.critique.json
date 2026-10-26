@@ -1,0 +1,38 @@
+{
+ "draft": "i6.lesson.draft1.txt",
+ "validator": "draft 1 passes with no problems, soft points or warnings",
+ "keep": [
+  "The idea is named up front in plain words: chop a battery, smooth it with an inductor and capacitor, get D x Vin; rearrange for a higher voltage.",
+  "The picture is the brief's balancing inductor: Buck and Boost on a picker, duty-cycle and frequency sliders, the inductor's voltage with its on and off areas shaded, the current ramping beneath, the output settling where the areas balance, a ripple readout with the 20% to 40% band, and a battery current readout.",
+  "The cause is drawn and taught: the average voltage across the inductor is zero (now cited), the areas give (Vin - Vout) x D = Vout x (1 - D), and the boost rule, which has no clean quote, is derived from the same balance and checked by areas on screen 12.",
+  "The brief's two lesson-6 misconceptions each get a DO screen with their own hints: a buck burning off the difference like a resistor (7, with the 360 W resistor in Why) and a boost making energy (11). Frequency setting the voltage is caught on screen 9.",
+  "Every number is a control, an assumed example value (48 V battery, 10 A load, 100 uH) or computed from a shown rule; the only constants are the 20% and 40% ripple guide, cited.",
+  "Thirteen screens: a recall opener (lesson 4's heat in a transistor held part on), SHOW 2, 4, 6, 8, 10 each followed by a DO, ending with two mixed puzzles. Every SHOW is under 90 words.",
+  "Research top-up: four quotes already in quotes.json and in the course's tool files (sources.mjs --quotes: 9 of 9 ok) were added to research.json as sources 53-56 under i6, following the same pattern as i4 and i5. The brake chopper line is dropped, as the brief allows, since its ABB quote is not in research."
+ ],
+ "fix": [
+  "Long sentences: the explain's power sentence (22 words), the boost current sentence (22), the boost screen's parts sentence (25 words, three clauses on commas), the analogy's breaks (23) and the ignores' losses sentence (24). Split each.",
+  "False absolute in a Read: 'The inductor's current never stops' is true only of this picture's continuous running. Say it keeps flowing all through the cycle.",
+  "Overclaim: 'the load sees steady DC' on screen 8. The capacitor leaves a small ripple; say 'near-steady DC'.",
+  "Analogy is vague at its key step: 'settles where the pushes balance on average'. Say the spring balances the average push, which is what makes it read the average.",
+  "The look-ahead sentence on a sine-following D runs two clauses together; split it."
+ ],
+ "shape": {
+  "idea up front": true,
+  "rule in words": true,
+  "worked example with real numbers": true,
+  "misconception shown failing": true,
+  "trade analogy with breaks": true,
+  "put it into practice": true,
+  "recap": true
+ },
+ "faults": {
+  "causal step skipped": "none found beyond the analogy's vague step",
+  "false absolutes": "one in screen 2's Read",
+  "brief shows only the effect": "no, the areas are the cause",
+  "checks test recall": "n/a, taught course; the DO screens apply the rule",
+  "thin research": "no, nine sources",
+  "unreadable labels": "readouts wrap at 360 px, said in whatAmILookingAt",
+  "talks about instead of teaching": "no"
+ }
+}

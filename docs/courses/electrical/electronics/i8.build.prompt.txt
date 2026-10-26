@@ -1,0 +1,536 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Electronics and power electronics, from diode to drive
+Idea: Living with power electronics (Converters bring extra frequencies in the current they draw, charge they hold after isolation and current their filters leak to earth.)
+Kind: mechanism
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the solid sum of sines square up into the rectifier's current block, and THD climb to 31%, when you add the 5th, 7th and higher harmonics one by one.
+Title (the app shows it above the frame, so do not repeat it): The six-pulse current taken apart
+The rule (the app shows it just above the frame, under "What you're looking at"): Thirteen small screens on three cards, Harmonics, After isolation and Leakage. Each card shows only its own controls and readout.
+
+Harmonics. The top plot shows one cycle of the current in one line of a six-pulse bridge. It is drawn as a dashed ideal block. A large coil in the DC link, chosen, holds the DC current steady. Each line conducts forward for 120°, rests for 60°, conducts backward for 120° and rests again. That is because each line sits in two of the six 60° diode pairs each way. The block's height is the DC current, drawn as 1. A picker, Sines added, has eight settings. The first is Fundamental only and the last is Every harmonic. Between them come Up to the 5th, Up to the 7th, Up to the 11th, Up to the 13th, Up to the 17th and Up to the 19th. The solid line is the sum of the sines added. The fundamental runs at the supply frequency. Its peak is 1.10 times the block's height, 2√3 ÷ π. Each harmonic h runs at h times the supply frequency. It is 1/h as tall as the fundamental, with the sign the block needs. These are the block's exact Fourier sines. With Every harmonic the sum is the block.
+
+Below, a spectrum shows a bar for each harmonic added, as a share of the fundamental. The 5th is 20%, the 7th 14.3%, the 11th 9.1%, the 13th 7.7%, the 17th 5.9% and the 19th 5.3%. Empty slots stand at the even orders and the multiples of 3. A switch, 50 Hz or 60 Hz, relabels the bars in hertz. At 50 Hz they read 250, 350, 550, 650, 850 and 950 Hz. At 60 Hz they read 300, 420, 660, 780, 1020 and 1140 Hz. The readout, THD of the sum, is the root of the added harmonics' squares over the fundamental. In order it reads 0%, 20%, 25%, 26%, 27%, 28%, 28% and 31%. Beside it, three range bars show the current THD of real drives. A 6-pulse drive draws 25% to 40%, a 12-pulse one 9% to 11% and an 18-pulse one 3% to 4%.
+
+After isolation. DC link voltage against time since isolation. Both drives start at 540 V. That is about what a three-phase bridge gives from 400 V, 1.35 × 400 V.[^1] Each drains through a 27 kΩ bleed resistor, chosen. Drive A has 2200 µF and drive B 6600 µF, both chosen. Each follows V = 540 × e^(−t ÷ RC). Drive A's RC is 59 s, about 1 minute. Drive B's is 178 s, about 3 minutes. Each curve has a dotted mark at about five time constants, at 5 and 15 minutes. Both marks show about 3 V. A time slider runs from 0 to 20 minutes in steps of 0.5 minutes. A picker chooses Drive A or Drive B. The readout is the chosen drive's link voltage then.
+
+Leakage. A 400 V, 50 Hz supply feeds a drive. The drive's EMC filter sits at its input. It is three 100 nF capacitors, chosen, one from each line to a point bonded to earth. Each capacitor's reactance is X_C = 1 ÷ (2π × 50 × 100 nF) = 31.8 kΩ. A small phasor diagram shows each capacitor's current and their sum. The sum is the readout, the current through earth. A picker, Case, has five settings.
+
+Earthed, balanced. The supply's star point is earthed, and the three lines pass through an RCD, drawn as a ring. Each line is 230 V from earth, so each capacitor passes 230 ÷ 31.8 kΩ = 7.2 mA. The three are 120° apart and add to 0 mA. Earthed, a phase lost. L1's fuse has blown, and its capacitor carries nothing. The other two, 120° apart, add to 7.2 mA. It returns through earth to the star point, outside the RCD's ring. So the RCD sees it.
+
+Insulated, healthy. The star point is not earthed. An insulation monitor sits between the system and earth. Each capacitor still passes 7.2 mA. With no path back from earth, the three only circulate among the lines. The current through earth is 0 mA. The filter carries a label: Disconnect on an insulated supply. Insulated, L1 earth fault. A red link joins L1 to earth. The L2 and L3 capacitors now each see 400 V and pass 12.6 mA. Their currents are 60° apart and add to 21.8 mA. That current flows through the fault, drawn red. Insulated, fault, filter out. The filter is disconnected, and the fault draws 0 mA. In both fault cases the monitor's alarm lamp lights.
+
+Three readouts sit in a row. They are free to wrap onto two lines on a narrow phone.
+
+The screens. Unless a screen says otherwise, the Harmonics card opens at 50 Hz.
+
+1, show: Blocks from sines. Harmonics, Sines added going from Fundamental only to Up to the 7th. The words: “A six-pulse bridge with a large coil in its DC link draws a steady current. Each line carries it in blocks. It flows forward for 120°, rests for 60°, then flows back for 120°. The supply voltage is a sine, but this current is not. Any wave that repeats each cycle is a sum of sines. They run at whole multiples of the supply frequency. These are its harmonics. In ideal blocks, harmonic h is 1/h as tall as the fundamental. Add them, and the corners square up.” Read: with the fundamental, 5th and 7th added, the solid sum follows the dashed block. It still ripples at the corners. Still: Up to the 7th.
+
+2, a puzzle: Harmonics, Up to the 7th, the readout hidden. “A drive on a 60 Hz supply draws a 60 A fundamental, in ideal blocks. What does its 5th harmonic carry?” Offered: “12 A at 300 Hz”; “12 A at 250 Hz”; “60 A at 300 Hz”. Hint for 250 Hz: “That is the 5th of 50 Hz. This supply runs at 60 Hz.” Hint for 60 A: “Each harmonic is 1/h as tall as the fundamental.” Why: “12 A at 300 Hz. The 5th runs at 5 × 60 = 300 Hz. In ideal blocks it is 1/5 of the fundamental, 60 ÷ 5 = 12 A. Real drives roughly follow this rule.[^2]” A right Check switches to 60 Hz and Up to the 5th. The 5th's bar then reads 300 Hz.
+
+3, show: The gaps. Harmonics, Every harmonic. The words: “Look at the spectrum. A balanced bridge's bars stand only at the 5th, 7th, 11th, 13th, 17th and 19th. That is 6n ± 1.[^3] There is no even harmonic, because the backward block mirrors the forward one. There is no multiple of 3 either. Remember triplens adding in a neutral? A triplen would be in step in all three lines. A bridge's three lines have no neutral to return it. The two biggest are the 5th and the 7th.[^4]” Read: the spectrum has bars at 5, 7, 11, 13, 17 and 19. The slots at the even orders and the multiples of 3 stand empty.
+
+4, a puzzle: Harmonics, Every harmonic. “Which of these could a six-pulse bridge draw from a 50 Hz supply?” Offered: “The 9th, at 450 Hz”; “The 11th, at 550 Hz”; “The 10th, at 500 Hz”. Hint for the 9th: “9 is a multiple of 3. Where would it return?” Hint for the 10th: “An even harmonic needs halves that differ. These mirror.” Why: “The 11th, since 11 = 6 × 2 − 1. The 9th would be in step in all three lines. There is no neutral to carry it. The 10th is even, but the block's halves mirror each other.” A right Check marks the 11th's bar, 550 Hz.
+
+5, show: One number, THD. Harmonics, Sines added going from Fundamental only to Every harmonic. The words: “Total harmonic distortion, THD, puts one number on the harmonics. It is their combined rms over the fundamental's rms.[^5] Sines of different frequencies add as squares. So THD = √(I5² + I7² + …) ÷ I1. Perfect blocks give 31%. Real six-pulse drives often draw 25% to 40%.[^6] Twelve-pulse rectifiers draw far less, 9% to 11%. Eighteen-pulse ones draw 3% to 4%.” Read: as the sines are added, THD climbs from 0% to 31%. Beside it, the bar for real 6-pulse drives reads 25% to 40%. The 12-pulse bar reads 9% to 11%, and the 18-pulse bar 3% to 4%. Still: Every harmonic.
+
+6, a puzzle: Harmonics, Up to the 7th, the readout hidden. “Only the 5th and 7th are present, at 1/5 and 1/7 of the fundamental. What is the THD?” Offered: “About 34%, the two added”; “About 6%, their squares added”; “About 25%”. Hint for 34%: “Different frequencies do not add straight. They add as squares.” Hint for 6%: “You added the squares. Now take the root.” Why: “About 25%. The 5th is 20% and the 7th 14.3%. Two sines of different frequencies multiply to an average of zero. So only their squares add. √(0.20² + 0.143²) = √0.0604, about 0.25.” A right Check shows the readout, 25%.
+
+7, show: Charge after isolation. After isolation, Drive A, the time slider going from 0 to 5 minutes. The words: “Isolation stops the supply. It does not empty the DC link. A bleed resistor across the link drains it. The voltage falls on the RC curve, V = 540 × e^(−t ÷ RC). Drive A has 2200 µF and 27 kΩ. Its RC is about 1 minute. In 5 minutes, about five time constants, it falls to about 3 V. Drive B has three times the capacitance. So it takes three times as long, about 15 minutes. Each drive has its own wait.” Read: drive A's link falls from 540 V to about 3 V at 5 minutes. Drive B's curve is still near 100 V there. It reaches about 3 V near 15 minutes. Still: Drive A, 5 minutes.
+
+8, a puzzle: After isolation, Drive B, time 5 minutes, the readout hidden. “Drive B is isolated, and its display is dark. You have waited 5 minutes, drive A's time. What is its link at?” Offered: “Nothing, as the display is dark”; “About 3 V, like drive A”; “About 100 V”. Hint for nothing: “The display runs from a control supply. The link drains on its own curve.” Hint for 3 V: “Drive B's time constant is three times drive A's.” Why: “About 100 V. Drive B's RC is 178 s. So 540 × e^(−300 ÷ 178) is about 100 V. High voltage can be present while an indicator is dark.[^7] So wait the time given for that drive, then measure the link.[^8]” A right Check shows the readout, 100 V.
+
+9, show: Leakage that cancels. Leakage, the case going from Earthed, balanced to Earthed, a phase lost. The words: “A drive's EMC filter puts a small capacitor from each line to earth. Each passes V ÷ X_C. With 100 nF on 230 V at 50 Hz, X_C is 31.8 kΩ. So each passes 7.2 mA. The three currents are 120° apart, like a balanced neutral's. They cancel, and almost nothing flows to earth. Lose a phase, and the two left no longer cancel. Their sum, 7.2 mA, returns through earth, past the RCD.” Read: balanced, the three 7.2 mA phasors add to 0 mA through earth. With L1 lost, two phasors 120° apart add to 7.2 mA. The RCD sees it. Still: Earthed, a phase lost.
+
+10, a puzzle: Leakage, Earthed, balanced, the readout hidden. “The filter sends nothing to earth while the supply is balanced. Then one supply fuse blows. What flows through earth now?” Offered: “Still nothing”; “About 7.2 mA”; “About 21.6 mA, all three added”. Hint for nothing: “Two currents 120° apart. Do they cancel on their own?” Hint for 21.6 mA: “The lost line's capacitor carries nothing.” Why: “About 7.2 mA. Two equal phasors 120° apart add to one of the same size. So the earth current jumps from nothing to 7.2 mA. The RCD sees all of it.” A right Check sets Earthed, a phase lost.
+
+11, show: The insulated supply. Leakage, the case going from Insulated, healthy to Insulated, L1 earth fault, then Insulated, fault, filter out. The words: “Now the supply's star point is not earthed. No wire joins earth back to the supply. So a first earth fault draws almost nothing. It gives no dangerous touch voltage.[^9] The filter spoils that. Fault L1 to earth, and the L2 and L3 capacitors see 400 V. Then 21.8 mA flows through the fault. The filter has built the return path the system was meant not to have. So on an insulated supply it is disconnected.[^10]” Read: with the filter in, a fault on L1 carries 21.8 mA. With the filter out, the same fault carries 0 mA. Still: Insulated, L1 earth fault.
+
+12, a mixed puzzle: Leakage, Insulated, healthy. “A drive is fitted on an insulated supply. The insulation monitor alarms each time the drive is switched on, then settles. What is the likeliest cause?” Offered: “The motor has an earth fault”; “Its EMC filter is still connected”; “The DC link kept its charge”. Hint for the motor: “A winding fault would not clear a moment later.” Hint for the DC link: “A charged link would be there before switch-on, not only at it.” Why: “Its EMC filter is still connected. The monitor watches the whole connected circuit, drive included.[^11] At each switch-on, the filter's capacitors charge through it. So the monitor alarms.[^12] The filter would also give a real fault a return path. So disconnect it, as the drive's instructions require.[^10]” A right Check lights the filter's label, Disconnect on an insulated supply.
+
+13, a mixed puzzle: Leakage, Earthed, a phase lost. “A fault inside a three-phase drive, on its DC link, sends DC with little ripple to earth. An RCD protects the circuit against shock. Which type?” Offered: “Type A”; “Type AC”; “Type B”. Hint for Type A: “Type A sees sine AC and pulsating DC. Is this DC pulsing?” Hint for Type AC: “Type AC is only for loads with no DC in their current.” Why: “Type B. Type A detects only sinusoidal AC and pulsating DC.[^13] DC from the link barely pulses. For shock protection, a three-phase drive's maker may allow only Type B.[^14] Regulation 531.3.3 of BS 7671 sets out the types.[^15]” A right Check labels the RCD Type B.
+
+Each puzzle offers three answers, stacked, each free to wrap. A wrong pick gets its hint. Why? explains. Continue moves on.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The blocks are ideal, with square corners and a perfectly steady DC current. Real ones have sloped edges. The current takes time to pass from one diode to the next. Without a large coil, the capacitor makes a drive draw two gulps each half cycle. Those gulps carry harmonics too. The supply is drawn as a perfect sine. In truth, harmonic currents bend it a little. Phase-shifting transformers let 12 and 18-pulse rectifiers cancel harmonics. That is left for Transformers. The discharge curves use one bleed resistor and nothing else. Real links also drain into control circuits. A failed bleed resistor can leave the charge there far longer. The filter is three plain capacitors. Real filters also pass high-frequency current from the switching. They are never perfectly balanced, either. With a phase lost, the lost line is drawn carrying nothing. In a real drive it floats. The insulated supply's own cable capacitance to earth is left out. So its fault currents read zero rather than small.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 12 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "thd": THD of the sum (%), decimals: 0
+- id "linkV": Link voltage (V), decimals: 0
+- id "earthI": Current through earth (mA), decimals: 1
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Line conducts forward, degrees: 120 (computed)
+- Line rests between blocks, degrees: 60 (computed)
+- Diode pairs in a six-pulse bridge: 6 (computed)
+- Block height, drawn as: 1 (assumed)
+- Fundamental peak per block height, 2√3 ÷ π: 1.1 (computed)
+- Pi, about: 3.142 (constant)
+- Square root of 3, about: 1.732 (constant)
+- 5th harmonic, share of fundamental, %: 20 (computed)
+- 7th harmonic, share of fundamental, %: 14.3 (computed)
+- 11th harmonic, share of fundamental, %: 9.1 (computed)
+- 13th harmonic, share of fundamental, %: 7.7 (computed)
+- 17th harmonic, share of fundamental, %: 5.9 (computed)
+- 19th harmonic, share of fundamental, %: 5.3 (computed)
+- Supply frequency, first setting, Hz: 50 (control)
+- Supply frequency, second setting, Hz: 60 (control)
+- 5th at 50 Hz, Hz: 250 (computed)
+- 7th at 50 Hz, Hz: 350 (computed)
+- 11th at 50 Hz, Hz: 550 (computed)
+- 13th at 50 Hz, Hz: 650 (computed)
+- 17th at 50 Hz, Hz: 850 (computed)
+- 19th at 50 Hz, Hz: 950 (computed)
+- 5th at 60 Hz, Hz: 300 (computed)
+- 7th at 60 Hz, Hz: 420 (computed)
+- 11th at 60 Hz, Hz: 660 (computed)
+- 13th at 60 Hz, Hz: 780 (computed)
+- 17th at 60 Hz, Hz: 1020 (computed)
+- 19th at 60 Hz, Hz: 1140 (computed)
+- THD, fundamental only, %: 0 (computed)
+- THD up to the 5th, %: 20 (computed)
+- THD up to the 7th, %: 25 (computed)
+- THD up to the 11th, %: 26 (computed)
+- THD up to the 13th, %: 27 (computed)
+- THD up to the 17th or 19th, %: 28 (computed)
+- THD of ideal blocks, every harmonic, %: 31 (computed)
+- 6-pulse drives, current THD, lowest, %: 25 (constant, source [6])
+- 6-pulse drives, current THD, highest, %: 40 (constant, source [6])
+- 12-pulse drives, current THD, lowest, %: 9 (constant, source [6])
+- 12-pulse drives, current THD, highest, %: 11 (constant, source [6])
+- 18-pulse drives, current THD, lowest, %: 3 (constant, source [6])
+- 18-pulse drives, current THD, highest, %: 4 (constant, source [6])
+- Ship distribution THD limit, %: 8 (constant, source [16])
+- Puzzle fundamental, chosen, A: 60 (assumed)
+- Puzzle 5th harmonic, 60 ÷ 5, A: 12 (computed)
+- Wrong answer, the 9th at 50 Hz, Hz: 450 (computed)
+- Wrong answer, the 10th at 50 Hz, Hz: 500 (computed)
+- Wrong answer, the 5th and 7th added straight, %: 34 (computed)
+- Wrong answer, squares without the root, %: 6 (computed)
+- Sum of squares of 5th and 7th: 0.0604 (computed)
+- Supply line voltage, chosen, V: 400 (assumed)
+- DC link per line volt, about: 1.35 (constant, source [1])
+- DC link, 1.35 × 400, V: 540 (computed)
+- Bleed resistor, chosen, kΩ: 27 (assumed)
+- Drive A link capacitance, chosen, µF: 2200 (assumed)
+- Drive B link capacitance, chosen, µF: 6600 (assumed)
+- Drive A time constant, s: 59 (computed)
+- Drive B time constant, s: 178 (computed)
+- Drive A time constant, about, minutes: 1 (computed)
+- Drive B time constant, about, minutes: 3 (computed)
+- Time constants to settle: 5 (constant)
+- Drive A five time constants, about, minutes: 5 (computed)
+- Drive B five time constants, about, minutes: 15 (computed)
+- Link after five time constants, about, V: 3 (computed)
+- Drive B after 5 minutes, s: 300 (computed)
+- Drive B link after 5 minutes, about, V: 100 (computed)
+- Time slider, lowest, minutes: 0 (control)
+- Time slider, highest, minutes: 20 (control)
+- Time slider step, minutes: 0.5 (control)
+- One maker's wait after disconnection, minutes: 5 (constant, source [17])
+- Another maker's wait, at least, minutes: 15 (constant, source [8])
+- Filter capacitor, each line to earth, chosen, nF: 100 (assumed)
+- Filter capacitor reactance at 50 Hz, kΩ: 31.8 (computed)
+- Line to earth, 400 ÷ √3, V: 230 (computed)
+- Each capacitor's current, 230 ÷ 31.8 kΩ, mA: 7.2 (computed)
+- Balanced earth current, mA: 0 (computed)
+- Phase lost earth current, mA: 7.2 (computed)
+- Wrong answer, three currents added straight, mA: 21.6 (computed)
+- Phase shift between lines, degrees: 120 (constant)
+- Insulated fault, each capacitor, 400 ÷ 31.8 kΩ, mA: 12.6 (computed)
+- Insulated fault, angle between the two currents, degrees: 60 (computed)
+- Insulated fault current with the filter in, mA: 21.8 (computed)
+- Insulated fault current with the filter out, mA: 0 (computed)
+- Touch current for high protective conductor rules, mA AC: 3.5 (constant, source [18])
+- BS 7671 regulation on RCD types: 531.3 (constant, source [15])
+- Worked example supply, chosen, V: 440 (assumed)
+- Worked example frequency, chosen, Hz: 60 (assumed)
+- Worked example line to earth, 440 ÷ √3, V: 254 (computed)
+- Worked example reactance at 60 Hz, kΩ: 26.5 (computed)
+- Worked example capacitor current, mA: 9.6 (computed)
+- Worked example drives on one RCD, chosen: 3 (assumed)
+- Worked example three drives, phase lost, mA: 28.7 (computed)
+- RCD rating in the example, chosen, mA: 30 (assumed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+Power electronics brings three side effects with it. A diode rectifier draws its current in blocks or pulses, not as a sine. That puts extra frequencies on the supply. A DC link stays charged after you isolate it. And a drive's input filter leaks current to earth.
+
+Start with the current. A six-pulse bridge with a large coil in its DC link draws a steady current. Each line carries it in blocks, 120° forward and 120° back. That is because each line sits in two of the six 60° diode pairs each way. Any wave that repeats each cycle is a sum of sines at whole multiples of the supply frequency. These are its harmonics. For ideal blocks, harmonic h is 1/h as tall as the fundamental. From a balanced supply, only the orders 6n ± 1 appear. Those are the 5th, 7th, 11th, 13th and on. Even ones cannot appear, because the two halves mirror. Multiples of 3 cannot, because the three lines have no neutral to return them. Total harmonic distortion, THD, is the harmonics' combined rms over the fundamental's rms. Sines of different frequencies multiply to an average of zero. So their rms values add as squares. Perfect blocks give 31%. Real six-pulse drives often draw 25% to 40%. These currents flow back through the generator and cables. Their reactance rises with frequency, so each harmonic current makes a harmonic voltage. That bends the voltage every other load sees. So ship rules cap a distrib…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design): "The DC bus voltage should ramp to approximately 1.35 × V LL (rectified DC)"
+[2] Harmonics in Power System | Electrical India Magazine (https://www.electricalindia.in/harmonics-in-power-system-2): "As a rough rule of thumb, the magnitudes of the harmonic currents will be the fundamental current divided by the harmonic number"
+[3] Guidance Notes on Control of Harmonics in Electrical Power Systems 2006 (https://ww2.eagle.org/content/dam/eagle/rules-and-guides/current/conventional_ocean_service/150_ctrlofharmonicsinelecpowersystems/electrical-harmonics-gn.pdf): "the characteristic harmonic currents will therefore be: _h_ = _np_ ± 1 _h_ = _n_ ⋅ 6 ± 1 _h_ = 5, 7, 11, 13, 17, 19…"
+[4] Harmonic Sources From Industrial Loads I (https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Harmonic_Sources_from_Industrial_Loads_I.pdf): "The two largest harmonic currents for the six-pulse drive are the fifth and seventh"
+[5] Total Harmonic Distortion: Theory and Practice Gamry Instruments (https://www.gamry.com/application-notes/EIS/total-harmonic-distortion): "The THD factor describes the ratio between the root mean square (RMS) of the harmonics’ magnitudes (Y n ) and the RMS magnitude of the fundamental frequency (Y ₁ )."
+[6] Microsoft PowerPoint - Harmonics - MCPQG IEEE 2005.ppt (https://ewh.ieee.org/r3/nashville/events/2005/Harmonics_MCPQG_IEEE_2005.pdf): "6-pulse converter 12-pulse converter 18-pulse converter 25% - 40% Current THD 9% - 11% Current THD 3% - 4% Current THD"
+[7] VLT® Integrated Servo Drive ISD 410 (https://assets.danfoss.com/documents/latest/271518/AQ361181478313en-000101.pdf): "Note: High voltage may be present even if the LED on the ISD connection box is not lit!"
+[8] VACON® 1000 (https://files.danfoss.com/download/Drives/172F3117C-VACON-1000-Operating-Guide-EN.pdf): "Wait at least 15 minutes for the DC-link capacitors to discharge fully before opening the cabinet door or the cover of the AC drive. Use a measuring device to make sure that there is no voltage."
+[9] EMC filters - Technical information (https://www.tdk-electronics.tdk.com/download/3107180/7f30b0110a521bb506ace36f0c56af5c/pdf-technical-information.pdf): "During the so-called first fault (earth fault or ground short circuit), no notable return current paths are produced and thus no dangerous contact voltage."
+[10] EN / Grounding and cabling of drive systems reference manual (https://library.e.abb.com/public/9fbb4caf4e7b4bf7970839b083ba5396/EN_Drive_systems_grounding_and_cabling_REF_D_A4.pdf?x-sign=3SuYnT4patNrek9eD4F4v49jpMcUC0PsAumf%2Bd3ip%2Bf30Y78wR1WZlqqtMyHTOtx): "All drive EMC filters and ground-to-phase varistors are not suitable for use in IT (ungrounded) or corner-grounded and mid-point grounded delta systems. Disconnect these filters"
+[11] L87, insulation monitoring - SINAMICS S120 Cabinet Modules liquid cooled - ID: 109975301 - Industry Support Siemens (https://support.industry.siemens.com/cs/mdm/109975301?c=179939062923&dl=en): "On non-grounded line supplies (IT supply systems), the insulation monitoring device monitors the entire electrically-connected circuit for insulation faults."
+[12] VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct (https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design): "Insulation monitor alarm at startup only |Common-mode filter capacitors charging through the IMD"
+[13] RCD Type A, F or B Guide | A1-ESD (https://esd.equipment/en/ratgeber/rcd-type-a-b-f-guide): "Type A only detects sinusoidal AC and pulsating DC residual currents."
+[14] james_piotrowski_20260218032458_EZZ024333_4.xps (https://www.yaskawa.com/delegate/getAttachment?cmd=documents&documentId=CE.GA500.01&documentName=CE.GA500.01.pdf): "If an RCD is used for protection against electric shock, only a type B RCD is allowed for 3-phase VSD applications."
+[15] Selecting the correct Type of RCD – 18 Edition BS7671 (https://doepke.co.uk/wp-content/uploads/2026/03/Techpub-08.pdf): "Regulation 531.3.3 refers to the use of AC, A, F and B Type RCDs, along with the details of the associated residual current limits."
+[16] Hull Classification Surveys (https://turkloydu.org/pdf-files/iacs-karar-ve-csr-degisimleri/iacs-es-gereklilikleri/UR_E24_New_TR_EN.PDF): "The total harmonic distortion (THD) of electrical distribution systems is not to exceed 8%."
+[17] EN / ACS880-11 hardware manual (https://library.e.abb.com/public/426332acfaff4cb98425edeecedd0831/EN_ACS880-11_HW_H.pdf): "After you disconnect power from the drive, always wait 5 minutes to let the intermediate circuit capacitors discharge before you continue."
+[18] EN / Grounding and cabling of drive systems reference manual (https://library.e.abb.com/public/9fbb4caf4e7b4bf7970839b083ba5396/EN_Drive_systems_grounding_and_cabling_REF_D_A4.pdf): "Because the normal touch current of the drive is more than 3.5 mA AC or 10 mA DC: • the minimum size of the protective earth conductor must comply with the local safety regulations for high"
+[19] Why choose Type B RCD for 3 Phase Variable Speed Drives? | Schneider Electric Australia (https://www.se.com/au/en/faqs/FAQ000184975): "For the 3 Phase Variable Speed Drives, the RCD type B or type B-Si is particularly suitable. It protects against fault currents with DC offset, which is true for three-phase power converters."
+[20] 22.0 Harmonics in Industrial Power Systems (https://www.rose-hulman.edu/class/ee/HTML/ECE471/PDFs/Lect15.pdf): "These are usually quoted in terms of Total Harmonic Distortion (THD) with the appropriate “I” or “V”, e.g. 35% THDI and 4% THDV."
+[21] Whitepaper — Harmonics in power systems (https://assets.new.siemens.com/siemens/assets/api/uuid:8ab2a02e-ad94-41cb-a362-438f016aa704/drive-harmonics-in-power-systems-whitepaper.pdf): "of a reactor is valuable for limiting the harmonic currents produced by electrical variable speed drives and other non-linear loads."
+[22] RCD Protection and Selection for VSD / VFD / Inverter controlled Pumps - Doepke (UK) Ltd (https://doepke.co.uk/technical-publications/rcd-protection-and-selection-for-vsd-vfd-inverter-controlled-pumps): "Low cost filters can create high levels of leakage current that may not be compatible with the safety requirements of the installation."
+[23] 34/2017 - Classification alert: Harmonic distortion for ship electrical distribution systems, including harmonic filter… (https://www.lr.org/en/knowledge/class-news/34-17): "it is essential to carry out regular harmonic distortion measurements, to detect an incipient failure"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: mechanism). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

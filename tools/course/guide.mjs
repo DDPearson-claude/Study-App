@@ -145,7 +145,8 @@ function summaryPage(sum) {
 
 // Runs in the lesson frame: the scene as a standalone SVG string with computed styles inlined.
 const SNAP = `(() => {
-  const src = document.getElementById('scene');
+  // The lesson's <svg id="scene">; a lesson without one (several named pictures) gives its largest visible picture.
+  const src = document.getElementById('scene') || [...document.querySelectorAll('svg')].filter((s) => { const r = s.getBoundingClientRect(), cs = getComputedStyle(s); return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' && !s.closest('button') && !(s.parentElement && s.parentElement.closest('svg')); }).sort((a, b) => { const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect(); return rb.width * rb.height - ra.width * ra.height; })[0];
   if (!src) return null;
   const props = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-family', 'font-size', 'font-weight', 'font-style', 'letter-spacing', 'text-anchor', 'dominant-baseline', 'paint-order', 'visibility', 'display'];
   const keep = { 'fill-opacity': '1', 'stroke-opacity': '1', opacity: '1', 'font-style': 'normal', 'letter-spacing': 'normal', 'stroke-linecap': 'butt', 'stroke-linejoin': 'miter', 'stroke-dasharray': 'none', 'paint-order': 'normal', visibility: 'visible', 'dominant-baseline': 'auto' };
@@ -246,7 +247,7 @@ const CAPTURE = `(([texts, show, sceneEmpty, o]) => {
     if (r.width < 40 || r.height < 40 || !filled(getComputedStyle(el))) return false;
     return ![...el.querySelectorAll('svg, img, canvas')].some(seen) && !el.innerText.trim();
   });
-  const scene = document.getElementById('scene');
+  const scene = document.getElementById('scene') || [...document.querySelectorAll('svg')].filter((s) => { const r = s.getBoundingClientRect(), cs = getComputedStyle(s); return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' && !s.closest('button') && !(s.parentElement && s.parentElement.closest('svg')); }).sort((a, b) => { const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect(); return rb.width * rb.height - ra.width * ra.height; })[0];
   let extra = false, any = false, box = null;
   const add = (r) => { if (!r.width || !r.height) return; box = box ? { l: Math.min(box.l, r.left), t: Math.min(box.t, r.top), r: Math.max(box.r, r.right), b: Math.max(box.b, r.bottom) } : { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -262,7 +263,7 @@ const CAPTURE = `(([texts, show, sceneEmpty, o]) => {
   // Pictures and panels: graphics other than an empty scene, and boxes with a fill or a border.
   [...document.body.querySelectorAll('*')].forEach((el) => {
     if (!seen(el) || el.closest('script, style')) return;
-    if (/^(svg|img|canvas)$/i.test(el.tagName) && !el.closest('svg svg')) { if (!(el === scene && sceneEmpty)) { add(el.getBoundingClientRect()); if (el !== scene && !el.closest('#scene')) extra = true; } return; }
+    if (/^(svg|img|canvas)$/i.test(el.tagName) && !el.closest('svg svg')) { if (!(el === scene && sceneEmpty)) { add(el.getBoundingClientRect()); if (el !== scene && !(scene && scene.contains(el))) extra = true; } return; }
     const cs = getComputedStyle(el);
     if (el.closest('svg')) return;
     if ((cs.backgroundColor && !/rgba\\(0, 0, 0, 0\\)|transparent/.test(cs.backgroundColor) && el !== document.body) || parseFloat(cs.borderTopWidth) > 0) add(el.getBoundingClientRect());
@@ -461,10 +462,11 @@ for (const iid of ideas) {
       // button (colouring first, say) stays an example in words.
       if (pressed) {
         await app.page.waitForTimeout(500);
-        // null: the page keeps no S (a refresher's typed answers): its own check stands.
+        // null: the page keeps no S where the guide can see it (a refresher's typed answers, a lesson
+        // whose state is not global): its own check stands, and its picture is kept.
         const right = await f.evaluate((k) => { try { return typeof S === 'undefined' ? null : !!(S[k] && (S[k].res === 'right' || S[k].got === 'right')); } catch (e) { return null; } }, i);
         if (right === false) asked = null;
-        if (right && !onlyAnswers) snap = await f.evaluate(SNAP);
+        if (right !== false && !onlyAnswers) snap = await f.evaluate(SNAP);
       }
     }
     if (onlyAnswers) { pages.push({ kind: 'example', name: d.name, task: exampleTask(d, answer), answer, ...(asked || {}) }); continue; }

@@ -1,0 +1,280 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The ideal block's fundamental peaks at 2√3 ÷ π = 1.10 times the block's height, and integrating the block gives the same sines as the rule",
+        "ok": true
+      },
+      {
+        "label": "As a rough rule of thumb, a harmonic current is the fundamental divided by the harmonic number: 60 A carries 12 A at the 5th, and the block's bars read 20%, 14.3%, 9.1%, 7.7%, 5.9% and 5.3%",
+        "ok": true,
+        "source": "https://www.electricalindia.in/harmonics-in-power-system-2"
+      },
+      {
+        "label": "The characteristic harmonics of a six-pulse bridge are h = 6n ± 1, that is 5, 7, 11, 13, 17, 19: the block has sines at these orders below 20 and no others",
+        "ok": true,
+        "source": "https://ww2.eagle.org/content/dam/eagle/rules-and-guides/current/conventional_ocean_service/150_ctrlofharmonicsinelecpowersystems/electrical-harmonics-gn.pdf"
+      },
+      {
+        "label": "The two largest harmonic currents for the six-pulse drive are the fifth and seventh",
+        "ok": true,
+        "source": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Harmonic_Sources_from_Industrial_Loads_I.pdf"
+      },
+      {
+        "label": "THD is the rms of the harmonics over the rms of the fundamental: for the whole block that is 31%, and adding up every sine's square to the 20,001st agrees",
+        "ok": true,
+        "source": "https://www.gamry.com/application-notes/EIS/total-harmonic-distortion"
+      },
+      {
+        "label": "As the sines are added, THD reads 0%, 20%, 25%, 26%, 27%, 28%, 28% and 31%, and never falls",
+        "ok": true
+      },
+      {
+        "label": "A 6-pulse converter draws 25% to 40% current THD, a 12-pulse one 9% to 11% and an 18-pulse one 3% to 4%: the ideal block's 31% sits inside the 6-pulse range",
+        "ok": true,
+        "source": "https://ewh.ieee.org/r3/nashville/events/2005/Harmonics_MCPQG_IEEE_2005.pdf"
+      },
+      {
+        "label": "The 50 Hz bars sit at 250, 350, 550, 650, 850 and 950 Hz, and the 60 Hz ones at 300, 420, 660, 780, 1020 and 1140 Hz",
+        "ok": true
+      },
+      {
+        "label": "With every harmonic the sum is the block itself; with fewer it ripples about the block, less with each sine added",
+        "ok": true
+      },
+      {
+        "label": "The DC bus voltage ramps to approximately 1.35 × the line-to-line voltage: 1.35 × 400 V = 540 V, where both links start",
+        "ok": true,
+        "source": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design"
+      },
+      {
+        "label": "On V = 540 × e^(−t ÷ RC), drive A's RC is 59 s and B's 178 s; A reads about 3 V at 5 minutes, B about 100 V then and about 3 V at 15 minutes",
+        "ok": true
+      },
+      {
+        "label": "Each link only falls with time, and drive B, with three times the capacitance, always holds more",
+        "ok": true
+      },
+      {
+        "label": "X_C = 1 ÷ (2π × 50 × 100 nF) = 31.8 kΩ, so each capacitor passes 230 ÷ 31.8 kΩ = 7.2 mA; the earth current reads 0, 7.2, 0, 21.7 and 0 mA in the five cases",
+        "ok": true
+      },
+      {
+        "label": "Two equal currents 120° apart add to one of the same size; two 60° apart add to √3 times one",
+        "ok": true
+      },
+      {
+        "label": "During a first earth fault on an insulated supply no notable return current path is produced: with the filter out, the L1 fault draws 0 mA",
+        "ok": true,
+        "source": "https://www.tdk-electronics.tdk.com/download/3107180/7f30b0110a521bb506ace36f0c56af5c/pdf-technical-information.pdf"
+      },
+      {
+        "label": "Drive EMC filters are not suitable for IT (ungrounded) systems, so disconnect these filters: every insulated case labels the filter, and with it in, an L1 fault draws 21.7 mA, three capacitors' worth",
+        "ok": true,
+        "source": "https://library.e.abb.com/public/9fbb4caf4e7b4bf7970839b083ba5396/EN_Drive_systems_grounding_and_cabling_REF_D_A4.pdf?x-sign=3SuYnT4patNrek9eD4F4v49jpMcUC0PsAumf%2Bd3ip%2Bf30Y78wR1WZlqqtMyHTOtx"
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and what a right Check reveals is not shown before it",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      },
+      {
+        "label": "Every number in the words comes from the rules: 1.10, 20, 14.3, 25, 31, 12, 300, 550, 34, 6, 0.0604, 540, 59, 178, 3, 100, 31.8, 7.2, 12.5, 21.7, 150 and 30",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "sines",
+      "freq",
+      "t",
+      "drive",
+      "case"
+    ],
+    "readouts": [
+      "thd",
+      "linkV",
+      "earthI"
+    ],
+    "outputs": [
+      "thd",
+      "linkV",
+      "earthI"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Blocks from sines",
+          "The 5th at 60 Hz",
+          "The gaps",
+          "Which can it draw?",
+          "One number, THD",
+          "Two harmonics",
+          "Charge after isolation",
+          "Drive B at 5 minutes",
+          "Leakage that cancels",
+          "A fuse blows",
+          "The insulated supply",
+          "An alarm at switch-on",
+          "Which RCD?",
+          "Threes in a neutral"
+        ],
+        "value": 0
+      },
+      {
+        "id": "sines",
+        "kind": "control",
+        "label": "Sines added",
+        "min": 0,
+        "max": 7,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "shown": true
+      },
+      {
+        "id": "freq",
+        "kind": "choice",
+        "label": "Supply frequency",
+        "options": [
+          50,
+          60
+        ],
+        "labels": [
+          "50 Hz",
+          "60 Hz"
+        ],
+        "value": 50,
+        "index": 0,
+        "shown": true
+      },
+      {
+        "id": "t",
+        "kind": "control",
+        "label": "Time since isolation",
+        "min": 0,
+        "max": 20,
+        "step": 0.5,
+        "log": false,
+        "value": 0,
+        "shown": false,
+        "snap": [
+          5,
+          15
+        ]
+      },
+      {
+        "id": "drive",
+        "kind": "choice",
+        "label": "Drive",
+        "options": [
+          "A",
+          "B"
+        ],
+        "labels": [
+          "Drive A",
+          "Drive B"
+        ],
+        "value": "A",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "case",
+        "kind": "choice",
+        "label": "Case",
+        "options": [
+          "bal",
+          "lost",
+          "ins",
+          "fault",
+          "out"
+        ],
+        "labels": [
+          "Earthed, balanced",
+          "Earthed, a phase lost",
+          "Insulated, healthy",
+          "Insulated, L1 earth fault",
+          "Insulated, fault, filter out"
+        ],
+        "value": "bal",
+        "index": 0,
+        "shown": false
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Play again",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"9.1%\" and \"7.7%\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 14 more settings) [at 340 px wide]",
+      "SVG labels \"5.9%\" and \"5.3%\" are touching on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 10 more settings)",
+      "SVG labels \"9.1%\" and \"7.7%\" are only 3 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at step = step 3, and 7 more settings) [at 720 and 1040 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "sines = 5.25",
+    "freq = 60",
+    "t = 15",
+    "drive = \"B\"",
+    "case = \"lost\"",
+    "pressed \"Answer 1\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-360-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-360-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-360-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-1280-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-1280-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i8.a8-1280-dark-end.png"
+  ]
+}

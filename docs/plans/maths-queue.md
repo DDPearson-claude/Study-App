@@ -21,7 +21,8 @@ Order (one course at a time, each published when it passes; about 6 to 8M tokens
     Its data pictures come from a design contest first (Dan, 25 Oct: "Make sure on the data section an agent comes up
     with a really cool, pretty and satisfying way of visualising data"): three prototype styles, three judges, one
     merged language in dataviz.md that every lesson's brief, build and review must follow.
-4b. Electronics and power electronics (next; Electrical shelf)
+4b. Electronics and power electronics (live 26 Oct, about 10.2M tokens; Electrical shelf). The queue is now empty:
+    wait for Dan.
 5. Vector calculus (paused, 25 Oct)
 6. ~~Group theory~~ (dropped, 25 Oct)
 7. Probability, statistics and data: Descriptive statistics, Probability fundamentals, Conditional probability,

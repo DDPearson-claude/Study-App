@@ -1,0 +1,380 @@
+{
+  "iid": "i5",
+  "title": "The thyristor and phase control",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the shaded slice of each half, and the average read from it, shrink from 207 V to 104 V when you drag the bridge's firing angle from 0° to 90°.",
+    "title": "The firing angle",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "volts",
+        "label": "Across the load",
+        "unit": "V",
+        "decimals": 0
+      },
+      {
+        "id": "heaterPower",
+        "label": "Heater power",
+        "unit": "W",
+        "decimals": 0
+      },
+      {
+        "id": "powerFactor",
+        "label": "Power factor",
+        "unit": "",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in fourteen small screens. Most show one picture, the firing angle. A 230 V, 50 Hz supply, peak 230 × √2 or about 325 V, feeds a load through thyristors. A picker chooses the circuit: One thyristor, Bridge, Triac or Charger. It offers only the circuits met so far. Its buttons wrap onto two lines on a narrow phone. The first three feed a 23 Ω heater, 2300 W at full voltage. Charger feeds a battery through a choke. Each thyristor is drawn with its gate lead. A firing-angle slider sets α from 0° to 180° in 5° steps, or to 90° in Charger.\n\nBelow, a plot shows one cycle, 0° to 360°. The supply's sine is thin, the load's voltage bold, and each conducting slice shaded. A mark on the time axis shows each gate pulse, at α and, for a second device, at 180° + α. Play runs a cursor round the cycle, slowed down, and a time slider moves it in 5° steps. While the cursor is in a shaded slice, the conducting device is drawn bold, and its gate lead flashes at the pulse. Pulse the gate sends an extra pulse at the cursor. It fires the device only if that is off and forward biased.\n\nEach readout comes from the shaded area. The area under a sine from α to 180° is 1 + cos α, and a whole hump gives 2. One thyristor averages (325 ÷ 2π)(1 + cos α): 104 V at 0°, 52 V at 90°. Bridge, four thyristors in a diamond, shades both halves above the line, so it averages twice that, (325 ÷ π)(1 + cos α). A dashed line marks the average. Triac's average is zero, so its readouts show the rms and the heater's power, 2300 W × (1 − α ÷ 180° + sin 2α ÷ 2π): 1150 W and about 163 V at 90°.\n\nCharger holds the choke's current steady, so each slice runs from α to 180° + α, partly below the line. It averages (2 × 325 ÷ π) × cos α, about 207 × cos α. Under the voltage, a strip shows the supply's current as a block, positive from α to 180° + α. The power factor readout is real power over volts × amps, about 0.9 × cos α: 0.90 at 0°, 0.78 at 30°, 0.45 at 60°. The 0.9 is 2√2 ÷ π, below 1 because a block is not a sine. Each mode shows two readouts side by side.\n\nThe screens.\n\n1, a puzzle: the picture shows One thyristor at rest, with α at 90° and the readouts hidden. “You start a motor direct on line. At the first instant, about how much current does it draw?” Offered: “Usually 6 to 8 times its rated current”; “About its rated current”; “About twice its rated current”. Hint for its rated current: “If it drew only its rated current, nobody would fit a soft starter.” Hint for twice: “Think of the lights dipping as a big motor starts. It is far more than twice.” Why: “Usually 6 to 8 times, and sometimes more than 10 times.[^1] A soft starter cuts that. It brings the voltage up gently. Its switches are thyristors. Here is how they work.” A right Check says “That's it.”\n\n2, show: A diode with a gate. One thyristor, α at 90°, the cursor run from 0° to 360°. The words: “A thyristor is a diode with a third lead, its gate. Like a diode, it blocks reverse voltage. It also blocks forward voltage until a pulse on the gate fires it. Here it feeds a 2300 W heater, fired at 90°. Play the cycle. The pulse fires it, and it stays on after the pulse ends. Just before 180° its current falls away, and it lets go. Set the time to 135°, then pulse the gate. Nothing changes.” Read: the definition, that it latches until its current falls away near 180°, the slice from 90° to 180° only, and that a pulse at 135° changes nothing. Still: One thyristor, α 90°, cursor 360°.\n\n3, a puzzle: One thyristor, α at 90°, the cursor stopped at 120°, the thyristor bold. “The thyristor fired at 90°, and the gate pulse is over. The cursor is at 120°. What happens next?” Offered: “It conducts on until its current falls away, near 180°”; “It turns off at once, as the pulse is over”; “It conducts on into the negative half”. Hint for off at once: “Once fired, it latches. What has to fall for it to let go?” Hint for the negative half: “In the negative half it is reverse biased, like a diode.” Why: “It conducts on. Once fired, a thyristor latches on. The gate then has no more say. It lets go only when its current falls below a small holding current.[^2] On AC that happens just before the zero. So it needs a fresh pulse every cycle.” A right Check runs the cursor to 360°. The thyristor stays bold to 180°, then goes thin.\n\n4, show: The firing angle. One thyristor, α from 0° to 90°. The words: “The firing angle, α, is the angle in each half where the gate fires. Drag it. At 0° the heater gets every positive hump, as from a half-wave rectifier. That averages about 104 V. Fire later, and the shaded slice shrinks. The average is the shaded area spread over the whole cycle. At 90° the slice is exactly half the hump, because a hump is symmetrical. So the average halves, to about 52 V.” Read: the definition of α, then 104 V at 0° and 52 V at 90°. Still: One thyristor, α 90°, cursor 360°.\n\n5, a puzzle: One thyristor, α at 0°, the average reading 104 V. “Fire at 60° instead. That cuts a third of the time from the positive half. What does the average become?” Offered: “About 78 V”; “About 69 V, a third less”; “About 52 V”. Hint for 69 V: “The first 60° is the low, rising start of the hump. Does it hold a third of the area?” Hint for 52 V: “52 V is the answer at 90°. At 60° more of the hump is shaded.” Why: “About 78 V. The area under a sine from α to 180° is 1 + cos α. The whole hump gives 2. At 60° that is 1 + 0.5 = 1.5. That is three quarters of 2. So the average is 104 × 0.75, about 78 V. The start of a hump is low. So cutting it costs little.” A right Check sets α to 60°, and the average reads 78 V.\n\n6, show: A controlled bridge. Bridge, α at 0° and then 60°. The picker offers One thyristor and Bridge. The words: “A bridge rectifier with thyristors in place of its four diodes is a controlled rectifier. Each pair fires at α in its own half. So both humps are shaded above the line. Fired at 0°, it gives the diode bridge's 207 V. Later firing shrinks both slices. The average is (Vmax ÷ π)(1 + cos α). Vmax is the 325 V peak. At 60° that is 155 V. At 90° it is 104 V.” Read: the definition, the rule, and 155 V at 60°. Still: Bridge, α 60°, cursor 360°.\n\n7, a puzzle: Bridge, α at 60°, the average reading 155 V. “Now fire the bridge at 120°. What does it average?” Offered: “About 52 V”; “About 69 V, a third of 207 V”; “About −52 V, as cos 120° is negative”. Hint for 69 V: “Only the low tail of each hump is left. Use 1 + cos α.” Hint for −52 V: “Add the 1 before you multiply. A heater's slices never dip below the line.” Why: “About 52 V. cos 120° is −0.5. So 1 + cos α is 0.5. That is a quarter of the whole hump's 2. A quarter of 207 V is about 52 V.” A right Check sets α to 120°, and the average reads 52 V.\n\n8, show: The triac. Triac, α at 0° and then 90°. The picker adds Triac. The words: “A triac behaves like two thyristors back to back.[^3] It fires in both halves, so the heater gets chopped AC. The readouts show rms and watts. Fired at 0°, the heater takes 2300 W. The squared wave is symmetrical too, so firing at 90° keeps half its heating, 1150 W. The rms is 230 × √0.5, about 163 V, not 115 V. The chopped current costs power factor too. It is √0.5, about 0.71.” Read: the definition, then 163 V, 1150 W and a power factor of about 0.71 at 90°. Still: Triac, α 90°, cursor 360°.\n\n9, a puzzle: Triac, α at 90°. “A triac lamp dimmer is to hand. Should it set the speed of a small fan motor?” Offered: “No, a lamp dimmer is for resistive loads only”; “Yes, a lower rms means a slower fan”; “Yes, as the fan is small”. Hint for a lower rms: “A motor is a coil, not a heater. What load is a lamp dimmer made for?” Hint for small: “Size is not the issue. What kind of load is a fan motor?” Why: “No. Triac lamp dimmers are made for resistive loads only. They should not be used as a motor speed controller.[^4] A motor's coil keeps its current flowing past the voltage's zero. A heater's current falls to zero with the voltage. A soft starter or fan controller is built for a coil's late current. A lamp dimmer is not.” A right Check keeps the picture as it is.\n\n10, show: The charger. Charger, α from 0° to 30°. The picker offers all four circuits. The words: “Here the bridge charges a battery through a choke, a large coil. The choke carries the current through each zero. So each pair conducts from α to 180° + α. The part below the line subtracts. So the slice's area is cos α − cos(180° + α), or 2 cos α. A whole hump gives 2. So the average is 207 × cos α. Past 90° it turns negative. Only a DC source pushing back, like a driven DC motor, could keep that up.” Read: the choke, each slice from α to 180° + α with area 2 cos α, the rule 207 × cos α, and 179 V at 30°. Still: Charger, α 30°, cursor 360°.\n\n11, show: The power factor. Charger, α from 0° to 30°, with no picker. The words: “Below, the supply's current is a block. It starts α after the voltage. Fire later, and it slides further behind. More of it then flows while the voltage is low or reversed. So the power factor falls.[^5] Even in step, at 0°, it reads only 0.90. A block is not a sine, so it scores 2√2 ÷ π, about 0.9. So the power factor is about 0.9 × cos α.” Read: the block, why it scores 0.9 even in step, and 0.78 at 30°, about 0.9 × cos α. Still: Charger, α 30°, cursor 360°.\n\n12, a puzzle: Charger, α at 0°, the average reading 207 V and the power factor 0.90. “The charger must cut its output to about 104 V, half of 207 V. What happens to its power factor?” Offered: “It falls to about 0.45”; “It stays near 0.90, as firing later costs nothing”; “It rises, as less power is drawn”. Hint for stays: “Watch where the current block starts as α grows.” Hint for rises: “Less power is drawn, but the block slides further behind the voltage.” Why: “It falls to about 0.45. Half of 207 V needs cos α = 0.5. So α is 60°. The current block now starts 60° behind the voltage. A block scores only 0.9, even in step. So the power factor is 0.9 × 0.5 = 0.45. The supply carries the same current for half the power.” A right Check sets α to 60°. The average reads 104 V and the power factor 0.45.\n\n13, a mixed puzzle: Triac, α at 150°, the readouts hidden. The picture keeps its heater, and the setting line says the heater stands in for the motor. “A soft starter fires its thyristors late at first, then earlier and earlier. What does the motor get?” Offered: “A voltage that ramps up from low to full”; “The full voltage at once, for less time”; “A DC voltage that rises”. Hint for the full voltage: “A late firing passes only a thin slice of each half. What does that do to the rms?” Hint for DC: “Its thyristors sit back to back, and fire in both halves.” Why: “A ramp. Late firing passes only a thin slice of each half. So the motor sees a low voltage. Earlier firing widens the slices until the motor gets the full supply. That ramp limits the starting current.[^6]” A right Check runs α from 150° down to 0°. The shaded slices widen until both halves are full.\n\n14, a mixed puzzle: Bridge, α at 90°, the average reading 104 V. “A fault holds the gate signal on all the time. What does the heater get now?” Offered: “About 207 V, as if fired at 0°”; “Nothing, as no fresh pulse ever comes”; “About 104 V, as before”. Hint for nothing: “A signal that stays on is a pulse that never ends. When does each thyristor first see it?” Hint for 104 V: “The firing angle is when the gate first fires it. With the signal always on, when is that?” Why: “About 207 V. A thyristor fires once it is forward biased with its gate signalled. With the signal always on, each one fires at the start of its half. So the bridge acts as a plain diode bridge.” A right Check sets α to 0°, and the average reads 207 V.\n\nSome screens show an idea. The rest ask you to try it. Each puzzle offers three stacked answers, which can wrap on a narrow phone. A wrong pick gets its one-line hint. Why? explains the answer. Continue moves on.",
+    "ignores": "The thyristors are drawn ideal. A real one keeps a small forward drop, like a diode. Its gate also needs a pulse of some size to fire it. Each one is drawn letting go exactly at the zero. A real one lets go just before it, when its current falls below the holding current. The heater's resistance is drawn fixed, though a real element's rises as it warms. In Charger, the choke is drawn so large that the current never ripples. The supply has no inductance of its own, so each block switches over at once. A real supply makes each changeover take a little time. The Charger slider stops at 90°. Past it the average would turn negative. A battery connected the normal way cannot keep that going. The cycle is slowed down. At 50 Hz it lasts 20 ms.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Supply, rms, chosen, V",
+        "value": 230,
+        "kind": "assumed"
+      },
+      {
+        "label": "Supply frequency, chosen, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Supply peak, 230 × √2, about, V",
+        "value": 325,
+        "kind": "computed"
+      },
+      {
+        "label": "Heater power at full voltage, chosen, W",
+        "value": 2300,
+        "kind": "assumed"
+      },
+      {
+        "label": "Heater resistance, 230² ÷ 2300, Ω",
+        "value": 23,
+        "kind": "computed"
+      },
+      {
+        "label": "Firing angle slider, lowest, °",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Firing angle slider, highest, °",
+        "value": 180,
+        "kind": "control"
+      },
+      {
+        "label": "Firing angle slider step, °",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Firing angle slider top in Charger, °",
+        "value": 90,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider, lowest, °",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider, highest, °",
+        "value": 360,
+        "kind": "control"
+      },
+      {
+        "label": "Time slider step, °",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "End of the positive half, °",
+        "value": 180,
+        "kind": "computed"
+      },
+      {
+        "label": "Second pulse in screen 2, °",
+        "value": 135,
+        "kind": "control"
+      },
+      {
+        "label": "Cursor stop in screen 3, °",
+        "value": 120,
+        "kind": "control"
+      },
+      {
+        "label": "Area under a whole hump, in units of the peak",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "1 + cos 60°",
+        "value": 1.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of the hump left at 60°",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 60°",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "cos 120°",
+        "value": -0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "One thyristor average at 0°, 325 ÷ π, V",
+        "value": 104,
+        "kind": "computed"
+      },
+      {
+        "label": "One thyristor average at 60°, V",
+        "value": 78,
+        "kind": "computed"
+      },
+      {
+        "label": "One thyristor average at 90°, V",
+        "value": 52,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer, a third less than 104 V, V",
+        "value": 69,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge average at 0°, 2 × 325 ÷ π, V",
+        "value": 207,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge average at 60°, V",
+        "value": 155,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge average at 90°, V",
+        "value": 104,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge average at 120°, V",
+        "value": 52,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer, the sign of cos 120° kept, V",
+        "value": -52,
+        "kind": "computed"
+      },
+      {
+        "label": "Triac heater power at 90°, W",
+        "value": 1150,
+        "kind": "computed"
+      },
+      {
+        "label": "Triac rms at 90°, 230 × √0.5, V",
+        "value": 163,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer, half of 230 V, V",
+        "value": 115,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of power left at 90°",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Triac heater power factor at 90°, √0.5",
+        "value": 0.71,
+        "kind": "computed"
+      },
+      {
+        "label": "Charger average at 30°, 207 × cos 30°, V",
+        "value": 179,
+        "kind": "computed"
+      },
+      {
+        "label": "Charger average at 60°, V",
+        "value": 104,
+        "kind": "computed"
+      },
+      {
+        "label": "Charger average at 90°, V",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Power factor factor, 2√2 ÷ π, about",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Charger power factor at 0°",
+        "value": 0.9,
+        "kind": "computed"
+      },
+      {
+        "label": "Charger power factor at 30°",
+        "value": 0.78,
+        "kind": "computed"
+      },
+      {
+        "label": "Charger power factor at 60°",
+        "value": 0.45,
+        "kind": "computed"
+      },
+      {
+        "label": "Soft starter screen, opening firing angle, °",
+        "value": 150,
+        "kind": "control"
+      },
+      {
+        "label": "Cycle time at 50 Hz, ms",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Direct-on-line starting current, usual, lowest, times rated",
+        "value": 6,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Direct-on-line starting current, usual, highest, times rated",
+        "value": 8,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Direct-on-line starting current, can exceed, times rated",
+        "value": 10,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Hydrogen in air, lower explosive limit, %",
+        "value": 4.1,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Hydrogen in air, upper explosive limit, %",
+        "value": 72,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Worked example charger average, chosen, V",
+        "value": 120,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example cos α, 120 ÷ 207",
+        "value": 0.58,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example firing angle, about, °",
+        "value": 55,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example power factor, 0.9 × 0.58",
+        "value": 0.52,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A thyristor is a diode that waits for a pulse on its gate. The gate is its control lead. Once fired, it stays on until its current falls away. So an ordinary thyristor's gate chooses when it starts in each half cycle, never when it stops. Fire it later, and less of each half reaches the load. That gives less DC.\n\nLike a diode, a thyristor blocks reverse voltage. Unlike a diode, it also blocks forward voltage until its gate gets a pulse. The pulse fires it, and it latches on. The gate then has no more say. The thyristor lets go only when its current falls below a small [[holding current]].[^2] On AC that happens just before each zero. So it must be fired again every cycle. A second pulse while it conducts changes nothing. Removing the gate signal changes nothing either. A gate turn-off thyristor, or GTO, is a different kind. Its gate can also turn it off.[^8] The [[firing angle]], α, is the angle in each half cycle at which the gate fires.\n\nThe load gets the slice of each half from α to 180°. Its average is the slice's area spread over the time. Integrating the sine gives the area under it from α to 180°. That area is 1 + cos α. A whole hump gives 2. So firing at 60° keeps 1.5 out of 2. That is three quarters of the area from two thirds of the time. The start of a hump is low. So cutting it costs little.\n\nSwap a bridge rectifier's four diodes for thyristors, and it becomes a controlled rectifier. With a heater as its load, it averages (Vmax ÷ π)(1 + cos α). Vmax is the peak. On 230 V the peak is 325 V. So firing at 0° gives the diode bridge's 207 V, 60° gives 155 V and 90° gives 104 V. A [[triac]] behaves like two thyristors back to back. So it chops both halves and passes AC. Fired at 90°, it gives a heater half its full power. The squared wave is symmetrical about 90°, just as the hump is. Its chopped current also lowers the power factor, to √0.5, about 0.71.\n\nA charger adds a choke, a large coil, to keep its current steady. The choke carries the current through each zero, so each pair of thyristors conducts on until the other pair fires. Each slice now runs from α to 180° + α, and the part below the line subtracts. Its area is cos α − cos(180° + α), which is 2 cos α. A whole hump gives 2. The average then becomes (2Vmax ÷ π) × cos α. On 230 V that is about 207 V × cos α. Past 90° it would turn negative. A battery wired to be charged cannot drive that, so its current would simply die. A DC source that pushes against the bridge can, such as a DC motor being driven. Power then flows from the DC side back to the supply. Firing later has a cost. The supply's current becomes a block that starts α after the voltage. Part of each block now flows while the voltage is low or reversed. So each amp delivers less power. The power factor falls. For this bridge it is about 0.9 × cos α. The 0.9 is 2√2 ÷ π. A block is not a sine, so even in step it scores below 1. So a charger cut to 104 V runs at a power factor of about 0.45. This is a simplified picture. It assumes ideal switches, a perfectly steady choke current and a supply with no inductance of its own. **A thyristor is a diode that waits for a gate pulse, so firing it later each half cycle gives less DC.**"
+  },
+  "analogy": {
+    "text": "A thyristor works like a contactor with a holding contact across its start button. A press of start pulls it in, like the gate pulse. Let go, and the holding contact keeps it in. Pressing start again changes nothing. If its supply fails, it drops out and waits for another press. A thyristor's own current fails at every zero of the AC. So it needs a fresh press every cycle. Pressing later each time gives the load less.",
+    "breaks": "A contactor has a stop button. It also stays in through every zero of the supply. An ordinary thyristor has no stop at its gate. It lets go by itself whenever its own current falls below the holding current. On AC that happens once every cycle."
+  },
+  "practice": {
+    "text": "A charger has two sources, the supply and the battery. Isolate and prove dead on both before you work inside. Lead-acid batteries give off hydrogen on charge. Hydrogen is explosive in air from 4.1 to 72 percent.[^7] Keep the ventilation working and sparks away.\n\nThyristor-controlled rectifiers charge lead-acid and nickel-cadmium batteries while feeding DC loads. A lead-acid battery is charged at constant current, then constant voltage. The charger does both by moving α.\n\n- Find the peak: the rms × √2. On 230 V it is 325 V.\n- Find the load. A heater lets each thyristor let go at the zero. A choke keeps the current flowing on.\n- One thyristor on a heater: average = (Vmax ÷ 2π)(1 + cos α).\n- Bridge on a heater: average = (Vmax ÷ π)(1 + cos α).\n- Bridge with a choke: average = (2Vmax ÷ π) × cos α. Its power factor is about 0.9 × cos α.\n- Triac on a heater: firing at 90° gives half power.\n- To turn a thyristor off, stop its current. An ordinary thyristor's gate cannot do it.\n\n**Rules of thumb:** on a heater, firing at 90° halves the average. Firing late costs power factor on any load. A heater on a triac fired at 90° runs at about 0.71. A charger fired at 60° runs at about 0.45.\n\n**Worked example:** a controlled bridge on 230 V charges a battery through a choke. Say it must average about 120 V. The peak is 325 V. Fired at 0°, it gives 2 × 325 ÷ π = 207 V. So cos α = 120 ÷ 207 = 0.58. That makes α about 55°. The power factor is about 0.9 × 0.58 = 0.52.\n\n**Common mistakes**\n- Thinking the gate turns it off. Only its current falling below the holding current does.\n- Thinking a third of the time cut costs a third of the average. The area goes as 1 + cos α.\n- Using the heater rule with a choke. At 60° the heater rule gives 155 V. The choke rule gives 104 V.\n- Thinking firing later costs nothing. The power factor falls with it.\n- Putting a lamp dimmer on a motor. Triac lamp dimmers are for resistive loads only.\n- Reading half power as half the rms. Half power on 230 V is about 163 V."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Softstarter Handbook",
+      "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+      "quote": "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+    },
+    {
+      "n": 2,
+      "title": "The Silicon-Controlled Rectifier (SCR) | Thyristors | Electronics Textbook",
+      "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/",
+      "quote": "SCRs may be turned off by anode current falling below the holding current value (low-current dropout)"
+    },
+    {
+      "n": 3,
+      "title": "Triac Tutorial and How Triac Switching Circuits Work",
+      "url": "https://www.electronics-tutorials.ws/power/triac.html",
+      "quote": "A Triac behaves just like two conventional thyristors connected together in inverse parallel (back-to-back) with respect to each other"
+    },
+    {
+      "n": 4,
+      "title": "Triac Tutorial and How Triac Switching Circuits Work",
+      "url": "https://www.electronics-tutorials.ws/power/triac.html",
+      "quote": "commercially available triac lamp dimmers should not be used as a motor speed controller since triac light dimmers are intended to be used with resistive loads only"
+    },
+    {
+      "n": 5,
+      "title": "Three-Phase Full-Bridge",
+      "url": "https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge",
+      "quote": "For a smaller DC voltage it is necessary to increase the delay of the trigger pulse. The trigger angle causes a phase shift of the input currents which reduces the power factor of the converter."
+    },
+    {
+      "n": 6,
+      "title": "Motor starting with Soft starters – Reduced stresses",
+      "url": "https://library.e.abb.com/public/151fdb9b43c49ee648257cc4003bc11b/Motor+starting+with+soft+starters+-+Reduced+stresses.pdf",
+      "quote": "With methodology of firing of thyristors, voltage ramp (linear variation of voltage from 0 to rated voltage). This ramp ensures smooth starting of motor with starting current limit."
+    },
+    {
+      "n": 7,
+      "title": "CCOHS: Battery Charging - Industrial Lead-Acid Batteries",
+      "url": "https://www.ccohs.ca/oshanswers/safety_haz/battery-charging.html",
+      "quote": "When leac-acid batteries are being recharged, they generate hydrogen gas that is explosive in certain concentrations in air (explosive limits are 4.1 to 72 percent hydrogen in air)."
+    },
+    {
+      "n": 8,
+      "title": "The Silicon-Controlled Rectifier (SCR) | Thyristors | Electronics Textbook",
+      "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/",
+      "quote": "A variant of the SCR called a Gate-Turn-Off thyristor (GTO), is specifically designed to be turned off by means of reverse triggering."
+    }
+  ]
+}

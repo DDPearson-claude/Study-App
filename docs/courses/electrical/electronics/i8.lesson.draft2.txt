@@ -1,0 +1,671 @@
+{
+ "iid": "i8",
+ "title": "Living with power electronics",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the solid sum of sines square up into the rectifier's current block, and THD climb to 31%, when you add the 5th, 7th and higher harmonics one by one.",
+  "title": "The six-pulse current taken apart",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "thd",
+    "label": "THD of the sum",
+    "unit": "%",
+    "decimals": 0
+   },
+   {
+    "id": "linkV",
+    "label": "Link voltage",
+    "unit": "V",
+    "decimals": 0
+   },
+   {
+    "id": "earthI",
+    "label": "Current through earth",
+    "unit": "mA",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "Thirteen small screens on three cards, Harmonics, After isolation and Leakage. Each card shows only its own controls and readout.\n\nHarmonics. The top plot is one cycle of the current one line of a six-pulse bridge draws, a dashed ideal block. A large coil in the DC link, chosen, holds the DC current steady. Each line conducts forward for 120°, rests for 60°, conducts backward for 120° and rests again. That is because each line sits in two of the six 60° diode pairs each way. The block's height is the DC current, drawn as 1. A picker, Sines added, has eight settings: Fundamental only, Up to the 5th, Up to the 7th, Up to the 11th, Up to the 13th, Up to the 17th, Up to the 19th and Every harmonic. The solid line is the sum of the sines added. The fundamental runs at the supply frequency. Its peak is 1.10 times the block's height, 2√3 ÷ π. Each harmonic h runs at h times the supply frequency and is 1/h as tall as the fundamental, with the sign the block needs. These are the block's exact Fourier sines. With Every harmonic the sum is the block.\n\nBelow, a spectrum shows a bar for each harmonic added, as a share of the fundamental. The 5th is 20%, the 7th 14.3%, the 11th 9.1%, the 13th 7.7%, the 17th 5.9% and the 19th 5.3%. Empty slots stand at the even orders and the multiples of 3. A switch, 50 Hz or 60 Hz, relabels the bars in hertz. At 50 Hz they read 250, 350, 550, 650, 850 and 950 Hz. At 60 Hz they read 300, 420, 660, 780, 1020 and 1140 Hz. The readout, THD of the sum, is the root of the added harmonics' squares over the fundamental. In order it reads 0%, 20%, 25%, 26%, 27%, 28%, 28% and 31%. Beside it, three range bars show real drives' current THD: 6-pulse 25% to 40%, 12-pulse 9% to 11% and 18-pulse 3% to 4%.\n\nAfter isolation. DC link voltage against time since isolation. Both drives start at 540 V, about what a three-phase bridge gives from 400 V, 1.35 × 400 V.[^30] Each drains through a 27 kΩ bleed resistor, chosen. Drive A has 2200 µF and drive B 6600 µF, both chosen. Each follows V = 540 × e^(−t ÷ RC). Drive A's RC is 59 s, about 1 minute. Drive B's is 178 s, about 3 minutes. A dotted mark at five time constants on each curve, near 5 and 15 minutes, shows about 3 V. A time slider runs from 0 to 20 minutes in steps of 0.5 minutes, and a picker chooses Drive A or Drive B. The readout is the chosen drive's link voltage then.\n\nLeakage. A 400 V, 50 Hz supply feeds a drive. At the drive's input sits its EMC filter: three 100 nF capacitors, chosen, one from each line to a point bonded to earth. Each capacitor's reactance is X_C = 1 ÷ (2π × 50 × 100 nF) = 31.8 kΩ. A small phasor diagram shows each capacitor's current and their sum. The sum is the readout, the current through earth. A picker, Case, has five settings.\n\nEarthed, balanced. The supply's star point is earthed, and the three lines pass through an RCD, drawn as a ring. Each line is 230 V from earth, so each capacitor passes 230 ÷ 31.8 kΩ = 7.2 mA. The three are 120° apart and add to 0 mA. Earthed, a phase lost. L1's fuse has blown, and its capacitor carries nothing. The other two, 120° apart, add to 7.2 mA. It returns through earth to the star point, outside the RCD's ring, so the RCD sees it.\n\nInsulated, healthy. The star point is not earthed. An insulation monitor sits between the system and earth. Each capacitor still passes 7.2 mA, but with no path back from earth the three only circulate among the lines. The current through earth is 0 mA. The filter carries a label: Disconnect on an insulated supply. Insulated, L1 earth fault. A red link joins L1 to earth. The L2 and L3 capacitors now each see 400 V and pass 12.6 mA. Their currents are 60° apart and add to 21.8 mA, which flows through the fault, drawn red. Insulated, fault, filter out. The filter is disconnected, and the fault draws 0 mA. In both fault cases the monitor's alarm lamp lights.\n\nThree readouts sit in a row free to wrap onto two lines on a narrow phone.\n\nThe screens. Unless a screen says otherwise, the Harmonics card opens at 50 Hz.\n\n1, show: Blocks from sines. Harmonics, Sines added going from Fundamental only to Up to the 7th. The words: “A six-pulse bridge with a large coil in its DC link draws a steady current. Each line carries it in blocks. It flows forward for 120°, rests for 60°, then flows back for 120°. The supply voltage is a sine, but this current is not. Any wave that repeats each cycle is a sum of sines. They run at whole multiples of the supply frequency, and are its harmonics. In ideal blocks, harmonic h is 1/h as tall as the fundamental. Add them, and the corners square up.” Read: with the fundamental, 5th and 7th added, the solid sum follows the dashed block, with ripples at its corners. Still: Up to the 7th.\n\n2, a puzzle: Harmonics, Up to the 7th, the readout hidden. “A drive on a 60 Hz supply draws a 60 A fundamental, in ideal blocks. What does its 5th harmonic carry?” Offered: “12 A at 300 Hz”; “12 A at 250 Hz”; “60 A at 300 Hz”. Hint for 250 Hz: “That is the 5th of 50 Hz. This supply runs at 60 Hz.” Hint for 60 A: “Each harmonic is 1/h as tall as the fundamental.” Why: “12 A at 300 Hz. The 5th runs at 5 × 60 = 300 Hz. In ideal blocks it is 1/5 of the fundamental, 60 ÷ 5 = 12 A. Real drives roughly follow this rule.[^11]” A right Check switches to 60 Hz and Up to the 5th, and the 5th's bar reads 300 Hz.\n\n3, show: The gaps. Harmonics, Every harmonic. The words: “Look at the spectrum. A balanced bridge's bars stand only at the 5th, 7th, 11th, 13th, 17th and 19th. That is 6n ± 1.[^1] There is no even harmonic, because the backward block mirrors the forward one. There is no multiple of 3 either. Remember triplens adding in a neutral? A triplen would be in step in all three lines. A bridge's three lines have no neutral to return it. The two biggest are the 5th and the 7th.[^8]” Read: the spectrum has bars at 5, 7, 11, 13, 17 and 19, with empty slots at the even orders and the multiples of 3.\n\n4, a puzzle: Harmonics, Every harmonic. “Which of these could a six-pulse bridge draw from a 50 Hz supply?” Offered: “The 9th, at 450 Hz”; “The 11th, at 550 Hz”; “The 10th, at 500 Hz”. Hint for the 9th: “9 is a multiple of 3. Where would it return?” Hint for the 10th: “An even harmonic needs halves that differ. These mirror.” Why: “The 11th, since 11 = 6 × 2 − 1. The 9th would be in step in all three lines, with no neutral to carry it. The 10th is even, and the block's halves mirror each other.” A right Check marks the 11th's bar, 550 Hz.\n\n5, show: One number, THD. Harmonics, Sines added going from Fundamental only to Every harmonic. The words: “Total harmonic distortion, THD, puts one number on the harmonics. It is their combined rms over the fundamental's rms.[^9] Sines of different frequencies add as squares. So THD = √(I5² + I7² + …) ÷ I1. Perfect blocks give 31%. Real six-pulse drives draw 25% to 40%.[^7] Twelve and eighteen-pulse rectifiers draw far less, 9% to 11% and 3% to 4%.” Read: as the sines are added, THD climbs from 0% to 31%. Beside it, the bars for real 6, 12 and 18-pulse drives read 25% to 40%, 9% to 11% and 3% to 4%. Still: Every harmonic.\n\n6, a puzzle: Harmonics, Up to the 7th, the readout hidden. “Only the 5th and 7th are present, at 1/5 and 1/7 of the fundamental. What is the THD?” Offered: “About 34%, the two added”; “About 6%, their squares added”; “About 25%”. Hint for 34%: “Different frequencies do not add straight. They add as squares.” Hint for 6%: “You added the squares. Now take the root.” Why: “About 25%. The 5th is 20% and the 7th 14.3%. Two sines of different frequencies multiply to an average of zero. So only their squares add. √(0.20² + 0.143²) = √0.0604, about 0.25.” A right Check shows the readout, 25%.\n\n7, show: Charge after isolation. After isolation, Drive A, the time slider going from 0 to 5 minutes. The words: “Isolation stops the supply. It does not empty the DC link. A bleed resistor across the link drains it, on the RC curve: V = 540 × e^(−t ÷ RC). Drive A has 2200 µF and 27 kΩ. Its RC is about 1 minute. Five time constants take it to about 3 V, in 5 minutes. Drive B has three times the capacitance. So it takes three times as long, about 15 minutes. Each drive has its own wait.” Read: drive A's link falls from 540 V to about 3 V at 5 minutes. Drive B's curve is still near 100 V there, and reaches about 3 V near 15 minutes. Still: Drive A, 5 minutes.\n\n8, a puzzle: After isolation, Drive B, time 5 minutes, the readout hidden. “Drive B is isolated, and its display is dark. You have waited 5 minutes, drive A's time. What is its link at?” Offered: “Nothing, as the display is dark”; “About 3 V, like drive A”; “About 100 V”. Hint for nothing: “The display runs from a control supply. The link drains on its own curve.” Hint for 3 V: “Drive B's time constant is three times drive A's.” Why: “About 100 V. Drive B's RC is 178 s. So 540 × e^(−300 ÷ 178) is about 100 V. High voltage can be present with an indicator dark.[^15] So wait the time given for that drive, then measure the link.[^14]” A right Check shows the readout, 100 V.\n\n9, show: Leakage that cancels. Leakage, the case going from Earthed, balanced to Earthed, a phase lost. The words: “A drive's EMC filter puts a small capacitor from each line to earth. Each passes V ÷ X_C. With 100 nF on 230 V at 50 Hz, X_C is 31.8 kΩ. So each passes 7.2 mA. The three currents are 120° apart, like a balanced neutral's. They cancel, and almost nothing flows to earth. Lose a phase, and the two left no longer cancel. Their sum, 7.2 mA, returns through earth, past the RCD.” Read: balanced, the three 7.2 mA phasors add to 0 mA through earth. With L1 lost, two phasors 120° apart add to 7.2 mA, and the RCD sees it. Still: Earthed, a phase lost.\n\n10, a puzzle: Leakage, Earthed, balanced, the readout hidden. “The filter sends nothing to earth while the supply is balanced. Then one supply fuse blows. What flows through earth now?” Offered: “Still nothing”; “About 7.2 mA”; “About 21.6 mA, all three added”. Hint for nothing: “Two currents 120° apart. Do they cancel on their own?” Hint for 21.6 mA: “The lost line's capacitor carries nothing.” Why: “About 7.2 mA. Two equal phasors 120° apart add to one of the same size. So the earth current jumps from nothing to 7.2 mA, and the RCD sees all of it.” A right Check sets Earthed, a phase lost.\n\n11, show: The insulated supply. Leakage, the case going from Insulated, healthy to Insulated, L1 earth fault, then Insulated, fault, filter out. The words: “Now the supply's star point is not earthed. No wire joins earth back to the supply. So a first earth fault draws almost nothing, and gives no dangerous touch voltage.[^20] The filter spoils that. Fault L1 to earth, and the L2 and L3 capacitors see 400 V. Then 21.8 mA flows through the fault. The filter has built the return path the system was meant not to have. So on an insulated supply it is disconnected.[^4]” Read: with the filter in, a fault on L1 carries 21.8 mA. With the filter out, the same fault carries 0 mA. Still: Insulated, L1 earth fault.\n\n12, a mixed puzzle: Leakage, Insulated, healthy. “A drive is fitted on an insulated supply. The insulation monitor alarms each time the drive is switched on, then settles. What is the likeliest cause?” Offered: “The motor has an earth fault”; “Its EMC filter is still connected”; “The DC link kept its charge”. Hint for the motor: “A winding fault would not clear a moment later.” Hint for the DC link: “A charged link would be there before switch-on, not only at it.” Why: “Its EMC filter is still connected. The monitor watches the whole connected circuit, drive included.[^21] At each switch-on, the filter's capacitors charge through it, and it alarms.[^23] The filter would also give a real fault a return path. So disconnect it, as the drive's instructions require.[^4]” A right Check lights the filter's label, Disconnect on an insulated supply.\n\n13, a mixed puzzle: Leakage, Earthed, a phase lost. “A fault inside a three-phase drive, on its DC link, sends DC with little ripple to earth. An RCD protects the circuit against shock. Which type?” Offered: “Type A”; “Type AC”; “Type B”. Hint for Type A: “Type A sees sine AC and pulsating DC. Is this DC pulsing?” Hint for Type AC: “Type AC is only for loads with no DC in their current.” Why: “Type B. Type A detects only sinusoidal AC and pulsating DC.[^17] DC from the link barely pulses. For shock protection, a three-phase drive's maker may allow only Type B.[^3] Regulation 531.3.3 of BS 7671 sets out the types.[^18]” A right Check labels the RCD Type B.\n\nEach puzzle offers three answers, stacked, each free to wrap. A wrong pick gets its hint. Why? explains. Continue moves on.",
+  "ignores": "The blocks are ideal, with square corners and a perfectly steady DC current. Real ones have sloped edges, as the current takes time to pass from one diode to the next. Without a large coil, the capacitor makes a drive draw two gulps each half cycle, which carry harmonics too. The supply is drawn as a perfect sine, though harmonic currents bend it a little. How 12 and 18-pulse rectifiers cancel harmonics with phase-shifting transformers is left for Transformers. The discharge curves use one bleed resistor and nothing else. Real links also drain into control circuits, and a failed bleed resistor can leave the charge there far longer. The filter is three plain capacitors. Real filters also pass high-frequency current from the switching, and are never perfectly balanced. With a phase lost, the lost line is drawn carrying nothing, though in a real drive it floats. The insulated supply's own cable capacitance to earth is left out, so its fault currents read zero rather than small.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Line conducts forward, degrees",
+    "value": 120,
+    "kind": "computed"
+   },
+   {
+    "label": "Line rests between blocks, degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Diode pairs in a six-pulse bridge",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Block height, drawn as",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Fundamental peak per block height, 2√3 ÷ π",
+    "value": 1.1,
+    "kind": "computed"
+   },
+   {
+    "label": "Pi, about",
+    "value": 3.142,
+    "kind": "constant"
+   },
+   {
+    "label": "Square root of 3, about",
+    "value": 1.732,
+    "kind": "constant"
+   },
+   {
+    "label": "5th harmonic, share of fundamental, %",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "7th harmonic, share of fundamental, %",
+    "value": 14.3,
+    "kind": "computed"
+   },
+   {
+    "label": "11th harmonic, share of fundamental, %",
+    "value": 9.1,
+    "kind": "computed"
+   },
+   {
+    "label": "13th harmonic, share of fundamental, %",
+    "value": 7.7,
+    "kind": "computed"
+   },
+   {
+    "label": "17th harmonic, share of fundamental, %",
+    "value": 5.9,
+    "kind": "computed"
+   },
+   {
+    "label": "19th harmonic, share of fundamental, %",
+    "value": 5.3,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply frequency, first setting, Hz",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Supply frequency, second setting, Hz",
+    "value": 60,
+    "kind": "control"
+   },
+   {
+    "label": "5th at 50 Hz, Hz",
+    "value": 250,
+    "kind": "computed"
+   },
+   {
+    "label": "7th at 50 Hz, Hz",
+    "value": 350,
+    "kind": "computed"
+   },
+   {
+    "label": "11th at 50 Hz, Hz",
+    "value": 550,
+    "kind": "computed"
+   },
+   {
+    "label": "13th at 50 Hz, Hz",
+    "value": 650,
+    "kind": "computed"
+   },
+   {
+    "label": "17th at 50 Hz, Hz",
+    "value": 850,
+    "kind": "computed"
+   },
+   {
+    "label": "19th at 50 Hz, Hz",
+    "value": 950,
+    "kind": "computed"
+   },
+   {
+    "label": "5th at 60 Hz, Hz",
+    "value": 300,
+    "kind": "computed"
+   },
+   {
+    "label": "7th at 60 Hz, Hz",
+    "value": 420,
+    "kind": "computed"
+   },
+   {
+    "label": "11th at 60 Hz, Hz",
+    "value": 660,
+    "kind": "computed"
+   },
+   {
+    "label": "13th at 60 Hz, Hz",
+    "value": 780,
+    "kind": "computed"
+   },
+   {
+    "label": "17th at 60 Hz, Hz",
+    "value": 1020,
+    "kind": "computed"
+   },
+   {
+    "label": "19th at 60 Hz, Hz",
+    "value": 1140,
+    "kind": "computed"
+   },
+   {
+    "label": "THD, fundamental only, %",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "THD up to the 5th, %",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "THD up to the 7th, %",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "THD up to the 11th, %",
+    "value": 26,
+    "kind": "computed"
+   },
+   {
+    "label": "THD up to the 13th, %",
+    "value": 27,
+    "kind": "computed"
+   },
+   {
+    "label": "THD up to the 17th or 19th, %",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "THD of ideal blocks, every harmonic, %",
+    "value": 31,
+    "kind": "computed"
+   },
+   {
+    "label": "6-pulse drives, current THD, lowest, %",
+    "value": 25,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "6-pulse drives, current THD, highest, %",
+    "value": 40,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "12-pulse drives, current THD, lowest, %",
+    "value": 9,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "12-pulse drives, current THD, highest, %",
+    "value": 11,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "18-pulse drives, current THD, lowest, %",
+    "value": 3,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "18-pulse drives, current THD, highest, %",
+    "value": 4,
+    "kind": "constant",
+    "source": 7
+   },
+   {
+    "label": "Ship distribution THD limit, %",
+    "value": 8,
+    "kind": "constant",
+    "source": 6
+   },
+   {
+    "label": "Puzzle fundamental, chosen, A",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 5th harmonic, 60 ÷ 5, A",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, the 9th at 50 Hz, Hz",
+    "value": 450,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, the 10th at 50 Hz, Hz",
+    "value": 500,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, the 5th and 7th added straight, %",
+    "value": 34,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, squares without the root, %",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Sum of squares of 5th and 7th",
+    "value": 0.0604,
+    "kind": "computed"
+   },
+   {
+    "label": "Supply line voltage, chosen, V",
+    "value": 400,
+    "kind": "assumed"
+   },
+   {
+    "label": "DC link per line volt, about",
+    "value": 1.35,
+    "kind": "constant",
+    "source": 30
+   },
+   {
+    "label": "DC link, 1.35 × 400, V",
+    "value": 540,
+    "kind": "computed"
+   },
+   {
+    "label": "Bleed resistor, chosen, kΩ",
+    "value": 27,
+    "kind": "assumed"
+   },
+   {
+    "label": "Drive A link capacitance, chosen, µF",
+    "value": 2200,
+    "kind": "assumed"
+   },
+   {
+    "label": "Drive B link capacitance, chosen, µF",
+    "value": 6600,
+    "kind": "assumed"
+   },
+   {
+    "label": "Drive A time constant, s",
+    "value": 59,
+    "kind": "computed"
+   },
+   {
+    "label": "Drive B time constant, s",
+    "value": 178,
+    "kind": "computed"
+   },
+   {
+    "label": "Drive A time constant, about, minutes",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Drive B time constant, about, minutes",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Time constants to settle",
+    "value": 5,
+    "kind": "constant"
+   },
+   {
+    "label": "Drive A five time constants, about, minutes",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Drive B five time constants, about, minutes",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Link after five time constants, about, V",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Drive B after 5 minutes, s",
+    "value": 300,
+    "kind": "computed"
+   },
+   {
+    "label": "Drive B link after 5 minutes, about, V",
+    "value": 100,
+    "kind": "computed"
+   },
+   {
+    "label": "Time slider, lowest, minutes",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Time slider, highest, minutes",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "Time slider step, minutes",
+    "value": 0.5,
+    "kind": "control"
+   },
+   {
+    "label": "One maker's wait after disconnection, minutes",
+    "value": 5,
+    "kind": "constant",
+    "source": 2
+   },
+   {
+    "label": "Another maker's wait, at least, minutes",
+    "value": 15,
+    "kind": "constant",
+    "source": 14
+   },
+   {
+    "label": "Filter capacitor, each line to earth, chosen, nF",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Filter capacitor reactance at 50 Hz, kΩ",
+    "value": 31.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Line to earth, 400 ÷ √3, V",
+    "value": 230,
+    "kind": "computed"
+   },
+   {
+    "label": "Each capacitor's current, 230 ÷ 31.8 kΩ, mA",
+    "value": 7.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Balanced earth current, mA",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase lost earth current, mA",
+    "value": 7.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, three currents added straight, mA",
+    "value": 21.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Phase shift between lines, degrees",
+    "value": 120,
+    "kind": "constant"
+   },
+   {
+    "label": "Insulated fault, each capacitor, 400 ÷ 31.8 kΩ, mA",
+    "value": 12.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Insulated fault, angle between the two currents, degrees",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Insulated fault current with the filter in, mA",
+    "value": 21.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Insulated fault current with the filter out, mA",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Touch current for high protective conductor rules, mA AC",
+    "value": 3.5,
+    "kind": "constant",
+    "source": 19
+   },
+   {
+    "label": "BS 7671 regulation on RCD types",
+    "value": 531.3,
+    "kind": "constant",
+    "source": 18
+   },
+   {
+    "label": "Worked example supply, chosen, V",
+    "value": 440,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example frequency, chosen, Hz",
+    "value": 60,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example line to earth, 440 ÷ √3, V",
+    "value": 254,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example reactance at 60 Hz, kΩ",
+    "value": 26.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example capacitor current, mA",
+    "value": 9.6,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example drives on one RCD, chosen",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example three drives, phase lost, mA",
+    "value": 28.7,
+    "kind": "computed"
+   },
+   {
+    "label": "RCD rating in the example, chosen, mA",
+    "value": 30,
+    "kind": "assumed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Power electronics brings three side effects with it. A rectifier draws its current in blocks, not as a sine, and that puts extra frequencies on the supply. A DC link stays charged after you isolate it. And a drive's input filter leaks current to earth.\n\nStart with the current. A six-pulse bridge with a large coil in its DC link draws a steady current. Each line carries it in blocks, 120° forward and 120° back. That is because each line sits in two of the six 60° diode pairs each way. Any wave that repeats each cycle is a sum of sines at whole multiples of the supply frequency. These are its [[harmonics]]. For ideal blocks, harmonic h is 1/h as tall as the fundamental. Only the orders 6n ± 1 appear, the 5th, 7th, 11th, 13th and on.[^1] In a balanced bridge, even ones cannot appear, because the two halves mirror. Multiples of 3 cannot, because the three lines have no neutral to return them. [[Total harmonic distortion]], THD, is the harmonics' combined rms over the fundamental's rms.[^9] Sines of different frequencies multiply to an average of zero, so their rms values add as squares. Perfect blocks give 31%. Real six-pulse drives draw 25% to 40%.[^7] These currents flow back through the generator and cables. Their reactance rises with frequency, so each harmonic current makes a harmonic voltage. That bends the voltage every other load sees. So a ship's distribution system must keep its THD within 8%.[^6]\n\nIsolation stops the supply, but it does not empty the DC link. A bleed resistor drains the link on the RC curve, so the drive's own R and C set the wait. One maker asks for 5 minutes.[^2] Another asks for at least 15.[^14]\n\nAn [[EMC filter]] stops a drive's fast switching spreading back into the supply. It puts small capacitors from each line to earth, and each passes V ÷ X_C. On a balanced earthed supply the three currents are 120° apart, so they cancel. Lose a phase, and two are left. Two equal currents 120° apart add to one of the same size. That current flows through earth, past the RCD. A fault in a three-phase converter can also carry DC. Type B protects against that.[^16] Type A detects only sinusoidal AC and pulsating DC.[^17] On an insulated supply nothing returns from earth, so a first fault draws almost nothing.[^20] The filter would give that fault a return path, so it is disconnected.[^4] A drive needs its rectifier, DC link and filter to make smooth AC from on-off switches. So every drive brings these three effects with it. This is a simplified picture, with ideal blocks, one bleed resistor and plain capacitors. **A converter draws harmonics, holds charge after isolation and leaks current to earth, so you measure, wait and choose the protection to suit.**"
+ },
+ "analogy": {
+  "text": "A drive's current works like a note on a guitar string. The string sounds its main pitch, and above it quieter overtones at whole multiples of that pitch. The overtones give the note its shape. In the same way, the 5th, 7th and higher harmonics give the current its block shape. Take the overtones away and only a pure tone, a sine, is left.",
+  "breaks": "A string makes its own overtones. Here the supply is a sine, and the harmonics come from the load drawing current in blocks. And a string's overtones change with where it is plucked. A six-pulse bridge's are fixed by its blocks: only orders 6n ± 1, each about 1/h of the fundamental."
+ },
+ "practice": {
+  "text": "Safe isolation comes first. A drive can hold a lethal charge with its isolator off and its display dark.\n\n- Isolate the drive, and any UPS battery or other supply to its DC link.\n- Wait the discharge time printed for that drive. One maker asks for 5 minutes.[^2] Another asks for at least 15.[^14]\n- Measure the DC link at its test points before you touch anything. A dark indicator proves nothing.[^15]\n- On an earthed supply, fit the RCD type the drive's maker requires. For shock protection, a three-phase drive's maker may allow only Type B.[^3]\n- On an insulated supply, disconnect the drive's EMC filter.[^4] Expect the insulation monitor to see the drive as part of the whole connected circuit.[^21]\n- Measure harmonics with a power quality meter. THDI is the current's distortion, and THDV the voltage's.[^10]\n\n**Rules of thumb:** each harmonic of a six-pulse drive is about the fundamental ÷ h.[^11] A reactor in a drive's supply limits its harmonic currents.[^12] Cheap filters can leak enough current to clash with an installation's safety rules.[^24] Where a drive's normal touch current is over 3.5 mA AC, its protective earth conductor's minimum size follows the local rules for high currents.[^19] On a ship, regular harmonic measurements catch a failure as it starts.[^13]\n\n**Worked example:** a drive on a 440 V, 60 Hz supply has 100 nF from each line to earth. Each line is 440 ÷ √3 = 254 V from earth. X_C = 1 ÷ (2π × 60 × 100 nF) = 26.5 kΩ. So each capacitor passes 254 ÷ 26.5 kΩ = 9.6 mA. Balanced, the three cancel. Lose a phase, and 9.6 mA flows to earth. Put 3 such drives on one RCD and lose the same phase to all of them. Then 28.7 mA flows through it, nearly all of a 30 mA RCD's rating.\n\n**Common mistakes**\n- Blaming harmonics on the supply. They come from the load drawing its current in blocks.\n- Adding THD figures straight. Harmonics add as squares.\n- Taking a dark display or an open isolator as a dead DC link.\n- Using one discharge time for every drive. Each drive's R and C set its own.\n- Fitting a Type A or Type AC RCD where the drive's maker requires Type B.\n- Leaving the EMC filter connected on an insulated supply."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "Guidance Notes on Control of Harmonics in Electrical Power Systems 2006",
+   "url": "https://ww2.eagle.org/content/dam/eagle/rules-and-guides/current/conventional_ocean_service/150_ctrlofharmonicsinelecpowersystems/electrical-harmonics-gn.pdf",
+   "quote": "the characteristic harmonic currents will therefore be: _h_ = _np_ ± 1 _h_ = _n_ ⋅ 6 ± 1 _h_ = 5, 7, 11, 13, 17, 19…"
+  },
+  {
+   "n": 2,
+   "title": "EN / ACS880-11 hardware manual",
+   "url": "https://library.e.abb.com/public/426332acfaff4cb98425edeecedd0831/EN_ACS880-11_HW_H.pdf",
+   "quote": "After you disconnect power from the drive, always wait 5 minutes to let the intermediate circuit capacitors discharge before you continue."
+  },
+  {
+   "n": 3,
+   "title": "james_piotrowski_20260218032458_EZZ024333_4.xps",
+   "url": "https://www.yaskawa.com/delegate/getAttachment?cmd=documents&documentId=CE.GA500.01&documentName=CE.GA500.01.pdf",
+   "quote": "If an RCD is used for protection against electric shock, only a type B RCD is allowed for 3-phase VSD applications."
+  },
+  {
+   "n": 4,
+   "title": "EN / Grounding and cabling of drive systems reference manual",
+   "url": "https://library.e.abb.com/public/9fbb4caf4e7b4bf7970839b083ba5396/EN_Drive_systems_grounding_and_cabling_REF_D_A4.pdf?x-sign=3SuYnT4patNrek9eD4F4v49jpMcUC0PsAumf%2Bd3ip%2Bf30Y78wR1WZlqqtMyHTOtx",
+   "quote": "All drive EMC filters and ground-to-phase varistors are not suitable for use in IT (ungrounded) or corner-grounded and mid-point grounded delta systems. Disconnect these filters"
+  },
+  {
+   "n": 6,
+   "title": "Hull Classification Surveys",
+   "url": "https://turkloydu.org/pdf-files/iacs-karar-ve-csr-degisimleri/iacs-es-gereklilikleri/UR_E24_New_TR_EN.PDF",
+   "quote": "The total harmonic distortion (THD) of electrical distribution systems is not to exceed 8%."
+  },
+  {
+   "n": 7,
+   "title": "Microsoft PowerPoint - Harmonics - MCPQG IEEE 2005.ppt",
+   "url": "https://ewh.ieee.org/r3/nashville/events/2005/Harmonics_MCPQG_IEEE_2005.pdf",
+   "quote": "6-pulse converter 12-pulse converter 18-pulse converter 25% - 40% Current THD 9% - 11% Current THD 3% - 4% Current THD"
+  },
+  {
+   "n": 8,
+   "title": "Harmonic Sources From Industrial Loads I",
+   "url": "https://www.idc-online.com/technical_references/pdfs/electrical_engineering/Harmonic_Sources_from_Industrial_Loads_I.pdf",
+   "quote": "The two largest harmonic currents for the six-pulse drive are the fifth and seventh"
+  },
+  {
+   "n": 9,
+   "title": "Total Harmonic Distortion: Theory and Practice Gamry Instruments",
+   "url": "https://www.gamry.com/application-notes/EIS/total-harmonic-distortion",
+   "quote": "The THD factor describes the ratio between the root mean square (RMS) of the harmonics’ magnitudes (Y n ) and the RMS magnitude of the fundamental frequency (Y ₁ )."
+  },
+  {
+   "n": 10,
+   "title": "22.0 Harmonics in Industrial Power Systems",
+   "url": "https://www.rose-hulman.edu/class/ee/HTML/ECE471/PDFs/Lect15.pdf",
+   "quote": "These are usually quoted in terms of Total Harmonic Distortion (THD) with the appropriate “I” or “V”, e.g. 35% THDI and 4% THDV."
+  },
+  {
+   "n": 11,
+   "title": "Harmonics in Power System | Electrical India Magazine",
+   "url": "https://www.electricalindia.in/harmonics-in-power-system-2",
+   "quote": "As a rough rule of thumb, the magnitudes of the harmonic currents will be the fundamental current divided by the harmonic number"
+  },
+  {
+   "n": 12,
+   "title": "Whitepaper — Harmonics in power systems",
+   "url": "https://assets.new.siemens.com/siemens/assets/api/uuid:8ab2a02e-ad94-41cb-a362-438f016aa704/drive-harmonics-in-power-systems-whitepaper.pdf",
+   "quote": "of a reactor is valuable for limiting the harmonic currents produced by electrical variable speed drives and other non-linear loads."
+  },
+  {
+   "n": 13,
+   "title": "34/2017 - Classification alert: Harmonic distortion for ship electrical distribution systems, including harmonic filters | LR",
+   "url": "https://www.lr.org/en/knowledge/class-news/34-17",
+   "quote": "it is essential to carry out regular harmonic distortion measurements, to detect an incipient failure"
+  },
+  {
+   "n": 14,
+   "title": "VACON® 1000",
+   "url": "https://files.danfoss.com/download/Drives/172F3117C-VACON-1000-Operating-Guide-EN.pdf",
+   "quote": "Wait at least 15 minutes for the DC-link capacitors to discharge fully before opening the cabinet door or the cover of the AC drive. Use a measuring device to make sure that there is no voltage."
+  },
+  {
+   "n": 15,
+   "title": "VLT® Integrated Servo Drive ISD 410",
+   "url": "https://assets.danfoss.com/documents/latest/271518/AQ361181478313en-000101.pdf",
+   "quote": "Note: High voltage may be present even if the LED on the ISD connection box is not lit!"
+  },
+  {
+   "n": 16,
+   "title": "Why choose Type B RCD for 3 Phase Variable Speed Drives? | Schneider Electric Australia",
+   "url": "https://www.se.com/au/en/faqs/FAQ000184975",
+   "quote": "For the 3 Phase Variable Speed Drives, the RCD type B or type B-Si is particularly suitable. It protects against fault currents with DC offset, which is true for three-phase power converters."
+  },
+  {
+   "n": 17,
+   "title": "RCD Type A, F or B Guide | A1-ESD",
+   "url": "https://esd.equipment/en/ratgeber/rcd-type-a-b-f-guide",
+   "quote": "Type A only detects sinusoidal AC and pulsating DC residual currents."
+  },
+  {
+   "n": 18,
+   "title": "Selecting the correct Type of RCD – 18 Edition BS7671",
+   "url": "https://doepke.co.uk/wp-content/uploads/2026/03/Techpub-08.pdf",
+   "quote": "Regulation 531.3.3 refers to the use of AC, A, F and B Type RCDs, along with the details of the associated residual current limits."
+  },
+  {
+   "n": 19,
+   "title": "EN / Grounding and cabling of drive systems reference manual",
+   "url": "https://library.e.abb.com/public/9fbb4caf4e7b4bf7970839b083ba5396/EN_Drive_systems_grounding_and_cabling_REF_D_A4.pdf",
+   "quote": "Because the normal touch current of the drive is more than 3.5 mA AC or 10 mA DC: • the minimum size of the protective earth conductor must comply with the local safety regulations for high"
+  },
+  {
+   "n": 20,
+   "title": "EMC filters - Technical information",
+   "url": "https://www.tdk-electronics.tdk.com/download/3107180/7f30b0110a521bb506ace36f0c56af5c/pdf-technical-information.pdf",
+   "quote": "During the so-called first fault (earth fault or ground short circuit), no notable return current paths are produced and thus no dangerous contact voltage."
+  },
+  {
+   "n": 21,
+   "title": "L87, insulation monitoring - SINAMICS S120 Cabinet Modules liquid cooled - ID: 109975301 - Industry Support Siemens",
+   "url": "https://support.industry.siemens.com/cs/mdm/109975301?c=179939062923&dl=en",
+   "quote": "On non-grounded line supplies (IT supply systems), the insulation monitoring device monitors the entire electrically-connected circuit for insulation faults."
+  },
+  {
+   "n": 23,
+   "title": "VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct",
+   "url": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design",
+   "quote": "Insulation monitor alarm at startup only |Common-mode filter capacitors charging through the IMD"
+  },
+  {
+   "n": 24,
+   "title": "RCD Protection and Selection for VSD / VFD / Inverter controlled Pumps - Doepke (UK) Ltd",
+   "url": "https://doepke.co.uk/technical-publications/rcd-protection-and-selection-for-vsd-vfd-inverter-controlled-pumps",
+   "quote": "Low cost filters can create high levels of leakage current that may not be compatible with the safety requirements of the installation."
+  },
+  {
+   "n": 30,
+   "title": "VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct",
+   "url": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design",
+   "quote": "The DC bus voltage should ramp to approximately 1.35 × V LL (rectified DC)"
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null,
+ "format": "steps"
+}

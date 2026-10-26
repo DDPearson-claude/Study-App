@@ -1,0 +1,894 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  #stepbox > .fig + .fig { margin-top: 6px; }
+  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #sw .k-seg, #sw .k-seg.stack { display: flex; flex-wrap: wrap; }
+  #sw .k-seg button, #sw .k-seg.stack button { flex: 1 1 8rem; text-align: center; padding-left: 12px; }
+  #ctl2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  #ctl2 > .k-btn { flex: 1 1 8rem; min-height: 48px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #outs.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter { animation: none; } }
+  /* The circuit: thin wires, the path the current takes drawn bold. */
+  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }
+  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 3.5; }
+  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .sine { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }
+  .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.4; }
+  .fig .coil.on { stroke: var(--k-accent2); stroke-width: 3.2; }
+  .fig .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .fig .plate.s { stroke-width: 4.5; }
+  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  .fig .dio .gl { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; }
+  .fig .dio .gl.fl { stroke: var(--k-accent); stroke-width: 3.4; }
+  .fig .dio .gt { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .dio .gt.fl { fill: var(--k-accent); stroke: var(--k-accent); }
+  .fig .flowdot { fill: var(--k-bg); }
+  /* The cycle: the supply thin, the load bold, each conducting slice shaded. */
+  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .zero { stroke: var(--k-muted); stroke-width: 1; }
+  .fig .sup { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }
+  .fig .ld { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linejoin: round; }
+  .fig .sh { fill: var(--k-fill1); }
+  .fig .shn { fill: var(--k-fill3); }
+  .fig .avg { stroke: var(--k-ink); stroke-width: 1.8; stroke-dasharray: 6 4; }
+  .fig .gm { fill: var(--k-accent); }
+  .fig .gm.fl { stroke: var(--k-accent); stroke-width: 4; stroke-linejoin: round; }
+  .fig .cur { stroke: var(--k-ink); stroke-width: 1.2; }
+  .fig .cdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .bdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .blk { fill: none; stroke: var(--k-accent); stroke-width: 2.6; stroke-linejoin: round; }
+  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.n { fill: var(--k-accent2); }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count say" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls" id="sw"></div>
+    <svg class="fig" id="scene" viewBox="0 0 340 204" width="100%" role="img" aria-label=""><g id="art"></g><g id="dots"></g><g id="clabs"></g></svg>
+    <svg class="fig" id="wave" viewBox="0 0 340 214" width="100%" role="img" aria-label=""><g id="wart"></g><g id="wlabs"></g></svg>
+    <p class="gnote say" id="setting"></p>
+    <div class="k-controls" id="ctl"></div>
+    <div id="ctl2"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- the rule ----------
+  // A 230 V, 50 Hz sine, peak 230 × √2. A thyristor conducts from its firing angle α until its current
+  // falls to zero. The area under a sine from α to 180° is 1 + cos α (a whole hump gives 2), so each
+  // average is that area spread over the cycle. The heater's power follows the share of the squared
+  // area left. In Charger a large choke holds the current steady, so each pair conducts on until the
+  // other pair fires, and the supply's current is a block that starts α after the voltage.
+  const VRMS = 230, HZ = 50, PH = 2300, RH = VRMS * VRMS / PH, VP = VRMS * Math.SQRT2;
+  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/';
+  const TRI = 'https://www.electronics-tutorials.ws/power/triac.html';
+  const ECPE = 'https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge';
+  const ETR = 'https://www.electronics-tutorials.ws/power/single-phase-rectification.html';
+  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');
+  const rad = (deg) => deg * Math.PI / 180;
+  const vs = (t) => VP * Math.sin(rad(t));
+  const area = (a) => 1 + Math.cos(rad(a));
+  const share = (a) => 1 - a / 180 + Math.sin(rad(2 * a)) / (2 * Math.PI);
+  const avgOne = (a) => VP / (2 * Math.PI) * area(a);
+  const avgBr = (a) => VP / Math.PI * area(a);
+  const pTri = (a) => PH * share(a);
+  const rmsTri = (a) => Math.sqrt(pTri(a) * RH);
+  const avgCh = (a) => 2 * VP / Math.PI * Math.cos(rad(a));
+  const KPF = 2 * Math.SQRT2 / Math.PI;
+  const pfCh = (a) => KPF * Math.cos(rad(a));
+  const MODES = ['one', 'bridge', 'triac', 'charger'];
+  const MODEN = { one: 'One thyristor', bridge: 'Bridge', triac: 'Triac', charger: 'Charger' };
+
+  // Which device conducts at t (0° to 360°): 'A' the positive half's thyristor or pair, 'B' the other, '' none.
+  function onAt(mode, a, t) {
+    if (mode === 'charger') return t >= a && t < 180 + a ? 'A' : 'B';
+    if (a >= 180) return '';
+    if (t >= a && t < 180) return 'A';
+    if (mode !== 'one' && t >= 180 + a && t < 360) return 'B';
+    return '';
+  }
+  function valIn(mode, on, t) {
+    if (!on) return 0;
+    const v = vs(t);
+    if (mode === 'bridge') return Math.abs(v);
+    if (mode === 'charger') return on === 'A' ? v : -v;
+    return v;
+  }
+  const loadV = (mode, a, t) => valIn(mode, onAt(mode, a, t), t);
+  const gatesOf = (mode, a) => (mode === 'one' ? [a] : [a, 180 + a]);
+  const avgOf = (mode, a) => (mode === 'one' ? avgOne(a) : mode === 'bridge' ? avgBr(a) : mode === 'charger' ? avgCh(a) : 0);
+  // An extra pulse on one thyristor at the cursor: it fires only if it is off and forward biased.
+  function pulseAt(a, th) {
+    if (th <= 0 || th >= 180) return th % 180 === 0 ? 'zero' : 'reverse';
+    return th >= a ? 'on' : 'fires';
+  }
+
+  // Every number the words show, worked out from the rule (a check compares them with the lesson's).
+  const N = {
+    v: String(VRMS), p: String(PH), vp: fx(VP, 0), r: fx(RH, 0),
+    one0: fx(avgOne(0), 0), one60: fx(avgOne(60), 0), one90: fx(avgOne(90), 0), third: fx(avgOne(0) * 2 / 3, 0), third2: fx(avgBr(0) / 3, 0),
+    a60: fx(area(60), 1), q60: fx(area(60) / 2, 2), c60: fx(Math.cos(rad(60)), 1), c120: fx(Math.cos(rad(120)), 1), a120: fx(area(120), 1),
+    br0: fx(avgBr(0), 0), br60: fx(avgBr(60), 0), br90: fx(avgBr(90), 0), br120: fx(avgBr(120), 0),
+    p90: fx(pTri(90), 0), rms90: fx(rmsTri(90), 0), half: fx(VRMS / 2, 0), s90: fx(share(90), 1),
+    ch30: fx(avgCh(30), 0), ch60: fx(avgCh(60), 0), pf0: fx(pfCh(0), 2), pf30: fx(pfCh(30), 2), pf60: fx(pfCh(60), 2), k: fx(KPF, 1),
+  };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // set: where the picture opens (a is the firing angle); ctl: what a demonstration lets Dan move; play: its
+  // motion as the screen opens; outs: readouts shown 'before' the answer or only 'after' a right Check;
+  // ans: what a right Check moves.
+  const STEPS = [
+    { name: 'Starting a motor', set: { mode: 'one', a: 90 }, outs: 'after', ans: {},
+      task: 'You start a motor direct on line. As it starts, about how much current does it draw?',
+      opts: ['About its rated current', 'Usually 6 to 8 times its rated current', 'About twice its rated current'],
+      want: 'Usually 6 to 8 times its rated current',
+      hints: { 'About its rated current': 'If it drew only its rated current, nobody would fit a soft starter.',
+        'About twice its rated current': 'Think of the lights dipping as a big motor starts. It is far more than twice.' },
+      why: 'Usually 6 to 8 times, and sometimes more than 10 times. A soft starter cuts that. It brings the voltage up gently. Its switches are thyristors. Here is how they work.' },
+    { show: true, name: 'A diode with a gate', set: { mode: 'one', a: 90 }, ctl: ['time', 'play', 'pulse'], play: 'cursor', pulse: true,
+      text: `A *thyristor* is a diode with a third lead, its *gate*. Like a diode, it blocks reverse voltage. It also blocks forward voltage until a pulse on the gate fires it. Here one feeds a ${N.p} W heater from ${N.v} V. It is fired at 90°. Play the cycle. At 90° the pulse fires it, and it turns bold. The pulse ends, but it stays on. Just before 180° its current falls away. Then it lets go. Pulse the gate again at 135°. Nothing changes.`,
+      read: 'With the cursor at 360°, the heater\'s voltage is shaded from 90° to 180° only. The gate mark sits at 90°. The negative half is empty.',
+      still: { mode: 'one', alpha: 90, time: 360 } },
+    { name: 'After the pulse', set: { mode: 'one', a: 90, time: 120 }, outs: 'after', hideAvg: true, ans: { set: { time: 360 }, cursor: true },
+      task: 'The thyristor fired at 90°, and the gate pulse is over. The cursor is at 120°. What happens next?',
+      opts: ['It turns off at once, as the pulse is over', 'It conducts on into the negative half', 'It conducts on until its current falls away, near 180°'],
+      want: 'It conducts on until its current falls away, near 180°',
+      hints: { 'It turns off at once, as the pulse is over': 'Once fired, it latches. What has to fall for it to let go?',
+        'It conducts on into the negative half': 'In the negative half it is reverse biased, like a diode.' },
+      why: 'It conducts on. Once fired, a thyristor latches on. The gate then has no more say. It lets go only when its current falls below a small holding current. On AC that happens just before the zero. So it needs a fresh pulse every cycle.' },
+    { show: true, name: 'The firing angle', set: { mode: 'one', a: 90 }, ctl: ['alpha'], play: { from: 0, to: 90 },
+      text: `The *firing angle*, α, is the angle in each half where the gate fires. Drag it. At 0° the heater gets every positive hump, as from a half-wave rectifier. That averages about ${N.one0} V. Fire later, and the shaded slice shrinks. The average is the shaded area spread over the whole cycle. At 90° the slice is exactly half the hump, because a hump is symmetrical. So the average halves, to about ${N.one90} V.`,
+      read: `At 0°, the whole positive hump is shaded. The average reads ${N.one0} V. At 90°, only its second half is shaded. The average reads ${N.one90} V.`,
+      still: { mode: 'one', alpha: 90, time: 360 } },
+    { name: 'Fire at 60°', set: { mode: 'one', a: 0 }, outs: 'before', ans: { set: { a: 60 } },
+      task: 'Fire at 60° instead. That cuts a third of the time from the positive half. What does the average become?',
+      opts: [`About ${N.one60} V`, `About ${N.third} V, a third less`, `About ${N.one90} V`],
+      want: `About ${N.one60} V`,
+      hints: { [`About ${N.third} V, a third less`]: 'The first 60° is the low, rising start of the hump. Does it hold a third of the area?',
+        [`About ${N.one90} V`]: `${N.one90} V is the answer at 90°. At 60° more of the hump is shaded.` },
+      why: `About ${N.one60} V. The area under a sine from α to 180° is 1 + cos α. The whole hump gives 2. At 60° that is 1 + ${N.c60} = ${N.a60}. That is three quarters of 2. So the average is ${N.one0} × ${N.q60}, about ${N.one60} V. The start of a hump is low. So cutting it costs little.` },
+    { show: true, name: 'A controlled bridge', set: { mode: 'bridge', a: 60 }, ctl: ['mode', 'alpha'], play: { from: 0, to: 60 },
+      text: `A bridge rectifier with thyristors in place of its four diodes is a *controlled rectifier*. Each pair fires at α in its own half. So both humps are shaded above the line. Fired at 0°, it gives the diode bridge's ${N.br0} V. Later firing shrinks both slices. The average is (Vmax ÷ π)(1 + cos α). Vmax is the ${N.vp} V peak. At 60° that is ${N.br60} V. At 90° it is ${N.br90} V.`,
+      read: `With α at 60°, both halves are shaded from 60° on, and the average reads ${N.br60} V.`,
+      still: { mode: 'bridge', alpha: 60, time: 360 } },
+    { name: 'Fire at 120°', set: { mode: 'bridge', a: 60 }, outs: 'before', ans: { set: { a: 120 } },
+      task: 'Now fire the bridge at 120°. What does it average?',
+      opts: [`About ${N.third2} V, a third of ${N.br0} V`, `About ${N.br120} V`, `About −${N.br120} V, as cos 120° is negative`],
+      want: `About ${N.br120} V`,
+      hints: { [`About ${N.third2} V, a third of ${N.br0} V`]: 'Only the low tail of each hump is left. Use 1 + cos α.',
+        [`About −${N.br120} V, as cos 120° is negative`]: 'Add the 1 before you multiply. A heater\'s slices never dip below the line.' },
+      why: `About ${N.br120} V. cos 120° is ${N.c120}. So 1 + cos α is ${N.a120}. That is a quarter of the whole hump's 2. A quarter of ${N.br0} V is about ${N.br120} V.` },
+    { show: true, name: 'The triac', set: { mode: 'triac', a: 90 }, ctl: ['mode', 'alpha'], play: { from: 0, to: 90 },
+      text: `A *triac* behaves like two thyristors back to back. It fires in both halves. So the heater gets chopped AC. A heater cares about power, so the readouts show rms and watts. Fired at 0°, this heater takes ${N.p} W at ${N.v} V. Fired at 90°, each half keeps exactly half its area of squares. So the power halves, to ${N.p90} W. The rms is ${N.v} × √${N.s90}. That is about ${N.rms90} V, not ${N.half} V.`,
+      read: `With α at 90°, both halves are shaded from 90° on, one above the line and one below. The rms reads ${N.rms90} V and the heater power ${N.p90} W.`,
+      still: { mode: 'triac', alpha: 90, time: 360 } },
+    { name: 'A fan on a dimmer', set: { mode: 'triac', a: 90 }, outs: 'before', ans: {},
+      task: 'A triac lamp dimmer is to hand. Should it set the speed of a small fan motor?',
+      opts: ['Yes, a lower rms means a slower fan', 'Yes, as the fan is small', 'No, a lamp dimmer is for resistive loads only'],
+      want: 'No, a lamp dimmer is for resistive loads only',
+      hints: { 'Yes, a lower rms means a slower fan': 'A motor is a coil, not a heater. What load is a lamp dimmer made for?',
+        'Yes, as the fan is small': 'Size is not the issue. What kind of load is a fan motor?' },
+      why: 'No. Triac lamp dimmers are made for resistive loads only. They should not be used as a motor speed controller. A motor\'s coil keeps its current flowing past the voltage\'s zero. A heater\'s current falls to zero with the voltage.' },
+    { show: true, name: 'The charger', set: { mode: 'charger', a: 30 }, ctl: ['mode', 'alpha'], play: { from: 0, to: 30 },
+      text: `A charger feeds a battery a steady current. Here the bridge feeds it through a *choke*, a large coil. The choke carries the current through each zero. So each pair conducts on past 180° until the other pair fires. The part below the line subtracts. The average becomes ${N.br0} × cos α. Below, the supply's current is a block that starts α after the voltage. Fire later, and it slides further behind. More of it flows while the voltage is low or reversed. So the power factor falls.`,
+      read: `With α at 30°, the current block starts 30° after the voltage. The average reads ${N.ch30} V. The power factor reads ${N.pf30}, about ${N.k} × cos α.`,
+      still: { mode: 'charger', alphaC: 30, time: 360 } },
+    { name: 'Half the output', set: { mode: 'charger', a: 0 }, outs: 'before', ans: { set: { a: 60 } },
+      task: `The charger must cut its output to about ${N.ch60} V, half of ${N.br0} V. What happens to its power factor?`,
+      opts: [`It stays near ${N.pf0}, as firing later costs nothing`, `It falls to about ${N.pf60}`, 'It rises, as less power is drawn'],
+      want: `It falls to about ${N.pf60}`,
+      hints: { [`It stays near ${N.pf0}, as firing later costs nothing`]: 'Watch where the current block starts as α grows.',
+        'It rises, as less power is drawn': 'Less power is drawn, but the block slides further behind the voltage.' },
+      why: `It falls to about ${N.pf60}. Half of ${N.br0} V needs cos α = ${N.c60}. So α is 60°. The current block now starts 60° behind the voltage. The power factor is ${N.k} × ${N.c60} = ${N.pf60}. The supply carries the same current for half the power.` },
+    { name: 'The soft starter', set: { mode: 'triac', a: 150 }, outs: 'after', ans: { set: { a: 0 } },
+      task: 'A soft starter fires its thyristors late at first, then earlier and earlier. What does the motor get?',
+      opts: ['A voltage that ramps up from low to full', 'The full voltage at once, for less time', 'A DC voltage that rises'],
+      want: 'A voltage that ramps up from low to full',
+      hints: { 'The full voltage at once, for less time': 'A late firing passes only a thin slice of each half. What does that do to the rms?',
+        'A DC voltage that rises': 'Its thyristors sit back to back, and fire in both halves.' },
+      why: 'A ramp. Late firing passes only a thin slice of each half. So the motor sees a low voltage. Earlier firing widens the slices until the motor gets the full supply. That ramp limits the starting current.' },
+    { name: 'Gate stuck on', set: { mode: 'bridge', a: 90 }, outs: 'before', ans: { set: { a: 0 } },
+      task: 'A fault holds the gate signal on all the time. What does the heater get now?',
+      opts: ['Nothing, as no fresh pulse ever comes', `About ${N.br90} V, as before`, `About ${N.br0} V, as if fired at 0°`],
+      want: `About ${N.br0} V, as if fired at 0°`,
+      hints: { 'Nothing, as no fresh pulse ever comes': 'A signal that stays on is a pulse that never ends. When does each thyristor first see it?',
+        [`About ${N.br90} V, as before`]: 'The firing angle is when the gate first fires it. With the signal always on, when is that?' },
+      why: `About ${N.br0} V. A thyristor fires once it is forward biased with its gate signalled. With the signal always on, each one fires at the start of its half. So the bridge acts as a plain diode bridge.` },
+  ];
+  const FINISH = 'A thyristor\'s gate chooses when it starts in each half cycle, never when it stops. Fire it later, and less of each half reaches the load.';
+  const DEMO = 3.6, FADE = 0.35, ANS = 2.2, FLASH = 0.6, FLW = 20;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false, fired: null });
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false, fired: null });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, pinning = false, lastMode = 'one';
+  let CS = null, SW = null, FL = null, MSG = null, PH = 0, FLOW = null, REC = null;
+  const IDS = ['mode', 'alpha', 'alphaC', 'time'];
+  const BASE = { mode: 'one', a: 90, time: 360 };
+  const modeOf = (p) => (MODES.indexOf(p.mode) >= 0 ? p.mode : 'one');
+  const r5 = (v) => Math.round((+v || 0) / 5) * 5;
+  const alphaOf = (p) => (modeOf(p) === 'charger' ? K.clamp(r5(p.alphaC), 0, 90) : K.clamp(r5(p.alpha), 0, 180));
+  const aId = (mode) => (mode === 'charger' ? 'alphaC' : 'alpha');
+  function setupOf(i, right) {
+    const d = STEPS[i], q = Object.assign({}, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {});
+    if (d.pulse && S[i] && S[i].fired != null) q.a = S[i].fired;
+    return { step: i, mode: q.mode, alpha: q.a, alphaC: Math.min(q.a, 90), time: q.time };
+  }
+  function visIds(d, p) {
+    if (!d.show) return [];
+    return (d.ctl || []).map((c) => (c === 'alpha' ? aId(modeOf(p)) : c));
+  }
+  const nb = (t) => t.replace(/(\d) (?=(?:W|V)(?![A-Za-z]))/g, '$1 ');
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const modeCtl = K.choice({ id: 'mode', label: 'Circuit', options: MODES.map((m) => ({ value: m, label: MODEN[m] })), value: 'one', into: '#sw' });
+  const alphaCtl = K.control({ id: 'alpha', label: 'Firing angle α', min: 0, max: 180, step: 5, value: 90, fmt: (v) => fx(v, 0) + '°', snap: [0, 60, 90, 120, 150, 180], into: '#ctl' });
+  const alphaCCtl = K.control({ id: 'alphaC', label: 'Firing angle α', min: 0, max: 90, step: 5, value: 90, fmt: (v) => fx(v, 0) + '°', snap: [0, 30, 60, 90], into: '#ctl' });
+  const timeCtl = K.control({ id: 'time', label: 'Time', min: 0, max: 360, step: 5, value: 360, fmt: (v) => fx(v, 0) + '°', snap: [0, 90, 120, 135, 180, 270, 360], into: '#ctl' });
+  const playBtn = K.button({ label: 'Play', into: '#ctl2', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || (d.ctl || []).indexOf('play') < 0) return;
+    MSG = null;
+    const th = +K.params().time, from = th >= 360 ? 0 : th;
+    startCursor(from, 360, DEMO * (360 - from) / 360, 0);
+  } });
+  const pulseBtn = K.button({ label: 'Pulse the gate', secondary: true, into: '#ctl2', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.pulse) return;
+    const p = K.params(), th = CS ? CS.cur : K.clamp(+p.time || 0, 0, 360), t = r5(th), r = pulseAt(alphaOf(p), th);
+    if (!calm()) { FL = { t: 0 }; play(); }
+    if (r === 'fires') {
+      S[i].fired = t; alphaCtl.set(t, true);
+      MSG = { time: CS ? CS.last : +p.time, text: `A pulse at ${t}° fires it there. Its shading now starts at ${t}°.` };
+    } else if (r === 'on') MSG = { time: CS ? CS.last : +p.time, text: `A pulse at ${t}° changes nothing. The thyristor is already on.` };
+    else if (r === 'zero') MSG = { time: CS ? CS.last : +p.time, text: `At ${t}° the supply is at zero, so a pulse changes nothing.` };
+    else MSG = { time: CS ? CS.last : +p.time, text: `A pulse at ${t}° changes nothing. The thyristor is reverse biased.` };
+  } });
+  const CTL = { mode: modeCtl, alpha: alphaCtl, alphaC: alphaCCtl, time: timeCtl };
+  const rV = K.readout({ id: 'volts', label: 'Average across the load', decimals: 0, fmt: (v) => fx(v, 0) + ' V', into: '#outs' });
+  const rP = K.readout({ id: 'heaterPower', label: 'Heater power', decimals: 0, fmt: (v) => fx(v, 0) + ' W', into: '#outs' });
+  const rF = K.readout({ id: 'powerFactor', label: 'Power factor', decimals: 2, fmt: (v) => fx(v, 2), into: '#outs' });
+  K.model((p) => {
+    const m = modeOf(p), a = alphaOf(p);
+    if (m === 'charger') return { volts: avgCh(a), heaterPower: 0, powerFactor: pfCh(a) };
+    if (m === 'triac') return { volts: rmsTri(a), heaterPower: pTri(a), powerFactor: 0 };
+    if (m === 'bridge') return { volts: avgBr(a), heaterPower: pTri(a), powerFactor: 0 };
+    return { volts: avgOne(a), heaterPower: pTri(a) / 2, powerFactor: 0 };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    const a = d.ans || {}, p = K.params();
+    if (a.cursor) startCursor(K.clamp(+p.time || 0, 0, 360), 360, ANS - 0.1, 0.1);
+    else if (a.set && a.set.a != null) startSweep(aId(modeOf(p)), alphaOf(p), a.set.a, ANS - 0.1, 0.1);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; FLOW = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: the cursor round the cycle, a firing-angle sweep, a gate flash, flowing current ----------
+  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    let busy = false, redraw = false;
+    if (CS) {
+      const c = CS;
+      c.t += dt;
+      const f = K.clamp(c.t / c.dur, 0, 1);
+      c.cur = K.lerp(c.from, c.to, f);
+      const r = K.clamp(Math.floor(c.cur / 5) * 5, 0, 360);
+      if (r !== c.last) { c.last = r; timeCtl.set(r); }
+      redraw = true;
+      if (CS === c) { if (f >= 1) { CS = null; timeCtl.set(c.to); } else busy = true; }
+    }
+    if (SW) {
+      const w = SW;
+      w.t += dt;
+      const f = K.clamp(w.t / w.dur, 0, 1), val = r5(K.lerp(w.from, w.to, K.ease(f)));
+      if (val !== w.last) { w.last = val; CTL[w.id].set(val); }
+      if (SW === w) { if (f >= 1) SW = null; else busy = true; }
+    }
+    if (FL) { FL.t += dt; redraw = true; if (FL.t >= FLASH) FL = null; else busy = true; }
+    PH += dt;
+    if (redraw) paint();
+    dots();
+    return busy || flowOn();
+  } });
+  function play() { if (!motion.playing()) motion.play(); }
+  function startCursor(from, to, dur, delay) {
+    if (calm()) { CS = null; timeCtl.set(to, true); return; }
+    CS = { t: -(delay || 0), dur: Math.max(0.3, dur), from, to, cur: from, last: r5(from) };
+    timeCtl.set(r5(from), true); play();
+  }
+  function startSweep(id, from, to, dur, delay) {
+    if (calm()) { CTL[id].set(to, true); SW = null; return; }
+    CTL[id].set(from, true);
+    SW = { id, from, to, last: from, t: -(delay || 0), dur }; play();
+  }
+  function settle() {
+    if (CS) { timeCtl.set(CS.to, true); CS = null; }
+    if (SW) { CTL[SW.id].set(SW.to, true); SW = null; }
+    FL = null;
+  }
+  const flowOn = () => !REDUCE && !finished && !!FLOW;
+  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  // Every label lives in its own slot group, made afresh each frame in a fixed order.
+  const svg = el('scene'), art = el('art'), dotsG = el('dots'), wsvg = el('wave'), wart = el('wart');
+  const SL = {
+    clabs: ['dev', 'gate', 'sup', 'hz', 'load', 'ohm', 'choke'],
+    wlabs: ['k1', 'k2', 'k3', 'k4', 'k5', 'alpha', 'vtop', 'v0', 'vbot', 't0', 't1', 't2', 't3', 't4', 'blk', 'lag'],
+  };
+  let SLOT = {}, into = null;
+  function slots(g, list) { g.textContent = ''; list.forEach((n) => { SLOT[n] = g.appendChild(K.svg('g')); }); }
+  const add = (n) => into.appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function tx(slot, x, y, s, cls, anchor) {
+    REC.texts.push(s);
+    return SLOT[slot].appendChild(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));
+  }
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = wsvg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    wsvg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.4;
+  }
+  // A thyristor: a diode (triangle, then the bar) with its gate lead leaving the cathode end.
+  function scr(x, y, ang, flip, on, flash) {
+    const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ') scale(1 ' + flip + ')' }));
+    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));
+    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));
+    g.appendChild(K.svg('path', { class: 'gl' + (flash ? ' fl' : ''), d: 'M8 3 L15 12 V18' }));
+    g.appendChild(K.svg('circle', { class: 'gt' + (flash ? ' fl' : ''), cx: 15, cy: 20.5, r: 2.5 }));
+  }
+  // A triac: two triangles pointing opposite ways between two bars, with one gate.
+  function triac(x, y, on, flash) {
+    const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : ''), transform: 'translate(' + x + ' ' + y + ')' }));
+    g.appendChild(K.svg('line', { x1: -8, y1: -13, x2: -8, y2: 13 }));
+    g.appendChild(K.svg('line', { x1: 8, y1: -13, x2: 8, y2: 13 }));
+    g.appendChild(K.svg('path', { d: 'M-8 -12 L-8 -1 L8 -6.5 Z' }));
+    g.appendChild(K.svg('path', { d: 'M8 1 L8 12 L-8 6.5 Z' }));
+    g.appendChild(K.svg('path', { class: 'gl' + (flash ? ' fl' : ''), d: 'M8 12 L15 18 V22' }));
+    g.appendChild(K.svg('circle', { class: 'gt' + (flash ? ' fl' : ''), cx: 15, cy: 24.5, r: 2.5 }));
+  }
+
+  // ---------- the circuit ----------
+  // Series loop (one thyristor or a triac): supply left, the device on top, the heater on the right.
+  const SERA = [[34, 120], [34, 28], [298, 28], [298, 184], [34, 184], [34, 160]];
+  // The diamond: supply wire A at the left corner, wire B at the right, the load across the top and bottom corners.
+  const BR = { wa: 'M34 120 V106 H94', e1: 'M94 106 L142 48', e3: 'M190 106 L142 48', e2: 'M142 164 L190 106', e4: 'M142 164 L94 106',
+    p: 'M142 48 V28 H298 V80', n: 'M298 132 V184 H142 V164', wb: 'M34 160 V194 H204 V190 A6 6 0 0 1 204 178 V106 H190' };
+  const BRC = Object.assign({}, BR, { p: 'M142 48 V28 H210', p2: 'M254 28 H298 V96', n: 'M298 120 V184 H142 V164' });
+  const BRT = { d1: [118, 77, -50.39, -1, 'A'], d2: [166, 135, -50.39, 1, 'A'], d3: [166, 77, -129.61, 1, 'B'], d4: [118, 135, -129.61, -1, 'B'] };
+  const PATH = { A: ['wa', 'e1', 'p', 'p2', 'n', 'e2', 'wb'], B: ['wb', 'e3', 'p', 'p2', 'n', 'e4', 'wa'] };
+  const BRP = [[34, 120], [34, 106], [94, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [190, 106], [204, 106], [204, 194], [34, 194], [34, 160]];
+  const BRN = [[34, 160], [34, 194], [204, 194], [204, 106], [190, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [94, 106], [34, 106], [34, 120]];
+  function mk(pts, speed, skip) {
+    const lens = [0];
+    for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+    return { pts, lens, len: lens[lens.length - 1], speed, skip };
+  }
+  const skipSer = (x, y) => (Math.abs(y - 28) < 1 && x > 148 && x < 172) || (Math.abs(x - 298) < 1 && y > 78 && y < 134);
+  const skipBr = (x, y) => Object.keys(BRT).some((k) => Math.hypot(x - BRT[k][0], y - BRT[k][1]) < 11) || (Math.abs(x - 298) < 1 && y > 78 && y < 134) ||
+    (Math.abs(y - 28) < 1 && x > 206 && x < 258);
+
+  function drawCircuit(v) {
+    into = art;
+    const ser = v.mode === 'one' || v.mode === 'triac', ch = v.mode === 'charger';
+    ci(34, 140, 20, 'src'); pa('M20 140 q7 -13 14 0 t14 0', 'sine');
+    tx('sup', 44, 80, VRMS + ' V', 'lab', 'start'); tx('hz', 44, 96, HZ + ' Hz', 'lab m', 'start');
+    let words;
+    if (ser) {
+      const w = v.on ? 'wire on' : 'wire';
+      pa('M34 120 V28 H152', w); pa('M168 28 H298 V80', w); pa('M298 132 V184 H34 V160', w);
+      box(287, 80, 22, 52, v.on ? 'res on' : 'res', 3);
+      if (v.mode === 'one') { scr(160, 28, 0, 1, !!v.on, !!v.flash); tx('dev', 160, 12, 'thyristor', 'lab'); }
+      else { triac(160, 28, !!v.on, !!v.flash); tx('dev', 160, 12, 'triac', 'lab'); }
+      tx('gate', 182, 56, 'gate', 'lab t', 'start');
+      tx('load', 281, 102, 'heater', 'lab', 'end'); tx('ohm', 281, 118, N.r + ' Ω', 'lab m', 'end');
+      const dev = v.mode === 'one' ? 'one thyristor' : 'a triac';
+      words = 'A ' + VRMS + ' V supply feeds a heater through ' + dev + ', drawn with its gate lead.' + (v.on ? ' It conducts now.' : ' It is off now.');
+      FLOW = v.show && !finished && v.on ? [mk(v.on === 'A' ? SERA : SERA.slice().reverse(), 10 + 50 * Math.abs(vs(v.th)) / VP, skipSer)] : null;
+    } else {
+      const segs = ch ? BRC : BR, onIds = v.on ? PATH[v.on] : [];
+      Object.keys(segs).forEach((id) => pa(segs[id], onIds.indexOf(id) >= 0 ? 'wire on' : 'wire'));
+      Object.keys(BRT).forEach((id) => { const q = BRT[id]; scr(q[0], q[1], q[2], q[3], v.on === q[4], v.flash === q[4]); });
+      tx('dev', 142, 110, 'thyristors', 'lab m');
+      tx('gate', 104, 50, 'gate', 'lab t', 'end');
+      if (ch) {
+        pa('M210 28' + ' a5.5 5.5 0 0 1 11 0'.repeat(4), v.on ? 'coil on' : 'coil');
+        ln(284, 96, 312, 96, 'plate'); ln(291, 104, 305, 104, 'plate s'); ln(284, 112, 312, 112, 'plate'); ln(291, 120, 305, 120, 'plate s');
+        tx('choke', 232, 14, 'choke', 'lab');
+        tx('load', 281, 112, 'battery', 'lab', 'end');
+      } else {
+        box(287, 80, 22, 52, v.on ? 'res on' : 'res', 3);
+        tx('load', 281, 102, 'heater', 'lab', 'end'); tx('ohm', 281, 118, N.r + ' Ω', 'lab m', 'end');
+      }
+      words = 'A ' + VRMS + ' V supply feeds ' + (ch ? 'a battery through a choke' : 'a heater') + ' through four thyristors in a diamond, each drawn with its gate lead.' +
+        (v.on ? ' One pair conducts now.' : ' No pair conducts now.');
+      FLOW = v.show && !finished && v.on ? [mk(v.on === 'A' ? BRP : BRN, ch ? 30 : 10 + 50 * Math.abs(vs(v.th)) / VP, skipBr)] : null;
+    }
+    svg.setAttribute('aria-label', words);
+    REC.on = v.on;
+  }
+  function dots() {
+    dotsG.textContent = '';
+    if (!FLOW || REDUCE) return;
+    FLOW.forEach((f) => {
+      for (let s = (PH * f.speed) % 22; s < f.len; s += 22) {
+        let k = 1;
+        while (k < f.lens.length - 1 && f.lens[k] < s) k++;
+        const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);
+        const x = K.lerp(a[0], b[0], u), y = K.lerp(a[1], b[1], u);
+        if (f.skip(x, y)) continue;
+        dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(x), cy: r2(y), r: 2.2 }));
+      }
+    });
+  }
+
+  // ---------- the cycle: 0° to 360° across, the voltage up the side ----------
+  const X0 = 46, X1 = 326, AMP = 62, YZ = 114, TOPY = 52, BOTY = 176, BASEY = 190, TLAB = 206, HH = 214;
+  const SZ = 248, SAMP = 12, SSIN = 17, HCH = 286;
+  let OY = 0;
+  const gx = (t) => X0 + t * (X1 - X0) / 360;
+  const Y = (y) => y + OY;
+  const gy = (v) => Y(YZ) - v / VP * AMP;
+  function keyRow(y, items) {
+    const ws = items.map((it) => tw(it[2], 'lab'));
+    const rows = [[]];
+    let w = 0;
+    items.forEach((it, k) => {
+      const iw = 22 + ws[k], row = rows[rows.length - 1];
+      if (row.length && w + 12 + iw > 332) { rows.push([k]); w = iw; return; }
+      w += (row.length ? 12 : 0) + iw; row.push(k);
+    });
+    rows.forEach((row, ri) => {
+      const total = row.reduce((t, k, j) => t + 22 + ws[k] + (j ? 12 : 0), 0), yy = y + 18 * ri;
+      let x = Math.max(4, (340 - total) / 2);
+      row.forEach((k) => {
+        const it = items[k];
+        if (it[0] === 'line') ln(x, yy - 4.5, x + 16, yy - 4.5, it[1]);
+        else if (it[0] === 'tri') pa('M' + r2(x + 8) + ' ' + (yy - 11) + ' l-5.5 10 h11 z', it[1]);
+        else box(x + 2, yy - 10, 12, 11, it[1], 2);
+        tx(it[3], x + 22, yy, it[2], 'lab', 'start');
+        x += 22 + ws[k] + 12;
+      });
+    });
+    return rows.length;
+  }
+  // The pieces of the cycle up to the cursor, split wherever a device fires or a half ends.
+  function piecesTo(a, th) {
+    const cut = [0, a, 180, 180 + a, 360].filter((t) => t > 0 && t < th).sort((x, y) => x - y);
+    const pts = [0].concat(cut, [th]), out = [];
+    for (let k = 0; k < pts.length - 1; k++) if (pts[k + 1] - pts[k] > 1e-9) out.push([pts[k], pts[k + 1]]);
+    return out;
+  }
+  function drawWave(v) {
+    into = wart;
+    const ch = v.mode === 'charger', a = v.a, th = v.th;
+    OY = 0;
+    const items = [['line', 'sup', 'supply', 'k1'], ['line', 'ld', ch ? 'output' : 'heater', 'k2'], ['line', 'avg', 'average', 'k3'], ['tri', 'gm', 'gate pulse', 'k4']];
+    if (ch) items.push(['box', 'shn', 'subtracts', 'k5']);
+    OY = 18 * (keyRow(14, items) - 1);
+    wsvg.setAttribute('viewBox', '0 0 340 ' + ((ch ? HCH : HH) + OY));
+    // Axes.
+    ln(X0, Y(TOPY - 6), X0, Y(BOTY), 'ax'); ln(X0, Y(BASEY), X1, Y(BASEY), 'ax'); ln(X0, Y(YZ), X1, Y(YZ), 'zero');
+    tx('vtop', X0 - 5, Y(TOPY + 4), N.vp + ' V', 'lab m', 'end'); tx('v0', X0 - 5, Y(YZ + 4), '0', 'lab m', 'end'); tx('vbot', X0 - 5, Y(BOTY + 4), '−' + N.vp + ' V', 'lab m', 'end');
+    [0, 90, 180, 270, 360].forEach((t, k) => { ln(gx(t), Y(BASEY), gx(t), Y(BASEY + 4), 'ax'); tx('t' + k, gx(t), Y(TLAB), t + '°', 'lab m'); });
+    // The firing angle, a bracket from 0° to α.
+    const albl = 'α = ' + a + '°', aw = tw(albl, 'lab');
+    if (a > 0) {
+      const x1 = gx(a);
+      ln(X0, Y(40), x1, Y(40), 'brk'); ln(X0, Y(36), X0, Y(44), 'brk'); ln(x1, Y(36), x1, Y(44), 'brk');
+      if (x1 - X0 >= aw + 8) tx('alpha', (X0 + x1) / 2, Y(33), albl, 'lab'); else tx('alpha', x1 + 6, Y(44), albl, 'lab', 'start');
+    } else tx('alpha', X0, Y(44), albl, 'lab', 'start');
+    // The supply, thin.
+    let d = '';
+    for (let t = 0; t <= 360; t += 3) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(vs(t)));
+    pa(d, 'sup');
+    // The load's voltage up to the cursor: shaded where a device conducts, the line bold.
+    const pieces = piecesTo(a, th);
+    let line = '';
+    REC.slices = [];
+    pieces.forEach((pc) => {
+      const s = pc[0], e = pc[1], on = onAt(v.mode, a, (s + e) / 2), n = Math.max(2, Math.ceil((e - s) / 2));
+      let seg = '';
+      for (let k = 0; k <= n; k++) { const t = s + (e - s) * k / n; seg += 'L' + r2(gx(t)) + ' ' + r2(gy(valIn(v.mode, on, t))); }
+      line += (line ? '' : 'M' + r2(gx(s)) + ' ' + r2(gy(valIn(v.mode, on, s)))) + seg;
+      if (on) {
+        const sign = valIn(v.mode, on, (s + e) / 2) < 0 ? -1 : 1;
+        pa('M' + r2(gx(s)) + ' ' + r2(gy(0)) + seg + 'L' + r2(gx(e)) + ' ' + r2(gy(0)) + 'Z', ch && sign < 0 ? 'shn' : 'sh');
+        REC.slices.push([s, e, sign]);
+      }
+    });
+    // The average over the whole cycle, dashed.
+    REC.avg = null;
+    if (!(v.d.hideAvg && !v.right) || th >= 360) {
+      const op = v.d.hideAvg && v.right ? K.clamp((th - 300) / 60, 0, 1) : 1;
+      if (op > 0) {
+        const g = add(K.svg('g', { opacity: r2(op) }));
+        g.appendChild(K.svg('line', { class: 'avg', x1: X0, y1: r2(gy(avgOf(v.mode, a))), x2: X1, y2: r2(gy(avgOf(v.mode, a))) }));
+        if (op >= 1) REC.avg = avgOf(v.mode, a);
+      }
+    }
+    pa(line, 'ld');
+    // The gate pulses, marked on the time axis.
+    REC.gates = [];
+    gatesOf(v.mode, a).forEach((g, k) => {
+      const lit = v.flash === (k ? 'B' : 'A');
+      pa('M' + r2(gx(g)) + ' ' + Y(BASEY - 11) + ' l-5.5 10 h11 z', lit ? 'gm fl' : 'gm');
+      REC.gates.push(g);
+    });
+    // The cursor.
+    if (v.cursorOn) {
+      const xc = gx(th);
+      ln(xc, Y(TOPY - 8), xc, Y(ch ? SZ + SSIN : BASEY), 'cur');
+      ci(xc, gy(valIn(v.mode, v.on, th)), 4.5, 'cdot');
+    }
+    REC.block = null;
+    if (ch) {
+      // The supply's current: a block of fixed height that starts α after the voltage.
+      tx('blk', X0, Y(228), 'supply current', 'lab t', 'start');
+      ln(X0, Y(SZ), X1, Y(SZ), 'zero');
+      let sd = '';
+      for (let t = 0; t <= 360; t += 3) sd += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(Y(SZ) - SSIN * Math.sin(rad(t)));
+      pa(sd, 'sup');
+      const yb = (s) => r2(Y(SZ) - s * SAMP);
+      pa(a > 0 ? 'M' + gx(0) + ' ' + yb(-1) + 'H' + r2(gx(a)) + 'V' + yb(1) + 'H' + r2(gx(180 + a)) + 'V' + yb(-1) + 'H' + gx(360)
+        : 'M' + gx(0) + ' ' + yb(1) + 'H' + r2(gx(180)) + 'V' + yb(-1) + 'H' + gx(360), 'blk');
+      REC.block = [a, 180 + a];
+      if (v.cursorOn) ci(gx(th), Y(SZ) - (onAt('charger', a, th) === 'A' ? 1 : -1) * SAMP, 4, 'bdot');
+      if (a >= 5) {
+        const x1 = gx(a);
+        ln(X0, Y(274), x1, Y(274), 'brk'); ln(X0, Y(270), X0, Y(278), 'brk'); ln(x1, Y(270), x1, Y(278), 'brk');
+        tx('lag', x1 + 6, Y(278), 'α behind the voltage', 'lab', 'start');
+      } else tx('lag', X0, Y(278), 'in step with the voltage', 'lab', 'start');
+    }
+    const gw = gatesOf(v.mode, a).map((g) => g + '°').join(' and ');
+    wsvg.setAttribute('aria-label', 'One cycle of the supply, 0° to 360°, drawn thin. The voltage across the load is drawn bold' +
+      (th < 360 ? ' up to the cursor at ' + Math.round(th) + '°' : '') + ', and each slice that conducts is shaded. Gate pulses are marked at ' + gw + '.' +
+      (ch ? ' Below, the supply current is a block that starts ' + a + '° after the voltage.' : ''));
+  }
+
+  // ---------- one screen drawn in its state ----------
+  function view(i, p, st) {
+    const d = STEPS[i], right = st.res === 'right', show = !!d.show, mode = modeOf(p), a = alphaOf(p);
+    const th = CS ? K.clamp(CS.cur, 0, 360) : K.clamp(+p.time || 0, 0, 360);
+    const on = onAt(mode, a, th);
+    let flash = '';
+    if (FL) flash = 'A';
+    else if (CS) gatesOf(mode, a).forEach((g, k) => { if (th >= g && th < g + FLW) flash = k ? 'B' : 'A'; });
+    return { i, d, right, show, mode, a, th, on, flash, cursorOn: th < 360 || !!CS, msg: d.pulse && MSG ? MSG.text : '' };
+  }
+  function render(i, p, st) {
+    REC = { texts: [], v: null, slices: [], gates: [], avg: null, block: null, on: '' };
+    const v = view(i, p, st);
+    REC.v = v;
+    art.textContent = ''; slots(el('clabs'), SL.clabs);
+    wart.textContent = ''; slots(el('wlabs'), SL.wlabs);
+    drawCircuit(v); drawWave(v);
+    into = null;
+    return REC;
+  }
+  function paint() {
+    const i = at(), p = K.params();
+    const R = render(i, p, S[i]);
+    if (STEPS[i].show && !finished) el('say').textContent = sayFor(R.v);
+  }
+
+  // ---------- what Dan reads under the picture ----------
+  function sayFor(v) {
+    if (v.msg) return v.msg;
+    const a = v.a, t = Math.round(v.th);
+    if (v.cursorOn) {
+      if (v.mode === 'one') {
+        if (v.on) return v.flash ? `At ${t}°, the gate pulse fires the thyristor.` : `At ${t}°, the thyristor conducts. The pulse is over, but it stays on.`;
+        if (t % 180 === 0) return `At ${t}°, the supply is at zero, and the thyristor is off.`;
+        if (t < 180) return `At ${t}°, the thyristor is forward biased. It waits for its pulse.`;
+        return `At ${t}°, the thyristor is reverse biased, so it blocks.`;
+      }
+      if (v.mode === 'charger') {
+        const pair = v.on === 'A' ? 'the first pair' : 'the second pair';
+        if (v.flash) return `At ${t}°, a gate pulse fires ${pair}. The other pair lets go.`;
+        const past = (v.on === 'A' && t >= 180) || (v.on === 'B' && t < a);
+        return past ? `At ${t}°, ${pair} still conducts, carried on by the choke.` : `At ${t}°, ${pair} conducts.`;
+      }
+      const dev = v.mode === 'triac' ? 'the triac' : t >= 180 ? 'the second pair' : 'the first pair';
+      if (v.on) return v.flash ? `At ${t}°, the gate pulse fires ${dev}.` : `At ${t}°, ${dev} conducts. Its pulse is over, but it stays on.`;
+      if (t % 180 === 0) return `At ${t}°, the supply is at zero, so nothing conducts.`;
+      return `At ${t}°, ${dev} waits for its pulse.`;
+    }
+    if (v.mode === 'charger') {
+      const lag = a === 0 ? 'Fired at 0°, the current block starts with the voltage.' : `Fired at ${a}°, the current block starts ${a}° after the voltage.`;
+      return `${lag} The output averages ${fx(avgCh(a), 0)} V, at a power factor of ${fx(pfCh(a), 2)}.`;
+    }
+    if (a >= 180) return 'Fired at 180°, the supply is already at zero, so nothing gets through.';
+    if (v.mode === 'triac') return `Fired at ${a}°, the heater takes ${fx(pTri(a), 0)} W, at ${fx(rmsTri(a), 0)} V rms.`;
+    if (v.mode === 'bridge') return a === 0 ? `Fired at 0°, both humps are shaded in full. That averages ${fx(avgBr(a), 0)} V.`
+      : `Fired at ${a}°, both halves are shaded from ${a}° on. That averages ${fx(avgBr(a), 0)} V.`;
+    return a === 0 ? `Fired at 0°, the heater gets every positive hump. That averages ${fx(avgOne(a), 0)} V.`
+      : `Fired at ${a}°, the heater gets each positive half from ${a}° to 180°. That averages ${fx(avgOne(a), 0)} V.`;
+  }
+  function settingFor(v) {
+    const parts = [MODEN[v.mode], 'fired at ' + v.a + '°', v.mode === 'charger' ? 'battery through a choke' : PH + ' W heater'];
+    if (v.cursorOn) parts.push('cursor at ' + Math.round(v.th) + '°');
+    return parts.join(' · ');
+  }
+  function showEl(id, on) { const e = el(id); if (e.hidden && on) enter(id); e.hidden = !on; }
+  const outsShown = (d, right) => !!d.show || d.outs === 'before' || right;
+  function layout(i, d, st, p, v) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const vs2 = visIds(d, p), has = (id) => vs2.indexOf(id) >= 0;
+    modeCtl.el.hidden = !has('mode'); el('sw').hidden = !has('mode');
+    alphaCtl.el.hidden = !has('alpha'); alphaCCtl.el.hidden = !has('alphaC'); timeCtl.el.hidden = !has('time');
+    el('ctl').hidden = !(has('alpha') || has('alphaC') || has('time'));
+    playBtn.el.hidden = !has('play'); pulseBtn.el.hidden = !has('pulse');
+    el('ctl2').hidden = !(has('play') || has('pulse'));
+    showEl('outs', outsShown(d, right));
+    const ch = v.mode === 'charger';
+    rP.el.hidden = ch; rF.el.hidden = !ch;
+    const lab = rV.el.querySelector('.k-readout-label');
+    if (lab) lab.textContent = v.mode === 'triac' ? 'Rms across the heater' : 'Average across the load';
+    const outs = el('outs');
+    if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }
+    else if (el('say').nextElementSibling !== outs) el('say').after(outs);
+    el('say').hidden = !d.show;
+    el('say').textContent = d.show ? sayFor(v) : '';
+    el('setting').hidden = !!d.show;
+    el('setting').textContent = d.show ? '' : settingFor(v);
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(nb(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+  write(el('finish'), FINISH);
+
+  function enterStep(i) {
+    lastStep = i; enter('stepbox'); CS = null; SW = null; FL = null; MSG = null;
+    const d = STEPS[i], right = S[i].res === 'right', q = setupOf(i, right);
+    IDS.forEach((id) => CTL[id].set(q[id], true));
+    lastMode = q.mode;
+    if (d.show && d.play) {
+      if (d.play === 'cursor') startCursor(0, 360, DEMO, FADE);
+      else startSweep(aId(q.mode), d.play.from, d.play.to, DEMO, FADE);
+    }
+  }
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    if (!motion.playing() && (CS || SW || FL)) { settle(); K.refresh(); return; }
+    if (SW && +p[SW.id] !== SW.last) SW = null;               // Dan took hold of the slider
+    if (CS && +p.time !== CS.last) CS = null;
+    if (MSG && !CS && +p.time !== MSG.time) MSG = null;
+    if (p.mode !== lastMode) {
+      const was = lastMode;
+      lastMode = p.mode;
+      if (d.show && visIds(d, p).indexOf('mode') >= 0 && (was === 'charger') !== (p.mode === 'charger')) {
+        // The firing angle carries across when the circuit changes (Charger stops at 90°).
+        if (p.mode === 'charger') alphaCCtl.set(Math.min(r5(p.alpha), 90), true); else alphaCtl.set(r5(p.alphaC), true);
+        SW = null; K.refresh(); return;
+      }
+    }
+    if (!pinning) {
+      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.
+      const q = setupOf(i, st.res === 'right'), vis = visIds(d, p);
+      let fix = false;
+      IDS.forEach((id) => {
+        if (vis.indexOf(id) >= 0 || (SW && SW.id === id) || (CS && id === 'time')) return;
+        if (String(p[id]) !== String(q[id])) { CTL[id].set(q[id], true); fix = true; }
+      });
+      if (fix) { pinning = true; K.refresh(); pinning = false; return; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const R = render(i, p, st);
+    layout(i, d, st, p, R.v);
+    dots();
+    kick();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawnAt(i, over, right) {
+    const keep = [CS, SW, FL, MSG];
+    CS = null; SW = null; FL = null; MSG = null;
+    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }
+    finally { CS = keep[0]; SW = keep[1]; FL = keep[2]; MSG = keep[3]; paint(); }
+  }
+  const meanOf = (f, n) => { let s = 0; for (let k = 0; k < n; k++) s += f(360 * (k + 0.5) / n); return s / n; };
+  const atA = (mode, a) => K.at(mode === 'charger' ? { mode, alphaC: a } : { mode, alpha: a });
+
+  K.check('One thyristor averages (325 ÷ 2π)(1 + cos α): 104 V fired at 0°, 78 V at 60° and 52 V at 90°', () =>
+    fx(atA('one', 0).volts, 0) === '104' && fx(atA('one', 60).volts, 0) === '78' && fx(atA('one', 90).volts, 0) === '52');
+  K.check('The bridge averages twice as much, (325 ÷ π)(1 + cos α): 207 V at 0°, 155 V at 60°, 104 V at 90° and 52 V at 120°', () =>
+    fx(atA('bridge', 0).volts, 0) === '207' && fx(atA('bridge', 60).volts, 0) === '155' && fx(atA('bridge', 90).volts, 0) === '104' &&
+    fx(atA('bridge', 120).volts, 0) === '52' && K.near(atA('bridge', 45).volts, 2 * atA('one', 45).volts, 1e-9));
+  K.check('Each readout is the drawn bold line worked out over the cycle: its mean gives the average, and its square over 23 Ω the heater power, at every 15°', () => {
+    for (const m of MODES) {
+      for (let a = 0; a <= (m === 'charger' ? 90 : 180); a += 15) {
+        const o = atA(m, a), mean = meanOf((t) => loadV(m, a, t), 7200), sq = meanOf((t) => loadV(m, a, t) * loadV(m, a, t), 7200) / RH;
+        if (m === 'triac') { if (!(Math.abs(mean) < 1e-6 && Math.abs(sq - o.heaterPower) < 0.5 && Math.abs(Math.sqrt(sq * RH) - o.volts) < 0.05)) return false; }
+        else if (Math.abs(mean - o.volts) > 0.05) return false;
+        if (m !== 'charger' && m !== 'triac' && Math.abs(sq - o.heaterPower) > 0.5) return false;
+      }
+    }
+    return true;
+  });
+  K.check('The area under a sine from α to 180° is 1 + cos α: 2 for a whole hump, 1.5 from 60° and 0.5 from 120°', () => {
+    const ar = (a) => { let s = 0; const n = 6000; for (let k = 0; k < n; k++) s += Math.sin(rad(a + (180 - a) * (k + 0.5) / n)) * rad(180 - a) / n; return s; };
+    return K.near(ar(0), 2, 1e-6) && K.near(ar(60), 1.5, 1e-6) && K.near(ar(120), 0.5, 1e-6) && N.a60 === '1.5' && N.q60 === '0.75' && N.a120 === '0.5';
+  });
+  K.check('The triac heater takes 2300 W fired at 0°. Fired at 90° it takes 1150 W at about 163 V rms, not 115 V', () =>
+    fx(atA('triac', 0).heaterPower, 0) === '2300' && fx(atA('triac', 0).volts, 0) === '230' && fx(atA('triac', 90).heaterPower, 0) === '1150' &&
+    fx(atA('triac', 90).volts, 0) === '163' && N.half === '115' && atA('triac', 180).heaterPower < 1e-9);
+  K.check('A triac behaves like two conventional thyristors in inverse parallel (back to back): each half gets the same slice, the negative one turned over', () => {
+    for (let a = 0; a <= 180; a += 15) for (let t = 1; t < 180; t += 7) {
+      if (!K.near(loadV('triac', a, t), loadV('one', a, t), 1e-9) || !K.near(loadV('triac', a, t + 180), -loadV('one', a, t), 1e-6)) return false;
+    }
+    return true;
+  }, { source: TRI });
+  K.check('SCRs are turned off by anode current falling below the holding current, not by the gate: fired at 90°, the drawn thyristor is still on at 120° and 175°, and off from 180°', () =>
+    onAt('one', 90, 120) === 'A' && onAt('one', 90, 175) === 'A' && onAt('one', 90, 180) === '' && onAt('one', 90, 270) === '' && onAt('one', 90, 89) === '', { source: AAC });
+  K.check('An extra pulse changes nothing while the thyristor is on or reverse biased. One at 45°, before it fires at 90°, fires it there', () =>
+    pulseAt(90, 135) === 'on' && pulseAt(90, 270) === 'reverse' && pulseAt(90, 360) === 'zero' && pulseAt(90, 180) === 'zero' && pulseAt(90, 45) === 'fires');
+  K.check('Fired at 90°, one thyristor shades 90° to 180° only, with one gate mark. The bridge shades both halves above the line, with marks at 90° and 270°', () => {
+    const o = drawnAt(3, { mode: 'one', alpha: 90, time: 360 }), b = drawnAt(5, { mode: 'bridge', alpha: 90, time: 360 });
+    return o.slices.length === 1 && o.slices[0][0] === 90 && o.slices[0][1] === 180 && o.gates.join() === '90' && o.avg != null &&
+      b.slices.length === 2 && b.slices.every((s) => s[2] > 0) && b.slices[1][0] === 270 && b.gates.join() === '90,270';
+  });
+  K.check('On the puzzle with the cursor at 120°, the slice is drawn only to 120° with no average line. After a right Check it runs to 180°', () => {
+    const b = drawnAt(2, null, false), r = drawnAt(2, null, true);
+    return b.slices.length === 1 && b.slices[0][1] === 120 && b.avg == null && b.on === 'A' && r.slices[0][1] === 180 && r.avg != null && r.on === '';
+  });
+  K.check('The charger averages 207 × cos α: 207 V at 0°, 179 V at 30°, 104 V at 60° and 0 V at 90°', () =>
+    fx(atA('charger', 0).volts, 0) === '207' && fx(atA('charger', 30).volts, 0) === '179' && fx(atA('charger', 60).volts, 0) === '104' && fx(atA('charger', 90).volts, 0) === '0');
+  K.check('So when α < 90° the average DC voltage is positive', () => {
+    for (let a = 0; a < 90; a += 5) if (!(atA('charger', a).volts > 0)) return false;
+    return Math.abs(atA('charger', 90).volts) < 1e-9;
+  }, { source: ETR });
+  K.check('For a smaller DC voltage the trigger pulse is delayed, and the trigger angle shifts the input current, which reduces the power factor: 0.90, 0.78 and 0.45 at 0°, 30° and 60°', () => {
+    const pfNum = (a) => meanOf((t) => vs(t) * (onAt('charger', a, t) === 'A' ? 1 : -1), 7200) / VRMS;
+    for (let a = 5; a <= 90; a += 5) if (!(pfCh(a) < pfCh(a - 5) && atA('charger', a).volts < atA('charger', a - 5).volts)) return false;
+    const blk = drawnAt(9, { mode: 'charger', alphaC: 30, time: 360 }).block;
+    return K.near(pfNum(0), pfCh(0), 1e-4) && K.near(pfNum(60), pfCh(60), 1e-4) && blk[0] === 30 && blk[1] === 210 &&
+      fx(atA('charger', 0).powerFactor, 2) === '0.90' && fx(atA('charger', 30).powerFactor, 2) === '0.78' && fx(atA('charger', 60).powerFactor, 2) === '0.45';
+  }, { source: ECPE });
+  K.check('Even fired at 0°, a block of current gives a power factor of 2√2 ÷ π, about 0.9, below 1', () => K.near(pfCh(0), 0.9003, 1e-4) && N.k === '0.9' && pfCh(0) < 1);
+  K.check('The heater is 230² ÷ 2300 = 23 Ω, and the peak is 230 × √2, about 325 V', () => N.r === '23' && N.vp === '325' && K.near(RH, 23, 1e-9));
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden readouts appear only after a right Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      return d.outs === 'after' ? !outsShown(d, false) && outsShown(d, true) : outsShown(d, false);
+    }));
+  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () => DEMO + FADE <= 4.5 && ANS <= 3);
+  K.check('Every number in the words comes from the rule: 104, 78, 52, 69, 207, 155, 104, 52, 1150, 163, 115, 179, 104, 0.90, 0.78, 0.45 and 0.9', () =>
+    N.one0 === '104' && N.one60 === '78' && N.one90 === '52' && N.third === '69' && N.third2 === '69' && N.br0 === '207' && N.br60 === '155' &&
+    N.br90 === '104' && N.br120 === '52' && N.p90 === '1150' && N.rms90 === '163' && N.s90 === '0.5' && N.ch30 === '179' && N.ch60 === '104' &&
+    N.pf0 === '0.90' && N.pf30 === '0.78' && N.pf60 === '0.45' && N.c60 === '0.5' && N.c120 === '−0.5');
+
+  K.ready();
+</script>

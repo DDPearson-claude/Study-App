@@ -1,0 +1,658 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "The thyristor and phase control",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the shaded slice of each half, and the average read from it, shrink from 207 V to 104 V when you drag the bridge's firing angle from 0° to 90°.",
+   "title": "The firing angle",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "volts",
+     "label": "Across the load",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "heaterPower",
+     "label": "Heater power",
+     "unit": "W",
+     "decimals": 0
+    },
+    {
+     "id": "powerFactor",
+     "label": "Power factor",
+     "unit": "",
+     "decimals": 2
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in fourteen small screens. Most show one picture, the firing angle. A 230 V, 50 Hz supply, peak 230 × √2 or about 325 V, feeds a load through thyristors. A picker chooses the circuit: One thyristor, Bridge, Triac or Charger. It offers only the circuits met so far. Its buttons wrap onto two lines on a narrow phone. The first three feed a 23 Ω heater, 2300 W at full voltage. Charger feeds a battery through a choke. Each thyristor is drawn with its gate lead. A firing-angle slider sets α from 0° to 180° in 5° steps, or to 90° in Charger.\n\nBelow, a plot shows one cycle, 0° to 360°. The supply's sine is thin, the load's voltage bold, and each conducting slice shaded. A mark on the time axis shows each gate pulse, at α and, for a second device, at 180° + α. Play runs a cursor round the cycle, slowed down, and a time slider moves it in 5° steps. While the cursor is in a shaded slice, the conducting device is drawn bold, and its gate lead flashes at the pulse. Pulse the gate sends an extra pulse at the cursor. It fires the device only if that is off and forward biased.\n\nEach readout comes from the shaded area. The area under a sine from α to 180° is 1 + cos α, and a whole hump gives 2. One thyristor averages (325 ÷ 2π)(1 + cos α): 104 V at 0°, 52 V at 90°. Bridge, four thyristors in a diamond, shades both halves above the line, so it averages twice that, (325 ÷ π)(1 + cos α). A dashed line marks the average. Triac's average is zero, so its readouts show the rms and the heater's power, 2300 W × (1 − α ÷ 180° + sin 2α ÷ 2π): 1150 W and about 163 V at 90°.\n\nCharger holds the choke's current steady, so each slice runs from α to 180° + α, partly below the line. It averages (2 × 325 ÷ π) × cos α, about 207 × cos α. Under the voltage, a strip shows the supply's current as a block, positive from α to 180° + α. The power factor readout is real power over volts × amps, about 0.9 × cos α: 0.90 at 0°, 0.78 at 30°, 0.45 at 60°. The 0.9 is 2√2 ÷ π, below 1 because a block is not a sine. Each mode shows two readouts side by side.\n\nThe screens.\n\n1, a puzzle: the picture shows One thyristor at rest, with α at 90° and the readouts hidden. “You start a motor direct on line. As it starts, about how much current does it draw?” Offered: “Usually 6 to 8 times its rated current”; “About its rated current”; “About twice its rated current”. Hint for its rated current: “If it drew only its rated current, nobody would fit a soft starter.” Hint for twice: “Think of the lights dipping as a big motor starts. It is far more than twice.” Why: “Usually 6 to 8 times, and sometimes more than 10 times.[^1] A soft starter cuts that. It brings the voltage up gently. Its switches are thyristors. Here is how they work.” A right Check says “That's it.”\n\n2, show: A diode with a gate. One thyristor, α at 90°, the cursor run from 0° to 360°. The words: “A thyristor is a diode with a third lead, its gate. Like a diode, it blocks reverse voltage. It also blocks forward voltage until a pulse on the gate fires it. Here it feeds a 2300 W heater, fired at 90°. Play the cycle. The pulse fires it, and it stays on after the pulse ends. Just before 180° its current falls away, and it lets go. Set the time to 135°, then pulse the gate. Nothing changes.” Read: the definition, that it latches until its current falls away near 180°, the slice from 90° to 180° only, and that a pulse at 135° changes nothing. Still: One thyristor, α 90°, cursor 360°.\n\n3, a puzzle: One thyristor, α at 90°, the cursor stopped at 120°, the thyristor bold. “The thyristor fired at 90°, and the gate pulse is over. The cursor is at 120°. What happens next?” Offered: “It conducts on until its current falls away, near 180°”; “It turns off at once, as the pulse is over”; “It conducts on into the negative half”. Hint for off at once: “Once fired, it latches. What has to fall for it to let go?” Hint for the negative half: “In the negative half it is reverse biased, like a diode.” Why: “It conducts on. Once fired, a thyristor latches on. The gate then has no more say. It lets go only when its current falls below a small holding current.[^2] On AC that happens just before the zero. So it needs a fresh pulse every cycle.” A right Check runs the cursor to 360°. The thyristor stays bold to 180°, then goes thin.\n\n4, show: The firing angle. One thyristor, α from 0° to 90°. The words: “The firing angle, α, is the angle in each half where the gate fires. Drag it. At 0° the heater gets every positive hump, as from a half-wave rectifier. That averages about 104 V. Fire later, and the shaded slice shrinks. The average is the shaded area spread over the whole cycle. At 90° the slice is exactly half the hump, because a hump is symmetrical. So the average halves, to about 52 V.” Read: the definition of α, then 104 V at 0° and 52 V at 90°. Still: One thyristor, α 90°, cursor 360°.\n\n5, a puzzle: One thyristor, α at 0°, the average reading 104 V. “Fire at 60° instead. That cuts a third of the time from the positive half. What does the average become?” Offered: “About 78 V”; “About 69 V, a third less”; “About 52 V”. Hint for 69 V: “The first 60° is the low, rising start of the hump. Does it hold a third of the area?” Hint for 52 V: “52 V is the answer at 90°. At 60° more of the hump is shaded.” Why: “About 78 V. The area under a sine from α to 180° is 1 + cos α. The whole hump gives 2. At 60° that is 1 + 0.5 = 1.5. That is three quarters of 2. So the average is 104 × 0.75, about 78 V. The start of a hump is low. So cutting it costs little.” A right Check sets α to 60°, and the average reads 78 V.\n\n6, show: A controlled bridge. Bridge, α at 0° and then 60°. The picker offers One thyristor and Bridge. The words: “A bridge rectifier with thyristors in place of its four diodes is a controlled rectifier. Each pair fires at α in its own half. So both humps are shaded above the line. Fired at 0°, it gives the diode bridge's 207 V. Later firing shrinks both slices. The average is (Vmax ÷ π)(1 + cos α). Vmax is the 325 V peak. At 60° that is 155 V. At 90° it is 104 V.” Read: the definition, the rule, and 155 V at 60°. Still: Bridge, α 60°, cursor 360°.\n\n7, a puzzle: Bridge, α at 60°, the average reading 155 V. “Now fire the bridge at 120°. What does it average?” Offered: “About 52 V”; “About 69 V, a third of 207 V”; “About −52 V, as cos 120° is negative”. Hint for 69 V: “Only the low tail of each hump is left. Use 1 + cos α.” Hint for −52 V: “Add the 1 before you multiply. A heater's slices never dip below the line.” Why: “About 52 V. cos 120° is −0.5. So 1 + cos α is 0.5. That is a quarter of the whole hump's 2. A quarter of 207 V is about 52 V.” A right Check sets α to 120°, and the average reads 52 V.\n\n8, show: The triac. Triac, α at 0° and then 90°. The picker adds Triac. The words: “A triac behaves like two thyristors back to back.[^3] It fires in both halves, so the heater gets chopped AC. The readouts show rms and watts. Fired at 0°, the heater takes 2300 W. The squared wave is symmetrical too, so firing at 90° keeps half its heating, 1150 W. The rms is 230 × √0.5, about 163 V, not 115 V. The chopped current costs power factor too. It is √0.5, about 0.71.” Read: the definition, then 163 V, 1150 W and a power factor of about 0.71 at 90°. Still: Triac, α 90°, cursor 360°.\n\n9, a puzzle: Triac, α at 90°. “A triac lamp dimmer is to hand. Should it set the speed of a small fan motor?” Offered: “No, a lamp dimmer is for resistive loads only”; “Yes, a lower rms means a slower fan”; “Yes, as the fan is small”. Hint for a lower rms: “A motor is a coil, not a heater. What load is a lamp dimmer made for?” Hint for small: “Size is not the issue. What kind of load is a fan motor?” Why: “No. Triac lamp dimmers are made for resistive loads only. They should not be used as a motor speed controller.[^4] A motor's coil keeps its current flowing past the voltage's zero. A heater's current falls to zero with the voltage. A soft starter or fan controller is built for a coil's late current. A lamp dimmer is not.” A right Check keeps the picture as it is.\n\n10, show: The charger. Charger, α from 0° to 30°. The picker offers all four circuits. The words: “Here the bridge charges a battery through a choke, a large coil. The choke carries the current through each zero. So each pair conducts from α to 180° + α. The part below the line subtracts. So the slice's area is cos α − cos(180° + α), or 2 cos α. A whole hump gives 2. So the average is 207 × cos α. Past 90° it turns negative. Only a DC source pushing back, like a driven DC motor, could keep that up.” Read: the choke, each slice from α to 180° + α with area 2 cos α, the rule 207 × cos α, and 179 V at 30°. Still: Charger, α 30°, cursor 360°.\n\n11, show: The power factor. Charger, α from 0° to 30°, with no picker. The words: “Below, the supply's current is a block. It starts α after the voltage. Fire later, and it slides further behind. More of it then flows while the voltage is low or reversed. So the power factor falls.[^5] Even in step, at 0°, it reads only 0.90. A block is not a sine, so it scores 2√2 ÷ π, about 0.9. So the power factor is about 0.9 × cos α.” Read: the block, why it scores 0.9 even in step, and 0.78 at 30°, about 0.9 × cos α. Still: Charger, α 30°, cursor 360°.\n\n12, a puzzle: Charger, α at 0°, the average reading 207 V and the power factor 0.90. “The charger must cut its output to about 104 V, half of 207 V. What happens to its power factor?” Offered: “It falls to about 0.45”; “It stays near 0.90, as firing later costs nothing”; “It rises, as less power is drawn”. Hint for stays: “Watch where the current block starts as α grows.” Hint for rises: “Less power is drawn, but the block slides further behind the voltage.” Why: “It falls to about 0.45. Half of 207 V needs cos α = 0.5. So α is 60°. The current block now starts 60° behind the voltage. A block scores only 0.9, even in step. So the power factor is 0.9 × 0.5 = 0.45. The supply carries the same current for half the power.” A right Check sets α to 60°. The average reads 104 V and the power factor 0.45.\n\n13, a mixed puzzle: Triac, α at 150°, the readouts hidden. The picture keeps its heater, and the setting line says the heater stands in for the motor. “A soft starter fires its thyristors late at first, then earlier and earlier. What does the motor get?” Offered: “A voltage that ramps up from low to full”; “The full voltage at once, for less time”; “A DC voltage that rises”. Hint for the full voltage: “A late firing passes only a thin slice of each half. What does that do to the rms?” Hint for DC: “Its thyristors sit back to back, and fire in both halves.” Why: “A ramp. Late firing passes only a thin slice of each half. So the motor sees a low voltage. Earlier firing widens the slices until the motor gets the full supply. That ramp limits the starting current.[^6]” A right Check runs α from 150° down to 0°. The shaded slices widen until both halves are full.\n\n14, a mixed puzzle: Bridge, α at 90°, the average reading 104 V. “A fault holds the gate signal on all the time. What does the heater get now?” Offered: “About 207 V, as if fired at 0°”; “Nothing, as no fresh pulse ever comes”; “About 104 V, as before”. Hint for nothing: “A signal that stays on is a pulse that never ends. When does each thyristor first see it?” Hint for 104 V: “The firing angle is when the gate first fires it. With the signal always on, when is that?” Why: “About 207 V. A thyristor fires once it is forward biased with its gate signalled. With the signal always on, each one fires at the start of its half. So the bridge acts as a plain diode bridge.” A right Check sets α to 0°, and the average reads 207 V.\n\nSome screens show an idea. The rest ask you to try it. Each puzzle offers three stacked answers, which can wrap on a narrow phone. A wrong pick gets its one-line hint. Why? explains the answer. Continue moves on.",
+   "ignores": "The thyristors are drawn ideal. A real one keeps a small forward drop, like a diode. Its gate also needs a pulse of some size to fire it. Each one is drawn letting go exactly at the zero. A real one lets go just before it, when its current falls below the holding current. The heater's resistance is drawn fixed, though a real element's rises as it warms. In Charger, the choke is drawn so large that the current never ripples. The supply has no inductance of its own, so each block switches over at once. A real supply makes each changeover take a little time. The Charger slider stops at 90°. Past it the average would turn negative. A battery connected the normal way cannot keep that going. The cycle is slowed down. At 50 Hz it lasts 20 ms.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Supply, rms, chosen, V",
+     "value": 230,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply frequency, chosen, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply peak, 230 × √2, about, V",
+     "value": 325,
+     "kind": "computed"
+    },
+    {
+     "label": "Heater power at full voltage, chosen, W",
+     "value": 2300,
+     "kind": "assumed"
+    },
+    {
+     "label": "Heater resistance, 230² ÷ 2300, Ω",
+     "value": 23,
+     "kind": "computed"
+    },
+    {
+     "label": "Firing angle slider, lowest, °",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Firing angle slider, highest, °",
+     "value": 180,
+     "kind": "control"
+    },
+    {
+     "label": "Firing angle slider step, °",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Firing angle slider top in Charger, °",
+     "value": 90,
+     "kind": "control"
+    },
+    {
+     "label": "Time slider, lowest, °",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Time slider, highest, °",
+     "value": 360,
+     "kind": "control"
+    },
+    {
+     "label": "Time slider step, °",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "End of the positive half, °",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "Second pulse in screen 2, °",
+     "value": 135,
+     "kind": "control"
+    },
+    {
+     "label": "Cursor stop in screen 3, °",
+     "value": 120,
+     "kind": "control"
+    },
+    {
+     "label": "Area under a whole hump, in units of the peak",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "1 + cos 60°",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Share of the hump left at 60°",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "cos 60°",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "cos 120°",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "One thyristor average at 0°, 325 ÷ π, V",
+     "value": 104,
+     "kind": "computed"
+    },
+    {
+     "label": "One thyristor average at 60°, V",
+     "value": 78,
+     "kind": "computed"
+    },
+    {
+     "label": "One thyristor average at 90°, V",
+     "value": 52,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, a third less than 104 V, V",
+     "value": 69,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average at 0°, 2 × 325 ÷ π, V",
+     "value": 207,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average at 60°, V",
+     "value": 155,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average at 90°, V",
+     "value": 104,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average at 120°, V",
+     "value": 52,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, the sign of cos 120° kept, V",
+     "value": -52,
+     "kind": "computed"
+    },
+    {
+     "label": "Triac heater power at 90°, W",
+     "value": 1150,
+     "kind": "computed"
+    },
+    {
+     "label": "Triac rms at 90°, 230 × √0.5, V",
+     "value": 163,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, half of 230 V, V",
+     "value": 115,
+     "kind": "computed"
+    },
+    {
+     "label": "Share of power left at 90°",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Triac heater power factor at 90°, √0.5",
+     "value": 0.71,
+     "kind": "computed"
+    },
+    {
+     "label": "Charger average at 30°, 207 × cos 30°, V",
+     "value": 179,
+     "kind": "computed"
+    },
+    {
+     "label": "Charger average at 60°, V",
+     "value": 104,
+     "kind": "computed"
+    },
+    {
+     "label": "Charger average at 90°, V",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Power factor factor, 2√2 ÷ π, about",
+     "value": 0.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Charger power factor at 0°",
+     "value": 0.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Charger power factor at 30°",
+     "value": 0.78,
+     "kind": "computed"
+    },
+    {
+     "label": "Charger power factor at 60°",
+     "value": 0.45,
+     "kind": "computed"
+    },
+    {
+     "label": "Soft starter screen, opening firing angle, °",
+     "value": 150,
+     "kind": "control"
+    },
+    {
+     "label": "Cycle time at 50 Hz, ms",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Direct-on-line starting current, usual, lowest, times rated",
+     "value": 6,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Direct-on-line starting current, usual, highest, times rated",
+     "value": 8,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Direct-on-line starting current, can exceed, times rated",
+     "value": 10,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Hydrogen in air, lower explosive limit, %",
+     "value": 4.1,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Hydrogen in air, upper explosive limit, %",
+     "value": 72,
+     "kind": "constant",
+     "source": 7
+    },
+    {
+     "label": "Worked example charger average, chosen, V",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example cos α, 120 ÷ 207",
+     "value": 0.58,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example firing angle, about, °",
+     "value": 55,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example power factor, 0.9 × 0.58",
+     "value": 0.52,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A thyristor is a diode that waits for a pulse on its gate. The gate is its control lead. Once fired, it stays on until its current falls away. So an ordinary thyristor's gate chooses when it starts in each half cycle, never when it stops. Fire it later, and less of each half reaches the load. That gives less DC.\n\nLike a diode, a thyristor blocks reverse voltage. Unlike a diode, it also blocks forward voltage until its gate gets a pulse. The pulse fires it, and it latches on. The gate then has no more say. The thyristor lets go only when its current falls below a small [[holding current]].[^2] On AC that happens just before its current reaches zero. So it must be fired again every cycle. A second pulse while it conducts changes nothing. Removing the gate signal changes nothing either. A gate turn-off thyristor, or GTO, is a different kind. Its gate can also turn it off.[^8] The [[firing angle]], α, is the angle in each half cycle at which the gate fires.\n\nThe load gets the slice of each half from α to 180°. Its average is the slice's area spread over the time. Integrating the sine gives the area under it from α to 180°. That area is 1 + cos α. A whole hump gives 2. So firing at 60° keeps 1.5 out of 2. That is three quarters of the area from two thirds of the time. The start of a hump is low. So cutting it costs little.\n\nSwap a bridge rectifier's four diodes for thyristors, and it becomes a controlled rectifier. With a heater as its load, it averages (Vmax ÷ π)(1 + cos α). Vmax is the peak. On 230 V the peak is 325 V. So firing at 0° gives the diode bridge's 207 V, 60° gives 155 V and 90° gives 104 V. A [[triac]] behaves like two thyristors back to back. So it chops both halves and passes AC. Fired at 90°, it gives a heater half its full power. The squared wave is symmetrical about 90°, just as the hump is. Its chopped current also lowers the power factor, to √0.5, about 0.71.\n\nA charger adds a choke, a large coil, to keep its current steady. The choke carries the current through each zero, so each pair of thyristors conducts on until the other pair fires. Each slice now runs from α to 180° + α, and the part below the line subtracts. Its area is cos α − cos(180° + α), which is 2 cos α. A whole hump gives 2. The average then becomes (2Vmax ÷ π) × cos α. On 230 V that is about 207 V × cos α. Past 90° it would turn negative. A battery wired to be charged cannot drive that, so its current would simply die. A DC source that pushes against the bridge can, such as a DC motor being driven. Power then flows from the DC side back to the supply. Firing later has a cost. The supply's current becomes a block that starts α after the voltage. Part of each block now flows while the voltage is low or reversed. So each amp delivers less power. The power factor falls. For this bridge it is about 0.9 × cos α. The 0.9 is 2√2 ÷ π. A block is not a sine, so even in step it scores below 1. So a charger cut to 104 V runs at a power factor of about 0.45. This is a simplified picture. It assumes ideal switches, a perfectly steady choke current and a supply with no inductance of its own. **A thyristor is a diode that waits for a gate pulse, so firing it later each half cycle gives less DC.**"
+  },
+  "analogy": {
+   "text": "A thyristor works like a contactor with a holding contact across its start button. A press of start pulls it in, like the gate pulse. Let go, and the holding contact keeps it in. Pressing start again changes nothing. If its supply fails, it drops out and waits for another press. A thyristor's own current fails once every cycle of the AC. So it needs a fresh press every cycle. Pressing later each time gives the load less.",
+   "breaks": "A contactor has a stop button. It also stays in through every zero of the supply. An ordinary thyristor has no stop at its gate. It lets go by itself whenever its own current falls below the holding current. On AC that happens once every cycle."
+  },
+  "practice": {
+   "text": "A charger has two sources, the supply and the battery. Isolate and prove dead on both before you work inside. Lead-acid batteries give off hydrogen on charge. Hydrogen is explosive in air from 4.1 to 72 percent.[^7] Keep the ventilation working and sparks away.\n\nThyristor-controlled rectifiers can charge lead-acid and nickel-cadmium batteries while feeding DC loads. A lead-acid battery is charged at constant current, then constant voltage. A thyristor charger can do both by moving α.\n\n- Find the peak: the rms × √2. On 230 V it is 325 V.\n- Find the load. A heater lets each thyristor let go at the zero. A choke keeps the current flowing on.\n- One thyristor on a heater: average = (Vmax ÷ 2π)(1 + cos α).\n- Bridge on a heater: average = (Vmax ÷ π)(1 + cos α).\n- Bridge with a choke: average = (2Vmax ÷ π) × cos α. Its power factor is about 0.9 × cos α.\n- Triac on a heater: firing at 90° gives half power.\n- To turn a thyristor off, stop its current. An ordinary thyristor's gate cannot do it.\n\n**Rules of thumb:** on a heater, firing at 90° halves the average. Firing late costs power factor on any load. A heater on a triac fired at 90° runs at about 0.71. A charger fired at 60° runs at about 0.45.\n\n**Worked example:** a controlled bridge on 230 V charges a battery through a choke. Say it must average about 120 V. The peak is 325 V. Fired at 0°, it gives 2 × 325 ÷ π = 207 V. So cos α = 120 ÷ 207 = 0.58. That makes α about 55°. The power factor is about 0.9 × 0.58 = 0.52.\n\n**Common mistakes**\n- Thinking the gate turns an ordinary thyristor off. Only its current falling below the holding current does.\n- Thinking a third of the time cut costs a third of the average. The area goes as 1 + cos α.\n- Using the heater rule with a choke. At 60° the heater rule gives 155 V. The choke rule gives 104 V.\n- Thinking firing later costs nothing. The power factor falls with it.\n- Putting a lamp dimmer on a motor. Triac lamp dimmers are for resistive loads only.\n- Reading half power as half the rms. Half power on 230 V is about 163 V."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Softstarter Handbook",
+    "url": "https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf",
+    "quote": "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+   },
+   {
+    "n": 2,
+    "title": "The Silicon-Controlled Rectifier (SCR) | Thyristors | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/",
+    "quote": "SCRs may be turned off by anode current falling below the holding current value (low-current dropout)"
+   },
+   {
+    "n": 3,
+    "title": "Triac Tutorial and How Triac Switching Circuits Work",
+    "url": "https://www.electronics-tutorials.ws/power/triac.html",
+    "quote": "A Triac behaves just like two conventional thyristors connected together in inverse parallel (back-to-back) with respect to each other"
+   },
+   {
+    "n": 4,
+    "title": "Triac Tutorial and How Triac Switching Circuits Work",
+    "url": "https://www.electronics-tutorials.ws/power/triac.html",
+    "quote": "commercially available triac lamp dimmers should not be used as a motor speed controller since triac light dimmers are intended to be used with resistive loads only"
+   },
+   {
+    "n": 5,
+    "title": "Three-Phase Full-Bridge",
+    "url": "https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge",
+    "quote": "For a smaller DC voltage it is necessary to increase the delay of the trigger pulse. The trigger angle causes a phase shift of the input currents which reduces the power factor of the converter."
+   },
+   {
+    "n": 6,
+    "title": "Motor starting with Soft starters – Reduced stresses",
+    "url": "https://library.e.abb.com/public/151fdb9b43c49ee648257cc4003bc11b/Motor+starting+with+soft+starters+-+Reduced+stresses.pdf",
+    "quote": "With methodology of firing of thyristors, voltage ramp (linear variation of voltage from 0 to rated voltage). This ramp ensures smooth starting of motor with starting current limit."
+   },
+   {
+    "n": 7,
+    "title": "CCOHS: Battery Charging - Industrial Lead-Acid Batteries",
+    "url": "https://www.ccohs.ca/oshanswers/safety_haz/battery-charging.html",
+    "quote": "When leac-acid batteries are being recharged, they generate hydrogen gas that is explosive in certain concentrations in air (explosive limits are 4.1 to 72 percent hydrogen in air)."
+   },
+   {
+    "n": 8,
+    "title": "The Silicon-Controlled Rectifier (SCR) | Thyristors | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/",
+    "quote": "A variant of the SCR called a Gate-Turn-Off thyristor (GTO), is specifically designed to be turned off by means of reverse triggering."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  #stepbox > .fig + .fig { margin-top: 6px; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #sw .k-seg, #sw .k-seg.stack { display: flex; flex-wrap: wrap; }\n  #sw .k-seg button, #sw .k-seg.stack button { flex: 1 1 6rem; text-align: center; padding-left: 12px; }\n  #ctl2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }\n  #ctl2 > .k-btn { flex: 1 1 8rem; min-height: 48px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #outs.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter { animation: none; } }\n  /* The circuit: thin wires, the path the current takes drawn bold. */\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }\n  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 3.5; }\n  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .sine { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.4; }\n  .fig .coil.on { stroke: var(--k-accent2); stroke-width: 3.2; }\n  .fig .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .plate.s { stroke-width: 4.5; }\n  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); }\n  .fig .dio .gl { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linecap: round; }\n  .fig .dio .gl.fl { stroke: var(--k-accent); stroke-width: 3.4; }\n  .fig .dio .gt { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .dio .gt.fl { fill: var(--k-accent); stroke: var(--k-accent); }\n  .fig .flowdot { fill: var(--k-bg); }\n  /* The cycle: the supply thin, the load bold, each conducting slice shaded. */\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .zero { stroke: var(--k-muted); stroke-width: 1; }\n  .fig .sup { fill: none; stroke: var(--k-muted); stroke-width: 1.4; }\n  .fig .ld { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linejoin: round; }\n  .fig .sh { fill: var(--k-fill1); }\n  .fig .shn { fill: var(--k-fill3); }\n  .fig .avg { stroke: var(--k-ink); stroke-width: 1.8; stroke-dasharray: 6 4; }\n  .fig .gm { fill: var(--k-accent); }\n  .fig .gm.fl { stroke: var(--k-accent); stroke-width: 4; stroke-linejoin: round; }\n  .fig .cur { stroke: var(--k-ink); stroke-width: 1.2; }\n  .fig .cdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .bdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .blk { fill: none; stroke: var(--k-accent); stroke-width: 2.6; stroke-linejoin: round; }\n  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.n { fill: var(--k-accent2); }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count say\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"k-controls\" id=\"sw\"></div>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"dots\"></g><g id=\"clabs\"></g></svg>\n    <svg class=\"fig\" id=\"wave\" viewBox=\"0 0 340 214\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"wart\"></g><g id=\"wlabs\"></g></svg>\n    <p class=\"gnote say\" id=\"setting\"></p>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div id=\"ctl2\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule ----------\n  // A 230 V, 50 Hz sine, peak 230 × √2. A thyristor conducts from its firing angle α until its current\n  // falls to zero. The area under a sine from α to 180° is 1 + cos α (a whole hump gives 2), so each\n  // average is that area spread over the cycle. The heater's power follows the share of the squared\n  // area left. In Charger a large choke holds the current steady, so each pair conducts on until the\n  // other pair fires, and the supply's current is a block that starts α after the voltage.\n  const VRMS = 230, HZ = 50, PH = 2300, RH = VRMS * VRMS / PH, VP = VRMS * Math.SQRT2;\n  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/';\n  const TRI = 'https://www.electronics-tutorials.ws/power/triac.html';\n  const ECPE = 'https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge';\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const rad = (deg) => deg * Math.PI / 180;\n  const vs = (t) => VP * Math.sin(rad(t));\n  const area = (a) => 1 + Math.cos(rad(a));\n  const share = (a) => Math.max(0, 1 - a / 180 + Math.sin(rad(2 * a)) / (2 * Math.PI));\n  const avgOne = (a) => VP / (2 * Math.PI) * area(a);\n  const avgBr = (a) => VP / Math.PI * area(a);\n  const pTri = (a) => PH * share(a);\n  const rmsTri = (a) => Math.sqrt(pTri(a) * RH);\n  const avgCh = (a) => 2 * VP / Math.PI * Math.cos(rad(a));\n  const KPF = 2 * Math.SQRT2 / Math.PI;\n  const pfCh = (a) => KPF * Math.cos(rad(a));\n  const MODES = ['one', 'bridge', 'triac', 'charger'];\n  const MODEN = { one: 'One thyristor', bridge: 'Bridge', triac: 'Triac', charger: 'Charger' };\n\n  // Which device conducts at t (0° to 360°): 'A' the positive half's thyristor or pair, 'B' the other, '' none.\n  function onAt(mode, a, t) {\n    if (mode === 'charger') return t >= a && t < 180 + a ? 'A' : 'B';\n    if (a >= 180) return '';\n    if (t >= a && t < 180) return 'A';\n    if (mode !== 'one' && t >= 180 + a && t < 360) return 'B';\n    return '';\n  }\n  function valIn(mode, on, t) {\n    if (!on) return 0;\n    const v = vs(t);\n    if (mode === 'bridge') return Math.abs(v);\n    if (mode === 'charger') return on === 'A' ? v : -v;\n    return v;\n  }\n  const loadV = (mode, a, t) => valIn(mode, onAt(mode, a, t), t);\n  const gatesOf = (mode, a) => (mode === 'one' ? [a] : [a, 180 + a]);\n  const avgOf = (mode, a) => (mode === 'one' ? avgOne(a) : mode === 'bridge' ? avgBr(a) : mode === 'charger' ? avgCh(a) : 0);\n  // An extra pulse on one thyristor at the cursor: it fires only if it is off and forward biased.\n  function pulseAt(a, th) {\n    if (th <= 0 || th >= 180) return th % 180 === 0 ? 'zero' : 'reverse';\n    return th >= a ? 'on' : 'fires';\n  }\n\n  // Every number the words show, worked out from the rule (a check compares them with the lesson's).\n  const N = {\n    v: String(VRMS), p: String(PH), vp: fx(VP, 0), r: fx(RH, 0),\n    one0: fx(avgOne(0), 0), one60: fx(avgOne(60), 0), one90: fx(avgOne(90), 0), third: fx(avgOne(0) * 2 / 3, 0), third2: fx(avgBr(0) / 3, 0),\n    a60: fx(area(60), 1), q60: fx(area(60) / 2, 2), c60: fx(Math.cos(rad(60)), 1), c120: fx(Math.cos(rad(120)), 1), a120: fx(area(120), 1),\n    br0: fx(avgBr(0), 0), br60: fx(avgBr(60), 0), br90: fx(avgBr(90), 0), br120: fx(avgBr(120), 0),\n    p90: fx(pTri(90), 0), rms90: fx(rmsTri(90), 0), half: fx(VRMS / 2, 0), s90: fx(share(90), 1),\n    ch30: fx(avgCh(30), 0), ch60: fx(avgCh(60), 0), pf0: fx(pfCh(0), 2), pf30: fx(pfCh(30), 2), pf60: fx(pfCh(60), 2), k: fx(KPF, 1), pft90: fx(Math.sqrt(share(90)), 2),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // set: where the picture opens (a is the firing angle); ctl: what a demonstration lets Dan move; play: its\n  // motion as the screen opens; outs: readouts shown 'before' the answer or only 'after' a right Check;\n  // ans: what a right Check moves.\n  const STEPS = [\n    { name: 'Starting a motor', set: { mode: 'one', a: 90 }, outs: 'after', ans: {},\n      task: 'You start a motor direct on line. As it starts, about how much current does it draw?',\n      opts: ['About its rated current', 'Usually 6 to 8 times its rated current', 'About twice its rated current'],\n      want: 'Usually 6 to 8 times its rated current',\n      hints: { 'About its rated current': 'If it drew only its rated current, nobody would fit a soft starter.',\n        'About twice its rated current': 'Think of the lights dipping as a big motor starts. It is far more than twice.' },\n      why: 'Usually 6 to 8 times, and sometimes more than 10 times. A soft starter cuts that. It brings the voltage up gently. Its switches are thyristors. Here is how they work.' },\n    { show: true, name: 'A diode with a gate', set: { mode: 'one', a: 90 }, ctl: ['time', 'play', 'pulse'], play: 'cursor', pulse: true,\n      text: `A *thyristor* is a diode with a third lead, its *gate*. Like a diode, it blocks reverse voltage. It also blocks forward voltage until a pulse on the gate fires it. Here it feeds a ${N.p} W heater, fired at 90°. Play the cycle. The pulse fires it, and it stays on after the pulse ends. Just before 180° its current falls away, and it lets go. Set the time to 135°, then pulse the gate. Nothing changes.`,\n      read: 'A thyristor is a diode that also blocks forward voltage until a pulse on its gate fires it. Fired at 90°, it stays on after the pulse ends, until its current falls away near 180°. So the heater\\'s voltage is shaded from 90° to 180° only. The negative half is empty. A second pulse at 135° changes nothing.',\n      still: { mode: 'one', alpha: 90, time: 360 } },\n    { name: 'After the pulse', set: { mode: 'one', a: 90, time: 120 }, outs: 'after', hideAvg: true, ans: { set: { time: 360 }, cursor: true },\n      task: 'The thyristor fired at 90°, and the gate pulse is over. The cursor is at 120°. What happens next?',\n      opts: ['It turns off at once, as the pulse is over', 'It conducts on into the negative half', 'It conducts on until its current falls away, near 180°'],\n      want: 'It conducts on until its current falls away, near 180°',\n      hints: { 'It turns off at once, as the pulse is over': 'Once fired, it latches. What has to fall for it to let go?',\n        'It conducts on into the negative half': 'In the negative half it is reverse biased, like a diode.' },\n      why: 'It conducts on. Once fired, a thyristor latches on. The gate then has no more say. It lets go only when its current falls below a small holding current. On AC that happens just before the zero. So it needs a fresh pulse every cycle.' },\n    { show: true, name: 'The firing angle', set: { mode: 'one', a: 90 }, ctl: ['alpha'], play: { from: 0, to: 90 },\n      text: `The *firing angle*, α, is the angle in each half where the gate fires. Drag it. At 0° the heater gets every positive hump, as from a half-wave rectifier. That averages about ${N.one0} V. Fire later, and the shaded slice shrinks. The average is the shaded area spread over the whole cycle. At 90° the slice is exactly half the hump, because a hump is symmetrical. So the average halves, to about ${N.one90} V.`,\n      read: `The firing angle, α, is the angle in each half where the gate fires. At 0°, the whole positive hump is shaded, and the average reads ${N.one0} V. At 90°, only its second half is shaded, and the average reads ${N.one90} V.`,\n      still: { mode: 'one', alpha: 90, time: 360 } },\n    { name: 'Fire at 60°', set: { mode: 'one', a: 0 }, outs: 'before', ans: { set: { a: 60 } },\n      task: 'Fire at 60° instead. That cuts a third of the time from the positive half. What does the average become?',\n      opts: [`About ${N.one60} V`, `About ${N.third} V, a third less`, `About ${N.one90} V`],\n      want: `About ${N.one60} V`,\n      hints: { [`About ${N.third} V, a third less`]: 'The first 60° is the low, rising start of the hump. Does it hold a third of the area?',\n        [`About ${N.one90} V`]: `${N.one90} V is the answer at 90°. At 60° more of the hump is shaded.` },\n      why: `About ${N.one60} V. The area under a sine from α to 180° is 1 + cos α. The whole hump gives 2. At 60° that is 1 + ${N.c60} = ${N.a60}. That is three quarters of 2. So the average is ${N.one0} × ${N.q60}, about ${N.one60} V. The start of a hump is low. So cutting it costs little.` },\n    { show: true, name: 'A controlled bridge', set: { mode: 'bridge', a: 60 }, ctl: ['mode', 'alpha'], modes: ['one', 'bridge'], play: { from: 0, to: 60 },\n      text: `A bridge rectifier with thyristors in place of its four diodes is a *controlled rectifier*. Each pair fires at α in its own half. So both humps are shaded above the line. Fired at 0°, it gives the diode bridge's ${N.br0} V. Later firing shrinks both slices. The average is (Vmax ÷ π)(1 + cos α). Vmax is the ${N.vp} V peak. At 60° that is ${N.br60} V. At 90° it is ${N.br90} V.`,\n      read: `A bridge rectifier with thyristors in place of its four diodes is a controlled rectifier. Its average is (Vmax ÷ π)(1 + cos α). With α at 60°, both halves are shaded from 60° on, and the average reads ${N.br60} V.`,\n      still: { mode: 'bridge', alpha: 60, time: 360 } },\n    { name: 'Fire at 120°', set: { mode: 'bridge', a: 60 }, outs: 'before', ans: { set: { a: 120 } },\n      task: 'Now fire the bridge at 120°. What does it average?',\n      opts: [`About ${N.third2} V, a third of ${N.br0} V`, `About ${N.br120} V`, `About −${N.br120} V, as cos 120° is negative`],\n      want: `About ${N.br120} V`,\n      hints: { [`About ${N.third2} V, a third of ${N.br0} V`]: 'Only the low tail of each hump is left. Use 1 + cos α.',\n        [`About −${N.br120} V, as cos 120° is negative`]: 'Add the 1 before you multiply. A heater\\'s slices never dip below the line.' },\n      why: `About ${N.br120} V. cos 120° is ${N.c120}. So 1 + cos α is ${N.a120}. That is a quarter of the whole hump's 2. A quarter of ${N.br0} V is about ${N.br120} V.` },\n    { show: true, name: 'The triac', set: { mode: 'triac', a: 90 }, ctl: ['mode', 'alpha'], modes: ['one', 'bridge', 'triac'], play: { from: 0, to: 90 },\n      text: `A *triac* behaves like two thyristors back to back. It fires in both halves, so the heater gets chopped AC. The readouts show rms and watts. Fired at 0°, the heater takes ${N.p} W. The squared wave is symmetrical too, so firing at 90° keeps half its heating, ${N.p90} W. The rms is ${N.v} × √${N.s90}, about ${N.rms90} V, not ${N.half} V. The chopped current costs power factor too. It is √${N.s90}, about ${N.pft90}.`,\n      read: `A triac behaves like two thyristors back to back, so it fires in both halves. With α at 90°, both halves are shaded from 90° on, one above the line and one below. The rms reads ${N.rms90} V and the heater power ${N.p90} W. The chopped current gives a power factor of about ${N.pft90}.`,\n      still: { mode: 'triac', alpha: 90, time: 360 } },\n    { name: 'A fan on a dimmer', set: { mode: 'triac', a: 90 }, outs: 'before', ans: {},\n      task: 'A triac lamp dimmer is to hand. Should it set the speed of a small fan motor?',\n      opts: ['Yes, a lower rms means a slower fan', 'Yes, as the fan is small', 'No, a lamp dimmer is for resistive loads only'],\n      want: 'No, a lamp dimmer is for resistive loads only',\n      hints: { 'Yes, a lower rms means a slower fan': 'A motor is a coil, not a heater. What load is a lamp dimmer made for?',\n        'Yes, as the fan is small': 'Size is not the issue. What kind of load is a fan motor?' },\n      why: 'No. Triac lamp dimmers are made for resistive loads only. They should not be used as a motor speed controller. A motor\\'s coil keeps its current flowing past the voltage\\'s zero. A heater\\'s current falls to zero with the voltage. A soft starter or fan controller is built for a coil\\'s late current. A lamp dimmer is not.' },\n    { show: true, name: 'The charger', set: { mode: 'charger', a: 30 }, ctl: ['mode', 'alpha'], play: { from: 0, to: 30 },\n      text: `Here the bridge charges a battery through a *choke*, a large coil. The choke carries the current through each zero. So each pair conducts from α to 180° + α. The part below the line subtracts. So the slice's area is cos α − cos(180° + α), or 2 cos α. A whole hump gives 2. So the average is ${N.br0} × cos α. Past 90° it turns negative. Only a DC source pushing back, like a driven DC motor, could keep that up.`,\n      read: `A choke, a large coil, keeps the charger's current flowing, so each pair conducts from α to 180° + α. The slice's area is 2 cos α against a whole hump's 2, so the average is ${N.br0} × cos α. With α at 30°, it reads ${N.ch30} V.`,\n      still: { mode: 'charger', alphaC: 30, time: 360 } },\n    { show: true, name: 'The power factor', set: { mode: 'charger', a: 30 }, ctl: ['alpha'], play: { from: 0, to: 30 },\n      text: `Below, the supply's current is a block. It starts α after the voltage. Fire later, and it slides further behind. More of it then flows while the voltage is low or reversed. So the power factor falls. Even in step, at 0°, it reads only ${N.pf0}. A block is not a sine, so it scores 2√2 ÷ π, about ${N.k}. So the power factor is about ${N.k} × cos α.`,\n      read: `The supply's current is a block that starts α after the voltage. A block is not a sine, so even in step its power factor is only about ${N.k}. With α at 30°, the block starts 30° late, and the power factor reads ${N.pf30}, about ${N.k} × cos α.`,\n      still: { mode: 'charger', alphaC: 30, time: 360 } },\n    { name: 'Half the output', set: { mode: 'charger', a: 0 }, outs: 'before', ans: { set: { a: 60 } },\n      task: `The charger must cut its output to about ${N.ch60} V, half of ${N.br0} V. What happens to its power factor?`,\n      opts: [`It stays near ${N.pf0}, as firing later costs nothing`, `It falls to about ${N.pf60}`, 'It rises, as less power is drawn'],\n      want: `It falls to about ${N.pf60}`,\n      hints: { [`It stays near ${N.pf0}, as firing later costs nothing`]: 'Watch where the current block starts as α grows.',\n        'It rises, as less power is drawn': 'Less power is drawn, but the block slides further behind the voltage.' },\n      why: `It falls to about ${N.pf60}. Half of ${N.br0} V needs cos α = ${N.c60}. So α is 60°. The current block now starts 60° behind the voltage. A block scores only ${N.k}, even in step. So the power factor is ${N.k} × ${N.c60} = ${N.pf60}. The supply carries the same current for half the power.` },\n    { name: 'The soft starter', set: { mode: 'triac', a: 150 }, load: 'the heater stands in for the motor', outs: 'after', ans: { set: { a: 0 } },\n      task: 'A soft starter fires its thyristors late at first, then earlier and earlier. What does the motor get?',\n      opts: ['A voltage that ramps up from low to full', 'The full voltage at once, for less time', 'A DC voltage that rises'],\n      want: 'A voltage that ramps up from low to full',\n      hints: { 'The full voltage at once, for less time': 'A late firing passes only a thin slice of each half. What does that do to the rms?',\n        'A DC voltage that rises': 'Its thyristors sit back to back, and fire in both halves.' },\n      why: 'A ramp. Late firing passes only a thin slice of each half. So the motor sees a low voltage. Earlier firing widens the slices until the motor gets the full supply. That ramp limits the starting current.' },\n    { name: 'Gate stuck on', set: { mode: 'bridge', a: 90 }, outs: 'before', ans: { set: { a: 0 } },\n      task: 'A fault holds the gate signal on all the time. What does the heater get now?',\n      opts: ['Nothing, as no fresh pulse ever comes', `About ${N.br90} V, as before`, `About ${N.br0} V, as if fired at 0°`],\n      want: `About ${N.br0} V, as if fired at 0°`,\n      hints: { 'Nothing, as no fresh pulse ever comes': 'A signal that stays on is a pulse that never ends. When does each thyristor first see it?',\n        [`About ${N.br90} V, as before`]: 'The firing angle is when the gate first fires it. With the signal always on, when is that?' },\n      why: `About ${N.br0} V. A thyristor fires once it is forward biased with its gate signalled. With the signal always on, each one fires at the start of its half. So the bridge acts as a plain diode bridge.` },\n  ];\n  const FINISH = 'An ordinary thyristor\\'s gate chooses when it starts in each half cycle, never when it stops. Fire it later, and less of each half reaches the load.';\n  const DEMO = 3.6, FADE = 0.35, ANS = 2.2, FLASH = 0.6, FLW = 20;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false, fired: null });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false, fired: null });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, pinning = false, lastMode = 'one';\n  let CS = null, SW = null, FL = null, MSG = null, PHS = 0, FLOW = null, REC = null;\n  const IDS = ['mode', 'alpha', 'alphaC', 'time'];\n  const BASE = { mode: 'one', a: 90, time: 360 };\n  const modeOf = (p) => (MODES.indexOf(p.mode) >= 0 ? p.mode : 'one');\n  const r5 = (v) => Math.round((+v || 0) / 5) * 5;\n  const alphaOf = (p) => (modeOf(p) === 'charger' ? K.clamp(r5(p.alphaC), 0, 90) : K.clamp(r5(p.alpha), 0, 180));\n  const aId = (mode) => (mode === 'charger' ? 'alphaC' : 'alpha');\n  function setupOf(i, right) {\n    const d = STEPS[i], q = Object.assign({}, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {});\n    if (d.pulse && S[i] && S[i].fired != null) q.a = S[i].fired;\n    return { step: i, mode: q.mode, alpha: q.a, alphaC: Math.min(q.a, 90), time: q.time };\n  }\n  function visIds(d, p) {\n    if (!d.show) return [];\n    return (d.ctl || []).map((c) => (c === 'alpha' ? aId(modeOf(p)) : c));\n  }\n  const nb = (t) => t.replace(/(\\d) (?=(?:W|V|Ω|°)(?![A-Za-z]))/g, '$1 ');\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const modeCtl = K.choice({ id: 'mode', label: 'Circuit', options: MODES.map((m) => ({ value: m, label: MODEN[m] })), value: 'one', into: '#sw' });\n  const alphaCtl = K.control({ id: 'alpha', label: 'Firing angle α', min: 0, max: 180, step: 5, value: 90, fmt: (v) => fx(v, 0) + '°', snap: [0, 60, 90, 120, 150, 180], into: '#ctl' });\n  const alphaCCtl = K.control({ id: 'alphaC', label: 'Firing angle α', min: 0, max: 90, step: 5, value: 90, fmt: (v) => fx(v, 0) + '°', snap: [0, 30, 60, 90], into: '#ctl' });\n  const timeCtl = K.control({ id: 'time', label: 'Time', min: 0, max: 360, step: 5, value: 360, fmt: (v) => fx(v, 0) + '°', snap: [0, 90, 120, 135, 180, 270, 360], into: '#ctl' });\n  const playBtn = K.button({ label: 'Play', into: '#ctl2', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || (d.ctl || []).indexOf('play') < 0) return;\n    MSG = null;\n    const th = +K.params().time, from = th >= 360 ? 0 : th;\n    startCursor(from, 360, DEMO * (360 - from) / 360, 0);\n  } });\n  const pulseBtn = K.button({ label: 'Pulse the gate', secondary: true, into: '#ctl2', press: () => {\n    const i = at(), d = STEPS[i];\n    if (finished || !d.pulse) return;\n    const p = K.params(), th = CS ? CS.cur : K.clamp(+p.time || 0, 0, 360), t = r5(th), r = pulseAt(alphaOf(p), th);\n    if (!calm()) { FL = { t: 0 }; play(); }\n    if (r === 'fires') {\n      S[i].fired = t; alphaCtl.set(t, true);\n      MSG = { time: CS ? CS.last : +p.time, text: `A pulse at ${t}° fires it there. Its shading now starts at ${t}°.` };\n    } else if (r === 'on') MSG = { time: CS ? CS.last : +p.time, text: `A pulse at ${t}° changes nothing. The thyristor is already on.` };\n    else if (r === 'zero') MSG = { time: CS ? CS.last : +p.time, text: `At ${t}° the supply is at zero, so a pulse changes nothing.` };\n    else MSG = { time: CS ? CS.last : +p.time, text: `A pulse at ${t}° changes nothing. The thyristor is reverse biased.` };\n  } });\n  const modeBtns = Array.from(modeCtl.el.querySelectorAll('.k-seg button'));\n  const CTL = { mode: modeCtl, alpha: alphaCtl, alphaC: alphaCCtl, time: timeCtl };\n  const rV = K.readout({ id: 'volts', label: 'Average across the load', decimals: 0, fmt: (v) => fx(v, 0) + ' V', into: '#outs' });\n  const rP = K.readout({ id: 'heaterPower', label: 'Heater power', decimals: 0, fmt: (v) => fx(v, 0) + ' W', into: '#outs' });\n  const rF = K.readout({ id: 'powerFactor', label: 'Power factor', decimals: 2, fmt: (v) => fx(v, 2), into: '#outs' });\n  K.model((p) => {\n    const m = modeOf(p), a = alphaOf(p);\n    if (m === 'charger') return { volts: avgCh(a), heaterPower: 0, powerFactor: pfCh(a) };\n    if (m === 'triac') return { volts: rmsTri(a), heaterPower: pTri(a), powerFactor: 0 };\n    if (m === 'bridge') return { volts: avgBr(a), heaterPower: pTri(a), powerFactor: 0 };\n    return { volts: avgOne(a), heaterPower: pTri(a) / 2, powerFactor: 0 };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    const a = d.ans || {}, p = K.params();\n    if (a.cursor) startCursor(K.clamp(+p.time || 0, 0, 360), 360, ANS - 0.1, 0.1);\n    else if (a.set && a.set.a != null) startSweep(aId(modeOf(p)), alphaOf(p), a.set.a, ANS - 0.1, 0.1);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; FLOW = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: the cursor round the cycle, a firing-angle sweep, a gate flash, flowing current ----------\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    let busy = false, redraw = false;\n    if (CS) {\n      const c = CS;\n      c.t += dt;\n      const f = K.clamp(c.t / c.dur, 0, 1);\n      c.cur = K.lerp(c.from, c.to, f);\n      const r = K.clamp(Math.floor(c.cur / 5) * 5, 0, 360);\n      if (r !== c.last) { c.last = r; timeCtl.set(r); }\n      redraw = true;\n      if (CS === c) { if (f >= 1) { CS = null; timeCtl.set(c.to); } else busy = true; }\n    }\n    if (SW) {\n      const w = SW;\n      w.t += dt;\n      const f = K.clamp(w.t / w.dur, 0, 1), val = r5(K.lerp(w.from, w.to, K.ease(f)));\n      if (val !== w.last) { w.last = val; CTL[w.id].set(val); }\n      if (SW === w) { if (f >= 1) SW = null; else busy = true; }\n    }\n    if (FL) { FL.t += dt; redraw = true; if (FL.t >= FLASH) FL = null; else busy = true; }\n    PHS += dt;\n    if (redraw) paint();\n    dots();\n    return busy || flowOn();\n  } });\n  function play() { if (!motion.playing()) motion.play(); }\n  function startCursor(from, to, dur, delay) {\n    if (calm()) { CS = null; timeCtl.set(to, true); return; }\n    CS = { t: -(delay || 0), dur: Math.max(0.3, dur), from, to, cur: from, last: r5(from) };\n    timeCtl.set(r5(from), true); play();\n  }\n  function startSweep(id, from, to, dur, delay) {\n    if (calm()) { CTL[id].set(to, true); SW = null; return; }\n    CTL[id].set(from, true);\n    SW = { id, from, to, last: from, t: -(delay || 0), dur }; play();\n  }\n  function settle() {\n    if (CS) { timeCtl.set(CS.to, true); CS = null; }\n    if (SW) { CTL[SW.id].set(SW.to, true); SW = null; }\n    FL = null;\n  }\n  const flowOn = () => !REDUCE && !finished && !!FLOW;\n  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  // Every label lives in its own slot group, made afresh each frame in a fixed order.\n  const svg = el('scene'), art = el('art'), dotsG = el('dots'), wsvg = el('wave'), wart = el('wart');\n  const SL = {\n    clabs: ['dev', 'gate', 'sup', 'hz', 'load', 'ohm', 'choke'],\n    wlabs: ['k1', 'k2', 'k3', 'k4', 'k5', 'alpha', 'vtop', 'v0', 'vbot', 't0', 't1', 't2', 't3', 't4', 'blk', 'lag'],\n  };\n  let SLOT = {}, into = null;\n  function slots(g, list) { g.textContent = ''; list.forEach((n) => { SLOT[n] = g.appendChild(K.svg('g')); }); }\n  const add = (n) => into.appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function tx(slot, x, y, s, cls, anchor) {\n    REC.texts.push(s);\n    return SLOT[slot].appendChild(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));\n  }\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = wsvg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    wsvg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 7.4;\n  }\n  // A thyristor: a diode (triangle, then the bar) with its gate lead leaving the cathode end.\n  function scr(x, y, ang, flip, on, flash) {\n    const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ') scale(1 ' + flip + ')' }));\n    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));\n    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));\n    g.appendChild(K.svg('path', { class: 'gl' + (flash ? ' fl' : ''), d: 'M8 3 L15 12 V18' }));\n    g.appendChild(K.svg('circle', { class: 'gt' + (flash ? ' fl' : ''), cx: 15, cy: 20.5, r: 2.5 }));\n  }\n  // A triac: two triangles pointing opposite ways between two bars, with one gate.\n  function triac(x, y, on, flash) {\n    const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : ''), transform: 'translate(' + x + ' ' + y + ')' }));\n    g.appendChild(K.svg('line', { x1: -8, y1: -13, x2: -8, y2: 13 }));\n    g.appendChild(K.svg('line', { x1: 8, y1: -13, x2: 8, y2: 13 }));\n    g.appendChild(K.svg('path', { d: 'M-8 -12 L-8 -1 L8 -6.5 Z' }));\n    g.appendChild(K.svg('path', { d: 'M8 1 L8 12 L-8 6.5 Z' }));\n    g.appendChild(K.svg('path', { class: 'gl' + (flash ? ' fl' : ''), d: 'M8 12 L15 18 V22' }));\n    g.appendChild(K.svg('circle', { class: 'gt' + (flash ? ' fl' : ''), cx: 15, cy: 24.5, r: 2.5 }));\n  }\n\n  // ---------- the circuit ----------\n  // Series loop (one thyristor or a triac): supply left, the device on top, the heater on the right.\n  const SERA = [[34, 120], [34, 28], [298, 28], [298, 184], [34, 184], [34, 160]];\n  // The diamond: supply wire A at the left corner, wire B at the right, the load across the top and bottom corners.\n  const BR = { wa: 'M34 120 V106 H94', e1: 'M94 106 L142 48', e3: 'M190 106 L142 48', e2: 'M142 164 L190 106', e4: 'M142 164 L94 106',\n    p: 'M142 48 V28 H298 V80', n: 'M298 132 V184 H142 V164', wb: 'M34 160 V194 H204 V190 A6 6 0 0 1 204 178 V106 H190' };\n  const BRC = Object.assign({}, BR, { p: 'M142 48 V28 H210', p2: 'M254 28 H298 V96', n: 'M298 120 V184 H142 V164' });\n  const BRT = { d1: [118, 77, -50.39, -1, 'A'], d2: [166, 135, -50.39, 1, 'A'], d3: [166, 77, -129.61, 1, 'B'], d4: [118, 135, -129.61, -1, 'B'] };\n  const PATH = { A: ['wa', 'e1', 'p', 'p2', 'n', 'e2', 'wb'], B: ['wb', 'e3', 'p', 'p2', 'n', 'e4', 'wa'] };\n  const BRP = [[34, 120], [34, 106], [94, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [190, 106], [204, 106], [204, 194], [34, 194], [34, 160]];\n  const BRN = [[34, 160], [34, 194], [204, 194], [204, 106], [190, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [94, 106], [34, 106], [34, 120]];\n  function mk(pts, speed, skip) {\n    const lens = [0];\n    for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));\n    return { pts, lens, len: lens[lens.length - 1], speed, skip };\n  }\n  const skipSer = (x, y) => (Math.abs(y - 28) < 1 && x > 148 && x < 172) || (Math.abs(x - 298) < 1 && y > 78 && y < 134);\n  const skipBr = (x, y) => Object.keys(BRT).some((k) => Math.hypot(x - BRT[k][0], y - BRT[k][1]) < 11) || (Math.abs(x - 298) < 1 && y > 78 && y < 134) ||\n    (Math.abs(y - 28) < 1 && x > 206 && x < 258);\n\n  function drawCircuit(v) {\n    into = art;\n    const ser = v.mode === 'one' || v.mode === 'triac', ch = v.mode === 'charger';\n    ci(34, 140, 20, 'src'); pa('M20 140 q7 -13 14 0 t14 0', 'sine');\n    tx('sup', 44, 80, VRMS + ' V', 'lab', 'start'); tx('hz', 44, 96, HZ + ' Hz', 'lab m', 'start');\n    let words;\n    if (ser) {\n      const w = v.on ? 'wire on' : 'wire';\n      pa('M34 120 V28 H152', w); pa('M168 28 H298 V80', w); pa('M298 132 V184 H34 V160', w);\n      box(287, 80, 22, 52, v.on ? 'res on' : 'res', 3);\n      if (v.mode === 'one') { scr(160, 28, 0, 1, !!v.on, !!v.flash); tx('dev', 160, 12, 'thyristor', 'lab'); }\n      else { triac(160, 28, !!v.on, !!v.flash); tx('dev', 160, 12, 'triac', 'lab'); }\n      tx('gate', 182, 56, 'gate', 'lab t', 'start');\n      tx('load', 281, 102, 'heater', 'lab', 'end'); tx('ohm', 281, 118, N.r + ' Ω', 'lab m', 'end');\n      const dev = v.mode === 'one' ? 'one thyristor' : 'a triac';\n      words = 'A ' + VRMS + ' V supply feeds a heater through ' + dev + ', drawn with its gate lead.' + (v.on ? ' It conducts now.' : ' It is off now.');\n      FLOW = v.show && !finished && v.on ? [mk(v.on === 'A' ? SERA : SERA.slice().reverse(), 10 + 50 * Math.abs(vs(v.th)) / VP, skipSer)] : null;\n    } else {\n      const segs = ch ? BRC : BR, onIds = v.on ? PATH[v.on] : [];\n      Object.keys(segs).forEach((id) => pa(segs[id], onIds.indexOf(id) >= 0 ? 'wire on' : 'wire'));\n      Object.keys(BRT).forEach((id) => { const q = BRT[id]; scr(q[0], q[1], q[2], q[3], v.on === q[4], v.flash === q[4]); });\n      tx('dev', 142, 110, 'thyristors', 'lab m');\n      tx('gate', 104, 50, 'gate', 'lab t', 'end');\n      if (ch) {\n        pa('M210 28' + ' a5.5 5.5 0 0 1 11 0'.repeat(4), v.on ? 'coil on' : 'coil');\n        ln(284, 96, 312, 96, 'plate'); ln(291, 104, 305, 104, 'plate s'); ln(284, 112, 312, 112, 'plate'); ln(291, 120, 305, 120, 'plate s');\n        tx('choke', 232, 14, 'choke', 'lab');\n        tx('load', 281, 112, 'battery', 'lab', 'end');\n      } else {\n        box(287, 80, 22, 52, v.on ? 'res on' : 'res', 3);\n        tx('load', 281, 102, 'heater', 'lab', 'end'); tx('ohm', 281, 118, N.r + ' Ω', 'lab m', 'end');\n      }\n      words = 'A ' + VRMS + ' V supply feeds ' + (ch ? 'a battery through a choke' : 'a heater') + ' through four thyristors in a diamond, each drawn with its gate lead.' +\n        (v.on ? ' One pair conducts now.' : ' No pair conducts now.');\n      FLOW = v.show && !finished && v.on ? [mk(v.on === 'A' ? BRP : BRN, ch ? 30 : 10 + 50 * Math.abs(vs(v.th)) / VP, skipBr)] : null;\n    }\n    svg.setAttribute('aria-label', words);\n    REC.on = v.on;\n  }\n  function dots() {\n    dotsG.textContent = '';\n    if (!FLOW || REDUCE) return;\n    FLOW.forEach((f) => {\n      for (let s = (PHS * f.speed) % 22; s < f.len; s += 22) {\n        let k = 1;\n        while (k < f.lens.length - 1 && f.lens[k] < s) k++;\n        const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);\n        const x = K.lerp(a[0], b[0], u), y = K.lerp(a[1], b[1], u);\n        if (f.skip(x, y)) continue;\n        dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(x), cy: r2(y), r: 2.2 }));\n      }\n    });\n  }\n\n  // ---------- the cycle: 0° to 360° across, the voltage up the side ----------\n  const X0 = 58, X1 = 318, AMP = 62, YZ = 114, TOPY = 52, BOTY = 176, BASEY = 190, TLAB = 206, HH = 214;\n  const SZ = 248, SAMP = 12, SSIN = 17, HCH = 286;\n  let OY = 0;\n  const gx = (t) => X0 + t * (X1 - X0) / 360;\n  const Y = (y) => y + OY;\n  const gy = (v) => Y(YZ) - v / VP * AMP;\n  function keyRow(y, items) {\n    const ws = items.map((it) => tw(it[2], 'lab'));\n    const rows = [[]];\n    let w = 0;\n    items.forEach((it, k) => {\n      const iw = 22 + ws[k], row = rows[rows.length - 1];\n      if (row.length && w + 12 + iw > 332) { rows.push([k]); w = iw; return; }\n      w += (row.length ? 12 : 0) + iw; row.push(k);\n    });\n    rows.forEach((row, ri) => {\n      const total = row.reduce((t, k, j) => t + 22 + ws[k] + (j ? 12 : 0), 0), yy = y + 18 * ri;\n      let x = Math.max(4, (340 - total) / 2);\n      row.forEach((k) => {\n        const it = items[k];\n        if (it[0] === 'line') ln(x, yy - 4.5, x + 16, yy - 4.5, it[1]);\n        else if (it[0] === 'tri') pa('M' + r2(x + 8) + ' ' + (yy - 11) + ' l-5.5 10 h11 z', it[1]);\n        else box(x + 2, yy - 10, 12, 11, it[1], 2);\n        tx(it[3], x + 22, yy, it[2], 'lab', 'start');\n        x += 22 + ws[k] + 12;\n      });\n    });\n    return rows.length;\n  }\n  // The pieces of the cycle up to the cursor, split wherever a device fires or a half ends.\n  function piecesTo(a, th) {\n    const cut = [0, a, 180, 180 + a, 360].filter((t) => t > 0 && t < th).sort((x, y) => x - y);\n    const pts = [0].concat(cut, [th]), out = [];\n    for (let k = 0; k < pts.length - 1; k++) if (pts[k + 1] - pts[k] > 1e-9) out.push([pts[k], pts[k + 1]]);\n    return out;\n  }\n  function drawWave(v) {\n    into = wart;\n    const ch = v.mode === 'charger', a = v.a, th = v.th;\n    OY = 0;\n    const items = [['line', 'sup', 'supply', 'k1'], ['line', 'ld', ch ? 'output' : 'heater', 'k2'], ['line', 'avg', 'average', 'k3'], ['tri', 'gm', 'gate pulse', 'k4']];\n    if (ch) items.push(['box', 'shn', 'subtracts', 'k5']);\n    OY = 18 * (keyRow(14, items) - 1);\n    wsvg.setAttribute('viewBox', '0 0 340 ' + ((ch ? HCH : HH) + OY));\n    // Axes.\n    ln(X0, Y(TOPY - 6), X0, Y(BOTY), 'ax'); ln(X0, Y(BASEY), X1, Y(BASEY), 'ax'); ln(X0, Y(YZ), X1, Y(YZ), 'zero');\n    tx('vtop', X0 - 5, Y(TOPY + 4), N.vp + ' V', 'lab m', 'end'); tx('v0', X0 - 5, Y(YZ + 4), '0', 'lab m', 'end'); tx('vbot', X0 - 5, Y(BOTY + 4), '−' + N.vp + ' V', 'lab m', 'end');\n    [0, 90, 180, 270, 360].forEach((t, k) => { ln(gx(t), Y(BASEY), gx(t), Y(BASEY + 4), 'ax'); tx('t' + k, gx(t), Y(TLAB), t + '°', 'lab m'); });\n    // The firing angle, a bracket from 0° to α.\n    const albl = 'α = ' + a + '°', aw = tw(albl, 'lab');\n    if (a > 0) {\n      const x1 = gx(a);\n      ln(X0, Y(40), x1, Y(40), 'brk'); ln(X0, Y(36), X0, Y(44), 'brk'); ln(x1, Y(36), x1, Y(44), 'brk');\n      if (x1 - X0 >= aw + 8) tx('alpha', (X0 + x1) / 2, Y(33), albl, 'lab'); else tx('alpha', x1 + 6, Y(44), albl, 'lab', 'start');\n    } else tx('alpha', X0, Y(44), albl, 'lab', 'start');\n    // The supply, thin.\n    let d = '';\n    for (let t = 0; t <= 360; t += 3) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(vs(t)));\n    pa(d, 'sup');\n    // The load's voltage up to the cursor: shaded where a device conducts, the line bold.\n    const pieces = piecesTo(a, th);\n    let line = '';\n    REC.slices = [];\n    pieces.forEach((pc) => {\n      const s = pc[0], e = pc[1], on = onAt(v.mode, a, (s + e) / 2), n = Math.max(2, Math.ceil((e - s) / 2));\n      let seg = '';\n      for (let k = 0; k <= n; k++) { const t = s + (e - s) * k / n; seg += 'L' + r2(gx(t)) + ' ' + r2(gy(valIn(v.mode, on, t))); }\n      line += (line ? '' : 'M' + r2(gx(s)) + ' ' + r2(gy(valIn(v.mode, on, s)))) + seg;\n      if (on) {\n        const sign = valIn(v.mode, on, (s + e) / 2) < 0 ? -1 : 1;\n        pa('M' + r2(gx(s)) + ' ' + r2(gy(0)) + seg + 'L' + r2(gx(e)) + ' ' + r2(gy(0)) + 'Z', ch && sign < 0 ? 'shn' : 'sh');\n        REC.slices.push([s, e, sign]);\n      }\n    });\n    // The average over the whole cycle, dashed.\n    REC.avg = null;\n    if (!(v.d.hideAvg && !v.right) || th >= 360) {\n      const op = v.d.hideAvg && v.right ? K.clamp((th - 300) / 60, 0, 1) : 1;\n      if (op > 0) {\n        const g = add(K.svg('g', { opacity: r2(op) }));\n        g.appendChild(K.svg('line', { class: 'avg', x1: X0, y1: r2(gy(avgOf(v.mode, a))), x2: X1, y2: r2(gy(avgOf(v.mode, a))) }));\n        if (op >= 1) REC.avg = avgOf(v.mode, a);\n      }\n    }\n    pa(line, 'ld');\n    // The gate pulses, marked on the time axis.\n    REC.gates = [];\n    gatesOf(v.mode, a).forEach((g, k) => {\n      const lit = v.flash === (k ? 'B' : 'A');\n      pa('M' + r2(gx(g)) + ' ' + Y(BASEY - 11) + ' l-5.5 10 h11 z', lit ? 'gm fl' : 'gm');\n      REC.gates.push(g);\n    });\n    // The cursor.\n    if (v.cursorOn) {\n      const xc = gx(th);\n      ln(xc, Y(TOPY - 8), xc, Y(ch ? SZ + SSIN : BASEY), 'cur');\n      ci(xc, gy(valIn(v.mode, v.on, th)), 4.5, 'cdot');\n    }\n    REC.block = null;\n    if (ch) {\n      // The supply's current: a block of fixed height that starts α after the voltage.\n      tx('blk', X0, Y(228), 'supply current', 'lab t', 'start');\n      ln(X0, Y(SZ), X1, Y(SZ), 'zero');\n      let sd = '';\n      for (let t = 0; t <= 360; t += 3) sd += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(Y(SZ) - SSIN * Math.sin(rad(t)));\n      pa(sd, 'sup');\n      const yb = (s) => r2(Y(SZ) - s * SAMP);\n      pa(a > 0 ? 'M' + gx(0) + ' ' + yb(-1) + 'H' + r2(gx(a)) + 'V' + yb(1) + 'H' + r2(gx(180 + a)) + 'V' + yb(-1) + 'H' + gx(360)\n        : 'M' + gx(0) + ' ' + yb(1) + 'H' + r2(gx(180)) + 'V' + yb(-1) + 'H' + gx(360), 'blk');\n      REC.block = [a, 180 + a];\n      if (v.cursorOn) ci(gx(th), Y(SZ) - (onAt('charger', a, th) === 'A' ? 1 : -1) * SAMP, 4, 'bdot');\n      if (a >= 5) {\n        const x1 = gx(a);\n        ln(X0, Y(274), x1, Y(274), 'brk'); ln(X0, Y(270), X0, Y(278), 'brk'); ln(x1, Y(270), x1, Y(278), 'brk');\n        tx('lag', x1 + 6, Y(278), 'α behind the voltage', 'lab', 'start');\n      } else tx('lag', X0, Y(278), 'in step with the voltage', 'lab', 'start');\n    }\n    const gw = gatesOf(v.mode, a).map((g) => g + '°').join(' and ');\n    wsvg.setAttribute('aria-label', 'One cycle of the supply, 0° to 360°, drawn thin. The voltage across the load is drawn bold' +\n      (th < 360 ? ' up to the cursor at ' + Math.round(th) + '°' : '') + ', and each slice that conducts is shaded. Gate pulses are marked at ' + gw + '.' +\n      (ch ? ' Below, the supply current is a block that starts ' + a + '° after the voltage.' : ''));\n  }\n\n  // ---------- one screen drawn in its state ----------\n  function view(i, p, st) {\n    const d = STEPS[i], right = st.res === 'right', show = !!d.show, mode = modeOf(p), a = alphaOf(p);\n    const th = CS ? K.clamp(CS.cur, 0, 360) : K.clamp(+p.time || 0, 0, 360);\n    const on = onAt(mode, a, th);\n    let flash = '';\n    if (FL) flash = 'A';\n    else if (CS) gatesOf(mode, a).forEach((g, k) => { if (th >= g && th < g + FLW) flash = k ? 'B' : 'A'; });\n    return { i, d, right, show, mode, a, th, on, flash, cursorOn: th < 360 || !!CS, msg: d.pulse && MSG ? MSG.text : '' };\n  }\n  function render(i, p, st) {\n    REC = { texts: [], v: null, slices: [], gates: [], avg: null, block: null, on: '' };\n    const v = view(i, p, st);\n    REC.v = v;\n    art.textContent = ''; slots(el('clabs'), SL.clabs);\n    wart.textContent = ''; slots(el('wlabs'), SL.wlabs);\n    drawCircuit(v); drawWave(v);\n    into = null;\n    return REC;\n  }\n  function paint() {\n    const i = at(), p = K.params();\n    const R = render(i, p, S[i]);\n    if (STEPS[i].show && !finished) el('say').textContent = nb(sayFor(R.v));\n  }\n\n  // ---------- what Dan reads under the picture ----------\n  function sayFor(v) {\n    if (v.msg) return v.msg;\n    const a = v.a, t = Math.round(v.th);\n    if (v.cursorOn) {\n      if (v.mode === 'one') {\n        if (v.on) return v.flash ? `At ${t}°, the gate pulse fires the thyristor.` : `At ${t}°, the thyristor conducts. The pulse is over, but it stays on.`;\n        if (t % 180 === 0) return `At ${t}°, the supply is at zero, and the thyristor is off.`;\n        if (t < 180) return `At ${t}°, the thyristor is forward biased. It waits for its pulse.`;\n        return `At ${t}°, the thyristor is reverse biased, so it blocks.`;\n      }\n      if (v.mode === 'charger') {\n        const pair = v.on === 'A' ? 'the first pair' : 'the second pair';\n        if (v.flash) return `At ${t}°, a gate pulse fires ${pair}. The other pair lets go.`;\n        const past = (v.on === 'A' && t >= 180) || (v.on === 'B' && t < a);\n        return past ? `At ${t}°, ${pair} still conducts, carried on by the choke.` : `At ${t}°, ${pair} conducts.`;\n      }\n      const dev = v.mode === 'triac' ? 'the triac' : t >= 180 ? 'the second pair' : 'the first pair';\n      if (v.on) return v.flash ? `At ${t}°, the gate pulse fires ${dev}.` : `At ${t}°, ${dev} conducts. Its pulse is over, but it stays on.`;\n      if (t % 180 === 0) return `At ${t}°, the supply is at zero, so nothing conducts.`;\n      return `At ${t}°, ${dev} waits for its pulse.`;\n    }\n    if (v.mode === 'charger') {\n      if (v.d.name === 'The charger') return `Fired at ${a}°, each pair conducts from ${a}° to ${180 + a}°.`;\n      return a === 0 ? 'Fired at 0°, the current block starts with the voltage.' : `Fired at ${a}°, the current block starts ${a}° after the voltage.`;\n    }\n    if (a >= 180) return 'Fired at 180°, the supply is already at zero, so nothing gets through.';\n    if (v.mode === 'triac') return a === 0 ? 'Fired at 0°, the heater gets both halves in full.' : `Fired at ${a}°, both halves are shaded from ${a}° on.`;\n    if (v.mode === 'bridge') return a === 0 ? 'Fired at 0°, both humps are shaded in full.' : `Fired at ${a}°, both halves are shaded from ${a}° on.`;\n    return a === 0 ? 'Fired at 0°, the heater gets every positive hump.' : `Fired at ${a}°, the heater gets each positive half from ${a}° to 180°.`;\n  }\n  function settingFor(v) {\n    const parts = [MODEN[v.mode], 'fired at ' + v.a + '°', v.d.load || (v.mode === 'charger' ? 'battery through a choke' : fx(RH, 0) + ' Ω heater')];\n    if (v.cursorOn) parts.push('cursor at ' + Math.round(v.th) + '°');\n    return parts.join(' · ');\n  }\n  function showEl(id, on) { const e = el(id); if (e.hidden && on) enter(id); e.hidden = !on; }\n  const outsShown = (d, right) => !!d.show || d.outs === 'before' || right;\n  function layout(i, d, st, p, v) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, nb(d.show ? d.text : d.task));\n    const vs2 = visIds(d, p), has = (id) => vs2.indexOf(id) >= 0;\n    modeCtl.el.hidden = !has('mode'); el('sw').hidden = !has('mode');\n    modeBtns.forEach((b, k) => { b.hidden = (d.modes || MODES).indexOf(MODES[k]) < 0; });\n    alphaCtl.el.hidden = !has('alpha'); alphaCCtl.el.hidden = !has('alphaC'); timeCtl.el.hidden = !has('time');\n    el('ctl').hidden = !(has('alpha') || has('alphaC') || has('time'));\n    playBtn.el.hidden = !has('play'); pulseBtn.el.hidden = !has('pulse');\n    el('ctl2').hidden = !(has('play') || has('pulse'));\n    showEl('outs', outsShown(d, right));\n    const ch = v.mode === 'charger';\n    rP.el.hidden = ch; rF.el.hidden = !ch;\n    const lab = rV.el.querySelector('.k-readout-label');\n    if (lab) lab.textContent = v.mode === 'triac' ? 'Rms across the heater' : 'Average across the load';\n    const outs = el('outs');\n    if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }\n    else if (el('say').nextElementSibling !== outs) el('say').after(outs);\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? nb(sayFor(v)) : '';\n    el('setting').hidden = !!d.show;\n    el('setting').textContent = d.show ? '' : nb(settingFor(v));\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, nb(d.why));\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  write(el('finish'), FINISH);\n\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); CS = null; SW = null; FL = null; MSG = null;\n    const d = STEPS[i], right = S[i].res === 'right', q = setupOf(i, right);\n    IDS.forEach((id) => CTL[id].set(q[id], true));\n    lastMode = q.mode;\n    if (d.show && d.play) {\n      if (d.play === 'cursor') startCursor(0, 360, DEMO, FADE);\n      else startSweep(aId(q.mode), d.play.from, d.play.to, DEMO, FADE);\n    }\n  }\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    if (!motion.playing() && (CS || SW || FL)) { settle(); K.refresh(); return; }\n    if (SW && +p[SW.id] !== SW.last) SW = null;               // Dan took hold of the slider\n    if (CS && +p.time !== CS.last) CS = null;\n    if (MSG && !CS && +p.time !== MSG.time) MSG = null;\n    if (d.show && d.modes && d.modes.indexOf(modeOf(p)) < 0) { modeCtl.set(d.set.mode, true); K.refresh(); return; }\n    if (p.mode !== lastMode) {\n      const was = lastMode;\n      lastMode = p.mode;\n      if (d.show && visIds(d, p).indexOf('mode') >= 0 && (was === 'charger') !== (p.mode === 'charger')) {\n        // The firing angle carries across when the circuit changes (Charger stops at 90°).\n        if (p.mode === 'charger') alphaCCtl.set(Math.min(r5(p.alpha), 90), true); else alphaCtl.set(r5(p.alphaC), true);\n        SW = null; K.refresh(); return;\n      }\n    }\n    if (!pinning) {\n      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.\n      const q = setupOf(i, st.res === 'right'), vis = visIds(d, p);\n      let fix = false;\n      IDS.forEach((id) => {\n        if (vis.indexOf(id) >= 0 || (SW && SW.id === id) || (CS && id === 'time')) return;\n        if (String(p[id]) !== String(q[id])) { CTL[id].set(q[id], true); fix = true; }\n      });\n      if (fix) { pinning = true; K.refresh(); pinning = false; return; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const R = render(i, p, st);\n    layout(i, d, st, p, R.v);\n    dots();\n    kick();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, over, right) {\n    const keep = [CS, SW, FL, MSG];\n    CS = null; SW = null; FL = null; MSG = null;\n    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }\n    finally { CS = keep[0]; SW = keep[1]; FL = keep[2]; MSG = keep[3]; paint(); }\n  }\n  const meanOf = (f, n) => { let s = 0; for (let k = 0; k < n; k++) s += f(360 * (k + 0.5) / n); return s / n; };\n  const atA = (mode, a) => K.at(mode === 'charger' ? { mode, alphaC: a } : { mode, alpha: a });\n\n  K.check('One thyristor averages (325 ÷ 2π)(1 + cos α): 104 V fired at 0°, 78 V at 60° and 52 V at 90°', () =>\n    fx(atA('one', 0).volts, 0) === '104' && fx(atA('one', 60).volts, 0) === '78' && fx(atA('one', 90).volts, 0) === '52');\n  K.check('The bridge averages twice as much, (325 ÷ π)(1 + cos α): 207 V at 0°, 155 V at 60°, 104 V at 90° and 52 V at 120°', () =>\n    fx(atA('bridge', 0).volts, 0) === '207' && fx(atA('bridge', 60).volts, 0) === '155' && fx(atA('bridge', 90).volts, 0) === '104' &&\n    fx(atA('bridge', 120).volts, 0) === '52' && K.near(atA('bridge', 45).volts, 2 * atA('one', 45).volts, 1e-9));\n  K.check('Each readout is the drawn bold line worked out over the cycle: its mean gives the average, and its square over 23 Ω the heater power, at every 15°', () => {\n    for (const m of MODES) {\n      for (let a = 0; a <= (m === 'charger' ? 90 : 180); a += 15) {\n        const o = atA(m, a), mean = meanOf((t) => loadV(m, a, t), 7200), sq = meanOf((t) => loadV(m, a, t) * loadV(m, a, t), 7200) / RH;\n        if (m === 'triac') { if (!(Math.abs(mean) < 1e-6 && Math.abs(sq - o.heaterPower) < 0.5 && Math.abs(Math.sqrt(sq * RH) - o.volts) < 0.05)) return false; }\n        else if (Math.abs(mean - o.volts) > 0.05) return false;\n        if (m !== 'charger' && m !== 'triac' && Math.abs(sq - o.heaterPower) > 0.5) return false;\n      }\n    }\n    return true;\n  });\n  K.check('The area under a sine from α to 180° is 1 + cos α: 2 for a whole hump, 1.5 from 60° and 0.5 from 120°', () => {\n    const ar = (a) => { let s = 0; const n = 6000; for (let k = 0; k < n; k++) s += Math.sin(rad(a + (180 - a) * (k + 0.5) / n)) * rad(180 - a) / n; return s; };\n    return K.near(ar(0), 2, 1e-6) && K.near(ar(60), 1.5, 1e-6) && K.near(ar(120), 0.5, 1e-6) && N.a60 === '1.5' && N.q60 === '0.75' && N.a120 === '0.5';\n  });\n  K.check('The triac heater takes 2300 W fired at 0°. Fired at 90° it takes 1150 W at about 163 V rms, not 115 V', () =>\n    fx(atA('triac', 0).heaterPower, 0) === '2300' && fx(atA('triac', 0).volts, 0) === '230' && fx(atA('triac', 90).heaterPower, 0) === '1150' &&\n    fx(atA('triac', 90).volts, 0) === '163' && N.half === '115' && atA('triac', 180).heaterPower < 1e-9);\n  K.check('A triac behaves like two conventional thyristors in inverse parallel (back to back): each half gets the same slice, the negative one turned over', () => {\n    for (let a = 0; a <= 180; a += 15) for (let t = 1; t < 180; t += 7) {\n      if (!K.near(loadV('triac', a, t), loadV('one', a, t), 1e-9) || !K.near(loadV('triac', a, t + 180), -loadV('one', a, t), 1e-6)) return false;\n    }\n    return true;\n  }, { source: TRI });\n  K.check('SCRs are turned off by anode current falling below the holding current, not by the gate: fired at 90°, the drawn thyristor is still on at 120° and 175°, and off from 180°', () =>\n    onAt('one', 90, 120) === 'A' && onAt('one', 90, 175) === 'A' && onAt('one', 90, 180) === '' && onAt('one', 90, 270) === '' && onAt('one', 90, 89) === '', { source: AAC });\n  K.check('An extra pulse changes nothing while the thyristor is on or reverse biased. One at 45°, before it fires at 90°, fires it there', () =>\n    pulseAt(90, 135) === 'on' && pulseAt(90, 270) === 'reverse' && pulseAt(90, 360) === 'zero' && pulseAt(90, 180) === 'zero' && pulseAt(90, 45) === 'fires');\n  K.check('Fired at 90°, one thyristor shades 90° to 180° only, with one gate mark. The bridge shades both halves above the line, with marks at 90° and 270°', () => {\n    const o = drawnAt(3, { mode: 'one', alpha: 90, time: 360 }), b = drawnAt(5, { mode: 'bridge', alpha: 90, time: 360 });\n    return o.slices.length === 1 && o.slices[0][0] === 90 && o.slices[0][1] === 180 && o.gates.join() === '90' && o.avg != null &&\n      b.slices.length === 2 && b.slices.every((s) => s[2] > 0) && b.slices[1][0] === 270 && b.gates.join() === '90,270';\n  });\n  K.check('On the puzzle with the cursor at 120°, the slice is drawn only to 120° with no average line. After a right Check it runs to 180°', () => {\n    const b = drawnAt(2, null, false), r = drawnAt(2, null, true);\n    return b.slices.length === 1 && b.slices[0][1] === 120 && b.avg == null && b.on === 'A' && r.slices[0][1] === 180 && r.avg != null && r.on === '';\n  });\n  K.check('The charger averages 207 × cos α: 207 V at 0°, 179 V at 30°, 104 V at 60° and 0 V at 90°', () =>\n    fx(atA('charger', 0).volts, 0) === '207' && fx(atA('charger', 30).volts, 0) === '179' && fx(atA('charger', 60).volts, 0) === '104' && fx(atA('charger', 90).volts, 0) === '0');\n  K.check('So when α < 90° the average DC voltage is positive', () => {\n    for (let a = 0; a < 90; a += 5) if (!(atA('charger', a).volts > 0)) return false;\n    return Math.abs(atA('charger', 90).volts) < 1e-9;\n  });\n  K.check('For a smaller DC voltage the trigger pulse is delayed, and the trigger angle shifts the input current, which reduces the power factor: 0.90, 0.78 and 0.45 at 0°, 30° and 60°', () => {\n    const pfNum = (a) => meanOf((t) => vs(t) * (onAt('charger', a, t) === 'A' ? 1 : -1), 7200) / VRMS;\n    for (let a = 5; a <= 90; a += 5) if (!(pfCh(a) < pfCh(a - 5) && atA('charger', a).volts < atA('charger', a - 5).volts)) return false;\n    const blk = drawnAt(9, { mode: 'charger', alphaC: 30, time: 360 }).block;\n    return K.near(pfNum(0), pfCh(0), 1e-4) && K.near(pfNum(60), pfCh(60), 1e-4) && blk[0] === 30 && blk[1] === 210 &&\n      fx(atA('charger', 0).powerFactor, 2) === '0.90' && fx(atA('charger', 30).powerFactor, 2) === '0.78' && fx(atA('charger', 60).powerFactor, 2) === '0.45';\n  }, { source: ECPE });\n  K.check('Even fired at 0°, a block of current gives a power factor of 2√2 ÷ π, about 0.9, below 1', () => K.near(pfCh(0), 0.9003, 1e-4) && N.k === '0.9' && pfCh(0) < 1);\n  K.check('The heater is 230² ÷ 2300 = 23 Ω, and the peak is 230 × √2, about 325 V', () => N.r === '23' && N.vp === '325' && K.near(RH, 23, 1e-9));\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden readouts appear only after a right Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      return d.outs === 'after' ? !outsShown(d, false) && outsShown(d, true) : outsShown(d, false);\n    }));\n  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () => DEMO + FADE <= 4.5 && ANS <= 3);\n  K.check('Every number in the words comes from the rule: 104, 78, 52, 69, 207, 155, 104, 52, 1150, 163, 115, 0.71, 179, 104, 0.90, 0.78, 0.45 and 0.9', () =>\n    N.one0 === '104' && N.one60 === '78' && N.one90 === '52' && N.third === '69' && N.third2 === '69' && N.br0 === '207' && N.br60 === '155' &&\n    N.br90 === '104' && N.br120 === '52' && N.p90 === '1150' && N.rms90 === '163' && N.s90 === '0.5' && N.ch30 === '179' && N.ch60 === '104' &&\n    N.pf0 === '0.90' && N.pf30 === '0.78' && N.pf60 === '0.45' && N.c60 === '0.5' && N.c120 === '−0.5' && N.pft90 === '0.71');\n\n  K.ready();\n</script>",
+  "title": "The firing angle",
+  "brief": "The one thing you should see is the shaded slice of each half, and the average read from it, shrink from 207 V to 104 V when you drag the bridge's firing angle from 0° to 90°.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "One thyristor averages (325 ÷ 2π)(1 + cos α): 104 V fired at 0°, 78 V at 60° and 52 V at 90°",
+     "ok": true
+    },
+    {
+     "label": "The bridge averages twice as much, (325 ÷ π)(1 + cos α): 207 V at 0°, 155 V at 60°, 104 V at 90° and 52 V at 120°",
+     "ok": true
+    },
+    {
+     "label": "Each readout is the drawn bold line worked out over the cycle: its mean gives the average, and its square over 23 Ω the heater power, at every 15°",
+     "ok": true
+    },
+    {
+     "label": "The area under a sine from α to 180° is 1 + cos α: 2 for a whole hump, 1.5 from 60° and 0.5 from 120°",
+     "ok": true
+    },
+    {
+     "label": "The triac heater takes 2300 W fired at 0°. Fired at 90° it takes 1150 W at about 163 V rms, not 115 V",
+     "ok": true
+    },
+    {
+     "label": "A triac behaves like two conventional thyristors in inverse parallel (back to back): each half gets the same slice, the negative one turned over",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/power/triac.html"
+    },
+    {
+     "label": "SCRs are turned off by anode current falling below the holding current, not by the gate: fired at 90°, the drawn thyristor is still on at 120° and 175°, and off from 180°",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/"
+    },
+    {
+     "label": "An extra pulse changes nothing while the thyristor is on or reverse biased. One at 45°, before it fires at 90°, fires it there",
+     "ok": true
+    },
+    {
+     "label": "Fired at 90°, one thyristor shades 90° to 180° only, with one gate mark. The bridge shades both halves above the line, with marks at 90° and 270°",
+     "ok": true
+    },
+    {
+     "label": "On the puzzle with the cursor at 120°, the slice is drawn only to 120° with no average line. After a right Check it runs to 180°",
+     "ok": true
+    },
+    {
+     "label": "The charger averages 207 × cos α: 207 V at 0°, 179 V at 30°, 104 V at 60° and 0 V at 90°",
+     "ok": true
+    },
+    {
+     "label": "So when α < 90° the average DC voltage is positive",
+     "ok": true
+    },
+    {
+     "label": "For a smaller DC voltage the trigger pulse is delayed, and the trigger angle shifts the input current, which reduces the power factor: 0.90, 0.78 and 0.45 at 0°, 30° and 60°",
+     "ok": true,
+     "source": "https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge"
+    },
+    {
+     "label": "Even fired at 0°, a block of current gives a power factor of 2√2 ÷ π, about 0.9, below 1",
+     "ok": true
+    },
+    {
+     "label": "The heater is 230² ÷ 2300 = 23 Ω, and the peak is 230 × √2, about 325 V",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden readouts appear only after a right Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+     "ok": true
+    },
+    {
+     "label": "Every number in the words comes from the rule: 104, 78, 52, 69, 207, 155, 104, 52, 1150, 163, 115, 0.71, 179, 104, 0.90, 0.78, 0.45 and 0.9",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "mode",
+    "alpha",
+    "alphaC",
+    "time"
+   ],
+   "readouts": [
+    "volts",
+    "heaterPower",
+    "powerFactor"
+   ],
+   "outputs": [
+    "volts",
+    "heaterPower",
+    "powerFactor"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Starting a motor",
+      "A diode with a gate",
+      "After the pulse",
+      "The firing angle",
+      "Fire at 60°",
+      "A controlled bridge",
+      "Fire at 120°",
+      "The triac",
+      "A fan on a dimmer",
+      "The charger",
+      "The power factor",
+      "Half the output",
+      "The soft starter",
+      "Gate stuck on"
+     ],
+     "value": 0
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "Circuit",
+     "options": [
+      "one",
+      "bridge",
+      "triac",
+      "charger"
+     ],
+     "labels": [
+      "One thyristor",
+      "Bridge",
+      "Triac",
+      "Charger"
+     ],
+     "value": "one",
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "alpha",
+     "kind": "control",
+     "label": "Firing angle α",
+     "min": 0,
+     "max": 180,
+     "step": 5,
+     "log": false,
+     "value": 90,
+     "shown": false,
+     "snap": [
+      0,
+      60,
+      90,
+      120,
+      150,
+      180
+     ]
+    },
+    {
+     "id": "alphaC",
+     "kind": "control",
+     "label": "Firing angle α",
+     "min": 0,
+     "max": 90,
+     "step": 5,
+     "log": false,
+     "value": 90,
+     "shown": false,
+     "snap": [
+      0,
+      30,
+      60,
+      90
+     ]
+    },
+    {
+     "id": "time",
+     "kind": "control",
+     "label": "Time",
+     "min": 0,
+     "max": 360,
+     "step": 5,
+     "log": false,
+     "value": 360,
+     "shown": false,
+     "snap": [
+      0,
+      90,
+      120,
+      135,
+      180,
+      270,
+      360
+     ]
+    }
+   ],
+   "actions": [
+    "Play",
+    "Pulse the gate",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 3
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   "explain.text: \"Just before each zero\" reads as the supply's zero, but the same text later says a choke carries the current through each zero, so the thyristor then lets go when the other pair fires. The quote ties turn-off to the current's zero, which holds in both cases.",
+   "practice.text: The source names one product suitable for charging, not all thyristor rectifiers; \"the charger does both by moving α\" is stated as certain of every charger; and the mistake about the gate turning it off is false of gate turn-off thyristors, so it needs the explanation's \"ordinary\".",
+   "analogy.text: \"Fails at every zero of the AC\" is true for a heater but not with a choke, where the current flows on past the supply's zero and stops when the other pair fires. It still fails once every cycle.",
+   "interactive.whatAmILookingAt: Charger slices are said to run \"partly below the line\", false at α = 0°. Screen 1 asks about \"the first instant\", but the cited 6 to 8 times is the starting current; the very first instant can carry a brief higher peak."
+  ],
+  "notes": [
+   "sources[5]: The power factor quote comes from a three-phase full-bridge page and backs a single-phase bridge here. The principle and the 0.9 × cos α figure (2√2 ÷ π, constant current) are textbook-standard, so it stands, but a single-phase source would fit better.",
+   "interactive: If the built interactive shows the screen 1 question or the Charger description word for word, its text should follow the whatAmILookingAt edits (\"As it starts\"; slices dip below the line only past 180°)."
+  ]
+ },
+ "error": null,
+ "flags": {}
+}

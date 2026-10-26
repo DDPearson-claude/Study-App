@@ -1,0 +1,10 @@
+{
+ "status": "done",
+ "by": "fact-checker, lesson i1",
+ "at": "2026-10-26",
+ "notes": [
+  "Failed first on overclaims, now corrected in topic.json. Hook was: \"A drive runs a motor at any speed using switches that are only ever fully on or fully off. How can on-off switches give a motor smooth AC at any frequency?\" \"Only ever fully on or fully off\" is too absolute: the switches pass through partial states at every switch-over, which is where switching losses come from (Infineon, research source 15), and the idea i4 line itself says \"kept fully on or fully off\". \"Any speed\" and \"smooth AC at any frequency\" overclaim a drive’s range, and the motor gets pulses of voltage whose current comes out near a sine (TI reference design, source 22). Now: \"A drive runs a motor at the speed you choose using switches that are kept fully on or fully off. How can on-off switches give a motor a smooth AC current at the frequency it needs?\"",
+  "In one breath: \"AC at any voltage and frequency\" overclaimed, since an inverter’s output is limited by its DC link and its rating; now \"AC at the voltage and frequency you choose\". The rest is backed by research: one-way valve (1), bridge gives DC that pulses (5), smoothing capacitor and DC-link store (8, 9), fully on or off wastes little heat (13, 14, 30, 31), buck and boost (19, 32), PWM duty sets the phase voltage (21), double-conversion UPS (24), harmonics (25), charge after isolation (12) and earth leakage, type B RCD, EMC filters (26, 27). It agrees with lesson i1.",
+  "Left as is: \"a battery charger\" in the list of what sits inside; no research source shows a charger’s circuit, so it stands only as a broad, textbook-plain example of the chain of rectifying and chopping. Thyristors are \"switches you can control\" only at turn-on; lesson i5 should say a thyristor turns off when its current falls to zero."
+ ]
+}

@@ -1,0 +1,270 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A buck settles where its two areas balance, at Vout = D × Vin: 24 V at 50%, 12 V at 25% and 36 V at 75%",
+        "ok": true
+      },
+      {
+        "label": "A boost settles at Vin ÷ (1 − D): 96 V at 50% and 192 V at 75%. There 48 V for three quarters of a cycle and 144 V for a quarter both come to 36",
+        "ok": true
+      },
+      {
+        "label": "In a steady state, the average voltage across the inductor is zero: the drawn voltage averages zero over a cycle at every duty cycle, in both circuits",
+        "ok": true,
+        "source": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle"
+      },
+      {
+        "label": "The volt-second balance equation is (Vin − Vo) × Ton = Vo × Toff: it holds in Buck once settled, at every duty cycle and frequency",
+        "ok": true,
+        "source": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle"
+      },
+      {
+        "label": "Below the balance the current gains each cycle: with D at 50% and the output at 20 V, it climbs 2.8 A and falls 2.0 A, ending each cycle 0.8 A higher. Above it, it loses",
+        "ok": true
+      },
+      {
+        "label": "The output moves the way the bigger area says, at a rate that follows the difference: within 1% of a new setting in about 2 s of the slowed picture",
+        "ok": true
+      },
+      {
+        "label": "In Buck at 50%, the current rises 2.4 A a cycle at 50 kHz, 24% of 10 A; 1.2 A at 100 kHz, 12%; and 4.8 A at 25 kHz, 48%. The boost's 4.8 A on its 20 A average is also 24%",
+        "ok": true
+      },
+      {
+        "label": "A good estimation for the inductor ripple current is 20% to 40% of the output current: the band beside the ripple readout runs from 20% to 40%",
+        "ok": true,
+        "source": "https://www.ti.com/lit/an/slva477b/slva477b.pdf?ts=1786269682384"
+      },
+      {
+        "label": "The battery current is the load's power over 48 V: 5.0 A at 50% and 2.5 A at 25% in Buck, 20.0 A at 50% and 40.0 A at 75% in Boost",
+        "ok": true
+      },
+      {
+        "label": "When the switch turns on in Boost, the voltage across the inductor increases to approximately the input voltage, and the current in it climbs",
+        "ok": true,
+        "source": "https://www.ti.com/download/trng/docs/seminar/Topic_3_Lynch.pdf"
+      },
+      {
+        "label": "The boost converter is used to step up an input voltage to some higher level: its output sits above the battery at every duty cycle",
+        "ok": true,
+        "source": "https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/3678.snva731.pdf"
+      },
+      {
+        "label": "When the switch opens again, the inductor current continues to flow into the diode: the off path in Buck runs through the diode, and the current never falls to zero",
+        "ok": true,
+        "source": "https://www.analog.com/en/resources/technical-articles/dc-to-dc-buck-converter-tutorial.html"
+      },
+      {
+        "label": "Settled at 50%, the Buck picture shades 24 V above the line and 24 V below, each for half of every cycle, and the current ends each cycle where it began",
+        "ok": true
+      },
+      {
+        "label": "Screen 3 lights the area above the line, marked 24 V, only after a right Check, with the cursor in an on-time",
+        "ok": true
+      },
+      {
+        "label": "A transistor held part on with 24 V across it and 10 A through it makes 240 W. A series resistor dropping 36 V burns 360 W, while the buck takes 120 W for the load's 120 W",
+        "ok": true
+      },
+      {
+        "label": "Every number in the words comes from the rule: 24, 12, 36, 28, 2.5, 40, 10, 40, 20, 2.4, 24, 1.2, 12, 4.8, 48, 96, 48, 192, 144, 36, 20, 960, 40, 75, 25, 60, 0.6, 20 and 40",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden numbers appear only after a right Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mode",
+      "duty",
+      "dutyB",
+      "freq",
+      "time"
+    ],
+    "readouts": [
+      "volts",
+      "ripple",
+      "batteryCurrent"
+    ],
+    "outputs": [
+      "volts",
+      "ripple",
+      "batteryCurrent"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "steps": [
+          "Heat in a transistor",
+          "Chop it",
+          "Across the inductor",
+          "Two areas",
+          "Too low",
+          "The rule",
+          "From the battery",
+          "Ripple",
+          "Slower switching",
+          "Boost",
+          "Boost from the battery",
+          "Four times",
+          "A run-down battery"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Circuit",
+        "options": [
+          "buck",
+          "boost"
+        ],
+        "labels": [
+          "Buck",
+          "Boost"
+        ],
+        "value": "buck",
+        "index": 0,
+        "shown": false
+      },
+      {
+        "id": "duty",
+        "kind": "control",
+        "label": "Duty cycle D",
+        "min": 10,
+        "max": 90,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "shown": false,
+        "snap": [
+          25,
+          50,
+          75
+        ]
+      },
+      {
+        "id": "dutyB",
+        "kind": "control",
+        "label": "Duty cycle D",
+        "min": 10,
+        "max": 75,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "shown": false,
+        "snap": [
+          50,
+          75
+        ]
+      },
+      {
+        "id": "freq",
+        "kind": "control",
+        "label": "Switching frequency f",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "shown": false,
+        "snap": [
+          25,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "time",
+        "kind": "control",
+        "label": "Time",
+        "min": 0,
+        "max": 300,
+        "step": 5,
+        "log": false,
+        "value": 300,
+        "shown": false,
+        "snap": [
+          0,
+          100,
+          125,
+          175,
+          200,
+          300
+        ]
+      }
+    ],
+    "actions": [
+      "Play",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "mode = \"boost\"",
+    "duty = 70",
+    "dutyB = 58.75",
+    "freq = 77.5",
+    "time = 225"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i6.a1-1280-dark-end.png"
+  ]
+}

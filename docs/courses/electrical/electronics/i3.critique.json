@@ -1,0 +1,34 @@
+{
+  "draft": "i3.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: a capacitor fills near each peak, feeds the load between them, and in a drive it is the store of DC.",
+    "The picture is the brief's reservoir: the bridge feeding a capacitor and a load, sliders for capacitance and load current, the bus riding the humps with its gulps, a ripple readout computed from I ÷ (f × C), and Switch on with precharge off (a red 325 A spike) and on (the charging curve, the contactor after five time constants).",
+    "The ripple rule is derived on screen from i = C dv/dt, a rule Dan already has, and its error is stated honestly: it takes the fall to last the whole period, so the drawn dip (about 18 V) sits a little under the readout (20 V).",
+    "Both brief misconceptions get a DO screen with their own hints: 'the capacitor adds voltage' (screen 2, the no-load bus) and 'only C sets ripple' (screen 6, the notes' own check, double the load). Screen 12 turns the rule round to size a capacitor.",
+    "The 566 V and 540 V are both taught, each with its condition (screen 8), the 1.35 cited and the 566 V computed.",
+    "The Exponentials recall sits where it is used (screen 10: five time constants, 'Still there').",
+    "Thirteen screens alternating SHOW 1, 3, 5, 7, 9, 11 with DO 2, 4, 6, 8, 10, ending on two mixed puzzles (sizing for 4 A, a six-pulse link at 300 Hz). SHOW screens run 77 to 84 words."
+  ],
+  "fix": [
+    "Causal step skipped (gulps): screen 3 and explain say the supply's current comes in short, tall gulps but not why. Say all the charge drained over 10 ms goes back in a short refill, so each gulp runs at several times the load current.",
+    "Causal step skipped (inrush): screen 9 jumps from 'voltage rises only as fast as current fills it' to 'short circuit'. Say that at the first instant it still holds 0 V while current pours in, which is what a short circuit does, so the whole peak falls across the 1 Ω. Also say why the spike dies within about 5 ms: five time constants of 1 Ω × 1000 µF.",
+    "Causal step skipped (screen 1): 'the hump falls away faster than the capacitor' needs its reason, the capacitor drains only slowly through the load.",
+    "False absolute: 'It fills only from the supply, so it cannot go higher' (screen 2's Why and explain). A real supply's inductance can nudge a lightly loaded capacitor past the peak at switch-on. Say it settles at the peak and adds no voltage of its own.",
+    "Brief shows the effect without the cause: name the slope between peaks getting twice as steep, which is the cause of the deeper dip.",
+    "Answer given away: screen 7's Read and still show 400 V three-phase at 5 A with the ripple at 17 V, which is screen 13's answer. End screen 7 on 230 V at 4 A and keep the three-phase link in the words only.",
+    "Unreadable label: the readout 'Bus average' and the Read say 'bus', but screen 1 never names the bus. Name the capacitor's voltage as the DC bus in screen 1 and in explain.",
+    "Quantity idea without the shape of the rule: add a small plot of ripple against load current for the capacitance set, a straight line through zero with a dot at the setting, so doubling shows as a line.",
+    "Assumed values must read as chosen: 'With 1 Ω of supply and wiring' and 'Through 100 Ω' in explain become 'say' values.",
+    "Practice: one bullet runs to 25 words; split it. 'It keeps its charge after isolation' becomes 'It can keep its charge', since bleed resistors drain it in time."
+  ],
+  "shape": {
+    "named up front": "yes",
+    "rule in words": "yes: the bus falls at I ÷ C for about one ripple period, so ripple is about I ÷ (f × C); the bold takeaway restates it",
+    "worked example with real numbers": "yes: 230 V, 2 A, 1000 µF gives 2 V a millisecond and 20 V of ripple; 325 A straight on against about 3 A through 100 Ω; the 440 V six-pulse link in practice (622 V, 594 V, 33 V, 12 A)",
+    "misconception shown failing": "yes: screens 2, 6 and 12",
+    "analogy from his trade with where it breaks": "the textbook one (a header tank fed in surges), mapped level to voltage, width to capacitance, draw-off to load current; it breaks on charge balance and an invisible stored charge. Different from lesson 1's valve and lesson 2's intermediate switch",
+    "put it into practice": "yes: safe way first, steps, rule of thumb, worked example, mistakes",
+    "recap he could say back": "yes"
+  }
+}

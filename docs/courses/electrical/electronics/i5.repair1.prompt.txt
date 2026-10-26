@@ -1,0 +1,381 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Electronics and power electronics, from diode to drive
+Idea: The thyristor and phase control (A thyristor is a diode that waits for a pulse on its gate, its control lead, so firing it later each half cycle gives less DC.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the shaded slice of each half, and the average read from it, shrink from 207 V to 104 V when you drag the bridge's firing angle from 0° to 90°.
+Title (the app shows it above the frame, so do not repeat it): The firing angle
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in thirteen small screens. Most show one picture, the firing angle. A 230 V, 50 Hz supply feeds a load through thyristors. Its peak is 230 × √2, about 325 V. A picker above chooses the circuit: One thyristor, Bridge, Triac or Charger. Its four buttons wrap onto two lines on a narrow phone. The first three feed a 2300 W heater of 23 Ω. It is chosen for the example. Charger feeds a battery through a choke. Each thyristor is drawn with its gate. The gate is its control lead. A firing-angle slider sets α from 0° to 180°, in steps of 5°. In Charger it stops at 90°. Each screen sets where the picture starts.
+
+Below the circuit, a plot shows one cycle, from 0° to 360°. The supply's sine is drawn thin. The voltage across the load is drawn bold, and each slice that conducts is shaded. A small mark on the time axis shows each gate pulse at α. Where a second device fires, another mark sits at 180° + α. A Play button runs a cursor round the cycle, slowed down. A time slider moves it from 0° to 360°, in steps of 5°. While the cursor is in a shaded slice, the device that conducts is drawn bold in the circuit. Its gate lead flashes only at the pulse. A Pulse the gate button sends an extra pulse at the cursor. If the device there is off and forward biased, it fires. That half's shading then starts at the cursor. If it is already on, or reverse biased, nothing changes.
+
+Each readout comes from the shaded area. Integrating the sine gives its area from α to 180°. That area is 1 + cos α. A whole hump gives 2. One thyristor passes only the positive half. Its average over the cycle is (325 ÷ 2π)(1 + cos α). That is about 104 V at 0°, 78 V at 60° and 52 V at 90°. Bridge has four thyristors in a diamond. They stand where the bridge rectifier had four diodes. It shades both halves above the line. So its average is twice as much: (325 ÷ π)(1 + cos α). That is 207 V at 0°, 155 V at 60°, 104 V at 90° and 52 V at 120°. A dashed line across the plot marks the average. Triac passes both halves, one above the line and one below. So its average is zero. Its two readouts show the rms across the heater and the heater's power instead. The power is 2300 W × (1 − α ÷ 180° + sin 2α ÷ 2π). The bracket is the share of the squared area left. The rms is the square root of the power × 23. At 90° that is 1150 W and about 163 V.
+
+Charger draws the bridge feeding a battery through a choke. A choke is a large coil. The picture holds the charging current steady, as a large choke does. So each pair of thyristors conducts on past 180°, until the other pair fires. Each slice runs from α to 180° + α. Past 180° it dips below the line. Its average is (2 × 325 ÷ π) × cos α, about 207 × cos α. That is 207 V at 0°, 179 V at 30°, 104 V at 60° and 0 V at 90°. Under the voltage, a strip shows the supply's current as a block of fixed height. It is positive from α to 180° + α. So it starts α after the voltage. The power factor readout is the real power over the supply's volts × amps. For a block it is about 0.9 × cos α. That gives 0.90 at 0°, 0.78 at 30° and 0.45 at 60°. The 0.9 is 2√2 ÷ π. Even at 0° it is below 1, because a block is not a sine. Each mode shows two readouts side by side.
+
+The screens.
+
+1, a puzzle: the picture shows One thyristor at rest, with α at 90° and the readouts hidden. “You start a motor direct on line. As it starts, about how much current does it draw?” Offered: “Usually 6 to 8 times its rated current”; “About its rated current”; “About twice its rated current”. Hint for its rated current: “If it drew only its rated current, nobody would fit a soft starter.” Hint for twice: “Think of the lights dipping as a big motor starts. It is far more than twice.” Why: “Usually 6 to 8 times, and sometimes more than 10 times.[^1] A soft starter cuts that. It brings the voltage up gently. Its switches are thyristors. Here is how they work.” A right Check says Still there.
+
+2, show: A diode with a gate. One thyristor, α at 90°, the cursor run from 0° to 360°. The words: “A thyristor is a diode with a third lead, its gate. Like a diode, it blocks reverse voltage. It also blocks forward voltage until a pulse on the gate fires it. Here one feeds a 2300 W heater from 230 V. It is fired at 90°. Play the cycle. At 90° the pulse fires it, and it turns bold. The pulse ends, but it stays on. Just before 180° its current falls away. Then it lets go. Pulse the gate again at 135°. Nothing changes.” Read: with the cursor at 360°, the heater's voltage is shaded from 90° to 180° only. The gate mark sits at 90°. The negative half is empty. Still: One thyristor, α 90°, cursor 360°.
+
+3, a puzzle: One thyristor, α at 90°, the cursor stopped at 120°, the thyristor bold. “The thyristor fired at 90°, and the gate pulse is over. The cursor is at 120°. What happens next?” Offered: “It conducts on until its current falls away, near 180°”; “It turns off at once, as the pulse is over”; “It conducts on into the negative half”. Hint for off at once: “Once fired, it latches. What has to fall for it to let go?” Hint for the negative half: “In the negative half it is reverse biased, like a diode.” Why: “It conducts on. Once fired, a thyristor latches on. The gate then has no more say. It lets go only when its current falls below a small holding current.[^2] On AC that happens just before the zero. So it needs a fresh pulse every cycle.” A right Check runs the cursor to 360°. The thyristor stays bold to 180°, then goes thin.
+
+4, show: The firing angle. One thyristor, α from 0° to 90°. The words: “The firing angle, α, is the angle in each half where the gate fires. Drag it. At 0° the heater gets every positive hump, as from a half-wave rectifier. That averages about 104 V. Fire later, and the shaded slice shrinks. The average is the shaded area spread over the whole cycle. At 90° the slice is exactly half the hump, because a hump is symmetrical. So the average halves, to about 52 V.” Read: at 0°, the whole positive hump is shaded. The average reads 104 V. At 90°, only its second half is shaded. The average reads 52 V. Still: One thyristor, α 90°, cursor 360°.
+
+5, a puzzle: One thyristor, α at 0°, the average reading 104 V. “Fire at 60° instead. That cuts a third of the time from the positive half. What does the average become?” Offered: “About 78 V”; “About 69 V, a third less”; “About 52 V”. Hint for 69 V: “The first 60° is the low, rising start of the hump. Does it hold a third of the area?” Hint for 52 V: “52 V is the answer at 90°. At 60° more of the hump is shaded.” Why: “About 78 V. The area under a sine from α to 180° is 1 + cos α. The whole hump gives 2. At 60° that is 1 + 0.5 = 1.5. That is three quarters of 2. So the average is 104 × 0.75, about 78 V. The start of a hump is low. So cutting it costs little.” A right Check sets α to 60°, and the average reads 78 V.
+
+6, show: A controlled bridge. Bridge, α at 0° and then 60°. The words: “A bridge rectifier with thyristors in place of its four diodes is a controlled rectifier. Each pair fires at α in its own half. So both humps are shaded above the line. Fired at 0°, it gives the diode bridge's 207 V. Later firing shrinks both slices. The average is (Vmax ÷ π)(1 + cos α). Vmax is the 325 V peak. At 60° that is 155 V. At 90° it is 104 V.” Read: with α at 60°, both halves are shaded from 60° on, and the average reads 155 V. Still: Bridge, α 60°, cursor 360°.
+
+7, a puzzle: Bridge, α at 60°, the average reading 155 V. “Now fire the bridge at 120°. What does it average?” Offered: “About 52 V”; “About 69 V, a third of 207 V”; “About −52 V, as cos 120° is negative”. Hint for 69 V: “Only the low tail of each hump is left. Use 1 + cos α.” Hint for −52 V: “Add the 1 before you multiply. A heater's slices never dip below the line.” Why: “About 52 V. cos 120° is −0.5. So 1 + cos α is 0.5. That is a quarter of the whole hump's 2. A quarter of 207 V is about 52 V.” A right Check sets α to 120°, and the average reads 52 V.
+
+8, show: The triac. Triac, α at 0° and then 90°. The words: “A triac behaves like two thyristors back to back.[^3] It fires in both halves. So the heater gets chopped AC. A heater cares about power, so the readouts show rms and watts. Fired at 0°, this heater takes 2300 W at 230 V. Fired at 90°, each half keeps exactly half its area of squares. So the power halves, to 1150 W. The rms is 230 × √0.5. That is about 163 V, not 115 V.” Read: with α at 90°, both halves are shaded from 90° on, one above the line and one below. The rms reads 163 V and the heater power 1150 W. Still: Triac, α 90°, cursor 360°.
+
+9, a puzzle: Triac, α at 90°. “A triac lamp dimmer is to hand. Should it set the speed of a small fan motor?” Offered: “No, a lamp dimmer is for resistive loads only”; “Yes, a lower rms means a slower fan”; “Yes, as the fan is small”. Hint for a lower rms: “A motor is a coil, not a heater. What load is a lamp dimmer made for?” Hint for small: “Size is not the issue. What kind of load is a fan motor?” Why: “No. Triac lamp dimmers are made for resistive loads only. They should not be used as a motor speed controller.[^4] A motor's coil keeps its current flowing past the voltage's zero. A heater's current falls to zero with the voltage.” A right Check keeps the picture as it is.
+
+10, show: The charger. Charger, α from 0° to 30°. The words: “A charger feeds a battery a steady current. Here the bridge feeds it through a choke, a large coil. The choke carries the current through each zero. So each pair conducts on past 180° until the other pair fires. The part below the line subtracts. The average becomes 207 × cos α. Below, the supply's current is a block that starts α after the voltage. Fire later, and it slides further behind. More of it flows while the voltage is low or reversed. So the power factor falls.[^5]” Read: with α at 30°, the current block starts 30° after the voltage. The average reads 179 V. The power factor reads 0.78, about 0.9 × cos α. Still: Charger, α 30°, cursor 360°.
+
+11, a puzzle: Charger, α at 0°, the average reading 207 V and the power factor 0.90. “The charger must cut its output to about 104 V, half of 207 V. What happens to its power factor?” Offered: “It falls to about 0.45”; “It stays near 0.90, as firing later costs nothing”; “It rises, as less power is drawn”. Hint for stays: “Watch where the current block starts as α grows.” Hint for rises: “Less power is drawn, but the block slides further behind the voltage.” Why: “It falls to about 0.45. Half of 207 V needs cos α = 0.5. So α is 60°. The current block now starts 60° behind the voltage. The power factor is 0.9 × 0.5 = 0.45. The supply carries the same current for half the power.” A right Check sets α to 60°. The average reads 104 V and the power factor 0.45.
+
+12, a mixed puzzle: Triac, α at 150°, the readouts hidden. The picture keeps its heater, and the question is about a motor. “A soft starter fires its thyristors late at first, then earlier and earlier. What does the motor get?” Offered: “A voltage that ramps up from low to full”; “The full voltage at once, for less time”; “A DC voltage that rises”. Hint for the full voltage: “A late firing passes only a thin slice of each half. What does that do to the rms?” Hint for DC: “Its thyristors sit back to back, and fire in both halves.” Why: “A ramp. Late firing passes only a thin slice of each half. So the motor sees a low voltage. Earlier firing widens the slices until the motor gets the full supply. That ramp limits the starting current.[^6]” A right Check runs α from 150° down to 0°. The shaded slices widen until both halves are full.
+
+13, a mixed puzzle: Bridge, α at 90°, the average reading 104 V. “A fault holds the gate signal on all the time. What does the heater get now?” Offered: “About 207 V, as if fired at 0°”; “Nothing, as no fresh pulse ever comes”; “About 104 V, as before”. Hint for nothing: “A signal that stays on is a pulse that never ends. When does each thyristor first see it?” Hint for 104 V: “The firing angle is when the gate first fires it. With the signal always on, when is that?” Why: “About 207 V. A thyristor fires once it is forward biased with its gate signalled. With the signal always on, each one fires at the start of its half. So the bridge acts as a plain diode bridge.” A right Check sets α to 0°, and the average reads 207 V.
+
+Some screens show an idea. The rest ask you to try it. Each puzzle offers three answers, stacked. Each answer can wrap onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains the answer. Continue moves on.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The thyristors are drawn ideal. A real one keeps a small forward drop, like a diode. Its gate also needs a pulse of some size to fire it. Each one is drawn letting go exactly at the zero. A real one lets go just before it, when its current falls below the holding current. The heater's resistance is drawn fixed, though a real element's rises as it warms. In Charger, the choke is drawn so large that the current never ripples. The supply has no inductance of its own, so each block switches over at once. A real supply makes each changeover take a little time. The Charger slider stops at 90°. Past it the average would turn negative. A battery connected the normal way cannot keep that going. The cycle is slowed down. At 50 Hz it lasts 20 ms.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 12 in steps of 1, opening at 0
+Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id and the decimals given, which is how the explanation rounds it, or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):
+- id "volts": Across the load (V), decimals: 0
+- id "heaterPower": Heater power (W), decimals: 0
+- id "powerFactor": Power factor, decimals: 2
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Screen, 1 to 13 (the stepper): 0 (control)
+- Supply, rms, chosen, V: 230 (assumed)
+- Supply frequency, chosen, Hz: 50 (assumed)
+- Supply peak, 230 × √2, about, V: 325 (computed)
+- Heater power at full voltage, chosen, W: 2300 (assumed)
+- Heater resistance, 230² ÷ 2300, Ω: 23 (computed)
+- Firing angle slider, lowest, °: 0 (control)
+- Firing angle slider, highest, °: 180 (control)
+- Firing angle slider step, °: 5 (control)
+- Firing angle slider top in Charger, °: 90 (control)
+- Time slider, lowest, °: 0 (control)
+- Time slider, highest, °: 360 (control)
+- Time slider step, °: 5 (control)
+- End of the positive half, °: 180 (computed)
+- Second pulse in screen 2, °: 135 (control)
+- Cursor stop in screen 3, °: 120 (control)
+- Area under a whole hump, in units of the peak: 2 (computed)
+- 1 + cos 60°: 1.5 (computed)
+- Share of the hump left at 60°: 0.75 (computed)
+- cos 60°: 0.5 (computed)
+- cos 120°: -0.5 (computed)
+- One thyristor average at 0°, 325 ÷ π, V: 104 (computed)
+- One thyristor average at 60°, V: 78 (computed)
+- One thyristor average at 90°, V: 52 (computed)
+- Wrong answer, a third less than 104 V, V: 69 (computed)
+- Bridge average at 0°, 2 × 325 ÷ π, V: 207 (computed)
+- Bridge average at 60°, V: 155 (computed)
+- Bridge average at 90°, V: 104 (computed)
+- Bridge average at 120°, V: 52 (computed)
+- Wrong answer, the sign of cos 120° kept, V: -52 (computed)
+- Triac heater power at 90°, W: 1150 (computed)
+- Triac rms at 90°, 230 × √0.5, V: 163 (computed)
+- Wrong answer, half of 230 V, V: 115 (computed)
+- Share of power left at 90°: 0.5 (computed)
+- Charger average at 30°, 207 × cos 30°, V: 179 (computed)
+- Charger average at 60°, V: 104 (computed)
+- Charger average at 90°, V: 0 (computed)
+- Power factor factor, 2√2 ÷ π, about: 0.9 (computed)
+- Charger power factor at 0°: 0.9 (computed)
+- Charger power factor at 30°: 0.78 (computed)
+- Charger power factor at 60°: 0.45 (computed)
+- Soft starter screen, opening firing angle, °: 150 (control)
+- Cycle time at 50 Hz, ms: 20 (computed)
+- Direct-on-line starting current, usual, lowest, times rated: 6 (constant, source [1])
+- Direct-on-line starting current, usual, highest, times rated: 8 (constant, source [1])
+- Direct-on-line starting current, can exceed, times rated: 10 (constant, source [1])
+- Hydrogen in air, lower explosive limit, %: 4.1 (constant, source [7])
+- Hydrogen in air, upper explosive limit, %: 72 (constant, source [7])
+- Worked example charger average, chosen, V: 120 (assumed)
+- Worked example cos α, 120 ÷ 207: 0.58 (computed)
+- Worked example firing angle, about, °: 55 (computed)
+- Worked example power factor, 0.9 × 0.58: 0.52 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Error: Uncaught SyntaxError: Identifier 'PH' has already been declared (body line 251)
+- Error: K.ready() was never called: call it once at the end of the script.
+- Error: There are no K.check(...) assertions: add 3-5 known-answer checks.
+- Missing output "volts": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).
+- Missing output "heaterPower": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).
+- Missing output "powerFactor": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).
+- Advice: No K.control / K.choice / K.toggle / K.stepper / K.button: the self-test could not exercise the model.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Softstarter Handbook (https://library.e.abb.com/public/6b4e1a3530814df0c12579bb0030e58b/1SFC132060M0201.pdf): "Usually between 6-8 times the rated current, but it can be more than 10 times the rated current."
+[2] The Silicon-Controlled Rectifier (SCR) | Thyristors | Electronics Textbook (https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/): "SCRs may be turned off by anode current falling below the holding current value (low-current dropout)"
+[3] Triac Tutorial and How Triac Switching Circuits Work (https://www.electronics-tutorials.ws/power/triac.html): "A Triac behaves just like two conventional thyristors connected together in inverse parallel (back-to-back) with respect to each other"
+[4] Triac Tutorial and How Triac Switching Circuits Work (https://www.electronics-tutorials.ws/power/triac.html): "commercially available triac lamp dimmers should not be used as a motor speed controller since triac light dimmers are intended to be used with resistive loads only"
+[5] Three-Phase Full-Bridge (https://www.ecpe.org/infocentre/ecpe-online-course/dcac/three-phase-full-bridge): "For a smaller DC voltage it is necessary to increase the delay of the trigger pulse. The trigger angle causes a phase shift of the input currents which reduces the power factor of the converter."
+[6] Motor starting with Soft starters – Reduced stresses (https://library.e.abb.com/public/151fdb9b43c49ee648257cc4003bc11b/Motor+starting+with+soft+starters+-+Reduced+stresses.pdf): "With methodology of firing of thyristors, voltage ramp (linear variation of voltage from 0 to rated voltage). This ramp ensures smooth starting of motor with starting current limit."
+[7] CCOHS: Battery Charging - Industrial Lead-Acid Batteries (https://www.ccohs.ca/oshanswers/safety_haz/battery-charging.html): "When leac-acid batteries are being recharged, they generate hydrogen gas that is explosive in certain concentrations in air (explosive limits are 4.1 to 72 percent hydrogen in air)."
+[8] The Silicon-Controlled Rectifier (SCR) | Thyristors | Electronics Textbook (https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/silicon-controlled-rectifier-scr/): "Just prior to the zero-crossover point of the current waveform, the thyristor will turn off due to insufficient current (this behavior is also known as natural commutation) and must be fired again during the next cycle."
+[9] Single Phase Rectification of a Sinusoidal AC Power Supply (https://www.electronics-tutorials.ws/power/single-phase-rectification.html): "So when α < 90 o the average DC voltage is positive and when α > 90 o the average DC voltage is negative. That is power flows from the DC load to the AC supply."
+[10] LEA_Protect RCS SPRe TPRe_EN (https://www.aegps.com/en/wp-content/uploads/2023/07/LEA_Protect-RCS-SPRe-TPRe_EN_V4.pdf): "The Protect RCS DC system is a thyristor-controlled rectifier suitable for charging nickel-cadmium or lead-acid batteries while supplying DC loads."
+[11] Battery University | BU-403: Charging Lead Acid (http://www.batteryuniversity.com/article/bu-403-charging-lead-acid): "The lead acid battery uses the constant current constant voltage (CCCV) charge method."
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `term` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/electrical/electronics/i5.body1.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

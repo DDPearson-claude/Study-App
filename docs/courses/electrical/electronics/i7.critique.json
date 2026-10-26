@@ -1,0 +1,42 @@
+{
+ "draft": "i7.lesson.draft1.txt",
+ "validator": "draft 1 fails on one soft length problem: whatAmILookingAt is 16174 characters, over the 12000 limit",
+ "keep": [
+  "The idea is named up front in plain words: switches kept fully on or off, on-time varied so the average traces a sine, the winding's inductance smoothing the current to follow it.",
+  "The picture is the brief's sine from pulses: a 540 V link, a picker for One leg, H-bridge and Three legs, a sine reference against a triangle carrier, the pulses with their dashed local average, the motor current as a near-sine with a sawtooth, sliders for depth, reference frequency, carrier frequency and dead time, red shoot-through at zero dead time, a flattened sine when it is long, and the UPS, drive and shore converter card on the last screen.",
+  "The cause is drawn and taught from lesson 6's rule: a leg's average is D x 540 V, D = 50% + 50% x depth x the reference, the mirror leg gives (2D - 1) x 540 V, and three legs 120 degrees apart give sqrt3 x 270 V peak between lines, 331 V rms at full depth. Every result is computed on the screen from those rules.",
+  "The brief's recall opener (Motors: 200 V at 25 Hz from a 400 V, 50 Hz motor) is screen 1, and screen 11 answers it from the fixed 540 V link: 25 Hz reference, 60% depth, 198 V.",
+  "Misconceptions each get a DO screen with their own hints: a zero on the reference read as the switch off (5), the winding seeing one leg's average (7), the carrier setting the output frequency (9), changing the link or the carrier to change the output (11), longer dead time read as only safer (13), and a UPS changing over on mains failure (14).",
+  "Research top-up: ten quotes from section 4.7 and section 7 of the research notes, already in quotes.json, were checked against the saved tool results (sources.mjs --quotes: 10 of 10 ok) and added to research.json as sources 58 to 67 under i7, the same pattern as i4 to i6. The lesson cites eight sources, footnotes kept to rules and values he might look up.",
+  "Fourteen screens: a recall opener, SHOW 2, 4, 6, 8, 10 and 12 each followed by a DO, ending with two mixed puzzles. Every SHOW is under 90 words (67 to 83)."
+ ],
+ "fix": [
+  "Length: whatAmILookingAt is 16174 characters. State the default settings once (50 Hz, carrier 1 kHz, dead time 20 us, cursor 90 degrees), give each screen only what differs, shorten the stills, and tighten the dead-time, readout and card paragraphs.",
+  "False absolute: 'switches that are only ever fully on or fully off' in explain and screen 1. A switch passes through the middle at each edge, which is lesson 4's switching loss. Say 'kept fully on or fully off'.",
+  "False absolute: 'Its inverter runs all the time' and 'The inverter feeds the load all the time' for an online UPS. True in double conversion, which the sources describe as a mode. Say 'in double conversion'.",
+  "Footnote [^8] in explain and screen 13 sits on words its quote lacks (near its zeros; as short as the turn-off allows). Put it on 'distorts the output' and give the reasoning its own sentence.",
+  "The takeaway is two sentences and unfootnoted. Make it one sentence, footnoted [^1].",
+  "Talks about the lesson: screen 1's Why ends 'This lesson shows how they give 200 V at 25 Hz.' Replace with a sentence about the drive.",
+  "Long sentences: explain's 200 V at 25 Hz sentence (21 words) and the worked example's opening (21). Split each.",
+  "One leg's output readout ('the sine part only') is a confusing number with no use on any screen. Hide it in One leg and drop the 115 V figure.",
+  "'Plain sine-triangle gives at most 0.612 x the link' in practice: say 'at full depth', which is what the rule computes."
+ ],
+ "shape": {
+  "idea up front": true,
+  "rule in words": true,
+  "worked example with real numbers": true,
+  "misconception shown failing": true,
+  "trade analogy with breaks": true,
+  "put it into practice": true,
+  "recap": true
+ },
+ "faults": {
+  "causal step skipped": "none: D x 540 V from lesson 6, the reference setting D, the mirror leg's difference, the coil limiting di/dt, and the diode's direction setting the dead-time loss are each a sentence",
+  "false absolutes": "two: 'only ever fully on or fully off' and the UPS inverter running 'all the time'",
+  "brief shows only the effect": "no: the pulses narrowing (the duty cycles) is the cause of the average shrinking",
+  "checks test recall": "n/a, taught course; the DO screens apply the rules to new numbers",
+  "thin research": "no, eight sources cited after a checked top-up of ten",
+  "unreadable labels": "readouts wrap onto two lines and sliders stack at 360 px, said in whatAmILookingAt",
+  "talks about instead of teaching": "one line, screen 1's Why"
+ }
+}

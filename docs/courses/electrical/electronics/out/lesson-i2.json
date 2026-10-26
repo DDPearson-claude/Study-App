@@ -1,0 +1,542 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Rectifiers: AC in, DC out",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the conducting pair swap while the arrow through the load keeps pointing down, when you drag the time cursor through the supply's negative half.",
+   "title": "The rectifier bench",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "outNow",
+     "label": "Output now",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "avgSoFar",
+     "label": "Average so far",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "probe",
+     "label": "Probe on the diode",
+     "unit": "V",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. Most show one picture, the rectifier bench. On the left is an AC supply. In the middle is the rectifier. On the right is a resistor load, drawn upright with its positive end at the top. A switch above picks the rectifier: Half-wave, Bridge or Six-pulse. Its three buttons wrap onto two lines on a narrow phone. Half-wave and bridge run from 230 V, 50 Hz single-phase. Six-pulse runs from three-phase. A second switch picks a 400 V or 440 V line voltage. The half-wave is one diode in series with the load. The bridge is four diodes in a diamond. D1 joins supply wire A to the positive rail, and D2 joins the negative rail to wire B. D3 joins wire B to the positive rail, and D4 joins the negative rail to wire A. The six-pulse has three lines, L1, L2 and L3. Each has an upper diode to the positive rail and a lower diode from the negative rail. The top wire is labelled + rail and the bottom wire − rail.\n\nBelow the circuit is a graph of one supply cycle, from 0° to 360°. A time cursor stands on it. You drag it in steps of 1°, or press Play to sweep it through the cycle. Each screen sets where it opens. The supply wave is drawn pale. For six-pulse, the six line-to-line waves are drawn pale instead. A label beside the cursor names the pair on top, such as L3 − L2. The rule at each moment is simple. A diode conducts while the circuit pushes it forward, and blocks while it is pushed backwards. Here the diodes are treated as ideal, with no drop. So the half-wave's output is the supply in the positive half, and zero in the negative half. The bridge's output is the size of the supply. So the negative half is flipped up. In the six-pulse, each upper diode conducts while its line is the highest. Each lower diode conducts while its line is the lowest. So its output is the largest line-to-line voltage of that moment.\n\nThe conducting diodes are drawn bold. The current's path is traced through them, with an arrow through the load. The output builds under the cursor, and an average line builds with it. The average is the area under the output so far ÷ the time so far. One hump of a sine has an area of 2 × its peak, in volts × radians. A cycle is 2π long. So over a whole cycle the half-wave averages the peak ÷ π, 0.318 of it. The bridge has two humps, so it averages 0.637 of the peak. A six-pulse top is a cosine slice 60° wide. So it averages 3 ÷ π of its peak, which is 1.35 × the line voltage. The average line is labelled with that multiple. A probe can be clipped across D1, or across L1's upper diode for six-pulse. Its trace shows the voltage across that diode the wrong way round. That is what the diode holds while it blocks. At 360°, a zero crossing, the circuit keeps the path of the moment just before. Under the picture, one short line says what is happening at the cursor. Three readouts sit under the graph: the output now, the average so far and the probe. They wrap onto two lines on a narrow phone.\n\nThe screens.\n\n1, show: One diode. The picture opens on the half-wave, with the cursor at 90°. The words: “Start with one diode in series with a resistor load on 230 V. The supply peaks at 325 V. Drag the time cursor through one cycle. In the positive half the diode conducts, and the load gets the hump. In the negative half the diode blocks. The load gets nothing, and the diode holds the supply. A rectifier turns AC into current that flows one way. This one is a half-wave rectifier. It throws half of every cycle away.” Read: with the cursor at the end of the cycle, the output shows one hump in the positive half. In the negative half it is a flat line. The arrow through the load shows only during the hump. Still: half-wave, cursor at 360°.\n\n2, a puzzle: the cursor sits at 180°, the end of the hump, and the average so far reads 207 V. “At 180° the average reads 207 V. What will the average read at 360°, the end of the cycle?” Offered: “About 104 V”; “207 V, as nothing is added”; “0 V, as the second half is empty”. Hint for 207 V: “The average is area ÷ length. The flat half adds length.” Hint for 0 V: “The hump's area is still there. Only the length grows.” Why: “The flat half adds no area but doubles the length. So the average halves, to about 104 V. That is 0.318 of the 325 V peak, the peak ÷ π.” A right Check runs the cursor to 360°, and the average line settles at 104 V.\n\n3, show: Four diodes. The switch moves to Bridge, with the cursor at 90°. The words: “Now use four diodes in a diamond, a bridge. The supply joins two opposite corners, and the load joins the other two. Drag through the positive half. D1 and D2 conduct, and current flows down through the load. Now drag through the negative half. The supply's other wire is the high one now. D3 and D4 conduct, and D1 and D2 block. Watch the arrow through the load. Whatever the polarity of the input, the current through the load flows the same way.[^1]” Read: in the positive half, D1 and D2 are bold. In the negative half, D3 and D4 are bold. Both times the arrow through the load points down. Still: bridge, cursor at 270°.\n\n4, a puzzle: the bridge, with the cursor at 270°, the middle of the negative half, and the path hidden. “Which way does current flow through the load now?” Offered: “Down, the same way as in the positive half”; “Up, as the supply has reversed”; “None, as only D1 and D2 ever conduct”. Hint for up: “The supply has reversed, but D3 and D4 now carry it. Follow them to the top of the load.” Hint for none: “D1 and D2 block in this half. Look at the other pair.” Why: “In the negative half, the supply's other wire is the high one. D3 takes the current to the top of the load. D4 returns it from the bottom. So it flows down, as before. Each pair conducts while the other blocks.” A right Check draws D3 and D4 bold and the arrow pointing down.\n\n5, show: Twice the average. The bridge, swept through a whole cycle. The words: “The bridge turns the negative half into a second hump. The length of a cycle stays the same, but the area doubles. So the average doubles too. With no diode losses it is 0.637 of the peak.[^2] That is the half-cycle average you already know. On 230 V it is about 207 V. The humps now come twice a cycle. So the output rises and falls 100 times a second on a 50 Hz supply, or 120 on 60 Hz.[^3] That rise and fall is called ripple.” Read: over a whole cycle the bridge shows two humps. Its average line settles at 207 V, twice the half-wave's 104 V. Still: bridge, cursor at 360°.\n\n6, a puzzle: The supply's voltage is not labelled on this screen. “A bridge feeds a 12 V battery charger. How much lower is its output than with perfect diodes?” Offered: “About 1.4 V, two diode drops”; “About 0.7 V, one diode drop”; “None, as diodes conduct freely”. Hint for 0.7 V: “Count the bold diodes in the current's path at any moment.” Hint for none: “A conducting silicon diode still holds about 0.7 V.” Why: “At every moment the current passes through two diodes in series. Each holds about 0.7 V.[^4] So the bridge takes about 1.4 V. On a 207 V output that is under 1%. On 12 V it is about 12%.” A right Check rings the two bold diodes in the path.\n\n7, show: The probe. The bridge, with a probe clipped across D1 and the cursor at 270°. The words: “While D1 conducts, the probe reads almost nothing. In the negative half, D3 and D4 conduct. D3 ties D1's top end to wire B. That puts D1 straight across the supply. So D1 holds the whole supply voltage, the wrong way round. Drag through the negative half and watch the probe's trace. It peaks at 325 V at 270°. So every diode in a 230 V bridge needs a peak inverse voltage above 325 V, not above 230 V.” Read: the probe's trace sits on zero while D1 conducts. In the negative half it climbs to 325 V at 270° and falls back to zero at 360°. Still: bridge, probe on, cursor at 360°.\n\n8, a puzzle: “A bridge runs from a 115 V single-phase supply. What reverse voltage must each diode withstand?” Offered: “About 163 V, the supply's peak”; “115 V, the supply's rms”; “None, as a blocked diode carries no current”. Hint for 115 V: “The supply passes 115 V on its way up. Work out its peak.” Hint for none: “No current flows through it. But the conducting pair joins it straight across the supply.” Why: “While a diode blocks, the conducting pair joins it straight across the supply. So it holds the whole supply the wrong way round. At the peak that is 115 × √2 = 163 V. Its peak inverse voltage must be above that.” A right Check runs the probe's trace on the bench up to the supply's peak.\n\n9, show: Six diodes. The switch moves to Six-pulse, on 400 V, with the cursor at 45°. The words: “A three-phase bridge uses six diodes. Each line has an upper diode to the positive rail and a lower diode from the negative rail. The positive rail can sit no lower than the highest line. So that line's upper diode conducts, and the others are pushed backwards. Likewise the lowest line holds the negative rail. So the load gets the largest line-to-line voltage of that moment. Drag the cursor. It changes every 60°, so the output has six pulses a cycle.” Read: the six line-to-line waves are drawn pale. The output rides their tops. The bold pair changes every 60°. The arrow through the load points down throughout. Still: six-pulse, 400 V, cursor at 360°.\n\n10, a puzzle: “On 400 V the line-to-line peak is 566 V. Each top of the output runs from 30° before a peak to 30° after it. How low does the output dip?” Offered: “About 490 V”; “0 V, between pulses”; “About 283 V, half the peak”. Hint for 0 V: “The next top takes over before this one falls far. Look where the pale waves cross.” Hint for 283 V: “The handover comes only 30° from the peak. What is cos 30°?” Why: “Each top is a slice of a cosine, from −30° to +30°. At its edges it has fallen to cos 30° = 0.866 of the peak. So the output dips only to 0.866 × 566 = 490 V.” A right Check marks the dips at 490 V.\n\n11, show: Where 1.35 comes from. The six-pulse, swept through a whole cycle. The words: “The average is area ÷ length over one 60° top. The area under a cosine is a sine. So from −30° to +30° it is sin 30° − sin(−30°) = 1 times the peak, in volts times radians. The length is 60°, or π ÷ 3. So the average is 3 ÷ π of the peak, about 0.955. The peak is √2 times the line voltage. So the average is 3√2 ÷ π, about 1.35 times the line voltage. On 400 V that is 540 V. That is the 540 V DC bus inside a 400 V motor drive.” Read: on 400 V the average line settles at 540 V, close under the 566 V tops. Still: six-pulse, 400 V, cursor at 360°.\n\n12, a mixed puzzle: “One diode in a 230 V, 50 Hz bridge fails open. What does the load get now?” Offered: “Half-wave: about 104 V, 50 humps a second”; “As before: 207 V, 100 humps a second”; “Nothing: 0 V, as the bridge is broken”. Hint for 207 V: “Follow the half whose pair has lost a diode. Can current get through?” Hint for nothing: “The other pair is still whole. Its half still gets through.” Why: “The pair with the open diode can no longer carry its half. The other pair still carries its half. So the bridge works as a half-wave rectifier. The average falls to about 104 V. The humps come 50 times a second.” A right Check moves the switch to Half-wave.\n\n13, a mixed puzzle: “A six-pulse rectifier runs from 440 V into a resistor. What average DC does the load get?” Offered: “About 594 V”; “About 622 V”; “440 V”. Hint for 622 V: “That is the peak of the tops. The output dips between them. So the average sits a little lower.” Hint for 440 V: “The output rides the tops, and they sit well above the line voltage.” Why: “The average is 1.35 times the line voltage. That gives 1.35 × 440 = 594 V. The tops reach 440 × √2 = 622 V. The dips between them pull the average a little below that.” The bench opens on 440 V. A right Check sweeps the cursor through the cycle, and the average line settles at 594 V.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked so each wraps onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains, and Continue moves on.",
+   "ignores": "The diodes are drawn ideal, with no drop. A real silicon diode holds about 0.7 V while it conducts. So a real bridge or six-pulse output sits about 1.4 V lower. A half-wave sits about 0.7 V lower. A real blocked diode also leaks a tiny current. Each handover between diodes is drawn instant. A real supply has some inductance, so the handover takes a little time. Under load, the six-pulse average also sits a little below 1.35 times. The supply is drawn as a perfect sine that the load does not pull down. One cycle is stretched across the screen, though at 50 Hz it lasts 20 ms. The load is a plain resistor with no capacitor across it. A capacitor would change the output and the diode current a great deal.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor, opening setting, degrees",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor, lowest, degrees",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor, highest, degrees",
+     "value": 360,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor step, degrees",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Single-phase supply, rms, V",
+     "value": 230,
+     "kind": "assumed"
+    },
+    {
+     "label": "Supply frequency, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Three-phase line voltage, first option, V",
+     "value": 400,
+     "kind": "control"
+    },
+    {
+     "label": "Three-phase line voltage, second option, V",
+     "value": 440,
+     "kind": "control"
+    },
+    {
+     "label": "Peak of 230 V, 230 × √2, V",
+     "value": 325,
+     "kind": "computed"
+    },
+    {
+     "label": "Area of one sine hump, × the peak, volts × radians",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-wave average, peak ÷ π, share of the peak",
+     "value": 0.318,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-wave average on 230 V, V",
+     "value": 104,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-wave average so far at 180°, V",
+     "value": 207,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average, share of the peak, no diode losses",
+     "value": 0.637,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Bridge average on 230 V, V",
+     "value": 207,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge ripple on a 50 Hz supply, Hz",
+     "value": 100,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Half-wave humps a second on 50 Hz",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Silicon diode forward voltage, about, V",
+     "value": 0.7,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Bridge drop, two diodes, V",
+     "value": 1.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Example charger output, V",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Bridge drop as a share of 12 V, about, %",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge drop as a share of 207 V, under, %",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Cursor at the middle of the negative half, degrees",
+     "value": 270,
+     "kind": "computed"
+    },
+    {
+     "label": "End of the positive half, degrees",
+     "value": 180,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge blocked diode reverse peak on 230 V, V",
+     "value": 325,
+     "kind": "computed"
+    },
+    {
+     "label": "Example single-phase supply in screen 8, rms, V",
+     "value": 115,
+     "kind": "assumed"
+    },
+    {
+     "label": "Peak of 115 V, 115 × √2, V",
+     "value": 163,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse: angle each pair conducts, degrees",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse: top runs this far either side of a peak, degrees",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak of 400 V line voltage, 400 × √2, V",
+     "value": 566,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak of 440 V line voltage, 440 × √2, V",
+     "value": 622,
+     "kind": "computed"
+    },
+    {
+     "label": "cos 30°, the dip as a share of the peak",
+     "value": 0.866,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse dip on 400 V, 0.866 × 566, V",
+     "value": 490,
+     "kind": "computed"
+    },
+    {
+     "label": "Half the 400 V peak, a wrong option, V",
+     "value": 283,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse average, 3 ÷ π, share of the peak",
+     "value": 0.955,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse average, 3√2 ÷ π, times the line voltage",
+     "value": 1.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse average on 400 V, V",
+     "value": 540,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse average on 440 V, V",
+     "value": 594,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse ripple on 50 Hz, 6 × 50, Hz",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-wave average as a share of the rms, about",
+     "value": 0.45,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average as a share of the rms",
+     "value": 0.9,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge drop as a share of 594 V, under, %",
+     "value": 0.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Length of one supply cycle at 50 Hz, ms",
+     "value": 20,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A diode lets current through one way only. Point a few of them the right ways. Then both halves of the AC push current the same way through a load. That is a [[rectifier]]: AC in, DC out. The DC still pulses, because it follows the humps of the supply's wave.\n\nStart with one diode in series with a resistor load on 230 V. The supply peaks at 325 V. In the positive half the diode conducts, and the load gets the hump. In the negative half the diode blocks. The load gets nothing, and the diode holds the supply. So half of every cycle is wasted. Now use four diodes in a diamond, a [[bridge rectifier]]. The supply joins two opposite corners, and the load joins the other two. In the positive half, supply wire A is the high one. D1 carries current from wire A to the top of the load. D2 returns it from the bottom to wire B. In the negative half, wire B is the high one. Now D3 carries the current to the top of the load. D4 returns it to wire A. Each pair conducts while the other pair blocks. So whatever the polarity of the input, the current through the load flows the same way.[^1] The negative half is flipped up, not thrown away. The blocked pair is not idle, though. The conducting pair joins each blocked diode straight across the supply. So a blocked diode holds the whole supply the wrong way round, up to its 325 V peak.\n\nThe DC level is the average. That is area ÷ length over a cycle. One hump of a sine has an area of twice the peak, in volts times radians. The half-wave has one hump in a cycle 2π long. So it averages the peak ÷ π, 0.318 of the peak. On 230 V that is about 104 V. The bridge fills the gap with a second hump. With no diode losses it averages 0.637 of the peak,[^2] about 207 V. Its output rises and falls twice a cycle, 100 times a second on a 50 Hz supply.[^3] That rise and fall is the [[ripple]]. The current always passes through two diodes in series. So a bridge takes about 1.4 V. That is under 1% of 207 V, but about 12% of a 12 V charger's output.\n\nA three-phase bridge uses six diodes. Each line has an upper diode to the positive rail and a lower diode from the negative rail. The positive rail can sit no lower than the highest line. So that line's upper diode conducts. Every other upper diode is pushed backwards and blocks. Likewise the lowest line holds the negative rail through its lower diode. So the load gets the largest line-to-line voltage of that moment. The largest changes every 60°. So each pair conducts for 60°, and there are six pulses a cycle. Each top is a slice of a cosine from 30° before its peak to 30° after it. So the output only dips to cos 30°, 0.866 of the peak. Area ÷ length over one top gives 3 ÷ π of the peak. The peak is √2 times the line voltage. So with a resistor load the average is 3√2 ÷ π, about 1.35 times the line voltage. That gives 540 V on 400 V and 594 V on 440 V. The 540 V is the DC bus inside a 400 V motor drive. This is a simplified picture, with ideal diodes into a plain resistor. Real diodes take their drops. A real supply also hands over from one diode to the next a little less sharply. **Diodes in a bridge steer both halves of the AC the same way through the load, so the output is DC that pulses.**"
+  },
+  "analogy": {
+   "text": "With a resistor load, a bridge works like an intermediate switch that throws itself at every zero crossing. An intermediate switch connects two pairs of wires either straight or crossed. A bridge goes straight in the positive half and crossed in the negative half. So the top of the load always meets whichever supply wire is high. The load always sees the same polarity.",
+   "breaks": "An intermediate switch is thrown by hand and stays put. A bridge has no moving parts. The supply's own polarity picks the pair that conducts. A closed switch also holds no voltage. Each conducting diode holds about 0.7 V, and each blocked one holds the supply."
+  },
+  "practice": {
+   "text": "Work on a rectifier only once it is isolated and proved dead. Many rectifiers feed a capacitor, and it can hold its charge after isolation.\n\n- Isolate, lock off, let any capacitors discharge, and prove dead.\n- Disconnect the rectifier's leads. Then nothing else gives the meter a path round it.\n- Set the meter to its diode range. Test each diode both ways. A good one shows a drop one way and over range the other.\n- Across a bridge's two AC terminals, a good bridge reads over range both ways. Each way, the path meets a blocked diode.\n- Put the meter's positive lead on the bridge's negative terminal. Put its negative lead on the positive terminal. It reads two drops in series. The other way round it reads over range.\n- On an ordinary silicon diode, near 0 V both ways means it is shorted. Over range both ways means it is open.\n\n**Rule of thumb:** take a resistor load and no capacitor. A half-wave rectifier gives 0.318 of the peak, about 0.45 × the rms. A bridge gives 0.637 of the peak, 0.9 × the rms. A six-pulse rectifier gives 1.35 × the line voltage. The ripple is one, two or six times the supply frequency. In a bridge, a blocked diode holds up to the supply's peak, or the line-to-line peak on three-phase.\n\n**Worked example:** a six-pulse rectifier runs from 440 V, 50 Hz into a resistor. The tops reach 440 × √2 = 622 V. The average is 1.35 × 440 = 594 V. The ripple is 6 × 50 = 300 Hz, or 360 Hz on a 60 Hz supply. Each blocked diode holds up to 622 V. Past its peak inverse voltage a diode is usually destroyed.[^5] So its rating must sit above 622 V. Allow a margin on top for spikes on the supply. The two diode drops take about 1.4 V, under 0.3% of 594 V.\n\n**Common mistakes**\n- Thinking the load current reverses in the negative half. The other pair steers it the same way.\n- Thinking a blocked diode sees nothing. In a bridge it holds the supply, up to its peak.\n- Rating diodes on the rms, 230 V, rather than the peak, 325 V.\n- Expecting the peak on a meter's DC range across an unsmoothed output. It shows the average.\n- Forgetting a bridge's 1.4 V on a low-voltage charger.\n- Blaming the supply when a bridge gives half its usual DC. One open diode makes it a half-wave rectifier."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Rectifier Circuits | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/",
+    "quote": "Note that regardless of the polarity of the input, the current flows in the same direction through the load."
+   },
+   {
+    "n": 2,
+    "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+    "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+    "quote": "the average output voltage for the full-wave circuit will be: 2 x 0.318V max = 0.637V max of the peak voltage. Assuming no diode losses."
+   },
+   {
+    "n": 3,
+    "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+    "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+    "quote": "The ripple frequency is now twice the supply frequency (e.g. 100Hz for a 50Hz supply or 120Hz for a 60Hz supply.)"
+   },
+   {
+    "n": 4,
+    "title": "Introduction to Diodes And Rectifiers | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/",
+    "quote": "Silicon diodes have a forward voltage of approximately 0.7 volts."
+   },
+   {
+    "n": 5,
+    "title": "Meter Check of a Diode | Diodes and Rectifiers | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/meter-check-of-a-diode/",
+    "quote": "Reverse voltage strength of a diode is not as easily tested because exceeding a normal diode’s PIV usually results in destruction of the diode."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: mechanism -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #sw .k-seg.stack { display: flex; flex-wrap: wrap; }\n  #sw .k-seg.stack button { text-align: center; padding-left: 12px; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 10px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n  /* The bench: thin wires and diodes; the current's path and the conducting diodes drawn bold. */\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }\n  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 4; }\n  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); stroke-width: 3.5; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .sine { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .fig .arrow { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .head { fill: var(--k-accent2); }\n  .fig .ring { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2; }\n  .fig .cross { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }\n  .fig .probe { fill: var(--k-panel); stroke: var(--k-accent); stroke-width: 2; }\n  .fig .plead { fill: none; stroke: var(--k-accent); stroke-width: 2; }\n  .fig .flowdot { fill: var(--k-bg); }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .lab.n { fill: var(--k-accent2); }\n  .fig .big { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  /* The graph of one cycle. */\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .pale { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-opacity: .6; }\n  .fig .outc { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }\n  .fig .area { fill: var(--k-fill1); }\n  .fig .avg { stroke: var(--k-amber-line); stroke-width: 2.4; stroke-dasharray: 6 4; }\n  .fig .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .fig .ptr { fill: none; stroke: var(--k-accent); stroke-width: 2.4; stroke-linejoin: round; }\n  .fig .cur { stroke: var(--k-ink); stroke-width: 1.5; }\n  .fig .odot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .pdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .pill { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .fig .grab { fill: var(--k-bg); fill-opacity: 0; cursor: grab; }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"k-controls\" id=\"sw\"></div>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 204\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"dots\"></g></svg>\n    <svg class=\"fig\" id=\"graph\" viewBox=\"0 0 340 196\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"gart\"></g><rect class=\"grab\" id=\"grab\" x=\"30\" y=\"36\" width=\"304\" height=\"160\"/></svg>\n    <p class=\"gnote\" id=\"gnote\">One supply cycle, 0° to 360°. The numbers are worked out, not measured.</p>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule: ideal diodes, a perfect sine, a resistor load ----------\n  // A diode conducts while the circuit pushes it forward and blocks while it is pushed backwards.\n  // Half-wave: the supply in the positive half, 0 in the negative. Bridge: the size of the supply.\n  // Six-pulse: the largest line-to-line voltage. Average so far = area under the output ÷ time so far.\n  const SQ2 = Math.SQRT2, D2R = Math.PI / 180, TAU3 = 2 * Math.PI / 3;\n  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/';\n  const ETUT = 'https://www.electronics-tutorials.ws/diode/diode_6.html';\n  const AACD = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/';\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const PK = (r) => r * SQ2, K135 = 3 * SQ2 / Math.PI;\n  // Every number the words show, worked out from the rule (a check compares them with the lesson's).\n  const N = {\n    pk: fx(PK(230), 0), hw: fx(PK(230) / Math.PI, 0), br: fx(2 * PK(230) / Math.PI, 0),\n    r318: fx(1 / Math.PI, 3), r637: fx(2 / Math.PI, 3), pk115: fx(PK(115), 0),\n    pk400: fx(PK(400), 0), pk440: fx(PK(440), 0), cos30: fx(Math.cos(Math.PI / 6), 3),\n    dip: fx(PK(400) * Math.cos(Math.PI / 6), 0), half400: fx(PK(400) / 2, 0),\n    r955: fx(3 / Math.PI, 3), k135: fx(K135, 2), s400: fx(K135 * 400, 0), s440: fx(K135 * 440, 0),\n    drop: fx(2 * 0.7, 1), pct: fx(2 * 0.7 / 12 * 100, 0), rip: String(2 * 50), rip60: String(2 * 60), rip6: String(6 * 50),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // kind/line/at: the bench this screen opens on; dur: a demonstration sweep; ans: what a right\n  // Check runs the bench to; shows: words that appear on the picture only after a right Check.\n  const STEPS = [\n    { show: true, name: 'One diode', kind: 'half', at: 90,\n      text: `Start with one diode in series with a resistor load on 230 V. The supply peaks at ${N.pk} V. Drag the time cursor through one cycle. In the positive half the diode conducts, and the load gets the hump. In the negative half the diode blocks. The load gets nothing, and the diode holds the supply. A *rectifier* turns AC into current that flows one way. This one is a *half-wave rectifier*. It throws half of every cycle away.`,\n      read: `With the cursor at the end of the cycle, the output shows one hump in the positive half. In the negative half it is a flat line. The arrow through the load shows only during the hump.`,\n      still: { kind: 'half', cursor: 360 } },\n    { name: 'The average at the end', kind: 'half', at: 180, avgNum: true, ans: { to: 360 },\n      task: `At 180° the average reads ${N.br} V. What will the average read at 360°, the end of the cycle?`,\n      opts: [`${N.br} V, as nothing is added`, `About ${N.hw} V`, `0 V, as the second half is empty`], want: `About ${N.hw} V`,\n      hints: { [`${N.br} V, as nothing is added`]: `The average is area ÷ length. The flat half adds length.`,\n        '0 V, as the second half is empty': `The hump's area is still there. Only the length grows.` },\n      why: `The flat half adds no area but doubles the length. So the average halves, to about ${N.hw} V. That is ${N.r318} of the ${N.pk} V peak, the peak ÷ π.`,\n      shows: [`average: ${N.hw} V`] },\n    { show: true, name: 'Four diodes', kind: 'bridge', at: 90,\n      text: `Now use four diodes in a diamond, a *bridge*. The supply joins two opposite corners, and the load joins the other two. Drag through the positive half. D1 and D2 conduct, and current flows down through the load. Now drag through the negative half. The supply's other wire is the high one now. D3 and D4 conduct, and D1 and D2 block. Watch the arrow through the load. Whatever the polarity of the input, the current through the load flows the same way.`,\n      read: `In the positive half, D1 and D2 are bold. In the negative half, D3 and D4 are bold. Both times the arrow through the load points down.`,\n      still: { kind: 'bridge', cursor: 270 } },\n    { name: 'Which way now?', kind: 'bridge', at: 270, hidePath: true,\n      task: `Which way does current flow through the load now?`,\n      opts: [`Up, as the supply has reversed`, `None, as only D1 and D2 ever conduct`, `Down, the same way as in the positive half`],\n      want: `Down, the same way as in the positive half`,\n      hints: { 'Up, as the supply has reversed': `The supply has reversed, but D3 and D4 now carry it. Follow them to the top of the load.`,\n        'None, as only D1 and D2 ever conduct': `D1 and D2 block in this half. Look at the other pair.` },\n      why: `In the negative half, the supply's other wire is the high one. D3 takes the current to the top of the load. D4 returns it from the bottom. So it flows down, as before. Each pair conducts while the other blocks.`,\n      shows: ['current'] },\n    { show: true, name: 'Twice the average', kind: 'bridge', dur: 3.6,\n      text: `The bridge turns the negative half into a second hump. The length of a cycle stays the same, but the area doubles. So the average doubles too. With no diode losses it is ${N.r637} of the peak. That is the half-cycle average you already know. On 230 V it is about ${N.br} V. The humps now come twice a cycle. So the output rises and falls ${N.rip} times a second on a 50 Hz supply, or ${N.rip60} on 60 Hz. That rise and fall is called *ripple*.`,\n      read: `Over a whole cycle the bridge shows two humps. Its average line settles at ${N.br} V, twice the half-wave's ${N.hw} V.`,\n      still: { kind: 'bridge', cursor: 360 } },\n    { name: 'What the diodes take', kind: 'bridge', at: 90, rings: true, novolt: true,\n      task: `A bridge feeds a 12 V battery charger. How much lower is its output than with perfect diodes?`,\n      opts: [`About ${N.drop} V, two diode drops`, `About 0.7 V, one diode drop`, `None, as diodes conduct freely`],\n      want: `About ${N.drop} V, two diode drops`,\n      hints: { 'About 0.7 V, one diode drop': `Count the bold diodes in the current's path at any moment.`,\n        'None, as diodes conduct freely': `A conducting silicon diode still holds about 0.7 V.` },\n      why: `At every moment the current passes through two diodes in series. Each holds about 0.7 V. So the bridge takes about ${N.drop} V. On a ${N.br} V output that is under 1%. On 12 V it is about ${N.pct}%.` },\n    { show: true, name: 'The probe', kind: 'bridge', probe: true, at: 270,\n      text: `While D1 conducts, the probe reads almost nothing. In the negative half, D3 and D4 conduct. D3 ties D1's top end to wire B. That puts D1 straight across the supply. So D1 holds the whole supply voltage, the wrong way round. Drag through the negative half and watch the probe's trace. It peaks at ${N.pk} V at 270°. So every diode in a 230 V bridge needs a *peak inverse voltage* above ${N.pk} V, not above 230 V.`,\n      read: `The probe's trace sits on zero while D1 conducts. In the negative half it climbs to ${N.pk} V at 270° and falls back to zero at 360°.`,\n      still: { kind: 'bridge', cursor: 360 } },\n    { name: 'A 115 V bridge', kind: 'bridge', rms: 115, probe: true, at: 90, ans: { to: 360 },\n      task: `A bridge runs from a 115 V single-phase supply. What reverse voltage must each diode withstand?`,\n      opts: [`115 V, the supply's rms`, `None, as a blocked diode carries no current`, `About ${N.pk115} V, the supply's peak`],\n      want: `About ${N.pk115} V, the supply's peak`,\n      hints: { \"115 V, the supply's rms\": `The supply passes 115 V on its way up. Work out its peak.`,\n        'None, as a blocked diode carries no current': `No current flows through it. But the conducting pair joins it straight across the supply.` },\n      why: `While a diode blocks, the conducting pair joins it straight across the supply. So it holds the whole supply the wrong way round. At the peak that is 115 × √2 = ${N.pk115} V. Its peak inverse voltage must be above that.`,\n      shows: [`peak ${N.pk115} V`] },\n    { show: true, name: 'Six diodes', kind: 'six', line: 400, at: 45,\n      text: `A three-phase bridge uses six diodes. Each line has an upper diode to the positive rail and a lower diode from the negative rail. The positive rail can sit no lower than the highest line. So that line's upper diode conducts, and the others are pushed backwards. Likewise the lowest line holds the negative rail. So the load gets the largest line-to-line voltage of that moment. Drag the cursor. It changes every 60°, so the output has six pulses a cycle.`,\n      read: `The six line-to-line waves are drawn pale. The output rides their tops. The bold pair changes every 60°. The arrow through the load points down throughout.`,\n      still: { kind: 'six', line: 400, cursor: 360 } },\n    { name: 'How low it dips', kind: 'six', line: 400, at: 0, dips: true, ans: { to: 360 },\n      task: `On 400 V the line-to-line peak is ${N.pk400} V. Each top of the output runs from 30° before a peak to 30° after it. How low does the output dip?`,\n      opts: [`0 V, between pulses`, `About ${N.dip} V`, `About ${N.half400} V, half the peak`], want: `About ${N.dip} V`,\n      hints: { '0 V, between pulses': `The next top takes over before this one falls far. Look where the pale waves cross.`,\n        [`About ${N.half400} V, half the peak`]: `The handover comes only 30° from the peak. What is cos 30°?` },\n      why: `Each top is a slice of a cosine, from −30° to +30°. At its edges it has fallen to cos 30° = ${N.cos30} of the peak. So the output dips only to ${N.cos30} × ${N.pk400} = ${N.dip} V.`,\n      shows: [`dips to ${N.dip} V`] },\n    { show: true, name: 'Where 1.35 comes from', kind: 'six', line: 400, dur: 3.6,\n      text: `The average is area ÷ length over one 60° top. The area under a cosine is a sine. So from −30° to +30° it is sin 30° − sin(−30°) = 1 times the peak, in volts times radians. The length is 60°, or π ÷ 3. So the average is 3 ÷ π of the peak, about ${N.r955}. The peak is √2 times the line voltage. So the average is 3√2 ÷ π, about ${N.k135} times the line voltage. On 400 V that is ${N.s400} V. That is the ${N.s400} V DC bus inside a 400 V motor drive.`,\n      read: `On 400 V the average line settles at ${N.s400} V, close under the ${N.pk400} V tops.`,\n      still: { kind: 'six', line: 400, cursor: 360 } },\n    { name: 'One diode fails', kind: 'bridge', open: 'd3', at: 0, avgNum: true, ans: { to: 360 },\n      task: `One diode in a 230 V, 50 Hz bridge fails open. What does the load get now?`,\n      opts: [`Half-wave: about ${N.hw} V, 50 humps a second`, `As before: ${N.br} V, 100 humps a second`, `Nothing: 0 V, as the bridge is broken`],\n      want: `Half-wave: about ${N.hw} V, 50 humps a second`,\n      hints: { [`As before: ${N.br} V, 100 humps a second`]: `Follow the half whose pair has lost a diode. Can current get through?`,\n        'Nothing: 0 V, as the bridge is broken': `The other pair is still whole. Its half still gets through.` },\n      why: `The pair with the open diode can no longer carry its half. The other pair still carries its half. So the bridge works as a half-wave rectifier. The average falls to about ${N.hw} V. The humps come 50 times a second.`,\n      shows: [`average: ${N.hw} V`, 'now a half-wave'] },\n    { name: 'Six-pulse on 440 V', kind: 'six', line: 440, at: 0, avgNum: true, ans: { to: 360 },\n      task: `A six-pulse rectifier runs from 440 V into a resistor. What average DC does the load get?`,\n      opts: [`About ${N.pk440} V`, `440 V`, `About ${N.s440} V`], want: `About ${N.s440} V`,\n      hints: { [`About ${N.pk440} V`]: `That is the peak of the tops. The output dips between them. So the average sits a little lower.`,\n        '440 V': `The output rides the tops, and they sit well above the line voltage.` },\n      why: `The average is ${N.k135} times the line voltage. That gives ${N.k135} × 440 = ${N.s440} V. The tops reach 440 × √2 = ${N.pk440} V. The dips between them pull the average a little below that.`,\n      shows: [`average: ${N.s440} V`] },\n  ];\n  const FINISH = 'Diodes in a bridge steer both halves of the AC the same way through the load, so the output is DC that pulses.';\n  const FADE = 0.35, ANS = 2.0;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- the model ----------\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  function cfg(p) {\n    const d = STEPS[stepOf(p)];\n    return { kind: ['half', 'bridge', 'six'].indexOf(p.kind) >= 0 ? p.kind : 'half', rms: d.rms || 230, line: +p.line === 440 ? 440 : 400, open: d.open || '' };\n  }\n  // The bench at one moment: the output, which diodes conduct, and the reverse voltage on the probed diode.\n  function sample(c, th) {\n    const r = th * D2R;\n    if (c.kind === 'six') {\n      const vp = c.line * SQ2 / Math.sqrt(3), ph = [0, 1, 2].map((k) => vp * Math.sin(r - k * TAU3));\n      let u = 0, l = 0;\n      for (let k = 1; k < 3; k++) { if (ph[k] > ph[u] + 1e-9) u = k; if (ph[k] < ph[l] - 1e-9) l = k; }\n      return { v: ph, out: ph[u] - ph[l], u, l, on: ['u' + u, 'l' + l], probe: ph[u] - ph[0], half: 1 };\n    }\n    const vp = c.rms * SQ2, v = vp * Math.sin(r), e = vp * 1e-9;\n    const half = v > e ? 1 : v < -e ? -1 : 0, probe = half < 0 ? -v : 0;\n    if (c.kind === 'half') return { v, out: half > 0 ? v : 0, on: half > 0 ? ['d1'] : [], probe, half };\n    const pair = half > 0 ? ['d1', 'd2'] : half < 0 ? ['d3', 'd4'] : [], ok = pair.length > 0 && pair.indexOf(c.open) < 0;\n    return { v, out: ok ? Math.abs(v) : 0, on: ok ? pair : [], probe, half };\n  }\n  // At 360°, a zero crossing, the bench keeps the moment just before, so the finished picture still shows its path.\n  const shownAt = (th) => (th >= 360 ? 359.5 : th);\n  const keyOf = (c) => c.kind + c.rms + '|' + c.line + c.open;\n  const outAt = (c, t) => sample(c, t).out;\n  const CUM = new Map(), PPK = new Map();\n  function cum(c) {     // area under the output from 0° to each whole degree (Simpson's rule per degree)\n    const k = keyOf(c);\n    let a = CUM.get(k);\n    if (a) return a;\n    a = [0];\n    for (let j = 0; j < 360; j++) a.push(a[j] + (outAt(c, j) + 4 * outAt(c, j + 0.5) + outAt(c, j + 1)) / 6);\n    CUM.set(k, a);\n    return a;\n  }\n  function avgAt(c, th) {\n    th = K.clamp(+th || 0, 0, 360);\n    if (th < 1e-6) return outAt(c, 0);\n    const j = Math.floor(th), h = th - j;\n    let s = cum(c)[j];\n    if (h > 0) s += h * (outAt(c, j) + 4 * outAt(c, j + h / 2) + outAt(c, th)) / 6;\n    return s / th;\n  }\n  function probePeak(c) {\n    const k = keyOf(c);\n    if (PPK.has(k)) return PPK.get(k);\n    let best = { v: -1, at: 0 };\n    for (let t = 0; t <= 360; t++) { const q = sample(c, t).probe; if (q > best.v + 1e-9) best = { v: q, at: t }; }\n    PPK.set(k, best);\n    return best;\n  }\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, pinning = false;\n  let T = Infinity, motionEnd = 0, SW = null, PH = 0, FLOW = null, REC = null;\n  const setupOf = (i, right) => {\n    const d = STEPS[i], a = right && d.ans;\n    return { step: i, kind: d.kind, line: a && a.line ? a.line : d.line || 400, cursor: a ? a.to : d.at || 0 };\n  };\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const kindCtl = K.choice({ id: 'kind', label: 'Rectifier', options: [{ value: 'half', label: 'Half-wave' }, { value: 'bridge', label: 'Bridge' }, { value: 'six', label: 'Six-pulse' }], value: 'half', into: '#sw' });\n  const lineCtl = K.choice({ id: 'line', label: 'Line voltage', options: [{ value: 400, label: '400 V' }, { value: 440, label: '440 V' }], value: 400, into: '#sw' });\n  const curCtl = K.control({ id: 'cursor', label: 'Time cursor', min: 0, max: 360, step: 1, value: 0, fmt: (v) => Math.round(v) + '°',\n    snap: [180, 270, 360], hint: 'Or drag along the graph', into: '#ctl' });\n  const playBtn = K.button({ label: 'Play', secondary: true, into: '#ctl', press: () => {\n    if (finished || !STEPS[at()].show) return;\n    if (SW && SW.play) { SW = null; return; }\n    const from = curCtl.get() >= 360 ? 0 : curCtl.get();\n    sweep(from, 360, (360 - from) / 90, false, 0);\n  } });\n  K.readout({ id: 'outNow', label: 'Output now', unit: 'V', decimals: 0, into: '#outs' });\n  K.readout({ id: 'avgSoFar', label: 'Average so far', unit: 'V', decimals: 0, into: '#outs' });\n  const rProbe = K.readout({ id: 'probe', label: 'Probe on the diode', unit: 'V', decimals: 0, into: '#outs' });\n  K.model((p) => {\n    const c = cfg(p), th = K.clamp(+p.cursor || 0, 0, 360), s = sample(c, shownAt(th));\n    return { outNow: s.out, avgSoFar: avgAt(c, th), probe: s.probe };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    if (d.ans && d.ans.line) lineCtl.set(d.ans.line, true);\n    if (d.ans) sweep(curCtl.get(), d.ans.to, ANS, true, 0);\n    if (REDUCE || testing()) { T = Infinity; return; }\n    T = 0; motionEnd = (d.ans ? ANS : 0.1) + K.SOFT;\n    if (!motion.playing()) motion.play();\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; FLOW = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: a sweep of the time cursor, a right answer's reveal, and current flowing ----------\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    if (SW) {\n      SW.t += dt;\n      const f = K.clamp(SW.t / SW.dur, 0, 1), val = Math.round(K.lerp(SW.from, SW.to, SW.ease ? K.ease(f) : f));\n      if (val !== SW.last) { SW.last = val; curCtl.set(val); }\n      if (f >= 1) { SW = null; playBtn.setLabel('Play'); }\n    }\n    if (FLOW) PH += dt * FLOW.speed;\n    if (T < motionEnd + 0.1) paint();\n    dots();\n    return !!SW || T < motionEnd + 0.1 || flowOn();\n  } });\n  function sweep(from, to, dur, ease, delay) {\n    if (REDUCE || testing()) { SW = null; curCtl.set(to, true); return; }\n    SW = { from, to, dur: Math.max(0.2, dur), ease, t: -(delay || 0), last: Math.round(from), play: !ease };\n    curCtl.set(Math.round(from), true);\n    if (!motion.playing()) motion.play();\n  }\n  const flowOn = () => !REDUCE && !finished && !!FLOW;\n  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), dotsG = el('dots'), gsvg = el('graph'), gart = el('gart'), grab = el('grab');\n  let into = null, latest = 0, earliest = Infinity;\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t));\n  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }\n  function tx(x, y, s, cls, anchor) { REC.texts.push(s); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s)); }\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 7.4;\n  }\n  // A diode pointing along its current: triangle (anode side) and bar (cathode side).\n  function diode(x, y, ang, cls) {\n    const g = add(K.svg('g', { class: 'dio' + (cls ? ' ' + cls : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ')' }));\n    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));\n    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));\n    return g;\n  }\n\n  // ---------- the bench: supply on the left, rectifier in the middle, load on the right ----------\n  const HW = { seg: { wa: 'M34 120 V28 H298 V80', n: 'M298 132 V184 H34 V160' }, dio: { d1: [160, 28, 0] },\n    pts: [[34, 120], [34, 28], [298, 28], [298, 80], [298, 132], [298, 184], [34, 184], [34, 160]] };\n  // The diamond: wire A at the left corner, wire B at the right, the positive rail at the top, the negative at the bottom.\n  const BR = {\n    seg: { wa: 'M34 120 V106 H94', e1: 'M94 106 L142 48', e3: 'M190 106 L142 48', e2: 'M142 164 L190 106', e4: 'M142 164 L94 106',\n      p: 'M142 48 V28 H298 V80', n: 'M298 132 V184 H142 V164', wb: 'M34 160 V194 H204 V190 A6 6 0 0 1 204 178 V106 H190' },\n    dio: { d1: [118, 77, -50.39], d3: [166, 77, -129.61], d2: [166, 135, -50.39], d4: [118, 135, -129.61] },\n    lab: { d1: [130, 100], d3: [154, 100], d4: [130, 122], d2: [154, 122] },\n    pos: [[34, 120], [34, 106], [94, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [190, 106], [204, 106], [204, 194], [34, 194], [34, 160]],\n    neg: [[34, 160], [34, 194], [204, 194], [204, 106], [190, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [94, 106], [34, 106], [34, 120]],\n  };\n  // Six-pulse: three legs, each line joined between its upper and lower diode.\n  const SXS = [96, 148, 200], SYS = [124, 140, 156], SST = [[46, 124], [54, 140], [46, 156]];\n  const SIX = {\n    seg: { w0: 'M46 124 H96', w1: 'M54 140 H90 A6 6 0 0 1 102 140 H148', w2: 'M46 156 H90 A6 6 0 0 1 102 156 H142 A6 6 0 0 1 154 156 H200',\n      u0: 'M96 124 V28', u1: 'M148 140 V28', u2: 'M200 156 V28', l0: 'M96 184 V124', l1: 'M148 184 V140', l2: 'M200 184 V156',\n      p0: 'M96 28 H148', p1: 'M148 28 H200', p2: 'M200 28 H298 V80', n2: 'M298 132 V184 H200', n1: 'M200 184 H148', n0: 'M148 184 H96' },\n    dio: { u0: [96, 52, -90], u1: [148, 52, -90], u2: [200, 52, -90], l0: [96, 170, -90], l1: [148, 170, -90], l2: [200, 170, -90] },\n  };\n  const LAY = { half: HW, bridge: BR, six: SIX };\n  function pathIds(c, s) {\n    if (c.kind === 'half') return ['wa', 'n'];\n    if (c.kind === 'bridge') return s.half > 0 ? ['wa', 'e1', 'p', 'n', 'e2', 'wb'] : ['wb', 'e3', 'p', 'n', 'e4', 'wa'];\n    return ['w' + s.u, 'u' + s.u].concat(['p0', 'p1', 'p2'].slice(s.u), ['n2'], s.l <= 1 ? ['n1'] : [], s.l === 0 ? ['n0'] : [], ['l' + s.l, 'w' + s.l]);\n  }\n  function pathPts(c, s) {\n    if (c.kind === 'half') return HW.pts;\n    if (c.kind === 'bridge') return s.half > 0 ? BR.pos : BR.neg;\n    const u = s.u, l = s.l;\n    return [SST[u], [SXS[u], SYS[u]], [SXS[u], 28], [298, 28], [298, 80], [298, 132], [298, 184], [SXS[l], 184], [SXS[l], SYS[l]], SST[l]];\n  }\n  const NAME = { half: 'A half-wave rectifier: one diode, D1, between supply wire A and the top of a resistor load.',\n    bridge: 'A bridge rectifier: four diodes, D1 to D4, in a diamond between an AC supply and a resistor load.',\n    six: 'A six-pulse rectifier: three lines, L1 to L3, each with an upper and a lower diode, feeding a resistor load.' };\n  function onWords(c, s) {\n    if (c.kind === 'half') return 'D1 conducts';\n    if (c.kind === 'bridge') return s.half > 0 ? 'D1 and D2 conduct' : 'D3 and D4 conduct';\n    return 'L' + (s.u + 1) + '\\'s upper diode and L' + (s.l + 1) + '\\'s lower diode conduct';\n  }\n\n  function view(i, p, st) {\n    const d = STEPS[i], c = cfg(p), th = K.clamp(+p.cursor || 0, 0, 360), s = sample(c, shownAt(th)), six = c.kind === 'six';\n    return { i, d, c, th, s, right: st.res === 'right', show: !!d.show, probe: !!d.probe, pathOn: !(d.hidePath && st.res !== 'right'),\n      avg: avgAt(c, th), vmax: six ? 650 : PK(c.rms) * 340 / PK(230), peak: six ? PK(c.line) : PK(c.rms) };\n  }\n\n  function drawCircuit(v) {\n    const c = v.c, s = v.s, kind = c.kind, L = LAY[kind], flow = v.pathOn && s.out > 1e-6;\n    if (v.d.rings && v.right) part(vis(0.1), 0, () => s.on.forEach((id) => { const q = L.dio[id]; ci(q[0], q[1], 12.5, 'ring'); REC.rings++; }));\n    // The supply: a sine in a circle.\n    ci(34, 140, 20, 'src'); pa('M20 140 q7 -13 14 0 t14 0', 'sine');\n    Object.keys(L.seg).forEach((id) => pa(L.seg[id], 'wire'));\n    Object.keys(L.dio).forEach((id) => { const q = L.dio[id]; diode(q[0], q[1], q[2]); });\n    box(287, 80, 22, 52, 'res', 3);\n    // The current's path, the conducting diodes and the arrow through the load, drawn bold.\n    if (flow) part(v.d.hidePath ? vis(0.1) : 1, 0, () => {\n      pathIds(c, s).forEach((id) => pa(L.seg[id], 'wire on'));\n      s.on.forEach((id) => { const q = L.dio[id]; diode(q[0], q[1], q[2], 'on'); });\n      box(287, 80, 22, 52, 'res on', 3);\n      ln(298, 88, 298, 115, 'arrow'); pa('M298 126 l-6 -11 h12 z', 'head');\n      tx(281, 112, 'current', 'lab n', 'end');\n      REC.arrow = true; REC.on = s.on.slice();\n    });\n    else if (v.pathOn) tx(281, 112, 'no current', 'lab m', 'end');\n    tx(281, 94, 'load', 'lab', 'end'); tx(316, 92, '+', 'big', 'start'); tx(316, 130, '−', 'big', 'start');\n    const aLab = 'A' + (s.half > 0 && kind !== 'six' ? ' +' : s.half < 0 ? ' −' : ''), bLab = 'B' + (s.half > 0 && kind !== 'six' ? ' −' : s.half < 0 ? ' +' : '');\n    if (kind !== 'six' && !v.d.novolt) { tx(62, 138, c.rms + ' V', 'lab say', 'start'); tx(62, 154, '50 Hz', 'lab m', 'start'); }\n    if (kind === 'half') {\n      tx(160, 13, 'D1', 'lab'); tx(24, 76, aLab, 'lab', 'end'); tx(24, 178, bLab, 'lab', 'end');\n    } else if (kind === 'bridge') {\n      Object.keys(BR.lab).forEach((id) => { if (id !== c.open) tx(BR.lab[id][0], BR.lab[id][1], id.toUpperCase(), 'lab'); });\n      tx(44, 100, aLab, 'lab', 'start'); tx(44, 182, bLab, 'lab', 'start');\n      if (c.open) {\n        const q = BR.dio[c.open];\n        ln(q[0] - 8, q[1] - 8, q[0] + 8, q[1] + 8, 'cross'); ln(q[0] - 8, q[1] + 8, q[0] + 8, q[1] - 8, 'cross');\n        tx(180, 62, c.open.toUpperCase() + ' open', 'lab w', 'start');\n        if (v.right) part(vis(ANS), 0, () => tx(180, 80, 'now a half-wave', 'lab', 'start'));\n      }\n    } else {\n      tx(34, 92, c.line + ' V', 'lab say'); tx(34, 108, '3-phase', 'lab m');\n      tx(72, 118, 'L1', 'lab'); tx(122, 134, 'L2', 'lab'); tx(174, 150, 'L3', 'lab');\n      tx(214, 56, 'upper', 'lab m', 'start'); tx(214, 174, 'lower', 'lab m', 'start');\n      tx(250, 21, '+ rail', 'lab m'); tx(250, 199, '− rail', 'lab m');\n    }\n    if (v.probe) {\n      const P = kind === 'half' ? { a: 'M140 28 V54 H150', b: 'M180 28 V54 H170', x: 160, y: 54, ly: 80 }\n        : kind === 'bridge' ? { a: 'M103.6 94.4 H74 V68', b: 'M132.4 59.6 H84', x: 74, y: 58, ly: 38 }\n        : { a: 'M96 34 H70 V42', b: 'M96 70 H70 V62', x: 70, y: 52, ly: 24 };\n      pa(P.a, 'plead'); pa(P.b, 'plead'); ci(P.x, P.y, 10, 'probe');\n      tx(P.x, P.y + 4.5, 'V', 'lab t'); tx(P.x, P.ly, 'probe', 'lab t');\n    }\n    svg.setAttribute('aria-label', NAME[kind] + (c.open ? ' ' + c.open.toUpperCase() + ' has failed open.' : '') + ' At ' + Math.round(v.th) + '°, ' +\n      (!v.pathOn ? 'the current\\'s path is not shown yet.' : flow ? onWords(c, s) + ', and current flows down through the load.' : 'no current flows.') +\n      (v.probe ? ' A probe is clipped across ' + (kind === 'six' ? 'L1\\'s upper diode.' : 'D1.') : ''));\n    // The moving dots follow the current's path, faster as the output rises.\n    FLOW = flow && v.show && !finished ? (() => {\n      const pts = pathPts(c, s), lens = [0];\n      for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));\n      return { pts, lens, len: lens[lens.length - 1], speed: 12 + 60 * s.out / v.vmax, a: v.d.hidePath ? vis(0.1) : 1 };\n    })() : null;\n  }\n  function dots() {\n    dotsG.textContent = '';\n    if (!FLOW || REDUCE) return;\n    const f = FLOW;\n    dotsG.setAttribute('opacity', r2(f.a));\n    for (let s = PH % 20; s < f.len; s += 20) {\n      let k = 1;\n      while (k < f.lens.length - 1 && f.lens[k] < s) k++;\n      const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);\n      dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(K.lerp(a[0], b[0], u)), cy: r2(K.lerp(a[1], b[1], u)), r: 2.2 }));\n    }\n  }\n\n  // ---------- the graph of one cycle ----------\n  const X0 = 46, X1 = 324, YZ = 108, A = 62, YTOP = 44, YBOT = 172;\n  const gx = (t) => X0 + t * (X1 - X0) / 360;\n  const PALE = new Map();\n  function paleD(c, vm) {\n    const k = keyOf(c) + '|' + vm;\n    if (PALE.has(k)) return PALE.get(k);\n    const gy = (x) => YZ - x * A / vm, waves = [];\n    if (c.kind === 'six') [[0, 1], [1, 2], [2, 0]].forEach((q) => [1, -1].forEach((sg) => waves.push((t) => { const ph = sample(c, t).v; return sg * (ph[q[0]] - ph[q[1]]); })));\n    else waves.push((t) => sample(c, t).v);\n    const d = waves.map((f) => { let s = ''; for (let t = 0; t <= 360; t += 2) s += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(f(t))); return s; }).join(' ');\n    PALE.set(k, d);\n    return d;\n  }\n  function keyRow(y, items) {\n    const ws = items.map((it) => tw(it[1], 'lab'));\n    const total = items.reduce((t, it, k) => t + 22 + ws[k], 0) + 14 * (items.length - 1);\n    let x = Math.max(4, (340 - total) / 2);\n    items.forEach((it, k) => {\n      const x0 = x;\n      part(it[2] == null ? 1 : it[2], 0, () => { ln(x0, y - 4.5, x0 + 16, y - 4.5, it[0]); tx(x0 + 22, y, it[1], /\\d/.test(it[1]) ? 'lab say' : 'lab', 'start'); });\n      x += 22 + ws[k] + 14;\n    });\n  }\n  function avgText(v) {\n    if (v.th < 0.5) return 'average so far';\n    if (v.d.avgNum) return (v.th >= 360 ? 'average: ' : 'average so far: ') + fx(v.avg, 0) + ' V';\n    if (v.th < 360) return 'average so far';\n    return v.c.kind === 'six' ? 'average: ' + fx(v.avg / v.c.line, 2) + ' × line voltage' : 'average: ' + fx(v.avg / v.peak, 3) + ' × peak';\n  }\n  function drawGraph(v) {\n    const c = v.c, vm = v.vmax, th = v.th, xc = gx(th), six = c.kind === 'six', gy = (x) => YZ - x * A / vm;\n    const H = v.probe ? 276 : 196;\n    gsvg.setAttribute('viewBox', '0 0 340 ' + H); grab.setAttribute('height', H - 36);\n    const row1 = [['pale', six ? 'line-to-line' : 'supply'], ['outc', 'output']];\n    let low = null;\n    if (v.d.dips && v.right) {\n      low = Infinity;\n      for (let t = 0; t <= 360; t++) low = Math.min(low, outAt(c, t));\n      row1.push(['ref', 'dips to ' + fx(low, 0) + ' V', vis(ANS)]);\n    }\n    keyRow(14, row1); keyRow(31, [['avg', avgText(v)]]);\n    ln(X0, YTOP, X0, YBOT, 'ax'); ln(X0, YZ, X1, YZ, 'ax');\n    tx(36, YZ + 4, '0 V', 'lab m', 'end');\n    if (v.show) { const yp = gy(v.peak); ln(X0, yp, X1, yp, 'ref'); tx(42, yp + 4, fx(v.peak, 0) + ' V', 'lab m say', 'end'); }\n    if (low != null) part(vis(ANS), 0, () => ln(X0, gy(low), X1, gy(low), 'ref'));\n    // The output so far, the area under it, and the average so far.\n    if (th > 0) {\n      let d = '';\n      for (let t = 0; t < th; t++) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(outAt(c, t)));\n      d += 'L' + r2(xc) + ' ' + r2(gy(v.s.out));\n      pa(d + 'L' + r2(xc) + ' ' + YZ + 'L' + X0 + ' ' + YZ + 'Z', 'area');\n    }\n    pa(paleD(c, vm), 'pale');\n    if (th > 0) {\n      let d = '';\n      for (let t = 0; t < th; t++) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(outAt(c, t)));\n      d += 'L' + r2(xc) + ' ' + r2(gy(v.s.out));\n      pa(d, 'outc');\n      ln(X0, gy(v.avg), xc, gy(v.avg), 'avg');\n    }\n    // The time cursor and its angle.\n    ln(xc, YTOP - 2, xc, YBOT, 'cur');\n    ci(xc, gy(v.s.out), 4.5, 'odot');\n    [0, 90, 180, 270, 360].forEach((t) => { const x = gx(t); ln(x, YBOT, x, YBOT + 4, 'ax'); if (Math.abs(x - xc) > 30) tx(x, 189, t + '°', 'lab m'); });\n    const cs = Math.round(th) + '°', w = tw(cs, 'lab n'), px = K.clamp(xc, w / 2 + 9, 340 - w / 2 - 9);\n    box(px - w / 2 - 7, 176, w + 14, 18, 'pill', 9); tx(px, 189, cs, 'lab n');\n    // Six-pulse: name the line pair on top at the cursor, tying the graph to the bold diodes.\n    if (six) { const rt = xc < 250; tx(rt ? xc + 7 : xc - 7, 46, 'L' + (v.s.u + 1) + ' − L' + (v.s.l + 1), 'lab n', rt ? 'start' : 'end'); }\n    // The probe's trace: the voltage across the probed diode, the wrong way round.\n    if (v.probe) {\n      const py = (x) => 266 - x * 44 / vm;\n      tx(X0, 212, six ? 'probe on L1\\'s upper diode' : 'probe on D1, reverse volts', 'lab t', 'start');\n      ln(X0, 222, X0, 266, 'ax'); ln(X0, 266, X1, 266, 'ax');\n      if (th > 0) {\n        let d = '';\n        for (let t = 0; t < th; t++) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(py(sample(c, t).probe));\n        pa(d + 'L' + r2(xc) + ' ' + r2(py(v.s.probe)), 'ptr');\n      }\n      ln(xc, 220, xc, 268, 'cur'); ci(xc, py(v.s.probe), 4, 'pdot');\n      const pk = probePeak(c);\n      if (th >= pk.at) tx(X1, 212, 'peak ' + fx(pk.v, 0) + ' V', 'lab t say', 'end');\n    }\n    gsvg.setAttribute('aria-label', 'One supply cycle, 0 to 360 degrees. ' + (six ? 'The six line-to-line waves are' : 'The supply is') +\n      ' drawn pale. The output, the area under it and its average are drawn up to the time cursor at ' + Math.round(th) + ' degrees.' +\n      (v.probe ? ' Below, the probe\\'s trace shows the voltage across the probed diode the wrong way round.' : ''));\n  }\n\n  // ---------- one screen drawn in its state ----------\n  function render(i, p, st) {\n    const v = view(i, p, st);\n    REC = { texts: [], rings: 0, on: [], arrow: false };\n    latest = 0; earliest = Infinity;\n    art.textContent = ''; gart.textContent = '';\n    into = art; drawCircuit(v);\n    into = gart; drawGraph(v);\n    into = null;\n    return REC;\n  }\n  function paint() { render(at(), K.params(), S[at()]); }\n\n  // ---------- what Dan reads under the picture ----------\n  function sayFor(v) {\n    const c = v.c, s = v.s;\n    if (c.kind === 'six') return 'L' + (s.u + 1) + ' is highest and L' + (s.l + 1) + ' lowest, so the load gets L' + (s.u + 1) + ' − L' + (s.l + 1) + '.';\n    if (s.half === 0) return 'The supply is at zero, so no current flows.';\n    if (c.kind === 'half') return s.half > 0 ? 'D1 is pushed forward and conducts, so the load gets the hump.' : 'D1 is pushed backwards and blocks, so the load gets nothing.';\n    if (v.probe && s.half < 0) return 'D3 and D4 conduct, so D1 holds the supply the wrong way round.';\n    return s.half > 0 ? 'D1 and D2 conduct, and current flows down through the load.' : 'D3 and D4 conduct, and current still flows down through the load.';\n  }\n  function layout(i, d, st, p) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('sw').hidden = !d.show; lineCtl.el.hidden = p.kind !== 'six';\n    el('ctl').hidden = !d.show; el('outs').hidden = !d.show; rProbe.el.hidden = !d.probe;\n    el('say').hidden = !d.show; el('gnote').hidden = i !== 0;\n    el('say').textContent = d.show ? sayFor(view(i, p, st)) : '';\n    grab.style.pointerEvents = d.show ? '' : 'none';\n    playBtn.setLabel(SW && SW.play ? 'Pause' : 'Play');\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  write(el('finish'), FINISH);\n  K.drag('#grab', { control: 'cursor', toValue: (x) => (STEPS[at()].show ? K.clamp(Math.round((x - X0) / (X1 - X0) * 360), 0, 360) : curCtl.get()) });\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!motion.playing()) { T = Infinity; SW = null; }\n    if (i !== lastStep) {\n      // A new screen opens on its own bench: its rectifier, line voltage and cursor.\n      lastStep = i; enter('stepbox'); SW = null; T = Infinity;\n      const q = setupOf(i, st.res === 'right');\n      kindCtl.set(q.kind, true); lineCtl.set(q.line, true); curCtl.set(q.cursor, true);\n      if (d.show && d.dur) { sweep(0, 360, d.dur, true, FADE); if (SW) { T = 0; motionEnd = d.dur + FADE; } }\n      K.refresh();\n      return;\n    }\n    if (!d.show && !pinning) {\n      const q = setupOf(i, st.res === 'right');\n      if (p.kind !== q.kind || +p.line !== q.line || (!SW && Math.round(+p.cursor) !== q.cursor)) {\n        pinning = true;\n        kindCtl.set(q.kind, true); lineCtl.set(q.line, true); if (!SW) curCtl.set(q.cursor, true);\n        K.refresh(); pinning = false;\n        return;\n      }\n    }\n    if (SW && Math.round(+p.cursor) !== SW.last) SW = null;    // Dan took hold of the cursor\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    layout(i, d, st, p);\n    render(i, p, st);\n    dots();\n    kick();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const cOf = (kind, extra) => Object.assign({ kind, rms: 230, line: 400, open: '' }, extra || {});\n  function drawnAt(i, over, right) {\n    const keepT = T;\n    T = Infinity;\n    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }\n    finally { T = keepT; paint(); }\n  }\n  K.check(`On 230 V the supply peaks at 230 × √2 = 325 V. The half-wave averages 207 V over its hump, and 325 ÷ π = 104 V over the whole cycle, 0.318 of the peak`, () => {\n    const a = K.at({ kind: 'half', cursor: 180 }).avgSoFar, b = K.at({ kind: 'half', cursor: 360 }).avgSoFar;\n    return N.pk === '325' && fx(a, 0) === '207' && fx(b, 0) === '104' && K.near(b / PK(230), 1 / Math.PI, 1e-7) && fx(b / PK(230), 3) === '0.318';\n  });\n  K.check('The full-wave average is 2 × 0.318 = 0.637 of the peak voltage, assuming no diode losses: the bridge averages 207 V on 230 V, twice the half-wave', () => {\n    const b = K.at({ kind: 'bridge', cursor: 360 }).avgSoFar, h = K.at({ kind: 'half', cursor: 360 }).avgSoFar;\n    return K.near(b / PK(230), 0.637, 5e-4) && K.near(b, 2 * h, 1e-6) && fx(b, 0) === N.br;\n  }, { source: ETUT });\n  K.check('Regardless of the polarity of the input, the current flows in the same direction through the load: D1 and D2 carry the positive half, D3 and D4 the negative, and the output never goes below zero', () => {\n    const c = cOf('bridge');\n    for (let t = 1; t < 360; t++) {\n      if (t === 180) continue;\n      const s = sample(c, t);\n      if (!(s.out > 0) || s.on.join() !== (t < 180 ? 'd1,d2' : 'd3,d4')) return false;\n    }\n    return true;\n  }, { source: AAC });\n  K.check('The ripple frequency is twice the supply frequency: the bridge output has two humps a cycle, 100 a second on a 50 Hz supply', () => {\n    const c = cOf('bridge');\n    let n = 0;\n    for (let t = 1; t < 360; t++) { const a = outAt(c, t - 1), b = outAt(c, t), d = outAt(c, t + 1); if (b > a && b >= d) n++; }\n    return n === 2 && String(n * 50) === N.rip;\n  }, { source: ETUT });\n  K.check('The probe on D1 reads 0 while D1 conducts, and peaks at 270°: 325 V in a 230 V bridge, and 115 × √2 = 163 V in a 115 V one', () => {\n    const a = K.at({ kind: 'bridge', cursor: 90 }).probe, b = K.at({ kind: 'bridge', cursor: 270 }).probe, q = K.at({ step: 7, kind: 'bridge', cursor: 270 }).probe;\n    return a === 0 && fx(b, 0) === N.pk && fx(q, 0) === N.pk115 && probePeak(cOf('bridge')).at === 270;\n  });\n  K.check('Six-pulse on 400 V: the output dips to cos 30° × 566 = 490 V and averages 3√2 ÷ π × 400 = 540 V; on 440 V it averages 594 V under 622 V tops', () => {\n    const c = cOf('six');\n    let lo = Infinity, hi = 0;\n    for (let t = 0; t <= 360; t++) { const o = outAt(c, t); lo = Math.min(lo, o); hi = Math.max(hi, o); }\n    const a = K.at({ kind: 'six', line: 400, cursor: 360 }).avgSoFar, b = K.at({ kind: 'six', line: 440, cursor: 360 }).avgSoFar;\n    return fx(lo, 0) === N.dip && fx(hi, 0) === N.pk400 && fx(a, 0) === N.s400 && fx(b, 0) === N.s440 && K.near(a / PK(400), 3 / Math.PI, 1e-6) && fx(PK(440), 0) === N.pk440;\n  });\n  K.check('In the six-pulse the output is the largest line-to-line voltage, the conducting pair changes six times a cycle (every 60°), and the probe on L1\\'s upper diode peaks at the 566 V line-to-line peak', () => {\n    const c = cOf('six');\n    let n = 0;\n    for (let t = 1; t < 360; t++) if (sample(c, t - 0.5).on.join() !== sample(c, t + 0.5).on.join()) n++;\n    const big = [0, 17, 45, 100, 222, 300].every((t) => { const ph = sample(c, t).v; return K.near(outAt(c, t), Math.max.apply(null, ph) - Math.min.apply(null, ph), 1e-9); });\n    return n === 6 && big && fx(probePeak(c).v, 0) === N.pk400;\n  });\n  K.check('With D3 open the bridge works as a half-wave: nothing in the negative half, and a 104 V average', () =>\n    K.at({ step: 11, kind: 'bridge', cursor: 270 }).outNow === 0 && fx(K.at({ step: 11, kind: 'bridge', cursor: 360 }).avgSoFar, 0) === N.hw);\n  K.check('Silicon diodes have a forward voltage of approximately 0.7 volts: two in the current\\'s path take 1.4 V, about 12% of a 12 V output and under 1% of 207 V', () =>\n    N.drop === '1.4' && N.pct === '12' && 1.4 / +N.br < 0.01, { source: AACD });\n  K.check('Every number in the words comes from the rule: 325, 104, 207, 0.318, 0.637, 163, 566, 622, 0.866, 490, 283, 0.955, 1.35, 540, 594, 100 Hz and 300 Hz', () =>\n    N.pk === '325' && N.hw === '104' && N.br === '207' && N.r318 === '0.318' && N.r637 === '0.637' && N.pk115 === '163' && N.pk400 === '566' &&\n    N.pk440 === '622' && N.cos30 === '0.866' && N.dip === '490' && N.half400 === '283' && N.r955 === '0.955' && N.k135 === '1.35' &&\n    N.s400 === '540' && N.s440 === '594' && N.rip === '100' && N.rip6 === '300');\n  K.check('The drawing makes the conducting diodes bold and draws the arrow through the load, pointing down, only while current flows', () => {\n    const a = drawnAt(2, { cursor: 90 }), b = drawnAt(2, { cursor: 270 }), z = drawnAt(2, { cursor: 180 }), h = drawnAt(0, { cursor: 270 }), s = drawnAt(8, { cursor: 45 });\n    return a.arrow && b.arrow && !z.arrow && !h.arrow && s.arrow && a.on.join() === 'd1,d2' && b.on.join() === 'd3,d4' && s.on.length === 2;\n  });\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      const before = drawnAt(i, null, false), bt = before.texts.slice(), br = before.rings, ba = before.arrow;\n      const after = drawnAt(i, null, true);\n      const shows = (d.shows || []).every((s) => bt.indexOf(s) < 0 && after.texts.indexOf(s) >= 0);\n      return shows && (!d.rings || (br === 0 && after.rings === 2)) && (!d.hidePath || (!ba && after.arrow));\n    }));\n  K.check('Each demonstration sweep ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () =>\n    STEPS.every((d) => !d.dur || d.dur + FADE <= 4.5) && ANS + K.SOFT <= 3);\n\n  K.ready();\n</script>",
+  "title": "The rectifier bench",
+  "brief": "The one thing you should see is the conducting pair swap while the arrow through the load keeps pointing down, when you drag the time cursor through the supply's negative half.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "On 230 V the supply peaks at 230 × √2 = 325 V. The half-wave averages 207 V over its hump, and 325 ÷ π = 104 V over the whole cycle, 0.318 of the peak",
+     "ok": true
+    },
+    {
+     "label": "The full-wave average is 2 × 0.318 = 0.637 of the peak voltage, assuming no diode losses: the bridge averages 207 V on 230 V, twice the half-wave",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+    },
+    {
+     "label": "Regardless of the polarity of the input, the current flows in the same direction through the load: D1 and D2 carry the positive half, D3 and D4 the negative, and the output never goes below zero",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/"
+    },
+    {
+     "label": "The ripple frequency is twice the supply frequency: the bridge output has two humps a cycle, 100 a second on a 50 Hz supply",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+    },
+    {
+     "label": "The probe on D1 reads 0 while D1 conducts, and peaks at 270°: 325 V in a 230 V bridge, and 115 × √2 = 163 V in a 115 V one",
+     "ok": true
+    },
+    {
+     "label": "Six-pulse on 400 V: the output dips to cos 30° × 566 = 490 V and averages 3√2 ÷ π × 400 = 540 V; on 440 V it averages 594 V under 622 V tops",
+     "ok": true
+    },
+    {
+     "label": "In the six-pulse the output is the largest line-to-line voltage, the conducting pair changes six times a cycle (every 60°), and the probe on L1's upper diode peaks at the 566 V line-to-line peak",
+     "ok": true
+    },
+    {
+     "label": "With D3 open the bridge works as a half-wave: nothing in the negative half, and a 104 V average",
+     "ok": true
+    },
+    {
+     "label": "Silicon diodes have a forward voltage of approximately 0.7 volts: two in the current's path take 1.4 V, about 12% of a 12 V output and under 1% of 207 V",
+     "ok": true,
+     "source": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/"
+    },
+    {
+     "label": "Every number in the words comes from the rule: 325, 104, 207, 0.318, 0.637, 163, 566, 622, 0.866, 490, 283, 0.955, 1.35, 540, 594, 100 Hz and 300 Hz",
+     "ok": true
+    },
+    {
+     "label": "The drawing makes the conducting diodes bold and draws the arrow through the load, pointing down, only while current flows",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration sweep ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "kind",
+    "line",
+    "cursor"
+   ],
+   "readouts": [
+    "outNow",
+    "avgSoFar",
+    "probe"
+   ],
+   "outputs": [
+    "outNow",
+    "avgSoFar",
+    "probe"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "One diode",
+      "The average at the end",
+      "Four diodes",
+      "Which way now?",
+      "Twice the average",
+      "What the diodes take",
+      "The probe",
+      "A 115 V bridge",
+      "Six diodes",
+      "How low it dips",
+      "Where 1.35 comes from",
+      "One diode fails",
+      "Six-pulse on 440 V"
+     ],
+     "value": 0
+    },
+    {
+     "id": "kind",
+     "kind": "choice",
+     "label": "Rectifier",
+     "options": [
+      "half",
+      "bridge",
+      "six"
+     ],
+     "labels": [
+      "Half-wave",
+      "Bridge",
+      "Six-pulse"
+     ],
+     "value": "half",
+     "index": 0,
+     "shown": true
+    },
+    {
+     "id": "line",
+     "kind": "choice",
+     "label": "Line voltage",
+     "options": [
+      400,
+      440
+     ],
+     "labels": [
+      "400 V",
+      "440 V"
+     ],
+     "value": 400,
+     "index": 0,
+     "shown": false
+    },
+    {
+     "id": "cursor",
+     "kind": "control",
+     "label": "Time cursor",
+     "min": 0,
+     "max": 360,
+     "step": 1,
+     "log": false,
+     "value": 90,
+     "shown": true,
+     "snap": [
+      180,
+      270,
+      360
+     ]
+    }
+   ],
+   "actions": [
+    "Play",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   "practice.text: \"A blocked diode holds up to the supply's peak\" fails once a capacitor is added (i3): a half-wave diode feeding a capacitor holds about twice the peak. It is true of a bridge, the rectifier he will test, so scope it there.",
+   "analogy.text: A bridge throws itself at every zero crossing only with a resistor load; once a capacitor sits across the output (i3) the diodes conduct only near each peak, so the analogy needs its load stated.",
+   "explain.text: \"Three-phase uses six diodes\" is too general: a three-phase half-wave rectifier uses three and twelve-pulse rectifiers, common in large drives, use twelve; the six-diode circuit is the three-phase bridge.",
+   "interactive.whatAmILookingAt: Screen 9's \"Three-phase uses six diodes\" is too general, as in the explanation: three-phase half-wave and twelve-pulse rectifiers use other counts; the six-diode circuit is the three-phase bridge."
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

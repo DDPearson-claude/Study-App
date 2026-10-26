@@ -1,0 +1,975 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #sw .k-seg, #sw .k-seg.stack { display: flex; flex-wrap: wrap; }
+  #sw .k-seg button, #sw .k-seg.stack button { flex: 1 1 6.5rem; text-align: center; padding-left: 12px; }
+  #ctl2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  #ctl2 > .k-btn { flex: 1 1 8rem; min-height: 48px; }
+  #ctl2 > .k-field, #ctl2 > .k-toggle { flex: 1 1 12rem; margin: 0; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }
+  #hbox .k-label { margin-bottom: 6px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter, #outs.enter, #hbox.enter, #stripbox.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter, html.k-testing #hbox.enter, html.k-testing #stripbox.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter, #hbox.enter, #stripbox.enter { animation: none; } }
+  /* The circuit: thin wires, the path the current takes drawn bold. */
+  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }
+  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 3.5; }
+  .fig .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .fig .plate.s { stroke-width: 4.5; }
+  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }
+  .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.4; }
+  .fig .coil.on { stroke: var(--k-accent2); stroke-width: 3.2; }
+  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); }
+  .fig .tr { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  .fig .tr.on { stroke: var(--k-accent2); stroke-width: 3; }
+  .fig .tr.hot { stroke: var(--k-warn); stroke-width: 3; }
+  .fig .trb { stroke: var(--k-ink); stroke-width: 4; }
+  .fig .trb.on { stroke: var(--k-accent2); }
+  .fig .trb.hot { stroke: var(--k-warn); }
+  .fig .trg { stroke: var(--k-ink); stroke-width: 2.2; stroke-linecap: round; }
+  .fig .trh { fill: var(--k-ink); }
+  .fig .trh.on { fill: var(--k-accent2); }
+  .fig .trh.hot { fill: var(--k-warn); }
+  .fig .drv { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 1.6; }
+  .fig .lvl { fill: var(--k-accent2); fill-opacity: .55; }
+  .fig .sq { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linejoin: round; }
+  .fig .sinkp { fill: var(--k-muted); }
+  .fig .fin { stroke: var(--k-muted); stroke-width: 2.4; stroke-linecap: round; }
+  .fig .jdot { fill: var(--k-ink); }
+  .fig .flowdot { fill: var(--k-bg); }
+  /* The heat bar and the junction thermometer share one height scale through the heat sink. */
+  .fig .gbox { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .hb { fill: var(--k-accent2); }
+  .fig .hbe { fill: var(--k-warn); fill-opacity: .7; }
+  .fig .tcol { fill: var(--k-accent2); }
+  .fig .tcol.hot { fill: var(--k-warn); }
+  .fig .headw { fill: var(--k-warn); }
+  .fig .m150 { stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .fig .m220 { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 6 3; }
+  /* The strip: the switch's voltage above, the current below, on one time axis. */
+  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .fig .vtr { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }
+  .fig .itr { fill: none; stroke: var(--k-accent); stroke-width: 2.2; stroke-linejoin: round; }
+  .fig .spk { stroke: var(--k-warn); stroke-width: 3; }
+  .fig .mark { stroke: var(--k-accent); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .fig .cur { stroke: var(--k-ink); stroke-width: 1.2; }
+  .fig .flash { fill: var(--k-warn); }
+  .fig .odot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .pdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .lab.q { font-size: 15px; }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count say" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls" id="sw"></div>
+    <svg class="fig" id="scene" viewBox="0 0 340 222" width="100%" role="img" aria-label=""><g id="circ"><g id="art"></g><g id="dots"></g><g id="clabs"></g></g><g id="gauge"><g id="gart"></g><g id="glabs"></g></g></svg>
+    <div id="stripbox"><svg class="fig" id="strip" viewBox="0 0 340 204" width="100%" role="img" aria-label=""><g id="sart"></g><g id="slabs"></g></svg></div>
+    <p class="gnote say" id="setting"></p>
+    <div class="k-controls" id="ctl"></div>
+    <div id="ctl2"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div id="hbox"><p class="k-label" id="hlab">Heat against the gate setting</p><div id="hplot"></div></div>
+    <div class="row picks say" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- the rule ----------
+  // Between off and on the switch acts like a resistor in series with the load: at a setting s it
+  // takes 600 × (1 − s) volts, never below its 2 V drop fully on. The current is the rest of the
+  // supply over the load, and the heat in the switch is its voltage times its current.
+  const VS = 600, R = 30, VON = 2, RTH = 0.5, TAIR = 40, TJMAX = 150, TTOP = 200, TE = 0.5e-6, LH = 10e-3, VF = 0.7, VTOP = 1000;
+  const PTOP = (TTOP - TAIR) / RTH;            // the heat that takes the junction to the top of the thermometer
+  const SHED = (TJMAX - TAIR) / RTH;           // what the heat sink can shed
+  const INF1 = 'https://www.infineon.com/assets/row/public/documents/faq/igbt-power-losses-calculation-using-the-data-sheet-parameters.pdf';
+  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/';
+  const INF6 = 'https://www.infineon.com/assets/row/public/documents/24/42/infineon-an2011-05-igbt-modules-explanation-applicationnotes-en.pdf';
+  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');
+  const vsw = (s) => Math.max(VON, VS * (1 - s));
+  const amps = (s) => (VS - vsw(s)) / R;
+  const watts = (s) => vsw(s) * amps(s);
+  const ION = amps(1);
+  // Each edge sweeps straight through the hump, which averages a sixth of 600 V × 20 A.
+  const EEDGE = VS * (VS / R) / 6 * TE;        // joules per edge
+  const P_ON = 0.5 * VON * ION;                // on half the time
+  const pEdges = (fk) => 2 * EEDGE * fk * 1000;
+  const pSwitch = (fk) => P_ON + pEdges(fk);
+  const tj = (P) => TAIR + RTH * P;
+  const TAU = LH / R;                          // seconds
+  // The coil's current round the diode after opening (t in seconds), with the diode's drop.
+  const coilI = (t) => Math.max(0, (ION + VF / R) * Math.exp(-t / TAU) - VF / R);
+  const DEVN = { bjt: 'BJT', mosfet: 'MOSFET', igbt: 'IGBT' };
+  const DEVA = { bjt: 'a BJT', mosfet: 'a MOSFET', igbt: 'an IGBT' };
+  const LEAD = { bjt: 'base', mosfet: 'gate', igbt: 'gate' };
+  const LEADC = { bjt: 'Base', mosfet: 'Gate', igbt: 'Gate' };
+
+  // Every number the words show, worked out from the rule (a check compares them with the lesson's).
+  const N = {
+    vs: String(VS), r: String(R), on2: fx(VON, 0), i20: fx(VS / R, 0), ion: fx(ION, 1), p40: fx(watts(1), 0),
+    vh: fx(vsw(0.5), 0), ih: fx(amps(0.5), 0), ih1: fx(amps(0.5), 1), ph: fx(watts(0.5), 0), r4: fx(4 * R, 0),
+    rise40: fx(RTH * watts(1), 0), tj40: fx(tj(watts(1)), 0), rise3k: fx(RTH * watts(0.5), 0),
+    room: fx(TJMAX - TAIR, 0), shed: fx(SHED, 0), wrong55: fx((TJMAX - TAIR) * RTH, 0), wrong300: fx(TJMAX / RTH, 0),
+    x13: Math.floor(watts(0.5) / SHED), hump: fx(VS * (VS / R) / 6, 0),
+    e1: fx(EEDGE * 1000, 0), e2: fx(2 * EEDGE * 1000, 0), pe10: fx(pEdges(10), 0), pon: fx(P_ON, 0), pt10: fx(pSwitch(10), 0),
+    tj10: fx(tj(pSwitch(10)), 0), pe20: fx(pEdges(20), 0), pt20: fx(pSwitch(20), 0), tj20: fx(tj(pSwitch(20)), 0), pe5: fx(pEdges(5), 0),
+    vavg: fx(Math.round(0.5 * (VS - VON) / 10) * 10, 0), ratio: fx(watts(0.5) / pSwitch(10), 0),
+    vd: fx(VS + VF, 0), tau: fx(TAU * 1000, 2),
+    v90: fx(vsw(0.9), 0), i90: fx(amps(0.9), 0), p90: fx(watts(0.9), 0), x5: fx(watts(0.9) / SHED, 0),
+  };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // set: where the controls open; play: the demonstration as the screen opens; coil: the coil screens;
+  // ans.set: what a right Check moves the controls to; shows: labels that appear only after a right Check.
+  const STEPS = [
+    { show: true, name: 'The switch', set: { dev: 'igbt', mode: 'steady', gate: 100 },
+      text: `A transistor is a switch you work with a small signal on a third lead. The heat in a switch is the voltage across it times the current through it. Here one feeds a ${N.r} Ω load from ${N.vs} V DC. That is close to a 440 V drive's DC link. Fully off, the whole ${N.vs} V sits across it. But almost no current flows. Fully on, about ${N.i20} A flows, with only about ${N.on2} V across it. So fully on, it makes about ${N.on2} × ${N.i20} = ${N.p40} W.`,
+      read: `Fully on, the readouts show ${N.on2} V across the switch, a current of ${N.ion} A and ${N.p40} W of heat.`,
+      still: { dev: 'igbt', gate: 100 } },
+    { name: 'Off', set: { gate: 0 }, outs: 'after', hideGauge: true, hidePlot: true, ans: {},
+      task: `The gate is off, and ${N.vs} V sits across the switch. How much heat does it make?`,
+      opts: [`The most of any setting, from the full ${N.vs} V`, 'Almost none, as almost no current flows', `About ${N.p40} W, the same as fully on`],
+      want: 'Almost none, as almost no current flows',
+      hints: { [`The most of any setting, from the full ${N.vs} V`]: 'Heat is volts times amps. How many amps flow when it is off?',
+        [`About ${N.p40} W, the same as fully on`]: `Fully on, ${N.on2} V meets ${N.i20} A. What current meets the ${N.vs} V when it is off?` },
+      why: `Almost none. Heat is the voltage times the current. Off, only a tiny leakage current flows. So ${N.vs} V times almost nothing is almost nothing. The picture draws that leakage as zero.` },
+    { show: true, name: 'Half on', set: { gate: 100 }, play: { id: 'gate', from: 100, to: 50 },
+      text: `Between off and on, the transistor acts like a resistor in series with the load. Drag the gate to half on, 50%. The switch now takes half the supply, ${N.vh} V. Half the current flows, ${N.ih} A. Both are large at once. So the switch makes ${N.vh} × ${N.ih} = ${N.ph} W. The plot shows the heat against the gate setting. It is a hump. At each end, the voltage or the current is near zero. In the middle, neither is.`,
+      read: `At half on, across the switch reads ${N.vh} V, the current ${N.ih1} A and the heat ${N.ph} W. The plot's dot sits on top of the hump. The hump falls to ${N.p40} W fully on and to zero off.`,
+      still: { gate: 50 } },
+    { name: 'The hottest setting', set: { gate: 100 }, outs: 'before', hidePlot: true, ans: {},
+      task: 'Which gate setting makes the switch hottest?',
+      opts: ['Fully on, with the most current', 'Fully off, with the most voltage', 'Half on'],
+      want: 'Half on',
+      hints: { 'Fully on, with the most current': 'Fully on, how much voltage is across the switch?',
+        'Fully off, with the most voltage': 'Fully off, how much current flows?' },
+      why: `Half on. There ${N.vh} V meets ${N.ih} A, which is ${N.ph} W. Fully on, ${N.i20} A meets only ${N.on2} V. Fully off, ${N.vs} V meets almost no current. So half on is no safe middle. It is the hottest place to leave this switch.` },
+    { show: true, name: 'Heat into temperature', set: { gate: 100 }, play: { id: 'gate', from: 100, to: 50 },
+      text: `The heat has to leave through a heat sink. Its *thermal resistance* says how far the *junction*, the silicon inside, rises above the air for each watt. Say ${RTH} °C per watt, with the air at ${TAIR} °C. Fully on, ${N.p40} W lifts the junction ${N.p40} × ${RTH} = ${N.rise40} °C, to ${N.tj40} °C. Half on, ${N.ph} W would lift it ${N.rise3k} °C. Say this transistor is rated to ${TJMAX} °C. It fails long before that.`,
+      read: `Fully on, the thermometer reads ${N.tj40} °C. At half on, it runs off the top in red.`,
+      still: { gate: 50 } },
+    { name: 'What the sink can shed', set: { gate: 100 }, outs: 'before', ans: {}, shows: [`${N.shed} W`],
+      task: `The junction may reach ${TJMAX} °C. The air is at ${TAIR} °C. How much heat can this heat sink shed?`,
+      opts: [`About ${N.shed} W`, `About ${N.wrong300} W`, `About ${N.wrong55} W`],
+      want: `About ${N.shed} W`,
+      hints: { [`About ${N.wrong300} W`]: `Count the rise from the air at ${TAIR} °C, not from zero.`,
+        [`About ${N.wrong55} W`]: `Each watt adds ${RTH} °C. So divide the rise by ${RTH}. Don't multiply.` },
+      why: `About ${N.shed} W. The junction may rise ${TJMAX} − ${TAIR} = ${N.room} °C. Each watt lifts it ${RTH} °C. So ${N.room} ÷ ${RTH} = ${N.shed} W. Fully on, ${N.p40} W is well inside that. Half on, ${N.ph} W is more than thirteen times too much.` },
+    { show: true, name: 'Three devices, one job', set: { dev: 'bjt', gate: 50 }, play: 'devs',
+      text: `Three kinds of power transistor do this job. A *BJT*, a bipolar transistor, needs a steady current into its base to stay on. A *MOSFET* turns on with a voltage on its gate. Its gate draws almost no current except while it changes over. An *IGBT* puts a MOSFET's gate in charge of a bipolar output. It suits high voltages and currents. Pick each one at half on. The heat stays at ${N.ph} W. The circuit sets the voltage and the current. The device does not.`,
+      read: `At half on, the heat reads ${N.ph} W with each device picked. Only the symbol and the name of its control lead change.`,
+      still: { dev: 'igbt', gate: 50 } },
+    { name: 'Swap the device', set: { dev: 'igbt', gate: 50 }, outs: 'before', ans: { set: { dev: 'mosfet' } }, shows: ['MOSFET'],
+      task: 'You swap the IGBT for a MOSFET and leave it half on. What happens to the heat?',
+      opts: ['It falls a long way, as the gate takes no steady current', `It stays at about ${N.ph} W`, 'It falls to nothing, as a MOSFET is a better switch'],
+      want: `It stays at about ${N.ph} W`,
+      hints: { 'It falls a long way, as the gate takes no steady current': 'The gate\'s current is tiny either way. Which voltage and current make the heat?',
+        'It falls to nothing, as a MOSFET is a better switch': `Half on, any of these switches takes ${N.vh} V and passes ${N.ih} A here.` },
+      why: `It stays at about ${N.ph} W. Half on, the switch still takes ${N.vh} V and passes ${N.ih} A. That is ${N.vh} × ${N.ih} = ${N.ph} W, whatever the device. The gate drive changes what the control circuit must supply. It does not change the heat in the switch's main path.` },
+    { show: true, name: 'The edges', set: { mode: 'switch', f: 10 }, play: 'cursor',
+      text: `Flipping the switch fully on and off makes far less heat. It is on half the time. The load still averages about ${N.vavg} V. No switch changes over instantly. Say each edge takes 0.5 µs. During it, the switch sweeps through half on. So each edge costs a burst of heat, about ${N.e1} mJ. This *switching loss* is the energy per switching times the frequency. Two edges a cycle at 10 kHz make ${N.pe10} W. The on half adds ${N.pon} W. The total is about ${N.pt10} W, not ${N.ph} W.`,
+      read: `In switching mode at 10 kHz, the heat bar splits into ${N.pon} W on and ${N.pe10} W in the edges. The heat reads ${N.pt10} W, and the thermometer ${N.tj10} °C.`,
+      still: { mode: 'switch', f: 10 } },
+    { name: 'Twice the frequency', set: { mode: 'switch', f: 10 }, outs: 'before', ans: { set: { f: 20 } }, shows: [`edges ${N.pe20} W`],
+      task: 'You raise the frequency to 20 kHz. What do the edges make now?',
+      opts: [`About ${N.pe10} W, as each edge costs the same`, `About ${N.pe5} W, as each cycle is shorter`, `About ${N.pe20} W`],
+      want: `About ${N.pe20} W`,
+      hints: { [`About ${N.pe10} W, as each edge costs the same`]: 'Each edge costs the same. How many edges come each second now?',
+        [`About ${N.pe5} W, as each cycle is shorter`]: 'A shorter cycle means more edges each second, not fewer.' },
+      why: `About ${N.pe20} W. Each cycle costs about ${N.e2} mJ, ${N.e1} mJ an edge. At 20,000 cycles a second, that is ${N.e2} mJ × 20,000 = ${N.pe20} W. The on part stays at ${N.pon} W. So the switch makes ${N.pt20} W in all. The junction reaches ${N.tj20} °C.` },
+    { show: true, name: 'The coil kicks back', coil: true, set: { load: 'coil', diode: false, gate: 100 }, play: 'open',
+      text: `A coil keeps its current going, as v = L di/dt says. Many loads are coils, such as contactors and motor windings. Open the switch, and the coil's current has nowhere to go. The switch tries to stop it in about 0.5 µs. So di/dt is huge. The coil's voltage spikes far above the supply, across the switch. A diode across the coil gives the current a path round. It is fitted to block the supply. Through this *freewheeling diode*, the coil sees only its drop, about ${VF} V.`,
+      read: `With no diode, opening the switch sends its voltage up in a red spike off the top of the scale. With the diode ticked, the switch's voltage steps to about ${N.vd} V. The coil's current then dies away round the diode.`,
+      still: () => finishOpen(true) },
+    { name: 'No diode', coil: true, set: { load: 'coil', diode: false, gate: 100 }, ans: { open: true }, shows: ['spike'],
+      task: 'The switch opens on the coil with no diode. What voltage does the switch see?',
+      opts: [`A spike far above ${N.vs} V`, `${N.vs} V, the supply`, 'Zero, as the current stops'],
+      want: `A spike far above ${N.vs} V`,
+      hints: { [`${N.vs} V, the supply`]: 'The coil\'s current can\'t stop at once on its own. What does v = L di/dt give for a sudden stop?',
+        'Zero, as the current stops': 'A sudden stop in a coil\'s current is what makes its voltage jump.' },
+      why: `A spike far above ${N.vs} V. The switch tries to force the coil's current from ${N.ion} A to zero in about 0.5 µs. So di/dt is huge, and so is L di/dt. That voltage adds to the supply across the switch. It can break the switch down. With the diode, the switch sees only about ${N.vd} V.` },
+    { name: 'The coolest way', set: { dev: 'igbt', mode: 'steady', gate: 50 }, outs: 'after', hideGauge: true, hidePlot: true,
+      ans: { set: { mode: 'switch', f: 10 }, cursor: true }, shows: [`edges ${N.pe10} W`],
+      task: `You want the load to average ${N.vavg} V from the ${N.vs} V supply. Which way keeps the IGBT coolest?`,
+      opts: ['Hold the gate at half on', `Either way, as the load gets ${N.vavg} V both ways`, 'Flip it fully on and off, on half the time'],
+      want: 'Flip it fully on and off, on half the time',
+      hints: { 'Hold the gate at half on': `Half on, the IGBT takes ${N.vh} V and passes ${N.ih} A. What heat is that?`,
+        [`Either way, as the load gets ${N.vavg} V both ways`]: 'The load\'s average is the same. Compare the heat in the switch.' },
+      why: `Flip it. At 10 kHz, it makes about ${N.pt10} W: ${N.pon} W on and ${N.pe10} W in its edges. Held half on, it makes ${N.ph} W. The load averages about ${N.vavg} V both ways. But the switch's heat differs by about ${N.ratio} times.` },
+    { name: 'Nearly on', set: { gate: 90 }, outs: 'after', hideGauge: true, hidePlot: true, ans: {},
+      task: `The gate stands at 90%, nearly on. Can the ${N.shed} W heat sink cope?`,
+      opts: [`Yes, nearly on is close to the ${N.p40} W of fully on`, `No, the switch makes about ${N.p90} W`, `No, it makes the ${N.ph} W of half on`],
+      want: `No, the switch makes about ${N.p90} W`,
+      hints: { [`Yes, nearly on is close to the ${N.p40} W of fully on`]: `At 90%, the switch still takes a tenth of ${N.vs} V. What current meets it?`,
+        [`No, it makes the ${N.ph} W of half on`]: 'At 90%, the voltage is lower than at half on. Work out V × I.' },
+      why: `No. At 90%, the switch takes ${N.v90} V and passes ${N.i90} A. That is ${N.v90} × ${N.i90} = ${N.p90} W. It is about five times what the heat sink can shed. Fully on, its voltage falls to about ${N.on2} V and the heat to ${N.p40} W.` },
+  ];
+  const FINISH = 'A power transistor is kept fully on or fully off, because half on, its voltage times its current makes the most heat.';
+  const DEMO = 3.6, FADE = 0.35, ANS = 2.2;
+  const TWS = 0.3, TWC = 2, TO = 0.4;          // strip windows (ms) and the moment the switch opens
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const calm = () => REDUCE || testing();
+  const el = (id) => document.getElementById(id);
+
+  // ---------- the model ----------
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  const gateOf = (p) => K.clamp(Math.round((+p.gate || 0) / 5) * 5, 0, 100) / 100;
+  const fOf = (p) => K.clamp(Math.round(+p.f) || 10, 1, 20);
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, pinning = false, lastDiode = false, lastLoad = 'res';
+  let T = Infinity, motionEnd = 0, CUR = 1, SOF = 0, CS = null, OS = null, SW = null, DS = null, PH = 0, FLOW = null, REC = null;
+  const IDS = ['dev', 'mode', 'load', 'gate', 'f', 'diode'];
+  const BASE = { dev: 'igbt', mode: 'steady', load: 'res', gate: 100, f: 10, diode: false };
+  const setupOf = (i, right) => { const d = STEPS[i]; return Object.assign({ step: i }, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {}); };
+  function visIds(d, p) {
+    if (!d.show) return [];
+    if (d.coil) return p.load === 'coil' ? ['load', 'diode'] : ['load'];
+    if (d.set && d.set.mode === 'switch') return ['mode', p.mode === 'switch' ? 'f' : 'gate'];
+    return ['dev', 'gate'];
+  }
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const devCtl = K.choice({ id: 'dev', label: 'Transistor', options: [{ value: 'bjt', label: 'BJT' }, { value: 'mosfet', label: 'MOSFET' }, { value: 'igbt', label: 'IGBT' }], value: 'igbt', into: '#sw' });
+  const modeCtl = K.choice({ id: 'mode', label: 'Mode', options: [{ value: 'steady', label: 'Steady' }, { value: 'switch', label: 'Switching' }], value: 'steady', into: '#sw' });
+  const loadCtl = K.choice({ id: 'load', label: 'Load', options: [{ value: 'res', label: 'Resistor' }, { value: 'coil', label: 'Coil' }], value: 'res', into: '#sw' });
+  const gateCtl = K.control({ id: 'gate', label: 'Gate', min: 0, max: 100, step: 5, value: 100, fmt: (v) => fx(v, 0) + '%', snap: [0, 50, 90, 100], into: '#ctl' });
+  const fCtl = K.control({ id: 'f', label: 'Frequency', min: 1, max: 20, step: 1, value: 10, fmt: (v) => fx(v, 0) + ' kHz', snap: [10, 20], into: '#ctl' });
+  const diodeCtl = K.toggle({ id: 'diode', label: 'Freewheeling diode', value: false, into: '#ctl2' });
+  const openBtn = K.button({ label: 'Open', into: '#ctl2', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || !d.coil) return;
+    startOpen(0);
+  } });
+  const playBtn = K.button({ label: 'Play', secondary: true, into: '#ctl2', press: () => {
+    const d = STEPS[at()];
+    if (finished || !d.show || d.coil || K.params().mode !== 'switch') return;
+    startCursor(0);
+  } });
+  const CTL = { dev: devCtl, mode: modeCtl, load: loadCtl, gate: gateCtl, f: fCtl, diode: diodeCtl };
+  const snapV = (id, v) => (id === 'gate' ? Math.round(v / 5) * 5 : Math.round(v));
+  const rV = K.readout({ id: 'vSwitch', label: 'Across the switch', unit: 'V', decimals: 0, into: '#outs' });
+  const rI = K.readout({ id: 'current', label: 'Current', unit: 'A', decimals: 1, into: '#outs' });
+  const rP = K.readout({ id: 'heat', label: 'Heat in the switch', unit: 'W', decimals: 0, fmt: (v) => fx(v, 0) + ' W', into: '#outs' });
+  K.model((p) => {
+    if (p.mode === 'switch') return { vSwitch: (VS + VON) / 2, current: ION / 2, heat: pSwitch(fOf(p)) };
+    const s = gateOf(p);
+    return { vSwitch: vsw(s), current: amps(s), heat: watts(s) };
+  });
+  const hplot = K.plot('#hplot', {
+    x: { min: 0, max: 100, label: 'Gate setting (%)' }, y: { min: 0, max: 3200, label: 'Heat in the switch (W)' }, height: 150,
+    label: 'The heat in the switch against the gate setting: none off, a hump that peaks at half on, and low again fully on. The dot is the setting.',
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    T = calm() ? Infinity : 0; motionEnd = ANS + K.SOFT;
+    const a = d.ans || {};
+    if (a.set) startSweep(a.set, ANS - 0.4, 0.1);
+    if (a.open) startOpen(0.1, ANS - 0.1);
+    if (a.cursor) startCursor(0.2, ANS - 0.2);
+    if (!calm()) play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; FLOW = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: a slider sweep, the device parade, the strip's cursor, the opening, a right answer's reveal, flowing current ----------
+  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    let busy = false, redraw = false;
+    if (CS) { CS.t += dt; const f = K.clamp(CS.t / CS.dur, 0, 1); CUR = f; redraw = true; if (f >= 1) CS = null; else busy = true; }
+    if (OS) { OS.t += dt; const f = K.clamp(OS.t / OS.dur, 0, 1); SOF = f; redraw = true; if (f >= 1) OS = null; else busy = true; }
+    if (SW) {
+      const w = SW;
+      w.t += dt;
+      const f = K.clamp(w.t / w.dur, 0, 1);
+      Object.keys(w.to).forEach((id) => {
+        const val = snapV(id, K.lerp(w.from[id], w.to[id], K.ease(f)));
+        if (SW === w && val !== w.last[id]) { w.last[id] = val; CTL[id].set(val); }
+      });
+      if (SW === w) { if (f >= 1) SW = null; else busy = true; }
+    }
+    if (DS) {
+      const q = DS;
+      q.t += dt;
+      let cur = q.list[0][0];
+      q.list.forEach((x) => { if (q.t >= x[1]) cur = x[0]; });
+      if (cur !== q.last) { q.last = cur; devCtl.set(cur); }
+      if (DS === q) { if (q.t >= q.list[q.list.length - 1][1] + 0.6) DS = null; else busy = true; }
+    }
+    PH += dt;
+    if (redraw || T < motionEnd + 0.1) paint();
+    dots();
+    return busy || T < motionEnd + 0.1 || flowOn();
+  } });
+  function play() { if (!motion.playing()) motion.play(); }
+  function startCursor(delay, dur) {
+    if (calm()) { CUR = 1; CS = null; return; }
+    CUR = 0; CS = { t: -(delay || 0), dur: dur || DEMO }; play();
+  }
+  function startOpen(delay, dur) {
+    if (calm()) { SOF = 1; OS = null; return; }
+    SOF = 0; OS = { t: -(delay || 0), dur: dur || DEMO }; play();
+  }
+  function startDevs(delay) {
+    if (calm()) { devCtl.set('igbt', true); DS = null; return; }
+    devCtl.set('bjt', true);
+    DS = { t: -(delay || 0), list: [['bjt', 0], ['mosfet', 1.2], ['igbt', 2.4]], last: 'bjt' };
+    play();
+  }
+  function startSweep(to, dur, delay, from) {
+    const p = K.params(), num = {};
+    Object.keys(to).forEach((id) => { if (typeof to[id] === 'number') num[id] = to[id]; else CTL[id].set(to[id], true); });
+    if (calm()) { Object.keys(num).forEach((id) => CTL[id].set(num[id], true)); SW = null; return; }
+    if (!Object.keys(num).length) { SW = null; return; }
+    const f = {};
+    Object.keys(num).forEach((id) => { f[id] = from && from[id] != null ? from[id] : +p[id]; CTL[id].set(f[id], true); });
+    SW = { to: num, from: f, last: Object.assign({}, f), t: -(delay || 0), dur };
+    play();
+  }
+  function finishOpen(withDiode) {
+    loadCtl.set('coil', true); diodeCtl.set(withDiode, true); lastDiode = withDiode; lastLoad = 'coil';
+    OS = null; SOF = 1; K.refresh();
+  }
+  function settle() { T = Infinity; if (CS) { CUR = 1; CS = null; } if (OS) { SOF = 1; OS = null; } SW = null; DS = null; }
+  const flowOn = () => !REDUCE && !finished && !!FLOW;
+  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  // Every label lives in its own slot group, made afresh each frame in a fixed order.
+  const svg = el('scene'), circ = el('circ'), art = el('art'), dotsG = el('dots'), gart = el('gart'), ssvg = el('strip'), sart = el('sart');
+  const SL = {
+    clabs: ['sup', 'dc', 'load', 'diode', 'dev', 'drive', 'sink'],
+    glabs: ['qbar', 'qth', 'heat', 'junction', 'air', 'r150', 'r220', 'reading', 'kon', 'kedge'],
+    slabs: ['k1', 'k2', 'k3', 'v1000', 'v600', 'v0', 'i20', 'i0', 't0', 't1', 't2', 't3', 't4', 'open', 'spike', 'v601', 'tau'],
+  };
+  let SLOT = {}, into = null, latest = 0, earliest = Infinity;
+  function slots(g, list) { g.textContent = ''; list.forEach((n) => { SLOT[n] = g.appendChild(K.svg('g')); }); }
+  const add = (n) => into.appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  function tx(slot, x, y, s, cls, anchor) {
+    REC.texts.push(s);
+    return SLOT[slot].appendChild(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));
+  }
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  function head(x, y, dx, dy, s, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x - ux * s, by = y - uy * s, w = s * 0.55;
+    return pa('M' + r2(x) + ' ' + r2(y) + 'L' + r2(bx - uy * w) + ' ' + r2(by + ux * w) + 'L' + r2(bx + uy * w) + ' ' + r2(by - ux * w) + 'Z', cls);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.4;
+  }
+  // A diode pointing along its current: triangle (anode side) and bar (cathode side).
+  function diode(x, y, ang, cls) {
+    const g = add(K.svg('g', { class: 'dio' + (cls ? ' ' + cls : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ')' }));
+    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));
+    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));
+    return g;
+  }
+
+  // ---------- the moment on the strip ----------
+  const edgeW = (Tp) => Math.min(0.006, Tp / 10);     // ms: an edge drawn slowed down
+  // On from a quarter to three quarters of each cycle; each edge a straight sweep between 600 V and 2 V.
+  function swV(t, Tp) {
+    const ED = edgeW(Tp), h = ED / 2, a = Tp / 4, b = 3 * Tp / 4, ph = ((t % Tp) + Tp) % Tp;
+    if (ph < a - h) return VS;
+    if (ph < a + h) return VS + (VON - VS) * (ph - (a - h)) / ED;
+    if (ph < b - h) return VON;
+    if (ph < b + h) return VON + (VS - VON) * (ph - (b - h)) / ED;
+    return VS;
+  }
+  function swEdges(Tp, span) {
+    const out = [];
+    for (let k = 0; k * Tp < span; k++) [0.25, 0.75].forEach((q) => { const c = (k + q) * Tp; if (c > 0 && c < span) out.push(c); });
+    return out;
+  }
+  function swBreaks(Tp, span) {
+    const ED = edgeW(Tp), out = [0, span];
+    swEdges(Tp, span + Tp).forEach((c) => [c - ED / 2, c + ED / 2].forEach((t) => { if (t > 0 && t < span) out.push(t); }));
+    return out.sort((a, b) => a - b);
+  }
+
+  function view(i, p, st) {
+    const d = STEPS[i], right = st.res === 'right', show = !!d.show, coil = !!d.coil;
+    const sw = !coil && p.mode === 'switch', dev = DEVN[p.dev] ? p.dev : 'igbt';
+    const s = gateOf(p), fk = fOf(p), load = coil && p.load === 'coil' ? 'coil' : 'res', diode = load === 'coil' && !!p.diode;
+    const v = { i, d, right, show, coil, sw, dev, s, fk, load, diode, therm: i >= 4 && !coil };
+    if (sw) { v.parts = [{ P: P_ON, cls: 'hb' }, { P: pEdges(fk), cls: 'hbe' }]; v.P = pSwitch(fk); }
+    else { v.parts = [{ P: watts(s), cls: 'hb' }]; v.P = watts(s); }
+    v.Tj = tj(v.P);
+    v.gauges = coil ? 'none' : d.hideGauge && !right ? 'hidden' : 'shown';
+    v.gReveal = d.hideGauge && right ? vis(0.1) : 1;
+    v.mark220 = !coil && (i > 5 || (i === 5 && right));
+    v.mReveal = i === 5 ? vis(0.1) : 1;
+    v.plot = !coil && !sw && (show || !d.hidePlot || right);
+    v.plotK = d.hidePlot && right ? K.ease(K.clamp((T - 0.1) / (ANS - 0.1), 0, 1)) : 1;
+    v.level = s; v.hotSwitch = false; v.flowDiode = false; v.Icoil = 0;
+    if (sw) {
+      v.Tp = 1 / fk; v.tc = K.clamp(CUR, 0, 1) * TWS;
+      v.Inow = (VS - swV(v.tc, v.Tp)) / R;
+    } else if (coil) {
+      v.started = show || right;
+      v.tnow = v.started ? TO + SOF * (TWC - TO) : TO;
+      v.opened = v.started && SOF > 0;
+      const dt = (v.tnow - TO) / 1000;
+      v.Icoil = !v.opened ? ION : diode ? coilI(dt) : 0;
+      v.Inow = v.opened ? 0 : ION;
+      v.level = v.opened ? 0 : 1;
+      v.flowDiode = v.opened && diode && v.Icoil > 0.05;
+      v.hotSwitch = v.opened && load === 'coil' && !diode && dt < 0.25e-3;
+    } else v.Inow = amps(s);
+    v.flowMain = v.Inow > 0.05;
+    v.flowLoad = v.flowMain || v.flowDiode;
+    return v;
+  }
+
+  // ---------- the circuit: supply left, load on top, the transistor and its heat sink on the right ----------
+  function drawDevice(dev, st) {
+    const m = 'tr' + (st ? ' ' + st : ''), h = 'trh' + (st ? ' ' + st : '');
+    if (dev === 'mosfet') {
+      ln(124, 110, 134, 110, 'trg'); ln(134, 97, 134, 123, 'trg');
+      ln(140, 95, 140, 101, m); ln(140, 107, 140, 113, m); ln(140, 119, 140, 125, m);
+      pa('M150 88 V98 H140', m); pa('M140 122 H150 V132', m);
+      pa('M150 110 V122', m); ln(150, 110, 147, 110, m); head(141, 110, -1, 0, 7, h);
+      return;
+    }
+    const bar = dev === 'bjt' ? 142 : 140;
+    if (dev === 'bjt') ln(124, 110, bar, 110, 'trg');
+    else { ln(124, 110, 133, 110, 'trg'); ln(133, 97, 133, 123, 'trg'); }
+    ln(bar, 96, bar, 124, 'trb' + (st ? ' ' + st : ''));
+    pa('M150 88 V94 L' + bar + ' 102', m);
+    pa('M' + bar + ' 118 L150 126 V132', m);
+    head(bar + 0.85 * (150 - bar), 118 + 0.85 * 8, 150 - bar, 8, 7, h);
+  }
+  const MAINP = [[20, 100], [20, 30], [150, 30], [150, 190], [20, 190], [20, 124]];
+  const DIODEP = [[62, 30], [106, 30], [118, 30], [118, 10], [50, 10], [50, 30], [62, 30]];
+  const skipMain = (x, y) => (Math.abs(y - 30) < 1 && x > 58 && x < 110) || (Math.abs(x - 150) < 1 && y > 84 && y < 136);
+  const skipDiode = (x, y) => (Math.abs(y - 30) < 1 && x > 58 && x < 110) || (Math.abs(y - 10) < 1 && x > 72 && x < 96);
+  function mk(pts, speed, skip) {
+    const lens = [0];
+    for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+    return { pts, lens, len: lens[lens.length - 1], speed, skip };
+  }
+  function drawCircuit(v) {
+    into = art;
+    circ.setAttribute('transform', v.coil ? 'translate(60 0)' : 'translate(0 0)');
+    const wc = v.flowMain ? 'wire on' : 'wire';
+    ln(8, 100, 32, 100, 'plate'); ln(14, 108, 26, 108, 'plate s'); ln(8, 116, 32, 116, 'plate'); ln(14, 124, 26, 124, 'plate s');
+    pa('M20 100 V30 H62', wc); pa('M106 30 H150 V88', wc); pa('M150 132 V190 H20 V124', wc);
+    if (v.load === 'coil') pa('M62 30' + ' a5.5 5.5 0 0 1 11 0'.repeat(4), v.flowLoad ? 'coil on' : 'coil');
+    else box(62, 22, 44, 16, v.flowLoad ? 'res on' : 'res', 3);
+    if (v.diode) {
+      const on = v.flowDiode;
+      pa('M50 30 V10 H118 V30', on ? 'wire on' : 'wire');
+      if (on) { pa('M50 30 H62', 'wire on'); pa('M106 30 H118', 'wire on'); }
+      diode(84, 10, 180, on ? 'on' : '');
+      ci(50, 30, 2.6, 'jdot'); ci(118, 30, 2.6, 'jdot');
+    }
+    box(154, 96, 4, 34, 'sinkp', 1);
+    for (let k = 0; k < 6; k++) ln(158, 99 + 6 * k, 174, 99 + 6 * k, 'fin');
+    drawDevice(v.dev, v.hotSwitch ? 'hot' : v.flowMain ? 'on' : '');
+    box(96, 98, 28, 24, 'drv', 3);
+    if (v.sw) pa('M100 116 h4 v-12 h6 v12 h6 v-12 h4', 'sq');
+    else if (v.level > 0) box(99, 119 - 18 * v.level, 22, 18 * v.level, 'lvl', 1);
+    pa('M118 122 V166 H150', 'wire'); ci(150, 166, 2.6, 'jdot');
+    tx('sup', 38, 108, VS + ' V', 'lab', 'start'); tx('dc', 38, 124, 'DC', 'lab m', 'start');
+    tx('load', 84, 54, v.load === 'coil' ? R + ' Ω, 10 mH' : R + ' Ω', 'lab');
+    if (v.diode) tx('diode', 124, 14, 'diode', 'lab', 'start');
+    tx('dev', 158, 84, DEVN[v.dev], 'lab', 'start');
+    tx('drive', 114, 140, LEAD[v.dev] + ' drive', 'lab m', 'end');
+    tx('sink', 156, 146, 'heat sink', 'lab m', 'start');
+    const state = v.coil ? (v.opened ? ' The switch is open.' : ' The switch is fully on.') : v.sw ? ' The switch flips fully on and off.'
+      : v.s <= 0 ? ' The switch is off.' : v.s >= 1 ? ' The switch is fully on.' : ' The switch is part on.';
+    svg.setAttribute('aria-label', 'A DC supply feeds a ' + (v.load === 'coil' ? 'coil' : 'resistor') + ' through ' + DEVA[v.dev] + ', worked by its ' + LEAD[v.dev] + ' drive, with a heat sink.' + state +
+      (v.gauges === 'shown' ? ' A heat bar' + (v.therm ? ' and a junction thermometer stand' : ' stands') + ' beside it.' : ''));
+    FLOW = null;
+    if (v.show && !finished) {
+      if (v.flowMain) FLOW = [mk(MAINP, 12 + 3 * v.Inow, skipMain)];
+      else if (v.flowDiode) FLOW = [mk(DIODEP, 2 + 3.2 * v.Icoil, skipDiode)];
+    }
+  }
+  function dots() {
+    dotsG.textContent = '';
+    if (!FLOW || REDUCE) return;
+    FLOW.forEach((f) => {
+      for (let s = (PH * f.speed) % 22; s < f.len; s += 22) {
+        let k = 1;
+        while (k < f.lens.length - 1 && f.lens[k] < s) k++;
+        const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);
+        const x = K.lerp(a[0], b[0], u), y = K.lerp(a[1], b[1], u);
+        if (f.skip(x, y)) continue;
+        dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(x), cy: r2(y), r: 2.2 }));
+      }
+    });
+  }
+
+  // ---------- the heat bar and the junction thermometer: 0 W at the air's 40 °C, 320 W at 200 °C ----------
+  const BX = 220, BW = 14, GT = 26, GB = 176, GH = GB - GT, TXc = 305, BULBY = 188;
+  const yP = (P) => GB - Math.min(Math.max(P, 0), PTOP) / PTOP * GH;
+  const yT = (t) => GB - (K.clamp(t, TAIR, TTOP) - TAIR) / (TTOP - TAIR) * GH;
+  const Y150 = yT(TJMAX);
+  function drawGauges(v) {
+    into = gart; gart.textContent = ''; slots(el('glabs'), SL.glabs);
+    if (v.gauges === 'none') return;
+    const bx = BX + BW / 2;
+    box(BX, GT, BW, GH, 'gbox', 3);
+    tx('heat', bx, 214, 'heat', 'lab m');
+    if (v.therm) { box(TXc - 5, GT - 4, 10, BULBY - GT, 'gbox', 5); ci(TXc, BULBY, 10, 'gbox'); tx('junction', TXc, 214, 'junction', 'lab m'); }
+    if (v.gauges === 'hidden') {
+      tx('qbar', bx, GT + GH / 2 + 5, '?', 'lab q');
+      if (v.therm) tx('qth', TXc, BULBY + 5, '?', 'lab q');
+      return;
+    }
+    const g = add(K.svg('g'));
+    K.fade(g, v.gReveal, 0);
+    into = g;
+    let used = 0;
+    v.parts.forEach((pt) => {
+      const take = Math.max(0, Math.min(pt.P, PTOP - used));
+      if (take > 1e-6) box(BX + 2, yP(used + take), BW - 4, take / PTOP * GH, pt.cls, 1);
+      used += take;
+    });
+    if (v.P > PTOP) { head(bx, GT - 14, 0, -1, 9, 'headw'); REC.barOff = true; }
+    if (v.therm) {
+      const hot = v.Tj > TJMAX, cls = hot ? 'tcol hot' : 'tcol', yt = yT(v.Tj);
+      ci(TXc, BULBY, 7, cls); box(TXc - 3, yt, 6, BULBY - yt, cls, 0);
+      if (v.Tj > TTOP) { head(TXc, GT - 14, 0, -1, 9, 'headw'); REC.thermOff = true; }
+      REC.thermHot = hot;
+    }
+    into = gart;
+    if (v.therm) {
+      ln(TXc - 11, Y150, TXc + 11, Y150, 'm150');
+      tx('r150', TXc - 9, Y150 + 16, TJMAX + ' °C', 'lab m', 'end');
+      tx('air', TXc - 13, BULBY + 4, TAIR + ' °C', 'lab m', 'end');
+      if (v.Tj >= TAIR + 5 && v.Tj <= TTOP) K.fade(tx('reading', TXc - 9, yT(v.Tj) + 4, fx(v.Tj, 0) + ' °C', 'lab', 'end'), v.gReveal, 0);
+    }
+    if (v.mark220) {
+      const g2 = add(K.svg('g'));
+      K.fade(g2, v.mReveal, 0);
+      g2.appendChild(K.svg('line', { class: 'm220', x1: BX - 4, y1: r2(Y150), x2: v.therm ? TXc - 11 : BX + BW + 4, y2: r2(Y150) }));
+      K.fade(tx('r220', BX + BW + 4, Y150 - 5, fx(SHED, 0) + ' W', 'lab n', 'start'), v.mReveal, 0);
+      REC.mark = true;
+    }
+    if (v.sw) {
+      // The bar's two parts, keyed under the circuit.
+      const a = 'on ' + fx(P_ON, 0) + ' W', b = 'edges ' + fx(pEdges(v.fk), 0) + ' W', x2 = 22 + tw(a, 'lab') + 14;
+      box(4, 204, 12, 11, 'hb', 2); tx('kon', 22, 214, a, 'lab', 'start');
+      box(x2, 204, 12, 11, 'hbe', 2); tx('kedge', x2 + 18, 214, b, 'lab', 'start');
+    }
+  }
+
+  // ---------- the strip: the switch's voltage and the current, slowed down ----------
+  const SX0 = 48, SX1 = 330, VT = 36, VZ = 112, IT = 140, IZ = 178;
+  const yV = (x) => VZ - K.clamp(x, 0, VTOP) / VTOP * (VZ - VT);
+  const yI = (a) => IZ - K.clamp(a, 0, 20) / 20 * (IZ - IT);
+  function keyRow(y, items) {
+    const ws = items.map((it) => tw(it[2], 'lab'));
+    const total = items.reduce((t, it, k) => t + 22 + ws[k], 0) + 14 * (items.length - 1);
+    let x = Math.max(4, (340 - total) / 2);
+    items.forEach((it, k) => {
+      if (it[0] === 'line') ln(x, y - 4.5, x + 16, y - 4.5, it[1]);
+      else add(K.svg('rect', { class: it[1], x: r2(x + 2), y: y - 10, width: 12, height: 11, rx: 2, 'fill-opacity': '0.45' }));
+      tx(it[3], x + 22, y, it[2], 'lab', 'start');
+      x += 22 + ws[k] + 14;
+    });
+  }
+  function drawStrip(v) {
+    into = sart; sart.textContent = ''; slots(el('slabs'), SL.slabs);
+    if (!v.sw && !v.coil) { ssvg.setAttribute('aria-label', 'Not in use on this screen.'); return; }
+    const span = v.sw ? TWS : TWC, gx = (t) => SX0 + t / span * (SX1 - SX0);
+    const items = [['line', 'vtr', 'across the switch', 'k1'], ['line', 'itr', v.coil && v.load === 'coil' ? 'coil current' : 'current', 'k2']];
+    if (v.sw) items.push(['box', 'flash', 'edge heat', 'k3']);
+    keyRow(14, items);
+    ln(SX0, VT - 4, SX0, VZ, 'ax'); ln(SX0, VZ, SX1, VZ, 'ax'); ln(SX0, IT - 4, SX0, IZ, 'ax'); ln(SX0, IZ, SX1, IZ, 'ax');
+    ln(SX0, yV(VS), SX1, yV(VS), 'ref');
+    tx('v1000', 44, VT + 4, VTOP + ' V', 'lab m', 'end'); tx('v600', 44, yV(VS) + 4, VS + ' V', 'lab m', 'end'); tx('v0', 44, VZ + 4, '0', 'lab m', 'end');
+    tx('i20', 44, IT + 4, fx(VS / R, 0) + ' A', 'lab m', 'end'); tx('i0', 44, IZ + 4, '0', 'lab m', 'end');
+    const ticks = v.sw ? [0, 0.1, 0.2, 0.3] : [0, 0.5, 1, 1.5, 2];
+    ticks.forEach((t, k) => {
+      const x = gx(t), last = k === ticks.length - 1;
+      ln(x, IZ, x, IZ + 4, 'ax');
+      tx('t' + k, x, IZ + 18, fx(t, Math.abs(t - Math.round(t)) > 1e-9 ? 1 : 0) + (last ? ' ms' : ''), 'lab m', last ? 'end' : 'middle');
+    });
+    if (v.sw) {
+      const Tp = v.Tp, wE = edgeW(Tp) / span * (SX1 - SX0);
+      swEdges(Tp, span).forEach((c) => {
+        const near = v.show && CS ? Math.max(0, 1 - Math.abs(v.tc - c) / (0.04 * span)) : 0;
+        add(K.svg('rect', { class: 'flash', x: r2(gx(c) - wE / 2 - 3), y: VT - 2, width: r2(wE + 6), height: IZ - VT + 2, 'fill-opacity': (0.2 + 0.45 * near).toFixed(2) }));
+      });
+      const ts = swBreaks(Tp, span);
+      pa('M' + ts.map((t) => r2(gx(t)) + ' ' + r2(yV(swV(t, Tp)))).join('L'), 'vtr');
+      pa('M' + ts.map((t) => r2(gx(t)) + ' ' + r2(yI((VS - swV(t, Tp)) / R))).join('L'), 'itr');
+      if (v.show && CS) {
+        const xc = gx(v.tc), V = swV(v.tc, Tp);
+        ln(xc, VT - 4, xc, IZ, 'cur'); ci(xc, yV(V), 4.5, 'odot'); ci(xc, yI((VS - V) / R), 4, 'pdot');
+      }
+      ssvg.setAttribute('aria-label', 'The voltage across the switch and the current over a few cycles, slowed down. The switch flips between fully off and fully on, and each edge sweeps through half on, marked by a flash of heat.');
+      return;
+    }
+    const xo = gx(TO), tn = v.tnow;
+    ln(xo, VT - 4, xo, IZ, 'mark'); tx('open', xo - 5, 131, 'open', 'lab t', 'end');
+    let vd = 'M' + r2(gx(0)) + ' ' + r2(yV(VON)) + 'L' + r2(xo) + ' ' + r2(yV(VON));
+    let id = 'M' + r2(gx(0)) + ' ' + r2(yI(ION)) + 'L' + r2(xo) + ' ' + r2(yI(ION));
+    let words = ' The switch is still fully on.';
+    if (v.opened) {
+      const xe = r2(gx(tn));
+      if (v.load === 'res') {
+        vd += 'L' + r2(xo) + ' ' + r2(yV(VS)) + 'L' + xe + ' ' + r2(yV(VS));
+        id += 'L' + r2(xo) + ' ' + r2(yI(0)) + 'L' + xe + ' ' + r2(yI(0));
+        words = ' After opening, the current stops and the switch holds the supply, with no spike.';
+      } else if (!v.diode) {
+        pa('M' + r2(xo) + ' ' + r2(yV(VON)) + 'V' + (VT - 3), 'spk');
+        head(xo, VT - 13, 0, -1, 9, 'headw');
+        tx('spike', xo + 8, VT + 8, 'spike', 'lab w', 'start');
+        REC.spike = true;
+        pa(vd, 'vtr');
+        vd = 'M' + r2(xo + 2) + ' ' + r2(yV(VS)) + 'L' + xe + ' ' + r2(yV(VS));
+        id += 'L' + r2(xo) + ' ' + r2(yI(0)) + 'L' + xe + ' ' + r2(yI(0));
+        words = ' After opening with no diode, the voltage spikes off the top of the scale.';
+      } else {
+        vd += 'L' + r2(xo) + ' ' + r2(yV(VS + VF)) + 'L' + xe + ' ' + r2(yV(VS + VF));
+        for (let k = 1; k <= 60; k++) { const t = TO + (tn - TO) * k / 60; id += 'L' + r2(gx(t)) + ' ' + r2(yI(coilI((t - TO) / 1000))); }
+        tx('v601', SX1, yV(VS + VF) - 7, N.vd + ' V', 'lab n', 'end');
+        const tt = TO + TAU * 1000;
+        if (tn >= tt) {
+          const x2 = gx(tt);
+          ln(xo, 128, x2, 128, 'brk'); ln(xo, 124, xo, 132, 'brk'); ln(x2, 124, x2, 132, 'brk');
+          tx('tau', x2 + 5, 132, 'L ÷ R = ' + N.tau + ' ms', 'lab', 'start');
+        }
+        words = ' After opening with the diode, the voltage steps just above the supply and the coil current dies away round the diode.';
+      }
+    }
+    pa(vd, 'vtr'); pa(id, 'itr');
+    ssvg.setAttribute('aria-label', 'The voltage across the switch and the ' + (v.load === 'coil' ? 'coil' : 'load') + ' current, before and after the switch opens.' + words);
+  }
+
+  // ---------- one screen drawn in its state ----------
+  function render(i, p, st) {
+    REC = { texts: [], v: null, spike: false, thermHot: false, thermOff: false, barOff: false, mark: false };
+    latest = 0; earliest = Infinity;
+    const v = view(i, p, st);
+    REC.v = v;
+    art.textContent = ''; slots(el('clabs'), SL.clabs);
+    drawCircuit(v); drawGauges(v); drawStrip(v);
+    into = null;
+    return REC;
+  }
+  function drawPlot(v) {
+    if (!v.plot) return;
+    const top = 100 * v.plotK, pts = [];
+    for (let g = 0; g < top; g += 1) pts.push([g, watts(g / 100)]);
+    pts.push([top, watts(top / 100)]);
+    if (pts.length < 2) pts.push([top + 0.5, watts((top + 0.5) / 100)]);
+    hplot.draw({
+      x: { min: 0, max: 100, label: LEADC[v.dev] + ' setting (%)' }, y: { min: 0, max: 3200, label: 'Heat in the switch (W)' },
+      series: [{ points: pts }], marks: v.plotK >= 1 ? [{ x: v.s * 100, y: watts(v.s) }] : [],
+    });
+  }
+  function paint() {
+    const i = at(), R = render(i, K.params(), S[i]);
+    drawPlot(R.v);
+    if (STEPS[i].show && !finished) el('say').textContent = sayFor(R.v);
+  }
+
+  // ---------- what Dan reads under the picture ----------
+  function junctionSay(t) {
+    if (t > TTOP) return ' The junction would pass ' + TTOP + ' °C, far beyond its ' + TJMAX + ' °C rating.';
+    if (t > TJMAX) return ' The junction is over its ' + TJMAX + ' °C rating.';
+    return ' The junction sits at ' + fx(t, 0) + ' °C.';
+  }
+  function sayFor(v) {
+    if (v.coil) {
+      if (!v.opened) return 'Fully on, ' + N.ion + ' A flows through the ' + (v.load === 'coil' ? 'coil' : 'resistor') + ' and the switch.';
+      if (v.load === 'res') return 'With a resistor, the current simply stops. The switch sees the ' + VS + ' V supply, with no spike.';
+      if (!v.diode) return 'The switch is open, and the coil\'s current has nowhere to go. So its voltage spikes far above the supply, across the switch.';
+      return 'The switch is open. The coil\'s current flows round the diode and dies away, so the switch sees only about ' + N.vd + ' V.';
+    }
+    const jt = v.therm ? junctionSay(v.Tj) : '';
+    if (v.sw) return 'Flipping fully on and off at ' + v.fk + ' kHz, the switch makes ' + fx(P_ON, 0) + ' W while on and ' + fx(pEdges(v.fk), 0) + ' W in its edges. That is ' + fx(v.P, 0) + ' W in all.' + jt;
+    const g = Math.round(v.s * 100);
+    if (g === 0) return 'Off, the whole ' + VS + ' V sits across the switch, but almost no current flows. So it makes almost no heat.' + jt;
+    if (g === 100) return 'Fully on, only ' + fx(vsw(1), 0) + ' V sits across the switch while ' + N.ion + ' A flows. So it makes only about ' + fx(watts(1), 0) + ' W.' + jt;
+    return 'With the ' + LEAD[v.dev] + ' at ' + g + '%, the switch takes ' + fx(vsw(v.s), 0) + ' V and passes ' + fx(amps(v.s), 1) + ' A at once. So it turns ' +
+      fx(watts(v.s), 0) + ' W into heat.' + (g === 50 ? ' That is the top of the hump.' : '') + jt;
+  }
+  function settingFor(v) {
+    const parts = [DEVN[v.dev]];
+    if (v.coil) parts.push(v.load === 'coil' ? R + ' Ω, 10 mH coil' : R + ' Ω resistor', v.diode ? 'diode fitted' : 'no diode', v.opened ? 'opened' : 'fully on');
+    else if (v.sw) parts.push('switching at ' + v.fk + ' kHz', R + ' Ω resistor');
+    else parts.push(LEAD[v.dev] + ' ' + Math.round(v.s * 100) + '%', R + ' Ω resistor');
+    return parts.join(' · ');
+  }
+  function showEl(id, on) { const e = el(id); if (e.hidden && on) enter(id); e.hidden = !on; }
+  function layout(i, d, st, p, v) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    const vs = visIds(d, p), has = (id) => vs.indexOf(id) >= 0;
+    devCtl.el.hidden = !has('dev'); modeCtl.el.hidden = !has('mode'); loadCtl.el.hidden = !has('load');
+    el('sw').hidden = !(has('dev') || has('mode') || has('load'));
+    gateCtl.el.hidden = !has('gate'); fCtl.el.hidden = !has('f');
+    el('ctl').hidden = !(has('gate') || has('f'));
+    diodeCtl.el.hidden = !has('diode'); openBtn.el.hidden = !(d.show && d.coil); playBtn.el.hidden = !(d.show && v.sw);
+    el('ctl2').hidden = diodeCtl.el.hidden && openBtn.el.hidden && playBtn.el.hidden;
+    const lab = gateCtl.el.querySelector('.k-field-label');
+    if (lab) lab.textContent = LEADC[v.dev];
+    showEl('stripbox', v.sw || v.coil);
+    showEl('hbox', v.plot);
+    el('hlab').textContent = 'Heat against the ' + LEAD[v.dev] + ' setting';
+    showEl('outs', !v.coil && (d.show || d.outs === 'before' || right));
+    rV.el.hidden = v.sw; rI.el.hidden = v.sw; rP.el.hidden = false;
+    const outs = el('outs');
+    if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }
+    else if (el('hbox').previousElementSibling !== outs) el('hbox').before(outs);
+    el('say').hidden = !d.show;
+    el('say').textContent = d.show ? sayFor(v) : '';
+    el('setting').hidden = !!d.show;
+    el('setting').textContent = d.show ? '' : settingFor(v);
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? d.rightFb || 'That\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+  write(el('finish'), FINISH);
+
+  function enterStep(i) {
+    lastStep = i; enter('stepbox'); CS = null; OS = null; SW = null; DS = null; T = Infinity;
+    const d = STEPS[i], right = S[i].res === 'right', q = setupOf(i, right);
+    IDS.forEach((id) => CTL[id].set(q[id], true));
+    CUR = 1; SOF = d.coil && (d.show || right) ? 1 : 0; lastDiode = !!q.diode; lastLoad = q.load;
+    if (d.show && d.play) {
+      if (d.play === 'cursor') startCursor(FADE);
+      else if (d.play === 'open') startOpen(FADE);
+      else if (d.play === 'devs') startDevs(FADE);
+      else startSweep({ [d.play.id]: d.play.to }, DEMO, FADE, { [d.play.id]: d.play.from });
+    }
+  }
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!motion.playing()) settle();
+    if (i !== lastStep) { enterStep(i); K.refresh(); return; }
+    if (SW) { for (const id of Object.keys(SW.to)) if (+p[id] !== SW.last[id]) { SW = null; break; } }   // Dan took hold of the slider
+    if (DS && p.dev !== DS.last) DS = null;
+    if (!pinning) {
+      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.
+      const q = setupOf(i, st.res === 'right'), vs = visIds(d, p);
+      let fix = false;
+      IDS.forEach((id) => {
+        if (vs.indexOf(id) >= 0 || (SW && SW.to[id] != null) || (DS && id === 'dev')) return;
+        if (String(p[id]) !== String(q[id])) { CTL[id].set(q[id], true); fix = true; }
+      });
+      if (fix) { pinning = true; K.refresh(); pinning = false; return; }
+    }
+    if (d.coil && d.show && (!!p.diode !== lastDiode || p.load !== lastLoad)) { lastDiode = !!p.diode; lastLoad = p.load; startOpen(0); }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const R = render(i, p, st);
+    layout(i, d, st, p, R.v);
+    drawPlot(R.v);
+    dots();
+    kick();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  function drawnAt(i, over, right) {
+    const keep = [T, CUR, SOF];
+    T = Infinity; CUR = 1;
+    SOF = STEPS[i].coil && (right || STEPS[i].show) ? 1 : 0;
+    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }
+    finally { T = keep[0]; CUR = keep[1]; SOF = keep[2]; paint(); }
+  }
+  K.check('Fully on, 2 V across the switch meets (600 − 2) ÷ 30 = 19.9 A, about 40 W. Fully off, the whole 600 V meets no current, so no heat', () => {
+    const a = K.at({ mode: 'steady', gate: 100 }), b = K.at({ mode: 'steady', gate: 0 });
+    return fx(a.vSwitch, 0) === '2' && fx(a.current, 1) === '19.9' && fx(a.heat, 0) === '40' && b.vSwitch === VS && b.current === 0 && b.heat === 0;
+  });
+  K.check('Half on, the switch takes 300 V and passes 10 A at once: 3000 W, the top of the hump, V² ÷ (4R) = 600² ÷ 120', () => {
+    const h = K.at({ mode: 'steady', gate: 50 });
+    if (!(K.near(h.vSwitch, 300, 1e-9) && K.near(h.current, 10, 1e-9) && K.near(h.heat, VS * VS / (4 * R), 1e-6) && N.ph === '3000' && N.r4 === '120')) return false;
+    for (let g = 0; g <= 100; g += 5) if (g !== 50 && !(K.at({ mode: 'steady', gate: g }).heat < h.heat)) return false;
+    return true;
+  });
+  K.check('The heat rises all the way from off to half on, and the hump is the same either side of half on', () => {
+    for (let g = 5; g <= 50; g += 5) if (!(watts(g / 100) > watts((g - 5) / 100))) return false;
+    for (let g = 5; g < 50; g += 5) if (!K.near(watts(g / 100), watts(1 - g / 100), 1e-6)) return false;
+    return true;
+  });
+  K.check('At 90% the switch takes 60 V and passes 18 A: 60 × 18 = 1080 W, about five times the 220 W the heat sink can shed', () => {
+    const a = K.at({ mode: 'steady', gate: 90 });
+    return fx(a.vSwitch, 0) === '60' && fx(a.current, 1) === '18.0' && fx(a.heat, 0) === '1080' && N.x5 === '5' && N.shed === '220';
+  });
+  K.check('The junction reads 40 + 0.5 × the heat: 60 °C fully on, while 3000 W would lift it 1500 °C. A rise of 150 − 40 = 110 °C lets the sink shed 110 ÷ 0.5 = 220 W', () =>
+    N.tj40 === '60' && N.rise40 === '20' && N.rise3k === '1500' && N.room === '110' && K.near(SHED, 220, 1e-9) && K.near(tj(SHED), TJMAX, 1e-9) && N.x13 === 13);
+  K.check('The switching losses are the product of switching energies and the switching frequency: 2 mJ a cycle makes 20 W at 10 kHz and 40 W at 20 kHz', () =>
+    K.near(pEdges(10), 20, 1e-9) && K.near(pEdges(20), 40, 1e-9) && K.near(2 * EEDGE, 2e-3, 1e-15) &&
+    K.near(K.at({ mode: 'switch', f: 20 }).heat - K.at({ mode: 'switch', f: 10 }).heat, 20, 1e-9), { source: INF1 });
+  K.check('An edge sweeps straight through the hump, which averages a sixth of 600 V × 20 A = 2000 W, so 0.5 µs costs 1 mJ', () => {
+    let a = 0;
+    const n = 6000;
+    for (let j = 0; j < n; j++) { const x = VS * (j + 0.5) / n; a += x * (VS - x) / R / n; }
+    return K.near(a, 2000, 0.01) && K.near(EEDGE, 1e-3, 1e-12) && N.hump === '2000' && N.e1 === '1' && N.e2 === '2';
+  });
+  K.check('Switching at 10 kHz: 20 W on and 20 W in the edges, 40 W in all, with the junction at 60 °C. At 20 kHz: 60 W in all and 70 °C', () =>
+    fx(K.at({ mode: 'switch', f: 10 }).heat, 0) === '40' && N.pon === '20' && N.pe10 === '20' && N.tj10 === '60' &&
+    fx(K.at({ mode: 'switch', f: 20 }).heat, 0) === '60' && N.pt20 === '60' && N.tj20 === '70');
+  K.check('The IGBT should not be operated in linear mode, as this causes excessive conduction losses: held half on it makes 3000 W, about 75 times the 40 W it makes switching at 10 kHz', () =>
+    K.near(K.at({ dev: 'igbt', mode: 'steady', gate: 50 }).heat / K.at({ dev: 'igbt', mode: 'switch', f: 10 }).heat, 75, 0.5) && N.ratio === '75', { source: INF6 });
+  K.check('Silicon diodes have a forward voltage of approximately 0.7 volts, so with the freewheeling diode the open switch sees 600 + 0.7, about 601 V', () =>
+    N.vd === '601' && drawnAt(10, { load: 'coil', diode: true }, false).texts.indexOf('601 V') >= 0, { source: AAC });
+  K.check('Round the diode, the coil\'s current dies away with a time constant of L ÷ R = 10 mH ÷ 30 Ω, about 0.33 ms', () => {
+    const r = coilI(TAU) / coilI(0);
+    return N.tau === '0.33' && K.near(coilI(0), ION, 1e-9) && r > 0.36 && r < 0.37 && coilI(0.01) === 0;
+  });
+  K.check('With no diode, opening the switch on the coil sends its voltage off the top of the 1000 V scale. With the diode, or with a resistor, it does not', () =>
+    drawnAt(10, { load: 'coil', diode: false }).spike && !drawnAt(10, { load: 'coil', diode: true }).spike && !drawnAt(10, { load: 'res' }).spike);
+  K.check('A BJT, a MOSFET and an IGBT each make 3000 W half on. Only the symbol and the name of the control lead change', () =>
+    ['bjt', 'mosfet', 'igbt'].every((x) => K.near(K.at({ dev: x, mode: 'steady', gate: 50 }).heat, 3000, 1e-6)) &&
+    drawnAt(6, { dev: 'bjt' }).texts.indexOf('base drive') >= 0 && drawnAt(6, { dev: 'mosfet' }).texts.indexOf('gate drive') >= 0);
+  K.check('The thermometer reads 60 °C fully on. Half on it passes 150 °C and runs off the top, and so does the heat bar', () => {
+    const a = drawnAt(4, { gate: 100 }), b = drawnAt(4, { gate: 50 });
+    return a.texts.indexOf(N.tj40 + ' °C') >= 0 && !a.thermHot && !a.thermOff && !a.barOff && b.thermHot && b.thermOff && b.barOff;
+  });
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and the picture keeps the answer hidden until a right Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      const b = drawnAt(i, null, false), bt = b.texts.slice(), bv = b.v;
+      const a = drawnAt(i, null, true), av = a.v;
+      const shows = (d.shows || []).every((s) => bt.indexOf(s) < 0 && a.texts.indexOf(s) >= 0);
+      const gauge = !d.hideGauge || (bv.gauges === 'hidden' && av.gauges === 'shown');
+      return shows && gauge && (!d.hidePlot || !bv.plot);
+    }));
+  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () =>
+    DEMO + FADE <= 4.5 && ANS + K.SOFT <= 3);
+  K.check('Every number in the words comes from the rule: 20, 19.9, 40, 300, 10, 3000, 120, 60, 1500, 110, 220, 55, 1 and 2 mJ, 20, 40, 60, 70, 75, 601, 0.33, 18 and 1080', () =>
+    N.i20 === '20' && N.ion === '19.9' && N.p40 === '40' && N.vh === '300' && N.ih === '10' && N.ih1 === '10.0' && N.ph === '3000' && N.r4 === '120' &&
+    N.tj40 === '60' && N.rise3k === '1500' && N.room === '110' && N.shed === '220' && N.wrong55 === '55' && N.wrong300 === '300' && N.e1 === '1' &&
+    N.e2 === '2' && N.pe10 === '20' && N.pon === '20' && N.pt10 === '40' && N.pe20 === '40' && N.pt20 === '60' && N.tj20 === '70' && N.pe5 === '10' &&
+    N.vavg === '300' && N.ratio === '75' && N.vd === '601' && N.tau === '0.33' && N.v90 === '60' && N.i90 === '18' && N.p90 === '1080');
+
+  K.ready();
+</script>

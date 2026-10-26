@@ -1,0 +1,818 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Inverting: building AC from DC",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the pulses narrow and their average sine shrink, from the same fixed 540 V link, when you drag the reference’s depth down.",
+   "title": "Sine from pulses",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "topOn",
+     "label": "Top switch on, first leg",
+     "unit": "%",
+     "decimals": 0
+    },
+    {
+     "id": "avgNow",
+     "label": "Average at the cursor",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "outRms",
+     "label": "Output sine, rms",
+     "unit": "V",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in fourteen small screens. Most show one picture, sine from pulses. At the top sits a 540 V DC link. That is about what a three-phase bridge gives from a 400 V supply: 1.35 × 400 V.[^1] A picker chooses the circuit: One leg, H-bridge or Three legs. A leg is two IGBTs in series across the link. Each IGBT has its freewheeling diode. The leg's output sits between them. A switch that is on is drawn bold. In H-bridge a second leg mirrors the first. Its top switch is on whenever the first leg's bottom one is. A motor winding sits between the outputs. Its 5 Ω and 20 mH are both chosen. In Three legs, a star-connected motor has three such phases.\n\nFive sliders stack below. Depth is the reference's height as a share of the triangle's, 0% to 100% in steps of 5%. Reference frequency runs from 5 Hz to 50 Hz in steps of 5 Hz. Carrier frequency runs from 0.5 kHz to 3 kHz in steps of 0.5 kHz. Dead time runs from 0 µs to 100 µs in steps of 5 µs. A time cursor runs from 0° to 360° of the reference's first cycle, in steps of 5°.\n\nThree plots share one time axis, 40 ms long and slowed down. It holds two cycles at 50 Hz, or one at 25 Hz. The top plot shows a triangle, the carrier, between −1 and +1. Over it runs a sine, the reference, as tall as the depth. In Three legs there are three references, each 120° behind the last. Where a leg's reference is above the triangle, its top switch is on. Below it, its bottom switch is on.\n\nThe middle plot is the output voltage. In One leg it is the leg against the lower rail, 540 V or 0 V. In H-bridge it is the winding, +540 V or −540 V. In Three legs it is the first two lines, +540 V, 0 V or −540 V. A dashed line is the pulses' average over each switching cycle. A leg's average is D × 540 V. D is its top switch's share of the cycle. The reference sets D: D = 50% + 50% × depth × the reference's value. So the dashed line traces the sine. In H-bridge the winding sees the first leg's average less the mirror leg's. That is (2D − 1) × 540 V, with a peak of depth × 540 V. In Three legs each leg's average swings depth × 270 V either side of 270 V. Two sines 120° apart differ by a sine √3 times as tall. So the peak between lines is depth × 1.732 × 270 V. At full depth that is 468 V.\n\nThe bottom plot is the motor's current, drawn without a scale. It is stepped through time from v = L di/dt and the resistance. It follows the dashed average with a small sawtooth. The sawtooth's height falls in proportion as the carrier frequency rises. One leg has none.\n\nEach IGBT takes 5 µs to stop conducting. That lag is chosen so it can be seen. At each edge the outgoing switch is turned off. The incoming one turns on after the dead time. A dead time shorter than the lag lets both conduct at once. That shows as a red path across the link, marked Shoot-through. In the gap the current flows on through one of the diodes. Its direction picks which one. So each leg loses dead time × carrier frequency × 540 V of average, against the current. The winding loses twice that. That is about 22 V at 20 µs and 1 kHz, and 108 V at 100 µs. Near each zero this loss stalls the small current. The sine flattens there. On the two dead-time screens the dashed line is the drawn pulses' own average over each cycle. So it carries that loss.\n\nThree readouts wrap onto two lines on a narrow phone. The first is the first leg's D at the cursor. The second is the dashed line's value there. The third is the rms of the averaged sine, without the dead time's loss. In H-bridge the rms is depth × 540 V ÷ √2, 382 V at full depth. In Three legs it is depth × 468 V ÷ √2, 331 V. One leg hides the rms.\n\nThe last screen is a card of three block chains. It is a picture, not buttons. An online UPS: supply, rectifier, DC link with its battery, inverter, load. A drive: the same without the battery, feeding a motor. A shore converter: 50 Hz port grid, rectifier, DC link, inverter, 60 Hz vessel network.\n\nNow the screens. Unless a screen says otherwise, it opens at 50 Hz, carrier 1 kHz, dead time 20 µs and cursor 90°. Its still is the picture as it opens.\n\n1, a puzzle: Three legs, depth 100%, the readouts and plots hidden. “A drive runs a 400 V, 50 Hz motor at 25 Hz. What voltage does it give the motor?” Offered: “About 200 V”; “400 V, as at full speed”; “About 800 V”. Hint for 400 V: “At half the frequency the winding's reactance halves. Full voltage would drive too much current.” Hint for 800 V: “A slower motor needs less voltage, not more.” Why: “About 200 V. Below rated speed, a simple drive holds the volts per hertz about steady. That is 400 ÷ 50 = 8 V per hertz, and 8 × 25 = 200 V. Yet its DC link sits at a steady 540 V. So the switching must set both the voltage and the frequency.” A right Check shows the plots and readouts.\n\n2, show: One leg. One leg, depth 60%. The words: “One leg is two switches in series across the 540 V DC link. With the top switch on, the output sits at 540 V. With the bottom switch on, it sits at 0 V. That is lesson 6's chopper. So over each switching cycle its average is D × 540 V. Hold D at 50%, and the average sits at 270 V. Let D rise and fall like a sine, and the average traces that sine.” Read: with D following a sine between 20% and 80%, the pulses are wide where the dashed average is high. The average traces a sine from 108 V to 432 V.\n\n3, a puzzle: One leg, depth 60%. Top switch on reads 80%. The average is hidden. “At the cursor, the top switch is on for 80% of each switching cycle. What is the leg's average voltage there?” Offered: “432 V”; “540 V, as the top switch joins the link”; “108 V”. Hint for 540 V: “Only while it is on. What about the other 20%?” Hint for 108 V: “That is the bottom switch's share of 540 V.” Why: “432 V. D × 540 V = 0.8 × 540 = 432 V. That is the top of this leg's sine.” A right Check shows the average, 432 V.\n\n4, show: Sine meets triangle. One leg, depth 60%. The words: “Something must set D, moment by moment. Draw the sine you want: the reference. Draw a fast triangle across it: the carrier. Where the reference is above the triangle, the top switch is on. Where it is below, the bottom switch is on. Near the sine's peak the pulses are wide. Near its trough they are thin. How tall the reference is, as a share of the triangle, is its depth. This is pulse width modulation, PWM.” Read: each edge sits where the sine crosses the triangle. Near the sine's peak, the reference is above it for 80% of each cycle.\n\n5, a puzzle: One leg, depth 60%, cursor at 0°, the readouts hidden. “At the cursor the reference crosses zero, halfway up the triangle. For what share of each switching cycle is the top switch on?” Offered: “Half of it, 50%”; “None of it, 0%”; “All of it, 100%”. Hint for 0%: “Zero is the middle of the triangle, not its bottom.” Hint for 100%: “The triangle rises above the reference for part of each cycle. How much?” Why: “50%. The reference sits halfway up the triangle. So it is above the triangle for half of each cycle. The average is 0.5 × 540 = 270 V. That is the middle of this leg's sine.” A right Check shows the readouts: 50% and 270 V.\n\n6, show: The H-bridge. H-bridge, depth 60%. The words: “One leg's average never goes below 0 V. So add a second leg, run as the mirror of the first. Put the motor winding between their outputs. One diagonal pair of switches gives the winding +540 V. The other diagonal gives it −540 V. Both legs share the same 270 V middle, so it cancels. What is left is a sine centred on zero: AC. Its peak is the depth times 540 V.” Read: the winding sees pulses of ±540 V. Their average is a sine peaking at 324 V each way, 229 V rms.\n\n7, a puzzle: H-bridge, depth 50%. Top switch on reads 75%. The other readouts are hidden. “The first leg's top switch is on 75% of the time. So the mirror leg's is on 25%. What average voltage does the winding see?” Offered: “270 V”; “405 V, the first leg's average”; “0 V, as the legs cancel”. Hint for 405 V: “The winding sits between the two legs. Take away the mirror leg's average.” Hint for 0 V: “They cancel only when both legs are on for the same share.” Why: “270 V. The first leg averages 0.75 × 540 = 405 V. The mirror leg averages 0.25 × 540 = 135 V. The winding sits between them, so it sees 405 − 135 = 270 V.” A right Check shows the average, 270 V, and the output, 191 V rms.\n\n8, show: The winding smooths it. H-bridge, depth 100%, the carrier going from 1 kHz to 3 kHz. The words: “The winding has inductance. A coil keeps its current going. It changes that current only as fast as its voltage allows. Each pulse is too short to swing the current far. So the motor filters the pulses into a near-sine current that follows their average.[^2] A small sawtooth rides on it at each switching edge. Raise the carrier frequency, and each pulse is shorter. The sawtooth shrinks, and the sine stays.” Read: at 3 kHz the sawtooth is about a third as tall as at 1 kHz. The sine and its 382 V rms are unchanged. Still: carrier 3 kHz.\n\n9, a puzzle: H-bridge, depth 100%. “You double the carrier frequency to 2 kHz. What happens to the frequency of the motor's current?” Offered: “It stays at 50 Hz”; “It doubles to 100 Hz”; “It rises to 2 kHz”. Hint for 100 Hz: “The carrier sets how often the switches change, not the sine their average traces.” Hint for 2 kHz: “The sawtooth is at the carrier's rate. What about the sine under it?” Why: “It stays at 50 Hz, the reference's frequency. The faster carrier only makes the sawtooth finer. But every switching edge makes heat in the switch, as lesson 4 showed. So a faster carrier buys a smoother current with hotter switches.” A right Check sets the carrier to 2 kHz.\n\n10, show: Three legs, two knobs. Three legs, depth 100%. The words: “A three-phase motor needs three sines, 120° apart. So each of three legs gets its own reference, 120° behind the last, against one shared carrier.[^3] At full depth each leg's average swings 270 V about its middle. The voltage between two lines is the difference of two legs: √3 × 270 = 468 V peak, or 331 V rms. The drive now has two knobs. The reference's frequency sets the output frequency. Its depth sets the voltage.[^4]” Read: three references, 120° apart, cross one triangle. The line pulses average to a sine peaking at 468 V, 331 V rms, at 50 Hz.\n\n11, a puzzle: Three legs, depth 100%, the output at 331 V. “The drive must give the motor 200 V at 25 Hz, from the same 540 V link. What does it change?” Offered: “Reference to 25 Hz, depth to 60%”; “The carrier, to half its frequency”; “The DC link, down to 200 V”. Hint for the carrier: “The carrier sets the sawtooth, not the sine.” Hint for the DC link: “The link stays at 540 V. Only the switching changes.” Why: “Reference to 25 Hz, depth to 60%. The frequency follows the reference. The voltage follows the depth: 200 ÷ 331 = 0.60. At 60% the readout gives 198 V, near enough 200 V. Sine-triangle PWM tops out at 331 V from this link.” A right Check sets 25 Hz and 60%. One cycle fills the axis, and the readout shows 198 V.\n\n12, show: Dead time. H-bridge, depth 30%, the dead time going from 0 µs to 20 µs. The words: “An IGBT turns off more slowly than it turns on. Switch a leg's pair over at once, and both conduct for a moment. That shorts the 540 V link through the leg: a shoot-through. So each leg leaves a short gap with both switches off. That gap is the dead time, drawn long here so it shows.[^5] Each gap costs a little voltage, always against the current.” Read: with no dead time, both switches in a leg conduct at every edge. A red path crosses the link. At 20 µs the red is gone. The dashed average drops about 22 V against the current. The current has a small flat near each zero.\n\n13, a mixed puzzle: H-bridge, depth 30%. “The dead time is raised to 100 µs. What happens to the motor's current?” Offered: “It flattens near each zero”; “A shoot-through, as at zero”; “Nothing, as a longer gap is only safer”. Hint for shoot-through: “A longer gap keeps the two switches further apart in time, not closer.” Hint for nothing: “Each gap costs voltage against the current. What does five times the gap do?” Why: “It flattens near each zero. Each gap costs voltage against the current. Now it costs five times as much. Near each zero the current is small. So the loss stalls it. Dead time trades two faults. Too short shorts the link. Too long distorts the output.[^6] So it is kept as short as the turn-off allows.” A right Check sets 100 µs, and the current flattens near each zero.\n\n14, a mixed puzzle: the card of three chains. “An online UPS keeps its battery on the DC link. The mains supply fails. What does the load see?” Offered: “No break, as the inverter runs on from the battery”; “A short break while it changes over”; “No supply until the bypass closes”. Hint for a short break: “The inverter was already feeding the load. What changes on its input side?” Hint for the bypass: “The bypass feeds the load from the mains. The mains has gone.” Why: “No break. In double conversion the inverter feeds the load all the time. It runs from the DC link. When the mains fails, the battery holds up the link. The inverter carries on. That is zero transfer time.[^7] A drive is the same chain, without the battery, feeding a motor. A shore converter is the same chain again, turning 50 Hz into 60 Hz.[^8]” A right Check lights the battery's path through the inverter to the load.\n\nEach puzzle offers three answers, stacked, each free to wrap. A wrong pick gets its hint. Why? explains. Continue moves on.",
+   "ignores": "The switches and diodes are drawn ideal, apart from the turn-off lag that dead time covers. Real ones drop a little voltage and make heat. The DC link is drawn as a steady 540 V. Lesson 3 showed it sits a little higher at light load. It also ripples. The winding is a fixed 5 Ω and 20 mH. A turning motor also makes a voltage of its own, which this picture leaves out. Time is slowed. The carrier’s range is chosen so each pulse can be seen. The dead time and turn-off lag are drawn longer than usual, so their effects show. Sine-triangle PWM tops out at 331 V between lines from 540 V.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 14 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Supply line voltage, chosen, V",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "DC link per line volt, about",
+     "value": 1.35,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "DC link, 1.35 × 400, V",
+     "value": 540,
+     "kind": "computed"
+    },
+    {
+     "label": "Winding resistance, chosen, Ω",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Winding inductance, chosen, mH",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Depth slider, lowest, %",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Depth slider, highest, %",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Depth slider step, %",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Reference frequency slider, lowest, Hz",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Reference frequency slider, highest, Hz",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Reference frequency slider step, Hz",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Carrier frequency slider, lowest, kHz",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Carrier frequency slider, highest, kHz",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Carrier frequency slider step, kHz",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Dead time slider, lowest, µs",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Dead time slider, highest, µs",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Dead time slider step, µs",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor, lowest, degrees",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor, highest, degrees",
+     "value": 360,
+     "kind": "control"
+    },
+    {
+     "label": "Time cursor step, degrees",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Time axis length, ms",
+     "value": 40,
+     "kind": "assumed"
+    },
+    {
+     "label": "Turn-off lag drawn, chosen, µs",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Carrier peak either way, in reference units",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Phase shift between legs, degrees",
+     "value": 120,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Opening depth, most screens, %",
+     "value": 60,
+     "kind": "control"
+    },
+    {
+     "label": "Opening reference frequency, Hz",
+     "value": 50,
+     "kind": "control"
+    },
+    {
+     "label": "Opening carrier frequency, kHz",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "Opening dead time, µs",
+     "value": 20,
+     "kind": "control"
+    },
+    {
+     "label": "Opening cursor, degrees",
+     "value": 90,
+     "kind": "control"
+    },
+    {
+     "label": "Motor rated voltage in the recall, chosen, V",
+     "value": 400,
+     "kind": "assumed"
+    },
+    {
+     "label": "Motor rated frequency in the recall, chosen, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Recall running frequency, chosen, Hz",
+     "value": 25,
+     "kind": "assumed"
+    },
+    {
+     "label": "Volts per hertz, 400 ÷ 50",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Recall voltage, 8 × 25, V",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong answer, twice 400, V",
+     "value": 800,
+     "kind": "computed"
+    },
+    {
+     "label": "One leg middle, 50% of 540, V",
+     "value": 270,
+     "kind": "computed"
+    },
+    {
+     "label": "D range at 60% depth, lowest, %",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "D range at 60% depth, highest, %",
+     "value": 80,
+     "kind": "computed"
+    },
+    {
+     "label": "Leg average at D = 20%, V",
+     "value": 108,
+     "kind": "computed"
+    },
+    {
+     "label": "Leg average at D = 80%, V",
+     "value": 432,
+     "kind": "computed"
+    },
+    {
+     "label": "D at the reference zero, %",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "D at the reference zero, as a fraction",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "D at 80%, as a fraction",
+     "value": 0.8,
+     "kind": "computed"
+    },
+    {
+     "label": "H-bridge peak at 60% depth, V",
+     "value": 324,
+     "kind": "computed"
+    },
+    {
+     "label": "H-bridge rms at 60% depth, V",
+     "value": 229,
+     "kind": "computed"
+    },
+    {
+     "label": "H-bridge first leg at 50% depth, cursor 90°, %",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "Mirror leg at the same moment, %",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "D at 75%, as a fraction",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "D at 25%, as a fraction",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "First leg average, 0.75 × 540, V",
+     "value": 405,
+     "kind": "computed"
+    },
+    {
+     "label": "Mirror leg average, 0.25 × 540, V",
+     "value": 135,
+     "kind": "computed"
+    },
+    {
+     "label": "Winding average, 405 − 135, V",
+     "value": 270,
+     "kind": "computed"
+    },
+    {
+     "label": "H-bridge rms at 50% depth, V",
+     "value": 191,
+     "kind": "computed"
+    },
+    {
+     "label": "H-bridge rms at full depth, V",
+     "value": 382,
+     "kind": "computed"
+    },
+    {
+     "label": "Carrier in screen 8, raised to, kHz",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Sawtooth at 3 kHz against 1 kHz, about",
+     "value": 0.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Carrier in screen 9, doubled to, kHz",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Wrong answer, doubled output, Hz",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Square root of 3, about",
+     "value": 1.732,
+     "kind": "constant"
+    },
+    {
+     "label": "Three legs line peak at full depth, V",
+     "value": 468,
+     "kind": "computed"
+    },
+    {
+     "label": "Three legs line rms at full depth, V",
+     "value": 331,
+     "kind": "computed"
+    },
+    {
+     "label": "Depth for 200 V, 200 ÷ 331",
+     "value": 0.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Depth for 200 V, %",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Three legs line rms at 60% depth, V",
+     "value": 198,
+     "kind": "computed"
+    },
+    {
+     "label": "Depth in the dead-time screens, %",
+     "value": 30,
+     "kind": "control"
+    },
+    {
+     "label": "H-bridge peak at 30% depth, V",
+     "value": 162,
+     "kind": "computed"
+    },
+    {
+     "label": "Winding loss at 20 µs and 1 kHz, about, V",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Winding loss at 100 µs and 1 kHz, V",
+     "value": 108,
+     "kind": "computed"
+    },
+    {
+     "label": "Dead time raised to, µs",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Gap raised by, times",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Port grid frequency on the card, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Vessel network frequency on the card, Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Line voltage factor, √3 ÷ (2√2), about",
+     "value": 0.612,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example supply and motor voltage, chosen, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example motor frequency, chosen, Hz",
+     "value": 60,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example running frequency, chosen, Hz",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example link, 1.35 × 440, V",
+     "value": 594,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example full-depth line voltage, V",
+     "value": 364,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example voltage at 30 Hz, V",
+     "value": 220,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example depth, %",
+     "value": 60,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An inverter builds AC from DC with switches kept fully on or fully off. It varies how long each switch stays on, cycle by cycle. The average voltage then traces a sine. The motor's inductance smooths the current. So the current follows that average.\n\nStart from lesson 6. A leg is two switches in series across the DC link, with the output between them. Over each switching cycle, its average is D × the link voltage. Make D rise and fall like a sine, and the average rises and falls like that sine. To set D, compare the sine you want with a fast triangle. The sine is the reference. The triangle is the carrier. The top switch is on whenever the reference is above the triangle. This is [[pulse width modulation]], PWM. Run a second leg as the mirror of the first, and put the load between them. That is an [[H-bridge]]. Its average swings either side of zero: AC. Three legs, with references 120° apart, give three-phase.\n\nSo the reference sets two things. Its frequency is the output frequency. Its depth is its height as a share of the triangle's. Its depth sets the duty cycles, and so the output voltage.[^4] Take the 540 V link that a 400 V supply gives. At full depth each leg's average swings 270 V either side of its middle. Between two legs 120° apart, that becomes √3 × 270 = 468 V peak. That is 331 V rms. For 200 V at 25 Hz, set the reference to 25 Hz. Set its depth to 200 ÷ 331, about 60%. The carrier frequency sets neither. It sets how fine the current's sawtooth is. It also sets how much switching heat the IGBTs make. The motor filters the pulses into a near-sine current.\n\nOne limit sits in each leg. An IGBT turns off more slowly than it turns on. Without a gap, the pair would short the link. So the gate drive leaves a [[dead time]] with both switches off. Each gap distorts the output. So the smaller the gap, the better. The loss shows most near the sine's zeros, where the current is small. This is a simplified picture. It has ideal switches, a steady link, and a motor that makes no voltage of its own. **Duty cycles that follow a sine give pulses whose average, and a motor's current, follow that sine.**"
+  },
+  "analogy": {
+   "text": "An H-bridge works like a reversing starter on a DC motor, thrown over thousands of times a second. One contactor connects the motor forward. The other reverses it. Spend more of each moment forward than reversed, and the motor feels a forward average. Swing that share smoothly back and forth, and the average swings into a sine. The starter’s interlock stops both contactors closing at once. It does the job of dead time.",
+   "breaks": "A contactor takes far too long to change over. It would soon wear out at this rate. Transistors switch with no contacts to wear. And an interlock costs the motor nothing. Dead time is a gap in the gate timing, and each gap costs a little voltage."
+  },
+  "practice": {
+   "text": "Isolate and prove dead before you work on a drive or a UPS. Its DC link holds charge after isolation. A UPS battery can keep the link live with the mains off.\n\n- Find the DC link: about 1.35 × the line voltage from a three-phase bridge.[^1]\n- At full depth, sine-triangle PWM gives 0.612 × the link between lines. That is √3 × half the link ÷ √2. From 540 V it gives 331 V.\n- Depth needed = the voltage you want ÷ that maximum. The output frequency is the reference's.\n- Choose the carrier as a trade. Faster gives a smoother current. Slower gives cooler switches.\n\n**Rules of thumb:** the reference sets the output. The carrier only sets how fine the pulses are. Below rated speed, a motor’s voltage and frequency move together. Dead time must cover the switches' turn-off, and little more.\n\n**Worked example:** a 440 V, 60 Hz motor must run at 30 Hz. Its drive is on a 440 V supply. The link is about 1.35 × 440 = 594 V. Full depth gives 0.612 × 594 = 364 V between lines. At 30 Hz the motor needs 440 × 30 ÷ 60 = 220 V. So set the reference to 30 Hz, and the depth to 220 ÷ 364, about 60%.\n\n**Common mistakes**\n- Thinking the carrier sets the output frequency. It sets the sawtooth and the switching heat.\n- Reading a zero on the reference as the switches off. It is 50% on, the middle of the sine.\n- Thinking no dead time gives the cleanest wave. It shorts the link through the leg.\n- Expecting a sine on a scope across the motor lines. You see pulses at the full link voltage. Their average is the sine.\n- Thinking an online UPS in double conversion changes over when the mains fails. Its inverter feeds the load all the time.[^7]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct",
+    "url": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design",
+    "quote": "The DC bus voltage should ramp to approximately 1.35 × V LL (rectified DC)"
+   },
+   {
+    "n": 2,
+    "title": "産業用ドライブ向けの基本的な絶縁三相、小型電力段のリファレン ス・デザイン",
+    "url": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380",
+    "quote": "filters this supplied current to produce a three-phase sine wave with negligible harmonics."
+   },
+   {
+    "n": 3,
+    "title": "What is Pulse-Width Modulation (PWM), anyway? - Developer Help",
+    "url": "https://developerhelp.microchip.com/xwiki/bin/view/applications/motors/control-algorithms/zsm/pwm",
+    "quote": "Sine-triangle PWM will work for three sine waves that are 120° out of phase"
+   },
+   {
+    "n": 4,
+    "title": "産業用ドライブ向けの基本的な絶縁三相、小型電力段のリファレン ス・デザイン",
+    "url": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380",
+    "quote": "PWM signals generated from the microcontroller (MCU) control these six switches through an isolated gate driver. The amplitude of phase voltage is determined by the duty cycle of the PWM signals."
+   },
+   {
+    "n": 5,
+    "title": "Calculate and minimize the dead time for IGBTs",
+    "url": "https://www.newweb-qa2.infineon.com/assets/row/public/documents/60/42/Infineon-Deadtime_calculation_for_IGBT_modules-ApplicationNotes-v01_10-EN.pdf",
+    "quote": "With this additional time, one of the two IGBTs is always turned off first, and the other one will be turned on after the dead time has expired, thus preventing a bridge shoot-through caused by the asymmetrical turn-on and turn-off times of the IGBTs."
+   },
+   {
+    "n": 6,
+    "title": "Compensation techniques for non-linearities in H-bridge inverters",
+    "url": "https://www.um.edu.mt/library/oar/bitstream/123456789/27427/1/Compensation_techniques_for_non-linearities_in_H-bridge_inverters_2016.pdf",
+    "quote": "The dead time introduces a non-linearity which causes distortion in the output voltage and current, and therefore the smaller is the dead time the better."
+   },
+   {
+    "n": 7,
+    "title": "Eaton UPS fundamentals handbook",
+    "url": "https://www.eaton.com/content/dam/eaton/products/backup-power-ups-surge-it-power-distribution/backup-power-ups/eaton-ups-fundamentals-handbook-en-us-2025.pdf",
+    "quote": "Double conversion A UPS design in which the primary power path consists of a rectifier and inverter. Unlike other topologies, double conversion provides zero transfer time to battery for sensitive equipment."
+   },
+   {
+    "n": 8,
+    "title": "ACS6080 SFC - Shore-to-ship converters (Converters for grid interconnections) | Shore-to-ship converters | ABB",
+    "url": "https://new.abb.com/power-converters-inverters/grid-interconnections/shore-to-ship-converters/acs6080sfc",
+    "quote": "Static conversion of the 50/60 Hz three-phase port grid power to match the 60/50 Hz vessel network."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<style>\n  [hidden] { display: none !important; }\n  .pz { max-width: 34rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  #stepbox > .fig + .fig { margin-top: 6px; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #sw .k-seg, #sw .k-seg.stack { display: flex; flex-wrap: wrap; }\n  #sw .k-seg button, #sw .k-seg.stack button { flex: 1 1 7.5rem; text-align: center; padding-left: 12px; white-space: nowrap; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter, #outs.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #outs.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter, #outs.enter { animation: none; } }\n  /* The circuit: a switch that is on, and a diode that carries the current, drawn bold. */\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }\n  .fig .plate { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .coil { fill: none; stroke: var(--k-ink); stroke-width: 2.2; }\n  .fig .sw .ld, .fig .sw .ch, .fig .sw .gp { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }\n  .fig .sw .ch { stroke-width: 3; }\n  .fig .sw.on .ld, .fig .sw.on .ch { stroke: var(--k-accent2); stroke-width: 4; }\n  .fig .sw.on .gp { stroke: var(--k-accent2); stroke-width: 2.6; }\n  .fig .dio path { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 1.6; stroke-linejoin: round; }\n  .fig .dio.on path { fill: var(--k-accent2); stroke: var(--k-accent2); stroke-width: 2.8; }\n  .fig .node { fill: var(--k-ink); }\n  .fig .tml { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .shoot { fill: none; stroke: var(--k-warn); stroke-width: 3.5; stroke-linecap: round; }\n  /* The plots. */\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .zero { stroke: var(--k-muted); stroke-width: 1.2; }\n  .fig .tri { fill: none; stroke: var(--k-muted); stroke-width: 1.2; stroke-linejoin: round; }\n  .fig .ref { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; }\n  .fig .ref.b { stroke: var(--k-cat2); }\n  .fig .ref.c { stroke: var(--k-cat3); }\n  .fig .pul { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1; stroke-linejoin: miter; }\n  .fig .pulf { fill: var(--k-fill1); }\n  .fig .trace { fill: none; stroke: var(--k-accent2); stroke-width: 2.2; }\n  .fig .avg { fill: none; stroke: var(--k-ink); stroke-width: 2.2; stroke-dasharray: 6 4; }\n  .fig .avg.thin { stroke-width: 1.6; stroke-dasharray: 5 4; }\n  .fig .halo { fill: none; stroke: var(--k-bg); stroke-width: 5; stroke-linejoin: round; }\n  .fig .cur { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; stroke-linejoin: round; }\n  .fig .cline { stroke: var(--k-ink); stroke-width: 1.4; }\n  .fig .cdot { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.8; }\n  .fig .gap { fill: var(--k-fill2); }\n  .fig .both { fill: var(--k-warn); }\n  .fig .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.w { fill: var(--k-warn); }\n  /* The card of three chains. */\n  .fig .blk { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.6; }\n  .fig .blk.lit { stroke: var(--k-accent2); stroke-width: 3.2; }\n  .fig .arr { stroke: var(--k-strong); stroke-width: 1.8; }\n  .fig .arr.lit { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .ah { fill: var(--k-strong); }\n  .fig .ah.lit { fill: var(--k-accent2); }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count say\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"k-controls\" id=\"sw\"></div>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 140\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"clabs\"></g></svg>\n    <svg class=\"fig\" id=\"wave\" viewBox=\"0 0 340 348\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"wart\"></g><g id=\"wlabs\"></g></svg>\n    <svg class=\"fig\" id=\"card\" viewBox=\"0 0 340 274\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"cart\"></g><g id=\"cardl\"></g></svg>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <svg class=\"fig\" id=\"zoom\" viewBox=\"0 0 340 156\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"zart\"></g><g id=\"zlabs\"></g></svg>\n    <p class=\"gnote say\" id=\"setting\"></p>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule ----------\n  const VLL = 400, K135 = 1.35, VDC = K135 * VLL, MID = VDC / 2;\n  const RW = 5, LMH = 20, LW = LMH / 1000, TAU = LW / RW;\n  const AXMS = 40, AX = AXMS / 1000, LAGUS = 5, LAG = LAGUS * 1e-6, DTA = 25e-6, WARM = 0.024;\n  const SQ3 = Math.sqrt(3), SQ2 = Math.SQRT2;\n  const rad = (d) => d * Math.PI / 180;\n  const sgn = (x) => (x > 0 ? 1 : x < 0 ? -1 : 0);\n  const PH = { leg: [0], h: [0], three: [0, -120, -240] };\n  const dOf = (m, deg) => 0.5 + 0.5 * m * Math.sin(rad(deg));\n  function avgAt(mode, m, deg) {\n    if (mode === 'leg') return dOf(m, deg) * VDC;\n    if (mode === 'h') return (2 * dOf(m, deg) - 1) * VDC;\n    return (dOf(m, deg) - dOf(m, deg - 120)) * VDC;\n  }\n  const peakOf = (mode, m) => (mode === 'leg' ? MID + MID * m : mode === 'h' ? m * VDC : m * SQ3 * MID);\n  const rmsOf = (mode, m) => (mode === 'leg' ? m * MID / SQ2 : mode === 'h' ? m * VDC / SQ2 : m * SQ3 * MID / SQ2);\n  const lossOf = (tdUs, fcK) => 2 * tdUs * 1e-6 * fcK * 1000 * VDC;\n  const zOf = (f) => { const x = 2 * Math.PI * f * LW; return { z: Math.hypot(RW, x), psi: Math.atan2(x, RW) }; };\n  // The carrier has a trough (−1) at every k × Tc and a peak (+1) halfway between. A leg's top switch\n  // is on while its reference is above the carrier: from tk − aL to tk + aR around each trough.\n  function pulse(rf, k, Tc) {\n    const tk = k * Tc;\n    let aL = (rf(tk) + 1) * Tc / 4, aR = aL;\n    for (let n = 0; n < 3; n++) { aL = (rf(tk - aL) + 1) * Tc / 4; aR = (rf(tk + aR) + 1) * Tc / 4; }\n    return [tk - aL, tk + aR];\n  }\n  // A leg's switching edges between t0 and t1: [time, top switch on after it].\n  function legEdges(rf, Tc, t0, t1) {\n    const out = [];\n    for (let k = Math.floor(t0 / Tc) - 1; k <= Math.ceil(t1 / Tc) + 1; k++) {\n      const pu = pulse(rf, k, Tc);\n      if (pu[1] - pu[0] < 1e-12) continue;\n      const last = out[out.length - 1];\n      if (last && !last[1] && pu[0] - last[0] < 1e-12) out.pop(); else out.push([pu[0], true]);\n      out.push([pu[1], false]);\n    }\n    return out.filter((e) => e[0] > t0 && e[0] < t1);\n  }\n  // The motor: L di/dt = v − R i per winding, stepped exactly. Three things are stepped. The switched\n  // current without dead time, and its smooth average, give the sawtooth (their difference). The\n  // average with each gap's loss against the current (stalling at zero while the loss outweighs the\n  // drive) gives what the sawtooth rides on.\n  const SIMS = new Map();\n  function simulate(mode, m, f, fcK, tdUs) {\n    const key = [mode, m, f, fcK, tdUs].join('|');\n    if (SIMS.has(key)) return SIMS.get(key);\n    const Tc = 1 / (fcK * 1000), td = tdUs * 1e-6, w = 2 * Math.PI * f, three = mode === 'three', nP = three ? 3 : 1;\n    const phs = PH[mode], rfs = phs.map((ph) => { const q = rad(ph); return (t) => m * Math.sin(w * t + q); });\n    const t0 = -Math.ceil(WARM / Tc) * Tc, t1 = AX + Tc;\n    const E = rfs.map((rf) => legEdges(rf, Tc, t0, t1));\n    const ini = E.map((es, j) => (es.length ? !es[0][1] : rfs[j](t0) > 0));\n    const S = { mode, m, f, fcK, tdUs, td, Tc, w, three, nP, rfs, E, ini, t0, t1, pts: [], draw: [], maxI: 0 };\n    if (mode !== 'leg') {\n      const zp = zOf(f), amp = (three ? MID : VDC) * m / zp.z;\n      const i0 = () => phs.map((ph) => amp * Math.sin(w * t0 + rad(ph) - zp.psi));\n      // 1. switched, no dead time\n      const ev = [];\n      E.forEach((es, j) => es.forEach((e) => ev.push([e[0], j, e[1]])));\n      ev.sort((a, b) => a[0] - b[0]);\n      const top = ini.slice();\n      let cur = i0(), t = t0;\n      const sw = [[t0].concat(cur)];\n      for (let q = 0; q <= ev.length; q++) {\n        const tn = q < ev.length ? ev[q][0] : t1;\n        if (tn > t) {\n          const e = Math.exp(-(tn - t) / TAU);\n          let vn;\n          if (!three) vn = [top[0] ? VDC : -VDC];\n          else { const v = top.map((x) => (x ? VDC : 0)), s = (v[0] + v[1] + v[2]) / 3; vn = v.map((x) => x - s); }\n          cur = cur.map((i, j) => vn[j] / RW + (i - vn[j] / RW) * e);\n          t = tn; sw.push([t].concat(cur));\n        }\n        if (q < ev.length) top[ev[q][1]] = ev[q][2];\n      }\n      // 2. the averages, without and with the dead time's loss\n      const one = td * fcK * 1000 * VDC, nG = Math.ceil((t1 - t0) / DTA), e1 = Math.exp(-DTA / TAU);\n      const a0 = [], aD = [], c0 = i0(), cD = i0(), v = [0, 0, 0], vd = [0, 0, 0];\n      for (let j = 0; j < nP; j++) { a0.push(new Float64Array(nG + 2)); aD.push(new Float64Array(nG + 2)); }\n      for (let n = 0; n <= nG + 1; n++) {\n        for (let j = 0; j < nP; j++) { a0[j][n] = c0[j]; aD[j][n] = cD[j]; }\n        const tm = t0 + (n + 0.5) * DTA;\n        if (!three) {\n          const va = rfs[0](tm) * VDC, i = cD[0];\n          c0[0] = va / RW + (c0[0] - va / RW) * e1;\n          let s = sgn(i);\n          if (!s && Math.abs(va) > 2 * one) s = sgn(va);\n          if (!s) cD[0] = 0;\n          else { const ve = va - 2 * one * s; let ni = ve / RW + (i - ve / RW) * e1; if (sgn(ni) === -s) ni = 0; cD[0] = ni; }\n        } else {\n          let s0 = 0, sd = 0;\n          for (let j = 0; j < 3; j++) { v[j] = (0.5 + 0.5 * rfs[j](tm)) * VDC; vd[j] = v[j] - one * sgn(cD[j]); s0 += v[j] / 3; sd += vd[j] / 3; }\n          for (let j = 0; j < 3; j++) {\n            const vn = v[j] - s0, vdn = vd[j] - sd;\n            c0[j] = vn / RW + (c0[j] - vn / RW) * e1;\n            cD[j] = vdn / RW + (cD[j] - vdn / RW) * e1;\n          }\n        }\n      }\n      const gi = (arr, tt, j) => { const x = (tt - t0) / DTA, n = Math.max(0, Math.min(nG, Math.floor(x))), u = x - n, r = arr[j]; return r[n] + (r[n + 1] - r[n]) * u; };\n      let k = 0;\n      const swAt = (tt, j) => {\n        while (k < sw.length - 2 && sw[k + 1][0] <= tt) k++;\n        while (k > 0 && sw[k][0] > tt) k--;\n        const a = sw[k], b = sw[k + 1];\n        return b[0] - a[0] < 1e-15 ? b[j + 1] : a[j + 1] + (b[j + 1] - a[j + 1]) * (tt - a[0]) / (b[0] - a[0]);\n      };\n      S.iAvg = (j, tt) => gi(aD, tt, j);\n      // 3. the current as drawn, at every switching edge and every 100 µs, from one carrier cycle before 0\n      const times = [];\n      let g = 4 * Math.ceil((-Tc - t0) / DTA / 4);\n      sw.forEach((p) => {\n        while (t0 + g * DTA < p[0] && g <= nG) { times.push(t0 + g * DTA); g += 4; }\n        if (p[0] >= -Tc) times.push(p[0]);\n      });\n      k = 0;\n      for (let q = 0; q < times.length; q++) {\n        const tt = times[q];\n        if (tt < -Tc || tt > t1) continue;\n        const row = [tt];\n        for (let j = 0; j < nP; j++) row.push(gi(aD, tt, j) + swAt(tt, j) - gi(a0, tt, j));\n        S.pts.push(row);\n        if (tt >= 0 && tt <= AX) S.maxI = Math.max(S.maxI, Math.abs(row[1]));\n      }\n      for (let tt = 0; tt <= AX + 1e-12; tt += 2e-4) S.draw.push([tt, gi(aD, tt, 0)]);\n    }\n    if (SIMS.size > 24) SIMS.delete(SIMS.keys().next().value);\n    SIMS.set(key, S);\n    return S;\n  }\n  // The current drawn at time t (phase j), from the stepped points.\n  function iNow(S, t, j) {\n    const P = S.pts, c = (j || 0) + 1;\n    if (!P.length) return 0;\n    let lo = 0, hi = P.length - 1;\n    if (t <= P[0][0]) return P[0][c];\n    if (t >= P[hi][0]) return P[hi][c];\n    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (P[mid][0] <= t) lo = mid; else hi = mid; }\n    const a = P[lo], b = P[hi];\n    return b[0] - a[0] < 1e-15 ? b[c] : a[c] + (b[c] - a[c]) * (t - a[0]) / (b[0] - a[0]);\n  }\n  // The current's direction at t, in leg j (the smooth average's sign); past the stepped time, its\n  // steady sine.\n  function iDir(S, j, t) {\n    if (S.mode === 'leg') return 0;\n    if (t <= S.t1 - DTA) return sgn(S.iAvg(j, t));\n    const zp = zOf(S.f);\n    return sgn(Math.sin(S.w * t + rad(PH[S.mode][j]) - zp.psi));\n  }\n  // A leg's states over [ta, tb]: [from, to, 'T' | 'B' | 'G'], with a gap of dead time after each edge.\n  function legLine(S, j, ta, tb, gaps) {\n    const es = S.E[j], td = gaps ? S.td : 0, out = [];\n    let st = S.ini[j] ? 'T' : 'B', t = S.t0;\n    for (let n = 0; n <= es.length; n++) {\n      const te = n < es.length ? es[n][0] : S.t1;\n      if (te > t) out.push([t, te, st]);\n      if (n === es.length) break;\n      const nx = n + 1 < es.length ? es[n + 1][0] : S.t1, ge = Math.min(te + td, nx);\n      if (td > 0 && ge > te) { out.push([te, ge, 'G']); t = ge; } else t = te;\n      st = es[n][1] ? 'T' : 'B';\n    }\n    return out.filter((s) => s[1] > ta && s[0] < tb).map((s) => [Math.max(s[0], ta), Math.min(s[1], tb), s[2]]);\n  }\n  // A leg's voltage in a state: in a gap, a diode carries the current on (out of the leg: the lower one, 0 V).\n  function legV(S, j, s, t, flip) {\n    if (s[2] === 'T') return VDC;\n    if (s[2] === 'B') return 0;\n    const d = iDir(S, j, (s[0] + s[1]) / 2) * (flip ? -1 : 1);\n    return d > 0 ? 0 : d < 0 ? VDC : null;\n  }\n  // The output as drawn: [from, to, volts] over [ta, tb].\n  function voltSegs(S, ta, tb) {\n    if (S.mode === 'leg') return legLine(S, 0, ta, tb, false).map((s) => [s[0], s[1], s[2] === 'T' ? VDC : 0]);\n    if (S.mode === 'h') {\n      return legLine(S, 0, ta, tb, true).map((s) => {\n        if (s[2] !== 'G') return [s[0], s[1], s[2] === 'T' ? VDC : -VDC];\n        const d = iDir(S, 0, (s[0] + s[1]) / 2);\n        return [s[0], s[1], d > 0 ? -VDC : d < 0 ? VDC : 0];\n      });\n    }\n    const A = legLine(S, 0, ta, tb, true), B = legLine(S, 1, ta, tb, true), out = [];\n    let p = 0, q = 0;\n    while (p < A.length && q < B.length) {\n      const a = A[p], b = B[q], x = Math.max(a[0], b[0]), y = Math.min(a[1], b[1]);\n      if (y > x) {\n        const va = legV(S, 0, [x, y, a[2]]), vb = legV(S, 1, [x, y, b[2]]);\n        out.push([x, y, (va == null ? MID : va) - (vb == null ? MID : vb)]);\n      }\n      if (a[1] <= b[1]) p++; else q++;\n    }\n    return out;\n  }\n  // A leg's state at one moment: 'T' (top on), 'B' (bottom on) or 'G' (both off, in the dead time).\n  function legStateAt(S, j, t, gaps) {\n    const rf = S.rfs[j], Tc = S.Tc, td = gaps ? S.td : 0, k = Math.round(t / Tc), ev = [];\n    [k - 1, k, k + 1].forEach((kk) => {\n      const pu = pulse(rf, kk, Tc);\n      if (pu[1] - pu[0] < 1e-12) return;\n      const last = ev[ev.length - 1];\n      if (last && !last[1] && pu[0] - last[0] < 1e-12) ev.pop(); else ev.push([pu[0], true]);\n      ev.push([pu[1], false]);\n    });\n    let last = null;\n    ev.forEach((e) => { if (e[0] <= t) last = e; });\n    const top = last ? last[1] : ev.length ? !ev[0][1] : rf(t) > 0;\n    if (last && t < last[0] + td) return 'G';\n    return top ? 'T' : 'B';\n  }\n  // ---------- sources, rounding, and every number the words use ----------\n  const SRC = {\n    vfd: 'https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design',\n    ti: 'https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380',\n    mchp: 'https://developerhelp.microchip.com/xwiki/bin/view/applications/motors/control-algorithms/zsm/pwm',\n    inf: 'https://www.newweb-qa2.infineon.com/assets/row/public/documents/60/42/Infineon-Deadtime_calculation_for_IGBT_modules-ApplicationNotes-v01_10-EN.pdf',\n    malta: 'https://www.um.edu.mt/library/oar/bitstream/123456789/27427/1/Compensation_techniques_for_non-linearities_in_H-bridge_inverters_2016.pdf',\n    eaton: 'https://www.eaton.com/content/dam/eaton/products/backup-power-ups-surge-it-power-distribution/backup-power-ups/eaton-ups-fundamentals-handbook-en-us-2025.pdf',\n    abb: 'https://new.abb.com/power-converters-inverters/grid-interconnections/shore-to-ship-converters/acs6080sfc',\n  };\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const kz = (v) => (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(+v.toFixed(1)));\n  // A value that ends in exactly .5 keeps it, so two ends of one swing still add up.\n  const fh = (v) => { const t = Math.round(v * 10) / 10; return Math.abs(Math.abs(t % 1) - 0.5) < 1e-9 ? fx(t, 1) : fx(v, 0); };\n  const MODES = ['leg', 'h', 'three'];\n  const MODEN = { leg: 'One leg', h: 'H-bridge', three: 'Three legs' };\n  const N = {\n    vdc: fx(VDC, 0), mid: fx(MID, 0), vpf: fx(VLL / 50, 0), v25: fx(VLL / 50 * 25, 0), x2: fx(2 * VLL, 0),\n    dLo: fx(100 * dOf(0.6, 270), 0), dHi: fx(100 * dOf(0.6, 90), 0), aLo: fx(avgAt('leg', 0.6, 270), 0), aHi: fx(avgAt('leg', 0.6, 90), 0),\n    rest: fx(100 - 100 * dOf(0.6, 90), 0), d80f: fx(dOf(0.6, 90), 1), d50f: fx(dOf(0.6, 0), 1),\n    pk60: fx(peakOf('h', 0.6), 0), rms60: fx(rmsOf('h', 0.6), 0),\n    d75: fx(100 * dOf(0.5, 90), 0), d25: fx(100 - 100 * dOf(0.5, 90), 0), d75f: fx(dOf(0.5, 90), 2), d25f: fx(1 - dOf(0.5, 90), 2),\n    a405: fx(dOf(0.5, 90) * VDC, 0), a135: fx((1 - dOf(0.5, 90)) * VDC, 0), w270: fx(avgAt('h', 0.5, 90), 0),\n    rms50: fx(rmsOf('h', 0.5), 0), rms100: fx(rmsOf('h', 1), 0),\n    pk3: fx(peakOf('three', 1), 0), rms3: fx(rmsOf('three', 1), 0), depf: fx(200 / rmsOf('three', 1), 2),\n    dep: fx(100 * Math.round(20 * 200 / rmsOf('three', 1)) / 20, 0), rms3at60: fx(rmsOf('three', 0.6), 0),\n    loss20: fx(lossOf(20, 1), 0), loss100: fx(lossOf(100, 1), 0), pk30: fx(peakOf('h', 0.3), 0),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // set: where the picture opens (depth in %, fref in Hz, fc in kHz, dead in µs, cursor in degrees).\n  // ctl: what a demonstration lets Dan move; play: its motion as the screen opens. outs 'after' hides\n  // the readouts until a right Check, hide hides some of them; zoom shows the close-up ('after': once\n  // right); ans: what a right Check changes.\n  const STEPS = [\n    { name: 'Volts per hertz', set: { mode: 'three', depth: 100 }, outs: 'after', wave: 'after', ans: {},\n      task: `A drive runs a ${VLL} V, 50 Hz motor at 25 Hz. What voltage does it give the motor?`,\n      opts: [`${VLL} V, as at full speed`, `About ${N.v25} V`, `About ${N.x2} V`],\n      want: `About ${N.v25} V`,\n      hints: { [`${VLL} V, as at full speed`]: 'At half the frequency the winding\\'s reactance halves. Full voltage would drive too much current.',\n        [`About ${N.x2} V`]: 'A slower motor needs less voltage, not more.' },\n      why: `About ${N.v25} V. Below rated speed, a simple drive holds the volts per hertz about steady. That is ${VLL} ÷ 50 = ${N.vpf} V per hertz, and ${N.vpf} × 25 = ${N.v25} V. Yet its DC link sits at a steady ${N.vdc} V. So the switching must set both the voltage and the frequency.` },\n    { show: true, name: 'One leg', set: { mode: 'leg', depth: 60 }, ctl: ['depth', 'cursor'], zoom: true, play: { id: 'depth', from: 0, to: 60, dur: 2.6 },\n      text: `One leg is two switches in series across the ${N.vdc} V DC link. With the top switch on, the output sits at ${N.vdc} V. With the bottom switch on, it sits at 0 V. That is lesson 6's chopper. So over each switching cycle its average is D × ${N.vdc} V. Hold D at 50%, and the average sits at ${N.mid} V. Let D rise and fall like a sine, and the average traces that sine.`,\n      read: `With D following a sine between ${N.dLo}% and ${N.dHi}%, the pulses are wide where the dashed average is high. The average traces a sine from ${N.aLo} V to ${N.aHi} V.`,\n      still: { mode: 'leg', depth: 60, fref: 50, fc: 1, dead: 20, cursor: 90 } },\n    { name: 'The leg\\'s average', set: { mode: 'leg', depth: 60 }, hide: ['avgNow'], zoom: true, ans: {},\n      task: `At the cursor, the top switch is on for ${N.dHi}% of each switching cycle. What is the leg's average voltage there?`,\n      opts: [`${N.vdc} V, as the top switch joins the link`, `${N.aLo} V`, `${N.aHi} V`],\n      want: `${N.aHi} V`,\n      hints: { [`${N.vdc} V, as the top switch joins the link`]: `Only while it is on. What about the other ${N.rest}%?`,\n        [`${N.aLo} V`]: `That is the bottom switch's share of ${N.vdc} V.` },\n      why: `${N.aHi} V. D × ${N.vdc} V = ${N.d80f} × ${N.vdc} = ${N.aHi} V. That is the top of this leg's sine.` },\n    { show: true, name: 'Sine meets triangle', set: { mode: 'leg', depth: 60 }, ctl: ['cursor', 'depth'], zoom: true, play: { id: 'cursor', from: 0, to: 90, dur: 3 },\n      text: 'Something must set D, moment by moment. Draw the sine you want: the *reference*. Draw a fast triangle across it: the *carrier*. Where the reference is above the triangle, the top switch is on. Where it is below, the bottom switch is on. Near the sine\\'s peak the pulses are wide. Near its trough they are thin. How tall the reference is, as a share of the triangle, is its *depth*. This is *pulse width modulation*, PWM.',\n      read: `Each edge sits where the sine crosses the triangle. Near the sine's peak, the reference is above it for ${N.dHi}% of each cycle.`,\n      still: { mode: 'leg', depth: 60, fref: 50, fc: 1, dead: 20, cursor: 90 } },\n    { name: 'At the zero', set: { mode: 'leg', depth: 60, cursor: 0 }, outs: 'after', zoom: 'after', ans: {},\n      task: 'At the cursor the reference crosses zero, halfway up the triangle. For what share of each switching cycle is the top switch on?',\n      opts: ['None of it, 0%', 'Half of it, 50%', 'All of it, 100%'],\n      want: 'Half of it, 50%',\n      hints: { 'None of it, 0%': 'Zero is the middle of the triangle, not its bottom.',\n        'All of it, 100%': 'The triangle rises above the reference for part of each cycle. How much?' },\n      why: `50%. The reference sits halfway up the triangle. So it is above the triangle for half of each cycle. The average is ${N.d50f} × ${N.vdc} = ${N.mid} V. That is the middle of this leg's sine.` },\n    { show: true, name: 'The H-bridge', set: { mode: 'h', depth: 60 }, ctl: ['mode', 'depth'], zoom: true, play: { id: 'depth', from: 0, to: 60, dur: 2.6 },\n      text: `One leg's average never goes below 0 V. So add a second leg, run as the mirror of the first. Put the motor winding between their outputs. One diagonal pair of switches gives the winding +${N.vdc} V. The other diagonal gives it −${N.vdc} V. Both legs share the same ${N.mid} V middle, so it cancels. What is left is a sine centred on zero: AC. Its peak is the depth times ${N.vdc} V.`,\n      read: `The winding sees pulses of ±${N.vdc} V. Their average is a sine peaking at ${N.pk60} V each way, ${N.rms60} V rms.`,\n      still: { mode: 'h', depth: 60, fref: 50, fc: 1, dead: 20, cursor: 90 } },\n    { name: 'The winding\\'s average', set: { mode: 'h', depth: 50 }, hide: ['avgNow', 'outRms'], zoom: true, ans: {},\n      task: `The first leg's top switch is on ${N.d75}% of the time. So the mirror leg's is on ${N.d25}%. What average voltage does the winding see?`,\n      opts: [`${N.a405} V, the first leg's average`, '0 V, as the legs cancel', `${N.w270} V`],\n      want: `${N.w270} V`,\n      hints: { [`${N.a405} V, the first leg's average`]: 'The winding sits between the two legs. Take away the mirror leg\\'s average.',\n        '0 V, as the legs cancel': 'They cancel only when both legs are on for the same share.' },\n      why: `${N.w270} V. The first leg averages ${N.d75f} × ${N.vdc} = ${N.a405} V. The mirror leg averages ${N.d25f} × ${N.vdc} = ${N.a135} V. The winding sits between them, so it sees ${N.a405} − ${N.a135} = ${N.w270} V.` },\n    { show: true, name: 'The winding smooths it', set: { mode: 'h', depth: 100, fc: 3 }, ctl: ['fc'], play: { id: 'fc', from: 1, to: 3, dur: 3 },\n      text: 'The winding has inductance. A coil keeps its current going. It changes that current only as fast as its voltage allows. Each pulse is too short to swing the current far. So the motor filters the pulses into a near-sine current that follows their average. A small sawtooth rides on it at each switching edge. Raise the carrier frequency, and each pulse is shorter. The sawtooth shrinks, and the sine stays.',\n      read: `At 3 kHz the sawtooth is about a third as tall as at 1 kHz. The sine and its ${N.rms100} V rms are unchanged.`,\n      still: { mode: 'h', depth: 100, fref: 50, fc: 3, dead: 20, cursor: 90 } },\n    { name: 'Twice the carrier', set: { mode: 'h', depth: 100 }, ans: { sweep: [{ id: 'fc', from: 1, to: 2 }], set: { fc: 2 } },\n      task: 'You double the carrier frequency to 2 kHz. What happens to the frequency of the motor\\'s current?',\n      opts: ['It doubles to 100 Hz', 'It stays at 50 Hz', 'It rises to 2 kHz'],\n      want: 'It stays at 50 Hz',\n      hints: { 'It doubles to 100 Hz': 'The carrier sets how often the switches change, not the sine their average traces.',\n        'It rises to 2 kHz': 'The sawtooth is at the carrier\\'s rate. What about the sine under it?' },\n      why: 'It stays at 50 Hz, the reference\\'s frequency. The faster carrier only makes the sawtooth finer. But every switching edge makes heat in the switch, as lesson 4 showed. So a faster carrier buys a smoother current with hotter switches.' },\n    { show: true, name: 'Three legs, two knobs', set: { mode: 'three', depth: 100 }, ctl: ['depth', 'fref', 'fc'], play: { id: 'depth', from: 0, to: 100, dur: 3 },\n      text: `A three-phase motor needs three sines, 120° apart. So each of three legs gets its own reference, 120° behind the last, against one shared carrier. At full depth each leg's average swings ${N.mid} V about its middle. The voltage between two lines is the difference of two legs: √3 × ${N.mid} = ${N.pk3} V peak, or ${N.rms3} V rms. The drive now has two knobs. The reference's frequency sets the output frequency. Its depth sets the voltage.`,\n      read: `Three references, 120° apart, cross one triangle. The line pulses average to a sine of ${N.rms3} V rms at 50 Hz.`,\n      still: { mode: 'three', depth: 100, fref: 50, fc: 1, dead: 20, cursor: 90 } },\n    { name: `${N.v25} V at 25 Hz`, set: { mode: 'three', depth: 100 }, ans: { sweep: [{ id: 'fref', from: 50, to: 25 }, { id: 'depth', from: 100, to: 60 }], set: { fref: 25, depth: 60 } },\n      task: `The drive must give the motor ${N.v25} V at 25 Hz, from the same ${N.vdc} V link. What does it change?`,\n      opts: ['The carrier, to half its frequency', `The DC link, down to ${N.v25} V`, `Reference to 25 Hz, depth to ${N.dep}%`],\n      want: `Reference to 25 Hz, depth to ${N.dep}%`,\n      hints: { 'The carrier, to half its frequency': 'The carrier sets the sawtooth, not the sine.',\n        [`The DC link, down to ${N.v25} V`]: `The link stays at ${N.vdc} V. Only the switching changes.` },\n      why: `Reference to 25 Hz, depth to ${N.dep}%. The frequency follows the reference. The voltage follows the depth: ${N.v25} ÷ ${N.rms3} = ${N.depf}. At ${N.dep}% the readout gives ${N.rms3at60} V, near enough ${N.v25} V. Sine-triangle PWM tops out at ${N.rms3} V from this link.` },\n    { show: true, name: 'Dead time', set: { mode: 'h', depth: 30, dead: 20 }, ctl: ['dead'], zoom: true, loss: true, play: { id: 'dead', from: 0, to: 20, dur: 2.6 },\n      text: `An IGBT turns off more slowly than it turns on. Switch a leg's pair over at once, and both conduct for a moment. That shorts the ${N.vdc} V link through the leg: a *shoot-through*. So each leg leaves a short gap with both switches off. That gap is the *dead time*, drawn long here so it shows. Each gap costs a little voltage, always against the current.`,\n      read: `With no dead time, both switches in a leg conduct at every edge. A red path crosses the link. At 20 µs the red is gone. The dashed average drops about ${N.loss20} V against the current. The current has a small flat near each zero.`,\n      still: { mode: 'h', depth: 30, fref: 50, fc: 1, dead: 20, cursor: 90 } },\n    { name: 'A longer gap', set: { mode: 'h', depth: 30, dead: 20 }, zoom: true, loss: true, ans: { sweep: [{ id: 'dead', from: 20, to: 100 }], set: { dead: 100 } },\n      task: 'The dead time is raised to 100 µs. What happens to the motor\\'s current?',\n      opts: ['A shoot-through, as at zero', 'It flattens near each zero', 'Nothing, as a longer gap is only safer'],\n      want: 'It flattens near each zero',\n      hints: { 'A shoot-through, as at zero': 'A longer gap keeps the two switches further apart in time, not closer.',\n        'Nothing, as a longer gap is only safer': 'Each gap costs voltage against the current. What does five times the gap do?' },\n      why: 'It flattens near each zero. Each gap costs voltage against the current. Now it costs five times as much. Near each zero the current is small. So the loss stalls it. Dead time trades two faults. Too short shorts the link. Too long distorts the output. So it is kept as short as the turn-off allows.' },\n    { name: 'Three chains', set: { mode: 'three', depth: 100 }, card: true, ans: { lit: true },\n      task: 'An online UPS keeps its battery on the DC link. The mains supply fails. What does the load see?',\n      opts: ['No break, as the inverter runs on from the battery', 'A short break while it changes over', 'No supply until the bypass closes'],\n      want: 'No break, as the inverter runs on from the battery',\n      hints: { 'A short break while it changes over': 'The inverter was already feeding the load. What changes on its input side?',\n        'No supply until the bypass closes': 'The bypass feeds the load from the mains. The mains has gone.' },\n      why: 'No break. In double conversion the inverter feeds the load all the time. It runs from the DC link. When the mains fails, the battery holds up the link. The inverter carries on. That is zero transfer time. A drive is the same chain, without the battery, feeding a motor. A shore converter is the same chain again, turning 50 Hz into 60 Hz.' },\n  ];\n  const FINISH = 'Duty cycles that follow a sine give pulses whose average, and a motor\\'s current, follow that sine. The reference\\'s frequency sets the output frequency. Its depth sets the voltage, from the same fixed link.';\n  const CHAINS = [\n    { name: ['Online', 'UPS'], blocks: [['Supply', 'mains failed'], ['Rectifier'], ['DC link and', 'battery'], ['Inverter'], ['Load']] },\n    { name: ['Drive'], blocks: [['Supply'], ['Rectifier'], ['DC link'], ['Inverter'], ['Motor']] },\n    { name: ['Shore', 'converter'], blocks: [['50 Hz port', 'grid'], ['Rectifier'], ['DC link'], ['Inverter'], ['60 Hz vessel', 'network']] },\n  ];\n  const FADE = 0.35, ANS_SW = 1.2;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  let ST = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, pinning = false, SW = [], BASEI = 0, REC = null;\n  const IDS = ['mode', 'depth', 'fref', 'fc', 'dead', 'cursor'];\n  const SLIDERS = ['depth', 'fref', 'fc', 'dead', 'cursor'];\n  const STEPOF = { depth: 5, fref: 5, fc: 0.5, dead: 5, cursor: 5 };\n  const BASE = { mode: 'h', depth: 60, fref: 50, fc: 1, dead: 20, cursor: 90 };\n  const snapV = (id, x) => +(Math.round(x / STEPOF[id]) * STEPOF[id]).toFixed(2);\n  const modeOf = (p) => (MODES.indexOf(p.mode) >= 0 ? p.mode : 'h');\n  const depOf = (p) => K.clamp(snapV('depth', +p.depth || 0), 0, 100) / 100;\n  const frefOf = (p) => K.clamp(snapV('fref', +p.fref || 50), 5, 50);\n  const fcOf = (p) => K.clamp(snapV('fc', +p.fc || 1), 0.5, 3);\n  const deadOf = (p) => K.clamp(snapV('dead', +p.dead || 0), 0, 100);\n  const curOf = (p) => K.clamp(snapV('cursor', +p.cursor || 0), 0, 360);\n  function setupOf(i, right) {\n    const d = STEPS[i];\n    return Object.assign({ step: i }, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {});\n  }\n  const visIds = (d) => (d.show ? d.ctl || [] : []);\n  const nb = (t) => t.replace(/(\\d) (?=(?:V|A|W|µs|kHz|Hz|ms|mH|Ω)(?![A-Za-z]))/g, '$1 ');\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const modeCtl = K.choice({ id: 'mode', label: 'Circuit', options: MODES.map((m) => ({ value: m, label: MODEN[m] })), value: 'h', into: '#sw' });\n  const CTL = {\n    mode: modeCtl,\n    depth: K.control({ id: 'depth', label: 'Depth, the reference\\'s height', min: 0, max: 100, step: 5, value: 60, fmt: (v) => fx(v, 0) + '%', snap: [30, 50, 60, 100], into: '#ctl' }),\n    fref: K.control({ id: 'fref', label: 'Reference frequency', min: 5, max: 50, step: 5, value: 50, fmt: (v) => fx(v, 0) + ' Hz', snap: [25, 50], into: '#ctl' }),\n    fc: K.control({ id: 'fc', label: 'Carrier frequency', min: 0.5, max: 3, step: 0.5, value: 1, fmt: (v) => kz(v) + ' kHz', snap: [1, 2, 3], into: '#ctl' }),\n    dead: K.control({ id: 'dead', label: 'Dead time', min: 0, max: 100, step: 5, value: 20, fmt: (v) => fx(v, 0) + ' µs', snap: [0, 20, 100], into: '#ctl' }),\n    cursor: K.control({ id: 'cursor', label: 'Time cursor', min: 0, max: 360, step: 5, value: 90, fmt: (v) => fx(v, 0) + '°', snap: [0, 90], into: '#ctl' }),\n  };\n  const rTop = K.readout({ id: 'topOn', label: 'Top switch on, first leg', decimals: 0, fmt: (v) => fh(v) + '%', into: '#outs' });\n  const rAvg = K.readout({ id: 'avgNow', label: 'Average at the cursor', decimals: 0, fmt: (v) => fh(v) + ' V', into: '#outs' });\n  const rRms = K.readout({ id: 'outRms', label: 'Output sine, rms', decimals: 0, fmt: (v) => fh(v) + ' V', into: '#outs' });\n  // The drawn pulses' own average over each switching cycle, centred on the carrier's trough: on the\n  // dead-time screens the dashed line and its readout use this, so they carry the gaps' loss.\n  let SIMC = null;\n  function simC(mode, m, f, fc, td) {\n    const key = [mode, m, f, fc, td].join('|');\n    if (!SIMC || SIMC.key !== key) SIMC = { key, S: simulate(mode, m, f, fc, td) };\n    return SIMC.S;\n  }\n  function cycAvg(S, t) {\n    const Tc = S.Tc, k = Math.round(t / Tc), ta = (k - 0.5) * Tc, tb = ta + Tc;\n    let s = 0;\n    voltSegs(S, ta, tb).forEach((g) => { const x = Math.max(g[0], ta), y = Math.min(g[1], tb); if (y > x) s += g[2] * (y - x); });\n    return s / Tc;\n  }\n  function lossAvg(S, t) {\n    const u = t / S.Tc, k = Math.floor(u), a = cycAvg(S, k * S.Tc), b = cycAvg(S, (k + 1) * S.Tc);\n    return a + (b - a) * (u - k);\n  }\n  const lossyAt = (p, mode) => { const d = STEPS[Math.round(+p.step)]; return !!(d && d.loss) && mode !== 'leg'; };\n  // The readouts' rule: the first leg's duty cycle at the cursor, the dashed line there, and the rms.\n  K.model((p) => {\n    const mode = modeOf(p), m = depOf(p), th = curOf(p), f = frefOf(p);\n    const avg = lossyAt(p, mode) ? lossAvg(simC(mode, m, f, fcOf(p), deadOf(p)), th / 360 / f) : avgAt(mode, m, th);\n    return { topOn: 100 * dOf(m, th), avgNow: avg, outRms: rmsOf(mode, m) };\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = ST[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = ST[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res === 'right' && d.ans && d.ans.sweep) startSweep(d.ans.sweep, ANS_SW, 0.1);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = ST[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && ST[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; SW = [];\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    ST = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: a control swept as a screen opens, or as a right answer lands ----------\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    let busy = false;\n    SW.slice().forEach((s) => {\n      s.t += dt;\n      const fr = K.clamp(s.t / s.dur, 0, 1), val = snapV(s.id, K.lerp(s.from, s.to, K.ease(fr)));\n      if (fr >= 1) s.done = true; else busy = true;\n      if (val !== s.last) { s.last = val; CTL[s.id].set(val); }\n    });\n    SW = SW.filter((s) => !s.done);\n    return busy;\n  } });\n  function startSweep(list, dur, delay) {\n    if (calm()) { list.forEach((s) => CTL[s.id].set(s.to, true)); SW = []; return; }\n    SW = list.map((s) => { CTL[s.id].set(s.from, true); return { id: s.id, from: s.from, to: s.to, last: s.from, t: -(delay || 0), dur }; });\n    if (!motion.playing()) motion.play();\n  }\n  function settle() { SW.forEach((s) => CTL[s.id].set(s.to, true)); SW = []; }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  let into = null, labInto = null;\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const add = (n) => into.appendChild(n);\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  function tx(x, y, s, cls, anchor) {\n    REC.texts.push(s);\n    return labInto.appendChild(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s));\n  }\n  const widths = {};\n  function tw(s) {\n    if (widths[s]) return widths[s];\n    let w = 0;\n    try { const t = labInto.appendChild(K.svg('text', { class: 'lab', x: 0, y: -50 }, s)); w = t.getComputedTextLength(); labInto.removeChild(t); } catch (e) { w = 0; }\n    if (w > 0) { widths[s] = w; return w; }\n    return s.length * 7.4;\n  }\n  function keyRow(y, items) {\n    const ws = items.map((it) => tw(it[2]));\n    const total = items.reduce((t, it, k) => t + 22 + ws[k] + (k ? 14 : 0), 0);\n    let x = Math.max(4, (340 - total) / 2);\n    items.forEach((it, k) => {\n      if (it[0] === 'line') ln(x, y - 4.5, x + 16, y - 4.5, it[1]);\n      else if (it[0] === 'brk') pa('M' + r2(x + 5) + ' ' + (y - 11) + 'h6v12h-6', it[1]);\n      else box(x + 2, y - 10, 12, 11, it[1], 2);\n      tx(x + 22, y, it[2], 'lab', 'start');\n      x += 22 + ws[k] + 14;\n    });\n  }\n  function start(gid, lid) { const g = el(gid), l = el(lid); g.textContent = ''; l.textContent = ''; into = g; labInto = l; }\n\n  // ---------- the circuit ----------\n  // DC link at x 22 (rails at y 24 and 116). Each leg: top IGBT at y 46, bottom at y 94, output node at y 70,\n  // each IGBT with its freewheeling diode on a branch 14 to the right.\n  const LEGX = { leg: [100], h: [100, 252], three: [100, 176, 252] };\n  const YT = 24, YB = 116;\n  function igbt(X, cy, on) {\n    const g = add(K.svg('g', { class: 'sw' + (on ? ' on' : '') }));\n    g.appendChild(K.svg('path', { class: 'ld', d: `M${X} ${cy - 12}H${X - 10}M${X - 10} ${cy + 12}H${X}` }));\n    g.appendChild(K.svg('path', { class: 'ch', d: `M${X - 10} ${cy - 15}V${cy + 15}` }));\n    g.appendChild(K.svg('path', { class: 'gp', d: `M${X - 16} ${cy - 12}V${cy + 12}M${X - 16} ${cy}H${X - 22}` }));\n  }\n  function diodeUp(x, cy, on) {\n    const g = add(K.svg('g', { class: 'dio' + (on ? ' on' : '') }));\n    g.appendChild(K.svg('path', { d: `M${x - 7} ${cy + 6}L${x + 7} ${cy + 6}L${x} ${cy - 6}Z` }));\n    g.appendChild(K.svg('path', { d: `M${x - 7} ${cy - 6}H${x + 7}` }));\n  }\n  function legDraw(X, st, dir) {\n    pa(`M${X} ${YT}V34M${X} 58V82M${X} 106V${YB}`, 'wire');\n    pa(`M${X} 30H${X + 14}V40M${X + 14} 52V62H${X}`, 'wire');\n    pa(`M${X} 78H${X + 14}V88M${X + 14} 100V110H${X}`, 'wire');\n    igbt(X, 46, st === 'T'); igbt(X, 94, st === 'B');\n    diodeUp(X + 14, 46, st === 'G' && dir < 0); diodeUp(X + 14, 94, st === 'G' && dir > 0);\n    ci(X, 70, 3, 'node');\n  }\n  function drawCircuit(v) {\n    start('art', 'clabs');\n    const xs = LEGX[v.mode], xe = xs[xs.length - 1] + 14, H = v.mode === 'three' ? 194 : 140, S = v.S;\n    el('scene').setAttribute('viewBox', '0 0 340 ' + H);\n    pa(`M22 ${YT}H${xe}M22 ${YB}H${xe}`, 'wire');\n    pa(`M22 ${YT}V64M22 74V${YB}`, 'wire');\n    ln(10, 64, 34, 64, 'plate'); ln(10, 74, 34, 74, 'plate');\n    tx(4, 13, N.vdc + ' V DC link', 'lab', 'start');\n    tx(4, 132, '0 V', 'lab m', 'start');\n    tx(72, 50, 'IGBT', 'lab m', 'end');\n    const states = xs.map((x, j) => {\n      if (v.mode === 'h' && j === 1) { const a = legStateAt(S, 0, v.tc, true); return a === 'T' ? 'B' : a === 'B' ? 'T' : 'G'; }\n      return legStateAt(S, j, v.tc, v.mode !== 'leg');\n    });\n    const dirs = xs.map((x, j) => (v.mode === 'h' ? (j ? -1 : 1) * iDir(S, 0, v.tc) : v.mode === 'three' ? iDir(S, j, v.tc) : 0));\n    xs.forEach((X, j) => legDraw(X, states[j], dirs[j]));\n    REC.states = states;\n    if (v.mode !== 'three') tx(122, 40, 'diode', 'lab m', 'start');\n    if (v.mode === 'leg') {\n      pa('M100 70H158', 'wire'); ci(162, 70, 4, 'tml');\n      tx(170, 74.5, 'output', 'lab', 'start');\n    } else if (v.mode === 'h') {\n      pa('M100 70H130M160 70H170M218 70H252', 'wire'); box(130, 64, 30, 12, 'res', 2);\n      pa('M170 70' + ' a6 6 0 0 1 12 0'.repeat(4), 'coil');\n      tx(145, 57, RW + ' Ω', 'lab m'); tx(194, 55, LMH + ' mH', 'lab m'); tx(176, 93, 'motor winding', 'lab');\n      tx(100, 132, 'first leg', 'lab m'); tx(252, 132, 'mirror leg', 'lab m');\n    } else {\n      xs.forEach((X, j) => {\n        const xo = X + 30;\n        pa(`M${X} 70H${xo}V111` + (xo < xe ? 'a5 5 0 0 1 0 10' : 'V121') + 'V128', 'wire');\n        pa(`M${xo} 128` + ' a4 4 0 0 1 0 8'.repeat(4), 'coil');\n        pa(`M${xo} 160V170`, 'wire');\n        tx(X + 36, 64, 'ABC'[j], 'lab', 'start');\n      });\n      pa('M130 170H282', 'wire'); ci(206, 170, 3, 'node');\n      tx(206, 188, 'star-connected motor', 'lab');\n    }\n    if (v.shoot) {\n      xs.forEach((X) => pa(`M${X} ${YT}V${YB}`, 'shoot'));\n      tx(336, 13, 'Shoot-through', 'lab w', 'end');\n      REC.shoot = true;\n    }\n    const what = v.mode === 'leg' ? 'one leg of two IGBTs, each with its diode, its output between them'\n      : v.mode === 'h' ? 'an H-bridge: a first leg and a mirror leg, with a 5 Ω, 20 mH motor winding between their outputs'\n        : 'three legs, their outputs A, B and C feeding a star-connected motor';\n    const now = v.shoot ? ' With no dead time, both switches in each leg conduct for a moment at every edge: a shoot-through across the link.'\n      : states[0] === 'T' ? ' At the cursor, the first leg\\'s top switch is on.' : states[0] === 'B' ? ' At the cursor, the first leg\\'s bottom switch is on.'\n        : ' At the cursor, the first leg is in its dead time, and a diode carries the current.';\n    el('scene').setAttribute('aria-label', 'A DC link feeds ' + what + '.' + now);\n  }\n\n  // ---------- the plots: 40 ms across, the reference over the carrier, the output, the current ----------\n  const X0 = 44, X1 = 292, xt = (t) => X0 + t / AX * (X1 - X0);\n  const yT = (r) => 47 - 23 * r;\n  const yM = (mode, x) => (mode === 'leg' ? 192 - x / VDC * 74 : 155 - x / VDC * 37);\n  const IT = 224, IB = 304, IZ = 264;\n  const TITLE2 = { leg: 'Leg output to 0 V, in volts', h: 'Winding voltage, in volts', three: 'Line voltage from A to B, in volts' };\n  const TITLE4 = { leg: 'Motor current', h: 'Motor current, drawn without a scale', three: 'Current in line A, drawn without a scale' };\n  function drawWave(v) {\n    start('wart', 'wlabs');\n    const S = v.S, mode = v.mode, Tc = S.Tc;\n    // The reference (three of them in Three legs) over the carrier triangle.\n    keyRow(13, mode === 'three' ? [['line', 'ref', 'reference A'], ['line', 'ref b', 'B'], ['line', 'ref c', 'C'], ['line', 'tri', 'carrier']]\n      : [['line', 'ref', 'reference'], ['line', 'tri', 'carrier']]);\n    ln(X0, 22, X0, 72, 'ax');\n    [[1, '+1'], [0, '0'], [-1, '−1']].forEach((q) => { ln(X0 - 4, yT(q[0]), X0, yT(q[0]), 'ax'); tx(X0 - 7, yT(q[0]) + 4.5, q[1], 'lab m', 'end'); });\n    let d = '';\n    const n2 = Math.round(2 * AX / Tc);\n    for (let k = 0; k <= n2; k++) d += (k ? 'L' : 'M') + r2(xt(k * Tc / 2)) + ' ' + (k % 2 ? yT(1) : yT(-1));\n    pa(d, 'tri'); REC.tris = 1;\n    S.rfs.forEach((rf, j) => {\n      let q = '';\n      for (let s = 0; s <= 160; s++) { const t = s * AX / 160; q += (s ? 'L' : 'M') + r2(xt(t)) + ' ' + r2(yT(rf(t))); }\n      pa(q, 'ref' + (j === 1 ? ' b' : j === 2 ? ' c' : '')); REC.refs++;\n    });\n    // The output: its pulses, their average over each cycle, and a bracket up to that average's peak.\n    tx(4, 92, TITLE2[mode], 'lab t', 'start');\n    keyRow(110, [['box', 'pul', 'pulses'], ['line', 'avg', 'average over a cycle'], ['brk', 'brk', 'peak']]);\n    ln(X0, 116, X0, 194, 'ax');\n    (mode === 'leg' ? [VDC, MID, 0] : [VDC, 0, -VDC]).forEach((x) => { const y = yM(mode, x); ln(X0 - 4, y, X0, y, 'ax'); tx(X0 - 7, y + 4.5, fx(x, 0), 'lab m', 'end'); });\n    const z0 = yM(mode, 0);\n    let pd = 'M' + X0 + ' ' + r2(z0), lastV = null, lastX = null;\n    voltSegs(S, 0, AX).forEach((s) => {\n      const y = r2(yM(mode, s[2]));\n      if (s[2] === lastV) { lastX = r2(xt(s[1])); return; }\n      if (lastV != null) pd += 'L' + lastX + ' ' + r2(yM(mode, lastV));\n      pd += 'L' + r2(xt(s[0])) + ' ' + y;\n      lastV = s[2]; lastX = r2(xt(s[1]));\n    });\n    if (lastV != null) pd += 'L' + lastX + ' ' + r2(yM(mode, lastV));\n    pd += 'L' + X1 + ' ' + r2(z0) + 'Z';\n    ln(X0, z0, X1, z0, 'zero');\n    pa(pd, 'pul');\n    let ad = '';\n    const lossy = !!v.d.loss && mode !== 'leg';\n    if (lossy) for (let k = 0; k * Tc <= AX + 1e-12; k++) ad += (k ? 'L' : 'M') + r2(xt(k * Tc)) + ' ' + r2(yM(mode, cycAvg(S, k * Tc)));\n    else for (let s = 0; s <= 200; s++) { const t = s * AX / 200; ad += (s ? 'L' : 'M') + r2(xt(t)) + ' ' + r2(yM(mode, avgAt(mode, v.m, 360 * v.f * t))); }\n    pa(ad, 'halo'); pa(ad, 'avg');\n    const c0 = mode === 'leg' ? MID : 0, pk = peakOf(mode, v.m);\n    REC.peak = pk;\n    if (pk - c0 > 2) pa(`M294 ${r2(yM(mode, c0))}H298V${r2(yM(mode, pk))}H294`, 'brk');\n    // The motor's current, with its average over each cycle.\n    tx(4, 214, TITLE4[mode], 'lab t', 'start');\n    ln(X0, 222, X0, 306, 'ax'); ln(X0, IZ, X1, IZ, 'zero'); tx(X0 - 7, IZ + 4.5, '0', 'lab m', 'end');\n    let yI = null;\n    if (mode === 'leg') tx(168, IZ - 8, 'No winding on one leg', 'lab m');\n    else {\n      const sc = Math.max(v.base, S.maxI, 1) * 1.08;\n      yI = (x) => K.clamp(IZ - x / sc * 40, IT, IB);\n      let cd = 'M' + X0 + ' ' + r2(yI(iNow(S, 0)));\n      S.pts.forEach((p) => { if (p[0] > 0 && p[0] <= AX) cd += 'L' + r2(xt(p[0])) + ' ' + r2(yI(p[1])); });\n      pa(cd, 'cur');\n      let a2 = '';\n      S.draw.forEach((p, k) => { a2 += (k ? 'L' : 'M') + r2(xt(p[0])) + ' ' + r2(yI(p[1])); });\n      pa(a2, 'avg thin');\n      REC.scale = sc;\n    }\n    // Time, and the cursor across all three plots.\n    ln(X0, 310, X1, 310, 'ax');\n    [0, 10, 20, 30, 40].forEach((ms) => { const x = xt(ms / 1000); ln(x, 310, x, 314, 'ax'); tx(x, 326, ms === 40 ? '40 ms' : String(ms), 'lab m'); });\n    tx(4, 326, 'time', 'lab m', 'start');\n    REC.cursor = v.tc <= AX + 1e-12;\n    if (REC.cursor) {\n      const xc = xt(v.tc);\n      ln(xc, 20, xc, 74, 'cline'); ln(xc, 114, xc, 196, 'cline');\n      ci(xc, yT(S.rfs[0](v.tc)), 3.5, 'cdot'); ci(xc, yM(mode, lossy ? lossAvg(S, v.tc) : avgAt(mode, v.m, v.th)), 3.5, 'cdot');\n      if (yI) { ln(xc, 220, xc, 308, 'cline'); ci(xc, yI(iNow(S, v.tc)), 3.5, 'cdot'); }\n      tx(K.clamp(xc, 28, 312), 342, 'cursor', 'lab');\n    }\n    el('wave').setAttribute('aria-label', 'Three plots over ' + AXMS + ' ms. Top: ' + (mode === 'three' ? 'three references, 120° apart,' : 'the reference sine') +\n      ' over the carrier triangle. Middle: the ' + (mode === 'leg' ? 'leg\\'s output' : mode === 'h' ? 'winding\\'s voltage' : 'line voltage from A to B') +\n      ' as pulses, with their average over each cycle tracing a sine. Bottom: ' + (mode === 'leg' ? 'no current, as one leg drives no winding here.' : 'the motor current, a near-sine with a small sawtooth, and its average.'));\n  }\n\n  // ---------- the close-up: one switching cycle of the first leg, around the cursor ----------\n  const ZX0 = 64, ZX1 = 324, yZ = (r) => 66 - 24 * r, ZHI = 100, ZLO = 122;\n  function drawZoom(v) {\n    start('zart', 'zlabs');\n    REC.zoom = true;\n    const S = v.S, Tc = S.Tc, rf = S.rfs[0], k = Math.round(v.tc / Tc), wa = (k - 0.5) * Tc, wb = wa + Tc;\n    const xz = (t) => ZX0 + (t - wa) / Tc * (ZX1 - ZX0);\n    const gaps = v.mode === 'h', td = gaps ? S.td : 0;\n    tx(4, 14, 'Close-up: one switching cycle, first leg', 'lab t', 'start');\n    const key = [['line', 'ref', 'reference'], ['line', 'tri', 'carrier']];\n    if (gaps) key.push(v.shoot ? ['box', 'both', 'both on'] : ['box', 'gap', 'dead time']);\n    keyRow(32, key);\n    const ev = [];\n    [k - 1, k, k + 1].forEach((kk) => {\n      const pu = pulse(rf, kk, Tc);\n      if (pu[1] - pu[0] < 1e-12) return;\n      const last = ev[ev.length - 1];\n      if (last && !last[1] && pu[0] - last[0] < 1e-12) ev.pop(); else ev.push([pu[0], true]);\n      ev.push([pu[1], false]);\n    });\n    const segs = [];\n    let st = ev.length ? !ev[0][1] : rf(wa) > 0, t = wa - Tc;\n    ev.forEach((e, n) => {\n      if (e[0] > t) segs.push([t, e[0], st ? 'T' : 'B']);\n      const nx = n + 1 < ev.length ? ev[n + 1][0] : Infinity, ge = Math.min(e[0] + td, nx);\n      if (td > 0 && ge > e[0]) { segs.push([e[0], ge, 'G']); t = ge; } else t = e[0];\n      st = e[1];\n    });\n    segs.push([t, wb + Tc, st ? 'T' : 'B']);\n    const inW = segs.filter((s) => s[1] > wa && s[0] < wb).map((s) => [Math.max(s[0], wa), Math.min(s[1], wb), s[2]]);\n    inW.forEach((s) => { if (s[2] === 'G') { box(xz(s[0]), ZHI - 4, Math.max(2, xz(s[1]) - xz(s[0])), ZLO - ZHI + 4, 'gap'); REC.gaps++; } });\n    if (v.shoot) ev.forEach((e) => {\n      if (e[0] < wa || e[0] >= wb) return;\n      box(xz(e[0]), ZHI - 4, Math.max(2, xz(e[0] + LAG - S.td) - xz(e[0])), ZLO - ZHI + 4, 'both'); REC.bands++;\n    });\n    pa(`M${ZX0} ${yZ(1)}L${r2(xz(k * Tc))} ${yZ(-1)}L${ZX1} ${yZ(1)}`, 'tri');\n    let q = '';\n    for (let s = 0; s <= 24; s++) { const tt = wa + s * Tc / 24; q += (s ? 'L' : 'M') + r2(xz(tt)) + ' ' + r2(yZ(rf(tt))); }\n    pa(q, 'ref');\n    ev.forEach((e) => { if (e[0] > wa && e[0] < wb) ln(xz(e[0]), yZ(rf(e[0])), xz(e[0]), ZLO, 'guide'); });\n    let tr = '', fill = 'M' + ZX0 + ' ' + ZLO, pen = false;\n    inW.forEach((s) => {\n      let y;\n      if (s[2] === 'T') y = ZHI; else if (s[2] === 'B') y = ZLO;\n      else { const dd = iDir(S, 0, (s[0] + s[1]) / 2); y = dd > 0 ? ZLO : dd < 0 ? ZHI : null; }\n      if (y == null) { pen = false; fill += 'L' + r2(xz(s[0])) + ' ' + ZLO + 'L' + r2(xz(s[1])) + ' ' + ZLO; return; }\n      tr += (pen ? 'L' : 'M') + r2(xz(s[0])) + ' ' + y + 'L' + r2(xz(s[1])) + ' ' + y; pen = true;\n      fill += 'L' + r2(xz(s[0])) + ' ' + y + 'L' + r2(xz(s[1])) + ' ' + y;\n    });\n    fill += 'L' + ZX1 + ' ' + ZLO + 'Z';\n    pa(fill, 'pulf'); pa(tr, 'trace');\n    tx(58, ZHI + 4, N.vdc + ' V', 'lab m', 'end'); tx(58, ZLO + 4, '0 V', 'lab m', 'end');\n    const tops = inW.filter((s) => s[2] === 'T').sort((a, b) => (b[1] - b[0]) - (a[1] - a[0]));\n    if (tops.length) {\n      const xa = r2(xz(tops[0][0])), xb = r2(xz(tops[0][1]));\n      if (xb - xa >= 4) {\n        pa(`M${xa} ${ZLO + 4}V${ZLO + 8}H${xb}V${ZLO + 4}`, 'brk');\n        tx(K.clamp((xa + xb) / 2, ZX0 + 46, ZX1 - 46), ZLO + 24, 'top switch on', 'lab');\n      }\n    }\n    const xc = xz(v.tc);\n    ln(xc, 40, xc, ZLO + 2, 'cline');\n    el('zoom').setAttribute('aria-label', 'A close-up of one switching cycle of the first leg around the cursor. The reference crosses the carrier triangle twice, and the leg\\'s output switches at each crossing.' +\n      (v.shoot ? ' With no dead time, both switches conduct for a moment at each edge.' : gaps ? ' A short gap with both switches off follows each edge, and a diode carries the current through it.' : ''));\n  }\n\n  // ---------- the card: three chains of blocks ----------\n  function drawCard(v) {\n    start('cart', 'cardl');\n    REC.card = true;\n    CHAINS.forEach((c, n) => {\n      const cx = 58 + 112 * n;\n      c.name.forEach((s, j) => tx(cx, (c.name.length === 2 ? 14 : 30) + 16 * j, s, 'lab'));\n      c.blocks.forEach((b, j) => {\n        const y0 = 42 + 48 * j, lit = v.lit && n === 0 && j >= 2;\n        box(cx - 52, y0, 104, 34, 'blk' + (lit ? ' lit' : ''), 6);\n        if (lit) REC.lit.push(b.join(' '));\n        b.forEach((s, q) => tx(cx, b.length === 2 ? y0 + 14 + 14 * q : y0 + 22, s, n === 0 && j === 0 && q === 1 ? 'lab w' : 'lab'));\n        if (j < c.blocks.length - 1) {\n          const al = v.lit && n === 0 && j >= 2;\n          ln(cx, y0 + 35, cx, y0 + 41, 'arr' + (al ? ' lit' : ''));\n          pa(`M${cx - 5} ${y0 + 41}H${cx + 5}L${cx} ${y0 + 47}Z`, 'ah' + (al ? ' lit' : ''));\n        }\n      });\n    });\n    el('card').setAttribute('aria-label', 'Three chains of blocks. An online UPS: supply, whose mains has failed, rectifier, DC link and battery, inverter, load. A drive: supply, rectifier, DC link, inverter, motor. A shore converter: 50 Hz port grid, rectifier, DC link, inverter, 60 Hz vessel network.' +\n      (v.lit ? ' The battery\\'s path through the inverter to the load is lit.' : ''));\n  }\n\n  // ---------- one screen drawn in its state ----------\n  function view(i, p, st) {\n    const d = STEPS[i], right = st.res === 'right', mode = modeOf(p), m = depOf(p), f = frefOf(p), fc = fcOf(p), td = deadOf(p), th = curOf(p);\n    const S = simulate(mode, m, f, fc, td);\n    return { i, d, right, show: !!d.show, mode, m, dp: Math.round(m * 100), f, fc, td, th, tc: th / 360 / f, S, D: dOf(m, th), base: BASEI,\n      shoot: mode !== 'leg' && td < LAGUS, card: !!d.card, lit: !!(d.ans && d.ans.lit && right),\n      zoom: !d.card && mode !== 'three' && (d.zoom === true || (d.zoom === 'after' && right)) };\n  }\n  function render(i, p, st) {\n    REC = { texts: [], shoot: false, refs: 0, tris: 0, lit: [], zoom: false, card: false, gaps: 0, bands: 0, v: null };\n    const v = view(i, p, st);\n    REC.v = v;\n    if (!v.card) { drawCircuit(v); drawWave(v); }\n    if (v.zoom) drawZoom(v);\n    if (v.card) drawCard(v);\n    into = null; labInto = null;\n    return REC;\n  }\n  function redraw() { render(at(), K.params(), ST[at()]); }\n  // The current's height on the screen: fixed for a screen from how it opens (and where its motion\n  // starts), so a falling depth shows a smaller current. It grows only when Dan pushes past it.\n  function scaleFor(i, right) {\n    const d = STEPS[i], q = setupOf(i, right), cases = [q];\n    if (d.show && d.play) cases.push(Object.assign({}, q, { [d.play.id]: d.play.from }));\n    let mx = 0;\n    cases.forEach((c) => { if (c.mode !== 'leg') mx = Math.max(mx, simulate(c.mode, c.depth / 100, c.fref, c.fc, c.dead).maxI); });\n    return mx;\n  }\n\n  // ---------- what Dan reads under the picture ----------\n  const hv = (x) => (Math.abs(x - Math.round(x)) < 0.05 ? '' : 'about ') + fx(x, 0);\n  const FR = { 0.5: 'twice as tall as', 1.5: 'about two thirds as tall as', 2: 'half as tall as', 2.5: '0.4 times as tall as', 3: 'about a third as tall as' };\n  function sayFor(v) {\n    const d = v.d, mode = v.mode, pk = fx(peakOf(mode, v.m), 0), rms = fx(rmsOf(mode, v.m), 0);\n    if (d.name === 'Sine meets triangle' && mode === 'leg') {\n      const D = fh(100 * v.D);\n      return `At ${v.th}°, the reference sits ${D}% of the way up the triangle.`;\n    }\n    if (d.name === 'The winding smooths it') {\n      return v.fc === 1 ? `At 1 kHz, a sawtooth rides on the current at each switching edge. The sine under it is ${v.f} Hz.`\n        : `At ${kz(v.fc)} kHz, the sawtooth is ${FR[v.fc]} at 1 kHz.`;\n    }\n    if (d.name === 'Dead time') {\n      if (v.shoot) return `With no dead time, both switches in each leg conduct for a moment at every edge. That shorts the ${N.vdc} V link: a shoot-through.`;\n      return `With ${v.td} µs of dead time, the dashed average loses ${hv(lossOf(v.td, v.fc))} V against the current. ` +\n        (lossOf(v.td, v.fc) >= 60 ? 'Near each zero the small current stalls, and the sine flattens.' : 'The current flattens a little near each zero.');\n    }\n    if (mode === 'leg') {\n      return v.m === 0 ? `With the depth at 0%, D holds at 50% in every cycle. The average sits flat at ${N.mid} V.`\n        : `At ${v.dp}% depth, the dashed average runs from ${fh(avgAt('leg', v.m, 270))} V to ${fh(avgAt('leg', v.m, 90))} V.`;\n    }\n    if (mode === 'h') {\n      return v.m === 0 ? 'With the depth at 0%, both legs sit at 50%, and their averages cancel. The winding\\'s average stays at zero.'\n        : `With the depth at ${v.dp}%, the current follows the winding's average as a near-sine.`;\n    }\n    return v.m === 0 ? 'With the depth at 0%, all three legs sit at 50%. The line average stays at zero.'\n      : `At ${v.dp}% depth and ${v.f} Hz, the line average peaks at ${pk} V.`;\n  }\n  function settingFor(v) {\n    const parts = [MODEN[v.mode], 'depth ' + v.dp + '%', v.f + ' Hz', 'carrier ' + kz(v.fc) + ' kHz'];\n    if (v.mode !== 'leg') parts.push('dead time ' + v.td + ' µs');\n    parts.push('cursor ' + v.th + '°');\n    return parts.join(' · ');\n  }\n  function showEl(id, on) { const e = el(id); if (e.hidden && on) enter(id); e.hidden = !on; }\n  const outsShown = (v) => !v.card && (v.show || v.d.outs !== 'after' || v.right);\n  function layout(i, d, st, v) {\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, nb(d.show ? d.text : d.task));\n    const vis = visIds(d), has = (id) => vis.indexOf(id) >= 0;\n    modeCtl.el.hidden = !has('mode'); el('sw').hidden = !has('mode');\n    SLIDERS.forEach((id) => { CTL[id].el.hidden = !has(id); });\n    el('ctl').hidden = !SLIDERS.some(has);\n    el('scene').toggleAttribute('hidden', v.card); el('wave').toggleAttribute('hidden', v.card || (d.wave === 'after' && !right));\n    el('zoom').toggleAttribute('hidden', !v.zoom); el('card').toggleAttribute('hidden', !v.card);\n    showEl('outs', outsShown(v));\n    rRms.el.hidden = v.mode === 'leg';\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? nb(sayFor(v)) : '';\n    el('setting').hidden = !!d.show || v.card;\n    el('setting').textContent = d.show || v.card ? '' : nb(settingFor(v));\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(nb(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? nb(d.hints[st.pick] || '') : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, nb(d.why));\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  function outsNow(v, o) {\n    const hide = v.right ? [] : v.d.hide || [];\n    [[rTop, 'topOn'], [rAvg, 'avgNow'], [rRms, 'outRms']].forEach((q) => {\n      const r = q[0], id = q[1];\n      if (o && typeof o[id] === 'number' && isFinite(o[id])) r.set(o[id]);\n      const val = r.el.querySelector('.k-readout-value');\n      if (!val) return;\n      if (hide.indexOf(id) >= 0) { val.textContent = '?'; val.classList.add('k-wait'); } else val.classList.remove('k-wait');\n    });\n  }\n  write(el('finish'), FINISH);\n\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); SW = [];\n    const d = STEPS[i], right = ST[i].res === 'right', q = setupOf(i, right);\n    IDS.forEach((id) => CTL[id].set(q[id], true));\n    BASEI = scaleFor(i, right);\n    if (d.show && d.play && !calm()) startSweep([{ id: d.play.id, from: d.play.from, to: d.play.to }], d.play.dur, FADE);\n  }\n  const differs = (a, b) => (typeof b === 'number' ? !K.near(+a, b, 1e-6) : String(a) !== String(b));\n  K.update((p, o) => {\n    const i = at(), d = STEPS[i], st = ST[i];\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    if (!motion.playing() && SW.length) { settle(); K.refresh(); return; }\n    SW = SW.filter((s) => !differs(p[s.id], s.last));   // Dan took hold of that slider\n    if (!pinning) {\n      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.\n      const q = setupOf(i, st.res === 'right'), vis = visIds(d);\n      let fix = false;\n      IDS.forEach((id) => {\n        if (vis.indexOf(id) >= 0 || SW.some((s) => s.id === id)) return;\n        if (differs(p[id], q[id])) { CTL[id].set(q[id], true); fix = true; }\n      });\n      if (fix) { pinning = true; K.refresh(); pinning = false; return; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const R = render(i, p, st);\n    layout(i, d, st, R.v);\n    outsNow(R.v, o);\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, over, right) {\n    const keep = SW, kb = BASEI;\n    SW = [];\n    try {\n      const q = Object.assign({}, setupOf(i, !!right), over || {});\n      BASEI = scaleFor(i, !!right);\n      return render(i, q, right ? solved(i) : blank());\n    } finally { SW = keep; BASEI = kb; redraw(); }\n  }\n  const atP = (o) => K.at(Object.assign({ mode: 'h', depth: 60, fref: 50, fc: 1, dead: 20, cursor: 90 }, o));\n  const r0 = (a, b) => fx(a, 0) === b;\n  // The sawtooth: in each carrier cycle, the current less the straight line between its ends, top to bottom.\n  function ripple(S) {\n    const Tc = S.Tc;\n    let best = 0;\n    for (let k = Math.ceil(0.01 / Tc); (k + 1) * Tc <= AX; k++) {\n      const ta = k * Tc - Tc / 2, tb = ta + Tc, ia = iNow(S, ta), ib = iNow(S, tb);\n      let mx = 0, mn = 0;\n      S.pts.forEach((p) => { if (p[0] > ta && p[0] < tb) { const r = p[1] - (ia + (ib - ia) * (p[0] - ta) / Tc); mx = Math.max(mx, r); mn = Math.min(mn, r); } });\n      best = Math.max(best, mx - mn);\n    }\n    return best;\n  }\n  // How far the current strays from its best-fitting sine over the last 20 ms, as a share of that sine.\n  function fitRes(S) {\n    const n = 800, a0 = 0.02, a1 = 0.04, xs = [];\n    let a = 0, b = 0;\n    for (let k = 0; k < n; k++) { const t = a0 + (k + 0.5) * (a1 - a0) / n, i = iNow(S, t); xs.push([t, i]); a += i * Math.sin(S.w * t); b += i * Math.cos(S.w * t); }\n    a *= 2 / n; b *= 2 / n;\n    const amp = Math.hypot(a, b);\n    let mx = 0;\n    xs.forEach((q) => { mx = Math.max(mx, Math.abs(q[1] - a * Math.sin(S.w * q[0]) - b * Math.cos(S.w * q[0]))); });\n    return mx / amp;\n  }\n  function stallShare(S) { let z = 0; const n = 2000; for (let q = 0; q < n; q++) if (S.iAvg(0, (q + 0.5) * AX / n) === 0) z++; return z / n; }\n  // The drawn pulses' average over each carrier cycle, less the dashed line, while the current stays above 4 A.\n  function lossM(S) {\n    const Tc = S.Tc, segs = voltSegs(S, -Tc, AX + Tc), out = [];\n    for (let k = 1; (k + 0.5) * Tc <= AX; k++) {\n      const ta = (k - 0.5) * Tc, tb = ta + Tc;\n      let mn = Infinity;\n      for (let q = 0; q <= 20; q++) mn = Math.min(mn, S.iAvg(0, ta + q * Tc / 20));\n      if (mn < 4) continue;\n      let s = 0;\n      segs.forEach((g) => { const x = Math.max(g[0], ta), y = Math.min(g[1], tb); if (y > x) s += g[2] * (y - x); });\n      out.push(s / Tc - avgAt(S.mode, S.m, 360 * S.f * k * Tc));\n    }\n    return out.length ? out.reduce((p, q) => p + q, 0) / out.length : NaN;\n  }\n\n  K.check('A three-phase bridge gives a DC bus of approximately 1.35 × the line voltage: 1.35 × 400 V = 540 V, the link drawn here', () =>\n    K.near(VDC, 1.35 * 400, 1e-9) && N.vdc === '540' && N.mid === '270', { source: SRC.vfd });\n  K.check('One leg averages D × 540 V. At 60% depth D runs from 20% to 80%: 108 V at the trough, 270 V at the zero and 432 V at the peak', () => {\n    const a = atP({ mode: 'leg', cursor: 270 }), b = atP({ mode: 'leg', cursor: 0 }), c = atP({ mode: 'leg', cursor: 90 });\n    return r0(a.topOn, '20') && r0(a.avgNow, '108') && r0(b.topOn, '50') && r0(b.avgNow, '270') && r0(c.topOn, '80') && r0(c.avgNow, '432');\n  });\n  K.check('The amplitude of the phase voltage is determined by the duty cycle: each switching cycle\\'s pulses are on for D of it, so they average D times the link, at every depth', () => {\n    for (const dep of [0, 0.3, 0.6, 1]) {\n      const S = simulate('leg', dep, 50, 1, 20);\n      for (let k = 1; k < 40; k++) { const pu = pulse(S.rfs[0], k, S.Tc); if (Math.abs((pu[1] - pu[0]) / S.Tc - dOf(dep, 360 * 50 * k * S.Tc)) > 0.01) return false; }\n    }\n    return true;\n  }, { source: SRC.ti });\n  K.check('H-bridge: the winding averages (2D − 1) × 540 V. At 50% depth and 90°, D is 75% and it sees 405 − 135 = 270 V, 191 V rms. At 60%, a 324 V peak and 229 V rms. At full depth, 382 V rms', () => {\n    const a = atP({ depth: 50 });\n    return r0(a.topOn, '75') && r0(a.avgNow, '270') && r0(a.outRms, '191') && r0(atP({}).avgNow, '324') && r0(atP({}).outRms, '229') && r0(atP({ depth: 100 }).outRms, '382') && N.a405 === '405' && N.a135 === '135';\n  });\n  K.check('Sine-triangle PWM works for three sine waves 120° out of phase: the three legs\\' references are drawn 120° apart, against one carrier', () => {\n    const r = drawnAt(9);\n    return r.refs === 3 && r.tris === 1 && PH.three[1] === -120 && PH.three[2] === -240;\n  }, { source: SRC.mchp });\n  K.check('Three legs: between lines the average peaks at √3 × 270 = 468 V at full depth, 331 V rms. At 60% depth, 198 V rms', () =>\n    r0(peakOf('three', 1), '468') && r0(atP({ mode: 'three', depth: 100, cursor: 60 }).avgNow, '468') && r0(atP({ mode: 'three', depth: 100 }).outRms, '331') && r0(atP({ mode: 'three', depth: 60 }).outRms, '198'));\n  K.check('The motor filters the supplied current into a near-sine wave: with the fastest carrier, the drawn line current stays close to a sine', () =>\n    fitRes(simulate('three', 1, 50, 3, 20)) < 0.08, { source: SRC.ti });\n  K.check('The sawtooth falls in proportion as the carrier rises: at 3 kHz it is about a third as tall as at 1 kHz, while the current stays a 50 Hz near-sine', () => {\n    const a = simulate('h', 1, 50, 1, 20), b = simulate('h', 1, 50, 3, 20), r = ripple(b) / ripple(a);\n    return r > 0.28 && r < 0.4 && fitRes(a) < 0.15 && fitRes(b) < 0.1;\n  });\n  K.check('One IGBT is always turned off first and the other turned on after the dead time, preventing a bridge shoot-through: only a dead time shorter than the turn-off lag draws one', () => {\n    const a = drawnAt(11, { dead: 0 }), b = drawnAt(11, { dead: 5 }), c = drawnAt(11, { dead: 20 });\n    return a.shoot && a.bands > 0 && !b.shoot && !c.shoot && c.gaps > 0;\n  }, { source: SRC.inf });\n  K.check('Each gap costs the winding 2 × dead time × carrier frequency × 540 V against the current: about 22 V at 20 µs and 1 kHz, 108 V at 100 µs. The drawn pulses lose that much', () =>\n    N.loss20 === '22' && N.loss100 === '108' && K.near(lossM(simulate('h', 0.6, 50, 1, 100)), -108, 3) && K.near(lossM(simulate('h', 0.6, 50, 1, 20)), -21.6, 1.5));\n  K.check('The dead time causes distortion in the output current, so the smaller the dead time the better: with the longest gap the drawn current stalls near each zero, and with a short one it does not', () =>\n    stallShare(simulate('h', 0.3, 50, 1, 100)) > 0.15 && stallShare(simulate('h', 0.3, 50, 1, 20)) < 0.01, { source: SRC.malta });\n  K.check('Double conversion provides zero transfer time to battery: on the card the UPS inverter feeds the load all the time, from the DC link that holds the battery', () => {\n    const c = CHAINS[0].blocks.map((b) => b.join(' ')), r = drawnAt(13, null, true), w = drawnAt(13, null, false);\n    return c[2].indexOf('battery') >= 0 && c[3] === 'Inverter' && c[4] === 'Load' && r.lit.join('|') === [c[2], c[3], c[4]].join('|') && !w.lit.length && r.card && !r.zoom;\n  }, { source: SRC.eaton });\n  K.check('Static conversion of the 50/60 Hz port grid power to match the 60/50 Hz vessel network: the shore chain runs from a 50 Hz port grid through rectifier, DC link and inverter to a 60 Hz vessel network', () => {\n    const c = CHAINS[2].blocks.map((b) => b.join(' '));\n    return c[0] === '50 Hz port grid' && c[1] === 'Rectifier' && c[2] === 'DC link' && c[3] === 'Inverter' && c[4] === '60 Hz vessel network';\n  }, { source: SRC.abb });\n  K.check('Every number in the words comes from the rule: 540, 270, 8, 200, 800, 20, 80, 108, 432, 0.8, 0.5, 324, 229, 75, 25, 0.75, 0.25, 405, 135, 191, 382, 468, 331, 0.60, 60, 198, 22 and 108', () =>\n    N.vdc === '540' && N.mid === '270' && N.vpf === '8' && N.v25 === '200' && N.x2 === '800' && N.dLo === '20' && N.dHi === '80' && N.rest === '20' && N.aLo === '108' && N.aHi === '432' &&\n    N.d80f === '0.8' && N.d50f === '0.5' && N.pk60 === '324' && N.rms60 === '229' && N.d75 === '75' && N.d25 === '25' && N.d75f === '0.75' && N.d25f === '0.25' &&\n    N.a405 === '405' && N.a135 === '135' && N.w270 === '270' && N.rms50 === '191' && N.rms100 === '382' && N.pk3 === '468' && N.rms3 === '331' && N.depf === '0.60' &&\n    N.dep === '60' && N.rms3at60 === '198' && N.loss20 === '22' && N.loss100 === '108' && N.pk30 === '162');\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden numbers appear only after a right Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.filter((o) => o === d.want).length !== 1 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      const a = view(i, setupOf(i, false), blank()), b = view(i, setupOf(i, true), solved(i));\n      if (d.outs === 'after' && !(!outsShown(a) && outsShown(b))) return false;\n      if (d.zoom === 'after' && !(!a.zoom && b.zoom)) return false;\n      return true;\n    }));\n  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () =>\n    STEPS.every((d) => !d.play || FADE + d.play.dur <= 4.5) && ANS_SW + 0.1 <= 3);\n  K.check('From the same 540 V link, a smaller depth narrows the pulses near the peak and shrinks the average sine: in the H-bridge at 90°, on for 80% at 60% depth and 65% at 30%, with peaks of 324 V and 162 V', () => {\n    const a = simulate('h', 0.6, 50, 1, 20), b = simulate('h', 0.3, 50, 1, 20), pa_ = pulse(a.rfs[0], 5, a.Tc), pb = pulse(b.rfs[0], 5, b.Tc);\n    return r0(atP({}).topOn, '80') && r0(atP({ depth: 30 }).topOn, '65') && r0(peakOf('h', 0.6), '324') && r0(peakOf('h', 0.3), '162') && pb[1] - pb[0] < pa_[1] - pa_[0];\n  });\n\n  K.ready();\n</script>",
+  "title": "Sine from pulses",
+  "brief": "The one thing you should see is the pulses narrow and their average sine shrink, from the same fixed 540 V link, when you drag the reference’s depth down.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "A three-phase bridge gives a DC bus of approximately 1.35 × the line voltage: 1.35 × 400 V = 540 V, the link drawn here",
+     "ok": true,
+     "source": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design"
+    },
+    {
+     "label": "One leg averages D × 540 V. At 60% depth D runs from 20% to 80%: 108 V at the trough, 270 V at the zero and 432 V at the peak",
+     "ok": true
+    },
+    {
+     "label": "The amplitude of the phase voltage is determined by the duty cycle: each switching cycle's pulses are on for D of it, so they average D times the link, at every depth",
+     "ok": true,
+     "source": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380"
+    },
+    {
+     "label": "H-bridge: the winding averages (2D − 1) × 540 V. At 50% depth and 90°, D is 75% and it sees 405 − 135 = 270 V, 191 V rms. At 60%, a 324 V peak and 229 V rms. At full depth, 382 V rms",
+     "ok": true
+    },
+    {
+     "label": "Sine-triangle PWM works for three sine waves 120° out of phase: the three legs' references are drawn 120° apart, against one carrier",
+     "ok": true,
+     "source": "https://developerhelp.microchip.com/xwiki/bin/view/applications/motors/control-algorithms/zsm/pwm"
+    },
+    {
+     "label": "Three legs: between lines the average peaks at √3 × 270 = 468 V at full depth, 331 V rms. At 60% depth, 198 V rms",
+     "ok": true
+    },
+    {
+     "label": "The motor filters the supplied current into a near-sine wave: with the fastest carrier, the drawn line current stays close to a sine",
+     "ok": true,
+     "source": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380"
+    },
+    {
+     "label": "The sawtooth falls in proportion as the carrier rises: at 3 kHz it is about a third as tall as at 1 kHz, while the current stays a 50 Hz near-sine",
+     "ok": true
+    },
+    {
+     "label": "One IGBT is always turned off first and the other turned on after the dead time, preventing a bridge shoot-through: only a dead time shorter than the turn-off lag draws one",
+     "ok": true,
+     "source": "https://www.newweb-qa2.infineon.com/assets/row/public/documents/60/42/Infineon-Deadtime_calculation_for_IGBT_modules-ApplicationNotes-v01_10-EN.pdf"
+    },
+    {
+     "label": "Each gap costs the winding 2 × dead time × carrier frequency × 540 V against the current: about 22 V at 20 µs and 1 kHz, 108 V at 100 µs. The drawn pulses lose that much",
+     "ok": true
+    },
+    {
+     "label": "The dead time causes distortion in the output current, so the smaller the dead time the better: with the longest gap the drawn current stalls near each zero, and with a short one it does not",
+     "ok": true,
+     "source": "https://www.um.edu.mt/library/oar/bitstream/123456789/27427/1/Compensation_techniques_for_non-linearities_in_H-bridge_inverters_2016.pdf"
+    },
+    {
+     "label": "Double conversion provides zero transfer time to battery: on the card the UPS inverter feeds the load all the time, from the DC link that holds the battery",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/products/backup-power-ups-surge-it-power-distribution/backup-power-ups/eaton-ups-fundamentals-handbook-en-us-2025.pdf"
+    },
+    {
+     "label": "Static conversion of the 50/60 Hz port grid power to match the 60/50 Hz vessel network: the shore chain runs from a 50 Hz port grid through rectifier, DC link and inverter to a 60 Hz vessel network",
+     "ok": true,
+     "source": "https://new.abb.com/power-converters-inverters/grid-interconnections/shore-to-ship-converters/acs6080sfc"
+    },
+    {
+     "label": "Every number in the words comes from the rule: 540, 270, 8, 200, 800, 20, 80, 108, 432, 0.8, 0.5, 324, 229, 75, 25, 0.75, 0.25, 405, 135, 191, 382, 468, 331, 0.60, 60, 198, 22 and 108",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden numbers appear only after a right Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+     "ok": true
+    },
+    {
+     "label": "From the same 540 V link, a smaller depth narrows the pulses near the peak and shrinks the average sine: in the H-bridge at 90°, on for 80% at 60% depth and 65% at 30%, with peaks of 324 V and 162 V",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "mode",
+    "depth",
+    "fref",
+    "fc",
+    "dead",
+    "cursor"
+   ],
+   "readouts": [
+    "topOn",
+    "avgNow",
+    "outRms"
+   ],
+   "outputs": [
+    "topOn",
+    "avgNow",
+    "outRms"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Volts per hertz",
+      "One leg",
+      "The leg's average",
+      "Sine meets triangle",
+      "At the zero",
+      "The H-bridge",
+      "The winding's average",
+      "The winding smooths it",
+      "Twice the carrier",
+      "Three legs, two knobs",
+      "200 V at 25 Hz",
+      "Dead time",
+      "A longer gap",
+      "Three chains"
+     ],
+     "value": 0
+    },
+    {
+     "id": "mode",
+     "kind": "choice",
+     "label": "Circuit",
+     "options": [
+      "leg",
+      "h",
+      "three"
+     ],
+     "labels": [
+      "One leg",
+      "H-bridge",
+      "Three legs"
+     ],
+     "value": "three",
+     "index": 2,
+     "shown": false
+    },
+    {
+     "id": "depth",
+     "kind": "control",
+     "label": "Depth, the reference's height",
+     "min": 0,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 100,
+     "shown": false,
+     "snap": [
+      30,
+      50,
+      60,
+      100
+     ]
+    },
+    {
+     "id": "fref",
+     "kind": "control",
+     "label": "Reference frequency",
+     "min": 5,
+     "max": 50,
+     "step": 5,
+     "log": false,
+     "value": 50,
+     "shown": false,
+     "snap": [
+      25,
+      50
+     ]
+    },
+    {
+     "id": "fc",
+     "kind": "control",
+     "label": "Carrier frequency",
+     "min": 0.5,
+     "max": 3,
+     "step": 0.5,
+     "log": false,
+     "value": 1,
+     "shown": false,
+     "snap": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "id": "dead",
+     "kind": "control",
+     "label": "Dead time",
+     "min": 0,
+     "max": 100,
+     "step": 5,
+     "log": false,
+     "value": 20,
+     "shown": false,
+     "snap": [
+      0,
+      20,
+      100
+     ]
+    },
+    {
+     "id": "cursor",
+     "kind": "control",
+     "label": "Time cursor",
+     "min": 0,
+     "max": 360,
+     "step": 5,
+     "log": false,
+     "value": 90,
+     "shown": false,
+     "snap": [
+      0,
+      90
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "Screen 1 states that a drive holds V/Hz steady as a universal rule; it holds only below rated speed for plain V/f control. The card and screen 14 say a drive is the same chain as a UPS, which would give a drive a battery on its DC link."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"Voltage and frequency move together\" fails above rated speed, where voltage stays at rated. An online UPS in an eco or bypass mode does change over, so the common mistake must name double conversion, as source 7 does."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

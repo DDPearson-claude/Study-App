@@ -1,0 +1,285 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "A three-phase bridge gives a DC bus of approximately 1.35 × the line voltage: 1.35 × 400 V = 540 V, the link drawn here",
+        "ok": true,
+        "source": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design"
+      },
+      {
+        "label": "One leg averages D × 540 V. At 60% depth D runs from 20% to 80%: 108 V at the trough, 270 V at the zero and 432 V at the peak",
+        "ok": true
+      },
+      {
+        "label": "The amplitude of the phase voltage is determined by the duty cycle: each switching cycle's pulses are on for D of it, so they average D times the link, at every depth",
+        "ok": true,
+        "source": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380"
+      },
+      {
+        "label": "H-bridge: the winding averages (2D − 1) × 540 V. At 50% depth and 90°, D is 75% and it sees 405 − 135 = 270 V, 191 V rms. At 60%, a 324 V peak and 229 V rms. At full depth, 382 V rms",
+        "ok": true
+      },
+      {
+        "label": "Sine-triangle PWM works for three sine waves 120° out of phase: the three legs' references are drawn 120° apart, against one carrier",
+        "ok": true,
+        "source": "https://developerhelp.microchip.com/xwiki/bin/view/applications/motors/control-algorithms/zsm/pwm"
+      },
+      {
+        "label": "Three legs: between lines the average peaks at √3 × 270 = 468 V at full depth, 331 V rms. At 60% depth, 198 V rms",
+        "ok": true
+      },
+      {
+        "label": "The motor filters the supplied current into a near-sine wave: with the fastest carrier, the drawn line current stays close to a sine",
+        "ok": true,
+        "source": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380"
+      },
+      {
+        "label": "The sawtooth falls in proportion as the carrier rises: at 3 kHz it is about a third as tall as at 1 kHz, while the current stays a 50 Hz near-sine",
+        "ok": true
+      },
+      {
+        "label": "One IGBT is always turned off first and the other turned on after the dead time, preventing a bridge shoot-through: only a dead time shorter than the turn-off lag draws one",
+        "ok": true,
+        "source": "https://www.newweb-qa2.infineon.com/assets/row/public/documents/60/42/Infineon-Deadtime_calculation_for_IGBT_modules-ApplicationNotes-v01_10-EN.pdf"
+      },
+      {
+        "label": "Each gap costs the winding 2 × dead time × carrier frequency × 540 V against the current: about 22 V at 20 µs and 1 kHz, 108 V at 100 µs. The drawn pulses lose that much",
+        "ok": true
+      },
+      {
+        "label": "The dead time causes distortion in the output current, so the smaller the dead time the better: with the longest gap the drawn current stalls near each zero, and with a short one it does not",
+        "ok": true,
+        "source": "https://www.um.edu.mt/library/oar/bitstream/123456789/27427/1/Compensation_techniques_for_non-linearities_in_H-bridge_inverters_2016.pdf"
+      },
+      {
+        "label": "Double conversion provides zero transfer time to battery: on the card the UPS inverter feeds the load all the time, from the DC link that holds the battery",
+        "ok": true,
+        "source": "https://www.eaton.com/content/dam/eaton/products/backup-power-ups-surge-it-power-distribution/backup-power-ups/eaton-ups-fundamentals-handbook-en-us-2025.pdf"
+      },
+      {
+        "label": "Static conversion of the 50/60 Hz port grid power to match the 60/50 Hz vessel network: the shore chain runs from a 50 Hz port grid through rectifier, DC link and inverter to a 60 Hz vessel network",
+        "ok": true,
+        "source": "https://new.abb.com/power-converters-inverters/grid-interconnections/shore-to-ship-converters/acs6080sfc"
+      },
+      {
+        "label": "Every number in the words comes from the rule: 540, 270, 8, 200, 800, 20, 80, 108, 432, 0.8, 0.5, 324, 229, 75, 25, 0.75, 0.25, 405, 135, 191, 382, 468, 331, 0.60, 60, 198, 22 and 108",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and hidden numbers appear only after a right Check",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+        "ok": true
+      },
+      {
+        "label": "From the same 540 V link, a smaller depth narrows the pulses near the peak and shrinks the average sine: in the H-bridge at 90°, on for 80% at 60% depth and 65% at 30%, with peaks of 324 V and 162 V",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "mode",
+      "depth",
+      "fref",
+      "fc",
+      "dead",
+      "cursor"
+    ],
+    "readouts": [
+      "topOn",
+      "avgNow",
+      "outRms"
+    ],
+    "outputs": [
+      "topOn",
+      "avgNow",
+      "outRms"
+    ],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "steps": [
+          "Volts per hertz",
+          "One leg",
+          "The leg's average",
+          "Sine meets triangle",
+          "At the zero",
+          "The H-bridge",
+          "The winding's average",
+          "The winding smooths it",
+          "Twice the carrier",
+          "Three legs, two knobs",
+          "200 V at 25 Hz",
+          "Dead time",
+          "A longer gap",
+          "Three chains"
+        ],
+        "value": 0
+      },
+      {
+        "id": "mode",
+        "kind": "choice",
+        "label": "Circuit",
+        "options": [
+          "leg",
+          "h",
+          "three"
+        ],
+        "labels": [
+          "One leg",
+          "H-bridge",
+          "Three legs"
+        ],
+        "value": "three",
+        "index": 2,
+        "shown": false
+      },
+      {
+        "id": "depth",
+        "kind": "control",
+        "label": "Depth, the reference's height",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 100,
+        "shown": false,
+        "snap": [
+          30,
+          50,
+          60,
+          100
+        ]
+      },
+      {
+        "id": "fref",
+        "kind": "control",
+        "label": "Reference frequency",
+        "min": 5,
+        "max": 50,
+        "step": 5,
+        "log": false,
+        "value": 50,
+        "shown": false,
+        "snap": [
+          25,
+          50
+        ]
+      },
+      {
+        "id": "fc",
+        "kind": "control",
+        "label": "Carrier frequency",
+        "min": 0.5,
+        "max": 3,
+        "step": 0.5,
+        "log": false,
+        "value": 1,
+        "shown": false,
+        "snap": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "id": "dead",
+        "kind": "control",
+        "label": "Dead time",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "log": false,
+        "value": 20,
+        "shown": false,
+        "snap": [
+          0,
+          20,
+          100
+        ]
+      },
+      {
+        "id": "cursor",
+        "kind": "control",
+        "label": "Time cursor",
+        "min": 0,
+        "max": 360,
+        "step": 5,
+        "log": false,
+        "value": 90,
+        "shown": false,
+        "snap": [
+          0,
+          90
+        ]
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "Motion"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1 (the first step that shows a control)",
+    "mode = \"h\"",
+    "depth = 75",
+    "fref = 38.75",
+    "fc = 2.375",
+    "dead = 75",
+    "cursor = 270"
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-360-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-360-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-360-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-1280-light.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-1280-dark.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/electronics/i7.a1-1280-dark-end.png"
+  ]
+}

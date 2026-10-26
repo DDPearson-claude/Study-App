@@ -1,0 +1,395 @@
+{
+  "iid": "i3",
+  "title": "Smoothing and the DC link",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the bus's slope between peaks turn twice as steep and its dip grow twice as deep when you drag the load current from 2 A to 4 A on the same capacitor.",
+    "title": "The reservoir",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "ripple",
+        "label": "Ripple, I ÷ (f × C)",
+        "unit": "V",
+        "decimals": 0
+      },
+      {
+        "id": "busAvg",
+        "label": "Bus average",
+        "unit": "V",
+        "decimals": 0
+      },
+      {
+        "id": "supplyPeak",
+        "label": "Peak supply current",
+        "unit": "A",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. Most show one picture, the reservoir. On the left are an AC supply and a bridge rectifier. The bridge is four diodes in a diamond. On the right a capacitor and a load sit side by side across the bridge's output. The voltage across them is the DC bus. A switch above picks the supply: 230 V single-phase or 400 V three-phase, both at 50 Hz. Three-phase feeds a six-pulse bridge of six diodes. Two sliders sit below. Capacitance runs from 500 to 4000 µF in steps of 100 µF. Load current runs from 0 to 5 A in steps of 0.5 A. The load draws that current steadily. Each screen sets where the sliders open.\n\nBelow the circuit, a graph shows four ripple periods. The rectified humps are drawn pale. The bus is drawn bold over them. Under it, a second trace shows the current the bridge takes from the supply. The rule at each moment is simple. While the hump is above the bus, the diodes conduct. The bus rides up with the hump. Otherwise they block. Then the load drains the capacitor alone. The capacitor's law is i = C dv/dt. Here i is the current in amps and C the capacitance in farads. The term dv/dt is how fast its voltage changes, in volts a second. So the bus falls at I ÷ C, where I is the load current. The fall lasts about one ripple period, 1 ÷ f, where f is the ripple frequency. That is 100 Hz for the bridge and 300 Hz for the six-pulse bridge. So the ripple is about I ÷ (f × C). The rule takes the fall to last the whole period. The refill really starts a little before each peak. So the drawn dip is a little smaller than the readout. Three readouts sit under the graph: the ripple by the rule, the bus average and the peak supply current. They wrap onto two lines on a narrow phone. The bus average is the average of the drawn bus. Beside the readouts, a small plot shows the rule's ripple against load current, from 0 to 5 A. It is drawn for the capacitance set. It is a straight line through zero, with a dot at the setting. So twice the load gives twice the ripple.\n\nA Switch on button and a Precharge switch sit side by side under the sliders. Switch on empties the capacitor and turns the load off. Then it closes the supply at a peak. The graph's time axis then stretches to 0.6 s. With precharge off, the empty capacitor meets the supply through 1 Ω of supply and wiring. That value is chosen for the example. The first current is the peak ÷ 1 Ω. It is drawn in red and runs off the top of the graph. With precharge on, a 100 Ω resistor sits in the way. That value is chosen too. The bus climbs the charging curve, the peak × (1 − e^(−t ÷ RC)). Here t is the time since switch-on, R the resistance and C the capacitance. R × C is the time constant. After five time constants a contactor closes across the resistor. Then the load comes on.\n\nThe screens.\n\n1, show: The reservoir. 230 V, 1000 µF, 2 A. The words: “A smoothing capacitor turns a bridge's humps into smoother DC.[^1] Take a bridge rectifier on 230 V. Its humps peak at 325 V. Put a capacitor across the load. Its voltage is the DC bus. Near each peak, the hump rises above the capacitor's voltage. The diodes conduct, and the capacitor fills. After the peak, the hump falls away faster than the capacitor drains. So the diodes are pushed backwards and block. The capacitor alone feeds the load until the next peak.” Read: the bold bus rides just under the tops of the pale humps. It rises with each hump near its peak and slopes gently down between them. Still: 230 V, 1000 µF, 2 A.\n\n2, a puzzle: the load slider stands at 0 A. “The load is switched off. What voltage does the capacitor settle at?” Offered: “325 V, the peak of the humps”; “About 207 V, the average of the humps”; “Above 325 V, as the capacitor adds its own”. Hint for 207 V: “With no load, what drains the capacitor between peaks?” Hint for above 325 V: “It only fills while the hump is above it. What happens when it reaches the top?” Why: “It settles at 325 V, the peak. Each peak fills the capacitor until it matches the top of the hump. Then the diodes block. With no load, nothing drains it, so it stays there. It fills only from the supply, so it never passes the peak. A smoothing capacitor adds no voltage of its own.” A right Check runs the bus up to a flat line at 325 V.\n\n3, show: The drain. 230 V, 1000 µF, 2 A. The words: “Between peaks the load drains the capacitor. By the capacitor's law, i = C dv/dt, the voltage falls at I ÷ C volts each second. A 2 A load on 1000 µF falls 2 ÷ 0.001 = 2000 V a second. That is 2 V every millisecond. Near the next peak, the diodes conduct and all the charge drained goes back in one short gulp. So the gulp runs at many times the load current. The drawn gulp is taller and narrower than a real one.” Read: the bus slopes down in straight lines between peaks and climbs back near each one. The supply current trace sits at zero except for a narrow spike at each refill. Still: 230 V, 1000 µF, 2 A.\n\n4, a puzzle: “The bus falls 2 V every millisecond. The humps come 100 times a second. Roughly how far does the bus fall between refills?” Offered: “About 20 V”; “About 2 V”; “About 200 V”. Hint for 2 V: “That is one millisecond's fall. How long is the gap between humps?” Hint for 200 V: “100 humps a second leaves 10 ms between them, not 100 ms.” Why: “About 20 V. The humps come every 10 ms. The bus falls for about that long, at 2 V a millisecond. That dip is the ripple. The refill starts a little before each peak. So the drawn dip is a little smaller, about 18 V.” A right Check marks the dip on the bus.\n\n5, show: The ripple rule. 230 V, 2 A, capacitance from 1000 to 2000 µF. The words: “The ripple is about I ÷ (f × C). The bus falls at I ÷ C for about one ripple period, 1 ÷ f. Here f is the ripple frequency, 100 Hz for a bridge on 50 Hz.[^2] The rule runs a little high. That errs on the safe side. Drag the capacitance from 1000 to 2000 µF. The fall is half as steep, so the ripple halves to 10 V.” Read: at 1000 µF the ripple readout shows 20 V. At 2000 µF it shows 10 V, and the slopes between peaks are half as steep. Still: 230 V, 2000 µF, 2 A.\n\n6, a puzzle: the capacitance is back at 1000 µF, with a 2 A load and 20 V of ripple. “The load doubles to 4 A. The capacitor stays the same. What happens to the ripple?” Offered: “It doubles, to about 40 V”; “It stays at 20 V, as the capacitor sets it”; “It halves, to about 10 V”. Hint for 20 V: “The capacitor is the same, but what drains it has doubled.” Hint for 10 V: “More load makes a steeper fall, not a gentler one.” Why: “It doubles, to about 40 V. The bus falls at I ÷ C. Twice the current drains it twice as fast. So in the same 10 ms it falls twice as far. The capacitor does not set the ripple alone. The load and the ripple frequency set it too.” A right Check moves the load to 4 A, and the ripple readout shows 40 V.\n\n7, show: Light load, heavy load. 230 V, 1000 µF, the load from 0 to 4 A. The words: “Load pulls the bus down from the peak. Drag the load from 0 to 4 A to watch its average fall. At 0 A it sits at the 325 V peak. At 2 A it reads about 317 V. At 4 A it reads about 309 V. With no capacitor it would sit at the humps' own average, 207 V. A drive's six-pulse bridge feeds a bank of capacitors the same way. That bank is the DC link. It is the store between rectifier and inverter.[^3]” Read: on 230 V the bus average reads 325 V at 0 A, about 317 V at 2 A and about 309 V at 4 A. Still: 230 V, 1000 µF, 4 A.\n\n8, a puzzle: 400 V three-phase, 1000 µF, the load hidden. “A 400 V drive stands idle, with its motor stopped. What does its DC link read?” Offered: “About 566 V, the peak”; “About 540 V, 1.35 × 400”; “About 400 V, the line voltage”. Hint for 540 V: “That is the average with no capacitor. Here nothing drains the capacitor.” Hint for 400 V: “The capacitor fills to the peak of the line-to-line voltage.” Why: “About 566 V, the peak. With no load, the capacitor fills to the peak and stays there. On 400 V that is 400 × √2 = 566 V. Under load it sags towards about 1.35 times the line voltage, 540 V.[^4] Both figures are right, each at its own load.” A right Check sets the load to 0 A, and the bus average shows 566 V.\n\n9, show: Switch on. 230 V, 1000 µF, precharge off. The words: “The supply sees an empty capacitor as a short circuit.[^5] Press Switch on with the capacitor empty. By i = C dv/dt, its voltage rises only as fast as current fills it. So at the first instant it still holds 0 V while current pours in. Say the supply and wiring have 1 Ω. At the 325 V peak, all of it falls across that 1 Ω, so 325 A flows.” Read: with precharge off, the current trace leaps to 325 A in red at switch-on and falls back within about 5 ms. The bus jumps almost straight to 325 V. Still: 230 V, 1000 µF, precharge off, after switch-on.\n\n10, a puzzle: 230 V, 1000 µF, precharge on, before switch-on. “Precharge puts a 100 Ω resistor in the way. With 1000 µF, the time constant R × C is 0.1 s. By the charging curve, when is the capacitor about full?” Offered: “After about 0.5 s, five time constants”; “After 0.1 s, one time constant”; “Never, as the curve only levels off”. Hint for 0.1 s: “After one time constant it has closed only 63% of the gap.” Hint for never: “It never quite arrives. How close is it after five time constants?” Why: “After about 0.5 s, five time constants. Each time constant closes 63% of the gap that is left. After five, only e^−5 of the gap is left, under 1%. So the capacitor is about 99.3% full.” A right Check says “Right: five time constants.” and plays the charging curve.\n\n11, show: Precharge. 230 V, 1000 µF, precharge on, after switch-on. The words: “Precharge fills the capacitor through a resistor first. Now the first current is 325 V ÷ 100 Ω. That is about 3 A instead of 325 A. The bus climbs the charging curve. The picture feeds it from steady DC, so it is over 99% full after five time constants, 0.5 s here. Through the bridge it fills only near each peak, so it takes several times longer. Once it is nearly full, a contactor closes across the resistor. Now the load can run.” Read: with precharge on, the bus climbs a smooth curve to near 325 V over 0.5 s. The current starts at about 3 A and falls away. Then the contactor closes, at 0.5 s. Still: 230 V, 1000 µF, precharge on, after switch-on.\n\n12, a mixed puzzle: 230 V, 2000 µF, 2 A, with 10 V of ripple. “The load grows to 4 A. What capacitance keeps the ripple at 10 V?” Offered: “4000 µF”; “2000 µF, as the capacitor sets the ripple”; “1000 µF”. Hint for 2000 µF: “Twice the load drains twice as fast.” Hint for 1000 µF: “A smaller capacitor falls faster, not slower.” Why: “4000 µF. The ripple is I ÷ (f × C). Double I and the ripple doubles. Double C as well and it halves back. Check: 4 ÷ (100 × 0.004) = 10 V.” A right Check sets 4 A and 4000 µF, and the ripple readout shows 10 V.\n\n13, a mixed puzzle: “A six-pulse drive runs from 400 V, 50 Hz. Its DC link has 1000 µF, and the load takes 5 A. Roughly what ripple does the rule give?” Offered: “About 17 V”; “About 50 V”; “None, as six-pulse output never dips”. Hint for 50 V: “That uses 100 Hz. How many pulses does a six-pulse bridge give each cycle?” Hint for none: “The six-pulse output dips between its tops. The capacitor still drains between gulps.” Why: “About 17 V. Six pulses a cycle on 50 Hz give a ripple frequency of 300 Hz. So the ripple is about 5 ÷ (300 × 0.001) = 17 V. That is a third of what a bridge gives with the same capacitor and load.” The picture opens on 400 V three-phase. A right Check sets 1000 µF and 5 A, and the ripple readout shows 17 V.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked. Each can wrap onto more lines on a narrow phone. A wrong pick gets its one-line hint. Where a puzzle's readouts come only with a right Check, they appear under the feedback line. The graph's key names the bus only once it is drawn. Why? explains the answer. Continue moves on.",
+    "ignores": "The diodes are drawn ideal, with no drop. Real ones take about 1.4 V off a bridge's bus. The supply has no resistance while the bus runs. So each refill gulp is drawn taller and narrower than a real one. A real supply's resistance and inductance spread it out. The load draws a steady current. A real drive's draw follows the motor. The precharge curve is drawn as if fed from steady DC at the peak. A real one fills in steps near each hump's top. So it takes several times longer. Time is stretched across the screen. A ripple period lasts only 10 ms. A real capacitor also has a little internal resistance. So it warms with the ripple current and adds a little ripple of its own.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 13 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Capacitance, opening setting, µF",
+        "value": 1000,
+        "kind": "control"
+      },
+      {
+        "label": "Capacitance, lowest, µF",
+        "value": 500,
+        "kind": "control"
+      },
+      {
+        "label": "Capacitance, highest, µF",
+        "value": 4000,
+        "kind": "control"
+      },
+      {
+        "label": "Capacitance step, µF",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Load current, opening setting, A",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Load current, lowest, A",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Load current, highest, A",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Load current step, A",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Single-phase supply, rms, V",
+        "value": 230,
+        "kind": "control"
+      },
+      {
+        "label": "Three-phase line voltage, V",
+        "value": 400,
+        "kind": "control"
+      },
+      {
+        "label": "Supply frequency, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Peak of 230 V, 230 × √2, V",
+        "value": 325,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge average with no capacitor, 0.637 × 325, V",
+        "value": 207,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge ripple frequency on 50 Hz, Hz",
+        "value": 100,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Ripple period on 100 Hz, ms",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Six-pulse ripple frequency, 6 × 50, Hz",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Fall rate at 2 A on 1000 µF, V per millisecond",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Fall rate at 2 A on 1000 µF, 2 ÷ 0.001, V a second",
+        "value": 2000,
+        "kind": "computed"
+      },
+      {
+        "label": "Ripple by the rule, 2 A, 1000 µF, V",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Drawn dip, 2 A, 1000 µF, about, V",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Ripple by the rule, 2 A, 2000 µF, V",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Second capacitance in screen 5, µF",
+        "value": 2000,
+        "kind": "control"
+      },
+      {
+        "label": "Doubled load in screen 6, A",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Ripple by the rule, 4 A, 1000 µF, V",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Bus average, 2 A, 1000 µF, about, V",
+        "value": 317,
+        "kind": "computed"
+      },
+      {
+        "label": "Bus average, 4 A, 1000 µF, about, V",
+        "value": 309,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak supply current, 2 A, 1000 µF, model, A",
+        "value": 35,
+        "kind": "computed"
+      },
+      {
+        "label": "Peak of 400 V line voltage, 400 × √2, V",
+        "value": 566,
+        "kind": "computed"
+      },
+      {
+        "label": "Loaded DC bus, times the line voltage, about",
+        "value": 1.35,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "1.35 × 400, V",
+        "value": 540,
+        "kind": "computed"
+      },
+      {
+        "label": "Three-phase load in screen 13, A",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Ripple by the rule, 400 V, 5 A, 1000 µF, about, V",
+        "value": 17,
+        "kind": "computed"
+      },
+      {
+        "label": "Supply and wiring resistance, chosen, Ω",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "First current straight on, 325 ÷ 1, A",
+        "value": 325,
+        "kind": "computed"
+      },
+      {
+        "label": "Straight-on spike dies away within, 5 × 1 Ω × 1000 µF, ms",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Precharge resistor, chosen, Ω",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "First current with precharge, 325 ÷ 100, about, A",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Time constant, 100 Ω × 1000 µF, s",
+        "value": 0.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Five time constants, s",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap closed in one time constant, 1 − e^−1, %",
+        "value": 63,
+        "kind": "computed"
+      },
+      {
+        "label": "Full after five time constants, 1 − e^−5, %",
+        "value": 99.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left after five time constants, under, %",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap left at contactor close, 325 × e^−5, about, V",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Blip at contactor close, 2 V ÷ 1 Ω, about, A",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Precharge graph time axis, s",
+        "value": 0.6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Capacitance in screen 12, µF",
+        "value": 4000,
+        "kind": "control"
+      },
+      {
+        "label": "4000 µF in farads",
+        "value": 0.004,
+        "kind": "computed"
+      },
+      {
+        "label": "1000 µF in farads",
+        "value": 0.001,
+        "kind": "computed"
+      },
+      {
+        "label": "2000 µF in farads",
+        "value": 0.002,
+        "kind": "computed"
+      },
+      {
+        "label": "Bridge drop, two silicon diodes, about, V",
+        "value": 1.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example line voltage, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Peak of 440 V, 440 × √2, V",
+        "value": 622,
+        "kind": "computed"
+      },
+      {
+        "label": "1.35 × 440, V",
+        "value": 594,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example load current, A",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example ripple, 20 ÷ (300 × 0.002), about, V",
+        "value": 33,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example precharge resistor, Ω",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example first current, 622 ÷ 50, about, A",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Full after five time constants, over, %",
+        "value": 99,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A bridge's DC pulses. Put a capacitor across its output and the pulses smooth out. The capacitor fills near each peak, while the supply is above it. Between peaks the diodes block. The capacitor feeds the load. Inside a drive, that capacitor is the store of DC the motor runs from.\n\nTake a bridge on 230 V. Its humps peak at 325 V. Put a capacitor across the load. Its voltage is the DC bus the load sees. As a hump rises above the capacitor's voltage, the diodes conduct and the capacitor fills. After the peak the hump falls away faster than the capacitor can drain. It drains only slowly, through the load. So the diodes are pushed backwards and block. The capacitor alone now feeds the load. With no load, nothing drains it. It stays at the 325 V peak. It fills only from the supply, so it settles at the peak. A capacitor used this way adds no voltage of its own. It holds the peak and lends charge back between peaks. This is a [[smoothing capacitor]]. It turns the bridge's humps into smoother DC.\n\nHow far does it fall between peaks? The capacitor's law, i = C dv/dt, links its current to how fast its voltage changes. Here i is the load current I, and C the capacitance in farads. So the voltage falls at I ÷ C volts each second. A 2 A load on 1000 µF falls 2 V every millisecond. A bridge on 50 Hz peaks 100 times a second.[^2] So each fall lasts about 10 ms. The bus dips about 20 V. That dip is the ripple. Put the steps together, and the ripple is about I ÷ (f × C). Here f is the ripple frequency. Double the capacitor and the ripple halves. Double the load and it doubles. So the capacitor alone does not set it. The rule takes the fall to last the whole period. The refill really starts a little before each peak. So the real ripple is a little smaller. Under load the bus sags below the peak. It sags towards 207 V, the humps' own average. That is where it would sit with no capacitor. All the charge drained between peaks goes back in a short refill. So the supply's current comes in gulps of several times the load current. Ripple matters most on a battery charger. Ripple voltage across a battery drives a ripple current through it. That current heats the battery and shortens its life.[^6]\n\nIn a drive, a six-pulse bridge feeds a bank of capacitors, the [[DC link]]. It is the energy store between the rectifier and the inverter. On 400 V an idle drive's link sits near the 566 V peak. Under load it sags towards about 1.35 times the line voltage, 540 V.[^4] An empty capacitor is a problem at switch-on. Its voltage rises only as fast as current fills it. So at the first instant it holds 0 V while current pours in. The supply sees it as a short circuit.[^5] Say the supply and wiring have 1 Ω. Switching on at the 325 V peak then drives 325 A. [[Precharge]] fills it through a resistor first. Take a 100 Ω resistor. The first current is then about 3 A. The bus climbs a charging curve with a time constant of R × C. With 1000 µF that is 0.1 s. From steady DC it would be over 99% full after five time constants. Through the diodes it fills only near each peak. So it takes several times longer. Once it is nearly full, a contactor or relay closes across the resistor. This is a simplified picture, with ideal diodes and a steady load. A real bridge's two diodes take about 1.4 V. A real supply's resistance spreads the gulps out. **A capacitor across a rectifier fills near each peak and feeds the load between them. The bus holds near the peak, with a ripple of about I ÷ (f × C).**"
+  },
+  "analogy": {
+    "text": "A smoothing capacitor works like a header tank filled through a non-return valve by a pump that pushes only in surges. Each surge tops the tank up to the pump's head. Between surges, the draw-off lowers the level at a steady rate. A bigger draw lowers it faster, and a wider tank lowers it more slowly. An idle tank fills to the pump's head and no higher. The level is the bus voltage, the tank's width the capacitance and the draw-off the load current.",
+    "breaks": "A tank holds the water put into it. A capacitor holds no extra charge overall. As much leaves one plate as arrives on the other. A full tank also shows its level. A charged capacitor shows nothing. It can still give a shock after the supply is off."
+  },
+  "practice": {
+    "text": "Treat a DC link as live until you have proved it dead. It can keep its charge after isolation. Wait the time on the drive's label. Then prove the bus dead on a DC range before you touch anything.\n\n- To estimate ripple, find the load current I, the capacitance C in farads and the ripple frequency f.\n- For a bridge, f is twice the supply frequency, 100 Hz on 50 Hz.\n- For a six-pulse bridge, f is six times the supply frequency, 300 Hz on 50 Hz.\n- The ripple is about I ÷ (f × C). The rule errs high. That is the safe way.\n- To size a capacitor for a ripple you can accept, turn it round: C = I ÷ (f × ripple).\n- Expect the bus near the peak at light load and lower under load. On 400 V that runs from about 566 V idle towards about 540 V.\n- On a battery charger, keep the ripple small. Ripple current heats the battery and shortens its life.\n- Precharge's first current is the peak ÷ R. Through the diodes, filling takes well over five time constants, 5 × R × C.\n\n**Rule of thumb:** double the load and the ripple doubles. Double the capacitance and it halves.\n\n**Worked example:** a six-pulse bridge runs from 440 V, 50 Hz. Its peak is 440 × √2 = 622 V. So an idle bus reads near 622 V. Under load it sags towards 1.35 × 440 = 594 V. The link has 2000 µF, and the load takes 20 A. The ripple frequency is 6 × 50 = 300 Hz. So the ripple is about 20 ÷ (300 × 0.002) = 33 V. A 50 Ω precharge resistor gives a time constant of 50 × 0.002 = 0.1 s. From steady DC the link would be over 99% full after about 0.5 s. Through the diodes it takes several times longer. Its first current is about 622 ÷ 50 = 12 A.\n\n**Common mistakes**\n- Thinking the smoothing capacitor adds voltage. It fills to the peak and no higher.\n- Thinking only the capacitor sets the ripple. The load current and the ripple frequency set it too.\n- Using the supply frequency, 50 Hz, for f. A bridge ripples at 100 Hz and a six-pulse bridge at 300 Hz.\n- Leaving microfarads unconverted: 1000 µF is 0.001 F.\n- Expecting 540 V on an idle 400 V drive. Idle, the link sits near the 566 V peak.\n- Thinking a bigger capacitor softens switch-on. Its first current is no smaller. It lasts longer, too."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+      "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+      "quote": "The smoothing capacitor converts the full-wave rippled output of the rectifier into a more smooth DC output voltage."
+    },
+    {
+      "n": 2,
+      "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+      "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+      "quote": "The ripple frequency is now twice the supply frequency (e.g. 100Hz for a 50Hz supply or 120Hz for a 60Hz supply.)"
+    },
+    {
+      "n": 3,
+      "title": "DC-Link Capacitor Selection & Ripple Current",
+      "url": "https://schematicshub.com/articles/dc-link-capacitor-selection",
+      "quote": "The DC-link capacitor is the energy reservoir and filter between rectifier and inverter"
+    },
+    {
+      "n": 4,
+      "title": "VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design",
+      "quote": "The DC bus voltage should ramp to approximately 1.35 × V LL (rectified DC)"
+    },
+    {
+      "n": 5,
+      "title": "Eaton SC9000 EP pre-charge system application paper",
+      "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/motor-control/literature/applications/eaton-sc9000-soft-mag-pre-charge-system-application-paper-ap02004en.pdf",
+      "quote": "An uncharged capacitive circuit is seen as a short circuit when line voltage is first applied."
+    },
+    {
+      "n": 6,
+      "title": "Charging VRLA batteries (application guide 41-2128)",
+      "url": "https://assets.ctfassets.net/3inf9wk05c1h/42pCwtNYBNWiazMcKLlfGR/2ec889e3a4cd5db991a876cd48609cf8/41-2128-Charging-VRLA-WEB_comp.pdf",
+      "quote": "An excessive AC ripple voltage induces an AC ripple current which results in additional heating of the battery and a resulting decrease in the expected life"
+    }
+  ]
+}

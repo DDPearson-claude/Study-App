@@ -1,0 +1,29 @@
+{
+  "draft": "i4.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: a power transistor is kept fully on or fully off, because half on it turns far more power into heat.",
+    "The picture is the brief's: a BJT, MOSFET or IGBT picker, a gate slider from off to fully on, a V x I heat bar and plot whose hump peaks at half on, a junction thermometer (watts x 0.5 °C per watt above 40 °C air), a switching mode whose edges add heat that climbs with frequency, and a coil load whose kickback spike goes red unless the freewheeling diode is ticked.",
+    "Every number is computed from one shown rule: the switch takes 600 x (1 - s) volts, never under the 2 V on drop, and passes the rest of the supply over 30 Ω. 40 W on, 3000 W half on, 1080 W at 90%; 1 mJ an edge from the hump's average (a sixth of 600 V x 20 A) over 0.5 µs.",
+    "The brief's misconception, 'half on is a safe middle', is caught twice (screens 4 and 14, 'nearly on is good enough'), plus 'full voltage means heat' (2), 'a better device cures it' (8), 'edges cost nothing' (10) and 'the switch just sees the supply' (12).",
+    "Screen 13 sets the core contrast: the load averages about 300 V either way, but the switch makes about 40 W switching against 3000 W half on.",
+    "Fourteen screens alternating SHOW 1, 3, 5, 7, 9, 11 with DO 2 to 12, ending on two mixed puzzles. Footnotes sparing: 6 sources, at most one a sentence."
+  ],
+  "fix": [
+    "Causal step skipped (kickback): 'that current is forced to stop' needs its reason, the open switch leaves it no other path. Say so in screen 11 and explain.",
+    "Causal step skipped (diode): 'holds the coil to about 0.7 V' needs the why: the current flows on through the diode, so the coil sees only its forward drop. Explain should also say the switch then sees the supply plus that drop.",
+    "False absolute: screen 4's Why 'the worst place to leave a power transistor' and the mistake 'It is the hottest setting' hold for this resistive load, not every load. Say 'the hottest place to leave this switch' and 'With a resistive load, it is the hottest setting'.",
+    "Unreadable label: the slider is called the gate, but a BJT has a base. Say the slider's label follows the pick: Base for a BJT, Gate for the others.",
+    "Short screens: screen 1 runs to 94 words and screen 9 to 92, over the 90-word limit; screen 7 is at 91. Trim each (fold the 440 V link into one clause, merge the BJT's two sentences, cut 'though').",
+    "Explain says 'well under a microsecond' where the screens say 'about 0.5 µs'. Use one figure, the edge time."
+  ],
+  "shape": {
+    "named up front": "yes",
+    "rule in words": "yes: heat is the voltage across the switch times the current through it; half on peaks at V² ÷ (4R); temperature rise is watts x °C per watt; switching loss is energy per switching x frequency",
+    "worked example with real numbers": "yes: 600 V into 30 Ω gives 40 W on and 3000 W half on; 60 °C against 1500 °C of rise; 20 W of edges at 10 kHz, 40 W at 20 kHz; practice's 400 V, 10 Ω IGBT at 5 kHz (80 W, 15 W, 55 W, 62 °C, 4000 W half on)",
+    "misconception shown failing": "yes: screens 2, 4, 8, 10, 12 and 14",
+    "analogy from his trade with where it breaks": "a resistance starter (half on) against a contactor (fully on or off); the series resistance equal to the load gives the same 3000 W peak; it breaks on switching frequency and on-state drop. Different from the valve, intermediate switch and header tank of lessons 1 to 3",
+    "put it into practice": "yes: safe way first (an off transistor is not isolation), steps, rule of thumb, worked example, mistakes",
+    "recap he could say back": "yes"
+  }
+}

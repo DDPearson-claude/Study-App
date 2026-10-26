@@ -1,0 +1,761 @@
+<!-- kind: mechanism -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .caption { max-width: 34rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .count { margin-top: 10px; }
+  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }
+  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }
+  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  #sw .k-seg.stack { display: flex; flex-wrap: wrap; }
+  #sw .k-seg.stack button { text-align: center; padding-left: 12px; }
+  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 10px; }
+  .fb { font-weight: 700; min-height: 1.5em; }
+  .fb.right { color: var(--k-good); }
+  .why, .done { line-height: 1.6; }
+  .done .row { margin-top: 14px; }
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+  /* The bench: thin wires and diodes; the current's path and the conducting diodes drawn bold. */
+  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }
+  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 4; }
+  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }
+  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); stroke-width: 3.5; }
+  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }
+  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }
+  .fig .sine { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .fig .arrow { stroke: var(--k-accent2); stroke-width: 3; }
+  .fig .head { fill: var(--k-accent2); }
+  .fig .ring { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2; }
+  .fig .cross { stroke: var(--k-warn); stroke-width: 3; stroke-linecap: round; }
+  .fig .probe { fill: var(--k-panel); stroke: var(--k-accent); stroke-width: 2; }
+  .fig .plead { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .fig .flowdot { fill: var(--k-bg); }
+  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }
+  .fig .lab.t { fill: var(--k-accent); }
+  .fig .lab.w { fill: var(--k-warn); }
+  .fig .lab.n { fill: var(--k-accent2); }
+  .fig .big { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  /* The graph of one cycle. */
+  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .fig .pale { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-opacity: .6; }
+  .fig .outc { fill: none; stroke: var(--k-accent2); stroke-width: 2.6; stroke-linejoin: round; }
+  .fig .area { fill: var(--k-fill1); }
+  .fig .avg { stroke: var(--k-amber-line); stroke-width: 2.4; stroke-dasharray: 6 4; }
+  .fig .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .fig .ptr { fill: none; stroke: var(--k-accent); stroke-width: 2.4; stroke-linejoin: round; }
+  .fig .cur { stroke: var(--k-ink); stroke-width: 1.5; }
+  .fig .odot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .pdot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .fig .pill { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .fig .grab { fill: var(--k-bg); fill-opacity: 0; cursor: grab; }
+</style>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="k-controls" id="sw"></div>
+    <svg class="fig" id="scene" viewBox="0 0 340 204" width="100%" role="img" aria-label=""><g id="art"></g><g id="dots"></g></svg>
+    <svg class="fig" id="graph" viewBox="0 0 340 196" width="100%" role="img" aria-label=""><g id="gart"></g><rect class="grab" id="grab" x="30" y="36" width="304" height="160"/></svg>
+    <p class="gnote" id="gnote">One supply cycle, 0° to 360°. The numbers are worked out, not measured.</p>
+    <div class="k-controls" id="ctl"></div>
+    <p class="say" id="say"></p>
+    <div class="k-readouts" id="outs"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb say" id="fb" aria-live="polite"></p>
+    <div class="note why say" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<script>
+  // ---------- the rule: ideal diodes, a perfect sine, a resistor load ----------
+  // A diode conducts while the circuit pushes it forward and blocks while it is pushed backwards.
+  // Half-wave: the supply in the positive half, 0 in the negative. Bridge: the size of the supply.
+  // Six-pulse: the largest line-to-line voltage. Average so far = area under the output ÷ time so far.
+  const SQ2 = Math.SQRT2, D2R = Math.PI / 180, TAU3 = 2 * Math.PI / 3;
+  const AAC = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/';
+  const ETUT = 'https://www.electronics-tutorials.ws/diode/diode_6.html';
+  const AACD = 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/';
+  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');
+  const PK = (r) => r * SQ2, K135 = 3 * SQ2 / Math.PI;
+  // Every number the words show, worked out from the rule (a check compares them with the lesson's).
+  const N = {
+    pk: fx(PK(230), 0), hw: fx(PK(230) / Math.PI, 0), br: fx(2 * PK(230) / Math.PI, 0),
+    r318: fx(1 / Math.PI, 3), r637: fx(2 / Math.PI, 3), pk115: fx(PK(115), 0),
+    pk400: fx(PK(400), 0), pk440: fx(PK(440), 0), cos30: fx(Math.cos(Math.PI / 6), 3),
+    dip: fx(PK(400) * Math.cos(Math.PI / 6), 0), half400: fx(PK(400) / 2, 0),
+    r955: fx(3 / Math.PI, 3), k135: fx(K135, 2), s400: fx(K135 * 400, 0), s440: fx(K135 * 440, 0),
+    drop: fx(2 * 0.7, 1), pct: fx(2 * 0.7 / 12 * 100, 0), rip: String(2 * 50), rip60: String(2 * 60), rip6: String(6 * 50),
+  };
+
+  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------
+  // kind/line/at: the bench this screen opens on; dur: a demonstration sweep; ans: what a right
+  // Check runs the bench to; shows: words that appear on the picture only after a right Check.
+  const STEPS = [
+    { show: true, name: 'One diode', kind: 'half', at: 90,
+      text: `Start with one diode in series with a resistor load on 230 V. The supply peaks at ${N.pk} V. Drag the time cursor through one cycle. In the positive half the diode conducts, and the load gets the hump. In the negative half the diode blocks. The load gets nothing, and the diode holds the supply. A *rectifier* turns AC into current that flows one way. This one is a *half-wave rectifier*. It throws half of every cycle away.`,
+      read: `With the cursor at the end of the cycle, the output shows one hump in the positive half. In the negative half it is a flat line. The arrow through the load shows only during the hump.`,
+      still: { kind: 'half', cursor: 360 } },
+    { name: 'The average at the end', kind: 'half', at: 180, avgNum: true, ans: { to: 360 },
+      task: `At 180° the average reads ${N.br} V. What will the average read at 360°, the end of the cycle?`,
+      opts: [`${N.br} V, as nothing is added`, `About ${N.hw} V`, `0 V, as the second half is empty`], want: `About ${N.hw} V`,
+      hints: { [`${N.br} V, as nothing is added`]: `The average is area ÷ length. The flat half adds length.`,
+        '0 V, as the second half is empty': `The hump's area is still there. Only the length grows.` },
+      why: `The flat half adds no area but doubles the length. So the average halves, to about ${N.hw} V. That is ${N.r318} of the ${N.pk} V peak, the peak ÷ π.`,
+      shows: [`average: ${N.hw} V`] },
+    { show: true, name: 'Four diodes', kind: 'bridge', at: 90,
+      text: `Now use four diodes in a diamond, a *bridge*. The supply joins two opposite corners, and the load joins the other two. Drag through the positive half. D1 and D2 conduct, and current flows down through the load. Now drag through the negative half. The supply's other wire is the high one now. D3 and D4 conduct, and D1 and D2 block. Watch the arrow through the load. Whatever the polarity of the input, the current through the load flows the same way.`,
+      read: `In the positive half, D1 and D2 are bold. In the negative half, D3 and D4 are bold. Both times the arrow through the load points down.`,
+      still: { kind: 'bridge', cursor: 270 } },
+    { name: 'Which way now?', kind: 'bridge', at: 270, hidePath: true,
+      task: `Which way does current flow through the load now?`,
+      opts: [`Up, as the supply has reversed`, `None, as only D1 and D2 ever conduct`, `Down, the same way as in the positive half`],
+      want: `Down, the same way as in the positive half`,
+      hints: { 'Up, as the supply has reversed': `The supply has reversed, but D3 and D4 now carry it. Follow them to the top of the load.`,
+        'None, as only D1 and D2 ever conduct': `D1 and D2 block in this half. Look at the other pair.` },
+      why: `In the negative half, the supply's other wire is the high one. D3 takes the current to the top of the load. D4 returns it from the bottom. So it flows down, as before. Each pair conducts while the other blocks.`,
+      shows: ['current'] },
+    { show: true, name: 'Twice the average', kind: 'bridge', dur: 3.6,
+      text: `The bridge turns the negative half into a second hump. The length of a cycle stays the same, but the area doubles. So the average doubles too. With no diode losses it is ${N.r637} of the peak. That is the half-cycle average you already know. On 230 V it is about ${N.br} V. The humps now come twice a cycle. So the output rises and falls ${N.rip} times a second on a 50 Hz supply, or ${N.rip60} on 60 Hz. That rise and fall is called *ripple*.`,
+      read: `Over a whole cycle the bridge shows two humps. Its average line settles at ${N.br} V, twice the half-wave's ${N.hw} V.`,
+      still: { kind: 'bridge', cursor: 360 } },
+    { name: 'What the diodes take', kind: 'bridge', at: 90, rings: true, novolt: true,
+      task: `A bridge feeds a 12 V battery charger. How much lower is its output than with perfect diodes?`,
+      opts: [`About ${N.drop} V, two diode drops`, `About 0.7 V, one diode drop`, `None, as diodes conduct freely`],
+      want: `About ${N.drop} V, two diode drops`,
+      hints: { 'About 0.7 V, one diode drop': `Count the bold diodes in the current's path at any moment.`,
+        'None, as diodes conduct freely': `A conducting silicon diode still holds about 0.7 V.` },
+      why: `At every moment the current passes through two diodes in series. Each holds about 0.7 V. So the bridge takes about ${N.drop} V. On a ${N.br} V output that is under 1%. On 12 V it is about ${N.pct}%.` },
+    { show: true, name: 'The probe', kind: 'bridge', probe: true, at: 270,
+      text: `While D1 conducts, the probe reads almost nothing. In the negative half, D3 and D4 conduct. D3 ties D1's top end to wire B. That puts D1 straight across the supply. So D1 holds the whole supply voltage, the wrong way round. Drag through the negative half and watch the probe's trace. It peaks at ${N.pk} V at 270°. So every diode in a 230 V bridge needs a *peak inverse voltage* above ${N.pk} V, not above 230 V.`,
+      read: `The probe's trace sits on zero while D1 conducts. In the negative half it climbs to ${N.pk} V at 270° and falls back to zero at 360°.`,
+      still: { kind: 'bridge', cursor: 360 } },
+    { name: 'A 115 V bridge', kind: 'bridge', rms: 115, probe: true, at: 90, ans: { to: 360 },
+      task: `A bridge runs from a 115 V single-phase supply. What reverse voltage must each diode withstand?`,
+      opts: [`115 V, the supply's rms`, `None, as a blocked diode carries no current`, `About ${N.pk115} V, the supply's peak`],
+      want: `About ${N.pk115} V, the supply's peak`,
+      hints: { "115 V, the supply's rms": `The supply passes 115 V on its way up. Work out its peak.`,
+        'None, as a blocked diode carries no current': `No current flows through it. But the conducting pair joins it straight across the supply.` },
+      why: `While a diode blocks, the conducting pair joins it straight across the supply. So it holds the whole supply the wrong way round. At the peak that is 115 × √2 = ${N.pk115} V. Its peak inverse voltage must be above that.`,
+      shows: [`peak ${N.pk115} V`] },
+    { show: true, name: 'Six diodes', kind: 'six', line: 400,
+      text: `A three-phase bridge uses six diodes. Each line has an upper diode to the positive rail and a lower diode from the negative rail. The positive rail can sit no lower than the highest line. So that line's upper diode conducts, and the others are pushed backwards. Likewise the lowest line holds the negative rail. So the load gets the largest line-to-line voltage of that moment. Drag the cursor. It changes every 60°, so the output has six pulses a cycle.`,
+      read: `The six line-to-line waves are drawn pale. The output rides their tops. The bold pair changes every 60°. The arrow through the load points down throughout.`,
+      still: { kind: 'six', line: 400, cursor: 360 } },
+    { name: 'How low it dips', kind: 'six', line: 400, at: 0, dips: true, ans: { to: 360 },
+      task: `On 400 V the line-to-line peak is ${N.pk400} V. Each top of the output runs from 30° before a peak to 30° after it. How low does the output dip?`,
+      opts: [`0 V, between pulses`, `About ${N.dip} V`, `About ${N.half400} V, half the peak`], want: `About ${N.dip} V`,
+      hints: { '0 V, between pulses': `The next top takes over before this one falls far. Look where the pale waves cross.`,
+        [`About ${N.half400} V, half the peak`]: `The handover comes only 30° from the peak. What is cos 30°?` },
+      why: `Each top is a slice of a cosine, from −30° to +30°. At its edges it has fallen to cos 30° = ${N.cos30} of the peak. So the output dips only to ${N.cos30} × ${N.pk400} = ${N.dip} V.`,
+      shows: [`dips to ${N.dip} V`] },
+    { show: true, name: 'Where 1.35 comes from', kind: 'six', line: 400, dur: 3.6,
+      text: `The average is area ÷ length over one 60° top. The area under a cosine is a sine. So from −30° to +30° it is sin 30° − sin(−30°) = 1 times the peak, in volts times radians. The length is 60°, or π ÷ 3. So the average is 3 ÷ π of the peak, about ${N.r955}. The peak is √2 times the line voltage. So the average is 3√2 ÷ π, about ${N.k135} times the line voltage. On 400 V that is ${N.s400} V. That is the ${N.s400} V DC bus inside a 400 V motor drive.`,
+      read: `On 400 V the average line settles at ${N.s400} V, close under the ${N.pk400} V tops.`,
+      still: { kind: 'six', line: 400, cursor: 360 } },
+    { name: 'One diode fails', kind: 'bridge', open: 'd3', at: 0, avgNum: true, ans: { to: 360 },
+      task: `One diode in a 230 V, 50 Hz bridge fails open. What does the load get now?`,
+      opts: [`Half-wave: about ${N.hw} V, 50 humps a second`, `As before: ${N.br} V, 100 humps a second`, `Nothing: 0 V, as the bridge is broken`],
+      want: `Half-wave: about ${N.hw} V, 50 humps a second`,
+      hints: { [`As before: ${N.br} V, 100 humps a second`]: `Follow the half whose pair has lost a diode. Can current get through?`,
+        'Nothing: 0 V, as the bridge is broken': `The other pair is still whole. Its half still gets through.` },
+      why: `The pair with the open diode can no longer carry its half. The other pair still carries its half. So the bridge works as a half-wave rectifier. The average falls to about ${N.hw} V. The humps come 50 times a second.`,
+      shows: [`average: ${N.hw} V`, 'now a half-wave'] },
+    { name: 'Six-pulse on 440 V', kind: 'six', line: 440, at: 0, avgNum: true, ans: { to: 360 },
+      task: `A six-pulse rectifier runs from 440 V into a resistor. What average DC does the load get?`,
+      opts: [`About ${N.pk440} V`, `440 V`, `About ${N.s440} V`], want: `About ${N.s440} V`,
+      hints: { [`About ${N.pk440} V`]: `That is the peak of the tops. The output dips between them. So the average sits a little lower.`,
+        '440 V': `The output rides the tops, and they sit well above the line voltage.` },
+      why: `The average is ${N.k135} times the line voltage. That gives ${N.k135} × 440 = ${N.s440} V. The tops reach 440 × √2 = ${N.pk440} V. The dips between them pull the average a little below that.`,
+      shows: [`average: ${N.s440} V`] },
+  ];
+  const FINISH = 'Diodes in a bridge steer both halves of the AC the same way through the load, so the output is DC that pulses.';
+  const FADE = 0.35, ANS = 2.0;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- the model ----------
+  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);
+  function cfg(p) {
+    const d = STEPS[stepOf(p)];
+    return { kind: ['half', 'bridge', 'six'].indexOf(p.kind) >= 0 ? p.kind : 'half', rms: d.rms || 230, line: +p.line === 440 ? 440 : 400, open: d.open || '' };
+  }
+  // The bench at one moment: the output, which diodes conduct, and the reverse voltage on the probed diode.
+  function sample(c, th) {
+    const r = th * D2R;
+    if (c.kind === 'six') {
+      const vp = c.line * SQ2 / Math.sqrt(3), ph = [0, 1, 2].map((k) => vp * Math.sin(r - k * TAU3));
+      let u = 0, l = 0;
+      for (let k = 1; k < 3; k++) { if (ph[k] > ph[u] + 1e-9) u = k; if (ph[k] < ph[l] - 1e-9) l = k; }
+      return { v: ph, out: ph[u] - ph[l], u, l, on: ['u' + u, 'l' + l], probe: ph[u] - ph[0], half: 1 };
+    }
+    const vp = c.rms * SQ2, v = vp * Math.sin(r), e = vp * 1e-9;
+    const half = v > e ? 1 : v < -e ? -1 : 0, probe = half < 0 ? -v : 0;
+    if (c.kind === 'half') return { v, out: half > 0 ? v : 0, on: half > 0 ? ['d1'] : [], probe, half };
+    const pair = half > 0 ? ['d1', 'd2'] : half < 0 ? ['d3', 'd4'] : [], ok = pair.length > 0 && pair.indexOf(c.open) < 0;
+    return { v, out: ok ? Math.abs(v) : 0, on: ok ? pair : [], probe, half };
+  }
+  // At 360°, a zero crossing, the bench keeps the moment just before, so the finished picture still shows its path.
+  const shownAt = (th) => (th >= 360 ? 359.5 : th);
+  const keyOf = (c) => c.kind + c.rms + '|' + c.line + c.open;
+  const outAt = (c, t) => sample(c, t).out;
+  const CUM = new Map(), PPK = new Map();
+  function cum(c) {     // area under the output from 0° to each whole degree (Simpson's rule per degree)
+    const k = keyOf(c);
+    let a = CUM.get(k);
+    if (a) return a;
+    a = [0];
+    for (let j = 0; j < 360; j++) a.push(a[j] + (outAt(c, j) + 4 * outAt(c, j + 0.5) + outAt(c, j + 1)) / 6);
+    CUM.set(k, a);
+    return a;
+  }
+  function avgAt(c, th) {
+    th = K.clamp(+th || 0, 0, 360);
+    if (th < 1e-6) return outAt(c, 0);
+    const j = Math.floor(th), h = th - j;
+    let s = cum(c)[j];
+    if (h > 0) s += h * (outAt(c, j) + 4 * outAt(c, j + h / 2) + outAt(c, th)) / 6;
+    return s / th;
+  }
+  function probePeak(c) {
+    const k = keyOf(c);
+    if (PPK.has(k)) return PPK.get(k);
+    let best = { v: -1, at: 0 };
+    for (let t = 0; t <= 360; t++) { const q = sample(c, t).probe; if (q > best.v + 1e-9) best = { v: q, at: t }; }
+    PPK.set(k, best);
+    return best;
+  }
+
+  // ---------- state ----------
+  const blank = () => ({ pick: null, res: null, why: false });
+  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, pinning = false;
+  let T = Infinity, motionEnd = 0, SW = null, PH = 0, FLOW = null, REC = null;
+  const setupOf = (i, right) => {
+    const d = STEPS[i], a = right && d.ans;
+    return { step: i, kind: d.kind, line: a && a.line ? a.line : d.line || 400, cursor: a ? a.to : d.at || 0 };
+  };
+
+  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------
+  function write(node, s) {
+    node.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));
+      node.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));
+    return node;
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);
+  const kindCtl = K.choice({ id: 'kind', label: 'Rectifier', options: [{ value: 'half', label: 'Half-wave' }, { value: 'bridge', label: 'Bridge' }, { value: 'six', label: 'Six-pulse' }], value: 'half', into: '#sw' });
+  const lineCtl = K.choice({ id: 'line', label: 'Line voltage', options: [{ value: 400, label: '400 V' }, { value: 440, label: '440 V' }], value: 400, into: '#sw' });
+  const curCtl = K.control({ id: 'cursor', label: 'Time cursor', min: 0, max: 360, step: 1, value: 0, fmt: (v) => Math.round(v) + '°',
+    snap: [180, 270, 360], hint: 'Or drag along the graph', into: '#ctl' });
+  const playBtn = K.button({ label: 'Play', secondary: true, into: '#ctl', press: () => {
+    if (finished || !STEPS[at()].show) return;
+    if (SW && SW.play) { SW = null; return; }
+    const from = curCtl.get() >= 360 ? 0 : curCtl.get();
+    sweep(from, 360, (360 - from) / 90, false, 0);
+  } });
+  K.readout({ id: 'outNow', label: 'Output now', unit: 'V', decimals: 0, into: '#outs' });
+  K.readout({ id: 'avgSoFar', label: 'Average so far', unit: 'V', decimals: 0, into: '#outs' });
+  const rProbe = K.readout({ id: 'probe', label: 'Probe on the diode', unit: 'V', decimals: 0, into: '#outs' });
+  K.model((p) => {
+    const c = cfg(p), th = K.clamp(+p.cursor || 0, 0, 360), s = sample(c, shownAt(th));
+    return { outNow: s.out, avgSoFar: avgAt(c, th), probe: s.probe };
+  });
+
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (st.res !== 'right') return;
+    if (d.ans && d.ans.line) lineCtl.set(d.ans.line, true);
+    if (d.ans) sweep(curCtl.get(), d.ans.to, ANS, true, 0);
+    if (REDUCE || testing()) { T = Infinity; return; }
+    T = 0; motionEnd = (d.ans ? ANS : 0.1) + K.SOFT;
+    if (!motion.playing()) motion.play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true; FLOW = null;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // ---------- motion: a sweep of the time cursor, a right answer's reveal, and current flowing ----------
+  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (SW) {
+      SW.t += dt;
+      const f = K.clamp(SW.t / SW.dur, 0, 1), val = Math.round(K.lerp(SW.from, SW.to, SW.ease ? K.ease(f) : f));
+      if (val !== SW.last) { SW.last = val; curCtl.set(val); }
+      if (f >= 1) { SW = null; playBtn.setLabel('Play'); }
+    }
+    if (FLOW) PH += dt * FLOW.speed;
+    if (T < motionEnd + 0.1) paint();
+    dots();
+    return !!SW || T < motionEnd + 0.1 || flowOn();
+  } });
+  function sweep(from, to, dur, ease, delay) {
+    if (REDUCE || testing()) { SW = null; curCtl.set(to, true); return; }
+    SW = { from, to, dur: Math.max(0.2, dur), ease, t: -(delay || 0), last: Math.round(from), play: !ease };
+    curCtl.set(Math.round(from), true);
+    if (!motion.playing()) motion.play();
+  }
+  const flowOn = () => !REDUCE && !finished && !!FLOW;
+  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }
+  function enter(id) {
+    if (REDUCE) return;
+    const b = el(id);
+    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');
+  }
+
+  // ---------- drawing helpers ----------
+  const svg = el('scene'), art = el('art'), dotsG = el('dots'), gsvg = el('graph'), gart = el('gart'), grab = el('grab');
+  let into = null, latest = 0, earliest = Infinity;
+  const add = (n) => (into || art).appendChild(n);
+  const r2 = (v) => Math.round(v * 100) / 100;
+  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }
+  const vis = (t) => (t == null ? 1 : arr(t));
+  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }
+  function tx(x, y, s, cls, anchor) { REC.texts.push(s); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s)); }
+  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));
+  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));
+  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 7.4;
+  }
+  // A diode pointing along its current: triangle (anode side) and bar (cathode side).
+  function diode(x, y, ang, cls) {
+    const g = add(K.svg('g', { class: 'dio' + (cls ? ' ' + cls : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ')' }));
+    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));
+    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));
+    return g;
+  }
+
+  // ---------- the bench: supply on the left, rectifier in the middle, load on the right ----------
+  const HW = { seg: { wa: 'M34 120 V28 H298 V80', n: 'M298 132 V184 H34 V160' }, dio: { d1: [160, 28, 0] },
+    pts: [[34, 120], [34, 28], [298, 28], [298, 80], [298, 132], [298, 184], [34, 184], [34, 160]] };
+  // The diamond: wire A at the left corner, wire B at the right, the positive rail at the top, the negative at the bottom.
+  const BR = {
+    seg: { wa: 'M34 120 V106 H94', e1: 'M94 106 L142 48', e3: 'M190 106 L142 48', e2: 'M142 164 L190 106', e4: 'M142 164 L94 106',
+      p: 'M142 48 V28 H298 V80', n: 'M298 132 V184 H142 V164', wb: 'M34 160 V194 H204 V190 A6 6 0 0 1 204 178 V106 H190' },
+    dio: { d1: [118, 77, -50.39], d3: [166, 77, -129.61], d2: [166, 135, -50.39], d4: [118, 135, -129.61] },
+    lab: { d1: [130, 100], d3: [154, 100], d4: [130, 122], d2: [154, 122] },
+    pos: [[34, 120], [34, 106], [94, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [190, 106], [204, 106], [204, 194], [34, 194], [34, 160]],
+    neg: [[34, 160], [34, 194], [204, 194], [204, 106], [190, 106], [142, 48], [142, 28], [298, 28], [298, 80], [298, 132], [298, 184], [142, 184], [142, 164], [94, 106], [34, 106], [34, 120]],
+  };
+  // Six-pulse: three legs, each line joined between its upper and lower diode.
+  const SXS = [96, 148, 200], SYS = [124, 140, 156], SST = [[46, 124], [54, 140], [46, 156]];
+  const SIX = {
+    seg: { w0: 'M46 124 H96', w1: 'M54 140 H90 A6 6 0 0 1 102 140 H148', w2: 'M46 156 H90 A6 6 0 0 1 102 156 H142 A6 6 0 0 1 154 156 H200',
+      u0: 'M96 124 V28', u1: 'M148 140 V28', u2: 'M200 156 V28', l0: 'M96 184 V124', l1: 'M148 184 V140', l2: 'M200 184 V156',
+      p0: 'M96 28 H148', p1: 'M148 28 H200', p2: 'M200 28 H298 V80', n2: 'M298 132 V184 H200', n1: 'M200 184 H148', n0: 'M148 184 H96' },
+    dio: { u0: [96, 52, -90], u1: [148, 52, -90], u2: [200, 52, -90], l0: [96, 170, -90], l1: [148, 170, -90], l2: [200, 170, -90] },
+  };
+  const LAY = { half: HW, bridge: BR, six: SIX };
+  function pathIds(c, s) {
+    if (c.kind === 'half') return ['wa', 'n'];
+    if (c.kind === 'bridge') return s.half > 0 ? ['wa', 'e1', 'p', 'n', 'e2', 'wb'] : ['wb', 'e3', 'p', 'n', 'e4', 'wa'];
+    return ['w' + s.u, 'u' + s.u].concat(['p0', 'p1', 'p2'].slice(s.u), ['n2'], s.l <= 1 ? ['n1'] : [], s.l === 0 ? ['n0'] : [], ['l' + s.l, 'w' + s.l]);
+  }
+  function pathPts(c, s) {
+    if (c.kind === 'half') return HW.pts;
+    if (c.kind === 'bridge') return s.half > 0 ? BR.pos : BR.neg;
+    const u = s.u, l = s.l;
+    return [SST[u], [SXS[u], SYS[u]], [SXS[u], 28], [298, 28], [298, 80], [298, 132], [298, 184], [SXS[l], 184], [SXS[l], SYS[l]], SST[l]];
+  }
+  const NAME = { half: 'A half-wave rectifier: one diode, D1, between supply wire A and the top of a resistor load.',
+    bridge: 'A bridge rectifier: four diodes, D1 to D4, in a diamond between an AC supply and a resistor load.',
+    six: 'A six-pulse rectifier: three lines, L1 to L3, each with an upper and a lower diode, feeding a resistor load.' };
+  function onWords(c, s) {
+    if (c.kind === 'half') return 'D1 conducts';
+    if (c.kind === 'bridge') return s.half > 0 ? 'D1 and D2 conduct' : 'D3 and D4 conduct';
+    return 'L' + (s.u + 1) + '\'s upper diode and L' + (s.l + 1) + '\'s lower diode conduct';
+  }
+
+  function view(i, p, st) {
+    const d = STEPS[i], c = cfg(p), th = K.clamp(+p.cursor || 0, 0, 360), s = sample(c, shownAt(th)), six = c.kind === 'six';
+    return { i, d, c, th, s, right: st.res === 'right', show: !!d.show, probe: !!d.probe, pathOn: !(d.hidePath && st.res !== 'right'),
+      avg: avgAt(c, th), vmax: six ? 650 : PK(c.rms) * 340 / PK(230), peak: six ? PK(c.line) : PK(c.rms) };
+  }
+
+  function drawCircuit(v) {
+    const c = v.c, s = v.s, kind = c.kind, L = LAY[kind], flow = v.pathOn && s.out > 1e-6;
+    if (v.d.rings && v.right) part(vis(0.1), 0, () => s.on.forEach((id) => { const q = L.dio[id]; ci(q[0], q[1], 12.5, 'ring'); REC.rings++; }));
+    // The supply: a sine in a circle.
+    ci(34, 140, 20, 'src'); pa('M20 140 q7 -13 14 0 t14 0', 'sine');
+    Object.keys(L.seg).forEach((id) => pa(L.seg[id], 'wire'));
+    Object.keys(L.dio).forEach((id) => { const q = L.dio[id]; diode(q[0], q[1], q[2]); });
+    box(287, 80, 22, 52, 'res', 3);
+    // The current's path, the conducting diodes and the arrow through the load, drawn bold.
+    if (flow) part(v.d.hidePath ? vis(0.1) : 1, 0, () => {
+      pathIds(c, s).forEach((id) => pa(L.seg[id], 'wire on'));
+      s.on.forEach((id) => { const q = L.dio[id]; diode(q[0], q[1], q[2], 'on'); });
+      box(287, 80, 22, 52, 'res on', 3);
+      ln(298, 88, 298, 115, 'arrow'); pa('M298 126 l-6 -11 h12 z', 'head');
+      tx(281, 112, 'current', 'lab n', 'end');
+      REC.arrow = true; REC.on = s.on.slice();
+    });
+    else if (v.pathOn) tx(281, 112, 'no current', 'lab m', 'end');
+    tx(281, 94, 'load', 'lab', 'end'); tx(316, 92, '+', 'big', 'start'); tx(316, 130, '−', 'big', 'start');
+    const aLab = 'A' + (s.half > 0 && kind !== 'six' ? ' +' : s.half < 0 ? ' −' : ''), bLab = 'B' + (s.half > 0 && kind !== 'six' ? ' −' : s.half < 0 ? ' +' : '');
+    if (kind !== 'six' && !v.d.novolt) { tx(62, 138, c.rms + ' V', 'lab say', 'start'); tx(62, 154, '50 Hz', 'lab m', 'start'); }
+    if (kind === 'half') {
+      tx(160, 13, 'D1', 'lab'); tx(24, 76, aLab, 'lab', 'end'); tx(24, 178, bLab, 'lab', 'end');
+    } else if (kind === 'bridge') {
+      Object.keys(BR.lab).forEach((id) => { if (id !== c.open) tx(BR.lab[id][0], BR.lab[id][1], id.toUpperCase(), 'lab'); });
+      tx(44, 100, aLab, 'lab', 'start'); tx(44, 182, bLab, 'lab', 'start');
+      if (c.open) {
+        const q = BR.dio[c.open];
+        ln(q[0] - 8, q[1] - 8, q[0] + 8, q[1] + 8, 'cross'); ln(q[0] - 8, q[1] + 8, q[0] + 8, q[1] - 8, 'cross');
+        tx(180, 62, c.open.toUpperCase() + ' open', 'lab w', 'start');
+        if (v.right) part(vis(ANS), 0, () => tx(180, 80, 'now a half-wave', 'lab', 'start'));
+      }
+    } else {
+      tx(34, 92, c.line + ' V', 'lab say'); tx(34, 108, '3-phase', 'lab m');
+      tx(72, 118, 'L1', 'lab'); tx(122, 134, 'L2', 'lab'); tx(174, 150, 'L3', 'lab');
+      tx(214, 56, 'upper', 'lab m', 'start'); tx(214, 174, 'lower', 'lab m', 'start');
+      tx(250, 21, '+ rail', 'lab m'); tx(250, 199, '− rail', 'lab m');
+    }
+    if (v.probe) {
+      const P = kind === 'half' ? { a: 'M140 28 V54 H150', b: 'M180 28 V54 H170', x: 160, y: 54, ly: 80 }
+        : kind === 'bridge' ? { a: 'M103.6 94.4 H74 V68', b: 'M132.4 59.6 H84', x: 74, y: 58, ly: 38 }
+        : { a: 'M96 34 H70 V42', b: 'M96 70 H70 V62', x: 70, y: 52, ly: 24 };
+      pa(P.a, 'plead'); pa(P.b, 'plead'); ci(P.x, P.y, 10, 'probe');
+      tx(P.x, P.y + 4.5, 'V', 'lab t'); tx(P.x, P.ly, 'probe', 'lab t');
+    }
+    svg.setAttribute('aria-label', NAME[kind] + (c.open ? ' ' + c.open.toUpperCase() + ' has failed open.' : '') + ' At ' + Math.round(v.th) + '°, ' +
+      (!v.pathOn ? 'the current\'s path is not shown yet.' : flow ? onWords(c, s) + ', and current flows down through the load.' : 'no current flows.') +
+      (v.probe ? ' A probe is clipped across ' + (kind === 'six' ? 'L1\'s upper diode.' : 'D1.') : ''));
+    // The moving dots follow the current's path, faster as the output rises.
+    FLOW = flow && v.show && !finished ? (() => {
+      const pts = pathPts(c, s), lens = [0];
+      for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+      return { pts, lens, len: lens[lens.length - 1], speed: 12 + 60 * s.out / v.vmax, a: v.d.hidePath ? vis(0.1) : 1 };
+    })() : null;
+  }
+  function dots() {
+    dotsG.textContent = '';
+    if (!FLOW || REDUCE) return;
+    const f = FLOW;
+    dotsG.setAttribute('opacity', r2(f.a));
+    for (let s = PH % 20; s < f.len; s += 20) {
+      let k = 1;
+      while (k < f.lens.length - 1 && f.lens[k] < s) k++;
+      const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);
+      dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(K.lerp(a[0], b[0], u)), cy: r2(K.lerp(a[1], b[1], u)), r: 2.2 }));
+    }
+  }
+
+  // ---------- the graph of one cycle ----------
+  const X0 = 46, X1 = 324, YZ = 108, A = 62, YTOP = 44, YBOT = 172;
+  const gx = (t) => X0 + t * (X1 - X0) / 360;
+  const PALE = new Map();
+  function paleD(c, vm) {
+    const k = keyOf(c) + '|' + vm;
+    if (PALE.has(k)) return PALE.get(k);
+    const gy = (x) => YZ - x * A / vm, waves = [];
+    if (c.kind === 'six') [[0, 1], [1, 2], [2, 0]].forEach((q) => [1, -1].forEach((sg) => waves.push((t) => { const ph = sample(c, t).v; return sg * (ph[q[0]] - ph[q[1]]); })));
+    else waves.push((t) => sample(c, t).v);
+    const d = waves.map((f) => { let s = ''; for (let t = 0; t <= 360; t += 2) s += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(f(t))); return s; }).join(' ');
+    PALE.set(k, d);
+    return d;
+  }
+  function keyRow(y, items) {
+    const ws = items.map((it) => tw(it[1], 'lab'));
+    const total = items.reduce((t, it, k) => t + 22 + ws[k], 0) + 14 * (items.length - 1);
+    let x = Math.max(4, (340 - total) / 2);
+    items.forEach((it, k) => {
+      const x0 = x;
+      part(it[2] == null ? 1 : it[2], 0, () => { ln(x0, y - 4.5, x0 + 16, y - 4.5, it[0]); tx(x0 + 22, y, it[1], /\d/.test(it[1]) ? 'lab say' : 'lab', 'start'); });
+      x += 22 + ws[k] + 14;
+    });
+  }
+  function avgText(v) {
+    if (v.th < 0.5) return 'average so far';
+    if (v.d.avgNum) return (v.th >= 360 ? 'average: ' : 'average so far: ') + fx(v.avg, 0) + ' V';
+    if (v.th < 360) return 'average so far';
+    return v.c.kind === 'six' ? 'average: ' + fx(v.avg / v.c.line, 2) + ' × line voltage' : 'average: ' + fx(v.avg / v.peak, 3) + ' × peak';
+  }
+  function drawGraph(v) {
+    const c = v.c, vm = v.vmax, th = v.th, xc = gx(th), six = c.kind === 'six', gy = (x) => YZ - x * A / vm;
+    const H = v.probe ? 276 : 196;
+    gsvg.setAttribute('viewBox', '0 0 340 ' + H); grab.setAttribute('height', H - 36);
+    const row1 = [['pale', six ? 'line-to-line' : 'supply'], ['outc', 'output']];
+    let low = null;
+    if (v.d.dips && v.right) {
+      low = Infinity;
+      for (let t = 0; t <= 360; t++) low = Math.min(low, outAt(c, t));
+      row1.push(['ref', 'dips to ' + fx(low, 0) + ' V', vis(ANS)]);
+    }
+    keyRow(14, row1); keyRow(31, [['avg', avgText(v)]]);
+    ln(X0, YTOP, X0, YBOT, 'ax'); ln(X0, YZ, X1, YZ, 'ax');
+    tx(36, YZ + 4, '0 V', 'lab m', 'end');
+    if (v.show) { const yp = gy(v.peak); ln(X0, yp, X1, yp, 'ref'); tx(42, yp + 4, fx(v.peak, 0) + ' V', 'lab m say', 'end'); }
+    if (low != null) part(vis(ANS), 0, () => ln(X0, gy(low), X1, gy(low), 'ref'));
+    // The output so far, the area under it, and the average so far.
+    if (th > 0) {
+      let d = '';
+      for (let t = 0; t < th; t++) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(outAt(c, t)));
+      d += 'L' + r2(xc) + ' ' + r2(gy(v.s.out));
+      pa(d + 'L' + r2(xc) + ' ' + YZ + 'L' + X0 + ' ' + YZ + 'Z', 'area');
+    }
+    pa(paleD(c, vm), 'pale');
+    if (th > 0) {
+      let d = '';
+      for (let t = 0; t < th; t++) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(gy(outAt(c, t)));
+      d += 'L' + r2(xc) + ' ' + r2(gy(v.s.out));
+      pa(d, 'outc');
+      ln(X0, gy(v.avg), xc, gy(v.avg), 'avg');
+    }
+    // The time cursor and its angle.
+    ln(xc, YTOP - 2, xc, YBOT, 'cur');
+    ci(xc, gy(v.s.out), 4.5, 'odot');
+    [0, 90, 180, 270, 360].forEach((t) => { const x = gx(t); ln(x, YBOT, x, YBOT + 4, 'ax'); if (Math.abs(x - xc) > 30) tx(x, 189, t + '°', 'lab m'); });
+    const cs = Math.round(th) + '°', w = tw(cs, 'lab n'), px = K.clamp(xc, w / 2 + 9, 340 - w / 2 - 9);
+    box(px - w / 2 - 7, 176, w + 14, 18, 'pill', 9); tx(px, 189, cs, 'lab n');
+    // Six-pulse: name the line pair on top at the cursor, tying the graph to the bold diodes.
+    if (six) { const rt = xc < 250; tx(rt ? xc + 7 : xc - 7, 46, 'L' + (v.s.u + 1) + ' − L' + (v.s.l + 1), 'lab n', rt ? 'start' : 'end'); }
+    // The probe's trace: the voltage across the probed diode, the wrong way round.
+    if (v.probe) {
+      const py = (x) => 266 - x * 44 / vm;
+      tx(X0, 212, six ? 'probe on L1\'s upper diode' : 'probe on D1, reverse volts', 'lab t', 'start');
+      ln(X0, 222, X0, 266, 'ax'); ln(X0, 266, X1, 266, 'ax');
+      if (th > 0) {
+        let d = '';
+        for (let t = 0; t < th; t++) d += (t ? 'L' : 'M') + r2(gx(t)) + ' ' + r2(py(sample(c, t).probe));
+        pa(d + 'L' + r2(xc) + ' ' + r2(py(v.s.probe)), 'ptr');
+      }
+      ln(xc, 220, xc, 268, 'cur'); ci(xc, py(v.s.probe), 4, 'pdot');
+      const pk = probePeak(c);
+      if (th >= pk.at) tx(X1, 212, 'peak ' + fx(pk.v, 0) + ' V', 'lab t say', 'end');
+    }
+    gsvg.setAttribute('aria-label', 'One supply cycle, 0 to 360 degrees. ' + (six ? 'The six line-to-line waves are' : 'The supply is') +
+      ' drawn pale. The output, the area under it and its average are drawn up to the time cursor at ' + Math.round(th) + ' degrees.' +
+      (v.probe ? ' Below, the probe\'s trace shows the voltage across the probed diode the wrong way round.' : ''));
+  }
+
+  // ---------- one screen drawn in its state ----------
+  function render(i, p, st) {
+    const v = view(i, p, st);
+    REC = { texts: [], rings: 0, on: [], arrow: false };
+    latest = 0; earliest = Infinity;
+    art.textContent = ''; gart.textContent = '';
+    into = art; drawCircuit(v);
+    into = gart; drawGraph(v);
+    into = null;
+    return REC;
+  }
+  function paint() { render(at(), K.params(), S[at()]); }
+
+  // ---------- what Dan reads under the picture ----------
+  function sayFor(v) {
+    const c = v.c, s = v.s;
+    if (c.kind === 'six') return 'L' + (s.u + 1) + ' is highest and L' + (s.l + 1) + ' lowest, so the load gets L' + (s.u + 1) + ' − L' + (s.l + 1) + '.';
+    if (s.half === 0) return 'The supply is at zero, so no current flows.';
+    if (c.kind === 'half') return s.half > 0 ? 'D1 is pushed forward and conducts, so the load gets the hump.' : 'D1 is pushed backwards and blocks, so the load gets nothing.';
+    if (v.probe && s.half < 0) return 'D3 and D4 conduct, so D1 holds the supply the wrong way round.';
+    return s.half > 0 ? 'D1 and D2 conduct, and current flows down through the load.' : 'D3 and D4 conduct, and current still flows down through the load.';
+  }
+  function layout(i, d, st, p) {
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;
+    const task = el('task');
+    task.className = 'task say' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    el('sw').hidden = !d.show; lineCtl.el.hidden = p.kind !== 'six';
+    el('ctl').hidden = !d.show; el('outs').hidden = !d.show; rProbe.el.hidden = !d.probe;
+    el('say').hidden = !d.show; el('gnote').hidden = i !== 0;
+    el('say').textContent = d.show ? sayFor(view(i, p, st)) : '';
+    grab.style.pointerEvents = d.show ? '' : 'none';
+    playBtn.setLabel(SW && SW.play ? 'Pause' : 'Play');
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb say' + (right ? ' right' : '');
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';
+    const why = el('why');
+    why.hidden = !!d.show || !st.why;
+    if (!d.show) write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  }
+  write(el('finish'), FINISH);
+  K.drag('#grab', { control: 'cursor', toValue: (x) => (STEPS[at()].show ? K.clamp(Math.round((x - X0) / (X1 - X0) * 360), 0, 360) : curCtl.get()) });
+  K.update((p) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!motion.playing()) { T = Infinity; SW = null; }
+    if (i !== lastStep) {
+      // A new screen opens on its own bench: its rectifier, line voltage and cursor.
+      lastStep = i; enter('stepbox'); SW = null; T = Infinity;
+      const q = setupOf(i, st.res === 'right');
+      kindCtl.set(q.kind, true); lineCtl.set(q.line, true); curCtl.set(q.cursor, true);
+      if (d.show && d.dur) { sweep(0, 360, d.dur, true, FADE); if (SW) { T = 0; motionEnd = d.dur + FADE; } }
+      K.refresh();
+      return;
+    }
+    if (!d.show && !pinning) {
+      const q = setupOf(i, st.res === 'right');
+      if (p.kind !== q.kind || +p.line !== q.line || (!SW && Math.round(+p.cursor) !== q.cursor)) {
+        pinning = true;
+        kindCtl.set(q.kind, true); lineCtl.set(q.line, true); if (!SW) curCtl.set(q.cursor, true);
+        K.refresh(); pinning = false;
+        return;
+      }
+    }
+    if (SW && Math.round(+p.cursor) !== SW.last) SW = null;    // Dan took hold of the cursor
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    layout(i, d, st, p);
+    render(i, p, st);
+    dots();
+    kick();
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const cOf = (kind, extra) => Object.assign({ kind, rms: 230, line: 400, open: '' }, extra || {});
+  function drawnAt(i, over, right) {
+    const keepT = T;
+    T = Infinity;
+    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }
+    finally { T = keepT; paint(); }
+  }
+  K.check(`On 230 V the supply peaks at 230 × √2 = 325 V. The half-wave averages 207 V over its hump, and 325 ÷ π = 104 V over the whole cycle, 0.318 of the peak`, () => {
+    const a = K.at({ kind: 'half', cursor: 180 }).avgSoFar, b = K.at({ kind: 'half', cursor: 360 }).avgSoFar;
+    return N.pk === '325' && fx(a, 0) === '207' && fx(b, 0) === '104' && K.near(b / PK(230), 1 / Math.PI, 1e-7) && fx(b / PK(230), 3) === '0.318';
+  });
+  K.check('The full-wave average is 2 × 0.318 = 0.637 of the peak voltage, assuming no diode losses: the bridge averages 207 V on 230 V, twice the half-wave', () => {
+    const b = K.at({ kind: 'bridge', cursor: 360 }).avgSoFar, h = K.at({ kind: 'half', cursor: 360 }).avgSoFar;
+    return K.near(b / PK(230), 0.637, 5e-4) && K.near(b, 2 * h, 1e-6) && fx(b, 0) === N.br;
+  }, { source: ETUT });
+  K.check('Regardless of the polarity of the input, the current flows in the same direction through the load: D1 and D2 carry the positive half, D3 and D4 the negative, and the output never goes below zero', () => {
+    const c = cOf('bridge');
+    for (let t = 1; t < 360; t++) {
+      if (t === 180) continue;
+      const s = sample(c, t);
+      if (!(s.out > 0) || s.on.join() !== (t < 180 ? 'd1,d2' : 'd3,d4')) return false;
+    }
+    return true;
+  }, { source: AAC });
+  K.check('The ripple frequency is twice the supply frequency: the bridge output has two humps a cycle, 100 a second on a 50 Hz supply', () => {
+    const c = cOf('bridge');
+    let n = 0;
+    for (let t = 1; t < 360; t++) { const a = outAt(c, t - 1), b = outAt(c, t), d = outAt(c, t + 1); if (b > a && b >= d) n++; }
+    return n === 2 && String(n * 50) === N.rip;
+  }, { source: ETUT });
+  K.check('The probe on D1 reads 0 while D1 conducts, and peaks at 270°: 325 V in a 230 V bridge, and 115 × √2 = 163 V in a 115 V one', () => {
+    const a = K.at({ kind: 'bridge', cursor: 90 }).probe, b = K.at({ kind: 'bridge', cursor: 270 }).probe, q = K.at({ step: 7, kind: 'bridge', cursor: 270 }).probe;
+    return a === 0 && fx(b, 0) === N.pk && fx(q, 0) === N.pk115 && probePeak(cOf('bridge')).at === 270;
+  });
+  K.check('Six-pulse on 400 V: the output dips to cos 30° × 566 = 490 V and averages 3√2 ÷ π × 400 = 540 V; on 440 V it averages 594 V under 622 V tops', () => {
+    const c = cOf('six');
+    let lo = Infinity, hi = 0;
+    for (let t = 0; t <= 360; t++) { const o = outAt(c, t); lo = Math.min(lo, o); hi = Math.max(hi, o); }
+    const a = K.at({ kind: 'six', line: 400, cursor: 360 }).avgSoFar, b = K.at({ kind: 'six', line: 440, cursor: 360 }).avgSoFar;
+    return fx(lo, 0) === N.dip && fx(hi, 0) === N.pk400 && fx(a, 0) === N.s400 && fx(b, 0) === N.s440 && K.near(a / PK(400), 3 / Math.PI, 1e-6) && fx(PK(440), 0) === N.pk440;
+  });
+  K.check('In the six-pulse the output is the largest line-to-line voltage, the conducting pair changes six times a cycle (every 60°), and the probe on L1\'s upper diode peaks at the 566 V line-to-line peak', () => {
+    const c = cOf('six');
+    let n = 0;
+    for (let t = 1; t < 360; t++) if (sample(c, t - 0.5).on.join() !== sample(c, t + 0.5).on.join()) n++;
+    const big = [0, 17, 45, 100, 222, 300].every((t) => { const ph = sample(c, t).v; return K.near(outAt(c, t), Math.max.apply(null, ph) - Math.min.apply(null, ph), 1e-9); });
+    return n === 6 && big && fx(probePeak(c).v, 0) === N.pk400;
+  });
+  K.check('With D3 open the bridge works as a half-wave: nothing in the negative half, and a 104 V average', () =>
+    K.at({ step: 11, kind: 'bridge', cursor: 270 }).outNow === 0 && fx(K.at({ step: 11, kind: 'bridge', cursor: 360 }).avgSoFar, 0) === N.hw);
+  K.check('Silicon diodes have a forward voltage of approximately 0.7 volts: two in the current\'s path take 1.4 V, about 12% of a 12 V output and under 1% of 207 V', () =>
+    N.drop === '1.4' && N.pct === '12' && 1.4 / +N.br < 0.01, { source: AACD });
+  K.check('Every number in the words comes from the rule: 325, 104, 207, 0.318, 0.637, 163, 566, 622, 0.866, 490, 283, 0.955, 1.35, 540, 594, 100 Hz and 300 Hz', () =>
+    N.pk === '325' && N.hw === '104' && N.br === '207' && N.r318 === '0.318' && N.r637 === '0.637' && N.pk115 === '163' && N.pk400 === '566' &&
+    N.pk440 === '622' && N.cos30 === '0.866' && N.dip === '490' && N.half400 === '283' && N.r955 === '0.955' && N.k135 === '1.35' &&
+    N.s400 === '540' && N.s440 === '594' && N.rip === '100' && N.rip6 === '300');
+  K.check('The drawing makes the conducting diodes bold and draws the arrow through the load, pointing down, only while current flows', () => {
+    const a = drawnAt(2, { cursor: 90 }), b = drawnAt(2, { cursor: 270 }), z = drawnAt(2, { cursor: 180 }), h = drawnAt(0, { cursor: 270 }), s = drawnAt(8, { cursor: 45 });
+    return a.arrow && b.arrow && !z.arrow && !h.arrow && s.arrow && a.on.join() === 'd1,d2' && b.on.join() === 'd3,d4' && s.on.length === 2;
+  });
+  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;
+      const before = drawnAt(i, null, false), bt = before.texts.slice(), br = before.rings, ba = before.arrow;
+      const after = drawnAt(i, null, true);
+      const shows = (d.shows || []).every((s) => bt.indexOf(s) < 0 && after.texts.indexOf(s) >= 0);
+      return shows && (!d.rings || (br === 0 && after.rings === 2)) && (!d.hidePath || (!ba && after.arrow));
+    }));
+  K.check('Each demonstration sweep ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () =>
+    STEPS.every((d) => !d.dur || d.dur + FADE <= 4.5) && ANS + K.SOFT <= 3);
+
+  K.ready();
+</script>

@@ -1,0 +1,517 @@
+{
+  "iid": "i7",
+  "title": "Inverting: building AC from DC",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the pulses narrow and their average sine shrink, from the same fixed 540 V link, when you drag the reference’s depth down.",
+    "title": "Sine from pulses",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [
+      {
+        "id": "topOn",
+        "label": "Top switch on, first leg",
+        "unit": "%",
+        "decimals": 0
+      },
+      {
+        "id": "avgNow",
+        "label": "Average at the cursor",
+        "unit": "V",
+        "decimals": 0
+      },
+      {
+        "id": "outRms",
+        "label": "Output sine, rms",
+        "unit": "V",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "A short lesson in fourteen small screens. Most show one picture, sine from pulses. At the top sits a 540 V DC link. That is about what a three-phase bridge gives from a 400 V supply: 1.35 × 400 V.[^1] A picker chooses the circuit: One leg, H-bridge or Three legs. A leg is two IGBTs in series across the link. Each IGBT has its freewheeling diode. The leg's output sits between them. A switch that is on is drawn bold. In H-bridge a second leg mirrors the first. Its top switch is on whenever the first leg's bottom one is. A motor winding sits between the outputs. Its 5 Ω and 20 mH are both chosen. In Three legs, a star-connected motor has three such phases.\n\nFive sliders stack below. Depth is the reference's height as a share of the triangle's, 0% to 100% in steps of 5%. Reference frequency runs from 5 Hz to 50 Hz in steps of 5 Hz. Carrier frequency runs from 0.5 kHz to 3 kHz in steps of 0.5 kHz. Dead time runs from 0 µs to 100 µs in steps of 5 µs. A time cursor runs from 0° to 360° of the reference's first cycle, in steps of 5°.\n\nThree plots share one time axis, 40 ms long and slowed down. It holds two cycles at 50 Hz, or one at 25 Hz. The top plot shows a triangle, the carrier, between −1 and +1. Over it runs a sine, the reference, as tall as the depth. In Three legs there are three references, each 120° behind the last. Where a leg's reference is above the triangle, its top switch is on. Below it, its bottom switch is on.\n\nThe middle plot is the output voltage. In One leg it is the leg against the lower rail, 540 V or 0 V. In H-bridge it is the winding, +540 V or −540 V. In Three legs it is the first two lines, +540 V, 0 V or −540 V. A dashed line is the pulses' average over each switching cycle. A leg's average is D × 540 V. D is its top switch's share of the cycle. The reference sets D: D = 50% + 50% × depth × the reference's value. So the dashed line traces the sine. In H-bridge the winding sees the first leg's average less the mirror leg's. That is (2D − 1) × 540 V, with a peak of depth × 540 V. In Three legs each leg's average swings depth × 270 V either side of 270 V. Two sines 120° apart differ by a sine √3 times as tall. So the peak between lines is depth × 1.732 × 270 V. At full depth that is 468 V.\n\nThe bottom plot is the motor's current, drawn without a scale. It is stepped through time from v = L di/dt and the resistance. It follows the dashed average with a small sawtooth. The sawtooth's height falls in proportion as the carrier frequency rises. One leg has none.\n\nEach IGBT takes 5 µs to stop conducting. That lag is chosen so it can be seen. At each edge the outgoing switch is turned off. The incoming one turns on after the dead time. A dead time shorter than the lag lets both conduct at once. That shows as a red path across the link, marked Shoot-through. In the gap the current flows on through one of the diodes. Its direction picks which one. So each leg loses dead time × carrier frequency × 540 V of average, against the current. The winding loses twice that. That is about 22 V at 20 µs and 1 kHz, and 108 V at 100 µs. Near each zero this loss stalls the small current. The sine flattens there. On the two dead-time screens the dashed line is the drawn pulses' own average over each cycle. So it carries that loss.\n\nThree readouts wrap onto two lines on a narrow phone. The first is the first leg's D at the cursor. The second is the dashed line's value there. The third is the rms of the averaged sine, without the dead time's loss. In H-bridge the rms is depth × 540 V ÷ √2, 382 V at full depth. In Three legs it is depth × 468 V ÷ √2, 331 V. One leg hides the rms.\n\nThe last screen is a card of three block chains. It is a picture, not buttons. An online UPS: supply, rectifier, DC link with its battery, inverter, load. A drive: the same without the battery, feeding a motor. A shore converter: 50 Hz port grid, rectifier, DC link, inverter, 60 Hz vessel network.\n\nNow the screens. Unless a screen says otherwise, it opens at 50 Hz, carrier 1 kHz, dead time 20 µs and cursor 90°. Its still is the picture as it opens.\n\n1, a puzzle: Three legs, depth 100%, the readouts and plots hidden. “A drive runs a 400 V, 50 Hz motor at 25 Hz. What voltage does it give the motor?” Offered: “About 200 V”; “400 V, as at full speed”; “About 800 V”. Hint for 400 V: “At half the frequency the winding's reactance halves. Full voltage would drive too much current.” Hint for 800 V: “A slower motor needs less voltage, not more.” Why: “About 200 V. Below rated speed, a simple drive holds the volts per hertz about steady. That is 400 ÷ 50 = 8 V per hertz, and 8 × 25 = 200 V. Yet its DC link sits at a steady 540 V. So the switching must set both the voltage and the frequency.” A right Check shows the plots and readouts.\n\n2, show: One leg. One leg, depth 60%. The words: “One leg is two switches in series across the 540 V DC link. With the top switch on, the output sits at 540 V. With the bottom switch on, it sits at 0 V. That is lesson 6's chopper. So over each switching cycle its average is D × 540 V. Hold D at 50%, and the average sits at 270 V. Let D rise and fall like a sine, and the average traces that sine.” Read: with D following a sine between 20% and 80%, the pulses are wide where the dashed average is high. The average traces a sine from 108 V to 432 V.\n\n3, a puzzle: One leg, depth 60%. Top switch on reads 80%. The average is hidden. “At the cursor, the top switch is on for 80% of each switching cycle. What is the leg's average voltage there?” Offered: “432 V”; “540 V, as the top switch joins the link”; “108 V”. Hint for 540 V: “Only while it is on. What about the other 20%?” Hint for 108 V: “That is the bottom switch's share of 540 V.” Why: “432 V. D × 540 V = 0.8 × 540 = 432 V. That is the top of this leg's sine.” A right Check shows the average, 432 V.\n\n4, show: Sine meets triangle. One leg, depth 60%. The words: “Something must set D, moment by moment. Draw the sine you want: the reference. Draw a fast triangle across it: the carrier. Where the reference is above the triangle, the top switch is on. Where it is below, the bottom switch is on. Near the sine's peak the pulses are wide. Near its trough they are thin. How tall the reference is, as a share of the triangle, is its depth. This is pulse width modulation, PWM.” Read: each edge sits where the sine crosses the triangle. Near the sine's peak, the reference is above it for 80% of each cycle.\n\n5, a puzzle: One leg, depth 60%, cursor at 0°, the readouts hidden. “At the cursor the reference crosses zero, halfway up the triangle. For what share of each switching cycle is the top switch on?” Offered: “Half of it, 50%”; “None of it, 0%”; “All of it, 100%”. Hint for 0%: “Zero is the middle of the triangle, not its bottom.” Hint for 100%: “The triangle rises above the reference for part of each cycle. How much?” Why: “50%. The reference sits halfway up the triangle. So it is above the triangle for half of each cycle. The average is 0.5 × 540 = 270 V. That is the middle of this leg's sine.” A right Check shows the readouts: 50% and 270 V.\n\n6, show: The H-bridge. H-bridge, depth 60%. The words: “One leg's average never goes below 0 V. So add a second leg, run as the mirror of the first. Put the motor winding between their outputs. One diagonal pair of switches gives the winding +540 V. The other diagonal gives it −540 V. Both legs share the same 270 V middle, so it cancels. What is left is a sine centred on zero: AC. Its peak is the depth times 540 V.” Read: the winding sees pulses of ±540 V. Their average is a sine peaking at 324 V each way, 229 V rms.\n\n7, a puzzle: H-bridge, depth 50%. Top switch on reads 75%. The other readouts are hidden. “The first leg's top switch is on 75% of the time. So the mirror leg's is on 25%. What average voltage does the winding see?” Offered: “270 V”; “405 V, the first leg's average”; “0 V, as the legs cancel”. Hint for 405 V: “The winding sits between the two legs. Take away the mirror leg's average.” Hint for 0 V: “They cancel only when both legs are on for the same share.” Why: “270 V. The first leg averages 0.75 × 540 = 405 V. The mirror leg averages 0.25 × 540 = 135 V. The winding sits between them, so it sees 405 − 135 = 270 V.” A right Check shows the average, 270 V, and the output, 191 V rms.\n\n8, show: The winding smooths it. H-bridge, depth 100%, the carrier going from 1 kHz to 3 kHz. The words: “The winding has inductance. A coil keeps its current going. It changes that current only as fast as its voltage allows. Each pulse is too short to swing the current far. So the motor filters the pulses into a near-sine current that follows their average.[^2] A small sawtooth rides on it at each switching edge. Raise the carrier frequency, and each pulse is shorter. The sawtooth shrinks, and the sine stays.” Read: at 3 kHz the sawtooth is about a third as tall as at 1 kHz. The sine and its 382 V rms are unchanged. Still: carrier 3 kHz.\n\n9, a puzzle: H-bridge, depth 100%. “You double the carrier frequency to 2 kHz. What happens to the frequency of the motor's current?” Offered: “It stays at 50 Hz”; “It doubles to 100 Hz”; “It rises to 2 kHz”. Hint for 100 Hz: “The carrier sets how often the switches change, not the sine their average traces.” Hint for 2 kHz: “The sawtooth is at the carrier's rate. What about the sine under it?” Why: “It stays at 50 Hz, the reference's frequency. The faster carrier only makes the sawtooth finer. But every switching edge makes heat in the switch, as lesson 4 showed. So a faster carrier buys a smoother current with hotter switches.” A right Check sets the carrier to 2 kHz.\n\n10, show: Three legs, two knobs. Three legs, depth 100%. The words: “A three-phase motor needs three sines, 120° apart. So each of three legs gets its own reference, 120° behind the last, against one shared carrier.[^3] At full depth each leg's average swings 270 V about its middle. The voltage between two lines is the difference of two legs: √3 × 270 = 468 V peak, or 331 V rms. The drive now has two knobs. The reference's frequency sets the output frequency. Its depth sets the voltage.[^4]” Read: three references, 120° apart, cross one triangle. The line pulses average to a sine peaking at 468 V, 331 V rms, at 50 Hz.\n\n11, a puzzle: Three legs, depth 100%, the output at 331 V. “The drive must give the motor 200 V at 25 Hz, from the same 540 V link. What does it change?” Offered: “Reference to 25 Hz, depth to 60%”; “The carrier, to half its frequency”; “The DC link, down to 200 V”. Hint for the carrier: “The carrier sets the sawtooth, not the sine.” Hint for the DC link: “The link stays at 540 V. Only the switching changes.” Why: “Reference to 25 Hz, depth to 60%. The frequency follows the reference. The voltage follows the depth: 200 ÷ 331 = 0.60. At 60% the readout gives 198 V, near enough 200 V. Sine-triangle PWM tops out at 331 V from this link.” A right Check sets 25 Hz and 60%. One cycle fills the axis, and the readout shows 198 V.\n\n12, show: Dead time. H-bridge, depth 30%, the dead time going from 0 µs to 20 µs. The words: “An IGBT turns off more slowly than it turns on. Switch a leg's pair over at once, and both conduct for a moment. That shorts the 540 V link through the leg: a shoot-through. So each leg leaves a short gap with both switches off. That gap is the dead time, drawn long here so it shows.[^5] Each gap costs a little voltage, always against the current.” Read: with no dead time, both switches in a leg conduct at every edge. A red path crosses the link. At 20 µs the red is gone. The dashed average drops about 22 V against the current. The current has a small flat near each zero.\n\n13, a mixed puzzle: H-bridge, depth 30%. “The dead time is raised to 100 µs. What happens to the motor's current?” Offered: “It flattens near each zero”; “A shoot-through, as at zero”; “Nothing, as a longer gap is only safer”. Hint for shoot-through: “A longer gap keeps the two switches further apart in time, not closer.” Hint for nothing: “Each gap costs voltage against the current. What does five times the gap do?” Why: “It flattens near each zero. Each gap costs voltage against the current. Now it costs five times as much. Near each zero the current is small. So the loss stalls it. Dead time trades two faults. Too short shorts the link. Too long distorts the output.[^6] So it is kept as short as the turn-off allows.” A right Check sets 100 µs, and the current flattens near each zero.\n\n14, a mixed puzzle: the card of three chains. “An online UPS keeps its battery on the DC link. The mains supply fails. What does the load see?” Offered: “No break, as the inverter runs on from the battery”; “A short break while it changes over”; “No supply until the bypass closes”. Hint for a short break: “The inverter was already feeding the load. What changes on its input side?” Hint for the bypass: “The bypass feeds the load from the mains. The mains has gone.” Why: “No break. In double conversion the inverter feeds the load all the time. It runs from the DC link. When the mains fails, the battery holds up the link. The inverter carries on. That is zero transfer time.[^7] A drive is the same chain, without the battery, feeding a motor. A shore converter is the same chain again, turning 50 Hz into 60 Hz.[^8]” A right Check lights the battery's path through the inverter to the load.\n\nEach puzzle offers three answers, stacked, each free to wrap. A wrong pick gets its hint. Why? explains. Continue moves on.",
+    "ignores": "The switches and diodes are drawn ideal, apart from the turn-off lag that dead time covers. Real ones drop a little voltage and make heat. The DC link is drawn as a steady 540 V. Lesson 3 showed it sits a little higher at light load. It also ripples. The winding is a fixed 5 Ω and 20 mH. A turning motor also makes a voltage of its own, which this picture leaves out. Time is slowed. The carrier’s range is chosen so each pulse can be seen. The dead time and turn-off lag are drawn longer than usual, so their effects show. Sine-triangle PWM tops out at 331 V between lines from 540 V.",
+    "numbers": [
+      {
+        "label": "Screen, 1 to 14 (the stepper)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Supply line voltage, chosen, V",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "DC link per line volt, about",
+        "value": 1.35,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "DC link, 1.35 × 400, V",
+        "value": 540,
+        "kind": "computed"
+      },
+      {
+        "label": "Winding resistance, chosen, Ω",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Winding inductance, chosen, mH",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Depth slider, lowest, %",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Depth slider, highest, %",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Depth slider step, %",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Reference frequency slider, lowest, Hz",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Reference frequency slider, highest, Hz",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Reference frequency slider step, Hz",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Carrier frequency slider, lowest, kHz",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Carrier frequency slider, highest, kHz",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Carrier frequency slider step, kHz",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Dead time slider, lowest, µs",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Dead time slider, highest, µs",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Dead time slider step, µs",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Time cursor, lowest, degrees",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Time cursor, highest, degrees",
+        "value": 360,
+        "kind": "control"
+      },
+      {
+        "label": "Time cursor step, degrees",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Time axis length, ms",
+        "value": 40,
+        "kind": "assumed"
+      },
+      {
+        "label": "Turn-off lag drawn, chosen, µs",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Carrier peak either way, in reference units",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Phase shift between legs, degrees",
+        "value": 120,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Opening depth, most screens, %",
+        "value": 60,
+        "kind": "control"
+      },
+      {
+        "label": "Opening reference frequency, Hz",
+        "value": 50,
+        "kind": "control"
+      },
+      {
+        "label": "Opening carrier frequency, kHz",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Opening dead time, µs",
+        "value": 20,
+        "kind": "control"
+      },
+      {
+        "label": "Opening cursor, degrees",
+        "value": 90,
+        "kind": "control"
+      },
+      {
+        "label": "Motor rated voltage in the recall, chosen, V",
+        "value": 400,
+        "kind": "assumed"
+      },
+      {
+        "label": "Motor rated frequency in the recall, chosen, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Recall running frequency, chosen, Hz",
+        "value": 25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Volts per hertz, 400 ÷ 50",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Recall voltage, 8 × 25, V",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer, twice 400, V",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "One leg middle, 50% of 540, V",
+        "value": 270,
+        "kind": "computed"
+      },
+      {
+        "label": "D range at 60% depth, lowest, %",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "D range at 60% depth, highest, %",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Leg average at D = 20%, V",
+        "value": 108,
+        "kind": "computed"
+      },
+      {
+        "label": "Leg average at D = 80%, V",
+        "value": 432,
+        "kind": "computed"
+      },
+      {
+        "label": "D at the reference zero, %",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "D at the reference zero, as a fraction",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "D at 80%, as a fraction",
+        "value": 0.8,
+        "kind": "computed"
+      },
+      {
+        "label": "H-bridge peak at 60% depth, V",
+        "value": 324,
+        "kind": "computed"
+      },
+      {
+        "label": "H-bridge rms at 60% depth, V",
+        "value": 229,
+        "kind": "computed"
+      },
+      {
+        "label": "H-bridge first leg at 50% depth, cursor 90°, %",
+        "value": 75,
+        "kind": "computed"
+      },
+      {
+        "label": "Mirror leg at the same moment, %",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "D at 75%, as a fraction",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "D at 25%, as a fraction",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "First leg average, 0.75 × 540, V",
+        "value": 405,
+        "kind": "computed"
+      },
+      {
+        "label": "Mirror leg average, 0.25 × 540, V",
+        "value": 135,
+        "kind": "computed"
+      },
+      {
+        "label": "Winding average, 405 − 135, V",
+        "value": 270,
+        "kind": "computed"
+      },
+      {
+        "label": "H-bridge rms at 50% depth, V",
+        "value": 191,
+        "kind": "computed"
+      },
+      {
+        "label": "H-bridge rms at full depth, V",
+        "value": 382,
+        "kind": "computed"
+      },
+      {
+        "label": "Carrier in screen 8, raised to, kHz",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Sawtooth at 3 kHz against 1 kHz, about",
+        "value": 0.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Carrier in screen 9, doubled to, kHz",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Wrong answer, doubled output, Hz",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Square root of 3, about",
+        "value": 1.732,
+        "kind": "constant"
+      },
+      {
+        "label": "Three legs line peak at full depth, V",
+        "value": 468,
+        "kind": "computed"
+      },
+      {
+        "label": "Three legs line rms at full depth, V",
+        "value": 331,
+        "kind": "computed"
+      },
+      {
+        "label": "Depth for 200 V, 200 ÷ 331",
+        "value": 0.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Depth for 200 V, %",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Three legs line rms at 60% depth, V",
+        "value": 198,
+        "kind": "computed"
+      },
+      {
+        "label": "Depth in the dead-time screens, %",
+        "value": 30,
+        "kind": "control"
+      },
+      {
+        "label": "H-bridge peak at 30% depth, V",
+        "value": 162,
+        "kind": "computed"
+      },
+      {
+        "label": "Winding loss at 20 µs and 1 kHz, about, V",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Winding loss at 100 µs and 1 kHz, V",
+        "value": 108,
+        "kind": "computed"
+      },
+      {
+        "label": "Dead time raised to, µs",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "Gap raised by, times",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Port grid frequency on the card, Hz",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Vessel network frequency on the card, Hz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Line voltage factor, √3 ÷ (2√2), about",
+        "value": 0.612,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example supply and motor voltage, chosen, V",
+        "value": 440,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example motor frequency, chosen, Hz",
+        "value": 60,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example running frequency, chosen, Hz",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example link, 1.35 × 440, V",
+        "value": 594,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example full-depth line voltage, V",
+        "value": 364,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example voltage at 30 Hz, V",
+        "value": 220,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example depth, %",
+        "value": 60,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "An inverter builds AC from DC with switches kept fully on or fully off. It varies how long each switch stays on, cycle by cycle. The average voltage then traces a sine. The motor's inductance smooths the current. So the current follows that average.\n\nStart from lesson 6. A leg is two switches in series across the DC link, with the output between them. Over each switching cycle, its average is D × the link voltage. Make D rise and fall like a sine, and the average rises and falls like that sine. To set D, compare the sine you want with a fast triangle. The sine is the reference. The triangle is the carrier. The top switch is on whenever the reference is above the triangle. This is [[pulse width modulation]], PWM. Run a second leg as the mirror of the first, and put the load between them. That is an [[H-bridge]]. Its average swings either side of zero: AC. Three legs, with references 120° apart, give three-phase.\n\nSo the reference sets two things. Its frequency is the output frequency. Its depth is its height as a share of the triangle's. Its depth sets the duty cycles, and so the output voltage.[^4] Take the 540 V link that a 400 V supply gives. At full depth each leg's average swings 270 V either side of its middle. Between two legs 120° apart, that becomes √3 × 270 = 468 V peak. That is 331 V rms. For 200 V at 25 Hz, set the reference to 25 Hz. Set its depth to 200 ÷ 331, about 60%. The carrier frequency sets neither. It sets how fine the current's sawtooth is. It also sets how much switching heat the IGBTs make. The motor filters the pulses into a near-sine current.\n\nOne limit sits in each leg. An IGBT turns off more slowly than it turns on. Without a gap, the pair would short the link. So the gate drive leaves a [[dead time]] with both switches off. Each gap distorts the output. So the smaller the gap, the better. The loss shows most near the sine's zeros, where the current is small. This is a simplified picture. It has ideal switches, a steady link, and a motor that makes no voltage of its own. **Duty cycles that follow a sine give pulses whose average, and a motor's current, follow that sine.**"
+  },
+  "analogy": {
+    "text": "An H-bridge works like a reversing starter on a DC motor, thrown over thousands of times a second. One contactor connects the motor forward. The other reverses it. Spend more of each moment forward than reversed, and the motor feels a forward average. Swing that share smoothly back and forth, and the average swings into a sine. The starter’s interlock stops both contactors closing at once. It does the job of dead time.",
+    "breaks": "A contactor takes far too long to change over. It would soon wear out at this rate. Transistors switch with no contacts to wear. And an interlock costs the motor nothing. Dead time is a gap in the gate timing, and each gap costs a little voltage."
+  },
+  "practice": {
+    "text": "Isolate and prove dead before you work on a drive or a UPS. Its DC link holds charge after isolation. A UPS battery can keep the link live with the mains off.\n\n- Find the DC link: about 1.35 × the line voltage from a three-phase bridge.[^1]\n- At full depth, sine-triangle PWM gives 0.612 × the link between lines. That is √3 × half the link ÷ √2. From 540 V it gives 331 V.\n- Depth needed = the voltage you want ÷ that maximum. The output frequency is the reference's.\n- Choose the carrier as a trade. Faster gives a smoother current. Slower gives cooler switches.\n\n**Rules of thumb:** the reference sets the output. The carrier only sets how fine the pulses are. Below rated speed, a motor’s voltage and frequency move together. Dead time must cover the switches' turn-off, and little more.\n\n**Worked example:** a 440 V, 60 Hz motor must run at 30 Hz. Its drive is on a 440 V supply. The link is about 1.35 × 440 = 594 V. Full depth gives 0.612 × 594 = 364 V between lines. At 30 Hz the motor needs 440 × 30 ÷ 60 = 220 V. So set the reference to 30 Hz, and the depth to 220 ÷ 364, about 60%.\n\n**Common mistakes**\n- Thinking the carrier sets the output frequency. It sets the sawtooth and the switching heat.\n- Reading a zero on the reference as the switches off. It is 50% on, the middle of the sine.\n- Thinking no dead time gives the cleanest wave. It shorts the link through the leg.\n- Expecting a sine on a scope across the motor lines. You see pulses at the full link voltage. Their average is the sine.\n- Thinking an online UPS in double conversion changes over when the mains fails. Its inverter feeds the load all the time.[^7]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct",
+      "url": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design",
+      "quote": "The DC bus voltage should ramp to approximately 1.35 × V LL (rectified DC)"
+    },
+    {
+      "n": 2,
+      "title": "産業用ドライブ向けの基本的な絶縁三相、小型電力段のリファレン ス・デザイン",
+      "url": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380",
+      "quote": "filters this supplied current to produce a three-phase sine wave with negligible harmonics."
+    },
+    {
+      "n": 3,
+      "title": "What is Pulse-Width Modulation (PWM), anyway? - Developer Help",
+      "url": "https://developerhelp.microchip.com/xwiki/bin/view/applications/motors/control-algorithms/zsm/pwm",
+      "quote": "Sine-triangle PWM will work for three sine waves that are 120° out of phase"
+    },
+    {
+      "n": 4,
+      "title": "産業用ドライブ向けの基本的な絶縁三相、小型電力段のリファレン ス・デザイン",
+      "url": "https://www.ti.com/jp/lit/ug/jaju378/jaju378.pdf?ts=1792734350380",
+      "quote": "PWM signals generated from the microcontroller (MCU) control these six switches through an isolated gate driver. The amplitude of phase voltage is determined by the duty cycle of the PWM signals."
+    },
+    {
+      "n": 5,
+      "title": "Calculate and minimize the dead time for IGBTs",
+      "url": "https://www.newweb-qa2.infineon.com/assets/row/public/documents/60/42/Infineon-Deadtime_calculation_for_IGBT_modules-ApplicationNotes-v01_10-EN.pdf",
+      "quote": "With this additional time, one of the two IGBTs is always turned off first, and the other one will be turned on after the dead time has expired, thus preventing a bridge shoot-through caused by the asymmetrical turn-on and turn-off times of the IGBTs."
+    },
+    {
+      "n": 6,
+      "title": "Compensation techniques for non-linearities in H-bridge inverters",
+      "url": "https://www.um.edu.mt/library/oar/bitstream/123456789/27427/1/Compensation_techniques_for_non-linearities_in_H-bridge_inverters_2016.pdf",
+      "quote": "The dead time introduces a non-linearity which causes distortion in the output voltage and current, and therefore the smaller is the dead time the better."
+    },
+    {
+      "n": 7,
+      "title": "Eaton UPS fundamentals handbook",
+      "url": "https://www.eaton.com/content/dam/eaton/products/backup-power-ups-surge-it-power-distribution/backup-power-ups/eaton-ups-fundamentals-handbook-en-us-2025.pdf",
+      "quote": "Double conversion A UPS design in which the primary power path consists of a rectifier and inverter. Unlike other topologies, double conversion provides zero transfer time to battery for sensitive equipment."
+    },
+    {
+      "n": 8,
+      "title": "ACS6080 SFC - Shore-to-ship converters (Converters for grid interconnections) | Shore-to-ship converters | ABB",
+      "url": "https://new.abb.com/power-converters-inverters/grid-interconnections/shore-to-ship-converters/acs6080sfc",
+      "quote": "Static conversion of the 50/60 Hz three-phase port grid power to match the 60/50 Hz vessel network."
+    }
+  ]
+}

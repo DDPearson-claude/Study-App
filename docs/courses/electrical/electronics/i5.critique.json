@@ -1,0 +1,31 @@
+{
+  "draft": "i5.lesson.draft1.txt",
+  "validator": "draft 1 passes with no problems, soft points or warnings",
+  "keep": [
+    "The idea is named up front: a thyristor is a diode that waits for a pulse on its gate, so firing it later each half cycle gives less DC.",
+    "The picture is the brief's: a 230 V sine, thyristors with their gates drawn, a heater, a firing-angle slider, a cursor that plays the cycle, a Pulse the gate button that does nothing once the thyristor conducts, shaded conducting slices, an average line read from them, and a picker for One thyristor, Bridge, Triac (rms and heater power) and Charger (a current block sliding behind the voltage, a power factor readout).",
+    "Every number comes from one shown rule, the area under a sine from alpha to 180 degrees, 1 + cos alpha: 104, 78 and 52 V for one thyristor; 207, 155, 104 and 52 V for the bridge; 207 x cos alpha and 0.9 x cos alpha for the charger with its choke; 1150 W and 163 V for the triac at 90 degrees.",
+    "The brief's misconceptions are each caught by a DO screen with its own hint: the gate turns it off (3, and 13 from the other side), a third of the time cut is a third lost (5, and the 69 V option in 7), firing later costs nothing (11), a dimmer on a motor (9).",
+    "The source's halved controlled-bridge range is not used; the rule is derived from the shaded area and reaches the diode bridge's 207 V at zero.",
+    "Thirteen screens: a recall opener (Motors' direct-on-line current, answered by the soft starter in 12), then SHOW 2, 4, 6, 8, 10 each followed by a DO, ending on two mixed puzzles. Every SHOW screen is under 90 words."
+  ],
+  "fix": [
+    "Causal step skipped (power factor): explain and screen 10 say the block starts alpha late, so the power factor falls, without the link. Say that part of each block now flows while the voltage is low or reversed, so each amp delivers less power.",
+    "Causal step skipped (choke rule): screen 10 jumps from 'conducts on past 180 degrees' to '207 x cos alpha'. Say that the part below the line now subtracts.",
+    "Causal step skipped (triac half power): explain says 'half its full power' with no reason. Give it: each half keeps exactly half its squared area.",
+    "False absolute: 'never when it stops', 'The gate cannot do it' and the analogy's 'no stop button at its gate' are false for a gate turn-off thyristor, which a later lesson names. Say 'an ordinary thyristor'.",
+    "False absolute (analogy): 'It drops out only when the current to its coil fails' ignores the stop button. Say it stays in until its supply fails or stop is pressed.",
+    "Screen 12 asks about a motor while the picture keeps its heater. Say so in the setup, so the picture is not mistaken for a motor.",
+    "Footnotes: 13 sources is more than Dan wants. Drop the footnote on latching (screen 3, a textbook point carried by the holding-current sentence) and on the controlled rectifier (a definition).",
+    "Plain writing: 'A second pulse while it conducts changes nothing, and so does removing the gate signal' carries two ideas; split it. Shorten the bold takeaway to under 20 words."
+  ],
+  "shape": {
+    "named up front": "yes",
+    "rule in words": "yes: the gate chooses when it starts, its current falling below the holding current when it stops; the average is the slice's area spread over the time, the area being 1 + cos alpha",
+    "worked example with real numbers": "yes: the charger that must average 120 V on 230 V, cos alpha = 120 / 207 = 0.58, alpha about 55 degrees, power factor 0.52; screens 5, 7 and 11 work 78 V, 52 V and 0.45",
+    "misconception shown failing": "yes: screen 3 (the gate turns it off), 5 (linear in time), 11 (firing later costs nothing), 9 (a dimmer on a motor)",
+    "analogy with where it breaks": "yes: a contactor with a holding contact across start; breaks because it has a stop button and rides through every zero",
+    "put it into practice": "yes: safety first (two sources, hydrogen), where it is used, steps, rules of thumb, worked example, common mistakes",
+    "recap he could say back": "yes: the bold takeaway"
+  }
+}

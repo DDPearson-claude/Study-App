@@ -1,0 +1,407 @@
+{
+ "iid": "i6",
+ "title": "Chopping DC: buck and boost",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the output voltage move until the inductor's two shaded areas are equal, settling at D × 48 V, when you drag the duty cycle.",
+  "title": "The balancing inductor",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [
+   {
+    "id": "volts",
+    "label": "Output voltage",
+    "unit": "V",
+    "decimals": 0
+   },
+   {
+    "id": "ripple",
+    "label": "Ripple",
+    "unit": "%",
+    "decimals": 0
+   },
+   {
+    "id": "batteryCurrent",
+    "label": "Battery current",
+    "unit": "A",
+    "decimals": 1
+   }
+  ],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. Most show one picture, the balancing inductor. A 48 V battery, chosen for the example, feeds a load that draws a steady 10 A, also chosen. A picker above chooses the circuit: Buck or Boost. The circuit is drawn small at the top: the switch, a transistor with its gate; the diode; the inductor, 100 µH, chosen; the capacitor; and the load. While the switch is on, it and its current path are drawn bold. While it is off, the diode and its path are bold. In Buck the switch runs from the battery to the inductor, and the diode from 0 V to the same point. In Boost the inductor runs from the battery to the switch, which goes to 0 V, and the diode runs from there to the output. A duty cycle slider sets D from 10% to 90%, in steps of 5%. In Boost it stops at 75%. A frequency slider sets the switching frequency from 10 kHz to 100 kHz, in steps of 5 kHz. Each screen sets where they open.\n\nBelow the circuit, two plots share a time axis that shows three switching cycles, slowed down. The upper plot is the voltage across the inductor. While the switch is on it sits above the zero line, and while it is off it sits below. In each cycle the area above the line is shaded and labelled on, and the area below is shaded and labelled off. In Buck the on height is Vin − Vout and the off depth is Vout. In Boost the on height is Vin and the off depth is Vout − Vin. Each area is its height times its time: D × T on and (1 − D) × T off, where T, one cycle, is 1 ÷ f. At 50 kHz, T is 20 µs. The lower plot is the inductor's current. It ramps up while the voltage is above the line and down while it is below, because a coil's current changes at its voltage ÷ L amps a second, from v = L di/dt. A dashed line marks the inductor's average current. A Play button runs a cursor along the cycles, and a time slider drags it.\n\nWhen D or the circuit changes, the output does not jump. It moves towards its new value over about two seconds of the slowed picture, a sketch of the settling. While it moves, the two areas differ. If the on area is bigger, the current ends each cycle a little higher than it began, and the extra charges the capacitor, so the output rises. If the off area is bigger, the current drifts down, and the output falls. The output stops where the areas are equal. In Buck that is Vout = D × Vin: 24 V at 50%, 12 V at 25%. In Boost it is Vout = Vin ÷ (1 − D): 96 V at 50%, 192 V at 75%. A screen can stop the picture partway, with the output at a stated voltage.\n\nThree readouts sit under the plots. They wrap onto two lines on a narrow phone. Output voltage is Vout. Ripple is the current's rise in each cycle as a share of the inductor's average current. The rise is the on height × D ÷ (f × L). In Buck the average current is the load's 10 A. So 48 V to 24 V at 50 kHz rises 24 V × 10 µs ÷ 100 µH = 2.4 A, 24%. In Boost the average current is 10 A ÷ (1 − D), 20 A at 50%, and the rise is 48 V × 10 µs ÷ 100 µH = 4.8 A, also 24%. In Buck a band beside the ripple readout marks 20% to 40%, a good first estimate for a buck's ripple. Battery current is the average current from the battery: the load's power, Vout × 10 A, over 48 V. That is 5 A at 50% in Buck, and 20 A at 50% in Boost.\n\nThe screens.\n\n1, a puzzle: the picture shows Buck at rest, D at 50%, the readouts hidden. “You need 24 V at 10 A from a 48 V battery. A transistor held part on drops the other 24 V. How much heat does it make?” Offered: “About 240 W”; “Next to nothing, as it is a transistor”; “About 480 W”. Hint for next to nothing: “Part on, it has 24 V across it and 10 A through it.” Hint for 480 W: “Only half the battery's voltage is across the transistor.” Why: “About 240 W, as much as the load gets. Part on, the transistor has 24 V across it and 10 A through it. A switch kept fully on or fully off wastes little heat.[^17] So chop the battery instead, and smooth what comes out.” A right Check keeps the picture as it is.\n\n2, show: Chop it. Buck, D at 50%, Play running. The words: “A buck converter is a switching transistor followed by a diode, an inductor and a capacitor.[^1] Here a 48 V battery feeds a load that draws 10 A. While the switch is on, current flows from the battery through the inductor to the load. When the switch opens, the inductor keeps its current going through the diode.[^7] That is the freewheeling diode again. The share of each cycle the switch is on is the duty cycle, D. Play it at D = 50%.” Read: with D at 50%, the switch carries the current for the first half of each cycle and the diode for the second half. The inductor's current keeps flowing all through the cycle. Still: Buck, D 50%, 50 kHz, settled, cursor three quarters of the way through a cycle.\n\n3, a puzzle: Buck, D at 50%, settled at 24 V, the cursor in an on-time. “The switch is on. The battery is 48 V and the output 24 V. What voltage is across the inductor?” Offered: “24 V, the difference”; “48 V, the whole battery”; “0 V, as current flows freely”. Hint for 48 V: “The inductor's far end sits at the output, not at 0 V.” Hint for 0 V: “Its current is climbing. A coil's current changes only with a voltage across it.” Why: “24 V. One end sees the battery's 48 V through the switch. The other end sits at the output's 24 V. That 24 V across it makes its current climb steadily, as v = L di/dt says.” A right Check lights the on part of the voltage plot, 24 V above the line.\n\n4, show: Two areas. Buck, D at 50%, settled at 24 V. The words: “The upper plot is the voltage across the inductor. While the switch is on, it is the battery less the output, so the current climbs. While it is off, the diode holds the inductor's input end near 0 V. So it sees the output voltage the other way round, and the current falls. Each shaded area is a voltage times a time. In steady running the current ends each cycle where it began. So the two areas must be equal. The average voltage across the inductor is zero.[^6]” Read: with D at 50% and the output at 24 V, the area above the line, 24 V for half the cycle, equals the area below, 24 V for the other half. The current ramps up and back down to where it started. Still: Buck, D 50%, 50 kHz, settled, cursor 360°.\n\n5, a puzzle: Buck, D at 50%, the picture stopped with the output at 20 V on its way up. “The output has reached only 20 V, with D at 50%. What happens next?” Offered: “The area above is bigger, so the current climbs and the output rises”; “The area below is bigger, so the output falls”; “Nothing, as the areas already balance”. Hint for falls: “Above the line: 48 − 20 = 28 V for half the cycle. Below: 20 V for half. Which is bigger?” Hint for balance: “Compare 28 V and 20 V, each for half the cycle.” Why: “The area above is bigger, 28 V against 20 V, each for half the cycle. So the current climbs a little more each cycle than it falls. The extra current charges the capacitor, and the output rises. That shrinks the area above and grows the one below. It stops at 24 V, where they balance.” A right Check lets the picture run on. The output settles at 24 V.\n\n6, show: The rule. Buck, D from 50% to 25%. The words: “Equal areas give the rule. The area above is (Vin − Vout) × D. The area below is Vout × (1 − D).[^2] Set them equal and multiply out. The Vout × D on each side cancels, leaving Vout = D × Vin. So 50% of 48 V gives 24 V, and 25% gives 12 V. Drag D, and the output moves until the areas match again.” Read: with D at 25%, the output has settled at 12 V. The area above, 36 V for a quarter of the cycle, matches the area below, 12 V for three quarters. Still: Buck, D 25%, 50 kHz, settled, cursor 360°.\n\n7, a puzzle: Buck, D at 25%, the output at 12 V, the battery current hidden. “The load still draws 10 A. What average current does the 48 V battery supply?” Offered: “About 2.5 A”; “About 10 A, the same as the load”; “About 40 A”. Hint for 10 A: “That is what a series resistor would take. When does the battery give current here?” Hint for 40 A: “A buck lowers the voltage. Does the battery need more current than the load, or less?” Why: “About 2.5 A. The battery gives current only while the switch is on, 10 A for a quarter of each cycle. That averages 2.5 A, or 120 W from 48 V. The load gets 12 V × 10 A, also 120 W. A series resistor would take the full 10 A and burn 360 W.” A right Check shows the battery current, 2.5 A.\n\n8, show: Ripple. Buck, D at 50%, the frequency from 50 kHz to 100 kHz. The words: “The lower plot is the inductor's current, ramping up and down around the load's 10 A. While on, it climbs at (Vin − Vout) ÷ L amps a second. So each cycle it climbs (Vin − Vout) × D ÷ (f × L). Here 24 V across 100 µH for 10 µs gives 2.4 A, 24% of 10 A. A good first estimate is 20% to 40% of the output current.[^8] The capacitor takes the ripple, so the load sees near-steady DC. Raise the frequency, and the ripple shrinks.” Read: at 100 kHz the current ramps half as far each way, 1.2 A in all, and the ripple reads 12%. The output stays at 24 V. Still: Buck, D 50%, 100 kHz, settled, cursor 360°.\n\n9, a puzzle: Buck, D at 50%, 50 kHz, the ripple reading 24%. “The switching frequency drops to 25 kHz. What is the ripple now?” Offered: “4.8 A, 48% of the load”; “1.2 A, 12% of the load”; “2.4 A, as the frequency does not matter”. Hint for 1.2 A: “At a lower frequency each on-time is longer. Does the current climb further, or less far?” Hint for 2.4 A: “The on-time is now 20 µs, not 10 µs.” Why: “4.8 A. At 25 kHz each cycle lasts 40 µs, so the switch is on for 20 µs. 24 V across 100 µH for twice as long climbs twice as far. That is 48% of 10 A, above the 20% to 40% guide. A higher frequency or a bigger inductor brings it back.” A right Check sets 25 kHz. The ripple reads 48%, and the output stays at 24 V.\n\n10, show: Boost. Boost, D at 50%. The words: “Flip the picker to Boost. The same parts are rearranged. The inductor now comes straight off the battery. The switch shorts its far end to 0 V. While on, the inductor sees the whole 48 V and stores energy.[^4] When off, it drives its current through the diode into an output above the battery.[^3] The areas still balance: Vin × D = (Vout − Vin) × (1 − D). So Vout = Vin ÷ (1 − D), 96 V at 50%.” Read: in Boost at 50%, the area above, 48 V for half the cycle, matches the area below, 48 V for the other half. The output reads 96 V. Still: Boost, D 50%, 50 kHz, settled, cursor 360°.\n\n11, a puzzle: Boost, D at 50%, the output at 96 V, the battery current hidden. “This boost gives 96 V to a load drawing 10 A. What average current does the 48 V battery supply?” Offered: “About 20 A”; “About 10 A, the same as the load”; “About 5 A, as in the buck”. Hint for 10 A: “Compare the power: 96 V × 10 A out, but 48 V × 10 A in.” Hint for 5 A: “A boost raises the voltage. Where must the extra power come from?” Why: “About 20 A. The load takes 96 V × 10 A = 960 W. With little lost, the battery must supply that too. 960 W ÷ 48 V = 20 A. A boost trades current for voltage. It does not make energy.” A right Check shows the battery current, 20 A.\n\n12, a mixed puzzle: Boost, D at 50%, the output at 96 V. “The boost must give 192 V from the 48 V battery. What duty cycle?” Offered: “75%”; “25%”; “None, as no chopper gives four times its input”. Hint for 25%: “That is the buck way round. In a boost, 1 − D = Vin ÷ Vout.” Hint for none: “In the ideal rule, Vout = Vin ÷ (1 − D). What 1 − D gives four times?” Why: “75%. Four times the battery needs 1 − D = ¼, so D = 0.75. Check the areas: 48 V for three quarters of the cycle above the line, 144 V for a quarter below. Both come to 36. The battery current is now 40 A for the load's 10 A.” A right Check sets D to 75%. The output settles at 192 V, and the battery current reads 40 A.\n\n13, a mixed puzzle: Buck, D at 50%, the output at 24 V. The picture keeps its 48 V battery, and the question is about a battery that has run down. “The battery runs down from 48 V to 40 V. The buck must still give 24 V. What duty cycle holds it?” Offered: “60%”; “50%, unchanged”; “40%”. Hint for 50%: “50% of 40 V is only 20 V.” Hint for 40%: “A smaller battery needs a bigger share of it, not a smaller one.” Why: “60%. D = Vout ÷ Vin = 24 ÷ 40 = 0.6. A controller can do this as it runs, moving D to hold the output as the battery voltage changes.” A right Check keeps the picture as it is.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked. Each can wrap onto more lines on a narrow phone. A wrong pick gets its one-line hint. Why? explains the answer. Continue moves on.",
+  "ignores": "The switch and diode are drawn ideal. A real switch and diode each drop a little voltage and waste a little power. So a real buck needs a slightly larger D. The inductor is drawn with no resistance. The capacitor is drawn big enough that the output's own ripple is too small to see. The load draws a steady 10 A at any voltage, where a real load's current would change with it. The inductor's current never falls to zero here. At a very light load it can, and then the rules change. The settling is a sketch: a real output can overshoot before it settles, and a controller manages that. Time is slowed down. At 50 kHz one cycle lasts 20 µs.",
+  "numbers": [
+   {
+    "label": "Screen, 1 to 13 (the stepper)",
+    "value": 0,
+    "kind": "control"
+   },
+   {
+    "label": "Battery voltage, chosen, V",
+    "value": 48,
+    "kind": "assumed"
+   },
+   {
+    "label": "Load current, chosen, A",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Inductor, chosen, µH",
+    "value": 100,
+    "kind": "assumed"
+   },
+   {
+    "label": "Duty cycle slider, lowest, %",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Duty cycle slider, highest, %",
+    "value": 90,
+    "kind": "control"
+   },
+   {
+    "label": "Duty cycle slider step, %",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Duty cycle slider top in Boost, %",
+    "value": 75,
+    "kind": "control"
+   },
+   {
+    "label": "Frequency slider, lowest, kHz",
+    "value": 10,
+    "kind": "control"
+   },
+   {
+    "label": "Frequency slider, highest, kHz",
+    "value": 100,
+    "kind": "control"
+   },
+   {
+    "label": "Frequency slider step, kHz",
+    "value": 5,
+    "kind": "control"
+   },
+   {
+    "label": "Opening duty cycle, %",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Opening frequency, kHz",
+    "value": 50,
+    "kind": "control"
+   },
+   {
+    "label": "Cycles drawn on the time axis",
+    "value": 3,
+    "kind": "assumed"
+   },
+   {
+    "label": "Settling time in the slowed picture, about, s",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Output stop in screen 5, V",
+    "value": 20,
+    "kind": "control"
+   },
+   {
+    "label": "One cycle at 50 kHz, µs",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "On-time at 50% and 50 kHz, µs",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "One cycle at 25 kHz, µs",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "On-time at 50% and 25 kHz, µs",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck output at 50%, V",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck output at 25%, V",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck on height at 25%, 48 − 12, V",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "On height with the output at 20 V, 48 − 20, V",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Heat in a transistor part on, 24 V × 10 A, W",
+    "value": 240,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, 48 V × 10 A, W",
+    "value": 480,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck battery current at 50%, A",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck battery current at 25%, A",
+    "value": 2.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, four times the load, A",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Power at 12 V and 10 A, W",
+    "value": 120,
+    "kind": "computed"
+   },
+   {
+    "label": "Series resistor burn, 36 V × 10 A, W",
+    "value": 360,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck ripple at 50% and 50 kHz, A",
+    "value": 2.4,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck ripple share at 50 kHz, %",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck ripple at 100 kHz, A",
+    "value": 1.2,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck ripple share at 100 kHz, %",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck ripple at 25 kHz, A",
+    "value": 4.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Buck ripple share at 25 kHz, %",
+    "value": 48,
+    "kind": "computed"
+   },
+   {
+    "label": "Ripple guide, lowest, % of output current",
+    "value": 20,
+    "kind": "constant",
+    "source": 8
+   },
+   {
+    "label": "Ripple guide, highest, % of output current",
+    "value": 40,
+    "kind": "constant",
+    "source": 8
+   },
+   {
+    "label": "Boost output at 50%, V",
+    "value": 96,
+    "kind": "computed"
+   },
+   {
+    "label": "Boost output at 75%, V",
+    "value": 192,
+    "kind": "computed"
+   },
+   {
+    "label": "Boost off depth at 75%, 192 − 48, V",
+    "value": 144,
+    "kind": "computed"
+   },
+   {
+    "label": "Each area at 75% in Boost, in volt-cycle units",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Boost inductor and battery current at 50%, A",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Boost ripple at 50% and 50 kHz, A",
+    "value": 4.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Boost load power at 96 V, W",
+    "value": 960,
+    "kind": "computed"
+   },
+   {
+    "label": "Boost battery current at 75%, A",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, boost duty for four times, buck way round, %",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Run-down battery, chosen, V",
+    "value": 40,
+    "kind": "assumed"
+   },
+   {
+    "label": "Duty cycle to hold 24 V from 40 V, %",
+    "value": 60,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, 50% of 40 V, V",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong answer, duty cycle, %",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example duty cycle",
+    "value": 0.25,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example ripple, A",
+    "value": 1.8,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example ripple share, %",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example duty cycle at 40 V, %",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example frequency, Hz",
+    "value": 50000,
+    "kind": "assumed"
+   },
+   {
+    "label": "Worked example inductor, H",
+    "value": 0.0001,
+    "kind": "assumed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Switch a battery on and off fast, and smooth the pulses with an inductor and a capacitor. You get a steady lower DC: the battery voltage times the share of time the switch is on. Rearrange the same parts, and you get a steady higher DC instead.\n\nThe circuit is a switching transistor followed by a diode, an inductor and a capacitor.[^1] This is a [[buck converter]]. The share of each cycle the switch is on is the [[duty cycle]], D. While the switch is on, the inductor has the battery at one end and the output at the other. So it sees Vin − Vout, and its current climbs, as v = L di/dt says. When the switch opens, the inductor keeps its current going through the diode.[^7] The diode holds that end near 0 V. So the inductor now sees Vout the other way round, and its current falls.\n\nIn steady running the current must end each cycle where it began. So the voltage across the inductor must average zero.[^6] Drawn against time, the area above the line must equal the area below. That gives (Vin − Vout) × D = Vout × (1 − D).[^2] Multiply out, and Vout × D cancels from both sides, leaving Vout = D × Vin. So 48 V at 50% gives 24 V, and at 25% gives 12 V. If the output is too low, the area above is bigger, so the current gains a little each cycle. That extra current charges the capacitor until the areas balance. The switch is fully on or fully off, so it wastes little heat.[^17] The battery gives current only while the switch is on. At 50% that is 5 A on average for a 10 A load. So power in matches power out, less small losses. That is why switching supplies are more efficient than a transistor held part on.[^5] The current ripples by (Vin − Vout) × D ÷ (f × L) each cycle. A good first estimate for that ripple is 20% to 40% of the output current.[^8]\n\nA [[boost converter]] puts the inductor straight off the battery and the switch from its far end to 0 V. While on, the inductor sees the whole of Vin and stores energy.[^4] When off, it drives its current through the diode into an output above the battery.[^3] The same balance, Vin × D = (Vout − Vin) × (1 − D), gives Vout = Vin ÷ (1 − D). So 48 V at 50% gives 96 V. The battery then supplies more current than the load takes, 20 A for 10 A. A converter does not make energy. Make D follow a sine, and the output's average follows a sine too. That is how a drive builds AC. This is a simplified picture, with an ideal switch and diode and an inductor current that never falls to zero. **Chop DC through an inductor and a capacitor, and the inductor's zero average voltage sets the output: D × Vin for a buck, Vin ÷ (1 − D) for a boost.**"
+ },
+ "analogy": {
+  "text": "A buck works like a moving-coil meter on chopped DC. Feed it 48 V pulses, on half the time, and it reads about 24 V. Its needle is too heavy to follow each pulse. So it settles where its spring balances the average push. Change the share of on-time, and the needle moves to a new average, D × 48 V.",
+  "breaks": "A meter only shows the average. A buck's inductor carries the load's whole current and passes on the battery's energy. So the load gets the average as real power. And a meter can never read above its pulses, while a boost's output sits above its battery."
+ },
+ "practice": {
+  "text": "Isolate and prove dead on both sides before you work on a converter. Its capacitors can hold charge, as a DC link does, and a boost's output sits above its battery.\n\n- Find the input voltage, the output you need and the load current.\n- Buck: D = Vout ÷ Vin. Boost: D = 1 − Vin ÷ Vout.\n- Battery current, near enough: a buck's is D × the load current. A boost's is the load current ÷ (1 − D).\n- Buck ripple: (Vin − Vout) × D ÷ (f × L). Compare it with 20% to 40% of the output current.[^8]\n\n**Rules of thumb:** a higher frequency or a bigger inductor gives less ripple. The frequency sets the ripple, not the output voltage. As the battery voltage changes, D must change to hold the output.\n\n**Worked example:** a 48 V battery must feed a 12 V load drawing 10 A, switching at 50 kHz through 100 µH. D = 12 ÷ 48 = 0.25, so 25%. The battery supplies about 0.25 × 10 = 2.5 A, or 120 W, the same as the load's 12 V × 10 A. The ripple is 36 × 0.25 ÷ (50,000 × 0.0001) = 1.8 A, 18% of 10 A. That is a little under the 20% to 40% guide, so this inductor is on the large side. If the battery runs down to 40 V, D must rise to 12 ÷ 40 = 30%.\n\n**Common mistakes**\n- Thinking a buck burns off the difference like a resistor. A resistor dropping 48 V to 12 V for 10 A burns 360 W.\n- Expecting a boost to make energy. Its battery current is more than its load current.\n- Using the buck rule on a boost. At 50%, a buck gives 24 V from 48 V, and a boost gives 96 V.\n- Thinking the frequency sets the voltage. It sets the ripple.\n- Reading D as on-time over off-time. It is on-time over the whole cycle."
+ },
+ "say": null,
+ "checks": [],
+ "sources": [
+  {
+   "n": 1,
+   "title": "Buck Converters",
+   "url": "https://learnabout-electronics.org/PSU/psu31.php",
+   "quote": "3.1.1 the buck Converter circuit consists of the switching transistor, together with the flywheel circuit (Dl, L1 and C1)."
+  },
+  {
+   "n": 2,
+   "title": "How to Calculate Buck Converter Duty Cycle",
+   "url": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle",
+   "quote": "The volt-second balance equation is: (Vin - Vo) \\* Ton = Vo \\* Toff"
+  },
+  {
+   "n": 3,
+   "title": "Working with Boost Converters",
+   "url": "https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/3678.snva731.pdf",
+   "quote": "The boost converter is used to \"step-up\" an input voltage to some higher level, required by a load. This unique capability is achieved by storing energy in an inductor and releasing it to the load at a higher voltage."
+  },
+  {
+   "n": 4,
+   "title": "Under the Hood of a DC/DC Boost Converter",
+   "url": "https://www.ti.com/download/trng/docs/seminar/Topic_3_Lynch.pdf",
+   "quote": "When switch Q1 turns ON, the voltage across the inductor increases to approximately the input voltage, and energy is stored in the inductor."
+  },
+  {
+   "n": 5,
+   "title": "DC to DC Buck Converter Tutorial & Diagram | Analog Devices",
+   "url": "https://www.analog.com/en/resources/technical-articles/dc-to-dc-buck-converter-tutorial.html",
+   "quote": "Switching power supplies offer higher efficiency than traditional linear power supplies. They can step-up, step-down, and invert."
+  },
+  {
+   "n": 6,
+   "title": "How to Calculate Buck Converter Duty Cycle",
+   "url": "https://www.allpcb.com/allelectrohub/how-to-calculate-buck-converter-duty-cycle",
+   "quote": "In a steady state, the average voltage across the inductor is zero. According to the principle of volt-second balance:"
+  },
+  {
+   "n": 7,
+   "title": "DC to DC Buck Converter Tutorial & Diagram | Analog Devices",
+   "url": "https://www.analog.com/en/resources/technical-articles/dc-to-dc-buck-converter-tutorial.html",
+   "quote": "When the switch opens again, the inductor current continues to flow into the rectification diode to charge the output."
+  },
+  {
+   "n": 8,
+   "title": "Basic Calculation of a Buck Converter's Power Stage (Rev. B)",
+   "url": "https://www.ti.com/lit/an/slva477b/slva477b.pdf?ts=1786269682384",
+   "quote": "A good estimation for the inductor ripple current is 20% to 40% of the output current."
+  },
+  {
+   "n": 17,
+   "title": "Rectifier Circuits | Diodes and Rectifiers | Electronics Textbook",
+   "url": "https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/rectifier-circuits/",
+   "quote": "Since the controlling device (the diode, in this case) is either fully conducting or fully nonconducting at any given time, it dissipates little heat energy while controlling load power, making this method of power control very energy-efficient."
+  }
+ ],
+ "confidence": "simplified",
+ "contested": null,
+ "format": "steps"
+}

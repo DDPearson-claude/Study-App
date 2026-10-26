@@ -1,0 +1,653 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-26T17:48:11.436Z",
+ "startedAt": "2026-10-26T17:48:11.436Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Smoothing and the DC link",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the bus's slope between peaks turn twice as steep and its dip grow twice as deep when you drag the load current from 2 A to 4 A on the same capacitor.",
+   "title": "The reservoir",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [
+    {
+     "id": "ripple",
+     "label": "Ripple, I ÷ (f × C)",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "busAvg",
+     "label": "Bus average",
+     "unit": "V",
+     "decimals": 0
+    },
+    {
+     "id": "supplyPeak",
+     "label": "Peak supply current",
+     "unit": "A",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. Most show one picture, the reservoir. On the left are an AC supply and a bridge rectifier. The bridge is four diodes in a diamond. On the right a capacitor and a load sit side by side across the bridge's output. The voltage across them is the DC bus. A switch above picks the supply: 230 V single-phase or 400 V three-phase, both at 50 Hz. Three-phase feeds a six-pulse bridge of six diodes. Two sliders sit below. Capacitance runs from 500 to 4000 µF in steps of 100 µF. Load current runs from 0 to 5 A in steps of 0.5 A. The load draws that current steadily. Each screen sets where the sliders open.\n\nBelow the circuit, a graph shows four ripple periods. The rectified humps are drawn pale. The bus is drawn bold over them. Under it, a second trace shows the current the bridge takes from the supply. The rule at each moment is simple. While the hump is above the bus, the diodes conduct. The bus rides up with the hump. Otherwise they block. Then the load drains the capacitor alone. The capacitor's law is i = C dv/dt. Here i is the current in amps and C the capacitance in farads. The term dv/dt is how fast its voltage changes, in volts a second. So the bus falls at I ÷ C, where I is the load current. The fall lasts about one ripple period, 1 ÷ f, where f is the ripple frequency. That is 100 Hz for the bridge and 300 Hz for the six-pulse bridge. So the ripple is about I ÷ (f × C). The rule takes the fall to last the whole period. The refill really starts a little before each peak. So the drawn dip is a little smaller than the readout. Three readouts sit under the graph: the ripple by the rule, the bus average and the peak supply current. They wrap onto two lines on a narrow phone. The bus average is the average of the drawn bus. Beside the readouts, a small plot shows the rule's ripple against load current, from 0 to 5 A. It is drawn for the capacitance set. It is a straight line through zero, with a dot at the setting. So twice the load gives twice the ripple.\n\nA Switch on button and a Precharge switch sit side by side under the sliders. Switch on empties the capacitor and turns the load off. Then it closes the supply at a peak. The graph's time axis then stretches to 0.6 s. With precharge off, the empty capacitor meets the supply through 1 Ω of supply and wiring. That value is chosen for the example. The first current is the peak ÷ 1 Ω. It is drawn in red and runs off the top of the graph. With precharge on, a 100 Ω resistor sits in the way. That value is chosen too. The bus climbs the charging curve, the peak × (1 − e^(−t ÷ RC)). Here t is the time since switch-on, R the resistance and C the capacitance. R × C is the time constant. After five time constants a contactor closes across the resistor. Then the load comes on.\n\nThe screens.\n\n1, show: The reservoir. 230 V, 1000 µF, 2 A. The words: “A smoothing capacitor turns a bridge's humps into smoother DC.[^1] Take a bridge rectifier on 230 V. Its humps peak at 325 V. Put a capacitor across the load. Its voltage is the DC bus. Near each peak, the hump rises above the capacitor's voltage. The diodes conduct, and the capacitor fills. After the peak, the hump falls away faster than the capacitor drains. So the diodes are pushed backwards and block. The capacitor alone feeds the load until the next peak.” Read: the bold bus rides just under the tops of the pale humps. It rises with each hump near its peak and slopes gently down between them. Still: 230 V, 1000 µF, 2 A.\n\n2, a puzzle: the load slider stands at 0 A. “The load is switched off. What voltage does the capacitor settle at?” Offered: “325 V, the peak of the humps”; “About 207 V, the average of the humps”; “Above 325 V, as the capacitor adds its own”. Hint for 207 V: “With no load, what drains the capacitor between peaks?” Hint for above 325 V: “It only fills while the hump is above it. What happens when it reaches the top?” Why: “It settles at 325 V, the peak. Each peak fills the capacitor until it matches the top of the hump. Then the diodes block. With no load, nothing drains it, so it stays there. It fills only from the supply, so it never passes the peak. A smoothing capacitor adds no voltage of its own.” A right Check runs the bus up to a flat line at 325 V.\n\n3, show: The drain. 230 V, 1000 µF, 2 A. The words: “Between peaks the load drains the capacitor. By the capacitor's law, i = C dv/dt, the voltage falls at I ÷ C volts each second. A 2 A load on 1000 µF falls 2 ÷ 0.001 = 2000 V a second. That is 2 V every millisecond. Near the next peak, the diodes conduct and all the charge drained goes back in one short gulp. So the gulp runs at many times the load current. The drawn gulp is taller and narrower than a real one.” Read: the bus slopes down in straight lines between peaks and climbs back near each one. The supply current trace sits at zero except for a narrow spike at each refill. Still: 230 V, 1000 µF, 2 A.\n\n4, a puzzle: “The bus falls 2 V every millisecond. The humps come 100 times a second. Roughly how far does the bus fall between refills?” Offered: “About 20 V”; “About 2 V”; “About 200 V”. Hint for 2 V: “That is one millisecond's fall. How long is the gap between humps?” Hint for 200 V: “100 humps a second leaves 10 ms between them, not 100 ms.” Why: “About 20 V. The humps come every 10 ms. The bus falls for about that long, at 2 V a millisecond. That dip is the ripple. The refill starts a little before each peak. So the drawn dip is a little smaller, about 18 V.” A right Check marks the dip on the bus.\n\n5, show: The ripple rule. 230 V, 2 A, capacitance from 1000 to 2000 µF. The words: “The ripple is about I ÷ (f × C). The bus falls at I ÷ C for about one ripple period, 1 ÷ f. Here f is the ripple frequency, 100 Hz for a bridge on 50 Hz.[^2] The rule runs a little high. That errs on the safe side. Drag the capacitance from 1000 to 2000 µF. The fall is half as steep, so the ripple halves to 10 V.” Read: at 1000 µF the ripple readout shows 20 V. At 2000 µF it shows 10 V, and the slopes between peaks are half as steep. Still: 230 V, 2000 µF, 2 A.\n\n6, a puzzle: the capacitance is back at 1000 µF, with a 2 A load and 20 V of ripple. “The load doubles to 4 A. The capacitor stays the same. What happens to the ripple?” Offered: “It doubles, to about 40 V”; “It stays at 20 V, as the capacitor sets it”; “It halves, to about 10 V”. Hint for 20 V: “The capacitor is the same, but what drains it has doubled.” Hint for 10 V: “More load makes a steeper fall, not a gentler one.” Why: “It doubles, to about 40 V. The bus falls at I ÷ C. Twice the current drains it twice as fast. So in the same 10 ms it falls twice as far. The capacitor does not set the ripple alone. The load and the ripple frequency set it too.” A right Check moves the load to 4 A, and the ripple readout shows 40 V.\n\n7, show: Light load, heavy load. 230 V, 1000 µF, the load from 0 to 4 A. The words: “Load pulls the bus down from the peak. Drag the load from 0 to 4 A to watch its average fall. At 0 A it sits at the 325 V peak. At 2 A it reads about 317 V. At 4 A it reads about 309 V. With no capacitor it would sit at the humps' own average, 207 V. A drive's six-pulse bridge feeds a bank of capacitors the same way. That bank is the DC link. It is the store between rectifier and inverter.[^3]” Read: on 230 V the bus average reads 325 V at 0 A, about 317 V at 2 A and about 309 V at 4 A. Still: 230 V, 1000 µF, 4 A.\n\n8, a puzzle: 400 V three-phase, 1000 µF, the load hidden. “A 400 V drive stands idle, with its motor stopped. What does its DC link read?” Offered: “About 566 V, the peak”; “About 540 V, 1.35 × 400”; “About 400 V, the line voltage”. Hint for 540 V: “That is the average with no capacitor. Here nothing drains the capacitor.” Hint for 400 V: “The capacitor fills to the peak of the line-to-line voltage.” Why: “About 566 V, the peak. With no load, the capacitor fills to the peak and stays there. On 400 V that is 400 × √2 = 566 V. Under load it sags towards about 1.35 times the line voltage, 540 V.[^4] Both figures are right, each at its own load.” A right Check sets the load to 0 A, and the bus average shows 566 V.\n\n9, show: Switch on. 230 V, 1000 µF, precharge off. The words: “The supply sees an empty capacitor as a short circuit.[^5] Press Switch on with the capacitor empty. By i = C dv/dt, its voltage rises only as fast as current fills it. So at the first instant it still holds 0 V while current pours in. Say the supply and wiring have 1 Ω. At the 325 V peak, all of it falls across that 1 Ω, so 325 A flows.” Read: with precharge off, the current trace leaps to 325 A in red at switch-on and falls back within about 5 ms. The bus jumps almost straight to 325 V. Still: 230 V, 1000 µF, precharge off, after switch-on.\n\n10, a puzzle: 230 V, 1000 µF, precharge on, before switch-on. “Precharge puts a 100 Ω resistor in the way. With 1000 µF, the time constant R × C is 0.1 s. By the charging curve, when is the capacitor about full?” Offered: “After about 0.5 s, five time constants”; “After 0.1 s, one time constant”; “Never, as the curve only levels off”. Hint for 0.1 s: “After one time constant it has closed only 63% of the gap.” Hint for never: “It never quite arrives. How close is it after five time constants?” Why: “After about 0.5 s, five time constants. Each time constant closes 63% of the gap that is left. After five, only e^−5 of the gap is left, under 1%. So the capacitor is about 99.3% full.” A right Check says “Right: five time constants.” and plays the charging curve.\n\n11, show: Precharge. 230 V, 1000 µF, precharge on, after switch-on. The words: “Precharge fills the capacitor through a resistor first. Now the first current is 325 V ÷ 100 Ω. That is about 3 A instead of 325 A. The bus climbs the charging curve. The picture feeds it from steady DC, so it is over 99% full after five time constants, 0.5 s here. Through the bridge it fills only near each peak, so it takes several times longer. Once it is nearly full, a contactor closes across the resistor. Now the load can run.” Read: with precharge on, the bus climbs a smooth curve to near 325 V over 0.5 s. The current starts at about 3 A and falls away. Then the contactor closes, at 0.5 s. Still: 230 V, 1000 µF, precharge on, after switch-on.\n\n12, a mixed puzzle: 230 V, 2000 µF, 2 A, with 10 V of ripple. “The load grows to 4 A. What capacitance keeps the ripple at 10 V?” Offered: “4000 µF”; “2000 µF, as the capacitor sets the ripple”; “1000 µF”. Hint for 2000 µF: “Twice the load drains twice as fast.” Hint for 1000 µF: “A smaller capacitor falls faster, not slower.” Why: “4000 µF. The ripple is I ÷ (f × C). Double I and the ripple doubles. Double C as well and it halves back. Check: 4 ÷ (100 × 0.004) = 10 V.” A right Check sets 4 A and 4000 µF, and the ripple readout shows 10 V.\n\n13, a mixed puzzle: “A six-pulse drive runs from 400 V, 50 Hz. Its DC link has 1000 µF, and the load takes 5 A. Roughly what ripple does the rule give?” Offered: “About 17 V”; “About 50 V”; “None, as six-pulse output never dips”. Hint for 50 V: “That uses 100 Hz. How many pulses does a six-pulse bridge give each cycle?” Hint for none: “The six-pulse output dips between its tops. The capacitor still drains between gulps.” Why: “About 17 V. Six pulses a cycle on 50 Hz give a ripple frequency of 300 Hz. So the ripple is about 5 ÷ (300 × 0.001) = 17 V. That is a third of what a bridge gives with the same capacitor and load.” The picture opens on 400 V three-phase. A right Check sets 1000 µF and 5 A, and the ripple readout shows 17 V.\n\nSome screens show an idea and the rest ask you to try it. Each puzzle offers three answers, stacked. Each can wrap onto more lines on a narrow phone. A wrong pick gets its one-line hint. Where a puzzle's readouts come only with a right Check, they appear under the feedback line. The graph's key names the bus only once it is drawn. Why? explains the answer. Continue moves on.",
+   "ignores": "The diodes are drawn ideal, with no drop. Real ones take about 1.4 V off a bridge's bus. The supply has no resistance while the bus runs. So each refill gulp is drawn taller and narrower than a real one. A real supply's resistance and inductance spread it out. The load draws a steady current. A real drive's draw follows the motor. The precharge curve is drawn as if fed from steady DC at the peak. A real one fills in steps near each hump's top. So it takes several times longer. Time is stretched across the screen. A ripple period lasts only 10 ms. A real capacitor also has a little internal resistance. So it warms with the ripple current and adds a little ripple of its own.",
+   "numbers": [
+    {
+     "label": "Screen, 1 to 13 (the stepper)",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance, opening setting, µF",
+     "value": 1000,
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance, lowest, µF",
+     "value": 500,
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance, highest, µF",
+     "value": 4000,
+     "kind": "control"
+    },
+    {
+     "label": "Capacitance step, µF",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "Load current, opening setting, A",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Load current, lowest, A",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Load current, highest, A",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Load current step, A",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Single-phase supply, rms, V",
+     "value": 230,
+     "kind": "control"
+    },
+    {
+     "label": "Three-phase line voltage, V",
+     "value": 400,
+     "kind": "control"
+    },
+    {
+     "label": "Supply frequency, Hz",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Peak of 230 V, 230 × √2, V",
+     "value": 325,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge average with no capacitor, 0.637 × 325, V",
+     "value": 207,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge ripple frequency on 50 Hz, Hz",
+     "value": 100,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Ripple period on 100 Hz, ms",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Six-pulse ripple frequency, 6 × 50, Hz",
+     "value": 300,
+     "kind": "computed"
+    },
+    {
+     "label": "Fall rate at 2 A on 1000 µF, V per millisecond",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Fall rate at 2 A on 1000 µF, 2 ÷ 0.001, V a second",
+     "value": 2000,
+     "kind": "computed"
+    },
+    {
+     "label": "Ripple by the rule, 2 A, 1000 µF, V",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Drawn dip, 2 A, 1000 µF, about, V",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Ripple by the rule, 2 A, 2000 µF, V",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Second capacitance in screen 5, µF",
+     "value": 2000,
+     "kind": "control"
+    },
+    {
+     "label": "Doubled load in screen 6, A",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Ripple by the rule, 4 A, 1000 µF, V",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Bus average, 2 A, 1000 µF, about, V",
+     "value": 317,
+     "kind": "computed"
+    },
+    {
+     "label": "Bus average, 4 A, 1000 µF, about, V",
+     "value": 309,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak supply current, 2 A, 1000 µF, model, A",
+     "value": 35,
+     "kind": "computed"
+    },
+    {
+     "label": "Peak of 400 V line voltage, 400 × √2, V",
+     "value": 566,
+     "kind": "computed"
+    },
+    {
+     "label": "Loaded DC bus, times the line voltage, about",
+     "value": 1.35,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "1.35 × 400, V",
+     "value": 540,
+     "kind": "computed"
+    },
+    {
+     "label": "Three-phase load in screen 13, A",
+     "value": 5,
+     "kind": "control"
+    },
+    {
+     "label": "Ripple by the rule, 400 V, 5 A, 1000 µF, about, V",
+     "value": 17,
+     "kind": "computed"
+    },
+    {
+     "label": "Supply and wiring resistance, chosen, Ω",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "First current straight on, 325 ÷ 1, A",
+     "value": 325,
+     "kind": "computed"
+    },
+    {
+     "label": "Straight-on spike dies away within, 5 × 1 Ω × 1000 µF, ms",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Precharge resistor, chosen, Ω",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "First current with precharge, 325 ÷ 100, about, A",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Time constant, 100 Ω × 1000 µF, s",
+     "value": 0.1,
+     "kind": "computed"
+    },
+    {
+     "label": "Five time constants, s",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap closed in one time constant, 1 − e^−1, %",
+     "value": 63,
+     "kind": "computed"
+    },
+    {
+     "label": "Full after five time constants, 1 − e^−5, %",
+     "value": 99.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap left after five time constants, under, %",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap left at contactor close, 325 × e^−5, about, V",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Blip at contactor close, 2 V ÷ 1 Ω, about, A",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Precharge graph time axis, s",
+     "value": 0.6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Capacitance in screen 12, µF",
+     "value": 4000,
+     "kind": "control"
+    },
+    {
+     "label": "4000 µF in farads",
+     "value": 0.004,
+     "kind": "computed"
+    },
+    {
+     "label": "1000 µF in farads",
+     "value": 0.001,
+     "kind": "computed"
+    },
+    {
+     "label": "2000 µF in farads",
+     "value": 0.002,
+     "kind": "computed"
+    },
+    {
+     "label": "Bridge drop, two silicon diodes, about, V",
+     "value": 1.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example line voltage, V",
+     "value": 440,
+     "kind": "assumed"
+    },
+    {
+     "label": "Peak of 440 V, 440 × √2, V",
+     "value": 622,
+     "kind": "computed"
+    },
+    {
+     "label": "1.35 × 440, V",
+     "value": 594,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example load current, A",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example ripple, 20 ÷ (300 × 0.002), about, V",
+     "value": 33,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example precharge resistor, Ω",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example first current, 622 ÷ 50, about, A",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Full after five time constants, over, %",
+     "value": 99,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A bridge's DC pulses. Put a capacitor across its output and the pulses smooth out. The capacitor fills near each peak, while the supply is above it. Between peaks the diodes block. The capacitor feeds the load. Inside a drive, that capacitor is the store of DC the motor runs from.\n\nTake a bridge on 230 V. Its humps peak at 325 V. Put a capacitor across the load. Its voltage is the DC bus the load sees. As a hump rises above the capacitor's voltage, the diodes conduct and the capacitor fills. After the peak the hump falls away faster than the capacitor can drain. It drains only slowly, through the load. So the diodes are pushed backwards and block. The capacitor alone now feeds the load. With no load, nothing drains it. It stays at the 325 V peak. It fills only from the supply, so it settles at the peak. A capacitor used this way adds no voltage of its own. It holds the peak and lends charge back between peaks. This is a [[smoothing capacitor]]. It turns the bridge's humps into smoother DC.\n\nHow far does it fall between peaks? The capacitor's law, i = C dv/dt, links its current to how fast its voltage changes. Here i is the load current I, and C the capacitance in farads. So the voltage falls at I ÷ C volts each second. A 2 A load on 1000 µF falls 2 V every millisecond. A bridge on 50 Hz peaks 100 times a second.[^2] So each fall lasts about 10 ms. The bus dips about 20 V. That dip is the ripple. Put the steps together, and the ripple is about I ÷ (f × C). Here f is the ripple frequency. Double the capacitor and the ripple halves. Double the load and it doubles. So the capacitor alone does not set it. The rule takes the fall to last the whole period. The refill really starts a little before each peak. So the real ripple is a little smaller. Under load the bus sags below the peak. It sags towards 207 V, the humps' own average. That is where it would sit with no capacitor. All the charge drained between peaks goes back in a short refill. So the supply's current comes in gulps of several times the load current. Ripple matters most on a battery charger. Ripple voltage across a battery drives a ripple current through it. That current heats the battery and shortens its life.[^6]\n\nIn a drive, a six-pulse bridge feeds a bank of capacitors, the [[DC link]]. It is the energy store between the rectifier and the inverter. On 400 V an idle drive's link sits near the 566 V peak. Under load it sags towards about 1.35 times the line voltage, 540 V.[^4] An empty capacitor is a problem at switch-on. Its voltage rises only as fast as current fills it. So at the first instant it holds 0 V while current pours in. The supply sees it as a short circuit.[^5] Say the supply and wiring have 1 Ω. Switching on at the 325 V peak then drives 325 A. [[Precharge]] fills it through a resistor first. Take a 100 Ω resistor. The first current is then about 3 A. The bus climbs a charging curve with a time constant of R × C. With 1000 µF that is 0.1 s. From steady DC it would be over 99% full after five time constants. Through the diodes it fills only near each peak. So it takes several times longer. Once it is nearly full, a contactor or relay closes across the resistor. This is a simplified picture, with ideal diodes and a steady load. A real bridge's two diodes take about 1.4 V. A real supply's resistance spreads the gulps out. **A capacitor across a rectifier fills near each peak and feeds the load between them. The bus holds near the peak, with a ripple of about I ÷ (f × C).**"
+  },
+  "analogy": {
+   "text": "A smoothing capacitor works like a header tank filled through a non-return valve by a pump that pushes only in surges. Each surge tops the tank up to the pump's head. Between surges, the draw-off lowers the level at a steady rate. A bigger draw lowers it faster, and a wider tank lowers it more slowly. An idle tank fills to the pump's head and no higher. The level is the bus voltage, the tank's width the capacitance and the draw-off the load current.",
+   "breaks": "A tank holds the water put into it. A capacitor holds no extra charge overall. As much leaves one plate as arrives on the other. A full tank also shows its level. A charged capacitor shows nothing. It can still give a shock after the supply is off."
+  },
+  "practice": {
+   "text": "Treat a DC link as live until you have proved it dead. It can keep its charge after isolation. Wait the time on the drive's label. Then prove the bus dead on a DC range before you touch anything.\n\n- To estimate ripple, find the load current I, the capacitance C in farads and the ripple frequency f.\n- For a bridge, f is twice the supply frequency, 100 Hz on 50 Hz.\n- For a six-pulse bridge, f is six times the supply frequency, 300 Hz on 50 Hz.\n- The ripple is about I ÷ (f × C). The rule errs high. That is the safe way.\n- To size a capacitor for a ripple you can accept, turn it round: C = I ÷ (f × ripple).\n- Expect the bus near the peak at light load and lower under load. On 400 V that runs from about 566 V idle towards about 540 V.\n- On a battery charger, keep the ripple small. Ripple current heats the battery and shortens its life.\n- Precharge's first current is the peak ÷ R. Through the diodes, filling takes well over five time constants, 5 × R × C.\n\n**Rule of thumb:** double the load and the ripple doubles. Double the capacitance and it halves.\n\n**Worked example:** a six-pulse bridge runs from 440 V, 50 Hz. Its peak is 440 × √2 = 622 V. So an idle bus reads near 622 V. Under load it sags towards 1.35 × 440 = 594 V. The link has 2000 µF, and the load takes 20 A. The ripple frequency is 6 × 50 = 300 Hz. So the ripple is about 20 ÷ (300 × 0.002) = 33 V. A 50 Ω precharge resistor gives a time constant of 50 × 0.002 = 0.1 s. From steady DC the link would be over 99% full after about 0.5 s. Through the diodes it takes several times longer. Its first current is about 622 ÷ 50 = 12 A.\n\n**Common mistakes**\n- Thinking the smoothing capacitor adds voltage. It fills to the peak and no higher.\n- Thinking only the capacitor sets the ripple. The load current and the ripple frequency set it too.\n- Using the supply frequency, 50 Hz, for f. A bridge ripples at 100 Hz and a six-pulse bridge at 300 Hz.\n- Leaving microfarads unconverted: 1000 µF is 0.001 F.\n- Expecting 540 V on an idle 400 V drive. Idle, the link sits near the 566 V peak.\n- Thinking a bigger capacitor softens switch-on. Its first current is no smaller. It lasts longer, too."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+    "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+    "quote": "The smoothing capacitor converts the full-wave rippled output of the rectifier into a more smooth DC output voltage."
+   },
+   {
+    "n": 2,
+    "title": "Full Wave Rectifier and Bridge Rectifier Theory",
+    "url": "https://www.electronics-tutorials.ws/diode/diode_6.html",
+    "quote": "The ripple frequency is now twice the supply frequency (e.g. 100Hz for a 50Hz supply or 120Hz for a 60Hz supply.)"
+   },
+   {
+    "n": 3,
+    "title": "DC-Link Capacitor Selection & Ripple Current",
+    "url": "https://schematicshub.com/articles/dc-link-capacitor-selection",
+    "quote": "The DC-link capacitor is the energy reservoir and filter between rectifier and inverter"
+   },
+   {
+    "n": 4,
+    "title": "VFD Input Transformer Grounding: HRG & IT Design Guide – Industrial Monitor Direct",
+    "url": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design",
+    "quote": "The DC bus voltage should ramp to approximately 1.35 × V LL (rectified DC)"
+   },
+   {
+    "n": 5,
+    "title": "Eaton SC9000 EP pre-charge system application paper",
+    "url": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/motor-control/literature/applications/eaton-sc9000-soft-mag-pre-charge-system-application-paper-ap02004en.pdf",
+    "quote": "An uncharged capacitive circuit is seen as a short circuit when line voltage is first applied."
+   },
+   {
+    "n": 6,
+    "title": "Charging VRLA batteries (application guide 41-2128)",
+    "url": "https://assets.ctfassets.net/3inf9wk05c1h/42pCwtNYBNWiazMcKLlfGR/2ec889e3a4cd5db991a876cd48609cf8/41-2128-Charging-VRLA-WEB_comp.pdf",
+    "quote": "An excessive AC ripple voltage induces an AC ripple current which results in additional heating of the battery and a resulting decrease in the expected life"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .caption { max-width: 34rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .count { margin-top: 10px; }\n  .task { font-size: 1.15rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.06rem; font-weight: 400; line-height: 1.6; }\n  .fig { display: block; width: 100%; max-width: 26rem; margin-inline: auto; }\n  .gnote { font-size: .9rem; line-height: 1.45; color: var(--k-muted); text-align: center; max-width: 26rem; margin: 4px auto 0; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .picks { flex-direction: column; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; line-height: 1.35; padding-top: 8px; padding-bottom: 8px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  #ctl2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }\n  #ctl2 > .k-btn { flex: 1 1 8rem; min-height: 48px; }\n  #ctl2 > .k-field { flex: 1 1 10rem; margin: 0; }\n  #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }\n  #rbox .k-label { margin-bottom: 6px; }\n  .fb { font-weight: 700; min-height: 1.5em; }\n  .fb.right { color: var(--k-good); }\n  .why, .done { line-height: 1.6; }\n  .done .row { margin-top: 14px; }\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n  /* The circuit: thin wires; the path the current takes drawn bold. */\n  .fig .wire { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-linejoin: round; }\n  .fig .wire.on { stroke: var(--k-accent2); stroke-width: 4; }\n  .fig .wire.hot { stroke: var(--k-warn); stroke-width: 4; }\n  .fig .dio { fill: var(--k-ink); stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; }\n  .fig .dio.on { fill: var(--k-accent2); stroke: var(--k-accent2); stroke-width: 3.5; }\n  .fig .res { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .res.on { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .plate { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }\n  .fig .plate.on { stroke: var(--k-accent2); }\n  .fig .src { fill: var(--k-panel); stroke: var(--k-ink); stroke-width: 2; }\n  .fig .sine { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .fig .arrow { stroke: var(--k-accent2); stroke-width: 3; }\n  .fig .head { fill: var(--k-accent2); }\n  .fig .headw { fill: var(--k-warn); }\n  .fig .blade { stroke: var(--k-ink); stroke-width: 2.6; stroke-linecap: round; }\n  .fig .blade.on { stroke: var(--k-accent2); stroke-width: 4; }\n  .fig .blade.hot { stroke: var(--k-warn); stroke-width: 4; }\n  .fig .pin { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }\n  .fig .flowdot { fill: var(--k-bg); }\n  .fig .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .fig .lab.m { font-weight: 400; fill: var(--k-muted); }\n  .fig .lab.t { fill: var(--k-accent); }\n  .fig .lab.w { fill: var(--k-warn); }\n  .fig .lab.n { fill: var(--k-accent2); }\n  /* The graph: four ripple periods, the bus over the pale humps, the supply current below. */\n  .fig .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .fig .pale { fill: none; stroke: var(--k-muted); stroke-width: 1.4; stroke-opacity: .6; }\n  .fig .bus { fill: none; stroke: var(--k-accent2); stroke-width: 2.8; stroke-linejoin: round; }\n  .fig .icur { fill: none; stroke: var(--k-ink); stroke-width: 1.8; stroke-linejoin: round; }\n  .fig .icur.hot { stroke: var(--k-warn); stroke-width: 2.4; }\n  .fig .avg { stroke: var(--k-amber-line); stroke-width: 2.4; stroke-dasharray: 6 4; }\n  .fig .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 3 3; }\n  .fig .mark { stroke: var(--k-accent); stroke-width: 1.8; stroke-dasharray: 4 3; }\n  .fig .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.6; }\n  .fig .cur { stroke: var(--k-ink); stroke-width: 1.3; }\n  .fig .odot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .fig .pdot { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 2; }\n</style>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count say\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <div class=\"k-controls\" id=\"sw\"></div>\n    <svg class=\"fig\" id=\"scene\" viewBox=\"0 0 340 220\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"dots\"></g></svg>\n    <svg class=\"fig\" id=\"graph\" viewBox=\"0 0 340 312\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"gart\"></g></svg>\n    <p class=\"gnote say\" id=\"setting\"></p>\n    <div class=\"k-controls\" id=\"ctl\"></div>\n    <div id=\"ctl2\"></div>\n    <p class=\"say\" id=\"say\"></p>\n    <div class=\"k-readouts\" id=\"outs\"></div>\n    <div id=\"rbox\"><p class=\"k-label\">Ripple by the rule against load</p><div id=\"rplot\"></div></div>\n    <div class=\"row picks say\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb say\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why say\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<script>\n  // ---------- the rule: ideal diodes, a supply with no resistance while the bus runs, a steady load ----------\n  // While the rectified hump is above the bus, the diodes conduct and the bus rides the hump. The\n  // capacitor's current is C dv/dt, so the supply gives the load current plus that. The diodes stop\n  // where the hump falls faster than I ÷ C. Then the load drains the capacitor alone: the bus falls\n  // in a straight line at I ÷ C until the next hump catches it. The ripple rule is I ÷ (f × C).\n  const SQ2 = Math.SQRT2, W = 2 * Math.PI * 50, RS = 1, RP = 100, NP = 4;\n  const ETUT = 'https://www.electronics-tutorials.ws/diode/diode_6.html';\n  const IMD = 'https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design';\n  const EATON = 'https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/motor-control/literature/applications/eaton-sc9000-soft-mag-pre-charge-system-application-paper-ap02004en.pdf';\n  const fx = (v, d) => (Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v).toFixed(d).replace('-', '−');\n  const PK = (v) => v * SQ2, K135 = 3 * SQ2 / Math.PI;\n  // A bridge on 230 V gives humps 100 times a second; a six-pulse bridge on 400 V gives 300.\n  // th0 is the supply angle at the start of the window, a valley of the humps.\n  const SPS = { 230: { sup: 230, Vp: PK(230), P: Math.PI, f: 100, th0: 0 }, 400: { sup: 400, Vp: PK(400), P: Math.PI / 3, f: 300, th0: Math.PI / 6 } };\n  const SP = (s) => SPS[+s === 400 ? 400 : 230];\n  const rule = (sp, I, C) => I / (sp.f * C);           // C in farads\n  const SSC = new Map();\n  // The steady bus over one ripple period, in supply angle from a valley: the diodes conduct from on to off.\n  function ss(sp, I, C) {\n    const key = sp.sup + '|' + I + '|' + C;\n    if (SSC.has(key)) return SSC.get(key);\n    const Vp = sp.Vp, P = sp.P, k = I / C;\n    let r;\n    if (!(I > 0)) r = { flat: true, I: 0, C, k: 0, on: P / 2, off: P / 2, von: Vp, voff: Vp, avg: Vp, ipk: 0, dip: 0 };\n    else {\n      const off = P / 2 + Math.asin(Math.min(1, k / (Vp * W))), voff = Vp * Math.cos(off - P / 2);\n      const g = (q) => Vp * Math.cos(q - P / 2) - (voff - k * (q + P - off) / W);\n      let lo = 0, hi = P / 2;\n      if (g(0) >= 0) hi = 0;\n      for (let n = 0; n < 60; n++) { const m = (lo + hi) / 2; if (g(m) < 0) lo = m; else hi = m; }\n      const on = (lo + hi) / 2, von = Vp * Math.cos(on - P / 2);\n      const area = Vp * (Math.sin(off - P / 2) - Math.sin(on - P / 2)) + (voff + von) / 2 * (P + on - off);\n      r = { flat: false, I, C, k, on, off, von, voff, avg: area / P, ipk: I - C * Vp * W * Math.sin(on - P / 2), dip: Vp - von };\n    }\n    if (SSC.size > 400) SSC.clear();\n    SSC.set(key, r);\n    return r;\n  }\n  const wrapP = (sp, ph) => ((ph % sp.P) + sp.P) % sp.P;\n  function busAt(sp, s, ph) {\n    if (s.flat) return sp.Vp;\n    const q = wrapP(sp, ph);\n    if (q >= s.on && q <= s.off) return sp.Vp * Math.cos(q - sp.P / 2);\n    return s.voff - s.k * (q > s.off ? q - s.off : q + sp.P - s.off) / W;\n  }\n  function supAt(sp, s, ph) {\n    if (s.flat) return 0;\n    const q = wrapP(sp, ph);\n    return q >= s.on && q <= s.off ? Math.max(0, s.I - s.C * sp.Vp * W * Math.sin(q - sp.P / 2)) : 0;\n  }\n  // Switch-on, drawn as if fed from steady DC at the peak: through 1 Ω straight on, or through 100 Ω\n  // until five time constants have passed, when the contactor closes across the resistor.\n  const swT = (C) => ({ tp: RP * C, t1: RS * C, tc: 5 * RP * C, ax: 0.6 * Math.max(1, Math.ceil(C * 1000 - 1e-9)) });\n  function soBus(Vp, C, pre, t) {\n    if (t <= 0) return 0;\n    const z = swT(C);\n    if (!pre) return Vp * (1 - Math.exp(-t / z.t1));\n    if (t < z.tc) return Vp * (1 - Math.exp(-t / z.tp));\n    return Vp - Vp * Math.exp(-5) * Math.exp(-(t - z.tc) / z.t1);\n  }\n  function soCur(Vp, C, pre, t) {\n    if (t < 0) return 0;\n    const z = swT(C);\n    if (!pre) return Vp / RS * Math.exp(-t / z.t1);\n    if (t < z.tc) return Vp / RP * Math.exp(-t / z.tp);\n    return Vp * Math.exp(-5) / RS * Math.exp(-(t - z.tc) / z.t1);\n  }\n\n  // Every number the words show, worked out from the rule (a check compares them with the lesson's).\n  const S230 = SP(230), S400 = SP(400), s2A = ss(S230, 2, 1e-3), s4A = ss(S230, 4, 1e-3);\n  const N = {\n    pk: fx(S230.Vp, 0), pk400: fx(S400.Vp, 0), hav: fx(2 / Math.PI * S230.Vp, 0),\n    fall: fx(2 / 1e-3 / 1000, 0), f100: String(S230.f), f300: String(S400.f), T10: fx(1000 / S230.f, 0),\n    r20: fx(rule(S230, 2, 1e-3), 0), r200: fx(2 / 1e-3 / 1000 * 100, 0), d18: fx(s2A.dip, 0),\n    r10: fx(rule(S230, 2, 2e-3), 0), r40: fx(rule(S230, 4, 1e-3), 0), a2: fx(s2A.avg, 0), a4: fx(s4A.avg, 0),\n    k135: fx(K135, 2), s400: fx(K135 * 400, 0),\n    i0: fx(S230.Vp / RS, 0), t5off: fx(5 * RS * 1e-3 * 1000, 0), tau: fx(RP * 1e-3, 1), t5: fx(5 * RP * 1e-3, 1),\n    p63: fx(100 * (1 - Math.exp(-1)), 0), p993: fx(100 * (1 - Math.exp(-5)), 1), i3: fx(S230.Vp / RP, 0),\n    gap: fx(S230.Vp * Math.exp(-5), 0), blip: fx(S230.Vp * Math.exp(-5) / RS, 0),\n    c4000: fx(4 / (S230.f * 10) * 1e6, 0), c4f: fx(4 / (S230.f * 10), 3),\n    r17: fx(rule(S400, 5, 1e-3), 0), r50: fx(rule(S230, 5, 1e-3), 0),\n  };\n\n  // ---------- the lesson: SHOW screens demonstrate, DO screens are puzzles ----------\n  // set: where the controls open; play: the demonstration as the screen opens; so: the switch-on picture;\n  // ans.set: what a right Check moves the controls to; shows: words that appear only after a right Check.\n  const STEPS = [\n    { show: true, name: 'The reservoir', set: { supply: 230, C: 1000, I: 2 }, play: 'cursor',\n      text: `A *smoothing capacitor* turns a bridge's humps into smoother DC. Take a bridge rectifier on 230 V. Its humps peak at ${N.pk} V. Put a capacitor across the load. Its voltage is the *DC bus*. Near each peak, the hump rises above the capacitor's voltage. The diodes conduct, and the capacitor fills. After the peak, the hump falls away faster than the capacitor drains. So the diodes are pushed backwards and block. The capacitor alone feeds the load until the next peak.`,\n      read: `The bold bus rides just under the tops of the pale humps. It rises with each hump near its peak and slopes gently down between them.`,\n      still: { supply: 230, C: 1000, I: 2 } },\n    { name: 'No load', set: { supply: 230, C: 1000, I: 0 }, hideBus: true, ans: {}, idle: 'load off',\n      task: `The load is switched off. What voltage does the capacitor settle at?`,\n      opts: [`About ${N.hav} V, the average of the humps`, `${N.pk} V, the peak of the humps`, `Above ${N.pk} V, as the capacitor adds its own`],\n      want: `${N.pk} V, the peak of the humps`,\n      hints: { [`About ${N.hav} V, the average of the humps`]: `With no load, what drains the capacitor between peaks?`,\n        [`Above ${N.pk} V, as the capacitor adds its own`]: `It only fills while the hump is above it. What happens when it reaches the top?` },\n      why: `It settles at ${N.pk} V, the peak. Each peak fills the capacitor until it matches the top of the hump. Then the diodes block. With no load, nothing drains it, so it stays there. It fills only from the supply, so it never passes the peak. A smoothing capacitor adds no voltage of its own.`,\n      shows: [`${N.pk} V`] },\n    { show: true, name: 'The drain', set: { supply: 230, C: 1000, I: 2 }, play: 'cursor',\n      text: `Between peaks the load drains the capacitor. By the capacitor's law, i = C dv/dt, the voltage falls at I ÷ C volts each second. A 2 A load on 1000 µF falls 2 ÷ 0.001 = 2000 V a second. That is ${N.fall} V every millisecond. Near the next peak, the diodes conduct and all the charge drained goes back in one short gulp. So the gulp runs at many times the load current. The drawn gulp is taller and narrower than a real one.`,\n      read: `The bus slopes down in straight lines between peaks and climbs back near each one. The supply current trace sits at zero except for a narrow spike at each refill.`,\n      still: { supply: 230, C: 1000, I: 2 } },\n    { name: 'How far it falls', set: { supply: 230, C: 1000, I: 2 }, ans: {}, outs: 'after',\n      task: `The bus falls ${N.fall} V every millisecond. The humps come ${N.f100} times a second. Roughly how far does the bus fall between refills?`,\n      opts: [`About ${N.fall} V`, `About ${N.r200} V`, `About ${N.r20} V`], want: `About ${N.r20} V`,\n      hints: { [`About ${N.fall} V`]: `That is one millisecond's fall. How long is the gap between humps?`,\n        [`About ${N.r200} V`]: `${N.f100} humps a second leaves ${N.T10} ms between them, not 100 ms.` },\n      why: `About ${N.r20} V. The humps come every ${N.T10} ms. The bus falls for about that long, at ${N.fall} V a millisecond. That dip is the *ripple*. The refill starts a little before each peak. So the drawn dip is a little smaller, about ${N.d18} V.`,\n      shows: [`dip ${N.d18} V`] },\n    { show: true, name: 'The ripple rule', set: { supply: 230, C: 1000, I: 2 }, play: { id: 'C', from: 1000, to: 2000 },\n      text: `The ripple is about I ÷ (f × C). The bus falls at I ÷ C for about one ripple period, 1 ÷ f. Here f is the ripple frequency, ${N.f100} Hz for a bridge on 50 Hz. The rule runs a little high. That errs on the safe side. Drag the capacitance from 1000 to 2000 µF. The fall is half as steep, so the ripple halves to ${N.r10} V.`,\n      read: `At 1000 µF the ripple readout shows ${N.r20} V. At 2000 µF it shows ${N.r10} V, and the slopes between peaks are half as steep.`,\n      still: { supply: 230, C: 2000, I: 2 } },\n    { name: 'Double the load', set: { supply: 230, C: 1000, I: 2 }, ans: { set: { I: 4 } }, outs: 'before',\n      task: `The load doubles to 4 A. The capacitor stays the same. What happens to the ripple?`,\n      opts: [`It doubles, to about ${N.r40} V`, `It stays at ${N.r20} V, as the capacitor sets it`, `It halves, to about ${N.r10} V`],\n      want: `It doubles, to about ${N.r40} V`,\n      hints: { [`It stays at ${N.r20} V, as the capacitor sets it`]: `The capacitor is the same, but what drains it has doubled.`,\n        [`It halves, to about ${N.r10} V`]: `More load makes a steeper fall, not a gentler one.` },\n      why: `It doubles, to about ${N.r40} V. The bus falls at I ÷ C. Twice the current drains it twice as fast. So in the same ${N.T10} ms it falls twice as far. The capacitor does not set the ripple alone. The load and the ripple frequency set it too.` },\n    { show: true, name: 'Light load, heavy load', set: { supply: 230, C: 1000, I: 0 }, play: { id: 'I', from: 0, to: 4 }, avgRef: true,\n      text: `Load pulls the bus down from the peak. Drag the load from 0 to 4 A to watch its average fall. At 0 A it sits at the ${N.pk} V peak. At 2 A it reads about ${N.a2} V. At 4 A it reads about ${N.a4} V. With no capacitor it would sit at the humps' own average, ${N.hav} V. A drive's six-pulse bridge feeds a bank of capacitors the same way. That bank is the *DC link*. It is the store between rectifier and inverter.`,\n      read: `On 230 V the bus average reads ${N.pk} V at 0 A, about ${N.a2} V at 2 A and about ${N.a4} V at 4 A.`,\n      still: { supply: 230, C: 1000, I: 4 } },\n    { name: 'An idle drive', set: { supply: 400, C: 1000, I: 0 }, hideBus: true, ans: { set: { I: 0 } }, idle: 'motor stopped', outs: 'after',\n      task: `A 400 V drive stands idle, with its motor stopped. What does its DC link read?`,\n      opts: [`About ${N.s400} V, ${N.k135} × 400`, `About 400 V, the line voltage`, `About ${N.pk400} V, the peak`], want: `About ${N.pk400} V, the peak`,\n      hints: { [`About ${N.s400} V, ${N.k135} × 400`]: `That is the average with no capacitor. Here nothing drains the capacitor.`,\n        'About 400 V, the line voltage': `The capacitor fills to the peak of the line-to-line voltage.` },\n      why: `About ${N.pk400} V, the peak. With no load, the capacitor fills to the peak and stays there. On 400 V that is 400 × √2 = ${N.pk400} V. Under load it sags towards about ${N.k135} times the line voltage, ${N.s400} V. Both figures are right, each at its own load.`,\n      shows: [`${N.pk400} V`] },\n    { show: true, name: 'Switch on', set: { supply: 230, C: 1000, I: 0, pre: false }, so: true, play: 'switch',\n      text: `The supply sees an empty capacitor as a short circuit. Press Switch on with the capacitor empty. By i = C dv/dt, its voltage rises only as fast as current fills it. So at the first instant it still holds 0 V while current pours in. Say the supply and wiring have 1 Ω. At the ${N.pk} V peak, all of it falls across that 1 Ω, so ${N.i0} A flows.`,\n      read: `With precharge off, the current trace leaps to ${N.i0} A in red at switch-on and falls back within about ${N.t5off} ms. The bus jumps almost straight to ${N.pk} V.`,\n      still: () => finishSwitch(false) },\n    { name: 'Five time constants', set: { supply: 230, C: 1000, I: 0, pre: true }, so: true, ans: {}, outs: 'after', rightFb: 'Right: five time constants.',\n      task: `Precharge puts a 100 Ω resistor in the way. With 1000 µF, the time constant R × C is ${N.tau} s. By the charging curve, when is the capacitor about full?`,\n      opts: [`After ${N.tau} s, one time constant`, `After about ${N.t5} s, five time constants`, `Never, as the curve only levels off`],\n      want: `After about ${N.t5} s, five time constants`,\n      hints: { [`After ${N.tau} s, one time constant`]: `After one time constant it has closed only ${N.p63}% of the gap.`,\n        'Never, as the curve only levels off': `It never quite arrives. How close is it after five time constants?` },\n      why: `After about ${N.t5} s, five time constants. Each time constant closes ${N.p63}% of the gap that is left. After five, only e^−5 of the gap is left, under 1%. So the capacitor is about ${N.p993}% full.`,\n      shows: ['contactor closes'] },\n    { show: true, name: 'Precharge', set: { supply: 230, C: 1000, I: 0, pre: true }, so: true, play: 'switch',\n      text: `*Precharge* fills the capacitor through a resistor first. Now the first current is ${N.pk} V ÷ 100 Ω. That is about ${N.i3} A instead of ${N.i0} A. The bus climbs the charging curve. The picture feeds it from steady DC, so it is over 99% full after five time constants, ${N.t5} s here. Through the bridge it fills only near each peak, so it takes several times longer. Once it is nearly full, a contactor closes across the resistor. Now the load can run.`,\n      read: `With precharge on, the bus climbs a smooth curve to near ${N.pk} V over ${N.t5} s. The current starts at about ${N.i3} A and falls away. Then the contactor closes, at ${N.t5} s.`,\n      still: () => finishSwitch(true) },\n    { name: 'Keep the ripple', set: { supply: 230, C: 2000, I: 2 }, ans: { set: { I: 4, C: 4000 } }, outs: 'before',\n      task: `The load grows to 4 A. What capacitance keeps the ripple at ${N.r10} V?`,\n      opts: [`2000 µF, as the capacitor sets the ripple`, `1000 µF`, `${N.c4000} µF`], want: `${N.c4000} µF`,\n      hints: { '2000 µF, as the capacitor sets the ripple': `Twice the load drains twice as fast.`,\n        '1000 µF': `A smaller capacitor falls faster, not slower.` },\n      why: `${N.c4000} µF. The ripple is I ÷ (f × C). Double I and the ripple doubles. Double C as well and it halves back. Check: 4 ÷ (${N.f100} × ${N.c4f}) = ${N.r10} V.` },\n    { name: 'Six-pulse ripple', set: { supply: 400, C: 1000, I: 5 }, ans: { set: { C: 1000, I: 5 } }, outs: 'after',\n      task: `A six-pulse drive runs from 400 V, 50 Hz. Its DC link has 1000 µF, and the load takes 5 A. Roughly what ripple does the rule give?`,\n      opts: [`About ${N.r50} V`, `About ${N.r17} V`, `None, as six-pulse output never dips`], want: `About ${N.r17} V`,\n      hints: { [`About ${N.r50} V`]: `That uses ${N.f100} Hz. How many pulses does a six-pulse bridge give each cycle?`,\n        'None, as six-pulse output never dips': `The six-pulse output dips between its tops. The capacitor still drains between gulps.` },\n      why: `About ${N.r17} V. Six pulses a cycle on 50 Hz give a ripple frequency of ${N.f300} Hz. So the ripple is about 5 ÷ (${N.f300} × 0.001) = ${N.r17} V. That is a third of what a bridge gives with the same capacitor and load.` },\n  ];\n  const FINISH = 'A smoothing capacitor fills near each peak and feeds the load between them. Its ripple is about I ÷ (f × C), so the load sets it as much as the capacitor does.';\n  const DEMO = 3.6, FADE = 0.35, ANS = 2.2;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const calm = () => REDUCE || testing();\n  const el = (id) => document.getElementById(id);\n\n  // ---------- the model ----------\n  const stepOf = (p) => K.clamp(Math.round(+p.step) || 0, 0, STEPS.length - 1);\n  const cF = (p) => K.clamp(+p.C || 1000, 500, 4000) * 1e-6;\n  const cI = (p) => K.clamp(+p.I || 0, 0, 5);\n\n  // ---------- state ----------\n  const blank = () => ({ pick: null, res: null, why: false });\n  const solved = (i) => ({ pick: STEPS[i].want, res: 'right', why: false });\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, pinning = false, lastPre = false;\n  let T = Infinity, motionEnd = 0, CUR = 1, SOF = 0, CS = null, SS = null, SW = null, PH = 0, FLOW = null, REC = null;\n  const IDS = ['supply', 'C', 'I', 'pre'];\n  const BASE = { supply: 230, C: 1000, I: 2, pre: false };\n  const setupOf = (i, right) => { const d = STEPS[i]; return Object.assign({ step: i }, BASE, d.set || {}, right && d.ans && d.ans.set ? d.ans.set : {}); };\n  const visIds = (d) => (!d.show ? [] : d.so ? ['C', 'pre'] : ['supply', 'C', 'I']);\n\n  // ---------- words with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    const re = /\\*([^*]+)\\*/g;\n    let at = 0, m;\n    while ((m = re.exec(s))) {\n      if (m.index > at) node.appendChild(document.createTextNode(s.slice(at, m.index)));\n      node.appendChild(K.el('span', { class: 'term' }, m[1]));\n      at = m.index + m[0].length;\n    }\n    if (at < s.length) node.appendChild(document.createTextNode(s.slice(at)));\n    return node;\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const at = () => K.clamp(Math.round(stepper.get()) || 0, 0, STEPS.length - 1);\n  const supCtl = K.choice({ id: 'supply', label: 'Supply', options: [{ value: 230, label: '230 V, 1-phase' }, { value: 400, label: '400 V, 3-phase' }], value: 230, into: '#sw' });\n  const cCtl = K.control({ id: 'C', label: 'Capacitance, C', min: 500, max: 4000, step: 100, value: 1000, fmt: (v) => fx(v, 0) + ' µF', snap: [1000, 2000, 4000], into: '#ctl' });\n  const iCtl = K.control({ id: 'I', label: 'Load current, I', min: 0, max: 5, step: 0.5, value: 2, fmt: (v) => fx(v, v % 1 ? 1 : 0) + ' A', snap: [0, 2, 4, 5], into: '#ctl' });\n  const playBtn = K.button({ label: 'Play', secondary: true, into: '#ctl2', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || d.so) return;\n    startCursor(0);\n  } });\n  const swBtn = K.button({ label: 'Switch on', into: '#ctl2', press: () => {\n    const d = STEPS[at()];\n    if (finished || !d.show || !d.so) return;\n    startSwitch(0);\n  } });\n  const preCtl = K.toggle({ id: 'pre', label: 'Precharge', value: false, into: '#ctl2' });\n  const CTL = { supply: supCtl, C: cCtl, I: iCtl, pre: preCtl };\n  const snapV = (id, v) => (id === 'C' ? Math.round(v / 100) * 100 : Math.round(v * 2) / 2);\n  const rRip = K.readout({ id: 'ripple', label: 'Ripple, I ÷ (f × C)', unit: 'V', decimals: 0, into: '#outs' });\n  const rAvg = K.readout({ id: 'busAvg', label: 'Bus average', unit: 'V', decimals: 0, into: '#outs' });\n  const rPk = K.readout({ id: 'supplyPeak', label: 'Peak supply current', unit: 'A', decimals: 0, into: '#outs' });\n  K.model((p) => {\n    const d = STEPS[stepOf(p)], sp = SP(p.supply), C = cF(p), I = cI(p), s = ss(sp, I, C);\n    return { ripple: rule(sp, I, C), busAvg: s.avg, supplyPeak: d.so ? sp.Vp / (p.pre ? RP : RS) : s.ipk };\n  });\n  const rplot = K.plot('#rplot', {\n    x: { min: 0, max: 5, label: 'Load current I (A)' }, y: { min: 0, max: 100, label: 'Ripple by the rule (V)' }, height: 160,\n    label: 'The ripple by the rule rises in a straight line through zero as the load current grows. The dot is the setting.',\n  });\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished || st.res === 'right') return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === d.want ? 'right' : 'wrong';\n    if (st.res !== 'right') return;\n    T = calm() ? Infinity : 0; motionEnd = ANS + K.SOFT;\n    const a = d.ans || {};\n    if (a.set) startSweep(a.set, ANS - 0.4, 0.1);\n    if (d.so) startSwitch(0.1, ANS - 0.1);\n    if (!calm()) play();\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true; FLOW = null;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // ---------- motion: the time cursor, switch-on, a slider sweep, a right answer's reveal, flowing current ----------\n  const motion = K.anim({ button: false, label: 'Motion', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    let busy = false, redraw = false;\n    if (CS) { CS.t += dt; const f = K.clamp(CS.t / CS.dur, 0, 1); CUR = f; redraw = true; if (f >= 1) CS = null; else busy = true; }\n    if (SS) { SS.t += dt; const f = K.clamp(SS.t / SS.dur, 0, 1); SOF = f; redraw = true; if (f >= 1) SS = null; else busy = true; }\n    if (SW) {\n      const w = SW;\n      w.t += dt;\n      const f = K.clamp(w.t / w.dur, 0, 1);\n      Object.keys(w.to).forEach((id) => {\n        const val = snapV(id, K.lerp(w.from[id], w.to[id], K.ease(f)));\n        if (SW === w && val !== w.last[id]) { w.last[id] = val; CTL[id].set(val); }\n      });\n      if (SW === w) { if (f >= 1) SW = null; else busy = true; }\n    }\n    PH += dt;\n    if (redraw || T < motionEnd + 0.1) paint();\n    dots();\n    return busy || T < motionEnd + 0.1 || flowOn();\n  } });\n  function play() { if (!motion.playing()) motion.play(); }\n  function startCursor(delay) {\n    if (calm()) { CUR = 1; CS = null; return; }\n    CUR = 0; CS = { t: -(delay || 0), dur: DEMO }; play();\n  }\n  function startSwitch(delay, dur) {\n    if (calm()) { SOF = 1; SS = null; return; }\n    SOF = 0; SS = { t: -(delay || 0), dur: dur || DEMO }; play();\n  }\n  function startSweep(to, dur, delay, from) {\n    const p = K.params();\n    if (calm()) { Object.keys(to).forEach((id) => CTL[id].set(to[id], true)); SW = null; return; }\n    const f = {};\n    Object.keys(to).forEach((id) => { f[id] = from && from[id] != null ? from[id] : +p[id]; CTL[id].set(f[id], true); });\n    SW = { to, from: f, last: Object.assign({}, f), t: -(delay || 0), dur };\n    play();\n  }\n  function finishSwitch(pre) { preCtl.set(pre, true); lastPre = pre; SS = null; SOF = 1; K.refresh(); }\n  function settle() { T = Infinity; if (CS) { CUR = 1; CS = null; } if (SS) { SOF = 1; SS = null; } SW = null; }\n  const flowOn = () => !REDUCE && !finished && !!FLOW;\n  function kick() { if (flowOn() && !testing() && !motion.playing()) motion.play(); }\n  function enter(id) {\n    if (REDUCE) return;\n    const b = el(id);\n    b.classList.remove('enter'); void b.offsetWidth; b.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), dotsG = el('dots'), gsvg = el('graph'), gart = el('gart');\n  let into = null, latest = 0, earliest = Infinity;\n  const add = (n) => (into || art).appendChild(n);\n  const r2 = (v) => Math.round(v * 100) / 100;\n  function arr(t0, d) { d = d == null ? K.SOFT : d; if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; return K.arrive(T, t0, d); }\n  const vis = (t) => (t == null ? 1 : arr(t));\n  function part(a, rise, draw) { if (a <= 0) return; const g = add(K.svg('g')); K.fade(g, a, rise); const keep = into; into = g; draw(); into = keep; }\n  function tx(x, y, s, cls, anchor) { REC.texts.push(s); return add(K.svg('text', { class: cls || 'lab', x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' }, s)); }\n  const ln = (x1, y1, x2, y2, cls) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const pa = (d, cls) => add(K.svg('path', { class: cls, d }));\n  const ci = (x, y, r, cls) => add(K.svg('circle', { class: cls, cx: r2(x), cy: r2(y), r }));\n  const box = (x, y, w, h, cls, rx) => add(K.svg('rect', { class: cls, x: r2(x), y: r2(y), width: r2(Math.max(0, w)), height: r2(Math.max(0, h)), rx: rx || 0 }));\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 7.4;\n  }\n  // A diode pointing along its current: triangle (anode side) and bar (cathode side).\n  function diode(x, y, ang, cls) {\n    const g = add(K.svg('g', { class: 'dio' + (cls ? ' ' + cls : ''), transform: 'translate(' + x + ' ' + y + ') rotate(' + ang + ')' }));\n    g.appendChild(K.svg('path', { d: 'M-8 -9 L-8 9 L7 0 Z' }));\n    g.appendChild(K.svg('line', { x1: 8, y1: -9, x2: 8, y2: 9 }));\n    return g;\n  }\n\n  // ---------- the circuit: supply on the left, bridge in the middle, capacitor and load side by side on the right ----------\n  // The diamond: wire A at the left corner, wire B at the right, + at the top, − at the bottom.\n  const BR = {\n    seg: { wa: 'M34 134 V120 H94', e1: 'M94 120 L142 62', e3: 'M190 120 L142 62', e2: 'M142 178 L190 120', e4: 'M142 178 L94 120',\n      n: 'M252 198 H142 V178', wb: 'M34 174 V208 H204 V204 A6 6 0 0 1 204 192 V120 H190' },\n    dio: { d1: [118, 91, -50.39], d3: [166, 91, -129.61], d2: [166, 149, -50.39], d4: [118, 149, -129.61] },\n    posT: [[34, 134], [34, 120], [94, 120], [142, 62], [142, 42], [252, 42], [252, 112]],\n    posB: [[252, 124], [252, 198], [142, 198], [142, 178], [190, 120], [204, 120], [204, 208], [34, 208], [34, 174]],\n    negT: [[34, 174], [34, 208], [204, 208], [204, 120], [190, 120], [142, 62], [142, 42], [252, 42], [252, 112]],\n    negB: [[252, 124], [252, 198], [142, 198], [142, 178], [94, 120], [34, 120], [34, 134]],\n  };\n  // The + rail of the bridge; with the precharge resistor in it and the contactor across it on the switch-on screens.\n  const RAIL = { p: 'M142 62 V42 H252', pA: 'M142 62 V42 H188', pAr: 'M188 42 H196', pBr: 'M224 42 H232', pB: 'M232 42 H252',\n    cbA: 'M188 42 V22 H204', cbB: 'M220 22 H232 V42' };\n  const COM = { ct: 'M252 42 V112', cb: 'M252 124 V198', lt: 'M252 42 H300 V94', lb: 'M300 146 V198 H252' };\n  // Six-pulse: three legs, each line joined between its upper and lower diode.\n  const SXS = [80, 132, 184], SYS = [138, 154, 170], SST = [[46, 138], [54, 154], [46, 170]];\n  const SIX = {\n    seg: { w0: 'M46 138 H80', w1: 'M54 154 H74 A6 6 0 0 1 86 154 H132', w2: 'M46 170 H74 A6 6 0 0 1 86 170 H126 A6 6 0 0 1 138 170 H184',\n      u0: 'M80 138 V42', u1: 'M132 154 V42', u2: 'M184 170 V42', l0: 'M80 198 V138', l1: 'M132 198 V154', l2: 'M184 198 V170',\n      p0: 'M80 42 H132', p1: 'M132 42 H184', p2: 'M184 42 H252', n2: 'M252 198 H184', n1: 'M184 198 H132', n0: 'M132 198 H80' },\n    dio: { u0: [80, 66, -90], u1: [132, 66, -90], u2: [184, 66, -90], l0: [80, 184, -90], l1: [132, 184, -90], l2: [184, 184, -90] },\n  };\n  const VPH = 400 * SQ2 / Math.sqrt(3), TAU3 = 2 * Math.PI / 3;\n  function sample6(th) {\n    const ph = [0, 1, 2].map((k) => VPH * Math.sin(th - k * TAU3));\n    let u = 0, l = 0;\n    for (let k = 1; k < 3; k++) { if (ph[k] > ph[u] + 1e-9) u = k; if (ph[k] < ph[l] - 1e-9) l = k; }\n    return { u, l };\n  }\n  const sixSegs = (m) => ['w' + m.u, 'u' + m.u].concat(['p0', 'p1', 'p2'].slice(m.u), ['n2'], m.l <= 1 ? ['n1'] : [], m.l === 0 ? ['n0'] : [], ['l' + m.l, 'w' + m.l]);\n  const CAPW = { fill: 'filling', drain: 'draining', idle: 'full', charge: 'filling', full: 'full', empty: 'empty' };\n  const SAYS = { fill: 'The diodes conduct, and the capacitor fills.', drain: 'The diodes block, and the capacitor feeds the load.',\n    idle: 'The load is off, and the capacitor holds its charge.', charge: 'The capacitor is filling from the supply.',\n    full: 'The capacitor is full, and the load is off.', empty: 'The capacitor is empty, and the supply is off.' };\n\n  function view(i, p, st) {\n    const d = STEPS[i], right = st.res === 'right', sup = +p.supply === 400 ? 400 : 230, sp = SP(sup);\n    const C = cF(p), I = cI(p), pre = !!p.pre, sw = !!d.so, s = ss(sp, I, C), z = swT(C);\n    const started = sw && (!!d.show || right), sof = started ? SOF : 0, tnow = sof * z.ax;\n    const ph = K.clamp(CUR, 0, 1) * NP * sp.P;\n    let state;\n    if (sw) state = !started || tnow <= 0 ? 'empty' : tnow < (pre ? z.tc : 5 * z.t1) ? 'charge' : 'full';\n    else if (!(I > 0)) state = 'idle';\n    else { const q = wrapP(sp, ph); state = q >= s.on && q <= s.off ? 'fill' : 'drain'; }\n    return { i, d, right, show: !!d.show, sup, sp, C, I, pre, sw, s, z, started, sof, tnow, ph, theta: sp.th0 + ph, state,\n      busK: d.hideBus ? (right ? K.ease(K.clamp((T - 0.1) / (ANS - 0.1), 0, 1)) : 0) : 1,\n      reveal: d.show ? 1 : right ? vis(0.1) : 0 };\n  }\n\n  function drawCircuit(v) {\n    const six = v.sup === 400, sw = v.sw, st = v.state, L = six ? SIX : BR;\n    ci(34, 154, 20, 'src'); pa('M20 154 q7 -13 14 0 t14 0', 'sine');\n    Object.keys(L.seg).forEach((id) => pa(L.seg[id], 'wire'));\n    if (!six) { if (sw) ['pA', 'pAr', 'pBr', 'pB', 'cbA', 'cbB'].forEach((id) => pa(RAIL[id], 'wire')); else pa(RAIL.p, 'wire'); }\n    Object.keys(COM).forEach((id) => pa(COM[id], 'wire'));\n    Object.keys(L.dio).forEach((id) => { const q = L.dio[id]; diode(q[0], q[1], q[2]); });\n    ln(238, 112, 266, 112, 'plate'); ln(238, 124, 266, 124, 'plate');\n    box(289, 94, 22, 52, 'res', 3);\n    const closed = sw && (!v.pre || (v.started && v.tnow >= v.z.tc));\n    if (sw) {\n      box(196, 36, 28, 12, 'res', 2);\n      if (closed) ln(204, 22, 220, 22, 'blade'); else ln(204, 22, 217, 11, 'blade');\n    }\n    const loadOn = !sw && v.I > 0;\n    // The current's path, drawn bold: from the supply while the diodes conduct, from the capacitor while they block.\n    if (st === 'fill' || st === 'charge') {\n      const hot = st === 'charge' && !v.pre ? 'wire hot' : 'wire on';\n      let segs, dios;\n      if (six) { const m = sample6(v.theta); segs = sixSegs(m); dios = ['u' + m.u, 'l' + m.l]; }\n      else {\n        const pos = sw || Math.sin(v.theta) >= 0;\n        segs = pos ? ['wa', 'e1', 'n', 'e2', 'wb'] : ['wb', 'e3', 'n', 'e4', 'wa'];\n        dios = pos ? ['d1', 'd2'] : ['d3', 'd4'];\n      }\n      segs.forEach((id) => pa(L.seg[id], hot));\n      if (!six) {\n        if (!sw) pa(RAIL.p, hot);\n        else if (closed) { ['pA', 'cbA', 'cbB', 'pB'].forEach((id) => pa(RAIL[id], hot)); ln(204, 22, 220, 22, v.pre ? 'blade on' : 'blade hot'); }\n        else { ['pA', 'pAr', 'pBr', 'pB'].forEach((id) => pa(RAIL[id], hot)); box(196, 36, 28, 12, 'res on', 2); }\n      }\n      pa(COM.ct, hot); pa(COM.cb, hot);\n      dios.forEach((id) => { const q = L.dio[id]; diode(q[0], q[1], q[2], 'on'); });\n      ln(238, 112, 266, 112, 'plate on'); ln(238, 124, 266, 124, 'plate on');\n      ln(252, 54, 252, 92, 'arrow'); pa('M252 104 l-6 -11 h12 z', 'head');\n    } else if (st === 'drain') {\n      pa(COM.ct, 'wire on'); pa(COM.cb, 'wire on');\n      ln(238, 112, 266, 112, 'plate on'); ln(238, 124, 266, 124, 'plate on');\n      ln(252, 104, 252, 66, 'arrow'); pa('M252 54 l-6 11 h12 z', 'head');\n    }\n    if (loadOn) {\n      pa(COM.lt, 'wire on'); pa(COM.lb, 'wire on'); box(289, 94, 22, 52, 'res on', 3);\n      ln(300, 102, 300, 129, 'arrow'); pa('M300 140 l-6 -11 h12 z', 'head');\n    }\n    if (sw) { ci(204, 22, 2.5, 'pin'); ci(220, 22, 2.5, 'pin'); }\n    // Labels.\n    if (six) {\n      tx(34, 88, '50 Hz', 'lab m say'); tx(34, 104, '3-phase', 'lab m'); tx(34, 120, v.sup + ' V', 'lab say');\n      tx(63, 133, 'L1', 'lab'); tx(109, 149, 'L2', 'lab'); tx(161, 165, 'L3', 'lab');\n      tx(132, 32, 'six-pulse bridge', 'lab m');\n    } else {\n      tx(62, 152, v.sup + ' V', 'lab say', 'start'); tx(62, 168, '50 Hz', 'lab m say', 'start');\n      tx(106, 50, 'bridge', 'lab m', 'end');\n    }\n    if (sw) { tx(184, 26, 'contactor', 'lab m', 'end'); tx(210, 64, '100 Ω', 'lab m say'); tx(62, 186, '1 Ω wiring', 'lab m say', 'start'); }\n    tx(246, 84, CAPW[st], st === 'fill' || st === 'drain' || st === 'charge' ? 'lab n' : 'lab m', 'end');\n    tx(244, 214, 'capacitor', 'lab');\n    if (loadOn) tx(300, 214, 'load', 'lab'); else tx(330, 214, 'load off', 'lab', 'end');\n    svg.setAttribute('aria-label', (six ? 'A six-pulse bridge of six diodes' : 'A bridge rectifier of four diodes') + ' feeds a capacitor and a load side by side. ' +\n      (sw ? 'A precharge resistor sits in the + rail, with a contactor across it. ' : '') + SAYS[st]);\n    // The moving dots follow the current, faster as it grows.\n    FLOW = v.show && !sw && !finished && (st === 'fill' || st === 'drain') ? flowPaths(v) : null;\n  }\n  function flowPaths(v) {\n    const mk = (pts, speed) => {\n      const lens = [0];\n      for (let k = 1; k < pts.length; k++) lens.push(lens[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));\n      return { pts, lens, len: lens[lens.length - 1], speed };\n    };\n    const sl = 12 + 10 * v.I;\n    if (v.state === 'drain') return [mk([[252, 112], [252, 42], [300, 42], [300, 198], [252, 198], [252, 124]], sl)];\n    const sg = 12 + Math.min(80, 1.5 * supAt(v.sp, v.s, v.ph));\n    let top, bot;\n    if (v.sup === 400) {\n      const m = sample6(v.theta);\n      top = [SST[m.u], [SXS[m.u], SYS[m.u]], [SXS[m.u], 42], [252, 42], [252, 112]];\n      bot = [[252, 124], [252, 198], [SXS[m.l], 198], [SXS[m.l], SYS[m.l]], SST[m.l]];\n    } else if (Math.sin(v.theta) >= 0) { top = BR.posT; bot = BR.posB; } else { top = BR.negT; bot = BR.negB; }\n    return [mk(top, sg), mk(bot, sg), mk([[252, 42], [300, 42], [300, 198], [252, 198]], sl)];\n  }\n  function dots() {\n    dotsG.textContent = '';\n    if (!FLOW || REDUCE) return;\n    FLOW.forEach((f) => {\n      for (let s = (PH * f.speed) % 22; s < f.len; s += 22) {\n        let k = 1;\n        while (k < f.lens.length - 1 && f.lens[k] < s) k++;\n        const a = f.pts[k - 1], b = f.pts[k], u = (s - f.lens[k - 1]) / Math.max(1e-9, f.lens[k] - f.lens[k - 1]);\n        dotsG.appendChild(K.svg('circle', { class: 'flowdot', cx: r2(K.lerp(a[0], b[0], u)), cy: r2(K.lerp(a[1], b[1], u)), r: 2.2 }));\n      }\n    });\n  }\n\n  // ---------- the graph ----------\n  const X0 = 46, X1 = 330, YP = 56, YZ = 204, YCT = 240, YCZ = 290, IMAX = 120;\n  function keyRow(y, items) {\n    const ws = items.map((it) => tw(it[1], 'lab'));\n    const total = items.reduce((t, it, k) => t + 22 + ws[k], 0) + 14 * (items.length - 1);\n    let x = Math.max(4, (340 - total) / 2);\n    items.forEach((it, k) => { ln(x, y - 4.5, x + 16, y - 4.5, it[0]); tx(x + 22, y, it[1], 'lab', 'start'); x += 22 + ws[k] + 14; });\n  }\n  const PALE = {};\n  function paleD(sp, gx, gy) {\n    if (PALE[sp.sup]) return PALE[sp.sup];\n    let d = '';\n    for (let k = 0; k < NP; k++) for (let j = 0; j <= 36; j++) { const q = sp.P * j / 36; d += (k || j ? 'L' : 'M') + r2(gx(k * sp.P + q)) + ' ' + r2(gy(sp.Vp * Math.cos(q - sp.P / 2))); }\n    PALE[sp.sup] = d;\n    return d;\n  }\n  function busD(sp, s, gx, gy, kk) {\n    const pts = [], push = (ph) => pts.push(r2(gx(ph)) + ' ' + r2(gy(kk * busAt(sp, s, ph))));\n    push(0);\n    if (!s.flat) for (let n = 0; n < NP; n++) { const b = n * sp.P; push(b + s.on); for (let j = 1; j <= 16; j++) push(b + s.on + (s.off - s.on) * j / 16); }\n    push(NP * sp.P);\n    return 'M' + pts.join('L');\n  }\n  function curD(sp, s, gx, iy) {\n    const pts = [[gx(0), iy(0)]];\n    if (!s.flat) for (let n = 0; n < NP; n++) {\n      const b = n * sp.P;\n      pts.push([gx(b + s.on), iy(0)]);\n      for (let j = 0; j <= 16; j++) { const ph = b + s.on + (s.off - s.on) * j / 16; pts.push([gx(ph), iy(supAt(sp, s, ph))]); }\n    }\n    pts.push([gx(NP * sp.P), iy(0)]);\n    return 'M' + pts.map((q) => r2(q[0]) + ' ' + r2(q[1])).join('L');\n  }\n  function peakLabel(v, Vp) {\n    if (v.reveal > 0) part(v.reveal, 0, () => tx(42, YP + 4, fx(Vp, 0) + ' V', 'lab m say', 'end'));\n    else tx(42, YP + 4, 'peak', 'lab m', 'end');\n  }\n  function drawRun(v) {\n    const sp = v.sp, s = v.s, P = sp.P, Vp = sp.Vp, span = NP * P;\n    const gx = (ph) => X0 + ph / span * (X1 - X0), gy = (x) => YZ - x * (YZ - YP) / Vp;\n    const iy = (a) => YCZ - Math.min(a, IMAX) * (YCZ - YCT) / IMAX;\n    const items = [['pale', 'humps']];\n    if (v.busK > 0) items.push(['bus', 'DC bus']);\n    if (v.d.avgRef) items.push(['avg', 'no capacitor']);\n    keyRow(14, items);\n    ln(X0, YP - 6, X0, YZ, 'ax'); ln(X0, YZ, X1, YZ, 'ax'); ln(X0, YP, X1, YP, 'ref');\n    tx(42, YZ + 4, '0 V', 'lab m', 'end');\n    peakLabel(v, Vp);\n    if (v.d.avgRef) { const ha = 2 / Math.PI * Vp; ln(X0, gy(ha), X1, gy(ha), 'avg'); tx(42, gy(ha) + 4, fx(ha, 0) + ' V', 'lab m say', 'end'); }\n    pa(paleD(sp, gx, gy), 'pale');\n    if (v.busK > 0) { pa(busD(sp, s, gx, gy, v.busK), 'bus'); REC.bus = true; }\n    // The dip, marked between the peak and the bus's lowest point.\n    if (!s.flat && s.dip >= 0.5 && v.busK >= 1 && v.reveal > 0) part(v.reveal, 0, () => {\n      const xm = gx(3 * P + s.on), yb = gy(s.von), lab = 'dip ' + fx(s.dip, 0) + ' V', w = tw(lab, 'lab');\n      ln(xm, YP, xm, yb, 'brk'); ln(xm - 4, YP, xm + 4, YP, 'brk'); ln(xm - 4, yb, xm + 4, yb, 'brk');\n      tx(K.clamp(xm, X0 + w / 2, 336 - w / 2), YP - 8, lab, 'lab say');\n      REC.dip = lab;\n    });\n    // The supply current below, on the same time axis.\n    tx(X1, YCT - 10, 'supply current', 'lab t', 'end');\n    ln(X0, YCT, X0, YCZ, 'ax'); ln(X0, YCZ, X1, YCZ, 'ax');\n    tx(42, YCT + 4, IMAX + ' A', 'lab m say', 'end'); tx(42, YCZ + 4, '0', 'lab m', 'end');\n    pa(curD(sp, s, gx, iy), 'icur');\n    const ticks = [];\n    for (let k = 0; k <= NP; k++) { const x = gx(k * P), ms = k * 1000 / sp.f; ln(x, YCZ, x, YCZ + 4, 'ax'); if (Math.abs(ms - Math.round(ms)) < 1e-9) ticks.push([x, Math.round(ms)]); }\n    ticks.forEach((q, j) => tx(q[0], YCZ + 16, q[1] + (j === ticks.length - 1 ? ' ms' : ''), 'lab m say', q[0] > X1 - 20 ? 'end' : 'middle'));\n    // The time cursor: what the circuit above shows at this moment.\n    if (v.show) {\n      const xc = gx(v.ph);\n      ln(xc, YP, xc, YZ, 'cur'); ci(xc, gy(busAt(sp, s, v.ph)), 4.5, 'odot');\n      ln(xc, YCT, xc, YCZ, 'cur'); ci(xc, iy(supAt(sp, s, v.ph)), 4, 'pdot');\n    }\n    gsvg.setAttribute('aria-label', 'Four ripple periods. The rectified humps are drawn pale' + (v.busK > 0 ? ', the DC bus bold over them' : '') +\n      ', and the current the bridge takes from the supply below.' + (s.flat ? ' With no load the bus is a flat line at the peak.' : ' The bus slopes down between short gulps of supply current near each peak.'));\n  }\n  function drawSwitch(v) {\n    const sp = v.sp, Vp = sp.Vp, z = v.z, t0 = -z.ax / 30, span = z.ax - t0;\n    const gx = (t) => X0 + (t - t0) / span * (X1 - X0), gy = (x) => YZ - x * (YZ - YP) / Vp;\n    const ITOP = Vp / RP <= 4 ? 5 : 10, iy = (a) => YCZ - Math.min(a, ITOP) * (YCZ - YCT) / ITOP;\n    keyRow(14, [['bus', 'DC bus']]);\n    ln(X0, YP - 6, X0, YZ, 'ax'); ln(X0, YZ, X1, YZ, 'ax'); ln(X0, YP, X1, YP, 'ref');\n    tx(42, YZ + 4, '0 V', 'lab m', 'end');\n    peakLabel(v, Vp);\n    tx(X1, YCT - 10, 'supply current', 'lab t', 'end');\n    ln(X0, YCT, X0, YCZ, 'ax'); ln(X0, YCZ, X1, YCZ, 'ax');\n    tx(42, YCT + 4, ITOP + ' A', 'lab m say', 'end'); tx(42, YCZ + 4, '0', 'lab m', 'end');\n    for (let k = 0; k <= 6; k++) {\n      const t = z.ax * k / 6, x = gx(t);\n      ln(x, YCZ, x, YCZ + 4, 'ax');\n      if (k % 2 === 0) tx(x, YCZ + 16, fx(t, 1).replace(/\\.0$/, '') + (k === 6 ? ' s' : ''), 'lab m say', k === 6 ? 'end' : 'middle');\n    }\n    if (v.started && v.tnow > 0) {\n      const ts = [];\n      const fine = (a, tau) => { for (let j = 0; j <= 40; j++) ts.push(a + tau * 8 * j / 40); };\n      fine(0, v.pre ? z.tp : z.t1);\n      if (v.pre) fine(z.tc, z.t1);\n      for (let j = 0; j <= 160; j++) ts.push(z.ax * j / 160);\n      const tt = ts.filter((t) => t <= v.tnow).sort((a, b) => a - b);\n      tt.push(v.tnow);\n      let bd = 'M' + r2(gx(t0)) + ' ' + r2(gy(0));\n      tt.forEach((t) => { bd += 'L' + r2(gx(t)) + ' ' + r2(gy(soBus(Vp, v.C, v.pre, t))); });\n      let cd = 'M' + r2(gx(t0)) + ' ' + r2(iy(0)) + 'L' + r2(gx(0)) + ' ' + r2(iy(0)), tcDone = false;\n      tt.forEach((t) => {\n        if (v.pre && !tcDone && t >= z.tc) { tcDone = true; cd += 'L' + r2(gx(z.tc)) + ' ' + r2(iy(soCur(Vp, v.C, true, z.tc - 1e-12))); }\n        cd += 'L' + r2(gx(t)) + ' ' + r2(iy(soCur(Vp, v.C, v.pre, t)));\n      });\n      pa(bd, 'bus'); REC.bus = true;\n      pa(cd, v.pre ? 'icur' : 'icur hot');\n      if (!v.pre) {\n        // The first current runs off the top of the graph.\n        const xs = gx(0);\n        pa('M' + r2(xs) + ' ' + (YCT - 11) + ' l-5 9 h10 z', 'headw');\n        tx(xs + 8, YCT + 12, fx(Vp / RS, 0) + ' A', 'lab w say', 'start');\n        REC.hot = true;\n      }\n      if (v.pre && v.tnow >= z.tc) {\n        const xc = gx(z.tc);\n        ln(xc, YP, xc, YZ, 'mark'); ln(xc, YCT, xc, YCZ, 'mark');\n        tx(xc, YP - 8, 'contactor closes', 'lab t', 'end');\n        REC.marker = true;\n      }\n      if (v.tnow < z.ax) ci(gx(v.tnow), gy(soBus(Vp, v.C, v.pre, v.tnow)), 4.5, 'odot');\n    }\n    gsvg.setAttribute('aria-label', 'The DC bus and the supply current after switch-on' +\n      (!v.started || v.tnow <= 0 ? ', not yet started.' : v.pre ? ', with precharge: the bus climbs a smooth curve and the current starts small.' : ', without precharge: the current leaps far off the top and the bus jumps straight up.'));\n  }\n\n  // ---------- one screen drawn in its state ----------\n  function render(i, p, st) {\n    REC = { texts: [], state: '', bus: false, dip: '', marker: false, hot: false, v: null };\n    latest = 0; earliest = Infinity;\n    const v = view(i, p, st);\n    REC.v = v; REC.state = v.state;\n    art.textContent = ''; gart.textContent = '';\n    into = art; drawCircuit(v);\n    into = gart; if (v.sw) drawSwitch(v); else drawRun(v);\n    into = null;\n    return REC;\n  }\n  function paint() {\n    const i = at(), R = render(i, K.params(), S[i]);\n    if (STEPS[i].show && !finished) el('say').textContent = sayFor(R.v);\n  }\n\n  // ---------- what Dan reads under the picture ----------\n  const fallTxt = (I, C) => { const f = I / C / 1000; return f >= 10 ? fx(f, 0) : f >= 1 ? fx(f, 1).replace(/\\.0$/, '') : fx(f, 2); };\n  function sayFor(v) {\n    if (v.sw) {\n      if (v.state === 'empty') return 'The capacitor is empty, and the supply is not yet switched on.';\n      if (!v.pre) return 'An empty capacitor meets the supply through only 1 Ω, so the first current is ' + fx(v.sp.Vp / RS, 0) + ' A. The capacitor is full within about ' + fx(5 * v.z.t1 * 1000, 0) + ' ms.';\n      return v.tnow < v.z.tc ? 'The resistor holds the first current to about ' + fx(v.sp.Vp / RP, 0) + ' A, and the bus climbs the charging curve.'\n        : 'After five time constants the contactor closes across the resistor. Now the load can run.';\n    }\n    if (v.state === 'idle') return 'With no load, nothing drains the capacitor. It holds the peak, and the diodes stay blocked.';\n    if (v.state === 'fill') return 'The hump is above the bus, so the diodes conduct and the capacitor fills in a short gulp.';\n    return 'The diodes block, and the load drains the capacitor at ' + fallTxt(v.I, v.C) + ' V each millisecond. The bus dips about ' + fx(v.s.dip, 0) + ' V before the next gulp.';\n  }\n  function settingFor(v, d) {\n    const parts = [v.sup + ' V ' + (v.sup === 400 ? 'six-pulse' : 'bridge'), fx(v.C * 1e6, 0) + ' µF'];\n    if (v.sw) parts.push('precharge ' + (v.pre ? 'on' : 'off'));\n    else parts.push(v.I > 0 ? fx(v.I, v.I % 1 ? 1 : 0) + ' A load' : d.idle || 'load off');\n    return parts.join(' · ');\n  }\n  function layout(i, d, st, p, v) {\n    const right = st.res === 'right', sw = !!d.so;\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + ' · ' + d.name;\n    const task = el('task');\n    task.className = 'task say' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('sw').hidden = !d.show || sw;\n    el('ctl').hidden = !d.show; iCtl.el.hidden = sw;\n    el('ctl2').hidden = !d.show; playBtn.el.hidden = sw; swBtn.el.hidden = !sw; preCtl.el.hidden = !sw;\n    el('outs').hidden = !(d.show || d.outs === 'before' || right);\n    const outs = el('outs');\n    if (!d.show && d.outs === 'after') { if (el('fb').nextElementSibling !== outs) el('fb').after(outs); }\n    else if (el('rbox').previousElementSibling !== outs) el('rbox').before(outs);\n    rRip.el.hidden = sw; rAvg.el.hidden = sw; rPk.el.hidden = false;\n    el('rbox').hidden = !d.show || sw;\n    el('say').hidden = !d.show;\n    el('say').textContent = d.show ? sayFor(v) : '';\n    el('setting').hidden = !!d.show;\n    el('setting').textContent = d.show ? '' : settingFor(v, d);\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb say' + (right ? ' right' : '');\n    fb.textContent = d.show ? '' : right ? d.rightFb || 'That\\'s it.' : st.res === 'wrong' ? d.hints[st.pick] || '' : st.res === 'empty' ? 'Pick an answer first.' : '';\n    const why = el('why');\n    why.hidden = !!d.show || !st.why;\n    if (!d.show) write(why, d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  }\n  write(el('finish'), FINISH);\n\n  function enterStep(i) {\n    lastStep = i; enter('stepbox'); CS = null; SS = null; SW = null; T = Infinity;\n    const d = STEPS[i], right = S[i].res === 'right', q = setupOf(i, right);\n    IDS.forEach((id) => CTL[id].set(q[id], true));\n    CUR = 1; SOF = d.so && (d.show || right) ? 1 : 0; lastPre = !!q.pre;\n    if (d.show && d.play) {\n      if (d.play === 'cursor') startCursor(FADE);\n      else if (d.play === 'switch') startSwitch(FADE);\n      else startSweep({ [d.play.id]: d.play.to }, DEMO, FADE, { [d.play.id]: d.play.from });\n    }\n  }\n  K.update((p) => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!motion.playing()) settle();\n    if (i !== lastStep) { enterStep(i); K.refresh(); return; }\n    if (SW) { for (const id of Object.keys(SW.to)) if (+p[id] !== SW.last[id]) { SW = null; break; } }   // Dan took hold of the slider\n    if (!pinning) {\n      // A puzzle keeps its own setting; a demonstration keeps the controls it does not show.\n      const q = setupOf(i, st.res === 'right'), vs = visIds(d);\n      let fix = false;\n      IDS.forEach((id) => {\n        if (vs.indexOf(id) >= 0 || (SW && SW.to[id] != null)) return;\n        if (String(p[id]) !== String(q[id])) { CTL[id].set(q[id], true); fix = true; }\n      });\n      if (fix) { pinning = true; K.refresh(); pinning = false; return; }\n    }\n    if (d.so && d.show && !!p.pre !== lastPre) { lastPre = !!p.pre; startSwitch(0); }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const R = render(i, p, st);\n    layout(i, d, st, p, R.v);\n    if (d.show && !d.so && !finished) {\n      const v = R.v;\n      rplot.draw({ series: [{ fn: (x) => rule(v.sp, x, v.C) }], marks: [{ x: v.I, y: rule(v.sp, v.I, v.C) }] });\n    }\n    dots();\n    kick();\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  function drawnAt(i, over, right, cur) {\n    const keep = [T, CUR, SOF];\n    T = Infinity;\n    if (cur != null) CUR = cur;\n    if (STEPS[i].so) SOF = right || STEPS[i].show ? 1 : 0;\n    try { return render(i, Object.assign({}, K.params(), setupOf(i, !!right), over || {}), right ? solved(i) : blank()); }\n    finally { T = keep[0]; CUR = keep[1]; SOF = keep[2]; paint(); }\n  }\n  K.check('On 230 V the humps peak at 230 × √2 = 325 V. With no capacitor they average 0.637 × 325 = 207 V', () =>\n    N.pk === '325' && N.hav === '207' && fx(2 / Math.PI, 3) === '0.637');\n  K.check('The smoothing capacitor converts the full-wave rippled output of the rectifier into a more smooth DC output voltage: at 2 A on 1000 µF the bus swings about 18 V, where the humps swing through the whole 325 V', () => {\n    const s = ss(S230, 2, 1e-3);\n    return s.dip > 0 && s.dip < 0.1 * S230.Vp && N.d18 === '18';\n  }, { source: ETUT });\n  K.check('The ripple frequency is twice the supply frequency, 100 Hz for a 50 Hz supply: the humps repeat every 10 ms', () =>\n    S230.f === 2 * 50 && K.near(S230.P / W, 0.01, 1e-12) && N.T10 === '10', { source: ETUT });\n  K.check('With no load the bus sits flat at the peak, 325 V on 230 V and 566 V on 400 V, and the supply gives no current', () => {\n    const a = K.at({ supply: 230, I: 0 }), b = K.at({ supply: 400, I: 0 });\n    return fx(a.busAvg, 0) === N.pk && fx(b.busAvg, 0) === N.pk400 && a.supplyPeak === 0 && a.ripple === 0;\n  });\n  K.check('The rule I ÷ (f × C): 2 A on 1000 µF gives 20 V, 4 A gives 40 V, 2000 µF gives 10 V, and 4 A on 4000 µF gives 10 V again', () =>\n    [[2, 1000, 20], [4, 1000, 40], [2, 2000, 10], [4, 4000, 10]].every((q) => K.near(K.at({ supply: 230, I: q[0], C: q[1] }).ripple, q[2], 1e-9)));\n  K.check('The rule\\'s ripple is a straight line through zero in the load current: each 0.5 A adds the same amount', () => {\n    let prev = K.at({ I: 0, C: 1500 }).ripple;\n    const step = K.at({ I: 0.5, C: 1500 }).ripple - prev;\n    if (prev !== 0 || !(step > 0)) return false;\n    for (let x = 0.5; x <= 5; x += 0.5) { const r = K.at({ I: x, C: 1500 }).ripple; if (!K.near(r - prev, step, 1e-9)) return false; prev = r; }\n    return true;\n  });\n  K.check('Twice the load makes the drawn fall twice as steep and the dip nearly twice as deep, 18 V to 34 V, each a little under the rule', () => {\n    const a = ss(S230, 2, 1e-3), b = ss(S230, 4, 1e-3);\n    return K.near(b.k / a.k, 2, 1e-12) && b.dip / a.dip > 1.8 && b.dip / a.dip < 2 && a.dip < 20 && b.dip < 40 && fx(b.dip, 0) === '34';\n  });\n  K.check('The bus average falls as the load grows: 325 V at 0 A, about 317 V at 2 A and 309 V at 4 A, always above the 207 V of the humps alone', () => {\n    let prev = Infinity;\n    for (let x = 0; x <= 5; x += 0.5) { const a = K.at({ supply: 230, C: 1000, I: x }).busAvg; if (!(a < prev) || !(a > 2 / Math.PI * S230.Vp)) return false; prev = a; }\n    return fx(K.at({ I: 2 }).busAvg, 0) === N.a2 && fx(K.at({ I: 4 }).busAvg, 0) === N.a4 && N.a2 === '317' && N.a4 === '309';\n  });\n  K.check('Each gulp puts back the charge the load took since the last one, 2 A × 10 ms = 0.02 C, and the gulp peaks at about 35 A', () => {\n    const s = ss(S230, 2, 1e-3), n = 20000;\n    let q = 0;\n    for (let j = 0; j < n; j++) q += supAt(S230, s, (j + 0.5) / n * S230.P) * S230.P / n / W;\n    return K.near(q, 0.02, 1e-4) && fx(K.at({ I: 2, C: 1000 }).supplyPeak, 0) === '35';\n  });\n  K.check('Six-pulse on 400 V: the ripple frequency is 6 × 50 = 300 Hz, so 5 A on 1000 µF gives 5 ÷ (300 × 0.001) = 17 V by the rule, a third of a bridge\\'s 50 V', () =>\n    S400.f === 300 && fx(K.at({ supply: 400, I: 5, C: 1000 }).ripple, 0) === N.r17 && N.r17 === '17' && K.near(rule(S230, 5, 1e-3) / rule(S400, 5, 1e-3), 3, 1e-12) && N.r50 === '50');\n  K.check('The DC bus voltage ramps to approximately 1.35 × the line voltage (rectified DC): the six-pulse humps average 3√2 ÷ π × 400 = 540 V', () => {\n    let a = 0;\n    const n = 600;\n    for (let j = 0; j < n; j++) a += S400.Vp * Math.cos((j + 0.5) / n * S400.P - S400.P / 2) / n;\n    return K.near(a / 400, 1.35, 0.005) && fx(a, 0) === N.s400 && N.k135 === '1.35';\n  }, { source: IMD });\n  K.check('An uncharged capacitive circuit is seen as a short circuit when line voltage is first applied: at switch-on the bus holds 0 V, so the whole 325 V drives 325 A through 1 Ω, gone within 5 ms', () =>\n    soBus(S230.Vp, 1e-3, false, 0) === 0 && fx(soCur(S230.Vp, 1e-3, false, 0), 0) === '325' && fx(K.at({ step: 8, pre: false }).supplyPeak, 0) === N.i0 &&\n    soCur(S230.Vp, 1e-3, false, 0.005) < 0.01 * soCur(S230.Vp, 1e-3, false, 0) && N.t5off === '5', { source: EATON });\n  K.check('Precharge through 100 Ω: the first current is about 3 A, R × C = 0.1 s, and after five time constants the bus is 99.3% full with about 2 V left, which drives a blip of about 2 A through 1 Ω', () => {\n    const z = swT(1e-3), Vp = S230.Vp;\n    return fx(K.at({ step: 10, pre: true }).supplyPeak, 0) === '3' && K.near(z.tp, 0.1, 1e-12) && K.near(z.tc, 0.5, 1e-12) && K.near(z.ax, 0.6, 1e-12) &&\n      fx(100 * soBus(Vp, 1e-3, true, z.tc) / Vp, 1) === '99.3' && fx(Vp - soBus(Vp, 1e-3, true, z.tc), 0) === '2' && fx(soCur(Vp, 1e-3, true, z.tc), 0) === '2' && N.p63 === '63';\n  });\n  K.check('The picture shows the diodes conducting and the capacitor filling only while the hump is above the bus, and the capacitor draining through the load otherwise', () => {\n    const s = ss(S230, 2, 1e-3), mid = (s.on + s.off) / 2;\n    const a = drawnAt(0, null, false, (S230.P + mid) / (NP * S230.P)), b = drawnAt(0, null, false, 1), c = drawnAt(0, { I: 0 }, false, 1);\n    return a.state === 'fill' && b.state === 'drain' && c.state === 'idle';\n  });\n  K.check('Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || d.opts.some((o) => o !== d.want && !d.hints[o])) return false;\n      const before = drawnAt(i, null, false), bt = before.texts.slice(), bb = before.bus, bm = before.marker, bd = before.dip;\n      const after = drawnAt(i, null, true);\n      const shows = (d.shows || []).every((s) => bt.indexOf(s) < 0 && after.texts.indexOf(s) >= 0);\n      return shows && !bd && (!d.hideBus || (!bb && after.bus)) && (!d.so || (!bm && after.marker));\n    }));\n  K.check('Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check', () =>\n    DEMO + FADE <= 4.5 && ANS + K.SOFT <= 3);\n  K.check('Every number in the words comes from the rule: 325, 207, 2 V a millisecond, 20, 18, 10, 40, 317, 309, 566, 1.35, 540, 325 A, 5 ms, 0.1 s, 0.5 s, 63%, 99.3%, 3 A, 2 V, 2 A, 4000 µF and 17 V', () =>\n    N.pk === '325' && N.hav === '207' && N.fall === '2' && N.r20 === '20' && N.d18 === '18' && N.r10 === '10' && N.r40 === '40' && N.a2 === '317' &&\n    N.a4 === '309' && N.pk400 === '566' && N.k135 === '1.35' && N.s400 === '540' && N.i0 === '325' && N.t5off === '5' && N.tau === '0.1' &&\n    N.t5 === '0.5' && N.p63 === '63' && N.p993 === '99.3' && N.i3 === '3' && N.gap === '2' && N.blip === '2' && N.c4000 === '4000' &&\n    N.c4f === '0.004' && N.r17 === '17' && N.r200 === '200' && N.f100 === '100' && N.f300 === '300');\n\n  K.ready();\n</script>",
+  "title": "The reservoir",
+  "brief": "The one thing you should see is the bus's slope between peaks turn twice as steep and its dip grow twice as deep when you drag the load current from 2 A to 4 A on the same capacitor.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "On 230 V the humps peak at 230 × √2 = 325 V. With no capacitor they average 0.637 × 325 = 207 V",
+     "ok": true
+    },
+    {
+     "label": "The smoothing capacitor converts the full-wave rippled output of the rectifier into a more smooth DC output voltage: at 2 A on 1000 µF the bus swings about 18 V, where the humps swing through the whole 325 V",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+    },
+    {
+     "label": "The ripple frequency is twice the supply frequency, 100 Hz for a 50 Hz supply: the humps repeat every 10 ms",
+     "ok": true,
+     "source": "https://www.electronics-tutorials.ws/diode/diode_6.html"
+    },
+    {
+     "label": "With no load the bus sits flat at the peak, 325 V on 230 V and 566 V on 400 V, and the supply gives no current",
+     "ok": true
+    },
+    {
+     "label": "The rule I ÷ (f × C): 2 A on 1000 µF gives 20 V, 4 A gives 40 V, 2000 µF gives 10 V, and 4 A on 4000 µF gives 10 V again",
+     "ok": true
+    },
+    {
+     "label": "The rule's ripple is a straight line through zero in the load current: each 0.5 A adds the same amount",
+     "ok": true
+    },
+    {
+     "label": "Twice the load makes the drawn fall twice as steep and the dip nearly twice as deep, 18 V to 34 V, each a little under the rule",
+     "ok": true
+    },
+    {
+     "label": "The bus average falls as the load grows: 325 V at 0 A, about 317 V at 2 A and 309 V at 4 A, always above the 207 V of the humps alone",
+     "ok": true
+    },
+    {
+     "label": "Each gulp puts back the charge the load took since the last one, 2 A × 10 ms = 0.02 C, and the gulp peaks at about 35 A",
+     "ok": true
+    },
+    {
+     "label": "Six-pulse on 400 V: the ripple frequency is 6 × 50 = 300 Hz, so 5 A on 1000 µF gives 5 ÷ (300 × 0.001) = 17 V by the rule, a third of a bridge's 50 V",
+     "ok": true
+    },
+    {
+     "label": "The DC bus voltage ramps to approximately 1.35 × the line voltage (rectified DC): the six-pulse humps average 3√2 ÷ π × 400 = 540 V",
+     "ok": true,
+     "source": "https://industrialmonitordirect.com/blogs/knowledgebase/vfd-input-transformer-grounding-ungrounded-secondary-design"
+    },
+    {
+     "label": "An uncharged capacitive circuit is seen as a short circuit when line voltage is first applied: at switch-on the bus holds 0 V, so the whole 325 V drives 325 A through 1 Ω, gone within 5 ms",
+     "ok": true,
+     "source": "https://www.eaton.com/content/dam/eaton/products/medium-voltage-power-distribution-control-systems/motor-control/literature/applications/eaton-sc9000-soft-mag-pre-charge-system-application-paper-ap02004en.pdf"
+    },
+    {
+     "label": "Precharge through 100 Ω: the first current is about 3 A, R × C = 0.1 s, and after five time constants the bus is 99.3% full with about 2 V left, which drives a blip of about 2 A through 1 Ω",
+     "ok": true
+    },
+    {
+     "label": "The picture shows the diodes conducting and the capacitor filling only while the hump is above the bus, and the capacitor draining through the load otherwise",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle offers three answers and accepts only its right one, every wrong answer has its own hint, and nothing in the picture shows the answer before Check",
+     "ok": true
+    },
+    {
+     "label": "Each demonstration ends within 4.5 s of its screen opening, and a right answer shows within 3 s of Check",
+     "ok": true
+    },
+    {
+     "label": "Every number in the words comes from the rule: 325, 207, 2 V a millisecond, 20, 18, 10, 40, 317, 309, 566, 1.35, 540, 325 A, 5 ms, 0.1 s, 0.5 s, 63%, 99.3%, 3 A, 2 V, 2 A, 4000 µF and 17 V",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "supply",
+    "C",
+    "I",
+    "pre"
+   ],
+   "readouts": [
+    "ripple",
+    "busAvg",
+    "supplyPeak"
+   ],
+   "outputs": [
+    "ripple",
+    "busAvg",
+    "supplyPeak"
+   ],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "The reservoir",
+      "No load",
+      "The drain",
+      "How far it falls",
+      "The ripple rule",
+      "Double the load",
+      "Light load, heavy load",
+      "An idle drive",
+      "Switch on",
+      "Five time constants",
+      "Precharge",
+      "Keep the ripple",
+      "Six-pulse ripple"
+     ],
+     "value": 0
+    },
+    {
+     "id": "supply",
+     "kind": "choice",
+     "label": "Supply",
+     "options": [
+      230,
+      400
+     ],
+     "labels": [
+      "230 V, 1-phase",
+      "400 V, 3-phase"
+     ],
+     "value": 230,
+     "index": 0,
+     "shown": true
+    },
+    {
+     "id": "C",
+     "kind": "control",
+     "label": "Capacitance, C",
+     "min": 500,
+     "max": 4000,
+     "step": 100,
+     "log": false,
+     "value": 1000,
+     "shown": true,
+     "snap": [
+      1000,
+      2000,
+      4000
+     ]
+    },
+    {
+     "id": "I",
+     "kind": "control",
+     "label": "Load current, I",
+     "min": 0,
+     "max": 5,
+     "step": 0.5,
+     "log": false,
+     "value": 2,
+     "shown": true,
+     "snap": [
+      0,
+      2,
+      4,
+      5
+     ]
+    },
+    {
+     "id": "pre",
+     "kind": "toggle",
+     "label": "Precharge",
+     "options": [
+      false,
+      true
+     ],
+     "value": false,
+     "shown": false
+    }
+   ],
+   "actions": [
+    "Play",
+    "Switch on",
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Back",
+    "Continue",
+    "Start again",
+    "Motion"
+   ],
+   "answers": [],
+   "written": [],
+   "ready": true,
+   "warnings": [
+    "The page height keeps growing with the frame (avoid vh units and height:100%). [at 1040 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-26T17:48:11.436Z",
+  "applied": [
+   "explain.text: \"After five time constants it is over 99% full\" holds only for steady DC; fed through the diodes the capacitor fills only near each peak, so 1000 µF through 100 Ω is only about 85% full at 0.5 s. A bypass may be a relay as well as a contactor; one diode drops 0.7 V, a bridge's pair 1.4 V.",
+   "practice.text: Precharge \"takes about five time constants\" and the worked example's \"over 99% full after about 0.5 s\" hold only from steady DC, not through a rectifier; a bigger capacitor's first current is not always the same (supply inductance raises it); measuring is not proving dead.",
+   "interactive.ignores: \"so it takes a little longer\" understates it: fed through the diodes, 100 Ω and 1000 µF reach about 85% at 0.5 s, 90% near 0.7 s and 99% only after a few seconds, several times the five time constants of the DC-fed curve."
+  ],
+  "notes": [
+   "sources[3]: Source 4's quote gives 1.35 × VLL as what the bus ramps to at precharge, not under load; the lesson's \"under load it sags towards 1.35\" rests on the textbook six-pulse average, 3√2/π ≈ 1.35, rather than on the quote's own context."
+  ]
+ },
+ "error": null,
+ "flags": {}
+}
