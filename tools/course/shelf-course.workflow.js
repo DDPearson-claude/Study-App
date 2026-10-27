@@ -177,7 +177,8 @@ Apply every finding, "fix" and "polish" alike, in as few edits as you can, keepi
   and read only the pictures its lookAt names that bear on what you changed. The verdict must be ok; copy it to ${D}/${IID}.verdict.final.json and the passing ${IID}.bodyF.x.html to ${D}/${IID}.body.final.html. After any words change: node tools/eval/validate.mjs lesson ${D}/${IID}.lesson.verified.json --iid ${IID} --sources ${D}/research.json --topic ${D}/topic.json --final must still pass. Do not touch ${IID}.attempts.txt.
 Return what was fixed, what could not be, and whether the lesson and body still pass. ${PLAIN}`,
       { model: 'opus', effort: 'high', phase: PH, label: `${IID} fix`, schema: S.fixed })
-    if (!fixed || !fixed.ok) throw new Error(`${IID} fix stage left the lesson failing: ` + JSON.stringify(fixed && fixed.notFixed))
+    // A lesson in A.fixedByHand had its failing fix round finished by hand before a resume (its body and verdict are final).
+    if ((!fixed || !fixed.ok) && !(A.fixedByHand || []).includes(IID)) throw new Error(`${IID} fix stage left the lesson failing: ` + JSON.stringify(fixed && fixed.notFixed))
     log(`${IID} fixed ${fixed.fixed.length}; not fixed: ${fixed.notFixed.length}`)
   }
 
