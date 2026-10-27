@@ -148,6 +148,8 @@ const SNAP = `(() => {
   // The lesson's <svg id="scene">; a lesson without one (several named pictures) gives its largest visible picture.
   const src = document.getElementById('scene') || [...document.querySelectorAll('svg')].filter((s) => { const r = s.getBoundingClientRect(), cs = getComputedStyle(s); return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' && !s.closest('button') && !(s.parentElement && s.parentElement.closest('svg')); }).sort((a, b) => { const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect(); return rb.width * rb.height - ra.width * ra.height; })[0];
   if (!src) return null;
+  // A step that hides its scene (a puzzle about another board than the one drawn) has no picture.
+  if (!src.getClientRects().length || getComputedStyle(src).visibility === 'hidden') return null;
   const props = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-family', 'font-size', 'font-weight', 'font-style', 'letter-spacing', 'text-anchor', 'dominant-baseline', 'paint-order', 'visibility', 'display'];
   const keep = { 'fill-opacity': '1', 'stroke-opacity': '1', opacity: '1', 'font-style': 'normal', 'letter-spacing': 'normal', 'stroke-linecap': 'butt', 'stroke-linejoin': 'miter', 'stroke-dasharray': 'none', 'paint-order': 'normal', visibility: 'visible', 'dominant-baseline': 'auto' };
   const copy = src.cloneNode(true), a = [src].concat([...src.querySelectorAll('*')]), b = [copy].concat([...copy.querySelectorAll('*')]);
@@ -403,7 +405,11 @@ for (const iid of ideas) {
     // function the page runs; false: no picture at all, words only.
     async function finishStill() {
       if (d.still === 'fn') await frame().evaluate(async (k) => { await STEPS[k].still(); }, i);
-      else if (d.still && typeof d.still === 'object') for (const [id, v] of Object.entries(d.still)) await app.page.evaluate(([a, b]) => window.__g.set(a, b), [id, v]);
+      else if (d.still && typeof d.still === 'object') for (const [id, v] of Object.entries(d.still)) {
+        // Only controls can be set; a key that is not one (a drawing's own state) is left to the
+        // step's end state, which the page has already applied, and named so the lesson can drop it.
+        try { await app.page.evaluate(([a, b]) => window.__g.set(a, b), [id, v]); } catch (e) { console.warn('  ' + d.name + ': its still sets "' + id + '", which is not a control (left to the end state)'); }
+      }
       if (d.still) await app.page.waitForTimeout(400);
     }
     if (d.show) {
@@ -463,8 +469,9 @@ for (const iid of ideas) {
       if (pressed) {
         await app.page.waitForTimeout(500);
         // null: the page keeps no S where the guide can see it (a refresher's typed answers, a lesson
-        // whose state is not global): its own check stands, and its picture is kept.
-        const right = await f.evaluate((k) => { try { return typeof S === 'undefined' ? null : !!(S[k] && (S[k].res === 'right' || S[k].got === 'right')); } catch (e) { return null; } }, i);
+        // whose state is not global, or whose S is something else, such as a drawing helper): its own
+        // check stands, and its picture is kept.
+        const right = await f.evaluate((k) => { try { return typeof S !== 'object' || !S ? null : !!(S[k] && (S[k].res === 'right' || S[k].got === 'right')); } catch (e) { return null; } }, i);
         if (right === false) asked = null;
         if (right !== false && !onlyAnswers) snap = await f.evaluate(SNAP);
       }

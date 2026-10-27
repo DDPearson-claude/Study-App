@@ -162,7 +162,7 @@
     { show: true, name: 'Two poles', pic: P(),
       text: `Many DC boards are insulated, with neither pole tied to earth. This 220 V board has a balanced bridge to watch it. Two equal 100 kΩ arms join the poles to the hull, one arm each. The bridge alarms when the poles drift apart. A voltmeter switches between the poles, reading each one to the hull. Each pole reads 110 V, half the bus. Under the hull, two lamps show what a simple lamp detector would. Both glow at half brightness.`,
       read: `A 220 V insulated DC board has a balanced bridge. Two equal 100 kΩ arms join its poles to the hull. Each pole reads 110 V to the hull, half the bus. A lamp detector's two lamps would both glow at half brightness.` },
-    { kind: 'pick', name: 'A 24 V board', before: P(), after: P(),
+    { kind: 'pick', name: 'A 24 V board', apart: true, before: P(), after: P(),
       task: `A ship's automation runs on 24 V DC.[^1] Take a 24 V control board with the same kind of detector, two equal arms. Its insulation is healthy. What does each pole read to the hull?`,
       opts: ['12 V each', '24 V each', '0 V, as nothing is tied to the hull'], want: '12 V each',
       hints: { '24 V each': `The two readings share the bus between them. Together they make 24 V, not 48 V.`,
@@ -182,7 +182,7 @@
       demo: { from: P({ neg: '20 kΩ' }), keys: [{ S: P({ neg: '5 kΩ' }), at: 0.5, dur: 0.7 }, { S: P({ neg: 'Solid' }), at: 1.7, dur: 0.7 }] },
       text: `Make the negative's fault solid. The negative now reads 0 V, and the positive the full 220 V. On the lamps, the positive's glows at full brightness and the negative's goes dark. The board still runs, just as after a first fault on AC. But the hull is now joined to the negative. So a second fault on the positive would short the bus through the hull. A hand on the positive bar and the hull could put 220 V across you. That is well above the 120 V DC safe touch voltage.[^3]`,
       read: `With a solid fault on the negative, the negative reads 0 V. The positive reads the full 220 V. A second fault on the positive would short the bus through the hull.` },
-    { kind: 'pick', name: 'Without a detector', before: P(), after: P(),
+    { kind: 'pick', name: 'Without a detector', apart: true, before: P(), after: P(),
       task: `A 100 V board has no detector. Its positive leaks 500 kΩ to the hull, and its negative has fallen to 51 kΩ. What does the negative read?`,
       opts: ['About 51 V', 'About 90.7 V', 'About 9.26 V'], want: 'About 9.26 V',
       hints: { 'About 51 V': `The negative takes its own resistance's share of the bus, out of both resistances added.`,
@@ -210,7 +210,7 @@
       hints: { 'Both poles have leaked to 20 kΩ': `Equal leaks would keep the readings equal, but leaks alone never stop the pair adding to 220 V.`,
         'The bus has fallen to 62.9 V': `You took each reading alone, and each time the meter dragged its own pole down.` },
       why: `When two readings do not add to the bus voltage, suspect the meter. A 20 kΩ meter turns a 100 kΩ arm into 16.7 kΩ. That side takes 31.4 V. Use a high-resistance meter, and check that the pair adds up.` },
-    { kind: 'pick', name: 'Two detectors', before: P({ neg: '20 kΩ' }), after: P({ neg: '20 kΩ', det: 2 }),
+    { kind: 'pick', name: 'Two detectors', hideOuts: true, before: P({ neg: '20 kΩ' }), after: P({ neg: '20 kΩ', det: 2 }),
       task: `Two panels are joined into one 220 V system. Each has its own 100 kΩ detector. The negative leaks 20 kΩ to the hull. What does the negative read?`,
       opts: ['48.9 V', '31.4 V, as with one detector', '15.7 V'], want: '48.9 V',
       hints: { '31.4 V, as with one detector': `Both detectors now sit on the same two poles. Their arms add in parallel.`,
@@ -608,6 +608,10 @@
     task.className = 'task' + (d.show ? ' show' : '');
     task.textContent = strip(d.show ? d.text : d.task);
     el('ctls').hidden = !d.show || !d.ctl;
+    // A puzzle about another board (apart) shows no circuit: the one drawn is this 220 V board. One whose
+    // readouts would show a wrong option's value before the answer (hideOuts) keeps them back till then.
+    el('scene').style.display = d.apart ? 'none' : '';
+    el('outs').hidden = !!d.apart || (!!d.hideOuts && !right);
 
     const opts = d.show ? [] : d.opts;
     el('picks').hidden = !opts.length;

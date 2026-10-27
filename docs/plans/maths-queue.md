@@ -74,12 +74,16 @@ the web directly). For each course:
    tid in docs/shelves-electrical.json and the live shelves/electrical doc (if_version pinned).
 5. python3 tools/course/tocopy.py <slug> i1,...,i8 --shelf electrical; commit; push to both branches.
 
-### Lessons from the first pair (27 Oct): check these after every build
-- guide.mjs reads a lesson's answers from a global named `S` (the step states) and sets each `still`
-  key with the app's control setter. A body that names a drawing helper `S`, or a `still` that names
-  a non-control (an animation fraction), gives a guide with no example pictures or a crash. Keep
-  only control ids in `still` (the step's end state already sets the rest).
-- A fix stage that appends a source to research.json must give it the next unused n: a duplicate n
-  made assemble drop a lesson ("not one of the supplied research sources").
+### Lessons from the first pair (27 Oct), and what the tools now do about them
+- guide.mjs reads a lesson's answers from a global `S` (the step states) and sets each `still` key with
+  the app's control setter. It now keeps the picture when `S` is not the states (a drawing helper of
+  that name had cost Insulated systems lesson 2 all seven example pictures), and warns, instead of
+  crashing, on a `still` key that is not a control (Batteries lessons 7 and 8).
+- guide.mjs gives no picture for a step that hides its scene (a puzzle about another board than the
+  one drawn), so a review card never shows the wrong circuit.
+- assemble.mjs refuses a research.json with two sources sharing one n, and the workflow's fix stage
+  is told to append with the next unused n (a duplicate had made lesson 5 cite the wrong source).
 - A lesson whose fix round ran out of attempts can be finished by hand, then the run resumed with
   args.fixedByHand: ["iN"].
+- After assembling, look at the DO screens whose picture is not their own subject (another board,
+  another voltage) and at any readout that shows a wrong option's value before the answer.

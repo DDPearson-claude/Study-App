@@ -56,8 +56,8 @@
   #ctls .k-seg, #ctls .k-seg.stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); }
   #ctls .k-seg.stack button { text-align: center; padding-left: 12px; }
   /* Pump running and Test across share one place, so swapping them fades and moves nothing below. */
-  #swap { display: grid; }
-  #swap > div { grid-area: 1 / 1; transition: opacity .3s, visibility .3s; }
+  #swap { display: grid; transition: height .3s; overflow: hidden; }
+  #swap > div { grid-area: 1 / 1; align-self: start; transition: opacity .3s, visibility .3s; }
   #swap > div.off { opacity: 0; visibility: hidden; }
   #outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 10px; }
   .row { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -85,8 +85,8 @@
   #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
   @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
-  html.k-testing #swap > div { transition: none; }
-  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } #swap > div { transition: none; } }
+  html.k-testing #swap, html.k-testing #swap > div { transition: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } #swap, #swap > div { transition: none; } }
 </style>
 
 <div class="pz" id="pz">
@@ -569,6 +569,18 @@
     toolCtl.set(cur.tool, true); pumpCtl.set(cur.pump, true); acrossCtl.set(cur.across, true);
     el('pumpctl').classList.toggle('off', cur.tool === 'dead');
     el('acrossctl').classList.toggle('off', cur.tool !== 'dead');
+    fitSwap();
+  }
+  // The shared place takes the height of the control that shows, so no blank band sits under the
+  // short Pump running toggle; the height slides when they swap. Unmeasured (hidden): its own height.
+  function fitSwap() {
+    const on = el(cur.tool === 'dead' ? 'acrossctl' : 'pumpctl');
+    el('swap').style.height = on.offsetHeight ? on.offsetHeight + 'px' : '';
+  }
+  if (window.ResizeObserver) {
+    // Watch the two controls themselves (their size never depends on the place's), a frame later.
+    const ro = new ResizeObserver(() => requestAnimationFrame(fitSwap));
+    ro.observe(el('pumpctl')); ro.observe(el('acrossctl'));
   }
 
   function paint() {

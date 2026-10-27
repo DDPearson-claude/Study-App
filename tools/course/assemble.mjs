@@ -96,6 +96,10 @@ if (cmd === 'docs') {
   // The research docs, as runResearch writes them: per key, its notes and the sources they cite.
   const ids = (topic.ideas || []).map((i) => i.id);
   const allSources = (research && research.sources) || [];
+  // Notes cite sources by n, so two sources with one n make a lesson's source silently the wrong one
+  // (a fix stage once appended a source with a number already taken).
+  const seenN = {};
+  allSources.forEach((s) => { if (seenN[s.n]) problems.push('research.json: sources ' + seenN[s.n] + ' and ' + s.url + ' share n ' + s.n + '; give the later one the next unused n and update the notes that mean it'); seenN[s.n] = s.url; });
   function researchDoc(notes) {
     const used = {};
     (notes || []).forEach((n) => (n.sourceIds || []).forEach((i) => { used[i] = 1; }));

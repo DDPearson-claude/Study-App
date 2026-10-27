@@ -1,0 +1,207 @@
+{
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Twelve screens: five that show and seven puzzles, alternating to the ninth and ending on three mixed puzzles",
+        "ok": true
+      },
+      {
+        "label": "Isolating circuits one at a time until the reading recovers: with any healthy feeder open the monitor still reads 0 kΩ; with F6 open it recovers to 3,000 ÷ 7 = 429 kΩ, above the 100 × 440 = 44 kΩ alarm line",
+        "ok": true,
+        "source": "https://marineinsight360.com/blogs/ship-earthing-systems-protect-ships"
+      },
+      {
+        "label": "The fault can disappear because the faulty load is switched off: with the pump stopped the monitor reads 3,000 ÷ 8 = 375 kΩ, and 429 kΩ with healthy F3 open, its lamp out",
+        "ok": true,
+        "source": "https://www.benderinc.com/fileadmin/content/BenderGroup/Documents/Article/en/Harbours_and_Vessels_6.12.20_compressed.pdf"
+      },
+      {
+        "label": "At 60 Hz: 440 ÷ 1.732 = 254 V and ω = 377 give 96 mA a line for each µF, 287 mA once the hull shifts; F1 reads 575 mA, each short feeder 14.4 mA, F6 661 mA",
+        "ok": true
+      },
+      {
+        "label": "The earth current of a short faulty feeder is hard to tell from that of a long capacitive feeder: faulty F6 reads only 86 mA more than healthy F1",
+        "ok": true,
+        "source": "https://download.se.com/files?amp&p_Doc_Ref=ECT178"
+      },
+      {
+        "label": "The test pulse flows via the live conductors, the fault and earth back to the device: F6, the sub-board incoming and Pump read 10 mA, every other clamp 0 mA",
+        "ok": true,
+        "source": "https://www.bender.de/en/know-how/technology/it-system/insulation-fault-location-the-concept"
+      },
+      {
+        "label": "With the fault off the system (the pump stopped, or F6 open), every clamp reads 0 mA at 60 Hz and with the pulse, and no pulse path is drawn",
+        "ok": true
+      },
+      {
+        "label": "With the solid fault on F1 instead, F1 reads the other seven feeders' 7 × 0.05 = 0.35 µF a line × 287 = 101 mA, and each short feeder 14.4 mA",
+        "ok": true
+      },
+      {
+        "label": "Insulation resistance is measured at a DC voltage of at least 500 V: at 500 V the whole circuit and the motor read 0.00 MΩ, the cable over 200 MΩ, with the pump circuit off the system",
+        "ok": true,
+        "source": "http://www.iqytechnicalcollege.com/gl_i-1-3_e.pdf"
+      },
+      {
+        "label": "Partial faults, from paths in parallel: 20 kΩ beside seven 3 MΩ feeders reads 19.1 kΩ, 19.2 kΩ with F3 open; 15 kΩ beside four 1 MΩ feeders (250 kΩ) reads 14.2 kΩ, beside three (333 kΩ) 14.4 kΩ",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, no puzzle's picture shows its result",
+        "ok": true
+      },
+      {
+        "label": "The dead-test sorter takes only the right order: isolate, prove dead, disconnect the electronics, test, then split",
+        "ok": true
+      },
+      {
+        "label": "Each demonstration settles within 5 s of its screen opening, and opening F6 lifts the needle past the alarm line within 1 s",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step",
+      "tool",
+      "pump",
+      "across"
+    ],
+    "readouts": [
+      "mon",
+      "tst"
+    ],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Screen",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Open one at a time",
+          "A jump, not a nudge",
+          "The fault that vanished",
+          "Recovered, then healthy",
+          "A clamp on every feeder",
+          "The biggest reading",
+          "The slow pulse",
+          "Down to the circuit",
+          "Test it dead",
+          "What the monitor cannot see",
+          "The dead test in order",
+          "A fault on the long feeder"
+        ],
+        "value": 0
+      },
+      {
+        "id": "tool",
+        "kind": "choice",
+        "label": "Tool",
+        "options": [
+          "open",
+          "clamp",
+          "inject",
+          "dead"
+        ],
+        "labels": [
+          "Open feeders",
+          "Clamp at 60 Hz",
+          "Inject and clamp",
+          "Test dead"
+        ],
+        "value": "open",
+        "index": 0,
+        "shown": true
+      },
+      {
+        "id": "pump",
+        "kind": "toggle",
+        "label": "Pump running",
+        "options": [
+          false,
+          true
+        ],
+        "value": true,
+        "shown": true
+      },
+      {
+        "id": "across",
+        "kind": "choice",
+        "label": "Test across",
+        "options": [
+          "whole",
+          "cable",
+          "motor"
+        ],
+        "labels": [
+          "Whole circuit",
+          "Cable only",
+          "Motor only"
+        ],
+        "value": "whole",
+        "index": 0,
+        "shown": true
+      }
+    ],
+    "actions": [
+      "Replay",
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Back",
+      "Continue",
+      "Start again",
+      "The hunt"
+    ],
+    "answers": [],
+    "written": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ]
+  },
+  "moved": [
+    "step = 1",
+    "tool = \"clamp\"",
+    "pump = false",
+    "across = \"cable\"",
+    "pressed \"Replay\""
+  ],
+  "shots": [
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-360-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-360-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-360-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-360-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-360-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-360-dark-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-1280-light.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-1280-light-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-1280-light-end.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-1280-dark.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-1280-dark-moved.png",
+    "/home/user/Study-App/build/electrical/insulated-systems/i7.a18-1280-dark-end.png"
+  ]
+}
