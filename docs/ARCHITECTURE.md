@@ -314,6 +314,10 @@ research one (section 7), the lesson screen shows "Coming soon" for a lesson who
 or not ready, and the topic page hides Learn it again and Rebuild. Learn leaves these topics out
 of its list and Continue; he resumes them from the shelf's folder page, which shows where he is
 ("Lesson 2 of 8", "Finished") from his progress. Absent on every topic he made himself.
+A shelf doc, any folder in it or any course in a folder may carry `hidden: true` (Dan, 27 Oct): it
+stays in the db and is simply not shown (`U.shelves.folders`, `courses` and `order` leave it out,
+and a hidden shelf's page says it is not here), so unhiding is one write. Built courses are never
+hidden, so Continue and the left-open row still find them.
 `intake` is the few questions Claude asked about what he typed before planning (`U.gen.intake`,
 section 7) with his answers, saved at creation (`U.prompts.cleanIntake`: ids q1…, an "Other" option
 folded into `other: true`, only listed options picked, one unless `multi`, his own words at most 300

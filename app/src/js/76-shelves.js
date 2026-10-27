@@ -13,12 +13,15 @@
   function arr(x) { return Array.isArray(x) ? x : []; }
   function isObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
   function str(x) { return typeof x === 'string' ? x.trim() : ''; }
-  // Only what can be shown and linked to safely: ids the router accepts, plain text.
+  // Only what can be shown and linked to safely: ids the router accepts, plain text. A shelf,
+  // folder or course marked hidden: true stays in the db but is not shown (Dan, 27 Oct: "Hide
+  // everyday maths, computer science and any other folders we aren't immediately using").
+  function shown(x) { return isObj(x) && x.hidden !== true; }
   function folders(shelf) {
-    return arr(shelf && shelf.folders).filter(function (f) { return isObj(f) && U.validId(f.id) && str(f.title); });
+    return arr(shelf && shelf.folders).filter(function (f) { return shown(f) && U.validId(f.id) && str(f.title); });
   }
   function courses(folder) {
-    return arr(folder && folder.courses).filter(function (c) { return isObj(c) && str(c.title); });
+    return arr(folder && folder.courses).filter(function (c) { return shown(c) && str(c.title); });
   }
   function built(c) { return U.validId(c.tid) ? c.tid : null; }
   function counts(list) {
@@ -26,7 +29,7 @@
     return (n === 1 ? '1 course' : n + ' courses') + ' · ' + (b === 0 ? 'none built yet' : b === n ? 'all built' : b + ' built');
   }
   function allCourses(shelf) { return folders(shelf).reduce(function (a, f) { return a.concat(courses(f)); }, []); }
-  function order(list) { return list.slice().sort(function (a, b) { return (Number(a.order) || 99) - (Number(b.order) || 99) || String(a.title).localeCompare(String(b.title)); }); }
+  function order(list) { return list.filter(shown).sort(function (a, b) { return (Number(a.order) || 99) - (Number(b.order) || 99) || String(a.title).localeCompare(String(b.title)); }); }
   // A shelf or folder card in its colour (V.toneOf, from its title): the icon tile and a band at
   // its left edge (70-views.css). A course row takes its topic's own colour once that is read.
   function card(href, title, blurb, meta) {
@@ -69,7 +72,7 @@
     ctx.view.appendChild(box);
     U.store.shelves.get(sid).then(function (shelf) {
       if (!ctx.alive()) return;
-      if (!shelf || !folders(shelf).length) {
+      if (!shown(shelf) || !folders(shelf).length) {
         U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/', label: 'Your library' } }));
         return;
       }

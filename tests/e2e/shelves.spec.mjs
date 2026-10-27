@@ -30,10 +30,15 @@ const SHELF = {
   folders: [
     { id: 'foundations', title: 'Foundational maths', blurb: 'The building blocks.', courses: [
       { id: 'fractions', title: 'Fractions', blurb: 'What a fraction really is.', tid: 'how-tides-work-ab12' },
-      { id: 'negative-numbers', title: 'Negative numbers', blurb: 'Numbers below zero.', tid: null }] },
+      { id: 'negative-numbers', title: 'Negative numbers', blurb: 'Numbers below zero.', tid: null },
+      // Hidden (Dan, 27 Oct): kept in the db, never shown or counted.
+      { id: 'percentages', title: 'Percentages', blurb: 'Parts of a hundred.', tid: null, hidden: true }] },
     { id: 'algebra', title: 'Algebra', blurb: 'Patterns and rules.', courses: [{ id: 'visual-algebra', title: 'Visual algebra', blurb: 'Spot the rule.', tid: null }] },
+    { id: 'puzzles', title: 'Puzzles', blurb: 'For fun.', hidden: true, courses: [{ id: 'logic', title: 'Logic', tid: null }] },
   ],
 };
+// A hidden shelf: not on the home, and its page says it is not here.
+const HIDDEN = { v: 1, title: 'Computer science', order: 3, hidden: true, folders: [{ id: 'python', title: 'Python', courses: [{ id: 'thinking-in-python', title: 'Thinking in Python', tid: null }] }] };
 // A shelf with nothing built yet: folded away on the home.
 const LATER = { v: 1, title: 'Science and technology', order: 2, blurb: 'Physics, astronomy and how things work.', folders: [
   { id: 'physics', title: 'Physics', courses: [{ id: 'forces', title: 'Forces', tid: null }, { id: 'waves', title: 'Waves', tid: null }] }] };
@@ -61,7 +66,7 @@ MADE['topics/how-tides-work-ab12/lessons/i3'] = { status: 'ready', updatedAt: '2
 const PUZZLE = { ...CARD('i1_x1', '2026-10-02'), id: 'i1_x1', type: 'puzzle', spec: { q: 'How many high tides do most coasts get in a day?', answer: '2', why: 'Two bulges.', input: 'typed', page: 0 } };
 MADE[`data/users/${UID}/profile/cards/how-tides-work-ab12`] = { cards: { i1_x1: PUZZLE, i1_c2: CARD('i1_c2', '2026-10-03'), i1_c3: CARD('i1_c3', '2099-01-01') } };
 
-let app = await open({ ...MADE, 'shelves/maths': SHELF, 'shelves/science': LATER });
+let app = await open({ ...MADE, 'shelves/maths': SHELF, 'shelves/science': LATER, 'shelves/cs': HIDDEN });
 const { page } = app;
 await page.waitForSelector('.lib-home .shelf-card');
 // The look-up field, then the rows, then the shelves.
@@ -124,6 +129,12 @@ ok(await page.locator('.shelf-fold').evaluate((d) => d.open), 'a folder with not
 await page.evaluate(() => U.go('#/shelf/maths/nope'));
 await page.waitForSelector('.v-empty');
 ok(/not in Maths any more/.test(await page.locator('.v-empty').innerText()), 'an unknown folder says so');
+await page.evaluate(() => U.go('#/shelf/maths/puzzles'));
+await page.waitForFunction(() => /not in Maths any more/.test((document.querySelector('.v-empty') || {}).textContent || ''));
+ok(true, 'a hidden folder is not here either');
+await page.evaluate(() => U.go('#/shelf/cs'));
+await page.waitForFunction(() => /not here any more/.test((document.querySelector('.v-empty') || {}).textContent || ''));
+ok(true, 'nor is a hidden shelf');
 // Look up: every typed word in a lesson's title or one line; titles first.
 await page.evaluate(() => U.go('#/'));
 await page.waitForSelector('.lib-home .shelf-card');
