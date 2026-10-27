@@ -830,6 +830,9 @@ mark.term {
 .qc-typed-unit { font: 700 1.0625rem/1 var(--mono); color: var(--muted); }
 .qc-typed.is-right .qc-typed-input.input { border-color: var(--green); }
 .qc-typed.is-wrong .qc-typed-input.input { border-color: var(--red); }
+/* A problem set's wrong first try (54-problems.js): said in red, the field kept for another go. */
+.qc-typed.is-retry .qc-typed-input.input { border-color: var(--red); }
+.qc-typed.is-retry .qc-typed-msg { color: var(--red); font-weight: 600; }
 .qc-typed-input.input[readonly] { background: var(--sunk); }
 .qc-typed-msg:empty { display: none; }
 .qc-pic { display: flex; flex-direction: column; gap: 6px; }
@@ -1374,6 +1377,30 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 @container view (min-width: 900px) {
   .rd-body > * { width: 100%; max-width: var(--measure); margin-inline: auto; }
 }
+
+/* src/css/54-problems.css */
+/* Problem set (54-problems.js): the read-through's column and head, one puzzle card at a time,
+   then the score and the list. Colour only for meaning: green for a right answer, red for one to
+   look at again. */
+.pb-slot { display: flex; flex-direction: column; gap: 14px; }
+.pb-none { text-align: left; align-items: stretch; }
+.pb-go { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; justify-content: center; }
+.pb-go .btn { flex: 1 1 12rem; min-height: 48px; }
+.pb-end h2 { margin: 0; }
+.pb-list { list-style: none; margin: 8px 0 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.pb-list li { display: grid; grid-template-columns: 1.5rem 1fr; column-gap: 10px; row-gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+.pb-mark { grid-row: span 2; display: inline-flex; width: 1.5rem; height: 1.5rem; margin-top: 1px; }
+.pb-mark svg { width: 100%; height: 100%; }
+.pb-list li.is-right .pb-mark { color: var(--green); }
+.pb-list li.is-wrong { border-color: color-mix(in srgb, var(--red) 35%, transparent); background: var(--red-tint); }
+.pb-list li.is-wrong .pb-mark { color: var(--red); }
+.pb-q { font-size: .9375rem; line-height: 1.45; }
+.pb-n { font-weight: 700; }
+.pb-a { font: 600 .875rem/1.4 var(--mono); color: var(--muted); }
+.pb-list li.is-wrong .pb-a { color: var(--ink); }
+/* The course page's link to a finished lesson's problems (71-topic.js), beside "or just read it through". */
+.pnode-alt .pnode-problems { color: var(--ink); }
+.pnode-sep { color: var(--muted); }
 
 /* src/css/70-views.css */
 /* Views: Learn (home), topic page, Map, Book, reading settings and the boot notice.
@@ -2910,7 +2937,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-27-d371bbf";
+U.BUILD = "2026-10-27-98e7784";
 // ---------- switches ----------
 // U.flags.puzzleBox: the puzzle box (60-today.js): Today's box, review sessions (#/review), the
 // Library's and a course page's puzzle rows, the finish screen's puzzle line, the daily review
@@ -10281,10 +10308,10 @@ U.interactive = (function () {
     var mode = opts.mode === 'review' ? 'review' : 'lesson';
     var spec = card.spec || {};
     var type = card.type || spec.type;
-    var el = h('section', { class: 'qc qc-' + mode + ' qc-type-' + type, 'aria-label': KIND[type] || 'Question' });
+    var el = h('section', { class: 'qc qc-' + mode + ' qc-type-' + type, 'aria-label': opts.kind || KIND[type] || 'Question' });
     var body = h('div', { class: 'qc-body' });
     var foot = h('div', { class: 'qc-foot' });
-    el.appendChild(h('p', { class: 'eyebrow qc-kind' }, KIND[type] || 'Quick check'));
+    el.appendChild(h('p', { class: 'eyebrow qc-kind' }, opts.kind || KIND[type] || 'Quick check'));
     el.appendChild(inline('h2', 'qc-q', spec.q || spec.prompt || ''));
     el.appendChild(body);
     el.appendChild(foot);
@@ -11086,10 +11113,14 @@ U.interactive = (function () {
     return { value: (m[1] === '-' ? -1 : 1) * parseFloat(digits) };
   }
   // An answer as the guide prints it, when it is a figure: a number and, at most, a unit
-  // ("28.87 A", "1,000,000 mm²", "−3", "0.5 m") -> {value, decimals, unit}; anything else (a
-  // fraction, a power, words, "about 2.8") -> null. decimals: the places shown (the course's rounding).
+  // ("28.87 A", "1,000,000 mm²", "−3", "0.5 m", "About 9.26 V") -> {value, decimals, unit, about?};
+  // anything else (a fraction, a power, words) -> null. decimals: the places shown (the course's
+  // rounding); about: the answer said "About" (or roughly, around, ≈), so it was rounded loosely.
+  var ABOUT = /^(?:about|roughly|around|approximately|approx\.?|≈)\s*/i;
   function figureOf(answer) {
     var str = String(answer == null ? '' : answer).replace(/[−‒–—]/g, '-').replace(/[  ]/g, ' ').trim();
+    var about = ABOUT.test(str);
+    if (about) str = str.replace(ABOUT, '');
     var m = /^([+-]?\d[\d ,]*(?:\.\d+)?)\s*([^\s\d][^\s]*)?$/.exec(str);
     if (!m) return null;
     var num = m[1].trim(), unit = m[2] || '';
@@ -11097,10 +11128,12 @@ U.interactive = (function () {
     var r = readTyped(num, '');
     if (r.value == null) return null;
     var decimals = /\.(\d+)$/.test(num) ? num.split('.')[1].length : /^[+-]?\d+,\d{1,2}$/.test(num) ? num.split(',')[1].length : 0;
-    return { value: r.value, decimals: decimals, unit: unit };
+    var f = { value: r.value, decimals: decimals, unit: unit };
+    if (about) f.about = true;
+    return f;
   }
   // -> {state: 'right'|'wrong'|'empty'|'unreadable', value?, unit?}: right within half a unit in
-  // the last decimal the answer shows (the course's rounding).
+  // the last decimal the answer shows (the course's rounding); an "About" answer also within 1%.
   function gradeTyped(text, spec) {
     var f = figureOf(spec && spec.answer);
     if (!f) return { state: 'unreadable' };
@@ -11108,6 +11141,7 @@ U.interactive = (function () {
     if (r.empty) return { state: 'empty' };
     if (r.unreadable) return r.unit ? { state: 'unreadable', unit: true } : { state: 'unreadable' };
     var tol = 0.5 * Math.pow(10, -f.decimals);
+    if (f.about) tol = Math.max(tol, 0.01 * Math.abs(f.value));
     return { state: Math.abs(r.value - f.value) <= tol + 1e-9 * Math.max(1, Math.abs(f.value)) ? 'right' : 'wrong', value: r.value };
   }
   // The worked example's picture once solved (the guide's still step: an SVG as a plain image, or
@@ -11136,8 +11170,10 @@ U.interactive = (function () {
     if (!figureOf(s.answer)) { unavailable(c, 'This puzzle cannot be answered here, so it is skipped.'); return; }
     typed(c);
   }
+  // opts.retries (the problem set, 54-problems.js): wrong answers he may take back before the
+  // working shows ("Not quite. Check your working and try again."); the result says how many tries.
   function typed(c) {
-    var s = c.spec, f = figureOf(s.answer), unit = f.unit;
+    var s = c.spec, f = figureOf(s.answer), unit = f.unit, tries = 0, retries = Math.max(0, Number(c.opts.retries) || 0);
     c.typed = true;
     var msg = h('p', { class: 'qc-typed-msg muted small', id: U.id('qcmsg'), 'aria-live': 'polite' });
     var input = h('input', { class: 'input qc-typed-input', type: 'text', inputmode: 'decimal', enterkeyhint: 'done', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', maxlength: '40',
@@ -11155,6 +11191,14 @@ U.interactive = (function () {
       var r = gradeTyped(input.value, s);
       if (r.state === 'empty') { msg.textContent = 'Type your answer first.'; return; }
       if (r.state === 'unreadable') { msg.textContent = r.unit ? (unit ? 'Type the number in ' + unit + '.' : 'Type just the number.') : 'Type a number, like ' + (f.value < 0 ? '−' : '') + '12.5' + (unit ? ' ' + unit : '') + '.'; return; }
+      tries++;
+      if (r.state === 'wrong' && tries <= retries) {
+        box.classList.add('is-retry');
+        msg.textContent = 'Not quite: ' + input.value.trim() + ' is not it. Check your working and try again.';
+        try { input.select(); } catch (e) { /* not focusable */ }
+        return;
+      }
+      box.classList.remove('is-retry');
       c.locked = true;
       c.answered();
       input.readOnly = true;
@@ -11167,7 +11211,7 @@ U.interactive = (function () {
       parts.push(c.extra());
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
-        parts: parts, grade: autoGrade(c, correct), result: { answer: said },
+        parts: parts, grade: autoGrade(c, correct), result: { answer: said, tries: tries },
         about: { picked: said, answer: String(s.answer) },
       });
     }
@@ -13773,6 +13817,9 @@ U.interactive = (function () {
           // its puzzles are saved, a line says where they went.
           stepsLesson() ? (st.puzzleNote = U.h('p', { class: 'lsn-done-text lsn-puzzles', role: 'status', hidden: !st.puzzleText }, st.puzzleText || ''))
             : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, boxShown ? 'This one was just for reading, so nothing comes back in review.' : 'This one was just for reading.')),
+          // A ready-made steps lesson's problem set (54-problems.js): its figures, worked on paper.
+          stepsLesson() && st.topic.readyMade && U.problems ? U.h('p', { class: 'lsn-again lsn-problems' },
+            U.h('a', { class: 'btn secondary', href: U.problems.href(tid, iid) }, 'Work the problems on paper', U.icon('arrow'))) : null,
           nx
             ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
               go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
@@ -14754,7 +14801,8 @@ U.interactive = (function () {
             U.h('a', { class: 'btn secondary', href: topicHref }, 'Back to the course')))
           : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last lesson in ' + (st.topic.title || 'this course')),
             U.h('a', { class: 'btn lsn-main', href: topicHref }, 'Back to the course')),
-        U.h('p', { class: 'rd-end-alt' }, quizLink('Quiz me through it')));
+        U.h('p', { class: 'rd-end-alt' }, quizLink('Quiz me through it')),
+        U.problems ? U.h('p', { class: 'rd-end-alt' }, U.h('a', { class: 'linkish', href: U.problems.href(tid, iid) }, 'Work the problems on paper')) : null);
       endBox.replaceWith(done);
       endBox = done;
       try { done.focus({ preventScroll: true }); } catch (e) { done.focus(); }
@@ -14763,6 +14811,155 @@ U.interactive = (function () {
     return function () { mounts.forEach(function (m) { try { m.destroy(); } catch (e) { /* gone */ } }); };
   }
   U.routes.add('#/t/:tid/:iid/read', readScreen, { focus: true, title: 'Read-through' });
+})();
+
+// ---- src/js/54-problems.js ----
+// Problem set (#/t/:tid/:iid/problems): a ready-made steps lesson's worked examples whose answer is
+// a figure, to work out with pen and paper (Dan, 27 Oct: "a set of problems I need to work out but I
+// need to type the answer into the app to get a check"). One problem at a time, as a puzzle card
+// (41-cards.js) in lesson mode: the question, his answer typed (the unit optional, the calculator
+// one tap away in the bar), Check. A wrong first answer gets one more go ("Check your working and
+// try again"); then the answer, Claude's why and the solved picture. The end says how many were
+// right first time and lists them, and keeps the score in progress.ideas[iid].problems
+// {at, of, first, right}; the course page shows it. Nothing goes into the review box.
+//
+// The problems are U.review.puzzlesFrom's typed cards (60-today.js): an example whose answer is a
+// figure ("28.87 A", "About 9.26 V"), unless its task names its options ("Which of these…"). An
+// example answered by choosing words or by moving the picture is left out.
+//   U.problems.from(tid, iid, guide, lesson, idea) -> [card]   pure: the typed cards, in guide order
+//   U.problems.href(tid, iid) -> '#/t/<tid>/<iid>/problems'
+(function () {
+  'use strict';
+
+  function str(v) { return typeof v === 'string' ? v : v == null ? '' : String(v); }
+  function href(tid, iid) { return '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid) + '/problems'; }
+
+  function from(tid, iid, guide, lesson, idea) {
+    if (!U.review || typeof U.review.puzzlesFrom !== 'function') return [];
+    var made = U.review.puzzlesFrom(tid, iid, guide, lesson, idea) || {};
+    return Object.keys(made).map(function (k) { return made[k]; })
+      .filter(function (c) { return c && c.type === 'puzzle' && c.spec && c.spec.input === 'typed'; })
+      .sort(function (a, b) { return a.spec.page - b.spec.page; });
+  }
+  // The solved picture for a card, from the guide already read (as 60-today.js's pageFor reads it).
+  function pageOf(guide, card) {
+    var p = guide && Array.isArray(guide.pages) ? guide.pages[card.spec.page] : null;
+    if (!p || p.kind !== 'example' || !(p.svg || p.html)) return null;
+    return { svg: p.svg || null, html: p.html || null, alt: str(p.alt), style: str(guide.style), w: Number(guide.stillW) || 0, h: Number(p.h) || 0 };
+  }
+
+  U.problems = { from: from, href: href };
+  if (!U.routes) return;
+
+  function problemsScreen(params, ctx) {
+    var tid = params.tid, iid = params.iid;
+    var topicHref = '#/t/' + encodeURIComponent(tid), lessonHref = topicHref + '/' + encodeURIComponent(iid);
+    var root = U.h('div', { class: 'lsn rd pb' });
+    ctx.view.appendChild(root);
+    var back = U.lesson && U.lesson.backLink ? U.lesson.backLink(tid) : U.h('a', { class: 'icon-btn lsn-close lsn-back', href: topicHref, 'aria-label': 'Back to the course' }, U.icon('back'));
+    root.appendChild(U.h('div', { class: 'lsn-bar rd-bar' }, back, U.h('span', { class: 'rd-bar-label' }, 'Problems'),
+      U.calcSheet ? U.calcSheet.button('rd-calc') : U.h('span')));
+    var body = U.h('div', { class: 'rd-body pb-body' }, U.h('p', { class: 'muted rd-wait', role: 'status' }, 'Opening the problems…'));
+    root.appendChild(body);
+    var st = { topic: null, idea: null, index: -1, doc: null, guide: null, cards: [], at: 0, done: [], card: null };
+    function alive() { return ctx.alive(); }
+
+    U.rt.ready.then(function () {
+      return Promise.all([U.store.topic.get(tid), U.store.lesson.get(tid, iid), U.readThrough ? U.readThrough.guide(tid, iid) : null]);
+    }).then(function (r) {
+      if (!alive()) return;
+      st.topic = r[0]; st.doc = r[1]; st.guide = r[2];
+      var ideas = st.topic && Array.isArray(st.topic.ideas) ? st.topic.ideas : [];
+      st.index = ideas.map(function (i) { return i.id; }).indexOf(iid);
+      st.idea = st.index >= 0 ? ideas[st.index] : null;
+      // No lesson here at all: the lesson's own address says so as it always does.
+      if (!st.topic || !st.idea) { U.replaceHash(lessonHref); return; }
+      var lesson = st.doc && st.doc.status === 'ready' ? st.doc.lesson : null;
+      st.cards = st.guide && lesson ? from(tid, iid, st.guide, lesson, null) : [];
+      U.setTitle((lesson && lesson.title || st.idea.title) + ' · Problems');
+      start();
+    }).catch(function (e) { if (alive()) U.fail(body, e); });
+
+    function head() {
+      var n = (st.topic.ideas || []).length, title = (st.doc && st.doc.lesson && st.doc.lesson.title) || st.idea.title;
+      return U.h('header', { class: 'lsn-head rd-head' },
+        U.h('p', { class: 'eyebrow lsn-eb is-filled' }, U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Course'), U.h('span', { class: 'lsn-eb-n' }, 'Lesson ' + (st.index + 1) + ' of ' + n)),
+        U.h('h1', { class: 'lsn-title', tabindex: '-1' }, title),
+        st.cards.length
+          ? U.h('p', { class: 'lsn-one pb-lede' }, (st.cards.length === 1 ? 'One problem' : st.cards.length + ' problems') +
+            ' from this lesson. Work each one out on paper, then type your answer. If it is not right, you get one more go before the working shows.')
+          : null);
+    }
+    function start() {
+      st.at = 0; st.done = [];
+      U.clear(body);
+      body.appendChild(head());
+      if (!st.cards.length) {
+        body.appendChild(U.h('section', { class: 'rd-end pb-none' },
+          U.h('p', null, 'This lesson has no problems with a figure to work out. Its questions are answered by choosing words or by moving the picture.'),
+          U.h('div', { class: 'pb-go' },
+            U.h('a', { class: 'btn lsn-main', href: lessonHref }, 'Open the lesson'),
+            U.h('a', { class: 'btn secondary', href: topicHref }, 'Back to the course'))));
+        return;
+      }
+      st.slot = U.h('div', { class: 'pb-slot' });
+      body.appendChild(st.slot);
+      show();
+    }
+    function show() {
+      if (st.card && st.card.destroy) st.card.destroy();
+      var card = st.cards[st.at];
+      var el = U.cards.render(card, { mode: 'lesson', kind: 'Problem ' + (st.at + 1) + ' of ' + st.cards.length, retries: 1, page: pageOf(st.guide, card),
+        onDone: function (res) { answered(card, res || {}); } });
+      st.card = el;
+      U.clear(st.slot);
+      st.slot.appendChild(el);
+      if (st.at > 0) {
+        var q = el.querySelector('.qc-q');
+        if (q) { q.setAttribute('tabindex', '-1'); try { q.focus({ preventScroll: true }); } catch (e) { q.focus(); } }
+        el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }
+    function answered(card, res) {
+      st.done.push({ card: card, correct: res.correct === true, tries: Number(res.tries) || 1, said: str(res.answer) });
+      st.at++;
+      if (st.at < st.cards.length) show(); else end();
+    }
+    function end() {
+      if (st.card && st.card.destroy) st.card.destroy();
+      st.card = null;
+      var of = st.done.length;
+      var first = st.done.filter(function (d) { return d.correct && d.tries === 1; }).length;
+      var right = st.done.filter(function (d) { return d.correct; }).length;
+      var p = { ideas: {} };
+      p.ideas[iid] = { problems: { at: U.now(), of: of, first: first, right: right } };
+      U.store.progress.patch(tid, p).catch(function () { /* the store already told Dan */ });
+      var second = right - first;
+      var sec = U.h('section', { class: 'rd-end pb-end', 'aria-label': 'Problems done', tabindex: '-1' },
+        U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
+        U.h('h2', { class: 'lsn-h' }, first + ' of ' + of + ' right first time'),
+        second || right < of ? U.h('p', { class: 'lsn-done-text' },
+          (second ? second + ' more on the second go. ' : '') + (right < of ? (of - right === 1 ? 'One to look at again.' : (of - right) + ' to look at again.') : '')) : null,
+        U.h('ol', { class: 'pb-list' }, st.done.map(function (d, k) {
+          var ok = d.correct;
+          return U.h('li', { class: ok ? 'is-right' : 'is-wrong' },
+            U.h('span', { class: 'pb-mark', 'aria-hidden': 'true' }, U.icon(ok ? 'tick' : 'close')),
+            U.h('span', { class: 'pb-q' }, U.h('span', { class: 'pb-n' }, 'Problem ' + (k + 1) + ': '), U.inline(U.h('span'), str(d.card.spec.q))),
+            U.h('span', { class: 'pb-a' }, ok ? (d.tries > 1 ? 'Right on the second go: ' : 'Right: ') + str(d.card.spec.answer)
+              : 'You said ' + (d.said || 'nothing') + '. The answer: ' + str(d.card.spec.answer)),
+            U.h('span', { class: 'visually-hidden' }, ok ? ' (right)' : ' (not right)'));
+        })),
+        U.h('div', { class: 'pb-go' },
+          U.h('button', { class: 'btn lsn-main', type: 'button', on: { click: start } }, 'Work them again'),
+          U.h('a', { class: 'btn secondary', href: topicHref }, 'Back to the course')));
+      U.clear(st.slot);
+      st.slot.appendChild(sec);
+      try { sec.focus({ preventScroll: true }); } catch (e) { sec.focus(); }
+      sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    return function () { if (st.card && st.card.destroy) st.card.destroy(); };
+  }
+  U.routes.add('#/t/:tid/:iid/problems', problemsScreen, { focus: true, title: 'Problems' });
 })();
 
 // ---- src/js/60-today.js ----
@@ -17626,7 +17823,17 @@ U.interactive = (function () {
       if (current) return U.h('li', { class: cls }, U.h('div', { class: 'pnode-link pnode-static' }, inner));
       return U.h('li', { class: cls },
         U.h('a', { class: 'pnode-link', href: V.lessonHref(tid, idea.id, null, way), 'data-key': 'idea-' + idea.id, 'aria-label': idea.title + ', ' + kicker + ': ' + WAYS[way] }, inner),
-        U.h('p', { class: 'pnode-alt' }, wayLink(idea, other, 'linkish', 'or ' + WAYS[other].charAt(0).toLowerCase() + WAYS[other].slice(1))));
+        U.h('p', { class: 'pnode-alt' }, wayLink(idea, other, 'linkish', 'or ' + WAYS[other].charAt(0).toLowerCase() + WAYS[other].slice(1)),
+          done ? problemsLink(idea, st) : null));
+    }
+    // A finished lesson's problem set (54-problems.js): its worked examples with a figure for an
+    // answer, worked on paper and typed in; the last score beside it once he has worked them.
+    function problemsLink(idea, st) {
+      if (!U.problems) return null;
+      var pb = st.problems && Number(st.problems.of) > 0 ? st.problems : null;
+      return [U.h('span', { class: 'pnode-sep', 'aria-hidden': 'true' }, ' · '),
+        U.h('a', { class: 'linkish pnode-problems', href: U.problems.href(tid, idea.id), 'data-key': 'problems-' + idea.id },
+          pb ? 'Problems: ' + Number(pb.first) + ' of ' + Number(pb.of) + ' first time' : 'Work the problems')];
     }
     var WAYS = { quiz: 'Quiz me through it', read: 'Just read it through' };
     function wayLink(idea, way, cls, label) {
